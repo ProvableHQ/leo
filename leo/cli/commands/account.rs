@@ -27,6 +27,7 @@ use snarkvm::{
 };
 
 use crossterm::ExecutableCommand;
+use itertools::Itertools;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 use std::{
@@ -50,7 +51,7 @@ pub enum Account {
         #[clap(long)]
         discreet: bool,
         #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
-        network: String,
+        network: NetworkName,
         #[clap(
             short = 'e',
             long,
@@ -70,7 +71,7 @@ pub enum Account {
         #[clap(long)]
         discreet: bool,
         #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
-        network: String,
+        network: NetworkName,
         #[clap(
             short = 'e',
             long,
@@ -81,10 +82,10 @@ pub enum Account {
     },
     /// Sign a message using your Aleo private key.
     Sign {
-        /// Specify the account private key of the node
+        /// Specify the account private key
         #[clap(long = "private-key")]
         private_key: Option<String>,
-        /// Specify the path to a file containing the account private key of the node
+        /// Specify the path to a file containing the account private key
         #[clap(long = "private-key-file")]
         private_key_file: Option<String>,
         /// Message (Aleo value) to sign
@@ -94,7 +95,7 @@ pub enum Account {
         #[clap(short = 'r', long)]
         raw: bool,
         #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
-        network: String,
+        network: NetworkName,
     },
     /// Verify a message from an Aleo address.
     Verify {
@@ -111,7 +112,21 @@ pub enum Account {
         #[clap(short = 'r', long)]
         raw: bool,
         #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
-        network: String,
+        network: NetworkName,
+    },
+    /// Decrupt record ciphertext using your Aleo private key or view key.
+    Decrypt {
+        /// Specify the account key
+        #[clap(short = 'k', help = "Private key or view key to use for decryption")]
+        key: Option<String>,
+        /// Specify the path to a file containing the account private key
+        #[clap(short = 'f', help = "Path to a file containing the private key or view key")]
+        key_file: Option<String>,
+        /// The ciphertext to decrypt
+        #[clap(short = 'c', long)]
+        ciphertext: String,
+        #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
+        network: NetworkName,
     },
 }
 
@@ -131,51 +146,41 @@ impl Command for Account {
         Self: Sized,
     {
         match self {
-            Account::New { seed, write, discreet, network, endpoint } => {
-                // Parse the network.
-                let network: NetworkName = network.parse()?;
-                match network {
-                    NetworkName::TestnetV0 => {
-                        generate_new_account::<TestnetV0>(network, seed, write, discreet, &ctx, endpoint)
-                    }
-                    NetworkName::MainnetV0 => {
-                        #[cfg(feature = "only_testnet")]
-                        panic!("Mainnet chosen with only_testnet feature");
-                        #[cfg(not(feature = "only_testnet"))]
-                        generate_new_account::<MainnetV0>(network, seed, write, discreet, &ctx, endpoint)
-                    }
-                    NetworkName::CanaryV0 => {
-                        #[cfg(feature = "only_testnet")]
-                        panic!("Canary chosen with only_testnet feature");
-                        #[cfg(not(feature = "only_testnet"))]
-                        generate_new_account::<CanaryV0>(network, seed, write, discreet, &ctx, endpoint)
-                    }
-                }?
-            }
-            Account::Import { private_key, write, discreet, network, endpoint } => {
-                // Parse the network.
-                let network: NetworkName = network.parse()?;
-                match network {
-                    NetworkName::TestnetV0 => {
-                        import_account::<TestnetV0>(network, private_key, write, discreet, &ctx, endpoint)
-                    }
-                    NetworkName::MainnetV0 => {
-                        #[cfg(feature = "only_testnet")]
-                        panic!("Mainnet chosen with only_testnet feature");
-                        #[cfg(not(feature = "only_testnet"))]
-                        import_account::<MainnetV0>(network, private_key, write, discreet, &ctx, endpoint)
-                    }
-                    NetworkName::CanaryV0 => {
-                        #[cfg(feature = "only_testnet")]
-                        panic!("Canary chosen with only_testnet feature");
-                        #[cfg(not(feature = "only_testnet"))]
-                        import_account::<CanaryV0>(network, private_key, write, discreet, &ctx, endpoint)
-                    }
-                }?
-            }
+            Account::New { seed, write, discreet, network, endpoint } => match network {
+                NetworkName::TestnetV0 => {
+                    generate_new_account::<TestnetV0>(network, seed, write, discreet, &ctx, endpoint)
+                }
+                NetworkName::MainnetV0 => {
+                    #[cfg(feature = "only_testnet")]
+                    panic!("Mainnet chosen with only_testnet feature");
+                    #[cfg(not(feature = "only_testnet"))]
+                    generate_new_account::<MainnetV0>(network, seed, write, discreet, &ctx, endpoint)
+                }
+                NetworkName::CanaryV0 => {
+                    #[cfg(feature = "only_testnet")]
+                    panic!("Canary chosen with only_testnet feature");
+                    #[cfg(not(feature = "only_testnet"))]
+                    generate_new_account::<CanaryV0>(network, seed, write, discreet, &ctx, endpoint)
+                }
+            }?,
+            Account::Import { private_key, write, discreet, network, endpoint } => match network {
+                NetworkName::TestnetV0 => {
+                    import_account::<TestnetV0>(network, private_key, write, discreet, &ctx, endpoint)
+                }
+                NetworkName::MainnetV0 => {
+                    #[cfg(feature = "only_testnet")]
+                    panic!("Mainnet chosen with only_testnet feature");
+                    #[cfg(not(feature = "only_testnet"))]
+                    import_account::<MainnetV0>(network, private_key, write, discreet, &ctx, endpoint)
+                }
+                NetworkName::CanaryV0 => {
+                    #[cfg(feature = "only_testnet")]
+                    panic!("Canary chosen with only_testnet feature");
+                    #[cfg(not(feature = "only_testnet"))]
+                    import_account::<CanaryV0>(network, private_key, write, discreet, &ctx, endpoint)
+                }
+            }?,
             Self::Sign { message, raw, private_key, private_key_file, network } => {
-                // Parse the network.
-                let network: NetworkName = network.parse()?;
                 let result = match network {
                     NetworkName::TestnetV0 => sign_message::<TestnetV0>(message, raw, private_key, private_key_file),
                     NetworkName::MainnetV0 => {
@@ -194,8 +199,6 @@ impl Command for Account {
                 println!("{result}")
             }
             Self::Verify { address, signature, message, raw, network } => {
-                // Parse the network.
-                let network: NetworkName = network.parse()?;
                 let result = match network {
                     NetworkName::TestnetV0 => verify_message::<TestnetV0>(address, signature, message, raw),
                     NetworkName::MainnetV0 => {
@@ -209,6 +212,24 @@ impl Command for Account {
                         panic!("Canary chosen with only_testnet feature");
                         #[cfg(not(feature = "only_testnet"))]
                         verify_message::<CanaryV0>(address, signature, message, raw)
+                    }
+                }?;
+                println!("{result}")
+            }
+            Self::Decrypt { key, key_file, ciphertext, network } => {
+                let result = match network {
+                    NetworkName::TestnetV0 => decrypt_ciphertext::<TestnetV0>(key, key_file, &ciphertext),
+                    NetworkName::MainnetV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Mainnet chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        decrypt_ciphertext::<MainnetV0>(key, key_file, &ciphertext)
+                    }
+                    NetworkName::CanaryV0 => {
+                        #[cfg(feature = "only_testnet")]
+                        panic!("Canary chosen with only_testnet feature");
+                        #[cfg(not(feature = "only_testnet"))]
+                        decrypt_ciphertext::<CanaryV0>(key, key_file, &ciphertext)
                     }
                 }?;
                 println!("{result}")
@@ -314,31 +335,14 @@ pub(crate) fn sign_message<N: Network>(
     private_key: Option<String>,
     private_key_file: Option<String>,
 ) -> Result<String> {
-    let private_key = match (private_key, private_key_file) {
-        (Some(private_key), None) => PrivateKey::<N>::from_str(private_key.trim())
-            .map_err(|e| CliError::cli_invalid_input(format!("could not parse private key: {e}")))?,
-        (None, Some(private_key_file)) => {
-            let path = private_key_file
-                .parse::<PathBuf>()
-                .map_err(|e| CliError::cli_invalid_input(format!("invalid path - {e}")))?;
-            let key_str = std::fs::read_to_string(path).map_err(UtilError::failed_to_read_file)?;
-            PrivateKey::<N>::from_str(key_str.trim())
-                .map_err(|e| CliError::cli_invalid_input(format!("could not parse private key: {e}")))?
-        }
-        (None, None) => {
-            // Attempt to pull private key from env, then .env file
-            match dotenvy::var("PRIVATE_KEY") {
-                Ok(key) => PrivateKey::<N>::from_str(key.trim())
-                    .map_err(|e| CliError::cli_invalid_input(format!("could not parse private key: {e}")))?,
-                Err(_) => Err(CliError::cli_invalid_input(
-                    "missing the '--private-key', '--private-key-file', PRIVATE_KEY env, or .env",
-                ))?,
-            }
-        }
-        (Some(_), Some(_)) => {
-            Err(CliError::cli_invalid_input("cannot specify both the '--private-key' and '--private-key-file' flags"))?
-        }
-    };
+    // Get the private key string.
+    let private_key_string = get_key_string(private_key, private_key_file, &["PRIVATE_KEY"])?;
+
+    // Parse the private key.
+    let private_key_string = private_key_string.trim();
+    let private_key = PrivateKey::<N>::from_str(private_key_string)
+        .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid private key"))?;
+
     // Sample a random field element.
     let mut rng = ChaChaRng::from_entropy();
 
@@ -387,6 +391,71 @@ pub(crate) fn verify_message<N: Network>(
     }
 }
 
+// Decrypt a record ciphertext using a private key or view key.
+pub(crate) fn decrypt_ciphertext<N: Network>(
+    key: Option<String>,
+    key_file: Option<String>,
+    ciphertext: &str,
+) -> Result<String> {
+    // Get the key string.
+    let key_string = get_key_string(key, key_file, &["PRIVATE_KEY", "VIEW_KEY"])?;
+
+    // Parse the key.
+    let key_string = key_string.trim();
+    let view_key = if key_string.starts_with("APrivateKey1") {
+        // If the key starts with "APrivateKey1", treat it as a private key.
+        let private_key = PrivateKey::<N>::from_str(key_string)
+            .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid private key"))?;
+        // Convert the private key to a view key.
+        ViewKey::<N>::try_from(&private_key)
+            .map_err(|_| CliError::cli_invalid_input("Failed to convert private key to view key"))?
+    } else if key_string.starts_with("AViewKey1") {
+        // If the key starts with "AViewKey1", treat it as a view key.
+        ViewKey::<N>::from_str(key_string)
+            .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid view key"))?
+    } else {
+        // If the key is neither, return an error.
+        Err(CliError::cli_invalid_input("Invalid key format. Expected a private or view key."))?
+    };
+
+    // Parse the ciphertext as record ciphertext.
+    let record_ciphertext = Record::<N, Ciphertext<N>>::from_str(ciphertext)
+        .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid record ciphertext"))?;
+
+    // Decrypt the record.
+    let decrypted_value = record_ciphertext
+        .decrypt(&view_key)
+        .map_err(|_| CliError::cli_runtime_error("Failed to decrypt the record ciphertext"))?;
+
+    // Return the decrypted value as a string.
+    Ok(decrypted_value.to_string())
+}
+
+// A helper function to get the key string from the environment or file.
+fn get_key_string(key: Option<String>, key_file: Option<String>, env_vars: &[&'static str]) -> Result<String> {
+    match (key, key_file) {
+        (Some(key), None) => Ok(key),
+        (None, Some(key_file)) => {
+            let path =
+                key_file.parse::<PathBuf>().map_err(|e| CliError::cli_invalid_input(format!("Invalid path - {e}")))?;
+            std::fs::read_to_string(path).map_err(|e| UtilError::failed_to_read_file(e).into())
+        }
+        (None, None) => {
+            // Attempt to pull any of the environment variables
+            env_vars.iter().find_map(|&var| dotenvy::var(var).ok()).ok_or_else(|| {
+                CliError::cli_invalid_input(format!(
+                    "Missing the '--key', '--key-file', or the following environment variables: '{}'",
+                    env_vars.iter().format(",")
+                ))
+                .into()
+            })
+        }
+        (Some(_), Some(_)) => {
+            Err(CliError::cli_invalid_input("Cannot specify both the '--key' and '--key-file' flags").into())
+        }
+    }
+}
+
 // Write the network and private key to the .env file in project directory.
 fn write_to_env_file<N: Network>(
     network: NetworkName,
@@ -425,7 +494,26 @@ fn wait_for_keypress() {
 
 #[cfg(test)]
 mod tests {
-    use super::{sign_message, verify_message};
+    use super::{decrypt_ciphertext, sign_message, verify_message};
+    use snarkvm::{
+        prelude::{
+            Address,
+            Identifier,
+            Network,
+            Plaintext,
+            PrivateKey,
+            Process,
+            ProgramID,
+            Record,
+            Scalar,
+            TestRng,
+            U8,
+            Uniform,
+            ViewKey,
+        },
+        synthesizer::program::StackTrait,
+    };
+    use std::str::FromStr;
 
     type CurrentNetwork = snarkvm::prelude::MainnetV0;
 
@@ -498,5 +586,45 @@ mod tests {
         let signature = "sign1t9v2t5tljk8pr5t6vkcqgkus0a3v69vryxmfrtwrwg0xtj7yv5qj2nz59e5zcyl50w23lhntxvt6vzeqfyu6dt56698zvfj2l6lz6q0esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk8rh9kt".to_string();
         let message = "10field".to_string();
         assert!(verify_message::<CurrentNetwork>(address, signature, message, false).is_ok());
+    }
+
+    #[test]
+    fn test_decrypt() -> anyhow::Result<()> {
+        // Initialize an RNG.
+        let mut rng = &mut TestRng::default();
+
+        // Test decryption with a private key
+        let private_key =
+            PrivateKey::<CurrentNetwork>::from_str("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")?;
+        let private_key_string = private_key.to_string();
+        let view_key = ViewKey::<CurrentNetwork>::try_from(&private_key)?;
+        let view_key_string = view_key.to_string();
+        let address = Address::<CurrentNetwork>::try_from(&view_key)?;
+
+        // Create a random record.
+        let process = Process::<CurrentNetwork>::load()?;
+        let stack = process.get_stack(ProgramID::from_str("credits.aleo")?)?;
+        let randomizer = Scalar::<CurrentNetwork>::rand(rng);
+        let nonce = CurrentNetwork::g_scalar_multiply(&randomizer);
+        let record = stack.sample_record(&address, &Identifier::from_str("credits").unwrap(), nonce, &mut rng)?;
+        let record = Record::<CurrentNetwork, Plaintext<CurrentNetwork>>::from_plaintext(
+            record.owner().clone(),
+            record.data().clone(),
+            nonce,
+            U8::new(u8::rand(rng) % 2),
+        )?;
+        let record_string = record.to_string();
+        let ciphertext = record.encrypt(randomizer)?;
+        let ciphertext_string = ciphertext.to_string();
+
+        // Test decryption with the private key
+        let candidate = decrypt_ciphertext::<CurrentNetwork>(Some(private_key_string), None, &ciphertext_string)?;
+        assert_eq!(candidate, record_string);
+
+        // Test decryption with a view key
+        let candidate = decrypt_ciphertext::<CurrentNetwork>(Some(view_key_string), None, &ciphertext_string)?;
+        assert_eq!(candidate, record_string);
+
+        Ok(())
     }
 }

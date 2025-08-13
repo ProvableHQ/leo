@@ -23,7 +23,10 @@ use snarkvm::cli::Run as SnarkVMRun;
 pub struct LeoRun {
     #[clap(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     pub(crate) name: String,
-    #[clap(name = "INPUTS", help = "The inputs to the program.")]
+    #[clap(
+        name = "INPUTS",
+        help = "The program inputs e.g. `1u32` or `{ owner: ...}`. This cannot handle record ciphertexts (yet). "
+    )]
     pub(crate) inputs: Vec<String>,
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,

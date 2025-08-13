@@ -36,7 +36,6 @@ use snarkvm::{
         Identifier,
         ProgramID,
         VM,
-        Value,
         execution_cost_v1,
         execution_cost_v2,
         query::Query as SnarkVMQuery,
@@ -56,7 +55,10 @@ pub struct LeoExecute {
         default_value = "main"
     )]
     name: String,
-    #[clap(name = "INPUTS", help = "The inputs to the program.")]
+    #[clap(
+        name = "INPUTS",
+        help = "The program inputs e.g. `1u32`, `record1...` (record ciphertext), or `{ owner: ...}` "
+    )]
     inputs: Vec<String>,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
@@ -265,13 +267,8 @@ fn handle_execute<A: Aleo>(
         }
     }
 
-    let inputs = command
-        .inputs
-        .into_iter()
-        .map(|input| {
-            Value::from_str(&input).map_err(|e| CliError::custom(format!("Failed to parse input: {e}")).into())
-        })
-        .collect::<Result<Vec<_>>>()?;
+    let inputs =
+        command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
 
     // Get the first fee option.
     let (_, priority_fee, record) =
