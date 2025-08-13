@@ -155,7 +155,10 @@ impl FunctionStub {
                 ValueType::Record(id) => vec![Output {
                     mode: Mode::None,
                     type_: Type::Composite(CompositeType {
-                        path: Path::from(id),
+                        path: {
+                            let ident = Identifier::from(id);
+                            Path::from(ident).with_absolute_path(vec![ident.name])
+                        },
                         const_arguments: Vec::new(),
                         program: Some(program),
                     }),
@@ -168,7 +171,10 @@ impl FunctionStub {
                         span: Default::default(),
                         id: Default::default(),
                         type_: Type::Composite(CompositeType {
-                            path: Path::from(loc.resource()),
+                            path: {
+                                let ident = Identifier::from(loc.resource());
+                                Path::from(ident).with_absolute_path(vec![ident.name])
+                            },
                             const_arguments: Vec::new(),
                             program: Some(ProgramId::from(loc.program_id()).name.name),
                         }),
@@ -233,7 +239,10 @@ impl FunctionStub {
                             identifier: arg_name,
                             mode: Mode::None,
                             type_: Type::Composite(CompositeType {
-                                path: Path::from(id),
+                                path: {
+                                    let ident = Identifier::from(id);
+                                    Path::from(ident).with_absolute_path(vec![ident.name])
+                                },
                                 const_arguments: Vec::new(),
                                 program: Some(program),
                             }),
@@ -246,7 +255,10 @@ impl FunctionStub {
                             span: Default::default(),
                             id: Default::default(),
                             type_: Type::Composite(CompositeType {
-                                path: Path::from(loc.resource()),
+                                path: {
+                                    let ident = Identifier::from(loc.resource());
+                                    Path::from(ident).with_absolute_path(vec![ident.name])
+                                },
                                 const_arguments: Vec::new(),
                                 program: Some(ProgramId::from(loc.program_id()).name.name),
                             }),

@@ -94,17 +94,21 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             Type::Composite(if_true_type) => {
                 // Get the struct definitions.
                 let program = if_true_type.program.unwrap_or(self.program);
+                let composite_path = if_true_type.path.clone();
                 let if_true_type = self
                     .state
                     .symbol_table
-                    .lookup_struct(if_true_type.path.absolute_path())
+                    .lookup_struct(composite_path.absolute_path())
                     .or_else(|| {
-                        self.state.symbol_table.lookup_record(&Location::new(program, if_true_type.path.symbols()))
+                        self.state
+                            .symbol_table
+                            .lookup_record(&Location::new(program, composite_path.absolute_path().to_vec()))
                     })
                     .expect("This definition should exist")
                     .clone();
 
                 self.ternary_struct(
+                    &composite_path,
                     &if_true_type,
                     &input.condition,
                     &as_identifier(input.if_true),

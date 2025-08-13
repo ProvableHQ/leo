@@ -88,6 +88,8 @@ impl<N: Network> From<&IdentifierCore<N>> for Identifier {
 }
 
 // Converts an `Identifier` to a `Path` expression
+// Note that this sets the `absolute_path` field in `Path` to `None`.
+// It's up to the caller of this method to figure out what to do `absolute_path`.
 impl From<Identifier> for Expression {
     fn from(value: Identifier) -> Self {
         Expression::Path(crate::Path::from(value))
@@ -95,8 +97,10 @@ impl From<Identifier> for Expression {
 }
 
 // Converts an `Identifier` to a `Path`
+// Note that this sets the `absolute_path` field in `Path` to `None`.
+// It's up to the caller of this method to figure out what to do `absolute_path`.
 impl From<Identifier> for Path {
     fn from(value: Identifier) -> Self {
-        Path { segments: vec![value], absolute_path: Some(vec![value.name]), span: value.span, id: value.id }
+        Path { segments: vec![value], absolute_path: None, span: value.span, id: value.id }
     }
 }

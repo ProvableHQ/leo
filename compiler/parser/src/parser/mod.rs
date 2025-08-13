@@ -55,7 +55,7 @@ pub fn parse(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &SourceFile,
-    modules: &Vec<std::rc::Rc<SourceFile>>,
+    modules: &[std::rc::Rc<SourceFile>],
     network: NetworkName,
 ) -> Result<Program> {
     // === Parse the main source file ===

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, TupleType, common};
+use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, Path, TupleType};
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -144,9 +144,14 @@ impl Type {
                 snarkvm::prelude::LiteralType::Signature => Type::Signature,
                 snarkvm::prelude::LiteralType::String => Type::String,
             },
-            Struct(s) => {
-                Type::Composite(CompositeType { path: common::Path::from(s), const_arguments: Vec::new(), program })
-            }
+            Struct(s) => Type::Composite(CompositeType {
+                path: {
+                    let ident = Identifier::from(s);
+                    Path::from(ident).with_absolute_path(vec![ident.name])
+                },
+                const_arguments: Vec::new(),
+                program,
+            }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }

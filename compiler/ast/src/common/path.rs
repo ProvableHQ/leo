@@ -15,20 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier, Node, NodeID, simple_node_impl};
-use snarkvm::{console::program::Identifier as IdentifierCore, prelude::Network};
 
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt,
-    hash::{Hash, Hasher},
-};
+use std::{fmt, hash::Hash};
 
 /// A Path in a program.
 ///
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Path {
     /// The path that the user wrote, e.g., `foo::bar`.
     pub segments: Vec<Identifier>,
@@ -104,6 +100,12 @@ impl Path {
 
         Path { segments: new_segments, absolute_path: new_absolute_path, span: self.span, id: self.id }
     }
+
+    /// Sets `self.absolute_path` to `absolute_path`
+    pub fn with_absolute_path(mut self, absolute_path: Vec<Symbol>) -> Self {
+        self.absolute_path = Some(absolute_path);
+        self
+    }
 }
 
 impl fmt::Display for Path {
@@ -119,33 +121,6 @@ impl fmt::Debug for Path {
             write!(f, "(::{})", absolute.iter().format("::"))
         } else {
             write!(f, "()")
-        }
-    }
-}
-
-impl PartialEq for Path {
-    fn eq(&self, other: &Self) -> bool {
-        self.segments == other.segments && self.span == other.span
-    }
-}
-
-impl Eq for Path {}
-
-impl Hash for Path {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.segments.hash(state);
-        self.span.hash(state);
-    }
-}
-
-impl<N: Network> From<&IdentifierCore<N>> for Path {
-    fn from(id: &IdentifierCore<N>) -> Self {
-        let id = Identifier::from(id);
-        Self {
-            segments: vec![id],
-            absolute_path: Some(vec![id.name]),
-            span: Default::default(),
-            id: Default::default(),
         }
     }
 }

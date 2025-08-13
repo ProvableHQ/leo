@@ -26,7 +26,6 @@ use leo_span::{Span, Symbol};
 
 use crate::{Module, Stub};
 use indexmap::IndexMap;
-use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -45,10 +44,8 @@ pub struct Program {
 
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for (path, module) in self.modules.iter() {
-            writeln!(f, "module {} {{", path.iter().format("::"))?;
+        for (_, module) in self.modules.iter() {
             writeln!(f, "{module}")?;
-            writeln!(f, "}}")?;
         }
         for (id, _import) in self.imports.iter() {
             writeln!(f, "import {id}.aleo;")?;

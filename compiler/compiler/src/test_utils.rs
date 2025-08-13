@@ -32,7 +32,6 @@ pub const MODULE_DELIMITER: &str = "// --- Next Module:";
 /// The source string is expected to contain sections separated by the `MODULE_DELIMITER`,
 /// each representing either the main source or a named module. The compiler parses each
 /// section and compiles the full program, including any modules.
-///
 pub fn whole_compile(
     source: &str,
     handler: &Handler,

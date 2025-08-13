@@ -14,12 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! A Leo module consists of ...
+//! A Leo module represents a collection of declarations within a single scope,
+//! typically corresponding to a file or logical unit of code. It stores all
+//! relevant definitions associated with a module, including:
+//!
+//! - The name of the program the module belongs to (`program_name`)
+//! - The hierarchical path identifying the module (`path`)
+//! - A list of constant declarations (`consts`)
+//! - A list of struct type definitions (`structs`)
+//! - A list of function definitions (`functions`)
+
 use crate::{Composite, ConstDeclaration, Function, Indent};
 
 use leo_span::Symbol;
-use serde::{Deserialize, Serialize};
+
 use std::fmt;
+
+use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 
 /// Stores the abstract syntax tree of a Leo module.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -38,6 +50,7 @@ pub struct Module {
 
 impl fmt::Display for Module {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "module {} {{", self.path.iter().format("::"))?;
         for (_, const_decl) in self.consts.iter() {
             writeln!(f, "{};", Indent(const_decl))?;
         }
@@ -47,6 +60,6 @@ impl fmt::Display for Module {
         for (_, function) in self.functions.iter() {
             writeln!(f, "{}", Indent(function))?;
         }
-        Ok(())
+        writeln!(f, "}}")
     }
 }

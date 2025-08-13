@@ -1336,7 +1336,19 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
                         // We visit it as an expression rather than just calling `visit_path` so it will get
                         // put into the type table.
-                        self.visit_expression(&Path::from(actual.identifier).into(), &Some(type_.clone()));
+                        self.visit_expression(
+                            &Path::from(actual.identifier)
+                                .with_absolute_path(
+                                    self.scope_state
+                                        .module_name
+                                        .iter()
+                                        .cloned()
+                                        .chain(std::iter::once(actual.identifier.name))
+                                        .collect::<Vec<Symbol>>(),
+                                )
+                                .into(),
+                            &Some(type_.clone()),
+                        );
                     }
                     Some(expr) => {
                         // Otherwise, visit the associated expression.

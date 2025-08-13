@@ -468,6 +468,7 @@ impl FlatteningVisitor<'_> {
 
     pub fn ternary_struct(
         &mut self,
+        struct_path: &Path,
         struct_: &Composite,
         condition: &Expression,
         first: &Identifier,
@@ -508,7 +509,7 @@ impl FlatteningVisitor<'_> {
             .collect();
 
         let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
-            path: Path::from(struct_.identifier),
+            path: struct_path.clone(),
             const_arguments: Vec::new(), // All const arguments should have been resolved by now
             members,
             span: Default::default(),
@@ -519,7 +520,7 @@ impl FlatteningVisitor<'_> {
                 self.state.type_table.insert(
                     id,
                     Type::Composite(CompositeType {
-                        path: struct_.identifier.into(),
+                        path: struct_path.clone(),
                         const_arguments: Vec::new(), // all const generics should have been resolved by now
                         program: struct_.external,
                     }),

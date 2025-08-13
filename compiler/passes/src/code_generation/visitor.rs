@@ -139,17 +139,10 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         // === Case 2: Matches special form like `Name::[3, 4]` ===
-        let special_re = regex::Regex::new(r#"^([a-zA-Z_][\w]*)::\[(.*?)\]$"#).ok();
-        if let Some(re) = special_re {
-            if let Some(captures) = re.captures(&last) {
-                let ident = captures.get(1)?.as_str();
-                return Some(generate_hashed_name(path, ident));
-            }
-        }
-
-        // === Case 3: Last segment is a legal identifier; fallback to hash ===
-        if is_legal_identifier(&last) {
-            return Some(generate_hashed_name(path, &last));
+        let re = regex::Regex::new(r#"^([a-zA-Z_][\w]*)(?:::\[.*?\])?$"#).unwrap();
+        if let Some(captures) = re.captures(&last) {
+            let ident = captures.get(1)?.as_str();
+            return Some(generate_hashed_name(path, ident));
         }
 
         // Last segment is neither legal nor matches special pattern
