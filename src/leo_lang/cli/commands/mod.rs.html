@@ -66,7 +66,7 @@
 <a href=#66 id=66 data-nosnippet>66</a><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#67 id=67 data-nosnippet>67</a><span class="kw">use </span><span class="kw">crate</span>::cli::helpers::context::<span class="kw-2">*</span>;
 <a href=#68 id=68 data-nosnippet>68</a><span class="kw">use </span>leo_errors::{CliError, Handler, PackageError, <span class="prelude-ty">Result</span>};
-<a href=#69 id=69 data-nosnippet>69</a><span class="kw">use </span>snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction};
+<a href=#69 id=69 data-nosnippet>69</a><span class="kw">use </span>snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, Value, ViewKey, block::Transaction};
 <a href=#70 id=70 data-nosnippet>70</a>
 <a href=#71 id=71 data-nosnippet>71</a><span class="kw">use </span>clap::{Args, Parser};
 <a href=#72 id=72 data-nosnippet>72</a><span class="kw">use </span>colored::Colorize;
@@ -137,4 +137,23 @@
 <a href=#137 id=137 data-nosnippet>137</a>    {
 <a href=#138 id=138 data-nosnippet>138</a>        <span class="self">self</span>.execute(context).map(|<span class="kw">_</span>| <span class="prelude-val">Ok</span>(()))<span class="question-mark">?
 <a href=#139 id=139 data-nosnippet>139</a>    </span>}
-<a href=#140 id=140 data-nosnippet>140</a>}</code></pre></div></section></main></body></html>
+<a href=#140 id=140 data-nosnippet>140</a>}
+<a href=#141 id=141 data-nosnippet>141</a>
+<a href=#142 id=142 data-nosnippet>142</a><span class="doccomment">/// A helper function to parse an input string into a `Value`, handling record ciphertexts as well.
+<a href=#143 id=143 data-nosnippet>143</a></span><span class="kw">pub fn </span>parse_input&lt;N: Network&gt;(input: <span class="kw-2">&amp;</span>str, private_key: <span class="kw-2">&amp;</span>PrivateKey&lt;N&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Value&lt;N&gt;&gt; {
+<a href=#144 id=144 data-nosnippet>144</a>    <span class="comment">// Trim whitespace from the input.
+<a href=#145 id=145 data-nosnippet>145</a>    </span><span class="kw">let </span>input = input.trim();
+<a href=#146 id=146 data-nosnippet>146</a>    <span class="comment">// Check if the input is a record ciphertext.
+<a href=#147 id=147 data-nosnippet>147</a>    </span><span class="kw">if </span>input.starts_with(<span class="string">"record1"</span>) {
+<a href=#148 id=148 data-nosnippet>148</a>        <span class="comment">// Get the view key from the private key.
+<a href=#149 id=149 data-nosnippet>149</a>        </span><span class="kw">let </span>view_key = ViewKey::&lt;N&gt;::try_from(private_key)
+<a href=#150 id=150 data-nosnippet>150</a>            .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to view key from the private key: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#151 id=151 data-nosnippet>151</a>        <span class="comment">// Parse the input as a record.
+<a href=#152 id=152 data-nosnippet>152</a>        </span>Record::&lt;N, Ciphertext&lt;N&gt;&gt;::from_str(input)
+<a href=#153 id=153 data-nosnippet>153</a>            .and_then(|ciphertext| ciphertext.decrypt(<span class="kw-2">&amp;</span>view_key))
+<a href=#154 id=154 data-nosnippet>154</a>            .map(Value::Record)
+<a href=#155 id=155 data-nosnippet>155</a>            .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse input as record: {e}"</span>)).into())
+<a href=#156 id=156 data-nosnippet>156</a>    } <span class="kw">else </span>{
+<a href=#157 id=157 data-nosnippet>157</a>        Value::from_str(input).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse input: {e}"</span>)).into())
+<a href=#158 id=158 data-nosnippet>158</a>    }
+<a href=#159 id=159 data-nosnippet>159</a>}</code></pre></div></section></main></body></html>

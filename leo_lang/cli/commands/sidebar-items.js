@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["account","add","build","clean","common","debug","deploy","devnet","execute","new","query","remove","run","test","update","upgrade"],"trait":["Command"]};
+window.SIDEBAR_ITEMS = {"fn":["parse_input"],"mod":["account","add","build","clean","common","debug","deploy","devnet","execute","new","query","remove","run","test","update","upgrade"],"trait":["Command"]};
