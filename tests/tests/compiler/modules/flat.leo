@@ -35,7 +35,8 @@ struct Data::[N: u32] {
 }
 
 inline helper() -> u32 {
-    let d = Data::[X] {
+    const LOCAL_CONST_IN_A_MODULE: u32 = 0;
+    let d = Data::[X + LOCAL_CONST_IN_A_MODULE] {
         values: [1, 2, 3],
     };
     return d.values[0];
