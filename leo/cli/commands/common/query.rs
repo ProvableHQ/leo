@@ -16,12 +16,12 @@
 
 use super::*;
 use crate::cli::query::{LeoBlock, LeoProgram};
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 
 use leo_ast::NetworkName;
 use leo_package::ProgramData;
 use leo_span::Symbol;
-use snarkvm::prelude::{Field, Program, ProgramID, StatePath};
+use snarkvm::prelude::{Field, Itertools, Program, ProgramID, StatePath};
 
 use async_trait::async_trait;
 use indexmap::IndexSet;
@@ -244,6 +244,30 @@ impl<N: Network> CachedQuery<N> {
             state_paths: RefCell::new(HashMap::new()),
             current_block_height: RefCell::new(None),
         }
+    }
+
+    /// Get all state paths.
+    pub fn get_all_state_paths(&self) -> Ref<HashMap<Field<N>, StatePath<N>>> {
+        self.state_paths.borrow()
+    }
+
+    /// Returns whether all state paths have the same global state root.
+    pub fn state_paths_have_same_state_root(&self) -> bool {
+        self.state_paths.borrow().values().map(|state_path| state_path.global_state_root()).all_equal()
+    }
+
+    /// Gets the state paths for a list of commitments.
+    pub fn get_state_paths_for_commitments(
+        &self,
+        commitments: &[Field<N>],
+    ) -> anyhow::Result<HashMap<Field<N>, StatePath<N>>> {
+        let mut state_paths = HashMap::new();
+        for commitment in commitments {
+            // Get the state path for the commitment.
+            let state_path = self.get_state_path_for_commitment(commitment)?;
+            state_paths.insert(*commitment, state_path);
+        }
+        Ok(state_paths)
     }
 
     /// Set the state root cache to a specific value.

@@ -366,3 +366,4 @@ incremental = false
 debug = false
 [dependencies]
 async-trait = "0.1.88"
+futures = "0.3.31"

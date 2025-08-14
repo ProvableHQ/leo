@@ -25,8 +25,6 @@ use snarkvm::prelude::{Execution, Itertools, Network, Program};
 
 use clap::Parser;
 use colored::*;
-use std::{convert::TryFrom, path::PathBuf};
-
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
@@ -45,6 +43,7 @@ use snarkvm::{
         },
     },
 };
+use std::{convert::TryFrom, path::PathBuf};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -306,9 +305,6 @@ fn handle_execute<A: Aleo>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
-    // Specify the query
-    let query = CachedQuery::new(SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint));
-
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
@@ -334,6 +330,29 @@ fn handle_execute<A: Aleo>(
         })
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+
+    // Specify the query
+    let query = CachedQuery::new(SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint));
+
+    // Construct the execution authorization.
+    let authorization = vm.authorize(&private_key, program_id, function_id, inputs.iter(), rng)?;
+    // Get all the record commitments in the authorization.
+    let commitments = authorization
+        .transitions()
+        .values()
+        .flat_map(|transition| transition.records())
+        .map(|(cm, _)| *cm)
+        .unique()
+        .collect::<Vec<_>>();
+
+    // Get all the record state paths.
+    query.get_state_paths_for_commitments(&commitments)?;
+
+    // If all state paths do not share the same state root, then return an error.
+    if !query.state_paths_have_same_state_root() {
+        println!("❌ The record state paths do not share the same state root. Please try again.");
+        return Ok(());
+    }
 
     // Execute the program and produce a transaction.
     let (transaction, response) = vm.execute_with_response(
