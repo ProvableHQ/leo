@@ -278,7 +278,7 @@ fn handle_upgrade<N: Network>(
     println!();
 
     // Specify the query
-    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
+    let query = CachedQuery::new(SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint));
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();

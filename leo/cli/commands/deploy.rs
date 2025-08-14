@@ -255,7 +255,7 @@ fn handle_deploy<N: Network>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
+    let query = CachedQuery::new(SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint));
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();

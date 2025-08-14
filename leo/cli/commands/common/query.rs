@@ -16,13 +16,19 @@
 
 use super::*;
 use crate::cli::query::{LeoBlock, LeoProgram};
+use std::cell::RefCell;
 
 use leo_ast::NetworkName;
 use leo_package::ProgramData;
 use leo_span::Symbol;
-use snarkvm::prelude::{Program, ProgramID};
+use snarkvm::prelude::{Field, Program, ProgramID, StatePath};
 
+use async_trait::async_trait;
 use indexmap::IndexSet;
+use snarkvm::{
+    ledger::{query::Query, store::helpers::memory::BlockMemory},
+    prelude::query::QueryTrait,
+};
 use std::collections::HashMap;
 
 /// A helper function to query the public balance of an address.
@@ -215,4 +221,132 @@ pub fn load_latest_programs_from_network<N: Network>(
         .iter()
         .map(|program_id| programs.remove(program_id).expect("Program not found in cache"))
         .collect())
+}
+
+/// A wrapper around a snarkVM `Query` that caches the results of queries to avoid redundant network requests.
+pub struct CachedQuery<N: Network> {
+    /// The underlying query.
+    query: Query<N, BlockMemory<N>>,
+    /// The cached state root.
+    state_root: RefCell<Option<N::StateRoot>>,
+    /// The cached state paths for commitments.
+    state_paths: RefCell<HashMap<Field<N>, StatePath<N>>>,
+    /// The cached current block height.
+    current_block_height: RefCell<Option<u32>>,
+}
+
+impl<N: Network> CachedQuery<N> {
+    /// Creates a new `CachedQuery` from a `Query`.
+    pub fn new(query: Query<N, BlockMemory<N>>) -> Self {
+        Self {
+            query,
+            state_root: RefCell::new(None),
+            state_paths: RefCell::new(HashMap::new()),
+            current_block_height: RefCell::new(None),
+        }
+    }
+
+    /// Set the state root cache to a specific value.
+    pub fn set_state_root(&self, state_root: N::StateRoot) {
+        *self.state_root.borrow_mut() = Some(state_root);
+    }
+
+    /// Set the state path cache for a specific commitment.
+    pub fn set_state_path_for_commitment(&self, commitment: Field<N>, state_path: StatePath<N>) {
+        self.state_paths.borrow_mut().insert(commitment, state_path);
+    }
+
+    /// Set the current block height cache to a specific value.
+    pub fn set_current_block_height(&self, height: u32) {
+        *self.current_block_height.borrow_mut() = Some(height);
+    }
+
+    /// Clear the cached state root.
+    pub fn clear_state_root(&self) {
+        *self.state_root.borrow_mut() = None;
+    }
+
+    /// Clear the state path cache for a specific commitment.
+    pub fn clear_state_path_for_commitment(&self, commitment: &Field<N>) {
+        self.state_paths.borrow_mut().remove(commitment);
+    }
+
+    /// Clear the state path cache for all commitments.
+    pub fn clear_all_state_paths(&self) {
+        self.state_paths.borrow_mut().clear();
+    }
+
+    /// Clear the current block height cache.
+    pub fn clear_current_block_height(&self) {
+        *self.current_block_height.borrow_mut() = None;
+    }
+}
+
+#[async_trait(?Send)]
+impl<N: Network> QueryTrait<N> for CachedQuery<N> {
+    fn current_state_root(&self) -> anyhow::Result<N::StateRoot> {
+        // Check if the state root is cached.
+        if let Some(state_root) = *self.state_root.borrow() {
+            return Ok(state_root);
+        }
+        // If not cached, query it and cache the result.
+        let state_root = self.query.current_state_root()?;
+        *self.state_root.borrow_mut() = Some(state_root);
+        Ok(state_root)
+    }
+
+    async fn current_state_root_async(&self) -> anyhow::Result<N::StateRoot> {
+        // Check if the state root is cached.
+        if let Some(state_root) = *self.state_root.borrow() {
+            return Ok(state_root);
+        }
+        // If not cached, query it and cache the result.
+        let state_root = self.query.current_state_root_async().await?;
+        *self.state_root.borrow_mut() = Some(state_root);
+        Ok(state_root)
+    }
+
+    fn get_state_path_for_commitment(&self, commitment: &Field<N>) -> anyhow::Result<StatePath<N>> {
+        // Check if the state path for the commitment is cached.
+        if let Some(state_path) = self.state_paths.borrow().get(commitment) {
+            return Ok(state_path.clone());
+        }
+        // If not cached, query it and cache the result.
+        let state_path = self.query.get_state_path_for_commitment(commitment)?;
+        self.state_paths.borrow_mut().insert(*commitment, state_path.clone());
+        Ok(state_path)
+    }
+
+    async fn get_state_path_for_commitment_async(&self, commitment: &Field<N>) -> anyhow::Result<StatePath<N>> {
+        // Check if the state path for the commitment is cached.
+        if let Some(state_path) = self.state_paths.borrow().get(commitment) {
+            return Ok(state_path.clone());
+        }
+        // If not cached, query it and cache the result.
+        let state_path = self.query.get_state_path_for_commitment_async(commitment).await?;
+        self.state_paths.borrow_mut().insert(*commitment, state_path.clone());
+        Ok(state_path)
+    }
+
+    fn current_block_height(&self) -> anyhow::Result<u32> {
+        // Check if the current block height is cached.
+        if let Some(height) = *self.current_block_height.borrow() {
+            return Ok(height);
+        }
+        // If not cached, query it and cache the result.
+        let height = self.query.current_block_height()?;
+        *self.current_block_height.borrow_mut() = Some(height);
+        Ok(height)
+    }
+
+    async fn current_block_height_async(&self) -> anyhow::Result<u32> {
+        // Check if the current block height is cached.
+        if let Some(height) = *self.current_block_height.borrow() {
+            return Ok(height);
+        }
+        // If not cached, query it and cache the result.
+        let height = self.query.current_block_height_async().await?;
+        *self.current_block_height.borrow_mut() = Some(height);
+        Ok(height)
+    }
 }

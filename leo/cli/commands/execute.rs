@@ -307,7 +307,7 @@ fn handle_execute<A: Aleo>(
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint);
+    let query = CachedQuery::new(SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint));
 
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).

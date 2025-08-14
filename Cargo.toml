@@ -365,3 +365,4 @@ inherits = "test"
 incremental = false
 debug = false
 [dependencies]
+async-trait = "0.1.88"
