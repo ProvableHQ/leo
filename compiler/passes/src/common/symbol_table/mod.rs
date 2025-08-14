@@ -108,6 +108,21 @@ impl LocalTable {
 }
 
 impl SymbolTable {
+    /// Reset everything except leave global consts that have been evaluated.
+    pub fn reset_but_consts(&mut self) {
+        self.functions.clear();
+        self.records.clear();
+        self.structs.clear();
+        self.globals.clear();
+        self.all_locals.clear();
+        self.local = None;
+    }
+
+    /// Are we currently in the global scope?
+    pub fn global_scope(&self) -> bool {
+        self.local.is_none()
+    }
+
     /// Iterator over all the structs (not records) in this program.
     pub fn iter_structs(&self) -> impl Iterator<Item = (&Vec<Symbol>, &Composite)> {
         self.structs.iter()

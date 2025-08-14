@@ -481,6 +481,8 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         {
             self.emit_err(TypeCheckerError::missing_async_operation_in_async_transition(function.span));
         }
+
+        self.scope_state.reset();
     }
 
     fn visit_constructor(&mut self, constructor: &Constructor) {
@@ -577,6 +579,8 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         if self.scope_state.already_contains_an_async_block {
             self.emit_err(TypeCheckerError::custom("The constructor cannot have an `async` block.", constructor.span));
         }
+
+        self.scope_state.reset();
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {

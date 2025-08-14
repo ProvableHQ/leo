@@ -1824,21 +1824,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check the expression on the right-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
-        let const_path = self
-            .scope_state
-            .module_name
-            .iter()
-            .cloned()
-            .chain(std::iter::once(input.place.name))
-            .collect::<Vec<Symbol>>();
-
-        // Add constants to symbol table so that any references to them in later statements will pass type checking.
-        if let Err(err) = self.state.symbol_table.insert_variable(
-            self.scope_state.program_name.unwrap(),
-            &const_path,
-            VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
-        ) {
-            self.state.handler.emit_err(err);
+        if self.scope_state.function.is_some() {
+            // Global consts have already been added to the symbol table, so only
+            // add this one if it's local.
+            if let Err(err) = self.state.symbol_table.insert_variable(
+                self.scope_state.program_name.unwrap(),
+                &[input.place.name],
+                VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
+            ) {
+                self.state.handler.emit_err(err);
+            }
         }
     }
 

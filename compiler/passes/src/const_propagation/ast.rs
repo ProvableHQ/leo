@@ -19,7 +19,7 @@ use leo_ast::{
     *,
 };
 use leo_errors::StaticAnalyzerError;
-use leo_span::sym;
+use leo_span::{Symbol, sym};
 
 use super::{ConstPropagationVisitor, value_to_expression};
 
@@ -491,8 +491,20 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (expr, opt_value) = self.reconstruct_expression(input.value);
 
         if opt_value.is_some() {
-            let path = self.module.iter().copied().chain(std::iter::once(input.place.name)).collect::<Vec<_>>();
-            self.state.symbol_table.insert_const(self.program, &path, expr.clone());
+            let path: &[Symbol] = if self.state.symbol_table.global_scope() {
+                // Then we need to insert the const with its full module-scoped path.
+                &self.module.iter().copied().chain(std::iter::once(input.place.name)).collect::<Vec<_>>()
+            } else {
+                &[input.place.name]
+            };
+            if self.state.symbol_table.lookup_const(self.program, path).is_none() {
+                // It wasn't already evaluated - insert it and record that we've made a change.
+                self.state.symbol_table.insert_const(self.program, path, expr.clone());
+                if self.state.symbol_table.global_scope() {
+                    // We made a change in the global scope, so this was a real change.
+                    self.changed = true;
+                }
+            }
         } else {
             self.const_not_evaluated = Some(span);
         }
