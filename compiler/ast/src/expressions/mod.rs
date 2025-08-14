@@ -276,7 +276,7 @@ impl Expression {
         match self {
             Binary(e) => e.precedence(),
             Cast(_) => 12,
-            Ternary(_) => 14,
+            Ternary(_) => 0,
             Array(_)
             | ArrayAccess(_)
             | AssociatedConstant(_)

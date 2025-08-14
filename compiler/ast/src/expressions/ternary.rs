@@ -33,21 +33,15 @@ pub struct TernaryExpression {
 
 impl fmt::Display for TernaryExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.condition.precedence() > 14 {
-            write!(f, "{}", self.condition)?;
-        } else {
-            write!(f, "({})", self.condition)?;
-        }
+        let maybe_paren = |f: &mut fmt::Formatter, expr: &Expression| {
+            if expr.precedence() > 0 { write!(f, "{expr}") } else { write!(f, "({expr})") }
+        };
 
-        write!(f, " ? {} : ", self.if_true)?;
-
-        if self.if_false.precedence() > 14 {
-            write!(f, "{}", self.if_false)?;
-        } else {
-            write!(f, "({})", self.if_false)?;
-        }
-
-        Ok(())
+        maybe_paren(f, &self.condition)?;
+        write!(f, " ? ")?;
+        maybe_paren(f, &self.if_true)?;
+        write!(f, " : ")?;
+        maybe_paren(f, &self.if_false)
     }
 }
 
