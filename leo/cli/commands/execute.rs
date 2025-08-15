@@ -32,6 +32,7 @@ use snarkvm::{
     prelude::{
         ConsensusVersion,
         Identifier,
+        InputID,
         ProgramID,
         VM,
         execution_cost_v1,
@@ -338,10 +339,14 @@ fn handle_execute<A: Aleo>(
     let authorization = vm.authorize(&private_key, program_id, function_id, inputs.iter(), rng)?;
     // Get all the record commitments in the authorization.
     let commitments = authorization
-        .transitions()
-        .values()
-        .flat_map(|transition| transition.records())
-        .map(|(cm, _)| *cm)
+        .to_vec_deque()
+        .iter()
+        .flat_map(|request| {
+            request.input_ids().iter().filter_map(|input| {
+                // If the input is a record, then return its commitment.
+                if let InputID::<A::Network>::Record(cm, ..) = input { Some(*cm) } else { None }
+            })
+        })
         .unique()
         .collect::<Vec<_>>();
 
