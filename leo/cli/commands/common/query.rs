@@ -261,7 +261,6 @@ impl<N: Network> CachedQuery<N> {
         &self,
         commitments: &[Field<N>],
     ) -> anyhow::Result<HashMap<Field<N>, StatePath<N>>> {
-        println!("Fetching state paths for commitments: {:?}", commitments);
         let mut state_paths = HashMap::new();
         for commitment in commitments {
             // Get the state path for the commitment.
