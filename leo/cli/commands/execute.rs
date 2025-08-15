@@ -350,7 +350,9 @@ fn handle_execute<A: Aleo>(
         .collect::<Vec<_>>();
 
     // Get all the record state paths.
-    query.get_state_paths_for_commitments(&commitments)?;
+    if !commitments.is_empty() {
+        query.get_state_paths_for_commitments(&commitments)?;
+    }
 
     // If all state paths do not share the same state root, then return an error.
     if !query.state_paths_have_same_state_root() {
@@ -366,6 +368,7 @@ fn handle_execute<A: Aleo>(
     }
 
     // Execute the program and produce a transaction.
+    println!("🚀 Executing '{program_name}/{function_name}'...");
     let (transaction, response) = vm.execute_with_response(
         &private_key,
         (&program_name, &function_name),
