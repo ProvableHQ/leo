@@ -338,8 +338,8 @@ fn handle_execute<A: Aleo>(
     // Construct the execution authorization.
     let authorization = vm.authorize(&private_key, program_id, function_id, inputs.iter(), rng)?;
     // Get all the record commitments in the authorization.
-    let commitments = authorization
-        .to_vec_deque()
+    let requests = authorization.to_vec_deque();
+    let commitments = requests
         .iter()
         .flat_map(|request| {
             request.input_ids().iter().filter_map(|input| {
@@ -347,7 +347,6 @@ fn handle_execute<A: Aleo>(
                 if let InputID::<A::Network>::Record(cm, ..) = input { Some(*cm) } else { None }
             })
         })
-        .unique()
         .collect::<Vec<_>>();
 
     // Get all the record state paths.
@@ -357,6 +356,13 @@ fn handle_execute<A: Aleo>(
     if !query.state_paths_have_same_state_root() {
         println!("❌ The record state paths do not share the same state root. Please try again.");
         return Ok(());
+    }
+
+    // If a state path exists, set the state root in the query.
+    if let Some((_, state_path)) = query.get_all_state_paths().iter().next() {
+        // Set the state root to the first state path's state root.
+        // This is necessary to ensure that the query is valid.
+        query.set_state_root(state_path.global_state_root());
     }
 
     // Execute the program and produce a transaction.
