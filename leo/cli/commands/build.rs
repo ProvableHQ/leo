@@ -197,6 +197,14 @@ fn compile_leo_file(
     // Compile the Leo program into Aleo instructions.
     let bytecode = compiler.compile_from_file(source_file_path)?;
 
+    // Check program size limit (100KB = 102400 bytes)
+    const MAX_PROGRAM_SIZE: usize = 102400;
+    let program_size = bytecode.len();
+    
+    if program_size > MAX_PROGRAM_SIZE {
+        return Err(UtilError::program_size_limit_exceeded(program_name.to_string(), program_size, MAX_PROGRAM_SIZE));
+    }
+
     // Get the AVM bytecode.
     let checksum: String = match network {
         NetworkName::MainnetV0 => Program::<MainnetV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
