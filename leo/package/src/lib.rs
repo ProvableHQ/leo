@@ -184,6 +184,15 @@ pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkNa
 pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> {
     use snarkvm::prelude::{Program, TestnetV0};
     use std::str::FromStr as _;
+\    
+    // Check program size limit (100KB = 102400 bytes)
+    const MAX_PROGRAM_SIZE: usize = 102400;
+    let program_size = program.len();
+    
+    if program_size > MAX_PROGRAM_SIZE {
+        return Err(UtilError::program_size_limit_exceeded(name, program_size, MAX_PROGRAM_SIZE));
+    }
+    
     match Program::<TestnetV0>::from_str(program) {
         Ok(_) => Ok(()),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name)),
