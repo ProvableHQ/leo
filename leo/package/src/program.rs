@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::*;
+use crate::{MAX_PROGRAM_SIZE, *};
 
 use leo_errors::{PackageError, Result, UtilError};
 use leo_span::Symbol;
@@ -301,6 +301,13 @@ fn parse_dependencies_from_aleo(
     bytecode: &str,
     existing: &IndexMap<Symbol, Dependency>,
 ) -> Result<IndexSet<Dependency>> {
+    // Check if the program size exceeds the maximum allowed limit.
+    let program_size = bytecode.len();
+    
+    if program_size > MAX_PROGRAM_SIZE {
+        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(name.to_string(), program_size, MAX_PROGRAM_SIZE)));
+    }
+    
     // Parse the bytecode into an SVM program.
     let svm_program: SvmProgram<TestnetV0> = bytecode.parse().map_err(|_| UtilError::snarkvm_parsing_error(name))?;
     let dependencies = svm_program
