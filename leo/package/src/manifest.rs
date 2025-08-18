@@ -30,6 +30,8 @@ pub struct Manifest {
     pub version: String,
     pub description: String,
     pub license: String,
+    #[serde(default = "current_version")]
+    pub leo: String,
     pub dependencies: Option<Vec<Dependency>>,
     pub dev_dependencies: Option<Vec<Dependency>>,
 }
@@ -57,4 +59,9 @@ impl Manifest {
         serde_json::from_str(&contents)
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.as_ref().display(), err))
     }
+}
+
+// Returns the current version of Leo.
+fn current_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
 }
