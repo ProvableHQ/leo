@@ -25,7 +25,7 @@ pub struct LeoUpdate {
     list: bool,
     /// Update to a specific named release
     #[clap(short = 'n', long, help = "An optional release name.")]
-    version: Option<String>,
+    name: Option<String>,
     /// Suppress outputs to terminal
     #[clap(short = 'q', long, help = "Suppress download logs.")]
     quiet: bool,
@@ -53,7 +53,7 @@ impl Command for LeoUpdate {
                 Err(error) => tracing::info!("Failed to list the available versions of Leo\n{error}\n"),
             },
             false => {
-                let result = Updater::update(!self.quiet, self.version);
+                let result = Updater::update(!self.quiet, self.name);
                 if !self.quiet {
                     match result {
                         Ok(status) => {

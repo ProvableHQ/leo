@@ -51,7 +51,7 @@ impl Updater {
             .map_err(CliError::could_not_fetch_versions)?;
 
         let mut output = format!(
-            "\nList of available versions for: {}\nUse the quoted name to select specific releases.\n\n",
+            "\nList of available versions for: {}.\nUse the quoted name to select specific releases.\n\n",
             get_target()
         );
         for release in releases {
