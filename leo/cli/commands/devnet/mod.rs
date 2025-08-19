@@ -72,7 +72,7 @@ pub struct LeoDevnet {
     pub(crate) snarkos_features: Vec<String>,
     #[clap(long, help = "Required version for snarkOS (e.g. `4.1.0`). Defaults to latest version on `crates.io`.")]
     pub(crate) snarkos_version: Option<String>,
-    #[clap(long, help = "(Re)install snarkOS at the provided `--snarkos` path with the given `--features`")]
+    #[clap(long, help = "(Re)install snarkOS at the provided `--snarkos` path with the given `--snarkos-features`")]
     pub(crate) install: bool,
     #[clap(
         long,
