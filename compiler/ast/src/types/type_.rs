@@ -87,10 +87,14 @@ impl Type {
             (Type::Array(left), Type::Array(right)) => {
                 // Two arrays are equal if their element types are the same and if their lengths
                 // are the same, assuming the lengths can be extracted as `u32`.
-                left.element_type().eq_flat_relaxed(right.element_type())
-                    && left.length.as_u32().is_some()
-                    && right.length.as_u32().is_some()
-                    && left.length.as_u32() == right.length.as_u32()
+                (match (left.length.as_u32(), right.length.as_u32()) {
+                    (Some(l1), Some(l2)) => l1 == l2,
+                    _ => {
+                        // An array with an undetermined length (e.g., one that depends on a `const`) is considered
+                        // equal to other arrays because their lengths _may_ eventually be proven equal.
+                        true
+                    }
+                }) && left.element_type().eq_flat_relaxed(right.element_type())
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
