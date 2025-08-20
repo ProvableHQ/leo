@@ -14,16 +14,41 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod data;
-pub use data::*;
+pub mod authority;
+pub use authority::*;
 
-mod interactive;
-pub use interactive::*;
+pub mod batch_certificate;
+pub use batch_certificate::*;
 
-mod options;
-pub use options::*;
+pub mod batch_header;
+pub use batch_header::*;
 
-mod query;
-pub use query::*;
+pub mod block;
+pub use block::*;
+
+pub mod header;
+pub use header::*;
+
+pub mod metadata;
+pub use metadata::*;
+
+pub mod subdag;
+pub use subdag::*;
 
 use super::*;
+
+use serde::{Deserializer, de};
+use snarkvm::prelude::{
+    Address,
+    Deserialize,
+    DeserializeExt,
+    Field,
+    FromBytes,
+    FromBytesDeserializer,
+    IoResult,
+    Signature,
+    SizeInBytes,
+    error,
+    narwhal::TransmissionID,
+};
+use std::{io::Read, marker::PhantomData};
