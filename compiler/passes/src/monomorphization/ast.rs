@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use crate::Replacer;
+use crate::{ConstPropagationVisitor, Replacer};
 
 use leo_ast::{
     AstReconstructor,
@@ -31,7 +31,26 @@ use leo_ast::{
 };
 
 use indexmap::IndexMap;
-use itertools::Itertools;
+use itertools::{Either, Itertools};
+
+impl<'a> MonomorphizationVisitor<'a> {
+    /// Evaluates the given constant arguments if possible.
+    ///
+    /// Returns `Some` with all evaluated expressions if all are constants, or `None` if any argument is not constant.
+    fn try_evaluate_const_args(&mut self, const_args: &[Expression]) -> Option<Vec<Expression>> {
+        let mut const_evaluator = ConstPropagationVisitor::new(self.state, self.program);
+
+        let (evaluated_const_args, non_const_args): (Vec<_>, Vec<_>) = const_args
+            .iter()
+            .map(|arg| const_evaluator.reconstruct_expression(arg.clone()))
+            .partition_map(|(evaluated_arg, evaluated_value)| match (evaluated_value, evaluated_arg) {
+                (Some(_), expr @ Expression::Literal(_)) => Either::Left(expr),
+                _ => Either::Right(()),
+            });
+
+        if !non_const_args.is_empty() { None } else { Some(evaluated_const_args) }
+    }
+}
 
 impl AstReconstructor for MonomorphizationVisitor<'_> {
     type AdditionalOutput = ();
@@ -43,21 +62,21 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             return (Type::Composite(input), Default::default());
         }
 
-        // Ensure all const arguments are literals; if not, we skip this struct type instantiation for now and mark it
-        // as unresolved.
+        // Ensure all const arguments can be evaluated to literals; if not, we skip this struct type instantiation for
+        // now and mark it as unresolved.
         //
-        // The types of the const arguments are checked in the type checking pass.
-        if input.const_arguments.iter().any(|arg| !matches!(arg, Expression::Literal(_))) {
+        // The types of the const arguments are already checked in the type checking pass.
+        let Some(evaluated_const_args) = self.try_evaluate_const_args(&input.const_arguments) else {
             self.unresolved_struct_types.push(input.clone());
             return (Type::Composite(input), Default::default());
-        }
+        };
 
         // At this stage, we know that we're going to modify the program
         self.changed = true;
         (
             Type::Composite(CompositeType {
                 id: Identifier {
-                    name: self.monomorphize_struct(&input.id.name, &input.const_arguments), // use the new name
+                    name: self.monomorphize_struct(&input.id.name, &evaluated_const_args), // use the new name
                     span: input.id.span,
                     id: self.state.node_builder.next_id(),
                 },
@@ -75,22 +94,28 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             return (input_call.into(), Default::default());
         }
 
+        // Proceed only if there are some const arguments.
+        if input_call.const_arguments.is_empty() {
+            return (input_call.into(), Default::default());
+        }
+
+        // Ensure all const arguments can be evaluated to literals; if not, we skip this call for now and mark it as
+        // unresolved.
+        //
+        // The types of the const arguments are already checked in the type checking pass.
+        let Some(evaluated_const_args) = self.try_evaluate_const_args(&input_call.const_arguments) else {
+            self.unresolved_calls.push(input_call.clone());
+            return (input_call.into(), Default::default());
+        };
+
         // Look up the already reconstructed function by name.
         let callee_fn = self
             .reconstructed_functions
             .get(&input_call.function.name)
             .expect("Callee should already be reconstructed (post-order traversal).");
 
-        // Proceed only if the function variant is `inline` and if there are some const arguments.
-        if !matches!(callee_fn.variant, Variant::Inline) || input_call.const_arguments.is_empty() {
-            return (input_call.into(), Default::default());
-        }
-
-        // Ensure all const arguments are literals; if not, we skip this call for now and mark it as unresolved.
-        //
-        // The types of the const arguments are checked in the type checking pass.
-        if input_call.const_arguments.iter().any(|arg| !matches!(arg, Expression::Literal(_))) {
-            self.unresolved_calls.push(input_call.clone());
+        // Proceed only if the function variant is `inline`.
+        if !matches!(callee_fn.variant, Variant::Inline) {
             return (input_call.into(), Default::default());
         }
 
@@ -102,7 +127,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         let new_callee_name = leo_span::Symbol::intern(&format!(
             "\"{}::[{}]\"",
             input_call.function.name,
-            input_call.const_arguments.iter().format(", ")
+            evaluated_const_args.iter().format(", ")
         ));
 
         // Check if the new callee name is not already present in `reconstructed_functions`. This ensures that we do not
@@ -113,7 +138,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
                 .const_parameters
                 .iter()
                 .map(|param| param.identifier().name)
-                .zip_eq(&input_call.const_arguments)
+                .zip_eq(&evaluated_const_args)
                 .collect();
 
             // Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
@@ -190,15 +215,15 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             return (input.into(), Default::default());
         }
 
-        // Ensure all const arguments are literals; if not, we skip this struct expression for now and mark it as
-        // unresolved.
+        // Ensure all const arguments can be evaluated to literals; if not, we skip this struct expression for now and
+        // mark it as unresolved.
         //
-        // The types of the const arguments are checked in the type checking pass.
-        if input.const_arguments.iter().any(|arg| !matches!(arg, Expression::Literal(_))) {
+        // The types of the const arguments are already checked in the type checking pass.
+        let Some(evaluated_const_args) = self.try_evaluate_const_args(&input.const_arguments) else {
             self.unresolved_struct_exprs.push(input.clone());
             input.members = members;
             return (input.into(), Default::default());
-        }
+        };
 
         // At this stage, we know that we're going to modify the program
         self.changed = true;
@@ -207,7 +232,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         (
             StructExpression {
                 name: Identifier {
-                    name: self.monomorphize_struct(&input.name.name, &input.const_arguments),
+                    name: self.monomorphize_struct(&input.name.name, &evaluated_const_args),
                     span: input.name.span,
                     id: self.state.node_builder.next_id(),
                 },
