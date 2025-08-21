@@ -137,6 +137,7 @@ impl Package {
             version: "0.1.0".to_string(),
             description: String::new(),
             license: "MIT".to_string(),
+            leo: env!("CARGO_PKG_VERSION").to_string(),
             dependencies: None,
             dev_dependencies: None,
         };

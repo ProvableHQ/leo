@@ -98,6 +98,16 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
         )?
     };
 
+    // Check the manifest for the compiler version.
+    // If it does not match, warn the user and continue.
+    if package.manifest.leo != env!("CARGO_PKG_VERSION") {
+        tracing::warn!(
+            "The Leo compiler version in the manifest ({}) does not match the current version ({}).",
+            package.manifest.leo,
+            env!("CARGO_PKG_VERSION")
+        );
+    }
+
     let outputs_directory = package.outputs_directory();
     let build_directory = package.build_directory();
     let imports_directory = package.imports_directory();
@@ -163,6 +173,7 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
         version: "0.1.0".to_string(),
         description: String::new(),
         license: String::new(),
+        leo: env!("CARGO_PKG_VERSION").to_string(),
         dependencies: None,
         dev_dependencies: None,
     };
