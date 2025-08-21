@@ -276,6 +276,9 @@ workspace = true
 [dependencies.serial_test]
 workspace = true
 
+[dependencies.sha2]
+workspace = true
+
 [dependencies.snarkvm]
 workspace = true
 features = ["circuit", "console"]
