@@ -186,7 +186,7 @@ pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> 
     use std::str::FromStr as _;
 \    
     // Check program size limit (100KB = 102400 bytes)
-    const MAX_PROGRAM_SIZE: usize = 102400;
+    const MAX_PROGRAM_SIZE: usize = 100_000;
     let program_size = program.len();
     
     if program_size > MAX_PROGRAM_SIZE {
