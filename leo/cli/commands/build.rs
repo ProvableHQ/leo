@@ -197,8 +197,8 @@ fn compile_leo_file(
     // Compile the Leo program into Aleo instructions.
     let bytecode = compiler.compile_from_file(source_file_path)?;
 
-    // Check program size limit (100KB = 102400 bytes)
-    const MAX_PROGRAM_SIZE: usize = 100_000;
+    // Check program size limit
+    use leo_package::MAX_PROGRAM_SIZE;
     let program_size = bytecode.len();
     
     if program_size > MAX_PROGRAM_SIZE {
