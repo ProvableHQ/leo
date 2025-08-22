@@ -198,7 +198,7 @@ fn compile_leo_file(
     let bytecode = compiler.compile_from_file(source_file_path)?;
 
     // Check program size limit (100KB = 102400 bytes)
-    const MAX_PROGRAM_SIZE: usize = 102400;
+    const MAX_PROGRAM_SIZE: usize = 100_000;
     let program_size = bytecode.len();
     
     if program_size > MAX_PROGRAM_SIZE {
