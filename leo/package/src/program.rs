@@ -301,8 +301,8 @@ fn parse_dependencies_from_aleo(
     bytecode: &str,
     existing: &IndexMap<Symbol, Dependency>,
 ) -> Result<IndexSet<Dependency>> {
-    // Check program size limit (100KB = 102400 bytes)
-    const MAX_PROGRAM_SIZE: usize = 100_000;
+    use crate::MAX_PROGRAM_SIZE;
+    
     let program_size = bytecode.len();
     
     if program_size > MAX_PROGRAM_SIZE {
