@@ -106,6 +106,9 @@ pub const BUILD_DIRECTORY: &str = "build";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 
+/// Maximum allowed program size in bytes (100KB)
+pub const MAX_PROGRAM_SIZE: usize = 100_000;
+
 pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 
 fn symbol(name: &str) -> Result<Symbol> {
@@ -184,9 +187,7 @@ pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkNa
 pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> {
     use snarkvm::prelude::{Program, TestnetV0};
     use std::str::FromStr as _;
-\    
-    // Check program size limit (100KB = 102400 bytes)
-    const MAX_PROGRAM_SIZE: usize = 100_000;
+    
     let program_size = program.len();
     
     if program_size > MAX_PROGRAM_SIZE {
