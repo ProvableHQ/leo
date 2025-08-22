@@ -55,13 +55,6 @@ create_messages!(
     }
 
     @backtraced
-    program_size_limit_exceeded {
-        args: (name: impl Display, size: usize, limit: usize),
-        msg: format!("Program `{name}.aleo` exceeds the maximum size limit. Program size: {size} bytes; maximum allowed: {limit} bytes."),
-        help: Some("Reduce the program size by removing unnecessary code, optimizing functions, or splitting the program into smaller programs.".to_string()),
-    }
-
-    @backtraced
     circular_dependency_error {
         args: (),
         msg: "Circular dependency detected".to_string(),
@@ -214,5 +207,12 @@ create_messages!(
         args: (endpoint: impl Display),
         msg: format!("The endpoint `{endpoint}` has been permanently moved."),
         help: Some("Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag.".to_string()),
+    }
+
+    @backtraced
+    program_size_limit_exceeded {
+        args: (name: impl Display, size: usize, limit: usize),
+        msg: format!("Program `{name}.aleo` exceeds the maximum size limit. Program size: {size} bytes; maximum allowed: {limit} bytes."),
+        help: Some("Reduce the program size by removing unnecessary code, optimizing functions, or splitting the program into smaller programs.".to_string()),
     }
 );
