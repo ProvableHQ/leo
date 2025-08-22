@@ -26,12 +26,12 @@ use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     prelude::{
-        Identifier,
         ProgramID,
         ToBytes,
         VM,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
+    synthesizer::program::StackTrait,
 };
 
 use clap::Parser;
@@ -50,12 +50,12 @@ pub struct Metadata {
 /// Synthesize proving and verifying keys for a given function.
 #[derive(Parser, Debug)]
 pub struct LeoSynthesize {
-    #[clap(
-        name = "NAME",
-        help = "The name of the function to execute, e.g `helloworld.aleo/main` or `main`.",
-        default_value = "main"
-    )]
-    pub(crate) name: String,
+    #[clap(name = "NAME", help = "The name of the program to synthesize, e.g `helloworld.aleo`")]
+    pub(crate) program_name: String,
+    #[arg(short, long, help = "Use the local Leo project.")]
+    pub(crate) local: bool,
+    #[arg(short, long, help = "Skip functions that contain any of the given substrings")]
+    pub(crate) skip: Vec<String>,
     #[clap(flatten)]
     pub(crate) action: TransactionAction,
     #[clap(flatten)]
@@ -73,16 +73,8 @@ impl Command for LeoSynthesize {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        // Get the path to the current directory.
-        let path = context.dir()?;
-        // Get the path to the home directory.
-        let home_path = context.home()?;
-        // Get the network, accounting for overrides.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
-        // Get the endpoint, accounting for overrides.
-        let endpoint = context.get_endpoint(&self.env_override.endpoint)?;
-        // If the current directory is a valid Leo package, then build it.
-        if Package::from_directory_no_graph(path, home_path, network, &endpoint).is_ok() {
+        // If the `--local` option is enabled, then build the project.
+        if self.local {
             let package = LeoBuild {
                 env_override: self.env_override.clone(),
                 options: {
@@ -141,37 +133,13 @@ fn handle_synthesize<A: Aleo>(
     context: Context,
     network: NetworkName,
     package: Option<Package>,
-) -> Result<<LeoExecute as Command>::Output> {
+) -> Result<<LeoSynthesize as Command>::Output> {
     // Get the endpoint, accounting for overrides.
     let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
 
-    // Parse the <NAME> into an optional program name and a function name.
-    // If only a function name is provided, then use the program name from the package.
-    let (program_name, function_name) = match command.name.split_once('/') {
-        Some((program_name, function_name)) => (program_name.to_string(), function_name.to_string()),
-        None => match &package {
-            Some(package) => (
-                format!(
-                    "{}.aleo",
-                    package.programs.last().expect("There must be at least one program in a Leo package").name
-                ),
-                command.name,
-            ),
-            None => {
-                return Err(CliError::custom(format!(
-                    "Running `leo synthesize {} ...`, without an explicit program name requires that your current working directory is a valid Leo project.",
-                    command.name
-                )).into());
-            }
-        },
-    };
-
     // Parse the program name as a `ProgramID`.
-    let program_id = ProgramID::<A::Network>::from_str(&program_name)
+    let program_id = ProgramID::<A::Network>::from_str(&command.program_name)
         .map_err(|e| CliError::custom(format!("Failed to parse program name: {e}")))?;
-    // Parse the function name as an `Identifier`.
-    let function_id = Identifier::<A::Network>::from_str(&function_name)
-        .map_err(|e| CliError::custom(format!("Failed to parse function name: {e}")))?;
 
     // Get all the dependencies in the package if it exists.
     // Get the programs and optional manifests for all programs.
@@ -226,21 +194,6 @@ fn handle_synthesize<A: Aleo>(
     // Determine whether the program is local or remote.
     let is_local = programs.iter().any(|(program, _)| program.id() == &program_id);
 
-    // If the program is local, then check that the function exists.
-    if is_local {
-        let program = &programs
-            .iter()
-            .find(|(program, _)| program.id() == &program_id)
-            .expect("Program should exist since it is local")
-            .0;
-        if !program.contains_function(&function_id) {
-            return Err(CliError::custom(format!(
-                "Function `{function_name}` does not exist in program `{program_name}`."
-            ))
-            .into());
-        }
-    }
-
     // Initialize an RNG.
     let rng = &mut rand::thread_rng();
 
@@ -250,7 +203,7 @@ fn handle_synthesize<A: Aleo>(
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
-        println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
+        println!("⬇️ Downloading {program_id} and its dependencies from {endpoint}...");
         programs = load_latest_programs_from_network(&context, program_id, network, &endpoint)?;
     };
 
@@ -277,10 +230,15 @@ fn handle_synthesize<A: Aleo>(
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
-    println!("🌱 Synthesizing keys for {program_name}/{function_name}");
-    vm.process().read().synthesize_key::<A, _>(&program_id, &function_id, rng)?;
-    let proving_key = vm.process().read().get_proving_key(program_id, function_id)?;
-    let verifying_key = vm.process().read().get_verifying_key(program_id, function_id)?;
+    // Get the edition and function IDs from the program.
+    let stack = vm.process().read().get_stack(program_id)?;
+    let edition = *stack.program_edition();
+    let function_ids = stack
+        .program()
+        .functions()
+        .keys()
+        .filter(|id| !command.skip.iter().any(|substring| id.to_string().contains(substring)))
+        .collect::<Vec<_>>();
 
     // A helper function to hash the keys.
     let hash = |bytes: &[u8]| -> anyhow::Result<String> {
@@ -294,47 +252,61 @@ fn handle_synthesize<A: Aleo>(
         Ok(hex)
     };
 
-    // Get the checksums of the keys.
-    let prover_bytes = proving_key.to_bytes_le()?;
-    let verifier_bytes = verifying_key.to_bytes_le()?;
-    let prover_checksum = hash(&prover_bytes)?;
-    let verifier_checksum = hash(&verifier_bytes)?;
+    println!("\n🌱 Synthesizing the following keys in {program_id}:");
+    for id in &function_ids {
+        println!("    - {id}");
+    }
 
-    // Construct the metadata.
-    let metadata = Metadata {
-        prover_checksum,
-        prover_size: prover_bytes.len(),
-        verifier_checksum,
-        verifier_size: verifier_bytes.len(),
-    };
-    let metadata_pretty = serde_json::to_string_pretty(&metadata)
-        .map_err(|e| CliError::custom(format!("Failed to serialize metadata: {e}")))?;
+    for function_id in function_ids {
+        stack.synthesize_key::<A, _>(function_id, rng)?;
+        let proving_key = stack.get_proving_key(function_id)?;
+        let verifying_key = stack.get_verifying_key(function_id)?;
 
-    // A helper to write to a file.
-    let write_to_file = |type_: &str, path: PathBuf, data: &[u8]| -> Result<()> {
-        println!("💾 Saving {type_} for {program_name}/{function_name} at {}", path.display());
-        std::fs::write(path, data).map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
-        Ok(())
-    };
+        // Get the checksums of the keys.
+        let prover_bytes = proving_key.to_bytes_le()?;
+        let verifier_bytes = verifying_key.to_bytes_le()?;
+        let prover_checksum = hash(&prover_bytes)?;
+        let verifier_checksum = hash(&verifier_bytes)?;
 
-    // If the `save` option is set, save the proving and verifying keys to a file in the specified directory.
-    // The file format is `program_name.function_name.type.timestamp`.
-    // The directory is created if it doesn't exist.
-    if let Some(path) = &command.action.save {
-        // Create the directory if it doesn't exist.
-        std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
-        // Get the current timestamp.
-        let timestamp = chrono::Utc::now().timestamp();
-        // Get the file paths.
-        let prover_file_path = PathBuf::from(path).join(format!("{program_name}.{function_name}.prover.{timestamp}"));
-        let verifier_file_path =
-            PathBuf::from(path).join(format!("{program_name}.{function_name}.verifier.{timestamp}"));
-        let metadata_file_path =
-            PathBuf::from(path).join(format!("{program_name}.{function_name}.metadata.{timestamp}"));
-        // Save the keys.
-        write_to_file("proving key", prover_file_path, &prover_bytes)?;
-        write_to_file("verifying key", verifier_file_path, &verifier_bytes)?;
-        write_to_file("metadata", metadata_file_path, metadata_pretty.as_bytes())?;
+        // Construct the metadata.
+        let metadata = Metadata {
+            prover_checksum,
+            prover_size: prover_bytes.len(),
+            verifier_checksum,
+            verifier_size: verifier_bytes.len(),
+        };
+        let metadata_pretty = serde_json::to_string_pretty(&metadata)
+            .map_err(|e| CliError::custom(format!("Failed to serialize metadata: {e}")))?;
+
+        // A helper to write to a file.
+        let write_to_file = |type_: &str, path: PathBuf, data: &[u8]| -> Result<()> {
+            println!("💾 Saving {type_} for {program_id}/{function_id} at {}", path.display());
+            std::fs::write(path, data).map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
+            Ok(())
+        };
+
+        // If the `save` option is set, save the proving and verifying keys to a file in the specified directory.
+        // The file format is `program_id.function_id.edition_or_local.type.timestamp`.
+        // The directory is created if it doesn't exist.
+        if let Some(path) = &command.action.save {
+            // Create the directory if it doesn't exist.
+            std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
+            // Get the current timestamp.
+            let timestamp = chrono::Utc::now().timestamp();
+            // The edition.
+            let edition = if command.local { "local".to_string() } else { edition.to_string() };
+            // Get the file paths.
+            let prover_file_path =
+                PathBuf::from(path).join(format!("{program_id}.{function_id}.{edition}.prover.{timestamp}"));
+            let verifier_file_path =
+                PathBuf::from(path).join(format!("{program_id}.{function_id}.{edition}.verifier.{timestamp}"));
+            let metadata_file_path =
+                PathBuf::from(path).join(format!("{program_id}.{function_id}.{edition}.metadata.{timestamp}"));
+            // Save the keys.
+            write_to_file("proving key", prover_file_path, &prover_bytes)?;
+            write_to_file("verifying key", verifier_file_path, &verifier_bytes)?;
+            write_to_file("metadata", metadata_file_path, metadata_pretty.as_bytes())?;
+        }
     }
 
     Ok(())
