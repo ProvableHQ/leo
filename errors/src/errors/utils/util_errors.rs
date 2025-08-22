@@ -58,7 +58,7 @@ create_messages!(
     program_size_limit_exceeded {
         args: (name: impl Display, size: usize, limit: usize),
         msg: format!("Program `{name}.aleo` exceeds the maximum size limit. Program size: {size} bytes; maximum allowed: {limit} bytes."),
-        help: Some("Reduce the program size by removing unnecessary code, optimizing functions, or splitting the program into smaller modules.".to_string()),
+        help: Some("Reduce the program size by removing unnecessary code, optimizing functions, or splitting the program into smaller programs.".to_string()),
     }
 
     @backtraced
