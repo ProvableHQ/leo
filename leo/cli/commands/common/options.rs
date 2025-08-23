@@ -81,9 +81,15 @@ pub struct EnvOptions {
         help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable."
     )]
     pub(crate) private_key: Option<String>,
-    #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` environment variable.")]
-    pub(crate) network: Option<String>,
-    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable.")]
+    #[clap(
+        long,
+        help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable."
+    )]
+    pub(crate) network: Option<NetworkName>,
+    #[clap(
+        long,
+        help = "The endpoint to deploy to. e.g `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets. Overrides the `ENDPOINT` environment variable."
+    )]
     pub(crate) endpoint: Option<String>,
     #[clap(long, help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable.")]
     pub(crate) devnet: bool,

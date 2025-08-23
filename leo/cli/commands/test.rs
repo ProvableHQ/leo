@@ -16,6 +16,7 @@
 
 use super::*;
 
+use leo_ast::NetworkName;
 use leo_compiler::run_with_ledger;
 use leo_package::{Package, ProgramData};
 use leo_span::Symbol;
@@ -114,7 +115,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         address,
         0u32,
         &command.test_name,
-        package.env.network,
+        NetworkName::TestnetV0,
     )?;
 
     // Now for native tests.

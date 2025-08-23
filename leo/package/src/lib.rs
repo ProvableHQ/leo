@@ -19,7 +19,6 @@
 //! The main type is `Package`, which deals with Leo packages on the local filesystem.
 //! A Leo package directory is intended to have a structure like this:
 //! .
-//! ├── .env
 //! ├── program.json
 //! ├── build
 //! │   ├── imports
@@ -35,9 +34,6 @@
 //!
 //! The file `program.json` is a manifest containing the program name, version, description,
 //! and license, together with information about its dependencies.
-//!
-//! The file `.env` contains definitions for the environment variables NETWORK, PRIVATE_KEY,
-//! and ENDPOINT that may be used when deploying or executing the program.
 //!
 //! Such a directory structure, together with a `.gitignore` file, may be created
 //! on the file system using `Package::initialize`.
@@ -78,9 +74,6 @@ use std::path::Path;
 
 mod dependency;
 pub use dependency::*;
-
-mod env;
-pub use env::*;
 
 mod location;
 pub use location::*;

@@ -53,9 +53,6 @@ pub struct Package {
 
     /// The manifest file of this package.
     pub manifest: Manifest,
-
-    /// The .env file of this package.
-    pub env: Env,
 }
 
 impl Package {
@@ -80,16 +77,11 @@ impl Package {
     }
 
     /// Create a Leo package by the name `package_name` in a subdirectory of `path`.
-    pub fn initialize<P: AsRef<Path>>(
-        package_name: &str,
-        path: P,
-        network: NetworkName,
-        endpoint: &str,
-    ) -> Result<PathBuf> {
-        Self::initialize_impl(package_name, path.as_ref(), network, endpoint)
+    pub fn initialize<P: AsRef<Path>>(package_name: &str, path: P) -> Result<PathBuf> {
+        Self::initialize_impl(package_name, path.as_ref())
     }
 
-    fn initialize_impl(package_name: &str, path: &Path, network: NetworkName, endpoint: &str) -> Result<PathBuf> {
+    fn initialize_impl(package_name: &str, path: &Path) -> Result<PathBuf> {
         let package_name =
             if package_name.ends_with(".aleo") { package_name.to_string() } else { format!("{package_name}.aleo") };
 
@@ -123,13 +115,6 @@ impl Package {
         let gitignore_path = full_path.join(GITIGNORE_FILENAME);
 
         std::fs::write(gitignore_path, GITIGNORE_TEMPLATE).map_err(PackageError::io_error_gitignore_file)?;
-
-        // Create the .env file.
-        let env = Env { network, private_key: TEST_PRIVATE_KEY.to_string(), endpoint: endpoint.to_string() };
-
-        let env_path = full_path.join(ENV_FILENAME);
-
-        env.write_to_file(env_path)?;
 
         // Create the manifest.
         let manifest = Manifest {
@@ -284,8 +269,6 @@ impl Package {
 
         let path = path.canonicalize().map_err(|err| map_err(path, err))?;
 
-        let env = Env::read_from_file_or_environment(&path)?;
-
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
         let programs: Vec<Program> = if build_graph {
@@ -343,7 +326,7 @@ impl Package {
             Vec::new()
         };
 
-        Ok(Package { base_directory: path, programs, env, manifest })
+        Ok(Package { base_directory: path, programs, manifest })
     }
 
     #[allow(clippy::too_many_arguments)]
