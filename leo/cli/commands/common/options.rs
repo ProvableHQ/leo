@@ -85,7 +85,7 @@ pub struct EnvOptions {
         long,
         help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable."
     )]
-    pub(crate) network: Option<NetworkName>,
+    pub(crate) network: Option<String>,
     #[clap(
         long,
         help = "The endpoint to deploy to. e.g `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets. Overrides the `ENDPOINT` environment variable."
