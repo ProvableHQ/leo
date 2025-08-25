@@ -215,7 +215,7 @@ fn compile_leo_file(
         NetworkName::CanaryV0 => Program::<CanaryV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
     };
 
-    tracing::info!("    \n{} statements before dead code elimination.", compiler.statements_before_dce);
+    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
     tracing::info!("    The program checksum is: '[{checksum}]'.");
 
