@@ -215,7 +215,7 @@
 <a href=#215 id=215 data-nosnippet>215</a>        NetworkName::CanaryV0 =&gt; Program::&lt;CanaryV0&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)<span class="question-mark">?</span>.to_checksum().iter().join(<span class="string">", "</span>),
 <a href=#216 id=216 data-nosnippet>216</a>    };
 <a href=#217 id=217 data-nosnippet>217</a>
-<a href=#218 id=218 data-nosnippet>218</a>    <span class="macro">tracing::info!</span>(<span class="string">"    \n{} statements before dead code elimination."</span>, compiler.statements_before_dce);
+<a href=#218 id=218 data-nosnippet>218</a>    <span class="macro">tracing::info!</span>(<span class="string">"    {} statements before dead code elimination."</span>, compiler.statements_before_dce);
 <a href=#219 id=219 data-nosnippet>219</a>    <span class="macro">tracing::info!</span>(<span class="string">"    {} statements after dead code elimination."</span>, compiler.statements_after_dce);
 <a href=#220 id=220 data-nosnippet>220</a>    <span class="macro">tracing::info!</span>(<span class="string">"    The program checksum is: '[{checksum}]'."</span>);
 <a href=#221 id=221 data-nosnippet>221</a>
