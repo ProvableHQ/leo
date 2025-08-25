@@ -101,6 +101,7 @@ pub struct FeeOptions {
     #[clap(
         long,
         help = "[UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.",
+        hide = true,
         value_delimiter = '|',
         value_parser = parse_amount
     )]
