@@ -1932,6 +1932,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return self.emit_err(TypeCheckerError::async_block_cannot_return(input.span()));
         }
 
+        if self.scope_state.is_constructor {
+            // It must return a unit value; nothing else to check.
+            if !matches!(input.expression, Expression::Unit(..)) {
+                self.emit_err(TypeCheckerError::constructor_can_only_return_unit(&input.expression, input.span));
+            }
+            return;
+        }
+
         let func_name = self.scope_state.function.unwrap();
         let func_symbol = self
             .state
