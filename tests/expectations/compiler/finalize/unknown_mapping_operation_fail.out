@@ -1,8 +1,3 @@
-Error [ETYC0372117]: Expected type `()` but type `Future<Fn()>` was found.
-    --> compiler-test:7:17
-     |
-   7 |          return finalize_mint_public(receiver, amount);
-     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372003]: Expected type `()` but type `Future<Fn(address,u64)>` was found
     --> compiler-test:7:17
      |

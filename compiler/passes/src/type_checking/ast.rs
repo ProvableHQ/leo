@@ -1025,24 +1025,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Async functions return a single future.
         let mut ret = if func.variant == Variant::AsyncFunction {
-            // Type check after resolving the input types.
-            let actual = Type::Future(FutureType::new(
-                Vec::new(),
-                Some(Location::new(callee_program, input.function.name)),
-                false,
-            ));
-            match expected {
-                Some(Type::Future(_)) | None => {
-                    // If the expected type is a `Future` or if it's not set, then just return the
-                    // actual type of the future from the expression itself
-                    actual
-                }
-                Some(_) => {
-                    // Otherwise, error out. There is a mismatch in types.
-                    self.maybe_assert_type(&actual, expected, input.span());
-                    Type::Unit
-                }
-            }
+            // Async functions always return futures.
+            Type::Future(FutureType::new(Vec::new(), Some(Location::new(callee_program, input.function.name)), false))
         } else if func.variant == Variant::AsyncTransition {
             // Fully infer future type.
             let Some(inputs) = self
