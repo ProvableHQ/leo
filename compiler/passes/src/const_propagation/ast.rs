@@ -88,12 +88,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             *arg = self.reconstruct_expression(std::mem::take(arg)).0;
         });
         for member in input.members.iter_mut() {
-            if let Some(expr) = std::mem::take(&mut member.expression) {
-                let (new_expr, value_opt) = self.reconstruct_expression(expr);
-                member.expression = Some(new_expr);
-                if let Some(value) = value_opt {
-                    values.push(value);
-                }
+            let expression = member.expression.take().unwrap_or_else(|| member.identifier.into());
+            let (new_expr, value_opt) = self.reconstruct_expression(expression);
+            member.expression = Some(new_expr);
+            if let Some(value) = value_opt {
+                values.push(value);
             }
         }
 
