@@ -1932,55 +1932,63 @@
 <a href=#1932 id=1932 data-nosnippet>1932</a>            <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::async_block_cannot_return(input.span()));
 <a href=#1933 id=1933 data-nosnippet>1933</a>        }
 <a href=#1934 id=1934 data-nosnippet>1934</a>
-<a href=#1935 id=1935 data-nosnippet>1935</a>        <span class="kw">let </span>func_name = <span class="self">self</span>.scope_state.function.unwrap();
-<a href=#1936 id=1936 data-nosnippet>1936</a>        <span class="kw">let </span>func_symbol = <span class="self">self
-<a href=#1937 id=1937 data-nosnippet>1937</a>            </span>.state
-<a href=#1938 id=1938 data-nosnippet>1938</a>            .symbol_table
-<a href=#1939 id=1939 data-nosnippet>1939</a>            .lookup_function(Location::new(<span class="self">self</span>.scope_state.program_name.unwrap(), func_name))
-<a href=#1940 id=1940 data-nosnippet>1940</a>            .expect(<span class="string">"The symbol table creator should already have visited all functions."</span>);
-<a href=#1941 id=1941 data-nosnippet>1941</a>        <span class="kw">let </span><span class="kw-2">mut </span>return_type = func_symbol.function.output_type.clone();
+<a href=#1935 id=1935 data-nosnippet>1935</a>        <span class="kw">if </span><span class="self">self</span>.scope_state.is_constructor {
+<a href=#1936 id=1936 data-nosnippet>1936</a>            <span class="comment">// It must return a unit value; nothing else to check.
+<a href=#1937 id=1937 data-nosnippet>1937</a>            </span><span class="kw">if </span>!<span class="macro">matches!</span>(input.expression, Expression::Unit(..)) {
+<a href=#1938 id=1938 data-nosnippet>1938</a>                <span class="self">self</span>.emit_err(TypeCheckerError::constructor_can_only_return_unit(<span class="kw-2">&amp;</span>input.expression, input.span));
+<a href=#1939 id=1939 data-nosnippet>1939</a>            }
+<a href=#1940 id=1940 data-nosnippet>1940</a>            <span class="kw">return</span>;
+<a href=#1941 id=1941 data-nosnippet>1941</a>        }
 <a href=#1942 id=1942 data-nosnippet>1942</a>
-<a href=#1943 id=1943 data-nosnippet>1943</a>        <span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.has_called_finalize {
-<a href=#1944 id=1944 data-nosnippet>1944</a>            <span class="kw">let </span>inferred_future_type = Future(FutureType::new(
-<a href=#1945 id=1945 data-nosnippet>1945</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(finalizer) = <span class="kw-2">&amp;</span>func_symbol.finalizer { finalizer.inferred_inputs.clone() } <span class="kw">else </span>{ <span class="macro">vec!</span>[] },
-<a href=#1946 id=1946 data-nosnippet>1946</a>                <span class="prelude-val">Some</span>(Location::new(<span class="self">self</span>.scope_state.program_name.unwrap(), func_name)),
-<a href=#1947 id=1947 data-nosnippet>1947</a>                <span class="bool-val">true</span>,
-<a href=#1948 id=1948 data-nosnippet>1948</a>            ));
-<a href=#1949 id=1949 data-nosnippet>1949</a>
-<a href=#1950 id=1950 data-nosnippet>1950</a>            <span class="comment">// Need to modify return type since the function signature is just default future, but the actual return
-<a href=#1951 id=1951 data-nosnippet>1951</a>            // type is the fully inferred future of the finalize input type.
-<a href=#1952 id=1952 data-nosnippet>1952</a>            </span><span class="kw">let </span>inferred = <span class="kw">match </span>return_type.clone() {
-<a href=#1953 id=1953 data-nosnippet>1953</a>                Future(<span class="kw">_</span>) =&gt; inferred_future_type,
-<a href=#1954 id=1954 data-nosnippet>1954</a>                Tuple(tuple) =&gt; Tuple(TupleType::new(
-<a href=#1955 id=1955 data-nosnippet>1955</a>                    tuple
-<a href=#1956 id=1956 data-nosnippet>1956</a>                        .elements()
-<a href=#1957 id=1957 data-nosnippet>1957</a>                        .iter()
-<a href=#1958 id=1958 data-nosnippet>1958</a>                        .map(|t| <span class="kw">if </span><span class="macro">matches!</span>(t, Future(<span class="kw">_</span>)) { inferred_future_type.clone() } <span class="kw">else </span>{ t.clone() })
-<a href=#1959 id=1959 data-nosnippet>1959</a>                        .collect::&lt;Vec&lt;Type&gt;&gt;(),
-<a href=#1960 id=1960 data-nosnippet>1960</a>                )),
-<a href=#1961 id=1961 data-nosnippet>1961</a>                <span class="kw">_ </span>=&gt; {
-<a href=#1962 id=1962 data-nosnippet>1962</a>                    <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
-<a href=#1963 id=1963 data-nosnippet>1963</a>                }
-<a href=#1964 id=1964 data-nosnippet>1964</a>            };
-<a href=#1965 id=1965 data-nosnippet>1965</a>
-<a href=#1966 id=1966 data-nosnippet>1966</a>            <span class="comment">// Check that the explicit type declared in the function output signature matches the inferred type.
-<a href=#1967 id=1967 data-nosnippet>1967</a>            </span>return_type = <span class="self">self</span>.assert_and_return_type(inferred, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(return_type), input.span());
-<a href=#1968 id=1968 data-nosnippet>1968</a>        }
-<a href=#1969 id=1969 data-nosnippet>1969</a>
-<a href=#1970 id=1970 data-nosnippet>1970</a>        <span class="kw">if </span><span class="macro">matches!</span>(input.expression, Expression::Unit(..)) {
-<a href=#1971 id=1971 data-nosnippet>1971</a>            <span class="comment">// Manually type check rather than using one of the assert functions for a better error message.
-<a href=#1972 id=1972 data-nosnippet>1972</a>            </span><span class="kw">if </span>return_type != Type::Unit {
-<a href=#1973 id=1973 data-nosnippet>1973</a>                <span class="comment">// TODO - This is a bit hackish. We're reusing an existing error, because
-<a href=#1974 id=1974 data-nosnippet>1974</a>                // we have too many errors in TypeCheckerError without hitting the recursion
-<a href=#1975 id=1975 data-nosnippet>1975</a>                // limit for macros. But the error message to the user should still be pretty clear.
-<a href=#1976 id=1976 data-nosnippet>1976</a>                </span><span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::missing_return(input.span()));
-<a href=#1977 id=1977 data-nosnippet>1977</a>            }
-<a href=#1978 id=1978 data-nosnippet>1978</a>        }
-<a href=#1979 id=1979 data-nosnippet>1979</a>
-<a href=#1980 id=1980 data-nosnippet>1980</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(return_type));
-<a href=#1981 id=1981 data-nosnippet>1981</a>
-<a href=#1982 id=1982 data-nosnippet>1982</a>        <span class="comment">// Set the `has_return` flag after processing `input.expression` so that we don't error out
-<a href=#1983 id=1983 data-nosnippet>1983</a>        // on something like `return async { .. }`.
-<a href=#1984 id=1984 data-nosnippet>1984</a>        </span><span class="self">self</span>.scope_state.has_return = <span class="bool-val">true</span>;
-<a href=#1985 id=1985 data-nosnippet>1985</a>    }
-<a href=#1986 id=1986 data-nosnippet>1986</a>}</code></pre></div></section></main></body></html>
+<a href=#1943 id=1943 data-nosnippet>1943</a>        <span class="kw">let </span>func_name = <span class="self">self</span>.scope_state.function.unwrap();
+<a href=#1944 id=1944 data-nosnippet>1944</a>        <span class="kw">let </span>func_symbol = <span class="self">self
+<a href=#1945 id=1945 data-nosnippet>1945</a>            </span>.state
+<a href=#1946 id=1946 data-nosnippet>1946</a>            .symbol_table
+<a href=#1947 id=1947 data-nosnippet>1947</a>            .lookup_function(Location::new(<span class="self">self</span>.scope_state.program_name.unwrap(), func_name))
+<a href=#1948 id=1948 data-nosnippet>1948</a>            .expect(<span class="string">"The symbol table creator should already have visited all functions."</span>);
+<a href=#1949 id=1949 data-nosnippet>1949</a>        <span class="kw">let </span><span class="kw-2">mut </span>return_type = func_symbol.function.output_type.clone();
+<a href=#1950 id=1950 data-nosnippet>1950</a>
+<a href=#1951 id=1951 data-nosnippet>1951</a>        <span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.has_called_finalize {
+<a href=#1952 id=1952 data-nosnippet>1952</a>            <span class="kw">let </span>inferred_future_type = Future(FutureType::new(
+<a href=#1953 id=1953 data-nosnippet>1953</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(finalizer) = <span class="kw-2">&amp;</span>func_symbol.finalizer { finalizer.inferred_inputs.clone() } <span class="kw">else </span>{ <span class="macro">vec!</span>[] },
+<a href=#1954 id=1954 data-nosnippet>1954</a>                <span class="prelude-val">Some</span>(Location::new(<span class="self">self</span>.scope_state.program_name.unwrap(), func_name)),
+<a href=#1955 id=1955 data-nosnippet>1955</a>                <span class="bool-val">true</span>,
+<a href=#1956 id=1956 data-nosnippet>1956</a>            ));
+<a href=#1957 id=1957 data-nosnippet>1957</a>
+<a href=#1958 id=1958 data-nosnippet>1958</a>            <span class="comment">// Need to modify return type since the function signature is just default future, but the actual return
+<a href=#1959 id=1959 data-nosnippet>1959</a>            // type is the fully inferred future of the finalize input type.
+<a href=#1960 id=1960 data-nosnippet>1960</a>            </span><span class="kw">let </span>inferred = <span class="kw">match </span>return_type.clone() {
+<a href=#1961 id=1961 data-nosnippet>1961</a>                Future(<span class="kw">_</span>) =&gt; inferred_future_type,
+<a href=#1962 id=1962 data-nosnippet>1962</a>                Tuple(tuple) =&gt; Tuple(TupleType::new(
+<a href=#1963 id=1963 data-nosnippet>1963</a>                    tuple
+<a href=#1964 id=1964 data-nosnippet>1964</a>                        .elements()
+<a href=#1965 id=1965 data-nosnippet>1965</a>                        .iter()
+<a href=#1966 id=1966 data-nosnippet>1966</a>                        .map(|t| <span class="kw">if </span><span class="macro">matches!</span>(t, Future(<span class="kw">_</span>)) { inferred_future_type.clone() } <span class="kw">else </span>{ t.clone() })
+<a href=#1967 id=1967 data-nosnippet>1967</a>                        .collect::&lt;Vec&lt;Type&gt;&gt;(),
+<a href=#1968 id=1968 data-nosnippet>1968</a>                )),
+<a href=#1969 id=1969 data-nosnippet>1969</a>                <span class="kw">_ </span>=&gt; {
+<a href=#1970 id=1970 data-nosnippet>1970</a>                    <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
+<a href=#1971 id=1971 data-nosnippet>1971</a>                }
+<a href=#1972 id=1972 data-nosnippet>1972</a>            };
+<a href=#1973 id=1973 data-nosnippet>1973</a>
+<a href=#1974 id=1974 data-nosnippet>1974</a>            <span class="comment">// Check that the explicit type declared in the function output signature matches the inferred type.
+<a href=#1975 id=1975 data-nosnippet>1975</a>            </span>return_type = <span class="self">self</span>.assert_and_return_type(inferred, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(return_type), input.span());
+<a href=#1976 id=1976 data-nosnippet>1976</a>        }
+<a href=#1977 id=1977 data-nosnippet>1977</a>
+<a href=#1978 id=1978 data-nosnippet>1978</a>        <span class="kw">if </span><span class="macro">matches!</span>(input.expression, Expression::Unit(..)) {
+<a href=#1979 id=1979 data-nosnippet>1979</a>            <span class="comment">// Manually type check rather than using one of the assert functions for a better error message.
+<a href=#1980 id=1980 data-nosnippet>1980</a>            </span><span class="kw">if </span>return_type != Type::Unit {
+<a href=#1981 id=1981 data-nosnippet>1981</a>                <span class="comment">// TODO - This is a bit hackish. We're reusing an existing error, because
+<a href=#1982 id=1982 data-nosnippet>1982</a>                // we have too many errors in TypeCheckerError without hitting the recursion
+<a href=#1983 id=1983 data-nosnippet>1983</a>                // limit for macros. But the error message to the user should still be pretty clear.
+<a href=#1984 id=1984 data-nosnippet>1984</a>                </span><span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::missing_return(input.span()));
+<a href=#1985 id=1985 data-nosnippet>1985</a>            }
+<a href=#1986 id=1986 data-nosnippet>1986</a>        }
+<a href=#1987 id=1987 data-nosnippet>1987</a>
+<a href=#1988 id=1988 data-nosnippet>1988</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(return_type));
+<a href=#1989 id=1989 data-nosnippet>1989</a>
+<a href=#1990 id=1990 data-nosnippet>1990</a>        <span class="comment">// Set the `has_return` flag after processing `input.expression` so that we don't error out
+<a href=#1991 id=1991 data-nosnippet>1991</a>        // on something like `return async { .. }`.
+<a href=#1992 id=1992 data-nosnippet>1992</a>        </span><span class="self">self</span>.scope_state.has_return = <span class="bool-val">true</span>;
+<a href=#1993 id=1993 data-nosnippet>1993</a>    }
+<a href=#1994 id=1994 data-nosnippet>1994</a>}</code></pre></div></section></main></body></html>
