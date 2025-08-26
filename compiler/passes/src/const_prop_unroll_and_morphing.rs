@@ -26,6 +26,7 @@ use crate::{
     Unrolling,
 };
 
+use leo_ast::Node;
 use leo_errors::{CompilerError, Result};
 
 /// Pass that runs const propagation, loop unrolling, and monomorphization until a fixed point.
@@ -83,8 +84,7 @@ impl Pass for ConstPropUnrollAndMorphing {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "call to generic function",
                             call.function.name,
-                            arg,
-                            call.span,
+                            arg.span(),
                         ));
                     }
                 }
@@ -97,8 +97,7 @@ impl Pass for ConstPropUnrollAndMorphing {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "struct expression",
                             expr.name.name,
-                            arg,
-                            expr.span,
+                            arg.span(),
                         ));
                     }
                 }
@@ -111,8 +110,7 @@ impl Pass for ConstPropUnrollAndMorphing {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "struct type",
                             ty.id.name,
-                            arg,
-                            ty.id.span,
+                            arg.span(),
                         ));
                     }
                 }
