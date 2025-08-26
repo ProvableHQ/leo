@@ -1222,6 +1222,10 @@ impl TypeCheckingVisitor<'_> {
     /// An array with an undetermined length (e.g., one that depends on a `const`) is considered equal to other arrays
     /// if their element types match. This allows const propagation to potentially resolve the length before type
     /// checking is performed again.
+    ///
+    /// Composite types are considered equal if their names and resolved program names match.
+    /// If either side still has const generic arguments, they are treated as equal unconditionally
+    /// since monomorphization and other passes of type-checking will handle mismatches later.
     pub fn eq_user(&self, t1: &Type, t2: &Type) -> bool {
         match (t1, t2) {
             (Type::Err, _)
@@ -1257,6 +1261,12 @@ impl TypeCheckingVisitor<'_> {
             (Type::Composite(left), Type::Composite(right)) => {
                 let left_program = left.program.or(self.scope_state.program_name);
                 let right_program = right.program.or(self.scope_state.program_name);
+
+                // If either composite still has const generic arguments, treat them as equal.
+                // Type checking will run again after monomorphization.
+                if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
+                    return true;
+                }
 
                 left.id.name == right.id.name && left_program == right_program
             }

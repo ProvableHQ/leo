@@ -1280,7 +1280,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // in the program in which they are defined.
         let type_ = Type::Composite(CompositeType {
             id: input.name,
-            const_arguments: Vec::new(), // TODO - grab const arguments from `StructExpression`
+            const_arguments: input.const_arguments.clone(),
             program: None,
         });
         self.maybe_assert_type(&type_, additional, input.name.span());
