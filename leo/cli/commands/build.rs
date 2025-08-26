@@ -211,9 +211,13 @@ fn compile_leo_file(
     // Check the program size limit.
     use leo_package::MAX_PROGRAM_SIZE;
     let program_size = bytecode.len();
-    
+
     if program_size > MAX_PROGRAM_SIZE {
-        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(program_name.to_string(), program_size, MAX_PROGRAM_SIZE)));
+        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
+            program_name,
+            program_size,
+            MAX_PROGRAM_SIZE,
+        )));
     }
 
     // Get the AVM bytecode.
