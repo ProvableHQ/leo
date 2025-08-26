@@ -106,8 +106,8 @@ pub const BUILD_DIRECTORY: &str = "build";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 
-/// Maximum allowed program size in bytes (100KB)
-pub const MAX_PROGRAM_SIZE: usize = 100_000;
+/// Maximum allowed program size in bytes.
+pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
 
 pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 
