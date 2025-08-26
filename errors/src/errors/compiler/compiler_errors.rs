@@ -115,8 +115,8 @@ create_messages!(
 
     @formatted
     const_generic_not_resolved {
-        args: (kind: impl Display, item: impl Display, arg: impl Display),
-        msg: format!("Unable to resolve {kind} `{item}`. A non-const expression `{arg}` was provided where a const generic parameter is required."),
+        args: (kind: impl Display, item: impl Display),
+        msg: format!("Unable to resolve {kind} `{item}`. A non-const expression was provided where a const generic parameter is required."),
         help: None,
     }
 
