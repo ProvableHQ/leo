@@ -303,11 +303,15 @@ fn parse_dependencies_from_aleo(
 ) -> Result<IndexSet<Dependency>> {
     // Check if the program size exceeds the maximum allowed limit.
     let program_size = bytecode.len();
-    
+
     if program_size > MAX_PROGRAM_SIZE {
-        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(name.to_string(), program_size, MAX_PROGRAM_SIZE)));
+        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
+            name,
+            program_size,
+            MAX_PROGRAM_SIZE,
+        )));
     }
-    
+
     // Parse the bytecode into an SVM program.
     let svm_program: SvmProgram<TestnetV0> = bytecode.parse().map_err(|_| UtilError::snarkvm_parsing_error(name))?;
     let dependencies = svm_program
