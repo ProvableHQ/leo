@@ -188,12 +188,14 @@ pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> 
     use snarkvm::prelude::{Program, TestnetV0};
     use std::str::FromStr as _;
     
+    // Check if the program size exceeds the maximum allowed limit.
     let program_size = program.len();
     
     if program_size > MAX_PROGRAM_SIZE {
         return Err(UtilError::program_size_limit_exceeded(name, program_size, MAX_PROGRAM_SIZE));
     }
     
+    // Parse the program to verify it's valid Aleo instructions.
     match Program::<TestnetV0>::from_str(program) {
         Ok(_) => Ok(()),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name)),
