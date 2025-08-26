@@ -74,6 +74,9 @@ impl Type {
     ///
     /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
     ///
+    /// Composite types are considered equal if their names match. If either side still has const generic arguments,
+    /// they are treated as equal unconditionally since monomorphization and other passes of type-checking will handle
+    /// mismatches later.
     pub fn eq_flat_relaxed(&self, other: &Self) -> bool {
         match (self, other) {
             (Type::Address, Type::Address)
@@ -106,7 +109,15 @@ impl Type {
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
-            (Type::Composite(left), Type::Composite(right)) => left.id.name == right.id.name,
+            (Type::Composite(left), Type::Composite(right)) => {
+                // If either composite still has const generic arguments, treat them as equal.
+                // Type checking will run again after monomorphization.
+                if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
+                    return true;
+                }
+
+                left.id.name == right.id.name
+            }
             // Don't type check when type hasn't been explicitly defined.
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
