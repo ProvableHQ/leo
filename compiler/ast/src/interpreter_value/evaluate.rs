@@ -202,6 +202,7 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
             let unsuffixed = Value { id: None, contents: ValueVariants::Unsuffixed(s.clone()) };
             unsuffixed.resolve_if_unsuffixed(expected_ty, literal.span)?
         }
+        LiteralVariant::None => halt_no_span2!(""),
         LiteralVariant::String(..) => tc_fail2!(),
     })
 }

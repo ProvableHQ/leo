@@ -89,7 +89,7 @@ fn to_type(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) -> R
                     id: builder.next_id(),
                 };
                 leo_ast::CompositeType {
-                    path: leo_ast::Path::new(Vec::new(), name_id, None, name_id.span, builder.next_id()),
+                    path: leo_ast::Path::new(Vec::new(), name_id, false, None, name_id.span, builder.next_id()),
                     const_arguments: Vec::new(),
                     program: Some(Symbol::intern(program)),
                 }
@@ -107,7 +107,7 @@ fn to_type(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) -> R
                         .collect::<Result<Vec<_>>>()?;
                 }
                 let identifier = path_components.pop().unwrap();
-                let path = leo_ast::Path::new(path_components, identifier, None, name.span, builder.next_id());
+                let path = leo_ast::Path::new(path_components, identifier, false, None, name.span, builder.next_id());
                 leo_ast::CompositeType { path, const_arguments, program: None }.into()
             }
         }
@@ -144,6 +144,14 @@ fn to_type(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) -> R
         }
         TypeKind::Mapping => {
             todo!()
+        }
+        TypeKind::Optional => {
+            let [inner_type, _q] = &node.children[..] else {
+                // This "Can't happen" panic, like others in this file, will not be triggered unless
+                // there is an error in grammar.lalrpop.
+                panic!("Can't happen");
+            };
+            leo_ast::Type::Optional(leo_ast::OptionalType { inner: Box::new(to_type(inner_type, builder, handler)?) })
         }
         TypeKind::Scalar => leo_ast::Type::Scalar,
         TypeKind::Signature => leo_ast::Type::Signature,
@@ -487,13 +495,13 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 let lo = node.span.lo + first.len() as u32 + ".aleo/".len() as u32;
                 let second_span = Span { lo, hi: lo + second.len() as u32 };
                 let identifier = leo_ast::Identifier { name: symbol, span: second_span, id: builder.next_id() };
-                let function = leo_ast::Path::new(Vec::new(), identifier, None, span, builder.next_id());
+                let function = leo_ast::Path::new(Vec::new(), identifier, false, None, span, builder.next_id());
                 (function, Some(Symbol::intern(first)))
             } else {
                 // It's a path.
                 let mut components = path_to_parts(name, builder);
                 let identifier = components.pop().unwrap();
-                let function = leo_ast::Path::new(components, identifier, None, name.span, builder.next_id());
+                let function = leo_ast::Path::new(components, identifier, false, None, name.span, builder.next_id());
                 (function, None)
             };
 
@@ -526,7 +534,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
             // lossless tree just has the span of the entire path.
             let mut identifiers = path_to_parts(&node.children[0], builder);
             let identifier = identifiers.pop().unwrap();
-            leo_ast::Path::new(identifiers, identifier, None, span, id).into()
+            leo_ast::Path::new(identifiers, identifier, false, None, span, id).into()
         }
         ExpressionKind::Literal(literal_kind) => match literal_kind {
             LiteralKind::Address => {
@@ -560,6 +568,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 };
                 leo_ast::Literal::integer(integer_type, text(), span, id).into()
             }
+            LiteralKind::None => leo_ast::Literal::none(span, id).into(),
             LiteralKind::Scalar => leo_ast::Literal::scalar(text(), span, id).into(),
             LiteralKind::Unsuffixed => leo_ast::Literal::unsuffixed(text(), span, id).into(),
             LiteralKind::String => leo_ast::Literal::string(text(), span, id).into(),
@@ -648,6 +657,28 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id: builder.next_id(),
                 }
                 .into()
+            } else if let (0, Some(leo_ast::CoreFunction::OptionalUnwrap)) =
+                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Optional, name.name))
+            {
+                leo_ast::AssociatedFunctionExpression {
+                    variant: leo_ast::Identifier::new(sym::Optional, builder.next_id()),
+                    name,
+                    arguments: vec![receiver],
+                    span,
+                    id: builder.next_id(),
+                }
+                .into()
+            } else if let (1, Some(leo_ast::CoreFunction::OptionalUnwrapOr)) =
+                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Optional, name.name))
+            {
+                leo_ast::AssociatedFunctionExpression {
+                    variant: leo_ast::Identifier::new(sym::Optional, builder.next_id()),
+                    name,
+                    arguments: std::iter::once(receiver).chain(args).collect(),
+                    span,
+                    id: builder.next_id(),
+                }
+                .into()
             } else {
                 // Attempt to parse the method call as a mapping operation.
                 match (args.len(), leo_ast::CoreFunction::from_symbols(sym::Mapping, name.name)) {
@@ -730,7 +761,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
 
             let mut identifiers = path_to_parts(name, builder);
             let identifier = identifiers.pop().unwrap();
-            let path = leo_ast::Path::new(identifiers, identifier, None, name.span, builder.next_id());
+            let path = leo_ast::Path::new(identifiers, identifier, false, None, name.span, builder.next_id());
 
             leo_ast::StructExpression { path, const_arguments, members, span, id }.into()
         }

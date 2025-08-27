@@ -457,6 +457,14 @@ pub fn evaluate_core_function(
             };
             helper.mapping_get(program, name, &key).is_some().into()
         }
+        CoreFunction::OptionalUnwrap => {
+            // TODO
+            return Ok(None);
+        }
+        CoreFunction::OptionalUnwrapOr => {
+            // TODO
+            return Ok(None);
+        }
         CoreFunction::SignatureVerify => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
 

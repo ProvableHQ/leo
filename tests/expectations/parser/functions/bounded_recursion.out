@@ -94,6 +94,7 @@
                               },
                               "id": 6
                             },
+                            "is_absolute": false,
                             "absolute_path": null,
                             "span": {
                               "lo": 72,
@@ -141,6 +142,7 @@
                                     },
                                     "id": 14
                                   },
+                                  "is_absolute": false,
                                   "absolute_path": null,
                                   "span": {
                                     "lo": 95,
@@ -163,6 +165,7 @@
                                             },
                                             "id": 12
                                           },
+                                          "is_absolute": false,
                                           "absolute_path": null,
                                           "span": {
                                             "lo": 97,
@@ -300,6 +303,7 @@
                             },
                             "id": 26
                           },
+                          "is_absolute": false,
                           "absolute_path": null,
                           "span": {
                             "lo": 168,
@@ -353,6 +357,7 @@
                           },
                           "id": 30
                         },
+                        "is_absolute": false,
                         "absolute_path": null,
                         "span": {
                           "lo": 192,

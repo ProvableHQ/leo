@@ -47,11 +47,14 @@ pub use flattening::*;
 mod function_inlining;
 pub use function_inlining::*;
 
+mod loop_unrolling;
+pub use loop_unrolling::*;
+
 mod monomorphization;
 pub use monomorphization::*;
 
-mod loop_unrolling;
-pub use loop_unrolling::*;
+mod option_lowering;
+pub use option_lowering::*;
 
 mod path_resolution;
 pub use path_resolution::*;
