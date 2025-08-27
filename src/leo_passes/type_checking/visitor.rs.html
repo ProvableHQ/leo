@@ -1222,207 +1222,217 @@
 <a href=#1222 id=1222 data-nosnippet>1222</a>    /// An array with an undetermined length (e.g., one that depends on a `const`) is considered equal to other arrays
 <a href=#1223 id=1223 data-nosnippet>1223</a>    /// if their element types match. This allows const propagation to potentially resolve the length before type
 <a href=#1224 id=1224 data-nosnippet>1224</a>    /// checking is performed again.
-<a href=#1225 id=1225 data-nosnippet>1225</a>    </span><span class="kw">pub fn </span>eq_user(<span class="kw-2">&amp;</span><span class="self">self</span>, t1: <span class="kw-2">&amp;</span>Type, t2: <span class="kw-2">&amp;</span>Type) -&gt; bool {
-<a href=#1226 id=1226 data-nosnippet>1226</a>        <span class="kw">match </span>(t1, t2) {
-<a href=#1227 id=1227 data-nosnippet>1227</a>            (Type::Err, <span class="kw">_</span>)
-<a href=#1228 id=1228 data-nosnippet>1228</a>            | (<span class="kw">_</span>, Type::Err)
-<a href=#1229 id=1229 data-nosnippet>1229</a>            | (Type::Address, Type::Address)
-<a href=#1230 id=1230 data-nosnippet>1230</a>            | (Type::Boolean, Type::Boolean)
-<a href=#1231 id=1231 data-nosnippet>1231</a>            | (Type::Field, Type::Field)
-<a href=#1232 id=1232 data-nosnippet>1232</a>            | (Type::Group, Type::Group)
-<a href=#1233 id=1233 data-nosnippet>1233</a>            | (Type::Scalar, Type::Scalar)
-<a href=#1234 id=1234 data-nosnippet>1234</a>            | (Type::Signature, Type::Signature)
-<a href=#1235 id=1235 data-nosnippet>1235</a>            | (Type::String, Type::String)
-<a href=#1236 id=1236 data-nosnippet>1236</a>            | (Type::Unit, Type::Unit) =&gt; <span class="bool-val">true</span>,
-<a href=#1237 id=1237 data-nosnippet>1237</a>            (Type::Array(left), Type::Array(right)) =&gt; {
-<a href=#1238 id=1238 data-nosnippet>1238</a>                (<span class="kw">match </span>(left.length.as_u32(), right.length.as_u32()) {
-<a href=#1239 id=1239 data-nosnippet>1239</a>                    (<span class="prelude-val">Some</span>(l1), <span class="prelude-val">Some</span>(l2)) =&gt; l1 == l2,
-<a href=#1240 id=1240 data-nosnippet>1240</a>                    <span class="kw">_ </span>=&gt; {
-<a href=#1241 id=1241 data-nosnippet>1241</a>                        <span class="comment">// An array with an undetermined length (e.g., one that depends on a `const`) is considered
-<a href=#1242 id=1242 data-nosnippet>1242</a>                        // equal to other arrays because their lengths _may_ eventually be proven equal.
-<a href=#1243 id=1243 data-nosnippet>1243</a>                        </span><span class="bool-val">true
-<a href=#1244 id=1244 data-nosnippet>1244</a>                    </span>}
-<a href=#1245 id=1245 data-nosnippet>1245</a>                }) &amp;&amp; <span class="self">self</span>.eq_user(left.element_type(), right.element_type())
-<a href=#1246 id=1246 data-nosnippet>1246</a>            }
-<a href=#1247 id=1247 data-nosnippet>1247</a>            (Type::Identifier(left), Type::Identifier(right)) =&gt; left.name == right.name,
-<a href=#1248 id=1248 data-nosnippet>1248</a>            (Type::Integer(left), Type::Integer(right)) =&gt; left == right,
-<a href=#1249 id=1249 data-nosnippet>1249</a>            (Type::Mapping(left), Type::Mapping(right)) =&gt; {
-<a href=#1250 id=1250 data-nosnippet>1250</a>                <span class="self">self</span>.eq_user(<span class="kw-2">&amp;</span>left.key, <span class="kw-2">&amp;</span>right.key) &amp;&amp; <span class="self">self</span>.eq_user(<span class="kw-2">&amp;</span>left.value, <span class="kw-2">&amp;</span>right.value)
-<a href=#1251 id=1251 data-nosnippet>1251</a>            }
-<a href=#1252 id=1252 data-nosnippet>1252</a>            (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.length() == right.length() =&gt; left
-<a href=#1253 id=1253 data-nosnippet>1253</a>                .elements()
-<a href=#1254 id=1254 data-nosnippet>1254</a>                .iter()
-<a href=#1255 id=1255 data-nosnippet>1255</a>                .zip_eq(right.elements().iter())
-<a href=#1256 id=1256 data-nosnippet>1256</a>                .all(|(left_type, right_type)| <span class="self">self</span>.eq_user(left_type, right_type)),
-<a href=#1257 id=1257 data-nosnippet>1257</a>            (Type::Composite(left), Type::Composite(right)) =&gt; {
-<a href=#1258 id=1258 data-nosnippet>1258</a>                <span class="kw">let </span>left_program = left.program.or(<span class="self">self</span>.scope_state.program_name);
-<a href=#1259 id=1259 data-nosnippet>1259</a>                <span class="kw">let </span>right_program = right.program.or(<span class="self">self</span>.scope_state.program_name);
-<a href=#1260 id=1260 data-nosnippet>1260</a>
-<a href=#1261 id=1261 data-nosnippet>1261</a>                left.id.name == right.id.name &amp;&amp; left_program == right_program
-<a href=#1262 id=1262 data-nosnippet>1262</a>            }
-<a href=#1263 id=1263 data-nosnippet>1263</a>            (Type::Future(left), Type::Future(right)) <span class="kw">if </span>!left.is_explicit || !right.is_explicit =&gt; <span class="bool-val">true</span>,
-<a href=#1264 id=1264 data-nosnippet>1264</a>            (Type::Future(left), Type::Future(right)) <span class="kw">if </span>left.inputs.len() == right.inputs.len() =&gt; left
-<a href=#1265 id=1265 data-nosnippet>1265</a>                .inputs()
-<a href=#1266 id=1266 data-nosnippet>1266</a>                .iter()
-<a href=#1267 id=1267 data-nosnippet>1267</a>                .zip_eq(right.inputs().iter())
-<a href=#1268 id=1268 data-nosnippet>1268</a>                .all(|(left_type, right_type)| <span class="self">self</span>.eq_user(left_type, right_type)),
-<a href=#1269 id=1269 data-nosnippet>1269</a>            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-<a href=#1270 id=1270 data-nosnippet>1270</a>        }
-<a href=#1271 id=1271 data-nosnippet>1271</a>    }
-<a href=#1272 id=1272 data-nosnippet>1272</a>
-<a href=#1273 id=1273 data-nosnippet>1273</a>    <span class="doccomment">/// Wrapper around lookup_struct that additionally records all structs that are used in the program.
-<a href=#1274 id=1274 data-nosnippet>1274</a>    </span><span class="kw">pub fn </span>lookup_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;, name: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;Composite&gt; {
-<a href=#1275 id=1275 data-nosnippet>1275</a>        <span class="kw">let </span>record_comp = program.and_then(|prog| <span class="self">self</span>.state.symbol_table.lookup_record(Location::new(prog, name)));
-<a href=#1276 id=1276 data-nosnippet>1276</a>        <span class="kw">let </span>comp = record_comp.or_else(|| <span class="self">self</span>.state.symbol_table.lookup_struct(name));
-<a href=#1277 id=1277 data-nosnippet>1277</a>        <span class="comment">// Record the usage.
-<a href=#1278 id=1278 data-nosnippet>1278</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = comp {
-<a href=#1279 id=1279 data-nosnippet>1279</a>            <span class="comment">// If it's a struct or internal record, mark it used.
-<a href=#1280 id=1280 data-nosnippet>1280</a>            </span><span class="kw">if </span>!s.is_record || program == <span class="self">self</span>.scope_state.program_name {
-<a href=#1281 id=1281 data-nosnippet>1281</a>                <span class="self">self</span>.used_structs.insert(s.identifier.name);
-<a href=#1282 id=1282 data-nosnippet>1282</a>            }
-<a href=#1283 id=1283 data-nosnippet>1283</a>        }
-<a href=#1284 id=1284 data-nosnippet>1284</a>        comp.cloned()
-<a href=#1285 id=1285 data-nosnippet>1285</a>    }
-<a href=#1286 id=1286 data-nosnippet>1286</a>
-<a href=#1287 id=1287 data-nosnippet>1287</a>    <span class="doccomment">/// Inserts variable to symbol table.
-<a href=#1288 id=1288 data-nosnippet>1288</a>    </span><span class="kw">pub fn </span>insert_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, inferred_type: <span class="prelude-ty">Option</span>&lt;Type&gt;, name: <span class="kw-2">&amp;</span>Identifier, type_: Type, span: Span) {
-<a href=#1289 id=1289 data-nosnippet>1289</a>        <span class="self">self</span>.insert_symbol_conditional_scope(name.name);
-<a href=#1290 id=1290 data-nosnippet>1290</a>
-<a href=#1291 id=1291 data-nosnippet>1291</a>        <span class="kw">let </span>is_future = <span class="kw">match </span><span class="kw-2">&amp;</span>type_ {
-<a href=#1292 id=1292 data-nosnippet>1292</a>            Type::Future(..) =&gt; <span class="bool-val">true</span>,
-<a href=#1293 id=1293 data-nosnippet>1293</a>            Type::Tuple(tuple_type) <span class="kw">if </span><span class="macro">matches!</span>(tuple_type.elements().last(), <span class="prelude-val">Some</span>(Type::Future(..))) =&gt; <span class="bool-val">true</span>,
-<a href=#1294 id=1294 data-nosnippet>1294</a>            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-<a href=#1295 id=1295 data-nosnippet>1295</a>        };
+<a href=#1225 id=1225 data-nosnippet>1225</a>    ///
+<a href=#1226 id=1226 data-nosnippet>1226</a>    /// Composite types are considered equal if their names and resolved program names match.
+<a href=#1227 id=1227 data-nosnippet>1227</a>    /// If either side still has const generic arguments, they are treated as equal unconditionally
+<a href=#1228 id=1228 data-nosnippet>1228</a>    /// since monomorphization and other passes of type-checking will handle mismatches later.
+<a href=#1229 id=1229 data-nosnippet>1229</a>    </span><span class="kw">pub fn </span>eq_user(<span class="kw-2">&amp;</span><span class="self">self</span>, t1: <span class="kw-2">&amp;</span>Type, t2: <span class="kw-2">&amp;</span>Type) -&gt; bool {
+<a href=#1230 id=1230 data-nosnippet>1230</a>        <span class="kw">match </span>(t1, t2) {
+<a href=#1231 id=1231 data-nosnippet>1231</a>            (Type::Err, <span class="kw">_</span>)
+<a href=#1232 id=1232 data-nosnippet>1232</a>            | (<span class="kw">_</span>, Type::Err)
+<a href=#1233 id=1233 data-nosnippet>1233</a>            | (Type::Address, Type::Address)
+<a href=#1234 id=1234 data-nosnippet>1234</a>            | (Type::Boolean, Type::Boolean)
+<a href=#1235 id=1235 data-nosnippet>1235</a>            | (Type::Field, Type::Field)
+<a href=#1236 id=1236 data-nosnippet>1236</a>            | (Type::Group, Type::Group)
+<a href=#1237 id=1237 data-nosnippet>1237</a>            | (Type::Scalar, Type::Scalar)
+<a href=#1238 id=1238 data-nosnippet>1238</a>            | (Type::Signature, Type::Signature)
+<a href=#1239 id=1239 data-nosnippet>1239</a>            | (Type::String, Type::String)
+<a href=#1240 id=1240 data-nosnippet>1240</a>            | (Type::Unit, Type::Unit) =&gt; <span class="bool-val">true</span>,
+<a href=#1241 id=1241 data-nosnippet>1241</a>            (Type::Array(left), Type::Array(right)) =&gt; {
+<a href=#1242 id=1242 data-nosnippet>1242</a>                (<span class="kw">match </span>(left.length.as_u32(), right.length.as_u32()) {
+<a href=#1243 id=1243 data-nosnippet>1243</a>                    (<span class="prelude-val">Some</span>(l1), <span class="prelude-val">Some</span>(l2)) =&gt; l1 == l2,
+<a href=#1244 id=1244 data-nosnippet>1244</a>                    <span class="kw">_ </span>=&gt; {
+<a href=#1245 id=1245 data-nosnippet>1245</a>                        <span class="comment">// An array with an undetermined length (e.g., one that depends on a `const`) is considered
+<a href=#1246 id=1246 data-nosnippet>1246</a>                        // equal to other arrays because their lengths _may_ eventually be proven equal.
+<a href=#1247 id=1247 data-nosnippet>1247</a>                        </span><span class="bool-val">true
+<a href=#1248 id=1248 data-nosnippet>1248</a>                    </span>}
+<a href=#1249 id=1249 data-nosnippet>1249</a>                }) &amp;&amp; <span class="self">self</span>.eq_user(left.element_type(), right.element_type())
+<a href=#1250 id=1250 data-nosnippet>1250</a>            }
+<a href=#1251 id=1251 data-nosnippet>1251</a>            (Type::Identifier(left), Type::Identifier(right)) =&gt; left.name == right.name,
+<a href=#1252 id=1252 data-nosnippet>1252</a>            (Type::Integer(left), Type::Integer(right)) =&gt; left == right,
+<a href=#1253 id=1253 data-nosnippet>1253</a>            (Type::Mapping(left), Type::Mapping(right)) =&gt; {
+<a href=#1254 id=1254 data-nosnippet>1254</a>                <span class="self">self</span>.eq_user(<span class="kw-2">&amp;</span>left.key, <span class="kw-2">&amp;</span>right.key) &amp;&amp; <span class="self">self</span>.eq_user(<span class="kw-2">&amp;</span>left.value, <span class="kw-2">&amp;</span>right.value)
+<a href=#1255 id=1255 data-nosnippet>1255</a>            }
+<a href=#1256 id=1256 data-nosnippet>1256</a>            (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.length() == right.length() =&gt; left
+<a href=#1257 id=1257 data-nosnippet>1257</a>                .elements()
+<a href=#1258 id=1258 data-nosnippet>1258</a>                .iter()
+<a href=#1259 id=1259 data-nosnippet>1259</a>                .zip_eq(right.elements().iter())
+<a href=#1260 id=1260 data-nosnippet>1260</a>                .all(|(left_type, right_type)| <span class="self">self</span>.eq_user(left_type, right_type)),
+<a href=#1261 id=1261 data-nosnippet>1261</a>            (Type::Composite(left), Type::Composite(right)) =&gt; {
+<a href=#1262 id=1262 data-nosnippet>1262</a>                <span class="kw">let </span>left_program = left.program.or(<span class="self">self</span>.scope_state.program_name);
+<a href=#1263 id=1263 data-nosnippet>1263</a>                <span class="kw">let </span>right_program = right.program.or(<span class="self">self</span>.scope_state.program_name);
+<a href=#1264 id=1264 data-nosnippet>1264</a>
+<a href=#1265 id=1265 data-nosnippet>1265</a>                <span class="comment">// If either composite still has const generic arguments, treat them as equal.
+<a href=#1266 id=1266 data-nosnippet>1266</a>                // Type checking will run again after monomorphization.
+<a href=#1267 id=1267 data-nosnippet>1267</a>                </span><span class="kw">if </span>!left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
+<a href=#1268 id=1268 data-nosnippet>1268</a>                    <span class="kw">return </span><span class="bool-val">true</span>;
+<a href=#1269 id=1269 data-nosnippet>1269</a>                }
+<a href=#1270 id=1270 data-nosnippet>1270</a>
+<a href=#1271 id=1271 data-nosnippet>1271</a>                left.id.name == right.id.name &amp;&amp; left_program == right_program
+<a href=#1272 id=1272 data-nosnippet>1272</a>            }
+<a href=#1273 id=1273 data-nosnippet>1273</a>            (Type::Future(left), Type::Future(right)) <span class="kw">if </span>!left.is_explicit || !right.is_explicit =&gt; <span class="bool-val">true</span>,
+<a href=#1274 id=1274 data-nosnippet>1274</a>            (Type::Future(left), Type::Future(right)) <span class="kw">if </span>left.inputs.len() == right.inputs.len() =&gt; left
+<a href=#1275 id=1275 data-nosnippet>1275</a>                .inputs()
+<a href=#1276 id=1276 data-nosnippet>1276</a>                .iter()
+<a href=#1277 id=1277 data-nosnippet>1277</a>                .zip_eq(right.inputs().iter())
+<a href=#1278 id=1278 data-nosnippet>1278</a>                .all(|(left_type, right_type)| <span class="self">self</span>.eq_user(left_type, right_type)),
+<a href=#1279 id=1279 data-nosnippet>1279</a>            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+<a href=#1280 id=1280 data-nosnippet>1280</a>        }
+<a href=#1281 id=1281 data-nosnippet>1281</a>    }
+<a href=#1282 id=1282 data-nosnippet>1282</a>
+<a href=#1283 id=1283 data-nosnippet>1283</a>    <span class="doccomment">/// Wrapper around lookup_struct that additionally records all structs that are used in the program.
+<a href=#1284 id=1284 data-nosnippet>1284</a>    </span><span class="kw">pub fn </span>lookup_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;, name: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;Composite&gt; {
+<a href=#1285 id=1285 data-nosnippet>1285</a>        <span class="kw">let </span>record_comp = program.and_then(|prog| <span class="self">self</span>.state.symbol_table.lookup_record(Location::new(prog, name)));
+<a href=#1286 id=1286 data-nosnippet>1286</a>        <span class="kw">let </span>comp = record_comp.or_else(|| <span class="self">self</span>.state.symbol_table.lookup_struct(name));
+<a href=#1287 id=1287 data-nosnippet>1287</a>        <span class="comment">// Record the usage.
+<a href=#1288 id=1288 data-nosnippet>1288</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = comp {
+<a href=#1289 id=1289 data-nosnippet>1289</a>            <span class="comment">// If it's a struct or internal record, mark it used.
+<a href=#1290 id=1290 data-nosnippet>1290</a>            </span><span class="kw">if </span>!s.is_record || program == <span class="self">self</span>.scope_state.program_name {
+<a href=#1291 id=1291 data-nosnippet>1291</a>                <span class="self">self</span>.used_structs.insert(s.identifier.name);
+<a href=#1292 id=1292 data-nosnippet>1292</a>            }
+<a href=#1293 id=1293 data-nosnippet>1293</a>        }
+<a href=#1294 id=1294 data-nosnippet>1294</a>        comp.cloned()
+<a href=#1295 id=1295 data-nosnippet>1295</a>    }
 <a href=#1296 id=1296 data-nosnippet>1296</a>
-<a href=#1297 id=1297 data-nosnippet>1297</a>        <span class="kw">if </span>is_future {
-<a href=#1298 id=1298 data-nosnippet>1298</a>            <span class="comment">// It can happen that the call location has not been set if there was an error
-<a href=#1299 id=1299 data-nosnippet>1299</a>            // in the call that produced the Future.
-<a href=#1300 id=1300 data-nosnippet>1300</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(call_location) = <span class="self">self</span>.scope_state.call_location {
-<a href=#1301 id=1301 data-nosnippet>1301</a>                <span class="self">self</span>.scope_state.futures.insert(name.name, call_location);
-<a href=#1302 id=1302 data-nosnippet>1302</a>            }
-<a href=#1303 id=1303 data-nosnippet>1303</a>        }
-<a href=#1304 id=1304 data-nosnippet>1304</a>
-<a href=#1305 id=1305 data-nosnippet>1305</a>        <span class="kw">let </span>ty = <span class="kw">match </span>(is_future, inferred_type) {
-<a href=#1306 id=1306 data-nosnippet>1306</a>            (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; type_,
-<a href=#1307 id=1307 data-nosnippet>1307</a>            (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(inferred)) =&gt; inferred,
-<a href=#1308 id=1308 data-nosnippet>1308</a>            (<span class="bool-val">true</span>, <span class="prelude-val">None</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees the inferred type is present"</span>),
-<a href=#1309 id=1309 data-nosnippet>1309</a>        };
-<a href=#1310 id=1310 data-nosnippet>1310</a>
-<a href=#1311 id=1311 data-nosnippet>1311</a>        <span class="comment">// Insert the variable into the symbol table.
-<a href=#1312 id=1312 data-nosnippet>1312</a>        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-<a href=#1313 id=1313 data-nosnippet>1313</a>            <span class="self">self</span>.state.symbol_table.insert_variable(<span class="self">self</span>.scope_state.program_name.unwrap(), name.name, VariableSymbol {
-<a href=#1314 id=1314 data-nosnippet>1314</a>                type_: ty.clone(),
-<a href=#1315 id=1315 data-nosnippet>1315</a>                span,
-<a href=#1316 id=1316 data-nosnippet>1316</a>                declaration: VariableType::Mut,
-<a href=#1317 id=1317 data-nosnippet>1317</a>            })
-<a href=#1318 id=1318 data-nosnippet>1318</a>        {
-<a href=#1319 id=1319 data-nosnippet>1319</a>            <span class="self">self</span>.state.handler.emit_err(err);
-<a href=#1320 id=1320 data-nosnippet>1320</a>        }
-<a href=#1321 id=1321 data-nosnippet>1321</a>    }
-<a href=#1322 id=1322 data-nosnippet>1322</a>
-<a href=#1323 id=1323 data-nosnippet>1323</a>    <span class="comment">// Validates whether an access operation is allowed in the current function or block context.
-<a href=#1324 id=1324 data-nosnippet>1324</a>    // This prevents illegal use of certain operations depending on whether the code is inside
-<a href=#1325 id=1325 data-nosnippet>1325</a>    // an async function, an async block, or a finalize block.
-<a href=#1326 id=1326 data-nosnippet>1326</a>    </span><span class="kw">pub fn </span>check_access_allowed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, finalize_op: bool, span: Span) {
-<a href=#1327 id=1327 data-nosnippet>1327</a>        <span class="comment">// Case 1: Operation is not a finalize op, and we're inside an `async` function.
-<a href=#1328 id=1328 data-nosnippet>1328</a>        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; !finalize_op {
-<a href=#1329 id=1329 data-nosnippet>1329</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span));
+<a href=#1297 id=1297 data-nosnippet>1297</a>    <span class="doccomment">/// Inserts variable to symbol table.
+<a href=#1298 id=1298 data-nosnippet>1298</a>    </span><span class="kw">pub fn </span>insert_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, inferred_type: <span class="prelude-ty">Option</span>&lt;Type&gt;, name: <span class="kw-2">&amp;</span>Identifier, type_: Type, span: Span) {
+<a href=#1299 id=1299 data-nosnippet>1299</a>        <span class="self">self</span>.insert_symbol_conditional_scope(name.name);
+<a href=#1300 id=1300 data-nosnippet>1300</a>
+<a href=#1301 id=1301 data-nosnippet>1301</a>        <span class="kw">let </span>is_future = <span class="kw">match </span><span class="kw-2">&amp;</span>type_ {
+<a href=#1302 id=1302 data-nosnippet>1302</a>            Type::Future(..) =&gt; <span class="bool-val">true</span>,
+<a href=#1303 id=1303 data-nosnippet>1303</a>            Type::Tuple(tuple_type) <span class="kw">if </span><span class="macro">matches!</span>(tuple_type.elements().last(), <span class="prelude-val">Some</span>(Type::Future(..))) =&gt; <span class="bool-val">true</span>,
+<a href=#1304 id=1304 data-nosnippet>1304</a>            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+<a href=#1305 id=1305 data-nosnippet>1305</a>        };
+<a href=#1306 id=1306 data-nosnippet>1306</a>
+<a href=#1307 id=1307 data-nosnippet>1307</a>        <span class="kw">if </span>is_future {
+<a href=#1308 id=1308 data-nosnippet>1308</a>            <span class="comment">// It can happen that the call location has not been set if there was an error
+<a href=#1309 id=1309 data-nosnippet>1309</a>            // in the call that produced the Future.
+<a href=#1310 id=1310 data-nosnippet>1310</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(call_location) = <span class="self">self</span>.scope_state.call_location {
+<a href=#1311 id=1311 data-nosnippet>1311</a>                <span class="self">self</span>.scope_state.futures.insert(name.name, call_location);
+<a href=#1312 id=1312 data-nosnippet>1312</a>            }
+<a href=#1313 id=1313 data-nosnippet>1313</a>        }
+<a href=#1314 id=1314 data-nosnippet>1314</a>
+<a href=#1315 id=1315 data-nosnippet>1315</a>        <span class="kw">let </span>ty = <span class="kw">match </span>(is_future, inferred_type) {
+<a href=#1316 id=1316 data-nosnippet>1316</a>            (<span class="bool-val">false</span>, <span class="kw">_</span>) =&gt; type_,
+<a href=#1317 id=1317 data-nosnippet>1317</a>            (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(inferred)) =&gt; inferred,
+<a href=#1318 id=1318 data-nosnippet>1318</a>            (<span class="bool-val">true</span>, <span class="prelude-val">None</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees the inferred type is present"</span>),
+<a href=#1319 id=1319 data-nosnippet>1319</a>        };
+<a href=#1320 id=1320 data-nosnippet>1320</a>
+<a href=#1321 id=1321 data-nosnippet>1321</a>        <span class="comment">// Insert the variable into the symbol table.
+<a href=#1322 id=1322 data-nosnippet>1322</a>        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+<a href=#1323 id=1323 data-nosnippet>1323</a>            <span class="self">self</span>.state.symbol_table.insert_variable(<span class="self">self</span>.scope_state.program_name.unwrap(), name.name, VariableSymbol {
+<a href=#1324 id=1324 data-nosnippet>1324</a>                type_: ty.clone(),
+<a href=#1325 id=1325 data-nosnippet>1325</a>                span,
+<a href=#1326 id=1326 data-nosnippet>1326</a>                declaration: VariableType::Mut,
+<a href=#1327 id=1327 data-nosnippet>1327</a>            })
+<a href=#1328 id=1328 data-nosnippet>1328</a>        {
+<a href=#1329 id=1329 data-nosnippet>1329</a>            <span class="self">self</span>.state.handler.emit_err(err);
 <a href=#1330 id=1330 data-nosnippet>1330</a>        }
-<a href=#1331 id=1331 data-nosnippet>1331</a>        <span class="comment">// Case 2: Operation is not a finalize op, and we're inside an `async` block.
-<a href=#1332 id=1332 data-nosnippet>1332</a>        </span><span class="kw">else if </span><span class="self">self</span>.async_block_id.is_some() &amp;&amp; !finalize_op {
-<a href=#1333 id=1333 data-nosnippet>1333</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_async_block(name, span));
-<a href=#1334 id=1334 data-nosnippet>1334</a>        }
-<a href=#1335 id=1335 data-nosnippet>1335</a>        <span class="comment">// Case 3: Operation *is* a finalize op, but we're *not* inside an async context.
-<a href=#1336 id=1336 data-nosnippet>1336</a>        </span><span class="kw">else if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.scope_state.variant, <span class="prelude-val">Some</span>(Variant::AsyncFunction) | <span class="prelude-val">Some</span>(Variant::Script))
-<a href=#1337 id=1337 data-nosnippet>1337</a>            &amp;&amp; <span class="self">self</span>.async_block_id.is_none()
-<a href=#1338 id=1338 data-nosnippet>1338</a>            &amp;&amp; finalize_op
-<a href=#1339 id=1339 data-nosnippet>1339</a>        {
-<a href=#1340 id=1340 data-nosnippet>1340</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span));
-<a href=#1341 id=1341 data-nosnippet>1341</a>        }
-<a href=#1342 id=1342 data-nosnippet>1342</a>    }
-<a href=#1343 id=1343 data-nosnippet>1343</a>
-<a href=#1344 id=1344 data-nosnippet>1344</a>    <span class="kw">pub fn </span>is_external_record(<span class="kw-2">&amp;</span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span>Type) -&gt; bool {
-<a href=#1345 id=1345 data-nosnippet>1345</a>        <span class="kw">if let </span>Type::Composite(typ) = <span class="kw-2">&amp;</span>ty {
-<a href=#1346 id=1346 data-nosnippet>1346</a>            <span class="kw">let </span>this_program = <span class="self">self</span>.scope_state.program_name.unwrap();
-<a href=#1347 id=1347 data-nosnippet>1347</a>            <span class="kw">let </span>program = typ.program.unwrap_or(this_program);
-<a href=#1348 id=1348 data-nosnippet>1348</a>            program != this_program
-<a href=#1349 id=1349 data-nosnippet>1349</a>                &amp;&amp; <span class="self">self</span>.state.symbol_table.lookup_record(Location::new(program, typ.id.name)).is_some()
-<a href=#1350 id=1350 data-nosnippet>1350</a>        } <span class="kw">else </span>{
-<a href=#1351 id=1351 data-nosnippet>1351</a>            <span class="bool-val">false
-<a href=#1352 id=1352 data-nosnippet>1352</a>        </span>}
-<a href=#1353 id=1353 data-nosnippet>1353</a>    }
-<a href=#1354 id=1354 data-nosnippet>1354</a>
-<a href=#1355 id=1355 data-nosnippet>1355</a>    <span class="kw">pub fn </span>parse_integer_literal&lt;I: FromStrRadix&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, raw_string: <span class="kw-2">&amp;</span>str, span: Span, type_string: <span class="kw-2">&amp;</span>str) {
-<a href=#1356 id=1356 data-nosnippet>1356</a>        <span class="kw">let </span>string = raw_string.replace(<span class="string">'_'</span>, <span class="string">""</span>);
-<a href=#1357 id=1357 data-nosnippet>1357</a>        <span class="kw">if </span>I::from_str_by_radix(<span class="kw-2">&amp;</span>string).is_err() {
-<a href=#1358 id=1358 data-nosnippet>1358</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
-<a href=#1359 id=1359 data-nosnippet>1359</a>        }
-<a href=#1360 id=1360 data-nosnippet>1360</a>    }
-<a href=#1361 id=1361 data-nosnippet>1361</a>
-<a href=#1362 id=1362 data-nosnippet>1362</a>    <span class="comment">// Emit an error and update `ty` to be `Type::Err` indicating that the type of the expression could not be inferred.
-<a href=#1363 id=1363 data-nosnippet>1363</a>    // Also update `type_table` accordingly
-<a href=#1364 id=1364 data-nosnippet>1364</a>    </span><span class="kw">pub fn </span>emit_inference_failure_error(<span class="kw-2">&amp;</span><span class="self">self</span>, ty: <span class="kw-2">&amp;mut </span>Type, expr: <span class="kw-2">&amp;</span>Expression) {
-<a href=#1365 id=1365 data-nosnippet>1365</a>        <span class="self">self</span>.emit_err(TypeCheckerError::could_not_determine_type(expr.clone(), expr.span()));
-<a href=#1366 id=1366 data-nosnippet>1366</a>        <span class="kw-2">*</span>ty = Type::Err;
-<a href=#1367 id=1367 data-nosnippet>1367</a>        <span class="self">self</span>.state.type_table.insert(expr.id(), Type::Err);
-<a href=#1368 id=1368 data-nosnippet>1368</a>    }
-<a href=#1369 id=1369 data-nosnippet>1369</a>
-<a href=#1370 id=1370 data-nosnippet>1370</a>    <span class="comment">// Given a `Literal` and its type, if the literal is a numeric `Unsuffixed` literal, ensure it's a valid literal
-<a href=#1371 id=1371 data-nosnippet>1371</a>    // given the type. E.g., a `256` is not a valid `u8`.
-<a href=#1372 id=1372 data-nosnippet>1372</a>    </span><span class="kw">pub fn </span>check_numeric_literal(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Literal, ty: <span class="kw-2">&amp;</span>Type) -&gt; bool {
-<a href=#1373 id=1373 data-nosnippet>1373</a>        <span class="kw">if let </span>Literal { variant: LiteralVariant::Unsuffixed(s), .. } = input {
-<a href=#1374 id=1374 data-nosnippet>1374</a>            <span class="kw">let </span>span = input.span();
-<a href=#1375 id=1375 data-nosnippet>1375</a>            <span class="kw">let </span>has_nondecimal_prefix =
-<a href=#1376 id=1376 data-nosnippet>1376</a>                |s: <span class="kw-2">&amp;</span>str| [<span class="string">"0x"</span>, <span class="string">"0o"</span>, <span class="string">"0b"</span>, <span class="string">"-0x"</span>, <span class="string">"-0o"</span>, <span class="string">"-0b"</span>].iter().any(|p| s.starts_with(p));
-<a href=#1377 id=1377 data-nosnippet>1377</a>
-<a href=#1378 id=1378 data-nosnippet>1378</a>            <span class="macro">macro_rules!</span> parse_int {
-<a href=#1379 id=1379 data-nosnippet>1379</a>                (<span class="macro-nonterminal">$t</span>:ty, <span class="macro-nonterminal">$name</span>:expr) =&gt; {
-<a href=#1380 id=1380 data-nosnippet>1380</a>                    <span class="self">self</span>.parse_integer_literal::&lt;<span class="macro-nonterminal">$t</span>&gt;(s, span, <span class="macro-nonterminal">$name</span>)
-<a href=#1381 id=1381 data-nosnippet>1381</a>                };
-<a href=#1382 id=1382 data-nosnippet>1382</a>            }
-<a href=#1383 id=1383 data-nosnippet>1383</a>
-<a href=#1384 id=1384 data-nosnippet>1384</a>            <span class="kw">match </span>ty {
-<a href=#1385 id=1385 data-nosnippet>1385</a>                Type::Integer(kind) =&gt; <span class="kw">match </span>kind {
-<a href=#1386 id=1386 data-nosnippet>1386</a>                    IntegerType::U8 =&gt; <span class="macro">parse_int!</span>(u8, <span class="string">"u8"</span>),
-<a href=#1387 id=1387 data-nosnippet>1387</a>                    IntegerType::U16 =&gt; <span class="macro">parse_int!</span>(u16, <span class="string">"u16"</span>),
-<a href=#1388 id=1388 data-nosnippet>1388</a>                    IntegerType::U32 =&gt; <span class="macro">parse_int!</span>(u32, <span class="string">"u32"</span>),
-<a href=#1389 id=1389 data-nosnippet>1389</a>                    IntegerType::U64 =&gt; <span class="macro">parse_int!</span>(u64, <span class="string">"u64"</span>),
-<a href=#1390 id=1390 data-nosnippet>1390</a>                    IntegerType::U128 =&gt; <span class="macro">parse_int!</span>(u128, <span class="string">"u128"</span>),
-<a href=#1391 id=1391 data-nosnippet>1391</a>                    IntegerType::I8 =&gt; <span class="macro">parse_int!</span>(i8, <span class="string">"i8"</span>),
-<a href=#1392 id=1392 data-nosnippet>1392</a>                    IntegerType::I16 =&gt; <span class="macro">parse_int!</span>(i16, <span class="string">"i16"</span>),
-<a href=#1393 id=1393 data-nosnippet>1393</a>                    IntegerType::I32 =&gt; <span class="macro">parse_int!</span>(i32, <span class="string">"i32"</span>),
-<a href=#1394 id=1394 data-nosnippet>1394</a>                    IntegerType::I64 =&gt; <span class="macro">parse_int!</span>(i64, <span class="string">"i64"</span>),
-<a href=#1395 id=1395 data-nosnippet>1395</a>                    IntegerType::I128 =&gt; <span class="macro">parse_int!</span>(i128, <span class="string">"i128"</span>),
-<a href=#1396 id=1396 data-nosnippet>1396</a>                },
-<a href=#1397 id=1397 data-nosnippet>1397</a>                Type::Group =&gt; {
-<a href=#1398 id=1398 data-nosnippet>1398</a>                    <span class="kw">if </span>has_nondecimal_prefix(s) {
-<a href=#1399 id=1399 data-nosnippet>1399</a>                        <span class="comment">// This is not checked in the parser for unsuffixed numerals. So do that here.
-<a href=#1400 id=1400 data-nosnippet>1400</a>                        </span><span class="self">self</span>.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
-<a href=#1401 id=1401 data-nosnippet>1401</a>                        <span class="kw">return </span><span class="bool-val">false</span>;
-<a href=#1402 id=1402 data-nosnippet>1402</a>                    } <span class="kw">else </span>{
-<a href=#1403 id=1403 data-nosnippet>1403</a>                        <span class="kw">let </span>trimmed = s.trim_start_matches(<span class="string">'-'</span>).trim_start_matches(<span class="string">'0'</span>);
-<a href=#1404 id=1404 data-nosnippet>1404</a>                        <span class="kw">if </span>!trimmed.is_empty()
-<a href=#1405 id=1405 data-nosnippet>1405</a>                            &amp;&amp; <span class="macro">format!</span>(<span class="string">"{trimmed}group"</span>)
-<a href=#1406 id=1406 data-nosnippet>1406</a>                                .parse::&lt;snarkvm::prelude::Group&lt;snarkvm::prelude::TestnetV0&gt;&gt;()
-<a href=#1407 id=1407 data-nosnippet>1407</a>                                .is_err()
-<a href=#1408 id=1408 data-nosnippet>1408</a>                        {
-<a href=#1409 id=1409 data-nosnippet>1409</a>                            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_int_value(trimmed, <span class="string">"group"</span>, span));
-<a href=#1410 id=1410 data-nosnippet>1410</a>                            <span class="kw">return </span><span class="bool-val">false</span>;
-<a href=#1411 id=1411 data-nosnippet>1411</a>                        }
-<a href=#1412 id=1412 data-nosnippet>1412</a>                    }
-<a href=#1413 id=1413 data-nosnippet>1413</a>                }
-<a href=#1414 id=1414 data-nosnippet>1414</a>                Type::Field | Type::Scalar =&gt; {
-<a href=#1415 id=1415 data-nosnippet>1415</a>                    <span class="kw">if </span>has_nondecimal_prefix(s) {
-<a href=#1416 id=1416 data-nosnippet>1416</a>                        <span class="comment">// This is not checked in the parser for unsuffixed numerals. So do that here.
-<a href=#1417 id=1417 data-nosnippet>1417</a>                        </span><span class="self">self</span>.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
-<a href=#1418 id=1418 data-nosnippet>1418</a>                        <span class="kw">return </span><span class="bool-val">false</span>;
-<a href=#1419 id=1419 data-nosnippet>1419</a>                    }
-<a href=#1420 id=1420 data-nosnippet>1420</a>                }
-<a href=#1421 id=1421 data-nosnippet>1421</a>                <span class="kw">_ </span>=&gt; {
-<a href=#1422 id=1422 data-nosnippet>1422</a>                    <span class="comment">// Other types aren't expected here
-<a href=#1423 id=1423 data-nosnippet>1423</a>                </span>}
-<a href=#1424 id=1424 data-nosnippet>1424</a>            }
-<a href=#1425 id=1425 data-nosnippet>1425</a>        }
-<a href=#1426 id=1426 data-nosnippet>1426</a>        <span class="bool-val">true
-<a href=#1427 id=1427 data-nosnippet>1427</a>    </span>}
-<a href=#1428 id=1428 data-nosnippet>1428</a>}</code></pre></div></section></main></body></html>
+<a href=#1331 id=1331 data-nosnippet>1331</a>    }
+<a href=#1332 id=1332 data-nosnippet>1332</a>
+<a href=#1333 id=1333 data-nosnippet>1333</a>    <span class="comment">// Validates whether an access operation is allowed in the current function or block context.
+<a href=#1334 id=1334 data-nosnippet>1334</a>    // This prevents illegal use of certain operations depending on whether the code is inside
+<a href=#1335 id=1335 data-nosnippet>1335</a>    // an async function, an async block, or a finalize block.
+<a href=#1336 id=1336 data-nosnippet>1336</a>    </span><span class="kw">pub fn </span>check_access_allowed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, finalize_op: bool, span: Span) {
+<a href=#1337 id=1337 data-nosnippet>1337</a>        <span class="comment">// Case 1: Operation is not a finalize op, and we're inside an `async` function.
+<a href=#1338 id=1338 data-nosnippet>1338</a>        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) &amp;&amp; !finalize_op {
+<a href=#1339 id=1339 data-nosnippet>1339</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span));
+<a href=#1340 id=1340 data-nosnippet>1340</a>        }
+<a href=#1341 id=1341 data-nosnippet>1341</a>        <span class="comment">// Case 2: Operation is not a finalize op, and we're inside an `async` block.
+<a href=#1342 id=1342 data-nosnippet>1342</a>        </span><span class="kw">else if </span><span class="self">self</span>.async_block_id.is_some() &amp;&amp; !finalize_op {
+<a href=#1343 id=1343 data-nosnippet>1343</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_async_block(name, span));
+<a href=#1344 id=1344 data-nosnippet>1344</a>        }
+<a href=#1345 id=1345 data-nosnippet>1345</a>        <span class="comment">// Case 3: Operation *is* a finalize op, but we're *not* inside an async context.
+<a href=#1346 id=1346 data-nosnippet>1346</a>        </span><span class="kw">else if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.scope_state.variant, <span class="prelude-val">Some</span>(Variant::AsyncFunction) | <span class="prelude-val">Some</span>(Variant::Script))
+<a href=#1347 id=1347 data-nosnippet>1347</a>            &amp;&amp; <span class="self">self</span>.async_block_id.is_none()
+<a href=#1348 id=1348 data-nosnippet>1348</a>            &amp;&amp; finalize_op
+<a href=#1349 id=1349 data-nosnippet>1349</a>        {
+<a href=#1350 id=1350 data-nosnippet>1350</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span));
+<a href=#1351 id=1351 data-nosnippet>1351</a>        }
+<a href=#1352 id=1352 data-nosnippet>1352</a>    }
+<a href=#1353 id=1353 data-nosnippet>1353</a>
+<a href=#1354 id=1354 data-nosnippet>1354</a>    <span class="kw">pub fn </span>is_external_record(<span class="kw-2">&amp;</span><span class="self">self</span>, ty: <span class="kw-2">&amp;</span>Type) -&gt; bool {
+<a href=#1355 id=1355 data-nosnippet>1355</a>        <span class="kw">if let </span>Type::Composite(typ) = <span class="kw-2">&amp;</span>ty {
+<a href=#1356 id=1356 data-nosnippet>1356</a>            <span class="kw">let </span>this_program = <span class="self">self</span>.scope_state.program_name.unwrap();
+<a href=#1357 id=1357 data-nosnippet>1357</a>            <span class="kw">let </span>program = typ.program.unwrap_or(this_program);
+<a href=#1358 id=1358 data-nosnippet>1358</a>            program != this_program
+<a href=#1359 id=1359 data-nosnippet>1359</a>                &amp;&amp; <span class="self">self</span>.state.symbol_table.lookup_record(Location::new(program, typ.id.name)).is_some()
+<a href=#1360 id=1360 data-nosnippet>1360</a>        } <span class="kw">else </span>{
+<a href=#1361 id=1361 data-nosnippet>1361</a>            <span class="bool-val">false
+<a href=#1362 id=1362 data-nosnippet>1362</a>        </span>}
+<a href=#1363 id=1363 data-nosnippet>1363</a>    }
+<a href=#1364 id=1364 data-nosnippet>1364</a>
+<a href=#1365 id=1365 data-nosnippet>1365</a>    <span class="kw">pub fn </span>parse_integer_literal&lt;I: FromStrRadix&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, raw_string: <span class="kw-2">&amp;</span>str, span: Span, type_string: <span class="kw-2">&amp;</span>str) {
+<a href=#1366 id=1366 data-nosnippet>1366</a>        <span class="kw">let </span>string = raw_string.replace(<span class="string">'_'</span>, <span class="string">""</span>);
+<a href=#1367 id=1367 data-nosnippet>1367</a>        <span class="kw">if </span>I::from_str_by_radix(<span class="kw-2">&amp;</span>string).is_err() {
+<a href=#1368 id=1368 data-nosnippet>1368</a>            <span class="self">self</span>.state.handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
+<a href=#1369 id=1369 data-nosnippet>1369</a>        }
+<a href=#1370 id=1370 data-nosnippet>1370</a>    }
+<a href=#1371 id=1371 data-nosnippet>1371</a>
+<a href=#1372 id=1372 data-nosnippet>1372</a>    <span class="comment">// Emit an error and update `ty` to be `Type::Err` indicating that the type of the expression could not be inferred.
+<a href=#1373 id=1373 data-nosnippet>1373</a>    // Also update `type_table` accordingly
+<a href=#1374 id=1374 data-nosnippet>1374</a>    </span><span class="kw">pub fn </span>emit_inference_failure_error(<span class="kw-2">&amp;</span><span class="self">self</span>, ty: <span class="kw-2">&amp;mut </span>Type, expr: <span class="kw-2">&amp;</span>Expression) {
+<a href=#1375 id=1375 data-nosnippet>1375</a>        <span class="self">self</span>.emit_err(TypeCheckerError::could_not_determine_type(expr.clone(), expr.span()));
+<a href=#1376 id=1376 data-nosnippet>1376</a>        <span class="kw-2">*</span>ty = Type::Err;
+<a href=#1377 id=1377 data-nosnippet>1377</a>        <span class="self">self</span>.state.type_table.insert(expr.id(), Type::Err);
+<a href=#1378 id=1378 data-nosnippet>1378</a>    }
+<a href=#1379 id=1379 data-nosnippet>1379</a>
+<a href=#1380 id=1380 data-nosnippet>1380</a>    <span class="comment">// Given a `Literal` and its type, if the literal is a numeric `Unsuffixed` literal, ensure it's a valid literal
+<a href=#1381 id=1381 data-nosnippet>1381</a>    // given the type. E.g., a `256` is not a valid `u8`.
+<a href=#1382 id=1382 data-nosnippet>1382</a>    </span><span class="kw">pub fn </span>check_numeric_literal(<span class="kw-2">&amp;</span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Literal, ty: <span class="kw-2">&amp;</span>Type) -&gt; bool {
+<a href=#1383 id=1383 data-nosnippet>1383</a>        <span class="kw">if let </span>Literal { variant: LiteralVariant::Unsuffixed(s), .. } = input {
+<a href=#1384 id=1384 data-nosnippet>1384</a>            <span class="kw">let </span>span = input.span();
+<a href=#1385 id=1385 data-nosnippet>1385</a>            <span class="kw">let </span>has_nondecimal_prefix =
+<a href=#1386 id=1386 data-nosnippet>1386</a>                |s: <span class="kw-2">&amp;</span>str| [<span class="string">"0x"</span>, <span class="string">"0o"</span>, <span class="string">"0b"</span>, <span class="string">"-0x"</span>, <span class="string">"-0o"</span>, <span class="string">"-0b"</span>].iter().any(|p| s.starts_with(p));
+<a href=#1387 id=1387 data-nosnippet>1387</a>
+<a href=#1388 id=1388 data-nosnippet>1388</a>            <span class="macro">macro_rules!</span> parse_int {
+<a href=#1389 id=1389 data-nosnippet>1389</a>                (<span class="macro-nonterminal">$t</span>:ty, <span class="macro-nonterminal">$name</span>:expr) =&gt; {
+<a href=#1390 id=1390 data-nosnippet>1390</a>                    <span class="self">self</span>.parse_integer_literal::&lt;<span class="macro-nonterminal">$t</span>&gt;(s, span, <span class="macro-nonterminal">$name</span>)
+<a href=#1391 id=1391 data-nosnippet>1391</a>                };
+<a href=#1392 id=1392 data-nosnippet>1392</a>            }
+<a href=#1393 id=1393 data-nosnippet>1393</a>
+<a href=#1394 id=1394 data-nosnippet>1394</a>            <span class="kw">match </span>ty {
+<a href=#1395 id=1395 data-nosnippet>1395</a>                Type::Integer(kind) =&gt; <span class="kw">match </span>kind {
+<a href=#1396 id=1396 data-nosnippet>1396</a>                    IntegerType::U8 =&gt; <span class="macro">parse_int!</span>(u8, <span class="string">"u8"</span>),
+<a href=#1397 id=1397 data-nosnippet>1397</a>                    IntegerType::U16 =&gt; <span class="macro">parse_int!</span>(u16, <span class="string">"u16"</span>),
+<a href=#1398 id=1398 data-nosnippet>1398</a>                    IntegerType::U32 =&gt; <span class="macro">parse_int!</span>(u32, <span class="string">"u32"</span>),
+<a href=#1399 id=1399 data-nosnippet>1399</a>                    IntegerType::U64 =&gt; <span class="macro">parse_int!</span>(u64, <span class="string">"u64"</span>),
+<a href=#1400 id=1400 data-nosnippet>1400</a>                    IntegerType::U128 =&gt; <span class="macro">parse_int!</span>(u128, <span class="string">"u128"</span>),
+<a href=#1401 id=1401 data-nosnippet>1401</a>                    IntegerType::I8 =&gt; <span class="macro">parse_int!</span>(i8, <span class="string">"i8"</span>),
+<a href=#1402 id=1402 data-nosnippet>1402</a>                    IntegerType::I16 =&gt; <span class="macro">parse_int!</span>(i16, <span class="string">"i16"</span>),
+<a href=#1403 id=1403 data-nosnippet>1403</a>                    IntegerType::I32 =&gt; <span class="macro">parse_int!</span>(i32, <span class="string">"i32"</span>),
+<a href=#1404 id=1404 data-nosnippet>1404</a>                    IntegerType::I64 =&gt; <span class="macro">parse_int!</span>(i64, <span class="string">"i64"</span>),
+<a href=#1405 id=1405 data-nosnippet>1405</a>                    IntegerType::I128 =&gt; <span class="macro">parse_int!</span>(i128, <span class="string">"i128"</span>),
+<a href=#1406 id=1406 data-nosnippet>1406</a>                },
+<a href=#1407 id=1407 data-nosnippet>1407</a>                Type::Group =&gt; {
+<a href=#1408 id=1408 data-nosnippet>1408</a>                    <span class="kw">if </span>has_nondecimal_prefix(s) {
+<a href=#1409 id=1409 data-nosnippet>1409</a>                        <span class="comment">// This is not checked in the parser for unsuffixed numerals. So do that here.
+<a href=#1410 id=1410 data-nosnippet>1410</a>                        </span><span class="self">self</span>.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+<a href=#1411 id=1411 data-nosnippet>1411</a>                        <span class="kw">return </span><span class="bool-val">false</span>;
+<a href=#1412 id=1412 data-nosnippet>1412</a>                    } <span class="kw">else </span>{
+<a href=#1413 id=1413 data-nosnippet>1413</a>                        <span class="kw">let </span>trimmed = s.trim_start_matches(<span class="string">'-'</span>).trim_start_matches(<span class="string">'0'</span>);
+<a href=#1414 id=1414 data-nosnippet>1414</a>                        <span class="kw">if </span>!trimmed.is_empty()
+<a href=#1415 id=1415 data-nosnippet>1415</a>                            &amp;&amp; <span class="macro">format!</span>(<span class="string">"{trimmed}group"</span>)
+<a href=#1416 id=1416 data-nosnippet>1416</a>                                .parse::&lt;snarkvm::prelude::Group&lt;snarkvm::prelude::TestnetV0&gt;&gt;()
+<a href=#1417 id=1417 data-nosnippet>1417</a>                                .is_err()
+<a href=#1418 id=1418 data-nosnippet>1418</a>                        {
+<a href=#1419 id=1419 data-nosnippet>1419</a>                            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_int_value(trimmed, <span class="string">"group"</span>, span));
+<a href=#1420 id=1420 data-nosnippet>1420</a>                            <span class="kw">return </span><span class="bool-val">false</span>;
+<a href=#1421 id=1421 data-nosnippet>1421</a>                        }
+<a href=#1422 id=1422 data-nosnippet>1422</a>                    }
+<a href=#1423 id=1423 data-nosnippet>1423</a>                }
+<a href=#1424 id=1424 data-nosnippet>1424</a>                Type::Field | Type::Scalar =&gt; {
+<a href=#1425 id=1425 data-nosnippet>1425</a>                    <span class="kw">if </span>has_nondecimal_prefix(s) {
+<a href=#1426 id=1426 data-nosnippet>1426</a>                        <span class="comment">// This is not checked in the parser for unsuffixed numerals. So do that here.
+<a href=#1427 id=1427 data-nosnippet>1427</a>                        </span><span class="self">self</span>.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+<a href=#1428 id=1428 data-nosnippet>1428</a>                        <span class="kw">return </span><span class="bool-val">false</span>;
+<a href=#1429 id=1429 data-nosnippet>1429</a>                    }
+<a href=#1430 id=1430 data-nosnippet>1430</a>                }
+<a href=#1431 id=1431 data-nosnippet>1431</a>                <span class="kw">_ </span>=&gt; {
+<a href=#1432 id=1432 data-nosnippet>1432</a>                    <span class="comment">// Other types aren't expected here
+<a href=#1433 id=1433 data-nosnippet>1433</a>                </span>}
+<a href=#1434 id=1434 data-nosnippet>1434</a>            }
+<a href=#1435 id=1435 data-nosnippet>1435</a>        }
+<a href=#1436 id=1436 data-nosnippet>1436</a>        <span class="bool-val">true
+<a href=#1437 id=1437 data-nosnippet>1437</a>    </span>}
+<a href=#1438 id=1438 data-nosnippet>1438</a>}</code></pre></div></section></main></body></html>

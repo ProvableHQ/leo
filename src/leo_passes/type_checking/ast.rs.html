@@ -1280,8 +1280,8 @@
 <a href=#1280 id=1280 data-nosnippet>1280</a>        // in the program in which they are defined.
 <a href=#1281 id=1281 data-nosnippet>1281</a>        </span><span class="kw">let </span>type_ = Type::Composite(CompositeType {
 <a href=#1282 id=1282 data-nosnippet>1282</a>            id: input.name,
-<a href=#1283 id=1283 data-nosnippet>1283</a>            const_arguments: Vec::new(), <span class="comment">// TODO - grab const arguments from `StructExpression`
-<a href=#1284 id=1284 data-nosnippet>1284</a>            </span>program: <span class="prelude-val">None</span>,
+<a href=#1283 id=1283 data-nosnippet>1283</a>            const_arguments: input.const_arguments.clone(),
+<a href=#1284 id=1284 data-nosnippet>1284</a>            program: <span class="prelude-val">None</span>,
 <a href=#1285 id=1285 data-nosnippet>1285</a>        });
 <a href=#1286 id=1286 data-nosnippet>1286</a>        <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>type_, additional, input.name.span());
 <a href=#1287 id=1287 data-nosnippet>1287</a>
