@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::<span class="kw-2">*</span>;
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{MAX_PROGRAM_SIZE, <span class="kw-2">*</span>};
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_errors::{PackageError, <span class="prelude-ty">Result</span>, UtilError};
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>leo_span::Symbol;
@@ -301,21 +301,32 @@
 <a href=#301 id=301 data-nosnippet>301</a>    bytecode: <span class="kw-2">&amp;</span>str,
 <a href=#302 id=302 data-nosnippet>302</a>    existing: <span class="kw-2">&amp;</span>IndexMap&lt;Symbol, Dependency&gt;,
 <a href=#303 id=303 data-nosnippet>303</a>) -&gt; <span class="prelude-ty">Result</span>&lt;IndexSet&lt;Dependency&gt;&gt; {
-<a href=#304 id=304 data-nosnippet>304</a>    <span class="comment">// Parse the bytecode into an SVM program.
-<a href=#305 id=305 data-nosnippet>305</a>    </span><span class="kw">let </span>svm_program: SvmProgram&lt;TestnetV0&gt; = bytecode.parse().map_err(|<span class="kw">_</span>| UtilError::snarkvm_parsing_error(name))<span class="question-mark">?</span>;
-<a href=#306 id=306 data-nosnippet>306</a>    <span class="kw">let </span>dependencies = svm_program
-<a href=#307 id=307 data-nosnippet>307</a>        .imports()
-<a href=#308 id=308 data-nosnippet>308</a>        .keys()
-<a href=#309 id=309 data-nosnippet>309</a>        .map(|program_id| {
-<a href=#310 id=310 data-nosnippet>310</a>            <span class="comment">// If the dependency already exists, use it.
-<a href=#311 id=311 data-nosnippet>311</a>            // Otherwise, assume it's a network dependency.
-<a href=#312 id=312 data-nosnippet>312</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(dependency) = existing.get(<span class="kw-2">&amp;</span>Symbol::intern(<span class="kw-2">&amp;</span>program_id.name().to_string())) {
-<a href=#313 id=313 data-nosnippet>313</a>                dependency.clone()
-<a href=#314 id=314 data-nosnippet>314</a>            } <span class="kw">else </span>{
-<a href=#315 id=315 data-nosnippet>315</a>                <span class="kw">let </span>name = program_id.to_string();
-<a href=#316 id=316 data-nosnippet>316</a>                Dependency { name, location: Location::Network, path: <span class="prelude-val">None</span>, edition: <span class="prelude-val">None </span>}
-<a href=#317 id=317 data-nosnippet>317</a>            }
-<a href=#318 id=318 data-nosnippet>318</a>        })
-<a href=#319 id=319 data-nosnippet>319</a>        .collect();
-<a href=#320 id=320 data-nosnippet>320</a>    <span class="prelude-val">Ok</span>(dependencies)
-<a href=#321 id=321 data-nosnippet>321</a>}</code></pre></div></section></main></body></html>
+<a href=#304 id=304 data-nosnippet>304</a>    <span class="comment">// Check if the program size exceeds the maximum allowed limit.
+<a href=#305 id=305 data-nosnippet>305</a>    </span><span class="kw">let </span>program_size = bytecode.len();
+<a href=#306 id=306 data-nosnippet>306</a>
+<a href=#307 id=307 data-nosnippet>307</a>    <span class="kw">if </span>program_size &gt; MAX_PROGRAM_SIZE {
+<a href=#308 id=308 data-nosnippet>308</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
+<a href=#309 id=309 data-nosnippet>309</a>            name,
+<a href=#310 id=310 data-nosnippet>310</a>            program_size,
+<a href=#311 id=311 data-nosnippet>311</a>            MAX_PROGRAM_SIZE,
+<a href=#312 id=312 data-nosnippet>312</a>        )));
+<a href=#313 id=313 data-nosnippet>313</a>    }
+<a href=#314 id=314 data-nosnippet>314</a>
+<a href=#315 id=315 data-nosnippet>315</a>    <span class="comment">// Parse the bytecode into an SVM program.
+<a href=#316 id=316 data-nosnippet>316</a>    </span><span class="kw">let </span>svm_program: SvmProgram&lt;TestnetV0&gt; = bytecode.parse().map_err(|<span class="kw">_</span>| UtilError::snarkvm_parsing_error(name))<span class="question-mark">?</span>;
+<a href=#317 id=317 data-nosnippet>317</a>    <span class="kw">let </span>dependencies = svm_program
+<a href=#318 id=318 data-nosnippet>318</a>        .imports()
+<a href=#319 id=319 data-nosnippet>319</a>        .keys()
+<a href=#320 id=320 data-nosnippet>320</a>        .map(|program_id| {
+<a href=#321 id=321 data-nosnippet>321</a>            <span class="comment">// If the dependency already exists, use it.
+<a href=#322 id=322 data-nosnippet>322</a>            // Otherwise, assume it's a network dependency.
+<a href=#323 id=323 data-nosnippet>323</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(dependency) = existing.get(<span class="kw-2">&amp;</span>Symbol::intern(<span class="kw-2">&amp;</span>program_id.name().to_string())) {
+<a href=#324 id=324 data-nosnippet>324</a>                dependency.clone()
+<a href=#325 id=325 data-nosnippet>325</a>            } <span class="kw">else </span>{
+<a href=#326 id=326 data-nosnippet>326</a>                <span class="kw">let </span>name = program_id.to_string();
+<a href=#327 id=327 data-nosnippet>327</a>                Dependency { name, location: Location::Network, path: <span class="prelude-val">None</span>, edition: <span class="prelude-val">None </span>}
+<a href=#328 id=328 data-nosnippet>328</a>            }
+<a href=#329 id=329 data-nosnippet>329</a>        })
+<a href=#330 id=330 data-nosnippet>330</a>        .collect();
+<a href=#331 id=331 data-nosnippet>331</a>    <span class="prelude-val">Ok</span>(dependencies)
+<a href=#332 id=332 data-nosnippet>332</a>}</code></pre></div></section></main></body></html>

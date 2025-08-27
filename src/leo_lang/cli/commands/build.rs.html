@@ -208,17 +208,29 @@
 <a href=#208 id=208 data-nosnippet>208</a>    <span class="comment">// Compile the Leo program into Aleo instructions.
 <a href=#209 id=209 data-nosnippet>209</a>    </span><span class="kw">let </span>bytecode = compiler.compile_from_file(source_file_path)<span class="question-mark">?</span>;
 <a href=#210 id=210 data-nosnippet>210</a>
-<a href=#211 id=211 data-nosnippet>211</a>    <span class="comment">// Get the AVM bytecode.
-<a href=#212 id=212 data-nosnippet>212</a>    </span><span class="kw">let </span>checksum: String = <span class="kw">match </span>network {
-<a href=#213 id=213 data-nosnippet>213</a>        NetworkName::MainnetV0 =&gt; Program::&lt;MainnetV0&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)<span class="question-mark">?</span>.to_checksum().iter().join(<span class="string">", "</span>),
-<a href=#214 id=214 data-nosnippet>214</a>        NetworkName::TestnetV0 =&gt; Program::&lt;TestnetV0&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)<span class="question-mark">?</span>.to_checksum().iter().join(<span class="string">", "</span>),
-<a href=#215 id=215 data-nosnippet>215</a>        NetworkName::CanaryV0 =&gt; Program::&lt;CanaryV0&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)<span class="question-mark">?</span>.to_checksum().iter().join(<span class="string">", "</span>),
-<a href=#216 id=216 data-nosnippet>216</a>    };
-<a href=#217 id=217 data-nosnippet>217</a>
-<a href=#218 id=218 data-nosnippet>218</a>    <span class="macro">tracing::info!</span>(<span class="string">"    {} statements before dead code elimination."</span>, compiler.statements_before_dce);
-<a href=#219 id=219 data-nosnippet>219</a>    <span class="macro">tracing::info!</span>(<span class="string">"    {} statements after dead code elimination."</span>, compiler.statements_after_dce);
-<a href=#220 id=220 data-nosnippet>220</a>    <span class="macro">tracing::info!</span>(<span class="string">"    The program checksum is: '[{checksum}]'."</span>);
-<a href=#221 id=221 data-nosnippet>221</a>
-<a href=#222 id=222 data-nosnippet>222</a>    <span class="macro">tracing::info!</span>(<span class="string">"✅ Compiled '{program_name}.aleo' into Aleo instructions."</span>);
-<a href=#223 id=223 data-nosnippet>223</a>    <span class="prelude-val">Ok</span>(bytecode)
-<a href=#224 id=224 data-nosnippet>224</a>}</code></pre></div></section></main></body></html>
+<a href=#211 id=211 data-nosnippet>211</a>    <span class="comment">// Check the program size limit.
+<a href=#212 id=212 data-nosnippet>212</a>    </span><span class="kw">use </span>leo_package::MAX_PROGRAM_SIZE;
+<a href=#213 id=213 data-nosnippet>213</a>    <span class="kw">let </span>program_size = bytecode.len();
+<a href=#214 id=214 data-nosnippet>214</a>
+<a href=#215 id=215 data-nosnippet>215</a>    <span class="kw">if </span>program_size &gt; MAX_PROGRAM_SIZE {
+<a href=#216 id=216 data-nosnippet>216</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
+<a href=#217 id=217 data-nosnippet>217</a>            program_name,
+<a href=#218 id=218 data-nosnippet>218</a>            program_size,
+<a href=#219 id=219 data-nosnippet>219</a>            MAX_PROGRAM_SIZE,
+<a href=#220 id=220 data-nosnippet>220</a>        )));
+<a href=#221 id=221 data-nosnippet>221</a>    }
+<a href=#222 id=222 data-nosnippet>222</a>
+<a href=#223 id=223 data-nosnippet>223</a>    <span class="comment">// Get the AVM bytecode.
+<a href=#224 id=224 data-nosnippet>224</a>    </span><span class="kw">let </span>checksum: String = <span class="kw">match </span>network {
+<a href=#225 id=225 data-nosnippet>225</a>        NetworkName::MainnetV0 =&gt; Program::&lt;MainnetV0&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)<span class="question-mark">?</span>.to_checksum().iter().join(<span class="string">", "</span>),
+<a href=#226 id=226 data-nosnippet>226</a>        NetworkName::TestnetV0 =&gt; Program::&lt;TestnetV0&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)<span class="question-mark">?</span>.to_checksum().iter().join(<span class="string">", "</span>),
+<a href=#227 id=227 data-nosnippet>227</a>        NetworkName::CanaryV0 =&gt; Program::&lt;CanaryV0&gt;::from_str(<span class="kw-2">&amp;</span>bytecode)<span class="question-mark">?</span>.to_checksum().iter().join(<span class="string">", "</span>),
+<a href=#228 id=228 data-nosnippet>228</a>    };
+<a href=#229 id=229 data-nosnippet>229</a>
+<a href=#230 id=230 data-nosnippet>230</a>    <span class="macro">tracing::info!</span>(<span class="string">"    {} statements before dead code elimination."</span>, compiler.statements_before_dce);
+<a href=#231 id=231 data-nosnippet>231</a>    <span class="macro">tracing::info!</span>(<span class="string">"    {} statements after dead code elimination."</span>, compiler.statements_after_dce);
+<a href=#232 id=232 data-nosnippet>232</a>    <span class="macro">tracing::info!</span>(<span class="string">"    The program checksum is: '[{checksum}]'."</span>);
+<a href=#233 id=233 data-nosnippet>233</a>
+<a href=#234 id=234 data-nosnippet>234</a>    <span class="macro">tracing::info!</span>(<span class="string">"✅ Compiled '{program_name}.aleo' into Aleo instructions."</span>);
+<a href=#235 id=235 data-nosnippet>235</a>    <span class="prelude-val">Ok</span>(bytecode)
+<a href=#236 id=236 data-nosnippet>236</a>}</code></pre></div></section></main></body></html>
