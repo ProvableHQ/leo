@@ -84,7 +84,7 @@ pub struct LeoDevnet {
     pub(crate) tmux: bool,
     #[clap(long, help = "snarkOS verbosity (0-4)", default_value = "1")]
     pub(crate) verbosity: u8,
-    #[clap(long, help = "Skip confirmation prompts and proceed with the devnet startup")]
+    #[clap(long, short = 'y', help = "Skip confirmation prompts and proceed with the devnet startup")]
     pub(crate) yes: bool,
 }
 
@@ -229,7 +229,7 @@ impl LeoDevnet {
             }
         }
 
-        if !confirm("\nProceed with devnet startup?", false)? {
+        if !confirm("\nProceed with devnet startup?", self.yes)? {
             println!("❌ Devnet aborted.");
             return Ok(());
         }
