@@ -57,20 +57,20 @@ impl Command for LeoDebug {
         }
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        handle_debug(&self, context, input)
+    fn apply(self, _: Context, input: Self::Input) -> Result<Self::Output> {
+        handle_debug(&self, input)
     }
 }
 
-fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) -> Result<()> {
+fn handle_debug(command: &LeoDebug, package: Option<Package>) -> Result<()> {
     // Get the network.
-    let network_name = context.get_network(&command.env_override.network)?.parse()?;
+    let network_name = get_network(&command.env_override.network)?;
 
     if command.paths.is_empty() {
         let package = package.unwrap();
 
         // Get the private key.
-        let private_key = context.get_private_key(&None)?;
+        let private_key = get_private_key(&None)?;
         let address = Address::try_from(&private_key)?;
 
         // Get the paths of all local Leo dependencies.

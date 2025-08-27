@@ -164,8 +164,8 @@ impl Package {
     pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -186,8 +186,8 @@ impl Package {
         home_path: Q,
         no_cache: bool,
         no_local: bool,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -208,8 +208,8 @@ impl Package {
         home_path: Q,
         no_cache: bool,
         no_local: bool,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -260,8 +260,8 @@ impl Package {
         with_tests: bool,
         no_cache: bool,
         no_local: bool,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
@@ -332,8 +332,8 @@ impl Package {
     #[allow(clippy::too_many_arguments)]
     fn graph_build(
         home_path: &Path,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
         main_program: &Dependency,
         new: Dependency,
         map: &mut IndexMap<Symbol, (Dependency, Program)>,
@@ -377,6 +377,12 @@ impl Package {
                     }
                     (_, Location::Network) | (Some(_), Location::Local) => {
                         // It's a network dependency.
+                        let Some(endpoint) = endpoint else {
+                            return Err(anyhow!("An endpoint must be provided to fetch network dependencies.").into());
+                        };
+                        let Some(network) = network else {
+                            return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
+                        };
                         Program::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
                     }
                     _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),

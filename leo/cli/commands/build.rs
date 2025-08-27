@@ -63,20 +63,28 @@ impl Command for LeoBuild {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Parse the network.
-        let network: NetworkName = context.get_network(&self.env_override.network)?.parse()?;
         // Build the program.
-        handle_build(&self, context, network)
+        handle_build(&self, context)
     }
 }
 
 // A helper function to handle the build command.
-fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> Result<<LeoBuild as Command>::Output> {
+fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Command>::Output> {
+    // Get the package path and home directory.
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
-    // Get the endpoint, accounting for overrides.
-    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+    // Get the network, defaulting to `TestnetV0` if none is specified.
+    let network = match get_network(&command.env_override.network) {
+        Ok(network) => network,
+        Err(_) => {
+            println!("⚠️ No network specified, defaulting to 'testnet'.");
+            NetworkName::TestnetV0
+        }
+    };
+
+    // Get the endpoint, if it is provided.
+    let endpoint = get_endpoint(&command.env_override.endpoint).ok();
 
     let package = if command.options.build_tests {
         Package::from_directory_with_tests(
@@ -84,8 +92,8 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
             &home_path,
             command.options.no_cache,
             command.options.no_local,
-            network,
-            &endpoint,
+            Some(network),
+            endpoint.as_deref(),
         )?
     } else {
         Package::from_directory(
@@ -93,8 +101,8 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
             &home_path,
             command.options.no_cache,
             command.options.no_local,
-            network,
-            &endpoint,
+            Some(network),
+            endpoint.as_deref(),
         )?
     };
 

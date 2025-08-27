@@ -55,14 +55,14 @@ impl Command for LeoTest {
         (LeoBuild { env_override: Default::default(), options }).execute(context)
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        handle_test(self, context, input)
+    fn apply(self, _: Context, input: Self::Input) -> Result<Self::Output> {
+        handle_test(self, input)
     }
 }
 
-fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<()> {
+fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     // Get the private key.
-    let private_key = context.get_private_key::<TestnetV0>(&None)?;
+    let private_key = get_private_key::<TestnetV0>(&None)?;
     let address = Address::try_from(&private_key)?;
 
     // Get the paths of all local Leo dependencies.

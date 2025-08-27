@@ -48,8 +48,7 @@ pub fn confirm_fee<N: Network>(
     // Get the fee amount.
     let total_cost = (*fee.amount()? as f64) / 1_000_000.0;
     if fee.is_fee_public() {
-        let public_balance =
-            get_public_balance(private_key, endpoint, &network.to_string(), context)? as f64 / 1_000_000.0;
+        let public_balance = get_public_balance(private_key, endpoint, network, context)? as f64 / 1_000_000.0;
         println!("💰Your current public balance is {public_balance} credits.\n");
         if public_balance < total_cost {
             return Err(PackageError::insufficient_balance(address, public_balance, total_cost).into());

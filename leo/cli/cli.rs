@@ -177,6 +177,7 @@ mod tests {
         cli::{Commands, test_helpers},
         run_with_args,
     };
+    use leo_ast::NetworkName;
     use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
     use std::env::temp_dir;
@@ -193,7 +194,7 @@ mod tests {
 
         // Set the env options.
         let env_override =
-            crate::cli::commands::EnvOptions { network: Some("mainnet".to_string()), ..Default::default() };
+            crate::cli::commands::EnvOptions { network: Some(NetworkName::MainnetV0), ..Default::default() };
 
         // Run program
         let run = CLI {
