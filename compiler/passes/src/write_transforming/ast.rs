@@ -111,10 +111,11 @@ impl WriteTransformingVisitor<'_> {
 }
 
 impl AstReconstructor for WriteTransformingVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
     /* Expressions */
-    fn reconstruct_path(&mut self, input: Path) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_path(&mut self, input: Path, _addiional: &()) -> (Expression, Self::AdditionalOutput) {
         if input.qualifier().is_empty() {
             self.reconstruct_identifier(Identifier { name: input.identifier().name, span: input.span, id: input.id })
         } else {
@@ -122,7 +123,11 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         }
     }
 
-    fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_array_access(
+        &mut self,
+        input: ArrayAccess,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let Expression::Path(ref array_name) = input.array else {
             panic!("SSA ensures that this is a Path.");
         };
@@ -133,7 +138,11 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         }
     }
 
-    fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_member_access(
+        &mut self,
+        input: MemberAccess,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let Expression::Path(ref struct_name) = input.inner else {
             panic!("SSA ensures that this is a Path.");
         };
@@ -150,57 +159,70 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
     fn reconstruct_associated_function(
         &mut self,
         mut input: AssociatedFunctionExpression,
+        _addiional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         for arg in input.arguments.iter_mut() {
-            let (expr, statements2) = self.reconstruct_expression(std::mem::take(arg));
+            let (expr, statements2) = self.reconstruct_expression(std::mem::take(arg), &());
             statements.extend(statements2);
             *arg = expr;
         }
         (input.into(), statements)
     }
 
-    fn reconstruct_tuple_access(&mut self, _input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_tuple_access(
+        &mut self,
+        _input: TupleAccess,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         panic!("`TupleAccess` should not be in the AST at this point.");
     }
 
-    fn reconstruct_array(&mut self, mut input: ArrayExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_array(
+        &mut self,
+        mut input: ArrayExpression,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         for element in input.elements.iter_mut() {
-            let (expr, statements2) = self.reconstruct_expression(std::mem::take(element));
+            let (expr, statements2) = self.reconstruct_expression(std::mem::take(element), &());
             statements.extend(statements2);
             *element = expr;
         }
         (input.into(), statements)
     }
 
-    fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (left, mut statements) = self.reconstruct_expression(input.left);
-        let (right, statements2) = self.reconstruct_expression(input.right);
+    fn reconstruct_binary(&mut self, input: BinaryExpression, _addiional: &()) -> (Expression, Self::AdditionalOutput) {
+        let (left, mut statements) = self.reconstruct_expression(input.left, &());
+        let (right, statements2) = self.reconstruct_expression(input.right, &());
         statements.extend(statements2);
         (BinaryExpression { left, right, ..input }.into(), statements)
     }
 
-    fn reconstruct_call(&mut self, mut input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_call(&mut self, mut input: CallExpression, _addiional: &()) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         for arg in input.arguments.iter_mut() {
-            let (expr, statements2) = self.reconstruct_expression(std::mem::take(arg));
+            let (expr, statements2) = self.reconstruct_expression(std::mem::take(arg), &());
             statements.extend(statements2);
             *arg = expr;
         }
         (input.into(), statements)
     }
 
-    fn reconstruct_cast(&mut self, input: CastExpression) -> (Expression, Self::AdditionalOutput) {
-        let (expression, statements) = self.reconstruct_expression(input.expression);
+    fn reconstruct_cast(&mut self, input: CastExpression, _addiional: &()) -> (Expression, Self::AdditionalOutput) {
+        let (expression, statements) = self.reconstruct_expression(input.expression, &());
         (CastExpression { expression, ..input }.into(), statements)
     }
 
-    fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_struct_init(
+        &mut self,
+        mut input: StructExpression,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         for member in input.members.iter_mut() {
             assert!(member.expression.is_some());
-            let (expr, statements2) = self.reconstruct_expression(member.expression.take().unwrap());
+            let (expr, statements2) = self.reconstruct_expression(member.expression.take().unwrap(), &());
             statements.extend(statements2);
             member.expression = Some(expr);
         }
@@ -208,31 +230,47 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         (input.into(), statements)
     }
 
-    fn reconstruct_err(&mut self, _input: leo_ast::ErrExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_err(
+        &mut self,
+        _input: leo_ast::ErrExpression,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         std::panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_literal(&mut self, input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_literal(
+        &mut self,
+        input: leo_ast::Literal,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
-    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (condition, mut statements) = self.reconstruct_expression(input.condition);
-        let (if_true, statements2) = self.reconstruct_expression(input.if_true);
-        let (if_false, statements3) = self.reconstruct_expression(input.if_false);
+    fn reconstruct_ternary(
+        &mut self,
+        input: TernaryExpression,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        let (condition, mut statements) = self.reconstruct_expression(input.condition, &());
+        let (if_true, statements2) = self.reconstruct_expression(input.if_true, &());
+        let (if_false, statements3) = self.reconstruct_expression(input.if_false, &());
         statements.extend(statements2);
         statements.extend(statements3);
         (TernaryExpression { condition, if_true, if_false, ..input }.into(), statements)
     }
 
-    fn reconstruct_tuple(&mut self, input: leo_ast::TupleExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_tuple(
+        &mut self,
+        input: leo_ast::TupleExpression,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         // This should ony appear in a return statement.
         let mut statements = Vec::new();
         let elements = input
             .elements
             .into_iter()
             .map(|element| {
-                let (expr, statements2) = self.reconstruct_expression(element);
+                let (expr, statements2) = self.reconstruct_expression(element, &());
                 statements.extend(statements2);
                 expr
             })
@@ -240,12 +278,20 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         (TupleExpression { elements, ..input }.into(), statements)
     }
 
-    fn reconstruct_unary(&mut self, input: leo_ast::UnaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (receiver, statements) = self.reconstruct_expression(input.receiver);
+    fn reconstruct_unary(
+        &mut self,
+        input: leo_ast::UnaryExpression,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        let (receiver, statements) = self.reconstruct_expression(input.receiver, &());
         (UnaryExpression { receiver, ..input }.into(), statements)
     }
 
-    fn reconstruct_unit(&mut self, input: leo_ast::UnitExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_unit(
+        &mut self,
+        input: leo_ast::UnitExpression,
+        _addiional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
@@ -253,7 +299,7 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
     /// This is the only reconstructing function where we do anything other than traverse and combine statements,
     /// by calling `reconstruct_assign_place` and `reconstruct_assign_recurse`.
     fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        let (value, mut statements) = self.reconstruct_expression(input.value);
+        let (value, mut statements) = self.reconstruct_expression(input.value, &());
         let place = self.reconstruct_assign_place(input.place);
         self.reconstruct_assign_recurse(place, value, &mut statements);
         (Statement::dummy(), statements)
@@ -264,21 +310,21 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         let stmt = AssertStatement {
             variant: match input.variant {
                 AssertVariant::Assert(expr) => {
-                    let (expr, statements2) = self.reconstruct_expression(expr);
+                    let (expr, statements2) = self.reconstruct_expression(expr, &());
                     statements.extend(statements2);
                     AssertVariant::Assert(expr)
                 }
                 AssertVariant::AssertEq(left, right) => {
-                    let (left, statements2) = self.reconstruct_expression(left);
+                    let (left, statements2) = self.reconstruct_expression(left, &());
                     statements.extend(statements2);
-                    let (right, statements3) = self.reconstruct_expression(right);
+                    let (right, statements3) = self.reconstruct_expression(right, &());
                     statements.extend(statements3);
                     AssertVariant::AssertEq(left, right)
                 }
                 AssertVariant::AssertNeq(left, right) => {
-                    let (left, statements2) = self.reconstruct_expression(left);
+                    let (left, statements2) = self.reconstruct_expression(left, &());
                     statements.extend(statements2);
-                    let (right, statements3) = self.reconstruct_expression(right);
+                    let (right, statements3) = self.reconstruct_expression(right, &());
                     statements.extend(statements3);
                     AssertVariant::AssertNeq(left, right)
                 }
@@ -305,7 +351,7 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
     }
 
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        let (value, mut statements) = self.reconstruct_expression(input.value);
+        let (value, mut statements) = self.reconstruct_expression(input.value, &());
         input.value = value;
         match input.place.clone() {
             DefinitionPlace::Single(identifier) => {
@@ -323,7 +369,7 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
     }
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
-        let (expression, statements) = self.reconstruct_expression(input.expression);
+        let (expression, statements) = self.reconstruct_expression(input.expression, &());
         (ExpressionStatement { expression, ..input }.into(), statements)
     }
 
@@ -332,12 +378,12 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
     }
 
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
-        let (expression, statements) = self.reconstruct_expression(input.expression);
+        let (expression, statements) = self.reconstruct_expression(input.expression, &());
         (ReturnStatement { expression, ..input }.into(), statements)
     }
 
     fn reconstruct_conditional(&mut self, input: leo_ast::ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        let (condition, mut statements) = self.reconstruct_expression(input.condition);
+        let (condition, mut statements) = self.reconstruct_expression(input.condition, &());
         let (then, statements2) = self.reconstruct_block(input.then);
         statements.extend(statements2);
         let otherwise = input.otherwise.map(|oth| {

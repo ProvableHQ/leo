@@ -43,7 +43,7 @@ impl<'a> MonomorphizationVisitor<'a> {
 
         let (evaluated_const_args, non_const_args): (Vec<_>, Vec<_>) = const_args
             .iter()
-            .map(|arg| const_evaluator.reconstruct_expression(arg.clone()))
+            .map(|arg| const_evaluator.reconstruct_expression(arg.clone(), &()))
             .partition_map(|(evaluated_arg, evaluated_value)| match (evaluated_value, evaluated_arg) {
                 (Some(_), expr @ Expression::Literal(_)) => Either::Left(expr),
                 _ => Either::Right(()),
@@ -54,6 +54,7 @@ impl<'a> MonomorphizationVisitor<'a> {
 }
 
 impl AstReconstructor for MonomorphizationVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /* Types */
@@ -85,29 +86,29 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
     }
 
     /* Expressions */
-    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let opt_old_type = self.state.type_table.get(&input.id());
         let (new_expr, opt_value) = match input {
-            Expression::Array(array) => self.reconstruct_array(array),
-            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
-            Expression::Async(async_) => self.reconstruct_async(async_),
-            Expression::Binary(binary) => self.reconstruct_binary(*binary),
-            Expression::Call(call) => self.reconstruct_call(*call),
-            Expression::Cast(cast) => self.reconstruct_cast(*cast),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
-            Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Path(path) => self.reconstruct_path(path),
-            Expression::Literal(value) => self.reconstruct_literal(value),
-            Expression::Locator(locator) => self.reconstruct_locator(locator),
-            Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
-            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
-            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
-            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
-            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
-            Expression::Unary(unary) => self.reconstruct_unary(*unary),
-            Expression::Unit(unit) => self.reconstruct_unit(unit),
+            Expression::Array(array) => self.reconstruct_array(array, &()),
+            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
+            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, &()),
+            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, &()),
+            Expression::Async(async_) => self.reconstruct_async(async_, &()),
+            Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
+            Expression::Call(call) => self.reconstruct_call(*call, &()),
+            Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
+            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &()),
+            Expression::Err(err) => self.reconstruct_err(err, &()),
+            Expression::Path(path) => self.reconstruct_path(path, &()),
+            Expression::Literal(value) => self.reconstruct_literal(value, &()),
+            Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
+            Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
+            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
+            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),
+            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, &()),
+            Expression::Unary(unary) => self.reconstruct_unary(*unary, &()),
+            Expression::Unit(unit) => self.reconstruct_unit(unit, &()),
         };
 
         // If the expression was in the type table before, make an entry for the new expression.
@@ -118,7 +119,11 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         (new_expr, opt_value)
     }
 
-    fn reconstruct_call(&mut self, input_call: CallExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_call(
+        &mut self,
+        input_call: CallExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         // Skip calls to functions from other programs.
         if input_call.program.is_some_and(|prog| prog != self.program) {
             return (input_call.into(), Default::default());
@@ -141,7 +146,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // Look up the already reconstructed function by name.
         let callee_fn = self
             .reconstructed_functions
-            .get(input_call.function.absolute_path())
+            .get(&input_call.function.absolute_path())
             .expect("Callee should already be reconstructed (post-order traversal).");
 
         // Proceed only if the function variant is `inline`.
@@ -162,7 +167,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
 
         // Check if the new callee name is not already present in `reconstructed_functions`. This ensures that we do not
         // add a duplicate definition for the same function.
-        if self.reconstructed_functions.get(new_callee_path.absolute_path()).is_none() {
+        if self.reconstructed_functions.get(&new_callee_path.absolute_path()).is_none() {
             // Build mapping from const parameters to const argument values.
             let const_param_map: IndexMap<_, _> = callee_fn
                 .const_parameters
@@ -198,10 +203,10 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             function.id = self.state.node_builder.next_id();
 
             // Keep track of the new function in case other functions need it.
-            self.reconstructed_functions.insert(new_callee_path.absolute_path().to_vec(), function);
+            self.reconstructed_functions.insert(new_callee_path.absolute_path(), function);
 
             // Now keep track of the function we just monomorphized
-            self.monomorphized_functions.insert(input_call.function.absolute_path().to_vec());
+            self.monomorphized_functions.insert(input_call.function.absolute_path());
         }
 
         // At this stage, we know that we're going to modify the program
@@ -222,7 +227,11 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         )
     }
 
-    fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_struct_init(
+        &mut self,
+        mut input: StructExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         // Handle all the struct members first
         let members = input
             .members
@@ -230,7 +239,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             .into_iter()
             .map(|member| StructVariableInitializer {
                 identifier: member.identifier,
-                expression: member.expression.map(|expr| self.reconstruct_expression(expr).0),
+                expression: member.expression.map(|expr| self.reconstruct_expression(expr, &()).0),
                 span: member.span,
                 id: member.id,
             })

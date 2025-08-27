@@ -1,0 +1,10 @@
+Error [ETYC0372160]: The type `address?` cannot be or contain an optional type in this position.
+    --> compiler-test:6:5
+     |
+   6 |     mapping optional_balances: address? => Foo;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372160]: The type `Foo` cannot be or contain an optional type in this position.
+    --> compiler-test:6:5
+     |
+   6 |     mapping optional_balances: address? => Foo;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

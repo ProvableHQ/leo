@@ -457,6 +457,15 @@ pub fn evaluate_core_function(
             };
             helper.mapping_get(program, name, &key).is_some().into()
         }
+        CoreFunction::OptionalUnwrap => {
+            let value = helper.pop_value()?;
+            if let ValueVariants::None(_) = value.contents { return Ok(None) } else { value }
+        }
+        CoreFunction::OptionalUnwrapOr => {
+            let fallback = helper.pop_value()?;
+            let value = helper.pop_value()?;
+            if let ValueVariants::None(_) = value.contents { fallback } else { value }
+        }
         CoreFunction::SignatureVerify => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
 

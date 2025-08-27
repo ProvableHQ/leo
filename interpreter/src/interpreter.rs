@@ -138,6 +138,7 @@ impl Interpreter {
         for (path, modules) in leo_source_files {
             let ast = Self::get_ast(path, modules, &handler, &node_builder, network)?;
             for (&program, scope) in ast.ast.program_scopes.iter() {
+                cursor.program = Some(program);
                 filename_to_program.insert(path.to_path_buf(), program.to_string());
                 for (name, function) in scope.functions.iter() {
                     cursor
@@ -177,6 +178,7 @@ impl Interpreter {
 
             for (mod_path, module) in ast.ast.modules.iter() {
                 let program = module.program_name;
+                cursor.program = Some(program);
                 let to_absolute_path = |name: Symbol| {
                     let mut full_name = mod_path.clone();
                     full_name.push(name);

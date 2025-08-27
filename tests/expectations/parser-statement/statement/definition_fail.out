@@ -22,6 +22,7 @@
           },
           "id": 3
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 8,
@@ -158,7 +159,7 @@ Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field'
      |
    1 | let x: = 1;
      |        ^
-Error [EPAR0370005]: expected ';' -- found ']'
+Error [EPAR0370005]: expected ';', '?' -- found ']'
     --> test_36:1:11
      |
    1 | let x: [u8] = 1;

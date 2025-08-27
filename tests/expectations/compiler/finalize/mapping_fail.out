@@ -66,7 +66,7 @@ Error [ETYC0372017]: The type `baz` is not found in the current scope.
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
-Error [ETYC0372017]: The type `foo` is not found in the current scope.
+Error [ETYC0372017]: The type `baz` is not found in the current scope.
     --> compiler-test:9:5
      |
    9 |     mapping bar: foo => baz;

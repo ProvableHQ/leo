@@ -15,6 +15,7 @@
                   },
                   "id": 5
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 2,
@@ -65,6 +66,7 @@
                   },
                   "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 18,
@@ -113,6 +115,7 @@
               },
               "id": 4
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 63,
@@ -153,6 +156,7 @@
               },
               "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 81,
@@ -193,6 +197,7 @@
               },
               "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 100,
@@ -235,6 +240,7 @@
                   },
                   "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 119,
@@ -283,6 +289,7 @@
               },
               "id": 4
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 151,
@@ -323,6 +330,7 @@
               },
               "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 169,
@@ -363,6 +371,7 @@
               },
               "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 188,
@@ -405,6 +414,7 @@
                   },
                   "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 207,

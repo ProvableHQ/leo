@@ -1,0 +1,11 @@
+Error [ETYC0372159]: The type `Foo` cannot be wrapped in an optional.
+    --> compiler-test:11:9
+     |
+  11 |         let f: Foo? = Foo {
+     |         ^^^^^^^^^^^^^^^^^^^
+  12 |             owner: self.signer,
+     |             ^^^^^^^^^^^^^^^^^^^
+  13 |             value: 5,
+     |             ^^^^^^^^^
+  14 |         };
+     |         ^^

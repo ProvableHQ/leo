@@ -143,7 +143,9 @@ fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<Test
                         case.function,
                         case.input.iter().format(", ")
                     )))
-                    .map(|opt_value| opt_value.unwrap_or(Value::make_unit()))
+                    .map(|opt_value| {
+                        opt_value.unwrap_or(Value::make_unit()).to_svm_compatible().unwrap_or(Value::make_unit())
+                    })
             })
             .collect::<Result<Vec<_>>>(),
     )?;

@@ -1,0 +1,88 @@
+program unwrap_none_test.aleo;
+
+struct Optional__DOnC9eGtnsJ:
+    is_some as boolean;
+    val as u64;
+
+struct MaybeValue:
+    val as Optional__DOnC9eGtnsJ;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+function unwrap_none:
+    async unwrap_none into r0;
+    output r0 as unwrap_none_test.aleo/unwrap_none.future;
+
+finalize unwrap_none:
+    cast false 0u8 into r0 as Optional__8hhrPm4c3KB;
+    assert.eq r0.is_some true;
+    gt r0.val 0u8 into r1;
+    assert.eq r1 true;
+
+function unwrap_struct_field_none:
+    async unwrap_struct_field_none into r0;
+    output r0 as unwrap_none_test.aleo/unwrap_struct_field_none.future;
+
+finalize unwrap_struct_field_none:
+    cast false 0u64 into r0 as Optional__DOnC9eGtnsJ;
+    cast r0 into r1 as MaybeValue;
+    assert.eq r1.val.is_some true;
+    gt r1.val.val 0u64 into r2;
+    assert.eq r2 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: rejected
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1zkg5majalm6q88z96q6cj4lw2wmzu7qn08g2sx698r9ltm89qvyq25vthx",
+      "program": "unwrap_none_test.aleo",
+      "function": "unwrap_none",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7358333422898028548814055153393826246965443214632684143832687505707712146067field",
+          "value": "{\n  program_id: unwrap_none_test.aleo,\n  function_name: unwrap_none,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "1490530353561997818038595145835797696066783555812063904840322252769902746413group",
+      "tcm": "6613962723982847890421668858326300545069490849866850686406182925385122616730field",
+      "scm": "5349166152525587763521297032613093778126136583434043963202616375932318068954field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: rejected
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1ug8raaft0x6j3hnprpmqvuqu0q7w3a6l66l24xutdtfg4dfvevgsvak6jc",
+      "program": "unwrap_none_test.aleo",
+      "function": "unwrap_struct_field_none",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8092040943189360076632305651772686077362651602755008821832232667031828621275field",
+          "value": "{\n  program_id: unwrap_none_test.aleo,\n  function_name: unwrap_struct_field_none,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "1266194150618730662479513976729972089380427943162514400627376157635333239709group",
+      "tcm": "3908600373712996799138746365434857604614804687885564939809855708719883814441field",
+      "scm": "31176297159710315381516017906715891247158323005666911229663066304802158033field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

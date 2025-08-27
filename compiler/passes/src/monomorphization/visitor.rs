@@ -87,12 +87,12 @@ impl MonomorphizationVisitor<'_> {
 
         // Check if the new struct name is not already present in `reconstructed_structs`. This ensures that we do not
         // add a duplicate definition for the same struct.
-        if self.reconstructed_structs.get(new_struct_path.absolute_path()).is_none() {
+        if self.reconstructed_structs.get(&new_struct_path.absolute_path()).is_none() {
             let full_name = path.absolute_path();
             // Look up the already reconstructed struct by name.
             let struct_ = self
                 .reconstructed_structs
-                .get(full_name)
+                .get(&full_name)
                 .expect("Struct should already be reconstructed (post-order traversal).");
 
             // Build mapping from const parameters to const argument values.
@@ -123,10 +123,10 @@ impl MonomorphizationVisitor<'_> {
             struct_.id = self.state.node_builder.next_id();
 
             // Keep track of the new struct in case other structs need it.
-            self.reconstructed_structs.insert(new_struct_path.absolute_path().to_vec(), struct_);
+            self.reconstructed_structs.insert(new_struct_path.absolute_path(), struct_);
 
             // Now keep track of the struct we just monomorphized
-            self.monomorphized_structs.insert(full_name.to_vec());
+            self.monomorphized_structs.insert(full_name);
         }
 
         new_struct_path
