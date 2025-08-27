@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{Identifier, Node, NodeID};
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use crate</span>::{Node, NodeID, Path};
 <a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span>leo_span::Span;
 <a href=#19 id=19 data-nosnippet>19</a>
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -99,8 +99,8 @@
 <a href=#99 id=99 data-nosnippet>99</a>    <span class="doccomment">/// An expression of type "error".
 <a href=#100 id=100 data-nosnippet>100</a>    /// Will result in a compile error eventually.
 <a href=#101 id=101 data-nosnippet>101</a>    </span><span class="prelude-val">Err</span>(ErrExpression),
-<a href=#102 id=102 data-nosnippet>102</a>    <span class="doccomment">/// An identifier.
-<a href=#103 id=103 data-nosnippet>103</a>    </span>Identifier(Identifier),
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="doccomment">/// A path to some item, e.g., `foo::bar::x`.
+<a href=#103 id=103 data-nosnippet>103</a>    </span>Path(Path),
 <a href=#104 id=104 data-nosnippet>104</a>    <span class="doccomment">/// A literal expression.
 <a href=#105 id=105 data-nosnippet>105</a>    </span>Literal(Literal),
 <a href=#106 id=106 data-nosnippet>106</a>    <span class="doccomment">/// A locator expression, e.g., `hello.aleo/foo`.
@@ -142,7 +142,7 @@
 <a href=#142 id=142 data-nosnippet>142</a>            Call(n) =&gt; n.span(),
 <a href=#143 id=143 data-nosnippet>143</a>            Cast(n) =&gt; n.span(),
 <a href=#144 id=144 data-nosnippet>144</a>            <span class="prelude-val">Err</span>(n) =&gt; n.span(),
-<a href=#145 id=145 data-nosnippet>145</a>            Identifier(n) =&gt; n.span(),
+<a href=#145 id=145 data-nosnippet>145</a>            Path(n) =&gt; n.span(),
 <a href=#146 id=146 data-nosnippet>146</a>            Literal(n) =&gt; n.span(),
 <a href=#147 id=147 data-nosnippet>147</a>            Locator(n) =&gt; n.span(),
 <a href=#148 id=148 data-nosnippet>148</a>            MemberAccess(n) =&gt; n.span(),
@@ -168,7 +168,7 @@
 <a href=#168 id=168 data-nosnippet>168</a>            Call(n) =&gt; n.set_span(span),
 <a href=#169 id=169 data-nosnippet>169</a>            Cast(n) =&gt; n.set_span(span),
 <a href=#170 id=170 data-nosnippet>170</a>            <span class="prelude-val">Err</span>(n) =&gt; n.set_span(span),
-<a href=#171 id=171 data-nosnippet>171</a>            Identifier(n) =&gt; n.set_span(span),
+<a href=#171 id=171 data-nosnippet>171</a>            Path(n) =&gt; n.set_span(span),
 <a href=#172 id=172 data-nosnippet>172</a>            Literal(n) =&gt; n.set_span(span),
 <a href=#173 id=173 data-nosnippet>173</a>            Locator(n) =&gt; n.set_span(span),
 <a href=#174 id=174 data-nosnippet>174</a>            MemberAccess(n) =&gt; n.set_span(span),
@@ -193,7 +193,7 @@
 <a href=#193 id=193 data-nosnippet>193</a>            Binary(n) =&gt; n.id(),
 <a href=#194 id=194 data-nosnippet>194</a>            Call(n) =&gt; n.id(),
 <a href=#195 id=195 data-nosnippet>195</a>            Cast(n) =&gt; n.id(),
-<a href=#196 id=196 data-nosnippet>196</a>            Identifier(n) =&gt; n.id(),
+<a href=#196 id=196 data-nosnippet>196</a>            Path(n) =&gt; n.id(),
 <a href=#197 id=197 data-nosnippet>197</a>            Literal(n) =&gt; n.id(),
 <a href=#198 id=198 data-nosnippet>198</a>            Locator(n) =&gt; n.id(),
 <a href=#199 id=199 data-nosnippet>199</a>            MemberAccess(n) =&gt; n.id(),
@@ -219,7 +219,7 @@
 <a href=#219 id=219 data-nosnippet>219</a>            Binary(n) =&gt; n.set_id(id),
 <a href=#220 id=220 data-nosnippet>220</a>            Call(n) =&gt; n.set_id(id),
 <a href=#221 id=221 data-nosnippet>221</a>            Cast(n) =&gt; n.set_id(id),
-<a href=#222 id=222 data-nosnippet>222</a>            Identifier(n) =&gt; n.set_id(id),
+<a href=#222 id=222 data-nosnippet>222</a>            Path(n) =&gt; n.set_id(id),
 <a href=#223 id=223 data-nosnippet>223</a>            Literal(n) =&gt; n.set_id(id),
 <a href=#224 id=224 data-nosnippet>224</a>            Locator(n) =&gt; n.set_id(id),
 <a href=#225 id=225 data-nosnippet>225</a>            MemberAccess(n) =&gt; n.set_id(id),
@@ -248,7 +248,7 @@
 <a href=#248 id=248 data-nosnippet>248</a>            Call(n) =&gt; n.fmt(f),
 <a href=#249 id=249 data-nosnippet>249</a>            Cast(n) =&gt; n.fmt(f),
 <a href=#250 id=250 data-nosnippet>250</a>            <span class="prelude-val">Err</span>(n) =&gt; n.fmt(f),
-<a href=#251 id=251 data-nosnippet>251</a>            Identifier(n) =&gt; n.fmt(f),
+<a href=#251 id=251 data-nosnippet>251</a>            Path(n) =&gt; n.fmt(f),
 <a href=#252 id=252 data-nosnippet>252</a>            Literal(n) =&gt; n.fmt(f),
 <a href=#253 id=253 data-nosnippet>253</a>            Locator(n) =&gt; n.fmt(f),
 <a href=#254 id=254 data-nosnippet>254</a>            MemberAccess(n) =&gt; n.fmt(f),
@@ -284,7 +284,7 @@
 <a href=#284 id=284 data-nosnippet>284</a>            | Async(<span class="kw">_</span>)
 <a href=#285 id=285 data-nosnippet>285</a>            | Call(<span class="kw">_</span>)
 <a href=#286 id=286 data-nosnippet>286</a>            | <span class="prelude-val">Err</span>(<span class="kw">_</span>)
-<a href=#287 id=287 data-nosnippet>287</a>            | Identifier(<span class="kw">_</span>)
+<a href=#287 id=287 data-nosnippet>287</a>            | Path(<span class="kw">_</span>)
 <a href=#288 id=288 data-nosnippet>288</a>            | Literal(<span class="kw">_</span>)
 <a href=#289 id=289 data-nosnippet>289</a>            | Locator(<span class="kw">_</span>)
 <a href=#290 id=290 data-nosnippet>290</a>            | MemberAccess(<span class="kw">_</span>)

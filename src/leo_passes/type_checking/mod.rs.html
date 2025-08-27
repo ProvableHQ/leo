@@ -81,10 +81,10 @@
 <a href=#81 id=81 data-nosnippet>81</a>        <span class="kw">let </span>struct_names = state
 <a href=#82 id=82 data-nosnippet>82</a>            .symbol_table
 <a href=#83 id=83 data-nosnippet>83</a>            .iter_records()
-<a href=#84 id=84 data-nosnippet>84</a>            .map(|(loc, <span class="kw">_</span>)| loc.name)
-<a href=#85 id=85 data-nosnippet>85</a>            .chain(state.symbol_table.iter_structs().map(|(name, <span class="kw">_</span>)| name))
+<a href=#84 id=84 data-nosnippet>84</a>            .map(|(loc, <span class="kw">_</span>)| loc.path.clone())
+<a href=#85 id=85 data-nosnippet>85</a>            .chain(state.symbol_table.iter_structs().map(|(name, <span class="kw">_</span>)| name.clone()))
 <a href=#86 id=86 data-nosnippet>86</a>            .collect();
-<a href=#87 id=87 data-nosnippet>87</a>        <span class="kw">let </span>function_names = state.symbol_table.iter_functions().map(|(name, <span class="kw">_</span>)| name).collect();
+<a href=#87 id=87 data-nosnippet>87</a>        <span class="kw">let </span>function_names = state.symbol_table.iter_functions().map(|(loc, <span class="kw">_</span>)| loc.clone()).collect();
 <a href=#88 id=88 data-nosnippet>88</a>
 <a href=#89 id=89 data-nosnippet>89</a>        <span class="kw">let </span>ast = std::mem::take(<span class="kw-2">&amp;mut </span>state.ast);
 <a href=#90 id=90 data-nosnippet>90</a>

@@ -68,35 +68,37 @@
 <a href=#68 id=68 data-nosnippet>68</a>        <span class="kw">let </span><span class="kw-2">mut </span>visitor = ConstPropagationVisitor {
 <a href=#69 id=69 data-nosnippet>69</a>            state,
 <a href=#70 id=70 data-nosnippet>70</a>            program: Symbol::intern(<span class="string">""</span>),
-<a href=#71 id=71 data-nosnippet>71</a>            changed: <span class="bool-val">false</span>,
-<a href=#72 id=72 data-nosnippet>72</a>            const_not_evaluated: <span class="prelude-val">None</span>,
-<a href=#73 id=73 data-nosnippet>73</a>            array_index_not_evaluated: <span class="prelude-val">None</span>,
-<a href=#74 id=74 data-nosnippet>74</a>            array_length_not_evaluated: <span class="prelude-val">None</span>,
-<a href=#75 id=75 data-nosnippet>75</a>            repeat_count_not_evaluated: <span class="prelude-val">None</span>,
-<a href=#76 id=76 data-nosnippet>76</a>        };
-<a href=#77 id=77 data-nosnippet>77</a>        ast.ast = visitor.reconstruct_program(ast.ast);
-<a href=#78 id=78 data-nosnippet>78</a>        visitor.state.handler.last_err().map_err(|e| <span class="kw-2">*</span>e)<span class="question-mark">?</span>;
-<a href=#79 id=79 data-nosnippet>79</a>        visitor.state.ast = ast;
-<a href=#80 id=80 data-nosnippet>80</a>        <span class="prelude-val">Ok</span>(ConstPropagationOutput {
-<a href=#81 id=81 data-nosnippet>81</a>            changed: visitor.changed,
-<a href=#82 id=82 data-nosnippet>82</a>            const_not_evaluated: visitor.const_not_evaluated,
-<a href=#83 id=83 data-nosnippet>83</a>            array_index_not_evaluated: visitor.array_index_not_evaluated,
-<a href=#84 id=84 data-nosnippet>84</a>            array_length_not_evaluated: visitor.array_length_not_evaluated,
-<a href=#85 id=85 data-nosnippet>85</a>            repeat_count_not_evaluated: visitor.repeat_count_not_evaluated,
-<a href=#86 id=86 data-nosnippet>86</a>        })
-<a href=#87 id=87 data-nosnippet>87</a>    }
-<a href=#88 id=88 data-nosnippet>88</a>}
-<a href=#89 id=89 data-nosnippet>89</a>
-<a href=#90 id=90 data-nosnippet>90</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ConstPropagationVisitor&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#91 id=91 data-nosnippet>91</a>    <span class="kw">pub fn </span>new(state: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">crate</span>::CompilerState, program: Symbol) -&gt; <span class="self">Self </span>{
-<a href=#92 id=92 data-nosnippet>92</a>        ConstPropagationVisitor {
-<a href=#93 id=93 data-nosnippet>93</a>            state,
-<a href=#94 id=94 data-nosnippet>94</a>            program,
-<a href=#95 id=95 data-nosnippet>95</a>            changed: <span class="bool-val">false</span>,
-<a href=#96 id=96 data-nosnippet>96</a>            const_not_evaluated: <span class="prelude-val">None</span>,
-<a href=#97 id=97 data-nosnippet>97</a>            array_index_not_evaluated: <span class="prelude-val">None</span>,
-<a href=#98 id=98 data-nosnippet>98</a>            array_length_not_evaluated: <span class="prelude-val">None</span>,
-<a href=#99 id=99 data-nosnippet>99</a>            repeat_count_not_evaluated: <span class="prelude-val">None</span>,
-<a href=#100 id=100 data-nosnippet>100</a>        }
-<a href=#101 id=101 data-nosnippet>101</a>    }
-<a href=#102 id=102 data-nosnippet>102</a>}</code></pre></div></section></main></body></html>
+<a href=#71 id=71 data-nosnippet>71</a>            module: <span class="macro">vec!</span>[],
+<a href=#72 id=72 data-nosnippet>72</a>            changed: <span class="bool-val">false</span>,
+<a href=#73 id=73 data-nosnippet>73</a>            const_not_evaluated: <span class="prelude-val">None</span>,
+<a href=#74 id=74 data-nosnippet>74</a>            array_index_not_evaluated: <span class="prelude-val">None</span>,
+<a href=#75 id=75 data-nosnippet>75</a>            array_length_not_evaluated: <span class="prelude-val">None</span>,
+<a href=#76 id=76 data-nosnippet>76</a>            repeat_count_not_evaluated: <span class="prelude-val">None</span>,
+<a href=#77 id=77 data-nosnippet>77</a>        };
+<a href=#78 id=78 data-nosnippet>78</a>        ast.ast = visitor.reconstruct_program(ast.ast);
+<a href=#79 id=79 data-nosnippet>79</a>        visitor.state.handler.last_err().map_err(|e| <span class="kw-2">*</span>e)<span class="question-mark">?</span>;
+<a href=#80 id=80 data-nosnippet>80</a>        visitor.state.ast = ast;
+<a href=#81 id=81 data-nosnippet>81</a>        <span class="prelude-val">Ok</span>(ConstPropagationOutput {
+<a href=#82 id=82 data-nosnippet>82</a>            changed: visitor.changed,
+<a href=#83 id=83 data-nosnippet>83</a>            const_not_evaluated: visitor.const_not_evaluated,
+<a href=#84 id=84 data-nosnippet>84</a>            array_index_not_evaluated: visitor.array_index_not_evaluated,
+<a href=#85 id=85 data-nosnippet>85</a>            array_length_not_evaluated: visitor.array_length_not_evaluated,
+<a href=#86 id=86 data-nosnippet>86</a>            repeat_count_not_evaluated: visitor.repeat_count_not_evaluated,
+<a href=#87 id=87 data-nosnippet>87</a>        })
+<a href=#88 id=88 data-nosnippet>88</a>    }
+<a href=#89 id=89 data-nosnippet>89</a>}
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ConstPropagationVisitor&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#92 id=92 data-nosnippet>92</a>    <span class="kw">pub fn </span>new(state: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">crate</span>::CompilerState, program: Symbol) -&gt; <span class="self">Self </span>{
+<a href=#93 id=93 data-nosnippet>93</a>        ConstPropagationVisitor {
+<a href=#94 id=94 data-nosnippet>94</a>            state,
+<a href=#95 id=95 data-nosnippet>95</a>            program,
+<a href=#96 id=96 data-nosnippet>96</a>            module: <span class="macro">vec!</span>[],
+<a href=#97 id=97 data-nosnippet>97</a>            changed: <span class="bool-val">false</span>,
+<a href=#98 id=98 data-nosnippet>98</a>            const_not_evaluated: <span class="prelude-val">None</span>,
+<a href=#99 id=99 data-nosnippet>99</a>            array_index_not_evaluated: <span class="prelude-val">None</span>,
+<a href=#100 id=100 data-nosnippet>100</a>            array_length_not_evaluated: <span class="prelude-val">None</span>,
+<a href=#101 id=101 data-nosnippet>101</a>            repeat_count_not_evaluated: <span class="prelude-val">None</span>,
+<a href=#102 id=102 data-nosnippet>102</a>        }
+<a href=#103 id=103 data-nosnippet>103</a>    }
+<a href=#104 id=104 data-nosnippet>104</a>}</code></pre></div></section></main></body></html>

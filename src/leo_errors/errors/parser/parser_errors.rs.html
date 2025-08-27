@@ -395,4 +395,31 @@
 <a href=#395 id=395 data-nosnippet>395</a>        msg: <span class="macro">format!</span>(<span class="string">"{msg}"</span>),
 <a href=#396 id=396 data-nosnippet>396</a>        help: <span class="prelude-val">None</span>,
 <a href=#397 id=397 data-nosnippet>397</a>    }
-<a href=#398 id=398 data-nosnippet>398</a>);</code></pre></div></section></main></body></html>
+<a href=#398 id=398 data-nosnippet>398</a>
+<a href=#399 id=399 data-nosnippet>399</a>    @backtraced
+<a href=#400 id=400 data-nosnippet>400</a>    conflicting_module_definitions {
+<a href=#401 id=401 data-nosnippet>401</a>        args: (module_name: <span class="kw">impl </span>Display, file_a: <span class="kw">impl </span>Display, file_b: <span class="kw">impl </span>Display),
+<a href=#402 id=402 data-nosnippet>402</a>        msg: <span class="macro">format!</span>(
+<a href=#403 id=403 data-nosnippet>403</a>            <span class="string">"Module `{module_name}` is defined in both `{file_a}` and `{file_b}`"
+<a href=#404 id=404 data-nosnippet>404</a>        </span>),
+<a href=#405 id=405 data-nosnippet>405</a>        help: <span class="prelude-val">Some</span>({
+<a href=#406 id=406 data-nosnippet>406</a>            <span class="kw">let </span>module_path_fs = <span class="macro">format!</span>(<span class="string">"{module_name}"</span>).replace(<span class="string">"::"</span>, <span class="string">"/"</span>);
+<a href=#407 id=407 data-nosnippet>407</a>            <span class="macro">format!</span>(
+<a href=#408 id=408 data-nosnippet>408</a>                <span class="string">"Use `{module_path_fs}.leo` for a simple module with no submodules, or place a `mod.leo` file in a `{module_path_fs}/` directory if it contains submodules — not both."
+<a href=#409 id=409 data-nosnippet>409</a>            </span>)
+<a href=#410 id=410 data-nosnippet>410</a>        }),
+<a href=#411 id=411 data-nosnippet>411</a>    }
+<a href=#412 id=412 data-nosnippet>412</a>
+<a href=#413 id=413 data-nosnippet>413</a>    @backtraced
+<a href=#414 id=414 data-nosnippet>414</a>    keyword_used_as_module_name {
+<a href=#415 id=415 data-nosnippet>415</a>        args: (module_name: <span class="kw">impl </span>Display, keyword: <span class="kw">impl </span>Display),
+<a href=#416 id=416 data-nosnippet>416</a>        msg: <span class="macro">format!</span>(
+<a href=#417 id=417 data-nosnippet>417</a>            <span class="string">"Module `{module_name}` uses the reserved keyword `{keyword}` as a name"
+<a href=#418 id=418 data-nosnippet>418</a>        </span>),
+<a href=#419 id=419 data-nosnippet>419</a>        help: {
+<a href=#420 id=420 data-nosnippet>420</a>            <span class="prelude-val">Some</span>(<span class="macro">format!</span>(
+<a href=#421 id=421 data-nosnippet>421</a>                <span class="string">"Rename the module so it does not conflict with the language keyword `{keyword}`."
+<a href=#422 id=422 data-nosnippet>422</a>            </span>))
+<a href=#423 id=423 data-nosnippet>423</a>        },
+<a href=#424 id=424 data-nosnippet>424</a>    }
+<a href=#425 id=425 data-nosnippet>425</a>);</code></pre></div></section></main></body></html>

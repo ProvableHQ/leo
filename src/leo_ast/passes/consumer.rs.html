@@ -35,7 +35,7 @@
 <a href=#35 id=35 data-nosnippet>35</a>            Expression::Cast(cast) =&gt; <span class="self">self</span>.consume_cast(<span class="kw-2">*</span>cast),
 <a href=#36 id=36 data-nosnippet>36</a>            Expression::Struct(struct_) =&gt; <span class="self">self</span>.consume_struct_init(struct_),
 <a href=#37 id=37 data-nosnippet>37</a>            Expression::Err(err) =&gt; <span class="self">self</span>.consume_err(err),
-<a href=#38 id=38 data-nosnippet>38</a>            Expression::Identifier(identifier) =&gt; <span class="self">self</span>.consume_identifier(identifier),
+<a href=#38 id=38 data-nosnippet>38</a>            Expression::Path(path) =&gt; <span class="self">self</span>.consume_path(path),
 <a href=#39 id=39 data-nosnippet>39</a>            Expression::Literal(value) =&gt; <span class="self">self</span>.consume_literal(value),
 <a href=#40 id=40 data-nosnippet>40</a>            Expression::Locator(locator) =&gt; <span class="self">self</span>.consume_locator(locator),
 <a href=#41 id=41 data-nosnippet>41</a>            Expression::MemberAccess(access) =&gt; <span class="self">self</span>.consume_member_access(<span class="kw-2">*</span>access),
@@ -74,7 +74,7 @@
 <a href=#74 id=74 data-nosnippet>74</a>        <span class="macro">panic!</span>(<span class="string">"`ErrExpression`s should not be in the AST at this phase of compilation."</span>)
 <a href=#75 id=75 data-nosnippet>75</a>    }
 <a href=#76 id=76 data-nosnippet>76</a>
-<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">fn </span>consume_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: Identifier) -&gt; <span class="self">Self</span>::Output;
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">fn </span>consume_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: Path) -&gt; <span class="self">Self</span>::Output;
 <a href=#78 id=78 data-nosnippet>78</a>
 <a href=#79 id=79 data-nosnippet>79</a>    <span class="kw">fn </span>consume_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: Literal) -&gt; <span class="self">Self</span>::Output;
 <a href=#80 id=80 data-nosnippet>80</a>
@@ -174,4 +174,10 @@
 <a href=#174 id=174 data-nosnippet>174</a></span><span class="kw">pub trait </span>ProgramConsumer {
 <a href=#175 id=175 data-nosnippet>175</a>    <span class="kw">type </span>Output;
 <a href=#176 id=176 data-nosnippet>176</a>    <span class="kw">fn </span>consume_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Program) -&gt; <span class="self">Self</span>::Output;
-<a href=#177 id=177 data-nosnippet>177</a>}</code></pre></div></section></main></body></html>
+<a href=#177 id=177 data-nosnippet>177</a>}
+<a href=#178 id=178 data-nosnippet>178</a>
+<a href=#179 id=179 data-nosnippet>179</a><span class="doccomment">/// A Consumer trait for modules in the AST.
+<a href=#180 id=180 data-nosnippet>180</a></span><span class="kw">pub trait </span>ModuleConsumer {
+<a href=#181 id=181 data-nosnippet>181</a>    <span class="kw">type </span>Output;
+<a href=#182 id=182 data-nosnippet>182</a>    <span class="kw">fn </span>consume_module(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Module) -&gt; <span class="self">Self</span>::Output;
+<a href=#183 id=183 data-nosnippet>183</a>}</code></pre></div></section></main></body></html>

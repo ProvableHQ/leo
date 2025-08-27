@@ -99,7 +99,7 @@
 <a href=#99 id=99 data-nosnippet>99</a>            Expression::Cast(cast) =&gt; <span class="self">self</span>.visit_cast(cast, <span class="kw-2">&amp;</span>Position::Misc),
 <a href=#100 id=100 data-nosnippet>100</a>            Expression::Struct(struct_) =&gt; <span class="self">self</span>.visit_struct_init(struct_, <span class="kw-2">&amp;</span>Position::Misc),
 <a href=#101 id=101 data-nosnippet>101</a>            Expression::Err(err) =&gt; <span class="self">self</span>.visit_err(err, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#102 id=102 data-nosnippet>102</a>            Expression::Identifier(identifier) =&gt; <span class="self">self</span>.visit_identifier(identifier, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#102 id=102 data-nosnippet>102</a>            Expression::Path(path) =&gt; <span class="self">self</span>.visit_path(path, <span class="kw-2">&amp;</span>Position::Misc),
 <a href=#103 id=103 data-nosnippet>103</a>            Expression::Literal(literal) =&gt; <span class="self">self</span>.visit_literal(literal, <span class="kw-2">&amp;</span>Position::Misc),
 <a href=#104 id=104 data-nosnippet>104</a>            Expression::Locator(locator) =&gt; <span class="self">self</span>.visit_locator(locator, <span class="kw-2">&amp;</span>Position::Misc),
 <a href=#105 id=105 data-nosnippet>105</a>            Expression::MemberAccess(access) =&gt; <span class="self">self</span>.visit_member_access(access, <span class="kw-2">&amp;</span>Position::Misc),

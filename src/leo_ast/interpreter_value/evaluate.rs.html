@@ -144,7 +144,7 @@
 <a href=#144 id=144 data-nosnippet>144</a>            (Address(x), Address(y)) =&gt; x == y,
 <a href=#145 id=145 data-nosnippet>145</a>            (Struct(x), Struct(y)) =&gt; {
 <a href=#146 id=146 data-nosnippet>146</a>                <span class="comment">// They must have the same name
-<a href=#147 id=147 data-nosnippet>147</a>                </span><span class="kw">if </span>x.name != y.name {
+<a href=#147 id=147 data-nosnippet>147</a>                </span><span class="kw">if </span>x.path != y.path {
 <a href=#148 id=148 data-nosnippet>148</a>                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
 <a href=#149 id=149 data-nosnippet>149</a>                }
 <a href=#150 id=150 data-nosnippet>150</a>
@@ -358,7 +358,7 @@
 <a href=#358 id=358 data-nosnippet>358</a>            Field(x) =&gt; SvmLiteral::Field(<span class="kw-2">*</span>x).into(),
 <a href=#359 id=359 data-nosnippet>359</a>            Scalar(x) =&gt; SvmLiteral::Scalar(<span class="kw-2">*</span>x).into(),
 <a href=#360 id=360 data-nosnippet>360</a>            Address(x) =&gt; SvmLiteral::Address(<span class="kw-2">*</span>x).into(),
-<a href=#361 id=361 data-nosnippet>361</a>            Struct(StructContents { name: <span class="kw">_</span>, contents }) =&gt; {
+<a href=#361 id=361 data-nosnippet>361</a>            Struct(StructContents { path: <span class="kw">_</span>, contents }) =&gt; {
 <a href=#362 id=362 data-nosnippet>362</a>                (contents.len() <span class="kw">as </span>u8).write_bits_le(vec);
 <a href=#363 id=363 data-nosnippet>363</a>                <span class="kw">for </span>(name, value) <span class="kw">in </span>contents.iter() {
 <a href=#364 id=364 data-nosnippet>364</a>                    <span class="kw">let </span>name_s = name.to_string();

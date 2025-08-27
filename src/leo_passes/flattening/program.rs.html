@@ -64,7 +64,7 @@
 <a href=#64 id=64 data-nosnippet>64</a>            .map(|(guard, statement)| <span class="kw">match </span>guard {
 <a href=#65 id=65 data-nosnippet>65</a>                ReturnGuard::None =&gt; (<span class="prelude-val">None</span>, statement),
 <a href=#66 id=66 data-nosnippet>66</a>                ReturnGuard::Unconstructed(plain) | ReturnGuard::Constructed { plain, .. } =&gt; {
-<a href=#67 id=67 data-nosnippet>67</a>                    (<span class="prelude-val">Some</span>(plain.into()), statement)
+<a href=#67 id=67 data-nosnippet>67</a>                    (<span class="prelude-val">Some</span>(leo_ast::Path::from(plain).into()), statement)
 <a href=#68 id=68 data-nosnippet>68</a>                }
 <a href=#69 id=69 data-nosnippet>69</a>            })
 <a href=#70 id=70 data-nosnippet>70</a>            .collect();

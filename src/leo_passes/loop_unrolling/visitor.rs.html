@@ -113,7 +113,7 @@
 <a href=#113 id=113 data-nosnippet>113</a>            <span class="kw">let </span>value = Literal::integer(<span class="kw-2">*</span>integer_type, iteration_count.to_string(), Default::default(), const_id);
 <a href=#114 id=114 data-nosnippet>114</a>
 <a href=#115 id=115 data-nosnippet>115</a>            <span class="comment">// Add the loop variable as a constant for the current scope.
-<a href=#116 id=116 data-nosnippet>116</a>            </span>slf.state.symbol_table.insert_const(slf.program, input.variable.name, value.into());
+<a href=#116 id=116 data-nosnippet>116</a>            </span>slf.state.symbol_table.insert_const(slf.program, <span class="kw-2">&amp;</span>[input.variable.name], value.into());
 <a href=#117 id=117 data-nosnippet>117</a>
 <a href=#118 id=118 data-nosnippet>118</a>            <span class="kw">let </span>duplicated_body =
 <a href=#119 id=119 data-nosnippet>119</a>                <span class="kw">super</span>::duplicate::duplicate(input.block.clone(), <span class="kw-2">&amp;mut </span>slf.state.symbol_table, <span class="kw-2">&amp;</span>slf.state.node_builder);
