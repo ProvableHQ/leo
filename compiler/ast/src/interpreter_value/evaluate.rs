@@ -195,6 +195,7 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
                 address.into()
             }
         }
+        LiteralVariant::None => Value { id: None, contents: ValueVariants::None },
         LiteralVariant::Scalar(s) => {
             SvmLiteralParam::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span)?).into()
         }

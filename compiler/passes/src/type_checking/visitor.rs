@@ -109,6 +109,9 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
+        if actual.can_coerce_to(expected) {
+            return;
+        }
         if actual != &Type::Err && !Self::eq_user(actual, expected) {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
@@ -774,6 +777,27 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
+            CoreFunction::OptionalUnwrap => {
+                // Check that the first argument is an optional.
+                self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
+
+                match &arguments[0].0 {
+                    Type::Optional(opt) => opt.inner.deref().clone(),
+                    _ => Type::Err,
+                }
+            }
+            CoreFunction::OptionalUnwrapOr => {
+                // Check that the first argument is an optional.
+                self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
+
+                match &arguments[0].0 {
+                    Type::Optional(OptionalType { inner }) => {
+                        self.assert_type(inner, &arguments[1].0, arguments[1].1.span());
+                        inner.deref().clone()
+                    }
+                    _ => Type::Err,
+                }
+            }
             CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate => {
                 // Check that the first argument is a group.
                 self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1.span());
@@ -890,7 +914,7 @@ impl TypeCheckingVisitor<'_> {
         match type_ {
             Type::Composite(struct_)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.path.absolute_path())
+                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                     .is_some_and(|struct_| struct_.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
@@ -919,10 +943,10 @@ impl TypeCheckingVisitor<'_> {
             Type::String => {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
-            // Check that the named composite type has been defined.
+            // Check that table_typethe named composite type has been defined.
             Type::Composite(struct_)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.path.absolute_path())
+                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                     .is_none() =>
             {
                 self.emit_err(TypeCheckerError::undefined_type(struct_.path.clone(), span));
@@ -965,7 +989,7 @@ impl TypeCheckingVisitor<'_> {
                         // Look up the type.
                         if let Some(struct_) = self.lookup_struct(
                             struct_type.program.or(self.scope_state.program_name),
-                            struct_type.path.absolute_path(),
+                            &struct_type.path.absolute_path(),
                         ) {
                             // Check that the type is not a record.
                             if struct_.is_record {
@@ -985,6 +1009,13 @@ impl TypeCheckingVisitor<'_> {
     pub fn assert_mapping_type(&self, type_: &Type, span: Span) {
         if type_ != &Type::Err && !matches!(type_, Type::Mapping(_)) {
             self.emit_err(TypeCheckerError::type_should_be2(type_, "a mapping", span));
+        }
+    }
+
+    /// Emits an error if the type is not an optional.
+    pub fn assert_optional_type(&self, type_: &Type, span: Span) {
+        if type_ != &Type::Err && !matches!(type_, Type::Optional(_)) {
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "an optional", span));
         }
     }
 
@@ -1104,7 +1135,7 @@ impl TypeCheckingVisitor<'_> {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
                     if let Some(elem) = self
-                        .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.path.absolute_path())
+                        .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                     {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
@@ -1167,7 +1198,7 @@ impl TypeCheckingVisitor<'_> {
             // Note that an external output must always be a record.
             if let Type::Composite(struct_) = function_output.type_.clone() {
                 if let Some(val) =
-                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.path.absolute_path())
+                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                 {
                     if val.is_record && !function.variant.is_transition() {
                         self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
@@ -1268,6 +1299,7 @@ impl TypeCheckingVisitor<'_> {
             (Type::Mapping(left), Type::Mapping(right)) => {
                 Self::eq_user(&left.key, &right.key) && Self::eq_user(&left.value, &right.value)
             }
+            (Type::Optional(left), Type::Optional(right)) => Self::eq_user(&left.inner, &right.inner),
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()

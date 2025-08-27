@@ -22,6 +22,7 @@ use rand_chacha::ChaCha20Rng;
 use crate::{
     CoreFunction,
     Expression,
+    halt2,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
 };
@@ -456,6 +457,14 @@ pub fn evaluate_core_function(
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).is_some().into()
+        }
+        CoreFunction::OptionalUnwrap => {
+            let value = helper.pop_value()?;
+            if let ValueVariants::None = value.contents { halt2!(span, "unwrapping a None") } else { value }
+        }
+        CoreFunction::OptionalUnwrapOr => {
+            // TODO?
+            return Ok(None);
         }
         CoreFunction::SignatureVerify => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),

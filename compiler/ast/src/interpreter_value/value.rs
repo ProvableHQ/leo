@@ -88,6 +88,7 @@ pub(crate) enum ValueVariants {
     Svm(SvmValue),
     Tuple(Vec<Value>),
     Unsuffixed(String),
+    None,
     Future(Vec<AsyncExecution>),
 }
 
@@ -166,6 +167,9 @@ impl Hash for ValueVariants {
             Future(async_executions) => {
                 3u8.hash(state);
                 async_executions.hash(state);
+            }
+            None => {
+                4u8.hash(state);
             }
             Svm(value) => match value {
                 SvmValueParam::Record(record) => {
@@ -382,6 +386,7 @@ impl fmt::Display for Value {
             ValueVariants::Tuple(vec) => write!(f, "({})", vec.iter().format(", ")),
             ValueVariants::Unsuffixed(s) => s.fmt(f),
             ValueVariants::Future(_async_executions) => "Future".fmt(f),
+            ValueVariants::None => write!(f, "None"),
         }
     }
 }
@@ -829,6 +834,7 @@ impl Value {
                 .into()
             }
             ValueVariants::Unsuffixed(s) => Literal::unsuffixed(s.clone(), span, id).into(),
+            ValueVariants::None => Literal::none(span, id).into(),
             ValueVariants::Svm(value) => match value {
                 SvmValueParam::Plaintext(plaintext) => {
                     plaintext_to_expression(plaintext, span, node_builder, ty, &struct_lookup)?

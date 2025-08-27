@@ -327,7 +327,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Composite(struct_type) => {
                 if let Some(comp) = self.lookup_struct(
                     struct_type.program.or(self.scope_state.program_name),
-                    struct_type.path.absolute_path(),
+                    &struct_type.path.absolute_path(),
                 ) {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
@@ -350,7 +350,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Composite(struct_type) => {
                 if let Some(comp) = self.lookup_struct(
                     struct_type.program.or(self.scope_state.program_name),
-                    struct_type.path.absolute_path(),
+                    &struct_type.path.absolute_path(),
                 ) {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));

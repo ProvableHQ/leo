@@ -20,10 +20,11 @@ use leo_ast::{AstReconstructor, CallExpression, Expression, Location, Variant};
 use leo_errors::TypeCheckerError;
 
 impl AstReconstructor for ProcessingScriptVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /* Expressions */
-    fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         if !matches!(self.current_variant, Variant::Script) {
             let callee_program = input.program.unwrap_or(self.program_name);
 

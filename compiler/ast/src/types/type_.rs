@@ -14,7 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, Path, TupleType};
+use crate::{
+    ArrayType,
+    CompositeType,
+    FutureType,
+    Identifier,
+    IntegerType,
+    MappingType,
+    OptionalType,
+    Path,
+    TupleType,
+};
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -49,6 +59,8 @@ pub enum Type {
     Integer(IntegerType),
     /// A mapping type.
     Mapping(MappingType),
+    /// An nullable type.
+    Optional(OptionalType),
     /// The `scalar` type.
     Scalar,
     /// The `signature` type.
@@ -104,6 +116,7 @@ impl Type {
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat_relaxed(&right.key) && left.value.eq_flat_relaxed(&right.value)
             }
+            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_flat_relaxed(&right.inner),
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
@@ -168,6 +181,33 @@ impl Type {
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }
+
+    pub fn can_coerce_to(&self, expected: &Type) -> bool {
+        use Type::*;
+
+        match (self, expected) {
+            // Allow Optional<T> → Optional<T>
+            (Optional(actual_opt), Optional(expected_opt)) => actual_opt.inner.can_coerce_to(&expected_opt.inner),
+
+            // Allow T → Optional<T>
+            (a, Optional(opt)) => a.can_coerce_to(&opt.inner),
+
+            // Allow [T; N] → [Optional<T>; N]
+            (Array(a_arr), Array(e_arr)) => {
+                let lengths_equal = match (a_arr.length.as_u32(), e_arr.length.as_u32()) {
+                    (Some(l1), Some(l2)) => l1 == l2,
+                    _ => true,
+                };
+
+                lengths_equal && a_arr.element_type().can_coerce_to(e_arr.element_type())
+            }
+
+            // TODO: Do we need to check other types here?
+
+            // Fallback: check for exact match
+            _ => self.eq_flat_relaxed(expected),
+        }
+    }
 }
 
 impl fmt::Display for Type {
@@ -182,6 +222,7 @@ impl fmt::Display for Type {
             Type::Identifier(ref variable) => write!(f, "{variable}"),
             Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
             Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
+            Type::Optional(ref optional_type) => write!(f, "{optional_type}"),
             Type::Scalar => write!(f, "scalar"),
             Type::Signature => write!(f, "signature"),
             Type::String => write!(f, "string"),

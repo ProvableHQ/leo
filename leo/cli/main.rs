@@ -23,7 +23,7 @@ fn set_panic_hook() {
     std::panic::set_hook({
         Box::new(move |e| {
             eprintln!("thread `{}` {}", std::thread::current().name().unwrap_or("<unnamed>"), e);
-            eprintln!("stack backtrace: \n{:?}", backtrace::Backtrace::new());
+            // eprintln!("stack backtrace: \n{:?}", backtrace::Backtrace::new());
             eprintln!("error: internal compiler error: unexpected panic\n");
             eprintln!("note: the compiler unexpectedly panicked. this is a bug.\n");
             eprintln!(

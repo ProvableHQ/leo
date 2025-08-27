@@ -40,6 +40,7 @@ pub enum Token {
     // The string in AddressLit(String) has the form `aleo1...`.
     True,
     False,
+    None,
     Integer(String), // = numeral (including tuple index) in the ABNF grammar
     AddressLit(String),
     StaticString(String),
@@ -237,6 +238,7 @@ keyword_map! {
     Leo        => leo,
     Mapping    => mapping,
     Network    => network,
+    None       => None,
     Private    => private,
     Program    => program,
     Public     => public,
@@ -368,6 +370,7 @@ impl fmt::Display for Token {
             Let => write!(f, "let"),
             Mapping => write!(f, "mapping"),
             Network => write!(f, "network"),
+            None => write!(f, "None"),
             Private => write!(f, "private"),
             Program => write!(f, "program"),
             Public => write!(f, "public"),

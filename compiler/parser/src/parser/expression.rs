@@ -327,6 +327,28 @@ impl ParserContext<'_> {
                 id: self.node_builder.next_id(),
             }
             .into())
+        } else if let (0, Some(CoreFunction::OptionalUnwrap)) =
+            (args.len(), CoreFunction::from_symbols(sym::Optional, method.name))
+        {
+            Ok(AssociatedFunctionExpression {
+                variant: Identifier::new(sym::Optional, self.node_builder.next_id()),
+                name: method,
+                arguments: vec![receiver],
+                span,
+                id: self.node_builder.next_id(),
+            }
+            .into())
+        } else if let (1, Some(CoreFunction::OptionalUnwrapOr)) =
+            (args.len(), CoreFunction::from_symbols(sym::Optional, method.name))
+        {
+            Ok(AssociatedFunctionExpression {
+                variant: Identifier::new(sym::Optional, self.node_builder.next_id()),
+                name: method,
+                arguments: std::iter::once(receiver).chain(args).collect(),
+                span,
+                id: self.node_builder.next_id(),
+            }
+            .into())
         } else {
             // Attempt to parse the method call as a mapping operation.
             match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
@@ -394,8 +416,15 @@ impl ParserContext<'_> {
             }
             .into()
         } else {
-            Path::new(vec![variant], member_name, None, variant.span + member_name.span, self.node_builder.next_id())
-                .into()
+            Path::new(
+                vec![variant],
+                member_name,
+                false, // only relative paths for now.
+                None,
+                variant.span + member_name.span,
+                self.node_builder.next_id(),
+            )
+            .into()
         };
 
         Ok(expression)
@@ -787,6 +816,7 @@ impl ParserContext<'_> {
             }
             Token::True => Literal::boolean(true, span, self.node_builder.next_id()).into(),
             Token::False => Literal::boolean(false, span, self.node_builder.next_id()).into(),
+            Token::None => Literal::none(span, self.node_builder.next_id()).into(),
             Token::AddressLit(address_string) => {
                 if match self.network {
                     NetworkName::MainnetV0 => address_string.parse::<Address<MainnetV0>>().is_err(),
@@ -821,7 +851,14 @@ impl ParserContext<'_> {
 
                 let (identifier, qualifier) = segments.split_last().expect("guaranateed to have at least one segment");
 
-                let path = Path::new(qualifier.to_vec(), *identifier, None, path_span, self.node_builder.next_id());
+                let path = Path::new(
+                    qualifier.to_vec(),
+                    *identifier,
+                    false, // Only relative paths for now.
+                    None,
+                    path_span,
+                    self.node_builder.next_id(),
+                );
 
                 // Check for struct initializer
                 if !self.disallow_struct_construction && self.check(&Token::LeftCurly) {

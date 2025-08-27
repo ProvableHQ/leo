@@ -14,29 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod array;
-pub use array::*;
+use crate::Type;
 
-mod core_constant;
-pub use core_constant::*;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-mod future;
-pub use future::*;
+/// An optional type. For example `u32?` where `inner` refers to `u32`.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct OptionalType {
+    pub inner: Box<Type>,
+}
 
-mod integer_type;
-pub use integer_type::*;
-
-mod optional;
-pub use optional::*;
-
-mod mapping;
-pub use mapping::*;
-
-mod struct_type;
-pub use struct_type::*;
-
-mod tuple;
-pub use tuple::*;
-
-mod type_;
-pub use type_::*;
+impl fmt::Display for OptionalType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}?", self.inner)
+    }
+}

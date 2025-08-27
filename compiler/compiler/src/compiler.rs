@@ -143,6 +143,8 @@ impl Compiler {
 
         self.do_pass::<TypeChecking>(type_checking_config.clone())?;
 
+        self.do_pass::<OptionLowering>(type_checking_config.clone())?;
+
         self.do_pass::<ProcessingAsync>(type_checking_config.clone())?;
 
         self.do_pass::<StaticAnalyzing>(())?;

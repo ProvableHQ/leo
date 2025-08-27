@@ -1241,4 +1241,13 @@ create_messages!(
         msg: format!("Constructors can only return unit, but found `{expression}`."),
         help: None,
     }
+
+    @formatted
+    none_found_non_optional {
+        args: (expected: impl Display),
+        msg: format!(
+            "Found `None`, but the expected type `{expected}` is not an optional type.",
+        ),
+        help: None,
+    }
 );
