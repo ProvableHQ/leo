@@ -21,10 +21,15 @@ use leo_span::Symbol;
 use itertools::{Itertools, izip};
 
 impl AstReconstructor for DestructuringVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
     /// Replaces a tuple access expression with the appropriate expression.
-    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_tuple_access(
+        &mut self,
+        input: TupleAccess,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let Expression::Path(path) = &input.tuple else {
             panic!("SSA guarantees that subexpressions are identifiers or literals.");
         };
@@ -56,7 +61,11 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
     /// If this is a ternary expression on tuples of length `n`, we'll need to change it into
     /// `n` ternary expressions on the members.
-    fn reconstruct_ternary(&mut self, mut input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_ternary(
+        &mut self,
+        mut input: TernaryExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let (if_true, mut statements) = self.reconstruct_expression_tuple(std::mem::take(&mut input.if_true));
         let (if_false, statements2) = self.reconstruct_expression_tuple(std::mem::take(&mut input.if_false));
         statements.extend(statements2);
@@ -153,7 +162,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     ///    `x_2[i].member = rhs;`
     ///    where `x_2` is the variable corresponding to `x.2`.
     fn reconstruct_assign(&mut self, mut assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        let (value, mut statements) = self.reconstruct_expression(assign.value);
+        let (value, mut statements) = self.reconstruct_expression(assign.value, &());
 
         if let Expression::Path(path) = &assign.place {
             if let Type::Tuple(..) = self.state.type_table.get(&value.id()).expect("Expressions should have types.") {
@@ -247,7 +256,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     }
 
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        let (condition, mut statements) = self.reconstruct_expression(input.condition);
+        let (condition, mut statements) = self.reconstruct_expression(input.condition, &());
         let (then, statements2) = self.reconstruct_block(input.then);
         statements.extend(statements2);
         let otherwise = input.otherwise.map(|oth| {
@@ -272,7 +281,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 .collect()
         };
 
-        let (value, mut statements) = self.reconstruct_expression(definition.value);
+        let (value, mut statements) = self.reconstruct_expression(definition.value, &());
         let ty = self.state.type_table.get(&value.id()).expect("Expressions should have a type.");
         match (definition.place, value, ty) {
             (Single(identifier), Expression::Path(rhs), Type::Tuple(tuple_type)) => {

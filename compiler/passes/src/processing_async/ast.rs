@@ -56,7 +56,7 @@ impl AstVisitor for SymbolAccessCollector<'_> {
     type Output = ();
 
     fn visit_path(&mut self, input: &Path, _: &Self::AdditionalInput) -> Self::Output {
-        self.symbol_accesses.insert((input.absolute_path().to_vec(), None));
+        self.symbol_accesses.insert((input.absolute_path(), None));
     }
 
     fn visit_tuple_access(&mut self, input: &TupleAccess, _: &Self::AdditionalInput) -> Self::Output {
@@ -65,9 +65,9 @@ impl AstVisitor for SymbolAccessCollector<'_> {
         if let Expression::Path(path) = &input.tuple {
             // Futures aren't accessed by field; treat the whole thing as a direct variable
             if let Some(Type::Future(_)) = self.state.type_table.get(&input.tuple.id()) {
-                self.symbol_accesses.insert((path.absolute_path().to_vec(), None));
+                self.symbol_accesses.insert((path.absolute_path(), None));
             } else {
-                self.symbol_accesses.insert((path.absolute_path().to_vec(), Some(input.index.value())));
+                self.symbol_accesses.insert((path.absolute_path(), Some(input.index.value())));
             }
         } else {
             self.visit_expression(&input.tuple, &());
@@ -78,6 +78,7 @@ impl AstVisitor for SymbolAccessCollector<'_> {
 impl ProgramVisitor for SymbolAccessCollector<'_> {}
 
 impl AstReconstructor for ProcessingAsyncVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /// Transforms an `AsyncExpression` into a standalone async `Function` and returns
@@ -86,7 +87,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
     /// - Filters out mappings and constructs typed input parameters.
     /// - Reconstructs an async function with those inputs and the original block.
     /// - Builds and returns a `CallExpression` that invokes the new function.
-    fn reconstruct_async(&mut self, input: AsyncExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_async(&mut self, input: AsyncExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Step 1: Generate a unique name for the async function
         let finalize_fn_name = self.state.assigner.unique_symbol(self.current_function, "$");
 
@@ -326,6 +327,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
             function: Path::new(
                 vec![],
                 make_identifier(self, finalize_fn_name),
+                true,
                 Some(vec![finalize_fn_name]), // the finalize function lives in the top level program scope
                 Span::default(),
                 self.state.node_builder.next_id(),
@@ -360,8 +362,8 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
             (
                 IterationStatement {
                     type_: input.type_.map(|ty| slf.reconstruct_type(ty).0),
-                    start: slf.reconstruct_expression(input.start).0,
-                    stop: slf.reconstruct_expression(input.stop).0,
+                    start: slf.reconstruct_expression(input.start, &()).0,
+                    stop: slf.reconstruct_expression(input.stop, &()).0,
                     block: slf.reconstruct_block(input.block).0,
                     ..input
                 }

@@ -21,19 +21,29 @@ use leo_errors::LoopUnrollerError;
 use super::UnrollingVisitor;
 
 impl AstReconstructor for UnrollingVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /* Expressions */
-    fn reconstruct_repeat(&mut self, input: RepeatExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_repeat(
+        &mut self,
+        input: RepeatExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         // Because the value of `count` affects the type of a repeat expression, we need to assign a new ID to the
         // reconstructed `RepeatExpression` and update the type table accordingly.
         let new_id = self.state.node_builder.next_id();
-        let new_count = self.reconstruct_expression(input.count).0;
+        let new_count = self.reconstruct_expression(input.count, &()).0;
         let el_ty = self.state.type_table.get(&input.expr.id()).expect("guaranteed by type checking");
         self.state.type_table.insert(new_id, Type::Array(ArrayType::new(el_ty, new_count.clone())));
         (
-            RepeatExpression { expr: self.reconstruct_expression(input.expr).0, count: new_count, id: new_id, ..input }
-                .into(),
+            RepeatExpression {
+                expr: self.reconstruct_expression(input.expr, &()).0,
+                count: new_count,
+                id: new_id,
+                ..input
+            }
+            .into(),
             Default::default(),
         )
     }
@@ -54,7 +64,7 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         (
             DefinitionStatement {
                 type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
-                value: self.reconstruct_expression(input.value).0,
+                value: self.reconstruct_expression(input.value, &()).0,
                 ..input
             }
             .into(),

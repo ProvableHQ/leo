@@ -42,13 +42,44 @@ impl Value {
     /// fail when comparing values of different types,
     /// rather than just returning false.
     pub fn eq(&self, rhs: &Self) -> Result<bool> {
+        dbg!(&self);
+        dbg!(&rhs);
         if self.id != rhs.id {
             return Ok(false);
         }
         use ValueVariants::*;
         Ok(match (&self.contents, &rhs.contents) {
             (Unsuffixed(..), _) | (_, Unsuffixed(..)) => halt_no_span2!("Error"),
+            (None(_), None(_)) => true,
+            (None(_), _) | (_, None(_)) => false,
             (Unit, Unit) => true,
+            (Struct(x), Struct(y)) => {
+                if x.len() != y.len() {
+                    return Ok(false);
+                }
+                for (key, x_val) in x {
+                    match y.get(key) {
+                        Some(y_val) => {
+                            if !x_val.eq(y_val)? {
+                                return Ok(false);
+                            }
+                        }
+                        Option::None => return Ok(false),
+                    }
+                }
+                true
+            }
+            (Array(x), Array(y)) => {
+                if x.len() != y.len() {
+                    return Ok(false);
+                }
+                for (x0, y0) in x.iter().zip(y) {
+                    if !x0.eq(y0)? {
+                        return Ok(false);
+                    }
+                }
+                true
+            }
             (Tuple(x), Tuple(y)) => {
                 if x.len() != y.len() {
                     return Ok(false);
@@ -193,6 +224,13 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
             } else {
                 let address: Address = s.parse().expect_tc(literal.span)?;
                 address.into()
+            }
+        }
+        LiteralVariant::None => {
+            if let Some(expected_ty) = expected_ty {
+                Value { id: None, contents: ValueVariants::None(Some(expected_ty.clone())) }
+            } else {
+                Value { id: None, contents: ValueVariants::None(None) }
             }
         }
         LiteralVariant::Scalar(s) => {

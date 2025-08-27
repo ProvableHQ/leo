@@ -97,10 +97,10 @@ impl From<Identifier> for Expression {
 }
 
 // Converts an `Identifier` to a `Path`
-// Note that this sets the `absolute_path` field in `Path` to `None`.
-// It's up to the caller of this method to figure out what to do `absolute_path`.
+// Note that this sets the `absolute_path` field in `Path` to `None` and `is_absolute` to `false`.
+// It's up to the caller of this method to figure out what to do with `absolute_path`.
 impl From<Identifier> for Path {
     fn from(value: Identifier) -> Self {
-        Path::new(vec![], value, None, value.span, value.id)
+        Path::new(vec![], value, false, None, value.span, value.id)
     }
 }

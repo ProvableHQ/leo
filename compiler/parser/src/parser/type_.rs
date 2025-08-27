@@ -82,7 +82,7 @@ impl ParserContext<'_> {
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
     /// Also returns the span of the parsed token.
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
-        if let Some(ident) = self.eat_identifier() {
+        let (base_type, base_span) = if let Some(ident) = self.eat_identifier() {
             // Check if using external type
             let file_type = self.look_ahead(1, |t| &t.token);
             if self.token.token == Token::Dot && (file_type == &Token::Aleo) {
@@ -140,7 +140,14 @@ impl ParserContext<'_> {
             let (identifier, qualifier) = segments.split_last().expect("guaranateed to have at least one segment");
             Ok((
                 Type::Composite(CompositeType {
-                    path: Path::new(qualifier.to_vec(), *identifier, None, path_span, self.node_builder.next_id()),
+                    path: Path::new(
+                        qualifier.to_vec(),
+                        *identifier,
+                        false, // Only relative paths for now.
+                        None,
+                        path_span,
+                        self.node_builder.next_id(),
+                    ),
                     const_arguments,
                     program: None,
                 }),
@@ -191,6 +198,13 @@ impl ParserContext<'_> {
             }
         } else {
             self.parse_primitive_type()
+        }?;
+
+        // Make this type optional if the next token is `?`
+        if let Ok(question_span) = self.expect(&Token::Question) {
+            Ok((Type::Optional(OptionalType { inner: Box::new(base_type) }), base_span + question_span))
+        } else {
+            Ok((base_type, base_span))
         }
     }
 }

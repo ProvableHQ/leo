@@ -58,34 +58,35 @@ impl<F> AstReconstructor for Replacer<'_, F>
 where
     F: Fn(&Expression) -> Expression,
 {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
-    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let opt_old_type = self.state.type_table.get(&input.id());
         let replaced_expr = (self.replace)(&input);
         let (mut new_expr, additional) = if replaced_expr.id() == input.id() {
             // Replacement didn't happen, so just use the default implementation.
             match input {
-                Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
-                Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
-                Expression::Async(async_) => self.reconstruct_async(async_),
-                Expression::Array(array) => self.reconstruct_array(array),
-                Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
-                Expression::Binary(binary) => self.reconstruct_binary(*binary),
-                Expression::Call(call) => self.reconstruct_call(*call),
-                Expression::Cast(cast) => self.reconstruct_cast(*cast),
-                Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
-                Expression::Err(err) => self.reconstruct_err(err),
-                Expression::Path(path) => self.reconstruct_path(path),
-                Expression::Literal(value) => self.reconstruct_literal(value),
-                Expression::Locator(locator) => self.reconstruct_locator(locator),
-                Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
-                Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
-                Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
-                Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
-                Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
-                Expression::Unary(unary) => self.reconstruct_unary(*unary),
-                Expression::Unit(unit) => self.reconstruct_unit(unit),
+                Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, &()),
+                Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, &()),
+                Expression::Async(async_) => self.reconstruct_async(async_, &()),
+                Expression::Array(array) => self.reconstruct_array(array, &()),
+                Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
+                Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
+                Expression::Call(call) => self.reconstruct_call(*call, &()),
+                Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
+                Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &()),
+                Expression::Err(err) => self.reconstruct_err(err, &()),
+                Expression::Path(path) => self.reconstruct_path(path, &()),
+                Expression::Literal(value) => self.reconstruct_literal(value, &()),
+                Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
+                Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
+                Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
+                Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
+                Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),
+                Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, &()),
+                Expression::Unary(unary) => self.reconstruct_unary(*unary, &()),
+                Expression::Unit(unit) => self.reconstruct_unit(unit, &()),
             }
         } else {
             (replaced_expr, Default::default())
@@ -119,8 +120,8 @@ where
         (
             IterationStatement {
                 type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
-                start: self.reconstruct_expression(input.start).0,
-                stop: self.reconstruct_expression(input.stop).0,
+                start: self.reconstruct_expression(input.start, &()).0,
+                stop: self.reconstruct_expression(input.stop, &()).0,
                 block: self.reconstruct_block(input.block).0,
                 id: self.state.node_builder.next_id(),
                 ..input

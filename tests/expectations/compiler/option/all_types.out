@@ -1,0 +1,5 @@
+Error [ETYC0372159]: The type `signature` cannot be wrapped in an optional.
+    --> compiler-test:104:9
+     |
+ 104 |         let sg: signature? = sig; 
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^

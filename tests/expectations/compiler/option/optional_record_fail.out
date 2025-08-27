@@ -1,0 +1,5 @@
+Error [ETYC0372159]: The type `Foo` cannot be wrapped in an optional.
+    --> compiler-test:10:39
+     |
+  10 |     transition handle_optional_record(opt: Foo?) -> u64 {
+     |                                       ^^^^^^^^^

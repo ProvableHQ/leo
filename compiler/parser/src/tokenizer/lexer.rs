@@ -434,6 +434,7 @@ impl Token {
                     "let" => Token::Let,
                     "leo" => Token::Leo,
                     "mapping" => Token::Mapping,
+                    "None" => Token::None,
                     "private" => Token::Private,
                     "program" => Token::Program,
                     "public" => Token::Public,

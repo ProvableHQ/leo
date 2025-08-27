@@ -28,17 +28,20 @@ use leo_ast::{
 };
 
 impl AstReconstructor for PathResolutionVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     fn reconstruct_composite_type(&mut self, mut input: CompositeType) -> (Type, Self::AdditionalOutput) {
-        input.path = input.path.with_module_prefix(&self.module);
+        if input.path.try_absolute_path().is_none() {
+            input.path = input.path.with_module_prefix(&self.module);
+        }
         (
             Type::Composite(CompositeType {
                 path: input.path,
                 const_arguments: input
                     .const_arguments
                     .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .map(|arg| self.reconstruct_expression(arg, &()).0)
                     .collect(),
                 ..input
             }),
@@ -46,21 +49,27 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         )
     }
 
-    fn reconstruct_err(&mut self, input: ErrExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_err(&mut self, input: ErrExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         (input.into(), ())
     }
 
-    fn reconstruct_call(&mut self, mut input: CallExpression) -> (Expression, Self::AdditionalOutput) {
-        input.function = input.function.with_module_prefix(&self.module);
+    fn reconstruct_call(
+        &mut self,
+        mut input: CallExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        if input.function.try_absolute_path().is_none() {
+            input.function = input.function.with_module_prefix(&self.module);
+        }
         (
             CallExpression {
                 function: input.function,
                 const_arguments: input
                     .const_arguments
                     .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .map(|arg| self.reconstruct_expression(arg, &()).0)
                     .collect(),
-                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
+                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg, &()).0).collect(),
                 ..input
             }
             .into(),
@@ -68,22 +77,28 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         )
     }
 
-    fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
-        input.path = input.path.with_module_prefix(&self.module);
+    fn reconstruct_struct_init(
+        &mut self,
+        mut input: StructExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        if input.path.try_absolute_path().is_none() {
+            input.path = input.path.with_module_prefix(&self.module)
+        }
         (
             StructExpression {
                 path: input.path,
                 const_arguments: input
                     .const_arguments
                     .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .map(|arg| self.reconstruct_expression(arg, &()).0)
                     .collect(),
                 members: input
                     .members
                     .into_iter()
                     .map(|member| StructVariableInitializer {
                         identifier: member.identifier,
-                        expression: member.expression.map(|expr| self.reconstruct_expression(expr).0),
+                        expression: member.expression.map(|expr| self.reconstruct_expression(expr, &()).0),
                         span: member.span,
                         id: member.id,
                     })
@@ -95,10 +110,12 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         )
     }
 
-    fn reconstruct_path(&mut self, mut input: Path) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_path(&mut self, mut input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Because some paths may be paths to global consts, we have to prefix all paths at this
         // stage because we don't have semantic information just yet.
-        input = input.with_module_prefix(&self.module);
+        if input.try_absolute_path().is_none() {
+            input = input.with_module_prefix(&self.module);
+        }
         (input.into(), Default::default())
     }
 }
