@@ -84,7 +84,7 @@
 <a href=#84 id=84 data-nosnippet>84</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) tmux: bool,
 <a href=#85 id=85 data-nosnippet>85</a>    <span class="attr">#[clap(long, help = <span class="string">"snarkOS verbosity (0-4)"</span>, default_value = <span class="string">"1"</span>)]
 <a href=#86 id=86 data-nosnippet>86</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) verbosity: u8,
-<a href=#87 id=87 data-nosnippet>87</a>    <span class="attr">#[clap(long, help = <span class="string">"Skip confirmation prompts and proceed with the devnet startup"</span>)]
+<a href=#87 id=87 data-nosnippet>87</a>    <span class="attr">#[clap(long, short = <span class="string">'y'</span>, help = <span class="string">"Skip confirmation prompts and proceed with the devnet startup"</span>)]
 <a href=#88 id=88 data-nosnippet>88</a>    </span><span class="kw">pub</span>(<span class="kw">crate</span>) yes: bool,
 <a href=#89 id=89 data-nosnippet>89</a>}
 <a href=#90 id=90 data-nosnippet>90</a>
@@ -229,7 +229,7 @@
 <a href=#229 id=229 data-nosnippet>229</a>            }
 <a href=#230 id=230 data-nosnippet>230</a>        }
 <a href=#231 id=231 data-nosnippet>231</a>
-<a href=#232 id=232 data-nosnippet>232</a>        <span class="kw">if </span>!confirm(<span class="string">"\nProceed with devnet startup?"</span>, <span class="bool-val">false</span>)<span class="question-mark">? </span>{
+<a href=#232 id=232 data-nosnippet>232</a>        <span class="kw">if </span>!confirm(<span class="string">"\nProceed with devnet startup?"</span>, <span class="self">self</span>.yes)<span class="question-mark">? </span>{
 <a href=#233 id=233 data-nosnippet>233</a>            <span class="macro">println!</span>(<span class="string">"❌ Devnet aborted."</span>);
 <a href=#234 id=234 data-nosnippet>234</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
 <a href=#235 id=235 data-nosnippet>235</a>        }
