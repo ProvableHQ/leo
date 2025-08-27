@@ -1,0 +1,187 @@
+program all_types.aleo;
+
+struct Optional__ehTh6DmpRN:
+    is_some as boolean;
+    val as u16;
+
+struct OptStruct:
+    val as Optional__ehTh6DmpRN;
+
+struct MyStruct:
+    x as u8;
+
+struct Foo:
+    x as u8;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+struct Inner:
+    val as Optional__8hhrPm4c3KB;
+
+struct Optional__1Sk6codjbBt:
+    is_some as boolean;
+    val as Inner;
+
+struct Optional__IySTQ7XSonG:
+    is_some as boolean;
+    val as [Optional__1Sk6codjbBt; 2u32];
+
+struct Wrapper:
+    arr as Optional__IySTQ7XSonG;
+
+struct Optional__Lb0sxVVCPo1:
+    is_some as boolean;
+    val as Wrapper;
+
+struct Optional__D41M58AVvQq:
+    is_some as boolean;
+    val as [Optional__Lb0sxVVCPo1; 2u32];
+
+struct Container:
+    wrappers as Optional__D41M58AVvQq;
+
+struct Optional__Iw7fQz4CKJ0:
+    is_some as boolean;
+    val as Container;
+
+struct Top:
+    container as Optional__Iw7fQz4CKJ0;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+struct Optional__5Tv2VfsQ6fH:
+    is_some as boolean;
+    val as [Optional__8hhrPm4c3KB; 2u32];
+
+struct Optional__ENhTLCejlbJ:
+    is_some as boolean;
+    val as MyStruct;
+
+struct Optional__IDgMhRtf8KJ:
+    is_some as boolean;
+    val as Foo;
+
+struct Optional__HdJPTit9rcT:
+    is_some as boolean;
+    val as address;
+
+struct Optional__8aTicnNTOvk:
+    is_some as boolean;
+    val as group;
+
+struct Optional__K4XRQPOk9yX:
+    is_some as boolean;
+    val as field;
+
+struct Optional__JYP65FYVVJA:
+    is_some as boolean;
+    val as scalar;
+
+function optional_basic_primitives:
+    cast true 10u32 into r0 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r1 as Optional__EsDmm5O6sv6;
+    assert.eq r0.is_some true;
+    ternary r1.is_some r1.val 42u32 into r2;
+    add r0.val r2 into r3;
+    output r3 as u32.private;
+
+function array_of_optionals:
+    cast true 1u8 into r0 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r1 as Optional__8hhrPm4c3KB;
+    cast true 3u8 into r2 as Optional__8hhrPm4c3KB;
+    cast r0 r1 r2 into r3 as [Optional__8hhrPm4c3KB; 3u32];
+    ternary r3[0u32].is_some r3[0u32].val 10u8 into r4;
+    ternary r3[1u32].is_some r3[1u32].val 20u8 into r5;
+    add r4 r5 into r6;
+    ternary r3[2u32].is_some r3[2u32].val 30u8 into r7;
+    add r6 r7 into r8;
+    output r8 as u8.private;
+
+function optional_array:
+    cast true 1u8 into r0 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r1 as Optional__8hhrPm4c3KB;
+    cast r0 r1 into r2 as [Optional__8hhrPm4c3KB; 2u32];
+    cast true r2 into r3 as Optional__5Tv2VfsQ6fH;
+    assert.eq r3.is_some true;
+    ternary r3.val[0u32].is_some r3.val[0u32].val 10u8 into r4;
+    output r4 as u8.private;
+
+function optional_struct_field:
+    cast false 0u16 into r0 as Optional__ehTh6DmpRN;
+    cast r0 into r1 as OptStruct;
+    ternary r1.val.is_some r1.val.val 123u16 into r2;
+    output r2 as u16.private;
+
+function optional_struct:
+    cast 5u8 into r0 as MyStruct;
+    cast true r0 into r1 as Optional__ENhTLCejlbJ;
+    assert.eq r1.is_some true;
+    output r1.val.x as u8.private;
+
+function array_of_optional_structs:
+    cast 10u8 into r0 as Foo;
+    cast true r0 into r1 as Optional__IDgMhRtf8KJ;
+    cast 0u8 into r2 as Foo;
+    cast false r2 into r3 as Optional__IDgMhRtf8KJ;
+    cast r1 r3 into r4 as [Optional__IDgMhRtf8KJ; 2u32];
+    assert.eq r4[0u32].is_some true;
+    output r4[0u32].val.x as u8.private;
+
+function nested_optional_structs:
+    cast true 10u8 into r0 as Optional__8hhrPm4c3KB;
+    cast r0 into r1 as Inner;
+    cast true r1 into r2 as Optional__1Sk6codjbBt;
+    cast false 0u8 into r3 as Optional__8hhrPm4c3KB;
+    cast r3 into r4 as Inner;
+    cast false r4 into r5 as Optional__1Sk6codjbBt;
+    cast r2 r5 into r6 as [Optional__1Sk6codjbBt; 2u32];
+    cast true r6 into r7 as Optional__IySTQ7XSonG;
+    cast r7 into r8 as Wrapper;
+    cast true r8 into r9 as Optional__Lb0sxVVCPo1;
+    cast false 0u8 into r10 as Optional__8hhrPm4c3KB;
+    cast r10 into r11 as Inner;
+    cast false r11 into r12 as Optional__1Sk6codjbBt;
+    cast r12 r12 into r13 as [Optional__1Sk6codjbBt; 2u32];
+    cast false r13 into r14 as Optional__IySTQ7XSonG;
+    cast r14 into r15 as Wrapper;
+    cast false r15 into r16 as Optional__Lb0sxVVCPo1;
+    cast r9 r16 into r17 as [Optional__Lb0sxVVCPo1; 2u32];
+    cast true r17 into r18 as Optional__D41M58AVvQq;
+    cast r18 into r19 as Container;
+    cast true r19 into r20 as Optional__Iw7fQz4CKJ0;
+    cast r20 into r21 as Top;
+    assert.eq r21.container.is_some true;
+    assert.eq r21.container.val.wrappers.is_some true;
+    assert.eq r21.container.val.wrappers.val[0u32].is_some true;
+    assert.eq r21.container.val.wrappers.val[0u32].val.arr.is_some true;
+    assert.eq r21.container.val.wrappers.val[0u32].val.arr.val[0u32].is_some true;
+    assert.eq r21.container.val.wrappers.val[0u32].val.arr.val[0u32].val.val.is_some true;
+    output r21.container.val.wrappers.val[0u32].val.arr.val[0u32].val.val.val as u8.private;
+
+function tuples_with_optional_elements:
+    cast true 200u32 into r0 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r1 as Optional__EsDmm5O6sv6;
+    ternary r0.is_some r0.val 0u32 into r2;
+    add 100u32 r2 into r3;
+    add r3 300u32 into r4;
+    ternary r1.is_some r1.val 50u32 into r5;
+    add r4 r5 into r6;
+    output r6 as u32.private;
+
+function optional_misc_primitive_types:
+    cast true aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r0 as Optional__HdJPTit9rcT;
+    cast true 0group into r1 as Optional__8aTicnNTOvk;
+    cast true 1field into r2 as Optional__K4XRQPOk9yX;
+    cast true 2scalar into r3 as Optional__JYP65FYVVJA;
+    assert.eq r0.is_some true;
+    assert.eq r1.is_some true;
+    assert.eq r3.is_some true;
+    ternary r2.is_some r2.val 2field into r4;
+    output r0.val as address.private;
+    output r1.val as group.private;
+    output r4 as field.private;
+    output r3.val as scalar.private;

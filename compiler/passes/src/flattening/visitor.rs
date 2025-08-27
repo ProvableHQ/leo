@@ -278,7 +278,7 @@ impl FlatteningVisitor<'_> {
                             id: self.state.node_builder.next_id(),
                         };
                         self.state.type_table.insert(ternary.id(), type_);
-                        let (value, stmts) = self.reconstruct_ternary(ternary);
+                        let (value, stmts) = self.reconstruct_ternary(ternary, &());
                         statements.extend(stmts);
 
                         if let Expression::Tuple(..) = &value {
@@ -415,7 +415,7 @@ impl FlatteningVisitor<'_> {
                 };
                 self.state.type_table.insert(ternary.id(), array.element_type().clone());
 
-                let (expression, stmts) = self.reconstruct_ternary(ternary);
+                let (expression, stmts) = self.reconstruct_ternary(ternary, &());
 
                 // Accumulate any statements generated.
                 statements.extend(stmts);
@@ -425,17 +425,20 @@ impl FlatteningVisitor<'_> {
             .collect();
 
         // Construct the array expression.
-        let (expr, stmts) = self.reconstruct_array(ArrayExpression {
-            elements,
-            span: Default::default(),
-            id: {
-                // Create a node ID for the array expression.
-                let id = self.state.node_builder.next_id();
-                // Set the type of the node ID.
-                self.state.type_table.insert(id, Type::Array(array.clone()));
-                id
+        let (expr, stmts) = self.reconstruct_array(
+            ArrayExpression {
+                elements,
+                span: Default::default(),
+                id: {
+                    // Create a node ID for the array expression.
+                    let id = self.state.node_builder.next_id();
+                    // Set the type of the node ID.
+                    self.state.type_table.insert(id, Type::Array(array.clone()));
+                    id
+                },
             },
-        });
+            &(),
+        );
 
         // Accumulate any statements generated.
         statements.extend(stmts);
@@ -494,7 +497,7 @@ impl FlatteningVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 };
                 self.state.type_table.insert(ternary.id(), type_.clone());
-                let (expression, stmts) = self.reconstruct_ternary(ternary);
+                let (expression, stmts) = self.reconstruct_ternary(ternary, &());
 
                 // Accumulate any statements generated.
                 statements.extend(stmts);
@@ -508,26 +511,29 @@ impl FlatteningVisitor<'_> {
             })
             .collect();
 
-        let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
-            path: struct_path.clone(),
-            const_arguments: Vec::new(), // All const arguments should have been resolved by now
-            members,
-            span: Default::default(),
-            id: {
-                // Create a new node ID for the struct expression.
-                let id = self.state.node_builder.next_id();
-                // Set the type of the node ID.
-                self.state.type_table.insert(
-                    id,
-                    Type::Composite(CompositeType {
-                        path: struct_path.clone(),
-                        const_arguments: Vec::new(), // all const generics should have been resolved by now
-                        program: struct_.external,
-                    }),
-                );
-                id
+        let (expr, stmts) = self.reconstruct_struct_init(
+            StructExpression {
+                path: struct_path.clone(),
+                const_arguments: Vec::new(), // All const arguments should have been resolved by now
+                members,
+                span: Default::default(),
+                id: {
+                    // Create a new node ID for the struct expression.
+                    let id = self.state.node_builder.next_id();
+                    // Set the type of the node ID.
+                    self.state.type_table.insert(
+                        id,
+                        Type::Composite(CompositeType {
+                            path: struct_path.clone(),
+                            const_arguments: Vec::new(), // all const generics should have been resolved by now
+                            program: struct_.external,
+                        }),
+                    );
+                    id
+                },
             },
-        });
+            &(),
+        );
 
         // Accumulate any statements generated.
         statements.extend(stmts);
@@ -590,7 +596,7 @@ impl FlatteningVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 };
                 self.state.type_table.insert(ternary.id(), type_.clone());
-                let (expression, stmts) = self.reconstruct_ternary(ternary);
+                let (expression, stmts) = self.reconstruct_ternary(ternary, &());
 
                 // Accumulate any statements generated.
                 statements.extend(stmts);
@@ -611,7 +617,7 @@ impl FlatteningVisitor<'_> {
                 id
             },
         };
-        let (expr, stmts) = self.reconstruct_tuple(tuple);
+        let (expr, stmts) = self.reconstruct_tuple(tuple, &());
 
         // Accumulate any statements generated.
         statements.extend(stmts);

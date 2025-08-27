@@ -1,0 +1,73 @@
+program test.aleo;
+
+struct Optional__DOnC9eGtnsJ:
+    is_some as boolean;
+    val as u64;
+
+struct Foo:
+    x as Optional__DOnC9eGtnsJ;
+
+function main:
+    cast 10u64 0u64 30u64 0u64 into r0 as [u64; 4u32];
+    is.eq r0[0u32] 0u64 into r1;
+    cast false 0u64 into r2 as Optional__DOnC9eGtnsJ;
+    cast true r0[0u32] into r3 as Optional__DOnC9eGtnsJ;
+    ternary r1 r2.is_some r3.is_some into r4;
+    ternary r1 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__DOnC9eGtnsJ;
+    cast r6 into r7 as Foo;
+    is.eq r0[1u32] 0u64 into r8;
+    cast false 0u64 into r9 as Optional__DOnC9eGtnsJ;
+    cast true r0[1u32] into r10 as Optional__DOnC9eGtnsJ;
+    ternary r8 r9.is_some r10.is_some into r11;
+    ternary r8 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__DOnC9eGtnsJ;
+    cast r13 into r14 as Foo;
+    is.eq r0[2u32] 0u64 into r15;
+    cast false 0u64 into r16 as Optional__DOnC9eGtnsJ;
+    cast true r0[2u32] into r17 as Optional__DOnC9eGtnsJ;
+    ternary r15 r16.is_some r17.is_some into r18;
+    ternary r15 r16.val r17.val into r19;
+    cast r18 r19 into r20 as Optional__DOnC9eGtnsJ;
+    cast r20 into r21 as Foo;
+    is.eq r0[3u32] 0u64 into r22;
+    cast false 0u64 into r23 as Optional__DOnC9eGtnsJ;
+    cast true r0[3u32] into r24 as Optional__DOnC9eGtnsJ;
+    ternary r22 r23.is_some r24.is_some into r25;
+    ternary r22 r23.val r24.val into r26;
+    cast r25 r26 into r27 as Optional__DOnC9eGtnsJ;
+    cast r27 into r28 as Foo;
+    cast r7 r14 r21 r28 into r29 as [Foo; 4u32];
+    ternary r29[0u32].x.is_some r29[0u32].x.val 0u64 into r30;
+    add 0u64 r30 into r31;
+    ternary r29[1u32].x.is_some r29[1u32].x.val 1u64 into r32;
+    add r31 r32 into r33;
+    ternary r29[2u32].x.is_some r29[2u32].x.val 4u64 into r34;
+    add r33 r34 into r35;
+    ternary r29[3u32].x.is_some r29[3u32].x.val 9u64 into r36;
+    add r35 r36 into r37;
+    is.eq r37 50u64 into r38;
+    assert.eq r38 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1qm0edyl2ur5qkcvu9zdaf29fe8yqzpeggqcd9p6286xt4fu36cysfy3jxa",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [],
+      "outputs": [],
+      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
+      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
+      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

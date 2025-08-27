@@ -233,6 +233,8 @@ pub enum Token {
     True,
     #[token("false")]
     False,
+    #[token("None")]
+    None,
     #[token("address")]
     Address,
     #[token("bool")]

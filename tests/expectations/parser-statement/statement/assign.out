@@ -11,6 +11,7 @@
           },
           "id": 2
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 0,
@@ -30,6 +31,7 @@
           },
           "id": 4
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 4,
@@ -59,6 +61,7 @@
           },
           "id": 2
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 10,
@@ -80,6 +83,7 @@
               },
               "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 14,
@@ -99,6 +103,7 @@
               },
               "id": 7
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 16,
@@ -136,6 +141,7 @@
           },
           "id": 2
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 19,
@@ -156,6 +162,7 @@
             },
             "id": 4
           },
+          "is_absolute": false,
           "absolute_path": null,
           "span": {
             "lo": 23,

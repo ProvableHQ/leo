@@ -11,6 +11,7 @@
           },
           "id": 3
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 0,
@@ -41,6 +42,7 @@
           },
           "id": 3
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 20,

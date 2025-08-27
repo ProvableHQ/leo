@@ -55,7 +55,7 @@ Path: LalrToken<'a> = {
     },
 }
 
-Type2: SyntaxNode<'a> = {
+Type3: SyntaxNode<'a> = {
     NamedPrimitiveType,
 
     <name:WithTrivia<Locator>> => {
@@ -80,8 +80,18 @@ Type2: SyntaxNode<'a> = {
     },
 }
 
-Type: SyntaxNode<'a> = {
-    Type2,
+// All types excluding tuples and unit
+// These types can potentially be wrapped in an optional.
+Type2: SyntaxNode<'a> = {
+    Type3,
+
+    <inner:Type3> <q:WithTrivia<Question>> => {
+        SyntaxNode::new(TypeKind::Optional, [inner, q])
+    },
+}
+
+Type1: SyntaxNode<'a> = {
+    Type3,
 
     <l:WithTrivia<LeftParen>> <items:CommaTwo<Type>> <r:WithTrivia<RightParen>> => {
         SyntaxNode::new(TypeKind::Tuple, iter::once(l).chain(items).chain([r]))
@@ -96,6 +106,16 @@ Type: SyntaxNode<'a> = {
 
     <l:WithTrivia<LeftParen>> <r:WithTrivia<RightParen>> => {
         SyntaxNode::new(TypeKind::Unit, [l, r])
+    },
+}
+
+// All types including tuples and unit
+// These types can potentially be wrapped in an optional.
+Type: SyntaxNode<'a> = {
+    Type1,
+
+    <inner:Type1> <q:WithTrivia<Question>> => {
+        SyntaxNode::new(TypeKind::Optional, [inner, q])
     },
 }
 
@@ -192,6 +212,7 @@ Expr0: SyntaxNode<'a> = {
     <s:StaticString> <xs:Nonsemantic*> => SyntaxNode::new_token(LiteralKind::String.into(), s, xs),
     <lit:True> <xs:Nonsemantic*> => SyntaxNode::new_token(LiteralKind::Boolean.into(), lit, xs),
     <lit:False> <xs:Nonsemantic*> => SyntaxNode::new_token(LiteralKind::Boolean.into(), lit, xs),
+    <lit:None> <xs:Nonsemantic*> => SyntaxNode::new_token(LiteralKind::None.into(), lit, xs),
     <lit:AddressLiteral> <xs:Nonsemantic*> => SyntaxNode::new_token(LiteralKind::Address.into(), lit, xs),
     <lit:ProgramId> <xs:Nonsemantic*> => SyntaxNode::new_token(LiteralKind::Address.into(), lit, xs),
     <i:Integer> <s:Field> <xs:Nonsemantic*> => {
@@ -866,6 +887,7 @@ extern {
         // Keywords
         True => LalrToken { token: Token::True, .. },
         False => LalrToken { token: Token::False, .. },
+        None => LalrToken { token: Token::None, .. },
         Address => LalrToken { token: Token::Address, .. },
         Bool => LalrToken { token: Token::Bool, .. },
         Field => LalrToken { token: Token::Field, .. },

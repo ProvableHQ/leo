@@ -51,6 +51,7 @@ pub trait AstVisitor {
             Type::Composite(composite_type) => self.visit_composite_type(composite_type),
             Type::Future(future_type) => self.visit_future_type(future_type),
             Type::Mapping(mapping_type) => self.visit_mapping_type(mapping_type),
+            Type::Optional(optional_type) => self.visit_optional_type(optional_type),
             Type::Tuple(tuple_type) => self.visit_tuple_type(tuple_type),
             Type::Address
             | Type::Boolean
@@ -85,6 +86,10 @@ pub trait AstVisitor {
     fn visit_mapping_type(&mut self, input: &MappingType) {
         self.visit_type(&input.key);
         self.visit_type(&input.value);
+    }
+
+    fn visit_optional_type(&mut self, input: &OptionalType) {
+        self.visit_type(&input.inner);
     }
 
     fn visit_tuple_type(&mut self, input: &TupleType) {

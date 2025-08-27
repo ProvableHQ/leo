@@ -32,6 +32,9 @@ pub struct Path {
     /// The final item in the path, e.g., `baz` in `foo::bar::baz`.
     identifier: Identifier,
 
+    /// Is this path an absolute path? e.g. `::foo::bar::baz`.
+    is_absolute: bool,
+
     /// The fully resolved path. We may not know this until the pass PathResolution pass runs.
     /// For path that refer to global items (structs, consts, functions), `absolute_path` is
     /// guaranteed to be set after the pass `PathResolution`.
@@ -47,22 +50,38 @@ pub struct Path {
 simple_node_impl!(Path);
 
 impl Path {
+    /// Creates a new `Path` from the given components.
+    ///
+    /// - `qualifier`: The namespace segments (e.g., `foo::bar` in `foo::bar::baz`).
+    /// - `identifier`: The final item in the path (e.g., `baz`).
+    /// - `is_absolute`: Whether the path is absolute (starts with `::`).
+    /// - `absolute_path`: Optionally, the fully resolved symbolic path.
+    /// - `span`: The source code span for this path.
+    /// - `id`: The node ID.
     pub fn new(
         qualifier: Vec<Identifier>,
         identifier: Identifier,
+        is_absolute: bool,
         absolute_path: Option<Vec<Symbol>>,
         span: Span,
         id: NodeID,
     ) -> Self {
-        Self { qualifier, identifier, absolute_path, span, id }
+        Self { qualifier, identifier, is_absolute, absolute_path, span, id }
     }
 
+    /// Returns the final identifier of the path (e.g., `baz` in `foo::bar::baz`).
     pub fn identifier(&self) -> Identifier {
         self.identifier
     }
 
+    /// Returns a slice of the qualifier segments (e.g., `[foo, bar]` in `foo::bar::baz`).
     pub fn qualifier(&self) -> &[Identifier] {
         self.qualifier.as_slice()
+    }
+
+    /// Returns `true` if the path is absolute (i.e., starts with `::`).
+    pub fn is_absolute(&self) -> bool {
+        self.is_absolute
     }
 
     /// Returns a `Vec<Symbol>` representing the full symbolic path:
@@ -73,20 +92,31 @@ impl Path {
         self.qualifier.iter().map(|segment| segment.name).chain(std::iter::once(self.identifier.name)).collect()
     }
 
-    /// Returns an optional slice of `Symbol`s representing the resolved absolute path,
+    /// Returns an optional vector of `Symbol`s representing the resolved absolute path,
     /// or `None` if resolution has not yet occurred.
-    pub fn try_absolute_path(&self) -> Option<&[Symbol]> {
-        self.absolute_path.as_deref()
+    pub fn try_absolute_path(&self) -> Option<Vec<Symbol>> {
+        if self.is_absolute { Some(self.as_symbols()) } else { self.absolute_path.clone() }
     }
 
-    /// Returns a slice of `Symbol`s representing the resolved absolute path.
+    /// Returns a vector of `Symbol`s representing the resolved absolute path.
     ///
-    /// # Panics
+    /// If the path is not an absolute path, this method panics if the absolute path has not been resolved yet.
+    /// For relative paths, this is expected to be called only after path resolution has occurred.
+    pub fn absolute_path(&self) -> Vec<Symbol> {
+        if self.is_absolute {
+            self.as_symbols()
+        } else {
+            self.absolute_path.as_ref().expect("absolute path must be known at this stage").to_vec()
+        }
+    }
+
+    /// Converts this `Path` into an absolute path by setting its `is_absolute` flag to `true`.
     ///
-    /// Panics if the absolute path has not been resolved yet. This is expected to be
-    /// called only after path resolution has occurred.
-    pub fn absolute_path(&self) -> &[Symbol] {
-        self.absolute_path.as_deref().expect("absolute path must be known at this stage")
+    /// This does not alter the qualifier or identifier, nor does it compute or modify
+    /// the resolved `absolute_path`.
+    pub fn into_absolute(mut self) -> Self {
+        self.is_absolute = true;
+        self
     }
 
     /// Returns a new `Path` instance with the last segment's `Symbol` and the last symbol
@@ -130,6 +160,9 @@ impl Path {
 
 impl fmt::Display for Path {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.is_absolute {
+            write!(f, "::")?;
+        }
         if self.qualifier.is_empty() {
             write!(f, "{}", self.identifier)
         } else {

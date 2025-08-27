@@ -19,9 +19,10 @@ use super::CommonSubexpressionEliminatingVisitor;
 use leo_ast::*;
 
 impl AstReconstructor for CommonSubexpressionEliminatingVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
-    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // We simply forward every expression to `try_expr` rather than using the individual reconstruct
         // functions from the `AstReconstructor` trait.
         (self.try_expr(input, None).expect("CSE Error").0, Default::default())

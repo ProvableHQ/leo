@@ -277,16 +277,16 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_struct_init(&mut self, input: &StructExpression) -> (String, String) {
         // Lookup struct or record.
-        let name = if let Some((is_record, type_)) = self.composite_mapping.get(input.path.absolute_path()) {
+        let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.path.absolute_path()) {
             if *is_record {
                 // record.private;
-                let [record_name] = &input.path.absolute_path() else {
+                let [record_name] = &input.path.absolute_path()[..] else {
                     panic!("Absolute paths to records can only have a single segment at this stage.")
                 };
                 format!("{record_name}.{type_}")
             } else {
                 // foo; // no visibility for structs
-                Self::legalize_path(input.path.absolute_path()).expect("path format cannot be legalized at this point")
+                Self::legalize_path(&input.path.absolute_path()).expect("path format cannot be legalized at this point")
             }
         } else {
             panic!("All composite types should be known at this phase of compilation")
@@ -348,7 +348,7 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
         // Handle `self.address`, `self.caller`, `self.checksum`, `self.edition`, `self.id`, `self.program_owner`, `self.signer`.
         if let Expression::Path(path) = input.inner.borrow()
-            && matches!(path.try_absolute_path(), Some([sym::SelfLower]))
+            && matches!(path.try_absolute_path().as_deref(), Some([sym::SelfLower]))
         {
             // Get the current program ID.
             let program_id = self.program_id.expect("Program ID should be set before traversing the program");
@@ -495,6 +495,7 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 _ => panic!("The only variants of Mapping are get, get_or, and set"),
             },
+            sym::Optional => panic!("Functions for optional types should have been lowered by now."),
             sym::group => {
                 match input.name {
                     Identifier { name: sym::to_x_coordinate, .. } => {
@@ -731,7 +732,7 @@ impl CodeGeneratingVisitor<'_> {
                     .state
                     .symbol_table
                     .lookup_record(&location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(comp_ty.path.absolute_path()))
+                    .or_else(|| self.state.symbol_table.lookup_struct(&comp_ty.path.absolute_path()))
                     .unwrap();
                 let mut instruction = "    cast ".to_string();
                 for member in &comp.members {
@@ -746,6 +747,8 @@ impl CodeGeneratingVisitor<'_> {
                 .unwrap();
                 (new_reg, instruction)
             }
+
+            Type::Optional(_) => panic!("All optional types should have been lowered by now."),
 
             Type::Mapping(..)
             | Type::Future(..)
