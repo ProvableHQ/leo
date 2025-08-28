@@ -259,7 +259,7 @@ fn handle_deploy<N: Network>(
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
         endpoint
             .parse::<Uri>()
-            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{}': {e}", endpoint)))?,
+            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
 
     // For each of the programs, generate a deployment transaction.

@@ -311,7 +311,7 @@ fn handle_execute<A: Aleo>(
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
         endpoint
             .parse::<Uri>()
-            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{}': {e}", endpoint)))?,
+            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
 
     // If the program is not local, then download it and its dependencies for the network.
