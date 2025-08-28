@@ -40,7 +40,7 @@
 //! ```no_run
 //! # use leo_ast::NetworkName;
 //! # use leo_package::{Package};
-//! let path = Package::initialize("my_package", "path/to/parent", Some(NetworkName::TestnetV0), Some("http://localhost:3030")).unwrap();
+//! let path = Package::initialize("my_package", "path/to/parent").unwrap();
 //! ```
 //!
 //! `tests` is where unit test files may be placed.
