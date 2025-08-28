@@ -16,307 +16,21 @@
 
 use leo_span::{Symbol, sym};
 
+use crate::{IntegerType, Type};
+
+use std::fmt::{Display, Formatter};
+
 /// A core instruction that maps directly to an AVM bytecode instruction.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CoreFunction {
-    BHP256CommitToAddress,
-    BHP256CommitToField,
-    BHP256CommitToGroup,
-    BHP256HashToAddress,
-    BHP256HashToField,
-    BHP256HashToGroup,
-    BHP256HashToI8,
-    BHP256HashToI16,
-    BHP256HashToI32,
-    BHP256HashToI64,
-    BHP256HashToI128,
-    BHP256HashToU8,
-    BHP256HashToU16,
-    BHP256HashToU32,
-    BHP256HashToU64,
-    BHP256HashToU128,
-    BHP256HashToScalar,
-    BHP256HashRaw,
-
-    BHP512CommitToAddress,
-    BHP512CommitToField,
-    BHP512CommitToGroup,
-    BHP512HashToAddress,
-    BHP512HashToField,
-    BHP512HashToGroup,
-    BHP512HashToI8,
-    BHP512HashToI16,
-    BHP512HashToI32,
-    BHP512HashToI64,
-    BHP512HashToI128,
-    BHP512HashToU8,
-    BHP512HashToU16,
-    BHP512HashToU32,
-    BHP512HashToU64,
-    BHP512HashToU128,
-    BHP512HashToScalar,
-    BHP512HashRaw,
-
-    BHP768CommitToAddress,
-    BHP768CommitToField,
-    BHP768CommitToGroup,
-    BHP768HashToAddress,
-    BHP768HashToField,
-    BHP768HashToGroup,
-    BHP768HashToI8,
-    BHP768HashToI16,
-    BHP768HashToI32,
-    BHP768HashToI64,
-    BHP768HashToI128,
-    BHP768HashToU8,
-    BHP768HashToU16,
-    BHP768HashToU32,
-    BHP768HashToU64,
-    BHP768HashToU128,
-    BHP768HashToScalar,
-    BHP768HashRaw,
-
-    BHP1024CommitToAddress,
-    BHP1024CommitToField,
-    BHP1024CommitToGroup,
-    BHP1024HashToAddress,
-    BHP1024HashToField,
-    BHP1024HashToGroup,
-    BHP1024HashToI8,
-    BHP1024HashToI16,
-    BHP1024HashToI32,
-    BHP1024HashToI64,
-    BHP1024HashToI128,
-    BHP1024HashToU8,
-    BHP1024HashToU16,
-    BHP1024HashToU32,
-    BHP1024HashToU64,
-    BHP1024HashToU128,
-    BHP1024HashToScalar,
-    BHP1024HashRaw,
-
-    ChaChaRandAddress,
-    ChaChaRandBool,
-    ChaChaRandField,
-    ChaChaRandGroup,
-    ChaChaRandI8,
-    ChaChaRandI16,
-    ChaChaRandI32,
-    ChaChaRandI64,
-    ChaChaRandI128,
-    ChaChaRandU8,
-    ChaChaRandU16,
-    ChaChaRandU32,
-    ChaChaRandU64,
-    ChaChaRandU128,
-    ChaChaRandScalar,
-
-    ECDSAVerifyKeccak256,
-    ECDSAVerifyKeccak256Raw,
-    ECDSAVerifyKeccak256Eth,
-    ECDSAVerifyKeccak256EthRaw,
-    ECDSAVerifyKeccak384,
-    ECDSAVerifyKeccak384Raw,
-    ECDSAVerifyKeccak384Eth,
-    ECDSAVerifyKeccak384EthRaw,
-    ECDSAVerifyKeccak512,
-    ECDSAVerifyKeccak512Raw,
-    ECDSAVerifyKeccak512Eth,
-    ECDSAVerifyKeccak512EthRaw,
-    ECDSAVerifySHA3_256,
-    ECDSAVerifySHA3_256Raw,
-    ECDSAVerifySHA3_256Eth,
-    ECDSAVerifySHA3_256EthRaw,
-    ECDSAVerifySHA3_384,
-    ECDSAVerifySHA3_384Raw,
-    ECDSAVerifySHA3_384Eth,
-    ECDSAVerifySHA3_384EthRaw,
-    ECDSAVerifySHA3_512,
-    ECDSAVerifySHA3_512Raw,
-    ECDSAVerifySHA3_512Eth,
-    ECDSAVerifySHA3_512EthRaw,
-
-    Keccak256HashToAddress,
-    Keccak256HashToField,
-    Keccak256HashToGroup,
-    Keccak256HashToI8,
-    Keccak256HashToI16,
-    Keccak256HashToI32,
-    Keccak256HashToI64,
-    Keccak256HashToI128,
-    Keccak256HashToU8,
-    Keccak256HashToU16,
-    Keccak256HashToU32,
-    Keccak256HashToU64,
-    Keccak256HashToU128,
-    Keccak256HashToScalar,
-    Keccak256HashRaw,
-
-    Keccak384HashToAddress,
-    Keccak384HashToField,
-    Keccak384HashToGroup,
-    Keccak384HashToI8,
-    Keccak384HashToI16,
-    Keccak384HashToI32,
-    Keccak384HashToI64,
-    Keccak384HashToI128,
-    Keccak384HashToU8,
-    Keccak384HashToU16,
-    Keccak384HashToU32,
-    Keccak384HashToU64,
-    Keccak384HashToU128,
-    Keccak384HashToScalar,
-    Keccak384HashRaw,
-
-    Keccak512HashToAddress,
-    Keccak512HashToField,
-    Keccak512HashToGroup,
-    Keccak512HashToI8,
-    Keccak512HashToI16,
-    Keccak512HashToI32,
-    Keccak512HashToI64,
-    Keccak512HashToI128,
-    Keccak512HashToU8,
-    Keccak512HashToU16,
-    Keccak512HashToU32,
-    Keccak512HashToU64,
-    Keccak512HashToU128,
-    Keccak512HashToScalar,
-    Keccak512HashRaw,
-
-    Pedersen64CommitToAddress,
-    Pedersen64CommitToField,
-    Pedersen64CommitToGroup,
-    Pedersen64HashToAddress,
-    Pedersen64HashToField,
-    Pedersen64HashToGroup,
-    Pedersen64HashToI8,
-    Pedersen64HashToI16,
-    Pedersen64HashToI32,
-    Pedersen64HashToI64,
-    Pedersen64HashToI128,
-    Pedersen64HashToU8,
-    Pedersen64HashToU16,
-    Pedersen64HashToU32,
-    Pedersen64HashToU64,
-    Pedersen64HashToU128,
-    Pedersen64HashToScalar,
-    Pedersen64HashRaw,
-
-    Pedersen128CommitToAddress,
-    Pedersen128CommitToField,
-    Pedersen128CommitToGroup,
-    Pedersen128HashToAddress,
-    Pedersen128HashToField,
-    Pedersen128HashToGroup,
-    Pedersen128HashToI8,
-    Pedersen128HashToI16,
-    Pedersen128HashToI32,
-    Pedersen128HashToI64,
-    Pedersen128HashToI128,
-    Pedersen128HashToU8,
-    Pedersen128HashToU16,
-    Pedersen128HashToU32,
-    Pedersen128HashToU64,
-    Pedersen128HashToU128,
-    Pedersen128HashToScalar,
-    Pedersen128HashRaw,
-
-    Poseidon2HashToAddress,
-    Poseidon2HashToField,
-    Poseidon2HashToGroup,
-    Poseidon2HashToI8,
-    Poseidon2HashToI16,
-    Poseidon2HashToI32,
-    Poseidon2HashToI64,
-    Poseidon2HashToI128,
-    Poseidon2HashToU8,
-    Poseidon2HashToU16,
-    Poseidon2HashToU32,
-    Poseidon2HashToU64,
-    Poseidon2HashToU128,
-    Poseidon2HashToScalar,
-    Poseidon2HashRaw,
-
-    Poseidon4HashToAddress,
-    Poseidon4HashToField,
-    Poseidon4HashToGroup,
-    Poseidon4HashToI8,
-    Poseidon4HashToI16,
-    Poseidon4HashToI32,
-    Poseidon4HashToI64,
-    Poseidon4HashToI128,
-    Poseidon4HashToU8,
-    Poseidon4HashToU16,
-    Poseidon4HashToU32,
-    Poseidon4HashToU64,
-    Poseidon4HashToU128,
-    Poseidon4HashToScalar,
-    Poseidon4HashRaw,
-
-    Poseidon8HashToAddress,
-    Poseidon8HashToField,
-    Poseidon8HashToGroup,
-    Poseidon8HashToI8,
-    Poseidon8HashToI16,
-    Poseidon8HashToI32,
-    Poseidon8HashToI64,
-    Poseidon8HashToI128,
-    Poseidon8HashToU8,
-    Poseidon8HashToU16,
-    Poseidon8HashToU32,
-    Poseidon8HashToU64,
-    Poseidon8HashToU128,
-    Poseidon8HashToScalar,
-    Poseidon8HashRaw,
-
-    SHA3_256HashToAddress,
-    SHA3_256HashToField,
-    SHA3_256HashToGroup,
-    SHA3_256HashToI8,
-    SHA3_256HashToI16,
-    SHA3_256HashToI32,
-    SHA3_256HashToI64,
-    SHA3_256HashToI128,
-    SHA3_256HashToU8,
-    SHA3_256HashToU16,
-    SHA3_256HashToU32,
-    SHA3_256HashToU64,
-    SHA3_256HashToU128,
-    SHA3_256HashToScalar,
-    SHA3_256HashRaw,
-
-    SHA3_384HashToAddress,
-    SHA3_384HashToField,
-    SHA3_384HashToGroup,
-    SHA3_384HashToI8,
-    SHA3_384HashToI16,
-    SHA3_384HashToI32,
-    SHA3_384HashToI64,
-    SHA3_384HashToI128,
-    SHA3_384HashToU8,
-    SHA3_384HashToU16,
-    SHA3_384HashToU32,
-    SHA3_384HashToU64,
-    SHA3_384HashToU128,
-    SHA3_384HashToScalar,
-    SHA3_384HashRaw,
-
-    SHA3_512HashToAddress,
-    SHA3_512HashToField,
-    SHA3_512HashToGroup,
-    SHA3_512HashToI8,
-    SHA3_512HashToI16,
-    SHA3_512HashToI32,
-    SHA3_512HashToI64,
-    SHA3_512HashToI128,
-    SHA3_512HashToU8,
-    SHA3_512HashToU16,
-    SHA3_512HashToU32,
-    SHA3_512HashToU64,
-    SHA3_512HashToU128,
-    SHA3_512HashToScalar,
-    SHA3_512HashRaw,
+    // ChaCha random value of type (Type).
+    ChaChaRand(Type),
+    // Commitment to a value using hash (HashVariant) returning value of type (Type).
+    Commit(HashVariant, Type),
+    // ECDSA verify with hash (HashVariant) using raw bytes (bool) and the ETH variant (bool).
+    ECDSAVerify(HashVariant, bool, bool),
+    // Hash function with variant (HashVariant), using raw bytes (bool), returning value of type (Type).
+    Hash(HashVariant, bool, Type),
 
     MappingGet,
     MappingGetOrUse,
@@ -327,8 +41,8 @@ pub enum CoreFunction {
     GroupToXCoordinate,
     GroupToYCoordinate,
 
-    SignatureVerify,
-    SignatureVerifyRaw,
+    // Schnorr signature verification with raw (bool) bytes.
+    SignatureVerify(bool),
 
     FutureAwait,
 
@@ -340,309 +54,547 @@ pub enum CoreFunction {
     CheatCodeSetBlockHeight,
 }
 
+/// Hash variants.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum HashVariant {
+    BHP256,
+    BHP512,
+    BHP768,
+    BHP1024,
+    Pedersen64,
+    Pedersen128,
+    Keccak256,
+    Keccak384,
+    Keccak512,
+    Poseidon2,
+    Poseidon4,
+    Poseidon8,
+    SHA3_256,
+    SHA3_384,
+    SHA3_512,
+}
+
+impl Display for HashVariant {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            HashVariant::BHP256 => write!(f, "bhp256"),
+            HashVariant::BHP512 => write!(f, "bhp512"),
+            HashVariant::BHP768 => write!(f, "bhp768"),
+            HashVariant::BHP1024 => write!(f, "bhp1024"),
+            HashVariant::Pedersen64 => write!(f, "ped64"),
+            HashVariant::Pedersen128 => write!(f, "ped128"),
+            HashVariant::Keccak256 => write!(f, "keccak256"),
+            HashVariant::Keccak384 => write!(f, "keccak384"),
+            HashVariant::Keccak512 => write!(f, "keccak512"),
+            HashVariant::Poseidon2 => write!(f, "psd2"),
+            HashVariant::Poseidon4 => write!(f, "psd4"),
+            HashVariant::Poseidon8 => write!(f, "psd8"),
+            HashVariant::SHA3_256 => write!(f, "sha3_256"),
+            HashVariant::SHA3_384 => write!(f, "sha3_384"),
+            HashVariant::SHA3_512 => write!(f, "sha3_512"),
+        }
+    }
+}
+
 impl CoreFunction {
     /// Returns a `CoreFunction` from the given module and method symbols.
+    #[rustfmt::skip]
     pub fn from_symbols(module: Symbol, function: Symbol) -> Option<Self> {
         Some(match (module, function) {
-            (sym::BHP256, sym::commit_to_address) => Self::BHP256CommitToAddress,
-            (sym::BHP256, sym::commit_to_field) => Self::BHP256CommitToField,
-            (sym::BHP256, sym::commit_to_group) => Self::BHP256CommitToGroup,
+            (sym::ChaCha, sym::rand_address) => Self::ChaChaRand(Type::Address),
+            (sym::ChaCha, sym::rand_bool)    => Self::ChaChaRand(Type::Boolean),
+            (sym::ChaCha, sym::rand_field)   => Self::ChaChaRand(Type::Field),
+            (sym::ChaCha, sym::rand_group)   => Self::ChaChaRand(Type::Group),
+            (sym::ChaCha, sym::rand_i8)      => Self::ChaChaRand(Type::Integer(IntegerType::I8)),
+            (sym::ChaCha, sym::rand_i16)     => Self::ChaChaRand(Type::Integer(IntegerType::I16)),
+            (sym::ChaCha, sym::rand_i32)     => Self::ChaChaRand(Type::Integer(IntegerType::I32)),
+            (sym::ChaCha, sym::rand_i64)     => Self::ChaChaRand(Type::Integer(IntegerType::I64)),
+            (sym::ChaCha, sym::rand_i128)    => Self::ChaChaRand(Type::Integer(IntegerType::I128)),
+            (sym::ChaCha, sym::rand_u8)      => Self::ChaChaRand(Type::Integer(IntegerType::U8)),
+            (sym::ChaCha, sym::rand_u16)     => Self::ChaChaRand(Type::Integer(IntegerType::U16)),
+            (sym::ChaCha, sym::rand_u32)     => Self::ChaChaRand(Type::Integer(IntegerType::U32)),
+            (sym::ChaCha, sym::rand_u64)     => Self::ChaChaRand(Type::Integer(IntegerType::U64)),
+            (sym::ChaCha, sym::rand_u128)    => Self::ChaChaRand(Type::Integer(IntegerType::U128)),
+            (sym::ChaCha, sym::rand_scalar)  => Self::ChaChaRand(Type::Scalar),
 
-            (sym::BHP256, sym::hash_to_address) => Self::BHP256HashToAddress,
-            (sym::BHP256, sym::hash_to_field) => Self::BHP256HashToField,
-            (sym::BHP256, sym::hash_to_group) => Self::BHP256HashToGroup,
-            (sym::BHP256, sym::hash_to_i8) => Self::BHP256HashToI8,
-            (sym::BHP256, sym::hash_to_i16) => Self::BHP256HashToI16,
-            (sym::BHP256, sym::hash_to_i32) => Self::BHP256HashToI32,
-            (sym::BHP256, sym::hash_to_i64) => Self::BHP256HashToI64,
-            (sym::BHP256, sym::hash_to_i128) => Self::BHP256HashToI128,
-            (sym::BHP256, sym::hash_to_u8) => Self::BHP256HashToU8,
-            (sym::BHP256, sym::hash_to_u16) => Self::BHP256HashToU16,
-            (sym::BHP256, sym::hash_to_u32) => Self::BHP256HashToU32,
-            (sym::BHP256, sym::hash_to_u64) => Self::BHP256HashToU64,
-            (sym::BHP256, sym::hash_to_u128) => Self::BHP256HashToU128,
-            (sym::BHP256, sym::hash_to_scalar) => Self::BHP256HashToScalar,
-            (sym::BHP256, sym::hash_raw) => Self::BHP256HashRaw,
+            (sym::BHP256, sym::commit_to_address)   => Self::Commit(HashVariant::BHP256, Type::Address),
+            (sym::BHP256, sym::commit_to_field)     => Self::Commit(HashVariant::BHP256, Type::Field),
+            (sym::BHP256, sym::commit_to_group)     => Self::Commit(HashVariant::BHP256, Type::Group),
+            (sym::BHP512, sym::commit_to_address)   => Self::Commit(HashVariant::BHP256, Type::Address),
+            (sym::BHP512, sym::commit_to_field)     => Self::Commit(HashVariant::BHP256, Type::Field),
+            (sym::BHP512, sym::commit_to_group)     => Self::Commit(HashVariant::BHP256, Type::Group),
+            (sym::BHP768, sym::commit_to_address)   => Self::Commit(HashVariant::BHP256, Type::Address),
+            (sym::BHP768, sym::commit_to_field)     => Self::Commit(HashVariant::BHP256, Type::Field),
+            (sym::BHP768, sym::commit_to_group)     => Self::Commit(HashVariant::BHP256, Type::Group),
+            (sym::BHP1024, sym::commit_to_address)   => Self::Commit(HashVariant::BHP256, Type::Address),
+            (sym::BHP1024, sym::commit_to_field)     => Self::Commit(HashVariant::BHP256, Type::Field),
+            (sym::BHP1024, sym::commit_to_group)     => Self::Commit(HashVariant::BHP256, Type::Group),
+            (sym::Pedersen64, sym::commit_to_address)   => Self::Commit(HashVariant::BHP256, Type::Address),
+            (sym::Pedersen64, sym::commit_to_field)     => Self::Commit(HashVariant::BHP256, Type::Field),
+            (sym::Pedersen64, sym::commit_to_group)     => Self::Commit(HashVariant::BHP256, Type::Group),
+            (sym::Pedersen128, sym::commit_to_address)   => Self::Commit(HashVariant::BHP256, Type::Address),
+            (sym::Pedersen128, sym::commit_to_field)     => Self::Commit(HashVariant::BHP256, Type::Field),
+            (sym::Pedersen128, sym::commit_to_group)     => Self::Commit(HashVariant::BHP256, Type::Group),
 
-            (sym::BHP512, sym::commit_to_address) => Self::BHP512CommitToAddress,
-            (sym::BHP512, sym::commit_to_field) => Self::BHP512CommitToField,
-            (sym::BHP512, sym::commit_to_group) => Self::BHP512CommitToGroup,
-            (sym::BHP512, sym::hash_to_address) => Self::BHP512HashToAddress,
-            (sym::BHP512, sym::hash_to_field) => Self::BHP512HashToField,
-            (sym::BHP512, sym::hash_to_group) => Self::BHP512HashToGroup,
-            (sym::BHP512, sym::hash_to_i8) => Self::BHP512HashToI8,
-            (sym::BHP512, sym::hash_to_i16) => Self::BHP512HashToI16,
-            (sym::BHP512, sym::hash_to_i32) => Self::BHP512HashToI32,
-            (sym::BHP512, sym::hash_to_i64) => Self::BHP512HashToI64,
-            (sym::BHP512, sym::hash_to_i128) => Self::BHP512HashToI128,
-            (sym::BHP512, sym::hash_to_u8) => Self::BHP512HashToU8,
-            (sym::BHP512, sym::hash_to_u16) => Self::BHP512HashToU16,
-            (sym::BHP512, sym::hash_to_u32) => Self::BHP512HashToU32,
-            (sym::BHP512, sym::hash_to_u64) => Self::BHP512HashToU64,
-            (sym::BHP512, sym::hash_to_u128) => Self::BHP512HashToU128,
-            (sym::BHP512, sym::hash_to_scalar) => Self::BHP512HashToScalar,
-            (sym::BHP512, sym::hash_raw) => Self::BHP512HashRaw,
+            (sym::BHP256, sym::hash_to_address)     => Self::Hash(HashVariant::BHP256, false, Type::Address),
+            (sym::BHP256, sym::hash_to_field)       => Self::Hash(HashVariant::BHP256, false, Type::Field),
+            (sym::BHP256, sym::hash_to_group)       => Self::Hash(HashVariant::BHP256, false, Type::Group),
+            (sym::BHP256, sym::hash_to_i8)          => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::I8)),
+            (sym::BHP256, sym::hash_to_i16)         => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::I16)),
+            (sym::BHP256, sym::hash_to_i32)         => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::I32)),
+            (sym::BHP256, sym::hash_to_i64)         => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::I64)),
+            (sym::BHP256, sym::hash_to_i128)        => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::I128)),
+            (sym::BHP256, sym::hash_to_u8)          => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::U8)),
+            (sym::BHP256, sym::hash_to_u16)         => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::U16)),
+            (sym::BHP256, sym::hash_to_u32)         => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::U32)),
+            (sym::BHP256, sym::hash_to_u64)         => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::U64)),
+            (sym::BHP256, sym::hash_to_u128)        => Self::Hash(HashVariant::BHP256, false, Type::Integer(IntegerType::U128)),
+            (sym::BHP256, sym::hash_to_scalar)      => Self::Hash(HashVariant::BHP256, false, Type::Scalar),
+            (sym::BHP256, sym::hash_to_address_raw) => Self::Hash(HashVariant::BHP256, true, Type::Address),
+            (sym::BHP256, sym::hash_to_field_raw)   => Self::Hash(HashVariant::BHP256, true, Type::Field),
+            (sym::BHP256, sym::hash_to_group_raw)   => Self::Hash(HashVariant::BHP256, true, Type::Group),
+            (sym::BHP256, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::I8)),
+            (sym::BHP256, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::I16)),
+            (sym::BHP256, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::I32)),
+            (sym::BHP256, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::I64)),
+            (sym::BHP256, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::I128)),
+            (sym::BHP256, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::U8)),
+            (sym::BHP256, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::U16)),
+            (sym::BHP256, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::U32)),
+            (sym::BHP256, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::U64)),
+            (sym::BHP256, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::BHP256, true, Type::Integer(IntegerType::U128)),
+            (sym::BHP256, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::BHP256, true, Type::Scalar),
 
-            (sym::BHP768, sym::commit_to_address) => Self::BHP768CommitToAddress,
-            (sym::BHP768, sym::commit_to_field) => Self::BHP768CommitToField,
-            (sym::BHP768, sym::commit_to_group) => Self::BHP768CommitToGroup,
-            (sym::BHP768, sym::hash_to_address) => Self::BHP768HashToAddress,
-            (sym::BHP768, sym::hash_to_field) => Self::BHP768HashToField,
-            (sym::BHP768, sym::hash_to_group) => Self::BHP768HashToGroup,
-            (sym::BHP768, sym::hash_to_i8) => Self::BHP768HashToI8,
-            (sym::BHP768, sym::hash_to_i16) => Self::BHP768HashToI16,
-            (sym::BHP768, sym::hash_to_i32) => Self::BHP768HashToI32,
-            (sym::BHP768, sym::hash_to_i64) => Self::BHP768HashToI64,
-            (sym::BHP768, sym::hash_to_i128) => Self::BHP768HashToI128,
-            (sym::BHP768, sym::hash_to_u8) => Self::BHP768HashToU8,
-            (sym::BHP768, sym::hash_to_u16) => Self::BHP768HashToU16,
-            (sym::BHP768, sym::hash_to_u32) => Self::BHP768HashToU32,
-            (sym::BHP768, sym::hash_to_u64) => Self::BHP768HashToU64,
-            (sym::BHP768, sym::hash_to_u128) => Self::BHP768HashToU128,
-            (sym::BHP768, sym::hash_to_scalar) => Self::BHP768HashToScalar,
-            (sym::BHP768, sym::hash_raw) => Self::BHP768HashRaw,
+            (sym::BHP512, sym::hash_to_address)     => Self::Hash(HashVariant::BHP512, false, Type::Address),
+            (sym::BHP512, sym::hash_to_field)       => Self::Hash(HashVariant::BHP512, false, Type::Field),
+            (sym::BHP512, sym::hash_to_group)       => Self::Hash(HashVariant::BHP512, false, Type::Group),
+            (sym::BHP512, sym::hash_to_i8)          => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::I8)),
+            (sym::BHP512, sym::hash_to_i16)         => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::I16)),
+            (sym::BHP512, sym::hash_to_i32)         => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::I32)),
+            (sym::BHP512, sym::hash_to_i64)         => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::I64)),
+            (sym::BHP512, sym::hash_to_i128)        => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::I128)),
+            (sym::BHP512, sym::hash_to_u8)          => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::U8)),
+            (sym::BHP512, sym::hash_to_u16)         => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::U16)),
+            (sym::BHP512, sym::hash_to_u32)         => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::U32)),
+            (sym::BHP512, sym::hash_to_u64)         => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::U64)),
+            (sym::BHP512, sym::hash_to_u128)        => Self::Hash(HashVariant::BHP512, false, Type::Integer(IntegerType::U128)),
+            (sym::BHP512, sym::hash_to_scalar)      => Self::Hash(HashVariant::BHP512, false, Type::Scalar),
+            (sym::BHP512, sym::hash_to_address_raw) => Self::Hash(HashVariant::BHP512, true, Type::Address),
+            (sym::BHP512, sym::hash_to_field_raw)   => Self::Hash(HashVariant::BHP512, true, Type::Field),
+            (sym::BHP512, sym::hash_to_group_raw)   => Self::Hash(HashVariant::BHP512, true, Type::Group),
+            (sym::BHP512, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::I8)),
+            (sym::BHP512, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::I16)),
+            (sym::BHP512, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::I32)),
+            (sym::BHP512, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::I64)),
+            (sym::BHP512, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::I128)),
+            (sym::BHP512, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::U8)),
+            (sym::BHP512, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::U16)),
+            (sym::BHP512, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::U32)),
+            (sym::BHP512, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::U64)),
+            (sym::BHP512, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::BHP512, true, Type::Integer(IntegerType::U128)),
+            (sym::BHP512, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::BHP512, true, Type::Scalar),
 
-            (sym::BHP1024, sym::commit_to_address) => Self::BHP1024CommitToAddress,
-            (sym::BHP1024, sym::commit_to_field) => Self::BHP1024CommitToField,
-            (sym::BHP1024, sym::commit_to_group) => Self::BHP1024CommitToGroup,
-            (sym::BHP1024, sym::hash_to_address) => Self::BHP1024HashToAddress,
-            (sym::BHP1024, sym::hash_to_field) => Self::BHP1024HashToField,
-            (sym::BHP1024, sym::hash_to_group) => Self::BHP1024HashToGroup,
-            (sym::BHP1024, sym::hash_to_i8) => Self::BHP1024HashToI8,
-            (sym::BHP1024, sym::hash_to_i16) => Self::BHP1024HashToI16,
-            (sym::BHP1024, sym::hash_to_i32) => Self::BHP1024HashToI32,
-            (sym::BHP1024, sym::hash_to_i64) => Self::BHP1024HashToI64,
-            (sym::BHP1024, sym::hash_to_i128) => Self::BHP1024HashToI128,
-            (sym::BHP1024, sym::hash_to_u8) => Self::BHP1024HashToU8,
-            (sym::BHP1024, sym::hash_to_u16) => Self::BHP1024HashToU16,
-            (sym::BHP1024, sym::hash_to_u32) => Self::BHP1024HashToU32,
-            (sym::BHP1024, sym::hash_to_u64) => Self::BHP1024HashToU64,
-            (sym::BHP1024, sym::hash_to_u128) => Self::BHP1024HashToU128,
-            (sym::BHP1024, sym::hash_to_scalar) => Self::BHP1024HashToScalar,
-            (sym::BHP1024, sym::hash_raw) => Self::BHP1024HashRaw,
+            (sym::BHP768, sym::hash_to_address)     => Self::Hash(HashVariant::BHP768, false, Type::Address),
+            (sym::BHP768, sym::hash_to_field)       => Self::Hash(HashVariant::BHP768, false, Type::Field),
+            (sym::BHP768, sym::hash_to_group)       => Self::Hash(HashVariant::BHP768, false, Type::Group),
+            (sym::BHP768, sym::hash_to_i8)          => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::I8)),
+            (sym::BHP768, sym::hash_to_i16)         => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::I16)),
+            (sym::BHP768, sym::hash_to_i32)         => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::I32)),
+            (sym::BHP768, sym::hash_to_i64)         => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::I64)),
+            (sym::BHP768, sym::hash_to_i128)        => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::I128)),
+            (sym::BHP768, sym::hash_to_u8)          => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::U8)),
+            (sym::BHP768, sym::hash_to_u16)         => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::U16)),
+            (sym::BHP768, sym::hash_to_u32)         => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::U32)),
+            (sym::BHP768, sym::hash_to_u64)         => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::U64)),
+            (sym::BHP768, sym::hash_to_u128)        => Self::Hash(HashVariant::BHP768, false, Type::Integer(IntegerType::U128)),
+            (sym::BHP768, sym::hash_to_scalar)      => Self::Hash(HashVariant::BHP768, false, Type::Scalar),
+            (sym::BHP768, sym::hash_to_address_raw) => Self::Hash(HashVariant::BHP768, true, Type::Address),
+            (sym::BHP768, sym::hash_to_field_raw)   => Self::Hash(HashVariant::BHP768, true, Type::Field),
+            (sym::BHP768, sym::hash_to_group_raw)   => Self::Hash(HashVariant::BHP768, true, Type::Group),
+            (sym::BHP768, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::I8)),
+            (sym::BHP768, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::I16)),
+            (sym::BHP768, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::I32)),
+            (sym::BHP768, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::I64)),
+            (sym::BHP768, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::I128)),
+            (sym::BHP768, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::U8)),
+            (sym::BHP768, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::U16)),
+            (sym::BHP768, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::U32)),
+            (sym::BHP768, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::U64)),
+            (sym::BHP768, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::BHP768, true, Type::Integer(IntegerType::U128)),
+            (sym::BHP768, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::BHP768, true, Type::Scalar),
 
-            (sym::ChaCha, sym::rand_address) => Self::ChaChaRandAddress,
-            (sym::ChaCha, sym::rand_bool) => Self::ChaChaRandBool,
-            (sym::ChaCha, sym::rand_field) => Self::ChaChaRandField,
-            (sym::ChaCha, sym::rand_group) => Self::ChaChaRandGroup,
-            (sym::ChaCha, sym::rand_i8) => Self::ChaChaRandI8,
-            (sym::ChaCha, sym::rand_i16) => Self::ChaChaRandI16,
-            (sym::ChaCha, sym::rand_i32) => Self::ChaChaRandI32,
-            (sym::ChaCha, sym::rand_i64) => Self::ChaChaRandI64,
-            (sym::ChaCha, sym::rand_i128) => Self::ChaChaRandI128,
-            (sym::ChaCha, sym::rand_scalar) => Self::ChaChaRandScalar,
-            (sym::ChaCha, sym::rand_u8) => Self::ChaChaRandU8,
-            (sym::ChaCha, sym::rand_u16) => Self::ChaChaRandU16,
-            (sym::ChaCha, sym::rand_u32) => Self::ChaChaRandU32,
-            (sym::ChaCha, sym::rand_u64) => Self::ChaChaRandU64,
-            (sym::ChaCha, sym::rand_u128) => Self::ChaChaRandU128,
+            (sym::BHP1024, sym::hash_to_address)     => Self::Hash(HashVariant::BHP1024, false, Type::Address),
+            (sym::BHP1024, sym::hash_to_field)       => Self::Hash(HashVariant::BHP1024, false, Type::Field),
+            (sym::BHP1024, sym::hash_to_group)       => Self::Hash(HashVariant::BHP1024, false, Type::Group),
+            (sym::BHP1024, sym::hash_to_i8)          => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::I8)),
+            (sym::BHP1024, sym::hash_to_i16)         => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::I16)),
+            (sym::BHP1024, sym::hash_to_i32)         => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::I32)),
+            (sym::BHP1024, sym::hash_to_i64)         => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::I64)),
+            (sym::BHP1024, sym::hash_to_i128)        => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::I128)),
+            (sym::BHP1024, sym::hash_to_u8)          => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::U8)),
+            (sym::BHP1024, sym::hash_to_u16)         => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::U16)),
+            (sym::BHP1024, sym::hash_to_u32)         => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::U32)),
+            (sym::BHP1024, sym::hash_to_u64)         => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::U64)),
+            (sym::BHP1024, sym::hash_to_u128)        => Self::Hash(HashVariant::BHP1024, false, Type::Integer(IntegerType::U128)),
+            (sym::BHP1024, sym::hash_to_scalar)      => Self::Hash(HashVariant::BHP1024, false, Type::Scalar),
+            (sym::BHP1024, sym::hash_to_address_raw) => Self::Hash(HashVariant::BHP1024, true, Type::Address),
+            (sym::BHP1024, sym::hash_to_field_raw)   => Self::Hash(HashVariant::BHP1024, true, Type::Field),
+            (sym::BHP1024, sym::hash_to_group_raw)   => Self::Hash(HashVariant::BHP1024, true, Type::Group),
+            (sym::BHP1024, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::I8)),
+            (sym::BHP1024, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::I16)),
+            (sym::BHP1024, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::I32)),
+            (sym::BHP1024, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::I64)),
+            (sym::BHP1024, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::I128)),
+            (sym::BHP1024, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::U8)),
+            (sym::BHP1024, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::U16)),
+            (sym::BHP1024, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::U32)),
+            (sym::BHP1024, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::U64)),
+            (sym::BHP1024, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::BHP1024, true, Type::Integer(IntegerType::U128)),
+            (sym::BHP1024, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::BHP1024, true, Type::Scalar),
 
-            (sym::ECDSAVerify, sym::verify_keccak256) => Self::ECDSAVerifyKeccak256,
-            (sym::ECDSAVerify, sym::verify_keccak256_raw) => Self::ECDSAVerifyKeccak256Raw,
-            (sym::ECDSAVerify, sym::verify_keccak256_eth) => Self::ECDSAVerifyKeccak256Eth,
-            (sym::ECDSAVerify, sym::verify_keccak256_eth_raw) => Self::ECDSAVerifyKeccak256EthRaw,
-            (sym::ECDSAVerify, sym::verify_keccak384) => Self::ECDSAVerifyKeccak384,
-            (sym::ECDSAVerify, sym::verify_keccak384_raw) => Self::ECDSAVerifyKeccak384Raw,
-            (sym::ECDSAVerify, sym::verify_keccak384_eth) => Self::ECDSAVerifyKeccak384Eth,
-            (sym::ECDSAVerify, sym::verify_keccak384_eth_raw) => Self::ECDSAVerifyKeccak384EthRaw,
-            (sym::ECDSAVerify, sym::verify_keccak512) => Self::ECDSAVerifyKeccak512,
-            (sym::ECDSAVerify, sym::verify_keccak512_raw) => Self::ECDSAVerifyKeccak512Raw,
-            (sym::ECDSAVerify, sym::verify_keccak512_eth) => Self::ECDSAVerifyKeccak512Eth,
-            (sym::ECDSAVerify, sym::verify_keccak512_eth_raw) => Self::ECDSAVerifyKeccak512EthRaw,
-            (sym::ECDSAVerify, sym::verify_sha3_256) => Self::ECDSAVerifySHA3_256,
-            (sym::ECDSAVerify, sym::verify_sha3_256_raw) => Self::ECDSAVerifySHA3_256Raw,
-            (sym::ECDSAVerify, sym::verify_sha3_256_eth) => Self::ECDSAVerifySHA3_256Eth,
-            (sym::ECDSAVerify, sym::verify_sha3_256_eth_raw) => Self::ECDSAVerifySHA3_256EthRaw,
-            (sym::ECDSAVerify, sym::verify_sha3_384) => Self::ECDSAVerifySHA3_384,
-            (sym::ECDSAVerify, sym::verify_sha3_384_raw) => Self::ECDSAVerifySHA3_384Raw,
-            (sym::ECDSAVerify, sym::verify_sha3_384_eth) => Self::ECDSAVerifySHA3_384Eth,
-            (sym::ECDSAVerify, sym::verify_sha3_384_eth_raw) => Self::ECDSAVerifySHA3_384EthRaw,
-            (sym::ECDSAVerify, sym::verify_sha3_512) => Self::ECDSAVerifySHA3_512,
-            (sym::ECDSAVerify, sym::verify_sha3_512_raw) => Self::ECDSAVerifySHA3_512Raw,
-            (sym::ECDSAVerify, sym::verify_sha3_512_eth) => Self::ECDSAVerifySHA3_512Eth,
-            (sym::ECDSAVerify, sym::verify_sha3_512_eth_raw) => Self::ECDSAVerifySHA3_512EthRaw,
+            (sym::Keccak256, sym::hash_to_address)     => Self::Hash(HashVariant::Keccak256, false, Type::Address),
+            (sym::Keccak256, sym::hash_to_field)       => Self::Hash(HashVariant::Keccak256, false, Type::Field),
+            (sym::Keccak256, sym::hash_to_group)       => Self::Hash(HashVariant::Keccak256, false, Type::Group),
+            (sym::Keccak256, sym::hash_to_i8)          => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::I8)),
+            (sym::Keccak256, sym::hash_to_i16)         => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::I16)),
+            (sym::Keccak256, sym::hash_to_i32)         => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::I32)),
+            (sym::Keccak256, sym::hash_to_i64)         => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::I64)),
+            (sym::Keccak256, sym::hash_to_i128)        => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::I128)),
+            (sym::Keccak256, sym::hash_to_u8)          => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::U8)),
+            (sym::Keccak256, sym::hash_to_u16)         => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::U16)),
+            (sym::Keccak256, sym::hash_to_u32)         => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::U32)),
+            (sym::Keccak256, sym::hash_to_u64)         => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::U64)),
+            (sym::Keccak256, sym::hash_to_u128)        => Self::Hash(HashVariant::Keccak256, false, Type::Integer(IntegerType::U128)),
+            (sym::Keccak256, sym::hash_to_scalar)      => Self::Hash(HashVariant::Keccak256, false, Type::Scalar),
+            (sym::Keccak256, sym::hash_to_address_raw) => Self::Hash(HashVariant::Keccak256, true, Type::Address),
+            (sym::Keccak256, sym::hash_to_field_raw)   => Self::Hash(HashVariant::Keccak256, true, Type::Field),
+            (sym::Keccak256, sym::hash_to_group_raw)   => Self::Hash(HashVariant::Keccak256, true, Type::Group),
+            (sym::Keccak256, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::I8)),
+            (sym::Keccak256, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::I16)),
+            (sym::Keccak256, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::I32)),
+            (sym::Keccak256, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::I64)),
+            (sym::Keccak256, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::I128)),
+            (sym::Keccak256, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::U8)),
+            (sym::Keccak256, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::U16)),
+            (sym::Keccak256, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::U32)),
+            (sym::Keccak256, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::U64)),
+            (sym::Keccak256, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::Keccak256, true, Type::Integer(IntegerType::U128)),
+            (sym::Keccak256, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::Keccak256, true, Type::Scalar),
 
-            (sym::Keccak256, sym::hash_to_address) => Self::Keccak256HashToAddress,
-            (sym::Keccak256, sym::hash_to_field) => Self::Keccak256HashToField,
-            (sym::Keccak256, sym::hash_to_group) => Self::Keccak256HashToGroup,
-            (sym::Keccak256, sym::hash_to_i8) => Self::Keccak256HashToI8,
-            (sym::Keccak256, sym::hash_to_i16) => Self::Keccak256HashToI16,
-            (sym::Keccak256, sym::hash_to_i32) => Self::Keccak256HashToI32,
-            (sym::Keccak256, sym::hash_to_i64) => Self::Keccak256HashToI64,
-            (sym::Keccak256, sym::hash_to_i128) => Self::Keccak256HashToI128,
-            (sym::Keccak256, sym::hash_to_u8) => Self::Keccak256HashToU8,
-            (sym::Keccak256, sym::hash_to_u16) => Self::Keccak256HashToU16,
-            (sym::Keccak256, sym::hash_to_u32) => Self::Keccak256HashToU32,
-            (sym::Keccak256, sym::hash_to_u64) => Self::Keccak256HashToU64,
-            (sym::Keccak256, sym::hash_to_u128) => Self::Keccak256HashToU128,
-            (sym::Keccak256, sym::hash_to_scalar) => Self::Keccak256HashToScalar,
-            (sym::Keccak256, sym::hash_raw) => Self::Keccak256HashRaw,
+            (sym::Keccak384, sym::hash_to_address)     => Self::Hash(HashVariant::Keccak384, false, Type::Address),
+            (sym::Keccak384, sym::hash_to_field)       => Self::Hash(HashVariant::Keccak384, false, Type::Field),
+            (sym::Keccak384, sym::hash_to_group)       => Self::Hash(HashVariant::Keccak384, false, Type::Group),
+            (sym::Keccak384, sym::hash_to_i8)          => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::I8)),
+            (sym::Keccak384, sym::hash_to_i16)         => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::I16)),
+            (sym::Keccak384, sym::hash_to_i32)         => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::I32)),
+            (sym::Keccak384, sym::hash_to_i64)         => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::I64)),
+            (sym::Keccak384, sym::hash_to_i128)        => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::I128)),
+            (sym::Keccak384, sym::hash_to_u8)          => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::U8)),
+            (sym::Keccak384, sym::hash_to_u16)         => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::U16)),
+            (sym::Keccak384, sym::hash_to_u32)         => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::U32)),
+            (sym::Keccak384, sym::hash_to_u64)         => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::U64)),
+            (sym::Keccak384, sym::hash_to_u128)        => Self::Hash(HashVariant::Keccak384, false, Type::Integer(IntegerType::U128)),
+            (sym::Keccak384, sym::hash_to_scalar)      => Self::Hash(HashVariant::Keccak384, false, Type::Scalar),
+            (sym::Keccak384, sym::hash_to_address_raw) => Self::Hash(HashVariant::Keccak384, true, Type::Address),
+            (sym::Keccak384, sym::hash_to_field_raw)   => Self::Hash(HashVariant::Keccak384, true, Type::Field),
+            (sym::Keccak384, sym::hash_to_group_raw)   => Self::Hash(HashVariant::Keccak384, true, Type::Group),
+            (sym::Keccak384, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::I8)),
+            (sym::Keccak384, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::I16)),
+            (sym::Keccak384, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::I32)),
+            (sym::Keccak384, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::I64)),
+            (sym::Keccak384, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::I128)),
+            (sym::Keccak384, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::U8)),
+            (sym::Keccak384, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::U16)),
+            (sym::Keccak384, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::U32)),
+            (sym::Keccak384, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::U64)),
+            (sym::Keccak384, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::Keccak384, true, Type::Integer(IntegerType::U128)),
+            (sym::Keccak384, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::Keccak384, true, Type::Scalar),
 
-            (sym::Keccak384, sym::hash_to_address) => Self::Keccak384HashToAddress,
-            (sym::Keccak384, sym::hash_to_field) => Self::Keccak384HashToField,
-            (sym::Keccak384, sym::hash_to_group) => Self::Keccak384HashToGroup,
-            (sym::Keccak384, sym::hash_to_i8) => Self::Keccak384HashToI8,
-            (sym::Keccak384, sym::hash_to_i16) => Self::Keccak384HashToI16,
-            (sym::Keccak384, sym::hash_to_i32) => Self::Keccak384HashToI32,
-            (sym::Keccak384, sym::hash_to_i64) => Self::Keccak384HashToI64,
-            (sym::Keccak384, sym::hash_to_i128) => Self::Keccak384HashToI128,
-            (sym::Keccak384, sym::hash_to_u8) => Self::Keccak384HashToU8,
-            (sym::Keccak384, sym::hash_to_u16) => Self::Keccak384HashToU16,
-            (sym::Keccak384, sym::hash_to_u32) => Self::Keccak384HashToU32,
-            (sym::Keccak384, sym::hash_to_u64) => Self::Keccak384HashToU64,
-            (sym::Keccak384, sym::hash_to_u128) => Self::Keccak384HashToU128,
-            (sym::Keccak384, sym::hash_to_scalar) => Self::Keccak384HashToScalar,
-            (sym::Keccak384, sym::hash_raw) => Self::Keccak384HashRaw,
+            (sym::Keccak512, sym::hash_to_address)     => Self::Hash(HashVariant::Keccak512, false, Type::Address),
+            (sym::Keccak512, sym::hash_to_field)       => Self::Hash(HashVariant::Keccak512, false, Type::Field),
+            (sym::Keccak512, sym::hash_to_group)       => Self::Hash(HashVariant::Keccak512, false, Type::Group),
+            (sym::Keccak512, sym::hash_to_i8)          => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::I8)),
+            (sym::Keccak512, sym::hash_to_i16)         => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::I16)),
+            (sym::Keccak512, sym::hash_to_i32)         => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::I32)),
+            (sym::Keccak512, sym::hash_to_i64)         => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::I64)),
+            (sym::Keccak512, sym::hash_to_i128)        => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::I128)),
+            (sym::Keccak512, sym::hash_to_u8)          => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::U8)),
+            (sym::Keccak512, sym::hash_to_u16)         => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::U16)),
+            (sym::Keccak512, sym::hash_to_u32)         => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::U32)),
+            (sym::Keccak512, sym::hash_to_u64)         => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::U64)),
+            (sym::Keccak512, sym::hash_to_u128)        => Self::Hash(HashVariant::Keccak512, false, Type::Integer(IntegerType::U128)),
+            (sym::Keccak512, sym::hash_to_scalar)      => Self::Hash(HashVariant::Keccak512, false, Type::Scalar),
+            (sym::Keccak512, sym::hash_to_address_raw) => Self::Hash(HashVariant::Keccak512, true, Type::Address),
+            (sym::Keccak512, sym::hash_to_field_raw)   => Self::Hash(HashVariant::Keccak512, true, Type::Field),
+            (sym::Keccak512, sym::hash_to_group_raw)   => Self::Hash(HashVariant::Keccak512, true, Type::Group),
+            (sym::Keccak512, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::I8)),
+            (sym::Keccak512, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::I16)),
+            (sym::Keccak512, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::I32)),
+            (sym::Keccak512, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::I64)),
+            (sym::Keccak512, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::I128)),
+            (sym::Keccak512, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::U8)),
+            (sym::Keccak512, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::U16)),
+            (sym::Keccak512, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::U32)),
+            (sym::Keccak512, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::U64)),
+            (sym::Keccak512, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::Keccak512, true, Type::Integer(IntegerType::U128)),
+            (sym::Keccak512, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::Keccak512, true, Type::Scalar),
 
-            (sym::Keccak512, sym::hash_to_address) => Self::Keccak512HashToAddress,
-            (sym::Keccak512, sym::hash_to_field) => Self::Keccak512HashToField,
-            (sym::Keccak512, sym::hash_to_group) => Self::Keccak512HashToGroup,
-            (sym::Keccak512, sym::hash_to_i8) => Self::Keccak512HashToI8,
-            (sym::Keccak512, sym::hash_to_i16) => Self::Keccak512HashToI16,
-            (sym::Keccak512, sym::hash_to_i32) => Self::Keccak512HashToI32,
-            (sym::Keccak512, sym::hash_to_i64) => Self::Keccak512HashToI64,
-            (sym::Keccak512, sym::hash_to_i128) => Self::Keccak512HashToI128,
-            (sym::Keccak512, sym::hash_to_u8) => Self::Keccak512HashToU8,
-            (sym::Keccak512, sym::hash_to_u16) => Self::Keccak512HashToU16,
-            (sym::Keccak512, sym::hash_to_u32) => Self::Keccak512HashToU32,
-            (sym::Keccak512, sym::hash_to_u64) => Self::Keccak512HashToU64,
-            (sym::Keccak512, sym::hash_to_u128) => Self::Keccak512HashToU128,
-            (sym::Keccak512, sym::hash_to_scalar) => Self::Keccak512HashToScalar,
-            (sym::Keccak512, sym::hash_raw) => Self::Keccak512HashRaw,
+            (sym::Pedersen64, sym::hash_to_address)     => Self::Hash(HashVariant::Pedersen64, false, Type::Address),
+            (sym::Pedersen64, sym::hash_to_field)       => Self::Hash(HashVariant::Pedersen64, false, Type::Field),
+            (sym::Pedersen64, sym::hash_to_group)       => Self::Hash(HashVariant::Pedersen64, false, Type::Group),
+            (sym::Pedersen64, sym::hash_to_i8)          => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::I8)),
+            (sym::Pedersen64, sym::hash_to_i16)         => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::I16)),
+            (sym::Pedersen64, sym::hash_to_i32)         => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::I32)),
+            (sym::Pedersen64, sym::hash_to_i64)         => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::I64)),
+            (sym::Pedersen64, sym::hash_to_i128)        => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::I128)),
+            (sym::Pedersen64, sym::hash_to_u8)          => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::U8)),
+            (sym::Pedersen64, sym::hash_to_u16)         => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::U16)),
+            (sym::Pedersen64, sym::hash_to_u32)         => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::U32)),
+            (sym::Pedersen64, sym::hash_to_u64)         => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::U64)),
+            (sym::Pedersen64, sym::hash_to_u128)        => Self::Hash(HashVariant::Pedersen64, false, Type::Integer(IntegerType::U128)),
+            (sym::Pedersen64, sym::hash_to_scalar)      => Self::Hash(HashVariant::Pedersen64, false, Type::Scalar),
+            (sym::Pedersen64, sym::hash_to_address_raw) => Self::Hash(HashVariant::Pedersen64, true, Type::Address),
+            (sym::Pedersen64, sym::hash_to_field_raw)   => Self::Hash(HashVariant::Pedersen64, true, Type::Field),
+            (sym::Pedersen64, sym::hash_to_group_raw)   => Self::Hash(HashVariant::Pedersen64, true, Type::Group),
+            (sym::Pedersen64, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::I8)),
+            (sym::Pedersen64, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::I16)),
+            (sym::Pedersen64, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::I32)),
+            (sym::Pedersen64, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::I64)),
+            (sym::Pedersen64, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::I128)),
+            (sym::Pedersen64, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::U8)),
+            (sym::Pedersen64, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::U16)),
+            (sym::Pedersen64, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::U32)),
+            (sym::Pedersen64, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::U64)),
+            (sym::Pedersen64, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::Pedersen64, true, Type::Integer(IntegerType::U128)),
+            (sym::Pedersen64, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::Pedersen64, true, Type::Scalar),
 
-            (sym::Pedersen64, sym::commit_to_address) => Self::Pedersen64CommitToAddress,
-            (sym::Pedersen64, sym::commit_to_field) => Self::Pedersen64CommitToField,
-            (sym::Pedersen64, sym::commit_to_group) => Self::Pedersen64CommitToGroup,
-            (sym::Pedersen64, sym::hash_to_address) => Self::Pedersen64HashToAddress,
-            (sym::Pedersen64, sym::hash_to_field) => Self::Pedersen64HashToField,
-            (sym::Pedersen64, sym::hash_to_group) => Self::Pedersen64HashToGroup,
-            (sym::Pedersen64, sym::hash_to_i8) => Self::Pedersen64HashToI8,
-            (sym::Pedersen64, sym::hash_to_i16) => Self::Pedersen64HashToI16,
-            (sym::Pedersen64, sym::hash_to_i32) => Self::Pedersen64HashToI32,
-            (sym::Pedersen64, sym::hash_to_i64) => Self::Pedersen64HashToI64,
-            (sym::Pedersen64, sym::hash_to_i128) => Self::Pedersen64HashToI128,
-            (sym::Pedersen64, sym::hash_to_u8) => Self::Pedersen64HashToU8,
-            (sym::Pedersen64, sym::hash_to_u16) => Self::Pedersen64HashToU16,
-            (sym::Pedersen64, sym::hash_to_u32) => Self::Pedersen64HashToU32,
-            (sym::Pedersen64, sym::hash_to_u64) => Self::Pedersen64HashToU64,
-            (sym::Pedersen64, sym::hash_to_u128) => Self::Pedersen64HashToU128,
-            (sym::Pedersen64, sym::hash_to_scalar) => Self::Pedersen64HashToScalar,
-            (sym::Pedersen64, sym::hash_raw) => Self::Pedersen64HashRaw,
+            (sym::Pedersen128, sym::hash_to_address)     => Self::Hash(HashVariant::Pedersen128, false, Type::Address),
+            (sym::Pedersen128, sym::hash_to_field)       => Self::Hash(HashVariant::Pedersen128, false, Type::Field),
+            (sym::Pedersen128, sym::hash_to_group)       => Self::Hash(HashVariant::Pedersen128, false, Type::Group),
+            (sym::Pedersen128, sym::hash_to_i8)          => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::I8)),
+            (sym::Pedersen128, sym::hash_to_i16)         => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::I16)),
+            (sym::Pedersen128, sym::hash_to_i32)         => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::I32)),
+            (sym::Pedersen128, sym::hash_to_i64)         => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::I64)),
+            (sym::Pedersen128, sym::hash_to_i128)        => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::I128)),
+            (sym::Pedersen128, sym::hash_to_u8)          => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::U8)),
+            (sym::Pedersen128, sym::hash_to_u16)         => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::U16)),
+            (sym::Pedersen128, sym::hash_to_u32)         => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::U32)),
+            (sym::Pedersen128, sym::hash_to_u64)         => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::U64)),
+            (sym::Pedersen128, sym::hash_to_u128)        => Self::Hash(HashVariant::Pedersen128, false, Type::Integer(IntegerType::U128)),
+            (sym::Pedersen128, sym::hash_to_scalar)      => Self::Hash(HashVariant::Pedersen128, false, Type::Scalar),
+            (sym::Pedersen128, sym::hash_to_address_raw) => Self::Hash(HashVariant::Pedersen128, true, Type::Address),
+            (sym::Pedersen128, sym::hash_to_field_raw)   => Self::Hash(HashVariant::Pedersen128, true, Type::Field),
+            (sym::Pedersen128, sym::hash_to_group_raw)   => Self::Hash(HashVariant::Pedersen128, true, Type::Group),
+            (sym::Pedersen128, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::I8)),
+            (sym::Pedersen128, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::I16)),
+            (sym::Pedersen128, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::I32)),
+            (sym::Pedersen128, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::I64)),
+            (sym::Pedersen128, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::I128)),
+            (sym::Pedersen128, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::U8)),
+            (sym::Pedersen128, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::U16)),
+            (sym::Pedersen128, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::U32)),
+            (sym::Pedersen128, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::U64)),
+            (sym::Pedersen128, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::Pedersen128, true, Type::Integer(IntegerType::U128)),
+            (sym::Pedersen128, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::Pedersen128, true, Type::Scalar),
 
-            (sym::Pedersen128, sym::commit_to_address) => Self::Pedersen128CommitToAddress,
-            (sym::Pedersen128, sym::commit_to_field) => Self::Pedersen128CommitToField,
-            (sym::Pedersen128, sym::commit_to_group) => Self::Pedersen128CommitToGroup,
-            (sym::Pedersen128, sym::hash_to_address) => Self::Pedersen128HashToAddress,
-            (sym::Pedersen128, sym::hash_to_field) => Self::Pedersen128HashToField,
-            (sym::Pedersen128, sym::hash_to_group) => Self::Pedersen128HashToGroup,
-            (sym::Pedersen128, sym::hash_to_i8) => Self::Pedersen128HashToI8,
-            (sym::Pedersen128, sym::hash_to_i16) => Self::Pedersen128HashToI16,
-            (sym::Pedersen128, sym::hash_to_i32) => Self::Pedersen128HashToI32,
-            (sym::Pedersen128, sym::hash_to_i64) => Self::Pedersen128HashToI64,
-            (sym::Pedersen128, sym::hash_to_i128) => Self::Pedersen128HashToI128,
-            (sym::Pedersen128, sym::hash_to_u8) => Self::Pedersen128HashToU8,
-            (sym::Pedersen128, sym::hash_to_u16) => Self::Pedersen128HashToU16,
-            (sym::Pedersen128, sym::hash_to_u32) => Self::Pedersen128HashToU32,
-            (sym::Pedersen128, sym::hash_to_u64) => Self::Pedersen128HashToU64,
-            (sym::Pedersen128, sym::hash_to_u128) => Self::Pedersen128HashToU128,
-            (sym::Pedersen128, sym::hash_to_scalar) => Self::Pedersen128HashToScalar,
-            (sym::Pedersen128, sym::hash_raw) => Self::Pedersen128HashRaw,
+            (sym::Poseidon2, sym::hash_to_address)     => Self::Hash(HashVariant::Poseidon2, false, Type::Address),
+            (sym::Poseidon2, sym::hash_to_field)       => Self::Hash(HashVariant::Poseidon2, false, Type::Field),
+            (sym::Poseidon2, sym::hash_to_group)       => Self::Hash(HashVariant::Poseidon2, false, Type::Group),
+            (sym::Poseidon2, sym::hash_to_i8)          => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::I8)),
+            (sym::Poseidon2, sym::hash_to_i16)         => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::I16)),
+            (sym::Poseidon2, sym::hash_to_i32)         => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::I32)),
+            (sym::Poseidon2, sym::hash_to_i64)         => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::I64)),
+            (sym::Poseidon2, sym::hash_to_i128)        => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::I128)),
+            (sym::Poseidon2, sym::hash_to_u8)          => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::U8)),
+            (sym::Poseidon2, sym::hash_to_u16)         => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::U16)),
+            (sym::Poseidon2, sym::hash_to_u32)         => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::U32)),
+            (sym::Poseidon2, sym::hash_to_u64)         => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::U64)),
+            (sym::Poseidon2, sym::hash_to_u128)        => Self::Hash(HashVariant::Poseidon2, false, Type::Integer(IntegerType::U128)),
+            (sym::Poseidon2, sym::hash_to_scalar)      => Self::Hash(HashVariant::Poseidon2, false, Type::Scalar),
+            (sym::Poseidon2, sym::hash_to_address_raw) => Self::Hash(HashVariant::Poseidon2, true, Type::Address),
+            (sym::Poseidon2, sym::hash_to_field_raw)   => Self::Hash(HashVariant::Poseidon2, true, Type::Field),
+            (sym::Poseidon2, sym::hash_to_group_raw)   => Self::Hash(HashVariant::Poseidon2, true, Type::Group),
+            (sym::Poseidon2, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::I8)),
+            (sym::Poseidon2, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::I16)),
+            (sym::Poseidon2, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::I32)),
+            (sym::Poseidon2, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::I64)),
+            (sym::Poseidon2, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::I128)),
+            (sym::Poseidon2, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::U8)),
+            (sym::Poseidon2, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::U16)),
+            (sym::Poseidon2, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::U32)),
+            (sym::Poseidon2, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::U64)),
+            (sym::Poseidon2, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::Poseidon2, true, Type::Integer(IntegerType::U128)),
+            (sym::Poseidon2, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::Poseidon2, true, Type::Scalar),
 
-            (sym::Poseidon2, sym::hash_to_address) => Self::Poseidon2HashToAddress,
-            (sym::Poseidon2, sym::hash_to_field) => Self::Poseidon2HashToField,
-            (sym::Poseidon2, sym::hash_to_group) => Self::Poseidon2HashToGroup,
-            (sym::Poseidon2, sym::hash_to_i8) => Self::Poseidon2HashToI8,
-            (sym::Poseidon2, sym::hash_to_i16) => Self::Poseidon2HashToI16,
-            (sym::Poseidon2, sym::hash_to_i32) => Self::Poseidon2HashToI32,
-            (sym::Poseidon2, sym::hash_to_i64) => Self::Poseidon2HashToI64,
-            (sym::Poseidon2, sym::hash_to_i128) => Self::Poseidon2HashToI128,
-            (sym::Poseidon2, sym::hash_to_u8) => Self::Poseidon2HashToU8,
-            (sym::Poseidon2, sym::hash_to_u16) => Self::Poseidon2HashToU16,
-            (sym::Poseidon2, sym::hash_to_u32) => Self::Poseidon2HashToU32,
-            (sym::Poseidon2, sym::hash_to_u64) => Self::Poseidon2HashToU64,
-            (sym::Poseidon2, sym::hash_to_u128) => Self::Poseidon2HashToU128,
-            (sym::Poseidon2, sym::hash_to_scalar) => Self::Poseidon2HashToScalar,
-            (sym::Poseidon2, sym::hash_raw) => Self::Poseidon2HashRaw,
+            (sym::Poseidon4, sym::hash_to_address)     => Self::Hash(HashVariant::Poseidon4, false, Type::Address),
+            (sym::Poseidon4, sym::hash_to_field)       => Self::Hash(HashVariant::Poseidon4, false, Type::Field),
+            (sym::Poseidon4, sym::hash_to_group)       => Self::Hash(HashVariant::Poseidon4, false, Type::Group),
+            (sym::Poseidon4, sym::hash_to_i8)          => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::I8)),
+            (sym::Poseidon4, sym::hash_to_i16)         => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::I16)),
+            (sym::Poseidon4, sym::hash_to_i32)         => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::I32)),
+            (sym::Poseidon4, sym::hash_to_i64)         => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::I64)),
+            (sym::Poseidon4, sym::hash_to_i128)        => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::I128)),
+            (sym::Poseidon4, sym::hash_to_u8)          => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::U8)),
+            (sym::Poseidon4, sym::hash_to_u16)         => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::U16)),
+            (sym::Poseidon4, sym::hash_to_u32)         => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::U32)),
+            (sym::Poseidon4, sym::hash_to_u64)         => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::U64)),
+            (sym::Poseidon4, sym::hash_to_u128)        => Self::Hash(HashVariant::Poseidon4, false, Type::Integer(IntegerType::U128)),
+            (sym::Poseidon4, sym::hash_to_scalar)      => Self::Hash(HashVariant::Poseidon4, false, Type::Scalar),
+            (sym::Poseidon4, sym::hash_to_address_raw) => Self::Hash(HashVariant::Poseidon4, true, Type::Address),
+            (sym::Poseidon4, sym::hash_to_field_raw)   => Self::Hash(HashVariant::Poseidon4, true, Type::Field),
+            (sym::Poseidon4, sym::hash_to_group_raw)   => Self::Hash(HashVariant::Poseidon4, true, Type::Group),
+            (sym::Poseidon4, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::I8)),
+            (sym::Poseidon4, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::I16)),
+            (sym::Poseidon4, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::I32)),
+            (sym::Poseidon4, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::I64)),
+            (sym::Poseidon4, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::I128)),
+            (sym::Poseidon4, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::U8)),
+            (sym::Poseidon4, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::U16)),
+            (sym::Poseidon4, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::U32)),
+            (sym::Poseidon4, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::U64)),
+            (sym::Poseidon4, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::Poseidon4, true, Type::Integer(IntegerType::U128)),
+            (sym::Poseidon4, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::Poseidon4, true, Type::Scalar),
 
-            (sym::Poseidon4, sym::hash_to_address) => Self::Poseidon4HashToAddress,
-            (sym::Poseidon4, sym::hash_to_field) => Self::Poseidon4HashToField,
-            (sym::Poseidon4, sym::hash_to_group) => Self::Poseidon4HashToGroup,
-            (sym::Poseidon4, sym::hash_to_i8) => Self::Poseidon4HashToI8,
-            (sym::Poseidon4, sym::hash_to_i16) => Self::Poseidon4HashToI16,
-            (sym::Poseidon4, sym::hash_to_i32) => Self::Poseidon4HashToI32,
-            (sym::Poseidon4, sym::hash_to_i64) => Self::Poseidon4HashToI64,
-            (sym::Poseidon4, sym::hash_to_i128) => Self::Poseidon4HashToI128,
-            (sym::Poseidon4, sym::hash_to_u8) => Self::Poseidon4HashToU8,
-            (sym::Poseidon4, sym::hash_to_u16) => Self::Poseidon4HashToU16,
-            (sym::Poseidon4, sym::hash_to_u32) => Self::Poseidon4HashToU32,
-            (sym::Poseidon4, sym::hash_to_u64) => Self::Poseidon4HashToU64,
-            (sym::Poseidon4, sym::hash_to_u128) => Self::Poseidon4HashToU128,
-            (sym::Poseidon4, sym::hash_to_scalar) => Self::Poseidon4HashToScalar,
-            (sym::Poseidon4, sym::hash_raw) => Self::Poseidon4HashRaw,
+            (sym::Poseidon8, sym::hash_to_address)     => Self::Hash(HashVariant::Poseidon8, false, Type::Address),
+            (sym::Poseidon8, sym::hash_to_field)       => Self::Hash(HashVariant::Poseidon8, false, Type::Field),
+            (sym::Poseidon8, sym::hash_to_group)       => Self::Hash(HashVariant::Poseidon8, false, Type::Group),
+            (sym::Poseidon8, sym::hash_to_i8)          => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::I8)),
+            (sym::Poseidon8, sym::hash_to_i16)         => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::I16)),
+            (sym::Poseidon8, sym::hash_to_i32)         => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::I32)),
+            (sym::Poseidon8, sym::hash_to_i64)         => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::I64)),
+            (sym::Poseidon8, sym::hash_to_i128)        => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::I128)),
+            (sym::Poseidon8, sym::hash_to_u8)          => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::U8)),
+            (sym::Poseidon8, sym::hash_to_u16)         => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::U16)),
+            (sym::Poseidon8, sym::hash_to_u32)         => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::U32)),
+            (sym::Poseidon8, sym::hash_to_u64)         => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::U64)),
+            (sym::Poseidon8, sym::hash_to_u128)        => Self::Hash(HashVariant::Poseidon8, false, Type::Integer(IntegerType::U128)),
+            (sym::Poseidon8, sym::hash_to_scalar)      => Self::Hash(HashVariant::Poseidon8, false, Type::Scalar),
+            (sym::Poseidon8, sym::hash_to_address_raw) => Self::Hash(HashVariant::Poseidon8, true, Type::Address),
+            (sym::Poseidon8, sym::hash_to_field_raw)   => Self::Hash(HashVariant::Poseidon8, true, Type::Field),
+            (sym::Poseidon8, sym::hash_to_group_raw)   => Self::Hash(HashVariant::Poseidon8, true, Type::Group),
+            (sym::Poseidon8, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::I8)),
+            (sym::Poseidon8, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::I16)),
+            (sym::Poseidon8, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::I32)),
+            (sym::Poseidon8, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::I64)),
+            (sym::Poseidon8, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::I128)),
+            (sym::Poseidon8, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::U8)),
+            (sym::Poseidon8, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::U16)),
+            (sym::Poseidon8, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::U32)),
+            (sym::Poseidon8, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::U64)),
+            (sym::Poseidon8, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::Poseidon8, true, Type::Integer(IntegerType::U128)),
+            (sym::Poseidon8, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::Poseidon8, true, Type::Scalar),
 
-            (sym::Poseidon8, sym::hash_to_address) => Self::Poseidon8HashToAddress,
-            (sym::Poseidon8, sym::hash_to_field) => Self::Poseidon8HashToField,
-            (sym::Poseidon8, sym::hash_to_group) => Self::Poseidon8HashToGroup,
-            (sym::Poseidon8, sym::hash_to_i8) => Self::Poseidon8HashToI8,
-            (sym::Poseidon8, sym::hash_to_i16) => Self::Poseidon8HashToI16,
-            (sym::Poseidon8, sym::hash_to_i32) => Self::Poseidon8HashToI32,
-            (sym::Poseidon8, sym::hash_to_i64) => Self::Poseidon8HashToI64,
-            (sym::Poseidon8, sym::hash_to_i128) => Self::Poseidon8HashToI128,
-            (sym::Poseidon8, sym::hash_to_u8) => Self::Poseidon8HashToU8,
-            (sym::Poseidon8, sym::hash_to_u16) => Self::Poseidon8HashToU16,
-            (sym::Poseidon8, sym::hash_to_u32) => Self::Poseidon8HashToU32,
-            (sym::Poseidon8, sym::hash_to_u64) => Self::Poseidon8HashToU64,
-            (sym::Poseidon8, sym::hash_to_u128) => Self::Poseidon8HashToU128,
-            (sym::Poseidon8, sym::hash_to_scalar) => Self::Poseidon8HashToScalar,
-            (sym::Poseidon8, sym::hash_raw) => Self::Poseidon8HashRaw,
+            (sym::SHA3_256, sym::hash_to_address)     => Self::Hash(HashVariant::SHA3_256, false, Type::Address),
+            (sym::SHA3_256, sym::hash_to_field)       => Self::Hash(HashVariant::SHA3_256, false, Type::Field),
+            (sym::SHA3_256, sym::hash_to_group)       => Self::Hash(HashVariant::SHA3_256, false, Type::Group),
+            (sym::SHA3_256, sym::hash_to_i8)          => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::I8)),
+            (sym::SHA3_256, sym::hash_to_i16)         => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::I16)),
+            (sym::SHA3_256, sym::hash_to_i32)         => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::I32)),
+            (sym::SHA3_256, sym::hash_to_i64)         => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::I64)),
+            (sym::SHA3_256, sym::hash_to_i128)        => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::I128)),
+            (sym::SHA3_256, sym::hash_to_u8)          => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::U8)),
+            (sym::SHA3_256, sym::hash_to_u16)         => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::U16)),
+            (sym::SHA3_256, sym::hash_to_u32)         => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::U32)),
+            (sym::SHA3_256, sym::hash_to_u64)         => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::U64)),
+            (sym::SHA3_256, sym::hash_to_u128)        => Self::Hash(HashVariant::SHA3_256, false, Type::Integer(IntegerType::U128)),
+            (sym::SHA3_256, sym::hash_to_scalar)      => Self::Hash(HashVariant::SHA3_256, false, Type::Scalar),
+            (sym::SHA3_256, sym::hash_to_address_raw) => Self::Hash(HashVariant::SHA3_256, true, Type::Address),
+            (sym::SHA3_256, sym::hash_to_field_raw)   => Self::Hash(HashVariant::SHA3_256, true, Type::Field),
+            (sym::SHA3_256, sym::hash_to_group_raw)   => Self::Hash(HashVariant::SHA3_256, true, Type::Group),
+            (sym::SHA3_256, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::I8)),
+            (sym::SHA3_256, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::I16)),
+            (sym::SHA3_256, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::I32)),
+            (sym::SHA3_256, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::I64)),
+            (sym::SHA3_256, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::I128)),
+            (sym::SHA3_256, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::U8)),
+            (sym::SHA3_256, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::U16)),
+            (sym::SHA3_256, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::U32)),
+            (sym::SHA3_256, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::U64)),
+            (sym::SHA3_256, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::SHA3_256, true, Type::Integer(IntegerType::U128)),
+            (sym::SHA3_256, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::SHA3_256, true, Type::Scalar),
 
-            (sym::SHA3_256, sym::hash_to_address) => Self::SHA3_256HashToAddress,
-            (sym::SHA3_256, sym::hash_to_field) => Self::SHA3_256HashToField,
-            (sym::SHA3_256, sym::hash_to_group) => Self::SHA3_256HashToGroup,
-            (sym::SHA3_256, sym::hash_to_i8) => Self::SHA3_256HashToI8,
-            (sym::SHA3_256, sym::hash_to_i16) => Self::SHA3_256HashToI16,
-            (sym::SHA3_256, sym::hash_to_i32) => Self::SHA3_256HashToI32,
-            (sym::SHA3_256, sym::hash_to_i64) => Self::SHA3_256HashToI64,
-            (sym::SHA3_256, sym::hash_to_i128) => Self::SHA3_256HashToI128,
-            (sym::SHA3_256, sym::hash_to_u8) => Self::SHA3_256HashToU8,
-            (sym::SHA3_256, sym::hash_to_u16) => Self::SHA3_256HashToU16,
-            (sym::SHA3_256, sym::hash_to_u32) => Self::SHA3_256HashToU32,
-            (sym::SHA3_256, sym::hash_to_u64) => Self::SHA3_256HashToU64,
-            (sym::SHA3_256, sym::hash_to_u128) => Self::SHA3_256HashToU128,
-            (sym::SHA3_256, sym::hash_to_scalar) => Self::SHA3_256HashToScalar,
-            (sym::SHA3_256, sym::hash_raw) => Self::SHA3_256HashRaw,
+            (sym::SHA3_384, sym::hash_to_address)     => Self::Hash(HashVariant::SHA3_384, false, Type::Address),
+            (sym::SHA3_384, sym::hash_to_field)       => Self::Hash(HashVariant::SHA3_384, false, Type::Field),
+            (sym::SHA3_384, sym::hash_to_group)       => Self::Hash(HashVariant::SHA3_384, false, Type::Group),
+            (sym::SHA3_384, sym::hash_to_i8)          => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::I8)),
+            (sym::SHA3_384, sym::hash_to_i16)         => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::I16)),
+            (sym::SHA3_384, sym::hash_to_i32)         => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::I32)),
+            (sym::SHA3_384, sym::hash_to_i64)         => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::I64)),
+            (sym::SHA3_384, sym::hash_to_i128)        => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::I128)),
+            (sym::SHA3_384, sym::hash_to_u8)          => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::U8)),
+            (sym::SHA3_384, sym::hash_to_u16)         => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::U16)),
+            (sym::SHA3_384, sym::hash_to_u32)         => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::U32)),
+            (sym::SHA3_384, sym::hash_to_u64)         => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::U64)),
+            (sym::SHA3_384, sym::hash_to_u128)        => Self::Hash(HashVariant::SHA3_384, false, Type::Integer(IntegerType::U128)),
+            (sym::SHA3_384, sym::hash_to_scalar)      => Self::Hash(HashVariant::SHA3_384, false, Type::Scalar),
+            (sym::SHA3_384, sym::hash_to_address_raw) => Self::Hash(HashVariant::SHA3_384, true, Type::Address),
+            (sym::SHA3_384, sym::hash_to_field_raw)   => Self::Hash(HashVariant::SHA3_384, true, Type::Field),
+            (sym::SHA3_384, sym::hash_to_group_raw)   => Self::Hash(HashVariant::SHA3_384, true, Type::Group),
+            (sym::SHA3_384, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::I8)),
+            (sym::SHA3_384, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::I16)),
+            (sym::SHA3_384, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::I32)),
+            (sym::SHA3_384, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::I64)),
+            (sym::SHA3_384, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::I128)),
+            (sym::SHA3_384, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::U8)),
+            (sym::SHA3_384, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::U16)),
+            (sym::SHA3_384, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::U32)),
+            (sym::SHA3_384, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::U64)),
+            (sym::SHA3_384, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::SHA3_384, true, Type::Integer(IntegerType::U128)),
+            (sym::SHA3_384, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::SHA3_384, true, Type::Scalar),
 
-            (sym::SHA3_384, sym::hash_to_address) => Self::SHA3_384HashToAddress,
-            (sym::SHA3_384, sym::hash_to_field) => Self::SHA3_384HashToField,
-            (sym::SHA3_384, sym::hash_to_group) => Self::SHA3_384HashToGroup,
-            (sym::SHA3_384, sym::hash_to_i8) => Self::SHA3_384HashToI8,
-            (sym::SHA3_384, sym::hash_to_i16) => Self::SHA3_384HashToI16,
-            (sym::SHA3_384, sym::hash_to_i32) => Self::SHA3_384HashToI32,
-            (sym::SHA3_384, sym::hash_to_i64) => Self::SHA3_384HashToI64,
-            (sym::SHA3_384, sym::hash_to_i128) => Self::SHA3_384HashToI128,
-            (sym::SHA3_384, sym::hash_to_u8) => Self::SHA3_384HashToU8,
-            (sym::SHA3_384, sym::hash_to_u16) => Self::SHA3_384HashToU16,
-            (sym::SHA3_384, sym::hash_to_u32) => Self::SHA3_384HashToU32,
-            (sym::SHA3_384, sym::hash_to_u64) => Self::SHA3_384HashToU64,
-            (sym::SHA3_384, sym::hash_to_u128) => Self::SHA3_384HashToU128,
-            (sym::SHA3_384, sym::hash_to_scalar) => Self::SHA3_384HashToScalar,
-            (sym::SHA3_384, sym::hash_raw) => Self::SHA3_384HashRaw,
+            (sym::SHA3_512, sym::hash_to_address)     => Self::Hash(HashVariant::SHA3_512, false, Type::Address),
+            (sym::SHA3_512, sym::hash_to_field)       => Self::Hash(HashVariant::SHA3_512, false, Type::Field),
+            (sym::SHA3_512, sym::hash_to_group)       => Self::Hash(HashVariant::SHA3_512, false, Type::Group),
+            (sym::SHA3_512, sym::hash_to_i8)          => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::I8)),
+            (sym::SHA3_512, sym::hash_to_i16)         => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::I16)),
+            (sym::SHA3_512, sym::hash_to_i32)         => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::I32)),
+            (sym::SHA3_512, sym::hash_to_i64)         => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::I64)),
+            (sym::SHA3_512, sym::hash_to_i128)        => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::I128)),
+            (sym::SHA3_512, sym::hash_to_u8)          => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::U8)),
+            (sym::SHA3_512, sym::hash_to_u16)         => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::U16)),
+            (sym::SHA3_512, sym::hash_to_u32)         => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::U32)),
+            (sym::SHA3_512, sym::hash_to_u64)         => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::U64)),
+            (sym::SHA3_512, sym::hash_to_u128)        => Self::Hash(HashVariant::SHA3_512, false, Type::Integer(IntegerType::U128)),
+            (sym::SHA3_512, sym::hash_to_scalar)      => Self::Hash(HashVariant::SHA3_512, false, Type::Scalar),
+            (sym::SHA3_512, sym::hash_to_address_raw) => Self::Hash(HashVariant::SHA3_512, true, Type::Address),
+            (sym::SHA3_512, sym::hash_to_field_raw)   => Self::Hash(HashVariant::SHA3_512, true, Type::Field),
+            (sym::SHA3_512, sym::hash_to_group_raw)   => Self::Hash(HashVariant::SHA3_512, true, Type::Group),
+            (sym::SHA3_512, sym::hash_to_i8_raw)      => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::I8)),
+            (sym::SHA3_512, sym::hash_to_i16_raw)     => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::I16)),
+            (sym::SHA3_512, sym::hash_to_i32_raw)     => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::I32)),
+            (sym::SHA3_512, sym::hash_to_i64_raw)     => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::I64)),
+            (sym::SHA3_512, sym::hash_to_i128_raw)    => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::I128)),
+            (sym::SHA3_512, sym::hash_to_u8_raw)      => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::U8)),
+            (sym::SHA3_512, sym::hash_to_u16_raw)     => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::U16)),
+            (sym::SHA3_512, sym::hash_to_u32_raw)     => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::U32)),
+            (sym::SHA3_512, sym::hash_to_u64_raw)     => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::U64)),
+            (sym::SHA3_512, sym::hash_to_u128_raw)    => Self::Hash(HashVariant::SHA3_512, true, Type::Integer(IntegerType::U128)),
+            (sym::SHA3_512, sym::hash_to_scalar_raw)  => Self::Hash(HashVariant::SHA3_512, true, Type::Scalar),
 
-            (sym::SHA3_512, sym::hash_to_address) => Self::SHA3_512HashToAddress,
-            (sym::SHA3_512, sym::hash_to_field) => Self::SHA3_512HashToField,
-            (sym::SHA3_512, sym::hash_to_group) => Self::SHA3_512HashToGroup,
-            (sym::SHA3_512, sym::hash_to_i8) => Self::SHA3_512HashToI8,
-            (sym::SHA3_512, sym::hash_to_i16) => Self::SHA3_512HashToI16,
-            (sym::SHA3_512, sym::hash_to_i32) => Self::SHA3_512HashToI32,
-            (sym::SHA3_512, sym::hash_to_i64) => Self::SHA3_512HashToI64,
-            (sym::SHA3_512, sym::hash_to_i128) => Self::SHA3_512HashToI128,
-            (sym::SHA3_512, sym::hash_to_u8) => Self::SHA3_512HashToU8,
-            (sym::SHA3_512, sym::hash_to_u16) => Self::SHA3_512HashToU16,
-            (sym::SHA3_512, sym::hash_to_u32) => Self::SHA3_512HashToU32,
-            (sym::SHA3_512, sym::hash_to_u64) => Self::SHA3_512HashToU64,
-            (sym::SHA3_512, sym::hash_to_u128) => Self::SHA3_512HashToU128,
-            (sym::SHA3_512, sym::hash_to_scalar) => Self::SHA3_512HashToScalar,
-            (sym::SHA3_512, sym::hash_raw) => Self::SHA3_512HashRaw,
+            (sym::ECDSAVerify, sym::verify_keccak256)           => Self::ECDSAVerify(HashVariant::Keccak256, false, false),
+            (sym::ECDSAVerify, sym::verify_keccak256_raw)       => Self::ECDSAVerify(HashVariant::Keccak256, true, false),
+            (sym::ECDSAVerify, sym::verify_keccak256_eth)       => Self::ECDSAVerify(HashVariant::Keccak256, false, true),
+            (sym::ECDSAVerify, sym::verify_keccak256_eth_raw)   => Self::ECDSAVerify(HashVariant::Keccak256, true, true),
+            (sym::ECDSAVerify, sym::verify_keccak384)           => Self::ECDSAVerify(HashVariant::Keccak384, false, false),
+            (sym::ECDSAVerify, sym::verify_keccak384_raw)       => Self::ECDSAVerify(HashVariant::Keccak384, true, false),
+            (sym::ECDSAVerify, sym::verify_keccak384_eth)       => Self::ECDSAVerify(HashVariant::Keccak384, false, true),
+            (sym::ECDSAVerify, sym::verify_keccak384_eth_raw)   => Self::ECDSAVerify(HashVariant::Keccak384, true, true),
+            (sym::ECDSAVerify, sym::verify_keccak512)           => Self::ECDSAVerify(HashVariant::Keccak512, false, false),
+            (sym::ECDSAVerify, sym::verify_keccak512_raw)       => Self::ECDSAVerify(HashVariant::Keccak512, true, false),
+            (sym::ECDSAVerify, sym::verify_keccak512_eth)       => Self::ECDSAVerify(HashVariant::Keccak512, false, true),
+            (sym::ECDSAVerify, sym::verify_keccak512_eth_raw)   => Self::ECDSAVerify(HashVariant::Keccak512, true, true),
+            (sym::ECDSAVerify, sym::verify_sha3_256)            => Self::ECDSAVerify(HashVariant::SHA3_256, false, false),
+            (sym::ECDSAVerify, sym::verify_sha3_256_raw)        => Self::ECDSAVerify(HashVariant::SHA3_256, true, false),
+            (sym::ECDSAVerify, sym::verify_sha3_256_eth)        => Self::ECDSAVerify(HashVariant::SHA3_256, false, true),
+            (sym::ECDSAVerify, sym::verify_sha3_256_eth_raw)    => Self::ECDSAVerify(HashVariant::SHA3_256, true, true),
+            (sym::ECDSAVerify, sym::verify_sha3_384)            => Self::ECDSAVerify(HashVariant::SHA3_384, false, false),
+            (sym::ECDSAVerify, sym::verify_sha3_384_raw)        => Self::ECDSAVerify(HashVariant::SHA3_384, true, false),
+            (sym::ECDSAVerify, sym::verify_sha3_384_eth)        => Self::ECDSAVerify(HashVariant::SHA3_384, false, true),
+            (sym::ECDSAVerify, sym::verify_sha3_384_eth_raw)    => Self::ECDSAVerify(HashVariant::SHA3_384, true, true),
+            (sym::ECDSAVerify, sym::verify_sha3_512)            => Self::ECDSAVerify(HashVariant::SHA3_512, false, false),
+            (sym::ECDSAVerify, sym::verify_sha3_512_raw)        => Self::ECDSAVerify(HashVariant::SHA3_512, true, false),
+            (sym::ECDSAVerify, sym::verify_sha3_512_eth)        => Self::ECDSAVerify(HashVariant::SHA3_512, false, true),
+            (sym::ECDSAVerify, sym::verify_sha3_512_eth_raw)    => Self::ECDSAVerify(HashVariant::SHA3_512, true, true),
 
             (sym::Mapping, sym::get) => Self::MappingGet,
             (sym::Mapping, sym::get_or_use) => Self::MappingGetOrUse,
@@ -657,8 +609,8 @@ impl CoreFunction {
             (sym::ProgramCore, sym::edition) => Self::ProgramEdition,
             (sym::ProgramCore, sym::program_owner) => Self::ProgramOwner,
 
-            (sym::signature, sym::verify) => Self::SignatureVerify,
-            (sym::signature, sym::verify_raw) => Self::SignatureVerifyRaw,
+            (sym::signature, sym::verify) => Self::SignatureVerify(false),
+            (sym::signature, sym::verify_raw) => Self::SignatureVerify(true),
             (sym::Future, sym::Await) => Self::FutureAwait,
 
             (sym::CheatCode, sym::print_mapping) => Self::CheatCodePrintMapping,
@@ -670,305 +622,10 @@ impl CoreFunction {
     /// Returns the number of arguments required by the instruction.
     pub fn num_args(&self) -> usize {
         match self {
-            Self::BHP256CommitToAddress => 2,
-            Self::BHP256CommitToField => 2,
-            Self::BHP256CommitToGroup => 2,
-
-            Self::BHP256HashToAddress => 1,
-            Self::BHP256HashToField => 1,
-            Self::BHP256HashToGroup => 1,
-            Self::BHP256HashToI8 => 1,
-            Self::BHP256HashToI16 => 1,
-            Self::BHP256HashToI32 => 1,
-            Self::BHP256HashToI64 => 1,
-            Self::BHP256HashToI128 => 1,
-            Self::BHP256HashToU8 => 1,
-            Self::BHP256HashToU16 => 1,
-            Self::BHP256HashToU32 => 1,
-            Self::BHP256HashToU64 => 1,
-            Self::BHP256HashToU128 => 1,
-            Self::BHP256HashToScalar => 1,
-            Self::BHP256HashRaw => 1,
-
-            Self::BHP512CommitToAddress => 2,
-            Self::BHP512CommitToField => 2,
-            Self::BHP512CommitToGroup => 2,
-            Self::BHP512HashToAddress => 1,
-            Self::BHP512HashToField => 1,
-            Self::BHP512HashToGroup => 1,
-            Self::BHP512HashToI8 => 1,
-            Self::BHP512HashToI16 => 1,
-            Self::BHP512HashToI32 => 1,
-            Self::BHP512HashToI64 => 1,
-            Self::BHP512HashToI128 => 1,
-            Self::BHP512HashToU8 => 1,
-            Self::BHP512HashToU16 => 1,
-            Self::BHP512HashToU32 => 1,
-            Self::BHP512HashToU64 => 1,
-            Self::BHP512HashToU128 => 1,
-            Self::BHP512HashToScalar => 1,
-            Self::BHP512HashRaw => 1,
-
-            Self::BHP768CommitToAddress => 2,
-            Self::BHP768CommitToField => 2,
-            Self::BHP768CommitToGroup => 2,
-            Self::BHP768HashToAddress => 1,
-            Self::BHP768HashToField => 1,
-            Self::BHP768HashToGroup => 1,
-            Self::BHP768HashToI8 => 1,
-            Self::BHP768HashToI16 => 1,
-            Self::BHP768HashToI32 => 1,
-            Self::BHP768HashToI64 => 1,
-            Self::BHP768HashToI128 => 1,
-            Self::BHP768HashToU8 => 1,
-            Self::BHP768HashToU16 => 1,
-            Self::BHP768HashToU32 => 1,
-            Self::BHP768HashToU64 => 1,
-            Self::BHP768HashToU128 => 1,
-            Self::BHP768HashToScalar => 1,
-            Self::BHP768HashRaw => 1,
-
-            Self::BHP1024CommitToAddress => 2,
-            Self::BHP1024CommitToField => 2,
-            Self::BHP1024CommitToGroup => 2,
-            Self::BHP1024HashToAddress => 1,
-            Self::BHP1024HashToField => 1,
-            Self::BHP1024HashToGroup => 1,
-            Self::BHP1024HashToI8 => 1,
-            Self::BHP1024HashToI16 => 1,
-            Self::BHP1024HashToI32 => 1,
-            Self::BHP1024HashToI64 => 1,
-            Self::BHP1024HashToI128 => 1,
-            Self::BHP1024HashToU8 => 1,
-            Self::BHP1024HashToU16 => 1,
-            Self::BHP1024HashToU32 => 1,
-            Self::BHP1024HashToU64 => 1,
-            Self::BHP1024HashToU128 => 1,
-            Self::BHP1024HashToScalar => 1,
-            Self::BHP1024HashRaw => 1,
-
-            Self::ChaChaRandAddress => 0,
-            Self::ChaChaRandBool => 0,
-            Self::ChaChaRandField => 0,
-            Self::ChaChaRandGroup => 0,
-            Self::ChaChaRandI8 => 0,
-            Self::ChaChaRandI16 => 0,
-            Self::ChaChaRandI32 => 0,
-            Self::ChaChaRandI64 => 0,
-            Self::ChaChaRandI128 => 0,
-            Self::ChaChaRandU8 => 0,
-            Self::ChaChaRandU16 => 0,
-            Self::ChaChaRandU32 => 0,
-            Self::ChaChaRandU64 => 0,
-            Self::ChaChaRandU128 => 0,
-            Self::ChaChaRandScalar => 0,
-
-            Self::ECDSAVerifyKeccak256 => 3,
-            Self::ECDSAVerifyKeccak256Raw => 3,
-            Self::ECDSAVerifyKeccak256Eth => 3,
-            Self::ECDSAVerifyKeccak256EthRaw => 3,
-            Self::ECDSAVerifyKeccak384 => 3,
-            Self::ECDSAVerifyKeccak384Raw => 3,
-            Self::ECDSAVerifyKeccak384Eth => 3,
-            Self::ECDSAVerifyKeccak384EthRaw => 3,
-            Self::ECDSAVerifyKeccak512 => 3,
-            Self::ECDSAVerifyKeccak512Raw => 3,
-            Self::ECDSAVerifyKeccak512Eth => 3,
-            Self::ECDSAVerifyKeccak512EthRaw => 3,
-            Self::ECDSAVerifySHA3_256 => 3,
-            Self::ECDSAVerifySHA3_256Raw => 3,
-            Self::ECDSAVerifySHA3_256Eth => 3,
-            Self::ECDSAVerifySHA3_384 => 3,
-            Self::ECDSAVerifySHA3_256EthRaw => 3,
-            Self::ECDSAVerifySHA3_384Raw => 3,
-            Self::ECDSAVerifySHA3_384Eth => 3,
-            Self::ECDSAVerifySHA3_384EthRaw => 3,
-            Self::ECDSAVerifySHA3_512 => 3,
-            Self::ECDSAVerifySHA3_512Raw => 3,
-            Self::ECDSAVerifySHA3_512Eth => 3,
-            Self::ECDSAVerifySHA3_512EthRaw => 3,
-
-            Self::Keccak256HashToAddress => 1,
-            Self::Keccak256HashToField => 1,
-            Self::Keccak256HashToGroup => 1,
-            Self::Keccak256HashToI8 => 1,
-            Self::Keccak256HashToI16 => 1,
-            Self::Keccak256HashToI32 => 1,
-            Self::Keccak256HashToI64 => 1,
-            Self::Keccak256HashToI128 => 1,
-            Self::Keccak256HashToU8 => 1,
-            Self::Keccak256HashToU16 => 1,
-            Self::Keccak256HashToU32 => 1,
-            Self::Keccak256HashToU64 => 1,
-            Self::Keccak256HashToU128 => 1,
-            Self::Keccak256HashToScalar => 1,
-            Self::Keccak256HashRaw => 1,
-
-            Self::Keccak384HashToAddress => 1,
-            Self::Keccak384HashToField => 1,
-            Self::Keccak384HashToGroup => 1,
-            Self::Keccak384HashToI8 => 1,
-            Self::Keccak384HashToI16 => 1,
-            Self::Keccak384HashToI32 => 1,
-            Self::Keccak384HashToI64 => 1,
-            Self::Keccak384HashToI128 => 1,
-            Self::Keccak384HashToU8 => 1,
-            Self::Keccak384HashToU16 => 1,
-            Self::Keccak384HashToU32 => 1,
-            Self::Keccak384HashToU64 => 1,
-            Self::Keccak384HashToU128 => 1,
-            Self::Keccak384HashToScalar => 1,
-            Self::Keccak384HashRaw => 1,
-
-            Self::Keccak512HashToAddress => 1,
-            Self::Keccak512HashToField => 1,
-            Self::Keccak512HashToGroup => 1,
-            Self::Keccak512HashToI8 => 1,
-            Self::Keccak512HashToI16 => 1,
-            Self::Keccak512HashToI32 => 1,
-            Self::Keccak512HashToI64 => 1,
-            Self::Keccak512HashToI128 => 1,
-            Self::Keccak512HashToU8 => 1,
-            Self::Keccak512HashToU16 => 1,
-            Self::Keccak512HashToU32 => 1,
-            Self::Keccak512HashToU64 => 1,
-            Self::Keccak512HashToU128 => 1,
-            Self::Keccak512HashToScalar => 1,
-            Self::Keccak512HashRaw => 1,
-
-            Self::Pedersen64CommitToAddress => 2,
-            Self::Pedersen64CommitToField => 2,
-            Self::Pedersen64CommitToGroup => 2,
-            Self::Pedersen64HashToAddress => 1,
-            Self::Pedersen64HashToField => 1,
-            Self::Pedersen64HashToGroup => 1,
-            Self::Pedersen64HashToI8 => 1,
-            Self::Pedersen64HashToI16 => 1,
-            Self::Pedersen64HashToI32 => 1,
-            Self::Pedersen64HashToI64 => 1,
-            Self::Pedersen64HashToI128 => 1,
-            Self::Pedersen64HashToU8 => 1,
-            Self::Pedersen64HashToU16 => 1,
-            Self::Pedersen64HashToU32 => 1,
-            Self::Pedersen64HashToU64 => 1,
-            Self::Pedersen64HashToU128 => 1,
-            Self::Pedersen64HashToScalar => 1,
-            Self::Pedersen64HashRaw => 1,
-
-            Self::Pedersen128CommitToAddress => 2,
-            Self::Pedersen128CommitToField => 2,
-            Self::Pedersen128CommitToGroup => 2,
-            Self::Pedersen128HashToAddress => 1,
-            Self::Pedersen128HashToField => 1,
-            Self::Pedersen128HashToGroup => 1,
-            Self::Pedersen128HashToI8 => 1,
-            Self::Pedersen128HashToI16 => 1,
-            Self::Pedersen128HashToI32 => 1,
-            Self::Pedersen128HashToI64 => 1,
-            Self::Pedersen128HashToI128 => 1,
-            Self::Pedersen128HashToU8 => 1,
-            Self::Pedersen128HashToU16 => 1,
-            Self::Pedersen128HashToU32 => 1,
-            Self::Pedersen128HashToU64 => 1,
-            Self::Pedersen128HashToU128 => 1,
-            Self::Pedersen128HashToScalar => 1,
-            Self::Pedersen128HashRaw => 1,
-
-            Self::Poseidon2HashToAddress => 1,
-            Self::Poseidon2HashToField => 1,
-            Self::Poseidon2HashToGroup => 1,
-            Self::Poseidon2HashToI8 => 1,
-            Self::Poseidon2HashToI16 => 1,
-            Self::Poseidon2HashToI32 => 1,
-            Self::Poseidon2HashToI64 => 1,
-            Self::Poseidon2HashToI128 => 1,
-            Self::Poseidon2HashToU8 => 1,
-            Self::Poseidon2HashToU16 => 1,
-            Self::Poseidon2HashToU32 => 1,
-            Self::Poseidon2HashToU64 => 1,
-            Self::Poseidon2HashToU128 => 1,
-            Self::Poseidon2HashToScalar => 1,
-            Self::Poseidon2HashRaw => 1,
-
-            Self::Poseidon4HashToAddress => 1,
-            Self::Poseidon4HashToField => 1,
-            Self::Poseidon4HashToGroup => 1,
-            Self::Poseidon4HashToI8 => 1,
-            Self::Poseidon4HashToI16 => 1,
-            Self::Poseidon4HashToI32 => 1,
-            Self::Poseidon4HashToI64 => 1,
-            Self::Poseidon4HashToI128 => 1,
-            Self::Poseidon4HashToU8 => 1,
-            Self::Poseidon4HashToU16 => 1,
-            Self::Poseidon4HashToU32 => 1,
-            Self::Poseidon4HashToU64 => 1,
-            Self::Poseidon4HashToU128 => 1,
-            Self::Poseidon4HashToScalar => 1,
-            Self::Poseidon4HashRaw => 1,
-
-            Self::Poseidon8HashToAddress => 1,
-            Self::Poseidon8HashToField => 1,
-            Self::Poseidon8HashToGroup => 1,
-            Self::Poseidon8HashToI8 => 1,
-            Self::Poseidon8HashToI16 => 1,
-            Self::Poseidon8HashToI32 => 1,
-            Self::Poseidon8HashToI64 => 1,
-            Self::Poseidon8HashToI128 => 1,
-            Self::Poseidon8HashToU8 => 1,
-            Self::Poseidon8HashToU16 => 1,
-            Self::Poseidon8HashToU32 => 1,
-            Self::Poseidon8HashToU64 => 1,
-            Self::Poseidon8HashToU128 => 1,
-            Self::Poseidon8HashToScalar => 1,
-            Self::Poseidon8HashRaw => 1,
-
-            Self::SHA3_256HashToAddress => 1,
-            Self::SHA3_256HashToField => 1,
-            Self::SHA3_256HashToGroup => 1,
-            Self::SHA3_256HashToI8 => 1,
-            Self::SHA3_256HashToI16 => 1,
-            Self::SHA3_256HashToI32 => 1,
-            Self::SHA3_256HashToI64 => 1,
-            Self::SHA3_256HashToI128 => 1,
-            Self::SHA3_256HashToU8 => 1,
-            Self::SHA3_256HashToU16 => 1,
-            Self::SHA3_256HashToU32 => 1,
-            Self::SHA3_256HashToU64 => 1,
-            Self::SHA3_256HashToU128 => 1,
-            Self::SHA3_256HashToScalar => 1,
-            Self::SHA3_256HashRaw => 1,
-
-            Self::SHA3_384HashToAddress => 1,
-            Self::SHA3_384HashToField => 1,
-            Self::SHA3_384HashToGroup => 1,
-            Self::SHA3_384HashToI8 => 1,
-            Self::SHA3_384HashToI16 => 1,
-            Self::SHA3_384HashToI32 => 1,
-            Self::SHA3_384HashToI64 => 1,
-            Self::SHA3_384HashToI128 => 1,
-            Self::SHA3_384HashToU8 => 1,
-            Self::SHA3_384HashToU16 => 1,
-            Self::SHA3_384HashToU32 => 1,
-            Self::SHA3_384HashToU64 => 1,
-            Self::SHA3_384HashToU128 => 1,
-            Self::SHA3_384HashToScalar => 1,
-            Self::SHA3_384HashRaw => 1,
-
-            Self::SHA3_512HashToAddress => 1,
-            Self::SHA3_512HashToField => 1,
-            Self::SHA3_512HashToGroup => 1,
-            Self::SHA3_512HashToI8 => 1,
-            Self::SHA3_512HashToI16 => 1,
-            Self::SHA3_512HashToI32 => 1,
-            Self::SHA3_512HashToI64 => 1,
-            Self::SHA3_512HashToI128 => 1,
-            Self::SHA3_512HashToU8 => 1,
-            Self::SHA3_512HashToU16 => 1,
-            Self::SHA3_512HashToU32 => 1,
-            Self::SHA3_512HashToU64 => 1,
-            Self::SHA3_512HashToU128 => 1,
-            Self::SHA3_512HashToScalar => 1,
-            Self::SHA3_512HashRaw => 1,
+            Self::ChaChaRand(_) => 0,
+            Self::Commit(_, _) => 2,
+            Self::Hash(_, _, _) => 2,
+            Self::ECDSAVerify(_, _, _) => 3,
 
             Self::MappingGet => 2,
             Self::MappingGetOrUse => 3,
@@ -979,8 +636,7 @@ impl CoreFunction {
             Self::GroupToXCoordinate => 1,
             Self::GroupToYCoordinate => 1,
 
-            Self::SignatureVerify => 3,
-            Self::SignatureVerifyRaw => 3,
+            Self::SignatureVerify(_) => 3,
             Self::FutureAwait => 1,
 
             Self::ProgramChecksum => 1,
@@ -995,45 +651,8 @@ impl CoreFunction {
     pub fn is_finalize_command(&self) -> bool {
         match self {
             CoreFunction::FutureAwait
-            | CoreFunction::ChaChaRandAddress
-            | CoreFunction::ChaChaRandBool
-            | CoreFunction::ChaChaRandField
-            | CoreFunction::ChaChaRandGroup
-            | CoreFunction::ChaChaRandI8
-            | CoreFunction::ChaChaRandI16
-            | CoreFunction::ChaChaRandI32
-            | CoreFunction::ChaChaRandI64
-            | CoreFunction::ChaChaRandI128
-            | CoreFunction::ChaChaRandU8
-            | CoreFunction::ChaChaRandU16
-            | CoreFunction::ChaChaRandU32
-            | CoreFunction::ChaChaRandU64
-            | CoreFunction::ChaChaRandU128
-            | CoreFunction::ChaChaRandScalar
-            | CoreFunction::ECDSAVerifyKeccak256
-            | CoreFunction::ECDSAVerifyKeccak256Raw
-            | CoreFunction::ECDSAVerifyKeccak256Eth
-            | CoreFunction::ECDSAVerifyKeccak256EthRaw
-            | CoreFunction::ECDSAVerifyKeccak384
-            | CoreFunction::ECDSAVerifyKeccak384Raw
-            | CoreFunction::ECDSAVerifyKeccak384Eth
-            | CoreFunction::ECDSAVerifyKeccak384EthRaw
-            | CoreFunction::ECDSAVerifyKeccak512
-            | CoreFunction::ECDSAVerifyKeccak512Raw
-            | CoreFunction::ECDSAVerifyKeccak512Eth
-            | CoreFunction::ECDSAVerifyKeccak512EthRaw
-            | CoreFunction::ECDSAVerifySHA3_256
-            | CoreFunction::ECDSAVerifySHA3_256Raw
-            | CoreFunction::ECDSAVerifySHA3_256Eth
-            | CoreFunction::ECDSAVerifySHA3_256EthRaw
-            | CoreFunction::ECDSAVerifySHA3_384
-            | CoreFunction::ECDSAVerifySHA3_384Raw
-            | CoreFunction::ECDSAVerifySHA3_384Eth
-            | CoreFunction::ECDSAVerifySHA3_384EthRaw
-            | CoreFunction::ECDSAVerifySHA3_512
-            | CoreFunction::ECDSAVerifySHA3_512Raw
-            | CoreFunction::ECDSAVerifySHA3_512Eth
-            | CoreFunction::ECDSAVerifySHA3_512EthRaw
+            | CoreFunction::ChaChaRand(_)
+            | CoreFunction::ECDSAVerify(_, _, _)
             | CoreFunction::MappingGet
             | CoreFunction::MappingGetOrUse
             | CoreFunction::MappingSet
@@ -1042,255 +661,39 @@ impl CoreFunction {
             | CoreFunction::ProgramChecksum
             | CoreFunction::ProgramEdition
             | CoreFunction::ProgramOwner => true,
-            CoreFunction::BHP256CommitToAddress
-            | CoreFunction::BHP256CommitToField
-            | CoreFunction::BHP256CommitToGroup
-            | CoreFunction::BHP256HashToAddress
-            | CoreFunction::BHP256HashToField
-            | CoreFunction::BHP256HashToGroup
-            | CoreFunction::BHP256HashToI8
-            | CoreFunction::BHP256HashToI16
-            | CoreFunction::BHP256HashToI32
-            | CoreFunction::BHP256HashToI64
-            | CoreFunction::BHP256HashToI128
-            | CoreFunction::BHP256HashToU8
-            | CoreFunction::BHP256HashToU16
-            | CoreFunction::BHP256HashToU32
-            | CoreFunction::BHP256HashToU64
-            | CoreFunction::BHP256HashToU128
-            | CoreFunction::BHP256HashToScalar
-            | CoreFunction::BHP256HashRaw
-            | CoreFunction::BHP512CommitToAddress
-            | CoreFunction::BHP512CommitToField
-            | CoreFunction::BHP512CommitToGroup
-            | CoreFunction::BHP512HashToAddress
-            | CoreFunction::BHP512HashToField
-            | CoreFunction::BHP512HashToGroup
-            | CoreFunction::BHP512HashToI8
-            | CoreFunction::BHP512HashToI16
-            | CoreFunction::BHP512HashToI32
-            | CoreFunction::BHP512HashToI64
-            | CoreFunction::BHP512HashToI128
-            | CoreFunction::BHP512HashToU8
-            | CoreFunction::BHP512HashToU16
-            | CoreFunction::BHP512HashToU32
-            | CoreFunction::BHP512HashToU64
-            | CoreFunction::BHP512HashToU128
-            | CoreFunction::BHP512HashToScalar
-            | CoreFunction::BHP512HashRaw
-            | CoreFunction::BHP768CommitToAddress
-            | CoreFunction::BHP768CommitToField
-            | CoreFunction::BHP768CommitToGroup
-            | CoreFunction::BHP768HashToAddress
-            | CoreFunction::BHP768HashToField
-            | CoreFunction::BHP768HashToGroup
-            | CoreFunction::BHP768HashToI8
-            | CoreFunction::BHP768HashToI16
-            | CoreFunction::BHP768HashToI32
-            | CoreFunction::BHP768HashToI64
-            | CoreFunction::BHP768HashToI128
-            | CoreFunction::BHP768HashToU8
-            | CoreFunction::BHP768HashToU16
-            | CoreFunction::BHP768HashToU32
-            | CoreFunction::BHP768HashToU64
-            | CoreFunction::BHP768HashToU128
-            | CoreFunction::BHP768HashToScalar
-            | CoreFunction::BHP768HashRaw
-            | CoreFunction::BHP1024CommitToAddress
-            | CoreFunction::BHP1024CommitToField
-            | CoreFunction::BHP1024CommitToGroup
-            | CoreFunction::BHP1024HashToAddress
-            | CoreFunction::BHP1024HashToField
-            | CoreFunction::BHP1024HashToGroup
-            | CoreFunction::BHP1024HashToI8
-            | CoreFunction::BHP1024HashToI16
-            | CoreFunction::BHP1024HashToI32
-            | CoreFunction::BHP1024HashToI64
-            | CoreFunction::BHP1024HashToI128
-            | CoreFunction::BHP1024HashToU8
-            | CoreFunction::BHP1024HashToU16
-            | CoreFunction::BHP1024HashToU32
-            | CoreFunction::BHP1024HashToU64
-            | CoreFunction::BHP1024HashToU128
-            | CoreFunction::BHP1024HashToScalar
-            | CoreFunction::BHP1024HashRaw
-            | CoreFunction::Keccak256HashToAddress
-            | CoreFunction::Keccak256HashToField
-            | CoreFunction::Keccak256HashToGroup
-            | CoreFunction::Keccak256HashToI8
-            | CoreFunction::Keccak256HashToI16
-            | CoreFunction::Keccak256HashToI32
-            | CoreFunction::Keccak256HashToI64
-            | CoreFunction::Keccak256HashToI128
-            | CoreFunction::Keccak256HashToU8
-            | CoreFunction::Keccak256HashToU16
-            | CoreFunction::Keccak256HashToU32
-            | CoreFunction::Keccak256HashToU64
-            | CoreFunction::Keccak256HashToU128
-            | CoreFunction::Keccak256HashToScalar
-            | CoreFunction::Keccak256HashRaw
-            | CoreFunction::Keccak384HashToAddress
-            | CoreFunction::Keccak384HashToField
-            | CoreFunction::Keccak384HashToGroup
-            | CoreFunction::Keccak384HashToI8
-            | CoreFunction::Keccak384HashToI16
-            | CoreFunction::Keccak384HashToI32
-            | CoreFunction::Keccak384HashToI64
-            | CoreFunction::Keccak384HashToI128
-            | CoreFunction::Keccak384HashToU8
-            | CoreFunction::Keccak384HashToU16
-            | CoreFunction::Keccak384HashToU32
-            | CoreFunction::Keccak384HashToU64
-            | CoreFunction::Keccak384HashToU128
-            | CoreFunction::Keccak384HashToScalar
-            | CoreFunction::Keccak384HashRaw
-            | CoreFunction::Keccak512HashToAddress
-            | CoreFunction::Keccak512HashToField
-            | CoreFunction::Keccak512HashToGroup
-            | CoreFunction::Keccak512HashToI8
-            | CoreFunction::Keccak512HashToI16
-            | CoreFunction::Keccak512HashToI32
-            | CoreFunction::Keccak512HashToI64
-            | CoreFunction::Keccak512HashToI128
-            | CoreFunction::Keccak512HashToU8
-            | CoreFunction::Keccak512HashToU16
-            | CoreFunction::Keccak512HashToU32
-            | CoreFunction::Keccak512HashToU64
-            | CoreFunction::Keccak512HashToU128
-            | CoreFunction::Keccak512HashToScalar
-            | CoreFunction::Keccak512HashRaw
-            | CoreFunction::Pedersen64CommitToAddress
-            | CoreFunction::Pedersen64CommitToField
-            | CoreFunction::Pedersen64CommitToGroup
-            | CoreFunction::Pedersen64HashToAddress
-            | CoreFunction::Pedersen64HashToField
-            | CoreFunction::Pedersen64HashToGroup
-            | CoreFunction::Pedersen64HashToI8
-            | CoreFunction::Pedersen64HashToI16
-            | CoreFunction::Pedersen64HashToI32
-            | CoreFunction::Pedersen64HashToI64
-            | CoreFunction::Pedersen64HashToI128
-            | CoreFunction::Pedersen64HashToU8
-            | CoreFunction::Pedersen64HashToU16
-            | CoreFunction::Pedersen64HashToU32
-            | CoreFunction::Pedersen64HashToU64
-            | CoreFunction::Pedersen64HashToU128
-            | CoreFunction::Pedersen64HashToScalar
-            | CoreFunction::Pedersen64HashRaw
-            | CoreFunction::Pedersen128CommitToAddress
-            | CoreFunction::Pedersen128CommitToField
-            | CoreFunction::Pedersen128CommitToGroup
-            | CoreFunction::Pedersen128HashToAddress
-            | CoreFunction::Pedersen128HashToField
-            | CoreFunction::Pedersen128HashToGroup
-            | CoreFunction::Pedersen128HashToI8
-            | CoreFunction::Pedersen128HashToI16
-            | CoreFunction::Pedersen128HashToI32
-            | CoreFunction::Pedersen128HashToI64
-            | CoreFunction::Pedersen128HashToI128
-            | CoreFunction::Pedersen128HashToU8
-            | CoreFunction::Pedersen128HashToU16
-            | CoreFunction::Pedersen128HashToU32
-            | CoreFunction::Pedersen128HashToU64
-            | CoreFunction::Pedersen128HashToU128
-            | CoreFunction::Pedersen128HashToScalar
-            | CoreFunction::Pedersen128HashRaw
-            | CoreFunction::Poseidon2HashToAddress
-            | CoreFunction::Poseidon2HashToField
-            | CoreFunction::Poseidon2HashToGroup
-            | CoreFunction::Poseidon2HashToI8
-            | CoreFunction::Poseidon2HashToI16
-            | CoreFunction::Poseidon2HashToI32
-            | CoreFunction::Poseidon2HashToI64
-            | CoreFunction::Poseidon2HashToI128
-            | CoreFunction::Poseidon2HashToU8
-            | CoreFunction::Poseidon2HashToU16
-            | CoreFunction::Poseidon2HashToU32
-            | CoreFunction::Poseidon2HashToU64
-            | CoreFunction::Poseidon2HashToU128
-            | CoreFunction::Poseidon2HashToScalar
-            | CoreFunction::Poseidon2HashRaw
-            | CoreFunction::Poseidon4HashToAddress
-            | CoreFunction::Poseidon4HashToField
-            | CoreFunction::Poseidon4HashToGroup
-            | CoreFunction::Poseidon4HashToI8
-            | CoreFunction::Poseidon4HashToI16
-            | CoreFunction::Poseidon4HashToI32
-            | CoreFunction::Poseidon4HashToI64
-            | CoreFunction::Poseidon4HashToI128
-            | CoreFunction::Poseidon4HashToU8
-            | CoreFunction::Poseidon4HashToU16
-            | CoreFunction::Poseidon4HashToU32
-            | CoreFunction::Poseidon4HashToU64
-            | CoreFunction::Poseidon4HashToU128
-            | CoreFunction::Poseidon4HashToScalar
-            | CoreFunction::Poseidon4HashRaw
-            | CoreFunction::Poseidon8HashToAddress
-            | CoreFunction::Poseidon8HashToField
-            | CoreFunction::Poseidon8HashToGroup
-            | CoreFunction::Poseidon8HashToI8
-            | CoreFunction::Poseidon8HashToI16
-            | CoreFunction::Poseidon8HashToI32
-            | CoreFunction::Poseidon8HashToI64
-            | CoreFunction::Poseidon8HashToI128
-            | CoreFunction::Poseidon8HashToU8
-            | CoreFunction::Poseidon8HashToU16
-            | CoreFunction::Poseidon8HashToU32
-            | CoreFunction::Poseidon8HashToU64
-            | CoreFunction::Poseidon8HashToU128
-            | CoreFunction::Poseidon8HashToScalar
-            | CoreFunction::Poseidon8HashRaw
-            | CoreFunction::SHA3_256HashToAddress
-            | CoreFunction::SHA3_256HashToField
-            | CoreFunction::SHA3_256HashToGroup
-            | CoreFunction::SHA3_256HashToI8
-            | CoreFunction::SHA3_256HashToI16
-            | CoreFunction::SHA3_256HashToI32
-            | CoreFunction::SHA3_256HashToI64
-            | CoreFunction::SHA3_256HashToI128
-            | CoreFunction::SHA3_256HashToU8
-            | CoreFunction::SHA3_256HashToU16
-            | CoreFunction::SHA3_256HashToU32
-            | CoreFunction::SHA3_256HashToU64
-            | CoreFunction::SHA3_256HashToU128
-            | CoreFunction::SHA3_256HashToScalar
-            | CoreFunction::SHA3_256HashRaw
-            | CoreFunction::SHA3_384HashToAddress
-            | CoreFunction::SHA3_384HashToField
-            | CoreFunction::SHA3_384HashToGroup
-            | CoreFunction::SHA3_384HashToI8
-            | CoreFunction::SHA3_384HashToI16
-            | CoreFunction::SHA3_384HashToI32
-            | CoreFunction::SHA3_384HashToI64
-            | CoreFunction::SHA3_384HashToI128
-            | CoreFunction::SHA3_384HashToU8
-            | CoreFunction::SHA3_384HashToU16
-            | CoreFunction::SHA3_384HashToU32
-            | CoreFunction::SHA3_384HashToU64
-            | CoreFunction::SHA3_384HashToU128
-            | CoreFunction::SHA3_384HashToScalar
-            | CoreFunction::SHA3_384HashRaw
-            | CoreFunction::SHA3_512HashToAddress
-            | CoreFunction::SHA3_512HashToField
-            | CoreFunction::SHA3_512HashToGroup
-            | CoreFunction::SHA3_512HashToI8
-            | CoreFunction::SHA3_512HashToI16
-            | CoreFunction::SHA3_512HashToI32
-            | CoreFunction::SHA3_512HashToI64
-            | CoreFunction::SHA3_512HashToI128
-            | CoreFunction::SHA3_512HashToU8
-            | CoreFunction::SHA3_512HashToU16
-            | CoreFunction::SHA3_512HashToU32
-            | CoreFunction::SHA3_512HashToU64
-            | CoreFunction::SHA3_512HashToU128
-            | CoreFunction::SHA3_512HashToScalar
-            | CoreFunction::SHA3_512HashRaw
+            CoreFunction::Commit(_, _)
+            | CoreFunction::Hash(_, _, _)
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
-            | CoreFunction::SignatureVerify
-            | CoreFunction::SignatureVerifyRaw
+            | CoreFunction::SignatureVerify(_)
             | CoreFunction::CheatCodePrintMapping
             | CoreFunction::CheatCodeSetBlockHeight => false,
+        }
+    }
+
+    /// Returns the opcode for this core function.
+    pub fn opcode(&self) -> String {
+        match self {
+            CoreFunction::ChaChaRand(_) => "rand.chacha".to_string(),
+            CoreFunction::Commit(variant, _) => format!("commit.{variant}"),
+            CoreFunction::Hash(variant, raw, _) => format!("hash.{variant}{}", if *raw { ".raw" } else { "" }),
+            CoreFunction::ECDSAVerify(variant, raw, eth) => {
+                format!("ecdsa.verify.{variant}{}{}", if *raw { ".raw" } else { "" }, if *eth { "_eth" } else { "" })
+            }
+            CoreFunction::MappingGet => "get".to_string(),
+            CoreFunction::MappingGetOrUse => "get.or_use".to_string(),
+            CoreFunction::MappingSet => "set".to_string(),
+            CoreFunction::MappingRemove => "remove".to_string(),
+            CoreFunction::MappingContains => "contains".to_string(),
+            CoreFunction::GroupToXCoordinate => panic!("No opcode for GroupToXCoordinate"),
+            CoreFunction::GroupToYCoordinate => panic!("No opcode for GroupToYCoordinate"),
+            CoreFunction::SignatureVerify(raw) => format!("signature.verify{}", if *raw { ".raw" } else { "" }),
+            CoreFunction::FutureAwait => "await".to_string(),
+            CoreFunction::ProgramChecksum => panic!("No opcode for ProgramChecksum"),
+            CoreFunction::ProgramEdition => panic!("No opcode for ProgramEdition"),
+            CoreFunction::ProgramOwner => panic!("No opcode for ProgramOwner"),
+            CoreFunction::CheatCodePrintMapping => panic!("No opcode for CheatCodePrintMapping"),
+            CoreFunction::CheatCodeSetBlockHeight => panic!("No opcode for CheatCodeSetBlockHeight"),
         }
     }
 }

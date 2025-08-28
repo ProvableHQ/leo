@@ -26,6 +26,7 @@ use leo_ast::{
     BinaryOperation,
     CallExpression,
     CastExpression,
+    CoreFunction,
     ErrExpression,
     Expression,
     Identifier,
@@ -416,43 +417,43 @@ impl CodeGeneratingVisitor<'_> {
             })
             .collect::<Vec<_>>();
 
-        // Helper function to construct the instruction associated with a simple function call.
-        // This assumes that the function call has one output.
-        let mut construct_simple_function_call = |function: &Identifier, variant: &str, arguments: Vec<String>| {
-            // Split function into [opcode, return type] e.g. hash_to_field -> [hash, field]
-            let function_name = function.name.to_string();
-            let mut names = function_name.split("_to_");
-            let opcode = names.next().expect("failed to get opcode");
-            let return_type = names.next().expect("failed to get type");
-
-            let mut instruction = format!("    {opcode}.{variant}");
-            for argument in arguments {
-                write!(instruction, " {argument}").expect("failed to write to string");
-            }
-            let destination_register = self.next_register();
-            writeln!(instruction, " into {destination_register} as {return_type};").expect("failed to write to string");
-            (destination_register, instruction)
+        // A helper function to help with `Program::checksum`, `Program::edition`, and `Program::program_owner`.
+        let generate_program_core = |program: &str, name: &str| {
+            // Get the program ID from the first argument.
+            let program_id = ProgramId::from_str_with_network(&program.replace("\"", ""), self.state.network)
+                .expect("Type checking guarantees that the program name is valid");
+            // If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
+            let operand = match program_id.to_string()
+                == self.program_id.expect("The program ID is set before traversing the program").to_string()
+            {
+                true => name.to_string(),
+                false => format!("{program_id}/{name}"),
+            };
+            (operand, String::new())
         };
 
         // Construct the instruction.
-        let (destination, instruction) = match input.variant.name {
-            sym::BHP256 => construct_simple_function_call(&input.name, "bhp256", arguments),
-            sym::BHP512 => construct_simple_function_call(&input.name, "bhp512", arguments),
-            sym::BHP768 => construct_simple_function_call(&input.name, "bhp768", arguments),
-            sym::BHP1024 => construct_simple_function_call(&input.name, "bhp1024", arguments),
-            sym::Keccak256 => construct_simple_function_call(&input.name, "keccak256", arguments),
-            sym::Keccak384 => construct_simple_function_call(&input.name, "keccak384", arguments),
-            sym::Keccak512 => construct_simple_function_call(&input.name, "keccak512", arguments),
-            sym::Pedersen64 => construct_simple_function_call(&input.name, "ped64", arguments),
-            sym::Pedersen128 => construct_simple_function_call(&input.name, "ped128", arguments),
-            sym::Poseidon2 => construct_simple_function_call(&input.name, "psd2", arguments),
-            sym::Poseidon4 => construct_simple_function_call(&input.name, "psd4", arguments),
-            sym::Poseidon8 => construct_simple_function_call(&input.name, "psd8", arguments),
-            sym::SHA3_256 => construct_simple_function_call(&input.name, "sha3_256", arguments),
-            sym::SHA3_384 => construct_simple_function_call(&input.name, "sha3_384", arguments),
-            sym::SHA3_512 => construct_simple_function_call(&input.name, "sha3_512", arguments),
-            sym::Mapping => match input.name.name {
-                sym::get => {
+        let (destination, instruction) = if let Some(core_function) =
+            CoreFunction::from_symbols(input.variant.name, input.name.name)
+        {
+            match core_function {
+                ref core_function @ CoreFunction::Commit(_, ref type_) => {
+                    let mut instruction = format!("    {}", core_function.opcode());
+                    let destination_register = self.next_register();
+                    // Write the arguments and the destination register.
+                    writeln!(instruction, " {} {} into {destination_register} as {type_};", arguments[0], arguments[1])
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                ref core_function @ CoreFunction::Hash(_, _, ref type_) => {
+                    let mut instruction = format!("    {}", core_function.opcode());
+                    let destination_register = self.next_register();
+                    // Write the arguments and the destination register.
+                    writeln!(instruction, " {} into {destination_register} as {type_};", arguments[0])
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                CoreFunction::MappingGet => {
                     let mut instruction = "    get".to_string();
                     let destination_register = self.next_register();
                     // Write the mapping name and the key.
@@ -460,7 +461,7 @@ impl CodeGeneratingVisitor<'_> {
                         .expect("failed to write to string");
                     (destination_register, instruction)
                 }
-                sym::get_or_use => {
+                CoreFunction::MappingGetOrUse => {
                     let mut instruction = "    get.or_use".to_string();
                     let destination_register = self.next_register();
                     // Write the mapping name, the key, and the default value.
@@ -472,20 +473,20 @@ impl CodeGeneratingVisitor<'_> {
                     .expect("failed to write to string");
                     (destination_register, instruction)
                 }
-                sym::set => {
+                CoreFunction::MappingSet => {
                     let mut instruction = "    set".to_string();
                     // Write the value, mapping name, and the key.
                     writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
                         .expect("failed to write to string");
                     (String::new(), instruction)
                 }
-                sym::remove => {
+                CoreFunction::MappingRemove => {
                     let mut instruction = "    remove".to_string();
                     // Write the mapping name and the key.
                     writeln!(instruction, " {}[{}];", arguments[0], arguments[1]).expect("failed to write to string");
                     (String::new(), instruction)
                 }
-                sym::contains => {
+                CoreFunction::MappingContains => {
                     let mut instruction = "    contains".to_string();
                     let destination_register = self.next_register();
                     // Write the mapping name and the key.
@@ -493,104 +494,59 @@ impl CodeGeneratingVisitor<'_> {
                         .expect("failed to write to string");
                     (destination_register, instruction)
                 }
-                _ => panic!("The only variants of Mapping are get, get_or, and set"),
-            },
-            sym::group => {
-                match input.name {
-                    Identifier { name: sym::to_x_coordinate, .. } => {
-                        let mut instruction = "    cast".to_string();
-                        let destination_register = self.next_register();
-                        // Write the argument and the destination register.
-                        writeln!(instruction, " {} into {destination_register} as group.x;", arguments[0],)
-                            .expect("failed to write to string");
-                        (destination_register, instruction)
-                    }
-                    Identifier { name: sym::to_y_coordinate, .. } => {
-                        let mut instruction = "    cast".to_string();
-                        let destination_register = self.next_register();
-                        // Write the argument and the destination register.
-                        writeln!(instruction, " {} into {destination_register} as group.y;", arguments[0],)
-                            .expect("failed to write to string");
-                        (destination_register, instruction)
-                    }
-                    _ => panic!("The only associated methods of `group` are `to_x_coordinate` and `to_y_coordinate`"),
+                CoreFunction::GroupToXCoordinate => {
+                    let mut instruction = "    cast".to_string();
+                    let destination_register = self.next_register();
+                    // Write the argument and the destination register.
+                    writeln!(instruction, " {} into {destination_register} as group.x;", arguments[0],)
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                CoreFunction::GroupToYCoordinate => {
+                    let mut instruction = "    cast".to_string();
+                    let destination_register = self.next_register();
+                    // Write the argument and the destination register.
+                    writeln!(instruction, " {} into {destination_register} as group.y;", arguments[0],)
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                CoreFunction::ChaChaRand(type_) => {
+                    // Get the destination register.
+                    let destination_register = self.next_register();
+                    // Construct the instruction template.
+                    let instruction = format!("    rand.chacha into {destination_register} as {type_}");
+
+                    (destination_register, instruction)
+                }
+                core_function @ (CoreFunction::SignatureVerify(_) | CoreFunction::ECDSAVerify(_, _, _)) => {
+                    let mut instruction = format!("    {}", core_function.opcode());
+                    let destination_register = self.next_register();
+                    // Write the arguments and the destination register.
+                    writeln!(
+                        instruction,
+                        " {} {} {} into {destination_register};",
+                        arguments[0], arguments[1], arguments[2]
+                    )
+                    .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                CoreFunction::FutureAwait => {
+                    let mut instruction = "    await".to_string();
+                    writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
+                    (String::new(), instruction)
+                }
+                CoreFunction::ProgramChecksum => generate_program_core(&arguments[0], "checksum"),
+                CoreFunction::ProgramEdition => generate_program_core(&arguments[0], "edition"),
+                CoreFunction::ProgramOwner => generate_program_core(&arguments[0], "program_owner"),
+                CoreFunction::CheatCodePrintMapping | CoreFunction::CheatCodeSetBlockHeight => {
+                    (String::new(), String::new())
+                    // Do nothing. Cheat codes do not generate instructions.
                 }
             }
-            sym::ChaCha => {
-                // Get the destination register.
-                let destination_register = self.next_register();
-                // Construct the instruction template.
-                let mut instruction = format!("    rand.chacha into {destination_register} as ");
-                // Write the return type.
-                match input.name {
-                    Identifier { name: sym::rand_address, .. } => writeln!(instruction, "address;"),
-                    Identifier { name: sym::rand_bool, .. } => writeln!(instruction, "boolean;"),
-                    Identifier { name: sym::rand_field, .. } => writeln!(instruction, "field;"),
-                    Identifier { name: sym::rand_group, .. } => writeln!(instruction, "group;"),
-                    Identifier { name: sym::rand_i8, .. } => writeln!(instruction, "i8;"),
-                    Identifier { name: sym::rand_i16, .. } => writeln!(instruction, "i16;"),
-                    Identifier { name: sym::rand_i32, .. } => writeln!(instruction, "i32;"),
-                    Identifier { name: sym::rand_i64, .. } => writeln!(instruction, "i64;"),
-                    Identifier { name: sym::rand_i128, .. } => writeln!(instruction, "i128;"),
-                    Identifier { name: sym::rand_scalar, .. } => writeln!(instruction, "scalar;"),
-                    Identifier { name: sym::rand_u8, .. } => writeln!(instruction, "u8;"),
-                    Identifier { name: sym::rand_u16, .. } => writeln!(instruction, "u16;"),
-                    Identifier { name: sym::rand_u32, .. } => writeln!(instruction, "u32;"),
-                    Identifier { name: sym::rand_u64, .. } => writeln!(instruction, "u64;"),
-                    Identifier { name: sym::rand_u128, .. } => writeln!(instruction, "u128;"),
-                    _ => panic!("The only associated methods of ChaCha are `rand_*`"),
-                }
-                .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            sym::signature => {
-                let mut instruction = "    sign.verify".to_string();
-                let destination_register = self.next_register();
-                // Write the arguments and the destination register.
-                writeln!(
-                    instruction,
-                    " {} {} {} into {destination_register};",
-                    arguments[0], arguments[1], arguments[2]
-                )
-                .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            sym::Future => {
-                let mut instruction = "    await".to_string();
-                writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
-                (String::new(), instruction)
-            }
-            sym::ProgramCore => {
-                match input.name.name {
-                    // Generate code for `Program::checksum`, `Program::edition`, and `Program::program_owner`
-                    name @ (sym::checksum | sym::edition | sym::program_owner) => {
-                        // Get the program ID from the first argument.
-                        let program_id =
-                            ProgramId::from_str_with_network(&arguments[0].replace("\"", ""), self.state.network)
-                                .expect("Type checking guarantees that the program name is valid");
-                        // If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
-                        let operand = match program_id.to_string()
-                            == self.program_id.expect("The program ID is set before traversing the program").to_string()
-                        {
-                            true => name.to_string(),
-                            false => format!("{program_id}/{name}"),
-                        };
-                        (operand, String::new())
-                    }
-                    // No other variants are allowed.
-                    _ => panic!(
-                        "The only associated methods of `Program` are `checksum`, `edition`, and `program_owner`"
-                    ),
-                }
-            }
-            sym::CheatCode => {
-                (String::new(), String::new())
-                // Do nothing. Cheat codes do not generate instructions.
-            }
-            _ => {
-                panic!("All core functions should be known at this phase of compilation")
-            }
+        } else {
+            panic!("All core functions should be known at this phase of compilation")
         };
+
         // Add the instruction to the list of instructions.
         instructions.push_str(&instruction);
 
