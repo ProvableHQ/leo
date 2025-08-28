@@ -367,4 +367,3 @@ debug-assertions = true
 inherits = "test"
 incremental = false
 debug = false
-[dependencies]

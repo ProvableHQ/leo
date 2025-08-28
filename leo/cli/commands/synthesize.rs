@@ -24,6 +24,7 @@ use aleo_std::StorageMode;
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
+    algorithms::crypto_hash::sha256,
     circuit::{Aleo, AleoTestnetV0},
     prelude::{
         ProgramID,
@@ -36,7 +37,6 @@ use snarkvm::{
 
 use clap::Parser;
 use serde::Serialize;
-use sha2::Digest;
 use std::{fmt::Write, path::PathBuf};
 
 #[derive(Serialize)]
@@ -242,9 +242,7 @@ fn handle_synthesize<A: Aleo>(
 
     // A helper function to hash the keys.
     let hash = |bytes: &[u8]| -> anyhow::Result<String> {
-        let mut hasher = sha2::Sha256::new();
-        hasher.update(bytes);
-        let digest = hasher.finalize();
+        let digest = sha256(bytes);
         let mut hex = String::new();
         for byte in digest {
             write!(&mut hex, "{byte:02x}")?;
@@ -261,6 +259,16 @@ fn handle_synthesize<A: Aleo>(
         stack.synthesize_key::<A, _>(function_id, rng)?;
         let proving_key = stack.get_proving_key(function_id)?;
         let verifying_key = stack.get_verifying_key(function_id)?;
+
+        println!("\n🔑 Synthesized keys for {program_id}/{function_id} (edition {edition})");
+        println!("ℹ️ Circuit Information:");
+        println!("    - Public Inputs: {}", verifying_key.circuit_info.num_public_inputs);
+        println!("    - Variables: {}", verifying_key.circuit_info.num_public_and_private_variables);
+        println!("    - Constraints: {}", verifying_key.circuit_info.num_constraints);
+        println!("    - Non-Zero Entries in A: {}", verifying_key.circuit_info.num_non_zero_a);
+        println!("    - Non-Zero Entries in B: {}", verifying_key.circuit_info.num_non_zero_b);
+        println!("    - Non-Zero Entries in C: {}", verifying_key.circuit_info.num_non_zero_c);
+        println!("    - Circuit ID: {}", verifying_key.id);
 
         // Get the checksums of the keys.
         let prover_bytes = proving_key.to_bytes_le()?;
@@ -279,8 +287,7 @@ fn handle_synthesize<A: Aleo>(
             .map_err(|e| CliError::custom(format!("Failed to serialize metadata: {e}")))?;
 
         // A helper to write to a file.
-        let write_to_file = |type_: &str, path: PathBuf, data: &[u8]| -> Result<()> {
-            println!("💾 Saving {type_} for {program_id}/{function_id} at {}", path.display());
+        let write_to_file = |path: PathBuf, data: &[u8]| -> Result<()> {
             std::fs::write(path, data).map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
             Ok(())
         };
@@ -295,17 +302,22 @@ fn handle_synthesize<A: Aleo>(
             let timestamp = chrono::Utc::now().timestamp();
             // The edition.
             let edition = if command.local { "local".to_string() } else { edition.to_string() };
+            // The prefix for the file names.
+            let prefix = format!("{network}.{program_id}.{function_id}.{edition}");
             // Get the file paths.
-            let prover_file_path =
-                PathBuf::from(path).join(format!("{program_id}.{function_id}.{edition}.prover.{timestamp}"));
-            let verifier_file_path =
-                PathBuf::from(path).join(format!("{program_id}.{function_id}.{edition}.verifier.{timestamp}"));
-            let metadata_file_path =
-                PathBuf::from(path).join(format!("{program_id}.{function_id}.{edition}.metadata.{timestamp}"));
+            let prover_file_path = PathBuf::from(path).join(format!("{prefix}.prover.{timestamp}"));
+            let verifier_file_path = PathBuf::from(path).join(format!("{prefix}.verifier.{timestamp}"));
+            let metadata_file_path = PathBuf::from(path)
+                .join(format!("{network}.{program_id}.{function_id}.{edition}.metadata.{timestamp}"));
+            // Print the save location.
+            println!(
+                "💾 Saving proving key, verifying key, and metadata to: {}/{network}.{program_id}.{function_id}.{edition}.prover|verifier|metadata.{timestamp}",
+                metadata_file_path.parent().unwrap().display()
+            );
             // Save the keys.
-            write_to_file("proving key", prover_file_path, &prover_bytes)?;
-            write_to_file("verifying key", verifier_file_path, &verifier_bytes)?;
-            write_to_file("metadata", metadata_file_path, metadata_pretty.as_bytes())?;
+            write_to_file(prover_file_path, &prover_bytes)?;
+            write_to_file(verifier_file_path, &verifier_bytes)?;
+            write_to_file(metadata_file_path, metadata_pretty.as_bytes())?;
         }
     }
 
