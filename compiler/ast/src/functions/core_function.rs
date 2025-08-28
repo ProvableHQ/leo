@@ -624,7 +624,7 @@ impl CoreFunction {
         match self {
             Self::ChaChaRand(_) => 0,
             Self::Commit(_, _) => 2,
-            Self::Hash(_, _, _) => 2,
+            Self::Hash(_, _, _) => 1,
             Self::ECDSAVerify(_, _, _) => 3,
 
             Self::MappingGet => 2,

@@ -1,60 +1,35 @@
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:28:22
-     |
-  28 |         let a: i16 = Pedersen64::hash_to_i16(bool_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:29:22
-     |
-  29 |         let b: i16 = Pedersen64::hash_to_i16(bool_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:30:22
-     |
-  30 |         let c: i16 = Pedersen64::hash_to_i16(bool_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:31:22
-     |
-  31 |         let d: i16 = Pedersen64::hash_to_i16(bool_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:32:22
-     |
-  32 |         let e: i16 = Pedersen64::hash_to_i16(i8_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:33:22
-     |
-  33 |         let f: i16 = Pedersen64::hash_to_i16(i16_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:34:22
-     |
-  34 |         let g: i16 = Pedersen64::hash_to_i16(i32_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:35:22
-     |
-  35 |         let j: i16 = Pedersen64::hash_to_i16(u8_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:36:22
-     |
-  36 |         let k: i16 = Pedersen64::hash_to_i16(u16_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:37:22
-     |
-  37 |         let l: i16 = Pedersen64::hash_to_i16(u32_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:38:22
-     |
-  38 |         let o: i16 = Pedersen64::hash_to_i16(bool_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:40:22
-     |
-  40 |         let q: i16 = Pedersen64::hash_to_i16(bool_value);
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+program test.aleo;
+
+function main:
+    input r0 as i8.private;
+    input r1 as i16.private;
+    input r2 as i32.private;
+    input r3 as i64.private;
+    input r4 as u8.private;
+    input r5 as u16.private;
+    input r6 as u32.private;
+    input r7 as u64.private;
+    hash.ped64 true into r8 as i16;
+    hash.ped64 true into r9 as i16;
+    hash.ped64 true into r10 as i16;
+    hash.ped64 true into r11 as i16;
+    hash.ped64 r0 into r12 as i16;
+    hash.ped64 r1 into r13 as i16;
+    hash.ped64 r2 into r14 as i16;
+    hash.ped64 r4 into r15 as i16;
+    hash.ped64 r5 into r16 as i16;
+    hash.ped64 r6 into r17 as i16;
+    hash.ped64 true into r18 as i16;
+    hash.ped64 true into r19 as i16;
+    output r8 as i16.private;
+    output r9 as i16.private;
+    output r10 as i16.private;
+    output r11 as i16.private;
+    output r12 as i16.private;
+    output r13 as i16.private;
+    output r14 as i16.private;
+    output r15 as i16.private;
+    output r16 as i16.private;
+    output r17 as i16.private;
+    output r18 as i16.private;
+    output r19 as i16.private;
