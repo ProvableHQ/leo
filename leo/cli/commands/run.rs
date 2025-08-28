@@ -126,7 +126,7 @@ fn handle_execute<A: Aleo>(
     let private_key = match get_private_key::<A::Network>(&command.env_override.private_key) {
         Ok(private_key) => private_key,
         Err(_) => {
-            println!("⚠️ No valid private key specified, defaulting to '{}'.", TEST_PRIVATE_KEY);
+            println!("⚠️ No valid private key specified, defaulting to '{TEST_PRIVATE_KEY}'.");
             PrivateKey::<A::Network>::from_str(TEST_PRIVATE_KEY).expect("Failed to parse the test private key")
         }
     };
@@ -266,7 +266,7 @@ fn handle_execute<A: Aleo>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Evaluate the program and get a response.
-    let authorization = vm.authorize(&private_key, &program_id, &function_id, inputs.iter(), rng)?;
+    let authorization = vm.authorize(&private_key, program_id, function_id, inputs.iter(), rng)?;
     let response = vm.process().read().evaluate::<A>(authorization)?;
 
     // Print the response.
