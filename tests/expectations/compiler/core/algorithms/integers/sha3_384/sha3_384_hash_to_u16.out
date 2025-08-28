@@ -1,42 +1,80 @@
-program test.aleo;
-
-function main:
-    input r0 as i8.private;
-    input r1 as i16.private;
-    input r2 as i32.private;
-    input r3 as i64.private;
-    input r4 as u8.private;
-    input r5 as u16.private;
-    input r6 as u32.private;
-    input r7 as u64.private;
-    hash.sha3_384 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as u16;
-    hash.sha3_384 true into r9 as u16;
-    hash.sha3_384 1field into r10 as u16;
-    hash.sha3_384 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as u16;
-    hash.sha3_384 r0 into r12 as u16;
-    hash.sha3_384 r1 into r13 as u16;
-    hash.sha3_384 r2 into r14 as u16;
-    hash.sha3_384 r3 into r15 as u16;
-    hash.sha3_384 1i128 into r16 as u16;
-    hash.sha3_384 r4 into r17 as u16;
-    hash.sha3_384 r5 into r18 as u16;
-    hash.sha3_384 r6 into r19 as u16;
-    hash.sha3_384 r7 into r20 as u16;
-    hash.sha3_384 1u128 into r21 as u16;
-    hash.sha3_384 1scalar into r22 as u16;
-    output r8 as u16.private;
-    output r9 as u16.private;
-    output r10 as u16.private;
-    output r11 as u16.private;
-    output r12 as u16.private;
-    output r13 as u16.private;
-    output r14 as u16.private;
-    output r15 as u16.private;
-    output r16 as u16.private;
-    output r17 as u16.private;
-    output r18 as u16.private;
-    output r19 as u16.private;
-    output r20 as u16.private;
-    output r21 as u16.private;
-    output r22 as u16.private;
-    output 32577u16 as u16.private;
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:28:22
+     |
+  28 |         let a: u16 = SHA3_384::hash_to_u16(addr_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:29:22
+     |
+  29 |         let b: u16 = SHA3_384::hash_to_u16(bool_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:30:22
+     |
+  30 |         let c: u16 = SHA3_384::hash_to_u16(field_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:31:22
+     |
+  31 |         let d: u16 = SHA3_384::hash_to_u16(group_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:32:22
+     |
+  32 |         let e: u16 = SHA3_384::hash_to_u16(i8_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:33:22
+     |
+  33 |         let f: u16 = SHA3_384::hash_to_u16(i16_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:34:22
+     |
+  34 |         let g: u16 = SHA3_384::hash_to_u16(i32_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:35:22
+     |
+  35 |         let h: u16 = SHA3_384::hash_to_u16(i64_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:36:22
+     |
+  36 |         let i: u16 = SHA3_384::hash_to_u16(i128_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:37:22
+     |
+  37 |         let j: u16 = SHA3_384::hash_to_u16(u8_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:38:22
+     |
+  38 |         let k: u16 = SHA3_384::hash_to_u16(u16_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:39:22
+     |
+  39 |         let l: u16 = SHA3_384::hash_to_u16(u32_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:40:22
+     |
+  40 |         let m: u16 = SHA3_384::hash_to_u16(u64_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:41:22
+     |
+  41 |         let n: u16 = SHA3_384::hash_to_u16(u128_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:42:22
+     |
+  42 |         let o: u16 = SHA3_384::hash_to_u16(scalar_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:44:22
+     |
+  44 |         let q: u16 = SHA3_384::hash_to_u16(Foo { a: 1u128, b: 1u128 });
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

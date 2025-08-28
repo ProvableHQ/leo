@@ -1,9 +1,4 @@
-Error [ETYC0372117]: Expected an integer of less than 64 bits or a bool but type `u128` was found.
-    --> compiler-test:4:50
-     |
-   4 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type
-     |                                                  ^^^^^
-Error [ETYC0372117]: Expected type `group` but type `field` was found.
+Error [ETYC0372006]: Call expected `2` args, but got `1`
     --> compiler-test:4:24
      |
    4 |         let a: group = Pedersen64::hash_to_field(1u128); // Pedersen64 hash_to_field returns a field type

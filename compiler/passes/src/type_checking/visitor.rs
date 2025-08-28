@@ -321,7 +321,8 @@ impl TypeCheckingVisitor<'_> {
                 type_
             }
             CoreFunction::ECDSAVerify(_, _, _) => {
-                todo!()
+                // Allow any input type.
+                Type::Boolean
             }
             CoreFunction::MappingGet => {
                 // Check that the operation is invoked in a `finalize` block.

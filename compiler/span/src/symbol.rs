@@ -154,7 +154,7 @@ symbols! {
     commit_to_field,
     commit_to_group,
     contains,
-    ECDSAVerify,
+    ECDSA,
     get,
     get_or_use,
     hash_to_address,

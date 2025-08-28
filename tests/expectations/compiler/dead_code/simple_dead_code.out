@@ -1,12 +1,5 @@
-program test.aleo;
-
-function main:
-    input r0 as field.public;
-    input r1 as field.private;
-    input r2 as u8.private;
-    input r3 as u8.private;
-    add r2 r3 into r4;
-    is.eq r1 0field into r5;
-    div r0 r1 into r6;
-    ternary r5 r0 r6 into r7;
-    output r7 as field.private;
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:9:24
+     |
+   9 |         let z: field = BHP256::hash_to_field(x);
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^

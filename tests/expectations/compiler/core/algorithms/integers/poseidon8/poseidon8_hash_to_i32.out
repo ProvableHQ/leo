@@ -1,42 +1,80 @@
-program test.aleo;
-
-function main:
-    input r0 as i8.private;
-    input r1 as i16.private;
-    input r2 as i32.private;
-    input r3 as i64.private;
-    input r4 as u8.private;
-    input r5 as u16.private;
-    input r6 as u32.private;
-    input r7 as u64.private;
-    hash.psd8 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as i32;
-    hash.psd8 true into r9 as i32;
-    hash.psd8 1field into r10 as i32;
-    hash.psd8 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as i32;
-    hash.psd8 r0 into r12 as i32;
-    hash.psd8 r1 into r13 as i32;
-    hash.psd8 r2 into r14 as i32;
-    hash.psd8 r3 into r15 as i32;
-    hash.psd8 1i128 into r16 as i32;
-    hash.psd8 r4 into r17 as i32;
-    hash.psd8 r5 into r18 as i32;
-    hash.psd8 r6 into r19 as i32;
-    hash.psd8 r7 into r20 as i32;
-    hash.psd8 1u128 into r21 as i32;
-    hash.psd8 1scalar into r22 as i32;
-    output r8 as i32.private;
-    output r9 as i32.private;
-    output r10 as i32.private;
-    output r11 as i32.private;
-    output r12 as i32.private;
-    output r13 as i32.private;
-    output r14 as i32.private;
-    output r15 as i32.private;
-    output r16 as i32.private;
-    output r17 as i32.private;
-    output r18 as i32.private;
-    output r19 as i32.private;
-    output r20 as i32.private;
-    output r21 as i32.private;
-    output r22 as i32.private;
-    output 1644697051i32 as i32.private;
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:28:22
+     |
+  28 |         let a: i32 = Poseidon8::hash_to_i32(addr_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:29:22
+     |
+  29 |         let b: i32 = Poseidon8::hash_to_i32(bool_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:30:22
+     |
+  30 |         let c: i32 = Poseidon8::hash_to_i32(field_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:31:22
+     |
+  31 |         let d: i32 = Poseidon8::hash_to_i32(group_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:32:22
+     |
+  32 |         let e: i32 = Poseidon8::hash_to_i32(i8_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:33:22
+     |
+  33 |         let f: i32 = Poseidon8::hash_to_i32(i16_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:34:22
+     |
+  34 |         let g: i32 = Poseidon8::hash_to_i32(i32_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:35:22
+     |
+  35 |         let h: i32 = Poseidon8::hash_to_i32(i64_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:36:22
+     |
+  36 |         let i: i32 = Poseidon8::hash_to_i32(i128_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:37:22
+     |
+  37 |         let j: i32 = Poseidon8::hash_to_i32(u8_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:38:22
+     |
+  38 |         let k: i32 = Poseidon8::hash_to_i32(u16_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:39:22
+     |
+  39 |         let l: i32 = Poseidon8::hash_to_i32(u32_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:40:22
+     |
+  40 |         let m: i32 = Poseidon8::hash_to_i32(u64_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:41:22
+     |
+  41 |         let n: i32 = Poseidon8::hash_to_i32(u128_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:42:22
+     |
+  42 |         let o: i32 = Poseidon8::hash_to_i32(scalar_value);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:44:22
+     |
+  44 |         let q: i32 = Poseidon8::hash_to_i32(Foo { a: 1u128, b: 1u128 });
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

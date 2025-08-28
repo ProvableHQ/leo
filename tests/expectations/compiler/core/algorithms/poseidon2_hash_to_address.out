@@ -1,42 +1,80 @@
-program test.aleo;
-
-function main:
-    input r0 as i8.private;
-    input r1 as i16.private;
-    input r2 as i32.private;
-    input r3 as i64.private;
-    input r4 as u8.private;
-    input r5 as u16.private;
-    input r6 as u32.private;
-    input r7 as u64.private;
-    hash.psd2 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r8 as address;
-    hash.psd2 true into r9 as address;
-    hash.psd2 1field into r10 as address;
-    hash.psd2 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r11 as address;
-    hash.psd2 r0 into r12 as address;
-    hash.psd2 r1 into r13 as address;
-    hash.psd2 r2 into r14 as address;
-    hash.psd2 r3 into r15 as address;
-    hash.psd2 1i128 into r16 as address;
-    hash.psd2 r4 into r17 as address;
-    hash.psd2 r5 into r18 as address;
-    hash.psd2 r6 into r19 as address;
-    hash.psd2 r7 into r20 as address;
-    hash.psd2 1u128 into r21 as address;
-    hash.psd2 1scalar into r22 as address;
-    output r8 as address.private;
-    output r9 as address.private;
-    output r10 as address.private;
-    output r11 as address.private;
-    output r12 as address.private;
-    output r13 as address.private;
-    output r14 as address.private;
-    output r15 as address.private;
-    output r16 as address.private;
-    output r17 as address.private;
-    output r18 as address.private;
-    output r19 as address.private;
-    output r20 as address.private;
-    output r21 as address.private;
-    output r22 as address.private;
-    output aleo1lcuxw7rt6u60g0lgf3dwujyldncg83g5l5v745v5e7pphwfy7szqprxwds as address.private;
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:28:26
+     |
+  28 |         let a: address = Poseidon2::hash_to_address(addr_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:29:26
+     |
+  29 |         let b: address = Poseidon2::hash_to_address(bool_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:30:26
+     |
+  30 |         let c: address = Poseidon2::hash_to_address(field_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:31:26
+     |
+  31 |         let d: address = Poseidon2::hash_to_address(group_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:32:26
+     |
+  32 |         let e: address = Poseidon2::hash_to_address(i8_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:33:26
+     |
+  33 |         let f: address = Poseidon2::hash_to_address(i16_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:34:26
+     |
+  34 |         let g: address = Poseidon2::hash_to_address(i32_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:35:26
+     |
+  35 |         let h: address = Poseidon2::hash_to_address(i64_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:36:26
+     |
+  36 |         let i: address = Poseidon2::hash_to_address(i128_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:37:26
+     |
+  37 |         let j: address = Poseidon2::hash_to_address(u8_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:38:26
+     |
+  38 |         let k: address = Poseidon2::hash_to_address(u16_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:39:26
+     |
+  39 |         let l: address = Poseidon2::hash_to_address(u32_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:40:26
+     |
+  40 |         let m: address = Poseidon2::hash_to_address(u64_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:41:26
+     |
+  41 |         let n: address = Poseidon2::hash_to_address(u128_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:42:26
+     |
+  42 |         let o: address = Poseidon2::hash_to_address(scalar_value);
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:44:26
+     |
+  44 |         let q: address = Poseidon2::hash_to_address(Foo { a: 1u128, b: 1u128 });
+     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
