@@ -56,6 +56,7 @@ use snarkvm::prelude::{
     // Signature as SvmSignatureParam,
     TestnetV0,
     ToBits,
+    ToBitsRaw,
 };
 use std::str::FromStr as _;
 
@@ -387,6 +388,59 @@ impl ToBits for Value {
     }
 
     fn write_bits_be(&self, _vec: &mut Vec<bool>) {
+        todo!()
+    }
+}
+
+impl ToBitsRaw for Value {
+    fn write_bits_raw_le(&self, vec: &mut Vec<bool>) {
+        use Value::*;
+
+        let plaintext: Plaintext<TestnetV0> = match self {
+            Bool(x) => SvmLiteral::Boolean(SvmBoolean::new(*x)).into(),
+            U8(x) => SvmLiteral::U8(SvmInteger::new(*x)).into(),
+            U16(x) => SvmLiteral::U16(SvmInteger::new(*x)).into(),
+            U32(x) => SvmLiteral::U32(SvmInteger::new(*x)).into(),
+            U64(x) => SvmLiteral::U64(SvmInteger::new(*x)).into(),
+            U128(x) => SvmLiteral::U128(SvmInteger::new(*x)).into(),
+            I8(x) => SvmLiteral::I8(SvmInteger::new(*x)).into(),
+            I16(x) => SvmLiteral::I16(SvmInteger::new(*x)).into(),
+            I32(x) => SvmLiteral::I32(SvmInteger::new(*x)).into(),
+            I64(x) => SvmLiteral::I64(SvmInteger::new(*x)).into(),
+            I128(x) => SvmLiteral::I128(SvmInteger::new(*x)).into(),
+            Group(x) => SvmLiteral::Group(*x).into(),
+            Field(x) => SvmLiteral::Field(*x).into(),
+            Scalar(x) => SvmLiteral::Scalar(*x).into(),
+            Address(x) => SvmLiteral::Address(*x).into(),
+            Struct(StructContents { path: _, contents }) => {
+                (contents.len() as u8).write_bits_le(vec);
+                for (name, value) in contents.iter() {
+                    let name_s = name.to_string();
+                    let identifier = SvmIdentifier::from_str(&name_s).expect("identifier should parse");
+                    identifier.size_in_bits().write_bits_le(vec);
+                    identifier.write_bits_le(vec);
+                    let value_bits = value.to_bits_raw_le();
+                    (value_bits.len() as u16).write_bits_le(vec);
+                    vec.extend_from_slice(&value_bits);
+                }
+                return;
+            }
+
+            Array(array) => {
+                for element in array.iter() {
+                    let bits = element.to_bits_raw_le();
+                    (bits.len() as u16).write_bits_le(vec);
+                    vec.extend_from_slice(&bits);
+                }
+                return;
+            }
+            _ => tc_fail!(),
+        };
+
+        plaintext.write_bits_raw_le(vec);
+    }
+
+    fn write_bits_raw_be(&self, _vec: &mut Vec<bool>) {
         todo!()
     }
 }

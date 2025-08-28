@@ -24,7 +24,7 @@ use crate::{
 use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol};
 
-use snarkvm::prelude::{CastLossy as _, Network as _, TestnetV0, ToBits};
+use snarkvm::prelude::{CastLossy as _, Network as _, TestnetV0, ToBits, ToBitsRaw};
 
 use rand::Rng as _;
 use rand_chacha::ChaCha20Rng;
@@ -184,6 +184,9 @@ pub fn evaluate_core_function(
         CoreFunction::BHP256HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_bhp256, Scalar, to_bits_le)
         }
+        CoreFunction::BHP256HashRaw => {
+            apply!(TestnetV0::hash_bhp256, Field, to_bits_raw_le)
+        }
         CoreFunction::BHP512CommitToAddress => {
             apply_cast2!(TestnetV0::commit_to_group_bhp512, Address)
         }
@@ -230,6 +233,9 @@ pub fn evaluate_core_function(
         }
         CoreFunction::BHP512HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_bhp512, Scalar, to_bits_le)
+        }
+        CoreFunction::BHP512HashRaw => {
+            apply!(TestnetV0::hash_bhp512, Field, to_bits_raw_le)
         }
         CoreFunction::BHP768CommitToAddress => {
             apply_cast2!(TestnetV0::commit_to_group_bhp768, Address)
@@ -278,6 +284,9 @@ pub fn evaluate_core_function(
         CoreFunction::BHP768HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_bhp768, Scalar, to_bits_le)
         }
+        CoreFunction::BHP768HashRaw => {
+            apply!(TestnetV0::hash_bhp768, Field, to_bits_raw_le)
+        }
         CoreFunction::BHP1024CommitToAddress => {
             apply_cast2!(TestnetV0::commit_to_group_bhp1024, Address)
         }
@@ -324,6 +333,9 @@ pub fn evaluate_core_function(
         }
         CoreFunction::BHP1024HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_bhp1024, Scalar, to_bits_le)
+        }
+        CoreFunction::BHP1024HashRaw => {
+            apply!(TestnetV0::hash_bhp1024, Field, to_bits_raw_le)
         }
         CoreFunction::Keccak256HashToAddress => apply_cast!(
             |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
@@ -408,6 +420,7 @@ pub fn evaluate_core_function(
             Scalar,
             to_bits_le
         ),
+        CoreFunction::Keccak256HashRaw => todo!(),
         CoreFunction::Keccak384HashToAddress => apply_cast!(
             |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
             Address,
@@ -490,6 +503,7 @@ pub fn evaluate_core_function(
             Scalar,
             to_bits_le
         ),
+        CoreFunction::Keccak384HashRaw => todo!(),
         CoreFunction::Keccak512HashToAddress => apply_cast!(
             |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
             Address,
@@ -572,6 +586,7 @@ pub fn evaluate_core_function(
             Scalar,
             to_bits_le
         ),
+        CoreFunction::Keccak512HashRaw => todo!(),
         CoreFunction::Pedersen64CommitToAddress => {
             apply_cast2!(TestnetV0::commit_to_group_ped64, Address)
         }
@@ -619,6 +634,7 @@ pub fn evaluate_core_function(
         CoreFunction::Pedersen64HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_ped64, Scalar, to_bits_le)
         }
+        CoreFunction::Pedersen64HashRaw => todo!(),
         CoreFunction::Pedersen128HashToAddress => {
             apply_cast!(TestnetV0::hash_to_group_ped128, Address, to_bits_le)
         }
@@ -661,6 +677,7 @@ pub fn evaluate_core_function(
         CoreFunction::Pedersen128HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_ped128, Scalar, to_bits_le)
         }
+        CoreFunction::Pedersen128HashRaw => todo!(),
         CoreFunction::Pedersen128CommitToAddress => {
             apply_cast2!(TestnetV0::commit_to_group_ped128, Address)
         }
@@ -712,6 +729,7 @@ pub fn evaluate_core_function(
         CoreFunction::Poseidon2HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_psd4, Scalar, to_fields)
         }
+        CoreFunction::Poseidon2HashRaw => todo!(),
         CoreFunction::Poseidon4HashToAddress => {
             apply_cast!(TestnetV0::hash_to_group_psd4, Address, to_fields)
         }
@@ -754,6 +772,7 @@ pub fn evaluate_core_function(
         CoreFunction::Poseidon4HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_psd4, Scalar, to_fields)
         }
+        CoreFunction::Poseidon4HashRaw => todo!(),
         CoreFunction::Poseidon8HashToAddress => {
             apply_cast!(TestnetV0::hash_to_group_psd8, Address, to_fields)
         }
@@ -796,6 +815,7 @@ pub fn evaluate_core_function(
         CoreFunction::Poseidon8HashToScalar => {
             apply_cast!(TestnetV0::hash_to_group_psd8, Scalar, to_fields)
         }
+        CoreFunction::Poseidon8HashRaw => todo!(),
         CoreFunction::SHA3_256HashToAddress => apply_cast!(
             |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
             Address,
@@ -876,6 +896,7 @@ pub fn evaluate_core_function(
             Scalar,
             to_bits_le
         ),
+        CoreFunction::SHA3_256HashRaw => todo!(),
         CoreFunction::SHA3_384HashToAddress => apply_cast!(
             |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
             Address,
@@ -956,6 +977,7 @@ pub fn evaluate_core_function(
             Scalar,
             to_bits_le
         ),
+        CoreFunction::SHA3_384HashRaw => todo!(),
         CoreFunction::SHA3_512HashToAddress => apply_cast!(
             |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
             Address,
@@ -1036,6 +1058,7 @@ pub fn evaluate_core_function(
             Scalar,
             to_bits_le
         ),
+        CoreFunction::SHA3_512HashRaw => todo!(),
         CoreFunction::GroupToXCoordinate => {
             let Value::Group(g) = helper.pop_value()? else {
                 tc_fail!();
@@ -1160,6 +1183,7 @@ pub fn evaluate_core_function(
             }
         }
         CoreFunction::SignatureVerify => todo!(),
+        CoreFunction::SignatureVerifyRaw => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
         CoreFunction::ProgramChecksum => {
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its checksum.
@@ -1173,6 +1197,30 @@ pub fn evaluate_core_function(
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its owner.
             return Ok(None);
         }
+        CoreFunction::ECDSAVerifyKeccak256 => todo!(),
+        CoreFunction::ECDSAVerifyKeccak256Raw => todo!(),
+        CoreFunction::ECDSAVerifyKeccak256Eth => todo!(),
+        CoreFunction::ECDSAVerifyKeccak256EthRaw => todo!(),
+        CoreFunction::ECDSAVerifyKeccak384 => todo!(),
+        CoreFunction::ECDSAVerifyKeccak384Raw => todo!(),
+        CoreFunction::ECDSAVerifyKeccak384Eth => todo!(),
+        CoreFunction::ECDSAVerifyKeccak384EthRaw => todo!(),
+        CoreFunction::ECDSAVerifyKeccak512 => todo!(),
+        CoreFunction::ECDSAVerifyKeccak512Raw => todo!(),
+        CoreFunction::ECDSAVerifyKeccak512Eth => todo!(),
+        CoreFunction::ECDSAVerifyKeccak512EthRaw => todo!(),
+        CoreFunction::ECDSAVerifySHA3_256 => todo!(),
+        CoreFunction::ECDSAVerifySHA3_256Raw => todo!(),
+        CoreFunction::ECDSAVerifySHA3_256Eth => todo!(),
+        CoreFunction::ECDSAVerifySHA3_384 => todo!(),
+        CoreFunction::ECDSAVerifySHA3_256EthRaw => todo!(),
+        CoreFunction::ECDSAVerifySHA3_384Raw => todo!(),
+        CoreFunction::ECDSAVerifySHA3_384Eth => todo!(),
+        CoreFunction::ECDSAVerifySHA3_384EthRaw => todo!(),
+        CoreFunction::ECDSAVerifySHA3_512 => todo!(),
+        CoreFunction::ECDSAVerifySHA3_512Raw => todo!(),
+        CoreFunction::ECDSAVerifySHA3_512Eth => todo!(),
+        CoreFunction::ECDSAVerifySHA3_512EthRaw => todo!(),
     };
 
     Ok(Some(value))

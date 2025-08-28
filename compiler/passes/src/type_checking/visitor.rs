@@ -539,6 +539,50 @@ impl TypeCheckingVisitor<'_> {
                 assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                 Type::Scalar
             }
+            CoreFunction::BHP256HashRaw
+            | CoreFunction::BHP512HashRaw
+            | CoreFunction::BHP768HashRaw
+            | CoreFunction::BHP1024HashRaw
+            | CoreFunction::Pedersen64HashRaw
+            | CoreFunction::Pedersen128HashRaw
+            | CoreFunction::Keccak256HashRaw
+            | CoreFunction::Keccak384HashRaw
+            | CoreFunction::Keccak512HashRaw
+            | CoreFunction::Poseidon2HashRaw
+            | CoreFunction::Poseidon4HashRaw
+            | CoreFunction::Poseidon8HashRaw
+            | CoreFunction::SHA3_256HashRaw
+            | CoreFunction::SHA3_384HashRaw
+            | CoreFunction::SHA3_512HashRaw => {
+                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
+                todo!()
+            }
+            CoreFunction::ECDSAVerifyKeccak256
+            | CoreFunction::ECDSAVerifyKeccak256Raw
+            | CoreFunction::ECDSAVerifyKeccak256Eth
+            | CoreFunction::ECDSAVerifyKeccak256EthRaw
+            | CoreFunction::ECDSAVerifyKeccak384
+            | CoreFunction::ECDSAVerifyKeccak384Raw
+            | CoreFunction::ECDSAVerifyKeccak384Eth
+            | CoreFunction::ECDSAVerifyKeccak384EthRaw
+            | CoreFunction::ECDSAVerifyKeccak512
+            | CoreFunction::ECDSAVerifyKeccak512Raw
+            | CoreFunction::ECDSAVerifyKeccak512Eth
+            | CoreFunction::ECDSAVerifyKeccak512EthRaw
+            | CoreFunction::ECDSAVerifySHA3_256
+            | CoreFunction::ECDSAVerifySHA3_256Raw
+            | CoreFunction::ECDSAVerifySHA3_256Eth
+            | CoreFunction::ECDSAVerifySHA3_256EthRaw
+            | CoreFunction::ECDSAVerifySHA3_384
+            | CoreFunction::ECDSAVerifySHA3_384Raw
+            | CoreFunction::ECDSAVerifySHA3_384Eth
+            | CoreFunction::ECDSAVerifySHA3_384EthRaw
+            | CoreFunction::ECDSAVerifySHA3_512
+            | CoreFunction::ECDSAVerifySHA3_512Raw
+            | CoreFunction::ECDSAVerifySHA3_512Eth
+            | CoreFunction::ECDSAVerifySHA3_512EthRaw => {
+                todo!()
+            }
             CoreFunction::Pedersen64CommitToAddress => {
                 assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                 // Check that the second argument is a scalar.
@@ -794,7 +838,7 @@ impl TypeCheckingVisitor<'_> {
             CoreFunction::ChaChaRandU32 => Type::Integer(IntegerType::U32),
             CoreFunction::ChaChaRandU64 => Type::Integer(IntegerType::U64),
             CoreFunction::ChaChaRandU128 => Type::Integer(IntegerType::U128),
-            CoreFunction::SignatureVerify => {
+            CoreFunction::SignatureVerify | CoreFunction::SignatureVerifyRaw => {
                 // Check that the third argument is not a mapping nor a tuple. We have to do this
                 // before the other checks below to appease the borrow checker
                 assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1.span());

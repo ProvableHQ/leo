@@ -26,6 +26,7 @@ use snarkvm::prelude::{Execution, Itertools, Network, Program};
 use clap::Parser;
 use colored::*;
 use std::{convert::TryFrom, path::PathBuf};
+use ureq::http::Uri;
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
@@ -307,7 +308,11 @@ fn handle_execute<A: Aleo>(
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint);
+    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
+        endpoint
+            .parse::<Uri>()
+            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{}': {e}", endpoint)))?,
+    );
 
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).

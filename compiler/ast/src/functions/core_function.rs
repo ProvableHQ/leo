@@ -36,6 +36,7 @@ pub enum CoreFunction {
     BHP256HashToU64,
     BHP256HashToU128,
     BHP256HashToScalar,
+    BHP256HashRaw,
 
     BHP512CommitToAddress,
     BHP512CommitToField,
@@ -54,6 +55,7 @@ pub enum CoreFunction {
     BHP512HashToU64,
     BHP512HashToU128,
     BHP512HashToScalar,
+    BHP512HashRaw,
 
     BHP768CommitToAddress,
     BHP768CommitToField,
@@ -72,6 +74,7 @@ pub enum CoreFunction {
     BHP768HashToU64,
     BHP768HashToU128,
     BHP768HashToScalar,
+    BHP768HashRaw,
 
     BHP1024CommitToAddress,
     BHP1024CommitToField,
@@ -90,6 +93,7 @@ pub enum CoreFunction {
     BHP1024HashToU64,
     BHP1024HashToU128,
     BHP1024HashToScalar,
+    BHP1024HashRaw,
 
     ChaChaRandAddress,
     ChaChaRandBool,
@@ -107,6 +111,31 @@ pub enum CoreFunction {
     ChaChaRandU128,
     ChaChaRandScalar,
 
+    ECDSAVerifyKeccak256,
+    ECDSAVerifyKeccak256Raw,
+    ECDSAVerifyKeccak256Eth,
+    ECDSAVerifyKeccak256EthRaw,
+    ECDSAVerifyKeccak384,
+    ECDSAVerifyKeccak384Raw,
+    ECDSAVerifyKeccak384Eth,
+    ECDSAVerifyKeccak384EthRaw,
+    ECDSAVerifyKeccak512,
+    ECDSAVerifyKeccak512Raw,
+    ECDSAVerifyKeccak512Eth,
+    ECDSAVerifyKeccak512EthRaw,
+    ECDSAVerifySHA3_256,
+    ECDSAVerifySHA3_256Raw,
+    ECDSAVerifySHA3_256Eth,
+    ECDSAVerifySHA3_256EthRaw,
+    ECDSAVerifySHA3_384,
+    ECDSAVerifySHA3_384Raw,
+    ECDSAVerifySHA3_384Eth,
+    ECDSAVerifySHA3_384EthRaw,
+    ECDSAVerifySHA3_512,
+    ECDSAVerifySHA3_512Raw,
+    ECDSAVerifySHA3_512Eth,
+    ECDSAVerifySHA3_512EthRaw,
+
     Keccak256HashToAddress,
     Keccak256HashToField,
     Keccak256HashToGroup,
@@ -121,6 +150,7 @@ pub enum CoreFunction {
     Keccak256HashToU64,
     Keccak256HashToU128,
     Keccak256HashToScalar,
+    Keccak256HashRaw,
 
     Keccak384HashToAddress,
     Keccak384HashToField,
@@ -136,6 +166,7 @@ pub enum CoreFunction {
     Keccak384HashToU64,
     Keccak384HashToU128,
     Keccak384HashToScalar,
+    Keccak384HashRaw,
 
     Keccak512HashToAddress,
     Keccak512HashToField,
@@ -151,6 +182,7 @@ pub enum CoreFunction {
     Keccak512HashToU64,
     Keccak512HashToU128,
     Keccak512HashToScalar,
+    Keccak512HashRaw,
 
     Pedersen64CommitToAddress,
     Pedersen64CommitToField,
@@ -169,6 +201,7 @@ pub enum CoreFunction {
     Pedersen64HashToU64,
     Pedersen64HashToU128,
     Pedersen64HashToScalar,
+    Pedersen64HashRaw,
 
     Pedersen128CommitToAddress,
     Pedersen128CommitToField,
@@ -187,6 +220,7 @@ pub enum CoreFunction {
     Pedersen128HashToU64,
     Pedersen128HashToU128,
     Pedersen128HashToScalar,
+    Pedersen128HashRaw,
 
     Poseidon2HashToAddress,
     Poseidon2HashToField,
@@ -202,6 +236,7 @@ pub enum CoreFunction {
     Poseidon2HashToU64,
     Poseidon2HashToU128,
     Poseidon2HashToScalar,
+    Poseidon2HashRaw,
 
     Poseidon4HashToAddress,
     Poseidon4HashToField,
@@ -217,6 +252,7 @@ pub enum CoreFunction {
     Poseidon4HashToU64,
     Poseidon4HashToU128,
     Poseidon4HashToScalar,
+    Poseidon4HashRaw,
 
     Poseidon8HashToAddress,
     Poseidon8HashToField,
@@ -232,6 +268,7 @@ pub enum CoreFunction {
     Poseidon8HashToU64,
     Poseidon8HashToU128,
     Poseidon8HashToScalar,
+    Poseidon8HashRaw,
 
     SHA3_256HashToAddress,
     SHA3_256HashToField,
@@ -247,6 +284,7 @@ pub enum CoreFunction {
     SHA3_256HashToU64,
     SHA3_256HashToU128,
     SHA3_256HashToScalar,
+    SHA3_256HashRaw,
 
     SHA3_384HashToAddress,
     SHA3_384HashToField,
@@ -262,6 +300,7 @@ pub enum CoreFunction {
     SHA3_384HashToU64,
     SHA3_384HashToU128,
     SHA3_384HashToScalar,
+    SHA3_384HashRaw,
 
     SHA3_512HashToAddress,
     SHA3_512HashToField,
@@ -277,6 +316,7 @@ pub enum CoreFunction {
     SHA3_512HashToU64,
     SHA3_512HashToU128,
     SHA3_512HashToScalar,
+    SHA3_512HashRaw,
 
     MappingGet,
     MappingGetOrUse,
@@ -288,6 +328,8 @@ pub enum CoreFunction {
     GroupToYCoordinate,
 
     SignatureVerify,
+    SignatureVerifyRaw,
+
     FutureAwait,
 
     ProgramChecksum,
@@ -320,6 +362,7 @@ impl CoreFunction {
             (sym::BHP256, sym::hash_to_u64) => Self::BHP256HashToU64,
             (sym::BHP256, sym::hash_to_u128) => Self::BHP256HashToU128,
             (sym::BHP256, sym::hash_to_scalar) => Self::BHP256HashToScalar,
+            (sym::BHP256, sym::hash_raw) => Self::BHP256HashRaw,
 
             (sym::BHP512, sym::commit_to_address) => Self::BHP512CommitToAddress,
             (sym::BHP512, sym::commit_to_field) => Self::BHP512CommitToField,
@@ -338,6 +381,7 @@ impl CoreFunction {
             (sym::BHP512, sym::hash_to_u64) => Self::BHP512HashToU64,
             (sym::BHP512, sym::hash_to_u128) => Self::BHP512HashToU128,
             (sym::BHP512, sym::hash_to_scalar) => Self::BHP512HashToScalar,
+            (sym::BHP512, sym::hash_raw) => Self::BHP512HashRaw,
 
             (sym::BHP768, sym::commit_to_address) => Self::BHP768CommitToAddress,
             (sym::BHP768, sym::commit_to_field) => Self::BHP768CommitToField,
@@ -356,6 +400,7 @@ impl CoreFunction {
             (sym::BHP768, sym::hash_to_u64) => Self::BHP768HashToU64,
             (sym::BHP768, sym::hash_to_u128) => Self::BHP768HashToU128,
             (sym::BHP768, sym::hash_to_scalar) => Self::BHP768HashToScalar,
+            (sym::BHP768, sym::hash_raw) => Self::BHP768HashRaw,
 
             (sym::BHP1024, sym::commit_to_address) => Self::BHP1024CommitToAddress,
             (sym::BHP1024, sym::commit_to_field) => Self::BHP1024CommitToField,
@@ -374,6 +419,7 @@ impl CoreFunction {
             (sym::BHP1024, sym::hash_to_u64) => Self::BHP1024HashToU64,
             (sym::BHP1024, sym::hash_to_u128) => Self::BHP1024HashToU128,
             (sym::BHP1024, sym::hash_to_scalar) => Self::BHP1024HashToScalar,
+            (sym::BHP1024, sym::hash_raw) => Self::BHP1024HashRaw,
 
             (sym::ChaCha, sym::rand_address) => Self::ChaChaRandAddress,
             (sym::ChaCha, sym::rand_bool) => Self::ChaChaRandBool,
@@ -391,6 +437,31 @@ impl CoreFunction {
             (sym::ChaCha, sym::rand_u64) => Self::ChaChaRandU64,
             (sym::ChaCha, sym::rand_u128) => Self::ChaChaRandU128,
 
+            (sym::ECDSAVerify, sym::verify_keccak256) => Self::ECDSAVerifyKeccak256,
+            (sym::ECDSAVerify, sym::verify_keccak256_raw) => Self::ECDSAVerifyKeccak256Raw,
+            (sym::ECDSAVerify, sym::verify_keccak256_eth) => Self::ECDSAVerifyKeccak256Eth,
+            (sym::ECDSAVerify, sym::verify_keccak256_eth_raw) => Self::ECDSAVerifyKeccak256EthRaw,
+            (sym::ECDSAVerify, sym::verify_keccak384) => Self::ECDSAVerifyKeccak384,
+            (sym::ECDSAVerify, sym::verify_keccak384_raw) => Self::ECDSAVerifyKeccak384Raw,
+            (sym::ECDSAVerify, sym::verify_keccak384_eth) => Self::ECDSAVerifyKeccak384Eth,
+            (sym::ECDSAVerify, sym::verify_keccak384_eth_raw) => Self::ECDSAVerifyKeccak384EthRaw,
+            (sym::ECDSAVerify, sym::verify_keccak512) => Self::ECDSAVerifyKeccak512,
+            (sym::ECDSAVerify, sym::verify_keccak512_raw) => Self::ECDSAVerifyKeccak512Raw,
+            (sym::ECDSAVerify, sym::verify_keccak512_eth) => Self::ECDSAVerifyKeccak512Eth,
+            (sym::ECDSAVerify, sym::verify_keccak512_eth_raw) => Self::ECDSAVerifyKeccak512EthRaw,
+            (sym::ECDSAVerify, sym::verify_sha3_256) => Self::ECDSAVerifySHA3_256,
+            (sym::ECDSAVerify, sym::verify_sha3_256_raw) => Self::ECDSAVerifySHA3_256Raw,
+            (sym::ECDSAVerify, sym::verify_sha3_256_eth) => Self::ECDSAVerifySHA3_256Eth,
+            (sym::ECDSAVerify, sym::verify_sha3_256_eth_raw) => Self::ECDSAVerifySHA3_256EthRaw,
+            (sym::ECDSAVerify, sym::verify_sha3_384) => Self::ECDSAVerifySHA3_384,
+            (sym::ECDSAVerify, sym::verify_sha3_384_raw) => Self::ECDSAVerifySHA3_384Raw,
+            (sym::ECDSAVerify, sym::verify_sha3_384_eth) => Self::ECDSAVerifySHA3_384Eth,
+            (sym::ECDSAVerify, sym::verify_sha3_384_eth_raw) => Self::ECDSAVerifySHA3_384EthRaw,
+            (sym::ECDSAVerify, sym::verify_sha3_512) => Self::ECDSAVerifySHA3_512,
+            (sym::ECDSAVerify, sym::verify_sha3_512_raw) => Self::ECDSAVerifySHA3_512Raw,
+            (sym::ECDSAVerify, sym::verify_sha3_512_eth) => Self::ECDSAVerifySHA3_512Eth,
+            (sym::ECDSAVerify, sym::verify_sha3_512_eth_raw) => Self::ECDSAVerifySHA3_512EthRaw,
+
             (sym::Keccak256, sym::hash_to_address) => Self::Keccak256HashToAddress,
             (sym::Keccak256, sym::hash_to_field) => Self::Keccak256HashToField,
             (sym::Keccak256, sym::hash_to_group) => Self::Keccak256HashToGroup,
@@ -405,6 +476,7 @@ impl CoreFunction {
             (sym::Keccak256, sym::hash_to_u64) => Self::Keccak256HashToU64,
             (sym::Keccak256, sym::hash_to_u128) => Self::Keccak256HashToU128,
             (sym::Keccak256, sym::hash_to_scalar) => Self::Keccak256HashToScalar,
+            (sym::Keccak256, sym::hash_raw) => Self::Keccak256HashRaw,
 
             (sym::Keccak384, sym::hash_to_address) => Self::Keccak384HashToAddress,
             (sym::Keccak384, sym::hash_to_field) => Self::Keccak384HashToField,
@@ -420,6 +492,7 @@ impl CoreFunction {
             (sym::Keccak384, sym::hash_to_u64) => Self::Keccak384HashToU64,
             (sym::Keccak384, sym::hash_to_u128) => Self::Keccak384HashToU128,
             (sym::Keccak384, sym::hash_to_scalar) => Self::Keccak384HashToScalar,
+            (sym::Keccak384, sym::hash_raw) => Self::Keccak384HashRaw,
 
             (sym::Keccak512, sym::hash_to_address) => Self::Keccak512HashToAddress,
             (sym::Keccak512, sym::hash_to_field) => Self::Keccak512HashToField,
@@ -435,6 +508,7 @@ impl CoreFunction {
             (sym::Keccak512, sym::hash_to_u64) => Self::Keccak512HashToU64,
             (sym::Keccak512, sym::hash_to_u128) => Self::Keccak512HashToU128,
             (sym::Keccak512, sym::hash_to_scalar) => Self::Keccak512HashToScalar,
+            (sym::Keccak512, sym::hash_raw) => Self::Keccak512HashRaw,
 
             (sym::Pedersen64, sym::commit_to_address) => Self::Pedersen64CommitToAddress,
             (sym::Pedersen64, sym::commit_to_field) => Self::Pedersen64CommitToField,
@@ -453,6 +527,7 @@ impl CoreFunction {
             (sym::Pedersen64, sym::hash_to_u64) => Self::Pedersen64HashToU64,
             (sym::Pedersen64, sym::hash_to_u128) => Self::Pedersen64HashToU128,
             (sym::Pedersen64, sym::hash_to_scalar) => Self::Pedersen64HashToScalar,
+            (sym::Pedersen64, sym::hash_raw) => Self::Pedersen64HashRaw,
 
             (sym::Pedersen128, sym::commit_to_address) => Self::Pedersen128CommitToAddress,
             (sym::Pedersen128, sym::commit_to_field) => Self::Pedersen128CommitToField,
@@ -471,6 +546,7 @@ impl CoreFunction {
             (sym::Pedersen128, sym::hash_to_u64) => Self::Pedersen128HashToU64,
             (sym::Pedersen128, sym::hash_to_u128) => Self::Pedersen128HashToU128,
             (sym::Pedersen128, sym::hash_to_scalar) => Self::Pedersen128HashToScalar,
+            (sym::Pedersen128, sym::hash_raw) => Self::Pedersen128HashRaw,
 
             (sym::Poseidon2, sym::hash_to_address) => Self::Poseidon2HashToAddress,
             (sym::Poseidon2, sym::hash_to_field) => Self::Poseidon2HashToField,
@@ -486,6 +562,7 @@ impl CoreFunction {
             (sym::Poseidon2, sym::hash_to_u64) => Self::Poseidon2HashToU64,
             (sym::Poseidon2, sym::hash_to_u128) => Self::Poseidon2HashToU128,
             (sym::Poseidon2, sym::hash_to_scalar) => Self::Poseidon2HashToScalar,
+            (sym::Poseidon2, sym::hash_raw) => Self::Poseidon2HashRaw,
 
             (sym::Poseidon4, sym::hash_to_address) => Self::Poseidon4HashToAddress,
             (sym::Poseidon4, sym::hash_to_field) => Self::Poseidon4HashToField,
@@ -501,6 +578,7 @@ impl CoreFunction {
             (sym::Poseidon4, sym::hash_to_u64) => Self::Poseidon4HashToU64,
             (sym::Poseidon4, sym::hash_to_u128) => Self::Poseidon4HashToU128,
             (sym::Poseidon4, sym::hash_to_scalar) => Self::Poseidon4HashToScalar,
+            (sym::Poseidon4, sym::hash_raw) => Self::Poseidon4HashRaw,
 
             (sym::Poseidon8, sym::hash_to_address) => Self::Poseidon8HashToAddress,
             (sym::Poseidon8, sym::hash_to_field) => Self::Poseidon8HashToField,
@@ -516,6 +594,7 @@ impl CoreFunction {
             (sym::Poseidon8, sym::hash_to_u64) => Self::Poseidon8HashToU64,
             (sym::Poseidon8, sym::hash_to_u128) => Self::Poseidon8HashToU128,
             (sym::Poseidon8, sym::hash_to_scalar) => Self::Poseidon8HashToScalar,
+            (sym::Poseidon8, sym::hash_raw) => Self::Poseidon8HashRaw,
 
             (sym::SHA3_256, sym::hash_to_address) => Self::SHA3_256HashToAddress,
             (sym::SHA3_256, sym::hash_to_field) => Self::SHA3_256HashToField,
@@ -531,6 +610,7 @@ impl CoreFunction {
             (sym::SHA3_256, sym::hash_to_u64) => Self::SHA3_256HashToU64,
             (sym::SHA3_256, sym::hash_to_u128) => Self::SHA3_256HashToU128,
             (sym::SHA3_256, sym::hash_to_scalar) => Self::SHA3_256HashToScalar,
+            (sym::SHA3_256, sym::hash_raw) => Self::SHA3_256HashRaw,
 
             (sym::SHA3_384, sym::hash_to_address) => Self::SHA3_384HashToAddress,
             (sym::SHA3_384, sym::hash_to_field) => Self::SHA3_384HashToField,
@@ -546,6 +626,7 @@ impl CoreFunction {
             (sym::SHA3_384, sym::hash_to_u64) => Self::SHA3_384HashToU64,
             (sym::SHA3_384, sym::hash_to_u128) => Self::SHA3_384HashToU128,
             (sym::SHA3_384, sym::hash_to_scalar) => Self::SHA3_384HashToScalar,
+            (sym::SHA3_384, sym::hash_raw) => Self::SHA3_384HashRaw,
 
             (sym::SHA3_512, sym::hash_to_address) => Self::SHA3_512HashToAddress,
             (sym::SHA3_512, sym::hash_to_field) => Self::SHA3_512HashToField,
@@ -561,6 +642,7 @@ impl CoreFunction {
             (sym::SHA3_512, sym::hash_to_u64) => Self::SHA3_512HashToU64,
             (sym::SHA3_512, sym::hash_to_u128) => Self::SHA3_512HashToU128,
             (sym::SHA3_512, sym::hash_to_scalar) => Self::SHA3_512HashToScalar,
+            (sym::SHA3_512, sym::hash_raw) => Self::SHA3_512HashRaw,
 
             (sym::Mapping, sym::get) => Self::MappingGet,
             (sym::Mapping, sym::get_or_use) => Self::MappingGetOrUse,
@@ -576,6 +658,7 @@ impl CoreFunction {
             (sym::ProgramCore, sym::program_owner) => Self::ProgramOwner,
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
+            (sym::signature, sym::verify_raw) => Self::SignatureVerifyRaw,
             (sym::Future, sym::Await) => Self::FutureAwait,
 
             (sym::CheatCode, sym::print_mapping) => Self::CheatCodePrintMapping,
@@ -605,6 +688,7 @@ impl CoreFunction {
             Self::BHP256HashToU64 => 1,
             Self::BHP256HashToU128 => 1,
             Self::BHP256HashToScalar => 1,
+            Self::BHP256HashRaw => 1,
 
             Self::BHP512CommitToAddress => 2,
             Self::BHP512CommitToField => 2,
@@ -623,6 +707,7 @@ impl CoreFunction {
             Self::BHP512HashToU64 => 1,
             Self::BHP512HashToU128 => 1,
             Self::BHP512HashToScalar => 1,
+            Self::BHP512HashRaw => 1,
 
             Self::BHP768CommitToAddress => 2,
             Self::BHP768CommitToField => 2,
@@ -641,6 +726,7 @@ impl CoreFunction {
             Self::BHP768HashToU64 => 1,
             Self::BHP768HashToU128 => 1,
             Self::BHP768HashToScalar => 1,
+            Self::BHP768HashRaw => 1,
 
             Self::BHP1024CommitToAddress => 2,
             Self::BHP1024CommitToField => 2,
@@ -659,6 +745,7 @@ impl CoreFunction {
             Self::BHP1024HashToU64 => 1,
             Self::BHP1024HashToU128 => 1,
             Self::BHP1024HashToScalar => 1,
+            Self::BHP1024HashRaw => 1,
 
             Self::ChaChaRandAddress => 0,
             Self::ChaChaRandBool => 0,
@@ -676,6 +763,31 @@ impl CoreFunction {
             Self::ChaChaRandU128 => 0,
             Self::ChaChaRandScalar => 0,
 
+            Self::ECDSAVerifyKeccak256 => 3,
+            Self::ECDSAVerifyKeccak256Raw => 3,
+            Self::ECDSAVerifyKeccak256Eth => 3,
+            Self::ECDSAVerifyKeccak256EthRaw => 3,
+            Self::ECDSAVerifyKeccak384 => 3,
+            Self::ECDSAVerifyKeccak384Raw => 3,
+            Self::ECDSAVerifyKeccak384Eth => 3,
+            Self::ECDSAVerifyKeccak384EthRaw => 3,
+            Self::ECDSAVerifyKeccak512 => 3,
+            Self::ECDSAVerifyKeccak512Raw => 3,
+            Self::ECDSAVerifyKeccak512Eth => 3,
+            Self::ECDSAVerifyKeccak512EthRaw => 3,
+            Self::ECDSAVerifySHA3_256 => 3,
+            Self::ECDSAVerifySHA3_256Raw => 3,
+            Self::ECDSAVerifySHA3_256Eth => 3,
+            Self::ECDSAVerifySHA3_384 => 3,
+            Self::ECDSAVerifySHA3_256EthRaw => 3,
+            Self::ECDSAVerifySHA3_384Raw => 3,
+            Self::ECDSAVerifySHA3_384Eth => 3,
+            Self::ECDSAVerifySHA3_384EthRaw => 3,
+            Self::ECDSAVerifySHA3_512 => 3,
+            Self::ECDSAVerifySHA3_512Raw => 3,
+            Self::ECDSAVerifySHA3_512Eth => 3,
+            Self::ECDSAVerifySHA3_512EthRaw => 3,
+
             Self::Keccak256HashToAddress => 1,
             Self::Keccak256HashToField => 1,
             Self::Keccak256HashToGroup => 1,
@@ -690,6 +802,7 @@ impl CoreFunction {
             Self::Keccak256HashToU64 => 1,
             Self::Keccak256HashToU128 => 1,
             Self::Keccak256HashToScalar => 1,
+            Self::Keccak256HashRaw => 1,
 
             Self::Keccak384HashToAddress => 1,
             Self::Keccak384HashToField => 1,
@@ -705,6 +818,7 @@ impl CoreFunction {
             Self::Keccak384HashToU64 => 1,
             Self::Keccak384HashToU128 => 1,
             Self::Keccak384HashToScalar => 1,
+            Self::Keccak384HashRaw => 1,
 
             Self::Keccak512HashToAddress => 1,
             Self::Keccak512HashToField => 1,
@@ -720,6 +834,7 @@ impl CoreFunction {
             Self::Keccak512HashToU64 => 1,
             Self::Keccak512HashToU128 => 1,
             Self::Keccak512HashToScalar => 1,
+            Self::Keccak512HashRaw => 1,
 
             Self::Pedersen64CommitToAddress => 2,
             Self::Pedersen64CommitToField => 2,
@@ -738,6 +853,7 @@ impl CoreFunction {
             Self::Pedersen64HashToU64 => 1,
             Self::Pedersen64HashToU128 => 1,
             Self::Pedersen64HashToScalar => 1,
+            Self::Pedersen64HashRaw => 1,
 
             Self::Pedersen128CommitToAddress => 2,
             Self::Pedersen128CommitToField => 2,
@@ -756,6 +872,7 @@ impl CoreFunction {
             Self::Pedersen128HashToU64 => 1,
             Self::Pedersen128HashToU128 => 1,
             Self::Pedersen128HashToScalar => 1,
+            Self::Pedersen128HashRaw => 1,
 
             Self::Poseidon2HashToAddress => 1,
             Self::Poseidon2HashToField => 1,
@@ -771,6 +888,7 @@ impl CoreFunction {
             Self::Poseidon2HashToU64 => 1,
             Self::Poseidon2HashToU128 => 1,
             Self::Poseidon2HashToScalar => 1,
+            Self::Poseidon2HashRaw => 1,
 
             Self::Poseidon4HashToAddress => 1,
             Self::Poseidon4HashToField => 1,
@@ -786,6 +904,7 @@ impl CoreFunction {
             Self::Poseidon4HashToU64 => 1,
             Self::Poseidon4HashToU128 => 1,
             Self::Poseidon4HashToScalar => 1,
+            Self::Poseidon4HashRaw => 1,
 
             Self::Poseidon8HashToAddress => 1,
             Self::Poseidon8HashToField => 1,
@@ -801,6 +920,7 @@ impl CoreFunction {
             Self::Poseidon8HashToU64 => 1,
             Self::Poseidon8HashToU128 => 1,
             Self::Poseidon8HashToScalar => 1,
+            Self::Poseidon8HashRaw => 1,
 
             Self::SHA3_256HashToAddress => 1,
             Self::SHA3_256HashToField => 1,
@@ -816,6 +936,7 @@ impl CoreFunction {
             Self::SHA3_256HashToU64 => 1,
             Self::SHA3_256HashToU128 => 1,
             Self::SHA3_256HashToScalar => 1,
+            Self::SHA3_256HashRaw => 1,
 
             Self::SHA3_384HashToAddress => 1,
             Self::SHA3_384HashToField => 1,
@@ -831,6 +952,7 @@ impl CoreFunction {
             Self::SHA3_384HashToU64 => 1,
             Self::SHA3_384HashToU128 => 1,
             Self::SHA3_384HashToScalar => 1,
+            Self::SHA3_384HashRaw => 1,
 
             Self::SHA3_512HashToAddress => 1,
             Self::SHA3_512HashToField => 1,
@@ -846,6 +968,7 @@ impl CoreFunction {
             Self::SHA3_512HashToU64 => 1,
             Self::SHA3_512HashToU128 => 1,
             Self::SHA3_512HashToScalar => 1,
+            Self::SHA3_512HashRaw => 1,
 
             Self::MappingGet => 2,
             Self::MappingGetOrUse => 3,
@@ -857,6 +980,7 @@ impl CoreFunction {
             Self::GroupToYCoordinate => 1,
 
             Self::SignatureVerify => 3,
+            Self::SignatureVerifyRaw => 3,
             Self::FutureAwait => 1,
 
             Self::ProgramChecksum => 1,
@@ -885,9 +1009,33 @@ impl CoreFunction {
             | CoreFunction::ChaChaRandU32
             | CoreFunction::ChaChaRandU64
             | CoreFunction::ChaChaRandU128
+            | CoreFunction::ChaChaRandScalar
+            | CoreFunction::ECDSAVerifyKeccak256
+            | CoreFunction::ECDSAVerifyKeccak256Raw
+            | CoreFunction::ECDSAVerifyKeccak256Eth
+            | CoreFunction::ECDSAVerifyKeccak256EthRaw
+            | CoreFunction::ECDSAVerifyKeccak384
+            | CoreFunction::ECDSAVerifyKeccak384Raw
+            | CoreFunction::ECDSAVerifyKeccak384Eth
+            | CoreFunction::ECDSAVerifyKeccak384EthRaw
+            | CoreFunction::ECDSAVerifyKeccak512
+            | CoreFunction::ECDSAVerifyKeccak512Raw
+            | CoreFunction::ECDSAVerifyKeccak512Eth
+            | CoreFunction::ECDSAVerifyKeccak512EthRaw
+            | CoreFunction::ECDSAVerifySHA3_256
+            | CoreFunction::ECDSAVerifySHA3_256Raw
+            | CoreFunction::ECDSAVerifySHA3_256Eth
+            | CoreFunction::ECDSAVerifySHA3_256EthRaw
+            | CoreFunction::ECDSAVerifySHA3_384
+            | CoreFunction::ECDSAVerifySHA3_384Raw
+            | CoreFunction::ECDSAVerifySHA3_384Eth
+            | CoreFunction::ECDSAVerifySHA3_384EthRaw
+            | CoreFunction::ECDSAVerifySHA3_512
+            | CoreFunction::ECDSAVerifySHA3_512Raw
+            | CoreFunction::ECDSAVerifySHA3_512Eth
+            | CoreFunction::ECDSAVerifySHA3_512EthRaw
             | CoreFunction::MappingGet
             | CoreFunction::MappingGetOrUse
-            | CoreFunction::ChaChaRandScalar
             | CoreFunction::MappingSet
             | CoreFunction::MappingRemove
             | CoreFunction::MappingContains
@@ -911,6 +1059,7 @@ impl CoreFunction {
             | CoreFunction::BHP256HashToU64
             | CoreFunction::BHP256HashToU128
             | CoreFunction::BHP256HashToScalar
+            | CoreFunction::BHP256HashRaw
             | CoreFunction::BHP512CommitToAddress
             | CoreFunction::BHP512CommitToField
             | CoreFunction::BHP512CommitToGroup
@@ -928,6 +1077,7 @@ impl CoreFunction {
             | CoreFunction::BHP512HashToU64
             | CoreFunction::BHP512HashToU128
             | CoreFunction::BHP512HashToScalar
+            | CoreFunction::BHP512HashRaw
             | CoreFunction::BHP768CommitToAddress
             | CoreFunction::BHP768CommitToField
             | CoreFunction::BHP768CommitToGroup
@@ -945,6 +1095,7 @@ impl CoreFunction {
             | CoreFunction::BHP768HashToU64
             | CoreFunction::BHP768HashToU128
             | CoreFunction::BHP768HashToScalar
+            | CoreFunction::BHP768HashRaw
             | CoreFunction::BHP1024CommitToAddress
             | CoreFunction::BHP1024CommitToField
             | CoreFunction::BHP1024CommitToGroup
@@ -962,6 +1113,7 @@ impl CoreFunction {
             | CoreFunction::BHP1024HashToU64
             | CoreFunction::BHP1024HashToU128
             | CoreFunction::BHP1024HashToScalar
+            | CoreFunction::BHP1024HashRaw
             | CoreFunction::Keccak256HashToAddress
             | CoreFunction::Keccak256HashToField
             | CoreFunction::Keccak256HashToGroup
@@ -976,6 +1128,7 @@ impl CoreFunction {
             | CoreFunction::Keccak256HashToU64
             | CoreFunction::Keccak256HashToU128
             | CoreFunction::Keccak256HashToScalar
+            | CoreFunction::Keccak256HashRaw
             | CoreFunction::Keccak384HashToAddress
             | CoreFunction::Keccak384HashToField
             | CoreFunction::Keccak384HashToGroup
@@ -990,6 +1143,7 @@ impl CoreFunction {
             | CoreFunction::Keccak384HashToU64
             | CoreFunction::Keccak384HashToU128
             | CoreFunction::Keccak384HashToScalar
+            | CoreFunction::Keccak384HashRaw
             | CoreFunction::Keccak512HashToAddress
             | CoreFunction::Keccak512HashToField
             | CoreFunction::Keccak512HashToGroup
@@ -1004,6 +1158,7 @@ impl CoreFunction {
             | CoreFunction::Keccak512HashToU64
             | CoreFunction::Keccak512HashToU128
             | CoreFunction::Keccak512HashToScalar
+            | CoreFunction::Keccak512HashRaw
             | CoreFunction::Pedersen64CommitToAddress
             | CoreFunction::Pedersen64CommitToField
             | CoreFunction::Pedersen64CommitToGroup
@@ -1021,6 +1176,7 @@ impl CoreFunction {
             | CoreFunction::Pedersen64HashToU64
             | CoreFunction::Pedersen64HashToU128
             | CoreFunction::Pedersen64HashToScalar
+            | CoreFunction::Pedersen64HashRaw
             | CoreFunction::Pedersen128CommitToAddress
             | CoreFunction::Pedersen128CommitToField
             | CoreFunction::Pedersen128CommitToGroup
@@ -1038,6 +1194,7 @@ impl CoreFunction {
             | CoreFunction::Pedersen128HashToU64
             | CoreFunction::Pedersen128HashToU128
             | CoreFunction::Pedersen128HashToScalar
+            | CoreFunction::Pedersen128HashRaw
             | CoreFunction::Poseidon2HashToAddress
             | CoreFunction::Poseidon2HashToField
             | CoreFunction::Poseidon2HashToGroup
@@ -1052,6 +1209,7 @@ impl CoreFunction {
             | CoreFunction::Poseidon2HashToU64
             | CoreFunction::Poseidon2HashToU128
             | CoreFunction::Poseidon2HashToScalar
+            | CoreFunction::Poseidon2HashRaw
             | CoreFunction::Poseidon4HashToAddress
             | CoreFunction::Poseidon4HashToField
             | CoreFunction::Poseidon4HashToGroup
@@ -1066,6 +1224,7 @@ impl CoreFunction {
             | CoreFunction::Poseidon4HashToU64
             | CoreFunction::Poseidon4HashToU128
             | CoreFunction::Poseidon4HashToScalar
+            | CoreFunction::Poseidon4HashRaw
             | CoreFunction::Poseidon8HashToAddress
             | CoreFunction::Poseidon8HashToField
             | CoreFunction::Poseidon8HashToGroup
@@ -1080,6 +1239,7 @@ impl CoreFunction {
             | CoreFunction::Poseidon8HashToU64
             | CoreFunction::Poseidon8HashToU128
             | CoreFunction::Poseidon8HashToScalar
+            | CoreFunction::Poseidon8HashRaw
             | CoreFunction::SHA3_256HashToAddress
             | CoreFunction::SHA3_256HashToField
             | CoreFunction::SHA3_256HashToGroup
@@ -1094,6 +1254,7 @@ impl CoreFunction {
             | CoreFunction::SHA3_256HashToU64
             | CoreFunction::SHA3_256HashToU128
             | CoreFunction::SHA3_256HashToScalar
+            | CoreFunction::SHA3_256HashRaw
             | CoreFunction::SHA3_384HashToAddress
             | CoreFunction::SHA3_384HashToField
             | CoreFunction::SHA3_384HashToGroup
@@ -1108,6 +1269,7 @@ impl CoreFunction {
             | CoreFunction::SHA3_384HashToU64
             | CoreFunction::SHA3_384HashToU128
             | CoreFunction::SHA3_384HashToScalar
+            | CoreFunction::SHA3_384HashRaw
             | CoreFunction::SHA3_512HashToAddress
             | CoreFunction::SHA3_512HashToField
             | CoreFunction::SHA3_512HashToGroup
@@ -1122,9 +1284,11 @@ impl CoreFunction {
             | CoreFunction::SHA3_512HashToU64
             | CoreFunction::SHA3_512HashToU128
             | CoreFunction::SHA3_512HashToScalar
+            | CoreFunction::SHA3_512HashRaw
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
             | CoreFunction::SignatureVerify
+            | CoreFunction::SignatureVerifyRaw
             | CoreFunction::CheatCodePrintMapping
             | CoreFunction::CheatCodeSetBlockHeight => false,
         }
