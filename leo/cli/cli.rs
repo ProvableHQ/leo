@@ -131,6 +131,15 @@ pub fn handle_error<T>(res: Result<T>) -> T {
 
 /// Run command with custom build arguments.
 pub fn run_with_args(cli: CLI) -> Result<()> {
+    // Print the variables found in the `.env` files.
+    if let Ok(vars) = dotenvy::dotenv_iter().map(|v| v.flatten().collect::<Vec<_>>()) {
+        if !vars.is_empty() {
+            println!("📢 Loading environment variables from a `.env` file in the directory tree.");
+        }
+        for (k, v) in vars {
+            println!("  - {k}={v}");
+        }
+    }
     // Initialize the `.env` file.
     dotenvy::dotenv().ok();
 
