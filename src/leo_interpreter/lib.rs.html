@@ -140,8 +140,8 @@
 <a href=#140 id=140 data-nosnippet>140</a>// all the functions with annotations.
 <a href=#141 id=141 data-nosnippet>141</a></span><span class="attr">#[allow(clippy::type_complexity)]
 <a href=#142 id=142 data-nosnippet>142</a></span><span class="kw">pub fn </span>find_and_run_tests(
-<a href=#143 id=143 data-nosnippet>143</a>    leo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
-<a href=#144 id=144 data-nosnippet>144</a>    aleo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
+<a href=#143 id=143 data-nosnippet>143</a>    leo_filenames: <span class="kw-2">&amp;</span>[(PathBuf, Vec&lt;PathBuf&gt;)], <span class="comment">// Leo source files and their modules
+<a href=#144 id=144 data-nosnippet>144</a>    </span>aleo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
 <a href=#145 id=145 data-nosnippet>145</a>    signer: SvmAddress,
 <a href=#146 id=146 data-nosnippet>146</a>    block_height: u32,
 <a href=#147 id=147 data-nosnippet>147</a>    match_str: <span class="kw-2">&amp;</span>str,
@@ -241,8 +241,8 @@
 <a href=#241 id=241 data-nosnippet>241</a><span class="doccomment">/// Load all the Leo source files indicated and open the interpreter
 <a href=#242 id=242 data-nosnippet>242</a>/// to commands from the user.
 <a href=#243 id=243 data-nosnippet>243</a></span><span class="kw">pub fn </span>interpret(
-<a href=#244 id=244 data-nosnippet>244</a>    leo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
-<a href=#245 id=245 data-nosnippet>245</a>    aleo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
+<a href=#244 id=244 data-nosnippet>244</a>    leo_filenames: <span class="kw-2">&amp;</span>[(PathBuf, Vec&lt;PathBuf&gt;)], <span class="comment">// Leo source files and their modules
+<a href=#245 id=245 data-nosnippet>245</a>    </span>aleo_filenames: <span class="kw-2">&amp;</span>[PathBuf],
 <a href=#246 id=246 data-nosnippet>246</a>    signer: SvmAddress,
 <a href=#247 id=247 data-nosnippet>247</a>    block_height: u32,
 <a href=#248 id=248 data-nosnippet>248</a>    tui: bool,

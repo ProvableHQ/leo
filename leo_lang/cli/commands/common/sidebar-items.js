@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["interactive","options","query"]};
+window.SIDEBAR_ITEMS = {"mod":["interactive","options","query","util"]};
