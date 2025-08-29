@@ -63,11 +63,11 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
     let private_key = context.get_private_key::<TestnetV0>(&None)?;
     let address = Address::try_from(&private_key)?;
 
-    let partitioned_leo_paths = collect_leo_paths(&package);
+    let leo_paths = collect_leo_paths(&package);
     let aleo_paths = collect_aleo_paths(&package);
 
     let (native_test_functions, interpreter_result) = leo_interpreter::find_and_run_tests(
-        &partitioned_leo_paths,
+        &leo_paths,
         &aleo_paths,
         address,
         0u32,
