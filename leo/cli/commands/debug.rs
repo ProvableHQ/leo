@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_package::{Package, ProgramData};
-use leo_span::Symbol;
+use leo_package::Package;
 
 use snarkvm::prelude::TestnetV0;
 
-use indexmap::IndexSet;
 use std::path::PathBuf;
 
 use super::*;
@@ -27,7 +25,7 @@ use super::*;
 /// Debugs an Aleo program through the interpreter.
 #[derive(Parser, Debug)]
 pub struct LeoDebug {
-    #[arg(long, help = "Use these source files instead of finding source files through the project structure.", num_args = 1..)]
+    #[arg(long, help = "Use these source files instead of finding source files through the project structure. Program submodules aren't supported here.", num_args = 1..)]
     pub(crate) paths: Vec<String>,
     #[arg(long, help = "The block height, accessible via block.height.", default_value = "0")]
     pub(crate) block_height: u32,
@@ -71,50 +69,8 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
         let address = Address::try_from(&private_key)?;
 
         // Get the paths of all local Leo dependencies.
-        let local_dependency_paths: Vec<PathBuf> = package
-            .programs
-            .iter()
-            .flat_map(|program| match &program.data {
-                ProgramData::SourcePath { source, .. } => Some(source.clone()),
-                ProgramData::Bytecode(..) => None,
-            })
-            .collect();
-
-        let local_dependency_symbols: IndexSet<Symbol> = package
-            .programs
-            .iter()
-            .flat_map(|program| match &program.data {
-                ProgramData::SourcePath { .. } => {
-                    // It's a local Leo dependency.
-                    Some(program.name)
-                }
-                ProgramData::Bytecode(..) => {
-                    // It's a network dependency or local .aleo dependency.
-                    None
-                }
-            })
-            .collect();
-
-        let imports_directory = package.imports_directory();
-
-        // Get the paths to .aleo files in `imports` - but filter out the ones corresponding to local dependencies.
-        let aleo_paths: Vec<PathBuf> = imports_directory
-            .read_dir()
-            .ok()
-            .into_iter()
-            .flatten()
-            .flat_map(|maybe_filename| maybe_filename.ok())
-            .filter(|entry| entry.file_type().ok().map(|filetype| filetype.is_file()).unwrap_or(false))
-            .flat_map(|entry| {
-                let path = entry.path();
-                if let Some(filename) = leo_package::filename_no_aleo_extension(&path) {
-                    let symbol = Symbol::intern(filename);
-                    if local_dependency_symbols.contains(&symbol) { None } else { Some(path) }
-                } else {
-                    None
-                }
-            })
-            .collect();
+        let local_dependency_paths = collect_leo_paths(&package);
+        let aleo_paths = collect_aleo_paths(&package);
 
         // Get the network from the package environment.
         let network = package.env.network;
@@ -131,14 +87,15 @@ fn handle_debug(command: &LeoDebug, context: Context, package: Option<Package>) 
             network,
         )
     } else {
+        // Program that have submodules aren't supported in this mode.
         let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)?;
         let address = Address::try_from(&private_key)?;
 
-        let leo_paths: Vec<PathBuf> = command
+        let leo_paths: Vec<(PathBuf, Vec<PathBuf>)> = command
             .paths
             .iter()
             .filter(|path_str| path_str.ends_with(".leo"))
-            .map(|path_str| path_str.into())
+            .map(|path_str| (path_str.into(), vec![]))
             .collect();
         let aleo_paths: Vec<PathBuf> = command
             .paths

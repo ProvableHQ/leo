@@ -140,7 +140,7 @@ pub struct TestFunction {
 // all the functions with annotations.
 #[allow(clippy::type_complexity)]
 pub fn find_and_run_tests(
-    leo_filenames: &[PathBuf],
+    leo_filenames: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
     aleo_filenames: &[PathBuf],
     signer: SvmAddress,
     block_height: u32,
@@ -241,7 +241,7 @@ pub fn find_and_run_tests(
 /// Load all the Leo source files indicated and open the interpreter
 /// to commands from the user.
 pub fn interpret(
-    leo_filenames: &[PathBuf],
+    leo_filenames: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
     aleo_filenames: &[PathBuf],
     signer: SvmAddress,
     block_height: u32,
