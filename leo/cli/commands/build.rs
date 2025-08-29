@@ -139,9 +139,10 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
                     imports_directory.join(format!("{}.aleo", program.name))
                 };
                 // Load the manifest in local dependency.
+                let source_dir = directory.join("src");
                 let bytecode = compile_leo_source_directory(
                     source, // entry file
-                    directory,
+                    &source_dir,
                     program.name,
                     program.is_test,
                     &outputs_directory,
