@@ -64,18 +64,19 @@ pub mod upgrade;
 pub use upgrade::LeoUpgrade;
 
 use super::*;
-use crate::cli::helpers::context::*;
+use crate::cli::{helpers::context::*, query::QueryCommands};
 use leo_errors::{CliError, Handler, PackageError, Result};
-use snarkvm::prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, Value, ViewKey, block::Transaction};
+use snarkvm::{
+    console::network::Network,
+    prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, Value, ViewKey, block::Transaction},
+};
 
 use clap::{Args, Parser};
 use colored::Colorize;
 use dialoguer::{Confirm, theme::ColorfulTheme};
 use std::{iter, str::FromStr};
 use tracing::span::Span;
-
-use crate::cli::query::QueryCommands;
-use snarkvm::console::network::Network;
+use ureq::http::Uri;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
