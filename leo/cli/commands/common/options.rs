@@ -317,6 +317,10 @@ pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> Vec<
     if let Ok(heights) = std::env::var("CONSENSUS_VERSION_HEIGHTS") {
         if let Ok(heights) = heights.split(',').map(|s| s.trim().parse::<u32>()).collect::<Result<Vec<_>, _>>() {
             return heights;
+        } else {
+            println!(
+                "⚠️ Warning: Failed to parse `CONSENSUS_VERSION_HEIGHTS` environment variable. Falling back to default heights."
+            );
         }
     }
     // If `is_devnet` is true, then return the test consensus heights.
@@ -407,7 +411,7 @@ pub fn get_private_key<N: Network>(private_key: &Option<String>) -> Result<Priva
 /// Returns whether the devnet flag is set.
 /// If the `--devnet` flag is not set, check if the environment variable is set, otherwise default to `false`.
 pub fn get_is_devnet(devnet: bool) -> bool {
-    if devnet { true } else { dotenvy::var("DEVNET").is_ok() }
+    if devnet { true } else { std::env::var("DEVNET").is_ok() }
 }
 
 #[cfg(test)]

@@ -441,7 +441,7 @@ fn get_key_string(key: Option<String>, key_file: Option<String>, env_vars: &[&'s
         }
         (None, None) => {
             // Attempt to pull any of the environment variables
-            env_vars.iter().find_map(|&var| dotenvy::var(var).ok()).ok_or_else(|| {
+            env_vars.iter().find_map(|&var| std::env::var(var).ok()).ok_or_else(|| {
                 CliError::cli_invalid_input(format!(
                     "Missing the '--key', '--key-file', or the following environment variables: '{}'",
                     env_vars.iter().format(",")

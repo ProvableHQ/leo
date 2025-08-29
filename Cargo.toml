@@ -164,7 +164,7 @@ version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
 version = "4.1.0"
-features = ["cli", "test_consensus_heights"]
+features = ["test_consensus_heights"]
 
 [workspace.dependencies.tempfile]
 version = "3.13"

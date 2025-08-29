@@ -98,25 +98,25 @@ impl Command for LeoRun {
 
         // Handle each network with the appropriate parameterization.
         match network {
-            NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, input),
+            NetworkName::TestnetV0 => handle_run::<AleoTestnetV0>(self, context, network, input),
             NetworkName::MainnetV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_execute::<AleoV0>(self, context, network, input)
+                handle_run::<AleoV0>(self, context, network, input)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_execute::<AleoCanaryV0>(self, context, network, input)
+                handle_run::<AleoCanaryV0>(self, context, network, input)
             }
         }
     }
 }
 
-// A helper function to handle the `execute` command.
-fn handle_execute<A: Aleo>(
+// A helper function to handle the `run` command.
+fn handle_run<A: Aleo>(
     command: LeoRun,
     context: Context,
     network: NetworkName,
