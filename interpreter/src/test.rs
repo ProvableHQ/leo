@@ -112,7 +112,7 @@ fn runner_leo_test(test: &str) -> String {
                 main_source = current_module_source;
             }
 
-            // === Step 3: Write all source files into the temp directory ===
+            // === Step 2: Write all source files into the temp directory ===
             let mut module_paths = Vec::new();
 
             // Write main source to main.leo
@@ -132,7 +132,7 @@ fn runner_leo_test(test: &str) -> String {
                 module_paths.push(full_path);
             }
 
-            // === Step 4: Run interpreter on main() ===
+            // === Step 3: Run interpreter on main() ===
             let private_key: PrivateKey<TestnetV0> =
                 PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
             let address = Address::try_from(&private_key).expect("should create address");
