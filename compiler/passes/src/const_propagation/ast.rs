@@ -48,6 +48,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     /* Expressions */
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+        let opt_old_type = self.state.type_table.get(&input.id());
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
@@ -70,6 +71,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Unary(unary) => self.reconstruct_unary(*unary),
             Expression::Unit(unit) => self.reconstruct_unit(unit),
         };
+
+        // If the expression was in the type table before, make an entry for the new expression.
+        if let Some(old_type) = opt_old_type {
+            self.state.type_table.insert(new_expr.id(), old_type);
+        }
 
         (new_expr, opt_value)
     }
