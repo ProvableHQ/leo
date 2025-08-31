@@ -98,8 +98,11 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         let mut replacements: IndexMap<(Symbol, Option<usize>), Expression> = IndexMap::new();
 
         // Helper to create a fresh `Identifier`
-        let make_identifier =
-            |symbol: Symbol| Identifier { name: symbol, span: Span::default(), id: self.state.node_builder.next_id() };
+        let make_identifier = |slf: &mut Self, symbol: Symbol| Identifier {
+            name: symbol,
+            span: Span::default(),
+            id: slf.state.node_builder.next_id(),
+        };
 
         // Generates a set of `Input`s and corresponding call-site `Expression`s for a given symbol access.
         //
@@ -128,7 +131,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         // - `Input` is a parameter for the generated async function.
         // - `Expression` is the call-site argument expression used to invoke that parameter.
         let mut make_inputs_and_arguments =
-            |symbol: Symbol, var_type: &Type, index_opt: Option<usize>| -> Vec<(Input, Expression)> {
+            |slf: &mut Self, symbol: Symbol, var_type: &Type, index_opt: Option<usize>| -> Vec<(Input, Expression)> {
                 if replacements.contains_key(&(symbol, index_opt)) {
                     return vec![]; // No new input needed; argument already exists
                 }
@@ -141,14 +144,14 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
 
                         let synthetic_name = format!("\"{symbol}.{index}\"");
                         let synthetic_symbol = Symbol::intern(&synthetic_name);
-                        let identifier = make_identifier(synthetic_symbol);
+                        let identifier = make_identifier(slf, synthetic_symbol);
 
                         let input = Input {
                             identifier,
                             mode: leo_ast::Mode::None,
                             type_: elements[index].clone(),
                             span: Span::default(),
-                            id: self.state.node_builder.next_id(),
+                            id: slf.state.node_builder.next_id(),
                         };
 
                         replacements.insert((symbol, Some(index)), Path::from(identifier).into());
@@ -156,10 +159,10 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                         vec![(
                             input,
                             TupleAccess {
-                                tuple: Path::from(make_identifier(symbol)).into(),
+                                tuple: Path::from(make_identifier(slf, symbol)).into(),
                                 index: index.into(),
                                 span: Span::default(),
-                                id: self.state.node_builder.next_id(),
+                                id: slf.state.node_builder.next_id(),
                             }
                             .into(),
                         )]
@@ -182,14 +185,14 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                 // Otherwise, synthesize identifier and input
                                 let synthetic_name = format!("\"{symbol}.{i}\"");
                                 let synthetic_symbol = Symbol::intern(&synthetic_name);
-                                let identifier = make_identifier(synthetic_symbol);
+                                let identifier = make_identifier(slf, synthetic_symbol);
 
                                 let input = Input {
                                     identifier,
                                     mode: leo_ast::Mode::None,
                                     type_: element_type.clone(),
                                     span: Span::default(),
-                                    id: self.state.node_builder.next_id(),
+                                    id: slf.state.node_builder.next_id(),
                                 };
 
                                 let expr: Expression = Path::from(identifier).into();
@@ -199,10 +202,10 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                 inputs_and_arguments.push((
                                     input,
                                     TupleAccess {
-                                        tuple: Path::from(make_identifier(symbol)).into(),
+                                        tuple: Path::from(make_identifier(slf, symbol)).into(),
                                         index: i.into(),
                                         span: Span::default(),
-                                        id: self.state.node_builder.next_id(),
+                                        id: slf.state.node_builder.next_id(),
                                     }
                                     .into(),
                                 ));
@@ -214,7 +217,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                 Expression::Tuple(TupleExpression {
                                     elements: tuple_elements,
                                     span: Span::default(),
-                                    id: self.state.node_builder.next_id(),
+                                    id: slf.state.node_builder.next_id(),
                                 }),
                             );
 
@@ -222,18 +225,18 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                         }
 
                         _ => {
-                            let identifier = make_identifier(symbol);
+                            let identifier = make_identifier(slf, symbol);
                             let input = Input {
                                 identifier,
                                 mode: leo_ast::Mode::None,
                                 type_: var_type.clone(),
                                 span: Span::default(),
-                                id: self.state.node_builder.next_id(),
+                                id: slf.state.node_builder.next_id(),
                             };
 
                             replacements.insert((symbol, None), Path::from(identifier).into());
 
-                            let argument = Path::from(make_identifier(symbol)).into();
+                            let argument = Path::from(make_identifier(slf, symbol)).into();
                             vec![(input, argument)]
                         }
                     },
@@ -261,7 +264,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
 
                 // All other variables become parameters to the async function being built.
                 let var = self.state.symbol_table.lookup_local(local_var_name)?;
-                Some(make_inputs_and_arguments(local_var_name, &var.type_, *index))
+                Some(make_inputs_and_arguments(self, local_var_name, &var.type_, *index))
             })
             .flatten()
             .unzip();
@@ -289,7 +292,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         };
 
         // Step 5: Reconstruct the block with replaced references
-        let mut replacer = Replacer::new(replace_expr, true /* refresh IDs */, &self.state.node_builder);
+        let mut replacer = Replacer::new(replace_expr, true /* refresh IDs */, self.state);
         let new_block = replacer.reconstruct_block(input.block.clone()).0;
 
         // Ensure we're not trying to capture too many variables
@@ -305,7 +308,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         let function = Function {
             annotations: vec![],
             variant: Variant::AsyncFunction,
-            identifier: make_identifier(finalize_fn_name),
+            identifier: make_identifier(self, finalize_fn_name),
             const_parameters: vec![],
             input: inputs,
             output: vec![],          // `async function`s can't have returns
@@ -322,7 +325,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         let call_to_finalize = CallExpression {
             function: Path::new(
                 vec![],
-                make_identifier(finalize_fn_name),
+                make_identifier(self, finalize_fn_name),
                 Some(vec![finalize_fn_name]), // the finalize function lives in the top level program scope
                 Span::default(),
                 self.state.node_builder.next_id(),
