@@ -32,12 +32,7 @@ use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     prelude::{
-        ConsensusVersion,
-        Identifier,
-        ProgramID,
-        VM,
-        execution_cost_v1,
-        execution_cost_v2,
+        ConsensusVersion, Identifier, ProgramID, VM, execution_cost_v1, execution_cost_v2,
         query::Query as SnarkVMQuery,
         store::{
             ConsensusStore,
@@ -405,8 +400,11 @@ fn handle_execute<A: Aleo>(
         let id = transaction.id().to_string();
         let height_before = check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
-        let (message, status) =
-            handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast?check_transaction=true"), &transaction, &program_name)?;
+        let (message, status) = handle_broadcast(
+            &format!("{endpoint}/{network}/transaction/broadcast?check_transaction=true"),
+            &transaction,
+            &program_name,
+        )?;
 
         let fail = |msg| {
             println!("❌ Failed to broadcast execution: {msg}.");

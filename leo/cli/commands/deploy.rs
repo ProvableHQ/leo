@@ -26,13 +26,7 @@ use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     ledger::store::helpers::memory::BlockMemory,
     prelude::{
-        ConsensusVersion,
-        Deployment,
-        Program,
-        ProgramID,
-        TestnetV0,
-        VM,
-        deployment_cost,
+        ConsensusVersion, Deployment, Program, ProgramID, TestnetV0, VM, deployment_cost,
         query::Query as SnarkVMQuery,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
