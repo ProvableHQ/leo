@@ -346,7 +346,7 @@ fn handle_upgrade<N: Network>(
             let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
             let (message, status) = handle_broadcast(
-                &format!("{endpoint}/{network}/transaction/broadcast"),
+                &format!("{endpoint}/{network}/transaction/broadcast?check_transaction=true"),
                 transaction,
                 &program_id.to_string(),
             )?;

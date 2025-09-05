@@ -406,7 +406,7 @@ fn handle_execute<A: Aleo>(
         let height_before = check_transaction::current_height(&endpoint, network)?;
         // Broadcast the transaction to the network.
         let (message, status) =
-            handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast"), &transaction, &program_name)?;
+            handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast?check_transaction=true"), &transaction, &program_name)?;
 
         let fail = |msg| {
             println!("❌ Failed to broadcast execution: {msg}.");
