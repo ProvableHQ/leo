@@ -24,26 +24,26 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1mnhgcjgqauz2wzzv99stxlvg0glxn73y9eczag6e0e5fyphux58qsg0dt7",
+      "id": "au1cdxsqaccklexg6pe5nmchlmtk5cyv7y39zuws05ctdv9lgh08v8qxhtely",
       "program": "test.aleo",
       "function": "sum_manually",
       "inputs": [
         {
           "type": "private",
-          "id": "5536625901423708295600291591400270770234060208571279466618619736675971084254field",
-          "value": "ciphertext1qgqgkjfukhtgncfpj6qjx44ev4m2przc03ezxhf4t9z63zy2enl0cppq2ce82my9qsz59zpznthvxtmdxnh03k6pjpyxjdyt8gs33l07pqcv46n3"
+          "id": "1756034766819840933495376571870417677752917142934125299394589122860722734561field",
+          "value": "ciphertext1qgqyzquqmnu09cz6xe47ujqz4a6cvf8kc7gn8c6rkpnqyyzxslq9zrn2x4567ep5hpegfnkejqunec7mll2vq02fx7l8zyk24cm5v87apv4qfefj"
         }
       ],
       "outputs": [
         {
           "type": "private",
-          "id": "247858629375005386762738790951863118904039605651930143695407575014342564405field",
-          "value": "ciphertext1qyq89d6p3gvnh9635f73ppasjp5cl5097mjh3se83gtlqajyj9ppqpg02em86"
+          "id": "1574776804705268507523350556609779081669897727909043023818616820920889932926field",
+          "value": "ciphertext1qyqddrfvxn05gem6hqevvp5pe5fuzrdkwqzmtp7y8jawfzmg7unhgpghxxmj4"
         }
       ],
-      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
-      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
-      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+      "tpk": "5275803988991921100669255130096892266036279521905234304290529984891326092970group",
+      "tcm": "4431658680028527978925645596922250798268393995120944037753624484019873551292field",
+      "scm": "4935938576233869505803142066417740491793211394122621317725566229990527962870field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -56,26 +56,26 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1m2zx36z9zrn5ddgha2m8f6s492s9g9t5fy4rx6ueymllhj9kfyqq3mssj8",
+      "id": "au1yyudavh650c8jcvszjmv0yfqx3l5m6lfkh9p290nfer3mkvn7qxsy7y3l3",
       "program": "test.aleo",
       "function": "sum_with_loop",
       "inputs": [
         {
           "type": "private",
-          "id": "6501522708704550330062672132999183386885395707435261451375649193303110419950field",
-          "value": "ciphertext1qgqpwf56pwz6ryhjk53valqdhfvjygetsxr54e2taejpa9sc9jl57rv8dr95vdd88pm7wtmuzvprk2rtfx3gh2s30fpwrutts0uwgth6qshmljrj"
+          "id": "685478125170854505387001034476709970143554541181126780812798180405538391516field",
+          "value": "ciphertext1qgqr5fksvvzx3zn06z737rt5y3p3nd7smx0t3j9ty2sxem7te6ndcyxlxdudrdpr27zryw6s0zltj7aqlfgj7xnta7rg8vtjhvw5wlhfqyyxsaqm"
         }
       ],
       "outputs": [
         {
           "type": "private",
-          "id": "937910523596040389960869122381819773587754158596610741651402285583515697151field",
-          "value": "ciphertext1qyq83xx9vlkh8uc3k6k7dne8w83l9z6w2ue0n5p6l9aa86vp37df6pqqa6v63"
+          "id": "1469568490501295036633997176357557050513962387643870411738955176512295703213field",
+          "value": "ciphertext1qyq8qdpyfhduk09d2xptmj45dm3mhwmyq3wtncjzxnmhucjv82ql2zcp7jl5h"
         }
       ],
-      "tpk": "209923920366316979358835823024524595725466082699377569762700210131035917463group",
-      "tcm": "4972663126249935768762313800081143256565302075358692358234187986117099072922field",
-      "scm": "4173904850343490045907797727384617256297345307958493992977439426479269378380field"
+      "tpk": "3111932130208196744854925329763965861770545896861195472446347902951784214903group",
+      "tcm": "6578962790959269525210850804259850638334968004284579465808672514572352531123field",
+      "scm": "7358056729336772834876670957560302155290370692132892300611651982662509330955field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

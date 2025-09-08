@@ -278,8 +278,11 @@ fn handle_upgrade<N: Network>(
     println!();
 
     // Specify the query
-    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
-
+    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
+        endpoint
+            .parse::<Uri>()
+            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
+    );
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
     for Task { id, program, priority_fee, record, .. } in local {
@@ -293,7 +296,7 @@ fn handle_upgrade<N: Network>(
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
-            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee)?;
+            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
             // Validate the deployment limits.
             validate_deployment_limits(deployment, &id, &network)?;
             // Save the transaction.

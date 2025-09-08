@@ -19,13 +19,13 @@ use crate::{
     ConstPropagation,
     Monomorphization,
     Pass,
-    SymbolTable,
     SymbolTableCreation,
     TypeChecking,
     TypeCheckingInput,
     Unrolling,
 };
 
+use leo_ast::Node;
 use leo_errors::{CompilerError, Result};
 
 /// Pass that runs const propagation, loop unrolling, and monomorphization until a fixed point.
@@ -49,8 +49,9 @@ impl Pass for ConstPropUnrollAndMorphing {
 
             // Clear the symbol table and create it again. This is important because after all the passes above run, the
             // program may have changed significantly (new functions may have been added, some functions may have been
-            // deleted, etc.)
-            state.symbol_table = SymbolTable::default();
+            // deleted, etc.) We do want to retain globally evaluated consts, so that const propagation can tell when
+            // it has evaluated a new one.
+            state.symbol_table.reset_but_consts();
             SymbolTableCreation::do_pass((), state)?;
 
             // Now run the type checker again to validate and infer types. Again, this is important because the program
@@ -82,9 +83,8 @@ impl Pass for ConstPropUnrollAndMorphing {
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "call to generic function",
-                            call.function.name,
-                            arg,
-                            call.span,
+                            call.function.clone(),
+                            arg.span(),
                         ));
                     }
                 }
@@ -96,9 +96,8 @@ impl Pass for ConstPropUnrollAndMorphing {
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "struct expression",
-                            expr.name.name,
-                            arg,
-                            expr.span,
+                            expr.path.clone(),
+                            arg.span(),
                         ));
                     }
                 }
@@ -110,9 +109,8 @@ impl Pass for ConstPropUnrollAndMorphing {
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
                             "struct type",
-                            ty.id.name,
-                            arg,
-                            ty.id.span,
+                            ty.path.clone(),
+                            arg.span(),
                         ));
                     }
                 }

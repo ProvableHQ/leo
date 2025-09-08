@@ -107,7 +107,7 @@ pub trait AstVisitor {
             Expression::Cast(cast) => self.visit_cast(cast, additional),
             Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
             Expression::Err(err) => self.visit_err(err, additional),
-            Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
+            Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access(access, additional),
@@ -204,7 +204,7 @@ pub trait AstVisitor {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn visit_identifier(&mut self, _input: &Identifier, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_path(&mut self, _input: &Path, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
@@ -271,6 +271,7 @@ pub trait AstVisitor {
     }
 
     fn visit_assign(&mut self, input: &AssignStatement) {
+        self.visit_expression(&input.place, &Default::default());
         self.visit_expression(&input.value, &Default::default());
     }
 
@@ -319,6 +320,7 @@ pub trait AstVisitor {
 /// A Visitor trait for the program represented by the AST.
 pub trait ProgramVisitor: AstVisitor {
     fn visit_program(&mut self, input: &Program) {
+        input.modules.values().for_each(|module| self.visit_module(module));
         input.imports.values().for_each(|import| self.visit_import(&import.0));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
@@ -332,6 +334,12 @@ pub trait ProgramVisitor: AstVisitor {
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
         }
+    }
+
+    fn visit_module(&mut self, input: &Module) {
+        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
+        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
     }
 
     fn visit_stub(&mut self, _input: &Stub) {}

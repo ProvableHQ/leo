@@ -1,13 +1,22 @@
 {
   "Unary": {
     "receiver": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 1,
+            "hi": 2
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 1,
           "hi": 2
         },
-        "id": 0
+        "id": 1
       }
     },
     "op": "Negate",
@@ -15,7 +24,7 @@
       "lo": 0,
       "hi": 2
     },
-    "id": 1
+    "id": 2
   }
 }
 
@@ -24,12 +33,21 @@
     "receiver": {
       "Call": {
         "function": {
-          "name": "x",
+          "qualifier": [],
+          "identifier": {
+            "name": "x",
+            "span": {
+              "lo": 4,
+              "hi": 5
+            },
+            "id": 0
+          },
+          "absolute_path": null,
           "span": {
             "lo": 4,
             "hi": 5
           },
-          "id": 0
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [],
@@ -38,7 +56,7 @@
           "lo": 4,
           "hi": 7
         },
-        "id": 1
+        "id": 2
       }
     },
     "op": "Negate",
@@ -46,7 +64,7 @@
       "lo": 3,
       "hi": 7
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -55,13 +73,22 @@
     "receiver": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 10,
+                "hi": 11
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 10,
               "hi": 11
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Negate",
@@ -69,7 +96,7 @@
           "lo": 9,
           "hi": 11
         },
-        "id": 1
+        "id": 2
       }
     },
     "op": "Negate",
@@ -77,7 +104,7 @@
       "lo": 8,
       "hi": 11
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -86,13 +113,22 @@
     "receiver": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 14,
+                "hi": 15
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 14,
               "hi": 15
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Not",
@@ -100,7 +136,7 @@
           "lo": 13,
           "hi": 15
         },
-        "id": 1
+        "id": 2
       }
     },
     "op": "Negate",
@@ -108,7 +144,7 @@
       "lo": 12,
       "hi": 15
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -163,13 +199,22 @@
 {
   "Unary": {
     "receiver": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 37,
+            "hi": 38
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 37,
           "hi": 38
         },
-        "id": 0
+        "id": 1
       }
     },
     "op": "Negate",
@@ -177,7 +222,7 @@
       "lo": 37,
       "hi": 44
     },
-    "id": 2
+    "id": 3
   }
 }
 
@@ -188,13 +233,22 @@
         "receiver": {
           "Unary": {
             "receiver": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 45,
+                    "hi": 46
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 45,
                   "hi": 46
                 },
-                "id": 0
+                "id": 1
               }
             },
             "op": "Negate",
@@ -202,7 +256,7 @@
               "lo": 45,
               "hi": 52
             },
-            "id": 2
+            "id": 3
           }
         },
         "op": "Negate",
@@ -210,13 +264,183 @@
           "lo": 45,
           "hi": 58
         },
-        "id": 4
+        "id": 5
       }
     },
     "op": "Negate",
     "span": {
       "lo": 45,
       "hi": 64
+    },
+    "id": 7
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 66,
+                "hi": 67
+              },
+              "id": 0
+            },
+            "absolute_path": null,
+            "span": {
+              "lo": 66,
+              "hi": 67
+            },
+            "id": 1
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 66,
+          "hi": 73
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 65,
+      "hi": 73
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 76,
+                "hi": 77
+              },
+              "id": 0
+            },
+            "absolute_path": null,
+            "span": {
+              "lo": 76,
+              "hi": 77
+            },
+            "id": 1
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 75,
+          "hi": 77
+        },
+        "id": 2
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 75,
+      "hi": 84
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 87,
+                "hi": 88
+              },
+              "id": 0
+            },
+            "absolute_path": null,
+            "span": {
+              "lo": 87,
+              "hi": 88
+            },
+            "id": 1
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 87,
+          "hi": 94
+        },
+        "id": 3
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 85,
+      "hi": 94
+    },
+    "id": 4
+  }
+}
+
+{
+  "Unary": {
+    "receiver": {
+      "Unary": {
+        "receiver": {
+          "Unary": {
+            "receiver": {
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 98,
+                    "hi": 99
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
+                "span": {
+                  "lo": 98,
+                  "hi": 99
+                },
+                "id": 1
+              }
+            },
+            "op": "Negate",
+            "span": {
+              "lo": 98,
+              "hi": 105
+            },
+            "id": 3
+          }
+        },
+        "op": "Negate",
+        "span": {
+          "lo": 97,
+          "hi": 105
+        },
+        "id": 4
+      }
+    },
+    "op": "Negate",
+    "span": {
+      "lo": 97,
+      "hi": 112
     },
     "id": 6
   }
@@ -227,147 +451,22 @@
     "receiver": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 66,
-              "hi": 67
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 114,
+                "hi": 115
+              },
+              "id": 0
             },
-            "id": 0
-          }
-        },
-        "op": "Negate",
-        "span": {
-          "lo": 66,
-          "hi": 73
-        },
-        "id": 2
-      }
-    },
-    "op": "Negate",
-    "span": {
-      "lo": 65,
-      "hi": 73
-    },
-    "id": 3
-  }
-}
-
-{
-  "Unary": {
-    "receiver": {
-      "Unary": {
-        "receiver": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 76,
-              "hi": 77
-            },
-            "id": 0
-          }
-        },
-        "op": "Negate",
-        "span": {
-          "lo": 75,
-          "hi": 77
-        },
-        "id": 1
-      }
-    },
-    "op": "Negate",
-    "span": {
-      "lo": 75,
-      "hi": 84
-    },
-    "id": 3
-  }
-}
-
-{
-  "Unary": {
-    "receiver": {
-      "Unary": {
-        "receiver": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 87,
-              "hi": 88
-            },
-            "id": 0
-          }
-        },
-        "op": "Negate",
-        "span": {
-          "lo": 87,
-          "hi": 94
-        },
-        "id": 2
-      }
-    },
-    "op": "Negate",
-    "span": {
-      "lo": 85,
-      "hi": 94
-    },
-    "id": 3
-  }
-}
-
-{
-  "Unary": {
-    "receiver": {
-      "Unary": {
-        "receiver": {
-          "Unary": {
-            "receiver": {
-              "Identifier": {
-                "name": "x",
-                "span": {
-                  "lo": 98,
-                  "hi": 99
-                },
-                "id": 0
-              }
-            },
-            "op": "Negate",
-            "span": {
-              "lo": 98,
-              "hi": 105
-            },
-            "id": 2
-          }
-        },
-        "op": "Negate",
-        "span": {
-          "lo": 97,
-          "hi": 105
-        },
-        "id": 3
-      }
-    },
-    "op": "Negate",
-    "span": {
-      "lo": 97,
-      "hi": 112
-    },
-    "id": 5
-  }
-}
-
-{
-  "Unary": {
-    "receiver": {
-      "Unary": {
-        "receiver": {
-          "Identifier": {
-            "name": "x",
+            "absolute_path": null,
             "span": {
               "lo": 114,
               "hi": 115
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Negate",
@@ -375,7 +474,7 @@
           "lo": 114,
           "hi": 121
         },
-        "id": 2
+        "id": 3
       }
     },
     "op": "Not",
@@ -383,7 +482,7 @@
       "lo": 113,
       "hi": 121
     },
-    "id": 3
+    "id": 4
   }
 }
 
@@ -392,13 +491,22 @@
     "receiver": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 124,
+                "hi": 125
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 124,
               "hi": 125
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Not",
@@ -406,7 +514,7 @@
           "lo": 123,
           "hi": 125
         },
-        "id": 1
+        "id": 2
       }
     },
     "op": "Negate",
@@ -414,7 +522,7 @@
       "lo": 123,
       "hi": 132
     },
-    "id": 3
+    "id": 4
   }
 }
 
@@ -423,13 +531,22 @@
     "receiver": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 135,
+                "hi": 136
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 135,
               "hi": 136
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Negate",
@@ -437,7 +554,7 @@
           "lo": 135,
           "hi": 142
         },
-        "id": 2
+        "id": 3
       }
     },
     "op": "Not",
@@ -445,7 +562,7 @@
       "lo": 133,
       "hi": 142
     },
-    "id": 3
+    "id": 4
   }
 }
 
@@ -456,13 +573,22 @@
         "receiver": {
           "Unary": {
             "receiver": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 146,
+                    "hi": 147
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 146,
                   "hi": 147
                 },
-                "id": 0
+                "id": 1
               }
             },
             "op": "Negate",
@@ -470,7 +596,7 @@
               "lo": 146,
               "hi": 153
             },
-            "id": 2
+            "id": 3
           }
         },
         "op": "Not",
@@ -478,7 +604,7 @@
           "lo": 145,
           "hi": 153
         },
-        "id": 3
+        "id": 4
       }
     },
     "op": "Negate",
@@ -486,7 +612,7 @@
       "lo": 145,
       "hi": 160
     },
-    "id": 5
+    "id": 6
   }
 }
 

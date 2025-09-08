@@ -1,13 +1,22 @@
 {
   "Conditional": {
     "condition": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 3,
+            "hi": 4
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 3,
           "hi": 4
         },
-        "id": 0
+        "id": 1
       }
     },
     "then": {
@@ -20,7 +29,7 @@
                   "lo": 18,
                   "hi": 21
                 },
-                "id": 1,
+                "id": 2,
                 "variant": {
                   "Integer": [
                     "U8",
@@ -33,7 +42,7 @@
               "lo": 11,
               "hi": 22
             },
-            "id": 2
+            "id": 3
           }
         }
       ],
@@ -41,27 +50,36 @@
         "lo": 5,
         "hi": 24
       },
-      "id": 3
+      "id": 4
     },
     "otherwise": null,
     "span": {
       "lo": 0,
       "hi": 24
     },
-    "id": 4
+    "id": 5
   }
 }
 
 {
   "Conditional": {
     "condition": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 29,
+            "hi": 30
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 29,
           "hi": 30
         },
-        "id": 0
+        "id": 1
       }
     },
     "then": {
@@ -74,7 +92,7 @@
                   "lo": 45,
                   "hi": 48
                 },
-                "id": 1,
+                "id": 2,
                 "variant": {
                   "Integer": [
                     "U8",
@@ -87,7 +105,7 @@
               "lo": 38,
               "hi": 49
             },
-            "id": 2
+            "id": 3
           }
         }
       ],
@@ -95,27 +113,36 @@
         "lo": 32,
         "hi": 51
       },
-      "id": 3
+      "id": 4
     },
     "otherwise": null,
     "span": {
       "lo": 25,
       "hi": 51
     },
-    "id": 4
+    "id": 5
   }
 }
 
 {
   "Conditional": {
     "condition": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 56,
+            "hi": 57
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 56,
           "hi": 57
         },
-        "id": 0
+        "id": 1
       }
     },
     "then": {
@@ -124,7 +151,7 @@
         "lo": 59,
         "hi": 61
       },
-      "id": 1
+      "id": 2
     },
     "otherwise": {
       "Block": {
@@ -133,14 +160,14 @@
           "lo": 67,
           "hi": 69
         },
-        "id": 2
+        "id": 3
       }
     },
     "span": {
       "lo": 52,
       "hi": 69
     },
-    "id": 3
+    "id": 4
   }
 }
 
@@ -149,23 +176,41 @@
     "condition": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 73,
+                "hi": 74
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 73,
               "hi": 74
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 75,
+                "hi": 76
+              },
+              "id": 2
+            },
+            "absolute_path": null,
             "span": {
               "lo": 75,
               "hi": 76
             },
-            "id": 1
+            "id": 3
           }
         },
         "op": "Add",
@@ -173,7 +218,7 @@
           "lo": 73,
           "hi": 76
         },
-        "id": 2
+        "id": 4
       }
     },
     "then": {
@@ -182,30 +227,48 @@
         "lo": 77,
         "hi": 79
       },
-      "id": 3
+      "id": 5
     },
     "otherwise": {
       "Conditional": {
         "condition": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 88,
+                    "hi": 89
+                  },
+                  "id": 6
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 88,
                   "hi": 89
                 },
-                "id": 4
+                "id": 7
               }
             },
             "right": {
-              "Identifier": {
-                "name": "z",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "z",
+                  "span": {
+                    "lo": 90,
+                    "hi": 91
+                  },
+                  "id": 8
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 90,
                   "hi": 91
                 },
-                "id": 5
+                "id": 9
               }
             },
             "op": "Add",
@@ -213,7 +276,7 @@
               "lo": 88,
               "hi": 91
             },
-            "id": 6
+            "id": 10
           }
         },
         "then": {
@@ -222,7 +285,7 @@
             "lo": 92,
             "hi": 94
           },
-          "id": 7
+          "id": 11
         },
         "otherwise": {
           "Block": {
@@ -231,21 +294,21 @@
               "lo": 100,
               "hi": 102
             },
-            "id": 8
+            "id": 12
           }
         },
         "span": {
           "lo": 85,
           "hi": 102
         },
-        "id": 9
+        "id": 13
       }
     },
     "span": {
       "lo": 70,
       "hi": 102
     },
-    "id": 10
+    "id": 14
   }
 }
 
@@ -254,23 +317,41 @@
     "condition": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 106,
+                "hi": 107
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 106,
               "hi": 107
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 108,
+                "hi": 109
+              },
+              "id": 2
+            },
+            "absolute_path": null,
             "span": {
               "lo": 108,
               "hi": 109
             },
-            "id": 1
+            "id": 3
           }
         },
         "op": "Add",
@@ -278,7 +359,7 @@
           "lo": 106,
           "hi": 109
         },
-        "id": 2
+        "id": 4
       }
     },
     "then": {
@@ -291,7 +372,7 @@
                   "lo": 123,
                   "hi": 126
                 },
-                "id": 3,
+                "id": 5,
                 "variant": {
                   "Integer": [
                     "U8",
@@ -304,7 +385,7 @@
               "lo": 116,
               "hi": 127
             },
-            "id": 4
+            "id": 6
           }
         }
       ],
@@ -312,14 +393,14 @@
         "lo": 110,
         "hi": 129
       },
-      "id": 5
+      "id": 7
     },
     "otherwise": null,
     "span": {
       "lo": 103,
       "hi": 129
     },
-    "id": 6
+    "id": 8
   }
 }
 

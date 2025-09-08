@@ -1,0 +1,24 @@
+program complex.aleo;
+
+struct Vector__5KTtxzDmsJT:
+    values as [u32; 8u32];
+
+struct Vector__EDO8LZYCH1E:
+    values as [u32; 13u32];
+
+function complex_call_pass:
+    cast 9u32 9u32 9u32 9u32 9u32 9u32 9u32 9u32 into r0 as [u32; 8u32];
+    cast r0 into r1 as Vector__5KTtxzDmsJT;
+    output r1 as Vector__5KTtxzDmsJT.private;
+
+function inline_nested_pass:
+    cast 1u32 1u32 1u32 1u32 1u32 1u32 1u32 1u32 1u32 1u32 1u32 1u32 1u32 into r0 as [u32; 13u32];
+    cast r0 into r1 as Vector__EDO8LZYCH1E;
+    output r1 as Vector__EDO8LZYCH1E.private;
+
+function call_repeat:
+    cast 42u32 42u32 42u32 42u32 42u32 42u32 into r0 as [u32; 6u32];
+    output r0 as [u32; 6u32].private;
+
+constructor:
+    assert.eq edition 0u16;

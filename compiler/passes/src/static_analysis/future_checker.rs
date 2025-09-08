@@ -99,7 +99,7 @@ impl AstVisitor for FutureChecker<'_> {
             Expression::Cast(cast) => self.visit_cast(cast, &Position::Misc),
             Expression::Struct(struct_) => self.visit_struct_init(struct_, &Position::Misc),
             Expression::Err(err) => self.visit_err(err, &Position::Misc),
-            Expression::Identifier(identifier) => self.visit_identifier(identifier, &Position::Misc),
+            Expression::Path(path) => self.visit_path(path, &Position::Misc),
             Expression::Literal(literal) => self.visit_literal(literal, &Position::Misc),
             Expression::Locator(locator) => self.visit_locator(locator, &Position::Misc),
             Expression::MemberAccess(access) => self.visit_member_access(access, &Position::Misc),

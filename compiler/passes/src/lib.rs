@@ -50,6 +50,9 @@ pub use monomorphization::*;
 mod loop_unrolling;
 pub use loop_unrolling::*;
 
+mod path_resolution;
+pub use path_resolution::*;
+
 mod pass;
 pub use pass::*;
 

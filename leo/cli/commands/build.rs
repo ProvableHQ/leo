@@ -139,7 +139,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                 // This was a network dependency or local .aleo dependency, and we have its bytecode.
                 (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
             }
-            leo_package::ProgramData::SourcePath { source, .. } => {
+            leo_package::ProgramData::SourcePath { directory, source } => {
                 // This is a local dependency, so we must compile it.
                 let build_path = if source == &main_source_path {
                     build_directory.join("main.aleo")
@@ -147,8 +147,10 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     imports_directory.join(format!("{}.aleo", program.name))
                 };
                 // Load the manifest in local dependency.
-                let bytecode = compile_leo_file(
-                    source,
+                let source_dir = directory.join("src");
+                let bytecode = compile_leo_source_directory(
+                    source, // entry file
+                    &source_dir,
                     program.name,
                     program.is_test,
                     &outputs_directory,
@@ -192,8 +194,9 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
 /// Compiles a Leo file. Writes and returns the compiled bytecode.
 #[allow(clippy::too_many_arguments)]
-fn compile_leo_file(
-    source_file_path: &Path,
+fn compile_leo_source_directory(
+    entry_file_path: &Path,
+    source_directory: &Path,
     program_name: Symbol,
     is_test: bool,
     output_path: &Path,
@@ -214,7 +217,19 @@ fn compile_leo_file(
     );
 
     // Compile the Leo program into Aleo instructions.
-    let bytecode = compiler.compile_from_file(source_file_path)?;
+    let bytecode = compiler.compile_from_directory(entry_file_path, source_directory)?;
+
+    // Check the program size limit.
+    use leo_package::MAX_PROGRAM_SIZE;
+    let program_size = bytecode.len();
+
+    if program_size > MAX_PROGRAM_SIZE {
+        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
+            program_name,
+            program_size,
+            MAX_PROGRAM_SIZE,
+        )));
+    }
 
     // Get the AVM bytecode.
     let checksum: String = match network {
@@ -223,7 +238,7 @@ fn compile_leo_file(
         NetworkName::CanaryV0 => Program::<CanaryV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
     };
 
-    tracing::info!("    \n{} statements before dead code elimination.", compiler.statements_before_dce);
+    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
     tracing::info!("    The program checksum is: '[{checksum}]'.");
 

@@ -101,7 +101,7 @@ impl ParserContext<'_> {
                     // Return the external type
                     return Ok((
                         Type::Composite(CompositeType {
-                            id: record_name,
+                            path: record_name.into(),
                             const_arguments: Vec::new(), // For now, external composite types can't have const generics
                             program: Some(ident.name),
                         }),
@@ -112,14 +112,40 @@ impl ParserContext<'_> {
                 }
             }
 
-            // Parse a list of const arguments in between `::[..]`
+            // Begin collecting the rest of the path, starting from `ident`
+            let mut path_span = ident.span;
+            let mut segments = vec![ident];
+
+            // Parse `::`-separated path segments
+            while self.check(&Token::DoubleColon) {
+                // Look ahead without consuming `::` to detect const generics
+                if self.look_ahead(1, |next| matches!(next.token, Token::LeftSquare)) {
+                    break;
+                }
+
+                self.bump(); // consume `::`
+
+                let next_ident = self.expect_identifier()?;
+                path_span = path_span + next_ident.span;
+                segments.push(next_ident);
+            }
+
+            // Parse optional const generic arguments `::[...]`
             let const_arguments = if self.eat(&Token::DoubleColon) {
                 self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?.0
             } else {
                 Vec::new()
             };
 
-            Ok((Type::Composite(CompositeType { id: ident, const_arguments, program: None }), ident.span))
+            let (identifier, qualifier) = segments.split_last().expect("guaranateed to have at least one segment");
+            Ok((
+                Type::Composite(CompositeType {
+                    path: Path::new(qualifier.to_vec(), *identifier, None, path_span, self.node_builder.next_id()),
+                    const_arguments,
+                    program: None,
+                }),
+                path_span,
+            ))
         } else if self.token.token == Token::LeftSquare {
             // Parse the left bracket.
             self.expect(&Token::LeftSquare)?;

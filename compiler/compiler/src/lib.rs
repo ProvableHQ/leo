@@ -28,6 +28,9 @@ pub use options::*;
 pub mod run_with_ledger;
 
 #[cfg(test)]
+mod test_utils;
+
+#[cfg(test)]
 mod test_compiler;
 
 #[cfg(test)]

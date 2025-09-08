@@ -25,6 +25,8 @@ use leo_ast::{
     FunctionConsumer,
     Identifier,
     Member,
+    Module,
+    ModuleConsumer,
     Node as _,
     Program,
     ProgramConsumer,
@@ -141,6 +143,7 @@ impl ProgramConsumer for SsaFormingVisitor<'_> {
 
     fn consume_program(&mut self, input: Program) -> Self::Output {
         Program {
+            modules: input.modules.into_iter().map(|(path, module)| (path, self.consume_module(module))).collect(),
             imports: input
                 .imports
                 .into_iter()
@@ -152,6 +155,20 @@ impl ProgramConsumer for SsaFormingVisitor<'_> {
                 .into_iter()
                 .map(|(name, scope)| (name, self.consume_program_scope(scope)))
                 .collect(),
+        }
+    }
+}
+
+impl ModuleConsumer for SsaFormingVisitor<'_> {
+    type Output = Module;
+
+    fn consume_module(&mut self, input: Module) -> Self::Output {
+        Module {
+            path: input.path,
+            program_name: self.program,
+            structs: input.structs.into_iter().map(|(i, s)| (i, self.consume_struct(s))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+            consts: input.consts,
         }
     }
 }

@@ -32,6 +32,7 @@ pub use parser::*;
 
 use leo_ast::{Ast, NetworkName, NodeBuilder};
 use leo_errors::{Handler, Result};
+use leo_span::source_map::SourceFile;
 
 #[cfg(test)]
 mod test;
@@ -40,9 +41,9 @@ mod test;
 pub fn parse_ast(
     handler: Handler,
     node_builder: &NodeBuilder,
-    source: &str,
-    start_pos: u32,
+    source: &SourceFile,
+    modules: &[std::rc::Rc<SourceFile>],
     network: NetworkName,
 ) -> Result<Ast> {
-    Ok(Ast::new(parse(handler, node_builder, source, start_pos, network)?))
+    Ok(Ast::new(parse(handler, node_builder, source, modules, network)?))
 }

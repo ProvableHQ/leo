@@ -28,7 +28,13 @@ pub struct LeoAdd {
     #[clap(flatten)]
     pub(crate) source: DependencySource,
 
-    #[clap(short = 'c', long, help = "Clear all previous dependencies.", default_value = "false")]
+    #[clap(
+        short = 'c',
+        long,
+        hide = true,
+        help = "[UNUSED] Clear all previous dependencies.",
+        default_value = "false"
+    )]
     pub(crate) clear: bool,
 
     #[clap(long, help = "This is a development dependency.", default_value = "false")]

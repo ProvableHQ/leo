@@ -25,15 +25,15 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
     /// Replaces a tuple access expression with the appropriate expression.
     fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
-        let Expression::Identifier(identifier) = &input.tuple else {
+        let Expression::Path(path) = &input.tuple else {
             panic!("SSA guarantees that subexpressions are identifiers or literals.");
         };
 
         // Look up the expression in the tuple map.
-        match self.tuples.get(&identifier.name).and_then(|tuple_names| tuple_names.get(input.index.value())) {
-            Some(id) => ((*id).into(), Default::default()),
+        match self.tuples.get(&path.identifier().name).and_then(|tuple_names| tuple_names.get(input.index.value())) {
+            Some(id) => (Path::from(*id).into(), Default::default()),
             None => {
-                if !matches!(self.state.type_table.get(&identifier.id), Some(Type::Future(_))) {
+                if !matches!(self.state.type_table.get(&path.id), Some(Type::Future(_))) {
                     panic!("Type checking guarantees that all tuple accesses are declared and indices are valid.");
                 }
 
@@ -46,7 +46,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
 
                 let expr =
-                    ArrayAccess { array: (*identifier).into(), index: index.into(), span: input.span, id: input.id }
+                    ArrayAccess { array: path.clone().into(), index: index.into(), span: input.span, id: input.id }
                         .into();
 
                 (expr, Default::default())
@@ -69,7 +69,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 };
 
                 // We'll be reusing `input.condition`, so assign it to a variable.
-                let cond = if let Expression::Identifier(..) = input.condition {
+                let cond = if let Expression::Path(..) = input.condition {
                     input.condition
                 } else {
                     let place = Identifier::new(
@@ -87,7 +87,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
                     self.state.type_table.insert(place.id(), Type::Boolean);
 
-                    Expression::Identifier(place)
+                    Expression::Path(Path::from(place))
                 };
 
                 // These will be the `elements` of our resulting tuple.
@@ -122,7 +122,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     );
 
                     statements.push(definition);
-                    elements.push(identifier.into());
+                    elements.push(Path::from(identifier).into());
                 }
 
                 let expr: Expression =
@@ -155,22 +155,24 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     fn reconstruct_assign(&mut self, mut assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         let (value, mut statements) = self.reconstruct_expression(assign.value);
 
-        if let Expression::Identifier(identifier) = assign.place {
+        if let Expression::Path(path) = &assign.place {
             if let Type::Tuple(..) = self.state.type_table.get(&value.id()).expect("Expressions should have types.") {
                 // This is the first case, assigning to a variable of tuple type.
-                let identifiers = self.tuples.get(&identifier.name).expect("Tuple should have been encountered.");
+                let identifiers =
+                    self.tuples.get(&path.identifier().name).expect("Tuple should have been encountered.");
 
-                let Expression::Identifier(rhs) = value else {
+                let Expression::Path(rhs) = value else {
                     panic!("SSA should have ensured this is an identifier.");
                 };
 
-                let rhs_identifiers = self.tuples.get(&rhs.name).expect("Tuple should have been encountered.");
+                let rhs_identifiers =
+                    self.tuples.get(&rhs.identifier().name).expect("Tuple should have been encountered.");
 
                 // Again, make an assignment for each identifier.
                 for (&identifier, &rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
                     let stmt = AssignStatement {
-                        place: identifier.into(),
-                        value: rhs_identifier.into(),
+                        place: Path::from(identifier).into(),
+                        value: Path::from(rhs_identifier).into(),
                         id: self.state.node_builder.next_id(),
                         span: Default::default(),
                     }
@@ -194,16 +196,17 @@ impl AstReconstructor for DestructuringVisitor<'_> {
             match place {
                 Expression::TupleAccess(access) => {
                     // We're assigning to a tuple member, case 2 mentioned above.
-                    let Expression::Identifier(identifier) = &access.tuple else {
+                    let Expression::Path(path) = &access.tuple else {
                         panic!("SSA should have ensured this is an identifier.");
                     };
 
-                    let tuple_ids = self.tuples.get(&identifier.name).expect("Tuple should have been encountered.");
+                    let tuple_ids =
+                        self.tuples.get(&path.identifier().name).expect("Tuple should have been encountered.");
 
                     // This is the corresponding variable name of the member we're assigning to.
                     let identifier = tuple_ids[access.index.value()];
 
-                    *place = identifier.into();
+                    *place = Path::from(identifier).into();
 
                     return (assign.into(), statements);
                 }
@@ -218,7 +221,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     place = &mut access.inner;
                 }
 
-                Expression::Identifier(..) => {
+                Expression::Path(..) => {
                     // There was no tuple access, so this is neither case 1 nor 2; there's nothing to do.
                     return (assign.into(), statements);
                 }
@@ -272,18 +275,18 @@ impl AstReconstructor for DestructuringVisitor<'_> {
         let (value, mut statements) = self.reconstruct_expression(definition.value);
         let ty = self.state.type_table.get(&value.id()).expect("Expressions should have a type.");
         match (definition.place, value, ty) {
-            (Single(identifier), Expression::Identifier(rhs), Type::Tuple(tuple_type)) => {
+            (Single(identifier), Expression::Path(rhs), Type::Tuple(tuple_type)) => {
                 // We need to give the members new names, in case they are assigned to.
                 let identifiers = make_identifiers(self, identifier.name, tuple_type.length());
 
-                let rhs_identifiers = self.tuples.get(&rhs.name).unwrap();
+                let rhs_identifiers = self.tuples.get(&rhs.identifier().name).unwrap();
 
                 for (identifier, rhs_identifier, ty) in izip!(&identifiers, rhs_identifiers, tuple_type.elements()) {
                     // Make a definition for each.
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
                         type_: Some(ty.clone()),
-                        value: Expression::Identifier(*rhs_identifier),
+                        value: Expression::Path(Path::from(*rhs_identifier)),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }
@@ -359,14 +362,15 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 // We don't need to keep the original definition.
                 (Statement::dummy(), statements)
             }
-            (Multiple(identifiers), Expression::Identifier(rhs), Type::Tuple(..)) => {
+            (Multiple(identifiers), Expression::Path(rhs), Type::Tuple(..)) => {
                 // Again, make a definition for each tuple element.
-                let rhs_identifiers = self.tuples.get(&rhs.name).expect("We should have encountered this tuple by now");
+                let rhs_identifiers =
+                    self.tuples.get(&rhs.identifier().name).expect("We should have encountered this tuple by now");
                 for (identifier, rhs_identifier) in identifiers.into_iter().zip_eq(rhs_identifiers.iter()) {
                     let stmt = DefinitionStatement {
                         place: Single(identifier),
                         type_: None,
-                        value: Expression::Identifier(*rhs_identifier),
+                        value: Expression::Path(Path::from(*rhs_identifier)),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }

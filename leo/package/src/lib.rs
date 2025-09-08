@@ -100,6 +100,9 @@ pub const BUILD_DIRECTORY: &str = "build";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 
+/// Maximum allowed program size in bytes.
+pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
+
 pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 
 fn symbol(name: &str) -> Result<Symbol> {
@@ -178,6 +181,15 @@ pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkNa
 pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> {
     use snarkvm::prelude::{Program, TestnetV0};
     use std::str::FromStr as _;
+
+    // Check if the program size exceeds the maximum allowed limit.
+    let program_size = program.len();
+
+    if program_size > MAX_PROGRAM_SIZE {
+        return Err(UtilError::program_size_limit_exceeded(name, program_size, MAX_PROGRAM_SIZE));
+    }
+
+    // Parse the program to verify it's valid Aleo instructions.
     match Program::<TestnetV0>::from_str(program) {
         Ok(_) => Ok(()),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name)),

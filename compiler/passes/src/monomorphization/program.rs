@@ -15,10 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{AstReconstructor, Composite, Function, ProgramReconstructor, ProgramScope, Statement, Variant};
-use leo_span::{Symbol, sym};
-
-use indexmap::IndexMap;
+use leo_ast::{AstReconstructor, Module, Program, ProgramReconstructor, ProgramScope, Statement, Variant};
+use leo_span::sym;
 
 impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
@@ -27,30 +25,26 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
 
         // We first reconstruct all structs. Struct fields can instantiate other generic structs that we need to handle
         // first. We'll then address struct expressions and other struct type instantiations.
-        let mut struct_map: IndexMap<Symbol, Composite> = input.structs.clone().into_iter().collect();
         let struct_order = self.state.struct_graph.post_order().unwrap();
 
         // Reconstruct structs in post-order.
         for struct_name in &struct_order {
-            if let Some(r#struct) = struct_map.swap_remove(struct_name) {
+            if let Some(r#struct) = self.struct_map.swap_remove(struct_name) {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_struct = self.reconstruct_struct(r#struct);
                 // Store the reconstructed struct for inclusion in the output scope.
-                self.reconstructed_structs.insert(*struct_name, reconstructed_struct);
+                self.reconstructed_structs.insert(struct_name.clone(), reconstructed_struct);
             }
         }
 
         // If there are some structs left in `struct_map`, that means these are dead structs since they do not show up
         // in `struct_graph`. Therefore, they won't be reconstructed, implying a change in the reconstructed program.
-        if !struct_map.is_empty() {
+        if !self.struct_map.is_empty() {
             self.changed = true;
         }
 
         // Next, handle generic functions
         //
-        // Create a map of function names to their definitions for fast access.
-        let mut function_map: IndexMap<Symbol, Function> = input.functions.into_iter().collect();
-
         // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their callees.
         // Make sure to only compute the post order by considering the entry points of the program, which are `async transition`, `transition` and `function`.
         // We must consider entry points to ignore const generic inlines that have already been monomorphized but never called.
@@ -63,11 +57,11 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                     return false;
                 }
                 // Allow constructors.
-                if location.program == self.program && location.name == sym::constructor {
+                if location.program == self.program && location.path == vec![sym::constructor] {
                     return true;
                 }
-                function_map
-                    .get(&location.name)
+                self.function_map
+                    .get(&location.path)
                     .map(|f| {
                         matches!(
                             f.variant,
@@ -80,15 +74,13 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             .into_iter()
             .filter(|location| location.program == self.program).collect::<Vec<_>>();
 
-        // Determine any ca
-
-        // Reconstruct functions in post-order.
-        for location in &order {
-            if let Some(function) = function_map.swap_remove(&location.name) {
-                // Perform monomorphization or other reconstruction logic.
-                let reconstructed_function = self.reconstruct_function(function);
-                // Store the reconstructed function for inclusion in the output scope.
-                self.reconstructed_functions.insert(location.name, reconstructed_function);
+        for function_name in &order {
+            // Reconstruct functions in post-order.
+            if let Some(function) = self.function_map.swap_remove(&function_name.path) {
+                // Reconstruct the function.
+                let reconstructed_function = self.reconstruct_function(function.clone());
+                // Add the reconstructed function to the mapping.
+                self.reconstructed_functions.insert(function_name.path.clone(), reconstructed_function);
             }
         }
 
@@ -114,18 +106,14 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Now retain only functions that are either not yet monomorphized or are still referenced by calls.
         self.reconstructed_functions.retain(|f, _| {
             let is_monomorphized = self.monomorphized_functions.contains(f);
-            let is_still_called = self.unresolved_calls.iter().any(|c| c.function.name == *f);
+            let is_still_called = self.unresolved_calls.iter().any(|c| c.function.absolute_path() == f);
             !is_monomorphized || is_still_called
         });
 
-        // Move reconstructed structs into the final `ProgramScope`, clearing the temporary storage for the next scope.
-        let structs = core::mem::take(&mut self.reconstructed_structs).into_iter().collect::<Vec<_>>();
-
-        // Move reconstructed functions into the final `ProgramScope`, clearing the temporary storage for the next scope.
+        // Move reconstructed functions into the final `ProgramScope`.
         // Make sure to place transitions before all the other functions.
-        let (transitions, mut non_transitions): (Vec<_>, Vec<_>) = core::mem::take(&mut self.reconstructed_functions)
-            .into_iter()
-            .partition(|(_, f)| f.variant.is_transition());
+        let (transitions, mut non_transitions): (Vec<_>, Vec<_>) =
+            self.reconstructed_functions.clone().into_iter().partition(|(_, f)| f.variant.is_transition());
 
         let mut all_functions = transitions;
         all_functions.append(&mut non_transitions);
@@ -133,12 +121,100 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
-            structs,
+            structs: self
+                .reconstructed_structs
+                .iter()
+                .filter_map(|(path, c)| {
+                    // only consider structs defined at program scope. The rest will be added to their parent module.
+                    path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, c.clone()))
+                })
+                .collect(),
             mappings,
-            functions: all_functions,
+            functions: all_functions
+                .iter()
+                .filter_map(|(path, f)| {
+                    // only consider functions defined at program scope. The rest will be added to their parent module.
+                    path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, f.clone()))
+                })
+                .collect(),
             constructor,
             consts,
             span: input.span,
+        }
+    }
+
+    fn reconstruct_program(&mut self, input: Program) -> Program {
+        // Populate `self.function_map` using the functions in the program scopes and the modules
+        input
+            .modules
+            .iter()
+            .flat_map(|(module_path, m)| {
+                m.functions.iter().map(move |(name, f)| {
+                    (module_path.iter().cloned().chain(std::iter::once(*name)).collect(), f.clone())
+                })
+            })
+            .chain(
+                input
+                    .program_scopes
+                    .iter()
+                    .flat_map(|(_, scope)| scope.functions.iter().map(|(name, f)| (vec![*name], f.clone()))),
+            )
+            .for_each(|(full_name, f)| {
+                self.function_map.insert(full_name, f);
+            });
+
+        // Populate `self.struct_map` using the structs in the program scopes and the modules
+        input
+            .modules
+            .iter()
+            .flat_map(|(module_path, m)| {
+                m.structs.iter().map(move |(name, f)| {
+                    (module_path.iter().cloned().chain(std::iter::once(*name)).collect(), f.clone())
+                })
+            })
+            .chain(
+                input
+                    .program_scopes
+                    .iter()
+                    .flat_map(|(_, scope)| scope.structs.iter().map(|(name, f)| (vec![*name], f.clone()))),
+            )
+            .for_each(|(full_name, f)| {
+                self.struct_map.insert(full_name, f);
+            });
+
+        // Reconstruct prrogram scopes first then reconstruct the modules after `self.reconstructed_structs`
+        // and `self.reconstructed_functions` have been populated.
+        Program {
+            program_scopes: input
+                .program_scopes
+                .into_iter()
+                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
+                .collect(),
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
+            ..input
+        }
+    }
+
+    fn reconstruct_module(&mut self, input: Module) -> Module {
+        // Here we're reconstructing structs and functions from `reconstructed_functions` and
+        // `reconstructed_structs` based on their paths and whether they match the module path
+        Module {
+            structs: self
+                .reconstructed_structs
+                .iter()
+                .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
+                .filter(|&(_, rest, _)| input.path == rest)
+                .map(|(last, _, c)| (*last, c.clone()))
+                .collect(),
+
+            functions: self
+                .reconstructed_functions
+                .iter()
+                .filter_map(|(path, f)| path.split_last().map(|(last, rest)| (last, rest, f)))
+                .filter(|&(_, rest, _)| input.path == rest)
+                .map(|(last, _, f)| (*last, f.clone()))
+                .collect(),
+            ..input
         }
     }
 }

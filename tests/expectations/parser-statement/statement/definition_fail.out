@@ -12,20 +12,29 @@
     },
     "type_": null,
     "value": {
-      "Identifier": {
-        "name": "expr",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "expr",
+          "span": {
+            "lo": 8,
+            "hi": 12
+          },
+          "id": 1
+        },
+        "absolute_path": null,
         "span": {
           "lo": 8,
           "hi": 12
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 0,
       "hi": 12
     },
-    "id": 2
+    "id": 3
   }
 }
 

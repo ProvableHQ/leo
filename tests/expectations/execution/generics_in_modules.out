@@ -1,0 +1,87 @@
+program test.aleo;
+
+struct Matrix__1cjGkfvo5TZ:
+    values as [[u32; 3u32]; 2u32];
+
+struct WrappedMatrix__Ko9u9VWnm3M:
+    inner as Matrix__1cjGkfvo5TZ;
+
+struct InnerGeneric__JgC4Y0wyi7O:
+    data as [u32; 4u32];
+
+struct OuterWrapper__1BbgYG6n9Jy:
+    nested as InnerGeneric__JgC4Y0wyi7O;
+
+function main:
+    cast 0u32 1u32 2u32 into r0 as [u32; 3u32];
+    cast 1u32 2u32 3u32 into r1 as [u32; 3u32];
+    cast r0 r1 into r2 as [[u32; 3u32]; 2u32];
+    cast r2 into r3 as Matrix__1cjGkfvo5TZ;
+    cast r3 into r4 as WrappedMatrix__Ko9u9VWnm3M;
+    cast r4.inner.values[0u32][0u32] r4.inner.values[0u32][1u32] r4.inner.values[0u32][2u32] into r5 as [u32; 3u32];
+    cast r4.inner.values[1u32][0u32] r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r6 as [u32; 3u32];
+    cast r5 r6 into r7 as [[u32; 3u32]; 2u32];
+    cast r7 into r8 as Matrix__1cjGkfvo5TZ;
+    add r8.values[0u32][0u32] 1u32 into r9;
+    cast r9 r4.inner.values[0u32][1u32] r4.inner.values[0u32][2u32] into r10 as [u32; 3u32];
+    cast r4.inner.values[1u32][0u32] r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r11 as [u32; 3u32];
+    cast r10 r11 into r12 as [[u32; 3u32]; 2u32];
+    cast r12 into r13 as Matrix__1cjGkfvo5TZ;
+    add r13.values[0u32][1u32] 1u32 into r14;
+    cast r9 r14 r4.inner.values[0u32][2u32] into r15 as [u32; 3u32];
+    cast r4.inner.values[1u32][0u32] r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r16 as [u32; 3u32];
+    cast r15 r16 into r17 as [[u32; 3u32]; 2u32];
+    cast r17 into r18 as Matrix__1cjGkfvo5TZ;
+    add r18.values[0u32][2u32] 1u32 into r19;
+    cast r9 r14 r19 into r20 as [u32; 3u32];
+    cast r4.inner.values[1u32][0u32] r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r21 as [u32; 3u32];
+    cast r20 r21 into r22 as [[u32; 3u32]; 2u32];
+    cast r22 into r23 as Matrix__1cjGkfvo5TZ;
+    add r23.values[1u32][0u32] 1u32 into r24;
+    cast r9 r14 r19 into r25 as [u32; 3u32];
+    cast r24 r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r26 as [u32; 3u32];
+    cast r25 r26 into r27 as [[u32; 3u32]; 2u32];
+    cast r27 into r28 as Matrix__1cjGkfvo5TZ;
+    add r28.values[1u32][1u32] 1u32 into r29;
+    cast r9 r14 r19 into r30 as [u32; 3u32];
+    cast r24 r29 r4.inner.values[1u32][2u32] into r31 as [u32; 3u32];
+    cast r30 r31 into r32 as [[u32; 3u32]; 2u32];
+    cast r32 into r33 as Matrix__1cjGkfvo5TZ;
+    add r33.values[1u32][2u32] 1u32 into r34;
+    cast r9 r14 r19 into r35 as [u32; 3u32];
+    cast r24 r29 r34 into r36 as [u32; 3u32];
+    cast r35 r36 into r37 as [[u32; 3u32]; 2u32];
+    cast r37 into r38 as Matrix__1cjGkfvo5TZ;
+    cast 0u32 10u32 20u32 30u32 into r39 as [u32; 4u32];
+    cast r39 into r40 as InnerGeneric__JgC4Y0wyi7O;
+    add r38.values[0u32][1u32] r40.data[3u32] into r41;
+    output r41 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1dsn9redlfvsqt9kafwnsxyukn6jw9dn7j80wask4kj2zj9qu7sqqskwry8",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "7648859794670185753014266599015723000118129811374194614818845327045659808691field",
+          "value": "ciphertext1qyqdevsuld0lv5phptwr9lspme7uhs7zzdemzfef4l05za7nalhvzqqhv5j52"
+        }
+      ],
+      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
+      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
+      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

@@ -21,7 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Execution, Itertools, Network, Program};
+use snarkvm::prelude::{Execution, Itertools, Network, Program, execution_cost};
 
 use clap::Parser;
 use colored::*;
@@ -36,8 +36,6 @@ use snarkvm::{
         Identifier,
         ProgramID,
         VM,
-        execution_cost_v1,
-        execution_cost_v2,
         query::Query as SnarkVMQuery,
         store::{
             ConsensusStore,
@@ -307,8 +305,11 @@ fn handle_execute<A: Aleo>(
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint);
-
+    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
+        endpoint
+            .parse::<Uri>()
+            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
+    );
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
@@ -557,11 +558,8 @@ fn print_execution_stats<N: Network>(
     use colored::*;
 
     // ── Gather cost components ────────────────────────────────────────────
-    let (base_fee, (storage_cost, execution_cost)) = if consensus_version == ConsensusVersion::V1 {
-        execution_cost_v1(&vm.process().read(), execution)?
-    } else {
-        execution_cost_v2(&vm.process().read(), execution)?
-    };
+    let (base_fee, (storage_cost, execution_cost)) =
+        execution_cost(&vm.process().read(), execution, consensus_version)?;
 
     let base_cr = base_fee as f64 / 1_000_000.0;
     let prio_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;

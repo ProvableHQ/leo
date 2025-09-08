@@ -1234,4 +1234,11 @@ create_messages!(
         msg: msg.to_string(),
         help: None,
     }
+
+    @formatted
+    constructor_can_only_return_unit {
+        args: (expression: impl Display),
+        msg: format!("Constructors can only return unit, but found `{expression}`."),
+        help: None,
+    }
 );

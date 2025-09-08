@@ -329,13 +329,15 @@ impl Cursor {
                 let arguments: Vec<Value> = async_.operands().iter().map(|op| self.operand_value(op)).collect();
                 if self.really_async {
                     self.increment_instruction_index();
-                    let async_ex =
-                        AsyncExecution::AsyncFunctionCall { function: GlobalId { name, program }, arguments };
+                    let async_ex = AsyncExecution::AsyncFunctionCall {
+                        function: GlobalId { path: vec![name], program },
+                        arguments,
+                    };
                     (Value::Future(Future(vec![async_ex])), async_.destinations()[0].clone())
                 } else {
                     self.do_call(
                         program,
-                        name,
+                        &[name],
                         arguments.into_iter(),
                         true, // finalize
                         Span::default(),
@@ -358,7 +360,7 @@ impl Cursor {
                 let arguments: Vec<Value> = call.operands().iter().map(|op| self.operand_value(op)).collect();
                 self.do_call(
                     program,
-                    name,
+                    &[name],
                     arguments.into_iter(),
                     false, // finalize
                     Span::default(),
@@ -399,10 +401,10 @@ impl Cursor {
 
                 let make_struct = |name_identifier| {
                     let name = snarkvm_identifier_to_symbol(name_identifier);
-                    let struct_type = self.structs.get(&name).expect("struct type should exist");
+                    let struct_type = self.structs.get(&vec![name]).expect("struct type should exist");
                     let operands = cast.operands().iter().map(|op| self.operand_value(op));
                     Value::Struct(StructContents {
-                        name,
+                        path: vec![name],
                         contents: struct_type.iter().map(|(name, _)| *name).zip(operands).collect(),
                     })
                 };

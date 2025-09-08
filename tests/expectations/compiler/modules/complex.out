@@ -1,0 +1,26 @@
+program all_module_features.aleo;
+
+struct SharedName__AkktDxOGQbz:
+    val as u32;
+
+struct SharedName__9lQIhvKpjYa:
+    val as [u32; 3u32];
+
+struct Inner__1MgmvWKiTkA:
+    n as u32;
+
+struct Nested:
+    a as SharedName__AkktDxOGQbz;
+    b as SharedName__9lQIhvKpjYa;
+    c as Inner__1MgmvWKiTkA;
+
+function main:
+    cast 2u32 2u32 2u32 into r0 as [u32; 3u32];
+    cast r0 into r1 as SharedName__9lQIhvKpjYa;
+    cast 5u32 into r2 as Inner__1MgmvWKiTkA;
+    add r2.n 4u32 into r3;
+    add 2u32 3u32 into r4;
+    add r4 4u32 into r5;
+    add r5 r1.val[1u32] into r6;
+    add r6 r3 into r7;
+    output r7 as u32.private;

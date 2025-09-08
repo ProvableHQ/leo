@@ -40,10 +40,10 @@ workspace = true
 [dependencies.serde]
 workspace = true
 
-[dev-dependencies.leo-test-framework]
+[dependencies.itertools]
 workspace = true
 
-[dev-dependencies.itertools]
+[dev-dependencies.leo-test-framework]
 workspace = true
 
 [dev-dependencies.serde_json]

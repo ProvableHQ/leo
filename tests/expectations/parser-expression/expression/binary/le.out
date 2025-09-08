@@ -178,23 +178,41 @@
         "receiver": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 47,
+                    "hi": 48
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 47,
                   "hi": 48
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 53,
+                    "hi": 54
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 53,
                   "hi": 54
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Lte",
@@ -202,7 +220,7 @@
               "lo": 47,
               "hi": 55
             },
-            "id": 3
+            "id": 5
           }
         },
         "op": "Negate",
@@ -210,7 +228,7 @@
           "lo": 46,
           "hi": 55
         },
-        "id": 4
+        "id": 6
       }
     },
     "op": "Not",
@@ -218,7 +236,7 @@
       "lo": 45,
       "hi": 55
     },
-    "id": 5
+    "id": 7
   }
 }
 
@@ -229,23 +247,41 @@
         "left": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 56,
+                    "hi": 57
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 56,
                   "hi": 57
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 62,
+                    "hi": 63
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 62,
                   "hi": 63
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Lte",
@@ -253,17 +289,26 @@
               "lo": 56,
               "hi": 64
             },
-            "id": 3
+            "id": 5
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 69,
+                "hi": 70
+              },
+              "id": 7
+            },
+            "absolute_path": null,
             "span": {
               "lo": 69,
               "hi": 70
             },
-            "id": 5
+            "id": 8
           }
         },
         "op": "Lte",
@@ -271,17 +316,26 @@
           "lo": 56,
           "hi": 71
         },
-        "id": 6
+        "id": 9
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 76,
+            "hi": 77
+          },
+          "id": 11
+        },
+        "absolute_path": null,
         "span": {
           "lo": 76,
           "hi": 77
         },
-        "id": 8
+        "id": 12
       }
     },
     "op": "Lte",
@@ -289,7 +343,7 @@
       "lo": 56,
       "hi": 78
     },
-    "id": 9
+    "id": 13
   }
 }
 
@@ -298,23 +352,41 @@
     "receiver": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 80,
+                "hi": 81
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 80,
               "hi": 81
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 86,
+                "hi": 87
+              },
+              "id": 3
+            },
+            "absolute_path": null,
             "span": {
               "lo": 86,
               "hi": 87
             },
-            "id": 2
+            "id": 4
           }
         },
         "op": "Lte",
@@ -322,7 +394,7 @@
           "lo": 80,
           "hi": 88
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Negate",
@@ -330,7 +402,7 @@
       "lo": 79,
       "hi": 88
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -339,13 +411,22 @@
     "left": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 91,
+                "hi": 92
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 91,
               "hi": 92
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Negate",
@@ -353,17 +434,26 @@
           "lo": 90,
           "hi": 92
         },
-        "id": 1
+        "id": 2
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 98,
+            "hi": 99
+          },
+          "id": 4
+        },
+        "absolute_path": null,
         "span": {
           "lo": 98,
           "hi": 99
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Lte",
@@ -371,7 +461,7 @@
       "lo": 90,
       "hi": 100
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -380,23 +470,41 @@
     "receiver": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 103,
+                "hi": 104
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 103,
               "hi": 104
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 109,
+                "hi": 110
+              },
+              "id": 3
+            },
+            "absolute_path": null,
             "span": {
               "lo": 109,
               "hi": 110
             },
-            "id": 2
+            "id": 4
           }
         },
         "op": "Lte",
@@ -404,7 +512,7 @@
           "lo": 103,
           "hi": 111
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Negate",
@@ -412,7 +520,7 @@
       "lo": 101,
       "hi": 111
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -423,23 +531,41 @@
         "receiver": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 115,
+                    "hi": 116
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 115,
                   "hi": 116
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 121,
+                    "hi": 122
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 121,
                   "hi": 122
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Lte",
@@ -447,7 +573,7 @@
               "lo": 115,
               "hi": 123
             },
-            "id": 3
+            "id": 5
           }
         },
         "op": "Negate",
@@ -455,17 +581,26 @@
           "lo": 114,
           "hi": 123
         },
-        "id": 4
+        "id": 6
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 129,
+            "hi": 130
+          },
+          "id": 8
+        },
+        "absolute_path": null,
         "span": {
           "lo": 129,
           "hi": 130
         },
-        "id": 6
+        "id": 9
       }
     },
     "op": "Lte",
@@ -473,7 +608,7 @@
       "lo": 114,
       "hi": 131
     },
-    "id": 7
+    "id": 10
   }
 }
 
@@ -482,23 +617,41 @@
     "receiver": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 133,
+                "hi": 134
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 133,
               "hi": 134
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 139,
+                "hi": 140
+              },
+              "id": 3
+            },
+            "absolute_path": null,
             "span": {
               "lo": 139,
               "hi": 140
             },
-            "id": 2
+            "id": 4
           }
         },
         "op": "Lte",
@@ -506,7 +659,7 @@
           "lo": 133,
           "hi": 141
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Not",
@@ -514,7 +667,7 @@
       "lo": 132,
       "hi": 141
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -523,13 +676,22 @@
     "left": {
       "Unary": {
         "receiver": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 144,
+                "hi": 145
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 144,
               "hi": 145
             },
-            "id": 0
+            "id": 1
           }
         },
         "op": "Not",
@@ -537,17 +699,26 @@
           "lo": 143,
           "hi": 145
         },
-        "id": 1
+        "id": 2
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 151,
+            "hi": 152
+          },
+          "id": 4
+        },
+        "absolute_path": null,
         "span": {
           "lo": 151,
           "hi": 152
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Lte",
@@ -555,7 +726,7 @@
       "lo": 143,
       "hi": 153
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -564,23 +735,41 @@
     "receiver": {
       "Binary": {
         "left": {
-          "Identifier": {
-            "name": "x",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 156,
+                "hi": 157
+              },
+              "id": 0
+            },
+            "absolute_path": null,
             "span": {
               "lo": 156,
               "hi": 157
             },
-            "id": 0
+            "id": 1
           }
         },
         "right": {
-          "Identifier": {
-            "name": "y",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 162,
+                "hi": 163
+              },
+              "id": 3
+            },
+            "absolute_path": null,
             "span": {
               "lo": 162,
               "hi": 163
             },
-            "id": 2
+            "id": 4
           }
         },
         "op": "Lte",
@@ -588,7 +777,7 @@
           "lo": 156,
           "hi": 164
         },
-        "id": 3
+        "id": 5
       }
     },
     "op": "Not",
@@ -596,7 +785,7 @@
       "lo": 154,
       "hi": 164
     },
-    "id": 4
+    "id": 6
   }
 }
 
@@ -607,23 +796,41 @@
         "receiver": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 168,
+                    "hi": 169
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 168,
                   "hi": 169
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 174,
+                    "hi": 175
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 174,
                   "hi": 175
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Lte",
@@ -631,7 +838,7 @@
               "lo": 168,
               "hi": 176
             },
-            "id": 3
+            "id": 5
           }
         },
         "op": "Not",
@@ -639,17 +846,26 @@
           "lo": 167,
           "hi": 176
         },
-        "id": 4
+        "id": 6
       }
     },
     "right": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 182,
+            "hi": 183
+          },
+          "id": 8
+        },
+        "absolute_path": null,
         "span": {
           "lo": 182,
           "hi": 183
         },
-        "id": 6
+        "id": 9
       }
     },
     "op": "Lte",
@@ -657,7 +873,7 @@
       "lo": 167,
       "hi": 184
     },
-    "id": 7
+    "id": 10
   }
 }
 
@@ -668,23 +884,41 @@
         "left": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 186,
+                    "hi": 187
+                  },
+                  "id": 0
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 186,
                   "hi": 187
                 },
-                "id": 0
+                "id": 1
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 192,
+                    "hi": 193
+                  },
+                  "id": 3
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 192,
                   "hi": 193
                 },
-                "id": 2
+                "id": 4
               }
             },
             "op": "Lte",
@@ -692,29 +926,47 @@
               "lo": 186,
               "hi": 194
             },
-            "id": 3
+            "id": 5
           }
         },
         "right": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 198,
+                    "hi": 199
+                  },
+                  "id": 6
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 198,
                   "hi": 199
                 },
-                "id": 4
+                "id": 7
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 204,
+                    "hi": 205
+                  },
+                  "id": 9
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 204,
                   "hi": 205
                 },
-                "id": 6
+                "id": 10
               }
             },
             "op": "Lte",
@@ -722,7 +974,7 @@
               "lo": 198,
               "hi": 206
             },
-            "id": 7
+            "id": 11
           }
         },
         "op": "Lte",
@@ -730,7 +982,7 @@
           "lo": 186,
           "hi": 206
         },
-        "id": 8
+        "id": 12
       }
     },
     "right": {
@@ -738,23 +990,41 @@
         "left": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 212,
+                    "hi": 213
+                  },
+                  "id": 14
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 212,
                   "hi": 213
                 },
-                "id": 10
+                "id": 15
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 218,
+                    "hi": 219
+                  },
+                  "id": 17
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 218,
                   "hi": 219
                 },
-                "id": 12
+                "id": 18
               }
             },
             "op": "Lte",
@@ -762,29 +1032,47 @@
               "lo": 212,
               "hi": 220
             },
-            "id": 13
+            "id": 19
           }
         },
         "right": {
           "Binary": {
             "left": {
-              "Identifier": {
-                "name": "x",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "x",
+                  "span": {
+                    "lo": 224,
+                    "hi": 225
+                  },
+                  "id": 20
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 224,
                   "hi": 225
                 },
-                "id": 14
+                "id": 21
               }
             },
             "right": {
-              "Identifier": {
-                "name": "y",
+              "Path": {
+                "qualifier": [],
+                "identifier": {
+                  "name": "y",
+                  "span": {
+                    "lo": 230,
+                    "hi": 231
+                  },
+                  "id": 23
+                },
+                "absolute_path": null,
                 "span": {
                   "lo": 230,
                   "hi": 231
                 },
-                "id": 16
+                "id": 24
               }
             },
             "op": "Lte",
@@ -792,7 +1080,7 @@
               "lo": 224,
               "hi": 232
             },
-            "id": 17
+            "id": 25
           }
         },
         "op": "Lte",
@@ -800,7 +1088,7 @@
           "lo": 212,
           "hi": 232
         },
-        "id": 18
+        "id": 26
       }
     },
     "op": "Lte",
@@ -808,7 +1096,7 @@
       "lo": 186,
       "hi": 233
     },
-    "id": 19
+    "id": 27
   }
 }
 

@@ -250,13 +250,22 @@
       }
     },
     "stop": {
-      "Identifier": {
-        "name": "Self",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "Self",
+          "span": {
+            "lo": 139,
+            "hi": 143
+          },
+          "id": 2
+        },
+        "absolute_path": null,
         "span": {
           "lo": 139,
           "hi": 143
         },
-        "id": 2
+        "id": 3
       }
     },
     "inclusive": false,
@@ -270,7 +279,7 @@
                   "lo": 157,
                   "hi": 160
                 },
-                "id": 3,
+                "id": 4,
                 "variant": {
                   "Integer": [
                     "U8",
@@ -283,7 +292,7 @@
               "lo": 150,
               "hi": 161
             },
-            "id": 4
+            "id": 5
           }
         }
       ],
@@ -291,13 +300,13 @@
         "lo": 144,
         "hi": 163
       },
-      "id": 5
+      "id": 6
     },
     "span": {
       "lo": 119,
       "hi": 163
     },
-    "id": 6
+    "id": 7
   }
 }
 
@@ -549,13 +558,22 @@
       }
     },
     "stop": {
-      "Identifier": {
-        "name": "Self",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "Self",
+          "span": {
+            "lo": 281,
+            "hi": 285
+          },
+          "id": 2
+        },
+        "absolute_path": null,
         "span": {
           "lo": 281,
           "hi": 285
         },
-        "id": 2
+        "id": 3
       }
     },
     "inclusive": false,
@@ -569,7 +587,7 @@
                   "lo": 299,
                   "hi": 302
                 },
-                "id": 3,
+                "id": 4,
                 "variant": {
                   "Integer": [
                     "U8",
@@ -582,7 +600,7 @@
               "lo": 292,
               "hi": 303
             },
-            "id": 4
+            "id": 5
           }
         }
       ],
@@ -590,13 +608,13 @@
         "lo": 286,
         "hi": 305
       },
-      "id": 5
+      "id": 6
     },
     "span": {
       "lo": 267,
       "hi": 305
     },
-    "id": 6
+    "id": 7
   }
 }
 

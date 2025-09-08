@@ -1,0 +1,190 @@
+{
+  "Path": {
+    "qualifier": [
+      {
+        "name": "x",
+        "span": {
+          "lo": 0,
+          "hi": 1
+        },
+        "id": 0
+      }
+    ],
+    "identifier": {
+      "name": "y",
+      "span": {
+        "lo": 3,
+        "hi": 4
+      },
+      "id": 1
+    },
+    "absolute_path": null,
+    "span": {
+      "lo": 0,
+      "hi": 4
+    },
+    "id": 2
+  }
+}
+
+{
+  "Path": {
+    "qualifier": [
+      {
+        "name": "X",
+        "span": {
+          "lo": 5,
+          "hi": 6
+        },
+        "id": 0
+      }
+    ],
+    "identifier": {
+      "name": "Y",
+      "span": {
+        "lo": 8,
+        "hi": 9
+      },
+      "id": 1
+    },
+    "absolute_path": null,
+    "span": {
+      "lo": 5,
+      "hi": 9
+    },
+    "id": 2
+  }
+}
+
+{
+  "Path": {
+    "qualifier": [
+      {
+        "name": "xxx",
+        "span": {
+          "lo": 10,
+          "hi": 13
+        },
+        "id": 0
+      }
+    ],
+    "identifier": {
+      "name": "xxx",
+      "span": {
+        "lo": 15,
+        "hi": 18
+      },
+      "id": 1
+    },
+    "absolute_path": null,
+    "span": {
+      "lo": 10,
+      "hi": 18
+    },
+    "id": 2
+  }
+}
+
+{
+  "Path": {
+    "qualifier": [
+      {
+        "name": "XXX",
+        "span": {
+          "lo": 19,
+          "hi": 22
+        },
+        "id": 0
+      },
+      {
+        "name": "YYY",
+        "span": {
+          "lo": 24,
+          "hi": 27
+        },
+        "id": 1
+      }
+    ],
+    "identifier": {
+      "name": "ZZZ",
+      "span": {
+        "lo": 29,
+        "hi": 32
+      },
+      "id": 2
+    },
+    "absolute_path": null,
+    "span": {
+      "lo": 19,
+      "hi": 32
+    },
+    "id": 3
+  }
+}
+
+{
+  "Path": {
+    "qualifier": [
+      {
+        "name": "self",
+        "span": {
+          "lo": 33,
+          "hi": 37
+        },
+        "id": 0
+      }
+    ],
+    "identifier": {
+      "name": "y",
+      "span": {
+        "lo": 39,
+        "hi": 40
+      },
+      "id": 1
+    },
+    "absolute_path": null,
+    "span": {
+      "lo": 33,
+      "hi": 40
+    },
+    "id": 2
+  }
+}
+
+{
+  "Path": {
+    "qualifier": [
+      {
+        "name": "Self",
+        "span": {
+          "lo": 41,
+          "hi": 45
+        },
+        "id": 0
+      },
+      {
+        "name": "pp",
+        "span": {
+          "lo": 47,
+          "hi": 49
+        },
+        "id": 1
+      }
+    ],
+    "identifier": {
+      "name": "qq",
+      "span": {
+        "lo": 51,
+        "hi": 53
+      },
+      "id": 2
+    },
+    "absolute_path": null,
+    "span": {
+      "lo": 41,
+      "hi": 53
+    },
+    "id": 3
+  }
+}
+

@@ -14,7 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Pass, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+//! The `ProcessingAsync` pass rewrites `async { ... }` blocks into standalone
+//! `async function`s. Each block is lifted to a new top-level async function,
+//! and the block is replaced with a call to that function.
+//!
+//! This involves:
+//! - Capturing all variable and tuple field accesses used inside the block.
+//! - Filtering out globals and locals (which are handled differently).
+//! - Generating fresh function inputs for the captured values.
+//! - Rewriting the block with replacements for captured expressions.
+//! - Creating a `CallExpression` that invokes the synthesized async function.
+//!
+//! If any async blocks were rewritten, this pass will rebuild the symbol table
+//! and rerun path resolution and type checking to account for the new functions.
+//!
+//! # Example
+//! ```leo
+//! async transition foo(x: u32) -> Future {
+//!     return async {
+//!         assert(x == 1);  
+//!     };
+//! }
+//! ```
+//! becomes
+//! ```leo
+//! async function foo_(x: u32) {
+//!     assert(x == 1);
+//! }
+//!
+//! transition foo(x: u32) -> Future {
+//!     return foo_(x);
+//! }
+//! ```
+
+use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
@@ -53,6 +86,7 @@ impl Pass for ProcessingAsync {
             // If we actually changed anything in the program, then we need to recreate the symbol table and run type
             // checking again. That's because this pass introduces new `async function`s to the program.
             visitor.state.symbol_table = SymbolTable::default();
+            PathResolution::do_pass((), state)?;
             SymbolTableCreation::do_pass((), state)?;
             TypeChecking::do_pass(input.clone(), state)?;
         }

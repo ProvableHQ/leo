@@ -126,7 +126,9 @@ impl fmt::Debug for Function {
 
 impl fmt::Display for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.annotations.iter().join("\n"))?;
+        for annotation in &self.annotations {
+            writeln!(f, "{annotation}")?;
+        }
 
         match self.variant {
             Variant::Inline => write!(f, "inline ")?,

@@ -77,6 +77,7 @@ use colored::Colorize;
 use dialoguer::{Confirm, theme::ColorfulTheme};
 use std::{iter, str::FromStr};
 use tracing::span::Span;
+use ureq::http::Uri;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {

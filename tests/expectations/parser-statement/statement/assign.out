@@ -1,78 +1,46 @@
 {
   "Assign": {
     "place": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 0,
+            "hi": 1
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 0,
           "hi": 1
         },
-        "id": 0
-      }
-    },
-    "value": {
-      "Identifier": {
-        "name": "expr",
-        "span": {
-          "lo": 4,
-          "hi": 8
-        },
         "id": 1
       }
     },
-    "span": {
-      "lo": 0,
-      "hi": 8
-    },
-    "id": 3
-  }
-}
-
-{
-  "Assign": {
-    "place": {
-      "Identifier": {
-        "name": "x",
-        "span": {
-          "lo": 10,
-          "hi": 11
-        },
-        "id": 0
-      }
-    },
     "value": {
-      "Binary": {
-        "left": {
-          "Identifier": {
-            "name": "x",
-            "span": {
-              "lo": 14,
-              "hi": 15
-            },
-            "id": 1
-          }
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "expr",
+          "span": {
+            "lo": 4,
+            "hi": 8
+          },
+          "id": 2
         },
-        "right": {
-          "Identifier": {
-            "name": "y",
-            "span": {
-              "lo": 16,
-              "hi": 17
-            },
-            "id": 2
-          }
-        },
-        "op": "Add",
+        "absolute_path": null,
         "span": {
-          "lo": 14,
-          "hi": 17
+          "lo": 4,
+          "hi": 8
         },
         "id": 3
       }
     },
     "span": {
-      "lo": 10,
-      "hi": 17
+      "lo": 0,
+      "hi": 8
     },
     "id": 5
   }
@@ -81,24 +49,119 @@
 {
   "Assign": {
     "place": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 10,
+            "hi": 11
+          },
+          "id": 0
+        },
+        "absolute_path": null,
+        "span": {
+          "lo": 10,
+          "hi": 11
+        },
+        "id": 1
+      }
+    },
+    "value": {
+      "Binary": {
+        "left": {
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 14,
+                "hi": 15
+              },
+              "id": 2
+            },
+            "absolute_path": null,
+            "span": {
+              "lo": 14,
+              "hi": 15
+            },
+            "id": 3
+          }
+        },
+        "right": {
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 16,
+                "hi": 17
+              },
+              "id": 4
+            },
+            "absolute_path": null,
+            "span": {
+              "lo": 16,
+              "hi": 17
+            },
+            "id": 5
+          }
+        },
+        "op": "Add",
+        "span": {
+          "lo": 14,
+          "hi": 17
+        },
+        "id": 6
+      }
+    },
+    "span": {
+      "lo": 10,
+      "hi": 17
+    },
+    "id": 8
+  }
+}
+
+{
+  "Assign": {
+    "place": {
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 19,
+            "hi": 20
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 19,
           "hi": 20
         },
-        "id": 0
+        "id": 1
       }
     },
     "value": {
       "Call": {
         "function": {
-          "name": "x",
+          "qualifier": [],
+          "identifier": {
+            "name": "x",
+            "span": {
+              "lo": 23,
+              "hi": 24
+            },
+            "id": 2
+          },
+          "absolute_path": null,
           "span": {
             "lo": 23,
             "hi": 24
           },
-          "id": 1
+          "id": 3
         },
         "const_arguments": [],
         "arguments": [],
@@ -107,14 +170,14 @@
           "lo": 23,
           "hi": 26
         },
-        "id": 2
+        "id": 4
       }
     },
     "span": {
       "lo": 19,
       "hi": 26
     },
-    "id": 4
+    "id": 6
   }
 }
 

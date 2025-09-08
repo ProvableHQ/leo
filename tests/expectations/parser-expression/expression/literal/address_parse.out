@@ -17,7 +17,7 @@
       "lo": 64,
       "hi": 69
     },
-    "id": 1,
+    "id": 2,
     "variant": {
       "Address": "hello.aleo"
     }
@@ -30,7 +30,7 @@
       "lo": 75,
       "hi": 81
     },
-    "id": 1,
+    "id": 2,
     "variant": {
       "Address": "fooooo.aleo"
     }
@@ -43,7 +43,7 @@
       "lo": 87,
       "hi": 90
     },
-    "id": 1,
+    "id": 2,
     "variant": {
       "Address": "bar.aleo"
     }

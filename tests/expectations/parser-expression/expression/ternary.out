@@ -1,178 +1,295 @@
 {
   "Ternary": {
     "condition": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 0,
+            "hi": 1
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 0,
           "hi": 1
         },
-        "id": 0
+        "id": 1
       }
     },
     "if_true": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 4,
+            "hi": 5
+          },
+          "id": 2
+        },
+        "absolute_path": null,
         "span": {
           "lo": 4,
           "hi": 5
         },
-        "id": 1
+        "id": 3
       }
     },
     "if_false": {
-      "Identifier": {
-        "name": "z",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "z",
+          "span": {
+            "lo": 8,
+            "hi": 9
+          },
+          "id": 4
+        },
+        "absolute_path": null,
         "span": {
           "lo": 8,
           "hi": 9
         },
-        "id": 2
+        "id": 5
       }
     },
     "span": {
       "lo": 0,
       "hi": 9
     },
-    "id": 3
+    "id": 6
   }
 }
 
 {
   "Ternary": {
     "condition": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 10,
+            "hi": 11
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 10,
           "hi": 11
         },
-        "id": 0
+        "id": 1
       }
     },
     "if_true": {
       "Ternary": {
         "condition": {
-          "Identifier": {
-            "name": "a",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "a",
+              "span": {
+                "lo": 14,
+                "hi": 15
+              },
+              "id": 2
+            },
+            "absolute_path": null,
             "span": {
               "lo": 14,
               "hi": 15
             },
-            "id": 1
+            "id": 3
           }
         },
         "if_true": {
-          "Identifier": {
-            "name": "b",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "b",
+              "span": {
+                "lo": 18,
+                "hi": 19
+              },
+              "id": 4
+            },
+            "absolute_path": null,
             "span": {
               "lo": 18,
               "hi": 19
             },
-            "id": 2
+            "id": 5
           }
         },
         "if_false": {
-          "Identifier": {
-            "name": "c",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "c",
+              "span": {
+                "lo": 22,
+                "hi": 23
+              },
+              "id": 6
+            },
+            "absolute_path": null,
             "span": {
               "lo": 22,
               "hi": 23
             },
-            "id": 3
+            "id": 7
           }
         },
         "span": {
           "lo": 14,
           "hi": 23
         },
-        "id": 4
+        "id": 8
       }
     },
     "if_false": {
-      "Identifier": {
-        "name": "z",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "z",
+          "span": {
+            "lo": 26,
+            "hi": 27
+          },
+          "id": 9
+        },
+        "absolute_path": null,
         "span": {
           "lo": 26,
           "hi": 27
         },
-        "id": 5
+        "id": 10
       }
     },
     "span": {
       "lo": 10,
       "hi": 27
     },
-    "id": 6
+    "id": 11
   }
 }
 
 {
   "Ternary": {
     "condition": {
-      "Identifier": {
-        "name": "x",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "x",
+          "span": {
+            "lo": 28,
+            "hi": 29
+          },
+          "id": 0
+        },
+        "absolute_path": null,
         "span": {
           "lo": 28,
           "hi": 29
         },
-        "id": 0
+        "id": 1
       }
     },
     "if_true": {
-      "Identifier": {
-        "name": "y",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "y",
+          "span": {
+            "lo": 32,
+            "hi": 33
+          },
+          "id": 2
+        },
+        "absolute_path": null,
         "span": {
           "lo": 32,
           "hi": 33
         },
-        "id": 1
+        "id": 3
       }
     },
     "if_false": {
       "Ternary": {
         "condition": {
-          "Identifier": {
-            "name": "a",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "a",
+              "span": {
+                "lo": 36,
+                "hi": 37
+              },
+              "id": 4
+            },
+            "absolute_path": null,
             "span": {
               "lo": 36,
               "hi": 37
             },
-            "id": 2
+            "id": 5
           }
         },
         "if_true": {
-          "Identifier": {
-            "name": "b",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "b",
+              "span": {
+                "lo": 40,
+                "hi": 41
+              },
+              "id": 6
+            },
+            "absolute_path": null,
             "span": {
               "lo": 40,
               "hi": 41
             },
-            "id": 3
+            "id": 7
           }
         },
         "if_false": {
-          "Identifier": {
-            "name": "c",
+          "Path": {
+            "qualifier": [],
+            "identifier": {
+              "name": "c",
+              "span": {
+                "lo": 44,
+                "hi": 45
+              },
+              "id": 8
+            },
+            "absolute_path": null,
             "span": {
               "lo": 44,
               "hi": 45
             },
-            "id": 4
+            "id": 9
           }
         },
         "span": {
           "lo": 36,
           "hi": 45
         },
-        "id": 5
+        "id": 10
       }
     },
     "span": {
       "lo": 28,
       "hi": 45
     },
-    "id": 6
+    "id": 11
   }
 }
 

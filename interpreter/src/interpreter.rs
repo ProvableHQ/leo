@@ -65,15 +65,15 @@ pub enum InterpreterAction {
 }
 
 impl Interpreter {
-    pub fn new<'a, P: 'a + AsRef<Path>, Q: 'a + AsRef<Path>>(
-        leo_source_files: impl IntoIterator<Item = &'a P>,
+    pub fn new<'a, Q: 'a + AsRef<std::path::Path>>(
+        leo_source_files: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
         signer: SvmAddress,
         block_height: u32,
         network: NetworkName,
     ) -> Result<Self> {
         Self::new_impl(
-            &mut leo_source_files.into_iter().map(|p| p.as_ref()),
+            leo_source_files,
             &mut aleo_source_files.into_iter().map(|p| p.as_ref()),
             signer,
             block_height,
@@ -81,16 +81,47 @@ impl Interpreter {
         )
     }
 
-    fn get_ast(path: &Path, handler: &Handler, node_builder: &NodeBuilder, network: NetworkName) -> Result<Ast> {
+    /// Parses a Leo source file and its modules into an `Ast`.
+    ///
+    /// # Arguments
+    /// - `path`: The path to the main `.leo` source file (e.g. `main.leo`).
+    /// - `modules`: A list of paths to module `.leo` files associated with the main file.
+    /// - `handler`: The compiler's diagnostic handler for reporting errors.
+    /// - `node_builder`: Utility for constructing unique node IDs in the AST.
+    /// - `network`: The target network.
+    ///
+    /// # Returns
+    /// - `Ok(Ast)`: If parsing succeeds.
+    /// - `Err(CompilerError)`: If file I/O or parsing fails.
+    ///
+    /// # Behavior
+    /// - Reads the contents of the main file and all modules.
+    /// - Registers each source file with the compiler's source map (via `with_session_globals`).
+    /// - Invokes the parser to produce the full AST including modules.
+    fn get_ast(
+        path: &std::path::PathBuf,
+        modules: &[std::path::PathBuf],
+        handler: &Handler,
+        node_builder: &NodeBuilder,
+        network: NetworkName,
+    ) -> Result<Ast> {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
-        let filename = FileName::Real(path.to_path_buf());
-        let source_file = with_session_globals(|s| s.source_map.new_source(&text, filename));
-        leo_parser::parse_ast(handler.clone(), node_builder, &text, source_file.absolute_start, network)
+        let source_file = with_session_globals(|s| s.source_map.new_source(&text, FileName::Real(path.to_path_buf())));
+
+        let modules = modules
+            .iter()
+            .map(|filename| {
+                let source = fs::read_to_string(filename).unwrap();
+                with_session_globals(|s| s.source_map.new_source(&source, FileName::Real(filename.to_path_buf())))
+            })
+            .collect::<Vec<_>>();
+
+        leo_parser::parse_ast(handler.clone(), node_builder, &source_file, &modules, network)
     }
 
     fn new_impl(
-        leo_source_files: &mut dyn Iterator<Item = &Path>,
-        aleo_source_files: &mut dyn Iterator<Item = &Path>,
+        leo_source_files: &[(PathBuf, Vec<PathBuf>)],
+        aleo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
         signer: SvmAddress,
         block_height: u32,
         network: NetworkName,
@@ -104,17 +135,19 @@ impl Interpreter {
         );
         let mut filename_to_program = HashMap::new();
 
-        for path in leo_source_files {
-            let ast = Self::get_ast(path, &handler, &node_builder, network)?;
+        for (path, modules) in leo_source_files {
+            let ast = Self::get_ast(path, modules, &handler, &node_builder, network)?;
             for (&program, scope) in ast.ast.program_scopes.iter() {
                 filename_to_program.insert(path.to_path_buf(), program.to_string());
                 for (name, function) in scope.functions.iter() {
-                    cursor.functions.insert(GlobalId { program, name: *name }, FunctionVariant::Leo(function.clone()));
+                    cursor
+                        .functions
+                        .insert(GlobalId { program, path: vec![*name] }, FunctionVariant::Leo(function.clone()));
                 }
 
                 for (name, composite) in scope.structs.iter() {
                     cursor.structs.insert(
-                        *name,
+                        vec![*name],
                         composite
                             .members
                             .iter()
@@ -124,7 +157,7 @@ impl Interpreter {
                 }
 
                 for (name, _mapping) in scope.mappings.iter() {
-                    cursor.mappings.insert(GlobalId { program, name: *name }, HashMap::new());
+                    cursor.mappings.insert(GlobalId { program, path: vec![*name] }, HashMap::new());
                 }
 
                 for (name, const_declaration) in scope.consts.iter() {
@@ -138,7 +171,47 @@ impl Interpreter {
                     });
                     cursor.over()?;
                     let value = cursor.values.pop().unwrap();
-                    cursor.globals.insert(GlobalId { program, name: *name }, value);
+                    cursor.globals.insert(GlobalId { program, path: vec![*name] }, value);
+                }
+            }
+
+            for (mod_path, module) in ast.ast.modules.iter() {
+                let program = module.program_name;
+                let to_absolute_path = |name: Symbol| {
+                    let mut full_name = mod_path.clone();
+                    full_name.push(name);
+                    full_name
+                };
+                for (name, function) in module.functions.iter() {
+                    cursor.functions.insert(
+                        GlobalId { program, path: to_absolute_path(*name) },
+                        FunctionVariant::Leo(function.clone()),
+                    );
+                }
+
+                for (name, composite) in module.structs.iter() {
+                    cursor.structs.insert(
+                        to_absolute_path(*name),
+                        composite
+                            .members
+                            .iter()
+                            .map(|leo_ast::Member { identifier, type_, .. }| (identifier.name, type_.clone()))
+                            .collect::<IndexMap<_, _>>(),
+                    );
+                }
+
+                for (name, const_declaration) in module.consts.iter() {
+                    cursor.frames.push(Frame {
+                        step: 0,
+                        element: Element::Expression(
+                            const_declaration.value.clone(),
+                            Some(const_declaration.type_.clone()),
+                        ),
+                        user_initiated: false,
+                    });
+                    cursor.over()?;
+                    let value = cursor.values.pop().unwrap();
+                    cursor.globals.insert(GlobalId { program, path: to_absolute_path(*name) }, value);
                 }
             }
         }
@@ -150,7 +223,7 @@ impl Interpreter {
 
             for (name, struct_type) in aleo_program.structs().iter() {
                 cursor.structs.insert(
-                    snarkvm_identifier_to_symbol(name),
+                    vec![snarkvm_identifier_to_symbol(name)],
                     struct_type
                         .members()
                         .iter()
@@ -164,7 +237,7 @@ impl Interpreter {
             for (name, record_type) in aleo_program.records().iter() {
                 use snarkvm::prelude::EntryType;
                 cursor.structs.insert(
-                    snarkvm_identifier_to_symbol(name),
+                    vec![snarkvm_identifier_to_symbol(name)],
                     record_type
                         .entries()
                         .iter()
@@ -181,19 +254,21 @@ impl Interpreter {
             }
 
             for (name, _mapping) in aleo_program.mappings().iter() {
-                cursor.mappings.insert(GlobalId { program, name: snarkvm_identifier_to_symbol(name) }, HashMap::new());
+                cursor
+                    .mappings
+                    .insert(GlobalId { program, path: vec![snarkvm_identifier_to_symbol(name)] }, HashMap::new());
             }
 
             for (name, function) in aleo_program.functions().iter() {
                 cursor.functions.insert(
-                    GlobalId { program, name: snarkvm_identifier_to_symbol(name) },
+                    GlobalId { program, path: vec![snarkvm_identifier_to_symbol(name)] },
                     FunctionVariant::AleoFunction(function.clone()),
                 );
             }
 
             for (name, closure) in aleo_program.closures().iter() {
                 cursor.functions.insert(
-                    GlobalId { program, name: snarkvm_identifier_to_symbol(name) },
+                    GlobalId { program, path: vec![snarkvm_identifier_to_symbol(name)] },
                     FunctionVariant::AleoClosure(closure.clone()),
                 );
             }
@@ -227,7 +302,7 @@ impl Interpreter {
         }
     }
 
-    fn get_aleo_program(path: &Path) -> Result<Program<TestnetV0>> {
+    fn get_aleo_program(path: &std::path::Path) -> Result<Program<TestnetV0>> {
         let text = fs::read_to_string(path).map_err(|e| CompilerError::file_read_error(path, e))?;
         let program = text.parse()?;
         Ok(program)

@@ -35,6 +35,7 @@ use leo_ast::{
     LocatorExpression,
     MemberAccess,
     Node,
+    Path,
     ProgramId,
     RepeatExpression,
     StructExpression,
@@ -64,7 +65,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Cast(expr) => self.visit_cast(expr),
             Expression::Struct(expr) => self.visit_struct_init(expr),
             Expression::Err(expr) => self.visit_err(expr),
-            Expression::Identifier(expr) => self.visit_identifier(expr),
+            Expression::Path(expr) => self.visit_path(expr),
             Expression::Literal(expr) => self.visit_value(expr),
             Expression::Locator(expr) => self.visit_locator(expr),
             Expression::MemberAccess(expr) => self.visit_member_access(expr),
@@ -77,9 +78,12 @@ impl CodeGeneratingVisitor<'_> {
         }
     }
 
-    fn visit_identifier(&mut self, input: &Identifier) -> (String, String) {
+    fn visit_path(&mut self, input: &Path) -> (String, String) {
+        // The only relevant paths here are paths to local variable or to mappings, so we really only care about their
+        // names since mappings are only allowed in the top level program scope
+        let var_name = input.identifier().name;
         (
-            self.variable_mapping.get(&input.name).or_else(|| self.global_mapping.get(&input.name)).unwrap().clone(),
+            self.variable_mapping.get(&var_name).or_else(|| self.global_mapping.get(&var_name)).unwrap().clone(),
             String::new(),
         )
     }
@@ -273,13 +277,16 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_struct_init(&mut self, input: &StructExpression) -> (String, String) {
         // Lookup struct or record.
-        let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.name.name) {
+        let name = if let Some((is_record, type_)) = self.composite_mapping.get(input.path.absolute_path()) {
             if *is_record {
                 // record.private;
-                format!("{}.{type_}", input.name)
+                let [record_name] = &input.path.absolute_path() else {
+                    panic!("Absolute paths to records can only have a single segment at this stage.")
+                };
+                format!("{record_name}.{type_}")
             } else {
                 // foo; // no visibility for structs
-                Self::legalize_struct_name(input.name.to_string())
+                Self::legalize_path(input.path.absolute_path()).expect("path format cannot be legalized at this point")
             }
         } else {
             panic!("All composite types should be known at this phase of compilation")
@@ -299,7 +306,7 @@ impl CodeGeneratingVisitor<'_> {
                 variable_operand
             } else {
                 // Push operand identifier.
-                let (ident_operand, ident_instructions) = self.visit_identifier(&member.identifier);
+                let (ident_operand, ident_instructions) = self.visit_path(&Path::from(member.identifier));
                 instructions.push_str(&ident_instructions);
 
                 ident_operand
@@ -340,7 +347,9 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
         // Handle `self.address`, `self.caller`, `self.checksum`, `self.edition`, `self.id`, `self.program_owner`, `self.signer`.
-        if let Expression::Identifier(Identifier { name: sym::SelfLower, .. }) = input.inner.borrow() {
+        if let Expression::Path(path) = input.inner.borrow()
+            && matches!(path.try_absolute_path(), Some([sym::SelfLower]))
+        {
             // Get the current program ID.
             let program_id = self.program_id.expect("Program ID should be set before traversing the program");
 
@@ -595,11 +604,10 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_call(&mut self, input: &CallExpression) -> (String, String) {
         let caller_program = self.program_id.expect("Calls only appear within programs.").name.name;
         let callee_program = input.program.unwrap_or(caller_program);
-
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(callee_program, input.function.name))
+            .lookup_function(&Location::new(callee_program, input.function.absolute_path().to_vec()))
             .expect("Type checking guarantees functions exist");
 
         // Need to determine the program the function originated from as well as if the function has a finalize block.
@@ -718,12 +726,12 @@ impl CodeGeneratingVisitor<'_> {
             Type::Composite(comp_ty) => {
                 // We need to cast the old struct or record's members into the new one.
                 let program = comp_ty.program.unwrap_or(self.program_id.unwrap().name.name);
-                let location = Location::new(program, comp_ty.id.name);
+                let location = Location::new(program, comp_ty.path.absolute_path().to_vec());
                 let comp = self
                     .state
                     .symbol_table
-                    .lookup_record(location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(comp_ty.id.name))
+                    .lookup_record(&location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(comp_ty.path.absolute_path()))
                     .unwrap();
                 let mut instruction = "    cast ".to_string();
                 for member in &comp.members {

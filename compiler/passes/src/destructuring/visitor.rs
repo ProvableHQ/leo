@@ -23,6 +23,7 @@ use leo_ast::{
     Expression,
     Identifier,
     Node as _,
+    Path,
     Statement,
     TupleExpression,
     Type,
@@ -53,11 +54,11 @@ impl DestructuringVisitor<'_> {
         let (new_expression, mut statements) = self.reconstruct_expression(expression);
 
         match new_expression {
-            Expression::Identifier(identifier) => {
+            Expression::Path(path) => {
                 // It's a variable name, so just get the member identifiers we've already made.
-                let identifiers = self.tuples.get(&identifier.name).expect("Tuples should have been found");
+                let identifiers = self.tuples.get(&path.identifier().name).expect("Tuples should have been found");
                 let elements: Vec<Expression> =
-                    identifiers.iter().map(|identifier| Expression::Identifier(*identifier)).collect();
+                    identifiers.iter().map(|identifier| Path::from(*identifier).into()).collect();
 
                 let tuple: Expression =
                     TupleExpression { elements, span: Default::default(), id: self.state.node_builder.next_id() }
@@ -83,7 +84,7 @@ impl DestructuringVisitor<'_> {
                     panic!("`assign_tuple` always creates a definition with `Multiple`");
                 };
 
-                let elements = identifiers.iter().map(|identifier| Expression::Identifier(*identifier)).collect();
+                let elements = identifiers.iter().map(|identifier| Path::from(*identifier).into()).collect();
 
                 let expr = Expression::Tuple(TupleExpression {
                     elements,

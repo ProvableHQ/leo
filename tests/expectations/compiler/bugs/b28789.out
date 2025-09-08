@@ -1,0 +1,5 @@
+Error [ETYC0372157]: Constructors can only return unit, but found `true`.
+    --> compiler-test:5:9
+     |
+   5 |         return true;
+     |         ^^^^^^^^^^^^

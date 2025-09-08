@@ -395,4 +395,31 @@ create_messages!(
         msg: format!("{msg}"),
         help: None,
     }
+
+    @backtraced
+    conflicting_module_definitions {
+        args: (module_name: impl Display, file_a: impl Display, file_b: impl Display),
+        msg: format!(
+            "Module `{module_name}` is defined in both `{file_a}` and `{file_b}`"
+        ),
+        help: Some({
+            let module_path_fs = format!("{module_name}").replace("::", "/");
+            format!(
+                "Use `{module_path_fs}.leo` for a simple module with no submodules, or place a `mod.leo` file in a `{module_path_fs}/` directory if it contains submodules — not both."
+            )
+        }),
+    }
+
+    @backtraced
+    keyword_used_as_module_name {
+        args: (module_name: impl Display, keyword: impl Display),
+        msg: format!(
+            "Module `{module_name}` uses the reserved keyword `{keyword}` as a name"
+        ),
+        help: {
+            Some(format!(
+                "Rename the module so it does not conflict with the language keyword `{keyword}`."
+            ))
+        },
+    }
 );

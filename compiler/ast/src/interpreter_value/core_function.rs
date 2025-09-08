@@ -1065,7 +1065,7 @@ pub fn evaluate_core_function(
         CoreFunction::ChaChaRandScalar => Value::Scalar(maybe_gen!()),
         CoreFunction::CheatCodePrintMapping => {
             let (program, name) = match &arguments[0] {
-                Expression::Identifier(id) => (None, id.name),
+                Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
                 _ => tc_fail!(),
             };
@@ -1095,7 +1095,7 @@ pub fn evaluate_core_function(
         CoreFunction::MappingGet => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Identifier(id) => (None, id.name),
+                Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
                 _ => tc_fail!(),
             };
@@ -1108,7 +1108,7 @@ pub fn evaluate_core_function(
             let use_value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Identifier(id) => (None, id.name),
+                Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
                 _ => tc_fail!(),
             };
@@ -1121,7 +1121,7 @@ pub fn evaluate_core_function(
             let value = helper.pop_value()?;
             let key = helper.pop_value()?;
             let (program, name) = match &arguments[0] {
-                Expression::Identifier(id) => (None, id.name),
+                Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
                 _ => tc_fail!(),
             };
@@ -1135,7 +1135,7 @@ pub fn evaluate_core_function(
         CoreFunction::MappingRemove => {
             let key = helper.pop_value()?;
             let (program, name) = match &arguments[0] {
-                Expression::Identifier(id) => (None, id.name),
+                Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
                 _ => tc_fail!(),
             };
@@ -1149,7 +1149,7 @@ pub fn evaluate_core_function(
         CoreFunction::MappingContains => {
             let key = helper.pop_value()?;
             let (program, name) = match &arguments[0] {
-                Expression::Identifier(id) => (None, id.name),
+                Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
                 _ => tc_fail!(),
             };

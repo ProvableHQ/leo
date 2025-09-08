@@ -1,0 +1,10 @@
+program b28788.aleo;
+
+struct Foo:
+    x as u32;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    cast 42u32 into r2 as Foo;
+    output r2.x as u32.private;

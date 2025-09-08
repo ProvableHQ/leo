@@ -27,14 +27,18 @@ impl AstReconstructor for ProcessingScriptVisitor<'_> {
         if !matches!(self.current_variant, Variant::Script) {
             let callee_program = input.program.unwrap_or(self.program_name);
 
-            let Some(func_symbol) =
-                self.state.symbol_table.lookup_function(Location::new(callee_program, input.function.name))
+            let Some(func_symbol) = self
+                .state
+                .symbol_table
+                .lookup_function(&Location::new(callee_program, input.function.absolute_path().to_vec()))
             else {
                 panic!("Type checking should have prevented this.");
             };
 
             if matches!(func_symbol.function.variant, Variant::Script) {
-                self.state.handler.emit_err(TypeCheckerError::non_script_calls_script(input.function, input.span))
+                self.state
+                    .handler
+                    .emit_err(TypeCheckerError::non_script_calls_script(input.function.clone(), input.span))
             }
         }
         (input.into(), Default::default())

@@ -82,10 +82,11 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
     /// Consume all `AssignStatement`s, renaming as necessary.
     fn consume_assign(&mut self, mut assign: AssignStatement) -> Self::Output {
         let (value, mut statements) = self.consume_expression(assign.value);
-        if let Expression::Identifier(name) = assign.place {
+        if let Expression::Path(path) = assign.place {
             // Then assign a new unique name to the left-hand-side of the assignment.
             // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
-            let new_place = self.rename_identifier(name);
+            // We really expect `path` to refer to a local variable so we only care about the result of `identifier().name`.
+            let new_place = self.rename_identifier(path.identifier());
 
             statements.push(self.simple_definition(new_place, value));
             statements
@@ -100,7 +101,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                     Expression::ArrayAccess(array_access) => place = &mut array_access.array,
                     Expression::MemberAccess(member_access) => place = &mut member_access.inner,
                     Expression::TupleAccess(tuple_access) => place = &mut tuple_access.tuple,
-                    expr @ Expression::Identifier(..) => {
+                    expr @ Expression::Path(..) => {
                         let (new_expr, statements2) = self.consume_expression(std::mem::take(expr));
                         *expr = new_expr;
                         statements.extend(statements2);

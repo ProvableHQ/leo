@@ -59,6 +59,7 @@ use snarkvm::prelude::{
 };
 
 use indexmap::IndexMap;
+use itertools::Itertools;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng};
 use std::{cmp::Ordering, collections::HashMap, mem, str::FromStr as _};
 
@@ -69,10 +70,10 @@ pub type SvmFunction = SvmFunctionParam<TestnetV0>;
 /// Names associated to values in a function being executed.
 #[derive(Clone, Debug)]
 pub struct FunctionContext {
-    name: Symbol,
+    path: Vec<Symbol>,
     program: Symbol,
     pub caller: SvmAddress,
-    names: HashMap<Symbol, Value>,
+    names: HashMap<Vec<Symbol>, Value>,
     accumulated_futures: Future,
     is_async: bool,
 }
@@ -91,15 +92,15 @@ impl ContextStack {
 
     fn push(
         &mut self,
-        name: Symbol,
+        path: &[Symbol],
         program: Symbol,
         caller: SvmAddress,
         is_async: bool,
-        names: HashMap<Symbol, Value>, // a map of variable names that are already known
+        names: HashMap<Vec<Symbol>, Value>, // a map of variable names that are already known
     ) {
         if self.current_len == self.contexts.len() {
             self.contexts.push(FunctionContext {
-                name,
+                path: path.to_vec(),
                 program,
                 caller,
                 names: HashMap::new(),
@@ -107,10 +108,12 @@ impl ContextStack {
                 is_async,
             });
         }
-        self.contexts[self.current_len].accumulated_futures.0.clear();
-        self.contexts[self.current_len].names = names;
-        self.contexts[self.current_len].caller = caller;
+
+        self.contexts[self.current_len].path = path.to_vec();
         self.contexts[self.current_len].program = program;
+        self.contexts[self.current_len].caller = caller;
+        self.contexts[self.current_len].names = names;
+        self.contexts[self.current_len].accumulated_futures.0.clear();
         self.contexts[self.current_len].is_async = is_async;
         self.current_len += 1;
     }
@@ -133,9 +136,9 @@ impl ContextStack {
         mem::take(&mut self.contexts[self.current_len - 1].accumulated_futures)
     }
 
-    fn set(&mut self, symbol: Symbol, value: Value) {
+    fn set(&mut self, path: &[Symbol], value: Value) {
         assert!(self.current_len > 0);
-        self.last_mut().unwrap().names.insert(symbol, value);
+        self.last_mut().unwrap().names.insert(path.to_vec(), value);
     }
 
     pub fn add_future(&mut self, future: Future) {
@@ -202,7 +205,7 @@ pub enum Element {
     DelayedAsyncBlock {
         program: Symbol,
         block: NodeID,
-        names: HashMap<Symbol, Value>,
+        names: HashMap<Vec<Symbol>, Value>,
     },
 }
 
@@ -254,12 +257,12 @@ pub struct Cursor {
     /// Consts are stored here.
     pub globals: HashMap<GlobalId, Value>,
 
-    pub user_values: HashMap<Symbol, Value>,
+    pub user_values: HashMap<Vec<Symbol>, Value>,
 
     pub mappings: HashMap<GlobalId, HashMap<Value, Value>>,
 
     /// For each struct type, we only need to remember the names of its members, in order.
-    pub structs: HashMap<Symbol, IndexMap<Symbol, Type>>,
+    pub structs: HashMap<Vec<Symbol>, IndexMap<Symbol, Type>>,
 
     pub futures: Vec<Future>,
 
@@ -356,41 +359,45 @@ impl Cursor {
         }
     }
 
-    fn lookup(&self, name: Symbol) -> Option<Value> {
+    fn lookup(&self, name: &[Symbol]) -> Option<Value> {
         if let Some(context) = self.contexts.last() {
-            let option_value =
-                context.names.get(&name).or_else(|| self.globals.get(&GlobalId { program: context.program, name }));
+            let option_value = context
+                .names
+                .get(name)
+                .or_else(|| self.globals.get(&GlobalId { program: context.program, path: name.to_vec() }));
             if option_value.is_some() {
                 return option_value.cloned();
             }
         };
 
-        self.user_values.get(&name).cloned()
+        self.user_values.get(name).cloned()
     }
 
     pub fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
         let Some(program) = program.or_else(|| self.current_program()) else {
             panic!("no program for mapping lookup");
         };
-        self.mappings.get(&GlobalId { program, name })
+        // mappings can only show up in the top level program scope
+        self.mappings.get(&GlobalId { program, path: vec![name] })
     }
 
     pub fn lookup_mapping_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut HashMap<Value, Value>> {
         let Some(program) = program.or_else(|| self.current_program()) else {
             panic!("no program for mapping lookup");
         };
-        self.mappings.get_mut(&GlobalId { program, name })
+        // mappings can only show up in the top level program scope
+        self.mappings.get_mut(&GlobalId { program, path: vec![name] })
     }
 
-    fn lookup_function(&self, program: Symbol, name: Symbol) -> Option<FunctionVariant> {
-        self.functions.get(&GlobalId { program, name }).cloned()
+    fn lookup_function(&self, program: Symbol, name: &[Symbol]) -> Option<FunctionVariant> {
+        self.functions.get(&GlobalId { program, path: name.to_vec() }).cloned()
     }
 
-    fn set_variable(&mut self, symbol: Symbol, value: Value) {
+    fn set_variable(&mut self, path: &[Symbol], value: Value) {
         if self.contexts.len() > 0 {
-            self.contexts.set(symbol, value);
+            self.contexts.set(path, value);
         } else {
-            self.user_values.insert(symbol, value);
+            self.user_values.insert(path.to_vec(), value);
         }
     }
 
@@ -468,9 +475,21 @@ impl Cursor {
         done
     }
 
+    /// Returns the full absolute path by prefixing `name` with the current module path.
+    /// If no context is available, returns `name` as-is.
+    fn to_absolute_path(&self, name: &[Symbol]) -> Vec<Symbol> {
+        if let Some(context) = self.contexts.last() {
+            let mut full_name = context.path.clone();
+            full_name.pop(); // This pops the function name, keeping only the module prefix 
+            full_name.extend(name);
+            full_name
+        } else {
+            name.to_vec()
+        }
+    }
+
     fn step_statement(&mut self, statement: &Statement, step: usize) -> Result<bool> {
         let len = self.frames.len();
-
         // Push a new expression frame with an optional expected type for the expression
         let mut push = |expression: &Expression, ty: &Option<Type>| {
             self.frames.push(Frame {
@@ -520,19 +539,23 @@ impl Cursor {
             Statement::Assign(assign) if step == 1 => {
                 let value = self.values.pop().unwrap();
                 match &assign.place {
-                    Expression::Identifier(name) => self.set_variable(
-                        name.name,
-                        // Resolve the type of the RHS using the same type is the previous value of this variable
-                        value.resolve_if_unsuffixed(
-                            &self.lookup(name.name).expect_tc(name.span())?.get_numeric_type(),
-                            assign.span(),
-                        )?,
-                    ),
+                    Expression::Path(path) => {
+                        let full_name = self.to_absolute_path(&path.as_symbols());
+                        self.set_variable(
+                            &full_name,
+                            // Resolve the type of the RHS using the same type is the previous value of this variable
+                            value.resolve_if_unsuffixed(
+                                &self.lookup(&full_name).expect_tc(path.span())?.get_numeric_type(),
+                                assign.span(),
+                            )?,
+                        )
+                    }
                     Expression::TupleAccess(tuple_access) => {
-                        let Expression::Identifier(identifier) = tuple_access.tuple else {
+                        let Expression::Path(ref path) = tuple_access.tuple else {
                             halt!(assign.span(), "tuple assignments must refer to identifiers.");
                         };
-                        let mut current_tuple = self.lookup(identifier.name).expect_tc(identifier.span())?;
+                        let full_name = self.to_absolute_path(&path.as_symbols());
+                        let mut current_tuple = self.lookup(&full_name).expect_tc(path.span())?;
                         let Value::Tuple(tuple) = &mut current_tuple else {
                             halt!(tuple_access.span(), "Type error: this must be a tuple.");
                         };
@@ -541,7 +564,7 @@ impl Cursor {
                             &tuple[tuple_access.index.value()].get_numeric_type(),
                             assign.span(),
                         )?;
-                        self.set_variable(identifier.name, current_tuple);
+                        self.set_variable(&full_name, current_tuple);
                     }
                     _ => halt!(assign.span(), "Invalid assignment place."),
                 }
@@ -579,7 +602,7 @@ impl Cursor {
             }
             Statement::Const(const_) if step == 1 => {
                 let value = self.pop_value()?;
-                self.set_variable(const_.place.name, value);
+                self.set_variable(&self.to_absolute_path(&[const_.place.name]), value);
                 true
             }
             Statement::Definition(definition) if step == 0 => {
@@ -589,13 +612,13 @@ impl Cursor {
             Statement::Definition(definition) if step == 1 => {
                 let value = self.pop_value()?;
                 match &definition.place {
-                    DefinitionPlace::Single(id) => self.set_variable(id.name, value),
+                    DefinitionPlace::Single(id) => self.set_variable(&self.to_absolute_path(&[id.name]), value),
                     DefinitionPlace::Multiple(ids) => {
                         let Value::Tuple(rhs) = value else {
                             tc_fail!();
                         };
                         for (id, val) in ids.iter().zip(rhs.into_iter()) {
-                            self.set_variable(id.name, val);
+                            self.set_variable(&self.to_absolute_path(&[id.name]), val);
                         }
                     }
                 }
@@ -623,7 +646,7 @@ impl Cursor {
                     true
                 } else {
                     let new_start = start.inc_wrapping();
-                    self.set_variable(iteration.variable.name, start);
+                    self.set_variable(&self.to_absolute_path(&[iteration.variable.name]), start);
                     self.frames.push(Frame {
                         step: 0,
                         element: Element::Block { block: iteration.block.clone(), function_body: false },
@@ -638,7 +661,7 @@ impl Cursor {
                 // We really only need to care about the type of the output for Leo functions. Aleo functions and
                 // closures don't have to worry about unsuffixed literals
                 let output_type = self.contexts.last().and_then(|ctx| {
-                    self.lookup_function(ctx.program, ctx.name).and_then(|variant| match variant {
+                    self.lookup_function(ctx.program, &ctx.path).and_then(|variant| match variant {
                         FunctionVariant::Leo(function) => Some(function.output_type.clone()),
                         _ => None,
                     })
@@ -759,7 +782,7 @@ impl Cursor {
                 // The block actually executes when an `await` is called on its future.
                 if let Some(context) = self.contexts.last() {
                     let async_ex = AsyncExecution::AsyncBlock {
-                        containing_function: GlobalId { program: context.program, name: context.name },
+                        containing_function: GlobalId { program: context.program, path: context.path.clone() },
                         block: block.id,
                         names: context.names.clone().into_iter().collect(),
                     };
@@ -770,7 +793,7 @@ impl Cursor {
             Expression::Async(_) if step == 2 => Some(self.pop_value()?),
 
             Expression::MemberAccess(access) => match &access.inner {
-                Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
+                Expression::Path(path) if *path.as_symbols() == vec![sym::SelfLower] => match access.name.name {
                     sym::signer => Some(Value::Address(self.signer)),
                     sym::caller => {
                         if let Some(function_context) = self.contexts.last() {
@@ -781,7 +804,7 @@ impl Cursor {
                     }
                     _ => halt!(access.span(), "unknown member of self"),
                 },
-                Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
+                Expression::Path(path) if *path.as_symbols() == vec![sym::block] => match access.name.name {
                     sym::height => Some(Value::U32(self.block_height)),
                     _ => halt!(access.span(), "unknown member of block"),
                 },
@@ -976,18 +999,18 @@ impl Cursor {
 
             Expression::Call(call) if step == 0 => {
                 // Resolve the function's program and name
-                let (function_program, function_name) = {
+                let (function_program, function_path) = {
                     let maybe_program = call.program.or_else(|| self.current_program());
                     if let Some(program) = maybe_program {
-                        (program, call.function.name)
+                        (program, self.to_absolute_path(&call.function.as_symbols()))
                     } else {
                         halt!(call.span, "No current program");
                     }
                 };
 
                 // Look up the function variant (Leo, AleoClosure, or AleoFunction)
-                let Some(function_variant) = self.lookup_function(function_program, function_name) else {
-                    halt!(call.span, "unknown function {function_program}.aleo/{function_name}");
+                let Some(function_variant) = self.lookup_function(function_program, &function_path) else {
+                    halt!(call.span, "unknown function {function_program}.aleo/{}", function_path.iter().format("::"));
                 };
 
                 // Extract const parameter and input types based on the function variant
@@ -1025,10 +1048,10 @@ impl Cursor {
 
             Expression::Call(call) if step == 1 => {
                 let len = self.values.len();
-                let (program, name) = {
+                let (program, path) = {
                     let maybe_program = call.program.or_else(|| self.current_program());
                     if let Some(program) = maybe_program {
-                        (program, call.function.name)
+                        (program, call.function.as_symbols())
                     } else {
                         halt!(call.span, "No current program");
                     }
@@ -1039,7 +1062,7 @@ impl Cursor {
                     self.values.drain(len - call.arguments.len() - call.const_arguments.len()..).collect();
                 self.do_call(
                     program,
-                    name,
+                    &self.to_absolute_path(&path),
                     arguments.into_iter(),
                     false, // finalize
                     call.span(),
@@ -1060,17 +1083,21 @@ impl Cursor {
                 }
             }
             Expression::Err(_) => todo!(),
-            Expression::Identifier(identifier) if step == 0 => {
-                Some(self.lookup(identifier.name).expect_tc(identifier.span())?)
+            Expression::Path(path) if step == 0 => {
+                Some(self.lookup(&self.to_absolute_path(&path.as_symbols())).expect_tc(path.span())?)
             }
             Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
             Expression::Locator(_locator) => todo!(),
             Expression::Struct(struct_) if step == 0 => {
-                let members = self.structs.get(&struct_.name.name).expect_tc(struct_.span())?;
+                let members =
+                    self.structs.get(&self.to_absolute_path(&struct_.path.as_symbols())).expect_tc(struct_.span())?;
                 for StructVariableInitializer { identifier: field_init_name, expression: init, .. } in &struct_.members
                 {
                     let Some(type_) = members.get(&field_init_name.name) else { tc_fail!() };
-                    push!()(init.as_ref().unwrap_or(&Expression::Identifier(*field_init_name)), &Some(type_.clone()))
+                    push!()(
+                        init.as_ref().unwrap_or(&Expression::Path(Path::from(*field_init_name))),
+                        &Some(type_.clone()),
+                    )
                 }
 
                 None
@@ -1080,16 +1107,13 @@ impl Cursor {
                 let mut contents_tmp = HashMap::with_capacity(struct_.members.len());
                 for initializer in struct_.members.iter() {
                     let name = initializer.identifier.name;
-                    let value = if initializer.expression.is_some() {
-                        self.pop_value()?
-                    } else {
-                        self.lookup(name).expect_tc(struct_.span())?
-                    };
+                    let value = self.pop_value()?;
                     contents_tmp.insert(name, value);
                 }
 
                 // And now put them into an IndexMap in the correct order.
-                let members = self.structs.get(&struct_.name.name).expect_tc(struct_.span())?;
+                let members =
+                    self.structs.get(&self.to_absolute_path(&struct_.path.as_symbols())).expect_tc(struct_.span())?;
                 let contents = members
                     .iter()
                     .map(|(identifier, _)| {
@@ -1097,7 +1121,9 @@ impl Cursor {
                     })
                     .collect();
 
-                Some(Value::Struct(StructContents { name: struct_.name.name, contents }))
+                // TODO: this only works for structs defined in the top level module.. must figure
+                // something out for structs defined in modules
+                Some(Value::Struct(StructContents { path: struct_.path.as_symbols(), contents }))
             }
             Expression::Ternary(ternary) if step == 0 => {
                 push!()(&ternary.condition, &None);
@@ -1197,13 +1223,13 @@ impl Cursor {
                 Ok(StepResult { finished: true, value: None })
             }
             Element::DelayedCall(gid) if step == 0 => {
-                match self.lookup_function(gid.program, gid.name).expect("function should exist") {
+                match self.lookup_function(gid.program, &gid.path).expect("function should exist") {
                     FunctionVariant::Leo(function) => {
                         assert!(function.variant == Variant::AsyncFunction);
                         let len = self.values.len();
                         let values: Vec<Value> = self.values.drain(len - function.input.len()..).collect();
                         self.contexts.push(
-                            gid.name,
+                            &gid.path,
                             gid.program,
                             self.signer,
                             true, // is_async
@@ -1211,7 +1237,7 @@ impl Cursor {
                         );
                         let param_names = function.input.iter().map(|input| input.identifier.name);
                         for (name, value) in param_names.zip(values) {
-                            self.set_variable(name, value);
+                            self.set_variable(&self.to_absolute_path(&[name]), value);
                         }
                         self.frames.last_mut().unwrap().step = 1;
                         self.frames.push(Frame {
@@ -1228,7 +1254,7 @@ impl Cursor {
                         let len = self.values.len();
                         let values_iter = self.values.drain(len - finalize_f.inputs().len()..);
                         self.contexts.push(
-                            gid.name,
+                            &gid.path,
                             gid.program,
                             self.signer,
                             true, // is_async
@@ -1257,7 +1283,7 @@ impl Cursor {
             }
             Element::DelayedAsyncBlock { program, block, names } if step == 0 => {
                 self.contexts.push(
-                    Symbol::intern(""),
+                    &[Symbol::intern("")],
                     program,
                     self.signer,
                     true,
@@ -1286,13 +1312,13 @@ impl Cursor {
     pub fn do_call(
         &mut self,
         function_program: Symbol,
-        function_name: Symbol,
+        function_path: &[Symbol],
         arguments: impl Iterator<Item = Value>,
         finalize: bool,
         span: Span,
     ) -> Result<()> {
-        let Some(function_variant) = self.lookup_function(function_program, function_name) else {
-            halt!(span, "unknown function {function_program}.aleo/{function_name}");
+        let Some(function_variant) = self.lookup_function(function_program, function_path) else {
+            halt!(span, "unknown function {function_program}.aleo/{}", function_path.iter().format("::"));
         };
         match function_variant {
             FunctionVariant::Leo(function) => {
@@ -1304,13 +1330,13 @@ impl Cursor {
                 if self.really_async && function.variant == Variant::AsyncFunction {
                     // Don't actually run the call now.
                     let async_ex = AsyncExecution::AsyncFunctionCall {
-                        function: GlobalId { name: function_name, program: function_program },
+                        function: GlobalId { path: function_path.to_vec(), program: function_program },
                         arguments: arguments.collect(),
                     };
                     self.values.push(Value::Future(Future(vec![async_ex])));
                 } else {
                     let is_async = function.variant == Variant::AsyncFunction;
-                    self.contexts.push(function_name, function_program, caller, is_async, HashMap::new());
+                    self.contexts.push(function_path, function_program, caller, is_async, HashMap::new());
                     // Treat const generic parameters as regular inputs
                     let param_names = function
                         .const_parameters
@@ -1318,7 +1344,7 @@ impl Cursor {
                         .map(|param| param.identifier.name)
                         .chain(function.input.iter().map(|input| input.identifier.name));
                     for (name, value) in param_names.zip(arguments) {
-                        self.set_variable(name, value);
+                        self.set_variable(&self.to_absolute_path(&[name]), value);
                     }
                     self.frames.push(Frame {
                         step: 0,
@@ -1328,7 +1354,7 @@ impl Cursor {
                 }
             }
             FunctionVariant::AleoClosure(closure) => {
-                self.contexts.push(function_name, function_program, self.signer, false, HashMap::new());
+                self.contexts.push(function_path, function_program, self.signer, false, HashMap::new());
                 let context = AleoContext::Closure(closure);
                 self.frames.push(Frame {
                     step: 0,
@@ -1342,7 +1368,7 @@ impl Cursor {
             }
             FunctionVariant::AleoFunction(function) => {
                 let caller = self.new_caller();
-                self.contexts.push(function_name, function_program, caller, false, HashMap::new());
+                self.contexts.push(function_path, function_program, caller, false, HashMap::new());
                 let context = if finalize {
                     let Some(finalize_f) = function.finalize_logic() else {
                         panic!("finalize call with no finalize logic");

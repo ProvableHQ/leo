@@ -170,123 +170,91 @@ pub enum Token {
     Leo, // only used for error messages, not an actual keyword
 }
 
-/// Represents all valid Leo keyword tokens.
-/// This also includes the boolean literals `true` and `false`,
-/// unlike the ABNF grammar, which classifies them as literals and not keywords.
-/// But for the purposes of our lexer implementation,
-/// it is fine to include the boolean literals in this list.
-pub const KEYWORD_TOKENS: &[Token] = &[
-    Token::Address,
-    Token::Aleo,
-    Token::As,
-    Token::Assert,
-    Token::AssertEq,
-    Token::AssertNeq,
-    Token::Async,
-    Token::Bool,
-    Token::Const,
-    Token::Constant,
-    Token::Constructor,
-    Token::Else,
-    Token::False,
-    Token::Field,
-    Token::Fn,
-    Token::For,
-    Token::Function,
-    Token::Future,
-    Token::Group,
-    Token::I8,
-    Token::I16,
-    Token::I32,
-    Token::I64,
-    Token::I128,
-    Token::If,
-    Token::Import,
-    Token::In,
-    Token::Inline,
-    Token::Let,
-    Token::Mapping,
-    Token::Network,
-    Token::Private,
-    Token::Program,
-    Token::Public,
-    Token::Record,
-    Token::Return,
-    Token::Scalar,
-    Token::Script,
-    Token::SelfLower,
-    Token::Signature,
-    Token::String,
-    Token::Struct,
-    Token::Transition,
-    Token::True,
-    Token::U8,
-    Token::U16,
-    Token::U32,
-    Token::U64,
-    Token::U128,
-];
+macro_rules! keyword_map {
+    ($($token:ident => $symbol:ident),* $(,)?) => {
+        pub const KEYWORD_TOKENS: &[Token] = &[
+            $(Token::$token),*
+        ];
 
-impl Token {
-    /// Returns `true` if the `self` token equals a Leo keyword.
-    pub fn is_keyword(&self) -> bool {
-        KEYWORD_TOKENS.contains(self)
-    }
+        impl Token {
+            pub fn is_keyword(&self) -> bool {
+                matches!(self, $(Token::$token)|*)
+            }
 
-    /// Converts `self` to the corresponding `Symbol` if it `is_keyword`.
-    pub fn keyword_to_symbol(&self) -> Option<Symbol> {
-        Some(match self {
-            Token::Address => sym::address,
-            Token::Aleo => sym::aleo,
-            Token::As => sym::As,
-            Token::Assert => sym::assert,
-            Token::AssertEq => sym::assert_eq,
-            Token::AssertNeq => sym::assert_neq,
-            Token::Block => sym::block,
-            Token::Bool => sym::bool,
-            Token::Const => sym::Const,
-            Token::Constant => sym::constant,
-            Token::Constructor => sym::constructor,
-            Token::Else => sym::Else,
-            Token::False => sym::False,
-            Token::Field => sym::field,
-            Token::For => sym::For,
-            Token::Function => sym::function,
-            Token::Group => sym::group,
-            Token::I8 => sym::i8,
-            Token::I16 => sym::i16,
-            Token::I32 => sym::i32,
-            Token::I64 => sym::i64,
-            Token::I128 => sym::i128,
-            Token::If => sym::If,
-            Token::Import => sym::import,
-            Token::In => sym::In,
-            Token::Inline => sym::inline,
-            Token::Let => sym::Let,
-            Token::Leo => sym::leo,
-            Token::Mapping => sym::mapping,
-            Token::Network => sym::network,
-            Token::Private => sym::private,
-            Token::Program => sym::program,
-            Token::Public => sym::public,
-            Token::Record => sym::record,
-            Token::Return => sym::Return,
-            Token::Scalar => sym::scalar,
-            Token::Script => sym::script,
-            Token::Signature => sym::signature,
-            Token::SelfLower => sym::SelfLower,
-            Token::String => sym::string,
-            Token::Struct => sym::Struct,
-            Token::Transition => sym::transition,
-            Token::True => sym::True,
-            Token::U8 => sym::u8,
-            Token::U16 => sym::u16,
-            Token::U32 => sym::u32,
-            Token::U64 => sym::u64,
-            Token::U128 => sym::u128,
-            _ => return None,
-        })
+            pub fn keyword_to_symbol(&self) -> Option<Symbol> {
+                match self {
+                    $(Token::$token => Some(sym::$symbol),)*
+                    _ => None,
+                }
+            }
+
+            pub fn symbol_to_keyword(symbol: Symbol) -> Option<Self> {
+                match symbol {
+                    $(sym::$symbol => Some(Token::$token),)*
+                    _ => None,
+                }
+            }
+        }
     }
+}
+
+// Represents all valid Leo keyword tokens.
+// This also includes the boolean literals `true` and `false`,
+// unlike the ABNF grammar, which classifies them as literals and not keywords.
+// But for the purposes of our lexer implementation,
+// it is fine to include the boolean literals in this list.
+keyword_map! {
+    Address    => address,
+    Aleo       => aleo,
+    As         => As,
+    Assert     => assert,
+    AssertEq   => assert_eq,
+    AssertNeq  => assert_neq,
+    Async      => Async,   // if you need it
+    Block      => block,
+    Bool       => bool,
+    Const      => Const,
+    Constant   => constant,
+    Constructor => constructor,
+    Else       => Else,
+    False      => False,
+    Field      => field,
+    Fn         => Fn,
+    For        => For,
+    Function   => function,
+    Future     => Future,
+    Group      => group,
+    I8         => i8,
+    I16        => i16,
+    I32        => i32,
+    I64        => i64,
+    I128       => i128,
+    If         => If,
+    Import     => import,
+    In         => In,
+    Inline     => inline,
+    Let        => Let,
+    Leo        => leo,
+    Mapping    => mapping,
+    Network    => network,
+    Private    => private,
+    Program    => program,
+    Public     => public,
+    Record     => record,
+    Return     => Return,
+    Scalar     => scalar,
+    Script     => script,
+    SelfLower  => SelfLower,
+    Signature  => signature,
+    String     => string,
+    Struct     => Struct,
+    Transition => transition,
+    True       => True,
+    U8         => u8,
+    U16        => u16,
+    U32        => u32,
+    U64        => u64,
+    U128       => u128,
 }
 
 impl fmt::Display for Token {

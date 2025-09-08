@@ -24,8 +24,7 @@ use leo_span::Symbol;
 use snarkvm::prelude::TestnetV0;
 
 use colored::Colorize as _;
-use indexmap::IndexSet;
-use std::{fs, path::PathBuf};
+use std::fs;
 
 /// Test a leo program.
 #[derive(Parser, Debug)]
@@ -65,49 +64,8 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     let private_key = get_private_key::<TestnetV0>(&None)?;
     let address = Address::try_from(&private_key)?;
 
-    // Get the paths of all local Leo dependencies.
-    let leo_paths: Vec<PathBuf> = package
-        .programs
-        .iter()
-        .flat_map(|program| match &program.data {
-            ProgramData::SourcePath { source, .. } => Some(source.clone()),
-            ProgramData::Bytecode(..) => None,
-        })
-        .collect();
-    let local_dependency_symbols: IndexSet<Symbol> = package
-        .programs
-        .iter()
-        .flat_map(|program| match &program.data {
-            ProgramData::SourcePath { .. } => {
-                // It's a local Leo dependency.
-                Some(program.name)
-            }
-            ProgramData::Bytecode(..) => {
-                // It's a network dependency or a local .aleo dependency.
-                None
-            }
-        })
-        .collect();
-    let imports_directory = package.imports_directory();
-
-    // Get the paths to .aleo files in `imports` - but filter out the ones corresponding to local Leo dependencies.
-    let aleo_paths: Vec<PathBuf> = imports_directory
-        .read_dir()
-        .ok()
-        .into_iter()
-        .flatten()
-        .flat_map(|maybe_filename| maybe_filename.ok())
-        .filter(|entry| entry.file_type().ok().map(|filetype| filetype.is_file()).unwrap_or(false))
-        .flat_map(|entry| {
-            let path = entry.path();
-            if let Some(filename) = leo_package::filename_no_aleo_extension(&path) {
-                let symbol = Symbol::intern(filename);
-                if local_dependency_symbols.contains(&symbol) { None } else { Some(path) }
-            } else {
-                None
-            }
-        })
-        .collect();
+    let leo_paths = collect_leo_paths(&package);
+    let aleo_paths = collect_aleo_paths(&package);
 
     let (native_test_functions, interpreter_result) = leo_interpreter::find_and_run_tests(
         &leo_paths,
@@ -142,7 +100,7 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
                     let aleo_path = if program.name == program_name_symbol {
                         build_directory.join("main.aleo")
                     } else {
-                        imports_directory.join(format!("{}.aleo", program.name))
+                        package.imports_directory().join(format!("{}.aleo", program.name))
                     };
                     fs::read_to_string(&aleo_path)
                         .unwrap_or_else(|e| panic!("Failed to read Aleo file at {}: {}", aleo_path.display(), e))

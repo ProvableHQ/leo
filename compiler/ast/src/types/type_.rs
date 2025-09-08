@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, TupleType, common};
+use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, Path, TupleType};
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -74,6 +74,9 @@ impl Type {
     ///
     /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
     ///
+    /// Composite types are considered equal if their names match. If either side still has const generic arguments,
+    /// they are treated as equal unconditionally since monomorphization and other passes of type-checking will handle
+    /// mismatches later.
     pub fn eq_flat_relaxed(&self, other: &Self) -> bool {
         match (self, other) {
             (Type::Address, Type::Address)
@@ -87,10 +90,14 @@ impl Type {
             (Type::Array(left), Type::Array(right)) => {
                 // Two arrays are equal if their element types are the same and if their lengths
                 // are the same, assuming the lengths can be extracted as `u32`.
-                left.element_type().eq_flat_relaxed(right.element_type())
-                    && left.length.as_u32().is_some()
-                    && right.length.as_u32().is_some()
-                    && left.length.as_u32() == right.length.as_u32()
+                (match (left.length.as_u32(), right.length.as_u32()) {
+                    (Some(l1), Some(l2)) => l1 == l2,
+                    _ => {
+                        // An array with an undetermined length (e.g., one that depends on a `const`) is considered
+                        // equal to other arrays because their lengths _may_ eventually be proven equal.
+                        true
+                    }
+                }) && left.element_type().eq_flat_relaxed(right.element_type())
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
@@ -102,7 +109,22 @@ impl Type {
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
-            (Type::Composite(left), Type::Composite(right)) => left.id.name == right.id.name,
+            (Type::Composite(left), Type::Composite(right)) => {
+                // If either composite still has const generic arguments, treat them as equal.
+                // Type checking will run again after monomorphization.
+                if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
+                    return true;
+                }
+
+                // Two composite types are the same if their programs and their _absolute_ paths match.
+                // If the absolute paths are not available, then we really can't compare the two
+                // types and we just return `false` to be conservative.
+                (left.program == right.program)
+                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
+                        (Some(l), Some(r)) => l == r,
+                        _ => false,
+                    }
+            }
             // Don't type check when type hasn't been explicitly defined.
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
@@ -135,9 +157,14 @@ impl Type {
                 snarkvm::prelude::LiteralType::Signature => Type::Signature,
                 snarkvm::prelude::LiteralType::String => Type::String,
             },
-            Struct(s) => {
-                Type::Composite(CompositeType { id: common::Identifier::from(s), const_arguments: Vec::new(), program })
-            }
+            Struct(s) => Type::Composite(CompositeType {
+                path: {
+                    let ident = Identifier::from(s);
+                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                },
+                const_arguments: Vec::new(),
+                program,
+            }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }

@@ -255,7 +255,11 @@ fn handle_deploy<N: Network>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
+    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
+        endpoint
+            .parse::<Uri>()
+            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
+    );
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
@@ -287,7 +291,7 @@ Once it is deployed, it CANNOT be changed.
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
-            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee)?;
+            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
             // Save the transaction.
             transactions.push((id, transaction));
         }
@@ -579,6 +583,7 @@ pub(crate) fn print_deployment_stats<N: Network>(
     program_id: &str,
     deployment: &Deployment<N>,
     priority_fee: Option<u64>,
+    consensus_version: ConsensusVersion,
 ) -> Result<()> {
     use colored::*;
     use num_format::{Locale, ToFormattedString};
@@ -587,7 +592,7 @@ pub(crate) fn print_deployment_stats<N: Network>(
     let variables = deployment.num_combined_variables()?;
     let constraints = deployment.num_combined_constraints()?;
     let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
-        deployment_cost(&vm.process().read(), deployment)?;
+        deployment_cost(&vm.process().read(), deployment, consensus_version)?;
 
     let base_fee_cr = base_fee as f64 / 1_000_000.0;
     let prio_fee_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
