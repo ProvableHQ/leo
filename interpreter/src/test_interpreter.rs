@@ -178,7 +178,7 @@ fn test_interpreter() {
 
     create_session_if_not_set_then(|_| {
         for path in paths.iter() {
-            let test_result = {
+            let mut test_result = {
                 let buf = BufferEmitter::new();
                 let handler = Handler::new(buf.clone());
                 match run_test(path, &handler, &buf) {
@@ -189,6 +189,9 @@ fn test_interpreter() {
                     }
                 }
             };
+
+            // Clear the `id`, for comparison against what snarkvm produced.
+            test_result.interpreter_result.iter_mut().for_each(|value| value.id = None);
             if test_result.ledger_result != test_result.interpreter_result {
                 println!("TEST {} Failed", path.display());
                 println!("LEDGER: {:?}", test_result.ledger_result);
