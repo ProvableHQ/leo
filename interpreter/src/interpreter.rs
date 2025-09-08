@@ -146,17 +146,14 @@ impl Interpreter {
                 }
 
                 for (name, composite) in scope.structs.iter() {
-                    if composite.is_record {
-                    } else {
-                        cursor.structs.insert(
-                            vec![*name],
-                            composite
-                                .members
-                                .iter()
-                                .map(|leo_ast::Member { identifier, type_, .. }| (identifier.name, type_.clone()))
-                                .collect::<IndexMap<_, _>>(),
-                        );
-                    }
+                    cursor.structs.insert(
+                        vec![*name],
+                        composite
+                            .members
+                            .iter()
+                            .map(|leo_ast::Member { identifier, type_, .. }| (identifier.name, type_.clone()))
+                            .collect::<IndexMap<_, _>>(),
+                    );
                 }
 
                 for (name, _mapping) in scope.mappings.iter() {

@@ -89,7 +89,7 @@ impl SourceMap {
     }
 
     pub fn source_file_by_filename(&self, filename: &FileName) -> Option<Rc<SourceFile>> {
-        // This linear search could be improved to a hash lookup with some adjustment.
+        // TODO: This linear search could be improved to a hash lookup with some adjustment.
         self.inner.borrow().source_files.iter().find(|source_file| &source_file.name == filename).cloned()
     }
 

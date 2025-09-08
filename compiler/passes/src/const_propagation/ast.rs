@@ -164,7 +164,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                         .array_index(index_value.as_u32().unwrap() as usize)
                         .expect("We already checked bounds.");
                     return (
-                        self.value_to_expression2(&result_value, span, id).expect(VALUE_ERROR),
+                        self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR),
                         Some(result_value.clone()),
                     );
                 }
@@ -181,7 +181,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         // Currently there is only one associated constant.
         let generator = Value::generator();
-        let expr = self.value_to_expression(&generator, &input).expect(VALUE_ERROR);
+        let expr = self.value_to_expression_node(&generator, &input).expect(VALUE_ERROR);
         (expr, Some(generator))
     }
 
@@ -207,7 +207,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             match interpreter_value::evaluate_core_function(&mut values, core_function, &[], input.span()) {
                 Ok(Some(value)) => {
                     // Successful evaluation.
-                    let expr = self.value_to_expression(&value, &input).expect(VALUE_ERROR);
+                    let expr = self.value_to_expression_node(&value, &input).expect(VALUE_ERROR);
                     return (expr, Some(value));
                 }
                 Ok(None) =>
@@ -230,7 +230,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         if let Some(struct_) = value_opt {
             let value_result = struct_.member_access(member_name).expect("Type checking guarantees the member exists.");
 
-            (self.value_to_expression2(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
+            (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
         } else {
             (MemberAccess { inner, ..input }.into(), None)
         }
@@ -259,7 +259,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (tuple, value_opt) = self.reconstruct_expression(input.tuple);
         if let Some(tuple_value) = value_opt {
             let value_result = tuple_value.tuple_index(input.index.value()).expect("Type checking checked bounds.");
-            (self.value_to_expression2(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
+            (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
         } else {
             (TupleAccess { tuple, ..input }.into(), None)
         }
@@ -298,7 +298,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 &self.state.type_table.get(&input_id),
             ) {
                 Ok(new_value) => {
-                    let new_expr = self.value_to_expression2(&new_value, span, input_id).expect(VALUE_ERROR);
+                    let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
                 Err(err) => self
@@ -327,7 +327,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         if let Some(value) = opt_value {
             if let Some(cast_value) = value.cast(&input.type_) {
-                let expr = self.value_to_expression2(&cast_value, span, id).expect(VALUE_ERROR);
+                let expr = self.value_to_expression(&cast_value, span, id).expect(VALUE_ERROR);
                 return (expr, Some(cast_value));
             } else {
                 self.emit_err(StaticAnalyzerError::compile_time_cast(value, &input.type_, span));
@@ -400,7 +400,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             // We were able to evaluate the operand, so we can evaluate the expression.
             match interpreter_value::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
                 Ok(new_value) => {
-                    let new_expr = self.value_to_expression2(&new_value, span, input_id).expect(VALUE_ERROR);
+                    let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
                 Err(err) => self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),

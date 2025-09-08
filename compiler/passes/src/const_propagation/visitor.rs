@@ -61,7 +61,7 @@ impl ConstPropagationVisitor<'_> {
         self.state.handler.emit_err(err);
     }
 
-    pub fn value_to_expression2(&self, value: &Value, span: Span, id: NodeID) -> Option<Expression> {
+    pub fn value_to_expression(&self, value: &Value, span: Span, id: NodeID) -> Option<Expression> {
         let ty = self.state.type_table.get(&id)?;
         let symbol_table = &self.state.symbol_table;
         let struct_lookup = |sym: &[Symbol]| {
@@ -76,7 +76,7 @@ impl ConstPropagationVisitor<'_> {
         value.to_expression(span, &self.state.node_builder, &ty, &struct_lookup)
     }
 
-    pub fn value_to_expression(&self, value: &Value, previous: &impl Node) -> Option<Expression> {
-        self.value_to_expression2(value, previous.span(), previous.id())
+    pub fn value_to_expression_node(&self, value: &Value, previous: &impl Node) -> Option<Expression> {
+        self.value_to_expression(value, previous.span(), previous.id())
     }
 }

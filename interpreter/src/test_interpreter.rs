@@ -193,6 +193,7 @@ fn test_interpreter() {
                 println!("TEST {} Failed", path.display());
                 println!("LEDGER: {:?}", test_result.ledger_result);
                 println!("INTERPRETER: {:?}", test_result.interpreter_result);
+                panic!("Test failure");
             }
         }
     })
