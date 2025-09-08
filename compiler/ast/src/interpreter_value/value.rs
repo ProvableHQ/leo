@@ -75,7 +75,7 @@ pub struct GlobalId {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
 pub struct Value {
-    pub(crate) id: Option<GlobalId>,
+    pub id: Option<GlobalId>,
     pub(crate) contents: ValueVariants,
 }
 
