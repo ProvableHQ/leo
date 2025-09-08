@@ -16,7 +16,6 @@ program test.aleo {
     inline inner2(a: field) -> field {
         let b: field = 3field;
         return a + b;
-        
     }
 
     function inner(a: field) -> field {

@@ -382,27 +382,26 @@ pub fn evaluate_core_function(
         CoreFunction::ChaChaRandU128 => random!(u128),
         CoreFunction::ChaChaRandScalar => random!(Scalar),
         CoreFunction::CheatCodePrintMapping => {
-            // let (program, name) = match &arguments[0] {
-            //     Expression::Identifier(id) => (None, id.name),
-            //     Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-            //     _ => tc_fail!(),
-            // };
-            // if let Some(mapping) = helper.lookup_mapping(program, name) {
-            //     // TODO: What is the appropriate way to print this to the console.
-            //     // Print the name of the mapping.
-            //     println!(
-            //         "Mapping: {}",
-            //         if let Some(program) = program { format!("{}/{}", program, name) } else { name.to_string() }
-            //     );
-            //     // Print the contents of the mapping.
-            //     for (key, value) in mapping {
-            //         println!("  {} -> {}", key.0, value);
-            //     }
-            // } else {
-            //     tc_fail!();
-            // }
-            // Value { id: None, contents: ValueVariants::Unit }
-            todo!()
+            let (program, name) = match &arguments[0] {
+                Expression::Path(id) => (None, id.identifier().name),
+                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                _ => tc_fail2!(),
+            };
+            if let Some(mapping) = helper.lookup_mapping(program, name) {
+                // TODO: What is the appropriate way to print this to the console.
+                // Print the name of the mapping.
+                println!(
+                    "Mapping: {}",
+                    if let Some(program) = program { format!("{}/{}", program, name) } else { name.to_string() }
+                );
+                // Print the contents of the mapping.
+                for (key, value) in mapping {
+                    println!("  {} -> {}", key, value);
+                }
+            } else {
+                tc_fail2!();
+            }
+            Value { id: None, contents: ValueVariants::Unit }
         }
         CoreFunction::CheatCodeSetBlockHeight => {
             let height: u32 = helper.pop_value()?.try_into().expect_tc(span)?;
