@@ -66,7 +66,7 @@
 <a href=#66 id=66 data-nosnippet>66</a>
 <a href=#67 id=67 data-nosnippet>67</a>        <span class="comment">// Get the private key.
 <a href=#68 id=68 data-nosnippet>68</a>        </span><span class="kw">let </span>private_key = context.get_private_key(<span class="kw-2">&amp;</span><span class="prelude-val">None</span>)<span class="question-mark">?</span>;
-<a href=#69 id=69 data-nosnippet>69</a>        <span class="kw">let </span>address = Address::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
+<a href=#69 id=69 data-nosnippet>69</a>        <span class="kw">let </span>address = Address::&lt;TestnetV0&gt;::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
 <a href=#70 id=70 data-nosnippet>70</a>
 <a href=#71 id=71 data-nosnippet>71</a>        <span class="comment">// Get the paths of all local Leo dependencies.
 <a href=#72 id=72 data-nosnippet>72</a>        </span><span class="kw">let </span>local_dependency_paths = collect_leo_paths(<span class="kw-2">&amp;</span>package);
@@ -81,7 +81,7 @@
 <a href=#81 id=81 data-nosnippet>81</a>        leo_interpreter::interpret(
 <a href=#82 id=82 data-nosnippet>82</a>            <span class="kw-2">&amp;</span>local_dependency_paths,
 <a href=#83 id=83 data-nosnippet>83</a>            <span class="kw-2">&amp;</span>aleo_paths,
-<a href=#84 id=84 data-nosnippet>84</a>            address,
+<a href=#84 id=84 data-nosnippet>84</a>            address.into(),
 <a href=#85 id=85 data-nosnippet>85</a>            command.block_height,
 <a href=#86 id=86 data-nosnippet>86</a>            command.tui,
 <a href=#87 id=87 data-nosnippet>87</a>            network,
@@ -89,7 +89,7 @@
 <a href=#89 id=89 data-nosnippet>89</a>    } <span class="kw">else </span>{
 <a href=#90 id=90 data-nosnippet>90</a>        <span class="comment">// Program that have submodules aren't supported in this mode.
 <a href=#91 id=91 data-nosnippet>91</a>        </span><span class="kw">let </span>private_key: PrivateKey&lt;TestnetV0&gt; = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)<span class="question-mark">?</span>;
-<a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">let </span>address = Address::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
+<a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">let </span>address = Address::&lt;TestnetV0&gt;::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
 <a href=#93 id=93 data-nosnippet>93</a>
 <a href=#94 id=94 data-nosnippet>94</a>        <span class="kw">let </span>leo_paths: Vec&lt;(PathBuf, Vec&lt;PathBuf&gt;)&gt; = command
 <a href=#95 id=95 data-nosnippet>95</a>            .paths
@@ -107,7 +107,7 @@
 <a href=#107 id=107 data-nosnippet>107</a>        leo_interpreter::interpret(
 <a href=#108 id=108 data-nosnippet>108</a>            <span class="kw-2">&amp;</span>leo_paths,
 <a href=#109 id=109 data-nosnippet>109</a>            <span class="kw-2">&amp;</span>aleo_paths,
-<a href=#110 id=110 data-nosnippet>110</a>            address,
+<a href=#110 id=110 data-nosnippet>110</a>            address.into(),
 <a href=#111 id=111 data-nosnippet>111</a>            command.block_height,
 <a href=#112 id=112 data-nosnippet>112</a>            command.tui,
 <a href=#113 id=113 data-nosnippet>113</a>            package.map(|p| p.env.network).unwrap_or_default(),

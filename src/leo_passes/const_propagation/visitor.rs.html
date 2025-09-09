@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/const_propagation/visitor.rs`."><title>visitor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-84e720fa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.89.0 (29483883e 2025-08-04)" data-channel="1.89.0" data-search-js="search-92309212.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fd3af306.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/const_propagation/</div>visitor.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/const_propagation/visitor.rs`."><title>visitor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-84e720fa.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.89.0 (29483883e 2025-08-04)" data-channel="1.89.0" data-search-js="search-92309212.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-fd3af306.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/const_propagation/</div>visitor.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 <a href=#2 id=2 data-nosnippet>2</a>// This file is part of the Leo library.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a>// The Leo library is free software: you can redistribute it and/or modify
@@ -16,152 +16,67 @@
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">crate</span>::CompilerState;
 <a href=#18 id=18 data-nosnippet>18</a>
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{
-<a href=#20 id=20 data-nosnippet>20</a>    ArrayExpression,
-<a href=#21 id=21 data-nosnippet>21</a>    Expression,
-<a href=#22 id=22 data-nosnippet>22</a>    Identifier,
-<a href=#23 id=23 data-nosnippet>23</a>    IntegerType,
-<a href=#24 id=24 data-nosnippet>24</a>    Literal,
-<a href=#25 id=25 data-nosnippet>25</a>    NodeBuilder,
-<a href=#26 id=26 data-nosnippet>26</a>    NodeID,
-<a href=#27 id=27 data-nosnippet>27</a>    Path,
-<a href=#28 id=28 data-nosnippet>28</a>    RepeatExpression,
-<a href=#29 id=29 data-nosnippet>29</a>    StructExpression,
-<a href=#30 id=30 data-nosnippet>30</a>    StructVariableInitializer,
-<a href=#31 id=31 data-nosnippet>31</a>    TupleExpression,
-<a href=#32 id=32 data-nosnippet>32</a>    interpreter_value::Value,
-<a href=#33 id=33 data-nosnippet>33</a>};
-<a href=#34 id=34 data-nosnippet>34</a><span class="kw">use </span>leo_errors::StaticAnalyzerError;
-<a href=#35 id=35 data-nosnippet>35</a><span class="kw">use </span>leo_span::{Span, Symbol};
-<a href=#36 id=36 data-nosnippet>36</a>
-<a href=#37 id=37 data-nosnippet>37</a><span class="kw">pub struct </span>ConstPropagationVisitor&lt;<span class="lifetime">'a</span>&gt; {
-<a href=#38 id=38 data-nosnippet>38</a>    <span class="kw">pub </span>state: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>CompilerState,
-<a href=#39 id=39 data-nosnippet>39</a>    <span class="doccomment">/// The program name.
-<a href=#40 id=40 data-nosnippet>40</a>    </span><span class="kw">pub </span>program: Symbol,
-<a href=#41 id=41 data-nosnippet>41</a>    <span class="doccomment">/// The module name.
-<a href=#42 id=42 data-nosnippet>42</a>    </span><span class="kw">pub </span>module: Vec&lt;Symbol&gt;,
-<a href=#43 id=43 data-nosnippet>43</a>    <span class="doccomment">/// Have we actually modified the program at all?
-<a href=#44 id=44 data-nosnippet>44</a>    </span><span class="kw">pub </span>changed: bool,
-<a href=#45 id=45 data-nosnippet>45</a>    <span class="doccomment">/// The RHS of a const declaration we were not able to evaluate.
-<a href=#46 id=46 data-nosnippet>46</a>    </span><span class="kw">pub </span>const_not_evaluated: <span class="prelude-ty">Option</span>&lt;Span&gt;,
-<a href=#47 id=47 data-nosnippet>47</a>    <span class="doccomment">/// An array index which was not able to be evaluated.
-<a href=#48 id=48 data-nosnippet>48</a>    </span><span class="kw">pub </span>array_index_not_evaluated: <span class="prelude-ty">Option</span>&lt;Span&gt;,
-<a href=#49 id=49 data-nosnippet>49</a>    <span class="doccomment">/// An array length which was not able to be evaluated.
-<a href=#50 id=50 data-nosnippet>50</a>    </span><span class="kw">pub </span>array_length_not_evaluated: <span class="prelude-ty">Option</span>&lt;Span&gt;,
-<a href=#51 id=51 data-nosnippet>51</a>    <span class="doccomment">/// A repeat expression count which was not able to be evaluated.
-<a href=#52 id=52 data-nosnippet>52</a>    </span><span class="kw">pub </span>repeat_count_not_evaluated: <span class="prelude-ty">Option</span>&lt;Span&gt;,
-<a href=#53 id=53 data-nosnippet>53</a>}
-<a href=#54 id=54 data-nosnippet>54</a>
-<a href=#55 id=55 data-nosnippet>55</a><span class="kw">impl </span>ConstPropagationVisitor&lt;<span class="lifetime">'_</span>&gt; {
-<a href=#56 id=56 data-nosnippet>56</a>    <span class="doccomment">/// Enter the symbol table's scope `id`, execute `func`, and then return to the parent scope.
-<a href=#57 id=57 data-nosnippet>57</a>    </span><span class="kw">pub fn </span>in_scope&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID, func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
-<a href=#58 id=58 data-nosnippet>58</a>        <span class="self">self</span>.state.symbol_table.enter_scope(<span class="prelude-val">Some</span>(id));
-<a href=#59 id=59 data-nosnippet>59</a>        <span class="kw">let </span>result = func(<span class="self">self</span>);
-<a href=#60 id=60 data-nosnippet>60</a>        <span class="self">self</span>.state.symbol_table.enter_parent();
-<a href=#61 id=61 data-nosnippet>61</a>        result
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{Expression, Node, NodeID, interpreter_value::Value};
+<a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>leo_errors::StaticAnalyzerError;
+<a href=#21 id=21 data-nosnippet>21</a><span class="kw">use </span>leo_span::{Span, Symbol};
+<a href=#22 id=22 data-nosnippet>22</a>
+<a href=#23 id=23 data-nosnippet>23</a><span class="kw">pub struct </span>ConstPropagationVisitor&lt;<span class="lifetime">'a</span>&gt; {
+<a href=#24 id=24 data-nosnippet>24</a>    <span class="kw">pub </span>state: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>CompilerState,
+<a href=#25 id=25 data-nosnippet>25</a>    <span class="doccomment">/// The program name.
+<a href=#26 id=26 data-nosnippet>26</a>    </span><span class="kw">pub </span>program: Symbol,
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="doccomment">/// The module name.
+<a href=#28 id=28 data-nosnippet>28</a>    </span><span class="kw">pub </span>module: Vec&lt;Symbol&gt;,
+<a href=#29 id=29 data-nosnippet>29</a>    <span class="doccomment">/// Have we actually modified the program at all?
+<a href=#30 id=30 data-nosnippet>30</a>    </span><span class="kw">pub </span>changed: bool,
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="doccomment">/// The RHS of a const declaration we were not able to evaluate.
+<a href=#32 id=32 data-nosnippet>32</a>    </span><span class="kw">pub </span>const_not_evaluated: <span class="prelude-ty">Option</span>&lt;Span&gt;,
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="doccomment">/// An array index which was not able to be evaluated.
+<a href=#34 id=34 data-nosnippet>34</a>    </span><span class="kw">pub </span>array_index_not_evaluated: <span class="prelude-ty">Option</span>&lt;Span&gt;,
+<a href=#35 id=35 data-nosnippet>35</a>    <span class="doccomment">/// An array length which was not able to be evaluated.
+<a href=#36 id=36 data-nosnippet>36</a>    </span><span class="kw">pub </span>array_length_not_evaluated: <span class="prelude-ty">Option</span>&lt;Span&gt;,
+<a href=#37 id=37 data-nosnippet>37</a>    <span class="doccomment">/// A repeat expression count which was not able to be evaluated.
+<a href=#38 id=38 data-nosnippet>38</a>    </span><span class="kw">pub </span>repeat_count_not_evaluated: <span class="prelude-ty">Option</span>&lt;Span&gt;,
+<a href=#39 id=39 data-nosnippet>39</a>}
+<a href=#40 id=40 data-nosnippet>40</a>
+<a href=#41 id=41 data-nosnippet>41</a><span class="kw">impl </span>ConstPropagationVisitor&lt;<span class="lifetime">'_</span>&gt; {
+<a href=#42 id=42 data-nosnippet>42</a>    <span class="doccomment">/// Enter the symbol table's scope `id`, execute `func`, and then return to the parent scope.
+<a href=#43 id=43 data-nosnippet>43</a>    </span><span class="kw">pub fn </span>in_scope&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID, func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
+<a href=#44 id=44 data-nosnippet>44</a>        <span class="self">self</span>.state.symbol_table.enter_scope(<span class="prelude-val">Some</span>(id));
+<a href=#45 id=45 data-nosnippet>45</a>        <span class="kw">let </span>result = func(<span class="self">self</span>);
+<a href=#46 id=46 data-nosnippet>46</a>        <span class="self">self</span>.state.symbol_table.enter_parent();
+<a href=#47 id=47 data-nosnippet>47</a>        result
+<a href=#48 id=48 data-nosnippet>48</a>    }
+<a href=#49 id=49 data-nosnippet>49</a>
+<a href=#50 id=50 data-nosnippet>50</a>    <span class="doccomment">/// Enter module scope with path `module`, execute `func`, and then return to the parent module.
+<a href=#51 id=51 data-nosnippet>51</a>    </span><span class="kw">pub fn </span>in_module_scope&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, module: <span class="kw-2">&amp;</span>[Symbol], func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
+<a href=#52 id=52 data-nosnippet>52</a>        <span class="kw">let </span>parent_module = <span class="self">self</span>.module.clone();
+<a href=#53 id=53 data-nosnippet>53</a>        <span class="self">self</span>.module = module.to_vec();
+<a href=#54 id=54 data-nosnippet>54</a>        <span class="kw">let </span>result = func(<span class="self">self</span>);
+<a href=#55 id=55 data-nosnippet>55</a>        <span class="self">self</span>.module = parent_module;
+<a href=#56 id=56 data-nosnippet>56</a>        result
+<a href=#57 id=57 data-nosnippet>57</a>    }
+<a href=#58 id=58 data-nosnippet>58</a>
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="doccomment">/// Emit a `StaticAnalyzerError`.
+<a href=#60 id=60 data-nosnippet>60</a>    </span><span class="kw">pub fn </span>emit_err(<span class="kw-2">&amp;</span><span class="self">self</span>, err: StaticAnalyzerError) {
+<a href=#61 id=61 data-nosnippet>61</a>        <span class="self">self</span>.state.handler.emit_err(err);
 <a href=#62 id=62 data-nosnippet>62</a>    }
 <a href=#63 id=63 data-nosnippet>63</a>
-<a href=#64 id=64 data-nosnippet>64</a>    <span class="doccomment">/// Enter module scope with path `module`, execute `func`, and then return to the parent module.
-<a href=#65 id=65 data-nosnippet>65</a>    </span><span class="kw">pub fn </span>in_module_scope&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, module: <span class="kw-2">&amp;</span>[Symbol], func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
-<a href=#66 id=66 data-nosnippet>66</a>        <span class="kw">let </span>parent_module = <span class="self">self</span>.module.clone();
-<a href=#67 id=67 data-nosnippet>67</a>        <span class="self">self</span>.module = module.to_vec();
-<a href=#68 id=68 data-nosnippet>68</a>        <span class="kw">let </span>result = func(<span class="self">self</span>);
-<a href=#69 id=69 data-nosnippet>69</a>        <span class="self">self</span>.module = parent_module;
-<a href=#70 id=70 data-nosnippet>70</a>        result
-<a href=#71 id=71 data-nosnippet>71</a>    }
-<a href=#72 id=72 data-nosnippet>72</a>
-<a href=#73 id=73 data-nosnippet>73</a>    <span class="doccomment">/// Emit a `StaticAnalyzerError`.
-<a href=#74 id=74 data-nosnippet>74</a>    </span><span class="kw">pub fn </span>emit_err(<span class="kw-2">&amp;</span><span class="self">self</span>, err: StaticAnalyzerError) {
-<a href=#75 id=75 data-nosnippet>75</a>        <span class="self">self</span>.state.handler.emit_err(err);
-<a href=#76 id=76 data-nosnippet>76</a>    }
-<a href=#77 id=77 data-nosnippet>77</a>}
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="kw">pub fn </span>value_to_expression(<span class="kw-2">&amp;</span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>Value, span: Span, id: NodeID) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
+<a href=#65 id=65 data-nosnippet>65</a>        <span class="kw">let </span>ty = <span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>id)<span class="question-mark">?</span>;
+<a href=#66 id=66 data-nosnippet>66</a>        <span class="kw">let </span>symbol_table = <span class="kw-2">&amp;</span><span class="self">self</span>.state.symbol_table;
+<a href=#67 id=67 data-nosnippet>67</a>        <span class="kw">let </span>struct_lookup = |sym: <span class="kw-2">&amp;</span>[Symbol]| {
+<a href=#68 id=68 data-nosnippet>68</a>            symbol_table
+<a href=#69 id=69 data-nosnippet>69</a>                .lookup_struct(sym)
+<a href=#70 id=70 data-nosnippet>70</a>                .unwrap()
+<a href=#71 id=71 data-nosnippet>71</a>                .members
+<a href=#72 id=72 data-nosnippet>72</a>                .iter()
+<a href=#73 id=73 data-nosnippet>73</a>                .map(|mem| (mem.identifier.name, mem.type_.clone()))
+<a href=#74 id=74 data-nosnippet>74</a>                .collect()
+<a href=#75 id=75 data-nosnippet>75</a>        };
+<a href=#76 id=76 data-nosnippet>76</a>        value.to_expression(span, <span class="kw-2">&amp;</span><span class="self">self</span>.state.node_builder, <span class="kw-2">&amp;</span>ty, <span class="kw-2">&amp;</span>struct_lookup)
+<a href=#77 id=77 data-nosnippet>77</a>    }
 <a href=#78 id=78 data-nosnippet>78</a>
-<a href=#79 id=79 data-nosnippet>79</a><span class="kw">pub fn </span>value_to_expression(value: <span class="kw-2">&amp;</span>Value, span: Span, node_builder: <span class="kw-2">&amp;</span>NodeBuilder) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="kw">use </span>Value::<span class="kw-2">*</span>;
-<a href=#81 id=81 data-nosnippet>81</a>    <span class="kw">let </span>id = node_builder.next_id();
-<a href=#82 id=82 data-nosnippet>82</a>
-<a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">let </span>result = <span class="kw">match </span>value {
-<a href=#84 id=84 data-nosnippet>84</a>        Unit =&gt; leo_ast::UnitExpression { span, id }.into(),
-<a href=#85 id=85 data-nosnippet>85</a>        Bool(x) =&gt; Literal::boolean(<span class="kw-2">*</span>x, span, id).into(),
-<a href=#86 id=86 data-nosnippet>86</a>        U8(x) =&gt; Literal::integer(IntegerType::U8, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#87 id=87 data-nosnippet>87</a>        U16(x) =&gt; Literal::integer(IntegerType::U16, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#88 id=88 data-nosnippet>88</a>        U32(x) =&gt; Literal::integer(IntegerType::U32, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#89 id=89 data-nosnippet>89</a>        U64(x) =&gt; Literal::integer(IntegerType::U64, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#90 id=90 data-nosnippet>90</a>        U128(x) =&gt; Literal::integer(IntegerType::U128, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#91 id=91 data-nosnippet>91</a>        I8(x) =&gt; Literal::integer(IntegerType::I8, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#92 id=92 data-nosnippet>92</a>        I16(x) =&gt; Literal::integer(IntegerType::I16, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#93 id=93 data-nosnippet>93</a>        I32(x) =&gt; Literal::integer(IntegerType::I32, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#94 id=94 data-nosnippet>94</a>        I64(x) =&gt; Literal::integer(IntegerType::I64, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#95 id=95 data-nosnippet>95</a>        I128(x) =&gt; Literal::integer(IntegerType::I128, <span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#96 id=96 data-nosnippet>96</a>        Address(x) =&gt; Literal::address(<span class="macro">format!</span>(<span class="string">"{x}"</span>), span, id).into(),
-<a href=#97 id=97 data-nosnippet>97</a>        Group(x) =&gt; {
-<a href=#98 id=98 data-nosnippet>98</a>            <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="macro">format!</span>(<span class="string">"{x}"</span>);
-<a href=#99 id=99 data-nosnippet>99</a>            <span class="comment">// Strip off the `group` suffix.
-<a href=#100 id=100 data-nosnippet>100</a>            </span>s.truncate(s.len() - <span class="number">5</span>);
-<a href=#101 id=101 data-nosnippet>101</a>            Literal::group(s, span, id).into()
-<a href=#102 id=102 data-nosnippet>102</a>        }
-<a href=#103 id=103 data-nosnippet>103</a>        Field(x) =&gt; {
-<a href=#104 id=104 data-nosnippet>104</a>            <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="macro">format!</span>(<span class="string">"{x}"</span>);
-<a href=#105 id=105 data-nosnippet>105</a>            <span class="comment">// Strip off the `field` suffix.
-<a href=#106 id=106 data-nosnippet>106</a>            </span>s.truncate(s.len() - <span class="number">5</span>);
-<a href=#107 id=107 data-nosnippet>107</a>            Literal::field(s, span, id).into()
-<a href=#108 id=108 data-nosnippet>108</a>        }
-<a href=#109 id=109 data-nosnippet>109</a>        Scalar(x) =&gt; {
-<a href=#110 id=110 data-nosnippet>110</a>            <span class="kw">let </span><span class="kw-2">mut </span>s = <span class="macro">format!</span>(<span class="string">"{x}"</span>);
-<a href=#111 id=111 data-nosnippet>111</a>            <span class="comment">// Strip off the `scalar` suffix.
-<a href=#112 id=112 data-nosnippet>112</a>            </span>s.truncate(s.len() - <span class="number">6</span>);
-<a href=#113 id=113 data-nosnippet>113</a>            Literal::scalar(s, span, id).into()
-<a href=#114 id=114 data-nosnippet>114</a>        }
-<a href=#115 id=115 data-nosnippet>115</a>        Tuple(x) =&gt; {
-<a href=#116 id=116 data-nosnippet>116</a>            <span class="kw">let </span><span class="kw-2">mut </span>elements = Vec::with_capacity(x.len());
-<a href=#117 id=117 data-nosnippet>117</a>            <span class="kw">for </span>value <span class="kw">in </span>x.iter() {
-<a href=#118 id=118 data-nosnippet>118</a>                elements.push(value_to_expression(value, span, node_builder)<span class="question-mark">?</span>);
-<a href=#119 id=119 data-nosnippet>119</a>            }
-<a href=#120 id=120 data-nosnippet>120</a>            TupleExpression { elements, span, id }.into()
-<a href=#121 id=121 data-nosnippet>121</a>        }
-<a href=#122 id=122 data-nosnippet>122</a>        Array(x) =&gt; {
-<a href=#123 id=123 data-nosnippet>123</a>            <span class="kw">let </span><span class="kw-2">mut </span>elements = Vec::with_capacity(x.len());
-<a href=#124 id=124 data-nosnippet>124</a>            <span class="kw">for </span>value <span class="kw">in </span>x.iter() {
-<a href=#125 id=125 data-nosnippet>125</a>                elements.push(value_to_expression(value, span, node_builder)<span class="question-mark">?</span>);
-<a href=#126 id=126 data-nosnippet>126</a>            }
-<a href=#127 id=127 data-nosnippet>127</a>            ArrayExpression { elements, span, id }.into()
-<a href=#128 id=128 data-nosnippet>128</a>        }
-<a href=#129 id=129 data-nosnippet>129</a>        Repeat(expr, count) =&gt; RepeatExpression {
-<a href=#130 id=130 data-nosnippet>130</a>            expr: value_to_expression(expr, span, node_builder)<span class="question-mark">?</span>,
-<a href=#131 id=131 data-nosnippet>131</a>            count: value_to_expression(count, span, node_builder)<span class="question-mark">?</span>,
-<a href=#132 id=132 data-nosnippet>132</a>            span,
-<a href=#133 id=133 data-nosnippet>133</a>            id,
-<a href=#134 id=134 data-nosnippet>134</a>        }
-<a href=#135 id=135 data-nosnippet>135</a>        .into(),
-<a href=#136 id=136 data-nosnippet>136</a>        Struct(x) =&gt; StructExpression {
-<a href=#137 id=137 data-nosnippet>137</a>            path: Path::new(
-<a href=#138 id=138 data-nosnippet>138</a>                x.path.iter().take(x.path.len() - <span class="number">1</span>).map(|<span class="kw-2">&amp;</span>sym| Identifier::new(sym, node_builder.next_id())).collect(),
-<a href=#139 id=139 data-nosnippet>139</a>                Identifier::new(<span class="kw-2">*</span>x.path.last().expect(<span class="string">"path must not be empty"</span>), node_builder.next_id()),
-<a href=#140 id=140 data-nosnippet>140</a>                <span class="prelude-val">Some</span>(x.path.clone()),
-<a href=#141 id=141 data-nosnippet>141</a>                span,
-<a href=#142 id=142 data-nosnippet>142</a>                node_builder.next_id(),
-<a href=#143 id=143 data-nosnippet>143</a>            ),
-<a href=#144 id=144 data-nosnippet>144</a>            const_arguments: Vec::new(), <span class="comment">// `Value`s don't have const arguments
-<a href=#145 id=145 data-nosnippet>145</a>            </span>members: {
-<a href=#146 id=146 data-nosnippet>146</a>                <span class="kw">let </span><span class="kw-2">mut </span>members = Vec::with_capacity(x.contents.len());
-<a href=#147 id=147 data-nosnippet>147</a>                <span class="kw">for </span>(name, val) <span class="kw">in </span>x.contents.iter() {
-<a href=#148 id=148 data-nosnippet>148</a>                    <span class="kw">let </span>initializer = StructVariableInitializer {
-<a href=#149 id=149 data-nosnippet>149</a>                        identifier: Identifier { name: <span class="kw-2">*</span>name, id: node_builder.next_id(), span },
-<a href=#150 id=150 data-nosnippet>150</a>                        expression: <span class="prelude-val">Some</span>(value_to_expression(val, span, node_builder)<span class="question-mark">?</span>),
-<a href=#151 id=151 data-nosnippet>151</a>                        span,
-<a href=#152 id=152 data-nosnippet>152</a>                        id: node_builder.next_id(),
-<a href=#153 id=153 data-nosnippet>153</a>                    };
-<a href=#154 id=154 data-nosnippet>154</a>                    members.push(initializer)
-<a href=#155 id=155 data-nosnippet>155</a>                }
-<a href=#156 id=156 data-nosnippet>156</a>                members
-<a href=#157 id=157 data-nosnippet>157</a>            },
-<a href=#158 id=158 data-nosnippet>158</a>            span,
-<a href=#159 id=159 data-nosnippet>159</a>            id,
-<a href=#160 id=160 data-nosnippet>160</a>        }
-<a href=#161 id=161 data-nosnippet>161</a>        .into(),
-<a href=#162 id=162 data-nosnippet>162</a>        Future(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#163 id=163 data-nosnippet>163</a>        Unsuffixed(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#164 id=164 data-nosnippet>164</a>    };
-<a href=#165 id=165 data-nosnippet>165</a>
-<a href=#166 id=166 data-nosnippet>166</a>    <span class="prelude-val">Some</span>(result)
-<a href=#167 id=167 data-nosnippet>167</a>}</code></pre></div></section></main></body></html>
+<a href=#79 id=79 data-nosnippet>79</a>    <span class="kw">pub fn </span>value_to_expression_node(<span class="kw-2">&amp;</span><span class="self">self</span>, value: <span class="kw-2">&amp;</span>Value, previous: <span class="kw-2">&amp;</span><span class="kw">impl </span>Node) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
+<a href=#80 id=80 data-nosnippet>80</a>        <span class="self">self</span>.value_to_expression(value, previous.span(), previous.id())
+<a href=#81 id=81 data-nosnippet>81</a>    }
+<a href=#82 id=82 data-nosnippet>82</a>}</code></pre></div></section></main></body></html>

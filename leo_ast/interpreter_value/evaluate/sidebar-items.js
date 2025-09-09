@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["evaluate_binary","evaluate_unary","literal_to_value","prepare_snarkvm_string","really_cast","resolve_unsuffixed_binary_op_operands","resolve_unsuffixed_unary_op_operand"]};
+window.SIDEBAR_ITEMS = {"fn":["evaluate_binary","evaluate_unary","literal_to_value","prepare_snarkvm_string","resolve_unsuffixed_binary_op_operands","resolve_unsuffixed_unary_op_operand"]};

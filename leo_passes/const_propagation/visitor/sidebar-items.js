@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["value_to_expression"],"struct":["ConstPropagationVisitor"]};
+window.SIDEBAR_ITEMS = {"struct":["ConstPropagationVisitor"]};
