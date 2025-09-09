@@ -63,9 +63,6 @@ pub use self::types::*;
 mod stub;
 pub use self::stub::*;
 
-mod value;
-pub use value::*;
-
 pub use common::node::*;
 
 use leo_errors::{AstError, Result};
