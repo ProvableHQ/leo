@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Expression::Literal, *};
+use leo_ast::{Expression::Literal, interpreter_value::literal_to_value, *};
 
 use leo_errors::LoopUnrollerError;
 
@@ -92,31 +92,19 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         let resolved_stop_lit = resolve_unsuffixed(stop_lit_ref, input.stop.id());
 
         // Convert resolved literals into constant values
-        let start_value = Value::try_from(&resolved_start_lit).unwrap();
-        let stop_value = Value::try_from(&resolved_stop_lit).unwrap();
+        let start_value =
+            literal_to_value(&resolved_start_lit, &None).expect("Parsing and type checking guarantee this works.");
+        let stop_value =
+            literal_to_value(&resolved_stop_lit, &None).expect("Parsing and type checking guarantee this works.");
 
         // Ensure loop bounds are strictly increasing
-        let bounds_invalid = match (&start_value, &stop_value) {
-            (Value::I8(a, _), Value::I8(b, _)) => a >= b,
-            (Value::I16(a, _), Value::I16(b, _)) => a >= b,
-            (Value::I32(a, _), Value::I32(b, _)) => a >= b,
-            (Value::I64(a, _), Value::I64(b, _)) => a >= b,
-            (Value::I128(a, _), Value::I128(b, _)) => a >= b,
-            (Value::U8(a, _), Value::U8(b, _)) => a >= b,
-            (Value::U16(a, _), Value::U16(b, _)) => a >= b,
-            (Value::U32(a, _), Value::U32(b, _)) => a >= b,
-            (Value::U64(a, _), Value::U64(b, _)) => a >= b,
-            (Value::U128(a, _), Value::U128(b, _)) => a >= b,
-            _ => panic!("Type checking guarantees that loop bounds are integers of the same type."),
-        };
-
-        if bounds_invalid {
+        if start_value.gte(&stop_value).expect("Type checking guarantees these are the same type") {
             self.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
         }
 
         self.loop_unrolled = true;
 
-        // Perform loop unrolling using i128 — all numeric bounds are converted to this internally
-        (self.unroll_iteration_statement::<i128>(input, start_value, stop_value), Default::default())
+        // Actually unroll.
+        (self.unroll_iteration_statement(input, start_value, stop_value), Default::default())
     }
 }

@@ -551,6 +551,24 @@ impl Value {
         Some(value)
     }
 
+    pub fn as_i128(&self) -> Option<i128> {
+        let literal = self.try_as_ref()?;
+        let value = match literal {
+            SvmLiteralParam::U8(x) => **x as i128,
+            SvmLiteralParam::U16(x) => **x as i128,
+            SvmLiteralParam::U32(x) => **x as i128,
+            SvmLiteralParam::U64(x) => **x as i128,
+            SvmLiteralParam::U128(x) => (**x).try_into().ok()?,
+            SvmLiteralParam::I8(x) => **x as i128,
+            SvmLiteralParam::I16(x) => **x as i128,
+            SvmLiteralParam::I32(x) => **x as i128,
+            SvmLiteralParam::I64(x) => **x as i128,
+            SvmLiteralParam::I128(x) => **x,
+            _ => return None,
+        };
+        Some(value)
+    }
+
     pub fn array_index(&self, i: usize) -> Option<Self> {
         let plaintext: &SvmPlaintext = self.try_as_ref()?;
         let Plaintext::Array(array, ..) = plaintext else {

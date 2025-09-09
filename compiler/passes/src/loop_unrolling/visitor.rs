@@ -14,12 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AstReconstructor, Block, IterationStatement, Literal, Node, NodeID, Statement, Type, Value};
-
+use leo_ast::{
+    AstReconstructor,
+    Block,
+    IterationStatement,
+    Literal,
+    Node,
+    NodeID,
+    Statement,
+    Type,
+    interpreter_value::Value,
+};
 use leo_errors::LoopUnrollerError;
 use leo_span::{Span, Symbol};
 
-use super::{Clusivity, LoopBound, RangeIterator};
+use itertools::Either;
+
 use crate::CompilerState;
 
 pub struct UnrollingVisitor<'a> {
@@ -46,30 +56,24 @@ impl UnrollingVisitor<'_> {
     }
 
     /// Unrolls an IterationStatement.
-    pub fn unroll_iteration_statement<I: LoopBound>(
-        &mut self,
-        input: IterationStatement,
-        start: Value,
-        stop: Value,
-    ) -> Statement {
-        // Closure to check that the constant values are valid u128.
+    pub fn unroll_iteration_statement(&mut self, input: IterationStatement, start: Value, stop: Value) -> Statement {
         // We already know these are integers since loop unrolling occurs after type checking.
-        let cast_to_number = |v: Value| -> Result<I, Statement> {
-            match v.try_into() {
-                Ok(val_as_u128) => Ok(val_as_u128),
-                Err(err) => {
-                    self.state.handler.emit_err(err);
+        let cast_to_number = |v: Value| -> Result<i128, Statement> {
+            match v.as_i128() {
+                Some(val_as_i128) => Ok(val_as_i128),
+                None => {
+                    self.state.handler.emit_err(LoopUnrollerError::value_out_of_i128_bounds(v, input.span()));
                     Err(Statement::dummy())
                 }
             }
         };
 
-        // Cast `start` to `I`.
+        // Cast `start` to `i128`.
         let start = match cast_to_number(start) {
             Ok(v) => v,
             Err(s) => return s,
         };
-        // Cast `stop` to `I`.
+        // Cast `stop` to `i128`.
         let stop = match cast_to_number(stop) {
             Ok(v) => v,
             Err(s) => return s,
@@ -77,8 +81,7 @@ impl UnrollingVisitor<'_> {
 
         let new_block_id = self.state.node_builder.next_id();
 
-        let iter =
-            RangeIterator::new(start, stop, if input.inclusive { Clusivity::Inclusive } else { Clusivity::Exclusive });
+        let iter = if input.inclusive { Either::Left(start..=stop) } else { Either::Right(start..stop) };
 
         // Create a block statement to replace the iteration statement.
         self.in_scope(new_block_id, |slf| {
@@ -92,7 +95,7 @@ impl UnrollingVisitor<'_> {
     }
 
     /// A helper function to unroll a single iteration an IterationStatement.
-    fn unroll_single_iteration<I: LoopBound>(&mut self, input: &IterationStatement, iteration_count: I) -> Statement {
+    fn unroll_single_iteration(&mut self, input: &IterationStatement, iteration_count: i128) -> Statement {
         // Construct a new node ID.
         let const_id = self.state.node_builder.next_id();
 

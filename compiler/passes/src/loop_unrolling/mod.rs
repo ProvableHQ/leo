@@ -24,9 +24,6 @@ mod ast;
 
 mod duplicate;
 
-mod range_iterator;
-use range_iterator::*;
-
 mod program;
 
 mod visitor;
