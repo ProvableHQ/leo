@@ -39,4 +39,4 @@ function main:
     output r20 as scalar.private;
     output r21 as scalar.private;
     output r22 as scalar.private;
-    output 1287573225283327853534919590979186993724201789277608115440047397137436644827scalar as scalar.private;
+    output 854384691776019248162178505946856027066322239297722479234347691859323304087scalar as scalar.private;

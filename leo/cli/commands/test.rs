@@ -70,7 +70,7 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     let (native_test_functions, interpreter_result) = leo_interpreter::find_and_run_tests(
         &leo_paths,
         &aleo_paths,
-        address,
+        address.into(),
         0u32,
         &command.test_name,
         NetworkName::TestnetV0,

@@ -1661,6 +1661,8 @@ name = "leo-compiler"
 version = "3.1.0"
 dependencies = [
  "aleo-std",
+ "aleo-std-storage",
+ "anyhow",
  "indexmap",
  "itertools 0.13.0",
  "leo-ast",
@@ -1714,6 +1716,8 @@ dependencies = [
  "indexmap",
  "itertools 0.13.0",
  "leo-ast",
+ "leo-compiler",
+ "leo-disassembler",
  "leo-errors",
  "leo-parser",
  "leo-span",
@@ -1721,9 +1725,11 @@ dependencies = [
  "rand",
  "rand_chacha",
  "ratatui",
+ "regex",
  "serial_test",
  "snarkvm",
  "tempfile",
+ "walkdir",
 ]
 
 [[package]]

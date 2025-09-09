@@ -107,7 +107,7 @@ impl MonomorphizationVisitor<'_> {
                 _ => expr.clone(),
             };
 
-            let mut replacer = Replacer::new(replace_path, true /* refresh IDs */, &self.state.node_builder);
+            let mut replacer = Replacer::new(replace_path, true /* refresh IDs */, self.state);
 
             // Create a new version of `struct_` that has a new name, no const parameters, and a new struct ID.
             //

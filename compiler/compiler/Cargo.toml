@@ -33,8 +33,14 @@ workspace = true
 [dependencies.leo-span]
 workspace = true
 
+[dependencies.anyhow]
+workspace = true
+
 [dependencies.aleo-std]
 workspace = true
+
+[dependencies.aleo-std-storage]
+version = "1.0"
 
 [dependencies.rand_chacha]
 workspace = true

@@ -69,7 +69,7 @@ fn handle_debug(command: &LeoDebug, package: Option<Package>) -> Result<()> {
 
         // Get the private key.
         let private_key = get_private_key(&None)?;
-        let address = Address::try_from(&private_key)?;
+        let address = Address::<TestnetV0>::try_from(&private_key)?;
 
         // Get the paths of all local Leo dependencies.
         let local_dependency_paths = collect_leo_paths(&package);
@@ -81,7 +81,7 @@ fn handle_debug(command: &LeoDebug, package: Option<Package>) -> Result<()> {
         leo_interpreter::interpret(
             &local_dependency_paths,
             &aleo_paths,
-            address,
+            address.into(),
             command.block_height,
             command.tui,
             network_name,
@@ -89,7 +89,7 @@ fn handle_debug(command: &LeoDebug, package: Option<Package>) -> Result<()> {
     } else {
         // Program that have submodules aren't supported in this mode.
         let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)?;
-        let address = Address::try_from(&private_key)?;
+        let address = Address::<TestnetV0>::try_from(&private_key)?;
 
         let leo_paths: Vec<(PathBuf, Vec<PathBuf>)> = command
             .paths
@@ -104,6 +104,13 @@ fn handle_debug(command: &LeoDebug, package: Option<Package>) -> Result<()> {
             .map(|path_str| path_str.into())
             .collect();
 
-        leo_interpreter::interpret(&leo_paths, &aleo_paths, address, command.block_height, command.tui, network_name)
+        leo_interpreter::interpret(
+            &leo_paths,
+            &aleo_paths,
+            address.into(),
+            command.block_height,
+            command.tui,
+            network_name,
+        )
     }
 }

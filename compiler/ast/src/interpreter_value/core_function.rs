@@ -14,21 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::collections::HashMap;
+
+use rand::Rng as _;
+use rand_chacha::ChaCha20Rng;
+
 use crate::{
     CoreFunction,
     Expression,
-    halt,
-    interpreter_value::{Value, util::ExpectTc},
-    tc_fail,
+    interpreter_value::{ExpectTc, Value},
+    tc_fail2,
 };
 use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol};
 
-use snarkvm::prelude::{CastLossy as _, Network as _, TestnetV0, ToBits};
-
-use rand::Rng as _;
-use rand_chacha::ChaCha20Rng;
-use std::collections::HashMap;
+use super::*;
 
 /// A context in which we can evaluate core functions.
 ///
@@ -62,6 +62,22 @@ pub trait CoreFunctionHelper {
         None
     }
 
+    fn mapping_get(&self, program: Option<Symbol>, name: Symbol, key: &Value) -> Option<Value> {
+        self.lookup_mapping(program, name).and_then(|map| map.get(key).cloned())
+    }
+
+    fn mapping_set(&mut self, program: Option<Symbol>, name: Symbol, key: Value, value: Value) -> Option<()> {
+        self.lookup_mapping_mut(program, name).map(|map| {
+            map.insert(key, value);
+        })
+    }
+
+    fn mapping_remove(&mut self, program: Option<Symbol>, name: Symbol, key: &Value) -> Option<()> {
+        self.lookup_mapping_mut(program, name).map(|map| {
+            map.remove(key);
+        })
+    }
+
     fn rng(&mut self) -> Option<&mut ChaCha20Rng> {
         None
     }
@@ -79,995 +95,297 @@ pub fn evaluate_core_function(
     arguments: &[Expression],
     span: Span,
 ) -> Result<Option<Value>> {
-    macro_rules! apply {
-        ($func: expr, $value: ident, $to: ident) => {{
-            let v = helper.pop_value()?;
-            let bits = v.$to();
-            Value::$value($func(&bits).expect_tc(span)?)
-        }};
-    }
+    use snarkvm::{
+        prelude::LiteralType,
+        synthesizer::program::{CommitVariant, HashVariant},
+    };
 
-    macro_rules! apply_cast {
-        ($func: expr, $value: ident, $to: ident) => {{
-            let v = helper.pop_value()?;
-            let bits = v.$to();
-            let group = $func(&bits).expect_tc(span)?;
-            let x = group.to_x_coordinate();
-            Value::$value(x.cast_lossy())
-        }};
-    }
+    let dohash = |helper: &mut dyn CoreFunctionHelper, variant: HashVariant, typ: LiteralType| -> Result<Value> {
+        let input = helper.pop_value()?.try_into().expect_tc(span)?;
+        let value = snarkvm::synthesizer::program::evaluate_hash(
+            variant,
+            &input,
+            &snarkvm::prelude::PlaintextType::Literal(typ),
+        )?;
+        Ok(value.into())
+    };
 
-    macro_rules! apply_cast_int {
-        ($func: expr, $value: ident, $int_ty: ident, $to: ident) => {{
-            let v = helper.pop_value()?;
-            let bits = v.$to();
-            let group = $func(&bits).expect_tc(span)?;
-            let x = group.to_x_coordinate();
-            let bits = x.to_bits_le();
-            let mut result: $int_ty = 0;
-            for bit in 0..std::cmp::min($int_ty::BITS as usize, bits.len()) {
-                let setbit = (if bits[bit] { 1 } else { 0 }) << bit;
-                result |= setbit;
-            }
-            Value::$value(result)
-        }};
-    }
+    let docommit = |helper: &mut dyn CoreFunctionHelper, variant: CommitVariant, typ: LiteralType| -> Result<Value> {
+        let randomizer: Scalar = helper.pop_value()?.try_into().expect_tc(span)?;
+        let input: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let value = snarkvm::synthesizer::program::evaluate_commit(variant, &input, &randomizer, typ)?;
+        Ok(value.into())
+    };
 
-    macro_rules! apply_cast2 {
-        ($func: expr, $value: ident) => {{
-            let Value::Scalar(randomizer) = helper.pop_value()? else {
-                tc_fail!();
-            };
-            let v = helper.pop_value()?;
-            let bits = v.to_bits_le();
-            let group = $func(&bits, &randomizer).expect_tc(span)?;
-            let x = group.to_x_coordinate();
-            Value::$value(x.cast_lossy())
-        }};
-    }
-
-    macro_rules! maybe_gen {
-        () => {
-            if let Some(rng) = helper.rng() {
-                rng.r#gen()
-            } else {
+    macro_rules! random {
+        ($ty: ident) => {{
+            let Some(rng) = helper.rng() else {
                 return Ok(None);
-            }
-        };
+            };
+            let value: $ty = rng.r#gen();
+            value.into()
+        }};
     }
 
     let value = match core_function {
-        CoreFunction::BHP256CommitToAddress => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp256, Address)
-        }
-        CoreFunction::BHP256CommitToField => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp256, Field)
-        }
-        CoreFunction::BHP256CommitToGroup => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp256, Group)
-        }
-        CoreFunction::BHP256HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_bhp256, Address, to_bits_le)
-        }
-        CoreFunction::BHP256HashToField => apply!(TestnetV0::hash_bhp256, Field, to_bits_le),
-        CoreFunction::BHP256HashToGroup => apply!(TestnetV0::hash_to_group_bhp256, Group, to_bits_le),
-        CoreFunction::BHP256HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, I8, i8, to_bits_le)
-        }
-        CoreFunction::BHP256HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, I16, i16, to_bits_le)
-        }
-        CoreFunction::BHP256HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, I32, i32, to_bits_le)
-        }
-        CoreFunction::BHP256HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, I64, i64, to_bits_le)
-        }
-        CoreFunction::BHP256HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, I128, i128, to_bits_le)
-        }
-        CoreFunction::BHP256HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, U8, u8, to_bits_le)
-        }
-        CoreFunction::BHP256HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, U16, u16, to_bits_le)
-        }
-        CoreFunction::BHP256HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, U32, u32, to_bits_le)
-        }
-        CoreFunction::BHP256HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, U64, u64, to_bits_le)
-        }
-        CoreFunction::BHP256HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp256, U128, u128, to_bits_le)
-        }
-        CoreFunction::BHP256HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_bhp256, Scalar, to_bits_le)
-        }
-        CoreFunction::BHP512CommitToAddress => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp512, Address)
-        }
-        CoreFunction::BHP512CommitToField => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp512, Field)
-        }
-        CoreFunction::BHP512CommitToGroup => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp512, Group)
-        }
-        CoreFunction::BHP512HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_bhp512, Address, to_bits_le)
-        }
-        CoreFunction::BHP512HashToField => apply!(TestnetV0::hash_bhp512, Field, to_bits_le),
-        CoreFunction::BHP512HashToGroup => apply!(TestnetV0::hash_to_group_bhp512, Group, to_bits_le),
-        CoreFunction::BHP512HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, I8, i8, to_bits_le)
-        }
-        CoreFunction::BHP512HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, I16, i16, to_bits_le)
-        }
-        CoreFunction::BHP512HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, I32, i32, to_bits_le)
-        }
-        CoreFunction::BHP512HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, I64, i64, to_bits_le)
-        }
-        CoreFunction::BHP512HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, I128, i128, to_bits_le)
-        }
-        CoreFunction::BHP512HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, U8, u8, to_bits_le)
-        }
-        CoreFunction::BHP512HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, U16, u16, to_bits_le)
-        }
-        CoreFunction::BHP512HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, U32, u32, to_bits_le)
-        }
-        CoreFunction::BHP512HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, U64, u64, to_bits_le)
-        }
-        CoreFunction::BHP512HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp512, U128, u128, to_bits_le)
-        }
-        CoreFunction::BHP512HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_bhp512, Scalar, to_bits_le)
-        }
-        CoreFunction::BHP768CommitToAddress => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp768, Address)
-        }
-        CoreFunction::BHP768CommitToField => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp768, Field)
-        }
-        CoreFunction::BHP768CommitToGroup => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp768, Group)
-        }
-        CoreFunction::BHP768HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_bhp768, Address, to_bits_le)
-        }
-        CoreFunction::BHP768HashToField => apply!(TestnetV0::hash_bhp768, Field, to_bits_le),
-        CoreFunction::BHP768HashToGroup => apply!(TestnetV0::hash_to_group_bhp768, Group, to_bits_le),
-        CoreFunction::BHP768HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, I8, i8, to_bits_le)
-        }
-        CoreFunction::BHP768HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, I16, i16, to_bits_le)
-        }
-        CoreFunction::BHP768HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, I32, i32, to_bits_le)
-        }
-        CoreFunction::BHP768HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, I64, i64, to_bits_le)
-        }
-        CoreFunction::BHP768HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, I128, i128, to_bits_le)
-        }
-        CoreFunction::BHP768HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, U8, u8, to_bits_le)
-        }
-        CoreFunction::BHP768HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, U16, u16, to_bits_le)
-        }
-        CoreFunction::BHP768HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, U32, u32, to_bits_le)
-        }
-        CoreFunction::BHP768HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, U64, u64, to_bits_le)
-        }
-        CoreFunction::BHP768HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp768, U128, u128, to_bits_le)
-        }
-        CoreFunction::BHP768HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_bhp768, Scalar, to_bits_le)
-        }
-        CoreFunction::BHP1024CommitToAddress => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp1024, Address)
-        }
-        CoreFunction::BHP1024CommitToField => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp1024, Field)
-        }
-        CoreFunction::BHP1024CommitToGroup => {
-            apply_cast2!(TestnetV0::commit_to_group_bhp1024, Group)
-        }
-        CoreFunction::BHP1024HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_bhp1024, Address, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToField => apply!(TestnetV0::hash_bhp1024, Field, to_bits_le),
-        CoreFunction::BHP1024HashToGroup => apply!(TestnetV0::hash_to_group_bhp1024, Group, to_bits_le),
-        CoreFunction::BHP1024HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I8, i8, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I16, i16, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I32, i32, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I64, i64, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, I128, i128, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U8, u8, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U16, u16, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U32, u32, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U64, u64, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_bhp1024, U128, u128, to_bits_le)
-        }
-        CoreFunction::BHP1024HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_bhp1024, Scalar, to_bits_le)
-        }
-        CoreFunction::Keccak256HashToAddress => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            Address,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToField => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            Field,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToGroup => {
-            apply!(
-                |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-                Group,
-                to_bits_le
-            )
-        }
-        CoreFunction::Keccak256HashToI8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            I8,
-            i8,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToI16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            I16,
-            i16,
-            to_bits_le
-        ),
-
-        CoreFunction::Keccak256HashToI32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            I32,
-            i32,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToI64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            I64,
-            i64,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToI128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            I128,
-            i128,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToU8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            U8,
-            u8,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToU16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            U16,
-            u16,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToU32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            U32,
-            u32,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToU64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            U64,
-            u64,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToU128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            U128,
-            u128,
-            to_bits_le
-        ),
-        CoreFunction::Keccak256HashToScalar => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_keccak256(v).expect_tc(span)?),
-            Scalar,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToAddress => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            Address,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToField => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            Field,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToGroup => {
-            apply!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-                Group,
-                to_bits_le
-            )
-        }
-        CoreFunction::Keccak384HashToI8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            I8,
-            i8,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToI16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            I16,
-            i16,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToI32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            I32,
-            i32,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToI64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            I64,
-            i64,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToI128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            I128,
-            i128,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToU8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            U8,
-            u8,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToU16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            U16,
-            u16,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToU32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            U32,
-            u32,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToU64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            U64,
-            u64,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToU128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            U128,
-            u128,
-            to_bits_le
-        ),
-        CoreFunction::Keccak384HashToScalar => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak384(v).expect_tc(span)?),
-            Scalar,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToAddress => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            Address,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToField => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            Field,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToGroup => {
-            apply!(
-                |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-                Group,
-                to_bits_le
-            )
-        }
-        CoreFunction::Keccak512HashToI8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            I8,
-            i8,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToI16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            I16,
-            i16,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToI32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            I32,
-            i32,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToI64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            I64,
-            i64,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToI128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            I128,
-            i128,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToU8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            U8,
-            u8,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToU16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            U16,
-            u16,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToU32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            U32,
-            u32,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToU64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            U64,
-            u64,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToU128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            U128,
-            u128,
-            to_bits_le
-        ),
-        CoreFunction::Keccak512HashToScalar => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_keccak512(v).expect_tc(span)?),
-            Scalar,
-            to_bits_le
-        ),
-        CoreFunction::Pedersen64CommitToAddress => {
-            apply_cast2!(TestnetV0::commit_to_group_ped64, Address)
-        }
-        CoreFunction::Pedersen64CommitToField => {
-            apply_cast2!(TestnetV0::commit_to_group_ped64, Field)
-        }
-        CoreFunction::Pedersen64CommitToGroup => {
-            apply_cast2!(TestnetV0::commit_to_group_ped64, Group)
-        }
-        CoreFunction::Pedersen64HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_ped64, Address, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToField => apply!(TestnetV0::hash_ped64, Field, to_bits_le),
-        CoreFunction::Pedersen64HashToGroup => apply!(TestnetV0::hash_to_group_ped64, Group, to_bits_le),
-        CoreFunction::Pedersen64HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, I8, i8, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, I16, i16, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, I32, i32, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, I64, i64, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, I128, i128, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, U8, u8, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, U16, u16, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, U32, u32, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, U64, u64, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, U128, u128, to_bits_le)
-        }
-        CoreFunction::Pedersen64HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_ped64, Scalar, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_ped128, Address, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToField => {
-            apply_cast!(TestnetV0::hash_to_group_ped128, Field, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToGroup => {
-            apply_cast!(TestnetV0::hash_to_group_ped128, Group, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped128, I8, i8, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, I16, i16, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped128, I32, i32, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, I64, i64, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped128, I128, i128, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped128, U8, u8, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, U16, u16, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped128, U32, u32, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped64, U64, u64, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_ped128, U128, u128, to_bits_le)
-        }
-        CoreFunction::Pedersen128HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_ped128, Scalar, to_bits_le)
-        }
+        CoreFunction::BHP256CommitToAddress => docommit(helper, CommitVariant::CommitBHP256, LiteralType::Address)?,
+        CoreFunction::BHP256CommitToField => docommit(helper, CommitVariant::CommitBHP256, LiteralType::Field)?,
+        CoreFunction::BHP256CommitToGroup => docommit(helper, CommitVariant::CommitBHP256, LiteralType::Group)?,
+        CoreFunction::BHP256HashToAddress => dohash(helper, HashVariant::HashBHP256, LiteralType::Address)?,
+        CoreFunction::BHP256HashToField => dohash(helper, HashVariant::HashBHP256, LiteralType::Field)?,
+        CoreFunction::BHP256HashToGroup => dohash(helper, HashVariant::HashBHP256, LiteralType::Group)?,
+        CoreFunction::BHP256HashToI8 => dohash(helper, HashVariant::HashBHP256, LiteralType::I8)?,
+        CoreFunction::BHP256HashToI16 => dohash(helper, HashVariant::HashBHP256, LiteralType::I16)?,
+        CoreFunction::BHP256HashToI32 => dohash(helper, HashVariant::HashBHP256, LiteralType::I32)?,
+        CoreFunction::BHP256HashToI64 => dohash(helper, HashVariant::HashBHP256, LiteralType::I64)?,
+        CoreFunction::BHP256HashToI128 => dohash(helper, HashVariant::HashBHP256, LiteralType::I128)?,
+        CoreFunction::BHP256HashToU8 => dohash(helper, HashVariant::HashBHP256, LiteralType::U8)?,
+        CoreFunction::BHP256HashToU16 => dohash(helper, HashVariant::HashBHP256, LiteralType::U16)?,
+        CoreFunction::BHP256HashToU32 => dohash(helper, HashVariant::HashBHP256, LiteralType::U32)?,
+        CoreFunction::BHP256HashToU64 => dohash(helper, HashVariant::HashBHP256, LiteralType::U64)?,
+        CoreFunction::BHP256HashToU128 => dohash(helper, HashVariant::HashBHP256, LiteralType::U128)?,
+        CoreFunction::BHP256HashToScalar => dohash(helper, HashVariant::HashBHP256, LiteralType::Scalar)?,
+        CoreFunction::BHP512CommitToAddress => docommit(helper, CommitVariant::CommitBHP512, LiteralType::Address)?,
+        CoreFunction::BHP512CommitToField => docommit(helper, CommitVariant::CommitBHP512, LiteralType::Field)?,
+        CoreFunction::BHP512CommitToGroup => docommit(helper, CommitVariant::CommitBHP512, LiteralType::Group)?,
+        CoreFunction::BHP512HashToAddress => dohash(helper, HashVariant::HashBHP512, LiteralType::Address)?,
+        CoreFunction::BHP512HashToField => dohash(helper, HashVariant::HashBHP512, LiteralType::Field)?,
+        CoreFunction::BHP512HashToGroup => dohash(helper, HashVariant::HashBHP512, LiteralType::Group)?,
+        CoreFunction::BHP512HashToI8 => dohash(helper, HashVariant::HashBHP512, LiteralType::I8)?,
+        CoreFunction::BHP512HashToI16 => dohash(helper, HashVariant::HashBHP512, LiteralType::I16)?,
+        CoreFunction::BHP512HashToI32 => dohash(helper, HashVariant::HashBHP512, LiteralType::I32)?,
+        CoreFunction::BHP512HashToI64 => dohash(helper, HashVariant::HashBHP512, LiteralType::I64)?,
+        CoreFunction::BHP512HashToI128 => dohash(helper, HashVariant::HashBHP512, LiteralType::I128)?,
+        CoreFunction::BHP512HashToU8 => dohash(helper, HashVariant::HashBHP512, LiteralType::U8)?,
+        CoreFunction::BHP512HashToU16 => dohash(helper, HashVariant::HashBHP512, LiteralType::U16)?,
+        CoreFunction::BHP512HashToU32 => dohash(helper, HashVariant::HashBHP512, LiteralType::U32)?,
+        CoreFunction::BHP512HashToU64 => dohash(helper, HashVariant::HashBHP512, LiteralType::U64)?,
+        CoreFunction::BHP512HashToU128 => dohash(helper, HashVariant::HashBHP512, LiteralType::U128)?,
+        CoreFunction::BHP512HashToScalar => dohash(helper, HashVariant::HashBHP512, LiteralType::Scalar)?,
+        CoreFunction::BHP768CommitToAddress => docommit(helper, CommitVariant::CommitBHP768, LiteralType::Address)?,
+        CoreFunction::BHP768CommitToField => docommit(helper, CommitVariant::CommitBHP768, LiteralType::Field)?,
+        CoreFunction::BHP768CommitToGroup => docommit(helper, CommitVariant::CommitBHP768, LiteralType::Group)?,
+        CoreFunction::BHP768HashToAddress => dohash(helper, HashVariant::HashBHP768, LiteralType::Address)?,
+        CoreFunction::BHP768HashToField => dohash(helper, HashVariant::HashBHP768, LiteralType::Field)?,
+        CoreFunction::BHP768HashToGroup => dohash(helper, HashVariant::HashBHP768, LiteralType::Group)?,
+        CoreFunction::BHP768HashToI8 => dohash(helper, HashVariant::HashBHP768, LiteralType::I8)?,
+        CoreFunction::BHP768HashToI16 => dohash(helper, HashVariant::HashBHP768, LiteralType::I16)?,
+        CoreFunction::BHP768HashToI32 => dohash(helper, HashVariant::HashBHP768, LiteralType::I32)?,
+        CoreFunction::BHP768HashToI64 => dohash(helper, HashVariant::HashBHP768, LiteralType::I64)?,
+        CoreFunction::BHP768HashToI128 => dohash(helper, HashVariant::HashBHP768, LiteralType::I128)?,
+        CoreFunction::BHP768HashToU8 => dohash(helper, HashVariant::HashBHP768, LiteralType::U8)?,
+        CoreFunction::BHP768HashToU16 => dohash(helper, HashVariant::HashBHP768, LiteralType::U16)?,
+        CoreFunction::BHP768HashToU32 => dohash(helper, HashVariant::HashBHP768, LiteralType::U32)?,
+        CoreFunction::BHP768HashToU64 => dohash(helper, HashVariant::HashBHP768, LiteralType::U64)?,
+        CoreFunction::BHP768HashToU128 => dohash(helper, HashVariant::HashBHP768, LiteralType::U128)?,
+        CoreFunction::BHP768HashToScalar => dohash(helper, HashVariant::HashBHP768, LiteralType::Scalar)?,
+        CoreFunction::BHP1024CommitToAddress => docommit(helper, CommitVariant::CommitBHP1024, LiteralType::Address)?,
+        CoreFunction::BHP1024CommitToField => docommit(helper, CommitVariant::CommitBHP1024, LiteralType::Field)?,
+        CoreFunction::BHP1024CommitToGroup => docommit(helper, CommitVariant::CommitBHP1024, LiteralType::Group)?,
+        CoreFunction::BHP1024HashToAddress => dohash(helper, HashVariant::HashBHP1024, LiteralType::Address)?,
+        CoreFunction::BHP1024HashToField => dohash(helper, HashVariant::HashBHP1024, LiteralType::Field)?,
+        CoreFunction::BHP1024HashToGroup => dohash(helper, HashVariant::HashBHP1024, LiteralType::Group)?,
+        CoreFunction::BHP1024HashToI8 => dohash(helper, HashVariant::HashBHP1024, LiteralType::I8)?,
+        CoreFunction::BHP1024HashToI16 => dohash(helper, HashVariant::HashBHP1024, LiteralType::I16)?,
+        CoreFunction::BHP1024HashToI32 => dohash(helper, HashVariant::HashBHP1024, LiteralType::I32)?,
+        CoreFunction::BHP1024HashToI64 => dohash(helper, HashVariant::HashBHP1024, LiteralType::I64)?,
+        CoreFunction::BHP1024HashToI128 => dohash(helper, HashVariant::HashBHP1024, LiteralType::I128)?,
+        CoreFunction::BHP1024HashToU8 => dohash(helper, HashVariant::HashBHP1024, LiteralType::U8)?,
+        CoreFunction::BHP1024HashToU16 => dohash(helper, HashVariant::HashBHP1024, LiteralType::U16)?,
+        CoreFunction::BHP1024HashToU32 => dohash(helper, HashVariant::HashBHP1024, LiteralType::U32)?,
+        CoreFunction::BHP1024HashToU64 => dohash(helper, HashVariant::HashBHP1024, LiteralType::U64)?,
+        CoreFunction::BHP1024HashToU128 => dohash(helper, HashVariant::HashBHP1024, LiteralType::U128)?,
+        CoreFunction::BHP1024HashToScalar => dohash(helper, HashVariant::HashBHP1024, LiteralType::Scalar)?,
+        CoreFunction::Keccak256HashToAddress => dohash(helper, HashVariant::HashKeccak256, LiteralType::Address)?,
+        CoreFunction::Keccak256HashToField => dohash(helper, HashVariant::HashKeccak256, LiteralType::Field)?,
+        CoreFunction::Keccak256HashToGroup => dohash(helper, HashVariant::HashKeccak256, LiteralType::Group)?,
+        CoreFunction::Keccak256HashToI8 => dohash(helper, HashVariant::HashKeccak256, LiteralType::I8)?,
+        CoreFunction::Keccak256HashToI16 => dohash(helper, HashVariant::HashKeccak256, LiteralType::I16)?,
+        CoreFunction::Keccak256HashToI32 => dohash(helper, HashVariant::HashKeccak256, LiteralType::I32)?,
+        CoreFunction::Keccak256HashToI64 => dohash(helper, HashVariant::HashKeccak256, LiteralType::I64)?,
+        CoreFunction::Keccak256HashToI128 => dohash(helper, HashVariant::HashKeccak256, LiteralType::I128)?,
+        CoreFunction::Keccak256HashToU8 => dohash(helper, HashVariant::HashKeccak256, LiteralType::U8)?,
+        CoreFunction::Keccak256HashToU16 => dohash(helper, HashVariant::HashKeccak256, LiteralType::U16)?,
+        CoreFunction::Keccak256HashToU32 => dohash(helper, HashVariant::HashKeccak256, LiteralType::U32)?,
+        CoreFunction::Keccak256HashToU64 => dohash(helper, HashVariant::HashKeccak256, LiteralType::U64)?,
+        CoreFunction::Keccak256HashToU128 => dohash(helper, HashVariant::HashKeccak256, LiteralType::U128)?,
+        CoreFunction::Keccak256HashToScalar => dohash(helper, HashVariant::HashKeccak256, LiteralType::Scalar)?,
+        CoreFunction::Keccak384HashToAddress => dohash(helper, HashVariant::HashKeccak384, LiteralType::Address)?,
+        CoreFunction::Keccak384HashToField => dohash(helper, HashVariant::HashKeccak384, LiteralType::Field)?,
+        CoreFunction::Keccak384HashToGroup => dohash(helper, HashVariant::HashKeccak384, LiteralType::Group)?,
+        CoreFunction::Keccak384HashToI8 => dohash(helper, HashVariant::HashKeccak384, LiteralType::I8)?,
+        CoreFunction::Keccak384HashToI16 => dohash(helper, HashVariant::HashKeccak384, LiteralType::I16)?,
+        CoreFunction::Keccak384HashToI32 => dohash(helper, HashVariant::HashKeccak384, LiteralType::I32)?,
+        CoreFunction::Keccak384HashToI64 => dohash(helper, HashVariant::HashKeccak384, LiteralType::I64)?,
+        CoreFunction::Keccak384HashToI128 => dohash(helper, HashVariant::HashKeccak384, LiteralType::I128)?,
+        CoreFunction::Keccak384HashToU8 => dohash(helper, HashVariant::HashKeccak384, LiteralType::U8)?,
+        CoreFunction::Keccak384HashToU16 => dohash(helper, HashVariant::HashKeccak384, LiteralType::U16)?,
+        CoreFunction::Keccak384HashToU32 => dohash(helper, HashVariant::HashKeccak384, LiteralType::U32)?,
+        CoreFunction::Keccak384HashToU64 => dohash(helper, HashVariant::HashKeccak384, LiteralType::U64)?,
+        CoreFunction::Keccak384HashToU128 => dohash(helper, HashVariant::HashKeccak384, LiteralType::U128)?,
+        CoreFunction::Keccak384HashToScalar => dohash(helper, HashVariant::HashKeccak384, LiteralType::Scalar)?,
+        CoreFunction::Keccak512HashToAddress => dohash(helper, HashVariant::HashKeccak512, LiteralType::Address)?,
+        CoreFunction::Keccak512HashToField => dohash(helper, HashVariant::HashKeccak512, LiteralType::Field)?,
+        CoreFunction::Keccak512HashToGroup => dohash(helper, HashVariant::HashKeccak512, LiteralType::Group)?,
+        CoreFunction::Keccak512HashToI8 => dohash(helper, HashVariant::HashKeccak512, LiteralType::I8)?,
+        CoreFunction::Keccak512HashToI16 => dohash(helper, HashVariant::HashKeccak512, LiteralType::I16)?,
+        CoreFunction::Keccak512HashToI32 => dohash(helper, HashVariant::HashKeccak512, LiteralType::I32)?,
+        CoreFunction::Keccak512HashToI64 => dohash(helper, HashVariant::HashKeccak512, LiteralType::I64)?,
+        CoreFunction::Keccak512HashToI128 => dohash(helper, HashVariant::HashKeccak512, LiteralType::I128)?,
+        CoreFunction::Keccak512HashToU8 => dohash(helper, HashVariant::HashKeccak512, LiteralType::U8)?,
+        CoreFunction::Keccak512HashToU16 => dohash(helper, HashVariant::HashKeccak512, LiteralType::U16)?,
+        CoreFunction::Keccak512HashToU32 => dohash(helper, HashVariant::HashKeccak512, LiteralType::U32)?,
+        CoreFunction::Keccak512HashToU64 => dohash(helper, HashVariant::HashKeccak512, LiteralType::U64)?,
+        CoreFunction::Keccak512HashToU128 => dohash(helper, HashVariant::HashKeccak512, LiteralType::U128)?,
+        CoreFunction::Keccak512HashToScalar => dohash(helper, HashVariant::HashKeccak512, LiteralType::Scalar)?,
+        CoreFunction::Pedersen64CommitToAddress => docommit(helper, CommitVariant::CommitPED64, LiteralType::Address)?,
+        CoreFunction::Pedersen64CommitToField => docommit(helper, CommitVariant::CommitPED64, LiteralType::Field)?,
+        CoreFunction::Pedersen64CommitToGroup => docommit(helper, CommitVariant::CommitPED64, LiteralType::Group)?,
+        CoreFunction::Pedersen64HashToAddress => dohash(helper, HashVariant::HashPED64, LiteralType::Address)?,
+        CoreFunction::Pedersen64HashToField => dohash(helper, HashVariant::HashPED64, LiteralType::Field)?,
+        CoreFunction::Pedersen64HashToGroup => dohash(helper, HashVariant::HashPED64, LiteralType::Group)?,
+        CoreFunction::Pedersen64HashToI8 => dohash(helper, HashVariant::HashPED64, LiteralType::I8)?,
+        CoreFunction::Pedersen64HashToI16 => dohash(helper, HashVariant::HashPED64, LiteralType::I16)?,
+        CoreFunction::Pedersen64HashToI32 => dohash(helper, HashVariant::HashPED64, LiteralType::I32)?,
+        CoreFunction::Pedersen64HashToI64 => dohash(helper, HashVariant::HashPED64, LiteralType::I64)?,
+        CoreFunction::Pedersen64HashToI128 => dohash(helper, HashVariant::HashPED64, LiteralType::I128)?,
+        CoreFunction::Pedersen64HashToU8 => dohash(helper, HashVariant::HashPED64, LiteralType::U8)?,
+        CoreFunction::Pedersen64HashToU16 => dohash(helper, HashVariant::HashPED64, LiteralType::U16)?,
+        CoreFunction::Pedersen64HashToU32 => dohash(helper, HashVariant::HashPED64, LiteralType::U32)?,
+        CoreFunction::Pedersen64HashToU64 => dohash(helper, HashVariant::HashPED64, LiteralType::U64)?,
+        CoreFunction::Pedersen64HashToU128 => dohash(helper, HashVariant::HashPED64, LiteralType::U128)?,
+        CoreFunction::Pedersen64HashToScalar => dohash(helper, HashVariant::HashPED64, LiteralType::Scalar)?,
         CoreFunction::Pedersen128CommitToAddress => {
-            apply_cast2!(TestnetV0::commit_to_group_ped128, Address)
+            docommit(helper, CommitVariant::CommitPED128, LiteralType::Address)?
         }
-        CoreFunction::Pedersen128CommitToField => {
-            apply_cast2!(TestnetV0::commit_to_group_ped128, Field)
-        }
-        CoreFunction::Pedersen128CommitToGroup => {
-            apply_cast2!(TestnetV0::commit_to_group_ped128, Group)
-        }
-        CoreFunction::Poseidon2HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_psd2, Address, to_fields)
-        }
-        CoreFunction::Poseidon2HashToField => {
-            apply!(TestnetV0::hash_psd2, Field, to_fields)
-        }
-        CoreFunction::Poseidon2HashToGroup => {
-            apply_cast!(TestnetV0::hash_to_group_psd2, Group, to_fields)
-        }
-        CoreFunction::Poseidon2HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, I8, i8, to_fields)
-        }
-        CoreFunction::Poseidon2HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, I16, i16, to_fields)
-        }
-        CoreFunction::Poseidon2HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, I32, i32, to_fields)
-        }
-        CoreFunction::Poseidon2HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, I64, i64, to_fields)
-        }
-        CoreFunction::Poseidon2HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, I128, i128, to_fields)
-        }
-        CoreFunction::Poseidon2HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, U8, u8, to_fields)
-        }
-        CoreFunction::Poseidon2HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, U16, u16, to_fields)
-        }
-        CoreFunction::Poseidon2HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, U32, u32, to_fields)
-        }
-        CoreFunction::Poseidon2HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, U64, u64, to_fields)
-        }
-        CoreFunction::Poseidon2HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd2, U128, u128, to_fields)
-        }
-        CoreFunction::Poseidon2HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_psd4, Scalar, to_fields)
-        }
-        CoreFunction::Poseidon4HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_psd4, Address, to_fields)
-        }
-        CoreFunction::Poseidon4HashToField => {
-            apply!(TestnetV0::hash_psd4, Field, to_fields)
-        }
-        CoreFunction::Poseidon4HashToGroup => {
-            apply_cast!(TestnetV0::hash_to_group_psd4, Group, to_fields)
-        }
-        CoreFunction::Poseidon4HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, I8, i8, to_fields)
-        }
-        CoreFunction::Poseidon4HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, I16, i16, to_fields)
-        }
-        CoreFunction::Poseidon4HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, I32, i32, to_fields)
-        }
-        CoreFunction::Poseidon4HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, I64, i64, to_fields)
-        }
-        CoreFunction::Poseidon4HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, I128, i128, to_fields)
-        }
-        CoreFunction::Poseidon4HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, U8, u8, to_fields)
-        }
-        CoreFunction::Poseidon4HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, U16, u16, to_fields)
-        }
-        CoreFunction::Poseidon4HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, U32, u32, to_fields)
-        }
-        CoreFunction::Poseidon4HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, U64, u64, to_fields)
-        }
-        CoreFunction::Poseidon4HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd4, U128, u128, to_fields)
-        }
-        CoreFunction::Poseidon4HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_psd4, Scalar, to_fields)
-        }
-        CoreFunction::Poseidon8HashToAddress => {
-            apply_cast!(TestnetV0::hash_to_group_psd8, Address, to_fields)
-        }
-        CoreFunction::Poseidon8HashToField => {
-            apply!(TestnetV0::hash_psd8, Field, to_fields)
-        }
-        CoreFunction::Poseidon8HashToGroup => {
-            apply_cast!(TestnetV0::hash_to_group_psd8, Group, to_fields)
-        }
-        CoreFunction::Poseidon8HashToI8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, I8, i8, to_fields)
-        }
-        CoreFunction::Poseidon8HashToI16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, I16, i16, to_fields)
-        }
-        CoreFunction::Poseidon8HashToI32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, I32, i32, to_fields)
-        }
-        CoreFunction::Poseidon8HashToI64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, I64, i64, to_fields)
-        }
-        CoreFunction::Poseidon8HashToI128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, I128, i128, to_fields)
-        }
-        CoreFunction::Poseidon8HashToU8 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, U8, u8, to_fields)
-        }
-        CoreFunction::Poseidon8HashToU16 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, U16, u16, to_fields)
-        }
-        CoreFunction::Poseidon8HashToU32 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, U32, u32, to_fields)
-        }
-        CoreFunction::Poseidon8HashToU64 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, U64, u64, to_fields)
-        }
-        CoreFunction::Poseidon8HashToU128 => {
-            apply_cast_int!(TestnetV0::hash_to_group_psd8, U128, u128, to_fields)
-        }
-        CoreFunction::Poseidon8HashToScalar => {
-            apply_cast!(TestnetV0::hash_to_group_psd8, Scalar, to_fields)
-        }
-        CoreFunction::SHA3_256HashToAddress => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            Address,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToField => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            Field,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToGroup => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            Group,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToI8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            I8,
-            i8,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToI16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            I16,
-            i16,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToI32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            I32,
-            i32,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToI64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            I64,
-            i64,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToI128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            I128,
-            i128,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToU8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            U8,
-            u8,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToU16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            U16,
-            u16,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToU32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            U32,
-            u32,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToU64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            U64,
-            u64,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToU128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            U128,
-            u128,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_256HashToScalar => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp256(&TestnetV0::hash_sha3_256(v).expect_tc(span)?),
-            Scalar,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToAddress => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            Address,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToField => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            Field,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToGroup => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            Group,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToI8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            I8,
-            i8,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToI16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            I16,
-            i16,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToI32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            I32,
-            i32,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToI64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            I64,
-            i64,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToI128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            I128,
-            i128,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToU8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            U8,
-            u8,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToU16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            U16,
-            u16,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToU32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            U32,
-            u32,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToU64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            U64,
-            u64,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToU128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            U128,
-            u128,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_384HashToScalar => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_384(v).expect_tc(span)?),
-            Scalar,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToAddress => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            Address,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToField => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            Field,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToGroup => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            Group,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToI8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            I8,
-            i8,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToI16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            I16,
-            i16,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToI32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            I32,
-            i32,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToI64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            I64,
-            i64,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToI128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            I128,
-            i128,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToU8 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            U8,
-            u8,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToU16 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            U16,
-            u16,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToU32 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            U32,
-            u32,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToU64 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            U64,
-            u64,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToU128 => apply_cast_int!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            U128,
-            u128,
-            to_bits_le
-        ),
-        CoreFunction::SHA3_512HashToScalar => apply_cast!(
-            |v| TestnetV0::hash_to_group_bhp512(&TestnetV0::hash_sha3_512(v).expect_tc(span)?),
-            Scalar,
-            to_bits_le
-        ),
+        CoreFunction::Pedersen128CommitToField => docommit(helper, CommitVariant::CommitPED128, LiteralType::Field)?,
+        CoreFunction::Pedersen128CommitToGroup => docommit(helper, CommitVariant::CommitPED128, LiteralType::Group)?,
+        CoreFunction::Pedersen128HashToAddress => dohash(helper, HashVariant::HashPED128, LiteralType::Address)?,
+        CoreFunction::Pedersen128HashToField => dohash(helper, HashVariant::HashPED128, LiteralType::Field)?,
+        CoreFunction::Pedersen128HashToGroup => dohash(helper, HashVariant::HashPED128, LiteralType::Group)?,
+        CoreFunction::Pedersen128HashToI8 => dohash(helper, HashVariant::HashPED128, LiteralType::I8)?,
+        CoreFunction::Pedersen128HashToI16 => dohash(helper, HashVariant::HashPED128, LiteralType::I16)?,
+        CoreFunction::Pedersen128HashToI32 => dohash(helper, HashVariant::HashPED128, LiteralType::I32)?,
+        CoreFunction::Pedersen128HashToI64 => dohash(helper, HashVariant::HashPED128, LiteralType::I64)?,
+        CoreFunction::Pedersen128HashToI128 => dohash(helper, HashVariant::HashPED128, LiteralType::I128)?,
+        CoreFunction::Pedersen128HashToU8 => dohash(helper, HashVariant::HashPED128, LiteralType::U8)?,
+        CoreFunction::Pedersen128HashToU16 => dohash(helper, HashVariant::HashPED128, LiteralType::U16)?,
+        CoreFunction::Pedersen128HashToU32 => dohash(helper, HashVariant::HashPED128, LiteralType::U32)?,
+        CoreFunction::Pedersen128HashToU64 => dohash(helper, HashVariant::HashPED128, LiteralType::U64)?,
+        CoreFunction::Pedersen128HashToU128 => dohash(helper, HashVariant::HashPED128, LiteralType::U128)?,
+        CoreFunction::Pedersen128HashToScalar => dohash(helper, HashVariant::HashPED128, LiteralType::Scalar)?,
+        CoreFunction::Poseidon2HashToAddress => dohash(helper, HashVariant::HashPSD2, LiteralType::Address)?,
+        CoreFunction::Poseidon2HashToField => dohash(helper, HashVariant::HashPSD2, LiteralType::Field)?,
+        CoreFunction::Poseidon2HashToGroup => dohash(helper, HashVariant::HashPSD2, LiteralType::Group)?,
+        CoreFunction::Poseidon2HashToI8 => dohash(helper, HashVariant::HashPSD2, LiteralType::I8)?,
+        CoreFunction::Poseidon2HashToI16 => dohash(helper, HashVariant::HashPSD2, LiteralType::I16)?,
+        CoreFunction::Poseidon2HashToI32 => dohash(helper, HashVariant::HashPSD2, LiteralType::I32)?,
+        CoreFunction::Poseidon2HashToI64 => dohash(helper, HashVariant::HashPSD2, LiteralType::I64)?,
+        CoreFunction::Poseidon2HashToI128 => dohash(helper, HashVariant::HashPSD2, LiteralType::I128)?,
+        CoreFunction::Poseidon2HashToU8 => dohash(helper, HashVariant::HashPSD2, LiteralType::U8)?,
+        CoreFunction::Poseidon2HashToU16 => dohash(helper, HashVariant::HashPSD2, LiteralType::U16)?,
+        CoreFunction::Poseidon2HashToU32 => dohash(helper, HashVariant::HashPSD2, LiteralType::U32)?,
+        CoreFunction::Poseidon2HashToU64 => dohash(helper, HashVariant::HashPSD2, LiteralType::U64)?,
+        CoreFunction::Poseidon2HashToU128 => dohash(helper, HashVariant::HashPSD2, LiteralType::U128)?,
+        CoreFunction::Poseidon2HashToScalar => dohash(helper, HashVariant::HashPSD2, LiteralType::Scalar)?,
+        CoreFunction::Poseidon4HashToAddress => dohash(helper, HashVariant::HashPSD4, LiteralType::Address)?,
+        CoreFunction::Poseidon4HashToField => dohash(helper, HashVariant::HashPSD4, LiteralType::Field)?,
+        CoreFunction::Poseidon4HashToGroup => dohash(helper, HashVariant::HashPSD4, LiteralType::Group)?,
+        CoreFunction::Poseidon4HashToI8 => dohash(helper, HashVariant::HashPSD4, LiteralType::I8)?,
+        CoreFunction::Poseidon4HashToI16 => dohash(helper, HashVariant::HashPSD4, LiteralType::I16)?,
+        CoreFunction::Poseidon4HashToI32 => dohash(helper, HashVariant::HashPSD4, LiteralType::I32)?,
+        CoreFunction::Poseidon4HashToI64 => dohash(helper, HashVariant::HashPSD4, LiteralType::I64)?,
+        CoreFunction::Poseidon4HashToI128 => dohash(helper, HashVariant::HashPSD4, LiteralType::I128)?,
+        CoreFunction::Poseidon4HashToU8 => dohash(helper, HashVariant::HashPSD4, LiteralType::U8)?,
+        CoreFunction::Poseidon4HashToU16 => dohash(helper, HashVariant::HashPSD4, LiteralType::U16)?,
+        CoreFunction::Poseidon4HashToU32 => dohash(helper, HashVariant::HashPSD4, LiteralType::U32)?,
+        CoreFunction::Poseidon4HashToU64 => dohash(helper, HashVariant::HashPSD4, LiteralType::U64)?,
+        CoreFunction::Poseidon4HashToU128 => dohash(helper, HashVariant::HashPSD4, LiteralType::U128)?,
+        CoreFunction::Poseidon4HashToScalar => dohash(helper, HashVariant::HashPSD4, LiteralType::Scalar)?,
+        CoreFunction::Poseidon8HashToAddress => dohash(helper, HashVariant::HashPSD8, LiteralType::Address)?,
+        CoreFunction::Poseidon8HashToField => dohash(helper, HashVariant::HashPSD8, LiteralType::Field)?,
+        CoreFunction::Poseidon8HashToGroup => dohash(helper, HashVariant::HashPSD8, LiteralType::Group)?,
+        CoreFunction::Poseidon8HashToI8 => dohash(helper, HashVariant::HashPSD8, LiteralType::I8)?,
+        CoreFunction::Poseidon8HashToI16 => dohash(helper, HashVariant::HashPSD8, LiteralType::I16)?,
+        CoreFunction::Poseidon8HashToI32 => dohash(helper, HashVariant::HashPSD8, LiteralType::I32)?,
+        CoreFunction::Poseidon8HashToI64 => dohash(helper, HashVariant::HashPSD8, LiteralType::I64)?,
+        CoreFunction::Poseidon8HashToI128 => dohash(helper, HashVariant::HashPSD8, LiteralType::I128)?,
+        CoreFunction::Poseidon8HashToU8 => dohash(helper, HashVariant::HashPSD8, LiteralType::U8)?,
+        CoreFunction::Poseidon8HashToU16 => dohash(helper, HashVariant::HashPSD8, LiteralType::U16)?,
+        CoreFunction::Poseidon8HashToU32 => dohash(helper, HashVariant::HashPSD8, LiteralType::U32)?,
+        CoreFunction::Poseidon8HashToU64 => dohash(helper, HashVariant::HashPSD8, LiteralType::U64)?,
+        CoreFunction::Poseidon8HashToU128 => dohash(helper, HashVariant::HashPSD8, LiteralType::U128)?,
+        CoreFunction::Poseidon8HashToScalar => dohash(helper, HashVariant::HashPSD8, LiteralType::Scalar)?,
+        CoreFunction::SHA3_256HashToAddress => dohash(helper, HashVariant::HashSha3_256, LiteralType::Address)?,
+        CoreFunction::SHA3_256HashToField => dohash(helper, HashVariant::HashSha3_256, LiteralType::Field)?,
+        CoreFunction::SHA3_256HashToGroup => dohash(helper, HashVariant::HashSha3_256, LiteralType::Group)?,
+        CoreFunction::SHA3_256HashToI8 => dohash(helper, HashVariant::HashSha3_256, LiteralType::I8)?,
+        CoreFunction::SHA3_256HashToI16 => dohash(helper, HashVariant::HashSha3_256, LiteralType::I16)?,
+        CoreFunction::SHA3_256HashToI32 => dohash(helper, HashVariant::HashSha3_256, LiteralType::I32)?,
+        CoreFunction::SHA3_256HashToI64 => dohash(helper, HashVariant::HashSha3_256, LiteralType::I64)?,
+        CoreFunction::SHA3_256HashToI128 => dohash(helper, HashVariant::HashSha3_256, LiteralType::I128)?,
+        CoreFunction::SHA3_256HashToU8 => dohash(helper, HashVariant::HashSha3_256, LiteralType::U8)?,
+        CoreFunction::SHA3_256HashToU16 => dohash(helper, HashVariant::HashSha3_256, LiteralType::U16)?,
+        CoreFunction::SHA3_256HashToU32 => dohash(helper, HashVariant::HashSha3_256, LiteralType::U32)?,
+        CoreFunction::SHA3_256HashToU64 => dohash(helper, HashVariant::HashSha3_256, LiteralType::U64)?,
+        CoreFunction::SHA3_256HashToU128 => dohash(helper, HashVariant::HashSha3_256, LiteralType::U128)?,
+        CoreFunction::SHA3_256HashToScalar => dohash(helper, HashVariant::HashSha3_256, LiteralType::Scalar)?,
+        CoreFunction::SHA3_384HashToAddress => dohash(helper, HashVariant::HashSha3_384, LiteralType::Address)?,
+        CoreFunction::SHA3_384HashToField => dohash(helper, HashVariant::HashSha3_384, LiteralType::Field)?,
+        CoreFunction::SHA3_384HashToGroup => dohash(helper, HashVariant::HashSha3_384, LiteralType::Group)?,
+        CoreFunction::SHA3_384HashToI8 => dohash(helper, HashVariant::HashSha3_384, LiteralType::I8)?,
+        CoreFunction::SHA3_384HashToI16 => dohash(helper, HashVariant::HashSha3_384, LiteralType::I16)?,
+        CoreFunction::SHA3_384HashToI32 => dohash(helper, HashVariant::HashSha3_384, LiteralType::I32)?,
+        CoreFunction::SHA3_384HashToI64 => dohash(helper, HashVariant::HashSha3_384, LiteralType::I64)?,
+        CoreFunction::SHA3_384HashToI128 => dohash(helper, HashVariant::HashSha3_384, LiteralType::I128)?,
+        CoreFunction::SHA3_384HashToU8 => dohash(helper, HashVariant::HashSha3_384, LiteralType::U8)?,
+        CoreFunction::SHA3_384HashToU16 => dohash(helper, HashVariant::HashSha3_384, LiteralType::U16)?,
+        CoreFunction::SHA3_384HashToU32 => dohash(helper, HashVariant::HashSha3_384, LiteralType::U32)?,
+        CoreFunction::SHA3_384HashToU64 => dohash(helper, HashVariant::HashSha3_384, LiteralType::U64)?,
+        CoreFunction::SHA3_384HashToU128 => dohash(helper, HashVariant::HashSha3_384, LiteralType::U128)?,
+        CoreFunction::SHA3_384HashToScalar => dohash(helper, HashVariant::HashSha3_384, LiteralType::Scalar)?,
+        CoreFunction::SHA3_512HashToAddress => dohash(helper, HashVariant::HashSha3_512, LiteralType::Address)?,
+        CoreFunction::SHA3_512HashToField => dohash(helper, HashVariant::HashSha3_512, LiteralType::Field)?,
+        CoreFunction::SHA3_512HashToGroup => dohash(helper, HashVariant::HashSha3_512, LiteralType::Group)?,
+        CoreFunction::SHA3_512HashToI8 => dohash(helper, HashVariant::HashSha3_512, LiteralType::I8)?,
+        CoreFunction::SHA3_512HashToI16 => dohash(helper, HashVariant::HashSha3_512, LiteralType::I16)?,
+        CoreFunction::SHA3_512HashToI32 => dohash(helper, HashVariant::HashSha3_512, LiteralType::I32)?,
+        CoreFunction::SHA3_512HashToI64 => dohash(helper, HashVariant::HashSha3_512, LiteralType::I64)?,
+        CoreFunction::SHA3_512HashToI128 => dohash(helper, HashVariant::HashSha3_512, LiteralType::I128)?,
+        CoreFunction::SHA3_512HashToU8 => dohash(helper, HashVariant::HashSha3_512, LiteralType::U8)?,
+        CoreFunction::SHA3_512HashToU16 => dohash(helper, HashVariant::HashSha3_512, LiteralType::U16)?,
+        CoreFunction::SHA3_512HashToU32 => dohash(helper, HashVariant::HashSha3_512, LiteralType::U32)?,
+        CoreFunction::SHA3_512HashToU64 => dohash(helper, HashVariant::HashSha3_512, LiteralType::U64)?,
+        CoreFunction::SHA3_512HashToU128 => dohash(helper, HashVariant::HashSha3_512, LiteralType::U128)?,
+        CoreFunction::SHA3_512HashToScalar => dohash(helper, HashVariant::HashSha3_512, LiteralType::Scalar)?,
         CoreFunction::GroupToXCoordinate => {
-            let Value::Group(g) = helper.pop_value()? else {
-                tc_fail!();
-            };
-            Value::Field(g.to_x_coordinate())
+            let g: Group = helper.pop_value()?.try_into().expect_tc(span)?;
+            g.to_x_coordinate().into()
         }
         CoreFunction::GroupToYCoordinate => {
-            let Value::Group(g) = helper.pop_value()? else {
-                tc_fail!();
-            };
-            Value::Field(g.to_y_coordinate())
+            let g: Group = helper.pop_value()?.try_into().expect_tc(span)?;
+            g.to_y_coordinate().into()
         }
-        CoreFunction::ChaChaRandAddress => Value::Address(maybe_gen!()),
-        CoreFunction::ChaChaRandBool => Value::Bool(maybe_gen!()),
-        CoreFunction::ChaChaRandField => Value::Field(maybe_gen!()),
-        CoreFunction::ChaChaRandGroup => Value::Group(maybe_gen!()),
-        CoreFunction::ChaChaRandI8 => Value::I8(maybe_gen!()),
-        CoreFunction::ChaChaRandI16 => Value::I16(maybe_gen!()),
-        CoreFunction::ChaChaRandI32 => Value::I32(maybe_gen!()),
-        CoreFunction::ChaChaRandI64 => Value::I64(maybe_gen!()),
-        CoreFunction::ChaChaRandI128 => Value::I128(maybe_gen!()),
-        CoreFunction::ChaChaRandU8 => Value::U8(maybe_gen!()),
-        CoreFunction::ChaChaRandU16 => Value::U16(maybe_gen!()),
-        CoreFunction::ChaChaRandU32 => Value::U32(maybe_gen!()),
-        CoreFunction::ChaChaRandU64 => Value::U64(maybe_gen!()),
-        CoreFunction::ChaChaRandU128 => Value::U128(maybe_gen!()),
-        CoreFunction::ChaChaRandScalar => Value::Scalar(maybe_gen!()),
+        CoreFunction::ChaChaRandAddress => random!(Address),
+        CoreFunction::ChaChaRandBool => random!(Boolean),
+        CoreFunction::ChaChaRandField => random!(Field),
+        CoreFunction::ChaChaRandGroup => random!(Group),
+        CoreFunction::ChaChaRandI8 => random!(i8),
+        CoreFunction::ChaChaRandI16 => random!(i16),
+        CoreFunction::ChaChaRandI32 => random!(i32),
+        CoreFunction::ChaChaRandI64 => random!(i64),
+        CoreFunction::ChaChaRandI128 => random!(i128),
+        CoreFunction::ChaChaRandU8 => random!(u8),
+        CoreFunction::ChaChaRandU16 => random!(u16),
+        CoreFunction::ChaChaRandU32 => random!(u32),
+        CoreFunction::ChaChaRandU64 => random!(u64),
+        CoreFunction::ChaChaRandU128 => random!(u128),
+        CoreFunction::ChaChaRandScalar => random!(Scalar),
         CoreFunction::CheatCodePrintMapping => {
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
+                Expression::Path(id) => (None, id.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                _ => tc_fail!(),
+                _ => tc_fail2!(),
             };
             if let Some(mapping) = helper.lookup_mapping(program, name) {
                 // TODO: What is the appropriate way to print this to the console.
@@ -1081,28 +399,23 @@ pub fn evaluate_core_function(
                     println!("  {key} -> {value}");
                 }
             } else {
-                tc_fail!();
+                tc_fail2!();
             }
-            Value::Unit
+            Value { id: None, contents: ValueVariants::Unit }
         }
         CoreFunction::CheatCodeSetBlockHeight => {
-            let Value::U32(height) = helper.pop_value()? else {
-                tc_fail!();
-            };
+            let height: u32 = helper.pop_value()?.try_into().expect_tc(span)?;
             helper.set_block_height(height);
-            Value::Unit
+            Value { id: None, contents: ValueVariants::Unit }
         }
         CoreFunction::MappingGet => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                _ => tc_fail!(),
+                _ => tc_fail2!(),
             };
-            match helper.lookup_mapping(program, name).and_then(|mapping| mapping.get(&key)) {
-                Some(v) => v.clone(),
-                None => halt!(span, "map lookup failure"),
-            }
+            helper.mapping_get(program, name, &key).expect_tc(span)?.clone()
         }
         CoreFunction::MappingGetOrUse => {
             let use_value = helper.pop_value().expect_tc(span)?;
@@ -1110,57 +423,43 @@ pub fn evaluate_core_function(
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                _ => tc_fail!(),
+                _ => tc_fail2!(),
             };
-            match helper.lookup_mapping(program, name).and_then(|mapping| mapping.get(&key)) {
-                Some(v) => v.clone(),
-                None => use_value,
-            }
+            helper.mapping_get(program, name, &key).unwrap_or(use_value)
         }
         CoreFunction::MappingSet => {
-            let value = helper.pop_value()?;
-            let key = helper.pop_value()?;
+            let value = helper.pop_value().expect_tc(span)?;
+            let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                _ => tc_fail!(),
+                _ => tc_fail2!(),
             };
-            if let Some(mapping) = helper.lookup_mapping_mut(program, name) {
-                mapping.insert(key, value);
-            } else {
-                tc_fail!();
-            }
-            Value::Unit
+            helper.mapping_set(program, name, key, value).expect_tc(span)?;
+            Value::make_unit()
         }
         CoreFunction::MappingRemove => {
-            let key = helper.pop_value()?;
+            let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                _ => tc_fail!(),
+                _ => tc_fail2!(),
             };
-            if let Some(mapping) = helper.lookup_mapping_mut(program, name) {
-                mapping.remove(&key);
-            } else {
-                tc_fail!();
-            }
-            Value::Unit
+            helper.mapping_remove(program, name, &key).expect_tc(span)?;
+            Value::make_unit()
         }
         CoreFunction::MappingContains => {
-            let key = helper.pop_value()?;
+            let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                _ => tc_fail!(),
+                _ => tc_fail2!(),
             };
-            if let Some(mapping) = helper.lookup_mapping_mut(program, name) {
-                Value::Bool(mapping.contains_key(&key))
-            } else {
-                tc_fail!();
-            }
+            helper.mapping_get(program, name, &key).is_some().into()
         }
         CoreFunction::SignatureVerify => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
+
         CoreFunction::ProgramChecksum => {
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its checksum.
             return Ok(None);

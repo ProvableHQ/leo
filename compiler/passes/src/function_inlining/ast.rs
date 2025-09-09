@@ -59,11 +59,10 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
                     _ => expr.clone(),
                 };
 
-                let mut inlined_statements =
-                    Replacer::new(replace_path, false /* refresh IDs */, &self.state.node_builder)
-                        .reconstruct_block(callee.block.clone())
-                        .0
-                        .statements;
+                let mut inlined_statements = Replacer::new(replace_path, false /* refresh IDs */, self.state)
+                    .reconstruct_block(callee.block.clone())
+                    .0
+                    .statements;
 
                 // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
                 let result = match inlined_statements.last() {

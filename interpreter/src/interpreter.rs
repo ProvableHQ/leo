@@ -65,10 +65,10 @@ pub enum InterpreterAction {
 }
 
 impl Interpreter {
-    pub fn new<'a, Q: 'a + AsRef<std::path::Path>>(
+    pub fn new<'a, Q: 'a + AsRef<std::path::Path> + ?Sized>(
         leo_source_files: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
-        signer: SvmAddress,
+        signer: Value,
         block_height: u32,
         network: NetworkName,
     ) -> Result<Self> {
@@ -122,7 +122,7 @@ impl Interpreter {
     fn new_impl(
         leo_source_files: &[(PathBuf, Vec<PathBuf>)],
         aleo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
-        signer: SvmAddress,
+        signer: Value,
         block_height: u32,
         network: NetworkName,
     ) -> Result<Self> {
@@ -338,29 +338,27 @@ impl Interpreter {
         let ret = match &act {
             RunFuture(n) => {
                 let future = self.cursor.futures.remove(*n);
-                for async_exec in future.0.into_iter().rev() {
-                    match async_exec {
-                        AsyncExecution::AsyncFunctionCall { function, arguments } => {
-                            self.cursor.values.extend(arguments);
-                            self.cursor.frames.push(Frame {
-                                step: 0,
-                                element: Element::DelayedCall(function),
-                                user_initiated: true,
-                            });
-                        }
-                        AsyncExecution::AsyncBlock { containing_function, block, names, .. } => {
-                            self.cursor.frames.push(Frame {
-                                step: 0,
-                                element: Element::DelayedAsyncBlock {
-                                    program: containing_function.program,
-                                    block,
-                                    // Keep track of all the known variables up to this point.
-                                    // These are available to use inside the block when we actually execute it.
-                                    names: names.clone().into_iter().collect(),
-                                },
-                                user_initiated: false,
-                            });
-                        }
+                match future {
+                    AsyncExecution::AsyncFunctionCall { function, arguments } => {
+                        self.cursor.values.extend(arguments);
+                        self.cursor.frames.push(Frame {
+                            step: 0,
+                            element: Element::DelayedCall(function),
+                            user_initiated: true,
+                        });
+                    }
+                    AsyncExecution::AsyncBlock { containing_function, block, names, .. } => {
+                        self.cursor.frames.push(Frame {
+                            step: 0,
+                            element: Element::DelayedAsyncBlock {
+                                program: containing_function.program,
+                                block,
+                                // Keep track of all the known variables up to this point.
+                                // These are available to use inside the block when we actually execute it.
+                                names: names.clone().into_iter().collect(),
+                            },
+                            user_initiated: false,
+                        });
                     }
                 }
                 self.cursor.step()?

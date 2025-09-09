@@ -39,4 +39,4 @@ function main:
     output r20 as address.private;
     output r21 as address.private;
     output r22 as address.private;
-    output aleo10jl9cqanwtneesm4jg9lkmpw83ee0cgrflytdecx2qkk784nvu8q0j04p8 as address.private;
+    output aleo17n6vzyd45m2kdsdf8jh76xffh8gt06uch2jfqd97gpcxhfe3rgzseszzt9 as address.private;

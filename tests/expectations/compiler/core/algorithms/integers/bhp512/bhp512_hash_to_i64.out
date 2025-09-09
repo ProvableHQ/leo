@@ -39,4 +39,4 @@ function main:
     output r20 as i64.private;
     output r21 as i64.private;
     output r22 as i64.private;
-    output 3581207379179664912i64 as i64.private;
+    output -4714880306421219213i64 as i64.private;
