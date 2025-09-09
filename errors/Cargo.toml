@@ -1,6 +1,6 @@
 [package]
 name = "leo-errors"
-version = "3.1.0"
+version = "3.2.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Errors for the Leo programming language"
 homepage = "https://leo-lang.org"
