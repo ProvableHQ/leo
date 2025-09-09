@@ -90,7 +90,7 @@
 <a href=#90 id=90 data-nosnippet>90</a>
 <a href=#91 id=91 data-nosnippet>91</a>    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
 <a href=#92 id=92 data-nosnippet>92</a>        <span class="comment">// Get the network, accounting for overrides.
-<a href=#93 id=93 data-nosnippet>93</a>        </span><span class="kw">let </span>network = context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>;
+<a href=#93 id=93 data-nosnippet>93</a>        </span><span class="kw">let </span>network = get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>;
 <a href=#94 id=94 data-nosnippet>94</a>        <span class="comment">// Handle each network with the appropriate parameterization.
 <a href=#95 id=95 data-nosnippet>95</a>        </span><span class="kw">match </span>network {
 <a href=#96 id=96 data-nosnippet>96</a>            NetworkName::TestnetV0 =&gt; handle_deploy::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, input),
@@ -118,22 +118,22 @@
 <a href=#118 id=118 data-nosnippet>118</a>    package: Package,
 <a href=#119 id=119 data-nosnippet>119</a>) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;LeoDeploy <span class="kw">as </span>Command&gt;::Output&gt; {
 <a href=#120 id=120 data-nosnippet>120</a>    <span class="comment">// Get the private key and associated address, accounting for overrides.
-<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">let </span>private_key = context.get_private_key(<span class="kw-2">&amp;</span>command.env_override.private_key)<span class="question-mark">?</span>;
+<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">let </span>private_key = get_private_key(<span class="kw-2">&amp;</span>command.env_override.private_key)<span class="question-mark">?</span>;
 <a href=#122 id=122 data-nosnippet>122</a>    <span class="kw">let </span>address =
 <a href=#123 id=123 data-nosnippet>123</a>        Address::try_from(<span class="kw-2">&amp;</span>private_key).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse address: {e}"</span>)))<span class="question-mark">?</span>;
 <a href=#124 id=124 data-nosnippet>124</a>
 <a href=#125 id=125 data-nosnippet>125</a>    <span class="comment">// Get the endpoint, accounting for overrides.
-<a href=#126 id=126 data-nosnippet>126</a>    </span><span class="kw">let </span>endpoint = context.get_endpoint(<span class="kw-2">&amp;</span>command.env_override.endpoint)<span class="question-mark">?</span>;
+<a href=#126 id=126 data-nosnippet>126</a>    </span><span class="kw">let </span>endpoint = get_endpoint(<span class="kw-2">&amp;</span>command.env_override.endpoint)<span class="question-mark">?</span>;
 <a href=#127 id=127 data-nosnippet>127</a>
 <a href=#128 id=128 data-nosnippet>128</a>    <span class="comment">// Get whether the network is a devnet, accounting for overrides.
-<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="kw">let </span>is_devnet = context.get_is_devnet(command.env_override.devnet);
+<a href=#129 id=129 data-nosnippet>129</a>    </span><span class="kw">let </span>is_devnet = get_is_devnet(command.env_override.devnet);
 <a href=#130 id=130 data-nosnippet>130</a>
 <a href=#131 id=131 data-nosnippet>131</a>    <span class="comment">// If the consensus heights are provided, use them; otherwise, use the default heights for the network.
 <a href=#132 id=132 data-nosnippet>132</a>    </span><span class="kw">let </span>consensus_heights =
 <a href=#133 id=133 data-nosnippet>133</a>        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
 <a href=#134 id=134 data-nosnippet>134</a>    <span class="comment">// Validate the provided consensus heights.
 <a href=#135 id=135 data-nosnippet>135</a>    </span>validate_consensus_heights(<span class="kw-2">&amp;</span>consensus_heights)
-<a href=#136 id=136 data-nosnippet>136</a>        .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Invalid consensus heights: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#136 id=136 data-nosnippet>136</a>        .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"⚠️ Invalid consensus heights: {e}"</span>)))<span class="question-mark">?</span>;
 <a href=#137 id=137 data-nosnippet>137</a>    <span class="comment">// Print the consensus heights being used.
 <a href=#138 id=138 data-nosnippet>138</a>    </span><span class="kw">let </span>consensus_heights_string = consensus_heights.iter().format(<span class="string">","</span>).to_string();
 <a href=#139 id=139 data-nosnippet>139</a>    <span class="macro">println!</span>(
@@ -445,10 +445,10 @@
 <a href=#445 id=445 data-nosnippet>445</a>            warnings
 <a href=#446 id=446 data-nosnippet>446</a>                .push(<span class="macro">format!</span>(<span class="string">"The program '{id}' does not contain a constructor. The deployment will likely fail"</span>,));
 <a href=#447 id=447 data-nosnippet>447</a>        }
-<a href=#448 id=448 data-nosnippet>448</a>        <span class="comment">// Check for a consensus version mismatch.
-<a href=#449 id=449 data-nosnippet>449</a>        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-<a href=#450 id=450 data-nosnippet>450</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"{e}. In some cases, the deployment may fail"</span>));
-<a href=#451 id=451 data-nosnippet>451</a>        }
+<a href=#448 id=448 data-nosnippet>448</a>    }
+<a href=#449 id=449 data-nosnippet>449</a>    <span class="comment">// Check for a consensus version mismatch.
+<a href=#450 id=450 data-nosnippet>450</a>    </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+<a href=#451 id=451 data-nosnippet>451</a>        warnings.push(<span class="macro">format!</span>(<span class="string">"{e}. In some cases, the deployment may fail"</span>));
 <a href=#452 id=452 data-nosnippet>452</a>    }
 <a href=#453 id=453 data-nosnippet>453</a>    warnings
 <a href=#454 id=454 data-nosnippet>454</a>}

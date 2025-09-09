@@ -84,11 +84,11 @@
 <a href=#84 id=84 data-nosnippet>84</a>        <span class="comment">// Get the path to the home directory.
 <a href=#85 id=85 data-nosnippet>85</a>        </span><span class="kw">let </span>home_path = context.home()<span class="question-mark">?</span>;
 <a href=#86 id=86 data-nosnippet>86</a>        <span class="comment">// Get the network, accounting for overrides.
-<a href=#87 id=87 data-nosnippet>87</a>        </span><span class="kw">let </span>network = context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>;
+<a href=#87 id=87 data-nosnippet>87</a>        </span><span class="kw">let </span>network = get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>;
 <a href=#88 id=88 data-nosnippet>88</a>        <span class="comment">// Get the endpoint, accounting for overrides.
-<a href=#89 id=89 data-nosnippet>89</a>        </span><span class="kw">let </span>endpoint = context.get_endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.endpoint)<span class="question-mark">?</span>;
+<a href=#89 id=89 data-nosnippet>89</a>        </span><span class="kw">let </span>endpoint = get_endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.endpoint)<span class="question-mark">?</span>;
 <a href=#90 id=90 data-nosnippet>90</a>        <span class="comment">// If the current directory is a valid Leo package, then build it.
-<a href=#91 id=91 data-nosnippet>91</a>        </span><span class="kw">if </span>Package::from_directory_no_graph(path, home_path, network, <span class="kw-2">&amp;</span>endpoint).is_ok() {
+<a href=#91 id=91 data-nosnippet>91</a>        </span><span class="kw">if </span>Package::from_directory_no_graph(path, home_path, <span class="prelude-val">Some</span>(network), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>endpoint)).is_ok() {
 <a href=#92 id=92 data-nosnippet>92</a>            <span class="kw">let </span>package = LeoBuild {
 <a href=#93 id=93 data-nosnippet>93</a>                env_override: <span class="self">self</span>.env_override.clone(),
 <a href=#94 id=94 data-nosnippet>94</a>                options: {
@@ -107,7 +107,7 @@
 <a href=#107 id=107 data-nosnippet>107</a>
 <a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
 <a href=#109 id=109 data-nosnippet>109</a>        <span class="comment">// Get the network, accounting for overrides.
-<a href=#110 id=110 data-nosnippet>110</a>        </span><span class="kw">let </span>network = context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>;
+<a href=#110 id=110 data-nosnippet>110</a>        </span><span class="kw">let </span>network = get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>;
 <a href=#111 id=111 data-nosnippet>111</a>        <span class="comment">// Handle each network with the appropriate parameterization.
 <a href=#112 id=112 data-nosnippet>112</a>        </span><span class="kw">match </span>network {
 <a href=#113 id=113 data-nosnippet>113</a>            NetworkName::TestnetV0 =&gt; handle_execute::&lt;AleoTestnetV0&gt;(<span class="self">self</span>, context, network, input),
@@ -135,15 +135,15 @@
 <a href=#135 id=135 data-nosnippet>135</a>    package: <span class="prelude-ty">Option</span>&lt;Package&gt;,
 <a href=#136 id=136 data-nosnippet>136</a>) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;LeoExecute <span class="kw">as </span>Command&gt;::Output&gt; {
 <a href=#137 id=137 data-nosnippet>137</a>    <span class="comment">// Get the private key and associated address, accounting for overrides.
-<a href=#138 id=138 data-nosnippet>138</a>    </span><span class="kw">let </span>private_key = context.get_private_key(<span class="kw-2">&amp;</span>command.env_override.private_key)<span class="question-mark">?</span>;
+<a href=#138 id=138 data-nosnippet>138</a>    </span><span class="kw">let </span>private_key = get_private_key(<span class="kw-2">&amp;</span>command.env_override.private_key)<span class="question-mark">?</span>;
 <a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">let </span>address = Address::&lt;A::Network&gt;::try_from(<span class="kw-2">&amp;</span>private_key)
 <a href=#140 id=140 data-nosnippet>140</a>        .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse address: {e}"</span>)))<span class="question-mark">?</span>;
 <a href=#141 id=141 data-nosnippet>141</a>
 <a href=#142 id=142 data-nosnippet>142</a>    <span class="comment">// Get the endpoint, accounting for overrides.
-<a href=#143 id=143 data-nosnippet>143</a>    </span><span class="kw">let </span>endpoint = context.get_endpoint(<span class="kw-2">&amp;</span>command.env_override.endpoint)<span class="question-mark">?</span>;
+<a href=#143 id=143 data-nosnippet>143</a>    </span><span class="kw">let </span>endpoint = get_endpoint(<span class="kw-2">&amp;</span>command.env_override.endpoint)<span class="question-mark">?</span>;
 <a href=#144 id=144 data-nosnippet>144</a>
 <a href=#145 id=145 data-nosnippet>145</a>    <span class="comment">// Get whether the network is a devnet, accounting for overrides.
-<a href=#146 id=146 data-nosnippet>146</a>    </span><span class="kw">let </span>is_devnet = context.get_is_devnet(command.env_override.devnet);
+<a href=#146 id=146 data-nosnippet>146</a>    </span><span class="kw">let </span>is_devnet = get_is_devnet(command.env_override.devnet);
 <a href=#147 id=147 data-nosnippet>147</a>
 <a href=#148 id=148 data-nosnippet>148</a>    <span class="comment">// If the consensus heights are provided, use them; otherwise, use the default heights for the network.
 <a href=#149 id=149 data-nosnippet>149</a>    </span><span class="kw">let </span>consensus_heights =
@@ -472,10 +472,10 @@
 <a href=#472 id=472 data-nosnippet>472</a>                program.id()
 <a href=#473 id=473 data-nosnippet>473</a>            ));
 <a href=#474 id=474 data-nosnippet>474</a>        }
-<a href=#475 id=475 data-nosnippet>475</a>        <span class="comment">// Check for a consensus version mismatch.
-<a href=#476 id=476 data-nosnippet>476</a>        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-<a href=#477 id=477 data-nosnippet>477</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"{e}. In some cases, the deployment may fail"</span>));
-<a href=#478 id=478 data-nosnippet>478</a>        }
+<a href=#475 id=475 data-nosnippet>475</a>    }
+<a href=#476 id=476 data-nosnippet>476</a>    <span class="comment">// Check for a consensus version mismatch.
+<a href=#477 id=477 data-nosnippet>477</a>    </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+<a href=#478 id=478 data-nosnippet>478</a>        warnings.push(<span class="macro">format!</span>(<span class="string">"{e}. In some cases, the execution may fail"</span>));
 <a href=#479 id=479 data-nosnippet>479</a>    }
 <a href=#480 id=480 data-nosnippet>480</a>    warnings
 <a href=#481 id=481 data-nosnippet>481</a>}

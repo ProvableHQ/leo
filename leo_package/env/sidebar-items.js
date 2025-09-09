@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["ENV_FILENAME"],"struct":["Env"]};

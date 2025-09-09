@@ -82,7 +82,7 @@
 <a href=#82 id=82 data-nosnippet>82</a>
 <a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
 <a href=#84 id=84 data-nosnippet>84</a>        <span class="comment">// Get the network, accounting for overrides.
-<a href=#85 id=85 data-nosnippet>85</a>        </span><span class="kw">let </span>network = context.get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>.parse()<span class="question-mark">?</span>;
+<a href=#85 id=85 data-nosnippet>85</a>        </span><span class="kw">let </span>network = get_network(<span class="kw-2">&amp;</span><span class="self">self</span>.env_override.network)<span class="question-mark">?</span>;
 <a href=#86 id=86 data-nosnippet>86</a>        <span class="comment">// Handle each network with the appropriate parameterization.
 <a href=#87 id=87 data-nosnippet>87</a>        </span><span class="kw">match </span>network {
 <a href=#88 id=88 data-nosnippet>88</a>            NetworkName::TestnetV0 =&gt; handle_upgrade::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, context, network, input),
@@ -110,15 +110,15 @@
 <a href=#110 id=110 data-nosnippet>110</a>    package: Package,
 <a href=#111 id=111 data-nosnippet>111</a>) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;LeoDeploy <span class="kw">as </span>Command&gt;::Output&gt; {
 <a href=#112 id=112 data-nosnippet>112</a>    <span class="comment">// Get the private key and associated address, accounting for overrides.
-<a href=#113 id=113 data-nosnippet>113</a>    </span><span class="kw">let </span>private_key = context.get_private_key(<span class="kw-2">&amp;</span>command.env_override.private_key)<span class="question-mark">?</span>;
+<a href=#113 id=113 data-nosnippet>113</a>    </span><span class="kw">let </span>private_key = get_private_key(<span class="kw-2">&amp;</span>command.env_override.private_key)<span class="question-mark">?</span>;
 <a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">let </span>address =
 <a href=#115 id=115 data-nosnippet>115</a>        Address::try_from(<span class="kw-2">&amp;</span>private_key).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse address: {e}"</span>)))<span class="question-mark">?</span>;
 <a href=#116 id=116 data-nosnippet>116</a>
 <a href=#117 id=117 data-nosnippet>117</a>    <span class="comment">// Get the endpoint, accounting for overrides.
-<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="kw">let </span>endpoint = context.get_endpoint(<span class="kw-2">&amp;</span>command.env_override.endpoint)<span class="question-mark">?</span>;
+<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="kw">let </span>endpoint = get_endpoint(<span class="kw-2">&amp;</span>command.env_override.endpoint)<span class="question-mark">?</span>;
 <a href=#119 id=119 data-nosnippet>119</a>
 <a href=#120 id=120 data-nosnippet>120</a>    <span class="comment">// Get whether the network is a devnet, accounting for overrides.
-<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">let </span>is_devnet = context.get_is_devnet(command.env_override.devnet);
+<a href=#121 id=121 data-nosnippet>121</a>    </span><span class="kw">let </span>is_devnet = get_is_devnet(command.env_override.devnet);
 <a href=#122 id=122 data-nosnippet>122</a>
 <a href=#123 id=123 data-nosnippet>123</a>    <span class="comment">// If the consensus heights are provided, use them; otherwise, use the default heights for the network.
 <a href=#124 id=124 data-nosnippet>124</a>    </span><span class="kw">let </span>consensus_heights =
