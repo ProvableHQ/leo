@@ -84,11 +84,11 @@ impl Command for LeoExecute {
         // Get the path to the home directory.
         let home_path = context.home()?;
         // Get the network, accounting for overrides.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
+        let network = get_network(&self.env_override.network)?;
         // Get the endpoint, accounting for overrides.
-        let endpoint = context.get_endpoint(&self.env_override.endpoint)?;
+        let endpoint = get_endpoint(&self.env_override.endpoint)?;
         // If the current directory is a valid Leo package, then build it.
-        if Package::from_directory_no_graph(path, home_path, network, &endpoint).is_ok() {
+        if Package::from_directory_no_graph(path, home_path, Some(network), Some(&endpoint)).is_ok() {
             let package = LeoBuild {
                 env_override: self.env_override.clone(),
                 options: {
@@ -107,7 +107,7 @@ impl Command for LeoExecute {
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the network, accounting for overrides.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
+        let network = get_network(&self.env_override.network)?;
         // Handle each network with the appropriate parameterization.
         match network {
             NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, input),
@@ -135,15 +135,15 @@ fn handle_execute<A: Aleo>(
     package: Option<Package>,
 ) -> Result<<LeoExecute as Command>::Output> {
     // Get the private key and associated address, accounting for overrides.
-    let private_key = context.get_private_key(&command.env_override.private_key)?;
+    let private_key = get_private_key(&command.env_override.private_key)?;
     let address = Address::<A::Network>::try_from(&private_key)
         .map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
-    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+    let endpoint = get_endpoint(&command.env_override.endpoint)?;
 
     // Get whether the network is a devnet, accounting for overrides.
-    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+    let is_devnet = get_is_devnet(command.env_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
     let consensus_heights =
@@ -472,10 +472,10 @@ fn check_task_for_warnings<N: Network>(
                 program.id()
             ));
         }
-        // Check for a consensus version mismatch.
-        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-            warnings.push(format!("{e}. In some cases, the deployment may fail"));
-        }
+    }
+    // Check for a consensus version mismatch.
+    if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+        warnings.push(format!("{e}. In some cases, the execution may fail"));
     }
     warnings
 }

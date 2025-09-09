@@ -17,7 +17,6 @@
 use super::*;
 use leo_ast::NetworkName;
 use leo_errors::UtilError;
-use leo_package::Env;
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -442,7 +441,7 @@ fn get_key_string(key: Option<String>, key_file: Option<String>, env_vars: &[&'s
         }
         (None, None) => {
             // Attempt to pull any of the environment variables
-            env_vars.iter().find_map(|&var| dotenvy::var(var).ok()).ok_or_else(|| {
+            env_vars.iter().find_map(|&var| std::env::var(var).ok()).ok_or_else(|| {
                 CliError::cli_invalid_input(format!(
                     "Missing the '--key', '--key-file', or the following environment variables: '{}'",
                     env_vars.iter().format(",")
@@ -456,7 +455,7 @@ fn get_key_string(key: Option<String>, key_file: Option<String>, env_vars: &[&'s
     }
 }
 
-// Write the network and private key to the .env file in project directory.
+// Write the network and private key to an .env file in project directory.
 fn write_to_env_file<N: Network>(
     network: NetworkName,
     private_key: PrivateKey<N>,
@@ -464,9 +463,9 @@ fn write_to_env_file<N: Network>(
     endpoint: String,
 ) -> Result<()> {
     let program_dir = ctx.dir()?;
-    let env = Env { network, private_key: private_key.to_string(), endpoint };
-    let env_path = program_dir.join(leo_package::ENV_FILENAME);
-    env.write_to_file(env_path)?;
+    let env_path = program_dir.join(".env");
+    std::fs::write(env_path, format!("NETWORK={network}\nPRIVATE_KEY={private_key}\nENDPOINT={endpoint}\n"))
+        .map_err(PackageError::io_error_env_file)?;
     tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
     Ok(())
 }

@@ -131,6 +131,15 @@ pub fn handle_error<T>(res: Result<T>) -> T {
 
 /// Run command with custom build arguments.
 pub fn run_with_args(cli: CLI) -> Result<()> {
+    // Print the variables found in the `.env` files.
+    if let Ok(vars) = dotenvy::dotenv_iter().map(|v| v.flatten().collect::<Vec<_>>()) {
+        if !vars.is_empty() {
+            println!("📢 Loading environment variables from a `.env` file in the directory tree.");
+        }
+        for (k, v) in vars {
+            println!("  - {k}={v}");
+        }
+    }
     // Initialize the `.env` file.
     dotenvy::dotenv().ok();
 
@@ -177,6 +186,7 @@ mod tests {
         cli::{Commands, test_helpers},
         run_with_args,
     };
+    use leo_ast::NetworkName;
     use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
     use std::env::temp_dir;
@@ -192,8 +202,11 @@ mod tests {
         test_helpers::sample_nested_package(&temp_dir);
 
         // Set the env options.
-        let env_override =
-            crate::cli::commands::EnvOptions { network: Some("mainnet".to_string()), ..Default::default() };
+        let env_override = crate::cli::commands::EnvOptions {
+            network: Some(NetworkName::TestnetV0),
+            endpoint: Some("http://localhost:3030".to_string()),
+            ..Default::default()
+        };
 
         // Run program
         let run = CLI {
@@ -203,8 +216,8 @@ mod tests {
                 command: crate::cli::commands::LeoRun {
                     name: "example".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
-                    compiler_options: Default::default(),
                     env_override,
+                    build_options: Default::default(),
                 },
             },
             path: Some(project_directory.clone()),
@@ -248,8 +261,8 @@ mod tests {
                         "aleo13tngrq7506zwdxj0cxjtvp28pk937jejhne0rt4zp0z370uezuysjz2prs".to_string(),
                         "2u32".to_string(),
                     ],
-                    compiler_options: Default::default(),
                     env_override: Default::default(),
+                    build_options: Default::default(),
                 },
             },
             path: Some(project_directory.clone()),
@@ -288,7 +301,7 @@ mod tests {
                 command: crate::cli::commands::LeoRun {
                     name: "inner_1_main".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
-                    compiler_options: Default::default(),
+                    build_options: Default::default(),
                     env_override: Default::default(),
                 },
             },
@@ -325,8 +338,8 @@ mod tests {
                 command: crate::cli::commands::LeoRun {
                     name: "main".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
-                    compiler_options: Default::default(),
                     env_override: Default::default(),
+                    build_options: Default::default(),
                 },
             },
             path: Some(project_directory.clone()),
@@ -345,7 +358,7 @@ mod test_helpers {
     use leo_span::create_session_if_not_set_then;
     use std::path::Path;
 
-    const NETWORK: &str = "mainnet";
+    const NETWORK: &str = "testnet";
     const ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
@@ -451,7 +464,7 @@ function external_nested_function:
         });
 
         // Add custom `.aleo` directory with the appropriate cache entries.
-        let registry = temp_dir.join(".aleo").join("registry").join("mainnet");
+        let registry = temp_dir.join(".aleo").join("registry").join("testnet");
         std::fs::create_dir_all(&registry).unwrap();
 
         let dir = registry.join("nested_example_layer_0").join("0");

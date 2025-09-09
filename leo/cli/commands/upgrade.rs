@@ -82,7 +82,7 @@ impl Command for LeoUpgrade {
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the network, accounting for overrides.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
+        let network = get_network(&self.env_override.network)?;
         // Handle each network with the appropriate parameterization.
         match network {
             NetworkName::TestnetV0 => handle_upgrade::<TestnetV0>(&self, context, network, input),
@@ -110,15 +110,15 @@ fn handle_upgrade<N: Network>(
     package: Package,
 ) -> Result<<LeoDeploy as Command>::Output> {
     // Get the private key and associated address, accounting for overrides.
-    let private_key = context.get_private_key(&command.env_override.private_key)?;
+    let private_key = get_private_key(&command.env_override.private_key)?;
     let address =
         Address::try_from(&private_key).map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
-    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+    let endpoint = get_endpoint(&command.env_override.endpoint)?;
 
     // Get whether the network is a devnet, accounting for overrides.
-    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+    let is_devnet = get_is_devnet(command.env_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
     let consensus_heights =

@@ -166,7 +166,7 @@ version = "0.10.9"
 #version = "4.1.0"
 git = "https://github.com/ProvableHQ/snarkVM.git"
 rev = "e035becf33e99f43a6f373595e106204c587fad8" # testnet-v4.2.0
-features = ["cli", "test_consensus_heights"]
+features = ["test_consensus_heights"]
 
 [workspace.dependencies.tempfile]
 version = "3.13"

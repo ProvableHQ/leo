@@ -78,14 +78,23 @@ impl Default for BuildOptions {
 pub struct EnvOptions {
     #[clap(
         long,
-        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable."
+        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production."
     )]
     pub(crate) private_key: Option<String>,
-    #[clap(long, help = "The network to deploy to. Overrides the `NETWORK` environment variable.")]
-    pub(crate) network: Option<String>,
-    #[clap(long, help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable.")]
+    #[clap(
+        long,
+        help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file."
+    )]
+    pub(crate) network: Option<NetworkName>,
+    #[clap(
+        long,
+        help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets."
+    )]
     pub(crate) endpoint: Option<String>,
-    #[clap(long, help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable.")]
+    #[clap(
+        long,
+        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell or `.env` file."
+    )]
     pub(crate) devnet: bool,
     #[clap(
         long,
@@ -303,8 +312,22 @@ pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
 }
 
 /// Get the consensus heights for the current network.
-/// If `is_devnet` is true, first , then return the test consensus heights.
+/// First check the `CONSENSUS_VERSION_HEIGHTS` environment variable.
+/// Otherwise, if `is_devnet` is true, then return the test consensus heights.
+/// Otherwise, return the consensus heights for the given network.
 pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> Vec<u32> {
+    // Check the `CONSENSUS_VERSION_HEIGHTS` environment variable.
+    if let Ok(heights) = std::env::var("CONSENSUS_VERSION_HEIGHTS") {
+        if let Ok(heights) = heights.split(',').map(|s| s.trim().parse::<u32>()).collect::<Result<Vec<_>, _>>() {
+            return heights;
+        } else {
+            println!(
+                "⚠️ Warning: Failed to parse `CONSENSUS_VERSION_HEIGHTS` environment variable. Falling back to default heights."
+            );
+        }
+    }
+    // If `is_devnet` is true, then return the test consensus heights.
+    // Otherwise, return the consensus heights for the given network.
     if is_devnet {
         TEST_CONSENSUS_VERSION_HEIGHTS.into_iter().map(|(_, v)| v).collect_vec()
     } else {
@@ -341,6 +364,57 @@ pub struct TransactionAction {
     pub broadcast: bool,
     #[arg(long, help = "Save the transaction to the provided directory.")]
     pub save: Option<String>,
+}
+
+/// Returns the endpoint to interact with the network.
+/// If the `--endpoint` options is not provided, it will default to the environment variable.
+pub fn get_endpoint(endpoint: &Option<String>) -> Result<String> {
+    match endpoint {
+        Some(endpoint) => Ok(endpoint.clone()),
+        None => {
+            // Load the endpoint from the environment.
+            std::env::var("ENDPOINT").map_err(|_| {
+                CliError::custom("Please provide the `--endpoint` or set the `ENDPOINT` environment variable.").into()
+            })
+        }
+    }
+}
+
+/// Returns the network name.
+/// If the `--network` options is not provided, it will default to the environment variable.
+pub fn get_network(network: &Option<NetworkName>) -> Result<NetworkName> {
+    match network {
+        Some(network) => Ok(*network),
+        None => {
+            // Load the network from the environment.
+            let network = std::env::var("NETWORK").map_err(|_| {
+                CliError::custom("Please provide the `--network` or set the `NETWORK` environment variable.")
+            })?;
+            // Parse the network.
+            Ok(NetworkName::from_str(&network)?)
+        }
+    }
+}
+
+/// Returns the private key.
+/// If the `--private-key` options is not provided, it will default to the environment variable.
+pub fn get_private_key<N: Network>(private_key: &Option<String>) -> Result<PrivateKey<N>> {
+    match private_key {
+        Some(private_key) => Ok(PrivateKey::<N>::from_str(private_key)?),
+        None => {
+            // Load the private key from the environment.
+            let private_key = std::env::var("PRIVATE_KEY")
+                .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?;
+            // Parse the private key.
+            Ok(PrivateKey::<N>::from_str(&private_key)?)
+        }
+    }
+}
+
+/// Returns whether the devnet flag is set.
+/// If the `--devnet` flag is not set, check if the environment variable is set, otherwise default to `false`.
+pub fn get_is_devnet(devnet: bool) -> bool {
+    if devnet { true } else { std::env::var("DEVNET").is_ok() }
 }
 
 #[cfg(test)]

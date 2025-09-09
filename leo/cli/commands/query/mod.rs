@@ -47,10 +47,8 @@ use utils::*;
 ///  Query live data from the Aleo network.
 #[derive(Parser, Debug)]
 pub struct LeoQuery {
-    #[clap(short, long, global = true, help = "Endpoint to retrieve network state from. Defaults to entry in `.env`.")]
-    pub endpoint: Option<String>,
-    #[clap(short, long, global = true, help = "Network to use. Defaults to entry in `.env`.")]
-    pub(crate) network: Option<String>,
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
     #[clap(subcommand)]
     pub command: QueryCommands,
 }
@@ -69,8 +67,8 @@ impl Command for LeoQuery {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Parse the network.
-        let network: NetworkName = context.get_network(&self.network)?.parse()?;
-        let endpoint = context.get_endpoint(&self.endpoint)?;
+        let network: NetworkName = get_network(&self.env_override.network)?;
+        let endpoint = get_endpoint(&self.env_override.endpoint)?;
         handle_query(self, context, network, &endpoint)
     }
 }

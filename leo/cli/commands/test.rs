@@ -16,6 +16,7 @@
 
 use super::*;
 
+use leo_ast::NetworkName;
 use leo_compiler::run_with_ledger;
 use leo_package::{Package, ProgramData};
 use leo_span::Symbol;
@@ -53,14 +54,14 @@ impl Command for LeoTest {
         (LeoBuild { env_override: Default::default(), options }).execute(context)
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        handle_test(self, context, input)
+    fn apply(self, _: Context, input: Self::Input) -> Result<Self::Output> {
+        handle_test(self, input)
     }
 }
 
-fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<()> {
+fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     // Get the private key.
-    let private_key = context.get_private_key::<TestnetV0>(&None)?;
+    let private_key = get_private_key::<TestnetV0>(&None)?;
     let address = Address::try_from(&private_key)?;
 
     let leo_paths = collect_leo_paths(&package);
@@ -72,7 +73,7 @@ fn handle_test(command: LeoTest, context: Context, package: Package) -> Result<(
         address.into(),
         0u32,
         &command.test_name,
-        package.env.network,
+        NetworkName::TestnetV0,
     )?;
 
     // Now for native tests.
