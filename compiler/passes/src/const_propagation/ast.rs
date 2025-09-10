@@ -409,6 +409,10 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let value =
             interpreter_value::literal_to_value(&input, &type_info).expect("Failed to convert literal to value");
 
+        if value.is_none() {
+            return (input.into(), None);
+        }
+
         // If we know the type of an unsuffixed literal, might as well change it to a suffixed literal. This way, we
         // do not have to infer the type again in later passes of type checking.
         if let LiteralVariant::Unsuffixed(s) = input.variant {

@@ -16,11 +16,12 @@
 
 use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
 
-use leo_ast::ProgramReconstructor as _;
+use leo_ast::{CompositeType, ProgramReconstructor as _, Type};
 use leo_errors::Result;
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
+use itertools::Itertools;
 
 mod ast;
 
@@ -45,6 +46,7 @@ impl Pass for OptionLowering {
             module: vec![],
             function: None,
             new_structs: IndexMap::new(),
+            modified_structs: IndexMap::new(),
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err().map_err(|e| *e)?;
@@ -76,4 +78,37 @@ pub fn sanitize_name(name: &str) -> String {
 
     // Optionally trim leading/trailing underscores
     sanitized.trim_matches('_').to_string()
+}
+
+pub fn visit_type(input: &Type) -> String {
+    match input {
+        Type::Address
+        | Type::Field
+        | Type::Group
+        | Type::Scalar
+        | Type::Signature
+        | Type::String
+        | Type::Future(..)
+        | Type::Identifier(..)
+        | Type::Boolean
+        | Type::Integer(..)
+        | Type::Array(_) => format!("{input}"),
+        Type::Composite(CompositeType { path, .. }) => path.absolute_path().iter().format("::").to_string(),
+        Type::Optional(_) => {
+            panic!("Optional types are not supported at this phase of compilation")
+        }
+        Type::Mapping(_) => {
+            panic!("Mapping types are not supported at this phase of compilation")
+        }
+        Type::Tuple(_) => {
+            panic!("Tuple types should not be visited at this phase of compilation")
+        }
+        Type::Numeric => panic!("`Numeric` types should not exist at this phase of compilation"),
+        Type::Err => panic!("Error types should not exist at this phase of compilation"),
+        Type::Unit => panic!("Unit types are not supported at this phase of compilation"),
+    }
+}
+
+pub fn optional_struct_name(ty: &Type) -> Symbol {
+    Symbol::intern(&sanitize_name(&format!("Op__{}", visit_type(ty))))
 }

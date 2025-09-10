@@ -26,6 +26,7 @@ use leo_ast::{
     ProgramScope,
     Statement,
 };
+use leo_span::Symbol;
 
 use std::mem;
 
@@ -44,7 +45,18 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            structs: input
+                .structs
+                .into_iter()
+                .map(|(i, c)| {
+                    // TODO: handle records
+                    let full_name =
+                        self.module.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
+                    let new_struct = self.reconstruct_struct(c);
+                    self.modified_structs.insert(full_name, new_struct.clone());
+                    (i, new_struct)
+                })
+                .collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
@@ -71,7 +83,18 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            structs: input
+                .structs
+                .into_iter()
+                .map(|(i, c)| {
+                    // TODO: handle records
+                    let full_name =
+                        self.module.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
+                    let new_struct = self.reconstruct_struct(c);
+                    self.modified_structs.insert(full_name, new_struct.clone());
+                    (i, new_struct)
+                })
+                .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
         };
         self.module = parent_module;

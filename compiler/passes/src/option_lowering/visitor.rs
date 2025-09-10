@@ -27,6 +27,7 @@ pub struct OptionLoweringVisitor<'a> {
     pub module: Vec<Symbol>,
     pub function: Option<Symbol>,
     pub new_structs: IndexMap<Symbol, Composite>,
+    pub modified_structs: IndexMap<Vec<Symbol>, Composite>,
 }
 
 impl OptionLoweringVisitor<'_> {
@@ -41,7 +42,7 @@ impl OptionLoweringVisitor<'_> {
         // are actually registered in `self.new_structs`.
         let lowered_inner_type = self.reconstruct_type(ty).0;
 
-        let struct_name = Symbol::intern(&crate::sanitize_name(&format!("Op__{lowered_inner_type}")));
+        let struct_name = crate::optional_struct_name(&lowered_inner_type);
         let struct_expr = StructExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
             const_arguments: vec![],
@@ -77,12 +78,11 @@ impl OptionLoweringVisitor<'_> {
         // are actually registered in `self.new_structs`.
         let lowered_inner_type = self.reconstruct_type(inner_ty.clone()).0;
 
-        let zero_val = self.zero_value_for_type(inner_ty);
-        let zero_val_expr = self
-            .value_to_expression(&zero_val, inner_ty, Span::default(), self.state.node_builder.next_id())
-            .expect("must be valid");
+        let zero_val = self.zero_value_for_type(&lowered_inner_type);
+        let zero_val_expr =
+            self.value_to_expression(&zero_val, &lowered_inner_type, Span::default()).expect("must be valid");
 
-        let struct_name = Symbol::intern(&crate::sanitize_name(&format!("Op__{lowered_inner_type}")));
+        let struct_name = crate::optional_struct_name(&lowered_inner_type);
 
         let struct_expr = StructExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
@@ -109,7 +109,7 @@ impl OptionLoweringVisitor<'_> {
     }
 
     pub fn zero_value_for_type(&mut self, ty: &Type) -> Value {
-        let program = self.program.clone();
+        let program = self.program;
         match ty {
             Type::Unit => Value::make_unit(),
 
@@ -129,7 +129,7 @@ impl OptionLoweringVisitor<'_> {
             },
 
             Type::Array(array) => {
-                let len = array.length.as_u32().unwrap_or(0);
+                let len = array.length.as_u32().expect("must have been const evaluated by now");
                 let element = self.zero_value_for_type(&array.element_type);
                 Value::make_array((0..len).map(|_| element.clone()))
             }
@@ -143,16 +143,16 @@ impl OptionLoweringVisitor<'_> {
                 let lowered_inner_type = self.reconstruct_type((*opt.inner).clone()).0;
                 let inner_zero = self.zero_value_for_type(&opt.inner);
 
+                // For default, we could treat it as None → is_some = false, val = zero_inner
+                // But in Value, we don’t have Optional — it’ll be represented as a Struct later.
+                // So we can return Struct with `is_some = false`, `val = default(inner)`
                 let mut struct_fields = IndexMap::new();
                 struct_fields.insert(Symbol::intern("is_some"), Value::from(false));
                 struct_fields.insert(Symbol::intern("val"), inner_zero);
 
-                let opt_struct_name = crate::sanitize_name(&format!("Op__{lowered_inner_type}"));
-                Value::make_struct(
-                    struct_fields.into_iter(),
-                    Symbol::intern("self"), // or whatever program name applies
-                    vec![Symbol::intern(&opt_struct_name)],
-                )
+                let opt_struct_name = crate::optional_struct_name(&lowered_inner_type);
+
+                Value::make_struct(struct_fields.into_iter(), self.program, vec![opt_struct_name])
             }
 
             Type::Composite(composite) => {
@@ -162,6 +162,7 @@ impl OptionLoweringVisitor<'_> {
                         .state
                         .symbol_table
                         .lookup_struct(&composite.path.absolute_path())
+                        .or_else(|| self.new_structs.get(&composite.path.identifier().name))
                         .expect("must be in symbol table");
 
                     struct_def.members.clone()
@@ -183,18 +184,18 @@ impl OptionLoweringVisitor<'_> {
         }
     }
 
-    pub fn value_to_expression(&self, value: &Value, ty: &Type, span: Span, id: NodeID) -> Option<Expression> {
-        dbg!(&value);
-        let symbol_table = &self.state.symbol_table;
+    pub fn value_to_expression(&self, value: &Value, ty: &Type, span: Span) -> Option<Expression> {
+        let modified_structs = &self.modified_structs;
         let struct_lookup = |sym: &[Symbol]| {
-            symbol_table
-                .lookup_struct(sym)
+            modified_structs
+                .get(sym)
+                .or_else(|| self.new_structs.get(sym.last().unwrap()))
                 .unwrap()
                 .members
                 .iter()
                 .map(|mem| (mem.identifier.name, mem.type_.clone()))
                 .collect()
         };
-        value.to_expression(span, &self.state.node_builder, &ty, &struct_lookup)
+        value.to_expression(span, &self.state.node_builder, ty, &struct_lookup)
     }
 }

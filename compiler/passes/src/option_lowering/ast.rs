@@ -30,8 +30,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let (inner_type, _) = self.reconstruct_type(*input.inner.clone());
 
         // Generate a unique name like Optional__u32, Optional__bool, etc.
-        // You can later improve this to be hash-based or AST-based for complex types
-        let struct_name = Symbol::intern(&crate::sanitize_name(&format!("Op__{inner_type}")));
+        let struct_name = crate::optional_struct_name(&inner_type);
 
         // Register the struct if it hasn't been already
         self.new_structs.entry(struct_name).or_insert_with(|| Composite {

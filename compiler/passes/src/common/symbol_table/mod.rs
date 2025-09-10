@@ -37,7 +37,7 @@ pub struct SymbolTable {
     records: IndexMap<Location, Composite>,
 
     /// Structs indexed by a path.
-    structs: IndexMap<Vec<Symbol>, Composite>,
+    pub structs: IndexMap<Vec<Symbol>, Composite>,
 
     /// Consts that have been successfully evaluated.
     global_consts: IndexMap<Location, Expression>,

@@ -848,6 +848,10 @@ impl Value {
 
         Some(expression)
     }
+
+    pub fn is_none(&self) -> bool {
+        matches!(self.contents, ValueVariants::None)
+    }
 }
 
 #[allow(clippy::type_complexity)]
@@ -903,7 +907,7 @@ fn plaintext_to_expression(
             let Type::Composite(composite_type) = ty else {
                 return None;
             };
-            let symbols = composite_type.path.as_symbols();
+            let symbols = composite_type.path.absolute_path();
             let iter_members = struct_lookup(&symbols);
             StructExpression {
                 span,
