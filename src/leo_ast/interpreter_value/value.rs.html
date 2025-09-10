@@ -551,414 +551,432 @@
 <a href=#551 id=551 data-nosnippet>551</a>        <span class="prelude-val">Some</span>(value)
 <a href=#552 id=552 data-nosnippet>552</a>    }
 <a href=#553 id=553 data-nosnippet>553</a>
-<a href=#554 id=554 data-nosnippet>554</a>    <span class="kw">pub fn </span>array_index(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-<a href=#555 id=555 data-nosnippet>555</a>        <span class="kw">let </span>plaintext: <span class="kw-2">&amp;</span>SvmPlaintext = <span class="self">self</span>.try_as_ref()<span class="question-mark">?</span>;
-<a href=#556 id=556 data-nosnippet>556</a>        <span class="kw">let </span>Plaintext::Array(array, ..) = plaintext <span class="kw">else </span>{
-<a href=#557 id=557 data-nosnippet>557</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#558 id=558 data-nosnippet>558</a>        };
-<a href=#559 id=559 data-nosnippet>559</a>
-<a href=#560 id=560 data-nosnippet>560</a>        <span class="prelude-val">Some</span>(array[i].clone().into())
-<a href=#561 id=561 data-nosnippet>561</a>    }
-<a href=#562 id=562 data-nosnippet>562</a>
-<a href=#563 id=563 data-nosnippet>563</a>    <span class="kw">pub fn </span>array_index_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: usize, value: <span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-<a href=#564 id=564 data-nosnippet>564</a>        <span class="kw">let </span>plaintext_rhs: SvmPlaintext = value.try_into().ok()<span class="question-mark">?</span>;
-<a href=#565 id=565 data-nosnippet>565</a>
-<a href=#566 id=566 data-nosnippet>566</a>        <span class="kw">let </span>ValueVariants::Svm(SvmValue::Plaintext(Plaintext::Array(arr, once_cell))) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.contents <span class="kw">else </span>{
-<a href=#567 id=567 data-nosnippet>567</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#554 id=554 data-nosnippet>554</a>    <span class="kw">pub fn </span>as_i128(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i128&gt; {
+<a href=#555 id=555 data-nosnippet>555</a>        <span class="kw">let </span>literal = <span class="self">self</span>.try_as_ref()<span class="question-mark">?</span>;
+<a href=#556 id=556 data-nosnippet>556</a>        <span class="kw">let </span>value = <span class="kw">match </span>literal {
+<a href=#557 id=557 data-nosnippet>557</a>            SvmLiteralParam::U8(x) =&gt; <span class="kw-2">**</span>x <span class="kw">as </span>i128,
+<a href=#558 id=558 data-nosnippet>558</a>            SvmLiteralParam::U16(x) =&gt; <span class="kw-2">**</span>x <span class="kw">as </span>i128,
+<a href=#559 id=559 data-nosnippet>559</a>            SvmLiteralParam::U32(x) =&gt; <span class="kw-2">**</span>x <span class="kw">as </span>i128,
+<a href=#560 id=560 data-nosnippet>560</a>            SvmLiteralParam::U64(x) =&gt; <span class="kw-2">**</span>x <span class="kw">as </span>i128,
+<a href=#561 id=561 data-nosnippet>561</a>            SvmLiteralParam::U128(x) =&gt; (<span class="kw-2">**</span>x).try_into().ok()<span class="question-mark">?</span>,
+<a href=#562 id=562 data-nosnippet>562</a>            SvmLiteralParam::I8(x) =&gt; <span class="kw-2">**</span>x <span class="kw">as </span>i128,
+<a href=#563 id=563 data-nosnippet>563</a>            SvmLiteralParam::I16(x) =&gt; <span class="kw-2">**</span>x <span class="kw">as </span>i128,
+<a href=#564 id=564 data-nosnippet>564</a>            SvmLiteralParam::I32(x) =&gt; <span class="kw-2">**</span>x <span class="kw">as </span>i128,
+<a href=#565 id=565 data-nosnippet>565</a>            SvmLiteralParam::I64(x) =&gt; <span class="kw-2">**</span>x <span class="kw">as </span>i128,
+<a href=#566 id=566 data-nosnippet>566</a>            SvmLiteralParam::I128(x) =&gt; <span class="kw-2">**</span>x,
+<a href=#567 id=567 data-nosnippet>567</a>            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
 <a href=#568 id=568 data-nosnippet>568</a>        };
-<a href=#569 id=569 data-nosnippet>569</a>        <span class="kw-2">*</span>once_cell = Default::default();
-<a href=#570 id=570 data-nosnippet>570</a>
-<a href=#571 id=571 data-nosnippet>571</a>        <span class="kw-2">*</span>arr.get_mut(i)<span class="question-mark">? </span>= plaintext_rhs;
-<a href=#572 id=572 data-nosnippet>572</a>
-<a href=#573 id=573 data-nosnippet>573</a>        <span class="prelude-val">Some</span>(())
-<a href=#574 id=574 data-nosnippet>574</a>    }
-<a href=#575 id=575 data-nosnippet>575</a>
-<a href=#576 id=576 data-nosnippet>576</a>    <span class="kw">pub fn </span>tuple_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-<a href=#577 id=577 data-nosnippet>577</a>        <span class="kw">let </span>ValueVariants::Tuple(tuple) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents <span class="kw">else </span>{
-<a href=#578 id=578 data-nosnippet>578</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#579 id=579 data-nosnippet>579</a>        };
+<a href=#569 id=569 data-nosnippet>569</a>        <span class="prelude-val">Some</span>(value)
+<a href=#570 id=570 data-nosnippet>570</a>    }
+<a href=#571 id=571 data-nosnippet>571</a>
+<a href=#572 id=572 data-nosnippet>572</a>    <span class="kw">pub fn </span>array_index(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+<a href=#573 id=573 data-nosnippet>573</a>        <span class="kw">let </span>plaintext: <span class="kw-2">&amp;</span>SvmPlaintext = <span class="self">self</span>.try_as_ref()<span class="question-mark">?</span>;
+<a href=#574 id=574 data-nosnippet>574</a>        <span class="kw">let </span>Plaintext::Array(array, ..) = plaintext <span class="kw">else </span>{
+<a href=#575 id=575 data-nosnippet>575</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#576 id=576 data-nosnippet>576</a>        };
+<a href=#577 id=577 data-nosnippet>577</a>
+<a href=#578 id=578 data-nosnippet>578</a>        <span class="prelude-val">Some</span>(array[i].clone().into())
+<a href=#579 id=579 data-nosnippet>579</a>    }
 <a href=#580 id=580 data-nosnippet>580</a>
-<a href=#581 id=581 data-nosnippet>581</a>        <span class="prelude-val">Some</span>(tuple.len())
-<a href=#582 id=582 data-nosnippet>582</a>    }
+<a href=#581 id=581 data-nosnippet>581</a>    <span class="kw">pub fn </span>array_index_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: usize, value: <span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+<a href=#582 id=582 data-nosnippet>582</a>        <span class="kw">let </span>plaintext_rhs: SvmPlaintext = value.try_into().ok()<span class="question-mark">?</span>;
 <a href=#583 id=583 data-nosnippet>583</a>
-<a href=#584 id=584 data-nosnippet>584</a>    <span class="kw">pub fn </span>tuple_index(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-<a href=#585 id=585 data-nosnippet>585</a>        <span class="kw">let </span>ValueVariants::Tuple(tuple) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents <span class="kw">else </span>{
-<a href=#586 id=586 data-nosnippet>586</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#587 id=587 data-nosnippet>587</a>        };
+<a href=#584 id=584 data-nosnippet>584</a>        <span class="kw">let </span>ValueVariants::Svm(SvmValue::Plaintext(Plaintext::Array(arr, once_cell))) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.contents <span class="kw">else </span>{
+<a href=#585 id=585 data-nosnippet>585</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#586 id=586 data-nosnippet>586</a>        };
+<a href=#587 id=587 data-nosnippet>587</a>        <span class="kw-2">*</span>once_cell = Default::default();
 <a href=#588 id=588 data-nosnippet>588</a>
-<a href=#589 id=589 data-nosnippet>589</a>        <span class="prelude-val">Some</span>(tuple[i].clone())
-<a href=#590 id=590 data-nosnippet>590</a>    }
-<a href=#591 id=591 data-nosnippet>591</a>
-<a href=#592 id=592 data-nosnippet>592</a>    <span class="kw">pub fn </span>tuple_index_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: usize, value: <span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-<a href=#593 id=593 data-nosnippet>593</a>        <span class="kw">let </span>ValueVariants::Tuple(tuple) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.contents <span class="kw">else </span>{
-<a href=#594 id=594 data-nosnippet>594</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#595 id=595 data-nosnippet>595</a>        };
-<a href=#596 id=596 data-nosnippet>596</a>
-<a href=#597 id=597 data-nosnippet>597</a>        <span class="kw-2">*</span>tuple.get_mut(i)<span class="question-mark">? </span>= value;
+<a href=#589 id=589 data-nosnippet>589</a>        <span class="kw-2">*</span>arr.get_mut(i)<span class="question-mark">? </span>= plaintext_rhs;
+<a href=#590 id=590 data-nosnippet>590</a>
+<a href=#591 id=591 data-nosnippet>591</a>        <span class="prelude-val">Some</span>(())
+<a href=#592 id=592 data-nosnippet>592</a>    }
+<a href=#593 id=593 data-nosnippet>593</a>
+<a href=#594 id=594 data-nosnippet>594</a>    <span class="kw">pub fn </span>tuple_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+<a href=#595 id=595 data-nosnippet>595</a>        <span class="kw">let </span>ValueVariants::Tuple(tuple) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents <span class="kw">else </span>{
+<a href=#596 id=596 data-nosnippet>596</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#597 id=597 data-nosnippet>597</a>        };
 <a href=#598 id=598 data-nosnippet>598</a>
-<a href=#599 id=599 data-nosnippet>599</a>        <span class="prelude-val">Some</span>(())
+<a href=#599 id=599 data-nosnippet>599</a>        <span class="prelude-val">Some</span>(tuple.len())
 <a href=#600 id=600 data-nosnippet>600</a>    }
 <a href=#601 id=601 data-nosnippet>601</a>
-<a href=#602 id=602 data-nosnippet>602</a>    <span class="kw">pub fn </span>as_future(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[AsyncExecution]&gt; {
-<a href=#603 id=603 data-nosnippet>603</a>        <span class="kw">if let </span>ValueVariants::Future(asyncs) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents { <span class="prelude-val">Some</span>(asyncs) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
-<a href=#604 id=604 data-nosnippet>604</a>    }
-<a href=#605 id=605 data-nosnippet>605</a>
-<a href=#606 id=606 data-nosnippet>606</a>    <span class="kw">pub fn </span>accesses(<span class="kw-2">&amp;</span><span class="self">self</span>, accesses: <span class="kw">impl </span>IntoIterator&lt;Item = Access&lt;CurrentNetwork&gt;&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Value&gt; {
-<a href=#607 id=607 data-nosnippet>607</a>        <span class="self">self</span>.accesses_impl(<span class="kw-2">&amp;mut </span>accesses.into_iter())
+<a href=#602 id=602 data-nosnippet>602</a>    <span class="kw">pub fn </span>tuple_index(<span class="kw-2">&amp;</span><span class="self">self</span>, i: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+<a href=#603 id=603 data-nosnippet>603</a>        <span class="kw">let </span>ValueVariants::Tuple(tuple) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents <span class="kw">else </span>{
+<a href=#604 id=604 data-nosnippet>604</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#605 id=605 data-nosnippet>605</a>        };
+<a href=#606 id=606 data-nosnippet>606</a>
+<a href=#607 id=607 data-nosnippet>607</a>        <span class="prelude-val">Some</span>(tuple[i].clone())
 <a href=#608 id=608 data-nosnippet>608</a>    }
 <a href=#609 id=609 data-nosnippet>609</a>
-<a href=#610 id=610 data-nosnippet>610</a>    <span class="kw">fn </span>accesses_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, accesses: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Iterator&lt;Item = Access&lt;CurrentNetwork&gt;&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Value&gt; {
-<a href=#611 id=611 data-nosnippet>611</a>        <span class="kw">let </span>ValueVariants::Svm(SvmValueParam::Plaintext(current)) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents <span class="kw">else </span>{
+<a href=#610 id=610 data-nosnippet>610</a>    <span class="kw">pub fn </span>tuple_index_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: usize, value: <span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+<a href=#611 id=611 data-nosnippet>611</a>        <span class="kw">let </span>ValueVariants::Tuple(tuple) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.contents <span class="kw">else </span>{
 <a href=#612 id=612 data-nosnippet>612</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
 <a href=#613 id=613 data-nosnippet>613</a>        };
 <a href=#614 id=614 data-nosnippet>614</a>
-<a href=#615 id=615 data-nosnippet>615</a>        <span class="kw">let </span><span class="kw-2">mut </span>current = current;
+<a href=#615 id=615 data-nosnippet>615</a>        <span class="kw-2">*</span>tuple.get_mut(i)<span class="question-mark">? </span>= value;
 <a href=#616 id=616 data-nosnippet>616</a>
-<a href=#617 id=617 data-nosnippet>617</a>        <span class="kw">for </span>access <span class="kw">in </span>accesses {
-<a href=#618 id=618 data-nosnippet>618</a>            current = <span class="kw">match </span>(access, current) {
-<a href=#619 id=619 data-nosnippet>619</a>                (Access::Member(identifier), Plaintext::Struct(struct_, ..)) =&gt; struct_.get(<span class="kw-2">&amp;</span>identifier)<span class="question-mark">?</span>,
-<a href=#620 id=620 data-nosnippet>620</a>                (Access::Index(integer), Plaintext::Array(array, ..)) =&gt; array.get(<span class="kw-2">*</span>integer <span class="kw">as </span>usize)<span class="question-mark">?</span>,
-<a href=#621 id=621 data-nosnippet>621</a>                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#622 id=622 data-nosnippet>622</a>            };
-<a href=#623 id=623 data-nosnippet>623</a>        }
-<a href=#624 id=624 data-nosnippet>624</a>
-<a href=#625 id=625 data-nosnippet>625</a>        <span class="prelude-val">Some</span>(current.clone().into())
+<a href=#617 id=617 data-nosnippet>617</a>        <span class="prelude-val">Some</span>(())
+<a href=#618 id=618 data-nosnippet>618</a>    }
+<a href=#619 id=619 data-nosnippet>619</a>
+<a href=#620 id=620 data-nosnippet>620</a>    <span class="kw">pub fn </span>as_future(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[AsyncExecution]&gt; {
+<a href=#621 id=621 data-nosnippet>621</a>        <span class="kw">if let </span>ValueVariants::Future(asyncs) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents { <span class="prelude-val">Some</span>(asyncs) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
+<a href=#622 id=622 data-nosnippet>622</a>    }
+<a href=#623 id=623 data-nosnippet>623</a>
+<a href=#624 id=624 data-nosnippet>624</a>    <span class="kw">pub fn </span>accesses(<span class="kw-2">&amp;</span><span class="self">self</span>, accesses: <span class="kw">impl </span>IntoIterator&lt;Item = Access&lt;CurrentNetwork&gt;&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Value&gt; {
+<a href=#625 id=625 data-nosnippet>625</a>        <span class="self">self</span>.accesses_impl(<span class="kw-2">&amp;mut </span>accesses.into_iter())
 <a href=#626 id=626 data-nosnippet>626</a>    }
 <a href=#627 id=627 data-nosnippet>627</a>
-<a href=#628 id=628 data-nosnippet>628</a>    <span class="kw">pub fn </span>member_access(<span class="kw-2">&amp;</span><span class="self">self</span>, member: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-<a href=#629 id=629 data-nosnippet>629</a>        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.contents {
-<a href=#630 id=630 data-nosnippet>630</a>            ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Struct(map, ..))) =&gt; {
-<a href=#631 id=631 data-nosnippet>631</a>                <span class="kw">let </span>identifier: SvmIdentifier =
-<a href=#632 id=632 data-nosnippet>632</a>                    member.to_string().parse().expect(<span class="string">"Member name should be valid identifier"</span>);
-<a href=#633 id=633 data-nosnippet>633</a>                <span class="prelude-val">Some</span>(map.get(<span class="kw-2">&amp;</span>identifier)<span class="question-mark">?</span>.clone().into())
-<a href=#634 id=634 data-nosnippet>634</a>            }
-<a href=#635 id=635 data-nosnippet>635</a>            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
-<a href=#636 id=636 data-nosnippet>636</a>        }
-<a href=#637 id=637 data-nosnippet>637</a>    }
-<a href=#638 id=638 data-nosnippet>638</a>
-<a href=#639 id=639 data-nosnippet>639</a>    <span class="kw">pub fn </span>member_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, member: Symbol, value: Value) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-<a href=#640 id=640 data-nosnippet>640</a>        <span class="kw">let </span>plaintext: SvmPlaintext = value.try_into().ok()<span class="question-mark">?</span>;
-<a href=#641 id=641 data-nosnippet>641</a>        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.contents {
-<a href=#642 id=642 data-nosnippet>642</a>            ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Struct(map, once_cell))) =&gt; {
-<a href=#643 id=643 data-nosnippet>643</a>                <span class="kw-2">*</span>once_cell = Default::default();
-<a href=#644 id=644 data-nosnippet>644</a>                <span class="kw">let </span>identifier: SvmIdentifier = member.to_string().parse().ok()<span class="question-mark">?</span>;
-<a href=#645 id=645 data-nosnippet>645</a>                <span class="kw-2">*</span>map.get_mut(<span class="kw-2">&amp;</span>identifier)<span class="question-mark">? </span>= plaintext;
-<a href=#646 id=646 data-nosnippet>646</a>                <span class="prelude-val">Some</span>(())
-<a href=#647 id=647 data-nosnippet>647</a>            }
-<a href=#648 id=648 data-nosnippet>648</a>
-<a href=#649 id=649 data-nosnippet>649</a>            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
-<a href=#650 id=650 data-nosnippet>650</a>        }
-<a href=#651 id=651 data-nosnippet>651</a>    }
-<a href=#652 id=652 data-nosnippet>652</a>
-<a href=#653 id=653 data-nosnippet>653</a>    <span class="kw">pub fn </span>make_future(
-<a href=#654 id=654 data-nosnippet>654</a>        program_name: Symbol,
-<a href=#655 id=655 data-nosnippet>655</a>        function: Symbol,
-<a href=#656 id=656 data-nosnippet>656</a>        arguments: <span class="kw">impl </span>IntoIterator&lt;Item = Value&gt;,
-<a href=#657 id=657 data-nosnippet>657</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;Value&gt; {
-<a href=#658 id=658 data-nosnippet>658</a>        <span class="self">Self</span>::make_future_impl(program_name, function, <span class="kw-2">&amp;mut </span>arguments.into_iter())
-<a href=#659 id=659 data-nosnippet>659</a>    }
-<a href=#660 id=660 data-nosnippet>660</a>
-<a href=#661 id=661 data-nosnippet>661</a>    <span class="kw">fn </span>make_future_impl(
-<a href=#662 id=662 data-nosnippet>662</a>        program_name: Symbol,
-<a href=#663 id=663 data-nosnippet>663</a>        function: Symbol,
-<a href=#664 id=664 data-nosnippet>664</a>        arguments: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Iterator&lt;Item = Value&gt;,
-<a href=#665 id=665 data-nosnippet>665</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;Value&gt; {
-<a href=#666 id=666 data-nosnippet>666</a>        <span class="kw">let </span>program = ProgramID::try_from(<span class="macro">format!</span>(<span class="string">"{program_name}.aleo"</span>)).ok()<span class="question-mark">?</span>;
-<a href=#667 id=667 data-nosnippet>667</a>
-<a href=#668 id=668 data-nosnippet>668</a>        <span class="kw">let </span>function_identifier: SvmIdentifier = function.to_string().parse().ok()<span class="question-mark">?</span>;
-<a href=#669 id=669 data-nosnippet>669</a>
-<a href=#670 id=670 data-nosnippet>670</a>        <span class="kw">let </span>arguments_vec = arguments
-<a href=#671 id=671 data-nosnippet>671</a>            .map(|value| <span class="kw">match </span>value.contents {
-<a href=#672 id=672 data-nosnippet>672</a>                ValueVariants::Svm(SvmValueParam::Plaintext(plaintext)) =&gt; <span class="prelude-val">Some</span>(Argument::Plaintext(plaintext)),
-<a href=#673 id=673 data-nosnippet>673</a>                ValueVariants::Svm(SvmValueParam::Future(future)) =&gt; <span class="prelude-val">Some</span>(Argument::Future(future)),
-<a href=#674 id=674 data-nosnippet>674</a>                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
-<a href=#675 id=675 data-nosnippet>675</a>            })
-<a href=#676 id=676 data-nosnippet>676</a>            .collect::&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
-<a href=#677 id=677 data-nosnippet>677</a>
-<a href=#678 id=678 data-nosnippet>678</a>        <span class="prelude-val">Some</span>(Future::new(program, function_identifier, arguments_vec).into())
-<a href=#679 id=679 data-nosnippet>679</a>    }
-<a href=#680 id=680 data-nosnippet>680</a>
-<a href=#681 id=681 data-nosnippet>681</a>    <span class="kw">pub fn </span>make_unit() -&gt; <span class="self">Self </span>{
-<a href=#682 id=682 data-nosnippet>682</a>        Value { id: <span class="prelude-val">None</span>, contents: ValueVariants::Unit }
-<a href=#683 id=683 data-nosnippet>683</a>    }
-<a href=#684 id=684 data-nosnippet>684</a>
-<a href=#685 id=685 data-nosnippet>685</a>    <span class="kw">pub fn </span>make_struct(contents: <span class="kw">impl </span>Iterator&lt;Item = (Symbol, Value)&gt;, program: Symbol, path: Vec&lt;Symbol&gt;) -&gt; <span class="self">Self </span>{
-<a href=#686 id=686 data-nosnippet>686</a>        <span class="kw">let </span>id = <span class="prelude-val">Some</span>(GlobalId { program, path });
+<a href=#628 id=628 data-nosnippet>628</a>    <span class="kw">fn </span>accesses_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, accesses: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Iterator&lt;Item = Access&lt;CurrentNetwork&gt;&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Value&gt; {
+<a href=#629 id=629 data-nosnippet>629</a>        <span class="kw">let </span>ValueVariants::Svm(SvmValueParam::Plaintext(current)) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents <span class="kw">else </span>{
+<a href=#630 id=630 data-nosnippet>630</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#631 id=631 data-nosnippet>631</a>        };
+<a href=#632 id=632 data-nosnippet>632</a>
+<a href=#633 id=633 data-nosnippet>633</a>        <span class="kw">let </span><span class="kw-2">mut </span>current = current;
+<a href=#634 id=634 data-nosnippet>634</a>
+<a href=#635 id=635 data-nosnippet>635</a>        <span class="kw">for </span>access <span class="kw">in </span>accesses {
+<a href=#636 id=636 data-nosnippet>636</a>            current = <span class="kw">match </span>(access, current) {
+<a href=#637 id=637 data-nosnippet>637</a>                (Access::Member(identifier), Plaintext::Struct(struct_, ..)) =&gt; struct_.get(<span class="kw-2">&amp;</span>identifier)<span class="question-mark">?</span>,
+<a href=#638 id=638 data-nosnippet>638</a>                (Access::Index(integer), Plaintext::Array(array, ..)) =&gt; array.get(<span class="kw-2">*</span>integer <span class="kw">as </span>usize)<span class="question-mark">?</span>,
+<a href=#639 id=639 data-nosnippet>639</a>                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+<a href=#640 id=640 data-nosnippet>640</a>            };
+<a href=#641 id=641 data-nosnippet>641</a>        }
+<a href=#642 id=642 data-nosnippet>642</a>
+<a href=#643 id=643 data-nosnippet>643</a>        <span class="prelude-val">Some</span>(current.clone().into())
+<a href=#644 id=644 data-nosnippet>644</a>    }
+<a href=#645 id=645 data-nosnippet>645</a>
+<a href=#646 id=646 data-nosnippet>646</a>    <span class="kw">pub fn </span>member_access(<span class="kw-2">&amp;</span><span class="self">self</span>, member: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+<a href=#647 id=647 data-nosnippet>647</a>        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.contents {
+<a href=#648 id=648 data-nosnippet>648</a>            ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Struct(map, ..))) =&gt; {
+<a href=#649 id=649 data-nosnippet>649</a>                <span class="kw">let </span>identifier: SvmIdentifier =
+<a href=#650 id=650 data-nosnippet>650</a>                    member.to_string().parse().expect(<span class="string">"Member name should be valid identifier"</span>);
+<a href=#651 id=651 data-nosnippet>651</a>                <span class="prelude-val">Some</span>(map.get(<span class="kw-2">&amp;</span>identifier)<span class="question-mark">?</span>.clone().into())
+<a href=#652 id=652 data-nosnippet>652</a>            }
+<a href=#653 id=653 data-nosnippet>653</a>            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+<a href=#654 id=654 data-nosnippet>654</a>        }
+<a href=#655 id=655 data-nosnippet>655</a>    }
+<a href=#656 id=656 data-nosnippet>656</a>
+<a href=#657 id=657 data-nosnippet>657</a>    <span class="kw">pub fn </span>member_set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, member: Symbol, value: Value) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+<a href=#658 id=658 data-nosnippet>658</a>        <span class="kw">let </span>plaintext: SvmPlaintext = value.try_into().ok()<span class="question-mark">?</span>;
+<a href=#659 id=659 data-nosnippet>659</a>        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.contents {
+<a href=#660 id=660 data-nosnippet>660</a>            ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Struct(map, once_cell))) =&gt; {
+<a href=#661 id=661 data-nosnippet>661</a>                <span class="kw-2">*</span>once_cell = Default::default();
+<a href=#662 id=662 data-nosnippet>662</a>                <span class="kw">let </span>identifier: SvmIdentifier = member.to_string().parse().ok()<span class="question-mark">?</span>;
+<a href=#663 id=663 data-nosnippet>663</a>                <span class="kw-2">*</span>map.get_mut(<span class="kw-2">&amp;</span>identifier)<span class="question-mark">? </span>= plaintext;
+<a href=#664 id=664 data-nosnippet>664</a>                <span class="prelude-val">Some</span>(())
+<a href=#665 id=665 data-nosnippet>665</a>            }
+<a href=#666 id=666 data-nosnippet>666</a>
+<a href=#667 id=667 data-nosnippet>667</a>            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+<a href=#668 id=668 data-nosnippet>668</a>        }
+<a href=#669 id=669 data-nosnippet>669</a>    }
+<a href=#670 id=670 data-nosnippet>670</a>
+<a href=#671 id=671 data-nosnippet>671</a>    <span class="kw">pub fn </span>make_future(
+<a href=#672 id=672 data-nosnippet>672</a>        program_name: Symbol,
+<a href=#673 id=673 data-nosnippet>673</a>        function: Symbol,
+<a href=#674 id=674 data-nosnippet>674</a>        arguments: <span class="kw">impl </span>IntoIterator&lt;Item = Value&gt;,
+<a href=#675 id=675 data-nosnippet>675</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;Value&gt; {
+<a href=#676 id=676 data-nosnippet>676</a>        <span class="self">Self</span>::make_future_impl(program_name, function, <span class="kw-2">&amp;mut </span>arguments.into_iter())
+<a href=#677 id=677 data-nosnippet>677</a>    }
+<a href=#678 id=678 data-nosnippet>678</a>
+<a href=#679 id=679 data-nosnippet>679</a>    <span class="kw">fn </span>make_future_impl(
+<a href=#680 id=680 data-nosnippet>680</a>        program_name: Symbol,
+<a href=#681 id=681 data-nosnippet>681</a>        function: Symbol,
+<a href=#682 id=682 data-nosnippet>682</a>        arguments: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Iterator&lt;Item = Value&gt;,
+<a href=#683 id=683 data-nosnippet>683</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;Value&gt; {
+<a href=#684 id=684 data-nosnippet>684</a>        <span class="kw">let </span>program = ProgramID::try_from(<span class="macro">format!</span>(<span class="string">"{program_name}.aleo"</span>)).ok()<span class="question-mark">?</span>;
+<a href=#685 id=685 data-nosnippet>685</a>
+<a href=#686 id=686 data-nosnippet>686</a>        <span class="kw">let </span>function_identifier: SvmIdentifier = function.to_string().parse().ok()<span class="question-mark">?</span>;
 <a href=#687 id=687 data-nosnippet>687</a>
-<a href=#688 id=688 data-nosnippet>688</a>        <span class="kw">let </span>contents = Plaintext::Struct(
-<a href=#689 id=689 data-nosnippet>689</a>            contents
-<a href=#690 id=690 data-nosnippet>690</a>                .map(|(symbol, value)| {
-<a href=#691 id=691 data-nosnippet>691</a>                    <span class="kw">let </span>identifier =
-<a href=#692 id=692 data-nosnippet>692</a>                        symbol.to_string().parse().expect(<span class="string">"Invalid identifiers shouldn't have been allowed."</span>);
-<a href=#693 id=693 data-nosnippet>693</a>                    <span class="kw">let </span>plaintext = value.try_into().expect(<span class="string">"Invalid struct members shouldn't have been allowed."</span>);
-<a href=#694 id=694 data-nosnippet>694</a>                    (identifier, plaintext)
-<a href=#695 id=695 data-nosnippet>695</a>                })
-<a href=#696 id=696 data-nosnippet>696</a>                .collect(),
-<a href=#697 id=697 data-nosnippet>697</a>            Default::default(),
-<a href=#698 id=698 data-nosnippet>698</a>        );
-<a href=#699 id=699 data-nosnippet>699</a>
-<a href=#700 id=700 data-nosnippet>700</a>        Value { id, contents: ValueVariants::Svm(contents.into()) }
+<a href=#688 id=688 data-nosnippet>688</a>        <span class="kw">let </span>arguments_vec = arguments
+<a href=#689 id=689 data-nosnippet>689</a>            .map(|value| <span class="kw">match </span>value.contents {
+<a href=#690 id=690 data-nosnippet>690</a>                ValueVariants::Svm(SvmValueParam::Plaintext(plaintext)) =&gt; <span class="prelude-val">Some</span>(Argument::Plaintext(plaintext)),
+<a href=#691 id=691 data-nosnippet>691</a>                ValueVariants::Svm(SvmValueParam::Future(future)) =&gt; <span class="prelude-val">Some</span>(Argument::Future(future)),
+<a href=#692 id=692 data-nosnippet>692</a>                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+<a href=#693 id=693 data-nosnippet>693</a>            })
+<a href=#694 id=694 data-nosnippet>694</a>            .collect::&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
+<a href=#695 id=695 data-nosnippet>695</a>
+<a href=#696 id=696 data-nosnippet>696</a>        <span class="prelude-val">Some</span>(Future::new(program, function_identifier, arguments_vec).into())
+<a href=#697 id=697 data-nosnippet>697</a>    }
+<a href=#698 id=698 data-nosnippet>698</a>
+<a href=#699 id=699 data-nosnippet>699</a>    <span class="kw">pub fn </span>make_unit() -&gt; <span class="self">Self </span>{
+<a href=#700 id=700 data-nosnippet>700</a>        Value { id: <span class="prelude-val">None</span>, contents: ValueVariants::Unit }
 <a href=#701 id=701 data-nosnippet>701</a>    }
 <a href=#702 id=702 data-nosnippet>702</a>
-<a href=#703 id=703 data-nosnippet>703</a>    <span class="kw">pub fn </span>make_record(contents: <span class="kw">impl </span>Iterator&lt;Item = (Symbol, Value)&gt;, program: Symbol, path: Vec&lt;Symbol&gt;) -&gt; <span class="self">Self </span>{
+<a href=#703 id=703 data-nosnippet>703</a>    <span class="kw">pub fn </span>make_struct(contents: <span class="kw">impl </span>Iterator&lt;Item = (Symbol, Value)&gt;, program: Symbol, path: Vec&lt;Symbol&gt;) -&gt; <span class="self">Self </span>{
 <a href=#704 id=704 data-nosnippet>704</a>        <span class="kw">let </span>id = <span class="prelude-val">Some</span>(GlobalId { program, path });
 <a href=#705 id=705 data-nosnippet>705</a>
-<a href=#706 id=706 data-nosnippet>706</a>        <span class="comment">// Find the owner, storing the other contents for later.
-<a href=#707 id=707 data-nosnippet>707</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>non_owners = Vec::new();
-<a href=#708 id=708 data-nosnippet>708</a>        <span class="comment">// let mut non_owners: Vec&lt;(SvmIdentifier, SvmPlaintext)&gt; = Vec::new();
-<a href=#709 id=709 data-nosnippet>709</a>        </span><span class="kw">let </span>symbol_owner = Symbol::intern(<span class="string">"owner"</span>);
-<a href=#710 id=710 data-nosnippet>710</a>        <span class="kw">let </span><span class="kw-2">mut </span>opt_owner_value = <span class="prelude-val">None</span>;
-<a href=#711 id=711 data-nosnippet>711</a>        <span class="kw">for </span>(symbol, value) <span class="kw">in </span>contents {
-<a href=#712 id=712 data-nosnippet>712</a>            <span class="kw">if </span>symbol == symbol_owner {
-<a href=#713 id=713 data-nosnippet>713</a>                <span class="kw">let </span>owner: Address = value.try_into().expect(<span class="string">"Owner should be an address."</span>);
-<a href=#714 id=714 data-nosnippet>714</a>                opt_owner_value = <span class="prelude-val">Some</span>(owner);
-<a href=#715 id=715 data-nosnippet>715</a>            } <span class="kw">else </span>{
-<a href=#716 id=716 data-nosnippet>716</a>                <span class="kw">let </span>identifier: SvmIdentifier = symbol.to_string().parse().expect(<span class="string">"Can't parse identifier."</span>);
-<a href=#717 id=717 data-nosnippet>717</a>                <span class="kw">let </span>plaintext: SvmPlaintext = value.try_into().expect(<span class="string">"Record member not plaintext."</span>);
-<a href=#718 id=718 data-nosnippet>718</a>                non_owners.push((identifier, Entry::Public(plaintext)));
-<a href=#719 id=719 data-nosnippet>719</a>            }
-<a href=#720 id=720 data-nosnippet>720</a>        }
-<a href=#721 id=721 data-nosnippet>721</a>
-<a href=#722 id=722 data-nosnippet>722</a>        <span class="kw">let </span><span class="prelude-val">Some</span>(owner_value) = opt_owner_value <span class="kw">else </span>{
-<a href=#723 id=723 data-nosnippet>723</a>            <span class="macro">panic!</span>(<span class="string">"No owner in record."</span>);
-<a href=#724 id=724 data-nosnippet>724</a>        };
-<a href=#725 id=725 data-nosnippet>725</a>
-<a href=#726 id=726 data-nosnippet>726</a>        <span class="kw">let </span>contents = SvmValueParam::Record(
-<a href=#727 id=727 data-nosnippet>727</a>            Record::&lt;CurrentNetwork, SvmPlaintext&gt;::from_plaintext(
-<a href=#728 id=728 data-nosnippet>728</a>                Owner::Public(owner_value),
-<a href=#729 id=729 data-nosnippet>729</a>                non_owners.into_iter().collect(),
-<a href=#730 id=730 data-nosnippet>730</a>                Group::generator(), <span class="comment">// Just an arbitrary nonce.
-<a href=#731 id=731 data-nosnippet>731</a>                </span>snarkvm::prelude::U8::new(<span class="number">1u8</span>),
-<a href=#732 id=732 data-nosnippet>732</a>            )
-<a href=#733 id=733 data-nosnippet>733</a>            .expect(<span class="string">"Failed to make record."</span>),
-<a href=#734 id=734 data-nosnippet>734</a>        );
-<a href=#735 id=735 data-nosnippet>735</a>
-<a href=#736 id=736 data-nosnippet>736</a>        Value { id, contents: ValueVariants::Svm(contents) }
-<a href=#737 id=737 data-nosnippet>737</a>    }
-<a href=#738 id=738 data-nosnippet>738</a>
-<a href=#739 id=739 data-nosnippet>739</a>    <span class="kw">pub fn </span>make_array(contents: <span class="kw">impl </span>Iterator&lt;Item = Value&gt;) -&gt; <span class="self">Self </span>{
-<a href=#740 id=740 data-nosnippet>740</a>        <span class="kw">let </span>vec = contents
-<a href=#741 id=741 data-nosnippet>741</a>            .map(|value| {
-<a href=#742 id=742 data-nosnippet>742</a>                <span class="kw">let </span>plaintext: SvmPlaintext =
-<a href=#743 id=743 data-nosnippet>743</a>                    value.try_into().expect(<span class="string">"Invalid array members shouldn't have been allowed."</span>);
-<a href=#744 id=744 data-nosnippet>744</a>                plaintext
-<a href=#745 id=745 data-nosnippet>745</a>            })
-<a href=#746 id=746 data-nosnippet>746</a>            .collect();
-<a href=#747 id=747 data-nosnippet>747</a>        SvmPlaintext::Array(vec, Default::default()).into()
-<a href=#748 id=748 data-nosnippet>748</a>    }
-<a href=#749 id=749 data-nosnippet>749</a>
-<a href=#750 id=750 data-nosnippet>750</a>    <span class="kw">pub fn </span>make_tuple(contents: <span class="kw">impl </span>IntoIterator&lt;Item = Value&gt;) -&gt; <span class="self">Self </span>{
-<a href=#751 id=751 data-nosnippet>751</a>        ValueVariants::Tuple(contents.into_iter().collect()).into()
-<a href=#752 id=752 data-nosnippet>752</a>    }
+<a href=#706 id=706 data-nosnippet>706</a>        <span class="kw">let </span>contents = Plaintext::Struct(
+<a href=#707 id=707 data-nosnippet>707</a>            contents
+<a href=#708 id=708 data-nosnippet>708</a>                .map(|(symbol, value)| {
+<a href=#709 id=709 data-nosnippet>709</a>                    <span class="kw">let </span>identifier =
+<a href=#710 id=710 data-nosnippet>710</a>                        symbol.to_string().parse().expect(<span class="string">"Invalid identifiers shouldn't have been allowed."</span>);
+<a href=#711 id=711 data-nosnippet>711</a>                    <span class="kw">let </span>plaintext = value.try_into().expect(<span class="string">"Invalid struct members shouldn't have been allowed."</span>);
+<a href=#712 id=712 data-nosnippet>712</a>                    (identifier, plaintext)
+<a href=#713 id=713 data-nosnippet>713</a>                })
+<a href=#714 id=714 data-nosnippet>714</a>                .collect(),
+<a href=#715 id=715 data-nosnippet>715</a>            Default::default(),
+<a href=#716 id=716 data-nosnippet>716</a>        );
+<a href=#717 id=717 data-nosnippet>717</a>
+<a href=#718 id=718 data-nosnippet>718</a>        Value { id, contents: ValueVariants::Svm(contents.into()) }
+<a href=#719 id=719 data-nosnippet>719</a>    }
+<a href=#720 id=720 data-nosnippet>720</a>
+<a href=#721 id=721 data-nosnippet>721</a>    <span class="kw">pub fn </span>make_record(contents: <span class="kw">impl </span>Iterator&lt;Item = (Symbol, Value)&gt;, program: Symbol, path: Vec&lt;Symbol&gt;) -&gt; <span class="self">Self </span>{
+<a href=#722 id=722 data-nosnippet>722</a>        <span class="kw">let </span>id = <span class="prelude-val">Some</span>(GlobalId { program, path });
+<a href=#723 id=723 data-nosnippet>723</a>
+<a href=#724 id=724 data-nosnippet>724</a>        <span class="comment">// Find the owner, storing the other contents for later.
+<a href=#725 id=725 data-nosnippet>725</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>non_owners = Vec::new();
+<a href=#726 id=726 data-nosnippet>726</a>        <span class="comment">// let mut non_owners: Vec&lt;(SvmIdentifier, SvmPlaintext)&gt; = Vec::new();
+<a href=#727 id=727 data-nosnippet>727</a>        </span><span class="kw">let </span>symbol_owner = Symbol::intern(<span class="string">"owner"</span>);
+<a href=#728 id=728 data-nosnippet>728</a>        <span class="kw">let </span><span class="kw-2">mut </span>opt_owner_value = <span class="prelude-val">None</span>;
+<a href=#729 id=729 data-nosnippet>729</a>        <span class="kw">for </span>(symbol, value) <span class="kw">in </span>contents {
+<a href=#730 id=730 data-nosnippet>730</a>            <span class="kw">if </span>symbol == symbol_owner {
+<a href=#731 id=731 data-nosnippet>731</a>                <span class="kw">let </span>owner: Address = value.try_into().expect(<span class="string">"Owner should be an address."</span>);
+<a href=#732 id=732 data-nosnippet>732</a>                opt_owner_value = <span class="prelude-val">Some</span>(owner);
+<a href=#733 id=733 data-nosnippet>733</a>            } <span class="kw">else </span>{
+<a href=#734 id=734 data-nosnippet>734</a>                <span class="kw">let </span>identifier: SvmIdentifier = symbol.to_string().parse().expect(<span class="string">"Can't parse identifier."</span>);
+<a href=#735 id=735 data-nosnippet>735</a>                <span class="kw">let </span>plaintext: SvmPlaintext = value.try_into().expect(<span class="string">"Record member not plaintext."</span>);
+<a href=#736 id=736 data-nosnippet>736</a>                non_owners.push((identifier, Entry::Public(plaintext)));
+<a href=#737 id=737 data-nosnippet>737</a>            }
+<a href=#738 id=738 data-nosnippet>738</a>        }
+<a href=#739 id=739 data-nosnippet>739</a>
+<a href=#740 id=740 data-nosnippet>740</a>        <span class="kw">let </span><span class="prelude-val">Some</span>(owner_value) = opt_owner_value <span class="kw">else </span>{
+<a href=#741 id=741 data-nosnippet>741</a>            <span class="macro">panic!</span>(<span class="string">"No owner in record."</span>);
+<a href=#742 id=742 data-nosnippet>742</a>        };
+<a href=#743 id=743 data-nosnippet>743</a>
+<a href=#744 id=744 data-nosnippet>744</a>        <span class="kw">let </span>contents = SvmValueParam::Record(
+<a href=#745 id=745 data-nosnippet>745</a>            Record::&lt;CurrentNetwork, SvmPlaintext&gt;::from_plaintext(
+<a href=#746 id=746 data-nosnippet>746</a>                Owner::Public(owner_value),
+<a href=#747 id=747 data-nosnippet>747</a>                non_owners.into_iter().collect(),
+<a href=#748 id=748 data-nosnippet>748</a>                Group::generator(), <span class="comment">// Just an arbitrary nonce.
+<a href=#749 id=749 data-nosnippet>749</a>                </span>snarkvm::prelude::U8::new(<span class="number">1u8</span>),
+<a href=#750 id=750 data-nosnippet>750</a>            )
+<a href=#751 id=751 data-nosnippet>751</a>            .expect(<span class="string">"Failed to make record."</span>),
+<a href=#752 id=752 data-nosnippet>752</a>        );
 <a href=#753 id=753 data-nosnippet>753</a>
-<a href=#754 id=754 data-nosnippet>754</a>    <span class="doccomment">/// Gets the type of a `Value` but only if it is an integer, a field, a group, or a scalar.
-<a href=#755 id=755 data-nosnippet>755</a>    /// Return `None` otherwise. These are the only types that an unsuffixed literal can have.
-<a href=#756 id=756 data-nosnippet>756</a>    </span><span class="kw">pub fn </span>get_numeric_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Type&gt; {
-<a href=#757 id=757 data-nosnippet>757</a>        <span class="kw">use </span>IntegerType::<span class="kw-2">*</span>;
-<a href=#758 id=758 data-nosnippet>758</a>        <span class="kw">use </span>Type::<span class="kw-2">*</span>;
-<a href=#759 id=759 data-nosnippet>759</a>        <span class="kw">let </span>ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(literal, ..))) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents <span class="kw">else </span>{
-<a href=#760 id=760 data-nosnippet>760</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#761 id=761 data-nosnippet>761</a>        };
-<a href=#762 id=762 data-nosnippet>762</a>        <span class="kw">match </span>literal {
-<a href=#763 id=763 data-nosnippet>763</a>            SvmLiteralParam::U8(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U8)),
-<a href=#764 id=764 data-nosnippet>764</a>            SvmLiteralParam::U16(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U16)),
-<a href=#765 id=765 data-nosnippet>765</a>            SvmLiteralParam::U32(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U32)),
-<a href=#766 id=766 data-nosnippet>766</a>            SvmLiteralParam::U64(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U64)),
-<a href=#767 id=767 data-nosnippet>767</a>            SvmLiteralParam::U128(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U128)),
-<a href=#768 id=768 data-nosnippet>768</a>            SvmLiteralParam::I8(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I8)),
-<a href=#769 id=769 data-nosnippet>769</a>            SvmLiteralParam::I16(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I16)),
-<a href=#770 id=770 data-nosnippet>770</a>            SvmLiteralParam::I32(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I32)),
-<a href=#771 id=771 data-nosnippet>771</a>            SvmLiteralParam::I64(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I64)),
-<a href=#772 id=772 data-nosnippet>772</a>            SvmLiteralParam::I128(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I128)),
-<a href=#773 id=773 data-nosnippet>773</a>            SvmLiteralParam::Field(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Field),
-<a href=#774 id=774 data-nosnippet>774</a>            SvmLiteralParam::Group(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Group),
-<a href=#775 id=775 data-nosnippet>775</a>            SvmLiteralParam::Scalar(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Scalar),
-<a href=#776 id=776 data-nosnippet>776</a>            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
-<a href=#777 id=777 data-nosnippet>777</a>        }
-<a href=#778 id=778 data-nosnippet>778</a>    }
-<a href=#779 id=779 data-nosnippet>779</a>
-<a href=#780 id=780 data-nosnippet>780</a>    <span class="attr">#[allow(clippy::type_complexity)]
-<a href=#781 id=781 data-nosnippet>781</a>    </span><span class="kw">pub fn </span>to_expression(
-<a href=#782 id=782 data-nosnippet>782</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
-<a href=#783 id=783 data-nosnippet>783</a>        span: Span,
-<a href=#784 id=784 data-nosnippet>784</a>        node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
-<a href=#785 id=785 data-nosnippet>785</a>        ty: <span class="kw-2">&amp;</span>Type,
-<a href=#786 id=786 data-nosnippet>786</a>        struct_lookup: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>[Symbol]) -&gt; Vec&lt;(Symbol, Type)&gt;,
-<a href=#787 id=787 data-nosnippet>787</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
-<a href=#788 id=788 data-nosnippet>788</a>        <span class="kw">use crate</span>::{Literal, TupleExpression, UnitExpression};
-<a href=#789 id=789 data-nosnippet>789</a>
-<a href=#790 id=790 data-nosnippet>790</a>        <span class="kw">let </span>id = node_builder.next_id();
-<a href=#791 id=791 data-nosnippet>791</a>        <span class="kw">let </span>expression = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.contents {
-<a href=#792 id=792 data-nosnippet>792</a>            ValueVariants::Unit =&gt; UnitExpression { span, id }.into(),
-<a href=#793 id=793 data-nosnippet>793</a>            ValueVariants::Tuple(vec) =&gt; {
-<a href=#794 id=794 data-nosnippet>794</a>                <span class="kw">let </span>Type::Tuple(tuple_type) = ty <span class="kw">else </span>{
-<a href=#795 id=795 data-nosnippet>795</a>                    <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#796 id=796 data-nosnippet>796</a>                };
+<a href=#754 id=754 data-nosnippet>754</a>        Value { id, contents: ValueVariants::Svm(contents) }
+<a href=#755 id=755 data-nosnippet>755</a>    }
+<a href=#756 id=756 data-nosnippet>756</a>
+<a href=#757 id=757 data-nosnippet>757</a>    <span class="kw">pub fn </span>make_array(contents: <span class="kw">impl </span>Iterator&lt;Item = Value&gt;) -&gt; <span class="self">Self </span>{
+<a href=#758 id=758 data-nosnippet>758</a>        <span class="kw">let </span>vec = contents
+<a href=#759 id=759 data-nosnippet>759</a>            .map(|value| {
+<a href=#760 id=760 data-nosnippet>760</a>                <span class="kw">let </span>plaintext: SvmPlaintext =
+<a href=#761 id=761 data-nosnippet>761</a>                    value.try_into().expect(<span class="string">"Invalid array members shouldn't have been allowed."</span>);
+<a href=#762 id=762 data-nosnippet>762</a>                plaintext
+<a href=#763 id=763 data-nosnippet>763</a>            })
+<a href=#764 id=764 data-nosnippet>764</a>            .collect();
+<a href=#765 id=765 data-nosnippet>765</a>        SvmPlaintext::Array(vec, Default::default()).into()
+<a href=#766 id=766 data-nosnippet>766</a>    }
+<a href=#767 id=767 data-nosnippet>767</a>
+<a href=#768 id=768 data-nosnippet>768</a>    <span class="kw">pub fn </span>make_tuple(contents: <span class="kw">impl </span>IntoIterator&lt;Item = Value&gt;) -&gt; <span class="self">Self </span>{
+<a href=#769 id=769 data-nosnippet>769</a>        ValueVariants::Tuple(contents.into_iter().collect()).into()
+<a href=#770 id=770 data-nosnippet>770</a>    }
+<a href=#771 id=771 data-nosnippet>771</a>
+<a href=#772 id=772 data-nosnippet>772</a>    <span class="doccomment">/// Gets the type of a `Value` but only if it is an integer, a field, a group, or a scalar.
+<a href=#773 id=773 data-nosnippet>773</a>    /// Return `None` otherwise. These are the only types that an unsuffixed literal can have.
+<a href=#774 id=774 data-nosnippet>774</a>    </span><span class="kw">pub fn </span>get_numeric_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Type&gt; {
+<a href=#775 id=775 data-nosnippet>775</a>        <span class="kw">use </span>IntegerType::<span class="kw-2">*</span>;
+<a href=#776 id=776 data-nosnippet>776</a>        <span class="kw">use </span>Type::<span class="kw-2">*</span>;
+<a href=#777 id=777 data-nosnippet>777</a>        <span class="kw">let </span>ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(literal, ..))) = <span class="kw-2">&amp;</span><span class="self">self</span>.contents <span class="kw">else </span>{
+<a href=#778 id=778 data-nosnippet>778</a>            <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#779 id=779 data-nosnippet>779</a>        };
+<a href=#780 id=780 data-nosnippet>780</a>        <span class="kw">match </span>literal {
+<a href=#781 id=781 data-nosnippet>781</a>            SvmLiteralParam::U8(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U8)),
+<a href=#782 id=782 data-nosnippet>782</a>            SvmLiteralParam::U16(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U16)),
+<a href=#783 id=783 data-nosnippet>783</a>            SvmLiteralParam::U32(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U32)),
+<a href=#784 id=784 data-nosnippet>784</a>            SvmLiteralParam::U64(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U64)),
+<a href=#785 id=785 data-nosnippet>785</a>            SvmLiteralParam::U128(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(U128)),
+<a href=#786 id=786 data-nosnippet>786</a>            SvmLiteralParam::I8(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I8)),
+<a href=#787 id=787 data-nosnippet>787</a>            SvmLiteralParam::I16(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I16)),
+<a href=#788 id=788 data-nosnippet>788</a>            SvmLiteralParam::I32(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I32)),
+<a href=#789 id=789 data-nosnippet>789</a>            SvmLiteralParam::I64(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I64)),
+<a href=#790 id=790 data-nosnippet>790</a>            SvmLiteralParam::I128(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Integer(I128)),
+<a href=#791 id=791 data-nosnippet>791</a>            SvmLiteralParam::Field(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Field),
+<a href=#792 id=792 data-nosnippet>792</a>            SvmLiteralParam::Group(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Group),
+<a href=#793 id=793 data-nosnippet>793</a>            SvmLiteralParam::Scalar(<span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(Scalar),
+<a href=#794 id=794 data-nosnippet>794</a>            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+<a href=#795 id=795 data-nosnippet>795</a>        }
+<a href=#796 id=796 data-nosnippet>796</a>    }
 <a href=#797 id=797 data-nosnippet>797</a>
-<a href=#798 id=798 data-nosnippet>798</a>                <span class="kw">if </span>vec.len() != tuple_type.elements().len() {
-<a href=#799 id=799 data-nosnippet>799</a>                    <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#800 id=800 data-nosnippet>800</a>                }
-<a href=#801 id=801 data-nosnippet>801</a>
-<a href=#802 id=802 data-nosnippet>802</a>                TupleExpression {
-<a href=#803 id=803 data-nosnippet>803</a>                    span,
-<a href=#804 id=804 data-nosnippet>804</a>                    id,
-<a href=#805 id=805 data-nosnippet>805</a>                    elements: vec
-<a href=#806 id=806 data-nosnippet>806</a>                        .iter()
-<a href=#807 id=807 data-nosnippet>807</a>                        .zip(tuple_type.elements())
-<a href=#808 id=808 data-nosnippet>808</a>                        .map(|(val, ty)| val.to_expression(span, node_builder, ty, struct_lookup))
-<a href=#809 id=809 data-nosnippet>809</a>                        .collect::&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>,
-<a href=#810 id=810 data-nosnippet>810</a>                }
-<a href=#811 id=811 data-nosnippet>811</a>                .into()
-<a href=#812 id=812 data-nosnippet>812</a>            }
-<a href=#813 id=813 data-nosnippet>813</a>            ValueVariants::Unsuffixed(s) =&gt; Literal::unsuffixed(s.clone(), span, id).into(),
-<a href=#814 id=814 data-nosnippet>814</a>            ValueVariants::Svm(value) =&gt; <span class="kw">match </span>value {
-<a href=#815 id=815 data-nosnippet>815</a>                SvmValueParam::Plaintext(plaintext) =&gt; {
-<a href=#816 id=816 data-nosnippet>816</a>                    plaintext_to_expression(plaintext, span, node_builder, ty, <span class="kw-2">&amp;</span>struct_lookup)<span class="question-mark">?
-<a href=#817 id=817 data-nosnippet>817</a>                </span>}
-<a href=#818 id=818 data-nosnippet>818</a>                SvmValueParam::Record(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#819 id=819 data-nosnippet>819</a>                SvmValueParam::Future(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#820 id=820 data-nosnippet>820</a>            },
-<a href=#821 id=821 data-nosnippet>821</a>
-<a href=#822 id=822 data-nosnippet>822</a>            ValueVariants::Future(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#823 id=823 data-nosnippet>823</a>        };
-<a href=#824 id=824 data-nosnippet>824</a>
-<a href=#825 id=825 data-nosnippet>825</a>        <span class="prelude-val">Some</span>(expression)
-<a href=#826 id=826 data-nosnippet>826</a>    }
-<a href=#827 id=827 data-nosnippet>827</a>}
-<a href=#828 id=828 data-nosnippet>828</a>
-<a href=#829 id=829 data-nosnippet>829</a><span class="attr">#[allow(clippy::type_complexity)]
-<a href=#830 id=830 data-nosnippet>830</a></span><span class="kw">fn </span>plaintext_to_expression(
-<a href=#831 id=831 data-nosnippet>831</a>    plaintext: <span class="kw-2">&amp;</span>SvmPlaintext,
-<a href=#832 id=832 data-nosnippet>832</a>    span: Span,
-<a href=#833 id=833 data-nosnippet>833</a>    node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
-<a href=#834 id=834 data-nosnippet>834</a>    ty: <span class="kw-2">&amp;</span>Type,
-<a href=#835 id=835 data-nosnippet>835</a>    struct_lookup: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>[Symbol]) -&gt; Vec&lt;(Symbol, Type)&gt;,
-<a href=#836 id=836 data-nosnippet>836</a>) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
-<a href=#837 id=837 data-nosnippet>837</a>    <span class="kw">use crate</span>::{ArrayExpression, Identifier, IntegerType, Literal, StructExpression, StructVariableInitializer};
-<a href=#838 id=838 data-nosnippet>838</a>
-<a href=#839 id=839 data-nosnippet>839</a>    <span class="kw">let </span>id = node_builder.next_id();
-<a href=#840 id=840 data-nosnippet>840</a>
-<a href=#841 id=841 data-nosnippet>841</a>    <span class="kw">let </span>expression = <span class="kw">match </span>plaintext {
-<a href=#842 id=842 data-nosnippet>842</a>        Plaintext::Literal(literal, ..) =&gt; <span class="kw">match </span>literal {
-<a href=#843 id=843 data-nosnippet>843</a>            SvmLiteralParam::Address(address) =&gt; {
-<a href=#844 id=844 data-nosnippet>844</a>                Literal::address(address.to_string(), span, node_builder.next_id()).into()
-<a href=#845 id=845 data-nosnippet>845</a>            }
-<a href=#846 id=846 data-nosnippet>846</a>            SvmLiteralParam::Boolean(boolean) =&gt; Literal::boolean(<span class="kw-2">**</span>boolean, span, node_builder.next_id()).into(),
-<a href=#847 id=847 data-nosnippet>847</a>            SvmLiteralParam::Field(field) =&gt; {
-<a href=#848 id=848 data-nosnippet>848</a>                <span class="kw">let </span><span class="kw-2">mut </span>s = field.to_string();
-<a href=#849 id=849 data-nosnippet>849</a>                <span class="comment">// Strip off the `field` suffix.
-<a href=#850 id=850 data-nosnippet>850</a>                </span>s.truncate(s.len() - <span class="number">5</span>);
-<a href=#851 id=851 data-nosnippet>851</a>                Literal::field(s, span, id).into()
-<a href=#852 id=852 data-nosnippet>852</a>            }
-<a href=#853 id=853 data-nosnippet>853</a>            SvmLiteralParam::Group(group) =&gt; {
-<a href=#854 id=854 data-nosnippet>854</a>                <span class="kw">let </span><span class="kw-2">mut </span>s = group.to_string();
-<a href=#855 id=855 data-nosnippet>855</a>                <span class="comment">// Strip off the `group` suffix.
-<a href=#856 id=856 data-nosnippet>856</a>                </span>s.truncate(s.len() - <span class="number">5</span>);
-<a href=#857 id=857 data-nosnippet>857</a>                Literal::group(s, span, id).into()
-<a href=#858 id=858 data-nosnippet>858</a>            }
-<a href=#859 id=859 data-nosnippet>859</a>            SvmLiteralParam::Scalar(scalar) =&gt; {
-<a href=#860 id=860 data-nosnippet>860</a>                <span class="kw">let </span><span class="kw-2">mut </span>s = scalar.to_string();
-<a href=#861 id=861 data-nosnippet>861</a>                <span class="comment">// Strip off the `scalar` suffix.
-<a href=#862 id=862 data-nosnippet>862</a>                </span>s.truncate(s.len() - <span class="number">6</span>);
-<a href=#863 id=863 data-nosnippet>863</a>                Literal::scalar(s, span, id).into()
-<a href=#864 id=864 data-nosnippet>864</a>            }
-<a href=#865 id=865 data-nosnippet>865</a>            SvmLiteralParam::I8(int) =&gt; Literal::integer(IntegerType::I8, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#866 id=866 data-nosnippet>866</a>            SvmLiteralParam::I16(int) =&gt; Literal::integer(IntegerType::I16, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#867 id=867 data-nosnippet>867</a>            SvmLiteralParam::I32(int) =&gt; Literal::integer(IntegerType::I32, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#868 id=868 data-nosnippet>868</a>            SvmLiteralParam::I64(int) =&gt; Literal::integer(IntegerType::I64, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#869 id=869 data-nosnippet>869</a>            SvmLiteralParam::I128(int) =&gt; Literal::integer(IntegerType::I128, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#870 id=870 data-nosnippet>870</a>            SvmLiteralParam::U8(int) =&gt; Literal::integer(IntegerType::U8, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#871 id=871 data-nosnippet>871</a>            SvmLiteralParam::U16(int) =&gt; Literal::integer(IntegerType::U16, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#872 id=872 data-nosnippet>872</a>            SvmLiteralParam::U32(int) =&gt; Literal::integer(IntegerType::U32, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#873 id=873 data-nosnippet>873</a>            SvmLiteralParam::U64(int) =&gt; Literal::integer(IntegerType::U64, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#874 id=874 data-nosnippet>874</a>            SvmLiteralParam::U128(int) =&gt; Literal::integer(IntegerType::U128, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
-<a href=#875 id=875 data-nosnippet>875</a>            SvmLiteralParam::Signature(..) =&gt; <span class="macro">todo!</span>(),
-<a href=#876 id=876 data-nosnippet>876</a>            SvmLiteralParam::String(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-<a href=#877 id=877 data-nosnippet>877</a>        },
-<a href=#878 id=878 data-nosnippet>878</a>        Plaintext::Struct(index_map, ..) =&gt; {
-<a href=#879 id=879 data-nosnippet>879</a>            <span class="kw">let </span>Type::Composite(composite_type) = ty <span class="kw">else </span>{
-<a href=#880 id=880 data-nosnippet>880</a>                <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#881 id=881 data-nosnippet>881</a>            };
-<a href=#882 id=882 data-nosnippet>882</a>            <span class="kw">let </span>symbols = composite_type.path.as_symbols();
-<a href=#883 id=883 data-nosnippet>883</a>            <span class="kw">let </span>iter_members = struct_lookup(<span class="kw-2">&amp;</span>symbols);
-<a href=#884 id=884 data-nosnippet>884</a>            StructExpression {
-<a href=#885 id=885 data-nosnippet>885</a>                span,
-<a href=#886 id=886 data-nosnippet>886</a>                id,
-<a href=#887 id=887 data-nosnippet>887</a>                path: composite_type.path.clone(),
-<a href=#888 id=888 data-nosnippet>888</a>                <span class="comment">// If we were able to construct a Value, the const arguments must have already been resolved
-<a href=#889 id=889 data-nosnippet>889</a>                // and inserted appropriately.
-<a href=#890 id=890 data-nosnippet>890</a>                </span>const_arguments: Vec::new(),
-<a href=#891 id=891 data-nosnippet>891</a>                members: iter_members
-<a href=#892 id=892 data-nosnippet>892</a>                    .into_iter()
-<a href=#893 id=893 data-nosnippet>893</a>                    .map(|(sym, ty)| {
-<a href=#894 id=894 data-nosnippet>894</a>                        <span class="kw">let </span>svm_identifier: snarkvm::prelude::Identifier&lt;CurrentNetwork&gt; =
-<a href=#895 id=895 data-nosnippet>895</a>                            sym.to_string().parse().ok()<span class="question-mark">?</span>;
-<a href=#896 id=896 data-nosnippet>896</a>                        <span class="prelude-val">Some</span>(StructVariableInitializer {
-<a href=#897 id=897 data-nosnippet>897</a>                            span,
-<a href=#898 id=898 data-nosnippet>898</a>                            id: node_builder.next_id(),
-<a href=#899 id=899 data-nosnippet>899</a>                            identifier: Identifier::new(sym, node_builder.next_id()),
-<a href=#900 id=900 data-nosnippet>900</a>                            expression: <span class="prelude-val">Some</span>(plaintext_to_expression(
-<a href=#901 id=901 data-nosnippet>901</a>                                index_map.get(<span class="kw-2">&amp;</span>svm_identifier)<span class="question-mark">?</span>,
-<a href=#902 id=902 data-nosnippet>902</a>                                span,
-<a href=#903 id=903 data-nosnippet>903</a>                                node_builder,
-<a href=#904 id=904 data-nosnippet>904</a>                                <span class="kw-2">&amp;</span>ty,
-<a href=#905 id=905 data-nosnippet>905</a>                                <span class="kw-2">&amp;</span>struct_lookup,
-<a href=#906 id=906 data-nosnippet>906</a>                            )<span class="question-mark">?</span>),
-<a href=#907 id=907 data-nosnippet>907</a>                        })
-<a href=#908 id=908 data-nosnippet>908</a>                    })
-<a href=#909 id=909 data-nosnippet>909</a>                    .collect::&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>,
-<a href=#910 id=910 data-nosnippet>910</a>            }
-<a href=#911 id=911 data-nosnippet>911</a>            .into()
-<a href=#912 id=912 data-nosnippet>912</a>        }
-<a href=#913 id=913 data-nosnippet>913</a>        Plaintext::Array(vec, ..) =&gt; {
-<a href=#914 id=914 data-nosnippet>914</a>            <span class="kw">let </span>Type::Array(array_ty) = ty <span class="kw">else </span>{
-<a href=#915 id=915 data-nosnippet>915</a>                <span class="kw">return </span><span class="prelude-val">None</span>;
-<a href=#916 id=916 data-nosnippet>916</a>            };
-<a href=#917 id=917 data-nosnippet>917</a>            ArrayExpression {
-<a href=#918 id=918 data-nosnippet>918</a>                span,
-<a href=#919 id=919 data-nosnippet>919</a>                id,
-<a href=#920 id=920 data-nosnippet>920</a>                elements: vec
-<a href=#921 id=921 data-nosnippet>921</a>                    .iter()
-<a href=#922 id=922 data-nosnippet>922</a>                    .map(|pt| plaintext_to_expression(pt, span, node_builder, <span class="kw-2">&amp;</span>array_ty.element_type, <span class="kw-2">&amp;</span>struct_lookup))
-<a href=#923 id=923 data-nosnippet>923</a>                    .collect::&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>,
-<a href=#924 id=924 data-nosnippet>924</a>            }
-<a href=#925 id=925 data-nosnippet>925</a>            .into()
-<a href=#926 id=926 data-nosnippet>926</a>        }
-<a href=#927 id=927 data-nosnippet>927</a>    };
-<a href=#928 id=928 data-nosnippet>928</a>
-<a href=#929 id=929 data-nosnippet>929</a>    <span class="prelude-val">Some</span>(expression)
-<a href=#930 id=930 data-nosnippet>930</a>}
-<a href=#931 id=931 data-nosnippet>931</a>
-<a href=#932 id=932 data-nosnippet>932</a><span class="kw">impl </span>FromStr <span class="kw">for </span>Value {
-<a href=#933 id=933 data-nosnippet>933</a>    <span class="kw">type </span><span class="prelude-val">Err </span>= ();
-<a href=#934 id=934 data-nosnippet>934</a>
-<a href=#935 id=935 data-nosnippet>935</a>    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
-<a href=#936 id=936 data-nosnippet>936</a>        <span class="comment">// Either it's a unit.
-<a href=#937 id=937 data-nosnippet>937</a>        </span><span class="kw">if </span>s == <span class="string">"()" </span>{
-<a href=#938 id=938 data-nosnippet>938</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(Value::make_unit());
-<a href=#939 id=939 data-nosnippet>939</a>        }
-<a href=#940 id=940 data-nosnippet>940</a>
-<a href=#941 id=941 data-nosnippet>941</a>        <span class="comment">// Or it's a tuple.
-<a href=#942 id=942 data-nosnippet>942</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = s.strip_prefix(<span class="string">"("</span>) {
-<a href=#943 id=943 data-nosnippet>943</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = s.strip_suffix(<span class="string">")"</span>) {
-<a href=#944 id=944 data-nosnippet>944</a>                <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
-<a href=#945 id=945 data-nosnippet>945</a>                <span class="kw">for </span>item <span class="kw">in </span>s.split(<span class="string">','</span>) {
-<a href=#946 id=946 data-nosnippet>946</a>                    <span class="kw">let </span>item = item.trim();
-<a href=#947 id=947 data-nosnippet>947</a>                    <span class="kw">let </span>value: Value = item.parse().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
-<a href=#948 id=948 data-nosnippet>948</a>                    results.push(value);
-<a href=#949 id=949 data-nosnippet>949</a>                }
-<a href=#950 id=950 data-nosnippet>950</a>
-<a href=#951 id=951 data-nosnippet>951</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(Value::make_tuple(results));
-<a href=#952 id=952 data-nosnippet>952</a>            }
-<a href=#953 id=953 data-nosnippet>953</a>        }
-<a href=#954 id=954 data-nosnippet>954</a>
-<a href=#955 id=955 data-nosnippet>955</a>        <span class="comment">// Or it's an unsuffixed numeric literal.
-<a href=#956 id=956 data-nosnippet>956</a>        </span><span class="kw">if </span>s.chars().all(|c| c == <span class="string">'_' </span>|| c.is_ascii_digit()) {
-<a href=#957 id=957 data-nosnippet>957</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(ValueVariants::Unsuffixed(s.to_string()).into());
-<a href=#958 id=958 data-nosnippet>958</a>        }
-<a href=#959 id=959 data-nosnippet>959</a>
-<a href=#960 id=960 data-nosnippet>960</a>        <span class="comment">// Or it's a snarkvm value.
-<a href=#961 id=961 data-nosnippet>961</a>        </span><span class="kw">let </span>value: SvmValue = s.parse().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
-<a href=#962 id=962 data-nosnippet>962</a>        <span class="prelude-val">Ok</span>(value.into())
-<a href=#963 id=963 data-nosnippet>963</a>    }
-<a href=#964 id=964 data-nosnippet>964</a>}</code></pre></div></section></main></body></html>
+<a href=#798 id=798 data-nosnippet>798</a>    <span class="attr">#[allow(clippy::type_complexity)]
+<a href=#799 id=799 data-nosnippet>799</a>    </span><span class="kw">pub fn </span>to_expression(
+<a href=#800 id=800 data-nosnippet>800</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
+<a href=#801 id=801 data-nosnippet>801</a>        span: Span,
+<a href=#802 id=802 data-nosnippet>802</a>        node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
+<a href=#803 id=803 data-nosnippet>803</a>        ty: <span class="kw-2">&amp;</span>Type,
+<a href=#804 id=804 data-nosnippet>804</a>        struct_lookup: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>[Symbol]) -&gt; Vec&lt;(Symbol, Type)&gt;,
+<a href=#805 id=805 data-nosnippet>805</a>    ) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
+<a href=#806 id=806 data-nosnippet>806</a>        <span class="kw">use crate</span>::{Literal, TupleExpression, UnitExpression};
+<a href=#807 id=807 data-nosnippet>807</a>
+<a href=#808 id=808 data-nosnippet>808</a>        <span class="kw">let </span>id = node_builder.next_id();
+<a href=#809 id=809 data-nosnippet>809</a>        <span class="kw">let </span>expression = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.contents {
+<a href=#810 id=810 data-nosnippet>810</a>            ValueVariants::Unit =&gt; UnitExpression { span, id }.into(),
+<a href=#811 id=811 data-nosnippet>811</a>            ValueVariants::Tuple(vec) =&gt; {
+<a href=#812 id=812 data-nosnippet>812</a>                <span class="kw">let </span>Type::Tuple(tuple_type) = ty <span class="kw">else </span>{
+<a href=#813 id=813 data-nosnippet>813</a>                    <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#814 id=814 data-nosnippet>814</a>                };
+<a href=#815 id=815 data-nosnippet>815</a>
+<a href=#816 id=816 data-nosnippet>816</a>                <span class="kw">if </span>vec.len() != tuple_type.elements().len() {
+<a href=#817 id=817 data-nosnippet>817</a>                    <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#818 id=818 data-nosnippet>818</a>                }
+<a href=#819 id=819 data-nosnippet>819</a>
+<a href=#820 id=820 data-nosnippet>820</a>                TupleExpression {
+<a href=#821 id=821 data-nosnippet>821</a>                    span,
+<a href=#822 id=822 data-nosnippet>822</a>                    id,
+<a href=#823 id=823 data-nosnippet>823</a>                    elements: vec
+<a href=#824 id=824 data-nosnippet>824</a>                        .iter()
+<a href=#825 id=825 data-nosnippet>825</a>                        .zip(tuple_type.elements())
+<a href=#826 id=826 data-nosnippet>826</a>                        .map(|(val, ty)| val.to_expression(span, node_builder, ty, struct_lookup))
+<a href=#827 id=827 data-nosnippet>827</a>                        .collect::&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>,
+<a href=#828 id=828 data-nosnippet>828</a>                }
+<a href=#829 id=829 data-nosnippet>829</a>                .into()
+<a href=#830 id=830 data-nosnippet>830</a>            }
+<a href=#831 id=831 data-nosnippet>831</a>            ValueVariants::Unsuffixed(s) =&gt; Literal::unsuffixed(s.clone(), span, id).into(),
+<a href=#832 id=832 data-nosnippet>832</a>            ValueVariants::Svm(value) =&gt; <span class="kw">match </span>value {
+<a href=#833 id=833 data-nosnippet>833</a>                SvmValueParam::Plaintext(plaintext) =&gt; {
+<a href=#834 id=834 data-nosnippet>834</a>                    plaintext_to_expression(plaintext, span, node_builder, ty, <span class="kw-2">&amp;</span>struct_lookup)<span class="question-mark">?
+<a href=#835 id=835 data-nosnippet>835</a>                </span>}
+<a href=#836 id=836 data-nosnippet>836</a>                SvmValueParam::Record(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+<a href=#837 id=837 data-nosnippet>837</a>                SvmValueParam::Future(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+<a href=#838 id=838 data-nosnippet>838</a>            },
+<a href=#839 id=839 data-nosnippet>839</a>
+<a href=#840 id=840 data-nosnippet>840</a>            ValueVariants::Future(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+<a href=#841 id=841 data-nosnippet>841</a>        };
+<a href=#842 id=842 data-nosnippet>842</a>
+<a href=#843 id=843 data-nosnippet>843</a>        <span class="prelude-val">Some</span>(expression)
+<a href=#844 id=844 data-nosnippet>844</a>    }
+<a href=#845 id=845 data-nosnippet>845</a>}
+<a href=#846 id=846 data-nosnippet>846</a>
+<a href=#847 id=847 data-nosnippet>847</a><span class="attr">#[allow(clippy::type_complexity)]
+<a href=#848 id=848 data-nosnippet>848</a></span><span class="kw">fn </span>plaintext_to_expression(
+<a href=#849 id=849 data-nosnippet>849</a>    plaintext: <span class="kw-2">&amp;</span>SvmPlaintext,
+<a href=#850 id=850 data-nosnippet>850</a>    span: Span,
+<a href=#851 id=851 data-nosnippet>851</a>    node_builder: <span class="kw-2">&amp;</span>NodeBuilder,
+<a href=#852 id=852 data-nosnippet>852</a>    ty: <span class="kw-2">&amp;</span>Type,
+<a href=#853 id=853 data-nosnippet>853</a>    struct_lookup: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>[Symbol]) -&gt; Vec&lt;(Symbol, Type)&gt;,
+<a href=#854 id=854 data-nosnippet>854</a>) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
+<a href=#855 id=855 data-nosnippet>855</a>    <span class="kw">use crate</span>::{ArrayExpression, Identifier, IntegerType, Literal, StructExpression, StructVariableInitializer};
+<a href=#856 id=856 data-nosnippet>856</a>
+<a href=#857 id=857 data-nosnippet>857</a>    <span class="kw">let </span>id = node_builder.next_id();
+<a href=#858 id=858 data-nosnippet>858</a>
+<a href=#859 id=859 data-nosnippet>859</a>    <span class="kw">let </span>expression = <span class="kw">match </span>plaintext {
+<a href=#860 id=860 data-nosnippet>860</a>        Plaintext::Literal(literal, ..) =&gt; <span class="kw">match </span>literal {
+<a href=#861 id=861 data-nosnippet>861</a>            SvmLiteralParam::Address(address) =&gt; {
+<a href=#862 id=862 data-nosnippet>862</a>                Literal::address(address.to_string(), span, node_builder.next_id()).into()
+<a href=#863 id=863 data-nosnippet>863</a>            }
+<a href=#864 id=864 data-nosnippet>864</a>            SvmLiteralParam::Boolean(boolean) =&gt; Literal::boolean(<span class="kw-2">**</span>boolean, span, node_builder.next_id()).into(),
+<a href=#865 id=865 data-nosnippet>865</a>            SvmLiteralParam::Field(field) =&gt; {
+<a href=#866 id=866 data-nosnippet>866</a>                <span class="kw">let </span><span class="kw-2">mut </span>s = field.to_string();
+<a href=#867 id=867 data-nosnippet>867</a>                <span class="comment">// Strip off the `field` suffix.
+<a href=#868 id=868 data-nosnippet>868</a>                </span>s.truncate(s.len() - <span class="number">5</span>);
+<a href=#869 id=869 data-nosnippet>869</a>                Literal::field(s, span, id).into()
+<a href=#870 id=870 data-nosnippet>870</a>            }
+<a href=#871 id=871 data-nosnippet>871</a>            SvmLiteralParam::Group(group) =&gt; {
+<a href=#872 id=872 data-nosnippet>872</a>                <span class="kw">let </span><span class="kw-2">mut </span>s = group.to_string();
+<a href=#873 id=873 data-nosnippet>873</a>                <span class="comment">// Strip off the `group` suffix.
+<a href=#874 id=874 data-nosnippet>874</a>                </span>s.truncate(s.len() - <span class="number">5</span>);
+<a href=#875 id=875 data-nosnippet>875</a>                Literal::group(s, span, id).into()
+<a href=#876 id=876 data-nosnippet>876</a>            }
+<a href=#877 id=877 data-nosnippet>877</a>            SvmLiteralParam::Scalar(scalar) =&gt; {
+<a href=#878 id=878 data-nosnippet>878</a>                <span class="kw">let </span><span class="kw-2">mut </span>s = scalar.to_string();
+<a href=#879 id=879 data-nosnippet>879</a>                <span class="comment">// Strip off the `scalar` suffix.
+<a href=#880 id=880 data-nosnippet>880</a>                </span>s.truncate(s.len() - <span class="number">6</span>);
+<a href=#881 id=881 data-nosnippet>881</a>                Literal::scalar(s, span, id).into()
+<a href=#882 id=882 data-nosnippet>882</a>            }
+<a href=#883 id=883 data-nosnippet>883</a>            SvmLiteralParam::I8(int) =&gt; Literal::integer(IntegerType::I8, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#884 id=884 data-nosnippet>884</a>            SvmLiteralParam::I16(int) =&gt; Literal::integer(IntegerType::I16, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#885 id=885 data-nosnippet>885</a>            SvmLiteralParam::I32(int) =&gt; Literal::integer(IntegerType::I32, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#886 id=886 data-nosnippet>886</a>            SvmLiteralParam::I64(int) =&gt; Literal::integer(IntegerType::I64, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#887 id=887 data-nosnippet>887</a>            SvmLiteralParam::I128(int) =&gt; Literal::integer(IntegerType::I128, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#888 id=888 data-nosnippet>888</a>            SvmLiteralParam::U8(int) =&gt; Literal::integer(IntegerType::U8, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#889 id=889 data-nosnippet>889</a>            SvmLiteralParam::U16(int) =&gt; Literal::integer(IntegerType::U16, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#890 id=890 data-nosnippet>890</a>            SvmLiteralParam::U32(int) =&gt; Literal::integer(IntegerType::U32, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#891 id=891 data-nosnippet>891</a>            SvmLiteralParam::U64(int) =&gt; Literal::integer(IntegerType::U64, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#892 id=892 data-nosnippet>892</a>            SvmLiteralParam::U128(int) =&gt; Literal::integer(IntegerType::U128, (<span class="kw-2">**</span>int).to_string(), span, id).into(),
+<a href=#893 id=893 data-nosnippet>893</a>            SvmLiteralParam::Signature(..) =&gt; <span class="macro">todo!</span>(),
+<a href=#894 id=894 data-nosnippet>894</a>            SvmLiteralParam::String(..) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+<a href=#895 id=895 data-nosnippet>895</a>        },
+<a href=#896 id=896 data-nosnippet>896</a>        Plaintext::Struct(index_map, ..) =&gt; {
+<a href=#897 id=897 data-nosnippet>897</a>            <span class="kw">let </span>Type::Composite(composite_type) = ty <span class="kw">else </span>{
+<a href=#898 id=898 data-nosnippet>898</a>                <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#899 id=899 data-nosnippet>899</a>            };
+<a href=#900 id=900 data-nosnippet>900</a>            <span class="kw">let </span>symbols = composite_type.path.as_symbols();
+<a href=#901 id=901 data-nosnippet>901</a>            <span class="kw">let </span>iter_members = struct_lookup(<span class="kw-2">&amp;</span>symbols);
+<a href=#902 id=902 data-nosnippet>902</a>            StructExpression {
+<a href=#903 id=903 data-nosnippet>903</a>                span,
+<a href=#904 id=904 data-nosnippet>904</a>                id,
+<a href=#905 id=905 data-nosnippet>905</a>                path: composite_type.path.clone(),
+<a href=#906 id=906 data-nosnippet>906</a>                <span class="comment">// If we were able to construct a Value, the const arguments must have already been resolved
+<a href=#907 id=907 data-nosnippet>907</a>                // and inserted appropriately.
+<a href=#908 id=908 data-nosnippet>908</a>                </span>const_arguments: Vec::new(),
+<a href=#909 id=909 data-nosnippet>909</a>                members: iter_members
+<a href=#910 id=910 data-nosnippet>910</a>                    .into_iter()
+<a href=#911 id=911 data-nosnippet>911</a>                    .map(|(sym, ty)| {
+<a href=#912 id=912 data-nosnippet>912</a>                        <span class="kw">let </span>svm_identifier: snarkvm::prelude::Identifier&lt;CurrentNetwork&gt; =
+<a href=#913 id=913 data-nosnippet>913</a>                            sym.to_string().parse().ok()<span class="question-mark">?</span>;
+<a href=#914 id=914 data-nosnippet>914</a>                        <span class="prelude-val">Some</span>(StructVariableInitializer {
+<a href=#915 id=915 data-nosnippet>915</a>                            span,
+<a href=#916 id=916 data-nosnippet>916</a>                            id: node_builder.next_id(),
+<a href=#917 id=917 data-nosnippet>917</a>                            identifier: Identifier::new(sym, node_builder.next_id()),
+<a href=#918 id=918 data-nosnippet>918</a>                            expression: <span class="prelude-val">Some</span>(plaintext_to_expression(
+<a href=#919 id=919 data-nosnippet>919</a>                                index_map.get(<span class="kw-2">&amp;</span>svm_identifier)<span class="question-mark">?</span>,
+<a href=#920 id=920 data-nosnippet>920</a>                                span,
+<a href=#921 id=921 data-nosnippet>921</a>                                node_builder,
+<a href=#922 id=922 data-nosnippet>922</a>                                <span class="kw-2">&amp;</span>ty,
+<a href=#923 id=923 data-nosnippet>923</a>                                <span class="kw-2">&amp;</span>struct_lookup,
+<a href=#924 id=924 data-nosnippet>924</a>                            )<span class="question-mark">?</span>),
+<a href=#925 id=925 data-nosnippet>925</a>                        })
+<a href=#926 id=926 data-nosnippet>926</a>                    })
+<a href=#927 id=927 data-nosnippet>927</a>                    .collect::&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>,
+<a href=#928 id=928 data-nosnippet>928</a>            }
+<a href=#929 id=929 data-nosnippet>929</a>            .into()
+<a href=#930 id=930 data-nosnippet>930</a>        }
+<a href=#931 id=931 data-nosnippet>931</a>        Plaintext::Array(vec, ..) =&gt; {
+<a href=#932 id=932 data-nosnippet>932</a>            <span class="kw">let </span>Type::Array(array_ty) = ty <span class="kw">else </span>{
+<a href=#933 id=933 data-nosnippet>933</a>                <span class="kw">return </span><span class="prelude-val">None</span>;
+<a href=#934 id=934 data-nosnippet>934</a>            };
+<a href=#935 id=935 data-nosnippet>935</a>            ArrayExpression {
+<a href=#936 id=936 data-nosnippet>936</a>                span,
+<a href=#937 id=937 data-nosnippet>937</a>                id,
+<a href=#938 id=938 data-nosnippet>938</a>                elements: vec
+<a href=#939 id=939 data-nosnippet>939</a>                    .iter()
+<a href=#940 id=940 data-nosnippet>940</a>                    .map(|pt| plaintext_to_expression(pt, span, node_builder, <span class="kw-2">&amp;</span>array_ty.element_type, <span class="kw-2">&amp;</span>struct_lookup))
+<a href=#941 id=941 data-nosnippet>941</a>                    .collect::&lt;<span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>,
+<a href=#942 id=942 data-nosnippet>942</a>            }
+<a href=#943 id=943 data-nosnippet>943</a>            .into()
+<a href=#944 id=944 data-nosnippet>944</a>        }
+<a href=#945 id=945 data-nosnippet>945</a>    };
+<a href=#946 id=946 data-nosnippet>946</a>
+<a href=#947 id=947 data-nosnippet>947</a>    <span class="prelude-val">Some</span>(expression)
+<a href=#948 id=948 data-nosnippet>948</a>}
+<a href=#949 id=949 data-nosnippet>949</a>
+<a href=#950 id=950 data-nosnippet>950</a><span class="kw">impl </span>FromStr <span class="kw">for </span>Value {
+<a href=#951 id=951 data-nosnippet>951</a>    <span class="kw">type </span><span class="prelude-val">Err </span>= ();
+<a href=#952 id=952 data-nosnippet>952</a>
+<a href=#953 id=953 data-nosnippet>953</a>    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+<a href=#954 id=954 data-nosnippet>954</a>        <span class="comment">// Either it's a unit.
+<a href=#955 id=955 data-nosnippet>955</a>        </span><span class="kw">if </span>s == <span class="string">"()" </span>{
+<a href=#956 id=956 data-nosnippet>956</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(Value::make_unit());
+<a href=#957 id=957 data-nosnippet>957</a>        }
+<a href=#958 id=958 data-nosnippet>958</a>
+<a href=#959 id=959 data-nosnippet>959</a>        <span class="comment">// Or it's a tuple.
+<a href=#960 id=960 data-nosnippet>960</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = s.strip_prefix(<span class="string">"("</span>) {
+<a href=#961 id=961 data-nosnippet>961</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = s.strip_suffix(<span class="string">")"</span>) {
+<a href=#962 id=962 data-nosnippet>962</a>                <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+<a href=#963 id=963 data-nosnippet>963</a>                <span class="kw">for </span>item <span class="kw">in </span>s.split(<span class="string">','</span>) {
+<a href=#964 id=964 data-nosnippet>964</a>                    <span class="kw">let </span>item = item.trim();
+<a href=#965 id=965 data-nosnippet>965</a>                    <span class="kw">let </span>value: Value = item.parse().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
+<a href=#966 id=966 data-nosnippet>966</a>                    results.push(value);
+<a href=#967 id=967 data-nosnippet>967</a>                }
+<a href=#968 id=968 data-nosnippet>968</a>
+<a href=#969 id=969 data-nosnippet>969</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(Value::make_tuple(results));
+<a href=#970 id=970 data-nosnippet>970</a>            }
+<a href=#971 id=971 data-nosnippet>971</a>        }
+<a href=#972 id=972 data-nosnippet>972</a>
+<a href=#973 id=973 data-nosnippet>973</a>        <span class="comment">// Or it's an unsuffixed numeric literal.
+<a href=#974 id=974 data-nosnippet>974</a>        </span><span class="kw">if </span>s.chars().all(|c| c == <span class="string">'_' </span>|| c.is_ascii_digit()) {
+<a href=#975 id=975 data-nosnippet>975</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(ValueVariants::Unsuffixed(s.to_string()).into());
+<a href=#976 id=976 data-nosnippet>976</a>        }
+<a href=#977 id=977 data-nosnippet>977</a>
+<a href=#978 id=978 data-nosnippet>978</a>        <span class="comment">// Or it's a snarkvm value.
+<a href=#979 id=979 data-nosnippet>979</a>        </span><span class="kw">let </span>value: SvmValue = s.parse().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
+<a href=#980 id=980 data-nosnippet>980</a>        <span class="prelude-val">Ok</span>(value.into())
+<a href=#981 id=981 data-nosnippet>981</a>    }
+<a href=#982 id=982 data-nosnippet>982</a>}</code></pre></div></section></main></body></html>

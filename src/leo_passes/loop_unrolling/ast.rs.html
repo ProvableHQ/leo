@@ -14,7 +14,7 @@
 <a href=#14 id=14 data-nosnippet>14</a>// You should have received a copy of the GNU General Public License
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span>leo_ast::{Expression::Literal, <span class="kw-2">*</span>};
+<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span>leo_ast::{Expression::Literal, interpreter_value::literal_to_value, <span class="kw-2">*</span>};
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_errors::LoopUnrollerError;
 <a href=#20 id=20 data-nosnippet>20</a>
@@ -92,31 +92,19 @@
 <a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">let </span>resolved_stop_lit = resolve_unsuffixed(stop_lit_ref, input.stop.id());
 <a href=#93 id=93 data-nosnippet>93</a>
 <a href=#94 id=94 data-nosnippet>94</a>        <span class="comment">// Convert resolved literals into constant values
-<a href=#95 id=95 data-nosnippet>95</a>        </span><span class="kw">let </span>start_value = Value::try_from(<span class="kw-2">&amp;</span>resolved_start_lit).unwrap();
-<a href=#96 id=96 data-nosnippet>96</a>        <span class="kw">let </span>stop_value = Value::try_from(<span class="kw-2">&amp;</span>resolved_stop_lit).unwrap();
-<a href=#97 id=97 data-nosnippet>97</a>
-<a href=#98 id=98 data-nosnippet>98</a>        <span class="comment">// Ensure loop bounds are strictly increasing
-<a href=#99 id=99 data-nosnippet>99</a>        </span><span class="kw">let </span>bounds_invalid = <span class="kw">match </span>(<span class="kw-2">&amp;</span>start_value, <span class="kw-2">&amp;</span>stop_value) {
-<a href=#100 id=100 data-nosnippet>100</a>            (Value::I8(a, <span class="kw">_</span>), Value::I8(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#101 id=101 data-nosnippet>101</a>            (Value::I16(a, <span class="kw">_</span>), Value::I16(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#102 id=102 data-nosnippet>102</a>            (Value::I32(a, <span class="kw">_</span>), Value::I32(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#103 id=103 data-nosnippet>103</a>            (Value::I64(a, <span class="kw">_</span>), Value::I64(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#104 id=104 data-nosnippet>104</a>            (Value::I128(a, <span class="kw">_</span>), Value::I128(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#105 id=105 data-nosnippet>105</a>            (Value::U8(a, <span class="kw">_</span>), Value::U8(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#106 id=106 data-nosnippet>106</a>            (Value::U16(a, <span class="kw">_</span>), Value::U16(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#107 id=107 data-nosnippet>107</a>            (Value::U32(a, <span class="kw">_</span>), Value::U32(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#108 id=108 data-nosnippet>108</a>            (Value::U64(a, <span class="kw">_</span>), Value::U64(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#109 id=109 data-nosnippet>109</a>            (Value::U128(a, <span class="kw">_</span>), Value::U128(b, <span class="kw">_</span>)) =&gt; a &gt;= b,
-<a href=#110 id=110 data-nosnippet>110</a>            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Type checking guarantees that loop bounds are integers of the same type."</span>),
-<a href=#111 id=111 data-nosnippet>111</a>        };
-<a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a>        <span class="kw">if </span>bounds_invalid {
-<a href=#114 id=114 data-nosnippet>114</a>            <span class="self">self</span>.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
-<a href=#115 id=115 data-nosnippet>115</a>        }
-<a href=#116 id=116 data-nosnippet>116</a>
-<a href=#117 id=117 data-nosnippet>117</a>        <span class="self">self</span>.loop_unrolled = <span class="bool-val">true</span>;
-<a href=#118 id=118 data-nosnippet>118</a>
-<a href=#119 id=119 data-nosnippet>119</a>        <span class="comment">// Perform loop unrolling using i128 — all numeric bounds are converted to this internally
-<a href=#120 id=120 data-nosnippet>120</a>        </span>(<span class="self">self</span>.unroll_iteration_statement::&lt;i128&gt;(input, start_value, stop_value), Default::default())
-<a href=#121 id=121 data-nosnippet>121</a>    }
-<a href=#122 id=122 data-nosnippet>122</a>}</code></pre></div></section></main></body></html>
+<a href=#95 id=95 data-nosnippet>95</a>        </span><span class="kw">let </span>start_value =
+<a href=#96 id=96 data-nosnippet>96</a>            literal_to_value(<span class="kw-2">&amp;</span>resolved_start_lit, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>).expect(<span class="string">"Parsing and type checking guarantee this works."</span>);
+<a href=#97 id=97 data-nosnippet>97</a>        <span class="kw">let </span>stop_value =
+<a href=#98 id=98 data-nosnippet>98</a>            literal_to_value(<span class="kw-2">&amp;</span>resolved_stop_lit, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>).expect(<span class="string">"Parsing and type checking guarantee this works."</span>);
+<a href=#99 id=99 data-nosnippet>99</a>
+<a href=#100 id=100 data-nosnippet>100</a>        <span class="comment">// Ensure loop bounds are strictly increasing
+<a href=#101 id=101 data-nosnippet>101</a>        </span><span class="kw">if </span>start_value.gte(<span class="kw-2">&amp;</span>stop_value).expect(<span class="string">"Type checking guarantees these are the same type"</span>) {
+<a href=#102 id=102 data-nosnippet>102</a>            <span class="self">self</span>.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
+<a href=#103 id=103 data-nosnippet>103</a>        }
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a>        <span class="self">self</span>.loop_unrolled = <span class="bool-val">true</span>;
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>        <span class="comment">// Actually unroll.
+<a href=#108 id=108 data-nosnippet>108</a>        </span>(<span class="self">self</span>.unroll_iteration_statement(input, start_value, stop_value), Default::default())
+<a href=#109 id=109 data-nosnippet>109</a>    }
+<a href=#110 id=110 data-nosnippet>110</a>}</code></pre></div></section></main></body></html>
