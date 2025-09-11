@@ -65,15 +65,15 @@ pub enum InterpreterAction {
 }
 
 impl Interpreter {
-    pub fn new<'a, P: 'a + AsRef<std::path::Path>, Q: 'a + AsRef<std::path::Path>>(
-        leo_source_files: impl IntoIterator<Item = &'a P>,
+    pub fn new<'a, Q: 'a + AsRef<std::path::Path> + ?Sized>(
+        leo_source_files: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
-        signer: SvmAddress,
+        signer: Value,
         block_height: u32,
         network: NetworkName,
     ) -> Result<Self> {
         Self::new_impl(
-            &mut leo_source_files.into_iter().map(|p| p.as_ref()),
+            leo_source_files,
             &mut aleo_source_files.into_iter().map(|p| p.as_ref()),
             signer,
             block_height,
@@ -119,65 +119,10 @@ impl Interpreter {
         leo_parser::parse_ast(handler.clone(), node_builder, &source_file, &modules, network)
     }
 
-    /// Partitions `.leo` source files into `(main_file, module_files)` pairs based on directory structure.
-    ///
-    /// This function takes an iterator over `.leo` file paths and:
-    /// - Identifies files named `main.leo`, treating them as the root of a compilation unit.
-    /// - For each `main.leo`, finds all other `.leo` files in the same directory or subdirectories,
-    ///   treating them as module files for that main file.
-    /// - Returns a list of pairs: the `main.leo` path and a vector of its corresponding module paths.
-    ///
-    /// # Arguments
-    /// - `leo_source_files`: An iterator over paths to `.leo` files (e.g. from walking a project directory).
-    ///
-    /// # Returns
-    /// - A `Vec<(PathBuf, Vec<PathBuf>)>` where:
-    ///   - The first element is the path to `main.leo`.
-    ///   - The second is a list of module file paths relative to that `main.leo`.
-    ///
-    /// # Example
-    /// Given:
-    /// ```text
-    /// src/
-    /// ├── main.leo
-    /// ├── foo.leo
-    /// └── utils/bar.leo
-    /// ```
-    /// This function would return: `[("src/main.leo", ["src/foo.leo", "src/utils/bar.leo"])]`
-    fn partition_leo_files(
-        leo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
-    ) -> Vec<(PathBuf, Vec<PathBuf>)> {
-        let mut main_files = HashMap::new();
-        let mut all_files = Vec::new();
-
-        // Collect all files, identify directories containing main.leo
-        for path in leo_source_files {
-            if let Some("main.leo") = path.file_name().and_then(|s| s.to_str()) {
-                if let Some(parent) = path.parent() {
-                    main_files.insert(parent.to_path_buf(), path.to_path_buf());
-                }
-            }
-            all_files.push(path.to_path_buf());
-        }
-
-        // For each main.leo, gather all descendant files as modules (excluding itself)
-        main_files
-            .into_iter()
-            .map(|(main_dir, main_file)| {
-                let modules = all_files
-                    .iter()
-                    .filter(|p| *p != &main_file && p.starts_with(&main_dir))
-                    .cloned()
-                    .collect::<Vec<_>>();
-                (main_file, modules)
-            })
-            .collect()
-    }
-
     fn new_impl(
-        leo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
+        leo_source_files: &[(PathBuf, Vec<PathBuf>)],
         aleo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
-        signer: SvmAddress,
+        signer: Value,
         block_height: u32,
         network: NetworkName,
     ) -> Result<Self> {
@@ -190,10 +135,8 @@ impl Interpreter {
         );
         let mut filename_to_program = HashMap::new();
 
-        let partitioned = Self::partition_leo_files(leo_source_files);
-
-        for (path, modules) in partitioned {
-            let ast = Self::get_ast(&path, &modules, &handler, &node_builder, network)?;
+        for (path, modules) in leo_source_files {
+            let ast = Self::get_ast(path, modules, &handler, &node_builder, network)?;
             for (&program, scope) in ast.ast.program_scopes.iter() {
                 filename_to_program.insert(path.to_path_buf(), program.to_string());
                 for (name, function) in scope.functions.iter() {
@@ -395,29 +338,27 @@ impl Interpreter {
         let ret = match &act {
             RunFuture(n) => {
                 let future = self.cursor.futures.remove(*n);
-                for async_exec in future.0.into_iter().rev() {
-                    match async_exec {
-                        AsyncExecution::AsyncFunctionCall { function, arguments } => {
-                            self.cursor.values.extend(arguments);
-                            self.cursor.frames.push(Frame {
-                                step: 0,
-                                element: Element::DelayedCall(function),
-                                user_initiated: true,
-                            });
-                        }
-                        AsyncExecution::AsyncBlock { containing_function, block, names, .. } => {
-                            self.cursor.frames.push(Frame {
-                                step: 0,
-                                element: Element::DelayedAsyncBlock {
-                                    program: containing_function.program,
-                                    block,
-                                    // Keep track of all the known variables up to this point.
-                                    // These are available to use inside the block when we actually execute it.
-                                    names: names.clone().into_iter().collect(),
-                                },
-                                user_initiated: false,
-                            });
-                        }
+                match future {
+                    AsyncExecution::AsyncFunctionCall { function, arguments } => {
+                        self.cursor.values.extend(arguments);
+                        self.cursor.frames.push(Frame {
+                            step: 0,
+                            element: Element::DelayedCall(function),
+                            user_initiated: true,
+                        });
+                    }
+                    AsyncExecution::AsyncBlock { containing_function, block, names, .. } => {
+                        self.cursor.frames.push(Frame {
+                            step: 0,
+                            element: Element::DelayedAsyncBlock {
+                                program: containing_function.program,
+                                block,
+                                // Keep track of all the known variables up to this point.
+                                // These are available to use inside the block when we actually execute it.
+                                names: names.clone().into_iter().collect(),
+                            },
+                            user_initiated: false,
+                        });
                     }
                 }
                 self.cursor.step()?

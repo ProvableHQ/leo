@@ -15,13 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    interpreter_value::{self, StructContents, Value},
+    interpreter_value::{self, Value},
     *,
 };
 use leo_errors::StaticAnalyzerError;
 use leo_span::{Symbol, sym};
 
-use super::{ConstPropagationVisitor, value_to_expression};
+use super::ConstPropagationVisitor;
 
 const VALUE_ERROR: &str = "A non-future value should always be able to be converted into an expression";
 
@@ -48,6 +48,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     /* Expressions */
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+        let opt_old_type = self.state.type_table.get(&input.id());
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
@@ -71,6 +72,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Unit(unit) => self.reconstruct_unit(unit),
         };
 
+        // If the expression was in the type table before, make an entry for the new expression.
+        if let Some(old_type) = opt_old_type {
+            self.state.type_table.insert(new_expr.id(), old_type);
+        }
+
         (new_expr, opt_value)
     }
 
@@ -91,10 +97,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
 
         if values.len() == input.members.len() && input.const_arguments.is_empty() {
-            let value = Value::Struct(StructContents {
-                path: input.path.absolute_path().to_vec(),
-                contents: input.members.iter().map(|mem| mem.identifier.name).zip(values).collect(),
-            });
+            let value = Value::make_struct(
+                input.members.iter().map(|mem| mem.identifier.name).zip(values),
+                self.program,
+                input.path.absolute_path().to_vec(),
+            );
             (input.into(), Some(value))
         } else {
             (input.into(), None)
@@ -104,9 +111,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
         let (cond, cond_value) = self.reconstruct_expression(input.condition);
 
-        match cond_value {
-            Some(Value::Bool(true)) => self.reconstruct_expression(input.if_true),
-            Some(Value::Bool(false)) => self.reconstruct_expression(input.if_false),
+        match cond_value.and_then(|v| v.try_into().ok()) {
+            Some(true) => self.reconstruct_expression(input.if_true),
+            Some(false) => self.reconstruct_expression(input.if_false),
             _ => (
                 TernaryExpression {
                     condition: cond,
@@ -122,10 +129,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let id = input.id();
         let array_id = input.array.id();
-        let (array, value_opt) = self.reconstruct_expression(input.array.clone());
-        let (index, opt_value) = self.reconstruct_expression(input.index.clone());
-        if let Some(value) = opt_value {
+        let (array, array_opt) = self.reconstruct_expression(input.array);
+        let (index, index_opt) = self.reconstruct_expression(input.index);
+        if let Some(index_value) = index_opt {
             // We can perform compile time bounds checking.
 
             let ty = self.state.type_table.get(&array_id);
@@ -135,46 +143,28 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             let len = array_ty.length.as_u32();
 
             if let Some(len) = len {
-                let index: u32 = match value {
-                    Value::U8(x) => x as u32,
-                    Value::U16(x) => x as u32,
-                    Value::U32(x) => x,
-                    Value::U64(x) => x.try_into().unwrap_or(len),
-                    Value::U128(x) => x.try_into().unwrap_or(len),
-                    Value::I8(x) => x.try_into().unwrap_or(len),
-                    Value::I16(x) => x.try_into().unwrap_or(len),
-                    Value::I32(x) => x.try_into().unwrap_or(len),
-                    Value::I64(x) => x.try_into().unwrap_or(len),
-                    Value::I128(x) => x.try_into().unwrap_or(len),
-                    _ => panic!("Type checking guarantees this is an integer"),
-                };
+                let index_in_bounds = matches!(index_value.as_u32(), Some(index) if index < len);
 
-                if index >= len {
+                if !index_in_bounds {
                     // Only emit a bounds error if we have no other errors yet.
                     // This prevents a chain of redundant error messages when a loop is unrolled.
                     if !self.state.handler.had_errors() {
                         // Get the integer string with no suffix.
-                        let str_index = match value {
-                            Value::U8(x) => format!("{x}"),
-                            Value::U16(x) => format!("{x}"),
-                            Value::U32(x) => format!("{x}"),
-                            Value::U64(x) => format!("{x}"),
-                            Value::U128(x) => format!("{x}"),
-                            Value::I8(x) => format!("{x}"),
-                            Value::I16(x) => format!("{x}"),
-                            Value::I32(x) => format!("{x}"),
-                            Value::I64(x) => format!("{x}"),
-                            Value::I128(x) => format!("{x}"),
-                            _ => unreachable!("We would have panicked above"),
-                        };
-
-                        self.emit_err(StaticAnalyzerError::array_bounds(str_index, len, span));
+                        let integer_with_suffix = index_value.to_string();
+                        let suffix_index = integer_with_suffix.find(['i', 'u']).unwrap_or(integer_with_suffix.len());
+                        self.emit_err(StaticAnalyzerError::array_bounds(
+                            &integer_with_suffix[..suffix_index],
+                            len,
+                            span,
+                        ));
                     }
-                } else if let Some(Value::Array(value)) = value_opt {
+                } else if let Some(array_value) = array_opt {
                     // We're in bounds and we can evaluate the array at compile time, so just return the value.
-                    let result_value = value.get(index as usize).expect("We already checked bounds.");
+                    let result_value = array_value
+                        .array_index(index_value.as_u32().unwrap() as usize)
+                        .expect("We already checked bounds.");
                     return (
-                        value_to_expression(result_value, input.span, &self.state.node_builder).expect(VALUE_ERROR),
+                        self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR),
                         Some(result_value.clone()),
                     );
                 }
@@ -191,7 +181,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         // Currently there is only one associated constant.
         let generator = Value::generator();
-        let expr = value_to_expression(&generator, input.span(), &self.state.node_builder).expect(VALUE_ERROR);
+        let expr = self.value_to_expression_node(&generator, &input).expect(VALUE_ERROR);
         (expr, Some(generator))
     }
 
@@ -217,7 +207,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             match interpreter_value::evaluate_core_function(&mut values, core_function, &[], input.span()) {
                 Ok(Some(value)) => {
                     // Successful evaluation.
-                    let expr = value_to_expression(&value, input.span(), &self.state.node_builder).expect(VALUE_ERROR);
+                    let expr = self.value_to_expression_node(&value, &input).expect(VALUE_ERROR);
                     return (expr, Some(value));
                 }
                 Ok(None) =>
@@ -234,16 +224,13 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let id = input.id();
         let (inner, value_opt) = self.reconstruct_expression(input.inner);
         let member_name = input.name.name;
-        if let Some(Value::Struct(contents)) = value_opt {
-            let value_result =
-                contents.contents.get(&member_name).expect("Type checking guarantees the member exists.");
+        if let Some(struct_) = value_opt {
+            let value_result = struct_.member_access(member_name).expect("Type checking guarantees the member exists.");
 
-            (
-                value_to_expression(value_result, span, &self.state.node_builder).expect(VALUE_ERROR),
-                Some(value_result.clone()),
-            )
+            (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
         } else {
             (MemberAccess { inner, ..input }.into(), None)
         }
@@ -258,22 +245,21 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
 
         match (expr_value, count.as_u32()) {
-            (Some(value), Some(count_u32)) => {
-                (RepeatExpression { expr, count, ..input }.into(), Some(Value::Array(vec![value; count_u32 as usize])))
-            }
+            (Some(value), Some(count_u32)) => (
+                RepeatExpression { expr, count, ..input }.into(),
+                Some(Value::make_array(std::iter::repeat_n(value, count_u32 as usize))),
+            ),
             _ => (RepeatExpression { expr, count, ..input }.into(), None),
         }
     }
 
     fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let id = input.id();
         let (tuple, value_opt) = self.reconstruct_expression(input.tuple);
-        if let Some(Value::Tuple(tuple)) = value_opt {
-            let value_result = tuple.get(input.index.value()).expect("Type checking checked bounds.");
-            (
-                value_to_expression(value_result, span, &self.state.node_builder).expect(VALUE_ERROR),
-                Some(value_result.clone()),
-            )
+        if let Some(tuple_value) = value_opt {
+            let value_result = tuple_value.tuple_index(input.index.value()).expect("Type checking checked bounds.");
+            (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
         } else {
             (TupleAccess { tuple, ..input }.into(), None)
         }
@@ -289,7 +275,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             *element = new_element;
         });
         if values.len() == input.elements.len() {
-            (input.into(), Some(Value::Array(values)))
+            (input.into(), Some(Value::make_array(values.into_iter())))
         } else {
             (input.into(), None)
         }
@@ -312,7 +298,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 &self.state.type_table.get(&input_id),
             ) {
                 Ok(new_value) => {
-                    let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
+                    let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
                 Err(err) => self
@@ -335,12 +321,13 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_cast(&mut self, input: leo_ast::CastExpression) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
+        let id = input.id();
 
         let (expr, opt_value) = self.reconstruct_expression(input.expression);
 
         if let Some(value) = opt_value {
             if let Some(cast_value) = value.cast(&input.type_) {
-                let expr = value_to_expression(&cast_value, span, &self.state.node_builder).expect(VALUE_ERROR);
+                let expr = self.value_to_expression(&cast_value, span, id).expect(VALUE_ERROR);
                 return (expr, Some(cast_value));
             } else {
                 self.emit_err(StaticAnalyzerError::compile_time_cast(value, &input.type_, span));
@@ -399,7 +386,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             }
         }
 
-        let opt_value = if values.len() == input.elements.len() { Some(Value::Tuple(values)) } else { None };
+        let opt_value = if values.len() == input.elements.len() { Some(Value::make_tuple(values)) } else { None };
 
         (input.into(), opt_value)
     }
@@ -413,7 +400,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             // We were able to evaluate the operand, so we can evaluate the expression.
             match interpreter_value::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
                 Ok(new_value) => {
-                    let new_expr = value_to_expression(&new_value, span, &self.state.node_builder).expect(VALUE_ERROR);
+                    let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
                 Err(err) => self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),

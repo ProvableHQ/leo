@@ -14,16 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{
-    AstReconstructor,
-    Block,
-    Expression,
-    IterationStatement,
-    Node as _,
-    NodeBuilder,
-    ProgramReconstructor,
-    Statement,
-};
+use leo_ast::{AstReconstructor, Block, Expression, IterationStatement, Node as _, ProgramReconstructor, Statement};
+
+use crate::CompilerState;
 
 /// A `Replacer` traverses and reconstructs the AST, applying a user-defined replacement function to each `Expression`.
 ///
@@ -47,7 +40,7 @@ pub struct Replacer<'a, F>
 where
     F: Fn(&Expression) -> Expression,
 {
-    node_builder: &'a NodeBuilder,
+    state: &'a mut CompilerState,
     refresh_expr_ids: bool,
     replace: F,
 }
@@ -56,8 +49,8 @@ impl<'a, F> Replacer<'a, F>
 where
     F: Fn(&Expression) -> Expression,
 {
-    pub fn new(replace: F, refresh_expr_ids: bool, node_builder: &'a NodeBuilder) -> Self {
-        Self { replace, refresh_expr_ids, node_builder }
+    pub fn new(replace: F, refresh_expr_ids: bool, state: &'a mut CompilerState) -> Self {
+        Self { replace, refresh_expr_ids, state }
     }
 }
 
@@ -68,42 +61,47 @@ where
     type AdditionalOutput = ();
 
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
-        // If the replacement expression is a new one, then return it. Otherwise, proceed as in the default
-        // implementation of `reconstruct_expression`.
-        let new_expr = (self.replace)(&input);
-        if new_expr.id() != input.id() {
-            return (new_expr, Default::default());
-        }
-
-        // Same as the default implementation
-        let mut new_expr = match input {
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
-            Expression::Async(async_) => self.reconstruct_async(async_),
-            Expression::Array(array) => self.reconstruct_array(array),
-            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
-            Expression::Binary(binary) => self.reconstruct_binary(*binary),
-            Expression::Call(call) => self.reconstruct_call(*call),
-            Expression::Cast(cast) => self.reconstruct_cast(*cast),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
-            Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Path(path) => self.reconstruct_path(path),
-            Expression::Literal(value) => self.reconstruct_literal(value),
-            Expression::Locator(locator) => self.reconstruct_locator(locator),
-            Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
-            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
-            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
-            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
-            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
-            Expression::Unary(unary) => self.reconstruct_unary(*unary),
-            Expression::Unit(unit) => self.reconstruct_unit(unit),
+        let opt_old_type = self.state.type_table.get(&input.id());
+        let replaced_expr = (self.replace)(&input);
+        let (mut new_expr, additional) = if replaced_expr.id() == input.id() {
+            // Replacement didn't happen, so just use the default implementation.
+            match input {
+                Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
+                Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
+                Expression::Async(async_) => self.reconstruct_async(async_),
+                Expression::Array(array) => self.reconstruct_array(array),
+                Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
+                Expression::Binary(binary) => self.reconstruct_binary(*binary),
+                Expression::Call(call) => self.reconstruct_call(*call),
+                Expression::Cast(cast) => self.reconstruct_cast(*cast),
+                Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
+                Expression::Err(err) => self.reconstruct_err(err),
+                Expression::Path(path) => self.reconstruct_path(path),
+                Expression::Literal(value) => self.reconstruct_literal(value),
+                Expression::Locator(locator) => self.reconstruct_locator(locator),
+                Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
+                Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
+                Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
+                Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
+                Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
+                Expression::Unary(unary) => self.reconstruct_unary(*unary),
+                Expression::Unit(unit) => self.reconstruct_unit(unit),
+            }
+        } else {
+            (replaced_expr, Default::default())
         };
 
         // Refresh IDs if required
         if self.refresh_expr_ids {
-            new_expr.0.set_id(self.node_builder.next_id());
+            new_expr.set_id(self.state.node_builder.next_id());
         }
-        new_expr
+
+        // If the expression was in the type table before, make an entry for the new expression.
+        if let Some(old_type) = opt_old_type {
+            self.state.type_table.insert(new_expr.id(), old_type);
+        }
+
+        (new_expr, additional)
     }
 
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
@@ -111,7 +109,7 @@ where
             Block {
                 statements: input.statements.into_iter().map(|s| self.reconstruct_statement(s).0).collect(),
                 span: input.span,
-                id: self.node_builder.next_id(),
+                id: self.state.node_builder.next_id(),
             },
             Default::default(),
         )
@@ -124,7 +122,7 @@ where
                 start: self.reconstruct_expression(input.start).0,
                 stop: self.reconstruct_expression(input.stop).0,
                 block: self.reconstruct_block(input.block).0,
-                id: self.node_builder.next_id(),
+                id: self.state.node_builder.next_id(),
                 ..input
             }
             .into(),

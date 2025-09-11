@@ -23,6 +23,7 @@ use leo_ast::{
     CompositeType,
     Expression,
     Identifier,
+    Node as _,
     ProgramReconstructor,
     StructExpression,
     StructVariableInitializer,
@@ -84,6 +85,39 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
     }
 
     /* Expressions */
+    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+        let opt_old_type = self.state.type_table.get(&input.id());
+        let (new_expr, opt_value) = match input {
+            Expression::Array(array) => self.reconstruct_array(array),
+            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
+            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
+            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
+            Expression::Async(async_) => self.reconstruct_async(async_),
+            Expression::Binary(binary) => self.reconstruct_binary(*binary),
+            Expression::Call(call) => self.reconstruct_call(*call),
+            Expression::Cast(cast) => self.reconstruct_cast(*cast),
+            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
+            Expression::Err(err) => self.reconstruct_err(err),
+            Expression::Path(path) => self.reconstruct_path(path),
+            Expression::Literal(value) => self.reconstruct_literal(value),
+            Expression::Locator(locator) => self.reconstruct_locator(locator),
+            Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
+            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
+            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
+            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
+            Expression::Unary(unary) => self.reconstruct_unary(*unary),
+            Expression::Unit(unit) => self.reconstruct_unit(unit),
+        };
+
+        // If the expression was in the type table before, make an entry for the new expression.
+        if let Some(old_type) = opt_old_type {
+            self.state.type_table.insert(new_expr.id(), old_type);
+        }
+
+        (new_expr, opt_value)
+    }
+
     fn reconstruct_call(&mut self, input_call: CallExpression) -> (Expression, Self::AdditionalOutput) {
         // Skip calls to functions from other programs.
         if input_call.program.unwrap() != self.program {
@@ -145,7 +179,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
                 _ => expr.clone(),
             };
 
-            let mut replacer = Replacer::new(replace_identifier, true /* refresh IDs */, &self.state.node_builder);
+            let mut replacer = Replacer::new(replace_identifier, true /* refresh IDs */, self.state);
 
             // Create a new version of `callee_fn` that has a new name, no const parameters, and a new function ID.
 

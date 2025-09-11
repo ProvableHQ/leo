@@ -23,7 +23,5 @@ pub use commands::*;
 mod helpers;
 pub use helpers::*;
 
-pub(crate) const SNARKVM_COMMAND: &str = "snarkvm";
-
 #[cfg(test)]
 mod tests;

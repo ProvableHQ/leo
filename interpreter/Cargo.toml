@@ -1,6 +1,6 @@
 [package]
 name = "leo-interpreter"
-version = "3.1.0"
+version = "3.2.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Interpreter for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -58,11 +58,23 @@ version = "0.29.0"
 [dependencies.itertools]
 workspace = true
 
+[dev-dependencies.leo-compiler]
+workspace = true
+
+[dev-dependencies.leo-disassembler]
+workspace = true
+
 [dev-dependencies.leo-test-framework]
+workspace = true
+
+[dev-dependencies.regex]
 workspace = true
 
 [dev-dependencies.serial_test]
 workspace = true
 
 [dev-dependencies.tempfile]
+workspace = true
+
+[dev-dependencies.walkdir]
 workspace = true

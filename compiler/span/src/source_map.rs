@@ -88,6 +88,11 @@ impl SourceMap {
         Some(self.inner.borrow().source_files[self.find_source_file_index(pos)?].clone())
     }
 
+    pub fn source_file_by_filename(&self, filename: &FileName) -> Option<Rc<SourceFile>> {
+        // TODO: This linear search could be improved to a hash lookup with some adjustment.
+        self.inner.borrow().source_files.iter().find(|source_file| &source_file.name == filename).cloned()
+    }
+
     /// Returns the source contents that is spanned by `span`.
     pub fn contents_of_span(&self, span: Span) -> Option<String> {
         let source_file1 = self.find_source_file(span.lo)?;
@@ -111,7 +116,7 @@ impl SourceMapInner {
 ///
 /// This is either a wrapper around `PathBuf`,
 /// or a custom string description.
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum FileName {
     /// A real file.
     Real(PathBuf),

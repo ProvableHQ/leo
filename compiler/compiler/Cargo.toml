@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "3.1.0"
+version = "3.2.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://leo-lang.org"
@@ -33,8 +33,14 @@ workspace = true
 [dependencies.leo-span]
 workspace = true
 
+[dependencies.anyhow]
+workspace = true
+
 [dependencies.aleo-std]
 workspace = true
+
+[dependencies.aleo-std-storage]
+version = "1.0"
 
 [dependencies.rand_chacha]
 workspace = true

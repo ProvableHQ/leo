@@ -16,7 +16,6 @@
 
 use super::*;
 
-use leo_ast::NetworkName;
 use leo_package::Package;
 
 /// Create new Leo project
@@ -48,9 +47,6 @@ impl Command for LeoNew {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Parse the network.
-        let network: NetworkName = self.network.parse()?;
-
         // Derive the location of the parent directory to the project.
         let package_path = context.parent_dir()?;
 
@@ -58,7 +54,7 @@ impl Command for LeoNew {
         std::env::set_current_dir(&package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
 
-        let full_path = Package::initialize(&self.name, &package_path, network, &self.endpoint)?;
+        let full_path = Package::initialize(&self.name, &package_path)?;
 
         println!("Created program {} at `{}`.", self.name.bold(), full_path.display());
 

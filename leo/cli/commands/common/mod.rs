@@ -23,4 +23,7 @@ pub use options::*;
 mod query;
 pub use query::*;
 
+mod util;
+pub use util::*;
+
 use super::*;

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! These tests compare interpreter runs against previous interpreter runs.
+
 use crate::{Interpreter, InterpreterAction};
 
 use leo_ast::NetworkName;
@@ -63,8 +65,9 @@ fn runner_leo_test(test: &str) -> String {
             let address = Address::try_from(&private_key).expect("should create address");
 
             let empty: [&PathBuf; 0] = [];
-            let mut interpreter = Interpreter::new([filename].iter(), empty, address, 0, NetworkName::TestnetV0)
-                .expect("creating interpreter");
+            let mut interpreter =
+                Interpreter::new(&[(filename, vec![])], empty, address.into(), 0, NetworkName::TestnetV0)
+                    .expect("creating interpreter");
 
             match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
                 Err(e) => format!("{e}\n"),
@@ -112,20 +115,12 @@ fn runner_leo_test(test: &str) -> String {
                 main_source = current_module_source;
             }
 
-            // === Step 2: Sort modules by path depth (deepest first) ===
-            modules.sort_by(|(_, a), (_, b)| {
-                let a_depth = std::path::Path::new(a).components().count();
-                let b_depth = std::path::Path::new(b).components().count();
-                b_depth.cmp(&a_depth)
-            });
-
-            // === Step 3: Write all source files into the temp directory ===
-            let mut filenames = Vec::new();
+            // === Step 2: Write all source files into the temp directory ===
+            let mut module_paths = Vec::new();
 
             // Write main source to main.leo
             let main_path = tempdir.path().join("main.leo");
             std::fs::write(&main_path, main_source).expect("write main failed");
-            filenames.push(main_path.clone());
 
             // Write module files to appropriate relative paths
             for (source, path) in modules {
@@ -137,18 +132,19 @@ fn runner_leo_test(test: &str) -> String {
                 }
 
                 std::fs::write(&full_path, source).expect("write module failed");
-                filenames.push(full_path);
+                module_paths.push(full_path);
             }
 
-            // === Step 4: Run interpreter on main() ===
+            // === Step 3: Run interpreter on main() ===
             let private_key: PrivateKey<TestnetV0> =
                 PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
             let address = Address::try_from(&private_key).expect("should create address");
 
             let empty: [&PathBuf; 0] = [];
 
-            let mut interpreter = Interpreter::new(filenames.iter(), empty, address, 0, NetworkName::TestnetV0)
-                .expect("creating interpreter");
+            let mut interpreter =
+                Interpreter::new(&[(main_path, module_paths)], empty, address.into(), 0, NetworkName::TestnetV0)
+                    .expect("creating interpreter");
 
             match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
                 Err(e) => format!("{e}\n"),

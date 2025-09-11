@@ -23,12 +23,12 @@ use leo_ast::{
     NodeBuilder,
     Path,
     Statement,
-    interpreter_value::{GlobalId, SvmAddress},
+    interpreter_value::{GlobalId, Value},
 };
 use leo_errors::{InterpreterHalt, LeoError, Result};
 use leo_span::{Span, Symbol, source_map::FileName, sym, with_session_globals};
 
-use snarkvm::prelude::{Network, Program, TestnetV0};
+use snarkvm::prelude::{Program, TestnetV0};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -41,6 +41,9 @@ use std::{
 
 #[cfg(test)]
 mod test;
+
+#[cfg(test)]
+mod test_interpreter;
 
 mod util;
 use util::*;
@@ -140,9 +143,9 @@ pub struct TestFunction {
 // all the functions with annotations.
 #[allow(clippy::type_complexity)]
 pub fn find_and_run_tests(
-    leo_filenames: &[PathBuf],
+    leo_filenames: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
     aleo_filenames: &[PathBuf],
-    signer: SvmAddress,
+    signer: Value,
     block_height: u32,
     match_str: &str,
     network: NetworkName,
@@ -241,9 +244,9 @@ pub fn find_and_run_tests(
 /// Load all the Leo source files indicated and open the interpreter
 /// to commands from the user.
 pub fn interpret(
-    leo_filenames: &[PathBuf],
+    leo_filenames: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
     aleo_filenames: &[PathBuf],
-    signer: SvmAddress,
+    signer: Value,
     block_height: u32,
     tui: bool,
     network: NetworkName,
