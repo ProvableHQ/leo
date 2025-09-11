@@ -16,7 +16,7 @@
 
 use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
 
-use leo_ast::{CompositeType, ProgramReconstructor as _, Type};
+use leo_ast::{ArrayType, CompositeType, ProgramReconstructor as _, Type};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -46,7 +46,7 @@ impl Pass for OptionLowering {
             module: vec![],
             function: None,
             new_structs: IndexMap::new(),
-            modified_structs: IndexMap::new(),
+            reconstructed_structs: IndexMap::new(),
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err().map_err(|e| *e)?;
@@ -54,8 +54,8 @@ impl Pass for OptionLowering {
 
         println!("after: {}", visitor.state.ast.ast);
 
-        // We need to recreate the symbol table and run type checking again because this pass introduces new structs
-        // to the program.
+        // We need to recreate the symbol table and run type checking again because this pass may introduce new structs
+        // and modify existing ones.
         visitor.state.symbol_table = SymbolTable::default();
         PathResolution::do_pass((), state)?;
         SymbolTableCreation::do_pass((), state)?;
@@ -65,50 +65,38 @@ impl Pass for OptionLowering {
     }
 }
 
-pub fn sanitize_name(name: &str) -> String {
-    use regex::Regex;
+pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
+    // Step 1: Extract a usable type name
+    fn display_type(ty: &Type) -> String {
+        match ty {
+            Type::Address
+            | Type::Field
+            | Type::Group
+            | Type::Scalar
+            | Type::Signature
+            | Type::Boolean
+            | Type::Integer(..) => format!("{ty}"),
+            Type::Array(ArrayType { element_type, length }) => {
+                format!("[{}; {length}]", display_type(element_type))
+            }
+            Type::Composite(CompositeType { path, .. }) => {
+                format!("::{}", path.absolute_path().iter().format("::"))
+            }
 
-    // Replace any character that is NOT alphanumeric or underscore with underscore
-    let re_non_alnum = Regex::new(r"[^a-zA-Z0-9_]").unwrap();
-    let temp = re_non_alnum.replace_all(name, "_");
-
-    // Optionally collapse multiple underscores into one
-    let re_multi_underscore = Regex::new(r"_+").unwrap();
-    let sanitized = re_multi_underscore.replace_all(&temp, "_");
-
-    // Optionally trim leading/trailing underscores
-    sanitized.trim_matches('_').to_string()
-}
-
-pub fn visit_type(input: &Type) -> String {
-    match input {
-        Type::Address
-        | Type::Field
-        | Type::Group
-        | Type::Scalar
-        | Type::Signature
-        | Type::String
-        | Type::Future(..)
-        | Type::Identifier(..)
-        | Type::Boolean
-        | Type::Integer(..)
-        | Type::Array(_) => format!("{input}"),
-        Type::Composite(CompositeType { path, .. }) => path.absolute_path().iter().format("::").to_string(),
-        Type::Optional(_) => {
-            panic!("Optional types are not supported at this phase of compilation")
+            Type::Tuple(_)
+            | Type::Optional(_)
+            | Type::Mapping(_)
+            | Type::Numeric
+            | Type::Identifier(_)
+            | Type::Future(_)
+            | Type::String
+            | Type::Err
+            | Type::Unit => {
+                panic!("unexpected inner type in optional struct name")
+            }
         }
-        Type::Mapping(_) => {
-            panic!("Mapping types are not supported at this phase of compilation")
-        }
-        Type::Tuple(_) => {
-            panic!("Tuple types should not be visited at this phase of compilation")
-        }
-        Type::Numeric => panic!("`Numeric` types should not exist at this phase of compilation"),
-        Type::Err => panic!("Error types should not exist at this phase of compilation"),
-        Type::Unit => panic!("Unit types are not supported at this phase of compilation"),
     }
-}
 
-pub fn optional_struct_name(ty: &Type) -> Symbol {
-    Symbol::intern(&sanitize_name(&format!("Op__{}", visit_type(ty))))
+    // Step 3: Build symbol that ends with `?`.
+    Symbol::intern(&format!("\"{}?\"", display_type(ty)))
 }

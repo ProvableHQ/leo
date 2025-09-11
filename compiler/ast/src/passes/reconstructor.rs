@@ -34,7 +34,18 @@ pub trait AstReconstructor {
             Type::Mapping(mapping_type) => self.reconstruct_mapping_type(mapping_type),
             Type::Optional(optional_type) => self.reconstruct_optional_type(optional_type),
             Type::Tuple(tuple_type) => self.reconstruct_tuple_type(tuple_type),
-            _ => (input.clone(), Default::default()),
+            Type::Address
+            | Type::Boolean
+            | Type::Field
+            | Type::Group
+            | Type::Identifier(_)
+            | Type::Integer(_)
+            | Type::Scalar
+            | Type::Signature
+            | Type::String
+            | Type::Numeric
+            | Type::Unit
+            | Type::Err => (input.clone(), Default::default()),
         }
     }
 
@@ -65,7 +76,7 @@ pub trait AstReconstructor {
     fn reconstruct_future_type(&mut self, input: FutureType) -> (Type, Self::AdditionalOutput) {
         (
             Type::Future(FutureType {
-                inputs: input.inputs.into_iter().map(|i| self.reconstruct_type(i).0).collect(),
+                inputs: input.inputs.into_iter().map(|input| self.reconstruct_type(input).0).collect(),
                 ..input
             }),
             Default::default(),
@@ -90,7 +101,7 @@ pub trait AstReconstructor {
     fn reconstruct_tuple_type(&mut self, input: TupleType) -> (Type, Self::AdditionalOutput) {
         (
             Type::Tuple(TupleType {
-                elements: input.elements.into_iter().map(|e| self.reconstruct_type(e).0).collect(),
+                elements: input.elements.into_iter().map(|element| self.reconstruct_type(element).0).collect(),
             }),
             Default::default(),
         )
@@ -164,7 +175,7 @@ pub trait AstReconstructor {
                 arguments: input
                     .arguments
                     .into_iter()
-                    .map(|a| self.reconstruct_expression(a, &Default::default()).0)
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
                     .collect(),
                 ..input
             }
@@ -229,7 +240,7 @@ pub trait AstReconstructor {
                 elements: input
                     .elements
                     .into_iter()
-                    .map(|e| self.reconstruct_expression(e, &Default::default()).0)
+                    .map(|element| self.reconstruct_expression(element, &Default::default()).0)
                     .collect(),
                 ..input
             }
@@ -264,12 +275,12 @@ pub trait AstReconstructor {
                 const_arguments: input
                     .const_arguments
                     .into_iter()
-                    .map(|a| self.reconstruct_expression(a, &Default::default()).0)
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
                     .collect(),
                 arguments: input
                     .arguments
                     .into_iter()
-                    .map(|a| self.reconstruct_expression(a, &Default::default()).0)
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
                     .collect(),
                 ..input
             }
@@ -384,7 +395,7 @@ pub trait AstReconstructor {
                 elements: input
                     .elements
                     .into_iter()
-                    .map(|e| self.reconstruct_expression(e, &Default::default()).0)
+                    .map(|element| self.reconstruct_expression(element, &Default::default()).0)
                     .collect(),
                 ..input
             }

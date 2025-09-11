@@ -140,9 +140,12 @@ impl CodeGeneratingVisitor<'_> {
 
         // === Case 2: Matches special form like `Name::[3, 4]` ===
         let re = regex::Regex::new(r#"^([a-zA-Z_][\w]*)(?:::\[.*?\])?$"#).unwrap();
+
         if let Some(captures) = re.captures(&last) {
             let ident = captures.get(1)?.as_str();
             return Some(generate_hashed_name(path, ident));
+        } else if last.ends_with("?\"") {
+            return Some(generate_hashed_name(path, "Optional"));
         }
 
         // Last segment is neither legal nor matches special pattern

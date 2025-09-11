@@ -44,7 +44,9 @@ impl CodeGeneratingVisitor<'_> {
                     array_type.length.as_u32().expect("length should be known at this point")
                 )
             }
-            Type::Optional(_) => todo!(),
+            Type::Optional(_) => {
+                panic!("Optional types are not supported at this phase of compilation")
+            }
             Type::Mapping(_) => {
                 panic!("Mapping types are not supported at this phase of compilation")
             }
@@ -64,7 +66,7 @@ impl CodeGeneratingVisitor<'_> {
             let this_program_name = self.program_id.unwrap().name.name;
             let program_name = composite.program.unwrap_or(this_program_name);
             if self.state.symbol_table.lookup_record(&Location::new(program_name, name.to_vec())).is_some() {
-                let [record_name] = name.as_slice() else {
+                let [record_name] = &name[..] else {
                     panic!("Absolute paths to records can only have a single segment at this stage.")
                 };
                 if program_name == this_program_name {

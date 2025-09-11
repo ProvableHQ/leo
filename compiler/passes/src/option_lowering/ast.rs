@@ -30,12 +30,12 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let (inner_type, _) = self.reconstruct_type(*input.inner.clone());
 
         // Generate a unique name like Optional__u32, Optional__bool, etc.
-        let struct_name = crate::optional_struct_name(&inner_type);
+        let struct_name = crate::make_optional_struct_symbol(&inner_type);
 
         // Register the struct if it hasn't been already
         self.new_structs.entry(struct_name).or_insert_with(|| Composite {
             identifier: Identifier::new(struct_name, self.state.node_builder.next_id()),
-            const_parameters: vec![],
+            const_parameters: vec![], // this is not a generic struct
             members: vec![
                 Member {
                     mode: Mode::None,
@@ -61,8 +61,8 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         (
             Type::Composite(CompositeType {
                 path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
-                const_arguments: vec![],
-                program: None, // current program? can be set later
+                const_arguments: vec![], // this is not a generic struct
+                program: None,           // current program
             }),
             Default::default(),
         )
@@ -80,11 +80,11 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 panic!("Type checking guarantees that `None` has an Optional type");
             };
 
-            return self.wrap_none(&inner);
+            return (self.wrap_none(&inner), vec![]);
         }
 
         // Reconstruct the expression based on its variant
-        let (expr, mut stmts) = match input {
+        let (expr, stmts) = match input {
             Expression::AssociatedConstant(e) => self.reconstruct_associated_constant(e, additional),
             Expression::AssociatedFunction(e) => self.reconstruct_associated_function(e, additional),
             Expression::Async(e) => self.reconstruct_async(e, additional),
@@ -109,15 +109,13 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
         // Optionally wrap in an optional if expected type is `Optional<T>`
         if let Some(Type::Optional(OptionalType { inner })) = additional {
-            let actual_type =
+            let actual_expr_type =
                 self.state.type_table.get(&expr.id()).expect(
                     "Type table must contain type for this expression ID; IDs are not modified during lowering",
                 );
 
-            if actual_type.can_coerce_to(inner) {
-                let (wrapped_expr, wrap_stmts) = self.wrap_optional_value(expr, *inner.clone());
-                stmts.extend(wrap_stmts);
-                return (wrapped_expr, stmts);
+            if actual_expr_type.can_coerce_to(inner) {
+                return (self.wrap_optional_value(expr, *inner.clone()), stmts);
             }
         }
 
@@ -132,7 +130,6 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let (array, mut stmts_array) = self.reconstruct_expression(input.array, &None);
         let (index, mut stmts_index) = self.reconstruct_expression(input.index, &None);
 
-        // Update input in-place
         input.array = array;
         input.index = index;
 
@@ -171,14 +168,14 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 };
 
-                // Create assertion
+                // Create assertion: ensure `is_some` is `true`.
                 let assert_stmt = AssertStatement {
                     variant: AssertVariant::Assert(is_some_access.clone().into()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
 
-                // Combine all statements
+                // Combine all statements.
                 stmts.push(assert_stmt.into());
 
                 (val_access.into(), stmts)
@@ -195,12 +192,13 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let Some(Type::Optional(OptionalType { inner: expected_inner_type })) =
                     self.state.type_table.get(&optional_expr.id())
                 else {
-                    panic!()
+                    panic!("guaranteed by type checking")
                 };
 
-                let (reconstructed_default_expr, stmts2) =
+                let (reconstructed_fallback_expr, stmts2) =
                     self.reconstruct_expression(default_expr.clone(), &Some(*expected_inner_type.clone()));
 
+                // Access `.val` and `.is_some` from reconstructed expression
                 let val_access = MemberAccess {
                     inner: reconstructed_optional_expr.clone(),
                     name: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
@@ -215,15 +213,14 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 };
 
+                // s.is_some ? s.val : fallback
                 let ternary_expr = TernaryExpression {
                     condition: is_some_access.into(),
                     if_true: val_access.into(),
-                    if_false: reconstructed_default_expr,
+                    if_false: reconstructed_fallback_expr,
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
-
-                self.state.type_table.insert(ternary_expr.id, *expected_inner_type);
 
                 stmts1.extend(stmts2);
                 (ternary_expr.into(), stmts1)
@@ -251,7 +248,6 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         let (inner, stmts_inner) = self.reconstruct_expression(input.inner, &None);
 
-        // Update input in-place
         input.inner = inner;
 
         (input.into(), stmts_inner)
@@ -265,7 +261,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         // Derive expected element type from the type of the whole expression
         let expected_element_type =
             additional.clone().or_else(|| self.state.type_table.get(&input.id)).and_then(|mut ty| {
-                while let Type::Optional(inner) = ty {
+                if let Type::Optional(inner) = ty {
                     ty = *inner.inner;
                 }
                 match ty {
@@ -294,7 +290,6 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         let (tuple, stmts) = self.reconstruct_expression(input.tuple, &None);
 
-        // Update input in-place
         input.tuple = tuple;
 
         (input.into(), stmts)
@@ -309,8 +304,8 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             .clone()
             .or_else(|| self.state.type_table.get(&input.id))
             .and_then(|mut ty| {
-                // Unwrap Optionals
-                while let Type::Optional(inner) = ty {
+                // Unwrap Optional if any
+                if let Type::Optional(inner) = ty {
                     ty = *inner.inner;
                 }
                 // Expect Array type
@@ -343,7 +338,6 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let (left, mut stmts_left) = self.reconstruct_expression(input.left, &None);
         let (right, mut stmts_right) = self.reconstruct_expression(input.right, &None);
 
-        // Update input in-place
         input.left = left;
         input.right = right;
 
@@ -387,7 +381,6 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             arguments.push(expr);
         }
 
-        // Update input in-place
         input.const_arguments = const_arguments;
         input.arguments = arguments;
 
@@ -401,7 +394,6 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         let (expr, stmts) = self.reconstruct_expression(input.expression, &None);
 
-        // Update input in-place
         input.expression = expr;
 
         (input.into(), stmts)
@@ -413,14 +405,9 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         additional: &Option<Type>,
     ) -> (Expression, Self::AdditionalOutput) {
         let (const_parameters, member_types): (Vec<Type>, IndexMap<Symbol, Type>) = {
-            let ty = additional.clone().or_else(|| self.state.type_table.get(&input.id));
+            let mut ty = additional.clone().or_else(|| self.state.type_table.get(&input.id)).expect("type checked");
 
-            let mut ty = match ty {
-                Some(ty) => ty,
-                None => panic!("expected composite type"),
-            };
-
-            while let Type::Optional(inner) = ty {
+            if let Type::Optional(inner) = ty {
                 ty = *inner.inner;
             }
 
@@ -478,7 +465,6 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             })
             .unzip();
 
-        // Update input in-place
         input.const_arguments = const_arguments;
         input.members = members;
 
@@ -517,22 +503,22 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let mut all_stmts = Vec::new();
         let mut new_elements = Vec::with_capacity(input.elements.len());
 
-        // Extract tuple element types if additional type info is Some(Type::Tuple)
+        // Extract tuple element types if additional type info is Some(Type::Tuple).
         let expected_types = additional
             .as_ref()
             .and_then(|ty| {
                 let mut ty = ty.clone();
 
-                // Unwrap Optionals if any
-                while let Type::Optional(inner) = ty {
+                // Unwrap Optional if any.
+                if let Type::Optional(inner) = ty {
                     ty = *inner.inner;
                 }
-
+                // Expect Tuple type.
                 if let Type::Tuple(tuple_ty) = ty { Some(tuple_ty.elements.clone()) } else { None }
             })
             .expect("guaranteed by type checking");
 
-        // Zip elements with expected types and reconstruct with expected type
+        // Zip elements with expected types and reconstruct with expected type.
         for (element, expected_ty) in input.elements.into_iter().zip(expected_types) {
             let (expr, mut stmts) = self.reconstruct_expression(element, &Some(expected_ty));
             all_stmts.append(&mut stmts);
@@ -562,20 +548,20 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
         input.variant = match input.variant {
             AssertVariant::Assert(expr) => {
-                let (expr, mut stmts) = self.reconstruct_expression(expr, &Default::default());
+                let (expr, mut stmts) = self.reconstruct_expression(expr, &None);
                 all_stmts.append(&mut stmts);
                 AssertVariant::Assert(expr)
             }
             AssertVariant::AssertEq(left, right) => {
-                let (left, mut stmts_left) = self.reconstruct_expression(left, &Default::default());
-                let (right, mut stmts_right) = self.reconstruct_expression(right, &Default::default());
+                let (left, mut stmts_left) = self.reconstruct_expression(left, &None);
+                let (right, mut stmts_right) = self.reconstruct_expression(right, &None);
                 all_stmts.append(&mut stmts_left);
                 all_stmts.append(&mut stmts_right);
                 AssertVariant::AssertEq(left, right)
             }
             AssertVariant::AssertNeq(left, right) => {
-                let (left, mut stmts_left) = self.reconstruct_expression(left, &Default::default());
-                let (right, mut stmts_right) = self.reconstruct_expression(right, &Default::default());
+                let (left, mut stmts_left) = self.reconstruct_expression(left, &None);
+                let (right, mut stmts_right) = self.reconstruct_expression(right, &None);
                 all_stmts.append(&mut stmts_left);
                 all_stmts.append(&mut stmts_right);
                 AssertVariant::AssertNeq(left, right)
@@ -595,7 +581,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
     }
 
     fn reconstruct_conditional(&mut self, mut input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        let (condition, mut stmts_condition) = self.reconstruct_expression(input.condition, &Default::default());
+        let (condition, mut stmts_condition) = self.reconstruct_expression(input.condition, &None);
         let (then_block, mut stmts_then) = self.reconstruct_block(input.then);
 
         let otherwise = match input.otherwise {
@@ -666,7 +652,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         &mut self,
         mut input: ExpressionStatement,
     ) -> (Statement, Self::AdditionalOutput) {
-        let (expression, stmts) = self.reconstruct_expression(input.expression, &Default::default());
+        let (expression, stmts) = self.reconstruct_expression(input.expression, &None);
 
         input.expression = expression;
 
@@ -685,8 +671,8 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             None => None,
         };
 
-        let (start, mut stmts_start) = self.reconstruct_expression(input.start, &Default::default());
-        let (stop, mut stmts_stop) = self.reconstruct_expression(input.stop, &Default::default());
+        let (start, mut stmts_start) = self.reconstruct_expression(input.start, &None);
+        let (stop, mut stmts_stop) = self.reconstruct_expression(input.stop, &None);
         let (block, mut stmts_block) = self.reconstruct_block(input.block);
 
         all_stmts.append(&mut stmts_start);

@@ -16,22 +16,49 @@
 
 use crate::CompilerState;
 
-use leo_ast::{interpreter_value::Value, *};
+use leo_ast::*;
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 
 pub struct OptionLoweringVisitor<'a> {
     pub state: &'a mut CompilerState,
+    // The name of the current program scope
     pub program: Symbol,
+    // The path to the current module. This should be an empty vector for the root.
     pub module: Vec<Symbol>,
+    // The name of the current function, if we're inside one.
     pub function: Option<Symbol>,
+    // The newly created structs. Each struct correspond to a converted optional type. All these
+    // structs are to be inserted in the program scope.
     pub new_structs: IndexMap<Symbol, Composite>,
-    pub modified_structs: IndexMap<Vec<Symbol>, Composite>,
+    // The reconstructed structs. These are the new versions of the existing structs in the program.
+    pub reconstructed_structs: IndexMap<Vec<Symbol>, Composite>,
 }
 
 impl OptionLoweringVisitor<'_> {
-    pub fn wrap_optional_value(&mut self, expr: Expression, ty: Type) -> (Expression, Vec<Statement>) {
+    /// Enter module scope with path `module`, execute `func`, and then return to the parent module.
+    pub fn in_module_scope<T>(&mut self, module: &[Symbol], func: impl FnOnce(&mut Self) -> T) -> T {
+        let parent_module = self.module.clone();
+        self.module = module.to_vec();
+        let result = func(self);
+        self.module = parent_module;
+        result
+    }
+
+    /// Wraps an expression of a given type in an `Optional<T>`-like struct representing `Some(value)`.
+    ///
+    /// This function creates a struct expression that encodes an optional value with `is_some = true`
+    /// and the provided expression as the `val` field. It also ensures that the type is fully
+    /// reconstructed, which guarantees that all necessary struct definitions are available and registered.
+    ///
+    /// # Parameters
+    /// - `expr`: The expression to wrap as the value of the optional.
+    /// - `ty`: The type of the expression.
+    ///
+    /// # Returns
+    /// - An `Expression` representing the constructed `Optional<T>` struct instance.
+    pub fn wrap_optional_value(&mut self, expr: Expression, ty: Type) -> Expression {
         let is_some_expr = Expression::Literal(Literal {
             span: Span::default(),
             id: self.state.node_builder.next_id(),
@@ -42,7 +69,7 @@ impl OptionLoweringVisitor<'_> {
         // are actually registered in `self.new_structs`.
         let lowered_inner_type = self.reconstruct_type(ty).0;
 
-        let struct_name = crate::optional_struct_name(&lowered_inner_type);
+        let struct_name = crate::make_optional_struct_symbol(&lowered_inner_type);
         let struct_expr = StructExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
             const_arguments: vec![],
@@ -64,10 +91,23 @@ impl OptionLoweringVisitor<'_> {
             id: self.state.node_builder.next_id(),
         };
 
-        (struct_expr.into(), vec![])
+        struct_expr.into()
     }
 
-    pub fn wrap_none(&mut self, inner_ty: &Type) -> (Expression, Vec<Statement>) {
+    /// Constructs an `Optional<T>`-like struct representing `None` for a given inner type.
+    ///
+    /// The returned struct expression sets `is_some = false`, and provides a zero value for the `val`
+    /// field, where "zero" is defined according to the type:
+    /// numeric types use literal zero, structs are recursively zero-initialized, etc.
+    ///
+    /// This function assumes that all required struct types are already reconstructed and registered.
+    ///
+    /// # Parameters
+    /// - `inner_ty`: The type `T` inside the `Optional<T>`.
+    ///
+    /// # Returns
+    /// - An `Expression` representing the constructed `Optional<T>` struct instance with `None`.
+    pub fn wrap_none(&mut self, inner_ty: &Type) -> Expression {
         let is_some_expr = Expression::Literal(Literal {
             span: Span::default(),
             id: self.state.node_builder.next_id(),
@@ -78,11 +118,29 @@ impl OptionLoweringVisitor<'_> {
         // are actually registered in `self.new_structs`.
         let lowered_inner_type = self.reconstruct_type(inner_ty.clone()).0;
 
-        let zero_val = self.zero_value_for_type(&lowered_inner_type);
-        let zero_val_expr =
-            self.value_to_expression(&zero_val, &lowered_inner_type, Span::default()).expect("must be valid");
+        // Even though the `val` field of the struct will not be used as long as `is_some` is
+        // `false`, we still have to set it to something. We choose "zero", whatever "zero" means
+        // for each type.
 
-        let struct_name = crate::optional_struct_name(&lowered_inner_type);
+        // Instead of relying on the symbol table (which does not get updated in this pass), we rely on the set of
+        // reconstructed structs which is produced for all program scopes and all modules before doing anything else.
+        let reconstructed_structs = &self.reconstructed_structs;
+        let struct_lookup = |sym: &[Symbol]| {
+            reconstructed_structs
+                .get(sym) // check the new version of existing structs
+                .or_else(|| self.new_structs.get(sym.last().unwrap())) // check the newly produced structs
+                .expect("must exist by construction")
+                .members
+                .iter()
+                .map(|mem| (mem.identifier.name, mem.type_.clone()))
+                .collect()
+        };
+
+        let zero_val_expr =
+            zero_value_expression(&lowered_inner_type, Span::default(), &self.state.node_builder, &struct_lookup)
+                .expect("other types are not expected here");
+
+        let struct_name = crate::make_optional_struct_symbol(&lowered_inner_type);
 
         let struct_expr = StructExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
@@ -105,97 +163,86 @@ impl OptionLoweringVisitor<'_> {
             id: self.state.node_builder.next_id(),
         };
 
-        (struct_expr.into(), vec![])
+        struct_expr.into()
     }
+}
 
-    pub fn zero_value_for_type(&mut self, ty: &Type) -> Value {
-        let program = self.program;
-        match ty {
-            Type::Unit => Value::make_unit(),
+#[allow(clippy::type_complexity)]
+fn zero_value_expression(
+    ty: &Type,
+    span: Span,
+    node_builder: &NodeBuilder,
+    struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+) -> Option<Expression> {
+    let id = node_builder.next_id();
 
-            Type::Boolean => Value::from(false),
+    match ty {
+        // Numeric types
+        Type::Integer(IntegerType::I8) => Some(Literal::integer(IntegerType::I8, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::I16) => Some(Literal::integer(IntegerType::I16, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::I32) => Some(Literal::integer(IntegerType::I32, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::I64) => Some(Literal::integer(IntegerType::I64, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::I128) => Some(Literal::integer(IntegerType::I128, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U8) => Some(Literal::integer(IntegerType::U8, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U16) => Some(Literal::integer(IntegerType::U16, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U32) => Some(Literal::integer(IntegerType::U32, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U64) => Some(Literal::integer(IntegerType::U64, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U128) => Some(Literal::integer(IntegerType::U128, "0".to_string(), span, id).into()),
 
-            Type::Integer(int_type) => match int_type {
-                IntegerType::U8 => Value::from(0u8),
-                IntegerType::U16 => Value::from(0u16),
-                IntegerType::U32 => Value::from(0u32),
-                IntegerType::U64 => Value::from(0u64),
-                IntegerType::U128 => Value::from(0u128),
-                IntegerType::I8 => Value::from(0i8),
-                IntegerType::I16 => Value::from(0i16),
-                IntegerType::I32 => Value::from(0i32),
-                IntegerType::I64 => Value::from(0i64),
-                IntegerType::I128 => Value::from(0i128),
-            },
+        // Boolean
+        Type::Boolean => Some(Literal::boolean(false, span, id).into()),
 
-            Type::Array(array) => {
-                let len = array.length.as_u32().expect("must have been const evaluated by now");
-                let element = self.zero_value_for_type(&array.element_type);
-                Value::make_array((0..len).map(|_| element.clone()))
-            }
+        // Field, Group, Scalar
+        Type::Field => Some(Literal::field("0".to_string(), span, id).into()),
+        Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
+        Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
+        Type::Address => Some(
+            // TODO: what is the right default here?
+            Literal::address("aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx".to_string(), span, id)
+                .into(),
+        ),
 
-            Type::Tuple(tuple) => {
-                let elements = tuple.elements.iter().map(|ty| self.zero_value_for_type(ty));
-                Value::make_tuple(elements)
-            }
+        // Structs (composite types)
+        Type::Composite(composite_type) => {
+            let path = &composite_type.path;
+            let members = struct_lookup(&path.absolute_path());
 
-            Type::Optional(opt) => {
-                let lowered_inner_type = self.reconstruct_type((*opt.inner).clone()).0;
-                let inner_zero = self.zero_value_for_type(&opt.inner);
+            let struct_members = members
+                .into_iter()
+                .map(|(symbol, member_type)| {
+                    let member_id = node_builder.next_id();
+                    let zero_expr = zero_value_expression(&member_type, span, node_builder, struct_lookup)?;
 
-                // For default, we could treat it as None → is_some = false, val = zero_inner
-                // But in Value, we don’t have Optional — it’ll be represented as a Struct later.
-                // So we can return Struct with `is_some = false`, `val = default(inner)`
-                let mut struct_fields = IndexMap::new();
-                struct_fields.insert(Symbol::intern("is_some"), Value::from(false));
-                struct_fields.insert(Symbol::intern("val"), inner_zero);
-
-                let opt_struct_name = crate::optional_struct_name(&lowered_inner_type);
-
-                Value::make_struct(struct_fields.into_iter(), self.program, vec![opt_struct_name])
-            }
-
-            Type::Composite(composite) => {
-                // Step 1: Immutable borrow ends early
-                let members = {
-                    let struct_def = self
-                        .state
-                        .symbol_table
-                        .lookup_struct(&composite.path.absolute_path())
-                        .or_else(|| self.new_structs.get(&composite.path.identifier().name))
-                        .expect("must be in symbol table");
-
-                    struct_def.members.clone()
-                };
-
-                // Step 2: Mutably borrow self and compute values
-                let contents = members
-                    .into_iter()
-                    .map(|member| {
-                        let value = self.zero_value_for_type(&member.type_);
-                        (member.identifier.name, value)
+                    Some(StructVariableInitializer {
+                        span,
+                        id: member_id,
+                        identifier: Identifier::new(symbol, node_builder.next_id()),
+                        expression: Some(zero_expr),
                     })
-                    .collect::<Vec<_>>();
+                })
+                .collect::<Option<Vec<_>>>()?;
 
-                Value::make_struct(contents.into_iter(), program, composite.path.absolute_path())
-            }
-            // Catch-all fallback for unhandled types
-            _ => Value::make_unit(),
+            Some(Expression::Struct(StructExpression {
+                span,
+                id,
+                path: path.clone(),
+                const_arguments: Vec::new(),
+                members: struct_members,
+            }))
         }
-    }
 
-    pub fn value_to_expression(&self, value: &Value, ty: &Type, span: Span) -> Option<Expression> {
-        let modified_structs = &self.modified_structs;
-        let struct_lookup = |sym: &[Symbol]| {
-            modified_structs
-                .get(sym)
-                .or_else(|| self.new_structs.get(sym.last().unwrap()))
-                .unwrap()
-                .members
-                .iter()
-                .map(|mem| (mem.identifier.name, mem.type_.clone()))
-                .collect()
-        };
-        value.to_expression(span, &self.state.node_builder, ty, &struct_lookup)
+        // Arrays
+        Type::Array(array_type) => {
+            let element_ty = &array_type.element_type;
+            let num_elements = array_type.length.as_u32().expect("should have been const evaluated by now.");
+
+            let element_expr = zero_value_expression(element_ty, span, node_builder, struct_lookup)?;
+            let elements = vec![element_expr; num_elements as usize];
+
+            Some(Expression::Array(ArrayExpression { span, id, elements }))
+        }
+
+        // Other types are not expected
+        _ => None,
     }
 }

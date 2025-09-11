@@ -84,7 +84,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             .expect("Type checking guarantees that all expressions are typed.");
 
         // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-        assert!(if_true_type.eq_flat_relaxed(&if_false_type));
+        assert!(if_true_type.eq_user(&if_false_type));
 
         fn as_identifier(path_expr: Expression) -> Identifier {
             let Expression::Path(path) = path_expr else {

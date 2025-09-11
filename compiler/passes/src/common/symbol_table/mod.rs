@@ -37,7 +37,7 @@ pub struct SymbolTable {
     records: IndexMap<Location, Composite>,
 
     /// Structs indexed by a path.
-    pub structs: IndexMap<Vec<Symbol>, Composite>,
+    structs: IndexMap<Vec<Symbol>, Composite>,
 
     /// Consts that have been successfully evaluated.
     global_consts: IndexMap<Location, Expression>,
@@ -422,5 +422,5 @@ fn eq_struct(new: &Composite, old: &Composite) -> bool {
     new.members
         .iter()
         .zip(old.members.iter())
-        .all(|(member1, member2)| member1.name() == member2.name() && member1.type_.eq_flat_relaxed(&member2.type_))
+        .all(|(member1, member2)| member1.name() == member2.name() && member1.type_.eq_user(&member2.type_))
 }

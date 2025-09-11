@@ -200,8 +200,8 @@ impl ParserContext<'_> {
             self.parse_primitive_type()
         }?;
 
-        if self.token.token == Token::Question {
-            let question_span = self.expect(&Token::Question)?;
+        // Make this type optional if the next token is `?`
+        if let Ok(question_span) = self.expect(&Token::Question) {
             Ok((Type::Optional(OptionalType { inner: Box::new(base_type) }), base_span + question_span))
         } else {
             Ok((base_type, base_span))

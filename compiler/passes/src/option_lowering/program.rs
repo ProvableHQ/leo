@@ -22,91 +22,102 @@ use leo_ast::{
     Input,
     Module,
     Output,
+    Program,
     ProgramReconstructor,
     ProgramScope,
     Statement,
 };
 use leo_span::Symbol;
 
-use std::mem;
-
 impl ProgramReconstructor for OptionLoweringVisitor<'_> {
+    fn reconstruct_program(&mut self, input: Program) -> Program {
+        // Reconstruct all structs first and keep track of them in `self.reconstructed_structs`.
+        for (_, scope) in &input.program_scopes {
+            for (_, c) in &scope.structs {
+                let new_struct = self.reconstruct_struct(c.clone());
+                self.reconstructed_structs.insert(vec![new_struct.name()], new_struct);
+            }
+        }
+        for (module_path, module) in &input.modules {
+            for (_, c) in &module.structs {
+                let full_name = module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
+                let new_struct = self.reconstruct_struct(c.clone());
+                self.reconstructed_structs.insert(full_name, new_struct.clone());
+            }
+        }
+
+        // Now we're ready to reconstruct everything else.
+        Program {
+            imports: input
+                .imports
+                .into_iter()
+                .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
+                .collect(),
+            stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
+            program_scopes: input
+                .program_scopes
+                .into_iter()
+                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
+                .collect(),
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
+        }
+    }
+
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         self.program = input.program_id.name.name;
 
-        // Step 4: Build the final ProgramScope
-        let mut new_program_scope = ProgramScope {
-            program_id: input.program_id,
+        let mut program = ProgramScope {
             consts: input
                 .consts
                 .into_iter()
                 .map(|(i, c)| match self.reconstruct_const(c) {
-                    (Statement::Const(declaration), _) => (i, declaration),
+                    (Statement::Const(decl), _) => (i, decl),
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            structs: input
-                .structs
-                .into_iter()
-                .map(|(i, c)| {
-                    // TODO: handle records
-                    let full_name =
-                        self.module.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
-                    let new_struct = self.reconstruct_struct(c);
-                    self.modified_structs.insert(full_name, new_struct.clone());
-                    (i, new_struct)
+            structs: self
+                .reconstructed_structs
+                .iter()
+                .filter_map(|(path, s)| {
+                    path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, s.clone()))
                 })
                 .collect(),
-            mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            mappings: input.mappings.into_iter().map(|(id, m)| (id, self.reconstruct_mapping(m))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
-            span: input.span,
+            ..input
         };
 
-        new_program_scope.structs.extend(mem::take(&mut self.new_structs));
-        new_program_scope
+        program.structs.extend(self.new_structs.drain(..));
+        program
     }
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
         self.program = input.program_name;
-
-        let parent_module = self.module.clone();
-        self.module = input.path.clone();
-        let new_module = Module {
-            program_name: input.program_name,
-            path: input.path,
+        self.in_module_scope(&input.path.clone(), |slf| Module {
             consts: input
                 .consts
                 .into_iter()
-                .map(|(i, c)| match self.reconstruct_const(c) {
+                .map(|(i, c)| match slf.reconstruct_const(c) {
                     (Statement::Const(declaration), _) => (i, declaration),
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            structs: input
-                .structs
-                .into_iter()
-                .map(|(i, c)| {
-                    // TODO: handle records
-                    let full_name =
-                        self.module.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
-                    let new_struct = self.reconstruct_struct(c);
-                    self.modified_structs.insert(full_name, new_struct.clone());
-                    (i, new_struct)
-                })
+            structs: slf
+                .reconstructed_structs
+                .iter()
+                .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
+                .filter(|&(_, rest, _)| input.path == rest)
+                .map(|(last, _, c)| (*last, c.clone()))
                 .collect(),
-            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
-        };
-        self.module = parent_module;
-        new_module
+            functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
+            ..input
+        })
     }
 
     fn reconstruct_function(&mut self, input: Function) -> Function {
         self.function = Some(input.identifier.name);
         Function {
-            annotations: input.annotations,
-            variant: input.variant,
-            identifier: input.identifier,
             const_parameters: input
                 .const_parameters
                 .iter()
@@ -124,8 +135,7 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                 .collect(),
             output_type: self.reconstruct_type(input.output_type).0,
             block: self.reconstruct_block(input.block).0,
-            span: input.span,
-            id: input.id,
+            ..input
         }
     }
 }

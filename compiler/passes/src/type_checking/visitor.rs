@@ -23,7 +23,6 @@ use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
-use itertools::Itertools;
 use std::ops::Deref;
 
 pub struct TypeCheckingVisitor<'a> {
@@ -82,9 +81,7 @@ impl TypeCheckingVisitor<'_> {
     /// Emits an error if the two given types are not equal.
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !Type::eq_flat_relaxed(t1, t2) => {
-                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
-            }
+            (Some(t1), Some(t2)) if !t1.eq_user(t2) => self.emit_err(TypeCheckerError::type_should_be(t1, t2, span)),
             (Some(type_), None) | (None, Some(type_)) => {
                 self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
             }
@@ -109,10 +106,7 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
-        if actual.can_coerce_to(expected) {
-            return;
-        }
-        if actual != &Type::Err && !Self::eq_user(actual, expected) {
+        if actual != &Type::Err && !actual.can_coerce_to(expected) {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
         }
@@ -792,6 +786,7 @@ impl TypeCheckingVisitor<'_> {
 
                 match &arguments[0].0 {
                     Type::Optional(OptionalType { inner }) => {
+                        // Ensure that the wrapped type and the fallback type are the same
                         self.assert_type(inner, &arguments[1].0, arguments[1].1.span());
                         inner.deref().clone()
                     }
@@ -943,7 +938,7 @@ impl TypeCheckingVisitor<'_> {
             Type::String => {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
-            // Check that table_typethe named composite type has been defined.
+            // Check that named composite type has been defined.
             Type::Composite(struct_)
                 if self
                     .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
@@ -1254,78 +1249,8 @@ impl TypeCheckingVisitor<'_> {
             } else {
                 *lhs = Type::Err;
             }
-        } else if !Self::eq_user(lhs, rhs) {
+        } else if !lhs.eq_user(rhs) {
             *lhs = Type::Err;
-        }
-    }
-
-    /// Are the types considered equal as far as the Leo user is concerned?
-    ///
-    /// In particular, any comparison involving an `Err` is `true`,
-    /// composite types are resolved to the current program if not specified,
-    /// and Futures which aren't explicit compare equal to other Futures.
-    ///
-    /// An array with an undetermined length (e.g., one that depends on a `const`) is considered equal to other arrays
-    /// if their element types match. This allows const propagation to potentially resolve the length before type
-    /// checking is performed again.
-    ///
-    /// Composite types are considered equal if their names and resolved program names match.
-    /// If either side still has const generic arguments, they are treated as equal unconditionally
-    /// since monomorphization and other passes of type-checking will handle mismatches later.
-    pub fn eq_user(t1: &Type, t2: &Type) -> bool {
-        match (t1, t2) {
-            (Type::Err, _)
-            | (_, Type::Err)
-            | (Type::Address, Type::Address)
-            | (Type::Boolean, Type::Boolean)
-            | (Type::Field, Type::Field)
-            | (Type::Group, Type::Group)
-            | (Type::Scalar, Type::Scalar)
-            | (Type::Signature, Type::Signature)
-            | (Type::String, Type::String)
-            | (Type::Unit, Type::Unit) => true,
-            (Type::Array(left), Type::Array(right)) => {
-                (match (left.length.as_u32(), right.length.as_u32()) {
-                    (Some(l1), Some(l2)) => l1 == l2,
-                    _ => {
-                        // An array with an undetermined length (e.g., one that depends on a `const`) is considered
-                        // equal to other arrays because their lengths _may_ eventually be proven equal.
-                        true
-                    }
-                }) && Self::eq_user(left.element_type(), right.element_type())
-            }
-            (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
-            (Type::Integer(left), Type::Integer(right)) => left == right,
-            (Type::Mapping(left), Type::Mapping(right)) => {
-                Self::eq_user(&left.key, &right.key) && Self::eq_user(&left.value, &right.value)
-            }
-            (Type::Optional(left), Type::Optional(right)) => Self::eq_user(&left.inner, &right.inner),
-            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
-                .elements()
-                .iter()
-                .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| Self::eq_user(left_type, right_type)),
-            (Type::Composite(left), Type::Composite(right)) => {
-                // If either composite still has const generic arguments, treat them as equal.
-                // Type checking will run again after monomorphization.
-                if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
-                    return true;
-                }
-
-                // Two composite types are the same if their programs and their _absolute_ paths match.
-                (left.program == right.program)
-                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                        (Some(l), Some(r)) => l == r,
-                        _ => false,
-                    }
-            }
-            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
-            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
-                .inputs()
-                .iter()
-                .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| Self::eq_user(left_type, right_type)),
-            _ => false,
         }
     }
 

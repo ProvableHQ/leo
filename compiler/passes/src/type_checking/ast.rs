@@ -472,7 +472,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         }
 
-        // Grab the element type from the expected type if the expected type is an array
+        // Grab the element type from the expected type if the expected type is an array or if it's
+        // an optional array
         let element_type = match additional {
             Some(Type::Array(array_ty)) => Some(array_ty.element_type().clone()),
             Some(Type::Optional(opt)) => match &*opt.inner {
@@ -614,18 +615,22 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             };
 
             // Use the inner type of the optional as the expected type for the fallback
-            let fallback_ty = self.visit_expression(fallback_expr, &Some(*inner.clone()));
+            let fallback_ty = self.visit_expression_reject_numeric(fallback_expr, &Some(*inner.clone()));
             self.assert_type(&fallback_ty, &inner, fallback_expr.span());
 
             // Return the final type: the inner type (what unwrap_or returns)
             *inner
         } else {
+            // Get the types of the arguments. Error out on arguments that have `Type::Numeric`. We could potentially do
+            // better for some of the core functions, but that can get pretty tedious because it would have to be function
+            // specific.
             let arguments_with_types = input
                 .arguments
                 .iter()
                 .map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg))
                 .collect::<Vec<_>>();
 
+            // Check return type if the expected type is known.
             self.check_core_function_call(core_instruction.clone(), &arguments_with_types, input.span())
         };
 
@@ -678,7 +683,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let assert_same_type = |slf: &Self, t1: &Type, t2: &Type| -> Type {
             if t1 == &Type::Err || t2 == &Type::Err {
                 Type::Err
-            } else if !Self::eq_user(t1, t2) {
+            } else if !t1.eq_user(t2) {
                 slf.emit_err(TypeCheckerError::operation_types_mismatch(input.op, t1, t2, input.span()));
                 Type::Err
             } else {
@@ -1510,7 +1515,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     self.check_numeric_literal(input, ty);
                     ty.clone()
                 }
-                Some(Type::Optional(opt)) => {
+                Some(ty @ Type::Optional(opt)) => {
                     // Handle optional expected type, e.g., u32?
                     let inner = &opt.inner;
                     match &**inner {
@@ -1520,7 +1525,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         }
                         _ => {
                             self.emit_err(TypeCheckerError::unexpected_unsuffixed_numeral(
-                                format!("type `{expected:?}`"),
+                                format!("type `{ty}`"),
                                 span,
                             ));
                             Type::Err
@@ -1597,13 +1602,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_tuple(&mut self, input: &TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
         if let Some(expected) = expected {
-            // Unwrap any Optional layers to reach the inner type
-            let mut ty = expected.clone();
-            while let Type::Optional(inner) = ty {
-                ty = *inner.inner;
-            }
-
-            if let Type::Tuple(ref expected_types) = ty {
+            if let Type::Tuple(expected_types) = expected {
                 // If the expected type is a tuple, then ensure it's compatible with `input`
 
                 // First, make sure that the number of tuple elements is correct
@@ -1624,7 +1623,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 });
 
                 // Just return the expected type since we proved it's correct
-                ty.clone()
+                expected.clone()
             } else {
                 // If the expected type is not a tuple, then we just error out
 
@@ -1818,7 +1817,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let t1 = self.visit_expression_reject_numeric(left, &None);
                 let t2 = self.visit_expression_reject_numeric(right, &None);
 
-                if t1 != Type::Err && t2 != Type::Err && !Self::eq_user(&t1, &t2) {
+                if t1 != Type::Err && t2 != Type::Err && !t1.eq_user(&t2) {
                     let op =
                         if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
                     self.emit_err(TypeCheckerError::operation_types_mismatch(op, t1, t2, input.span()));
