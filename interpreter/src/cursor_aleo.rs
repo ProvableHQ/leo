@@ -17,19 +17,14 @@
 use super::*;
 
 use leo_ast::{
-    BinaryOperation,
-    CoreFunction,
-    IntegerType,
-    Type,
-    UnaryOperation,
+    BinaryOperation, CoreFunction, IntegerType, Type, UnaryOperation,
     interpreter_value::{self, AsyncExecution, GlobalId, Value},
 };
 
 use snarkvm::{
     prelude::{Identifier, LiteralType, PlaintextType, Register, TestnetV0},
     synthesizer::{
-        Command,
-        Instruction,
+        Command, Instruction,
         program::{CallOperator, CastType, Operand},
     },
 };
@@ -900,7 +895,10 @@ impl Cursor {
                 }
                 return Ok(());
             }
-            Position(_) => return Ok(()),
+            Position(_) => {
+                self.increment_instruction_index();
+                return Ok(());
+            }
         };
 
         self.set_register(destination, value);
