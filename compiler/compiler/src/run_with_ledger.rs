@@ -46,6 +46,7 @@ type CurrentNetwork = TestnetV0;
 #[derive(Debug)]
 pub struct Config {
     pub seed: u64,
+    // If `None`, start at the height for the latest consensus version.
     pub start_height: Option<u32>,
     pub programs: Vec<Program>,
 }

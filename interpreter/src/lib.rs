@@ -237,6 +237,9 @@ pub fn find_and_run_tests(
                 result.insert(id, Err(err));
             }
         }
+
+        // Clear the state for the next test.
+        interpreter.cursor.clear();
     }
 
     Ok((native_test_functions, result))

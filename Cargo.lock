@@ -1863,6 +1863,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
+ "rayon",
  "rpassword",
  "self_update 0.41.0",
  "serde",

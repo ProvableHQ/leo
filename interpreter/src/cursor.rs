@@ -325,6 +325,15 @@ impl Cursor {
         }
     }
 
+    // Clears the state of the cursor, but keeps the program definitions.
+    pub fn clear(&mut self) {
+        self.frames.clear();
+        self.values.clear();
+        self.mappings.iter_mut().for_each(|(_, map)| map.clear());
+        self.contexts = Default::default();
+        self.futures.clear();
+    }
+
     fn set_place(
         new_value: Value,
         this_value: &mut Value,

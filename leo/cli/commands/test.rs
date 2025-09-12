@@ -24,7 +24,8 @@ use leo_span::Symbol;
 use snarkvm::prelude::TestnetV0;
 
 use colored::Colorize as _;
-use std::fs;
+use rayon::prelude::*;
+use std::{collections::HashMap, fs};
 
 /// Test a leo program.
 #[derive(Parser, Debug)]
@@ -110,7 +111,12 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
         })
         .collect();
 
-    let should_fails: Vec<bool> = native_test_functions.iter().map(|test_function| test_function.should_fail).collect();
+    let should_fails: HashMap<(String, String), bool> = native_test_functions
+        .iter()
+        .map(|test_function| {
+            ((test_function.program.clone(), test_function.function.clone()), test_function.should_fail)
+        })
+        .collect();
     let cases: Vec<run_with_ledger::Case> = native_test_functions
         .into_iter()
         .map(|test_function| run_with_ledger::Case {
@@ -121,30 +127,42 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
         })
         .collect();
 
-    let (handler, buf) = Handler::new_with_buf();
+    let outcomes = cases
+        .into_par_iter()
+        .map(|case| {
+            let key = (case.program_name.clone(), case.function.clone());
+            let (handler, buf) = Handler::new_with_buf();
+            let mut outcomes = run_with_ledger::run_with_ledger(
+                &run_with_ledger::Config { seed: 0, start_height: None, programs: programs.clone() },
+                &[case],
+                &handler,
+                &buf,
+            )?;
+            // Sanity check that the number of outcomes is correct. This is intended to panic if the assertion fails
+            assert_eq!(outcomes.len(), 1);
+            Ok((key, outcomes.pop().unwrap()))
+        })
+        .collect::<Result<Vec<(_, _)>>>()?;
 
-    let outcomes = run_with_ledger::run_with_ledger(
-        &run_with_ledger::Config { seed: 0, start_height: None, programs },
-        &cases,
-        &handler,
-        &buf,
-    )?;
-
-    let native_results: Vec<Option<String>> = outcomes
+    let native_results: Vec<((String, String), Option<String>)> = outcomes
         .into_iter()
-        .zip(should_fails)
-        .map(|(outcome, should_fail)| match (&outcome.status, should_fail) {
-            (run_with_ledger::Status::Accepted, false) => None,
-            (run_with_ledger::Status::Accepted, true) => Some("Test succeeded when failure was expected.".to_string()),
-            (_, true) => None,
-            (_, false) => Some(format!("{} -- {}", outcome.status, outcome.errors)),
+        .map(|(key, outcome)| {
+            let should_fail = *should_fails.get(&key).unwrap_or(&false);
+            match (&outcome.status, should_fail) {
+                (run_with_ledger::Status::Accepted, false) => (key, None),
+                (run_with_ledger::Status::Accepted, true) => {
+                    (key, Some("Test succeeded when failure was expected.".to_string()))
+                }
+                (_, true) => (key, None),
+                (_, false) => (key, Some(format!("{} -- {}", outcome.status, outcome.errors))),
+            }
         })
         .collect();
 
     // All tests are run. Report results.
     let total = interpreter_result.iter().count() + native_results.len();
     let total_passed = interpreter_result.iter().filter(|(_, test_result)| matches!(test_result, Ok(()))).count()
-        + native_results.iter().filter(|x| x.is_none()).count();
+        + native_results.iter().filter(|(_, x)| x.is_none()).count();
 
     if total == 0 {
         println!("No tests run.");
@@ -163,8 +181,8 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
             }
         }
 
-        for (case, case_result) in cases.iter().zip(native_results) {
-            let str_id = format!("{}/{}", case.program_name, case.function);
+        for ((program_name, function_name), case_result) in native_results {
+            let str_id = format!("{program_name}/{function_name}");
             if let Some(err_str) = case_result {
                 println!("{failed}: {str_id:<30} | {err_str}");
             } else {
