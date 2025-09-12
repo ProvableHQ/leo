@@ -1,48 +1,30 @@
-Failed to parse string. Remaining invalid string is: "ecdsa.verify.keccak256eth r0 r1 r2 into r6;
-    ecdsa.verify.keccak256eth.raw r0 r1 r2 into r7;
-    ecdsa.verify.keccak384 r0 r1 r2 into r8;
-    ecdsa.verify.keccak384.raw r0 r1 r2 into r9;
-    ecdsa.verify.keccak384eth r0 r1 r2 into r10;
-    ecdsa.verify.keccak384eth.raw r0 r1 r2 into r11;
-    ecdsa.verify.keccak512 r0 r1 r2 into r12;
-    ecdsa.verify.keccak512.raw r0 r1 r2 into r13;
-    ecdsa.verify.keccak512eth r0 r1 r2 into r14;
-    ecdsa.verify.keccak512eth.raw r0 r1 r2 into r15;
-    ecdsa.verify.sha3_256 r0 r1 r2 into r16;
-    ecdsa.verify.sha3_256.raw r0 r1 r2 into r17;
-    ecdsa.verify.sha3_256eth r0 r1 r2 into r18;
-    ecdsa.verify.sha3_256eth.raw r0 r1 r2 into r19;
-    ecdsa.verify.sha3_384 r0 r1 r2 into r20;
-    ecdsa.verify.sha3_384.raw r0 r1 r2 into r21;
-    ecdsa.verify.sha3_384eth r0 r1 r2 into r22;
-    ecdsa.verify.sha3_384eth.raw r0 r1 r2 into r23;
-    ecdsa.verify.sha3_512 r0 r1 r2 into r24;
-    ecdsa.verify.sha3_512.raw r0 r1 r2 into r25;
-    ecdsa.verify.sha3_512eth r0 r1 r2 into r26;
-    ecdsa.verify.sha3_512eth.raw r0 r1 r2 into r27;
-    assert.eq r3 r3;
-    assert.eq r4 r4;
-    assert.eq r5 r5;
-    assert.eq r6 r6;
-    assert.eq r7 r7;
-    assert.eq r8 r8;
-    assert.eq r9 r9;
-    assert.eq r10 r10;
-    assert.eq r11 r11;
-    assert.eq r12 r12;
-    assert.eq r13 r13;
-    assert.eq r14 r14;
-    assert.eq r15 r15;
-    assert.eq r16 r16;
-    assert.eq r17 r17;
-    assert.eq r18 r18;
-    assert.eq r19 r19;
-    assert.eq r20 r20;
-    assert.eq r21 r21;
-    assert.eq r22 r22;
-    assert.eq r23 r23;
-    assert.eq r24 r24;
-    assert.eq r25 r25;
-    assert.eq r26 r26;
-    assert.eq r27 r27;
-"
+Error [ETYC0372005]: Unknown function `ECDSA::verify_keccak256_eth_raw`
+    --> compiler-test:8:28
+     |
+   8 |             let a4: bool = ECDSA::verify_keccak256_eth_raw(one, two, three);
+     |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown function `ECDSA::verify_keccak384_eth_raw`
+    --> compiler-test:12:28
+     |
+  12 |             let a8: bool = ECDSA::verify_keccak384_eth_raw(one, two, three);
+     |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown function `ECDSA::verify_keccak512_eth_raw`
+    --> compiler-test:16:29
+     |
+  16 |             let a12: bool = ECDSA::verify_keccak512_eth_raw(one, two, three);
+     |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown function `ECDSA::verify_sha3_256_eth_raw`
+    --> compiler-test:20:29
+     |
+  20 |             let a16: bool = ECDSA::verify_sha3_256_eth_raw(one, two, three);
+     |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown function `ECDSA::verify_sha3_384_eth_raw`
+    --> compiler-test:24:29
+     |
+  24 |             let a20: bool = ECDSA::verify_sha3_384_eth_raw(one, two, three);
+     |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown function `ECDSA::verify_sha3_512_eth_raw`
+    --> compiler-test:28:29
+     |
+  28 |             let a24: bool = ECDSA::verify_sha3_512_eth_raw(one, two, three);
+     |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

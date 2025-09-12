@@ -1,35 +1,22 @@
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:9:13
-     |
-   9 |             BHP512::hash_to_field(1234567u128),
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:10:13
-     |
-  10 |             BHP512::hash_to_field(12field),
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:13:13
-     |
-  13 |             BHP512::hash_to_group(12u32),
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:14:13
-     |
-  14 |             BHP512::hash_to_group(123123scalar),
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:17:13
-     |
-  17 |             BHP512::hash_to_u32(98765field),
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:18:33
-     |
-  18 |             BHP512::hash_to_u32(BHP512::hash_to_group(168field)),
-     |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:18:13
-     |
-  18 |             BHP512::hash_to_u32(BHP512::hash_to_group(168field)),
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+program test.aleo;
+
+mapping mfield:
+    key as field.public;
+    value as field.public;
+
+mapping mgroup:
+    key as group.public;
+    value as group.public;
+
+mapping mu32:
+    key as u32.public;
+    value as u32.public;
+
+function main:
+    async main into r0;
+    output r0 as test.aleo/main.future;
+
+finalize main:
+    set 3236679066651405816080778725233890125628939339772420925284755583710370794371field into mfield[5790452939377792755765199267124367999665041371398929631131254663397134656511field];
+    set 6108511972326079101406626541757505382902231607391431570208365002437568455742group into mgroup[6245268830463555179812861046132051182013738772733163565331565952498608839676group];
+    set 401375299u32 into mu32[194685703u32];
