@@ -1,3 +1,8 @@
-Failed to parse string. Remaining invalid string is: "finalize foo:
-    rand.chacha into r0 as boolean    assert.eq r0 true;
-"
+program test.aleo;
+
+function foo:
+    async foo into r0;
+    output r0 as test.aleo/foo.future;
+
+finalize foo:
+    rand.chacha into r0 as boolean;    assert.eq r0 true;

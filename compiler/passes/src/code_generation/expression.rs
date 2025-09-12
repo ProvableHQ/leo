@@ -514,7 +514,7 @@ impl CodeGeneratingVisitor<'_> {
                     // Get the destination register.
                     let destination_register = self.next_register();
                     // Construct the instruction template.
-                    let instruction = format!("    rand.chacha into {destination_register} as {type_}");
+                    let instruction = format!("    rand.chacha into {destination_register} as {type_};");
 
                     (destination_register, instruction)
                 }
