@@ -24,6 +24,7 @@ use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
+use snarkvm::synthesizer::program::{CommitVariant, HashVariant};
 use std::ops::Deref;
 
 pub struct TypeCheckingVisitor<'a> {
@@ -293,10 +294,10 @@ impl TypeCheckingVisitor<'_> {
         match core_function {
             CoreFunction::Commit(variant, type_) => {
                 match variant {
-                    HashVariant::Pedersen64 => {
+                    CommitVariant::CommitPED64 => {
                         assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                     }
-                    HashVariant::Pedersen128 => {
+                    CommitVariant::CommitPED128 => {
                         assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                     }
                     _ => {
@@ -304,23 +305,23 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
                 self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                type_
+                type_.into()
             }
-            CoreFunction::Hash(variant, _, type_) => {
+            CoreFunction::Hash(variant, type_) => {
                 match variant {
-                    HashVariant::Pedersen64 => {
+                    HashVariant::HashPED64 => {
                         assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
                     }
-                    HashVariant::Pedersen128 => {
+                    HashVariant::HashPED128 => {
                         assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
                     }
                     _ => {
                         assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                     }
                 }
-                type_
+                type_.into()
             }
-            CoreFunction::ECDSAVerify(_, _, _) => {
+            CoreFunction::ECDSAVerify(_variant) => {
                 // Allow any input type.
                 Type::Boolean
             }
@@ -418,7 +419,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1.span());
                 Type::Field
             }
-            CoreFunction::ChaChaRand(type_) => type_,
+            CoreFunction::ChaChaRand(type_) => type_.into(),
             CoreFunction::SignatureVerify(_) => {
                 // Check that the third argument is not a mapping nor a tuple. We have to do this
                 // before the other checks below to appease the borrow checker

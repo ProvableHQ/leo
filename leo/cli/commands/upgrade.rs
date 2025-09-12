@@ -25,7 +25,9 @@ use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     ledger::query::Query as SnarkVMQuery,
     prelude::{
-        Program, TestnetV0, VM,
+        Program,
+        TestnetV0,
+        VM,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
@@ -40,7 +42,6 @@ use snarkvm::{
     synthesizer::program::StackTrait,
 };
 use std::path::PathBuf;
-use ureq::http::Uri;
 
 /// Upgrades an Aleo program.
 #[derive(Parser, Debug)]

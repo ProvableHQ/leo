@@ -29,7 +29,6 @@ use leo_ast::{
     CoreFunction,
     ErrExpression,
     Expression,
-    Identifier,
     Literal,
     LiteralVariant,
     Location,
@@ -49,6 +48,7 @@ use leo_ast::{
     Variant,
 };
 use leo_span::sym;
+use snarkvm::synthesizer::program::{CommitVariant, ECDSAVerifyVariant, HashVariant};
 
 use std::{borrow::Borrow, fmt::Write as _};
 
@@ -437,16 +437,16 @@ impl CodeGeneratingVisitor<'_> {
             CoreFunction::from_symbols(input.variant.name, input.name.name)
         {
             match core_function {
-                ref core_function @ CoreFunction::Commit(_, ref type_) => {
-                    let mut instruction = format!("    {}", core_function.opcode());
+                CoreFunction::Commit(variant, ref type_) => {
+                    let mut instruction = format!("    {}", CommitVariant::opcode(variant as u8));
                     let destination_register = self.next_register();
                     // Write the arguments and the destination register.
                     writeln!(instruction, " {} {} into {destination_register} as {type_};", arguments[0], arguments[1])
                         .expect("failed to write to string");
                     (destination_register, instruction)
                 }
-                ref core_function @ CoreFunction::Hash(_, _, ref type_) => {
-                    let mut instruction = format!("    {}", core_function.opcode());
+                CoreFunction::Hash(variant, ref type_) => {
+                    let mut instruction = format!("    {}", HashVariant::opcode(variant as u8));
                     let destination_register = self.next_register();
                     // Write the arguments and the destination register.
                     writeln!(instruction, " {} into {destination_register} as {type_};", arguments[0])
@@ -518,8 +518,23 @@ impl CodeGeneratingVisitor<'_> {
 
                     (destination_register, instruction)
                 }
-                core_function @ (CoreFunction::SignatureVerify(_) | CoreFunction::ECDSAVerify(_, _, _)) => {
-                    let mut instruction = format!("    {}", core_function.opcode());
+                CoreFunction::SignatureVerify(is_raw) => {
+                    let mut instruction = format!("    {}", match is_raw {
+                        true => "sign.verify.raw",
+                        false => "sign.verify",
+                    });
+                    let destination_register = self.next_register();
+                    // Write the arguments and the destination register.
+                    writeln!(
+                        instruction,
+                        " {} {} {} into {destination_register};",
+                        arguments[0], arguments[1], arguments[2]
+                    )
+                    .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                CoreFunction::ECDSAVerify(variant) => {
+                    let mut instruction = format!("    {}", ECDSAVerifyVariant::opcode(variant as u8));
                     let destination_register = self.next_register();
                     // Write the arguments and the destination register.
                     writeln!(

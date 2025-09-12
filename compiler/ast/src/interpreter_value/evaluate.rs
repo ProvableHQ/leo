@@ -20,8 +20,17 @@ use leo_errors::{InterpreterHalt, Result};
 use leo_span::Span;
 
 use crate::{
-    BinaryOperation, FromStrRadix as _, IntegerType, Literal, LiteralVariant, Type, UnaryOperation, fail2,
-    halt_no_span2, halt2, tc_fail2,
+    BinaryOperation,
+    FromStrRadix as _,
+    IntegerType,
+    Literal,
+    LiteralVariant,
+    Type,
+    UnaryOperation,
+    fail2,
+    halt_no_span2,
+    halt2,
+    tc_fail2,
 };
 
 use super::*;

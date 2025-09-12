@@ -16,8 +16,10 @@
 
 use leo_span::{Symbol, sym};
 
-use snarkvm::prelude::LiteralType;
-use snarkvm::synthesizer::program::{CommitVariant, ECDSAVerifyVariant, HashVariant};
+use snarkvm::{
+    prelude::LiteralType,
+    synthesizer::program::{CommitVariant, ECDSAVerifyVariant, HashVariant},
+};
 
 /// A core instruction that maps directly to an AVM bytecode instruction.
 #[derive(Clone, Debug, PartialEq, Eq)]

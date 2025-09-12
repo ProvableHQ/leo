@@ -26,14 +26,16 @@ use snarkvm::prelude::{Execution, Itertools, Network, Program, execution_cost};
 use clap::Parser;
 use colored::*;
 use std::{convert::TryFrom, path::PathBuf};
-use ureq::http::Uri;
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     prelude::{
-        ConsensusVersion, Identifier, ProgramID, VM,
+        ConsensusVersion,
+        Identifier,
+        ProgramID,
+        VM,
         query::Query as SnarkVMQuery,
         store::{
             ConsensusStore,

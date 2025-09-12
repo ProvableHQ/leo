@@ -41,7 +41,6 @@ use snarkvm::{
 use colored::*;
 use itertools::Itertools;
 use std::{collections::HashSet, fs, path::PathBuf};
-use ureq::http::Uri;
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]

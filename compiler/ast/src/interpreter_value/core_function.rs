@@ -20,7 +20,8 @@ use rand::Rng as _;
 use rand_chacha::ChaCha20Rng;
 
 use crate::{
-    CoreFunction, Expression,
+    CoreFunction,
+    Expression,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
 };
@@ -116,13 +117,22 @@ pub fn evaluate_core_function(
         Ok(value.into())
     };
 
-    let doecdsa = |helper: &mut dyn CoreFunctionHelper, variant: ECDSAVerifyVariant| -> Result<bool> {
-        let public_key: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
-        let signature: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+    let doschnorr = |helper: &mut dyn CoreFunctionHelper, is_raw: bool| -> Result<Value> {
+        let signature: Signature = helper.pop_value()?.try_into().expect_tc(span)?;
+        let address: Address = helper.pop_value()?.try_into().expect_tc(span)?;
         let message: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
         let is_valid =
-            snarkvm::synthesizer::program::evaluate_ecdsa_verification(variant, &public_key, &message, &signature)?;
-        Ok(is_valid)
+            snarkvm::synthesizer::program::evaluate_schnorr_verification(is_raw, &signature, &address, &message)?;
+        Ok(Boolean::new(is_valid).into())
+    };
+
+    let doecdsa = |helper: &mut dyn CoreFunctionHelper, variant: ECDSAVerifyVariant| -> Result<Value> {
+        let signature: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let public_key: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let message: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let is_valid =
+            snarkvm::synthesizer::program::evaluate_ecdsa_verification(variant, &signature, &public_key, &message)?;
+        Ok(Boolean::new(is_valid).into())
     };
 
     macro_rules! random {
@@ -136,10 +146,30 @@ pub fn evaluate_core_function(
     }
 
     let value = match core_function {
-        CoreFunction::ChaChaRand(type_) => todo!(),
+        CoreFunction::ChaChaRand(type_) => match type_ {
+            LiteralType::Address => random!(Address),
+            LiteralType::Boolean => random!(bool),
+            LiteralType::Field => random!(Field),
+            LiteralType::Group => random!(Group),
+            LiteralType::I8 => random!(i8),
+            LiteralType::I16 => random!(i16),
+            LiteralType::I32 => random!(i32),
+            LiteralType::I64 => random!(i64),
+            LiteralType::I128 => random!(i128),
+            LiteralType::U8 => random!(u8),
+            LiteralType::U16 => random!(u16),
+            LiteralType::U32 => random!(u32),
+            LiteralType::U64 => random!(u64),
+            LiteralType::U128 => random!(u128),
+            LiteralType::Scalar => random!(Scalar),
+            LiteralType::String | LiteralType::Signature => {
+                crate::halt_no_span2!("cannot generate random value of type `{type_}`")
+            }
+        },
         CoreFunction::Commit(commit_variant, type_) => docommit(helper, commit_variant, type_)?,
         CoreFunction::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
-        CoreFunction::ECDSAVerify(ecdsa_variant, type_) => todo!(),
+        CoreFunction::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
+        CoreFunction::SignatureVerify(is_raw) => doschnorr(helper, is_raw)?,
         CoreFunction::GroupToXCoordinate => {
             let g: Group = helper.pop_value()?.try_into().expect_tc(span)?;
             g.to_x_coordinate().into()
@@ -224,7 +254,6 @@ pub fn evaluate_core_function(
             };
             helper.mapping_get(program, name, &key).is_some().into()
         }
-        CoreFunction::SignatureVerify(_) => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
 
         CoreFunction::ProgramChecksum => {
