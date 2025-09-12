@@ -1,0 +1,29 @@
+program const_optionals.aleo;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+struct MyStruct:
+    x as Optional__8hhrPm4c3KB;
+
+function const_single_optional:
+    output 10u8 as u8.private;
+
+function const_array_of_optionals:
+    output 2u8 as u8.private;
+
+function const_tuple_with_optional:
+    output 99u8 as u8.private;
+
+function const_nested_array:
+    output 5u8 as u8.private;
+
+function const_struct_with_optional:
+    output 88u8 as u8.private;
+
+function const_array_of_structs:
+    output 33u8 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

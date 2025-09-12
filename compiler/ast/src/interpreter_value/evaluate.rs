@@ -49,6 +49,33 @@ impl Value {
         Ok(match (&self.contents, &rhs.contents) {
             (Unsuffixed(..), _) | (_, Unsuffixed(..)) => halt_no_span2!("Error"),
             (Unit, Unit) => true,
+            (Struct(x), Struct(y)) => {
+                if x.len() != y.len() {
+                    return Ok(false);
+                }
+                for (key, x_val) in x {
+                    match y.get(key) {
+                        Some(y_val) => {
+                            if !x_val.eq(y_val)? {
+                                return Ok(false);
+                            }
+                        }
+                        Option::None => return Ok(false),
+                    }
+                }
+                true
+            }
+            (Array(x), Array(y)) => {
+                if x.len() != y.len() {
+                    return Ok(false);
+                }
+                for (x0, y0) in x.iter().zip(y) {
+                    if !x0.eq(y0)? {
+                        return Ok(false);
+                    }
+                }
+                true
+            }
             (Tuple(x), Tuple(y)) => {
                 if x.len() != y.len() {
                     return Ok(false);
@@ -195,7 +222,13 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
                 address.into()
             }
         }
-        LiteralVariant::None => Value { id: None, contents: ValueVariants::None },
+        LiteralVariant::None => {
+            if let Some(expected_ty) = expected_ty {
+                Value { id: None, contents: ValueVariants::None(expected_ty.clone()) }
+            } else {
+                halt2!(literal.span, "cannot infer type of None literal")
+            }
+        }
         LiteralVariant::Scalar(s) => {
             SvmLiteralParam::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span)?).into()
         }

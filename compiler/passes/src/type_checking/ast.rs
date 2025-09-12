@@ -527,9 +527,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        // Infer the type of the expression to repeat
-        let expected_element_type =
-            if let Some(Type::Array(array_ty)) = additional { Some(array_ty.element_type().clone()) } else { None };
+        // Grab the element type from the expected type if the expected type is an array or if it's
+        // an optional array
+        let expected_element_type = match additional {
+            Some(Type::Array(array_ty)) => Some(array_ty.element_type().clone()),
+            Some(Type::Optional(opt)) => match &*opt.inner {
+                Type::Array(array_ty) => Some(array_ty.element_type().clone()),
+                _ => None,
+            },
+            _ => None,
+        };
 
         let inferred_element_type = self.visit_expression_reject_numeric(&input.expr, &expected_element_type);
 

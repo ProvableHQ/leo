@@ -1250,4 +1250,13 @@ create_messages!(
         ),
         help: None,
     }
+
+    @formatted
+    optional_wrapping_unsupported {
+        args: (ty: impl Display),
+        msg: format!(
+            "The type `{ty}` cannot be wrapped in an optional.",
+        ),
+        help: None,
+    }
 );

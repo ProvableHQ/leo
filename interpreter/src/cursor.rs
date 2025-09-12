@@ -28,6 +28,7 @@ use leo_ast::{
     Expression,
     Function,
     NodeID,
+    OptionalType,
     Statement,
     StructVariableInitializer,
     Type,
@@ -333,8 +334,10 @@ impl Cursor {
     ) -> Result<()> {
         match places.next() {
             None => *this_value = new_value,
-            Some(Expression::ArrayAccess(_access)) => {
+            Some(Expression::ArrayAccess(access)) => {
                 let index = indices.next().unwrap();
+                let index = index
+                    .resolve_if_unsuffixed(&Some(Type::Integer(leo_ast::IntegerType::U32)), access.index.span())?;
                 let index = index.as_u32().unwrap() as usize;
 
                 let mut index_value = this_value.array_index(index).expect("Type");
@@ -412,8 +415,10 @@ impl Cursor {
 
         for place in places.iter().rev() {
             match place {
-                Expression::ArrayAccess(_access) => {
+                Expression::ArrayAccess(access) => {
                     let next_index = indices_iter.next().unwrap();
+                    let next_index = next_index
+                        .resolve_if_unsuffixed(&Some(Type::Integer(leo_ast::IntegerType::U32)), access.index.span())?;
                     temp_value = temp_value.array_index(next_index.as_u32().unwrap() as usize).unwrap();
                 }
                 Expression::TupleAccess(access) => {
@@ -942,6 +947,10 @@ impl Cursor {
             Expression::Array(array) if step == 0 => {
                 let element_type = expected_ty.clone().and_then(|ty| match ty {
                     Type::Array(ArrayType { element_type, .. }) => Some(*element_type),
+                    Type::Optional(OptionalType { inner }) => match *inner {
+                        Type::Array(ArrayType { element_type, .. }) => Some(*element_type),
+                        _ => None,
+                    },
                     _ => None,
                 });
 
@@ -956,6 +965,10 @@ impl Cursor {
             Expression::Repeat(repeat) if step == 0 => {
                 let element_type = expected_ty.clone().and_then(|ty| match ty {
                     Type::Array(ArrayType { element_type, .. }) => Some(*element_type),
+                    Type::Optional(OptionalType { inner }) => match *inner {
+                        Type::Array(ArrayType { element_type, .. }) => Some(*element_type),
+                        _ => None,
+                    },
                     _ => None,
                 });
 
@@ -991,6 +1004,9 @@ impl Cursor {
 
                 // We want to push expressions for each of the arguments... except for mappings,
                 // because we don't look them up as Values.
+                //
+                // Also, `OptionalUnwrapOr` is special in the sense that the fallback value gets
+                // the expected value of the whole expression
                 match core_function {
                     CoreFunction::MappingGet | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
                         push!()(&function.arguments[1], &None);
@@ -998,6 +1014,10 @@ impl Cursor {
                     CoreFunction::MappingGetOrUse | CoreFunction::MappingSet => {
                         push!()(&function.arguments[2], &None);
                         push!()(&function.arguments[1], &None);
+                    }
+                    CoreFunction::OptionalUnwrapOr => {
+                        push!()(&function.arguments[1], expected_ty); // fallback value
+                        push!()(&function.arguments[0], &None); // the optional to unwrap
                     }
                     CoreFunction::CheatCodePrintMapping => {
                         // Do nothing, as we don't need to evaluate the mapping.
@@ -1189,7 +1209,13 @@ impl Cursor {
             Expression::Path(path) if step == 0 => {
                 Some(self.lookup(&self.to_absolute_path(&path.as_symbols())).expect_tc(path.span())?)
             }
-            Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
+            Expression::Literal(literal) if step == 0 => {
+                let expected_ty = expected_ty.as_ref().map(|ty| match ty {
+                    Type::Optional(opt) => *opt.inner.clone(),
+                    _ => ty.clone(),
+                });
+                Some(literal_to_value(literal, &expected_ty)?)
+            }
             Expression::Locator(_locator) => todo!(),
             Expression::Struct(struct_) if step == 0 => {
                 let members =
@@ -1226,21 +1252,44 @@ impl Cursor {
                 Some(Value::make_struct(contents, self.current_program().unwrap(), struct_.path.as_symbols()))
             }
             Expression::Ternary(ternary) if step == 0 => {
-                push!()(&ternary.condition, &None);
+                push!()(&ternary.condition, expected_ty);
                 None
             }
             Expression::Ternary(ternary) if step == 1 => {
                 let condition = self.pop_value()?;
                 match condition.try_into() {
-                    Ok(true) => push!()(&ternary.if_true, &None),
-                    Ok(false) => push!()(&ternary.if_false, &None),
+                    Ok(true) => push!()(&ternary.if_true, expected_ty),
+                    Ok(false) => push!()(&ternary.if_false, expected_ty),
                     _ => halt!(ternary.span(), "Invalid type for ternary expression {ternary}"),
                 }
                 None
             }
             Expression::Ternary(_) if step == 2 => Some(self.pop_value()?),
             Expression::Tuple(tuple) if step == 0 => {
-                tuple.elements.iter().rev().for_each(|t| push!()(t, &None));
+                // Extract the tuple types from expected_ty if available
+                let expected_element_types = match expected_ty {
+                    Some(Type::Tuple(tuple_type)) => Some(&tuple_type.elements),
+                    Some(Type::Optional(optional_type)) => match optional_type.inner.as_ref() {
+                        Type::Tuple(tuple_type) => Some(&tuple_type.elements),
+                        _ => None,
+                    },
+                    _ => None,
+                };
+
+                match expected_element_types {
+                    Some(expected_types) => {
+                        tuple.elements.iter().rev().zip(expected_types.iter().rev()).for_each(|(t, ty)| {
+                            push!()(t, &Some(ty.clone()));
+                        });
+                    }
+                    None => {
+                        // If no expected types available, default to None
+                        tuple.elements.iter().rev().for_each(|t| {
+                            push!()(t, &None);
+                        });
+                    }
+                }
+
                 None
             }
             Expression::Tuple(tuple) if step == 1 => {

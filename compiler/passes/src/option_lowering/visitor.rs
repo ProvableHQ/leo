@@ -196,11 +196,12 @@ fn zero_value_expression(
         Type::Field => Some(Literal::field("0".to_string(), span, id).into()),
         Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
         Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
-        Type::Address => Some(
-            // TODO: what is the right default here?
-            Literal::address("aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx".to_string(), span, id)
-                .into(),
-        ),
+        Type::Address => todo!(),
+        //Some(
+        // Literal::address("aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx".to_string(), span, id)
+        //    .into(),
+        //),
+        Type::Signature => todo!(),
 
         // Structs (composite types)
         Type::Composite(composite_type) => {

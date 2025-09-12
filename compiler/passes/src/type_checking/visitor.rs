@@ -996,6 +996,31 @@ impl TypeCheckingVisitor<'_> {
                 }
                 self.assert_type_is_valid(array_type.element_type(), span);
             }
+            Type::Optional(OptionalType { inner }) => {
+                match &**inner {
+                    Type::Composite(struct_type) => {
+                        // Look up the type.
+                        if let Some(struct_) = self.lookup_struct(
+                            struct_type.program.or(self.scope_state.program_name),
+                            &struct_type.path.absolute_path(),
+                        ) {
+                            // Check that the type is not a record.
+                            if struct_.is_record {
+                                self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span));
+                            }
+                        }
+                    }
+                    Type::Future(_)
+                    | Type::Identifier(_)
+                    | Type::Mapping(_)
+                    | Type::Optional(_)
+                    | Type::String
+                    | Type::Tuple(_) => {
+                        self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span));
+                    }
+                    _ => self.assert_type_is_valid(inner, span),
+                }
+            }
             _ => {} // Do nothing.
         }
     }

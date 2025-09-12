@@ -306,7 +306,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             *element = new_element;
         });
         if values.len() == input.elements.len() {
-            (input.into(), Some(Value::make_array(values.into_iter())))
+            (input.into(), Some(Value::make_array(values)))
         } else {
             (input.into(), None)
         }
@@ -405,6 +405,12 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         _addiional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let type_info = self.state.type_table.get(&input.id());
+
+        // If this is an optional, then unwrap it first.
+        let type_info = type_info.as_ref().map(|ty| match ty {
+            Type::Optional(opt) => *opt.inner.clone(),
+            _ => ty.clone(),
+        });
 
         let value =
             interpreter_value::literal_to_value(&input, &type_info).expect("Failed to convert literal to value");

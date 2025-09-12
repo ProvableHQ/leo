@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::{Expression, IntegerType, NodeBuilder, Type};
+
 use std::{
     collections::BTreeMap,
     fmt,
@@ -21,6 +23,7 @@ use std::{
     str::FromStr,
 };
 
+use indexmap::IndexMap;
 use itertools::Itertools as _;
 
 use snarkvm::prelude::{
@@ -48,8 +51,6 @@ pub(crate) use snarkvm::prelude::{
 
 use leo_errors::Result;
 use leo_span::{Span, Symbol};
-
-use crate::{Expression, IntegerType, NodeBuilder, Type};
 
 pub(crate) type CurrentNetwork = TestnetV0;
 
@@ -87,8 +88,10 @@ pub(crate) enum ValueVariants {
     Unit,
     Svm(SvmValue),
     Tuple(Vec<Value>),
+    Array(Vec<Value>),
+    Struct(IndexMap<Symbol, Value>),
     Unsuffixed(String),
-    None,
+    None(Type),
     Future(Vec<AsyncExecution>),
 }
 
@@ -160,20 +163,35 @@ impl Hash for ValueVariants {
                 1u8.hash(state);
                 vec.len().hash(state);
             }
-            Unsuffixed(s) => {
+            Array(vec) => {
                 2u8.hash(state);
+                vec.len().hash(state);
+            }
+            Struct(map) => {
+                3u8.hash(state);
+                map.len().hash(state);
+                // The correctness of this hash depends on the members being
+                // in the same order for each type.
+                map.iter().for_each(|(key, value)| {
+                    key.hash(state);
+                    value.hash(state);
+                });
+            }
+            Unsuffixed(s) => {
+                4u8.hash(state);
                 s.hash(state);
             }
             Future(async_executions) => {
-                3u8.hash(state);
+                5u8.hash(state);
                 async_executions.hash(state);
             }
-            None => {
-                4u8.hash(state);
+            None(_) => {
+                6u8.hash(state);
+                // ty.hash(state); // TODO
             }
             Svm(value) => match value {
                 SvmValueParam::Record(record) => {
-                    4u8.hash(state);
+                    7u8.hash(state);
                     (**record.version()).hash(state);
                     record.nonce().hash(state);
                     // NOTE - we don't actually hash the data or owner. Thus this is
@@ -182,7 +200,7 @@ impl Hash for ValueVariants {
                     // keys for mappings, which cannot be records.
                 }
                 SvmValueParam::Future(future) => {
-                    5u8.hash(state);
+                    8u8.hash(state);
                     future.program_id().hash(state);
                     future.function_name().hash(state);
                     // Ditto - we don't hash the arguments.
@@ -332,7 +350,17 @@ impl TryFrom<Value> for SvmValue {
     type Error = ();
 
     fn try_from(value: Value) -> Result<Self, Self::Error> {
-        if let ValueVariants::Svm(x) = value.contents { Ok(x) } else { Err(()) }
+        match value.contents {
+            ValueVariants::Svm(x) => Ok(x),
+
+            // Try to promote Array/Struct into SvmPlaintext -> wrap as SvmValueParam::Plaintext
+            ValueVariants::Array(_) | ValueVariants::Struct(_) => {
+                let plaintext = SvmPlaintext::try_from(value)?;
+                Ok(SvmValueParam::Plaintext(plaintext))
+            }
+
+            _ => Err(()),
+        }
     }
 }
 
@@ -340,7 +368,26 @@ impl TryFrom<Value> for SvmPlaintext {
     type Error = ();
 
     fn try_from(value: Value) -> Result<Self, Self::Error> {
-        if let ValueVariants::Svm(SvmValueParam::Plaintext(x)) = value.contents { Ok(x) } else { Err(()) }
+        match value.contents {
+            ValueVariants::Svm(SvmValueParam::Plaintext(x)) => Ok(x),
+
+            ValueVariants::Array(values) => {
+                let converted: Result<Vec<_>, _> = values.into_iter().map(SvmPlaintext::try_from).collect();
+                Ok(Plaintext::Array(converted?, Default::default()))
+            }
+
+            ValueVariants::Struct(map) => {
+                let mut result = IndexMap::with_capacity(map.len());
+                for (key, val) in map {
+                    let identifier: SvmIdentifier = key.to_string().parse().expect("Can't parse identifier.");
+                    let converted = SvmPlaintext::try_from(val)?;
+                    result.insert(identifier, converted);
+                }
+                Ok(Plaintext::Struct(result, Default::default()))
+            }
+
+            _ => Err(()),
+        }
     }
 }
 
@@ -384,9 +431,18 @@ impl fmt::Display for Value {
             }
             ValueVariants::Svm(value) => value.fmt(f),
             ValueVariants::Tuple(vec) => write!(f, "({})", vec.iter().format(", ")),
+            ValueVariants::Array(vec) => write!(f, "[{}]", vec.iter().format(", ")),
+            ValueVariants::Struct(map) => {
+                if let Some(id) = &self.id {
+                    write!(f, "{id} ")?;
+                }
+                write!(f, "{{")?;
+                write!(f, "{}", map.iter().map(|(member, value)| format!("{member}: {value}")).format(", "))?;
+                write!(f, "}}")
+            }
             ValueVariants::Unsuffixed(s) => s.fmt(f),
             ValueVariants::Future(_async_executions) => "Future".fmt(f),
-            ValueVariants::None => write!(f, "None"),
+            ValueVariants::None(ty) => write!(f, "None::<{ty}>"),
         }
     }
 }
@@ -575,23 +631,19 @@ impl Value {
     }
 
     pub fn array_index(&self, i: usize) -> Option<Self> {
-        let plaintext: &SvmPlaintext = self.try_as_ref()?;
-        let Plaintext::Array(array, ..) = plaintext else {
+        let ValueVariants::Array(array) = &self.contents else {
             return None;
         };
 
-        Some(array[i].clone().into())
+        Some(array[i].clone())
     }
 
     pub fn array_index_set(&mut self, i: usize, value: Self) -> Option<()> {
-        let plaintext_rhs: SvmPlaintext = value.try_into().ok()?;
-
-        let ValueVariants::Svm(SvmValue::Plaintext(Plaintext::Array(arr, once_cell))) = &mut self.contents else {
+        let ValueVariants::Array(array) = &mut self.contents else {
             return None;
         };
-        *once_cell = Default::default();
 
-        *arr.get_mut(i)? = plaintext_rhs;
+        *array.get_mut(i)? = value;
 
         Some(())
     }
@@ -650,22 +702,15 @@ impl Value {
 
     pub fn member_access(&self, member: Symbol) -> Option<Self> {
         match &self.contents {
-            ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Struct(map, ..))) => {
-                let identifier: SvmIdentifier =
-                    member.to_string().parse().expect("Member name should be valid identifier");
-                Some(map.get(&identifier)?.clone().into())
-            }
+            ValueVariants::Struct(map, ..) => Some(map.get(&member)?.clone()),
             _ => None,
         }
     }
 
     pub fn member_set(&mut self, member: Symbol, value: Value) -> Option<()> {
-        let plaintext: SvmPlaintext = value.try_into().ok()?;
         match &mut self.contents {
-            ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Struct(map, once_cell))) => {
-                *once_cell = Default::default();
-                let identifier: SvmIdentifier = member.to_string().parse().ok()?;
-                *map.get_mut(&identifier)? = plaintext;
+            ValueVariants::Struct(map) => {
+                *map.get_mut(&member)? = value.clone();
                 Some(())
             }
 
@@ -708,19 +753,7 @@ impl Value {
     pub fn make_struct(contents: impl Iterator<Item = (Symbol, Value)>, program: Symbol, path: Vec<Symbol>) -> Self {
         let id = Some(GlobalId { program, path });
 
-        let contents = Plaintext::Struct(
-            contents
-                .map(|(symbol, value)| {
-                    let identifier =
-                        symbol.to_string().parse().expect("Invalid identifiers shouldn't have been allowed.");
-                    let plaintext = value.try_into().expect("Invalid struct members shouldn't have been allowed.");
-                    (identifier, plaintext)
-                })
-                .collect(),
-            Default::default(),
-        );
-
-        Value { id, contents: ValueVariants::Svm(contents.into()) }
+        Value { id, contents: ValueVariants::Struct(contents.collect()) }
     }
 
     pub fn make_record(contents: impl Iterator<Item = (Symbol, Value)>, program: Symbol, path: Vec<Symbol>) -> Self {
@@ -759,15 +792,8 @@ impl Value {
         Value { id, contents: ValueVariants::Svm(contents) }
     }
 
-    pub fn make_array(contents: impl Iterator<Item = Value>) -> Self {
-        let vec = contents
-            .map(|value| {
-                let plaintext: SvmPlaintext =
-                    value.try_into().expect("Invalid array members shouldn't have been allowed.");
-                plaintext
-            })
-            .collect();
-        SvmPlaintext::Array(vec, Default::default()).into()
+    pub fn make_array(contents: impl IntoIterator<Item = Value>) -> Self {
+        ValueVariants::Array(contents.into_iter().collect()).into()
     }
 
     pub fn make_tuple(contents: impl IntoIterator<Item = Value>) -> Self {
@@ -779,6 +805,11 @@ impl Value {
     pub fn get_numeric_type(&self) -> Option<Type> {
         use IntegerType::*;
         use Type::*;
+
+        if let ValueVariants::None(ty) = &self.contents {
+            return Some(ty.clone());
+        }
+
         let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(literal, ..))) = &self.contents else {
             return None;
         };
@@ -808,7 +839,16 @@ impl Value {
         ty: &Type,
         struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
     ) -> Option<Expression> {
-        use crate::{Literal, TupleExpression, UnitExpression};
+        use crate::{
+            ArrayExpression,
+            Identifier,
+            Literal,
+            OptionalType,
+            StructExpression,
+            StructVariableInitializer,
+            TupleExpression,
+            UnitExpression,
+        };
 
         let id = node_builder.next_id();
         let expression = match &self.contents {
@@ -833,8 +873,72 @@ impl Value {
                 }
                 .into()
             }
+            ValueVariants::Array(vec) => {
+                let array_type = match ty {
+                    Type::Array(array_type) => array_type,
+                    Type::Optional(OptionalType { inner }) => match &**inner {
+                        Type::Array(array_type) => array_type,
+                        _ => return None,
+                    },
+                    _ => return None,
+                };
+
+                if vec.len() != array_type.length.as_u32().unwrap() as usize {
+                    return None;
+                }
+
+                let element_type = array_type.element_type.clone();
+
+                ArrayExpression {
+                    span,
+                    id,
+                    elements: vec
+                        .iter()
+                        .map(|val| val.to_expression(span, node_builder, &element_type, struct_lookup))
+                        .collect::<Option<Vec<_>>>()?,
+                }
+                .into()
+            }
+            ValueVariants::Struct(map) => {
+                let composite_type = match ty {
+                    Type::Composite(composite_type) => composite_type,
+                    Type::Optional(OptionalType { inner }) => match &**inner {
+                        Type::Composite(composite_type) => composite_type,
+                        _ => return None,
+                    },
+                    _ => return None,
+                };
+
+                let symbols = composite_type.path.absolute_path();
+                let iter_members = struct_lookup(&symbols);
+                StructExpression {
+                    span,
+                    id,
+                    path: composite_type.path.clone(),
+                    // If we were able to construct a Value, the const arguments must have already been resolved
+                    // and inserted appropriately.
+                    const_arguments: Vec::new(),
+                    members: iter_members
+                        .into_iter()
+                        .map(|(sym, ty)| {
+                            Some(StructVariableInitializer {
+                                span,
+                                id: node_builder.next_id(),
+                                identifier: Identifier::new(sym, node_builder.next_id()),
+                                expression: Some(map.get(&sym)?.to_expression(
+                                    span,
+                                    node_builder,
+                                    &ty,
+                                    &struct_lookup,
+                                )?),
+                            })
+                        })
+                        .collect::<Option<Vec<_>>>()?,
+                }
+                .into()
+            }
             ValueVariants::Unsuffixed(s) => Literal::unsuffixed(s.clone(), span, id).into(),
-            ValueVariants::None => Literal::none(span, id).into(),
+            ValueVariants::None(_) => Literal::none(span, id).into(),
             ValueVariants::Svm(value) => match value {
                 SvmValueParam::Plaintext(plaintext) => {
                     plaintext_to_expression(plaintext, span, node_builder, ty, &struct_lookup)?
@@ -850,7 +954,7 @@ impl Value {
     }
 
     pub fn is_none(&self) -> bool {
-        matches!(self.contents, ValueVariants::None)
+        matches!(self.contents, ValueVariants::None(_))
     }
 }
 
