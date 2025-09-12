@@ -126,6 +126,11 @@ impl LeoDevnet {
             validate_consensus_heights(heights.as_slice())?;
         }
 
+        // Validate the number of validators.
+        if self.num_validators < 4 {
+            bail!("The number of validators must be at least 4.");
+        }
+
         // Resolve the snarkOS path to its canonical form.
 
         if self.install {
