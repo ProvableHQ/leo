@@ -16,8 +16,8 @@
 
 use super::*;
 
-use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData, TEST_PRIVATE_KEY};
+use leo_ast::{NetworkName, TEST_PRIVATE_KEY};
+use leo_package::{Package, ProgramData};
 
 use aleo_std::StorageMode;
 

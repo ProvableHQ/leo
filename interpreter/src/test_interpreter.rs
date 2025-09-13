@@ -35,8 +35,6 @@ use walkdir::WalkDir;
 
 use crate::interpreter::{Interpreter, InterpreterAction};
 
-pub static TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
-
 const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
 
 type CurrentNetwork = TestnetV0;
@@ -114,8 +112,8 @@ fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<Test
         &ledger_buf,
     ))?;
 
-    let private_key =
-        PrivateKey::<CurrentNetwork>::from_str(TEST_PRIVATE_KEY).expect("Should be able to parse private key.");
+    let private_key = PrivateKey::<CurrentNetwork>::from_str(leo_ast::TEST_PRIVATE_KEY)
+        .expect("Should be able to parse private key.");
     let address = Address::<CurrentNetwork>::try_from(&private_key).expect("Should be able to create address.");
 
     let tempdir = tempfile::tempdir().expect("tempdir");

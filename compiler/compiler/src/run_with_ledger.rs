@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::interpreter_value::Value;
+use leo_ast::{TEST_PRIVATE_KEY, interpreter_value::Value};
 use leo_errors::{BufferEmitter, ErrBuffer, Handler, LeoError, Result, WarningBuffer};
 
 use aleo_std_storage::StorageMode;
@@ -119,7 +119,7 @@ pub fn run_with_ledger(
     let mut rng = ChaCha20Rng::seed_from_u64(config.seed);
 
     // Initialize a genesis private key.
-    let genesis_private_key = PrivateKey::new(&mut rng).unwrap();
+    let genesis_private_key = PrivateKey::from_str(TEST_PRIVATE_KEY).unwrap();
 
     // Initialize a `VM` and construct the genesis block. This should always succeed.
     let genesis_block = VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(0).unwrap())

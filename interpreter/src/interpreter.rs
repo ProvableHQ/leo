@@ -132,6 +132,7 @@ impl Interpreter {
             true, // really_async
             signer,
             block_height,
+            network,
         );
         let mut filename_to_program = HashMap::new();
 

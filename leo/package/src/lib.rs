@@ -103,8 +103,6 @@ pub const TESTS_DIRECTORY: &str = "tests";
 /// Maximum allowed program size in bytes.
 pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
 
-pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
-
 fn symbol(name: &str) -> Result<Symbol> {
     name.strip_suffix(".aleo").map(Symbol::intern).ok_or_else(|| PackageError::invalid_network_name(name).into())
 }

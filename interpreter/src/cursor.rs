@@ -48,9 +48,12 @@ use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol, sym};
 
 use snarkvm::prelude::{
+    CanaryV0,
     Closure as SvmClosure,
     Finalize as SvmFinalize,
     Function as SvmFunctionParam,
+    MainnetV0,
+    Network,
     ProgramID,
     TestnetV0,
 };
@@ -278,6 +281,8 @@ pub struct Cursor {
     pub really_async: bool,
 
     pub program: Option<Symbol>,
+
+    pub network: NetworkName,
 }
 
 impl CoreFunctionHelper for Cursor {
@@ -304,7 +309,7 @@ impl CoreFunctionHelper for Cursor {
 
 impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
-    pub fn new(really_async: bool, signer: Value, block_height: u32) -> Self {
+    pub fn new(really_async: bool, signer: Value, block_height: u32, network: NetworkName) -> Self {
         Cursor {
             frames: Default::default(),
             values: Default::default(),
@@ -322,6 +327,7 @@ impl Cursor {
             block_height,
             really_async,
             program: None,
+            network,
         }
     }
 
@@ -914,6 +920,31 @@ impl Cursor {
                         } else {
                             Some(self.signer.clone())
                         }
+                    }
+                    sym::address => {
+                        // A helper function to convert a program ID string to an address value.
+                        fn program_to_address<N: Network>(program_id: &str) -> Result<Value> {
+                            let Ok(program_id) = ProgramID::<N>::from_str(&format!("{}.aleo", program_id)) else {
+                                halt_no_span!("Failed to parse program ID");
+                            };
+                            let Ok(address) = program_id.to_address() else {
+                                halt_no_span!("Failed to convert program ID to address");
+                            };
+                            let Ok(value) = Value::from_str(&address.to_string()) else {
+                                halt_no_span!("Failed to convert address to value");
+                            };
+                            Ok(value)
+                        }
+                        // Get the current program.
+                        let Some(program) = self.current_program() else {
+                            halt_no_span!("No program context for address");
+                        };
+                        let result = match self.network {
+                            NetworkName::TestnetV0 => program_to_address::<TestnetV0>(&program.to_string())?,
+                            NetworkName::MainnetV0 => program_to_address::<MainnetV0>(&program.to_string())?,
+                            NetworkName::CanaryV0 => program_to_address::<CanaryV0>(&program.to_string())?,
+                        };
+                        Some(result)
                     }
                     _ => halt!(access.span(), "unknown member of self"),
                 },

@@ -88,7 +88,7 @@ fn handle_debug(command: &LeoDebug, package: Option<Package>) -> Result<()> {
         )
     } else {
         // Program that have submodules aren't supported in this mode.
-        let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)?;
+        let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(leo_ast::TEST_PRIVATE_KEY)?;
         let address = Address::<TestnetV0>::try_from(&private_key)?;
 
         let leo_paths: Vec<(PathBuf, Vec<PathBuf>)> = command
