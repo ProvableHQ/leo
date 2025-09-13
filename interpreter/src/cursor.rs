@@ -924,7 +924,7 @@ impl Cursor {
                     sym::address => {
                         // A helper function to convert a program ID string to an address value.
                         fn program_to_address<N: Network>(program_id: &str) -> Result<Value> {
-                            let Ok(program_id) = ProgramID::<N>::from_str(&format!("{}.aleo", program_id)) else {
+                            let Ok(program_id) = ProgramID::<N>::from_str(&format!("{program_id}.aleo")) else {
                                 halt_no_span!("Failed to parse program ID");
                             };
                             let Ok(address) = program_id.to_address() else {
