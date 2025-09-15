@@ -128,6 +128,7 @@ impl ParserContext<'_> {
         let (mut transitions, mut functions) = (Vec::new(), Vec::new());
         let mut structs: Vec<(Symbol, Composite)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
+        let mut storage_variables: Vec<(Symbol, StorageVariable)> = Vec::new();
         let mut constructor = None;
 
         while self.has_next() {
@@ -143,6 +144,10 @@ impl ParserContext<'_> {
                 Token::Mapping => {
                     let (id, mapping) = self.parse_mapping()?;
                     mappings.push((id, mapping));
+                }
+                Token::Storage => {
+                    let (id, storage) = self.parse_storage()?;
+                    storage_variables.push((id, storage));
                 }
                 Token::At => {
                     let annotation = self.parse_annotation()?;
@@ -203,6 +208,7 @@ impl ParserContext<'_> {
             consts,
             structs,
             mappings,
+            storage_variables,
             constructor,
             functions: [transitions, functions].concat(),
             span: start + end,
@@ -342,6 +348,16 @@ impl ParserContext<'_> {
             span: start + end,
             id: self.node_builder.next_id(),
         }))
+    }
+
+    /// Parses a storage declaration, e.g. `storage x: u32`.
+    pub(super) fn parse_storage(&mut self) -> Result<(Symbol, StorageVariable)> {
+        let start = self.expect(&Token::Storage)?;
+        let identifier = self.expect_identifier()?;
+        self.expect(&Token::Colon)?;
+        let (type_, _) = self.parse_type()?;
+        let end = self.expect(&Token::Semicolon)?;
+        Ok((identifier.name, StorageVariable { identifier, type_, span: start + end, id: self.node_builder.next_id() }))
     }
 
     // TODO: Return a span associated with the mode.
