@@ -278,14 +278,22 @@ pub enum CoreFunction {
     SHA3_512HashToU128,
     SHA3_512HashToScalar,
 
-    MappingGet,
+    // These are used for both mappings and vectors
+    Get,
+    Set,
+
     MappingGetOrUse,
-    MappingSet,
     MappingRemove,
     MappingContains,
 
     OptionalUnwrap,
     OptionalUnwrapOr,
+
+    VectorPush,
+    VectorLen,
+    VectorClear,
+    VectorPop,
+    VectorSwapRemove,
 
     GroupToXCoordinate,
     GroupToYCoordinate,
@@ -565,14 +573,21 @@ impl CoreFunction {
             (sym::SHA3_512, sym::hash_to_u128) => Self::SHA3_512HashToU128,
             (sym::SHA3_512, sym::hash_to_scalar) => Self::SHA3_512HashToScalar,
 
-            (sym::Mapping, sym::get) => Self::MappingGet,
+            (_, sym::get) => Self::Get,
+            (_, sym::set) => Self::Set,
+
             (sym::Mapping, sym::get_or_use) => Self::MappingGetOrUse,
-            (sym::Mapping, sym::set) => Self::MappingSet,
             (sym::Mapping, sym::remove) => Self::MappingRemove,
             (sym::Mapping, sym::contains) => Self::MappingContains,
 
             (sym::Optional, sym::unwrap) => Self::OptionalUnwrap,
             (sym::Optional, sym::unwrap_or) => Self::OptionalUnwrapOr,
+
+            (sym::Vector, sym::push) => Self::VectorPush,
+            (sym::Vector, sym::len) => Self::VectorLen,
+            (sym::Vector, sym::clear) => Self::VectorClear,
+            (sym::Vector, sym::pop) => Self::VectorPop,
+            (sym::Vector, sym::swap_remove) => Self::VectorSwapRemove,
 
             (sym::group, sym::to_x_coordinate) => Self::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
@@ -853,14 +868,21 @@ impl CoreFunction {
             Self::SHA3_512HashToU128 => 1,
             Self::SHA3_512HashToScalar => 1,
 
-            Self::MappingGet => 2,
+            Self::Get => 2,
+            Self::Set => 3,
+
             Self::MappingGetOrUse => 3,
-            Self::MappingSet => 3,
             Self::MappingRemove => 2,
             Self::MappingContains => 2,
 
             Self::OptionalUnwrap => 1,
             Self::OptionalUnwrapOr => 2,
+
+            Self::VectorPush => 2,
+            Self::VectorLen => 1,
+            Self::VectorClear => 1,
+            Self::VectorPop => 1,
+            Self::VectorSwapRemove => 2,
 
             Self::GroupToXCoordinate => 1,
             Self::GroupToYCoordinate => 1,
@@ -894,15 +916,20 @@ impl CoreFunction {
             | CoreFunction::ChaChaRandU32
             | CoreFunction::ChaChaRandU64
             | CoreFunction::ChaChaRandU128
-            | CoreFunction::MappingGet
+            | CoreFunction::Get
+            | CoreFunction::Set
             | CoreFunction::MappingGetOrUse
             | CoreFunction::ChaChaRandScalar
-            | CoreFunction::MappingSet
             | CoreFunction::MappingRemove
             | CoreFunction::MappingContains
             | CoreFunction::ProgramChecksum
             | CoreFunction::ProgramEdition
-            | CoreFunction::ProgramOwner => true,
+            | CoreFunction::ProgramOwner
+            | CoreFunction::VectorPush
+            | CoreFunction::VectorLen
+            | CoreFunction::VectorClear
+            | CoreFunction::VectorPop
+            | CoreFunction::VectorSwapRemove => true,
             CoreFunction::OptionalUnwrap
             | CoreFunction::OptionalUnwrapOr
             | CoreFunction::BHP256CommitToAddress

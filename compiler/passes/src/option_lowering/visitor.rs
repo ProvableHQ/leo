@@ -70,6 +70,33 @@ impl OptionLoweringVisitor<'_> {
         let lowered_inner_type = self.reconstruct_type(ty).0;
 
         let struct_name = crate::make_optional_struct_symbol(&lowered_inner_type);
+
+        // Register the struct if it hasn't been already
+        self.new_structs.entry(struct_name).or_insert_with(|| Composite {
+            identifier: Identifier::new(struct_name, self.state.node_builder.next_id()),
+            const_parameters: vec![], // this is not a generic struct
+            members: vec![
+                Member {
+                    mode: Mode::None,
+                    identifier: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
+                    type_: Type::Boolean,
+                    span: Span::default(),
+                    id: self.state.node_builder.next_id(),
+                },
+                Member {
+                    mode: Mode::None,
+                    identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
+                    type_: lowered_inner_type.clone(),
+                    span: Span::default(),
+                    id: self.state.node_builder.next_id(),
+                },
+            ],
+            external: None,
+            is_record: false,
+            span: Span::default(),
+            id: self.state.node_builder.next_id(),
+        });
+
         let struct_expr = StructExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
             const_arguments: vec![],
@@ -141,6 +168,32 @@ impl OptionLoweringVisitor<'_> {
                 .expect("other types are not expected here");
 
         let struct_name = crate::make_optional_struct_symbol(&lowered_inner_type);
+
+        // Register the struct if it hasn't been already
+        self.new_structs.entry(struct_name).or_insert_with(|| Composite {
+            identifier: Identifier::new(struct_name, self.state.node_builder.next_id()),
+            const_parameters: vec![], // this is not a generic struct
+            members: vec![
+                Member {
+                    mode: Mode::None,
+                    identifier: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
+                    type_: Type::Boolean,
+                    span: Span::default(),
+                    id: self.state.node_builder.next_id(),
+                },
+                Member {
+                    mode: Mode::None,
+                    identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
+                    type_: lowered_inner_type.clone(),
+                    span: Span::default(),
+                    id: self.state.node_builder.next_id(),
+                },
+            ],
+            external: None,
+            is_record: false,
+            span: Span::default(),
+            id: self.state.node_builder.next_id(),
+        });
 
         let struct_expr = StructExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),

@@ -1297,4 +1297,11 @@ create_messages!(
         ),
         help: None,
     }
+
+    @formatted
+    invalid_storage_type {
+        args: (type_: impl Display),
+        msg: format!("{type_} is an invalid storage type"),
+        help: None,
+    }
 );

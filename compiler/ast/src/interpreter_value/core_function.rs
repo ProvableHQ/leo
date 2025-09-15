@@ -62,6 +62,22 @@ pub trait CoreFunctionHelper {
         None
     }
 
+    fn lookup_storage_variable(&self, _program: Option<Symbol>, _name: Symbol) -> Option<&Value> {
+        None
+    }
+
+    fn lookup_storage_variable_mut(&mut self, _program: Option<Symbol>, _name: Symbol) -> Option<&mut Value> {
+        None
+    }
+
+    fn lookup_vector(&self, _program: Option<Symbol>, _name: Symbol) -> Option<&Vec<Value>> {
+        None
+    }
+
+    fn lookup_vector_mut(&mut self, _program: Option<Symbol>, _name: Symbol) -> Option<&mut Vec<Value>> {
+        None
+    }
+
     fn mapping_get(&self, program: Option<Symbol>, name: Symbol, key: &Value) -> Option<Value> {
         self.lookup_mapping(program, name).and_then(|map| map.get(key).cloned())
     }
@@ -76,6 +92,16 @@ pub trait CoreFunctionHelper {
         self.lookup_mapping_mut(program, name).map(|map| {
             map.remove(key);
         })
+    }
+
+    fn vector_push(&mut self, program: Option<Symbol>, name: Symbol, val: &Value) -> Option<()> {
+        self.lookup_vector_mut(program, name).map(|vec| {
+            vec.push(val.clone());
+        })
+    }
+
+    fn vector_get(&mut self, program: Option<Symbol>, name: Symbol, index: &Value) -> Option<Value> {
+        self.lookup_vector(program, name).and_then(|vec| vec.get(index.as_u32()? as usize).cloned())
     }
 
     fn rng(&mut self) -> Option<&mut ChaCha20Rng> {
@@ -408,14 +434,35 @@ pub fn evaluate_core_function(
             helper.set_block_height(height);
             Value { id: None, contents: ValueVariants::Unit }
         }
-        CoreFunction::MappingGet => {
+        CoreFunction::Get => {
+            let (program, name) = match &arguments[0] {
+                Expression::Path(path) => (None, path.identifier().name),
+                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                _ => tc_fail2!(),
+            };
+            if helper.lookup_mapping(program, name).is_some() {
+                let key = helper.pop_value().expect_tc(span)?;
+                helper.mapping_get(program, name, &key).expect_tc(span)?.clone()
+            } else if helper.lookup_vector(program, name).is_some() {
+                let index = helper
+                    .pop_value()
+                    .expect_tc(span)?
+                    .resolve_if_unsuffixed(&Some(crate::Type::Integer(crate::IntegerType::U32)), span)?;
+                helper.vector_get(program, name, &index).expect_tc(span)?.clone()
+            } else {
+                tc_fail2!()
+            }
+        }
+        CoreFunction::Set => {
+            let value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
                 _ => tc_fail2!(),
             };
-            helper.mapping_get(program, name, &key).expect_tc(span)?.clone()
+            helper.mapping_set(program, name, key, value).expect_tc(span)?;
+            Value::make_unit()
         }
         CoreFunction::MappingGetOrUse => {
             let use_value = helper.pop_value().expect_tc(span)?;
@@ -426,17 +473,6 @@ pub fn evaluate_core_function(
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).unwrap_or(use_value)
-        }
-        CoreFunction::MappingSet => {
-            let value = helper.pop_value().expect_tc(span)?;
-            let key = helper.pop_value().expect_tc(span)?;
-            let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                _ => tc_fail2!(),
-            };
-            helper.mapping_set(program, name, key, value).expect_tc(span)?;
-            Value::make_unit()
         }
         CoreFunction::MappingRemove => {
             let key = helper.pop_value().expect_tc(span)?;
@@ -465,6 +501,24 @@ pub fn evaluate_core_function(
             let fallback = helper.pop_value()?;
             let value = helper.pop_value()?;
             if let ValueVariants::None(_) = value.contents { fallback } else { value }
+        }
+        CoreFunction::VectorPush => {
+            let val = helper.pop_value().expect_tc(span)?;
+            let (program, name) = match &arguments[0] {
+                Expression::Path(path) => (None, path.identifier().name),
+                // Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                _ => tc_fail2!(),
+            };
+            helper.vector_push(program, name, &val).expect_tc(span)?;
+            Value::make_unit()
+        }
+
+        CoreFunction::VectorLen
+        | CoreFunction::VectorClear
+        | CoreFunction::VectorPop
+        | CoreFunction::VectorSwapRemove => {
+            // TODO
+            return Ok(None);
         }
         CoreFunction::SignatureVerify => todo!(),
         CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),

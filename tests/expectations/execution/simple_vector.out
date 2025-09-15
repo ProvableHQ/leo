@@ -1,0 +1,136 @@
+program test.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping vec__:
+    key as u32.public;
+    value as u32.public;
+
+mapping vec__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function test_vector_ops:
+    async test_vector_ops into r0;
+    output r0 as test.aleo/test_vector_ops.future;
+
+finalize test_vector_ops:
+    get.or_use vec__len__[false] 0u32 into r0;
+    is.eq r0 0u32 into r1;
+    assert.eq r1 true;
+    get.or_use vec__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into vec__len__[false];
+    set 10u32 into vec__[r2];
+    get.or_use vec__len__[false] 0u32 into r4;
+    add r4 1u32 into r5;
+    set r5 into vec__len__[false];
+    set 20u32 into vec__[r4];
+    get.or_use vec__len__[false] 0u32 into r6;
+    add r6 1u32 into r7;
+    set r7 into vec__len__[false];
+    set 30u32 into vec__[r6];
+    get.or_use vec__len__[false] 0u32 into r8;
+    is.eq r8 3u32 into r9;
+    assert.eq r9 true;
+    get.or_use vec__len__[false] 0u32 into r10;
+    lt 1u32 r10 into r11;
+    get.or_use vec__[1u32] 0u32 into r12;
+    ternary r11 true false into r13;
+    assert.eq r13 true;
+    lt 1u32 r10 into r14;
+    get.or_use vec__[1u32] 0u32 into r15;
+    ternary r14 r15 0u32 into r16;
+    is.eq r16 20u32 into r17;
+    assert.eq r17 true;
+    get.or_use vec__len__[false] 0u32 into r18;
+    lt 1u32 r18 into r19;
+    assert.eq r19 true;
+    set 25u32 into vec__[1u32];
+    get.or_use vec__len__[false] 0u32 into r20;
+    lt 1u32 r20 into r21;
+    get.or_use vec__[1u32] 0u32 into r22;
+    ternary r21 true false into r23;
+    assert.eq r23 true;
+    lt 1u32 r20 into r24;
+    get.or_use vec__[1u32] 0u32 into r25;
+    ternary r24 r25 0u32 into r26;
+    is.eq r26 25u32 into r27;
+    assert.eq r27 true;
+    get.or_use vec__len__[false] 0u32 into r28;
+    lt 2u32 r28 into r29;
+    assert.eq r29 true;
+    sub r28 1u32 into r30;
+    set r30 into vec__len__[false];
+    sub r28 1u32 into r31;
+    get vec__[r31] into r32;
+    set r32 into vec__[2u32];
+    lt 2u32 r28 into r33;
+    get vec__[2u32] into r34;
+    ternary r33 true false into r35;
+    assert.eq r35 true;
+    lt 2u32 r28 into r36;
+    get vec__[2u32] into r37;
+    ternary r36 r37 0u32 into r38;
+    is.eq r38 30u32 into r39;
+    assert.eq r39 true;
+    get.or_use vec__len__[false] 0u32 into r40;
+    is.eq r40 2u32 into r41;
+    assert.eq r41 true;
+    get.or_use vec__len__[false] 0u32 into r42;
+    gt r42 0u32 into r43;
+    branch.eq r43 false to end_then_0_0;
+    sub r42 1u32 into r44;
+    set r44 into vec__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r42 0u32 into r45;
+    sub r42 1u32 into r46;
+    get.or_use vec__[r46] 0u32 into r47;
+    ternary r45 true false into r48;
+    assert.eq r48 true;
+    gt r42 0u32 into r49;
+    sub r42 1u32 into r50;
+    get.or_use vec__[r50] 0u32 into r51;
+    ternary r49 r51 0u32 into r52;
+    is.eq r52 25u32 into r53;
+    assert.eq r53 true;
+    get.or_use vec__len__[false] 0u32 into r54;
+    is.eq r54 1u32 into r55;
+    assert.eq r55 true;
+    set 0u32 into vec__len__[false];
+    get.or_use vec__len__[false] 0u32 into r56;
+    is.eq r56 0u32 into r57;
+    assert.eq r57 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1ggx6vcnuulcl9x7ksxceqjak25e7q6j7ml80swzcdkv8xk7ydsqs4ln39s",
+      "program": "test.aleo",
+      "function": "test_vector_ops",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5142027608027802576574091123989065072230784639079368114688070529765585579166field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: test_vector_ops,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "5217821421448171708893898476226701758596729091010258404483505858728239780855group",
+      "tcm": "7477948332296478291944103795851273885338086131076721669399703348779096173412field",
+      "scm": "7818509915162576913905185694457516827956104433621406862264469146739101113482field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

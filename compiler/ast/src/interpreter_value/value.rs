@@ -806,6 +806,10 @@ impl Value {
         ValueVariants::Tuple(contents.into_iter().collect()).into()
     }
 
+    pub fn make_none(type_: Type) -> Self {
+        ValueVariants::None(Some(type_)).into()
+    }
+
     /// Gets the type of a `Value` but only if it is an integer, a field, a group, or a scalar.
     /// Return `None` otherwise. These are the only types that an unsuffixed literal can have.
     pub fn get_numeric_type(&self) -> Option<Type> {

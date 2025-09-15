@@ -259,6 +259,10 @@ pub struct Cursor {
 
     pub mappings: HashMap<GlobalId, HashMap<Value, Value>>,
 
+    pub storage_variables: HashMap<GlobalId, Value>,
+
+    pub storage_vectors: HashMap<GlobalId, Vec<Value>>,
+
     /// For each struct type, we only need to remember the names of its members, in order.
     pub structs: HashMap<Vec<Symbol>, IndexMap<Symbol, Type>>,
 
@@ -298,6 +302,22 @@ impl CoreFunctionHelper for Cursor {
         Cursor::lookup_mapping_mut(self, program, name)
     }
 
+    fn lookup_storage_variable(&self, program: Option<Symbol>, name: Symbol) -> Option<&Value> {
+        Cursor::lookup_storage_variable(self, program, name)
+    }
+
+    fn lookup_storage_variable_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut Value> {
+        Cursor::lookup_storage_variable_mut(self, program, name)
+    }
+
+    fn lookup_vector(&self, program: Option<Symbol>, name: Symbol) -> Option<&Vec<Value>> {
+        Cursor::lookup_vector(self, program, name)
+    }
+
+    fn lookup_vector_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut Vec<Value>> {
+        Cursor::lookup_vector_mut(self, program, name)
+    }
+
     fn rng(&mut self) -> Option<&mut ChaCha20Rng> {
         Some(&mut self.rng)
     }
@@ -314,6 +334,8 @@ impl Cursor {
             globals: Default::default(),
             user_values: Default::default(),
             mappings: Default::default(),
+            storage_variables: Default::default(),
+            storage_vectors: Default::default(),
             structs: Default::default(),
             records: Default::default(),
             contexts: Default::default(),
@@ -506,6 +528,38 @@ impl Cursor {
         };
         // mappings can only show up in the top level program scope
         self.mappings.get_mut(&GlobalId { program, path: vec![name] })
+    }
+
+    pub fn lookup_storage_variable(&self, program: Option<Symbol>, name: Symbol) -> Option<&Value> {
+        let Some(program) = program.or_else(|| self.current_program()) else {
+            panic!("no program for mapping lookup");
+        };
+        // mappings can only show up in the top level program scope
+        self.storage_variables.get(&GlobalId { program, path: vec![name] })
+    }
+
+    pub fn lookup_storage_variable_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut Value> {
+        let Some(program) = program.or_else(|| self.current_program()) else {
+            panic!("no program for mapping lookup");
+        };
+        // mappings can only show up in the top level program scope
+        self.storage_variables.get_mut(&GlobalId { program, path: vec![name] })
+    }
+
+    pub fn lookup_vector(&self, program: Option<Symbol>, name: Symbol) -> Option<&Vec<Value>> {
+        let Some(program) = program.or_else(|| self.current_program()) else {
+            panic!("no program for mapping lookup");
+        };
+        // mappings can only show up in the top level program scope
+        self.storage_vectors.get(&GlobalId { program, path: vec![name] })
+    }
+
+    pub fn lookup_vector_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut Vec<Value>> {
+        let Some(program) = program.or_else(|| self.current_program()) else {
+            panic!("no program for mapping lookup");
+        };
+        // mappings can only show up in the top level program scope
+        self.storage_vectors.get_mut(&GlobalId { program, path: vec![name] })
     }
 
     fn lookup_function(&self, program: Symbol, name: &[Symbol]) -> Option<FunctionVariant> {
@@ -1008,10 +1062,13 @@ impl Cursor {
                 // Also, `OptionalUnwrapOr` is special in the sense that the fallback value gets
                 // the expected value of the whole expression
                 match core_function {
-                    CoreFunction::MappingGet | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
+                    CoreFunction::Get
+                    | CoreFunction::MappingRemove
+                    | CoreFunction::MappingContains
+                    | CoreFunction::VectorPush => {
                         push!()(&function.arguments[1], &None);
                     }
-                    CoreFunction::MappingGetOrUse | CoreFunction::MappingSet => {
+                    CoreFunction::MappingGetOrUse | CoreFunction::Set => {
                         push!()(&function.arguments[2], &None);
                         push!()(&function.arguments[1], &None);
                     }

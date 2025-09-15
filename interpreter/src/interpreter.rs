@@ -17,6 +17,7 @@
 use super::*;
 use leo_ast::{
     NetworkName,
+    StorageVariable,
     interpreter_value::{AsyncExecution, GlobalId, Value},
 };
 use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
@@ -159,6 +160,16 @@ impl Interpreter {
 
                 for (name, _mapping) in scope.mappings.iter() {
                     cursor.mappings.insert(GlobalId { program, path: vec![*name] }, HashMap::new());
+                }
+
+                for (name, StorageVariable { type_, .. }) in scope.storage_variables.iter() {
+                    if type_.is_vector() {
+                        cursor.storage_vectors.insert(GlobalId { program, path: vec![*name] }, Vec::new());
+                    } else {
+                        cursor
+                            .storage_variables
+                            .insert(GlobalId { program, path: vec![*name] }, Value::make_none(type_.clone()));
+                    }
                 }
 
                 for (name, const_declaration) in scope.consts.iter() {

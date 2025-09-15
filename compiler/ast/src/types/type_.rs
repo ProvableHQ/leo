@@ -24,6 +24,7 @@ use crate::{
     OptionalType,
     Path,
     TupleType,
+    VectorType,
 };
 
 use itertools::Itertools;
@@ -69,6 +70,8 @@ pub enum Type {
     String,
     /// A static tuple of at least one type.
     Tuple(TupleType),
+    /// The array type.
+    Vector(VectorType),
     /// Numeric type which should be resolved to `Field`, `Group`, `Integer(_)`, or `Scalar`.
     Numeric,
     /// The `unit` type.
@@ -126,6 +129,7 @@ impl Type {
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_user(right_type)),
+            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_user(&right.element_type),
             (Type::Composite(left), Type::Composite(right)) => {
                 // If either composite still has const generic arguments, treat them as equal.
                 // Type checking will run again after monomorphization.
@@ -192,6 +196,7 @@ impl Type {
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
+            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_flat_relaxed(&right.element_type),
             (Type::Composite(left), Type::Composite(right)) => {
                 // If either composite still has const generic arguments, treat them as equal.
                 // Type checking will run again after monomorphization.
@@ -290,6 +295,10 @@ impl Type {
             _ => self.eq_user(expected),
         }
     }
+
+    pub fn is_vector(&self) -> bool {
+        matches!(self, Self::Vector(_))
+    }
 }
 
 impl fmt::Display for Type {
@@ -310,6 +319,7 @@ impl fmt::Display for Type {
             Type::String => write!(f, "string"),
             Type::Composite(ref struct_type) => write!(f, "{struct_type}"),
             Type::Tuple(ref tuple) => write!(f, "{tuple}"),
+            Type::Vector(ref vector_type) => write!(f, "{vector_type}"),
             Type::Numeric => write!(f, "numeric"),
             Type::Unit => write!(f, "()"),
             Type::Err => write!(f, "error"),

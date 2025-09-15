@@ -68,6 +68,12 @@ pub use processing_script::*;
 mod static_single_assignment;
 pub use static_single_assignment::*;
 
+mod storage_lowering;
+pub use storage_lowering::*;
+
+mod sroa;
+pub use sroa::*;
+
 mod symbol_table_creation;
 pub use symbol_table_creation::*;
 

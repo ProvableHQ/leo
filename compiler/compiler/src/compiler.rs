@@ -149,6 +149,8 @@ impl Compiler {
 
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
 
+        self.do_pass::<StorageLowering>(type_checking_config.clone())?;
+
         self.do_pass::<OptionLowering>(type_checking_config)?;
 
         self.do_pass::<ProcessingScript>(())?;
@@ -167,9 +169,15 @@ impl Compiler {
 
         self.do_pass::<FunctionInlining>(())?;
 
+        //        println!("before sroa {}", self.state.ast.ast);
+        // self.do_pass::<ScalarReplacementOfAggregates>(())?;
+        //        println!("after sroa {}", self.state.ast.ast);
+
         let output = self.do_pass::<DeadCodeEliminating>(())?;
         self.statements_before_dce = output.statements_before;
         self.statements_after_dce = output.statements_after;
+
+        //        println!("after dce {}", self.state.ast.ast);
 
         Ok(())
     }

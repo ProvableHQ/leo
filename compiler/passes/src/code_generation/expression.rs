@@ -589,7 +589,26 @@ impl CodeGeneratingVisitor<'_> {
                 // Do nothing. Cheat codes do not generate instructions.
             }
             _ => {
-                panic!("All core functions should be known at this phase of compilation")
+                match input.name.name {
+                    sym::get => {
+                        let mut instruction = "    get".to_string();
+                        let destination_register = self.next_register();
+                        // write the mapping name and the key.
+                        writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
+                            .expect("failed to write to string");
+                        (destination_register, instruction)
+                    }
+                    sym::set => {
+                        let mut instruction = "    set".to_string();
+                        // write the value, mapping name, and the key.
+                        writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
+                            .expect("failed to write to string");
+                        (String::new(), instruction)
+                    }
+                    _ => {
+                        panic!("all core functions should be known at this phase of compilation")
+                    }
+                }
             }
         };
         // Add the instruction to the list of instructions.
@@ -749,6 +768,8 @@ impl CodeGeneratingVisitor<'_> {
             }
 
             Type::Optional(_) => panic!("All optional types should have been lowered by now."),
+
+            Type::Vector(_) => panic!("All vector types should have been lowered by now."),
 
             Type::Mapping(..)
             | Type::Future(..)

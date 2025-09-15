@@ -52,6 +52,8 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
         input.structs = input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect();
         input.mappings =
             input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
+        input.storage_variables =
+            input.storage_variables.into_iter().map(|(id, var)| (id, self.reconstruct_storage_variable(var))).collect();
 
         input
     }

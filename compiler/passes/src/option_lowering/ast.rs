@@ -480,9 +480,12 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         mut input: TernaryExpression,
         additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
+        let type_ = self.state.type_table.get(&input.id());
         let (condition, mut stmts_condition) = self.reconstruct_expression(input.condition, &None);
-        let (if_true, mut stmts_if_true) = self.reconstruct_expression(input.if_true, additional);
-        let (if_false, mut stmts_if_false) = self.reconstruct_expression(input.if_false, additional);
+        let additional = if let Some(expected) = additional { Some(expected.clone()) } else { type_ };
+
+        let (if_true, mut stmts_if_true) = self.reconstruct_expression(input.if_true, &additional);
+        let (if_false, mut stmts_if_false) = self.reconstruct_expression(input.if_false, &additional);
 
         input.condition = condition;
         input.if_true = if_true;

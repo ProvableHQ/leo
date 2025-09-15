@@ -108,20 +108,13 @@ Error [ETYC0372004]: Could not determine the type of `0`
      |                                              ^
      |
      = Consider using explicit type annotations.
-Error [ETYC0372004]: Could not determine the type of `0`
-    --> compiler-test:11:24
+Error [ETYC0372118]: Received different types `numeric` and `numeric` for the arms of a ternary conditional.
+    --> compiler-test:11:17
      |
   11 |         let t = true ? 0 : 1;
-     |                        ^
+     |                 ^^^^^^^^^^^^
      |
-     = Consider using explicit type annotations.
-Error [ETYC0372004]: Could not determine the type of `1`
-    --> compiler-test:11:28
-     |
-  11 |         let t = true ? 0 : 1;
-     |                            ^
-     |
-     = Consider using explicit type annotations.
+     = Make both branches the same type.
 Error [ETYC0372004]: Could not determine the type of `2`
     --> compiler-test:12:17
      |

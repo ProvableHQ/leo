@@ -327,30 +327,36 @@ impl TypeCheckingVisitor<'_> {
             VariableType::Input(Mode::Constant) => {
                 self.emit_err(TypeCheckerError::cannot_assign_to_const_input(input, var.span))
             }
-            VariableType::Mut | VariableType::Input(_) => {}
+            VariableType::Mut | VariableType::Input(_) | VariableType::Storage => {}
         }
 
-        // If the variable exists and it's in an async function, then check that it is in the current conditional scope.
-        if self.scope_state.variant.unwrap().is_async_function()
-            && !self.symbol_in_conditional_scope(input.identifier().name)
-        {
-            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "function", var.span));
-        }
+        if matches!(var.declaration, VariableType::Mut | VariableType::Input(_)) {
+            // If the variable exists and it's in an async function, then check that it is in the current conditional scope.
+            if self.scope_state.variant.unwrap().is_async_function()
+                && !self.symbol_in_conditional_scope(input.identifier().name)
+            {
+                self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "function", var.span));
+            }
 
-        // Similarly, if the variable exists and it's in an async block, then check that it is in the current conditional scope.
-        if self.async_block_id.is_some() && !self.symbol_in_conditional_scope(input.identifier().name) {
-            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "block", var.span));
-        }
+            // Similarly, if the variable exists and it's in an async block, then check that it is in the current conditional scope.
+            if self.async_block_id.is_some() && !self.symbol_in_conditional_scope(input.identifier().name) {
+                self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "block", var.span));
+            }
 
-        if let Some(async_block_id) = self.async_block_id {
-            if !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.identifier().name) {
-                // If we're inside an async block (i.e. in the scope of its block or one if its child scopes) and if
-                // we're trying to assign to a variable that is not local to the block (or its child scopes), then we
-                // should error out.
-                self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(
-                    input.identifier().name,
-                    input.span,
-                ));
+            if let Some(async_block_id) = self.async_block_id {
+                if !self
+                    .state
+                    .symbol_table
+                    .is_defined_in_scope_or_ancestor_until(async_block_id, input.identifier().name)
+                {
+                    // If we're inside an async block (i.e. in the scope of its block or one if its child scopes) and if
+                    // we're trying to assign to a variable that is not local to the block (or its child scopes), then we
+                    // should error out.
+                    self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(
+                        input.identifier().name,
+                        input.span,
+                    ));
+                }
             }
         }
 
@@ -596,50 +602,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::operation_must_be_in_async_block_or_function(input.span()));
         }
 
-        let return_type = if let CoreFunction::OptionalUnwrapOr = core_instruction {
-            // Ensure we have exactly two arguments
-            let (optional_expr, fallback_expr) = match &input.arguments[..] {
-                [opt, fallback] => (opt, fallback),
-                _ => {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                        core_instruction.num_args(),
-                        input.arguments.len(),
-                        input.span(),
-                    ));
-                    return Type::Err;
-                }
-            };
-
-            // Type check the first argument normally
-            let optional_ty = self.visit_expression(optional_expr, &None);
-
-            // This emits an error if the type is not optional
-            self.assert_optional_type(&optional_ty, optional_expr.span());
-
-            // If the type is not Optional, we return Err
-            let Type::Optional(OptionalType { inner }) = optional_ty else {
-                return Type::Err;
-            };
-
-            // Use the inner type of the optional as the expected type for the fallback
-            let fallback_ty = self.visit_expression_reject_numeric(fallback_expr, &Some(*inner.clone()));
-            self.assert_type(&fallback_ty, &inner, fallback_expr.span());
-
-            // Return the final type: the inner type (what unwrap_or returns)
-            *inner
-        } else {
-            // Get the types of the arguments. Error out on arguments that have `Type::Numeric`. We could potentially do
-            // better for some of the core functions, but that can get pretty tedious because it would have to be function
-            // specific.
-            let arguments_with_types = input
-                .arguments
-                .iter()
-                .map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg))
-                .collect::<Vec<_>>();
-
-            // Check return type if the expected type is known.
-            self.check_core_function_call(core_instruction.clone(), &arguments_with_types, input.span())
-        };
+        let return_type =
+            self.check_core_function_call(core_instruction.clone(), &input.arguments, expected, input.span());
 
         // Check return type if the expected type is known.
         self.maybe_assert_type(&return_type, expected, input.span());
@@ -1580,8 +1544,40 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_ternary(&mut self, input: &TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
-        let t1 = self.visit_expression_reject_numeric(&input.if_true, expected);
-        let t2 = self.visit_expression_reject_numeric(&input.if_false, expected);
+        let (t1, t2) = if expected.is_some() {
+            (
+                self.visit_expression_reject_numeric(&input.if_true, expected),
+                self.visit_expression_reject_numeric(&input.if_false, expected),
+            )
+        } else if let Expression::Literal(Literal { variant: LiteralVariant::None, .. }) = input.if_false {
+            let t1 = self.visit_expression(&input.if_true, &None);
+            if matches!(t1, Type::Optional(_)) {
+                (t1.clone(), self.visit_expression(&input.if_false, &Some(t1.clone())))
+            } else {
+                (
+                    t1.clone(),
+                    self.visit_expression(
+                        &input.if_false,
+                        &Some(Type::Optional(OptionalType { inner: Box::new(t1.clone()) })),
+                    ),
+                )
+            }
+        } else if let Expression::Literal(Literal { variant: LiteralVariant::None, .. }) = input.if_true {
+            let t2 = self.visit_expression(&input.if_false, &None);
+            if matches!(t2, Type::Optional(_)) {
+                (t2.clone(), self.visit_expression(&input.if_true, &Some(t2.clone())))
+            } else {
+                (
+                    t2.clone(),
+                    self.visit_expression(
+                        &input.if_true,
+                        &Some(Type::Optional(OptionalType { inner: Box::new(t2.clone()) })),
+                    ),
+                )
+            }
+        } else {
+            (self.visit_expression(&input.if_true, &None), self.visit_expression(&input.if_false, &None))
+        };
 
         let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
@@ -1590,6 +1586,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Type::Err
         } else if let Some(expected) = expected {
             expected.clone()
+        } else if t1.can_coerce_to(&t2) {
+            t2
         } else {
             t1
         };
@@ -2005,7 +2003,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
         // Expression statements can only be function calls.
-        if !matches!(input.expression, Expression::Call(_) | Expression::AssociatedFunction(_)) {
+        if !matches!(input.expression, Expression::Call(_) | Expression::AssociatedFunction(_) | Expression::Unit(_)) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.

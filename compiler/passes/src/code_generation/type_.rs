@@ -53,6 +53,9 @@ impl CodeGeneratingVisitor<'_> {
             Type::Tuple(_) => {
                 panic!("Tuple types should not be visited at this phase of compilation")
             }
+            Type::Vector(_) => {
+                panic!("Vector types should not be visited at this phase of compilation")
+            }
             Type::Numeric => panic!("`Numeric` types should not exist at this phase of compilation"),
             Type::Err => panic!("Error types should not exist at this phase of compilation"),
             Type::Unit => panic!("Unit types are not supported at this phase of compilation"),

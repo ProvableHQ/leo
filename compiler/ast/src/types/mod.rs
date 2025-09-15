@@ -40,3 +40,6 @@ pub use tuple::*;
 
 mod type_;
 pub use type_::*;
+
+mod vector;
+pub use vector::*;

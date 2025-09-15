@@ -96,6 +96,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             mapping_count += 1;
         }
 
+        // Typecheck each storage variable definition.
+        for (_, storage_variable) in input.storage_variables.iter() {
+            self.visit_storage_variable(storage_variable);
+        }
+
         // Check that the number of mappings does not exceed the maximum.
         if mapping_count > self.limits.max_mappings {
             self.emit_err(TypeCheckerError::too_many_mappings(
@@ -376,6 +381,44 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         if self.contains_optional_type(&input.value_type) {
             self.emit_err(TypeCheckerError::optional_type_not_allowed_here(input.value_type.clone(), input.span))
+        }
+    }
+
+    fn visit_storage_variable(&mut self, input: &StorageVariable) {
+        self.visit_type(&input.type_);
+
+        // Check that a mapping's key type is valid.
+
+        let storage_type = if let Type::Vector(VectorType { element_type }) = &input.type_ {
+            *element_type.clone()
+        } else {
+            input.type_.clone()
+        };
+
+        self.assert_type_is_valid(&storage_type, input.span);
+
+        // Check that a mapping's key type is not a future, tuple, record, or mapping.
+        match storage_type.clone() {
+            Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", input.span)),
+            Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", input.span)),
+            Type::Composite(struct_type) => {
+                if let Some(comp) = self.lookup_struct(
+                    struct_type.program.or(self.scope_state.program_name),
+                    &struct_type.path.absolute_path(),
+                ) {
+                    if comp.is_record {
+                        self.emit_err(TypeCheckerError::invalid_storage_type("record", input.span));
+                    }
+                } else {
+                    self.emit_err(TypeCheckerError::undefined_type(&storage_type, input.span));
+                }
+            }
+            Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_storage_type("mapping", input.span)),
+            _ => {}
+        }
+
+        if self.contains_optional_type(&storage_type) {
+            self.emit_err(TypeCheckerError::optional_type_not_allowed_here(storage_type.clone(), input.span))
         }
     }
 

@@ -54,10 +54,10 @@ impl DeadCodeEliminatingVisitor<'_> {
                 // CheatCode, Mapping, and Future operations obviously have side effects.
                 // Pedersen64 and Pedersen128 operations can fail for large inputs.
                 func.arguments.iter().all(sef)
-                    && !matches!(
+                    && (!matches!(
                         func.variant.name,
                         sym::CheatCode | sym::Mapping | sym::Future | sym::Pedersen64 | sym::Pedersen128
-                    )
+                    ) && !matches!(func.name.name, sym::set | sym::get))
             }
             Async(_) => false,
             Binary(bin) => {

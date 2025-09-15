@@ -316,6 +316,8 @@ pub enum Token {
     Let,
     #[token("mapping")]
     Mapping,
+    #[token("storage")]
+    Storage,
     #[token("network")]
     Network,
     #[token("private")]
@@ -459,6 +461,7 @@ impl Token {
             "Inline" => "'inline'",
             "Let" => "'let'",
             "Mapping" => "'mapping'",
+            "Storage" => "'storage'",
             "Network" => "'network'",
             "Private" => "'private'",
             "Program" => "'program'",
