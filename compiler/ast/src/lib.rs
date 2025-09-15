@@ -57,6 +57,9 @@ pub use self::program::*;
 mod statement;
 pub use self::statement::*;
 
+mod storage;
+pub use self::storage::*;
+
 mod types;
 pub use self::types::*;
 

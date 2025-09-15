@@ -606,6 +606,11 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            storage_variables: input
+                .storage_variables
+                .into_iter()
+                .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
+                .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
@@ -695,5 +700,9 @@ pub trait ProgramReconstructor: AstReconstructor {
             value_type: self.reconstruct_type(input.value_type).0,
             ..input
         }
+    }
+
+    fn reconstruct_storage_variable(&mut self, input: StorageVariable) -> StorageVariable {
+        StorageVariable { type_: self.reconstruct_type(input.type_).0, ..input }
     }
 }

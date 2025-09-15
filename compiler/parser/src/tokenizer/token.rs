@@ -164,6 +164,7 @@ pub enum Token {
     Return,
     Script,
     SelfLower,
+    Storage,
     Transition,
 
     // Meta tokens
@@ -248,6 +249,7 @@ keyword_map! {
     Script     => script,
     SelfLower  => SelfLower,
     Signature  => signature,
+    Storage    => storage,
     String     => string,
     Struct     => Struct,
     Transition => transition,
@@ -377,6 +379,7 @@ impl fmt::Display for Token {
             Return => write!(f, "return"),
             Script => write!(f, "script"),
             SelfLower => write!(f, "self"),
+            Storage => write!(f, "storage"),
             Transition => write!(f, "transition"),
 
             Eof => write!(f, "<eof>"),
