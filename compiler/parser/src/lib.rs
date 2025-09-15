@@ -155,6 +155,7 @@ fn symbol_is_keyword(symbol: Symbol) -> bool {
         sym::Let |
         sym::leo |
         sym::mapping |
+        sym::storage |
         sym::network |
         sym::private |
         sym::program |

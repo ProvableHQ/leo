@@ -1,0 +1,523 @@
+program none_cases.aleo;
+
+struct Point:
+    x as field;
+    y as field;
+
+struct Container:
+    id as u8;
+    point as Point;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+struct Optional__DbbQYuLaHdi:
+    is_some as boolean;
+    val as boolean;
+
+struct Optional__JYP65FYVVJA:
+    is_some as boolean;
+    val as scalar;
+
+struct Optional__K4XRQPOk9yX:
+    is_some as boolean;
+    val as field;
+
+struct Optional__6Uxqmb23WYh:
+    is_some as boolean;
+    val as Point;
+
+struct Optional__BvQiU368h5e:
+    is_some as boolean;
+    val as [Point; 2u32];
+
+struct Optional__Iw7fQz4CKJ0:
+    is_some as boolean;
+    val as Container;
+
+mapping counter_u32__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping flag__:
+    key as boolean.public;
+    value as boolean.public;
+
+mapping scalar_val__:
+    key as boolean.public;
+    value as scalar.public;
+
+mapping field_val__:
+    key as boolean.public;
+    value as field.public;
+
+mapping points__:
+    key as boolean.public;
+    value as [Point; 2u32].public;
+
+mapping container__:
+    key as boolean.public;
+    value as Container.public;
+
+function integers_none_behavior:
+    async integers_none_behavior into r0;
+    output r0 as none_cases.aleo/integers_none_behavior.future;
+
+finalize integers_none_behavior:
+    contains counter_u32__[false] into r0;
+    get.or_use counter_u32__[false] 0u32 into r1;
+    cast true r1 into r2 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r7 as Optional__EsDmm5O6sv6;
+    is.eq r6 r7 into r8;
+    assert.eq r8 true;
+    contains counter_u32__[false] into r9;
+    get.or_use counter_u32__[false] 0u32 into r10;
+    cast true r10 into r11 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r12 as Optional__EsDmm5O6sv6;
+    ternary r9 r11.is_some r12.is_some into r13;
+    ternary r9 r11.val r12.val into r14;
+    cast r13 r14 into r15 as Optional__EsDmm5O6sv6;
+    contains counter_u32__[false] into r16;
+    get.or_use counter_u32__[false] 0u32 into r17;
+    cast true r17 into r18 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r19 as Optional__EsDmm5O6sv6;
+    ternary r16 r18.is_some r19.is_some into r20;
+    ternary r16 r18.val r19.val into r21;
+    cast r20 r21 into r22 as Optional__EsDmm5O6sv6;
+    ternary r15.is_some r22.val 99u32 into r23;
+    is.eq r23 99u32 into r24;
+    assert.eq r24 true;
+    set 42u32 into counter_u32__[false];
+    contains counter_u32__[false] into r25;
+    get.or_use counter_u32__[false] 0u32 into r26;
+    cast true r26 into r27 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r28 as Optional__EsDmm5O6sv6;
+    ternary r25 r27.is_some r28.is_some into r29;
+    ternary r25 r27.val r28.val into r30;
+    cast r29 r30 into r31 as Optional__EsDmm5O6sv6;
+    assert.eq r31.is_some true;
+    contains counter_u32__[false] into r32;
+    get.or_use counter_u32__[false] 0u32 into r33;
+    cast true r33 into r34 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r35 as Optional__EsDmm5O6sv6;
+    ternary r32 r34.is_some r35.is_some into r36;
+    ternary r32 r34.val r35.val into r37;
+    cast r36 r37 into r38 as Optional__EsDmm5O6sv6;
+    is.eq r38.val 42u32 into r39;
+    assert.eq r39 true;
+    remove counter_u32__[false];
+    contains counter_u32__[false] into r40;
+    get.or_use counter_u32__[false] 0u32 into r41;
+    cast true r41 into r42 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r43 as Optional__EsDmm5O6sv6;
+    ternary r40 r42.is_some r43.is_some into r44;
+    ternary r40 r42.val r43.val into r45;
+    cast r44 r45 into r46 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r47 as Optional__EsDmm5O6sv6;
+    is.eq r46 r47 into r48;
+    assert.eq r48 true;
+    contains counter_u32__[false] into r49;
+    get.or_use counter_u32__[false] 0u32 into r50;
+    cast true r50 into r51 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r52 as Optional__EsDmm5O6sv6;
+    ternary r49 r51.is_some r52.is_some into r53;
+    ternary r49 r51.val r52.val into r54;
+    cast r53 r54 into r55 as Optional__EsDmm5O6sv6;
+    contains counter_u32__[false] into r56;
+    get.or_use counter_u32__[false] 0u32 into r57;
+    cast true r57 into r58 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r59 as Optional__EsDmm5O6sv6;
+    ternary r56 r58.is_some r59.is_some into r60;
+    ternary r56 r58.val r59.val into r61;
+    cast r60 r61 into r62 as Optional__EsDmm5O6sv6;
+    ternary r55.is_some r62.val 7u32 into r63;
+    is.eq r63 7u32 into r64;
+    assert.eq r64 true;
+
+function primitives_none_behavior:
+    async primitives_none_behavior into r0;
+    output r0 as none_cases.aleo/primitives_none_behavior.future;
+
+finalize primitives_none_behavior:
+    contains flag__[false] into r0;
+    get.or_use flag__[false] false into r1;
+    cast true r1 into r2 as Optional__DbbQYuLaHdi;
+    cast false false into r3 as Optional__DbbQYuLaHdi;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__DbbQYuLaHdi;
+    cast false false into r7 as Optional__DbbQYuLaHdi;
+    is.eq r6 r7 into r8;
+    assert.eq r8 true;
+    contains flag__[false] into r9;
+    get.or_use flag__[false] false into r10;
+    cast true r10 into r11 as Optional__DbbQYuLaHdi;
+    cast false false into r12 as Optional__DbbQYuLaHdi;
+    ternary r9 r11.is_some r12.is_some into r13;
+    ternary r9 r11.val r12.val into r14;
+    cast r13 r14 into r15 as Optional__DbbQYuLaHdi;
+    contains flag__[false] into r16;
+    get.or_use flag__[false] false into r17;
+    cast true r17 into r18 as Optional__DbbQYuLaHdi;
+    cast false false into r19 as Optional__DbbQYuLaHdi;
+    ternary r16 r18.is_some r19.is_some into r20;
+    ternary r16 r18.val r19.val into r21;
+    cast r20 r21 into r22 as Optional__DbbQYuLaHdi;
+    ternary r15.is_some r22.val true into r23;
+    is.eq r23 true into r24;
+    assert.eq r24 true;
+    set false into flag__[false];
+    contains flag__[false] into r25;
+    get.or_use flag__[false] false into r26;
+    cast true r26 into r27 as Optional__DbbQYuLaHdi;
+    cast false false into r28 as Optional__DbbQYuLaHdi;
+    ternary r25 r27.is_some r28.is_some into r29;
+    ternary r25 r27.val r28.val into r30;
+    cast r29 r30 into r31 as Optional__DbbQYuLaHdi;
+    assert.eq r31.is_some true;
+    contains flag__[false] into r32;
+    get.or_use flag__[false] false into r33;
+    cast true r33 into r34 as Optional__DbbQYuLaHdi;
+    cast false false into r35 as Optional__DbbQYuLaHdi;
+    ternary r32 r34.is_some r35.is_some into r36;
+    ternary r32 r34.val r35.val into r37;
+    cast r36 r37 into r38 as Optional__DbbQYuLaHdi;
+    is.eq r38.val false into r39;
+    assert.eq r39 true;
+    remove flag__[false];
+    contains flag__[false] into r40;
+    get.or_use flag__[false] false into r41;
+    cast true r41 into r42 as Optional__DbbQYuLaHdi;
+    cast false false into r43 as Optional__DbbQYuLaHdi;
+    ternary r40 r42.is_some r43.is_some into r44;
+    ternary r40 r42.val r43.val into r45;
+    cast r44 r45 into r46 as Optional__DbbQYuLaHdi;
+    cast false false into r47 as Optional__DbbQYuLaHdi;
+    is.eq r46 r47 into r48;
+    assert.eq r48 true;
+    contains flag__[false] into r49;
+    get.or_use flag__[false] false into r50;
+    cast true r50 into r51 as Optional__DbbQYuLaHdi;
+    cast false false into r52 as Optional__DbbQYuLaHdi;
+    ternary r49 r51.is_some r52.is_some into r53;
+    ternary r49 r51.val r52.val into r54;
+    cast r53 r54 into r55 as Optional__DbbQYuLaHdi;
+    contains flag__[false] into r56;
+    get.or_use flag__[false] false into r57;
+    cast true r57 into r58 as Optional__DbbQYuLaHdi;
+    cast false false into r59 as Optional__DbbQYuLaHdi;
+    ternary r56 r58.is_some r59.is_some into r60;
+    ternary r56 r58.val r59.val into r61;
+    cast r60 r61 into r62 as Optional__DbbQYuLaHdi;
+    ternary r55.is_some r62.val false into r63;
+    is.eq r63 false into r64;
+    assert.eq r64 true;
+    remove scalar_val__[false];
+    remove field_val__[false];
+    contains scalar_val__[false] into r65;
+    get.or_use scalar_val__[false] 0scalar into r66;
+    cast true r66 into r67 as Optional__JYP65FYVVJA;
+    cast false 0scalar into r68 as Optional__JYP65FYVVJA;
+    ternary r65 r67.is_some r68.is_some into r69;
+    ternary r65 r67.val r68.val into r70;
+    cast r69 r70 into r71 as Optional__JYP65FYVVJA;
+    cast false 0scalar into r72 as Optional__JYP65FYVVJA;
+    is.eq r71 r72 into r73;
+    assert.eq r73 true;
+    contains field_val__[false] into r74;
+    get.or_use field_val__[false] 0field into r75;
+    cast true r75 into r76 as Optional__K4XRQPOk9yX;
+    cast false 0field into r77 as Optional__K4XRQPOk9yX;
+    ternary r74 r76.is_some r77.is_some into r78;
+    ternary r74 r76.val r77.val into r79;
+    cast r78 r79 into r80 as Optional__K4XRQPOk9yX;
+    cast false 0field into r81 as Optional__K4XRQPOk9yX;
+    is.eq r80 r81 into r82;
+    assert.eq r82 true;
+    set 1scalar into scalar_val__[false];
+    set 5field into field_val__[false];
+    contains scalar_val__[false] into r83;
+    get.or_use scalar_val__[false] 0scalar into r84;
+    cast true r84 into r85 as Optional__JYP65FYVVJA;
+    cast false 0scalar into r86 as Optional__JYP65FYVVJA;
+    ternary r83 r85.is_some r86.is_some into r87;
+    ternary r83 r85.val r86.val into r88;
+    cast r87 r88 into r89 as Optional__JYP65FYVVJA;
+    assert.eq r89.is_some true;
+    contains scalar_val__[false] into r90;
+    get.or_use scalar_val__[false] 0scalar into r91;
+    cast true r91 into r92 as Optional__JYP65FYVVJA;
+    cast false 0scalar into r93 as Optional__JYP65FYVVJA;
+    ternary r90 r92.is_some r93.is_some into r94;
+    ternary r90 r92.val r93.val into r95;
+    cast r94 r95 into r96 as Optional__JYP65FYVVJA;
+    is.eq r96.val 1scalar into r97;
+    assert.eq r97 true;
+    contains field_val__[false] into r98;
+    get.or_use field_val__[false] 0field into r99;
+    cast true r99 into r100 as Optional__K4XRQPOk9yX;
+    cast false 0field into r101 as Optional__K4XRQPOk9yX;
+    ternary r98 r100.is_some r101.is_some into r102;
+    ternary r98 r100.val r101.val into r103;
+    cast r102 r103 into r104 as Optional__K4XRQPOk9yX;
+    assert.eq r104.is_some true;
+    contains field_val__[false] into r105;
+    get.or_use field_val__[false] 0field into r106;
+    cast true r106 into r107 as Optional__K4XRQPOk9yX;
+    cast false 0field into r108 as Optional__K4XRQPOk9yX;
+    ternary r105 r107.is_some r108.is_some into r109;
+    ternary r105 r107.val r108.val into r110;
+    cast r109 r110 into r111 as Optional__K4XRQPOk9yX;
+    is.eq r111.val 5field into r112;
+    assert.eq r112 true;
+
+function arrays_none_behavior:
+    async arrays_none_behavior into r0;
+    output r0 as none_cases.aleo/arrays_none_behavior.future;
+
+finalize arrays_none_behavior:
+    cast false 0u32 into r0 as Optional__EsDmm5O6sv6;
+    cast true 2u32 into r1 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r2 as Optional__EsDmm5O6sv6;
+    cast r0 r1 r2 into r3 as [Optional__EsDmm5O6sv6; 3u32];
+    ternary r3[0u32].is_some r3[0u32].val 9u32 into r4;
+    is.eq r4 9u32 into r5;
+    assert.eq r5 true;
+    ternary r3[1u32].is_some r3[1u32].val 0u32 into r6;
+    is.eq r6 2u32 into r7;
+    assert.eq r7 true;
+    ternary r3[2u32].is_some r3[2u32].val 4u32 into r8;
+    is.eq r8 4u32 into r9;
+    assert.eq r9 true;
+    cast 0field 0field into r10 as Point;
+    cast false r10 into r11 as Optional__6Uxqmb23WYh;
+    cast 1field 2field into r12 as Point;
+    cast true r12 into r13 as Optional__6Uxqmb23WYh;
+    cast r11 r13 into r14 as [Optional__6Uxqmb23WYh; 2u32];
+    cast 0field 0field into r15 as Point;
+    cast false r15 into r16 as Optional__6Uxqmb23WYh;
+    is.eq r14[0u32] r16 into r17;
+    assert.eq r17 true;
+    assert.eq r14[1u32].is_some true;
+    is.eq r14[1u32].val.x 1field into r18;
+    assert.eq r18 true;
+    cast 0field 0field into r19 as Point;
+    cast 9field 9field into r20 as Point;
+    cast r19 r20 into r21 as [Point; 2u32];
+    set r21 into points__[false];
+    contains points__[false] into r22;
+    cast 0field 0field into r23 as Point;
+    cast r23 r23 into r24 as [Point; 2u32];
+    get.or_use points__[false] r24 into r25;
+    cast true r25 into r26 as Optional__BvQiU368h5e;
+    cast 0field 0field into r27 as Point;
+    cast r27 r27 into r28 as [Point; 2u32];
+    cast false r28 into r29 as Optional__BvQiU368h5e;
+    ternary r22 r26.val[0u32].x r29.val[0u32].x into r30;
+    ternary r22 r26.val[0u32].y r29.val[0u32].y into r31;
+    cast r30 r31 into r32 as Point;
+    ternary r22 r26.val[1u32].x r29.val[1u32].x into r33;
+    ternary r22 r26.val[1u32].y r29.val[1u32].y into r34;
+    cast r33 r34 into r35 as Point;
+    cast r32 r35 into r36 as [Point; 2u32];
+    ternary r22 r26.is_some r29.is_some into r37;
+    cast r37 r36 into r38 as Optional__BvQiU368h5e;
+    assert.eq r38.is_some true;
+    contains points__[false] into r39;
+    cast 0field 0field into r40 as Point;
+    cast r40 r40 into r41 as [Point; 2u32];
+    get.or_use points__[false] r41 into r42;
+    cast true r42 into r43 as Optional__BvQiU368h5e;
+    cast 0field 0field into r44 as Point;
+    cast r44 r44 into r45 as [Point; 2u32];
+    cast false r45 into r46 as Optional__BvQiU368h5e;
+    ternary r39 r43.val[0u32].x r46.val[0u32].x into r47;
+    ternary r39 r43.val[0u32].y r46.val[0u32].y into r48;
+    cast r47 r48 into r49 as Point;
+    ternary r39 r43.val[1u32].x r46.val[1u32].x into r50;
+    ternary r39 r43.val[1u32].y r46.val[1u32].y into r51;
+    cast r50 r51 into r52 as Point;
+    cast r49 r52 into r53 as [Point; 2u32];
+    ternary r39 r43.is_some r46.is_some into r54;
+    cast r54 r53 into r55 as Optional__BvQiU368h5e;
+    is.eq r55.val[1u32].x 9field into r56;
+    assert.eq r56 true;
+
+function structs_none_behavior:
+    async structs_none_behavior into r0;
+    output r0 as none_cases.aleo/structs_none_behavior.future;
+
+finalize structs_none_behavior:
+    cast 0field 0field into r0 as Point;
+    cast 0u8 r0 into r1 as Container;
+    cast false r1 into r2 as Optional__Iw7fQz4CKJ0;
+    cast 0field 0field into r3 as Point;
+    cast 0u8 r3 into r4 as Container;
+    cast false r4 into r5 as Optional__Iw7fQz4CKJ0;
+    is.eq r2 r5 into r6;
+    assert.eq r6 true;
+    cast 0field 0field into r7 as Point;
+    cast 0u8 r7 into r8 as Container;
+    ternary r2.is_some r2.val.point.x r8.point.x into r9;
+    ternary r2.is_some r2.val.point.y r8.point.y into r10;
+    cast r9 r10 into r11 as Point;
+    ternary r2.is_some r2.val.id r8.id into r12;
+    cast r12 r11 into r13 as Container;
+    is.eq r13.id 0u8 into r14;
+    assert.eq r14 true;
+    cast 5field 10field into r15 as Point;
+    cast 1u8 r15 into r16 as Container;
+    is.eq r16.point.x 5field into r17;
+    assert.eq r17 true;
+    cast true r16 into r18 as Optional__Iw7fQz4CKJ0;
+    assert.eq r18.is_some true;
+    is.eq r18.val.point.y 10field into r19;
+    assert.eq r19 true;
+    cast 9field 9field into r20 as Point;
+    cast 9u8 r20 into r21 as Container;
+    set r21 into container__[false];
+    contains container__[false] into r22;
+    cast 0field 0field into r23 as Point;
+    cast 0u8 r23 into r24 as Container;
+    get.or_use container__[false] r24 into r25;
+    cast true r25 into r26 as Optional__Iw7fQz4CKJ0;
+    cast 0field 0field into r27 as Point;
+    cast 0u8 r27 into r28 as Container;
+    cast false r28 into r29 as Optional__Iw7fQz4CKJ0;
+    ternary r22 r26.val.point.x r29.val.point.x into r30;
+    ternary r22 r26.val.point.y r29.val.point.y into r31;
+    cast r30 r31 into r32 as Point;
+    ternary r22 r26.val.id r29.val.id into r33;
+    cast r33 r32 into r34 as Container;
+    ternary r22 r26.is_some r29.is_some into r35;
+    cast r35 r34 into r36 as Optional__Iw7fQz4CKJ0;
+    assert.eq r36.is_some true;
+    contains container__[false] into r37;
+    cast 0field 0field into r38 as Point;
+    cast 0u8 r38 into r39 as Container;
+    get.or_use container__[false] r39 into r40;
+    cast true r40 into r41 as Optional__Iw7fQz4CKJ0;
+    cast 0field 0field into r42 as Point;
+    cast 0u8 r42 into r43 as Container;
+    cast false r43 into r44 as Optional__Iw7fQz4CKJ0;
+    ternary r37 r41.val.point.x r44.val.point.x into r45;
+    ternary r37 r41.val.point.y r44.val.point.y into r46;
+    cast r45 r46 into r47 as Point;
+    ternary r37 r41.val.id r44.val.id into r48;
+    cast r48 r47 into r49 as Container;
+    ternary r37 r41.is_some r44.is_some into r50;
+    cast r50 r49 into r51 as Optional__Iw7fQz4CKJ0;
+    is.eq r51.val.point.x 9field into r52;
+    assert.eq r52 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au14q53zjcsqtn3t0sg8qkkqvetty5xsmy6uh7e956m9wl9htm05u9qkm8gal",
+      "program": "none_cases.aleo",
+      "function": "integers_none_behavior",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5652617155379274214829993057086648292051162617850053803644690902520360861408field",
+          "value": "{\n  program_id: none_cases.aleo,\n  function_name: integers_none_behavior,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "5704248834025676482866240213658326991083541423532858490735044415574150244588group",
+      "tcm": "2966316652793932860259393009211254730601425043416090336092809606665469381433field",
+      "scm": "7000289817625281280060119505833941089585814694489380530063817382652615795622field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1qe6pwqx696eh6xqfpduntzdfnm8cux8ktwsy6vpc86v4xpgmf5gqudy8rm",
+      "program": "none_cases.aleo",
+      "function": "primitives_none_behavior",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4216457953824612347898788953987922355055510771663177889800758980408956075881field",
+          "value": "{\n  program_id: none_cases.aleo,\n  function_name: primitives_none_behavior,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "1352874972865049950938317089731138703007873138943199849115239206512227395927group",
+      "tcm": "2836812996458313133086356844199008293542943645366508580600305499772229863915field",
+      "scm": "7269416828101401404803855742995927471102794762384609156585698496690817126301field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au155v22emeum49puk7x2ttanvl6lkcy6tgqw8n3y3r9elzdxzrgqys9etn7g",
+      "program": "none_cases.aleo",
+      "function": "arrays_none_behavior",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3140234408512591659099594191137360727684643873042545150587002448399106688683field",
+          "value": "{\n  program_id: none_cases.aleo,\n  function_name: arrays_none_behavior,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "2964143739387655529839618036125117249245988843315165088212607773680129646859group",
+      "tcm": "252898529996989819337844202066710871751236220948673013539510062341234424697field",
+      "scm": "3035122352356931348216000001150465304471261729781666002702012780471535972111field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1y4k4n338aa667d9mjgv3r42wx3z2mc7sv2wqqvh42k8v7agf6crsxdp76h",
+      "program": "none_cases.aleo",
+      "function": "structs_none_behavior",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5191305053956011644245779097688781668970588425937173823221062870822530895780field",
+          "value": "{\n  program_id: none_cases.aleo,\n  function_name: structs_none_behavior,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "2157184221807861305215769253263458584295561151282589287268823922208538874046group",
+      "tcm": "5702026260002725683831570138974316242135761176422160299509667633177577574318field",
+      "scm": "5016635263784801844758937148087361646447841439186370894563878180068934636624field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

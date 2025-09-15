@@ -65,10 +65,6 @@ struct Optional__IDgMhRtf8KJ:
     is_some as boolean;
     val as Foo;
 
-struct Optional__HdJPTit9rcT:
-    is_some as boolean;
-    val as address;
-
 struct Optional__8aTicnNTOvk:
     is_some as boolean;
     val as group;
@@ -173,15 +169,12 @@ function tuples_with_optional_elements:
     output r6 as u32.private;
 
 function optional_misc_primitive_types:
-    cast true aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r0 as Optional__HdJPTit9rcT;
-    cast true 0group into r1 as Optional__8aTicnNTOvk;
-    cast true 1field into r2 as Optional__K4XRQPOk9yX;
-    cast true 2scalar into r3 as Optional__JYP65FYVVJA;
+    cast true 0group into r0 as Optional__8aTicnNTOvk;
+    cast true 1field into r1 as Optional__K4XRQPOk9yX;
+    cast true 2scalar into r2 as Optional__JYP65FYVVJA;
     assert.eq r0.is_some true;
-    assert.eq r1.is_some true;
-    assert.eq r3.is_some true;
-    ternary r2.is_some r2.val 2field into r4;
-    output r0.val as address.private;
-    output r1.val as group.private;
-    output r4 as field.private;
-    output r3.val as scalar.private;
+    assert.eq r2.is_some true;
+    ternary r1.is_some r1.val 2field into r3;
+    output r0.val as group.private;
+    output r3 as field.private;
+    output r2.val as scalar.private;

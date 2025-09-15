@@ -1319,4 +1319,20 @@ create_messages!(
             "Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.".to_string()
         ),
     }
+
+    @formatted
+    invalid_storage_type {
+        args: (type_: impl Display),
+        msg: format!("{type_} is an invalid storage type"),
+        help: None,
+    }
+
+    @formatted
+    storage_vectors_cannot_be_moved_or_assigned {
+        args: (),
+        msg: format!(
+            "Storage vectors cannot be moved or assigned. You can only access or modify them using methods like `get`, `push`, or `pop`."
+        ),
+        help: None,
+    }
 );

@@ -109,6 +109,15 @@ Type1: SyntaxNode<'a> = {
     },
 }
 
+// Storage variables can have any type (some exceptions apply during semantic checking) in addition to the vector type
+StorageType: SyntaxNode<'a> = {
+    Type,
+
+    <l:WithTrivia<LeftSquare>> <t:Type> <r:WithTrivia<RightSquare>> => {
+        SyntaxNode::new(TypeKind::Vector, [l, t, r])
+    }
+}
+
 // All types including tuples and unit
 // These types can potentially be wrapped in an optional.
 Type: SyntaxNode<'a> = {
@@ -765,11 +774,18 @@ MappingDeclaration: SyntaxNode<'a> = {
     }
 }
 
+StorageDeclaration: SyntaxNode<'a> = {
+    <m:WithTrivia<Storage>> <i:WithTrivia<CheckedIdentifier>> <c:WithTrivia<Colon>> <t:StorageType> <s:WithTrivia<Semicolon>> => {
+        SyntaxNode::new(SyntaxKind::Storage, [m, i, c, t, s])
+    }
+}
+
 Item: SyntaxNode<'a> = {
     ConstructorDeclaration,
     FunctionDeclaration,
     GlobalConst,
     MappingDeclaration,
+    StorageDeclaration,
     RecordDeclaration,
     StructDeclaration,
 }
@@ -930,6 +946,7 @@ extern {
         Inline => LalrToken { token: Token::Inline, .. },
         Let => LalrToken { token: Token::Let, .. },
         Mapping => LalrToken { token: Token::Mapping, .. },
+        Storage => LalrToken { token: Token::Storage, .. },
         Network => LalrToken { token: Token::Network, .. },
         Private => LalrToken { token: Token::Private, .. },
         Program => LalrToken { token: Token::Program, .. },

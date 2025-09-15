@@ -149,14 +149,12 @@ program all_types.aleo {
     }
 
     // --- Section 9: Optionals with address, group, field, scalar, signature ---
-    transition optional_misc_primitive_types() -> (address, group, field, scalar) {
-        let a: address? = aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx;
+    transition optional_misc_primitive_types() -> (group, field, scalar) {
         let gr: group? = 0;
         let fl: field? = 1;
         let sc: scalar? = 2;
         
         return (
-            a.unwrap(),
             gr.unwrap(),
             fl.unwrap_or(2),
             sc.unwrap(),

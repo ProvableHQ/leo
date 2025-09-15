@@ -25,6 +25,7 @@
       "consts": [],
       "structs": [],
       "mappings": [],
+      "storage_variables": [],
       "functions": [
         [
           "mint",

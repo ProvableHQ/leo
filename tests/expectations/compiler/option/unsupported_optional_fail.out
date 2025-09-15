@@ -13,6 +13,11 @@ Error [ETYC0372160]: The type `signature` cannot be wrapped in an optional.
      |
    8 |         let s: signature? = s_;
      |         ^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372160]: The type `address` cannot be wrapped in an optional.
+    --> compiler-test:9:9
+     |
+   9 |         let a: address? = a_;
+     |         ^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372160]: The type `Future<Fn()>` cannot be wrapped in an optional.
     --> compiler-test:14:9
      |

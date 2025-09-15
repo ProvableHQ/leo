@@ -48,6 +48,7 @@
           }
         ]
       ],
+      "storage_variables": [],
       "functions": [
         [
           "main",

@@ -149,6 +149,8 @@ impl Compiler {
 
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
 
+        self.do_pass::<StorageLowering>(type_checking_config.clone())?;
+
         self.do_pass::<OptionLowering>(type_checking_config)?;
 
         self.do_pass::<ProcessingScript>(())?;

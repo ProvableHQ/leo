@@ -114,6 +114,7 @@
           }
         ]
       ],
+      "storage_variables": [],
       "functions": [],
       "constructor": null,
       "span": {
