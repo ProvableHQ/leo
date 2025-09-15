@@ -1,0 +1,225 @@
+{
+  "modules": {},
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "test": {
+      "program_id": {
+        "name": {
+          "name": "test",
+          "span": {
+            "lo": 9,
+            "hi": 13
+          },
+          "id": 16
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 14,
+            "hi": 18
+          },
+          "id": 17
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "storage_variables": [
+        [
+          "x",
+          {
+            "identifier": {
+              "name": "x",
+              "span": {
+                "lo": 33,
+                "hi": 34
+              },
+              "id": 0
+            },
+            "type_": {
+              "Integer": "U8"
+            },
+            "span": {
+              "lo": 25,
+              "hi": 39
+            },
+            "id": 1
+          }
+        ],
+        [
+          "y",
+          {
+            "identifier": {
+              "name": "y",
+              "span": {
+                "lo": 52,
+                "hi": 53
+              },
+              "id": 2
+            },
+            "type_": {
+              "Composite": {
+                "path": {
+                  "qualifier": [],
+                  "identifier": {
+                    "name": "Foo",
+                    "span": {
+                      "lo": 55,
+                      "hi": 58
+                    },
+                    "id": 3
+                  },
+                  "is_absolute": false,
+                  "absolute_path": null,
+                  "span": {
+                    "lo": 55,
+                    "hi": 58
+                  },
+                  "id": 4
+                },
+                "const_arguments": [],
+                "program": null
+              }
+            },
+            "span": {
+              "lo": 44,
+              "hi": 59
+            },
+            "id": 5
+          }
+        ],
+        [
+          "z",
+          {
+            "identifier": {
+              "name": "z",
+              "span": {
+                "lo": 72,
+                "hi": 73
+              },
+              "id": 6
+            },
+            "type_": {
+              "Array": {
+                "element_type": {
+                  "Integer": "U8"
+                },
+                "length": {
+                  "Literal": {
+                    "span": {
+                      "lo": 80,
+                      "hi": 81
+                    },
+                    "id": 7,
+                    "variant": {
+                      "Unsuffixed": "3"
+                    }
+                  }
+                }
+              }
+            },
+            "span": {
+              "lo": 64,
+              "hi": 83
+            },
+            "id": 8
+          }
+        ],
+        [
+          "v1",
+          {
+            "identifier": {
+              "name": "v1",
+              "span": {
+                "lo": 97,
+                "hi": 99
+              },
+              "id": 9
+            },
+            "type_": {
+              "Vector": {
+                "element_type": {
+                  "Integer": "U8"
+                }
+              }
+            },
+            "span": {
+              "lo": 89,
+              "hi": 106
+            },
+            "id": 10
+          }
+        ],
+        [
+          "v2",
+          {
+            "identifier": {
+              "name": "v2",
+              "span": {
+                "lo": 119,
+                "hi": 121
+              },
+              "id": 11
+            },
+            "type_": {
+              "Vector": {
+                "element_type": {
+                  "Array": {
+                    "element_type": {
+                      "Composite": {
+                        "path": {
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "Foo",
+                            "span": {
+                              "lo": 125,
+                              "hi": 128
+                            },
+                            "id": 12
+                          },
+                          "is_absolute": false,
+                          "absolute_path": null,
+                          "span": {
+                            "lo": 125,
+                            "hi": 128
+                          },
+                          "id": 13
+                        },
+                        "const_arguments": [],
+                        "program": null
+                      }
+                    },
+                    "length": {
+                      "Literal": {
+                        "span": {
+                          "lo": 130,
+                          "hi": 131
+                        },
+                        "id": 14,
+                        "variant": {
+                          "Unsuffixed": "3"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "span": {
+              "lo": 111,
+              "hi": 134
+            },
+            "id": 15
+          }
+        ]
+      ],
+      "functions": [],
+      "constructor": null,
+      "span": {
+        "lo": 0,
+        "hi": 136
+      }
+    }
+  }
+}

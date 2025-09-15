@@ -27,15 +27,23 @@ use leo_span::{Span, Symbol, sym};
 use itertools::Itertools as _;
 
 impl TypeCheckingVisitor<'_> {
-    pub fn visit_expression_assign(&mut self, input: &Expression) -> Type {
-        let ty = match input {
-            Expression::ArrayAccess(array_access) => self.visit_array_access_general(array_access, true, &None),
+    // Returns the type of the RHS of an assign statement. Also returns whether the RHS is a storage location.
+    // For now, the only possible storage location to assign to is a `Path` to a storage variable name.
+    pub fn visit_expression_assign(&mut self, input: &Expression) -> (Type, bool) {
+        let (ty, is_storage) = match input {
+            Expression::ArrayAccess(array_access) => {
+                (self.visit_array_access_general(array_access, true, &None), false)
+            }
             Expression::Path(path) if path.qualifier().is_empty() => self.visit_path_assign(path),
-            Expression::MemberAccess(member_access) => self.visit_member_access_general(member_access, true, &None),
-            Expression::TupleAccess(tuple_access) => self.visit_tuple_access_general(tuple_access, true, &None),
+            Expression::MemberAccess(member_access) => {
+                (self.visit_member_access_general(member_access, true, &None), false)
+            }
+            Expression::TupleAccess(tuple_access) => {
+                (self.visit_tuple_access_general(tuple_access, true, &None), false)
+            }
             _ => {
                 self.emit_err(TypeCheckerError::invalid_assignment_target(input, input.span()));
-                Type::Err
+                (Type::Err, false)
             }
         };
 
@@ -47,7 +55,7 @@ impl TypeCheckingVisitor<'_> {
         if external_record || external_record_tuple {
             let Expression::Path(path) = input else {
                 // This is not valid Leo and will have triggered an error elsewhere.
-                return Type::Err;
+                return (Type::Err, false);
             };
 
             if !self.symbol_in_conditional_scope(path.identifier().name) {
@@ -72,13 +80,14 @@ impl TypeCheckingVisitor<'_> {
 
         // Add the expression and its associated type to the type table.
         self.state.type_table.insert(input.id(), ty.clone());
-        ty
+
+        (ty, is_storage)
     }
 
     pub fn visit_array_access_general(&mut self, input: &ArrayAccess, assign: bool, expected: &Option<Type>) -> Type {
         // Check that the expression is an array.
         let this_type = if assign {
-            self.visit_expression_assign(&input.array)
+            self.visit_expression_assign(&input.array).0
         } else {
             self.visit_expression(&input.array, &None)
         };
@@ -202,7 +211,7 @@ impl TypeCheckingVisitor<'_> {
         }
 
         let ty = if assign {
-            self.visit_expression_assign(&input.inner)
+            self.visit_expression_assign(&input.inner).0
         } else {
             self.visit_expression(&input.inner, &None)
         };
@@ -251,7 +260,7 @@ impl TypeCheckingVisitor<'_> {
 
     pub fn visit_tuple_access_general(&mut self, input: &TupleAccess, assign: bool, expected: &Option<Type>) -> Type {
         let this_type = if assign {
-            self.visit_expression_assign(&input.tuple)
+            self.visit_expression_assign(&input.tuple).0
         } else {
             self.visit_expression(&input.tuple, &None)
         };
@@ -309,14 +318,22 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    pub fn visit_path_assign(&mut self, input: &Path) -> Type {
+    // Returns the type of the RHS of an assign statement if it's a `Path`.
+    // Also returns whether the RHS is a storage location.
+    pub fn visit_path_assign(&mut self, input: &Path) -> (Type, bool) {
         // Lookup the variable in the symbol table and retrieve its type.
         let Some(var) =
             self.state.symbol_table.lookup_path(self.scope_state.program_name.unwrap(), &input.absolute_path())
         else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span));
-            return Type::Err;
+            return (Type::Err, false);
         };
+
+        // Cannot assign to storage vectors
+        if var.type_.is_vector() {
+            self.emit_err(TypeCheckerError::invalid_assignment_target(input, input.span()));
+            return (Type::Err, false);
+        }
 
         // If the variable exists, then check that it is not a constant.
         match &var.declaration {
@@ -327,6 +344,7 @@ impl TypeCheckingVisitor<'_> {
             VariableType::Input(Mode::Constant) => {
                 self.emit_err(TypeCheckerError::cannot_assign_to_const_input(input, var.span))
             }
+            VariableType::Storage => return (var.type_.clone(), true),
             VariableType::Mut | VariableType::Input(_) => {}
         }
 
@@ -354,7 +372,7 @@ impl TypeCheckingVisitor<'_> {
             }
         }
 
-        var.type_.clone()
+        (var.type_.clone(), false)
     }
 
     /// Infers the type of an expression, but returns Type::Err and emits an error if the result is Type::Numeric.
@@ -596,50 +614,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::operation_must_be_in_async_block_or_function(input.span()));
         }
 
-        let return_type = if let CoreFunction::OptionalUnwrapOr = core_instruction {
-            // Ensure we have exactly two arguments
-            let (optional_expr, fallback_expr) = match &input.arguments[..] {
-                [opt, fallback] => (opt, fallback),
-                _ => {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                        core_instruction.num_args(),
-                        input.arguments.len(),
-                        input.span(),
-                    ));
-                    return Type::Err;
-                }
-            };
-
-            // Type check the first argument normally
-            let optional_ty = self.visit_expression(optional_expr, &None);
-
-            // This emits an error if the type is not optional
-            self.assert_optional_type(&optional_ty, optional_expr.span());
-
-            // If the type is not Optional, we return Err
-            let Type::Optional(OptionalType { inner }) = optional_ty else {
-                return Type::Err;
-            };
-
-            // Use the inner type of the optional as the expected type for the fallback
-            let fallback_ty = self.visit_expression_reject_numeric(fallback_expr, &Some(*inner.clone()));
-            self.assert_type(&fallback_ty, &inner, fallback_expr.span());
-
-            // Return the final type: the inner type (what unwrap_or returns)
-            *inner
-        } else {
-            // Get the types of the arguments. Error out on arguments that have `Type::Numeric`. We could potentially do
-            // better for some of the core functions, but that can get pretty tedious because it would have to be function
-            // specific.
-            let arguments_with_types = input
-                .arguments
-                .iter()
-                .map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg))
-                .collect::<Vec<_>>();
-
-            // Check return type if the expected type is known.
-            self.check_core_function_call(core_instruction.clone(), &arguments_with_types, input.span())
-        };
+        let return_type =
+            self.check_core_function_call(core_instruction.clone(), &input.arguments, expected, input.span());
 
         // Check return type if the expected type is known.
         self.maybe_assert_type(&return_type, expected, input.span());
@@ -1490,6 +1466,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let var = self.state.symbol_table.lookup_path(self.scope_state.program_name.unwrap(), &input.absolute_path());
 
         if let Some(var) = var {
+            if var.declaration == VariableType::Storage && !var.type_.is_vector() && !var.type_.is_mapping() {
+                self.check_access_allowed("storage access", true, input.span());
+            }
+
             self.maybe_assert_type(&var.type_, expected, input.span());
             var.type_.clone()
         } else {
@@ -1601,8 +1581,44 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_ternary(&mut self, input: &TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
-        let t1 = self.visit_expression_reject_numeric(&input.if_true, expected);
-        let t2 = self.visit_expression_reject_numeric(&input.if_false, expected);
+        // We try to coerce one side to another in the ternary operator whenever possible and/or needed.
+        let (t1, t2) = if expected.is_some() {
+            (
+                self.visit_expression_reject_numeric(&input.if_true, expected),
+                self.visit_expression_reject_numeric(&input.if_false, expected),
+            )
+        } else if input.if_false.is_none_expr() {
+            let t1 = self.visit_expression(&input.if_true, &None);
+            if matches!(t1, Type::Optional(_)) {
+                (t1.clone(), self.visit_expression(&input.if_false, &Some(t1.clone())))
+            } else {
+                (
+                    t1.clone(),
+                    self.visit_expression(
+                        &input.if_false,
+                        &Some(Type::Optional(OptionalType { inner: Box::new(t1.clone()) })),
+                    ),
+                )
+            }
+        } else if input.if_true.is_none_expr() {
+            let t2 = self.visit_expression(&input.if_false, &None);
+            if matches!(t2, Type::Optional(_)) {
+                (t2.clone(), self.visit_expression(&input.if_true, &Some(t2.clone())))
+            } else {
+                (
+                    t2.clone(),
+                    self.visit_expression(
+                        &input.if_true,
+                        &Some(Type::Optional(OptionalType { inner: Box::new(t2.clone()) })),
+                    ),
+                )
+            }
+        } else {
+            (
+                self.visit_expression_reject_numeric(&input.if_true, &None),
+                self.visit_expression_reject_numeric(&input.if_false, &None),
+            )
+        };
 
         let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
@@ -1611,6 +1627,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Type::Err
         } else if let Some(expected) = expected {
             expected.clone()
+        } else if t1.can_coerce_to(&t2) {
+            t2
         } else {
             t1
         };
@@ -1859,9 +1877,44 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_assign(&mut self, input: &AssignStatement) {
-        let lhs_type = self.visit_expression_assign(&input.place);
+        let (lhs_type, is_storage) = self.visit_expression_assign(&input.place);
+        let value = &input.value;
 
-        self.visit_expression(&input.value, &Some(lhs_type.clone()));
+        if lhs_type == Type::Err {
+            self.visit_expression(value, &None);
+            return;
+        }
+
+        if is_storage && !lhs_type.is_vector() && !lhs_type.is_mapping() {
+            self.check_access_allowed("storage write", true, input.place.span())
+        }
+
+        let expected_rhs_ty = match (is_storage, value.is_none_expr(), &lhs_type) {
+            (true, false, Type::Optional(OptionalType { inner })) => {
+                // For storage variables that are being assigned to a value other than `none` where
+                // the `lhs_type` is an optional, we want the expected type to be the wrapped type
+                // in that optional. For example:
+                // ```leo
+                // storage x: u8; // actually optional
+                //
+                // x = 5` // expected type of the RHS is just `u8` (not `u8`?)
+                // ```
+                // Note that this means that this would fail with a type mismatch:
+                // ```leo
+                // let y: u8? = 5;
+                // x = y; // Assigning an optional to a storage variable.
+                // ```
+                // We should probably eventually support this for completeness, but it add some
+                // complications that makes it not worth it as this stage.
+                Some(*inner.clone())
+            }
+            _ => {
+                // Fore everything else, just proceed as normal.
+                Some(lhs_type)
+            }
+        };
+
+        self.visit_expression(value, &expected_rhs_ty);
     }
 
     fn visit_block(&mut self, input: &Block) {
@@ -1987,6 +2040,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // information from them.
         let inferred_type = self.visit_expression_reject_numeric(&input.value, &input.type_);
 
+        // If the RHS is a storage vector, error out. Storage vectors cannot be assigned to a variable.
+        // They can only be accessed directly via `push`, `pop`, etc.
+        if inferred_type.is_vector() {
+            self.emit_err(TypeCheckerError::storage_vectors_cannot_be_moved_or_assigned(input.value.span()));
+        }
+
         // Insert the variables into the symbol table.
         match &input.place {
             DefinitionPlace::Single(identifier) => {
@@ -2034,7 +2093,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
         // Expression statements can only be function calls.
-        if !matches!(input.expression, Expression::Call(_) | Expression::AssociatedFunction(_)) {
+        if !matches!(input.expression, Expression::Call(_) | Expression::AssociatedFunction(_) | Expression::Unit(_)) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.

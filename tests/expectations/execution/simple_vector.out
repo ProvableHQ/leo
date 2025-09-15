@@ -1,0 +1,160 @@
+program test.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping vec__:
+    key as u32.public;
+    value as u32.public;
+
+mapping vec__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function test_vector_ops:
+    async test_vector_ops into r0;
+    output r0 as test.aleo/test_vector_ops.future;
+
+finalize test_vector_ops:
+    get.or_use vec__len__[false] 0u32 into r0;
+    is.eq r0 0u32 into r1;
+    assert.eq r1 true;
+    get.or_use vec__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into vec__len__[false];
+    set 10u32 into vec__[r2];
+    get.or_use vec__len__[false] 0u32 into r4;
+    add r4 1u32 into r5;
+    set r5 into vec__len__[false];
+    set 20u32 into vec__[r4];
+    get.or_use vec__len__[false] 0u32 into r6;
+    add r6 1u32 into r7;
+    set r7 into vec__len__[false];
+    set 30u32 into vec__[r6];
+    get.or_use vec__len__[false] 0u32 into r8;
+    is.eq r8 3u32 into r9;
+    assert.eq r9 true;
+    get.or_use vec__len__[false] 0u32 into r10;
+    lt 1u32 r10 into r11;
+    get.or_use vec__[1u32] 0u32 into r12;
+    cast true r12 into r13 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r14 as Optional__EsDmm5O6sv6;
+    ternary r11 r13.is_some r14.is_some into r15;
+    ternary r11 r13.val r14.val into r16;
+    cast r15 r16 into r17 as Optional__EsDmm5O6sv6;
+    assert.eq r17.is_some true;
+    get.or_use vec__[1u32] 0u32 into r18;
+    cast true r18 into r19 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r20 as Optional__EsDmm5O6sv6;
+    ternary r11 r19.is_some r20.is_some into r21;
+    ternary r11 r19.val r20.val into r22;
+    cast r21 r22 into r23 as Optional__EsDmm5O6sv6;
+    is.eq r23.val 20u32 into r24;
+    assert.eq r24 true;
+    get.or_use vec__len__[false] 0u32 into r25;
+    lt 1u32 r25 into r26;
+    assert.eq r26 true;
+    set 25u32 into vec__[1u32];
+    get.or_use vec__len__[false] 0u32 into r27;
+    lt 1u32 r27 into r28;
+    get.or_use vec__[1u32] 0u32 into r29;
+    cast true r29 into r30 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r31 as Optional__EsDmm5O6sv6;
+    ternary r28 r30.is_some r31.is_some into r32;
+    ternary r28 r30.val r31.val into r33;
+    cast r32 r33 into r34 as Optional__EsDmm5O6sv6;
+    assert.eq r34.is_some true;
+    get.or_use vec__[1u32] 0u32 into r35;
+    cast true r35 into r36 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r37 as Optional__EsDmm5O6sv6;
+    ternary r28 r36.is_some r37.is_some into r38;
+    ternary r28 r36.val r37.val into r39;
+    cast r38 r39 into r40 as Optional__EsDmm5O6sv6;
+    is.eq r40.val 25u32 into r41;
+    assert.eq r41 true;
+    get.or_use vec__len__[false] 0u32 into r42;
+    lt 2u32 r42 into r43;
+    assert.eq r43 true;
+    sub r42 1u32 into r44;
+    set r44 into vec__len__[false];
+    get vec__[r44] into r45;
+    set r45 into vec__[2u32];
+    get vec__[2u32] into r46;
+    cast true r46 into r47 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r48 as Optional__EsDmm5O6sv6;
+    ternary r43 r47.is_some r48.is_some into r49;
+    ternary r43 r47.val r48.val into r50;
+    cast r49 r50 into r51 as Optional__EsDmm5O6sv6;
+    assert.eq r51.is_some true;
+    get vec__[2u32] into r52;
+    cast true r52 into r53 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r54 as Optional__EsDmm5O6sv6;
+    ternary r43 r53.is_some r54.is_some into r55;
+    ternary r43 r53.val r54.val into r56;
+    cast r55 r56 into r57 as Optional__EsDmm5O6sv6;
+    is.eq r57.val 30u32 into r58;
+    assert.eq r58 true;
+    get.or_use vec__len__[false] 0u32 into r59;
+    is.eq r59 2u32 into r60;
+    assert.eq r60 true;
+    get.or_use vec__len__[false] 0u32 into r61;
+    gt r61 0u32 into r62;
+    branch.eq r62 false to end_then_0_0;
+    sub r61 1u32 into r63;
+    set r63 into vec__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    sub r61 1u32 into r64;
+    get.or_use vec__[r64] 0u32 into r65;
+    cast true r65 into r66 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r67 as Optional__EsDmm5O6sv6;
+    ternary r62 r66.is_some r67.is_some into r68;
+    ternary r62 r66.val r67.val into r69;
+    cast r68 r69 into r70 as Optional__EsDmm5O6sv6;
+    assert.eq r70.is_some true;
+    get.or_use vec__[r64] 0u32 into r71;
+    cast true r71 into r72 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r73 as Optional__EsDmm5O6sv6;
+    ternary r62 r72.is_some r73.is_some into r74;
+    ternary r62 r72.val r73.val into r75;
+    cast r74 r75 into r76 as Optional__EsDmm5O6sv6;
+    is.eq r76.val 25u32 into r77;
+    assert.eq r77 true;
+    get.or_use vec__len__[false] 0u32 into r78;
+    is.eq r78 1u32 into r79;
+    assert.eq r79 true;
+    set 0u32 into vec__len__[false];
+    get.or_use vec__len__[false] 0u32 into r80;
+    is.eq r80 0u32 into r81;
+    assert.eq r81 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1ggx6vcnuulcl9x7ksxceqjak25e7q6j7ml80swzcdkv8xk7ydsqs4ln39s",
+      "program": "test.aleo",
+      "function": "test_vector_ops",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5142027608027802576574091123989065072230784639079368114688070529765585579166field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: test_vector_ops,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "5217821421448171708893898476226701758596729091010258404483505858728239780855group",
+      "tcm": "7477948332296478291944103795851273885338086131076721669399703348779096173412field",
+      "scm": "7818509915162576913905185694457516827956104433621406862264469146739101113482field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

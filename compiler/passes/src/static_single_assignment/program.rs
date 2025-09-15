@@ -131,6 +131,7 @@ impl ProgramScopeConsumer for SsaFormingVisitor<'_> {
             consts: input.consts,
             structs: input.structs.into_iter().map(|(i, s)| (i, self.consume_struct(s))).collect(),
             mappings: input.mappings,
+            storage_variables: input.storage_variables,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
             constructor: input.constructor.map(|c| self.consume_constructor(c)),
             span: input.span,

@@ -83,6 +83,11 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                 })
                 .collect(),
             mappings: input.mappings.into_iter().map(|(id, m)| (id, self.reconstruct_mapping(m))).collect(),
+            storage_variables: input
+                .storage_variables
+                .into_iter()
+                .map(|(id, v)| (id, self.reconstruct_storage_variable(v)))
+                .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             ..input

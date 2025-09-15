@@ -53,6 +53,7 @@ pub trait AstVisitor {
             Type::Mapping(mapping_type) => self.visit_mapping_type(mapping_type),
             Type::Optional(optional_type) => self.visit_optional_type(optional_type),
             Type::Tuple(tuple_type) => self.visit_tuple_type(tuple_type),
+            Type::Vector(array_type) => self.visit_vector_type(array_type),
             Type::Address
             | Type::Boolean
             | Type::Field
@@ -94,6 +95,10 @@ pub trait AstVisitor {
 
     fn visit_tuple_type(&mut self, input: &TupleType) {
         input.elements().iter().for_each(|input| self.visit_type(input));
+    }
+
+    fn visit_vector_type(&mut self, input: &VectorType) {
+        self.visit_type(&input.element_type);
     }
 
     /* Expressions */
@@ -335,6 +340,7 @@ pub trait ProgramVisitor: AstVisitor {
         input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
         input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
         input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
+        input.storage_variables.iter().for_each(|(_, c)| (self.visit_storage_variable(c)));
         input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
@@ -361,6 +367,10 @@ pub trait ProgramVisitor: AstVisitor {
     fn visit_mapping(&mut self, input: &Mapping) {
         self.visit_type(&input.key_type);
         self.visit_type(&input.value_type);
+    }
+
+    fn visit_storage_variable(&mut self, input: &StorageVariable) {
+        self.visit_type(&input.type_);
     }
 
     fn visit_function(&mut self, input: &Function) {

@@ -990,10 +990,10 @@ impl Cursor {
                 // We want to push expressions for each of the arguments... except for mappings,
                 // because we don't look them up as Values.
                 match core_function {
-                    CoreFunction::MappingGet | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
+                    CoreFunction::Get | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
                         push!()(&function.arguments[1], &None);
                     }
-                    CoreFunction::MappingGetOrUse | CoreFunction::MappingSet => {
+                    CoreFunction::MappingGetOrUse | CoreFunction::Set => {
                         push!()(&function.arguments[2], &None);
                         push!()(&function.arguments[1], &None);
                     }

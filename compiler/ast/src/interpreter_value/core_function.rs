@@ -408,7 +408,8 @@ pub fn evaluate_core_function(
             helper.set_block_height(height);
             Value { id: None, contents: ValueVariants::Unit }
         }
-        CoreFunction::MappingGet => {
+        CoreFunction::Get => {
+            // TODO handle vector get
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
@@ -416,6 +417,18 @@ pub fn evaluate_core_function(
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).expect_tc(span)?.clone()
+        }
+        CoreFunction::Set => {
+            // TODO handle vector set
+            let value = helper.pop_value().expect_tc(span)?;
+            let key = helper.pop_value().expect_tc(span)?;
+            let (program, name) = match &arguments[0] {
+                Expression::Path(path) => (None, path.identifier().name),
+                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                _ => tc_fail2!(),
+            };
+            helper.mapping_set(program, name, key, value).expect_tc(span)?;
+            Value::make_unit()
         }
         CoreFunction::MappingGetOrUse => {
             let use_value = helper.pop_value().expect_tc(span)?;
@@ -426,17 +439,6 @@ pub fn evaluate_core_function(
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).unwrap_or(use_value)
-        }
-        CoreFunction::MappingSet => {
-            let value = helper.pop_value().expect_tc(span)?;
-            let key = helper.pop_value().expect_tc(span)?;
-            let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
-                _ => tc_fail2!(),
-            };
-            helper.mapping_set(program, name, key, value).expect_tc(span)?;
-            Value::make_unit()
         }
         CoreFunction::MappingRemove => {
             let key = helper.pop_value().expect_tc(span)?;
@@ -462,6 +464,14 @@ pub fn evaluate_core_function(
             return Ok(None);
         }
         CoreFunction::OptionalUnwrapOr => {
+            // TODO
+            return Ok(None);
+        }
+        CoreFunction::VectorPush
+        | CoreFunction::VectorLen
+        | CoreFunction::VectorClear
+        | CoreFunction::VectorPop
+        | CoreFunction::VectorSwapRemove => {
             // TODO
             return Ok(None);
         }

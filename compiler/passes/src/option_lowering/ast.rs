@@ -26,37 +26,38 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
     type AdditionalOutput = Vec<Statement>;
 
     /* Types */
+    fn reconstruct_array_type(&mut self, input: ArrayType) -> (Type, Self::AdditionalOutput) {
+        let (length, stmts) = self.reconstruct_expression(*input.length, &None);
+        (
+            Type::Array(ArrayType {
+                element_type: Box::new(self.reconstruct_type(*input.element_type).0),
+                length: Box::new(length),
+            }),
+            stmts,
+        )
+    }
+
+    fn reconstruct_composite_type(&mut self, input: CompositeType) -> (Type, Self::AdditionalOutput) {
+        let mut statements = Vec::new();
+
+        let const_arguments = input
+            .const_arguments
+            .into_iter()
+            .map(|arg| {
+                let (expr, stmts) = self.reconstruct_expression(arg, &None);
+                statements.extend(stmts);
+                expr
+            })
+            .collect();
+
+        (Type::Composite(CompositeType { const_arguments, ..input }), statements)
+    }
+
     fn reconstruct_optional_type(&mut self, input: OptionalType) -> (Type, Self::AdditionalOutput) {
         let (inner_type, _) = self.reconstruct_type(*input.inner.clone());
 
-        // Generate a unique name "u32?", "bool?", etc.
-        let struct_name = crate::make_optional_struct_symbol(&inner_type);
-
-        // Register the struct if it hasn't been already
-        self.new_structs.entry(struct_name).or_insert_with(|| Composite {
-            identifier: Identifier::new(struct_name, self.state.node_builder.next_id()),
-            const_parameters: vec![], // this is not a generic struct
-            members: vec![
-                Member {
-                    mode: Mode::None,
-                    identifier: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
-                    type_: Type::Boolean,
-                    span: Span::default(),
-                    id: self.state.node_builder.next_id(),
-                },
-                Member {
-                    mode: Mode::None,
-                    identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
-                    type_: inner_type,
-                    span: Span::default(),
-                    id: self.state.node_builder.next_id(),
-                },
-            ],
-            external: None,
-            is_record: false,
-            span: Span::default(),
-            id: self.state.node_builder.next_id(),
-        });
+        // Create or get an optional wrapper struct for `inner_type`
+        let struct_name = self.insert_optional_wrapper_struct(&inner_type);
 
         (
             Type::Composite(CompositeType {
@@ -480,9 +481,12 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         mut input: TernaryExpression,
         additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
+        let type_ = self.state.type_table.get(&input.id());
         let (condition, mut stmts_condition) = self.reconstruct_expression(input.condition, &None);
-        let (if_true, mut stmts_if_true) = self.reconstruct_expression(input.if_true, additional);
-        let (if_false, mut stmts_if_false) = self.reconstruct_expression(input.if_false, additional);
+        let additional = if let Some(expected) = additional { Some(expected.clone()) } else { type_ };
+
+        let (if_true, mut stmts_if_true) = self.reconstruct_expression(input.if_true, &additional);
+        let (if_false, mut stmts_if_false) = self.reconstruct_expression(input.if_false, &additional);
 
         input.condition = condition;
         input.if_true = if_true;

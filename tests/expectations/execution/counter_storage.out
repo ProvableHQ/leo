@@ -1,0 +1,163 @@
+program test.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping counter__:
+    key as boolean.public;
+    value as u32.public;
+
+function initialize:
+    async initialize into r0;
+    output r0 as test.aleo/initialize.future;
+
+finalize initialize:
+    set 0u32 into counter__[false];
+
+function increment:
+    async increment into r0;
+    output r0 as test.aleo/increment.future;
+
+finalize increment:
+    contains counter__[false] into r0;
+    get.or_use counter__[false] 0u32 into r1;
+    cast true r1 into r2 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    contains counter__[false] into r7;
+    get.or_use counter__[false] 0u32 into r8;
+    cast true r8 into r9 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r10 as Optional__EsDmm5O6sv6;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__EsDmm5O6sv6;
+    ternary r6.is_some r13.val 0u32 into r14;
+    add r14 1u32 into r15;
+    set r15 into counter__[false];
+    contains counter__[false] into r16;
+    get.or_use counter__[false] 0u32 into r17;
+    cast true r17 into r18 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r19 as Optional__EsDmm5O6sv6;
+    ternary r16 r18.is_some r19.is_some into r20;
+    ternary r16 r18.val r19.val into r21;
+    cast r20 r21 into r22 as Optional__EsDmm5O6sv6;
+    assert.eq r22.is_some true;
+    contains counter__[false] into r23;
+    get.or_use counter__[false] 0u32 into r24;
+    cast true r24 into r25 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r26 as Optional__EsDmm5O6sv6;
+    ternary r23 r25.is_some r26.is_some into r27;
+    ternary r23 r25.val r26.val into r28;
+    cast r27 r28 into r29 as Optional__EsDmm5O6sv6;
+    is.eq r29.val r15 into r30;
+    assert.eq r30 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1hczfq642j4w3emk8wxsmz8skw967heywtt3vrgzg86w4nxjnxszs8tsdzg",
+      "program": "test.aleo",
+      "function": "increment",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6583195300408321241841212771428866298368527666258877518914082151436888144955field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: increment,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "5465601947645018841081878297195945135397754179690311884909269558490091540985group",
+      "tcm": "4456024893941171008889659456881015783646280184588859247684246364113972719463field",
+      "scm": "7595424472684114678723002470028531639770730813997210355601309526631584832665field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1w688uqc05lkwggppn2603m2kuez8nlcy60ztfdfmvpcav03s8grq8a0gcp",
+      "program": "test.aleo",
+      "function": "increment",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8022405778563936892368094852229186890704098375842215871265219921822471518422field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: increment,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "6858282760624248315688685859293604316744971700963358390391143014204400559486group",
+      "tcm": "4072767433895132031043793649565806463051708044084354598291553470528150816040field",
+      "scm": "4158913525956673238546573618688690350310542110558187551585187411693494877293field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1am3z7a5guhrs5ky3gnutpdmd65ca396gj9uqj5luawfuz4jq4vxsgep5f9",
+      "program": "test.aleo",
+      "function": "increment",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5388977256278162089704380914467671443063094443860095831222121697400916262101field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: increment,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "4784127387897228863046256412153814664862169047044881108571360715991276312169group",
+      "tcm": "6895133970021186256172032173461456589078550831435227011885900798677017404397field",
+      "scm": "2104863141375941461882484139073697338747271071309724125164608803227781692795field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1vp9cpwysmfpwkwd8dcem7t87ksnlesqyfk8mx76qxv9sa9jcvq8sht0y77",
+      "program": "test.aleo",
+      "function": "increment",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1389890184478483367270536914390758885637588901155058345564294140600139958326field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: increment,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "2593879024460517254608594790279943589476574571711491197101777026392059836865group",
+      "tcm": "4333697267146970140501886841363856939383976317721568244953188117698148736096field",
+      "scm": "7477878274588591722573531339897537341869245783008472316458024771123249173215field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

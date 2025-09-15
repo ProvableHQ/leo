@@ -751,6 +751,8 @@ impl CodeGeneratingVisitor<'_> {
 
             Type::Optional(_) => panic!("All optional types should have been lowered by now."),
 
+            Type::Vector(_) => panic!("All vector types should have been lowered by now."),
+
             Type::Mapping(..)
             | Type::Future(..)
             | Type::Tuple(..)

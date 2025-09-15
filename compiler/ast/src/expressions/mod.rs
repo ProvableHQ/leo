@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, NodeID, Path};
-use leo_span::Span;
+use crate::{Identifier, IntegerType, Node, NodeBuilder, NodeID, Path, Type};
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -328,5 +328,116 @@ impl Expression {
             }
         }
         None
+    }
+
+    pub fn is_none_expr(&self) -> bool {
+        matches!(self, Expression::Literal(Literal { variant: LiteralVariant::None, .. }))
+    }
+
+    /// Returns the *zero value expression* for a given type, if one exists.
+    ///
+    /// This is used during lowering and reconstruction to provide default or
+    /// placeholder values (e.g., for `get_or_use` calls or struct initialization).
+    ///
+    /// Supported types:
+    /// - **Integers** (`i8`–`i128`, `u8`–`u128`): literal `0`
+    /// - **Boolean**: literal `false`
+    /// - **Field**, **Group**, **Scalar**: zero literals `"0"`
+    /// - **Structs**: recursively constructs a struct with all members zeroed
+    /// - **Arrays**: repeats a zero element for the array length
+    ///
+    /// Returns `None` if the type has no well-defined zero representation
+    /// (e.g. mapping, Future).
+    ///
+    /// The `struct_lookup` callback provides member definitions for composite types.
+    #[allow(clippy::type_complexity)]
+    pub fn zero(
+        ty: &Type,
+        span: Span,
+        node_builder: &NodeBuilder,
+        struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+    ) -> Option<Self> {
+        let id = node_builder.next_id();
+
+        match ty {
+            // Numeric types
+            Type::Integer(IntegerType::I8) => Some(Literal::integer(IntegerType::I8, "0".to_string(), span, id).into()),
+            Type::Integer(IntegerType::I16) => {
+                Some(Literal::integer(IntegerType::I16, "0".to_string(), span, id).into())
+            }
+            Type::Integer(IntegerType::I32) => {
+                Some(Literal::integer(IntegerType::I32, "0".to_string(), span, id).into())
+            }
+            Type::Integer(IntegerType::I64) => {
+                Some(Literal::integer(IntegerType::I64, "0".to_string(), span, id).into())
+            }
+            Type::Integer(IntegerType::I128) => {
+                Some(Literal::integer(IntegerType::I128, "0".to_string(), span, id).into())
+            }
+            Type::Integer(IntegerType::U8) => Some(Literal::integer(IntegerType::U8, "0".to_string(), span, id).into()),
+            Type::Integer(IntegerType::U16) => {
+                Some(Literal::integer(IntegerType::U16, "0".to_string(), span, id).into())
+            }
+            Type::Integer(IntegerType::U32) => {
+                Some(Literal::integer(IntegerType::U32, "0".to_string(), span, id).into())
+            }
+            Type::Integer(IntegerType::U64) => {
+                Some(Literal::integer(IntegerType::U64, "0".to_string(), span, id).into())
+            }
+            Type::Integer(IntegerType::U128) => {
+                Some(Literal::integer(IntegerType::U128, "0".to_string(), span, id).into())
+            }
+
+            // Boolean
+            Type::Boolean => Some(Literal::boolean(false, span, id).into()),
+
+            // Field, Group, Scalar
+            Type::Field => Some(Literal::field("0".to_string(), span, id).into()),
+            Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
+            Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
+
+            // Structs (composite types)
+            Type::Composite(composite_type) => {
+                let path = &composite_type.path;
+                let members = struct_lookup(&path.absolute_path());
+
+                let struct_members = members
+                    .into_iter()
+                    .map(|(symbol, member_type)| {
+                        let member_id = node_builder.next_id();
+                        let zero_expr = Self::zero(&member_type, span, node_builder, struct_lookup)?;
+
+                        Some(StructVariableInitializer {
+                            span,
+                            id: member_id,
+                            identifier: Identifier::new(symbol, node_builder.next_id()),
+                            expression: Some(zero_expr),
+                        })
+                    })
+                    .collect::<Option<Vec<_>>>()?;
+
+                Some(Expression::Struct(StructExpression {
+                    span,
+                    id,
+                    path: path.clone(),
+                    const_arguments: composite_type.const_arguments.clone(),
+                    members: struct_members,
+                }))
+            }
+
+            // Arrays
+            Type::Array(array_type) => {
+                let element_ty = &array_type.element_type;
+
+                let element_expr = Self::zero(element_ty, span, node_builder, struct_lookup)?;
+
+                Some(Expression::Repeat(
+                    RepeatExpression { span, id, expr: element_expr, count: *array_type.length.clone() }.into(),
+                ))
+            }
+
+            // Other types are not expected or supported just yet
+            _ => None,
+        }
     }
 }
