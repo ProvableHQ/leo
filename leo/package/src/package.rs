@@ -153,7 +153,7 @@ impl Package {
 
         let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
         std::fs::write(&test_file_path, test_template(name_no_aleo))
-            .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e))?;
+            .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e))?;
 
         Ok(full_path)
     }
