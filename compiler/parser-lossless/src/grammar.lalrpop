@@ -760,6 +760,12 @@ ProgramDeclaration: SyntaxNode<'a> = {
     <p:WithTrivia<Program>> <pid:WithTrivia<ProgramId>> <l:WithTrivia<LeftCurly>> <is:Item*> <r:WithTrivia<RightCurly>> => {
         SyntaxNode::new(SyntaxKind::ProgramDeclaration, [p, pid, l].into_iter().chain(is).chain([r]))
     },
+
+    // For error reporting purposes we catch attempts to declare programs with networks other than `.aleo`.
+    <p:WithTrivia<Program>> <name:NoTrivia<Identifier>> <d:NoTrivia<Dot>> <net:WithTrivia<Identifier>> <l:WithTrivia<LeftCurly>> <is:Item*> <r:WithTrivia<RightCurly>> => {
+        handler.emit_err(ParserError::invalid_network(net.span));
+        SyntaxNode::new(SyntaxKind::ProgramDeclaration, [p, name, d, net, l].into_iter().chain(is).chain([r]))
+    },
 }
 
 ImportDeclaration: SyntaxNode<'a> = {

@@ -104,7 +104,7 @@ version = "=3.2.0"
 
 [workspace.dependencies.leo-parser-lossless]
 path = "./compiler/parser-lossless"
-version = "=3.1.0"
+version = "=3.2.0"
 
 
 [workspace.dependencies.leo-passes]
