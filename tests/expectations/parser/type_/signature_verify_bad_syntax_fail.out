@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found '('
-    --> test:4:39
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'signature'
+    --> test:4:23
      |
    4 |         let a: bool = signature.verify(s, a, v);
-     |                                       ^
+     |                       ^^^^^^^^^

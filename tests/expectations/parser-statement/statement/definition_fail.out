@@ -93,7 +93,7 @@ Error [EPAR0370005]: expected an identifier -- found ','
      |
    1 | let (x,,y) = ();
      |        ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', ')', '[', 'true', 'false', 'signature', 'async', 'block', 'network', 'self' -- found ','
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', ')', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found ','
     --> test_23:1:16
      |
    1 | let x: [u8; (2,,)] = [[0,0], [0,0]];
@@ -173,7 +173,7 @@ Error [EPAR0370003]: unexpected EOF
      |
    1 | let x: [u8; 1u8] = [1,
      |                      ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'signature', 'async', 'block', 'network', 'self' -- found ']'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found ']'
     --> test_39:1:15
      |
    1 | let dbg: u8 = ];

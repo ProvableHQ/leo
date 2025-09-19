@@ -307,9 +307,6 @@ Expr0: SyntaxNode<'a> = {
     <x:WithTrivia<Block>> <d:WithTrivia<Dot>> <y:WithTrivia<Identifier>> => {
         SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y])
     },
-    <x:WithTrivia<Signature>> <d:WithTrivia<Dot>> <y:WithTrivia<Identifier>> => {
-        SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y])
-    },
     <x:WithTrivia<SelfLower>> <d:WithTrivia<Dot>> <y:WithTrivia<Identifier>> => {
         SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y])
     },
