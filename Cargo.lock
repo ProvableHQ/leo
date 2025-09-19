@@ -1914,7 +1914,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser-lossless"
-version = "3.1.0"
+version = "3.2.0"
 dependencies = [
  "itertools 0.13.0",
  "lalrpop",
