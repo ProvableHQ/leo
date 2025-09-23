@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["IdVariants","Token"],"fn":["comment_block","id_variant"],"struct":["LalrToken","Lexer"]};

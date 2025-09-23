@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["compute_module_key","parse","parse_expression","parse_module","parse_statement"],"mod":["context","expression","file","statement","type_"]};

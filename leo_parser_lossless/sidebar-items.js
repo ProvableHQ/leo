@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ExpressionKind","IntegerLiteralKind","IntegerTypeKind","LiteralKind","StatementKind","SyntaxKind","TypeKind"],"fn":["check_identifier","convert","parse_expression","parse_general","parse_main","parse_module","parse_statement","two_path_components"],"mod":["grammar","tokens"],"struct":["SyntaxNode"]};

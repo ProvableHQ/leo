@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["leo","leo_abnf","leo_ast","leo_compiler","leo_disassembler","leo_errors","leo_interpreter","leo_lang","leo_package","leo_parser","leo_passes","leo_span","leo_test_framework"];
-//{"start":21,"fragment_lengths":[5,11,10,15,19,13,18,11,14,13,13,11,21]}
+window.ALL_CRATES = ["leo","leo_abnf","leo_ast","leo_compiler","leo_disassembler","leo_errors","leo_interpreter","leo_lang","leo_package","leo_parser","leo_parser_lossless","leo_passes","leo_span","leo_test_framework"];
+//{"start":21,"fragment_lengths":[5,11,10,15,19,13,18,11,14,13,22,13,11,21]}
