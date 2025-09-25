@@ -294,6 +294,10 @@ impl CoreFunctionHelper for Cursor {
         self.block_height = height;
     }
 
+    fn set_signer(&mut self, private_key: String) {
+        self.signer = private_key;
+    }
+
     fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
         Cursor::lookup_mapping(self, program, name)
     }

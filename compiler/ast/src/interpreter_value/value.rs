@@ -26,26 +26,11 @@ use itertools::Itertools as _;
 use crate::Location;
 
 use snarkvm::prelude::{
-    Access,
-    Address as SvmAddress,
-    Argument,
-    Boolean as SvmBoolean,
-    Entry,
-    Field as SvmField,
-    Future as FutureParam,
-    Group as SvmGroup,
-    LiteralType,
-    Owner,
-    ProgramID as ProgramIDParam,
-    Record,
-    Scalar as SvmScalar,
+    Access, Address as SvmAddress, Argument, Boolean as SvmBoolean, Entry, Field as SvmField, Future as FutureParam,
+    Group as SvmGroup, LiteralType, Owner, ProgramID as ProgramIDParam, Record, Scalar as SvmScalar,
 };
 pub(crate) use snarkvm::prelude::{
-    Identifier as SvmIdentifierParam,
-    Literal as SvmLiteralParam,
-    Plaintext,
-    TestnetV0,
-    Value as SvmValueParam,
+    Identifier as SvmIdentifierParam, Literal as SvmLiteralParam, Plaintext, TestnetV0, Value as SvmValueParam,
 };
 
 use leo_errors::Result;
@@ -88,6 +73,7 @@ pub(crate) enum ValueVariants {
     Tuple(Vec<Value>),
     Unsuffixed(String),
     Future(Vec<AsyncExecution>),
+    String(String),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -186,6 +172,10 @@ impl Hash for ValueVariants {
                     hash_plaintext(plaintext, state);
                 }
             },
+            String(s) => {
+                9u8.hash(state);
+                s.hash(state);
+            }
         }
     }
 }
@@ -375,6 +365,7 @@ impl fmt::Display for Value {
             ValueVariants::Tuple(vec) => write!(f, "({})", vec.iter().format(", ")),
             ValueVariants::Unsuffixed(s) => s.fmt(f),
             ValueVariants::Future(_async_executions) => "Future".fmt(f),
+            ValueVariants::String(s) => write!(f, "\"{s}\""),
         }
     }
 }
@@ -829,8 +820,8 @@ impl Value {
                 SvmValueParam::Record(..) => return None,
                 SvmValueParam::Future(..) => return None,
             },
-
             ValueVariants::Future(..) => return None,
+            ValueVariants::String(..) => return None,
         };
 
         Some(expression)

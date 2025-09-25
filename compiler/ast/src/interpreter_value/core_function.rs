@@ -20,8 +20,7 @@ use rand::Rng as _;
 use rand_chacha::ChaCha20Rng;
 
 use crate::{
-    CoreFunction,
-    Expression,
+    CoreFunction, Expression,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
 };
@@ -53,6 +52,8 @@ pub trait CoreFunctionHelper {
     }
 
     fn set_block_height(&mut self, _height: u32) {}
+
+    fn set_signer(&mut self, _private_key: String) {}
 
     fn lookup_mapping(&self, _program: Option<Symbol>, _name: Symbol) -> Option<&HashMap<Value, Value>> {
         None
@@ -406,6 +407,11 @@ pub fn evaluate_core_function(
         CoreFunction::CheatCodeSetBlockHeight => {
             let height: u32 = helper.pop_value()?.try_into().expect_tc(span)?;
             helper.set_block_height(height);
+            Value { id: None, contents: ValueVariants::Unit }
+        }
+        CoreFunction::CheatCodeSetSigner => {
+            let private_key: String = helper.pop_value()?.
+            helper.set_signer(private_key);
             Value { id: None, contents: ValueVariants::Unit }
         }
         CoreFunction::MappingGet => {

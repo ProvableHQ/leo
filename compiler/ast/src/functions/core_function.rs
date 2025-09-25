@@ -299,6 +299,7 @@ pub enum CoreFunction {
 
     CheatCodePrintMapping,
     CheatCodeSetBlockHeight,
+    CheatCodeSetSigner,
 }
 
 impl CoreFunction {
@@ -586,6 +587,7 @@ impl CoreFunction {
 
             (sym::CheatCode, sym::print_mapping) => Self::CheatCodePrintMapping,
             (sym::CheatCode, sym::set_block_height) => Self::CheatCodeSetBlockHeight,
+            (sym::CheatCode, sym::set_signer) => Self::CheatCodeSetSigner,
             _ => return None,
         })
     }
@@ -873,6 +875,7 @@ impl CoreFunction {
             Self::ProgramOwner => 1,
             Self::CheatCodePrintMapping => 1,
             Self::CheatCodeSetBlockHeight => 1,
+            Self::CheatCodeSetSigner => 1,
         }
     }
 
@@ -1137,7 +1140,8 @@ impl CoreFunction {
             | CoreFunction::GroupToYCoordinate
             | CoreFunction::SignatureVerify
             | CoreFunction::CheatCodePrintMapping
-            | CoreFunction::CheatCodeSetBlockHeight => false,
+            | CoreFunction::CheatCodeSetBlockHeight
+            | CoreFunction::CheatCodeSetSigner => false,
         }
     }
 }

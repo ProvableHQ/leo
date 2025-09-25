@@ -211,6 +211,7 @@ symbols! {
     CheatCode,
     print_mapping,
     set_block_height,
+    set_signer,
 
     // types
     address,

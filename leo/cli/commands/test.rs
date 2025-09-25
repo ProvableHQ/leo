@@ -78,7 +78,6 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     )?;
 
     // Now for native tests.
-
     let program_name = package.manifest.program.strip_suffix(".aleo").unwrap();
     let program_name_symbol = Symbol::intern(program_name);
     let build_directory = package.build_directory();
@@ -117,6 +116,7 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
             ((test_function.program.clone(), test_function.function.clone()), test_function.should_fail)
         })
         .collect();
+
     let cases: Vec<run_with_ledger::Case> = native_test_functions
         .into_iter()
         .map(|test_function| run_with_ledger::Case {
@@ -127,26 +127,25 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
         })
         .collect();
 
-    let outcomes = cases
-        .into_par_iter()
-        .map(|case| {
-            let key = (case.program_name.clone(), case.function.clone());
-            let (handler, buf) = Handler::new_with_buf();
-            let mut outcomes = run_with_ledger::run_with_ledger(
-                &run_with_ledger::Config { seed: 0, start_height: None, programs: programs.clone() },
-                &[case],
-                &handler,
-                &buf,
-            )?;
-            // Sanity check that the number of outcomes is correct. This is intended to panic if the assertion fails
-            assert_eq!(outcomes.len(), 1);
-            Ok((key, outcomes.pop().unwrap()))
-        })
-        .collect::<Result<Vec<(_, _)>>>()?;
+    let (handler, buf) = Handler::new_with_buf();
 
-    let native_results: Vec<((String, String), Option<String>)> = outcomes
-        .into_iter()
-        .map(|(key, outcome)| {
+    let outcomes = run_with_ledger::run_with_ledger(
+        &run_with_ledger::Config { seed: 0, start_height: None, programs },
+        &cases,
+        &handler,
+        &buf,
+    )?;
+
+    // Check that the number of outcomes matches the number of cases.
+    if outcomes.len() != cases.len() {
+        return Err(CliError::custom(format!("Expected {} outcomes, but got {}", cases.len(), outcomes.len())).into());
+    }
+
+    let native_results: Vec<((String, String), Option<String>)> = cases
+        .iter()
+        .zip(outcomes.into_iter())
+        .map(|(case, outcome)| {
+            let key = (case.program_name.clone(), case.function.clone());
             let should_fail = *should_fails.get(&key).unwrap_or(&false);
             match (&outcome.status, should_fail) {
                 (run_with_ledger::Status::Accepted, false) => (key, None),

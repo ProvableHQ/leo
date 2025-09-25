@@ -20,11 +20,8 @@ use itertools::Itertools;
 use leo_ast::NetworkName;
 use leo_package::fetch_from_network;
 use snarkvm::prelude::{
-    CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
-    ConsensusVersion,
-    MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
-    TEST_CONSENSUS_VERSION_HEIGHTS,
-    TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
+    CANARY_V0_CONSENSUS_VERSION_HEIGHTS, ConsensusVersion, MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+    TEST_CONSENSUS_VERSION_HEIGHTS, TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
 };
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -96,7 +93,7 @@ pub struct EnvOptions {
     pub(crate) endpoint: Option<String>,
     #[clap(
         long,
-        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell or `.env` file.",
+        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell.",
         global = true
     )]
     pub(crate) devnet: bool,
