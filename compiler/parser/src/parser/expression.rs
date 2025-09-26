@@ -285,8 +285,8 @@ impl ParserContext<'_> {
     }
 
     // TODO: Parse method call expressions directly and later put them into a canonical form.
-    /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// method call expression.
+    /// Returns an [`Expression`] AST node if the next tokens represent a method call expression.
+    /// For example, `mapping.set(key, value)`, `a.add_wrapped(b)`
     fn parse_method_call_expression(&mut self, receiver: Expression, method: Identifier) -> Result<Expression> {
         // Parse the argument list.
         let (mut args, _, span) = self.parse_expr_tuple()?;
@@ -311,6 +311,7 @@ impl ParserContext<'_> {
             Ok(AssociatedFunctionExpression {
                 variant: Identifier::new(sym::signature, self.node_builder.next_id()),
                 name: method,
+                type_parameters: vec![],
                 arguments: std::iter::once(receiver).chain(args).collect(),
                 span,
                 id: self.node_builder.next_id(),
@@ -322,6 +323,7 @@ impl ParserContext<'_> {
             Ok(AssociatedFunctionExpression {
                 variant: Identifier::new(sym::Future, self.node_builder.next_id()),
                 name: method,
+                type_parameters: vec![],
                 arguments: vec![receiver],
                 span,
                 id: self.node_builder.next_id(),
@@ -339,6 +341,7 @@ impl ParserContext<'_> {
                     Ok(AssociatedFunctionExpression {
                         variant: Identifier::new(sym::Mapping, self.node_builder.next_id()),
                         name: method,
+                        type_parameters: vec![],
                         arguments: std::iter::once(receiver).chain(args).collect(),
                         span,
                         id: self.node_builder.next_id(),
@@ -370,8 +373,25 @@ impl ParserContext<'_> {
         // Parse the constant or function name.
         let member_name = self.expect_identifier()?;
 
-        // Check if there are arguments.
-        let expression = if self.check(&Token::LeftParen) {
+        // If the next token is a double colon, then we have type parameters for an associated function call.
+        let expression = if self.eat(&Token::DoubleColon) {
+            // Parse a list of type parameters in between `[]`.
+            let (type_parameters, _, _) = self.parse_bracket_comma_list(|p| p.parse_type().map(Some))?;
+            // Parse the arguments.
+            let (args, _, span) = self.parse_expr_tuple()?;
+            // Return the associated function.
+            AssociatedFunctionExpression {
+                span: module_name.span() + span,
+                variant,
+                name: member_name,
+                type_parameters,
+                arguments: args,
+                id: self.node_builder.next_id(),
+            }
+            .into()
+        }
+        // If the next token is a left parenthesis, then we have an associated function call without type parameters.
+        else if self.check(&Token::LeftParen) {
             // Parse the arguments
             let (args, _, end) = self.parse_expr_tuple()?;
 
@@ -380,11 +400,14 @@ impl ParserContext<'_> {
                 span: module_name.span() + end,
                 variant,
                 name: member_name,
+                type_parameters: vec![],
                 arguments: args,
                 id: self.node_builder.next_id(),
             }
             .into()
-        } else if CoreConstant::from_symbols(variant.name, member_name.name).is_some() {
+        }
+        // Otherwise, we expect an associated constant.
+        else if CoreConstant::from_symbols(variant.name, member_name.name).is_some() {
             // Return the associated constant.
             AssociatedConstantExpression {
                 span: module_name.span() + member_name.span(),
@@ -547,6 +570,30 @@ impl ParserContext<'_> {
                         )));
                     };
 
+                    // Handle a special case for the `Deserialize::*` core functions.`
+                    // TODO: This is only a temporary fix until we have proper generic associated functions.
+                    if path.qualifier().len() == 1
+                        && path.qualifier()[0].name == sym::Deserialize
+                        && matches!(path.identifier().name, sym::from_bits | sym::from_bits_raw)
+                    {
+                        // Parse a list of type parameters in between `[]`.
+                        let (type_parameters, _, _) = self.parse_bracket_comma_list(|p| p.parse_type().map(Some))?;
+                        // Parse the arguments.
+                        let (arguments, _, span) = self.parse_expr_tuple()?;
+                        // Construct the associated function expression.
+                        expr = AssociatedFunctionExpression {
+                            span: expr.span() + span,
+                            variant: path.qualifier()[0],
+                            name: path.identifier(),
+                            type_parameters,
+                            arguments,
+                            id: self.node_builder.next_id(),
+                        }
+                        .into();
+                        // Continue parsing postfix expressions.
+                        continue;
+                    }
+
                     // Parse a list of const arguments in between `[..]`
                     let const_arguments = self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?.0;
 
@@ -606,6 +653,7 @@ impl ParserContext<'_> {
                         variant: path.qualifier()[0],
                         name: path.identifier(),
                         arguments,
+                        type_parameters: vec![],
                         span: expr.span() + span,
                         id: self.node_builder.next_id(),
                     }

@@ -20,7 +20,7 @@ use super::*;
 
 use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, sym};
 
 use anyhow::bail;
 use indexmap::{IndexMap, IndexSet};
@@ -200,15 +200,66 @@ impl TypeCheckingVisitor<'_> {
 
     /// Emits an error if the `struct` is not a core library struct.
     /// Emits an error if the `function` is not supported by the struct.
-    pub fn get_core_function_call(&self, struct_: &Identifier, function: &Identifier) -> Option<CoreFunction> {
+    pub fn get_core_function_call(&self, associated_function: &AssociatedFunctionExpression) -> Option<CoreFunction> {
         // Lookup core struct
-        match CoreFunction::from_symbols(struct_.name, function.name) {
+        match CoreFunction::from_symbols(associated_function.variant.name, associated_function.name.name) {
             None => {
-                // Not a core library struct.
-                self.emit_err(TypeCheckerError::invalid_core_function(struct_.name, function.name, struct_.span()));
-                None
+                // If we couldn't find the core function, check if it is a `Deserialize::*` variant.
+                match (associated_function.variant.name, associated_function.name.name) {
+                    (sym::Deserialize, sym::from_bits) => {
+                        // Check the number type parameters.
+                        if associated_function.type_parameters.len() != 1 {
+                            self.emit_err(TypeCheckerError::custom(
+                                "The core function `Deserialize::from_bits` must have exactly one type parameter.",
+                                associated_function.name.span(),
+                            ));
+                            return None;
+                        };
+                        // Get the optional type in the associated function expression.
+                        let type_ = associated_function.type_parameters.first().unwrap().0.clone();
+                        // Return the core function.
+                        Some(CoreFunction::Deserialize(DeserializeVariant::FromBits, type_))
+                    }
+                    (sym::Deserialize, sym::from_bits_raw) => {
+                        // Check the number type parameters.
+                        if associated_function.type_parameters.len() != 1 {
+                            self.emit_err(TypeCheckerError::custom(
+                                "The core function `Deserialize::from_bits_raw` must have exactly one type parameter.",
+                                associated_function.name.span(),
+                            ));
+                            return None;
+                        };
+                        // Get the optional type in the associated function expression.
+                        let type_ = associated_function.type_parameters.first().unwrap().0.clone();
+                        // Return the core function.
+                        Some(CoreFunction::Deserialize(DeserializeVariant::FromBitsRaw, type_))
+                    }
+                    _ => {
+                        // Not a core library struct.
+                        self.emit_err(TypeCheckerError::invalid_core_function(
+                            associated_function.variant.name,
+                            associated_function.name.name,
+                            associated_function.variant.span(),
+                        ));
+                        None
+                    }
+                }
             }
-            Some(core_instruction) => Some(core_instruction),
+            Some(core_instruction) => {
+                // Check that the number of type parameters is 0.
+                if !associated_function.type_parameters.is_empty() {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!(
+                            "The core function `{}::{}` cannot have type parameters.",
+                            associated_function.variant, associated_function.name
+                        ),
+                        associated_function.name.span(),
+                    ));
+                    return None;
+                };
+
+                Some(core_instruction)
+            }
         }
     }
 
