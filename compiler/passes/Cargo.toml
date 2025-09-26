@@ -21,6 +21,9 @@ rust-version = "1.88.0"
 [lib]
 path = "src/lib.rs"
 
+[dependencies.anyhow]
+workspace = true
+
 [dependencies.base62]
 workspace = true
 

@@ -18,10 +18,16 @@ use std::collections::HashMap;
 
 use rand::Rng as _;
 use rand_chacha::ChaCha20Rng;
+use snarkvm::{
+    prelude::{ToBits, ToBitsRaw},
+    synthesizer::program::{DeserializeVariant, SerializeVariant},
+};
 
 use crate::{
+    ArrayType,
     CoreFunction,
     Expression,
+    Type,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
 };
@@ -100,13 +106,9 @@ pub fn evaluate_core_function(
         synthesizer::program::{CommitVariant, ECDSAVerifyVariant, HashVariant},
     };
 
-    let dohash = |helper: &mut dyn CoreFunctionHelper, variant: HashVariant, typ: LiteralType| -> Result<Value> {
+    let dohash = |helper: &mut dyn CoreFunctionHelper, variant: HashVariant, typ: Type| -> Result<Value> {
         let input = helper.pop_value()?.try_into().expect_tc(span)?;
-        let value = snarkvm::synthesizer::program::evaluate_hash(
-            variant,
-            &input,
-            &snarkvm::prelude::PlaintextType::Literal(typ),
-        )?;
+        let value = snarkvm::synthesizer::program::evaluate_hash(variant, &input, &typ.to_snarkvm()?)?;
         Ok(value.into())
     };
 
@@ -134,6 +136,37 @@ pub fn evaluate_core_function(
             snarkvm::synthesizer::program::evaluate_ecdsa_verification(variant, &signature, &public_key, &message)?;
         Ok(Boolean::new(is_valid).into())
     };
+
+    let doserialize = |helper: &mut dyn CoreFunctionHelper, variant: SerializeVariant| -> Result<Value> {
+        let input: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let num_bits = match variant {
+            SerializeVariant::ToBits => input.to_bits_le().len(),
+            SerializeVariant::ToBitsRaw => input.to_bits_raw_le().len(),
+        };
+        let Ok(num_bits) = u32::try_from(num_bits) else {
+            crate::halt_no_span2!("cannot serialize value with more than 2^32 bits");
+        };
+        let array_type = ArrayType::bit_array(num_bits).to_snarkvm()?;
+        let value = snarkvm::synthesizer::program::evaluate_serialize(variant, &input, &array_type)?;
+        Ok(value.into())
+    };
+
+    let dodeserialize =
+        |helper: &mut dyn CoreFunctionHelper, variant: DeserializeVariant, type_: Type| -> Result<Value> {
+            let value: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+            let bits = match value {
+                SvmValue::Plaintext(plaintext) => plaintext.as_bit_array()?,
+                _ => crate::halt_no_span2!("expected array for deserialization"),
+            };
+            let get_struct_fail = |_: &SvmIdentifier| anyhow::bail!("structs are not supported");
+            let value = snarkvm::synthesizer::program::evaluate_deserialize(
+                variant,
+                &bits,
+                &type_.to_snarkvm()?,
+                &get_struct_fail,
+            )?;
+            Ok(value.into())
+        };
 
     macro_rules! random {
         ($ty: ident) => {{
@@ -170,6 +203,8 @@ pub fn evaluate_core_function(
         CoreFunction::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
         CoreFunction::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
         CoreFunction::SignatureVerify(is_raw) => doschnorr(helper, is_raw)?,
+        CoreFunction::Serialize(variant) => doserialize(helper, variant)?,
+        CoreFunction::Deserialize(variant, type_) => dodeserialize(helper, variant, type_)?,
         CoreFunction::GroupToXCoordinate => {
             let g: Group = helper.pop_value()?.try_into().expect_tc(span)?;
             g.to_x_coordinate().into()

@@ -195,11 +195,9 @@ impl Cursor {
 
         macro_rules! hash_function {
             ($hash: expr, $variant: expr) => {{
-                let literal_type = match $hash.destination_type() {
-                    PlaintextType::Literal(literal_type) => *literal_type,
-                    _ => halt_no_span!("unsupported hash output type"),
-                };
-                let core_function = CoreFunction::Hash($variant, literal_type);
+                // Note. The only supported output types of a `hash` function are literals or bit arrays.
+                let core_function =
+                    CoreFunction::Hash($variant, Type::from_snarkvm::<TestnetV0>($hash.destination_type(), None));
                 let operand_value = self.operand_value(&$hash.operands()[0]);
                 self.values.push(operand_value);
                 let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
@@ -467,6 +465,20 @@ impl Cursor {
             HashSha3_256Raw(hash) => hash_function!(hash, HashVariant::HashSha3_256Raw),
             HashSha3_384Raw(hash) => hash_function!(hash, HashVariant::HashSha3_384Raw),
             HashSha3_512Raw(hash) => hash_function!(hash, HashVariant::HashSha3_512Raw),
+            HashKeccak256Native(hash) => hash_function!(hash, HashVariant::HashKeccak256Native),
+            HashKeccak384Native(hash) => hash_function!(hash, HashVariant::HashKeccak384Native),
+            HashKeccak512Native(hash) => hash_function!(hash, HashVariant::HashKeccak512Native),
+            HashSha3_256Native(hash) => hash_function!(hash, HashVariant::HashSha3_256Native),
+            HashSha3_384Native(hash) => hash_function!(hash, HashVariant::HashSha3_384Native),
+            HashSha3_512Native(hash) => hash_function!(hash, HashVariant::HashSha3_512Native),
+            HashKeccak256NativeRaw(hash) => hash_function!(hash, HashVariant::HashKeccak256NativeRaw),
+            HashKeccak384NativeRaw(hash) => hash_function!(hash, HashVariant::HashKeccak384NativeRaw),
+            HashKeccak512NativeRaw(hash) => hash_function!(hash, HashVariant::HashKeccak512NativeRaw),
+            HashSha3_256NativeRaw(hash) => hash_function!(hash, HashVariant::HashSha3_256NativeRaw),
+            HashSha3_384NativeRaw(hash) => hash_function!(hash, HashVariant::HashSha3_384NativeRaw),
+            HashSha3_512NativeRaw(hash) => hash_function!(hash, HashVariant::HashSha3_512NativeRaw),
+            ECDSAVerifyDigest(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::Digest),
+            ECDSAVerifyDigestEth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::DigestEth),
             ECDSAVerifyKeccak256(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak256),
             ECDSAVerifyKeccak256Raw(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak256Raw),
             ECDSAVerifyKeccak256Eth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak256Eth),
@@ -524,6 +536,10 @@ impl Cursor {
                 (self.operand_value(result), ternary.destinations()[0].clone())
             }
             Xor(xor) => binary!(xor, Xor),
+            SerializeBits(_) => todo!(),
+            SerializeBitsRaw(_) => todo!(),
+            DeserializeBits(_) => todo!(),
+            DeserializeBitsRaw(_) => todo!(),
         };
 
         self.set_register(destination, value);

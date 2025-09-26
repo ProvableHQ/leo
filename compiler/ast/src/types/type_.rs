@@ -168,6 +168,42 @@ impl Type {
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }
+
+    pub fn to_snarkvm<N: Network>(&self) -> anyhow::Result<PlaintextType<N>> {
+        match self {
+            Type::Address => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Address)),
+            Type::Boolean => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Boolean)),
+            Type::Field => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Field)),
+            Type::Group => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Group)),
+            Type::Integer(int_type) => match int_type {
+                IntegerType::U8 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U8)),
+                IntegerType::U16 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U16)),
+                IntegerType::U32 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U32)),
+                IntegerType::U64 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U64)),
+                IntegerType::U128 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U128)),
+                IntegerType::I8 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I8)),
+                IntegerType::I16 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I16)),
+                IntegerType::I32 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I32)),
+                IntegerType::I64 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I64)),
+                IntegerType::I128 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I128)),
+            },
+            Type::Scalar => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Scalar)),
+            Type::Signature => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Signature)),
+            Type::Array(array_type) => Ok(PlaintextType::<N>::Array(array_type.to_snarkvm()?)),
+            _ => anyhow::bail!("Converting from type {self} to snarkVM type is not supported"),
+        }
+    }
+
+    // A helper function to get the size in bits of the input type.
+    pub fn size_in_bits<N: Network, F>(&self, is_raw: bool, get_structs: F) -> anyhow::Result<usize>
+    where
+        F: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+    {
+        match is_raw {
+            false => self.to_snarkvm::<N>()?.plaintext_size_in_bits(&get_structs),
+            true => self.to_snarkvm::<N>()?.plaintext_size_in_raw_bits(&get_structs),
+        }
+    }
 }
 
 impl fmt::Display for Type {

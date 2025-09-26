@@ -22,9 +22,10 @@ use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
+use anyhow::bail;
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
-use snarkvm::synthesizer::program::{CommitVariant, HashVariant};
+use snarkvm::synthesizer::program::{CommitVariant, DeserializeVariant, HashVariant, SerializeVariant};
 use std::ops::Deref;
 
 pub struct TypeCheckingVisitor<'a> {
@@ -319,7 +320,7 @@ impl TypeCheckingVisitor<'_> {
                         assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                     }
                 }
-                type_.into()
+                type_
             }
             CoreFunction::ECDSAVerify(_variant) => {
                 // Allow any input type.
@@ -499,6 +500,146 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(type_, &Type::Address, span);
                 // Return the type.
                 Type::Address
+            }
+            CoreFunction::Serialize(variant) => {
+                // Determine the variant.
+                let is_raw = match variant {
+                    SerializeVariant::ToBits => false,
+                    SerializeVariant::ToBitsRaw => true,
+                };
+                // Get the input type.
+                let input_type = &arguments[0].0;
+
+                // A helper function to check that a type is an allowed literal type.
+                let is_allowed_literal_type = |type_: &Type| -> bool {
+                    matches!(
+                        type_,
+                        Type::Boolean
+                            | Type::Field
+                            | Type::Group
+                            | Type::Scalar
+                            | Type::Signature
+                            | Type::Address
+                            | Type::Integer(_)
+                            | Type::String
+                            | Type::Numeric
+                    )
+                };
+
+                // Check that the input type is an allowed literal or a (possibly multi-dimensional) array of literals.
+                let is_allowed = match input_type {
+                    Type::Array(array_type) => is_allowed_literal_type(array_type.base_element_type()),
+                    type_ => is_allowed_literal_type(type_),
+                };
+                if !is_allowed {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        input_type,
+                        "a literal type or an (multi-dimensional) array of literal types",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                }
+
+                // Get the size in bits.
+                let size_in_bits = match self.state.network {
+                    NetworkName::TestnetV0 => {
+                        input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                    NetworkName::MainnetV0 => {
+                        input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                    NetworkName::CanaryV0 => {
+                        input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                };
+
+                let Ok(size_in_bits) = size_in_bits else {
+                    self.emit_err(TypeCheckerError::custom(
+                        "Could not determine the size in bits of the input to `Serialize::*`.",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+
+                // Check that the size in bits is valid.
+                let size_in_bits = if size_in_bits > self.limits.max_array_elements {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!("The input type to `Serialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                } else if size_in_bits == 0 {
+                    self.emit_err(TypeCheckerError::custom(
+                        "The input type to `Serialize::*` is empty.",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                } else {
+                    u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
+                };
+
+                // Return the array type.
+                Type::Array(ArrayType::bit_array(size_in_bits))
+            }
+            CoreFunction::Deserialize(variant, type_) => {
+                // Determine the variant.
+                let is_raw = match variant {
+                    DeserializeVariant::FromBits => false,
+                    DeserializeVariant::FromBitsRaw => true,
+                };
+                // Get the input type.
+                let input_type = &arguments[0].0;
+
+                // Get the size in bits.
+                let size_in_bits = match self.state.network {
+                    NetworkName::TestnetV0 => {
+                        type_.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                    NetworkName::MainnetV0 => {
+                        type_.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                    NetworkName::CanaryV0 => {
+                        type_.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                };
+
+                let Ok(size_in_bits) = size_in_bits else {
+                    self.emit_err(TypeCheckerError::custom(
+                        "Could not determine the size in bits of the output of `Deserialize::*`.",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+
+                // Check that the size in bits is valid.
+                let size_in_bits = if size_in_bits > self.limits.max_array_elements {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!("The output type of `Deserialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                } else if size_in_bits == 0 {
+                    self.emit_err(TypeCheckerError::custom(
+                        "The output type of `Deserialize::*` is empty.",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                } else {
+                    u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
+                };
+
+                // Check that the input type is an array of the correct size.
+                let expected_type = Type::Array(ArrayType::bit_array(size_in_bits));
+                if input_type != &expected_type {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        input_type,
+                        format!("an array of {size_in_bits} bits"),
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                }
+
+                type_.clone()
             }
             CoreFunction::CheatCodePrintMapping => {
                 self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
