@@ -450,6 +450,17 @@ impl CodeGeneratingVisitor<'_> {
             Some(CoreFunction::Hash(variant, ref type_)) => {
                 let mut instruction = format!("    {}", HashVariant::opcode(variant as u8));
                 let destination_register = self.next_register();
+                let type_ = match self.state.network {
+                    NetworkName::TestnetV0 => {
+                        type_.to_snarkvm::<TestnetV0>().expect("TYC guarantees that the type is valid").to_string()
+                    }
+                    NetworkName::CanaryV0 => {
+                        type_.to_snarkvm::<CanaryV0>().expect("TYC guarantees that the type is valid").to_string()
+                    }
+                    NetworkName::MainnetV0 => {
+                        type_.to_snarkvm::<MainnetV0>().expect("TYC guarantees that the type is valid").to_string()
+                    }
+                };
                 // Write the arguments and the destination register.
                 writeln!(instruction, " {} into {destination_register} as {type_};", arguments[0])
                     .expect("failed to write to string");
@@ -584,7 +595,7 @@ impl CodeGeneratingVisitor<'_> {
                 .expect("TYC guarantees that all types have a valid size in bits");
 
                 // Construct the output array type.
-                let output_array_type = format!("[boolean; {size_in_bits}]");
+                let output_array_type = format!("[boolean; {size_in_bits}u32]");
                 // Construct the destination register.
                 let destination_register = self.next_register();
                 // Construct the instruction template.
@@ -598,7 +609,19 @@ impl CodeGeneratingVisitor<'_> {
             Some(CoreFunction::Deserialize(..)) => panic!("`Deserialize::*` cannot be constructed from symbols"),
             None => {
                 // Get the type of the associated function.
-                let Some(output_type) = self.state.type_table.get(&input.id) else {
+                let output_type = if let Some(type_) = self.state.type_table.get(&input.id) {
+                    match self.state.network {
+                        NetworkName::TestnetV0 => {
+                            type_.to_snarkvm::<TestnetV0>().expect("TYC guarantees that the type is valid").to_string()
+                        }
+                        NetworkName::CanaryV0 => {
+                            type_.to_snarkvm::<CanaryV0>().expect("TYC guarantees that the type is valid").to_string()
+                        }
+                        NetworkName::MainnetV0 => {
+                            type_.to_snarkvm::<MainnetV0>().expect("TYC guarantees that the type is valid").to_string()
+                        }
+                    }
+                } else {
                     panic!("All types should be known at this phase of compilation");
                 };
                 // If the associated function is a `Deserialize::*` function, then directly construct the instruction.
@@ -627,7 +650,7 @@ impl CodeGeneratingVisitor<'_> {
                     }
                     .expect("TYC guarantees that all types have a valid size in bits");
                     // Construct the input array type.
-                    let input_array_type = format!("[boolean; {size_in_bits}]");
+                    let input_array_type = format!("[boolean; {size_in_bits}u32]");
                     // Construct the destination register.
                     let destination_register = self.next_register();
                     // Construct the instruction template.

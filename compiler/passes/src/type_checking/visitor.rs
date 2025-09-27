@@ -681,7 +681,7 @@ impl TypeCheckingVisitor<'_> {
 
                 // Check that the input type is an array of the correct size.
                 let expected_type = Type::Array(ArrayType::bit_array(size_in_bits));
-                if input_type != &expected_type {
+                if !input_type.eq_flat_relaxed(&expected_type) {
                     self.emit_err(TypeCheckerError::type_should_be2(
                         input_type,
                         format!("an array of {size_in_bits} bits"),
