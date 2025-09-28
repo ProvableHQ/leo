@@ -11,8 +11,7 @@ function foo:
     async foo 1u32 true 5u32 1u32 2u8 r2 3u16 r0 r1 6u32 8u8 into r3;
     gte 5u32 0u32 into r4;
     assert.eq r4 true;
-    gte 5u32 0u32 into r5;
-    assert.eq r5 true;
+    assert.eq r4 true;
     output r3 as test.aleo/foo.future;
 
 finalize foo:
@@ -52,6 +51,4 @@ finalize foo:
     add r19 r26 into r33;
     add r33 r32 into r34;
     set r34 into map[0u32];
-    add r19 r26 into r35;
-    add r35 r32 into r36;
-    set r36 into map[0u32];
+    set r34 into map[0u32];

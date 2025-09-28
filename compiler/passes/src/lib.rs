@@ -26,6 +26,9 @@ pub use code_generation::*;
 mod common;
 pub use common::*;
 
+mod common_subexpression_elimination;
+pub use common_subexpression_elimination::*;
+
 mod const_propagation;
 pub use const_propagation::*;
 

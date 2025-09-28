@@ -5,7 +5,7 @@ function main:
     input r1 as group.private;
     input r2 as scalar.private;
     mul 1817767092074430972953743941103352519057913259183777531581123188265134806220group r0 into r3;
-    mul r0 r1 into r4;
+    mul r1 r0 into r4;
     mul r0 r4 into r5;
     is.eq r5 r3 into r6;
     output r6 as boolean.private;

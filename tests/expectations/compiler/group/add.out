@@ -7,6 +7,4 @@ function main:
     add r0 r1 into r3;
     is.eq r3 r2 into r4;
     assert.eq r4 true;
-    add r0 r1 into r5;
-    is.eq r5 r2 into r6;
-    output r6 as boolean.private;
+    output r4 as boolean.private;
