@@ -8,6 +8,4 @@ function main:
     assert.eq r3 true;
     is.neq r0 -2group into r4;
     assert.eq r4 true;
-    neg r0 into r5;
-    is.eq r5 r1 into r6;
-    output r6 as boolean.private;
+    output r3 as boolean.private;

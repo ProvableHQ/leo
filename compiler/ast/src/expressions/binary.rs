@@ -22,7 +22,7 @@ use std::cmp::Ordering;
 /// A binary operator.
 ///
 /// Precedence is defined in the parser.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum BinaryOperation {
     /// Addition, i.e. `+`, `.add()`.
     Add,
