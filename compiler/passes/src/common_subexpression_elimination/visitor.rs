@@ -84,7 +84,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     *path = Path::new(
                         Vec::new(),
                         Identifier::new(*name, self.state.node_builder.next_id()),
-                        None,
+                        Some(vec![*name]),
                         path.span(),
                         self.state.node_builder.next_id(),
                     );
