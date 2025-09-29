@@ -344,167 +344,173 @@
 <a href=#344 id=344 data-nosnippet>344</a>        <span class="comment">//────────────── tmux branch ──────────────
 <a href=#345 id=345 data-nosnippet>345</a>        </span><span class="kw">if </span><span class="self">self</span>.tmux {
 <a href=#346 id=346 data-nosnippet>346</a>            <span class="comment">// Create session.
-<a href=#347 id=347 data-nosnippet>347</a>            </span><span class="macro">ensure!</span>(
-<a href=#348 id=348 data-nosnippet>348</a>                StdCommand::new(<span class="string">"tmux"</span>)
-<a href=#349 id=349 data-nosnippet>349</a>                    .args([<span class="string">"new-session"</span>, <span class="string">"-d"</span>, <span class="string">"-s"</span>, <span class="string">"devnet"</span>, <span class="string">"-n"</span>, <span class="string">"validator-0"</span>])
-<a href=#350 id=350 data-nosnippet>350</a>                    .status()<span class="question-mark">?
-<a href=#351 id=351 data-nosnippet>351</a>                    </span>.success(),
-<a href=#352 id=352 data-nosnippet>352</a>                <span class="string">"tmux failed to create session"
-<a href=#353 id=353 data-nosnippet>353</a>            </span>);
-<a href=#354 id=354 data-nosnippet>354</a>
-<a href=#355 id=355 data-nosnippet>355</a>            <span class="comment">// Determine base-index.
-<a href=#356 id=356 data-nosnippet>356</a>            </span><span class="kw">let </span>base_index = {
-<a href=#357 id=357 data-nosnippet>357</a>                <span class="kw">let </span>out = StdCommand::new(<span class="string">"tmux"</span>).args([<span class="string">"show-option"</span>, <span class="string">"-gv"</span>, <span class="string">"base-index"</span>]).output()<span class="question-mark">?</span>;
-<a href=#358 id=358 data-nosnippet>358</a>                String::from_utf8_lossy(<span class="kw-2">&amp;</span>out.stdout).trim().parse::&lt;usize&gt;().unwrap_or(<span class="number">0</span>)
-<a href=#359 id=359 data-nosnippet>359</a>            };
+<a href=#347 id=347 data-nosnippet>347</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>args: Vec&lt;String&gt; =
+<a href=#348 id=348 data-nosnippet>348</a>                <span class="macro">vec!</span>[<span class="string">"new-session"</span>, <span class="string">"-d"</span>, <span class="string">"-s"</span>, <span class="string">"devnet"</span>, <span class="string">"-n"</span>, <span class="string">"validator-0"</span>].into_iter().map(Into::into).collect();
+<a href=#349 id=349 data-nosnippet>349</a>
+<a href=#350 id=350 data-nosnippet>350</a>            <span class="comment">// If a tmux server is already running, the new session will inherit the environment
+<a href=#351 id=351 data-nosnippet>351</a>            // variables of the server. As such, we need to explicitly set the CONSENSUS_VERSION_HEIGHTS
+<a href=#352 id=352 data-nosnippet>352</a>            // env var in the new session we are creatomg.
+<a href=#353 id=353 data-nosnippet>353</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>heights) = <span class="self">self</span>.consensus_heights {
+<a href=#354 id=354 data-nosnippet>354</a>                <span class="kw">let </span>heights = heights.iter().join(<span class="string">","</span>);
+<a href=#355 id=355 data-nosnippet>355</a>                args.push(<span class="string">"-e"</span>.to_string());
+<a href=#356 id=356 data-nosnippet>356</a>                args.push(<span class="macro">format!</span>(<span class="string">"CONSENSUS_VERSION_HEIGHTS={heights}"</span>));
+<a href=#357 id=357 data-nosnippet>357</a>            }
+<a href=#358 id=358 data-nosnippet>358</a>
+<a href=#359 id=359 data-nosnippet>359</a>            <span class="macro">ensure!</span>(StdCommand::new(<span class="string">"tmux"</span>).args(args).status()<span class="question-mark">?</span>.success(), <span class="string">"tmux failed to create session"</span>);
 <a href=#360 id=360 data-nosnippet>360</a>
-<a href=#361 id=361 data-nosnippet>361</a>            <span class="comment">// Validators
-<a href=#362 id=362 data-nosnippet>362</a>            </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.num_validators {
-<a href=#363 id=363 data-nosnippet>363</a>                <span class="kw">let </span>win_idx = idx + base_index;
-<a href=#364 id=364 data-nosnippet>364</a>                <span class="kw">let </span>window_name = <span class="macro">format!</span>(<span class="string">"validator-{idx}"</span>);
-<a href=#365 id=365 data-nosnippet>365</a>                <span class="kw">if </span>idx != <span class="number">0 </span>{
-<a href=#366 id=366 data-nosnippet>366</a>                    StdCommand::new(<span class="string">"tmux"</span>)
-<a href=#367 id=367 data-nosnippet>367</a>                        .args([<span class="string">"new-window"</span>, <span class="string">"-t"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"devnet:{win_idx}"</span>), <span class="string">"-n"</span>, <span class="kw-2">&amp;</span>window_name])
-<a href=#368 id=368 data-nosnippet>368</a>                        .status()<span class="question-mark">?</span>;
-<a href=#369 id=369 data-nosnippet>369</a>                }
-<a href=#370 id=370 data-nosnippet>370</a>                <span class="kw">let </span>log_file = log_dir.join(<span class="macro">format!</span>(<span class="string">"{window_name}.log"</span>));
-<a href=#371 id=371 data-nosnippet>371</a>                <span class="kw">let </span>metrics_port = <span class="number">9000 </span>+ idx <span class="kw">as </span>u16;
-<a href=#372 id=372 data-nosnippet>372</a>                <span class="kw">let </span>cmd = std::iter::once(snarkos.to_string_lossy().into_owned())
-<a href=#373 id=373 data-nosnippet>373</a>                    .chain(build_args(
-<a href=#374 id=374 data-nosnippet>374</a>                        <span class="string">"validator"</span>,
-<a href=#375 id=375 data-nosnippet>375</a>                        <span class="self">self</span>.verbosity,
-<a href=#376 id=376 data-nosnippet>376</a>                        <span class="self">self</span>.network <span class="kw">as </span>usize,
-<a href=#377 id=377 data-nosnippet>377</a>                        <span class="self">self</span>.num_validators,
-<a href=#378 id=378 data-nosnippet>378</a>                        idx,
-<a href=#379 id=379 data-nosnippet>379</a>                        log_file.as_path(),
-<a href=#380 id=380 data-nosnippet>380</a>                        <span class="prelude-val">Some</span>(metrics_port),
-<a href=#381 id=381 data-nosnippet>381</a>                    ))
-<a href=#382 id=382 data-nosnippet>382</a>                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-<a href=#383 id=383 data-nosnippet>383</a>                    .join(<span class="string">" "</span>);
-<a href=#384 id=384 data-nosnippet>384</a>                StdCommand::new(<span class="string">"tmux"</span>)
-<a href=#385 id=385 data-nosnippet>385</a>                    .args([<span class="string">"send-keys"</span>, <span class="string">"-t"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"devnet:{win_idx}"</span>), <span class="kw-2">&amp;</span>cmd, <span class="string">"C-m"</span>])
-<a href=#386 id=386 data-nosnippet>386</a>                    .status()<span class="question-mark">?</span>;
-<a href=#387 id=387 data-nosnippet>387</a>            }
-<a href=#388 id=388 data-nosnippet>388</a>
-<a href=#389 id=389 data-nosnippet>389</a>            <span class="comment">// Clients
-<a href=#390 id=390 data-nosnippet>390</a>            </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.num_clients {
-<a href=#391 id=391 data-nosnippet>391</a>                <span class="kw">let </span>dev_idx = idx + <span class="self">self</span>.num_validators;
-<a href=#392 id=392 data-nosnippet>392</a>                <span class="kw">let </span>win_idx = dev_idx + base_index;
-<a href=#393 id=393 data-nosnippet>393</a>                <span class="kw">let </span>window_name = <span class="macro">format!</span>(<span class="string">"client-{idx}"</span>);
-<a href=#394 id=394 data-nosnippet>394</a>                StdCommand::new(<span class="string">"tmux"</span>)
-<a href=#395 id=395 data-nosnippet>395</a>                    .args([<span class="string">"new-window"</span>, <span class="string">"-t"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"devnet:{win_idx}"</span>), <span class="string">"-n"</span>, <span class="kw-2">&amp;</span>window_name])
-<a href=#396 id=396 data-nosnippet>396</a>                    .status()<span class="question-mark">?</span>;
-<a href=#397 id=397 data-nosnippet>397</a>                <span class="kw">let </span>log_file = log_dir.join(<span class="macro">format!</span>(<span class="string">"{window_name}.log"</span>));
-<a href=#398 id=398 data-nosnippet>398</a>                <span class="kw">let </span>cmd = std::iter::once(snarkos.to_string_lossy().into_owned())
-<a href=#399 id=399 data-nosnippet>399</a>                    .chain(build_args(
-<a href=#400 id=400 data-nosnippet>400</a>                        <span class="string">"client"</span>,
-<a href=#401 id=401 data-nosnippet>401</a>                        <span class="self">self</span>.verbosity,
-<a href=#402 id=402 data-nosnippet>402</a>                        <span class="self">self</span>.network <span class="kw">as </span>usize,
-<a href=#403 id=403 data-nosnippet>403</a>                        <span class="self">self</span>.num_validators,
-<a href=#404 id=404 data-nosnippet>404</a>                        dev_idx,
-<a href=#405 id=405 data-nosnippet>405</a>                        log_file.as_path(),
-<a href=#406 id=406 data-nosnippet>406</a>                        <span class="prelude-val">None</span>,
-<a href=#407 id=407 data-nosnippet>407</a>                    ))
-<a href=#408 id=408 data-nosnippet>408</a>                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-<a href=#409 id=409 data-nosnippet>409</a>                    .join(<span class="string">" "</span>);
-<a href=#410 id=410 data-nosnippet>410</a>                StdCommand::new(<span class="string">"tmux"</span>)
-<a href=#411 id=411 data-nosnippet>411</a>                    .args([<span class="string">"send-keys"</span>, <span class="string">"-t"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"devnet:{win_idx}"</span>), <span class="kw-2">&amp;</span>cmd, <span class="string">"C-m"</span>])
-<a href=#412 id=412 data-nosnippet>412</a>                    .status()<span class="question-mark">?</span>;
-<a href=#413 id=413 data-nosnippet>413</a>            }
-<a href=#414 id=414 data-nosnippet>414</a>
-<a href=#415 id=415 data-nosnippet>415</a>            <span class="macro">println!</span>(<span class="string">"✅  tmux session \"devnet\" is ready – attaching …"</span>);
-<a href=#416 id=416 data-nosnippet>416</a>            StdCommand::new(<span class="string">"tmux"</span>).args([<span class="string">"attach-session"</span>, <span class="string">"-t"</span>, <span class="string">"devnet"</span>]).status()<span class="question-mark">?</span>;
-<a href=#417 id=417 data-nosnippet>417</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(()); <span class="comment">// tmux will hold the terminal
-<a href=#418 id=418 data-nosnippet>418</a>        </span>}
-<a href=#419 id=419 data-nosnippet>419</a>
-<a href=#420 id=420 data-nosnippet>420</a>        <span class="comment">//──────────── background branch ──────────
-<a href=#421 id=421 data-nosnippet>421</a>        </span><span class="macro">println!</span>(<span class="string">"⚙️  Spawning nodes as background tasks …"</span>);
-<a href=#422 id=422 data-nosnippet>422</a>
-<a href=#423 id=423 data-nosnippet>423</a>        <span class="comment">// Helper: setsid() on Unix, Job-object attach on Windows.
-<a href=#424 id=424 data-nosnippet>424</a>        </span><span class="kw">let </span>spawn_with_group = |<span class="kw-2">mut </span>cmd: StdCommand, log_file: <span class="kw-2">&amp;</span>Path| -&gt; AnyhowResult&lt;Child&gt; {
-<a href=#425 id=425 data-nosnippet>425</a>            <span class="kw">let </span>log_handle = std::fs::OpenOptions::new().create(<span class="bool-val">true</span>).append(<span class="bool-val">true</span>).open(log_file)<span class="question-mark">?</span>;
-<a href=#426 id=426 data-nosnippet>426</a>            cmd.stdout(Stdio::from(log_handle.try_clone()<span class="question-mark">?</span>));
-<a href=#427 id=427 data-nosnippet>427</a>            cmd.stderr(Stdio::from(log_handle));
+<a href=#361 id=361 data-nosnippet>361</a>            <span class="comment">// Determine base-index.
+<a href=#362 id=362 data-nosnippet>362</a>            </span><span class="kw">let </span>base_index = {
+<a href=#363 id=363 data-nosnippet>363</a>                <span class="kw">let </span>out = StdCommand::new(<span class="string">"tmux"</span>).args([<span class="string">"show-option"</span>, <span class="string">"-gv"</span>, <span class="string">"base-index"</span>]).output()<span class="question-mark">?</span>;
+<a href=#364 id=364 data-nosnippet>364</a>                String::from_utf8_lossy(<span class="kw-2">&amp;</span>out.stdout).trim().parse::&lt;usize&gt;().unwrap_or(<span class="number">0</span>)
+<a href=#365 id=365 data-nosnippet>365</a>            };
+<a href=#366 id=366 data-nosnippet>366</a>
+<a href=#367 id=367 data-nosnippet>367</a>            <span class="comment">// Validators
+<a href=#368 id=368 data-nosnippet>368</a>            </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.num_validators {
+<a href=#369 id=369 data-nosnippet>369</a>                <span class="kw">let </span>win_idx = idx + base_index;
+<a href=#370 id=370 data-nosnippet>370</a>                <span class="kw">let </span>window_name = <span class="macro">format!</span>(<span class="string">"validator-{idx}"</span>);
+<a href=#371 id=371 data-nosnippet>371</a>                <span class="kw">if </span>idx != <span class="number">0 </span>{
+<a href=#372 id=372 data-nosnippet>372</a>                    StdCommand::new(<span class="string">"tmux"</span>)
+<a href=#373 id=373 data-nosnippet>373</a>                        .args([<span class="string">"new-window"</span>, <span class="string">"-t"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"devnet:{win_idx}"</span>), <span class="string">"-n"</span>, <span class="kw-2">&amp;</span>window_name])
+<a href=#374 id=374 data-nosnippet>374</a>                        .status()<span class="question-mark">?</span>;
+<a href=#375 id=375 data-nosnippet>375</a>                }
+<a href=#376 id=376 data-nosnippet>376</a>                <span class="kw">let </span>log_file = log_dir.join(<span class="macro">format!</span>(<span class="string">"{window_name}.log"</span>));
+<a href=#377 id=377 data-nosnippet>377</a>                <span class="kw">let </span>metrics_port = <span class="number">9000 </span>+ idx <span class="kw">as </span>u16;
+<a href=#378 id=378 data-nosnippet>378</a>                <span class="kw">let </span>cmd = std::iter::once(snarkos.to_string_lossy().into_owned())
+<a href=#379 id=379 data-nosnippet>379</a>                    .chain(build_args(
+<a href=#380 id=380 data-nosnippet>380</a>                        <span class="string">"validator"</span>,
+<a href=#381 id=381 data-nosnippet>381</a>                        <span class="self">self</span>.verbosity,
+<a href=#382 id=382 data-nosnippet>382</a>                        <span class="self">self</span>.network <span class="kw">as </span>usize,
+<a href=#383 id=383 data-nosnippet>383</a>                        <span class="self">self</span>.num_validators,
+<a href=#384 id=384 data-nosnippet>384</a>                        idx,
+<a href=#385 id=385 data-nosnippet>385</a>                        log_file.as_path(),
+<a href=#386 id=386 data-nosnippet>386</a>                        <span class="prelude-val">Some</span>(metrics_port),
+<a href=#387 id=387 data-nosnippet>387</a>                    ))
+<a href=#388 id=388 data-nosnippet>388</a>                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+<a href=#389 id=389 data-nosnippet>389</a>                    .join(<span class="string">" "</span>);
+<a href=#390 id=390 data-nosnippet>390</a>                StdCommand::new(<span class="string">"tmux"</span>)
+<a href=#391 id=391 data-nosnippet>391</a>                    .args([<span class="string">"send-keys"</span>, <span class="string">"-t"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"devnet:{win_idx}"</span>), <span class="kw-2">&amp;</span>cmd, <span class="string">"C-m"</span>])
+<a href=#392 id=392 data-nosnippet>392</a>                    .status()<span class="question-mark">?</span>;
+<a href=#393 id=393 data-nosnippet>393</a>            }
+<a href=#394 id=394 data-nosnippet>394</a>
+<a href=#395 id=395 data-nosnippet>395</a>            <span class="comment">// Clients
+<a href=#396 id=396 data-nosnippet>396</a>            </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.num_clients {
+<a href=#397 id=397 data-nosnippet>397</a>                <span class="kw">let </span>dev_idx = idx + <span class="self">self</span>.num_validators;
+<a href=#398 id=398 data-nosnippet>398</a>                <span class="kw">let </span>win_idx = dev_idx + base_index;
+<a href=#399 id=399 data-nosnippet>399</a>                <span class="kw">let </span>window_name = <span class="macro">format!</span>(<span class="string">"client-{idx}"</span>);
+<a href=#400 id=400 data-nosnippet>400</a>                StdCommand::new(<span class="string">"tmux"</span>)
+<a href=#401 id=401 data-nosnippet>401</a>                    .args([<span class="string">"new-window"</span>, <span class="string">"-t"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"devnet:{win_idx}"</span>), <span class="string">"-n"</span>, <span class="kw-2">&amp;</span>window_name])
+<a href=#402 id=402 data-nosnippet>402</a>                    .status()<span class="question-mark">?</span>;
+<a href=#403 id=403 data-nosnippet>403</a>                <span class="kw">let </span>log_file = log_dir.join(<span class="macro">format!</span>(<span class="string">"{window_name}.log"</span>));
+<a href=#404 id=404 data-nosnippet>404</a>                <span class="kw">let </span>cmd = std::iter::once(snarkos.to_string_lossy().into_owned())
+<a href=#405 id=405 data-nosnippet>405</a>                    .chain(build_args(
+<a href=#406 id=406 data-nosnippet>406</a>                        <span class="string">"client"</span>,
+<a href=#407 id=407 data-nosnippet>407</a>                        <span class="self">self</span>.verbosity,
+<a href=#408 id=408 data-nosnippet>408</a>                        <span class="self">self</span>.network <span class="kw">as </span>usize,
+<a href=#409 id=409 data-nosnippet>409</a>                        <span class="self">self</span>.num_validators,
+<a href=#410 id=410 data-nosnippet>410</a>                        dev_idx,
+<a href=#411 id=411 data-nosnippet>411</a>                        log_file.as_path(),
+<a href=#412 id=412 data-nosnippet>412</a>                        <span class="prelude-val">None</span>,
+<a href=#413 id=413 data-nosnippet>413</a>                    ))
+<a href=#414 id=414 data-nosnippet>414</a>                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+<a href=#415 id=415 data-nosnippet>415</a>                    .join(<span class="string">" "</span>);
+<a href=#416 id=416 data-nosnippet>416</a>                StdCommand::new(<span class="string">"tmux"</span>)
+<a href=#417 id=417 data-nosnippet>417</a>                    .args([<span class="string">"send-keys"</span>, <span class="string">"-t"</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"devnet:{win_idx}"</span>), <span class="kw-2">&amp;</span>cmd, <span class="string">"C-m"</span>])
+<a href=#418 id=418 data-nosnippet>418</a>                    .status()<span class="question-mark">?</span>;
+<a href=#419 id=419 data-nosnippet>419</a>            }
+<a href=#420 id=420 data-nosnippet>420</a>
+<a href=#421 id=421 data-nosnippet>421</a>            <span class="macro">println!</span>(<span class="string">"✅  tmux session \"devnet\" is ready – attaching …"</span>);
+<a href=#422 id=422 data-nosnippet>422</a>            StdCommand::new(<span class="string">"tmux"</span>).args([<span class="string">"attach-session"</span>, <span class="string">"-t"</span>, <span class="string">"devnet"</span>]).status()<span class="question-mark">?</span>;
+<a href=#423 id=423 data-nosnippet>423</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(()); <span class="comment">// tmux will hold the terminal
+<a href=#424 id=424 data-nosnippet>424</a>        </span>}
+<a href=#425 id=425 data-nosnippet>425</a>
+<a href=#426 id=426 data-nosnippet>426</a>        <span class="comment">//──────────── background branch ──────────
+<a href=#427 id=427 data-nosnippet>427</a>        </span><span class="macro">println!</span>(<span class="string">"⚙️  Spawning nodes as background tasks …"</span>);
 <a href=#428 id=428 data-nosnippet>428</a>
-<a href=#429 id=429 data-nosnippet>429</a>            <span class="attr">#[cfg(unix)]
-<a href=#430 id=430 data-nosnippet>430</a>            #[allow(unsafe_code)]
-<a href=#431 id=431 data-nosnippet>431</a>            </span><span class="kw">unsafe </span>{
-<a href=#432 id=432 data-nosnippet>432</a>                <span class="comment">// SAFETY: We are in the child just before exec; setsid() only
-<a href=#433 id=433 data-nosnippet>433</a>                // affects the child and cannot violate Rust invariants.
-<a href=#434 id=434 data-nosnippet>434</a>                </span>cmd.pre_exec(|| {
-<a href=#435 id=435 data-nosnippet>435</a>                    setsid();
-<a href=#436 id=436 data-nosnippet>436</a>                    <span class="prelude-val">Ok</span>(())
-<a href=#437 id=437 data-nosnippet>437</a>                });
-<a href=#438 id=438 data-nosnippet>438</a>            }
-<a href=#439 id=439 data-nosnippet>439</a>
-<a href=#440 id=440 data-nosnippet>440</a>            <span class="kw">let </span>child = cmd.spawn().map_err(|e| <span class="macro">anyhow!</span>(<span class="string">"spawn {e}"</span>))<span class="question-mark">?</span>;
-<a href=#441 id=441 data-nosnippet>441</a>
-<a href=#442 id=442 data-nosnippet>442</a>            <span class="attr">#[cfg(windows)]
-<a href=#443 id=443 data-nosnippet>443</a>            </span>windows_kill_tree::attach_to_global_job(child.id())<span class="question-mark">?</span>;
-<a href=#444 id=444 data-nosnippet>444</a>
-<a href=#445 id=445 data-nosnippet>445</a>            <span class="prelude-val">Ok</span>(child)
-<a href=#446 id=446 data-nosnippet>446</a>        };
+<a href=#429 id=429 data-nosnippet>429</a>        <span class="comment">// Helper: setsid() on Unix, Job-object attach on Windows.
+<a href=#430 id=430 data-nosnippet>430</a>        </span><span class="kw">let </span>spawn_with_group = |<span class="kw-2">mut </span>cmd: StdCommand, log_file: <span class="kw-2">&amp;</span>Path| -&gt; AnyhowResult&lt;Child&gt; {
+<a href=#431 id=431 data-nosnippet>431</a>            <span class="kw">let </span>log_handle = std::fs::OpenOptions::new().create(<span class="bool-val">true</span>).append(<span class="bool-val">true</span>).open(log_file)<span class="question-mark">?</span>;
+<a href=#432 id=432 data-nosnippet>432</a>            cmd.stdout(Stdio::from(log_handle.try_clone()<span class="question-mark">?</span>));
+<a href=#433 id=433 data-nosnippet>433</a>            cmd.stderr(Stdio::from(log_handle));
+<a href=#434 id=434 data-nosnippet>434</a>
+<a href=#435 id=435 data-nosnippet>435</a>            <span class="attr">#[cfg(unix)]
+<a href=#436 id=436 data-nosnippet>436</a>            #[allow(unsafe_code)]
+<a href=#437 id=437 data-nosnippet>437</a>            </span><span class="kw">unsafe </span>{
+<a href=#438 id=438 data-nosnippet>438</a>                <span class="comment">// SAFETY: We are in the child just before exec; setsid() only
+<a href=#439 id=439 data-nosnippet>439</a>                // affects the child and cannot violate Rust invariants.
+<a href=#440 id=440 data-nosnippet>440</a>                </span>cmd.pre_exec(|| {
+<a href=#441 id=441 data-nosnippet>441</a>                    setsid();
+<a href=#442 id=442 data-nosnippet>442</a>                    <span class="prelude-val">Ok</span>(())
+<a href=#443 id=443 data-nosnippet>443</a>                });
+<a href=#444 id=444 data-nosnippet>444</a>            }
+<a href=#445 id=445 data-nosnippet>445</a>
+<a href=#446 id=446 data-nosnippet>446</a>            <span class="kw">let </span>child = cmd.spawn().map_err(|e| <span class="macro">anyhow!</span>(<span class="string">"spawn {e}"</span>))<span class="question-mark">?</span>;
 <a href=#447 id=447 data-nosnippet>447</a>
-<a href=#448 id=448 data-nosnippet>448</a>        {
-<a href=#449 id=449 data-nosnippet>449</a>            <span class="comment">// This should be safe since only the current thread will write to the manager.
-<a href=#450 id=450 data-nosnippet>450</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>guard = manager.lock();
-<a href=#451 id=451 data-nosnippet>451</a>
-<a href=#452 id=452 data-nosnippet>452</a>            <span class="comment">// Validators
-<a href=#453 id=453 data-nosnippet>453</a>            </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.num_validators {
-<a href=#454 id=454 data-nosnippet>454</a>                <span class="kw">let </span>log_file = log_dir.join(<span class="macro">format!</span>(<span class="string">"validator-{idx}.log"</span>));
-<a href=#455 id=455 data-nosnippet>455</a>                <span class="kw">let </span>child = spawn_with_group(
-<a href=#456 id=456 data-nosnippet>456</a>                    {
-<a href=#457 id=457 data-nosnippet>457</a>                        <span class="kw">let </span><span class="kw-2">mut </span>c = StdCommand::new(<span class="kw-2">&amp;</span>snarkos);
-<a href=#458 id=458 data-nosnippet>458</a>                        c.args(build_args(
-<a href=#459 id=459 data-nosnippet>459</a>                            <span class="string">"validator"</span>,
-<a href=#460 id=460 data-nosnippet>460</a>                            <span class="self">self</span>.verbosity,
-<a href=#461 id=461 data-nosnippet>461</a>                            <span class="self">self</span>.network <span class="kw">as </span>usize,
-<a href=#462 id=462 data-nosnippet>462</a>                            <span class="self">self</span>.num_validators,
-<a href=#463 id=463 data-nosnippet>463</a>                            idx,
-<a href=#464 id=464 data-nosnippet>464</a>                            <span class="kw-2">&amp;</span>log_file,
-<a href=#465 id=465 data-nosnippet>465</a>                            <span class="prelude-val">Some</span>(<span class="number">9000 </span>+ idx <span class="kw">as </span>u16),
-<a href=#466 id=466 data-nosnippet>466</a>                        ));
-<a href=#467 id=467 data-nosnippet>467</a>                        c
-<a href=#468 id=468 data-nosnippet>468</a>                    },
-<a href=#469 id=469 data-nosnippet>469</a>                    <span class="kw-2">&amp;</span>log_file,
-<a href=#470 id=470 data-nosnippet>470</a>                )<span class="question-mark">?</span>;
-<a href=#471 id=471 data-nosnippet>471</a>                <span class="macro">println!</span>(<span class="string">"  • validator {idx}  (pid = {})"</span>, child.id());
-<a href=#472 id=472 data-nosnippet>472</a>                guard.push(child);
-<a href=#473 id=473 data-nosnippet>473</a>            }
-<a href=#474 id=474 data-nosnippet>474</a>
-<a href=#475 id=475 data-nosnippet>475</a>            <span class="comment">// Clients
-<a href=#476 id=476 data-nosnippet>476</a>            </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.num_clients {
-<a href=#477 id=477 data-nosnippet>477</a>                <span class="kw">let </span>dev_idx = idx + <span class="self">self</span>.num_validators;
-<a href=#478 id=478 data-nosnippet>478</a>                <span class="kw">let </span>log_file = log_dir.join(<span class="macro">format!</span>(<span class="string">"client-{idx}.log"</span>));
-<a href=#479 id=479 data-nosnippet>479</a>                <span class="kw">let </span>child = spawn_with_group(
-<a href=#480 id=480 data-nosnippet>480</a>                    {
-<a href=#481 id=481 data-nosnippet>481</a>                        <span class="kw">let </span><span class="kw-2">mut </span>c = StdCommand::new(<span class="kw-2">&amp;</span>snarkos);
-<a href=#482 id=482 data-nosnippet>482</a>                        c.args(build_args(
-<a href=#483 id=483 data-nosnippet>483</a>                            <span class="string">"client"</span>,
-<a href=#484 id=484 data-nosnippet>484</a>                            <span class="self">self</span>.verbosity,
-<a href=#485 id=485 data-nosnippet>485</a>                            <span class="self">self</span>.network <span class="kw">as </span>usize,
-<a href=#486 id=486 data-nosnippet>486</a>                            <span class="self">self</span>.num_validators,
-<a href=#487 id=487 data-nosnippet>487</a>                            dev_idx,
-<a href=#488 id=488 data-nosnippet>488</a>                            <span class="kw-2">&amp;</span>log_file,
-<a href=#489 id=489 data-nosnippet>489</a>                            <span class="prelude-val">None</span>,
-<a href=#490 id=490 data-nosnippet>490</a>                        ));
-<a href=#491 id=491 data-nosnippet>491</a>                        c
-<a href=#492 id=492 data-nosnippet>492</a>                    },
-<a href=#493 id=493 data-nosnippet>493</a>                    <span class="kw-2">&amp;</span>log_file,
-<a href=#494 id=494 data-nosnippet>494</a>                )<span class="question-mark">?</span>;
-<a href=#495 id=495 data-nosnippet>495</a>                <span class="macro">println!</span>(<span class="string">"  • client    {idx}  (pid = {})"</span>, child.id());
-<a href=#496 id=496 data-nosnippet>496</a>                guard.push(child);
-<a href=#497 id=497 data-nosnippet>497</a>            }
-<a href=#498 id=498 data-nosnippet>498</a>        }
-<a href=#499 id=499 data-nosnippet>499</a>
-<a href=#500 id=500 data-nosnippet>500</a>        <span class="comment">// Print the main process ID.
-<a href=#501 id=501 data-nosnippet>501</a>        </span><span class="macro">println!</span>(<span class="string">"📌  Main process ID: {}"</span>, std::process::id());
-<a href=#502 id=502 data-nosnippet>502</a>        <span class="macro">println!</span>(<span class="string">"\nDevnet running – Ctrl+C, SIGTERM, or terminal close to stop."</span>);
-<a href=#503 id=503 data-nosnippet>503</a>
-<a href=#504 id=504 data-nosnippet>504</a>        <span class="comment">// Block here until the first (coalesced) shutdown request
-<a href=#505 id=505 data-nosnippet>505</a>        </span><span class="kw">let _ </span>= rx_shutdown.recv();
-<a href=#506 id=506 data-nosnippet>506</a>        manager.lock().shutdown_all(Duration::from_secs(<span class="number">30</span>));
-<a href=#507 id=507 data-nosnippet>507</a>
-<a href=#508 id=508 data-nosnippet>508</a>        <span class="prelude-val">Ok</span>(())
-<a href=#509 id=509 data-nosnippet>509</a>    }
-<a href=#510 id=510 data-nosnippet>510</a>}</code></pre></div></section></main></body></html>
+<a href=#448 id=448 data-nosnippet>448</a>            <span class="attr">#[cfg(windows)]
+<a href=#449 id=449 data-nosnippet>449</a>            </span>windows_kill_tree::attach_to_global_job(child.id())<span class="question-mark">?</span>;
+<a href=#450 id=450 data-nosnippet>450</a>
+<a href=#451 id=451 data-nosnippet>451</a>            <span class="prelude-val">Ok</span>(child)
+<a href=#452 id=452 data-nosnippet>452</a>        };
+<a href=#453 id=453 data-nosnippet>453</a>
+<a href=#454 id=454 data-nosnippet>454</a>        {
+<a href=#455 id=455 data-nosnippet>455</a>            <span class="comment">// This should be safe since only the current thread will write to the manager.
+<a href=#456 id=456 data-nosnippet>456</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>guard = manager.lock();
+<a href=#457 id=457 data-nosnippet>457</a>
+<a href=#458 id=458 data-nosnippet>458</a>            <span class="comment">// Validators
+<a href=#459 id=459 data-nosnippet>459</a>            </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.num_validators {
+<a href=#460 id=460 data-nosnippet>460</a>                <span class="kw">let </span>log_file = log_dir.join(<span class="macro">format!</span>(<span class="string">"validator-{idx}.log"</span>));
+<a href=#461 id=461 data-nosnippet>461</a>                <span class="kw">let </span>child = spawn_with_group(
+<a href=#462 id=462 data-nosnippet>462</a>                    {
+<a href=#463 id=463 data-nosnippet>463</a>                        <span class="kw">let </span><span class="kw-2">mut </span>c = StdCommand::new(<span class="kw-2">&amp;</span>snarkos);
+<a href=#464 id=464 data-nosnippet>464</a>                        c.args(build_args(
+<a href=#465 id=465 data-nosnippet>465</a>                            <span class="string">"validator"</span>,
+<a href=#466 id=466 data-nosnippet>466</a>                            <span class="self">self</span>.verbosity,
+<a href=#467 id=467 data-nosnippet>467</a>                            <span class="self">self</span>.network <span class="kw">as </span>usize,
+<a href=#468 id=468 data-nosnippet>468</a>                            <span class="self">self</span>.num_validators,
+<a href=#469 id=469 data-nosnippet>469</a>                            idx,
+<a href=#470 id=470 data-nosnippet>470</a>                            <span class="kw-2">&amp;</span>log_file,
+<a href=#471 id=471 data-nosnippet>471</a>                            <span class="prelude-val">Some</span>(<span class="number">9000 </span>+ idx <span class="kw">as </span>u16),
+<a href=#472 id=472 data-nosnippet>472</a>                        ));
+<a href=#473 id=473 data-nosnippet>473</a>                        c
+<a href=#474 id=474 data-nosnippet>474</a>                    },
+<a href=#475 id=475 data-nosnippet>475</a>                    <span class="kw-2">&amp;</span>log_file,
+<a href=#476 id=476 data-nosnippet>476</a>                )<span class="question-mark">?</span>;
+<a href=#477 id=477 data-nosnippet>477</a>                <span class="macro">println!</span>(<span class="string">"  • validator {idx}  (pid = {})"</span>, child.id());
+<a href=#478 id=478 data-nosnippet>478</a>                guard.push(child);
+<a href=#479 id=479 data-nosnippet>479</a>            }
+<a href=#480 id=480 data-nosnippet>480</a>
+<a href=#481 id=481 data-nosnippet>481</a>            <span class="comment">// Clients
+<a href=#482 id=482 data-nosnippet>482</a>            </span><span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.num_clients {
+<a href=#483 id=483 data-nosnippet>483</a>                <span class="kw">let </span>dev_idx = idx + <span class="self">self</span>.num_validators;
+<a href=#484 id=484 data-nosnippet>484</a>                <span class="kw">let </span>log_file = log_dir.join(<span class="macro">format!</span>(<span class="string">"client-{idx}.log"</span>));
+<a href=#485 id=485 data-nosnippet>485</a>                <span class="kw">let </span>child = spawn_with_group(
+<a href=#486 id=486 data-nosnippet>486</a>                    {
+<a href=#487 id=487 data-nosnippet>487</a>                        <span class="kw">let </span><span class="kw-2">mut </span>c = StdCommand::new(<span class="kw-2">&amp;</span>snarkos);
+<a href=#488 id=488 data-nosnippet>488</a>                        c.args(build_args(
+<a href=#489 id=489 data-nosnippet>489</a>                            <span class="string">"client"</span>,
+<a href=#490 id=490 data-nosnippet>490</a>                            <span class="self">self</span>.verbosity,
+<a href=#491 id=491 data-nosnippet>491</a>                            <span class="self">self</span>.network <span class="kw">as </span>usize,
+<a href=#492 id=492 data-nosnippet>492</a>                            <span class="self">self</span>.num_validators,
+<a href=#493 id=493 data-nosnippet>493</a>                            dev_idx,
+<a href=#494 id=494 data-nosnippet>494</a>                            <span class="kw-2">&amp;</span>log_file,
+<a href=#495 id=495 data-nosnippet>495</a>                            <span class="prelude-val">None</span>,
+<a href=#496 id=496 data-nosnippet>496</a>                        ));
+<a href=#497 id=497 data-nosnippet>497</a>                        c
+<a href=#498 id=498 data-nosnippet>498</a>                    },
+<a href=#499 id=499 data-nosnippet>499</a>                    <span class="kw-2">&amp;</span>log_file,
+<a href=#500 id=500 data-nosnippet>500</a>                )<span class="question-mark">?</span>;
+<a href=#501 id=501 data-nosnippet>501</a>                <span class="macro">println!</span>(<span class="string">"  • client    {idx}  (pid = {})"</span>, child.id());
+<a href=#502 id=502 data-nosnippet>502</a>                guard.push(child);
+<a href=#503 id=503 data-nosnippet>503</a>            }
+<a href=#504 id=504 data-nosnippet>504</a>        }
+<a href=#505 id=505 data-nosnippet>505</a>
+<a href=#506 id=506 data-nosnippet>506</a>        <span class="comment">// Print the main process ID.
+<a href=#507 id=507 data-nosnippet>507</a>        </span><span class="macro">println!</span>(<span class="string">"📌  Main process ID: {}"</span>, std::process::id());
+<a href=#508 id=508 data-nosnippet>508</a>        <span class="macro">println!</span>(<span class="string">"\nDevnet running – Ctrl+C, SIGTERM, or terminal close to stop."</span>);
+<a href=#509 id=509 data-nosnippet>509</a>
+<a href=#510 id=510 data-nosnippet>510</a>        <span class="comment">// Block here until the first (coalesced) shutdown request
+<a href=#511 id=511 data-nosnippet>511</a>        </span><span class="kw">let _ </span>= rx_shutdown.recv();
+<a href=#512 id=512 data-nosnippet>512</a>        manager.lock().shutdown_all(Duration::from_secs(<span class="number">30</span>));
+<a href=#513 id=513 data-nosnippet>513</a>
+<a href=#514 id=514 data-nosnippet>514</a>        <span class="prelude-val">Ok</span>(())
+<a href=#515 id=515 data-nosnippet>515</a>    }
+<a href=#516 id=516 data-nosnippet>516</a>}</code></pre></div></section></main></body></html>
