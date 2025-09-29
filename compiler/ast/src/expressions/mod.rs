@@ -53,6 +53,9 @@ pub use member_access::*;
 mod repeat;
 pub use repeat::*;
 
+mod slice;
+pub use slice::*;
+
 mod struct_init;
 pub use struct_init::*;
 
@@ -109,6 +112,8 @@ pub enum Expression {
     MemberAccess(Box<MemberAccess>),
     /// An array expression constructed from one repeated element, e.g., `[1u32; 5]`.
     Repeat(Box<RepeatExpression>),
+    /// An array expression constructed from a slice of another array, e.g., `arr[1..4]`.
+    Slice(Box<SliceExpression>),
     /// An expression constructing a struct like `Foo { bar: 42, baz }`.
     Struct(StructExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.

@@ -112,6 +112,7 @@ pub trait AstVisitor {
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access(access, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
+            Expression::Slice(slice) => self.visit_slice(slice, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access(access, additional),
@@ -219,6 +220,17 @@ pub trait AstVisitor {
     fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.expr, additional);
         self.visit_expression(&input.count, additional);
+        Default::default()
+    }
+    
+    fn visit_slice(&mut self, input: &SliceExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.array, additional);
+        if let Some(start) = input.start.as_ref() {
+            self.visit_expression(start, additional);
+        }
+        if let Some(end) = input.end.as_ref() {
+            self.visit_expression(end, additional);
+        }
         Default::default()
     }
 

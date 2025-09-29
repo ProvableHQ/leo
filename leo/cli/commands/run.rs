@@ -28,9 +28,7 @@ use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     prelude::{
-        Identifier,
-        ProgramID,
-        VM,
+        Identifier, ProgramID, VM,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
