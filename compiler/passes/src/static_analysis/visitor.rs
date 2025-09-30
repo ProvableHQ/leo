@@ -116,7 +116,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
         // Check `Future::await` core functions.
-        if let Some(CoreFunction::FutureAwait) = CoreFunction::from_symbols(input.variant.name, input.name.name) {
+        if let Ok(CoreFunction::FutureAwait) = CoreFunction::try_from(input) {
             self.assert_future_await(&input.arguments.first(), input.span());
         }
     }

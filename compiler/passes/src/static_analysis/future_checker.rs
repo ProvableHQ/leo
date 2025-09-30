@@ -142,9 +142,12 @@ impl AstVisitor for FutureChecker<'_> {
         input: &leo_ast::AssociatedFunctionExpression,
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        let core_function = CoreFunction::from_symbols(input.variant.name, input.name.name)
-            .expect("Typechecking guarantees that this function exists.");
-        let position = if core_function == CoreFunction::FutureAwait { Position::Await } else { Position::Misc };
+        let position = if let Ok(CoreFunction::FutureAwait) = CoreFunction::try_from(input) {
+            Position::Await
+        } else {
+            Position::Misc
+        };
+
         input.arguments.iter().for_each(|arg| {
             self.visit_expression(arg, &position);
         });

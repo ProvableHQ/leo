@@ -40,7 +40,13 @@ pub struct AssociatedFunctionExpression {
 
 impl fmt::Display for AssociatedFunctionExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}::{}({})", self.variant, self.name, self.arguments.iter().format(", "))
+        // Format type parameters if they exist.
+        let type_parameters = if !self.type_parameters.is_empty() {
+            format!("::[{}]", self.type_parameters.iter().map(|(t, _)| t.to_string()).format(", "))
+        } else {
+            String::new()
+        };
+        write!(f, "{}::{}{type_parameters}({})", self.variant, self.name, self.arguments.iter().format(", "))
     }
 }
 

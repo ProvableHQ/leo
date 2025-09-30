@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayType, IntegerType, Type};
+use crate::{ArrayType, AssociatedFunctionExpression, IntegerType, Type};
 
 use leo_span::{Symbol, sym};
 
@@ -651,6 +651,42 @@ impl CoreFunction {
             | CoreFunction::Deserialize(_, _)
             | CoreFunction::CheatCodePrintMapping
             | CoreFunction::CheatCodeSetBlockHeight => false,
+        }
+    }
+}
+
+impl TryFrom<&AssociatedFunctionExpression> for CoreFunction {
+    type Error = anyhow::Error;
+
+    fn try_from(associated_function: &AssociatedFunctionExpression) -> anyhow::Result<Self> {
+        match CoreFunction::from_symbols(associated_function.variant.name, associated_function.name.name) {
+            Some(core_function) => Ok(core_function),
+            // Attempt to handle `Deserialize::from_bits::[T](..)`
+            None if associated_function.variant.name == sym::Deserialize => {
+                // Get the variant.
+                let variant = match associated_function.name.name {
+                    sym::from_bits => DeserializeVariant::FromBits,
+                    sym::from_bits_raw => DeserializeVariant::FromBitsRaw,
+                    _ => anyhow::bail!(
+                        "Unknown associated function: {}::{}",
+                        associated_function.variant.name,
+                        associated_function.name.name
+                    ),
+                };
+                // Get the type parameter.
+                anyhow::ensure!(
+                    associated_function.type_parameters.len() == 1,
+                    "Expected exactly one type argument for Deserialize::{}",
+                    associated_function.name.name
+                );
+                let type_parameter = associated_function.type_parameters[0].0.clone();
+                Ok(Self::Deserialize(variant, type_parameter))
+            }
+            _ => anyhow::bail!(
+                "Unknown associated function: {}::{}",
+                associated_function.variant.name,
+                associated_function.name.name
+            ),
         }
     }
 }
