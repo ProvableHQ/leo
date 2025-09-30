@@ -438,179 +438,20 @@ impl CodeGeneratingVisitor<'_> {
         };
 
         // Construct the instruction.
-        let (destination, instruction) = match CoreFunction::from_symbols(input.variant.name, input.name.name) {
-            Some(CoreFunction::Commit(variant, ref type_)) => {
-                let mut instruction = format!("    {}", CommitVariant::opcode(variant as u8));
-                let destination_register = self.next_register();
-                // Write the arguments and the destination register.
-                writeln!(instruction, " {} {} into {destination_register} as {type_};", arguments[0], arguments[1])
-                    .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::Hash(variant, ref type_)) => {
-                let mut instruction = format!("    {}", HashVariant::opcode(variant as u8));
-                let destination_register = self.next_register();
-                let type_ = match self.state.network {
-                    NetworkName::TestnetV0 => {
-                        type_.to_snarkvm::<TestnetV0>().expect("TYC guarantees that the type is valid").to_string()
-                    }
-                    NetworkName::CanaryV0 => {
-                        type_.to_snarkvm::<CanaryV0>().expect("TYC guarantees that the type is valid").to_string()
-                    }
-                    NetworkName::MainnetV0 => {
-                        type_.to_snarkvm::<MainnetV0>().expect("TYC guarantees that the type is valid").to_string()
-                    }
-                };
-                // Write the arguments and the destination register.
-                writeln!(instruction, " {} into {destination_register} as {type_};", arguments[0])
-                    .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::MappingGet) => {
-                let mut instruction = "    get".to_string();
-                let destination_register = self.next_register();
-                // Write the mapping name and the key.
-                writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
-                    .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::MappingGetOrUse) => {
-                let mut instruction = "    get.or_use".to_string();
-                let destination_register = self.next_register();
-                // Write the mapping name, the key, and the default value.
-                writeln!(
-                    instruction,
-                    " {}[{}] {} into {destination_register};",
-                    arguments[0], arguments[1], arguments[2]
-                )
-                .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::MappingSet) => {
-                let mut instruction = "    set".to_string();
-                // Write the value, mapping name, and the key.
-                writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
-                    .expect("failed to write to string");
-                (String::new(), instruction)
-            }
-            Some(CoreFunction::MappingRemove) => {
-                let mut instruction = "    remove".to_string();
-                // Write the mapping name and the key.
-                writeln!(instruction, " {}[{}];", arguments[0], arguments[1]).expect("failed to write to string");
-                (String::new(), instruction)
-            }
-            Some(CoreFunction::MappingContains) => {
-                let mut instruction = "    contains".to_string();
-                let destination_register = self.next_register();
-                // Write the mapping name and the key.
-                writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
-                    .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::GroupToXCoordinate) => {
-                let mut instruction = "    cast".to_string();
-                let destination_register = self.next_register();
-                // Write the argument and the destination register.
-                writeln!(instruction, " {} into {destination_register} as group.x;", arguments[0],)
-                    .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::GroupToYCoordinate) => {
-                let mut instruction = "    cast".to_string();
-                let destination_register = self.next_register();
-                // Write the argument and the destination register.
-                writeln!(instruction, " {} into {destination_register} as group.y;", arguments[0],)
-                    .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::ChaChaRand(type_)) => {
-                // Get the destination register.
-                let destination_register = self.next_register();
-                // Construct the instruction template.
-                let instruction = format!("    rand.chacha into {destination_register} as {type_};");
-
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::SignatureVerify(is_raw)) => {
-                let mut instruction = format!("    {}", match is_raw {
-                    true => "sign.verify.raw",
-                    false => "sign.verify",
-                });
-                let destination_register = self.next_register();
-                // Write the arguments and the destination register.
-                writeln!(
-                    instruction,
-                    " {} {} {} into {destination_register};",
-                    arguments[0], arguments[1], arguments[2]
-                )
-                .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::ECDSAVerify(variant)) => {
-                let mut instruction = format!("    {}", ECDSAVerifyVariant::opcode(variant as u8));
-                let destination_register = self.next_register();
-                // Write the arguments and the destination register.
-                writeln!(
-                    instruction,
-                    " {} {} {} into {destination_register};",
-                    arguments[0], arguments[1], arguments[2]
-                )
-                .expect("failed to write to string");
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::FutureAwait) => {
-                let mut instruction = "    await".to_string();
-                writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
-                (String::new(), instruction)
-            }
-            Some(CoreFunction::ProgramChecksum) => generate_program_core(&arguments[0], "checksum"),
-            Some(CoreFunction::ProgramEdition) => generate_program_core(&arguments[0], "edition"),
-            Some(CoreFunction::ProgramOwner) => generate_program_core(&arguments[0], "program_owner"),
-            Some(CoreFunction::CheatCodePrintMapping) | Some(CoreFunction::CheatCodeSetBlockHeight) => {
-                (String::new(), String::new())
-                // Do nothing. Cheat codes do not generate instructions.
-            }
-            Some(CoreFunction::Serialize(variant)) => {
-                // Get the input type.
-                let Some(input_type) = self.state.type_table.get(&input.arguments[0].id()) else {
-                    panic!("All types should be known at this phase of compilation");
-                };
-                // Get the instruction variant.
-                let (is_raw, variant) = match variant {
-                    SerializeVariant::ToBits => (false, "bits"),
-                    SerializeVariant::ToBitsRaw => (true, "bits.raw"),
-                };
-                // Get the size in bits of the input type.
-                let size_in_bits = match self.state.network {
-                    NetworkName::TestnetV0 => {
-                        input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::MainnetV0 => {
-                        input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::CanaryV0 => {
-                        input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
+        let (destination, instruction) =
+            match CoreFunction::from_symbols(input.variant.name, input.name.name) {
+                Some(CoreFunction::Commit(variant, ref type_)) => {
+                    let mut instruction = format!("    {}", CommitVariant::opcode(variant as u8));
+                    let destination_register = self.next_register();
+                    // Write the arguments and the destination register.
+                    writeln!(instruction, " {} {} into {destination_register} as {type_};", arguments[0], arguments[1])
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
                 }
-                .expect("TYC guarantees that all types have a valid size in bits");
-
-                // Construct the output array type.
-                let output_array_type = format!("[boolean; {size_in_bits}u32]");
-                // Construct the destination register.
-                let destination_register = self.next_register();
-                // Construct the instruction template.
-                let instruction = format!(
-                    "    serialize.{variant} {} ({input_type}) into {destination_register} ({output_array_type});",
-                    arguments[0]
-                );
-
-                (destination_register, instruction)
-            }
-            Some(CoreFunction::Deserialize(..)) => panic!("`Deserialize::*` cannot be constructed from symbols"),
-            None => {
-                // Get the type of the associated function.
-                let output_type = if let Some(type_) = self.state.type_table.get(&input.id) {
-                    match self.state.network {
+                Some(CoreFunction::Hash(variant, ref type_)) => {
+                    let mut instruction = format!("    {}", HashVariant::opcode(variant as u8));
+                    let destination_register = self.next_register();
+                    let type_ = match self.state.network {
                         NetworkName::TestnetV0 => {
                             type_.to_snarkvm::<TestnetV0>().expect("TYC guarantees that the type is valid").to_string()
                         }
@@ -620,23 +461,127 @@ impl CodeGeneratingVisitor<'_> {
                         NetworkName::MainnetV0 => {
                             type_.to_snarkvm::<MainnetV0>().expect("TYC guarantees that the type is valid").to_string()
                         }
-                    }
-                } else {
-                    panic!("All types should be known at this phase of compilation");
-                };
-                // If the associated function is a `Deserialize::*` function, then directly construct the instruction.
-                if input.variant.name == sym::Deserialize {
-                    // Get the instruction variant.
-                    let (is_raw, variant) = match input.name.name {
-                        sym::from_bits => (false, "bits"),
-                        sym::from_bits_raw => (true, "bits.raw"),
-                        _ => panic!("Parsing enforces that deserialize can only be `from_bits` or `from_bits_raw`"),
                     };
+                    // Write the arguments and the destination register.
+                    writeln!(instruction, " {} into {destination_register} as {type_};", arguments[0])
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::MappingGet) => {
+                    let mut instruction = "    get".to_string();
+                    let destination_register = self.next_register();
+                    // Write the mapping name and the key.
+                    writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::MappingGetOrUse) => {
+                    let mut instruction = "    get.or_use".to_string();
+                    let destination_register = self.next_register();
+                    // Write the mapping name, the key, and the default value.
+                    writeln!(
+                        instruction,
+                        " {}[{}] {} into {destination_register};",
+                        arguments[0], arguments[1], arguments[2]
+                    )
+                    .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::MappingSet) => {
+                    let mut instruction = "    set".to_string();
+                    // Write the value, mapping name, and the key.
+                    writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
+                        .expect("failed to write to string");
+                    (String::new(), instruction)
+                }
+                Some(CoreFunction::MappingRemove) => {
+                    let mut instruction = "    remove".to_string();
+                    // Write the mapping name and the key.
+                    writeln!(instruction, " {}[{}];", arguments[0], arguments[1]).expect("failed to write to string");
+                    (String::new(), instruction)
+                }
+                Some(CoreFunction::MappingContains) => {
+                    let mut instruction = "    contains".to_string();
+                    let destination_register = self.next_register();
+                    // Write the mapping name and the key.
+                    writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::GroupToXCoordinate) => {
+                    let mut instruction = "    cast".to_string();
+                    let destination_register = self.next_register();
+                    // Write the argument and the destination register.
+                    writeln!(instruction, " {} into {destination_register} as group.x;", arguments[0],)
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::GroupToYCoordinate) => {
+                    let mut instruction = "    cast".to_string();
+                    let destination_register = self.next_register();
+                    // Write the argument and the destination register.
+                    writeln!(instruction, " {} into {destination_register} as group.y;", arguments[0],)
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::ChaChaRand(type_)) => {
+                    // Get the destination register.
+                    let destination_register = self.next_register();
+                    // Construct the instruction template.
+                    let instruction = format!("    rand.chacha into {destination_register} as {type_};");
+
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::SignatureVerify(is_raw)) => {
+                    let mut instruction = format!("    {}", match is_raw {
+                        true => "sign.verify.raw",
+                        false => "sign.verify",
+                    });
+                    let destination_register = self.next_register();
+                    // Write the arguments and the destination register.
+                    writeln!(
+                        instruction,
+                        " {} {} {} into {destination_register};",
+                        arguments[0], arguments[1], arguments[2]
+                    )
+                    .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::ECDSAVerify(variant)) => {
+                    let mut instruction = format!("    {}", ECDSAVerifyVariant::opcode(variant as u8));
+                    let destination_register = self.next_register();
+                    // Write the arguments and the destination register.
+                    writeln!(
+                        instruction,
+                        " {} {} {} into {destination_register};",
+                        arguments[0], arguments[1], arguments[2]
+                    )
+                    .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                Some(CoreFunction::FutureAwait) => {
+                    let mut instruction = "    await".to_string();
+                    writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
+                    (String::new(), instruction)
+                }
+                Some(CoreFunction::ProgramChecksum) => generate_program_core(&arguments[0], "checksum"),
+                Some(CoreFunction::ProgramEdition) => generate_program_core(&arguments[0], "edition"),
+                Some(CoreFunction::ProgramOwner) => generate_program_core(&arguments[0], "program_owner"),
+                Some(CoreFunction::CheatCodePrintMapping) | Some(CoreFunction::CheatCodeSetBlockHeight) => {
+                    (String::new(), String::new())
+                    // Do nothing. Cheat codes do not generate instructions.
+                }
+                Some(CoreFunction::Serialize(variant)) => {
                     // Get the input type.
                     let Some(input_type) = self.state.type_table.get(&input.arguments[0].id()) else {
                         panic!("All types should be known at this phase of compilation");
                     };
-                    // Get the size in bits.
+                    // Get the instruction variant.
+                    let (is_raw, variant) = match variant {
+                        SerializeVariant::ToBits => (false, "bits"),
+                        SerializeVariant::ToBitsRaw => (true, "bits.raw"),
+                    };
+                    // Get the size in bits of the input type.
                     let size_in_bits = match self.state.network {
                         NetworkName::TestnetV0 => {
                             input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
@@ -649,22 +594,66 @@ impl CodeGeneratingVisitor<'_> {
                         }
                     }
                     .expect("TYC guarantees that all types have a valid size in bits");
-                    // Construct the input array type.
-                    let input_array_type = format!("[boolean; {size_in_bits}u32]");
+
+                    // Construct the output array type.
+                    let output_array_type = format!("[boolean; {size_in_bits}u32]");
                     // Construct the destination register.
                     let destination_register = self.next_register();
                     // Construct the instruction template.
                     let instruction = format!(
-                        "    deserialize.{variant} {} ({input_array_type}) into {destination_register} ({output_type});",
-                        arguments[0]
+                        "    serialize.{variant} {} ({}) into {destination_register} ({output_array_type});",
+                        arguments[0],
+                        Self::visit_type(&input_type)
                     );
 
                     (destination_register, instruction)
-                } else {
-                    panic!("All core functions should be known at this phase of compilation")
                 }
-            }
-        };
+                Some(CoreFunction::Deserialize(..)) => panic!("`Deserialize::*` cannot be constructed from symbols"),
+                None => {
+                    // Get the type of the associated function.
+                    let Some(output_type) = self.state.type_table.get(&input.id) else {
+                        panic!("All types should be known at this phase of compilation");
+                    };
+                    // If the associated function is a `Deserialize::*` function, then directly construct the instruction.
+                    if input.variant.name == sym::Deserialize {
+                        // Get the instruction variant.
+                        let (is_raw, variant) = match input.name.name {
+                            sym::from_bits => (false, "bits"),
+                            sym::from_bits_raw => (true, "bits.raw"),
+                            _ => panic!("Parsing enforces that deserialize can only be `from_bits` or `from_bits_raw`"),
+                        };
+                        // Get the input type.
+                        let Some(input_type) = self.state.type_table.get(&input.arguments[0].id()) else {
+                            panic!("All types should be known at this phase of compilation");
+                        };
+                        // Get the size in bits.
+                        let size_in_bits =
+                            match self.state.network {
+                                NetworkName::TestnetV0 => input_type
+                                    .size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported")),
+                                NetworkName::MainnetV0 => input_type
+                                    .size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported")),
+                                NetworkName::CanaryV0 => input_type
+                                    .size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported")),
+                            }
+                            .expect("TYC guarantees that all types have a valid size in bits");
+                        // Construct the input array type.
+                        let input_array_type = format!("[boolean; {size_in_bits}u32]");
+                        // Construct the destination register.
+                        let destination_register = self.next_register();
+                        // Construct the instruction template.
+                        let instruction = format!(
+                            "    deserialize.{variant} {} ({input_array_type}) into {destination_register} ({});",
+                            arguments[0],
+                            Self::visit_type(&output_type)
+                        );
+
+                        (destination_register, instruction)
+                    } else {
+                        panic!("All core functions should be known at this phase of compilation")
+                    }
+                }
+            };
         // Add the instruction to the list of instructions.
         instructions.push_str(&instruction);
 
