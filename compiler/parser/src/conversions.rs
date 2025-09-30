@@ -688,6 +688,52 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
             let count = to_expression(count, builder, handler)?;
             leo_ast::RepeatExpression { expr, count, span, id }.into()
         }
+        ExpressionKind::SliceBoth => {
+            let [array, _left, start, c, end, _right] = &node.children[..] else {
+                panic!("Can't happen");
+            };
+            let array = to_expression(array, builder, handler)?;
+            let start = Some(to_expression(start, builder, handler)?);
+            let inclusive = match c.text {
+                ".." => false,
+                "..=" => true,
+                _ => panic!("Can't happen"),
+            };
+            let end = Some((inclusive, to_expression(end, builder, handler)?));
+            leo_ast::SliceExpression { array, start, end, span, id }.into()
+        }
+        ExpressionKind::SliceFirst => {
+            let [array, _left, start, _c, _right] = &node.children[..] else {
+                panic!("Can't happen");
+            };
+            let array = to_expression(array, builder, handler)?;
+            let start = Some(to_expression(start, builder, handler)?);
+            let end = None;
+            leo_ast::SliceExpression { array, start, end, span, id }.into()
+        }
+        ExpressionKind::SliceLast => {
+            let [array, _left, _c, end, _right] = &node.children[..] else {
+                panic!("Can't happen");
+            };
+            let array = to_expression(array, builder, handler)?;
+            let start = None;
+            let inclusive = match _c.text {
+                ".." => false,
+                "..=" => true,
+                _ => panic!("Can't happen"),
+            };
+            let end = Some((inclusive, to_expression(end, builder, handler)?));
+            leo_ast::SliceExpression { array, start, end, span, id }.into()
+        }
+        ExpressionKind::SliceNone => {
+            let [array, _left, _c, _right] = &node.children[..] else {
+                panic!("Can't happen");
+            };
+            let array = to_expression(array, builder, handler)?;
+            let start = None;
+            let end = None;
+            leo_ast::SliceExpression { array, start, end, span, id }.into()
+        }
         ExpressionKind::SpecialAccess => {
             let [qualifier, _dot, name] = &node.children[..] else {
                 panic!("Can't happen");
