@@ -442,6 +442,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
+            Expression::Slice(slice) => self.visit_slice(slice, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access_general(access, false, additional),
@@ -541,6 +542,84 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));
 
+        self.maybe_assert_type(&type_, additional, input.span());
+        type_
+    }
+
+    fn visit_slice(&mut self, input: &SliceExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        // Check that the expression is an array.
+        let array_type = match self.visit_expression(&input.array, &None) {
+            Type::Array(array_type) => array_type,
+            Type::Err => return Type::Err,
+            type_ => {
+                self.emit_err(TypeCheckerError::type_should_be2(type_, "an array", input.array.span()));
+                return Type::Err;
+            }
+        };
+
+        // A helper function to get check the start or end index.
+        let mut check_index = |expression: &Expression| {
+            let mut type_ = self.visit_expression(expression, &None);
+
+            if type_ == Type::Numeric {
+                // If the index has type `Numeric`, then it's an unsuffixed literal. Just infer its type to be `u32` and
+                // then check it's validity as a `u32`.
+                type_ = Type::Integer(IntegerType::U32);
+                if let Expression::Literal(literal) = expression {
+                    self.check_numeric_literal(literal, &type_);
+                }
+            }
+
+            self.assert_int_type(&type_, expression.span());
+
+            // Keep track of the type of the start index in the type table.
+            // This is important for when the index is an unsuffixed literal.
+            self.state.type_table.insert(expression.id(), type_);
+        };
+
+        // Get an expression for the start index.
+        let start = if let Some(start) = &input.start {
+            // If the start index is provided, check it.
+            check_index(start);
+            start.clone()
+        } else {
+            Expression::Literal(Literal::unsuffixed("0".to_string(), Default::default(), Default::default()))
+        };
+
+        // Get an expression for the end index.
+        let end = if let Some((inclusive, end)) = &input.end {
+            // If the end index is provided, check it.
+            check_index(end);
+            if *inclusive {
+                // If the end index is inclusive, then we need to add 1 to it.
+                Expression::Binary(Box::new(BinaryExpression {
+                    left: end.clone(),
+                    op: BinaryOperation::Add,
+                    right: Expression::Literal(Literal::unsuffixed(
+                        "1".to_string(),
+                        Default::default(),
+                        Default::default(),
+                    )),
+                    id: Default::default(),
+                    span: Default::default(),
+                }))
+            } else {
+                end.clone()
+            }
+        } else {
+            *array_type.length.clone()
+        };
+
+        // Create an expression for the length of the slice: `end - start`.
+        let length = Expression::Binary(Box::new(BinaryExpression {
+            left: end,
+            op: BinaryOperation::Sub,
+            right: start,
+            id: Default::default(),
+            span: Default::default(),
+        }));
+
+        let type_ = Type::Array(ArrayType::new(array_type.element_type().clone(), length));
         self.maybe_assert_type(&type_, additional, input.span());
         type_
     }

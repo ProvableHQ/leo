@@ -70,6 +70,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Locator(expr) => self.visit_locator(expr),
             Expression::MemberAccess(expr) => self.visit_member_access(expr),
             Expression::Repeat(expr) => self.visit_repeat(expr),
+            Expression::Slice(expr) => self.visit_slice(expr),
             Expression::Ternary(expr) => self.visit_ternary(expr),
             Expression::Tuple(expr) => self.visit_tuple(expr),
             Expression::TupleAccess(_) => panic!("Tuple accesses should not appear in the AST at this point."),
@@ -377,6 +378,52 @@ impl CodeGeneratingVisitor<'_> {
         let count = input.count.as_u32().expect("repeat count should be known at this point");
 
         let expression_operands = std::iter::repeat_n(operand, count as usize).collect::<Vec<_>>().join(" ");
+
+        // Construct the destination register.
+        let destination_register = self.next_register();
+
+        // Get the array type.
+        let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
+            panic!("All types should be known at this phase of compilation");
+        };
+        let array_type: String = Self::visit_type(&array_type);
+
+        let array_instruction =
+            format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
+
+        // Concatenate the instructions.
+        operand_instructions.push_str(&array_instruction);
+
+        (destination_register, operand_instructions)
+    }
+
+    fn visit_slice(&mut self, input: &leo_ast::SliceExpression) -> (String, String) {
+        let (array_operand, mut operand_instructions) = self.visit_expression(&input.array);
+
+        // Get the start index.
+        let start = match &input.start {
+            Some(Expression::Literal(Literal {
+                variant: LiteralVariant::Integer(_, s) | LiteralVariant::Unsuffixed(s),
+                ..
+            })) => s.parse::<usize>().expect("constant folding ensures that this is a valid integer"),
+            _ => panic!("constant folding ensures that the start index is a literal"),
+        };
+
+        // Get the end index.
+        let end = match &input.end {
+            Some((
+                _,
+                Expression::Literal(Literal {
+                    variant: LiteralVariant::Integer(_, s) | LiteralVariant::Unsuffixed(s),
+                    ..
+                }),
+            )) => s.parse::<usize>().expect("constant folding ensures that this is a valid integer"),
+            _ => panic!("constant folding ensures that the end index is a literal"),
+        };
+
+        // Construct the expression operands.
+        let expression_operands =
+            (start..end).map(|i| format!("{array_operand}[{i}u32]")).collect::<Vec<_>>().join(" ");
 
         // Construct the destination register.
         let destination_register = self.next_register();

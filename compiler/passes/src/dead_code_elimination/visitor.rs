@@ -47,6 +47,11 @@ impl DeadCodeEliminatingVisitor<'_> {
             ArrayAccess(array) => sef(&array.array) && sef(&array.index),
             MemberAccess(mem) => sef(&mem.inner),
             Repeat(repeat) => sef(&repeat.expr) && sef(&repeat.count),
+            Slice(slice) => {
+                sef(&slice.array)
+                    && slice.start.as_ref().is_none_or(sef)
+                    && slice.end.as_ref().is_none_or(|(_, e)| sef(e))
+            }
             TupleAccess(tuple) => sef(&tuple.tuple),
             Array(array) => array.elements.iter().all(sef),
             AssociatedConstant(_) => true,

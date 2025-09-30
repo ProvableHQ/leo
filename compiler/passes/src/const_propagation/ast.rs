@@ -65,6 +65,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
+            Expression::Slice(slice) => self.reconstruct_slice(*slice),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
@@ -251,6 +252,104 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             ),
             _ => (RepeatExpression { expr, count, ..input }.into(), None),
         }
+    }
+
+    fn reconstruct_slice(&mut self, input: SliceExpression) -> (Expression, Self::AdditionalOutput) {
+        let span = input.span();
+        let id = input.id();
+        let array_id = input.array.id();
+
+        // Reconstruct the array expression.
+        let (array, array_opt) = self.reconstruct_expression(input.array);
+
+        // Reconstruct the array type.
+        let array_type = match self.state.type_table.get(&array_id) {
+            Some(Type::Array(array_type)) => match self.reconstruct_array_type(array_type.clone()) {
+                (Type::Array(array_type), _) => array_type,
+                _ => panic!("`reconstruct_array_type` always returns an array"),
+            },
+            _ => panic!("Type checking guaranteed that this is an array"),
+        };
+
+        // Reconstruct the start expression, if it was provided. Otherwise, default to 0.
+        let (start, start_value) = if let Some(start_expr) = input.start {
+            self.reconstruct_expression(start_expr)
+        } else {
+            (
+                Literal::integer(IntegerType::U32, "0".to_string(), Default::default(), Default::default()).into(),
+                interpreter_value::literal_to_value(
+                    &Literal {
+                        variant: LiteralVariant::Integer(IntegerType::U32, "0".to_string()),
+                        id: Default::default(),
+                        span,
+                    },
+                    &Some(Type::Integer(IntegerType::U32)),
+                )
+                .ok(),
+            )
+        };
+
+        // Reconstruct the end expression if it was provided, otherwise, default to the array length.
+        let (end, end_value) = if let Some((end_inclusive, end_expr)) = input.end {
+            let (end_expr, end_value) = self.reconstruct_expression(end_expr);
+            let end_value = end_value.and_then(|v| v.as_u32().map(|n| if end_inclusive { n + 1 } else { n }));
+            (end_expr, end_value)
+        } else {
+            (*array_type.length.clone(), array_type.length.as_u32())
+        };
+
+        // Check the indices.
+        match (start_value.as_ref().and_then(|v| v.as_u32()), end_value, array_type.length.as_u32()) {
+            (Some(start_value), Some(end_value), Some(array_length)) => {
+                // A helper to check that a value is in bounds.
+                let check_in_bounds = |value: u32| {
+                    if value > array_length {
+                        // Only emit a bounds error if we have no other errors yet.
+                        // This prevents a chain of redundant error messages when a loop is unrolled.
+                        if !self.state.handler.had_errors() {
+                            self.emit_err(StaticAnalyzerError::array_bounds(value.to_string(), array_length, span));
+                        }
+                        false
+                    } else {
+                        true
+                    }
+                };
+
+                // Check that the start value is in bounds.
+                check_in_bounds(start_value);
+
+                // Check that the end value is in bounds.
+                check_in_bounds(end_value);
+
+                // Check that the start value is strictly less than the end value.
+                if start_value >= end_value {
+                    // Only emit a bounds error if we have no other errors yet.
+                    // This prevents a chain of redundant error messages when a loop is unrolled.
+                    if !self.state.handler.had_errors() {
+                        self.emit_err(StaticAnalyzerError::custom_error(
+                            "The slice's starting index must be strictly less than the ending index.",
+                            None::<String>,
+                            span,
+                        ));
+                    }
+                } else if let Some(array_value) = array_opt {
+                    // We can evaluate the slice at compile time.
+                    let result_value = array_value
+                        .array_slice(start_value as usize, Some(end_value as usize))
+                        .expect("Type checking checked bounds.");
+                    return (self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR), Some(result_value));
+                }
+            }
+            _ => {
+                if end_value.is_none() {
+                    self.array_index_not_evaluated = Some(end.span());
+                }
+                if start_value.is_none() {
+                    self.array_index_not_evaluated = Some(start.span());
+                }
+            }
+        }
+        (SliceExpression { array, start: Some(start), end: Some((false, end)), ..input }.into(), None)
     }
 
     fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {

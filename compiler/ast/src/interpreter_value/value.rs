@@ -578,6 +578,25 @@ impl Value {
         Some(array[i].clone().into())
     }
 
+    pub fn array_slice(&self, start: usize, end_exclusive: Option<usize>) -> Option<Self> {
+        let plaintext: &SvmPlaintext = self.try_as_ref()?;
+        let Plaintext::Array(array, ..) = plaintext else {
+            return None;
+        };
+
+        let range = match end_exclusive {
+            Some(end) if end <= start || end > array.len() => return None,
+            Some(end) => start..end,
+            None if start > array.len() => return None,
+            None => start..array.len(),
+        };
+
+        Some(Value::from(ValueVariants::Svm(SvmValue::Plaintext(SvmPlaintext::Array(
+            array[range].to_vec(),
+            Default::default(),
+        )))))
+    }
+
     pub fn array_index_set(&mut self, i: usize, value: Self) -> Option<()> {
         let plaintext_rhs: SvmPlaintext = value.try_into().ok()?;
 

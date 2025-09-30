@@ -222,13 +222,13 @@ pub trait AstVisitor {
         self.visit_expression(&input.count, additional);
         Default::default()
     }
-    
+
     fn visit_slice(&mut self, input: &SliceExpression, additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.array, additional);
         if let Some(start) = input.start.as_ref() {
             self.visit_expression(start, additional);
         }
-        if let Some(end) = input.end.as_ref() {
+        if let Some((_, end)) = input.end.as_ref() {
             self.visit_expression(end, additional);
         }
         Default::default()

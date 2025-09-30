@@ -394,6 +394,7 @@ impl Cursor {
                 | Expression::Literal(..)
                 | Expression::Locator(..)
                 | Expression::Repeat(..)
+                | Expression::Slice(..)
                 | Expression::Struct(..)
                 | Expression::Ternary(..)
                 | Expression::Tuple(..)
@@ -972,6 +973,50 @@ impl Cursor {
                     expr,
                     count_resolved.as_u32().expect_tc(repeat.span())? as usize,
                 )))
+            }
+            Expression::Slice(slice) if step == 0 => {
+                if let Some(start) = &slice.start {
+                    push!()(start, &None);
+                }
+                if let Some((_, end)) = &slice.end {
+                    push!()(end, &None);
+                }
+                push!()(&slice.array, &None);
+                None
+            }
+            Expression::Slice(slice) if step == 1 => {
+                let span = slice.span();
+                let (inclusive, end) = if let Some((inclusive, _)) = &slice.end {
+                    (*inclusive, Some(self.pop_value()?))
+                } else {
+                    (false, None)
+                };
+                let start = if slice.start.is_some() { self.pop_value()? } else { Value::from(0u32) };
+                let array = self.pop_value()?;
+
+                // Local helper function to convert a Value into usize
+                fn to_usize(value: &Value, span: Span) -> Result<usize> {
+                    let value = value.resolve_if_unsuffixed(&Some(Type::Integer(leo_ast::IntegerType::U32)), span)?;
+                    Ok(value.as_u32().expect_tc(span)? as usize)
+                }
+
+                let start_usize = to_usize(&start, span)?;
+                let end_usize = match end {
+                    Some(v) => {
+                        let mut end_usize = to_usize(&v, span)?;
+                        if inclusive {
+                            if end_usize == usize::MAX {
+                                halt!(span, "Slice end index overflow")
+                            } else {
+                                end_usize += 1;
+                            }
+                        }
+                        Some(end_usize)
+                    }
+                    None => None,
+                };
+
+                Some(array.array_slice(start_usize, end_usize).expect_tc(span)?)
             }
             Expression::AssociatedConstant(constant) if step == 0 => {
                 let Type::Identifier(type_ident) = constant.ty else {

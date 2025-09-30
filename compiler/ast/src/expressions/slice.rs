@@ -18,16 +18,16 @@ use super::*;
 
 /// An array constructed from slicing another.
 ///
-/// E.g., `arr[2:5]`
+/// E.g., `arr[2..5]`, `arr[0..=3]`, `arr[1..]`, `arr[..4]`
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SliceExpression {
     /// The array being sliced.
     pub array: Expression,
-    /// The starting index.
-    pub start: Expression,
-    /// The ending index.
-    pub end: Expression,
-    /// The span from `[` to `]`.
+    /// The optional starting index.
+    pub start: Option<Expression>,
+    /// The optional ending index and whether it's inclusive.
+    pub end: Option<(bool, Expression)>,
+    /// The span.
     pub span: Span,
     /// The ID of the node.
     pub id: NodeID,
@@ -35,7 +35,19 @@ pub struct SliceExpression {
 
 impl fmt::Display for SliceExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}[{}..{}{}]", self.array, self.start, if self.inclusive { "=" } else { "" }, self.end)
+        // Format the start expression.
+        let start = match &self.start {
+            Some(expr) => expr.to_string(),
+            None => "".to_string(),
+        };
+        // Format the end expression.
+        let end = match &self.end {
+            Some((true, expr)) => format!("={expr}"),
+            Some((false, expr)) => expr.to_string(),
+            None => "".to_string(),
+        };
+
+        write!(f, "{}[{start}..{end}]", self.array)
     }
 }
 
