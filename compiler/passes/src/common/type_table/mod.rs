@@ -42,7 +42,7 @@ impl TypeTable {
 impl std::fmt::Display for TypeTable {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (node_id, type_) in self.inner.borrow().iter() {
-            writeln!(f, "{}: {}", node_id, type_)?;
+            writeln!(f, "{node_id}: {type_}")?;
         }
         Ok(())
     }
