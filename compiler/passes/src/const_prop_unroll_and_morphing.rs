@@ -47,17 +47,6 @@ impl Pass for ConstPropUnrollAndMorphing {
 
             let monomorphization_output = Monomorphization::do_pass((), state)?;
 
-            // Clear the symbol table and create it again. This is important because after all the passes above run, the
-            // program may have changed significantly (new functions may have been added, some functions may have been
-            // deleted, etc.) We do want to retain globally evaluated consts, so that const propagation can tell when
-            // it has evaluated a new one.
-            state.symbol_table.reset_but_consts();
-            SymbolTableCreation::do_pass((), state)?;
-
-            // Now run the type checker again to validate and infer types. Again, this is important because the program
-            // may have changed significantly after the passes above.
-            TypeChecking::do_pass(input.clone(), state)?;
-
             if !const_prop_output.changed && !loop_unroll_output.loop_unrolled && !monomorphization_output.changed {
                 // We've got a fixed point, so see if we have any errors.
                 if let Some(not_evaluated_span) = const_prop_output.const_not_evaluated {
@@ -124,6 +113,17 @@ impl Pass for ConstPropUnrollAndMorphing {
 
                 return Ok(());
             }
+
+            // Clear the symbol table and create it again. This is important because after all the passes above run, the
+            // program may have changed significantly (new functions may have been added, some functions may have been
+            // deleted, etc.) We do want to retain globally evaluated consts, so that const propagation can tell when
+            // it has evaluated a new one.
+            state.symbol_table.reset_but_consts();
+            SymbolTableCreation::do_pass((), state)?;
+
+            // Now run the type checker again to validate and infer types. Again, this is important because the program
+            // may have changed significantly after the passes above.
+            TypeChecking::do_pass(input.clone(), state)?;
         }
 
         // Note that it's challenging to write code in practice that demonstrates this error, because Leo code

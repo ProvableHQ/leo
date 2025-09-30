@@ -1,0 +1,5 @@
+Error [ESAZ0374012]: The slice's starting index must be strictly less than the ending index.
+    --> compiler-test:3:17
+     |
+   3 |         let b = a[0..0];
+     |                 ^^^^^^^

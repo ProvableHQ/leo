@@ -1,0 +1,8 @@
+program test.aleo;
+
+function simple_slices:
+    input r0 as [boolean; 1u32].private;
+    cast r0[0u32] into r1 as [boolean; 1u32];
+    cast r0[0u32] into r2 as [boolean; 1u32];
+    assert.eq r1 r2;
+    output r0[0u32] as boolean.private;

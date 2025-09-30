@@ -48,7 +48,10 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     /* Expressions */
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
-        let opt_old_type = self.state.type_table.get(&input.id());
+        // Get the input ID.
+        let input_id = input.id();
+
+        // Reconstruct the expression.
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
@@ -73,8 +76,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Unit(unit) => self.reconstruct_unit(unit),
         };
 
-        // If the expression was in the type table before, make an entry for the new expression.
-        if let Some(old_type) = opt_old_type {
+        // Update the type table to reflect that the new expression has the same type as the old one.
+        // Note. The old type must be looked up after reconstructing the expression.
+        if let Some(old_type) = self.state.type_table.get(&input_id) {
             self.state.type_table.insert(new_expr.id(), old_type);
         }
 
@@ -271,6 +275,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             _ => panic!("Type checking guaranteed that this is an array"),
         };
 
+        // Update the type table.
+        self.state.type_table.insert(array_id, Type::Array(array_type.clone()));
+
         // Reconstruct the start expression, if it was provided. Otherwise, default to 0.
         let (start, start_value) = if let Some(start_expr) = input.start {
             self.reconstruct_expression(start_expr)
@@ -324,7 +331,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 // Check that the start value is strictly less than the end value.
                 if start_value >= end_value {
                     // Only emit a bounds error if we have no other errors yet.
-                    // This prevents a chain of redundant error messages when a loop is unrolled.
                     if !self.state.handler.had_errors() {
                         self.emit_err(StaticAnalyzerError::custom_error(
                             "The slice's starting index must be strictly less than the ending index.",
@@ -332,12 +338,33 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                             span,
                         ));
                     }
-                } else if let Some(array_value) = array_opt {
-                    // We can evaluate the slice at compile time.
-                    let result_value = array_value
-                        .array_slice(start_value as usize, Some(end_value as usize))
-                        .expect("Type checking checked bounds.");
-                    return (self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR), Some(result_value));
+                } else {
+                    // Construct the new array type.
+                    let new_array_type = Type::Array(leo_ast::ArrayType {
+                        element_type: array_type.element_type.clone(),
+                        length: Box::new(
+                            Literal::integer(
+                                IntegerType::U32,
+                                (end_value - start_value).to_string(),
+                                Default::default(),
+                                Default::default(),
+                            )
+                            .into(),
+                        ),
+                    });
+                    // Update the type table with the new array type.
+                    self.state.type_table.insert(id, new_array_type);
+
+                    // If the array is determined, evaluate the slice at compile time.
+                    if let Some(array_value) = array_opt {
+                        let result_value = array_value
+                            .array_slice(start_value as usize, Some(end_value as usize))
+                            .expect("Type checking checked bounds.");
+                        return (
+                            self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR),
+                            Some(result_value),
+                        );
+                    }
                 }
             }
             _ => {
