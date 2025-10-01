@@ -18,12 +18,13 @@ use leo_ast::{
     Ast,
     CallExpression,
     ExpressionStatement,
+    Location,
     NetworkName,
     Node as _,
     NodeBuilder,
     Path,
     Statement,
-    interpreter_value::{GlobalId, Value},
+    interpreter_value::Value,
 };
 use leo_errors::{InterpreterHalt, LeoError, Result};
 use leo_span::{Span, Symbol, source_map::FileName, sym, with_session_globals};
@@ -149,7 +150,7 @@ pub fn find_and_run_tests(
     block_height: u32,
     match_str: &str,
     network: NetworkName,
-) -> Result<(Vec<TestFunction>, IndexMap<GlobalId, Result<()>>)> {
+) -> Result<(Vec<TestFunction>, IndexMap<Location, Result<()>>)> {
     let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, signer, block_height, network)?;
 
     let mut native_test_functions = Vec::new();
