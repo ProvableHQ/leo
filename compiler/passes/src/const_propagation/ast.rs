@@ -234,7 +234,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let member_name = input.name.name;
         if let Some(struct_) = value_opt {
             let value_result = struct_.member_access(member_name).expect("Type checking guarantees the member exists.");
-
             (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
         } else {
             (MemberAccess { inner, ..input }.into(), None)
@@ -275,9 +274,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             _ => panic!("Type checking guaranteed that this is an array"),
         };
 
-        // Update the type table.
-        self.state.type_table.insert(array_id, Type::Array(array_type.clone()));
-
         // Reconstruct the start expression, if it was provided. Otherwise, default to 0.
         let (start, start_value) = if let Some(start_expr) = input.start {
             self.reconstruct_expression(start_expr)
@@ -298,9 +294,36 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         // Reconstruct the end expression if it was provided, otherwise, default to the array length.
         let (end, end_value) = if let Some((end_inclusive, end_expr)) = input.end {
-            let (end_expr, end_value) = self.reconstruct_expression(end_expr);
-            let end_value = end_value.and_then(|v| v.as_u32().map(|n| if end_inclusive { n + 1 } else { n }));
-            (end_expr, end_value)
+            // Get the span of the end expression.
+            let end_expr_span = end_expr.span();
+            // If the end is inclusive, we need to add 1 to it to make it exclusive.
+            let expression = if end_inclusive {
+                // Create a new integer literal.
+                let literal = Expression::Literal(Literal::integer(
+                    IntegerType::U32,
+                    "1".to_string(),
+                    end_expr_span,
+                    self.state.node_builder.next_id(),
+                ));
+                // Assign its type.
+                self.state.type_table.insert(literal.id(), Type::Integer(IntegerType::U32));
+                // Create a new expression.
+                let expression = Expression::Binary(Box::new(BinaryExpression {
+                    left: end_expr,
+                    op: BinaryOperation::Add,
+                    right: literal,
+                    id: self.state.node_builder.next_id(),
+                    span: end_expr_span,
+                }));
+                // Assign its type.
+                self.state.type_table.insert(expression.id(), Type::Integer(IntegerType::U32));
+
+                expression
+            } else {
+                end_expr
+            };
+            let (end_expr, end_value) = self.reconstruct_expression(expression);
+            (end_expr, end_value.and_then(|v| v.as_u32()))
         } else {
             (*array_type.length.clone(), array_type.length.as_u32())
         };
@@ -338,33 +361,12 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                             span,
                         ));
                     }
-                } else {
-                    // Construct the new array type.
-                    let new_array_type = Type::Array(leo_ast::ArrayType {
-                        element_type: array_type.element_type.clone(),
-                        length: Box::new(
-                            Literal::integer(
-                                IntegerType::U32,
-                                (end_value - start_value).to_string(),
-                                Default::default(),
-                                Default::default(),
-                            )
-                            .into(),
-                        ),
-                    });
-                    // Update the type table with the new array type.
-                    self.state.type_table.insert(id, new_array_type);
-
+                } else if let Some(array_value) = array_opt {
                     // If the array is determined, evaluate the slice at compile time.
-                    if let Some(array_value) = array_opt {
-                        let result_value = array_value
-                            .array_slice(start_value as usize, Some(end_value as usize))
-                            .expect("Type checking checked bounds.");
-                        return (
-                            self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR),
-                            Some(result_value),
-                        );
-                    }
+                    let result_value = array_value
+                        .array_slice(start_value as usize, Some(end_value as usize))
+                        .expect("Type checking checked bounds.");
+                    return (self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR), Some(result_value));
                 }
             }
             _ => {

@@ -558,7 +558,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         };
 
         // A helper function to get check the start or end index.
-        let mut check_index = |expression: &Expression| {
+        let mut check_index = |expression: &Expression| -> Option<u32> {
             let mut type_ = self.visit_expression(expression, &None);
 
             if type_ == Type::Numeric {
@@ -575,49 +575,100 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // Keep track of the type of the start index in the type table.
             // This is important for when the index is an unsuffixed literal.
             self.state.type_table.insert(expression.id(), type_);
+
+            // Get the value of the index if it's a literal.
+            expression.as_u32()
         };
 
         // Get an expression for the start index.
-        let start = if let Some(start) = &input.start {
+        let (start, start_value_opt) = if let Some(start) = &input.start {
             // If the start index is provided, check it.
-            check_index(start);
-            start.clone()
+            (start.clone(), check_index(start))
         } else {
-            Expression::Literal(Literal::unsuffixed("0".to_string(), Default::default(), Default::default()))
+            (Expression::Literal(Literal::unsuffixed("0".to_string(), Default::default(), Default::default())), Some(0))
         };
 
         // Get an expression for the end index.
-        let end = if let Some((inclusive, end)) = &input.end {
+        let (end, end_value_opt) = if let Some((inclusive, end)) = &input.end {
             // If the end index is provided, check it.
-            check_index(end);
+            let value_opt = check_index(end);
+
+            // If the end index is inclusive, then we need to add 1 to it.
             if *inclusive {
-                // If the end index is inclusive, then we need to add 1 to it.
-                Expression::Binary(Box::new(BinaryExpression {
-                    left: end.clone(),
-                    op: BinaryOperation::Add,
-                    right: Expression::Literal(Literal::unsuffixed(
-                        "1".to_string(),
+                if let Some(value) = value_opt {
+                    let expression = Expression::Literal(Literal::integer(
+                        IntegerType::U32,
+                        (value + 1).to_string(),
                         Default::default(),
                         Default::default(),
-                    )),
-                    id: Default::default(),
-                    span: Default::default(),
-                }))
+                    ));
+                    (expression, Some(value + 1))
+                } else {
+                    let expression = Expression::Binary(Box::new(BinaryExpression {
+                        left: end.clone(),
+                        op: BinaryOperation::Add,
+                        right: Expression::Literal(Literal::unsuffixed(
+                            "1".to_string(),
+                            Default::default(),
+                            Default::default(),
+                        )),
+                        id: Default::default(),
+                        span: Default::default(),
+                    }));
+                    (expression, None)
+                }
             } else {
-                end.clone()
+                (end.clone(), value_opt)
             }
         } else {
-            *array_type.length.clone()
+            (*array_type.length.clone(), array_type.length.as_u32())
         };
 
         // Create an expression for the length of the slice: `end - start`.
-        let length = Expression::Binary(Box::new(BinaryExpression {
-            left: end,
-            op: BinaryOperation::Sub,
-            right: start,
-            id: Default::default(),
-            span: Default::default(),
-        }));
+        let length = match (start_value_opt, end_value_opt, array_type.length.as_u32()) {
+            (Some(start_value), Some(end_value), Some(array_length)) => {
+                // Check that `start` is in bounds.
+                if start_value > array_length {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!("The index `{start_value}` is out of bounds. The array length is `{array_length}`."),
+                        input.start.as_ref().map(|e| e.span()).unwrap_or(input.span()),
+                    ));
+                    return Type::Err;
+                }
+                // Check that `end` is in bounds.
+                if end_value > array_length {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!("The index `{end_value}` is out of bounds. The array length is `{array_length}`."),
+                        input.end.as_ref().map(|(_, e)| e.span()).unwrap_or(input.span()),
+                    ));
+                    return Type::Err;
+                }
+                // Check that start is strictly less than end.
+                if start_value >= end_value {
+                    println!("{input}");
+                    self.emit_err(TypeCheckerError::custom(
+                        format!(
+                            "The start index `{start_value}` must be strictly less than the end index `{end_value}`."
+                        ),
+                        input.start.as_ref().map(|e| e.span()).unwrap_or(input.span()),
+                    ));
+                    return Type::Err;
+                }
+                Expression::Literal(Literal::integer(
+                    IntegerType::U32,
+                    (end_value - start_value).to_string(),
+                    Default::default(),
+                    Default::default(),
+                ))
+            }
+            _ => Expression::Binary(Box::new(BinaryExpression {
+                left: end,
+                op: BinaryOperation::Sub,
+                right: start,
+                id: Default::default(),
+                span: Default::default(),
+            })),
+        };
 
         let type_ = Type::Array(ArrayType::new(array_type.element_type().clone(), length));
         self.maybe_assert_type(&type_, additional, input.span());

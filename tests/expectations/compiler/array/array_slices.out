@@ -4,5 +4,30 @@ function simple_slices:
     input r0 as [boolean; 1u32].private;
     cast r0[0u32] into r1 as [boolean; 1u32];
     cast r0[0u32] into r2 as [boolean; 1u32];
+    cast r0[0u32] into r3 as [boolean; 1u32];
+    cast r0[0u32] into r4 as [boolean; 1u32];
+    cast r0[0u32] into r5 as [boolean; 1u32];
+    cast r0[0u32] into r6 as [boolean; 1u32];
     assert.eq r1 r2;
+    assert.eq r1 r3;
+    assert.eq r1 r4;
+    assert.eq r1 r5;
+    assert.eq r1 r6;
     output r0[0u32] as boolean.private;
+
+function nested_slices:
+    input r0 as [[boolean; 1u32]; 1u32].private;
+    cast r0[0u32] into r1 as [[boolean; 1u32]; 1u32];
+    cast r1[0u32] into r2 as [[boolean; 1u32]; 1u32];
+    cast r2[0u32] into r3 as [[boolean; 1u32]; 1u32];
+    cast r3[0u32] into r4 as [[boolean; 1u32]; 1u32];
+    cast r4[0u32] into r5 as [[boolean; 1u32]; 1u32];
+    cast r5[0u32] into r6 as [[boolean; 1u32]; 1u32];
+    cast r0[0u32] into r7 as [[boolean; 1u32]; 1u32];
+    cast r7[0u32] into r8 as [[boolean; 1u32]; 1u32];
+    cast r8[0u32] into r9 as [[boolean; 1u32]; 1u32];
+    cast r9[0u32] into r10 as [[boolean; 1u32]; 1u32];
+    cast r10[0u32] into r11 as [[boolean; 1u32]; 1u32];
+    cast r11[0u32] into r12 as [[boolean; 1u32]; 1u32];
+    assert.eq r6 r12;
+    output r0[0u32][0u32] as boolean.private;
