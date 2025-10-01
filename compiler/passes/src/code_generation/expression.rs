@@ -142,6 +142,23 @@ impl CodeGeneratingVisitor<'_> {
         let (left_operand, left_instructions) = self.visit_expression(&input.left);
         let (right_operand, right_instructions) = self.visit_expression(&input.right);
 
+        // Get the types of the expressions.
+        let left_type = self
+            .state
+            .type_table
+            .get(&input.left.id())
+            .expect("All types should be known at this phase of compilation");
+        let right_type = self
+            .state
+            .type_table
+            .get(&input.right.id())
+            .expect("All types should be known at this phase of compilation");
+
+        // Check that the types are not arrays.
+        // This is a sanity check.
+        assert!(!matches!(left_type, Type::Array(_)));
+        assert!(!matches!(right_type, Type::Array(_)));
+
         let opcode = match input.op {
             BinaryOperation::Add => String::from("add"),
             BinaryOperation::AddWrapped => String::from("add.w"),

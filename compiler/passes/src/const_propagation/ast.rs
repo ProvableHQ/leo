@@ -416,6 +416,10 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left);
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right);
 
+        // Get the types of the left and right operands.
+        let left_type = self.state.type_table.get(&left.id());
+        let right_type = self.state.type_table.get(&right.id());
+
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
             match interpreter_value::evaluate_binary(
@@ -431,6 +435,82 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 }
                 Err(err) => self
                     .emit_err(StaticAnalyzerError::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span)),
+            }
+        } else if let (BinaryOperation::Add, Some(Type::Array(left_array_type)), Some(Type::Array(right_array_type))) =
+            (input.op, left_type, right_type)
+        {
+            // Reconstruct the array types.
+            let (Type::Array(left_array_type), _) = self.reconstruct_array_type(left_array_type.clone()) else {
+                panic!("`reconstruct_array_type` always returns an array");
+            };
+            let (Type::Array(right_array_type), _) = self.reconstruct_array_type(right_array_type.clone()) else {
+                panic!("`reconstruct_array_type` always returns an array");
+            };
+
+            // If the lengths of both arrays are known at compile time, we can rewrite the addition as an array expression.
+            if let (Some(left_length), Some(right_length)) =
+                (left_array_type.length.as_u32(), right_array_type.length.as_u32())
+            {
+                // The new array length is the sum of the two lengths.
+                let new_length = Expression::Literal(Literal::integer(
+                    IntegerType::U32,
+                    (left_length + right_length).to_string(),
+                    Default::default(),
+                    self.state.node_builder.next_id(),
+                ));
+                // Assign its type.
+                self.state.type_table.insert(new_length.id(), Type::Integer(IntegerType::U32));
+                // Create the elements.
+                let mut elements = Vec::with_capacity(left_length as usize + right_length as usize);
+
+                // A helper function to add the elements to the new array.
+                let mut add_elements = |length: u32, array: &Expression, element_type: &Type| {
+                    elements.extend((0..length as usize).map(|i| {
+                        // Create the index.
+                        let index = Expression::Literal(Literal::integer(
+                            IntegerType::U32,
+                            i.to_string(),
+                            Default::default(),
+                            self.state.node_builder.next_id(),
+                        ));
+                        // Assign its type.
+                        self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
+                        // Create the access expression.
+                        let element: Expression = ArrayAccess {
+                            array: array.clone(),
+                            index,
+                            id: self.state.node_builder.next_id(),
+                            span: Default::default(),
+                        }
+                        .into();
+                        // Assign its type.
+                        self.state.type_table.insert(element.id(), element_type.clone());
+                        // Reconstruct and return the element.
+                        self.reconstruct_expression(element).0
+                    }))
+                };
+
+                // Add the elements from the left array.
+                add_elements(left_length, &left, &left_array_type.element_type);
+                // Add the elements from the right array.
+                add_elements(right_length, &right, &right_array_type.element_type);
+
+                // Create the new array expression.
+                let new_array: Expression =
+                    ArrayExpression { elements, id: self.state.node_builder.next_id(), span: Default::default() }
+                        .into();
+
+                // Assign its type.
+                self.state.type_table.insert(
+                    new_array.id(),
+                    Type::Array(leo_ast::ArrayType {
+                        element_type: left_array_type.element_type.clone(),
+                        length: Box::new(new_length.clone()),
+                    }),
+                );
+
+                // Reconstruct and return the new array expression.
+                return self.reconstruct_expression(new_array);
             }
         }
 

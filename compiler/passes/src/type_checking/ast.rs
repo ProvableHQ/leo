@@ -862,7 +862,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 // Now sanity check everything
                 let assert_add_type = |type_: &Type, span: Span| {
-                    if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_)) {
+                    if !matches!(
+                        type_,
+                        Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_) | Type::Array(_)
+                    ) {
                         self.emit_err(TypeCheckerError::type_should_be2(
                             type_,
                             "a field, group, scalar, or integer",
@@ -874,7 +877,23 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 assert_add_type(&t1, input.left.span());
                 assert_add_type(&t2, input.right.span());
 
-                let result_t = assert_same_type(self, &t1, &t2);
+                let result_t = match (&t1, &t2) {
+                    (Type::Array(array_type1), Type::Array(array_type2))
+                        if array_type1.element_type() == array_type2.element_type() =>
+                    {
+                        Type::Array(ArrayType::new(
+                            array_type1.element_type().clone(),
+                            Expression::Binary(Box::new(BinaryExpression {
+                                left: *array_type1.length.clone(),
+                                op: BinaryOperation::Add,
+                                right: *array_type2.length.clone(),
+                                id: self.state.node_builder.next_id(),
+                                span: Default::default(),
+                            })),
+                        ))
+                    }
+                    _ => assert_same_type(self, &t1, &t2),
+                };
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
