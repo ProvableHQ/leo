@@ -1,0 +1,5 @@
+Error [ESAZ0374012]: The resulting array length exceeds the maximum allowed length: 32.
+    --> compiler-test:3:13
+     |
+   3 |     let c = a + b;
+     |             ^^^^^

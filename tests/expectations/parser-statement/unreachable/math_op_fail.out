@@ -13,7 +13,7 @@ Error [EPAR0370005]: expected ';' -- found ','
      |
    1 | let x = a , b;
      |           ^
-Error [EPAR0370005]: expected ']' -- found ';'
+Error [EPAR0370005]: expected ']', '..', '..=' -- found ';'
     --> test_3:1:14
      |
    1 | let x = a [ b;
@@ -68,7 +68,7 @@ Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', 
      |
    1 | let x = a ! b;
      |           ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found '..'
+Error [EPAR0370005]: expected ';' -- found '..'
     --> test_14:1:11
      |
    1 | let x = a .. b;
@@ -193,7 +193,7 @@ Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '
      |
    1 | x,=b; // 43
      |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '='
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '..', '..=', 'true', 'false', 'async', 'block', 'network', 'self' -- found '='
     --> test_40:1:3
      |
    1 | x[=b;
@@ -253,8 +253,8 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | x<==b;
      |    ^
-Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found '..'
+Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found '..='
     --> test_52:1:2
      |
    1 | x..=b;
-     |  ^^
+     |  ^^^

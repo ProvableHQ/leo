@@ -610,6 +610,15 @@ impl Value {
         Some(())
     }
 
+    pub fn array_len(&self) -> Option<usize> {
+        let plaintext: &SvmPlaintext = self.try_as_ref()?;
+        let Plaintext::Array(array, ..) = plaintext else {
+            return None;
+        };
+
+        Some(array.len())
+    }
+
     pub fn tuple_len(&self) -> Option<usize> {
         let ValueVariants::Tuple(tuple) = &self.contents else {
             return None;

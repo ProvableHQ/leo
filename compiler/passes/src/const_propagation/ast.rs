@@ -451,6 +451,20 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             if let (Some(left_length), Some(right_length)) =
                 (left_array_type.length.as_u32(), right_array_type.length.as_u32())
             {
+                // Check that the new array length does not exceed the maximum allowed length.
+                let total_length = left_length as usize + right_length as usize;
+                if total_length > self.limits.max_array_elements {
+                    self.emit_err(StaticAnalyzerError::custom_error(
+                        format!(
+                            "The resulting array length exceeds the maximum allowed length: {}.",
+                            self.limits.max_array_elements,
+                        ),
+                        None::<String>,
+                        span,
+                    ));
+                    return (BinaryExpression { left, right, ..input }.into(), None);
+                }
+
                 // The new array length is the sum of the two lengths.
                 let new_length = Expression::Literal(Literal::integer(
                     IntegerType::U32,
@@ -461,7 +475,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 // Assign its type.
                 self.state.type_table.insert(new_length.id(), Type::Integer(IntegerType::U32));
                 // Create the elements.
-                let mut elements = Vec::with_capacity(left_length as usize + right_length as usize);
+                let mut elements = Vec::with_capacity(total_length);
 
                 // A helper function to add the elements to the new array.
                 let mut add_elements = |length: u32, array: &Expression, element_type: &Type| {

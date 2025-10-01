@@ -881,16 +881,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     (Type::Array(array_type1), Type::Array(array_type2))
                         if array_type1.element_type() == array_type2.element_type() =>
                     {
-                        Type::Array(ArrayType::new(
-                            array_type1.element_type().clone(),
-                            Expression::Binary(Box::new(BinaryExpression {
-                                left: *array_type1.length.clone(),
-                                op: BinaryOperation::Add,
-                                right: *array_type2.length.clone(),
-                                id: self.state.node_builder.next_id(),
-                                span: Default::default(),
-                            })),
-                        ))
+                        // Define the length expression.
+                        let length = Expression::Binary(Box::new(BinaryExpression {
+                            left: *array_type1.length.clone(),
+                            op: BinaryOperation::Add,
+                            right: *array_type2.length.clone(),
+                            id: self.state.node_builder.next_id(),
+                            span: Default::default(),
+                        }));
+                        // Set the type of the length expression to `U32` in the type table.
+                        self.state.type_table.insert(length.id(), Type::Integer(IntegerType::U32));
+
+                        Type::Array(ArrayType::new(array_type1.element_type().clone(), length))
                     }
                     _ => assert_same_type(self, &t1, &t2),
                 };

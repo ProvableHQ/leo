@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CompilerState;
+use crate::{CompilerState, TypeCheckingInput};
 
 use leo_ast::{Expression, Node, NodeID, interpreter_value::Value};
 use leo_errors::StaticAnalyzerError;
@@ -36,6 +36,8 @@ pub struct ConstPropagationVisitor<'a> {
     pub array_length_not_evaluated: Option<Span>,
     /// A repeat expression count which was not able to be evaluated.
     pub repeat_count_not_evaluated: Option<Span>,
+    /// Limits on data type sizes.
+    pub limits: TypeCheckingInput,
 }
 
 impl ConstPropagationVisitor<'_> {
@@ -73,6 +75,20 @@ impl ConstPropagationVisitor<'_> {
                 .map(|mem| (mem.identifier.name, mem.type_.clone()))
                 .collect()
         };
+        // If the value is an array, check that the limits are not exceeded.
+        if let Some(length) = value.array_len() {
+            if length > self.limits.max_array_elements {
+                self.emit_err(StaticAnalyzerError::custom_error(
+                    format!(
+                        "The resulting array length exceeds the maximum allowed length: {}.",
+                        self.limits.max_array_elements,
+                    ),
+                    None::<String>,
+                    span,
+                ));
+                return None;
+            }
+        }
         value.to_expression(span, &self.state.node_builder, &ty, &struct_lookup)
     }
 

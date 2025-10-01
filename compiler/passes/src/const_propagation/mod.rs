@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Pass;
+use crate::{Pass, TypeCheckingInput};
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
@@ -66,6 +66,7 @@ impl Pass for ConstPropagation {
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let mut ast = std::mem::take(&mut state.ast);
         let mut visitor = ConstPropagationVisitor {
+            limits: TypeCheckingInput::new(state.network),
             state,
             program: Symbol::intern(""),
             module: vec![],
@@ -91,6 +92,7 @@ impl Pass for ConstPropagation {
 impl<'a> ConstPropagationVisitor<'a> {
     pub fn new(state: &'a mut crate::CompilerState, program: Symbol) -> Self {
         ConstPropagationVisitor {
+            limits: TypeCheckingInput::new(state.network),
             state,
             program,
             module: vec![],
