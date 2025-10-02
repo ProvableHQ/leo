@@ -17,7 +17,7 @@
 use super::*;
 use leo_ast::{
     NetworkName,
-    interpreter_value::{AsyncExecution, GlobalId, Value},
+    interpreter_value::{AsyncExecution, Value},
 };
 use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
 
@@ -142,7 +142,7 @@ impl Interpreter {
                 for (name, function) in scope.functions.iter() {
                     cursor
                         .functions
-                        .insert(GlobalId { program, path: vec![*name] }, FunctionVariant::Leo(function.clone()));
+                        .insert(Location::new(program, vec![*name]), FunctionVariant::Leo(function.clone()));
                 }
 
                 for (name, composite) in scope.structs.iter() {
@@ -157,7 +157,7 @@ impl Interpreter {
                 }
 
                 for (name, _mapping) in scope.mappings.iter() {
-                    cursor.mappings.insert(GlobalId { program, path: vec![*name] }, HashMap::new());
+                    cursor.mappings.insert(Location::new(program, vec![*name]), HashMap::new());
                 }
 
                 for (name, const_declaration) in scope.consts.iter() {
@@ -171,7 +171,7 @@ impl Interpreter {
                     });
                     cursor.over()?;
                     let value = cursor.values.pop().unwrap();
-                    cursor.globals.insert(GlobalId { program, path: vec![*name] }, value);
+                    cursor.globals.insert(Location::new(program, vec![*name]), value);
                 }
             }
 
@@ -184,7 +184,7 @@ impl Interpreter {
                 };
                 for (name, function) in module.functions.iter() {
                     cursor.functions.insert(
-                        GlobalId { program, path: to_absolute_path(*name) },
+                        Location::new(program, to_absolute_path(*name)),
                         FunctionVariant::Leo(function.clone()),
                     );
                 }
@@ -211,7 +211,7 @@ impl Interpreter {
                     });
                     cursor.over()?;
                     let value = cursor.values.pop().unwrap();
-                    cursor.globals.insert(GlobalId { program, path: to_absolute_path(*name) }, value);
+                    cursor.globals.insert(Location::new(program, to_absolute_path(*name)), value);
                 }
             }
         }
@@ -256,19 +256,19 @@ impl Interpreter {
             for (name, _mapping) in aleo_program.mappings().iter() {
                 cursor
                     .mappings
-                    .insert(GlobalId { program, path: vec![snarkvm_identifier_to_symbol(name)] }, HashMap::new());
+                    .insert(Location::new(program, vec![snarkvm_identifier_to_symbol(name)]), HashMap::new());
             }
 
             for (name, function) in aleo_program.functions().iter() {
                 cursor.functions.insert(
-                    GlobalId { program, path: vec![snarkvm_identifier_to_symbol(name)] },
+                    Location::new(program, vec![snarkvm_identifier_to_symbol(name)]),
                     FunctionVariant::AleoFunction(function.clone()),
                 );
             }
 
             for (name, closure) in aleo_program.closures().iter() {
                 cursor.functions.insert(
-                    GlobalId { program, path: vec![snarkvm_identifier_to_symbol(name)] },
+                    Location::new(program, vec![snarkvm_identifier_to_symbol(name)]),
                     FunctionVariant::AleoClosure(closure.clone()),
                 );
             }

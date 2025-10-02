@@ -23,6 +23,8 @@ use std::{
 
 use itertools::Itertools as _;
 
+use crate::Location;
+
 use snarkvm::prelude::{
     Access,
     Address as SvmAddress,
@@ -65,17 +67,14 @@ pub(crate) type Address = SvmAddress<CurrentNetwork>;
 pub(crate) type Boolean = SvmBoolean<CurrentNetwork>;
 pub(crate) type Future = FutureParam<CurrentNetwork>;
 
-/// Global values - such as mappings, functions, etc -
-/// are identified by program and name.
-#[derive(Clone, Debug, Hash, Eq, PartialEq)]
-pub struct GlobalId {
-    pub program: Symbol,
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StructContents {
     pub path: Vec<Symbol>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
 pub struct Value {
-    pub id: Option<GlobalId>,
+    pub id: Option<Location>,
     pub(crate) contents: ValueVariants,
 }
 
@@ -94,11 +93,11 @@ pub(crate) enum ValueVariants {
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum AsyncExecution {
     AsyncFunctionCall {
-        function: GlobalId,
+        function: Location,
         arguments: Vec<Value>,
     },
     AsyncBlock {
-        containing_function: GlobalId, // The function that contains the async block.
+        containing_function: Location, // The function that contains the async block.
         block: crate::NodeID,
         names: BTreeMap<Vec<Symbol>, Value>, // Use a `BTreeMap` here because `HashMap` does not implement `Hash`.
     },
@@ -194,12 +193,6 @@ impl Hash for ValueVariants {
 impl From<ValueVariants> for Value {
     fn from(contents: ValueVariants) -> Self {
         Value { id: None, contents }
-    }
-}
-
-impl fmt::Display for GlobalId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}.aleo/{}", self.program, self.path.iter().format("::"))
     }
 }
 
@@ -701,7 +694,7 @@ impl Value {
     }
 
     pub fn make_struct(contents: impl Iterator<Item = (Symbol, Value)>, program: Symbol, path: Vec<Symbol>) -> Self {
-        let id = Some(GlobalId { program, path });
+        let id = Some(Location { program, path });
 
         let contents = Plaintext::Struct(
             contents
@@ -719,7 +712,7 @@ impl Value {
     }
 
     pub fn make_record(contents: impl Iterator<Item = (Symbol, Value)>, program: Symbol, path: Vec<Symbol>) -> Self {
-        let id = Some(GlobalId { program, path });
+        let id = Some(Location { program, path });
 
         // Find the owner, storing the other contents for later.
         let mut non_owners = Vec::new();

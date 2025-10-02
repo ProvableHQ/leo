@@ -20,9 +20,10 @@ use leo_ast::{
     BinaryOperation,
     CoreFunction,
     IntegerType,
+    Location,
     Type,
     UnaryOperation,
-    interpreter_value::{self, AsyncExecution, GlobalId, Value},
+    interpreter_value::{self, AsyncExecution, Value},
 };
 
 use snarkvm::{
@@ -275,11 +276,8 @@ impl Cursor {
                 let arguments: Vec<Value> = async_.operands().iter().map(|op| self.operand_value(op)).collect();
                 if self.really_async {
                     self.increment_instruction_index();
-
-                    let async_ex = AsyncExecution::AsyncFunctionCall {
-                        function: GlobalId { path: vec![name], program },
-                        arguments,
-                    };
+                    let async_ex =
+                        AsyncExecution::AsyncFunctionCall { function: Location::new(program, vec![name]), arguments };
                     (vec![async_ex].into(), async_.destinations()[0].clone())
                 } else {
                     self.do_call(
