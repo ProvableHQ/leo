@@ -14,6 +14,49 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! Performs lowering of `optional` types (`T?`) and `optional` expressions within a `ProgramScope`.
+//!
+//! This pass rewrites all `optional` types into explicit struct representations with two fields:
+//! - `is_some: bool` — indicating whether the value is present,
+//! - `val: T` — holding the underlying value (or the "zero" value of `T` when `is_some` is `false`).
+//!
+//! All literals, variables, function parameters, and return values involving `optional` types are
+//! transformed into this struct representation. Nested structures (e.g., arrays, tuples, or user-defined
+//! structs containing `optional` types) are lowered recursively.
+//!
+//! ### Example
+//!
+//! ```leo
+//! let x: u8? = 42u8;
+//! ```
+//!
+//! is lowered to:
+//!
+//! ```leo
+//! let x: "u8?" = "u8?" { is_some: true, val: 42u8 };
+//! ```
+//!
+//! When a value is `none`, the `is_some` field is set to `false` and `val` is initialized
+//! with the zero value of the underlying type (`0u8`, `false`, `0field`, etc.).
+//!
+//! ### Recursive Lowering Example
+//!
+//! ```leo
+//! let arr: [u64?; 2] = [1u64, none];
+//! ```
+//!
+//! is lowered to:
+//!
+//! ```leo
+//! let arr: ["u64?"; 2] = [
+//!     "u64?" { is_some: true, val: 1u64 },
+//!     "u64?" { is_some: false, val: 0u64 },
+//! ];
+//! ```
+//!
+//! After this pass, no `T?` types remain in the program: all optional values are represented explicitly
+//! as structs with `is_some` and `val` fields.
+
 use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
 
 use leo_ast::{ArrayType, CompositeType, ProgramReconstructor as _, Type};

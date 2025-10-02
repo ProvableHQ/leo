@@ -23,9 +23,9 @@ program bad_types.aleo {
         let b: u8 = a; // ERROR
     }
 
-    // ❌ None assigned to non-optional
+    // ❌ none assigned to non-optional
     transition assign_none_to_non_optional() {
-        let a: u8 = None; // ERROR
+        let a: u8 = none; // ERROR
     }
 
     // ❌ Optional<u8> compared to Optional<i8>
@@ -48,7 +48,7 @@ program bad_types.aleo {
 
     // ❌ Mixed types in optional array
     transition array_of_optionals_mixed_types() {
-        let arr: [u8?; 3] = [1u8, None, 3i8]; // ERROR
+        let arr: [u8?; 3] = [1u8, none, 3i8]; // ERROR
     }
 
     // ❌ Optional struct compared to non-optional struct
@@ -69,7 +69,7 @@ program bad_types.aleo {
     // ❌ Mismatched branches in ternary
     transition ternary_mismatched_branches() {
         let flag: bool = true;
-        let result = flag ? 10u8 : None; // ERROR
+        let result = flag ? 10u8 : none; // ERROR
     }
 
     // ❌ Optional used as ternary condition

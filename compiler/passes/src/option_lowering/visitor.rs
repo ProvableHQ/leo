@@ -76,13 +76,13 @@ impl OptionLoweringVisitor<'_> {
             members: vec![
                 StructVariableInitializer {
                     identifier: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
-                    expression: Some(is_some_expr.clone()),
+                    expression: Some(is_some_expr),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 },
                 StructVariableInitializer {
                     identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
-                    expression: Some(expr.clone()),
+                    expression: Some(expr),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 },

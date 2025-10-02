@@ -998,7 +998,7 @@ impl TypeCheckingVisitor<'_> {
                         ) {
                             // Check that the type is not a record.
                             if struct_.is_record {
-                                self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span));
+                                self.emit_err(TypeCheckerError::optional_wrapping_of_records_unsupported(inner, span));
                             }
                         }
                     }

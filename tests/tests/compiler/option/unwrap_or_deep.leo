@@ -21,7 +21,7 @@ program unwrap_or_deep.aleo {
         let top: Top = Top {
             container: Container {
                 wrappers: [Wrapper {
-                    arr: [Inner { val: None }]
+                    arr: [Inner { val: none }]
                 }]
             }
         };

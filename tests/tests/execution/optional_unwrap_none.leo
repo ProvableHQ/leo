@@ -14,10 +14,10 @@ input = []
 */
 
 program unwrap_none_test.aleo {
-    // === Direct unwrap of a None value ===
+    // === Direct unwrap of a none value ===
     async transition unwrap_none() -> Future {
         return async {
-            let x: u8? = None;
+            let x: u8? = none;
             assert(x.unwrap() > 0); // ❌ should fail
         };
     }
@@ -29,7 +29,7 @@ program unwrap_none_test.aleo {
 
     async transition unwrap_struct_field_none() -> Future {
         return async {
-            let s: MaybeValue = MaybeValue { val: None };
+            let s: MaybeValue = MaybeValue { val: none };
             assert(s.val.unwrap() > 0); // ❌ should also fail
         };
     }

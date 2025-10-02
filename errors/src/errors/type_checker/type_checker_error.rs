@@ -1252,6 +1252,15 @@ create_messages!(
     }
 
     @formatted
+    optional_wrapping_of_records_unsupported {
+        args: (ty: impl Display),
+        msg: format!(
+            "The type `{ty}` cannot be wrapped in an optional because it is a record.",
+        ),
+        help: None,
+    }
+
+    @formatted
     optional_wrapping_unsupported {
         args: (ty: impl Display),
         msg: format!(
@@ -1261,10 +1270,10 @@ create_messages!(
     }
 
     @formatted
-    optional_type_not_allowed_here {
-        args: (ty: impl Display),
+    optional_type_not_allowed_in_mapping {
+        args: (ty: impl Display, kind: impl Display),
         msg: format!(
-            "The type `{ty}` cannot be or contain an optional type in this position.",
+            "The type `{ty}` is or contains an optional type which cannot be used as the {kind} in a mapping",
         ),
         help: None,
     }

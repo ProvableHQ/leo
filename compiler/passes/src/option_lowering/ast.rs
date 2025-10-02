@@ -47,7 +47,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 Member {
                     mode: Mode::None,
                     identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
-                    type_: inner_type.clone(),
+                    type_: inner_type,
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 },

@@ -48,16 +48,16 @@ program compare_optionals.aleo {
         y: u8,
     }
 
-    // u8? == None → false
+    // u8? == none → false
     transition u8_some_eq_none() -> bool {
         let val: u8? = 5u8;
-        return val == None;
+        return val == none;
     }
 
-    // i128? == None → true (comparing two None values)
+    // i128? == none → true (comparing two none values)
     transition i128_none_eq_none() -> bool {
-        let a: i128? = None;
-        let b: i128? = None;
+        let a: i128? = none;
+        let b: i128? = none;
         return a == b;
     }
 
@@ -82,10 +82,10 @@ program compare_optionals.aleo {
         return a == b;
     }
 
-    // struct? != None → true
+    // struct? != none → true
     transition struct_some_neq_none() -> bool {
         let a: Point? = Point { x: 5u8, y: 9u8 };
-        return a != None;
+        return a != none;
     }
 
     // [u8; 2]? == [u8; 2]? → true

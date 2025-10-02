@@ -67,21 +67,21 @@ input = ["{is_some:false, val:[{is_some:false, val:0u8}, {is_some:false, val:0u8
 program test.aleo {
     // === Primitive Optionals ===
     transition u64_in_out(x: u64?) -> u64? {
-        if x != None {
+        if x != none {
             assert(x.unwrap() == 42u64);
         }
         return x;
     }
 
     transition u8_in_out(x: u8?) -> u8? {
-        if x != None {
+        if x != none {
             assert(x.unwrap() == 7u8);
         }
         return x;
     }
 
     transition bool_in_out(x: bool?) -> bool? {
-        if x != None {
+        if x != none {
             assert(x.unwrap() == true);
         }
         return x;
@@ -93,9 +93,9 @@ program test.aleo {
     }
 
     transition struct_optional(f: Foo?) -> Foo? {
-        if f != None {
+        if f != none {
             let inner = f.unwrap();
-            if inner.x != None {
+            if inner.x != none {
                 assert(inner.x.unwrap() == 99u32);
             }
         }
@@ -104,10 +104,10 @@ program test.aleo {
 
     // === Array Optionals ===
     transition array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
-        if arr != None {
+        if arr != none {
             let unwrapped = arr.unwrap();
             assert(unwrapped[0].unwrap() == 1u8);
-            assert(unwrapped[1] == None);
+            assert(unwrapped[1] == none);
         }
         return arr;
     }
