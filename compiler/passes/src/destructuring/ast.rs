@@ -36,7 +36,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
         // Look up the expression in the tuple map.
         match self.tuples.get(&path.identifier().name).and_then(|tuple_names| tuple_names.get(input.index.value())) {
-            Some(id) => (Path::from(*id).into(), Default::default()),
+            Some(id) => (Path::from(*id).with_absolute_path(Some(vec![id.name])).into(), Default::default()),
             None => {
                 if !matches!(self.state.type_table.get(&path.id), Some(Type::Future(_))) {
                     panic!("Type checking guarantees that all tuple accesses are declared and indices are valid.");
@@ -96,7 +96,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
                     self.state.type_table.insert(place.id(), Type::Boolean);
 
-                    Expression::Path(Path::from(place))
+                    Expression::Path(Path::from(place).with_absolute_path(Some(vec![place.name])))
                 };
 
                 // These will be the `elements` of our resulting tuple.
@@ -131,7 +131,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     );
 
                     statements.push(definition);
-                    elements.push(Path::from(identifier).into());
+                    elements.push(Path::from(identifier).with_absolute_path(Some(vec![identifier.name])).into());
                 }
 
                 let expr: Expression =
@@ -180,8 +180,8 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 // Again, make an assignment for each identifier.
                 for (&identifier, &rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
                     let stmt = AssignStatement {
-                        place: Path::from(identifier).into(),
-                        value: Path::from(rhs_identifier).into(),
+                        place: Path::from(identifier).with_absolute_path(Some(vec![identifier.name])).into(),
+                        value: Path::from(rhs_identifier).with_absolute_path(Some(vec![rhs_identifier.name])).into(),
                         id: self.state.node_builder.next_id(),
                         span: Default::default(),
                     }
@@ -215,7 +215,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     // This is the corresponding variable name of the member we're assigning to.
                     let identifier = tuple_ids[access.index.value()];
 
-                    *place = Path::from(identifier).into();
+                    *place = Path::from(identifier).with_absolute_path(Some(vec![identifier.name])).into();
 
                     return (assign.into(), statements);
                 }
@@ -295,7 +295,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
                         type_: Some(ty.clone()),
-                        value: Expression::Path(Path::from(*rhs_identifier)),
+                        value: Expression::Path(Path::from(*rhs_identifier).with_absolute_path(Some(vec![rhs_identifier.name]))),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }
@@ -379,7 +379,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     let stmt = DefinitionStatement {
                         place: Single(identifier),
                         type_: None,
-                        value: Expression::Path(Path::from(*rhs_identifier)),
+                        value: Expression::Path(Path::from(*rhs_identifier).with_absolute_path(Some(vec![rhs_identifier.name]))),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }
