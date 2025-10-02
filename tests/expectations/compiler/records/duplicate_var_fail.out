@@ -1,22 +1,8 @@
 Error [ETYC0372016]: Record Token defined with more than one variable with the same name.
-    --> compiler-test:3:5
+    --> compiler-test:7:9
      |
-   3 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   4 |         // The token owner.
-     |         ^^^^^^^^^^^^^^^^^^^
-   5 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   6 |         // The token owner.
-     |         ^^^^^^^^^^^^^^^^^^^
    7 |         owner: address, // Cannot define two record variables with the same name.
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |         // The token amount.
-     |         ^^^^^^^^^^^^^^^^^^^^
-   9 |         amount: u64,
-     |         ^^^^^^^^^^^^
-  10 |     }
-     |     ^
+     |         ^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

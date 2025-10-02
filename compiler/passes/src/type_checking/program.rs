@@ -225,17 +225,17 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
-        // TODO: Better span to target duplicate member.
-        if !input.members.iter().all(|Member { identifier, type_, span, .. }| {
+        for Member { identifier, type_, span, .. } in &input.members {
             // Check that the member types are defined.
             self.assert_type_is_valid(type_, *span);
-            used.insert(identifier.name)
-        }) {
-            self.emit_err(if input.is_record {
-                TypeCheckerError::duplicate_record_variable(input.name(), input.span())
-            } else {
-                TypeCheckerError::duplicate_struct_member(input.name(), input.span())
-            });
+
+            if !used.insert(identifier.name) {
+                self.emit_err(if input.is_record {
+                    TypeCheckerError::duplicate_record_variable(input.name(), *span)
+                } else {
+                    TypeCheckerError::duplicate_struct_member(input.name(), *span)
+                });
+            }
         }
 
         // For records, enforce presence of the `owner: Address` member.
