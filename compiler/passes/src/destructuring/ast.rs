@@ -295,7 +295,9 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
                         type_: Some(ty.clone()),
-                        value: Expression::Path(Path::from(*rhs_identifier).with_absolute_path(Some(vec![rhs_identifier.name]))),
+                        value: Expression::Path(
+                            Path::from(*rhs_identifier).with_absolute_path(Some(vec![rhs_identifier.name])),
+                        ),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }
@@ -379,7 +381,9 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     let stmt = DefinitionStatement {
                         place: Single(identifier),
                         type_: None,
-                        value: Expression::Path(Path::from(*rhs_identifier).with_absolute_path(Some(vec![rhs_identifier.name]))),
+                        value: Expression::Path(
+                            Path::from(*rhs_identifier).with_absolute_path(Some(vec![rhs_identifier.name])),
+                        ),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }

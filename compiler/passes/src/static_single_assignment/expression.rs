@@ -159,9 +159,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
                 let (expression, mut stmts) = if let Some(expr) = arg.expression {
                     self.consume_expression_and_define(expr)
                 } else {
-                    self.consume_path(
-                        Path::from(arg.identifier).with_absolute_path(Some(vec![arg.identifier.name]))
-                    )
+                    self.consume_path(Path::from(arg.identifier).with_absolute_path(Some(vec![arg.identifier.name])))
                 };
                 // Accumulate any statements produced.
                 statements.append(&mut stmts);
