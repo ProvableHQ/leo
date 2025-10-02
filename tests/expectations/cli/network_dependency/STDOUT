@@ -1,0 +1,219 @@
+DEPLOYMENT 1
+       Leo     1 statements before dead code elimination.
+       Leo     1 statements after dead code elimination.
+       Leo ✅ Compiled 'test_program1.aleo' into Aleo instructions
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  8
+
+📦 Deployment Tasks:
+  • test_program1.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+📦 Creating deployment transaction for 'test_program1.aleo'...
+
+
+📊 Deployment Summary for test_program1.aleo
+──────────────────────────────────────────────
+  Total Variables:      16,516
+  Total Constraints:    12,379
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.790000
+  Program Synthesis:    0.722375
+  Namespace:            1.000000
+  Priority Fee:         0.000000
+  Total Fee:            2.512375
+──────────────────────────────────────────────
+📦 Creating deployment transaction for 'test_program1.aleo'...
+
+
+📊 Deployment Summary for test_program1.aleo
+──────────────────────────────────────────────
+  Total Variables:      16,516
+  Total Constraints:    12,379
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.790000
+  Program Synthesis:    0.722375
+  Namespace:            1.000000
+  Priority Fee:         0.000000
+  Total Fee:            2.512375
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for test_program1.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+ - transaction ID: 'XXXXXX'
+ - fee ID: 'XXXXXX'
+Searching up to 12 blocks to find transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+
+📡 Broadcasting deployment for test_program1.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+ - transaction ID: 'XXXXXX'
+ - fee ID: 'XXXXXX'
+Searching up to 12 blocks to find transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+DEPLOYMENT 2
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  8
+
+📦 Deployment Tasks:
+  • test_program2.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+🌐 Remote Dependencies:
+(Leo will not generate transactions for these programs)
+  • test_program1.aleo
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+📦 Creating deployment transaction for 'test_program2.aleo'...
+
+
+📊 Deployment Summary for test_program2.aleo
+──────────────────────────────────────────────
+  Total Variables:      19,241
+  Total Constraints:    13,429
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.842000
+  Program Synthesis:    0.816750
+  Namespace:            1.000000
+  Priority Fee:         0.000000
+  Total Fee:            2.658750
+──────────────────────────────────────────────
+📦 Creating deployment transaction for 'test_program2.aleo'...
+
+
+📊 Deployment Summary for test_program2.aleo
+──────────────────────────────────────────────
+  Total Variables:      19,241
+  Total Constraints:    13,429
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.842000
+  Program Synthesis:    0.816750
+  Namespace:            1.000000
+  Priority Fee:         0.000000
+  Total Fee:            2.658750
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for test_program2.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+ - transaction ID: 'XXXXXX'
+ - fee ID: 'XXXXXX'
+Searching up to 12 blocks to find transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+
+📡 Broadcasting deployment for test_program2.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+ - transaction ID: 'XXXXXX'
+ - fee ID: 'XXXXXX'
+Searching up to 12 blocks to find transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+EXECUTION
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🚀 Execution Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  8
+
+🎯 Execution Target:
+  Program:        test_program2.aleo
+  Function:       main
+  Source:         local
+
+💸 Fee Info:
+  Priority Fee:   0 μcredits
+  Fee Record:     no (public fee)
+
+⚙️ Actions:
+  - Transaction will NOT be printed to the console.
+  - Transaction will NOT be saved to a file.
+  - Transaction will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+Adding programs to the VM ...
+
+📊 Execution Summary for test_program2.aleo
+──────────────────────────────────────────────
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.001994
+  On‑chain Execution:   0.000000
+  Priority Fee:         0.000000
+  Total Fee:            0.001994
+──────────────────────────────────────────────
+
+➡️  Output
+
+ • 2u32
+
+📡 Broadcasting execution for test_program2.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+ - transaction ID: 'XXXXXX'
+ - fee ID: 'XXXXXX'
+Searching up to 12 blocks to find transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Execution confirmed!
