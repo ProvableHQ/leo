@@ -192,7 +192,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             // that led to this assertion.
             let not_guard = UnaryExpression {
                 op: UnaryOperation::Not,
-                receiver: Path::from(guard).into(),
+                receiver: Path::from(guard).with_absolute_path(Some(vec![guard.name])).into(),
                 span: Default::default(),
                 id: {
                     // Create a new node ID for the unary expression.
@@ -205,12 +205,12 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             .into();
             let (identifier, statement) = self.unique_simple_definition(not_guard);
             statements.push(statement);
-            guards.push(Path::from(identifier).into());
+            guards.push(Path::from(identifier).with_absolute_path(Some(vec![identifier.name])).into());
         }
 
         // We also need to guard against early returns.
         if let Some((guard, guard_statements)) = self.construct_early_return_guard() {
-            guards.push(Path::from(guard).into());
+            guards.push(Path::from(guard).with_absolute_path(Some(vec![guard.name])).into());
             statements.extend(guard_statements);
         }
 
@@ -238,7 +238,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                 self.state.type_table.insert(binary.id, Type::Boolean);
                 let (identifier, statement) = self.unique_simple_definition(binary.into());
                 statements.push(statement);
-                Path::from(identifier).into()
+                Path::from(identifier).with_absolute_path(Some(vec![identifier.name])).into()
             }
         };
 
@@ -256,7 +256,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             self.state.type_table.insert(binary.id(), Type::Boolean);
             let (identifier, statement) = self.unique_simple_definition(binary.into());
             statements.push(statement);
-            expression = Path::from(identifier).into();
+            expression = Path::from(identifier).with_absolute_path(Some(vec![identifier.name])).into();
         }
 
         let assert_statement = AssertStatement { variant: AssertVariant::Assert(expression), ..input }.into();
