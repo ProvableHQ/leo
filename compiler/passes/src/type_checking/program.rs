@@ -348,7 +348,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         }
 
         if self.contains_optional_type(&input.key_type) {
-            self.emit_err(TypeCheckerError::optional_type_not_allowed_here(input.key_type.clone(), input.span))
+            self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
+                input.key_type.clone(),
+                "key",
+                input.span,
+            ))
         }
 
         // Check that a mapping's value type is valid.
@@ -375,7 +379,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         }
 
         if self.contains_optional_type(&input.value_type) {
-            self.emit_err(TypeCheckerError::optional_type_not_allowed_here(input.value_type.clone(), input.span))
+            self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
+                input.value_type.clone(),
+                "value",
+                input.span,
+            ))
         }
     }
 

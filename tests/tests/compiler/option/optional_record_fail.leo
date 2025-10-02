@@ -6,7 +6,6 @@ program optional_record_test.aleo {
         value: u64,
     }
 
-    // === Transition that takes Foo? as input ===
     transition handle_optional_record() -> u64 {
         let f: Foo? = Foo {
             owner: self.signer,

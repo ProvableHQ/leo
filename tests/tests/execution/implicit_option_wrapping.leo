@@ -87,7 +87,7 @@ program implicit_wrapping.aleo {
     }
 
     transition basic_implicit_ternary(cond: bool) -> u8 {
-        let result: u8? = cond ? 10 : None;
+        let result: u8? = cond ? 10 : none;
         return result.unwrap_or(42u8); // inferred as u8?
     }
 
@@ -96,7 +96,7 @@ program implicit_wrapping.aleo {
     }
 
     transition basic_implicit_reassignment() -> u8 {
-        let b: Bar = Bar { x: [None, None, None] };
+        let b: Bar = Bar { x: [none, none, none] };
         b.x[0] = 99; // implicitly wrapped
         return b.x[0].unwrap();
     }
@@ -110,7 +110,7 @@ program implicit_wrapping.aleo {
 
     inline bar() -> Wrapper? {
         return Wrapper {
-            arr: [Foo { x: 8 }, None], // 8u8 implicitly wrapped into u8?
+            arr: [Foo { x: 8 }, none], // 8u8 implicitly wrapped into u8?
         };
     }
 
@@ -121,32 +121,32 @@ program implicit_wrapping.aleo {
 
     transition complex_implicit_argument() -> u8 {
         return takes_optional_wrapper(Wrapper {
-            arr: [Foo { x: None }, None],
+            arr: [Foo { x: none }, none],
         });
     }
 
     // 3. Implicit ternary with Wrapper
     transition complex_implicit_ternary(cond: bool) -> u8 {
         let result: Wrapper? = cond
-            ? Wrapper { arr: [Foo { x: 99 }, None] } // implicit wrap
-            : None;
+            ? Wrapper { arr: [Foo { x: 99 }, none] } // implicit wrap
+            : none;
         return result.unwrap().arr[0].unwrap().x.unwrap_or(69);
     }
 
     // 4. Implicit reassignment with Wrapper
     transition complex_implicit_reassignment() -> u8 {
-        let w: Wrapper? = None;
-        w = Wrapper { arr: [Foo { x: 7 }, None] }; // implicit wrap
+        let w: Wrapper? = none;
+        w = Wrapper { arr: [Foo { x: 7 }, none] }; // implicit wrap
         return w.unwrap().arr[0].unwrap().x.unwrap();
     }
 
     // 5. Implicit reassignment of [Wrapper; 3]? = [...]
     transition complex_array_wrapping() -> u8 {
-        let arr_opt: [Wrapper; 3]? = None;
+        let arr_opt: [Wrapper; 3]? = none;
         arr_opt = [
-            Wrapper { arr: [Foo { x: 1 }, None] },
-            Wrapper { arr: [None, None] },
-            Wrapper { arr: [Foo { x: 2 }, None] },
+            Wrapper { arr: [Foo { x: 1 }, none] },
+            Wrapper { arr: [none, none] },
+            Wrapper { arr: [Foo { x: 2 }, none] },
         ];
         return arr_opt.unwrap()[0].arr[0].unwrap().x.unwrap();
     }
@@ -154,9 +154,9 @@ program implicit_wrapping.aleo {
     // 6. Deeper access into wrapped Wrapper array
     transition complex_array_access() -> u8 {
         let arr_opt: [Wrapper; 3]? = [
-            Wrapper { arr: [Foo { x: 10 }, None] },
-            Wrapper { arr: [Foo { x: 20 }, None] },
-            Wrapper { arr: [None, None] },
+            Wrapper { arr: [Foo { x: 10 }, none] },
+            Wrapper { arr: [Foo { x: 20 }, none] },
+            Wrapper { arr: [none, none] },
         ];
         let w = arr_opt.unwrap()[1];
         let f = w.arr[0].unwrap();

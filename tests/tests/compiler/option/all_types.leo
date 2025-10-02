@@ -32,7 +32,7 @@ program all_types.aleo {
     // --- Section 1: Basic Optionals and Inference ---
     transition optional_basic_primitives() -> u32 {
         let a: u32? = 10u32;
-        let b: u32? = None;
+        let b: u32? = none;
         let c: u32 = a.unwrap();
         let d: u32 = b.unwrap_or(42u32);
         return c + d; // 10 + 42 = 52
@@ -40,7 +40,7 @@ program all_types.aleo {
 
     // --- Section 2: Arrays of Optionals ---
     transition array_of_optionals() -> u8 {
-        let arr: [u8?; 3] = [1u8, None, 3u8];
+        let arr: [u8?; 3] = [1u8, none, 3u8];
         let sum = arr[0].unwrap_or(10u8)
                   + arr[1].unwrap_or(20u8)
                   + arr[2].unwrap_or(30u8);
@@ -49,14 +49,14 @@ program all_types.aleo {
 
     // --- Section 3: Optional Arrays ---
     transition optional_array() -> u8 {
-        let arr_opt: [u8?; 2]? = [1u8, None];
+        let arr_opt: [u8?; 2]? = [1u8, none];
         let first = arr_opt.unwrap()[0].unwrap_or(10u8);
         return first; // 1
     }
 
     // --- Section 4: Structs with Optional Fields ---
     transition optional_struct_field() -> u16 {
-        let s = OptStruct { val: None };
+        let s = OptStruct { val: none };
         return s.val.unwrap_or(123u16); // 123
     }
 
@@ -68,15 +68,15 @@ program all_types.aleo {
 
     // --- Section 6: Arrays of Optional Structs ---
     transition array_of_optional_structs() -> u8 {
-        let arr: [Foo?; 2] = [Foo { x: 10u8 }, None];
+        let arr: [Foo?; 2] = [Foo { x: 10u8 }, none];
         return arr[0].unwrap().x; // 10
     }
 
     // --- Section 7: Nested Optionals in Structs & Arrays ---
     transition nested_optional_structs() -> u8 {
         let inner = Inner { val: 10u8 };
-        let wrapper = Wrapper { arr: [inner, None] };
-        let container = Container { wrappers: [wrapper, None] };
+        let wrapper = Wrapper { arr: [inner, none] };
+        let container = Container { wrappers: [wrapper, none] };
         let top = Top { container };
 
         return top.container.unwrap()
@@ -88,7 +88,7 @@ program all_types.aleo {
     // --- Section 8: Tuples with Optional Elements ---
     transition tuples_with_optional_elements() -> u32 {
         let t1: (u32, u32?) = (100u32, 200u32);
-        let t2: (u32, u32?) = (300u32, None);
+        let t2: (u32, u32?) = (300u32, none);
 
         let sum = t1.0 + t1.1.unwrap_or(0u32)
                 + t2.0 + t2.1.unwrap_or(50u32);
@@ -101,7 +101,7 @@ program all_types.aleo {
         let gr: group? = 0group;
         let fl: field? = 1field;
         let sc: scalar? = 2scalar;
-        
+
         return (
             a.unwrap(),
             gr.unwrap(),

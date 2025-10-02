@@ -15,12 +15,12 @@ program test.aleo {
     transition main() {
         let raw: [u64; 4] = [10u64, 0u64, 30u64, 0u64];
 
-        // Convert into Foo structs where 0 → None
+        // Convert into Foo structs where 0 → none
         let arr: [Foo; 4] = [
-            Foo { x: raw[0] == 0u64 ? None : raw[0] },
-            Foo { x: raw[1] == 0u64 ? None : raw[1] },
-            Foo { x: raw[2] == 0u64 ? None : raw[2] },
-            Foo { x: raw[3] == 0u64 ? None : raw[3] },
+            Foo { x: raw[0] == 0u64 ? none : raw[0] },
+            Foo { x: raw[1] == 0u64 ? none : raw[1] },
+            Foo { x: raw[2] == 0u64 ? none : raw[2] },
+            Foo { x: raw[3] == 0u64 ? none : raw[3] },
         ];
 
         let sum: u64 = 0u64;
