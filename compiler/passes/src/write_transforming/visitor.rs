@@ -229,9 +229,9 @@ impl<'a> WriteTransformingVisitor<'a> {
             }
         } else {
             let stmt = AssignStatement {
-            value,
-            place: Path::from(place).with_absolute_path(Some(vec![place.name])).into(),
-            id: self.state.node_builder.next_id(),
+                value,
+                place: Path::from(place).with_absolute_path(Some(vec![place.name])).into(),
+                id: self.state.node_builder.next_id(),
                 span: Default::default(),
             }
             .into();

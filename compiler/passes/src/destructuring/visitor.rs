@@ -59,9 +59,7 @@ impl DestructuringVisitor<'_> {
                 let identifiers = self.tuples.get(&path.identifier().name).expect("Tuples should have been found");
                 let elements: Vec<Expression> = identifiers
                     .iter()
-                    .map(|identifier| {
-                        Path::from(*identifier).with_absolute_path(Some(vec![identifier.name])).into()
-                    })
+                    .map(|identifier| Path::from(*identifier).with_absolute_path(Some(vec![identifier.name])).into())
                     .collect();
 
                 let tuple: Expression =
@@ -90,9 +88,7 @@ impl DestructuringVisitor<'_> {
 
                 let elements = identifiers
                     .iter()
-                    .map(|identifier| {
-                        Path::from(*identifier).with_absolute_path(Some(vec![identifier.name])).into()
-                    })
+                    .map(|identifier| Path::from(*identifier).with_absolute_path(Some(vec![identifier.name])).into())
                     .collect();
 
                 let expr = Expression::Tuple(TupleExpression {
