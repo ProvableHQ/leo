@@ -60,6 +60,10 @@ path = "leo/lib.rs"
 name = "leo"
 path = "leo/cli/main.rs"
 
+[[test]]
+name = "integration"
+path = "leo/tests/integration.rs"
+
 # ----------------------------
 # Features
 # ----------------------------

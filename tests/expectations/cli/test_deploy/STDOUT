@@ -1,0 +1,79 @@
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  8
+
+📦 Deployment Tasks:
+  • some_sample_leo_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+📦 Creating deployment transaction for 'some_sample_leo_program.aleo'...
+
+
+📊 Deployment Summary for some_sample_leo_program.aleo
+──────────────────────────────────────────────
+  Total Variables:      17,515
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.815000
+  Program Synthesis:    0.761050
+  Namespace:            1.000000
+  Priority Fee:         0.000000
+  Total Fee:            2.576050
+──────────────────────────────────────────────
+📦 Creating deployment transaction for 'some_sample_leo_program.aleo'...
+
+
+📊 Deployment Summary for some_sample_leo_program.aleo
+──────────────────────────────────────────────
+  Total Variables:      17,515
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.815000
+  Program Synthesis:    0.761050
+  Namespace:            1.000000
+  Priority Fee:         0.000000
+  Total Fee:            2.576050
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for some_sample_leo_program.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+ - transaction ID: 'XXXXXX'
+ - fee ID: 'XXXXXX'
+Searching up to 12 blocks to find transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+
+📡 Broadcasting deployment for some_sample_leo_program.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+ - transaction ID: 'XXXXXX'
+ - fee ID: 'XXXXXX'
+Searching up to 12 blocks to find transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!

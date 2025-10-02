@@ -1,0 +1,3 @@
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions
