@@ -193,6 +193,26 @@ create_messages!(
         help: None,
     }
 
+    /// Attempted to define more that one struct member with the same name (with multiple spans).
+    @formatted_multi_span
+    duplicate_struct_member_multi_span {
+        args: (struct_: impl Display, member_name: impl Display),
+        msg: format!(
+            "the name `{member_name}` is defined multiple times in struct `{struct_}`"
+        ),
+        help: Some(format!("struct members must have unique names")),
+    }
+
+    /// Attempted to define more that one record variable with the same name (with multiple spans).
+    @formatted_multi_span
+    duplicate_record_variable_multi_span {
+        args: (record: impl Display, variable_name: impl Display),
+        msg: format!(
+            "the name `{variable_name}` is defined multiple times in record `{record}`"
+        ),
+        help: Some(format!("record variables must have unique names")),
+    }
+
     /// Attempted to access an invalid struct.
     @formatted
     undefined_type {

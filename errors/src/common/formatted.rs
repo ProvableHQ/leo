@@ -36,6 +36,10 @@ use std::fmt;
 pub struct Formatted {
     /// The formatted error span information.
     pub span: Span,
+    /// Optional label for the primary span
+    pub span_label: Option<String>,
+    /// Additional spans with labels for multi-span errors.
+    pub additional_spans: Vec<(Span, String)>,
     /// The backtrace to track where the Leo error originated.
     pub backtrace: Backtraced,
 }
@@ -58,6 +62,41 @@ impl Formatted {
     {
         Self {
             span,
+            span_label: None,
+            additional_spans: Vec::new(),
+            backtrace: Backtraced::new_from_backtrace(
+                message.to_string(),
+                help,
+                code,
+                code_identifier,
+                type_,
+                error,
+                backtrace,
+            ),
+        }
+    }
+
+    /// Creates a backtraced error from multiple spans with labels and a backtrace.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_from_spans<S>(
+        message: S,
+        help: Option<String>,
+        code: i32,
+        code_identifier: i8,
+        type_: String,
+        error: bool,
+        span: Span,
+        span_label: Option<String>,
+        additional_spans: Vec<(Span, String)>,
+        backtrace: Backtrace,
+    ) -> Self
+    where
+        S: ToString,
+    {
+        Self {
+            span,
+            span_label,
+            additional_spans,
             backtrace: Backtraced::new_from_backtrace(
                 message.to_string(),
                 help,
@@ -104,23 +143,97 @@ impl fmt::Display for Formatted {
             writeln!(f, "{message}")?;
         };
 
-        if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
-            let line_contents = source_file.line_contents(self.span);
+        if !self.additional_spans.is_empty() {
+            let mut all_spans: Vec<(Span, Option<&String>, usize)> = Vec::new();
 
-            writeln!(
-                f,
-                "{indent     }--> {path}:{line_start}:{start}",
-                indent = INDENT,
-                path = &source_file.name,
-                // Report lines starting from line 1.
-                line_start = line_contents.line + 1,
-                // And columns - comments in some old code claims to report columns indexing from 0,
-                // but that doesn't appear to have been true.
-                start = line_contents.start + 1,
-            )?;
+            // "previous definition" spans
+            for (span, label) in &self.additional_spans {
+                if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
+                    let line_contents = source_file.line_contents(*span);
+                    all_spans.push((*span, Some(label), line_contents.line));
+                }
+            }
 
-            write!(f, "{line_contents}")?;
-        };
+            // duplicate/redefinition spans
+            if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
+                let line_contents = source_file.line_contents(self.span);
+                all_spans.push((self.span, self.span_label.as_ref(), line_contents.line));
+            }
+
+            all_spans.sort_by_key(|(_, _, line)| *line);
+
+            // display source file name and line that the duplicate occured on
+            if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
+                let line_contents = source_file.line_contents(self.span);
+                writeln!(
+                    f,
+                    "{indent     }--> {path}:{line_start}:{start}",
+                    indent = INDENT,
+                    path = &source_file.name,
+                    line_start = line_contents.line + 1,
+                    start = line_contents.start + 1,
+                )?;
+                writeln!(f, "{INDENT     } |")?;
+            }
+
+            let mut last_line: Option<usize> = None;
+            for (span, label_opt, line_num) in all_spans {
+                // add "..." if there's a gap between spans
+                if let Some(last) = last_line {
+                    if line_num > last + 1 {
+                        writeln!(f, "{INDENT     } ...")?;
+                    }
+                }
+
+                if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
+                    let line_contents = source_file.line_contents(span);
+                    let line_start = line_contents.line + 1;
+
+                    // display the line with line number
+                    writeln!(f, "{line_start:>4} | {}", line_contents.contents.trim_end())?;
+
+                    // display the underline with label on the next line
+                    write!(f, "{INDENT     } | ")?;
+
+                    // spaces done to align with the span start
+                    for _ in 0..line_contents.start {
+                        write!(f, " ")?;
+                    }
+
+                    // carets to point out the error, i.e.:
+                    //    9 |         value: u32,
+                    //      |         ^^^^^^^^^^
+                    let caret_len = (line_contents.end - line_contents.start).max(1);
+                    for _ in 0..caret_len {
+                        write!(f, "^")?;
+                    }
+
+                    // add the label if present, i.e.:
+                    //  `value` redefined here
+                    if let Some(label) = label_opt {
+                        write!(f, " {}", label)?;
+                    }
+                    writeln!(f)?;
+                }
+
+                last_line = Some(line_num);
+            }
+        } else {
+            if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
+                let line_contents = source_file.line_contents(self.span);
+
+                writeln!(
+                    f,
+                    "{indent     }--> {path}:{line_start}:{start}",
+                    indent = INDENT,
+                    path = &source_file.name,
+                    line_start = line_contents.line + 1,
+                    start = line_contents.start + 1,
+                )?;
+
+                write!(f, "{line_contents}")?;
+            }
+        }
 
         if let Some(help) = &self.backtrace.help {
             writeln!(
