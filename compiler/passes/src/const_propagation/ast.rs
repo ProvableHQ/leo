@@ -48,7 +48,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     }
 
     /* Expressions */
-    fn reconstruct_expression(&mut self, input: Expression, _addiional: &()) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let opt_old_type = self.state.type_table.get(&input.id());
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array, &()),
@@ -84,7 +84,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_struct_init(
         &mut self,
         mut input: StructExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
         input.const_arguments.iter_mut().for_each(|arg| {
@@ -116,7 +116,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_ternary(
         &mut self,
         input: TernaryExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let (cond, cond_value) = self.reconstruct_expression(input.condition, &());
 
@@ -139,7 +139,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_array_access(
         &mut self,
         input: ArrayAccess,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let id = input.id();
@@ -192,7 +192,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_associated_constant(
         &mut self,
         input: leo_ast::AssociatedConstantExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         // Currently there is only one associated constant.
         let generator = Value::generator();
@@ -203,7 +203,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_associated_function(
         &mut self,
         mut input: leo_ast::AssociatedFunctionExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
         for argument in input.arguments.iter_mut() {
@@ -241,7 +241,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_member_access(
         &mut self,
         input: MemberAccess,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let id = input.id();
@@ -259,7 +259,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_repeat(
         &mut self,
         input: leo_ast::RepeatExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let (expr, expr_value) = self.reconstruct_expression(input.expr.clone(), &());
         let (count, count_value) = self.reconstruct_expression(input.count.clone(), &());
@@ -280,7 +280,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_tuple_access(
         &mut self,
         input: TupleAccess,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let id = input.id();
@@ -296,7 +296,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_array(
         &mut self,
         mut input: leo_ast::ArrayExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
         input.elements.iter_mut().for_each(|element| {
@@ -316,7 +316,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_binary(
         &mut self,
         input: leo_ast::BinaryExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let input_id = input.id();
@@ -348,7 +348,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_call(
         &mut self,
         mut input: leo_ast::CallExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         input.const_arguments.iter_mut().for_each(|arg| {
             *arg = self.reconstruct_expression(std::mem::take(arg), &()).0;
@@ -362,7 +362,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_cast(
         &mut self,
         input: leo_ast::CastExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let id = input.id();
@@ -383,12 +383,12 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_err(
         &mut self,
         _input: leo_ast::ErrExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_path(&mut self, input: leo_ast::Path, _addiional: &()) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_path(&mut self, input: leo_ast::Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Substitute the identifier with the constant value if it is a constant that's been evaluated.
         if let Some(expression) = self.state.symbol_table.lookup_const(self.program, &input.absolute_path()) {
             let (expression, opt_value) = self.reconstruct_expression(expression, &());
@@ -403,7 +403,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_literal(
         &mut self,
         mut input: leo_ast::Literal,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let type_info = self.state.type_table.get(&input.id());
 
@@ -434,7 +434,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_locator(
         &mut self,
         input: leo_ast::LocatorExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
@@ -442,7 +442,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_tuple(
         &mut self,
         mut input: leo_ast::TupleExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::with_capacity(input.elements.len());
         for expr in input.elements.iter_mut() {
@@ -458,7 +458,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (input.into(), opt_value)
     }
 
-    fn reconstruct_unary(&mut self, input: UnaryExpression, _addiional: &()) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_unary(&mut self, input: UnaryExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let input_id = input.id();
         let span = input.span;
         let (receiver, opt_value) = self.reconstruct_expression(input.receiver, &());
@@ -479,7 +479,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_unit(
         &mut self,
         input: leo_ast::UnitExpression,
-        _addiional: &(),
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), None)
     }

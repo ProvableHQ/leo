@@ -32,7 +32,7 @@ program test_hash_and_commit.aleo {
         arr: [field?; 3]?,
     }
 
-    transition hash(x: field, y: group) -> ([field; 11], group) {
+    transition hash(x: field, y: group) -> (public [field; 6], public group) {
         // Wrap x and y into optionals, include a none.
         let sx: field? = x;
         let sy: group? = none;
@@ -56,17 +56,12 @@ program test_hash_and_commit.aleo {
             BHP1024::hash_to_field(outer),
             Keccak256::hash_to_field(outer),
             Keccak384::hash_to_field(outer),
-            Pedersen64::hash_to_field(12u8),
-            Poseidon2::hash_to_field(outer),
-            Poseidon4::hash_to_field(outer),
-            Poseidon8::hash_to_field(outer),
-            SHA3_256::hash_to_field(outer),
         ],
             Keccak256::hash_to_group([1u8, 2u8, 3u8, 4u8, 5u8, 6u8])
         );
     }
 
-    transition commit(x: field, y: group, z: scalar) -> [field; 6] {
+    transition commit(x: field, y: group, z: scalar) -> public [field; 6] {
         let sx: field? = none;
         let sy: group? = y;
 

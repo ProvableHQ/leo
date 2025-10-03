@@ -114,12 +114,8 @@ pub trait AstReconstructor {
         additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         match input {
-            Expression::AssociatedConstant(constant) => {
-                self.reconstruct_associated_constant(constant, &Default::default())
-            }
-            Expression::AssociatedFunction(function) => {
-                self.reconstruct_associated_function(function, &Default::default())
-            }
+            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, additional),
+            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, additional),
             Expression::Async(async_) => self.reconstruct_async(async_, additional),
             Expression::Array(array) => self.reconstruct_array(array, additional),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, additional),
@@ -160,7 +156,7 @@ pub trait AstReconstructor {
     fn reconstruct_associated_constant(
         &mut self,
         input: AssociatedConstantExpression,
-        __additional: &Self::AdditionalInput,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
@@ -187,7 +183,7 @@ pub trait AstReconstructor {
     fn reconstruct_async(
         &mut self,
         input: AsyncExpression,
-        __additional: &Self::AdditionalInput,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (AsyncExpression { block: self.reconstruct_block(input.block).0, ..input }.into(), Default::default())
     }
@@ -338,7 +334,7 @@ pub trait AstReconstructor {
     fn reconstruct_err(
         &mut self,
         _input: ErrExpression,
-        __additional: &Self::AdditionalInput,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
@@ -346,7 +342,7 @@ pub trait AstReconstructor {
     fn reconstruct_path(
         &mut self,
         input: Path,
-        __additional: &Self::AdditionalInput,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
@@ -354,7 +350,7 @@ pub trait AstReconstructor {
     fn reconstruct_literal(
         &mut self,
         input: Literal,
-        __additional: &Self::AdditionalInput,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
@@ -362,7 +358,7 @@ pub trait AstReconstructor {
     fn reconstruct_locator(
         &mut self,
         input: LocatorExpression,
-        __additional: &Self::AdditionalInput,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
@@ -419,7 +415,7 @@ pub trait AstReconstructor {
     fn reconstruct_unit(
         &mut self,
         input: UnitExpression,
-        __additional: &Self::AdditionalInput,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
