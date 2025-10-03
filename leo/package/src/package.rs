@@ -89,6 +89,17 @@ impl Package {
             return Err(CliError::invalid_program_name(package_name).into());
         }
 
+        // check for reserved keywords in program name, so user won't get confused
+        // later on during building
+        if crate::is_reserved_program_name(&package_name) {
+            let name_without_suffix = package_name.strip_suffix(".aleo").unwrap();
+            return Err(CliError::reserved_program_name(
+                &package_name,
+                format!("'{}' is a reserved keyword", name_without_suffix),
+                crate::reserved_keywords_help_message()
+            ).into());
+        }
+
         let path = path.canonicalize().map_err(|e| PackageError::failed_path(path.display(), e))?;
         let full_path = path.join(package_name.strip_suffix(".aleo").unwrap());
 
