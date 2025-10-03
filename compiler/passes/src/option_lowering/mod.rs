@@ -98,7 +98,6 @@ impl Pass for OptionLowering {
         // We need to recreate the symbol table and run type checking again because this pass may introduce new structs
         // and modify existing ones.
         visitor.state.symbol_table = SymbolTable::default();
-        println!("{}", state.ast.ast);
         PathResolution::do_pass((), state)?;
         SymbolTableCreation::do_pass((), state)?;
         TypeChecking::do_pass(input.clone(), state)?;

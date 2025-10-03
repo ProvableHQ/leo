@@ -58,7 +58,7 @@ impl fmt::Display for LiteralVariant {
             Self::Field(field) => write!(f, "{field}field"),
             Self::Group(group) => write!(f, "{group}group"),
             Self::Integer(type_, value) => write!(f, "{value}{type_}"),
-            Self::None => write!(f, "None"),
+            Self::None => write!(f, "none"),
             Self::Scalar(scalar) => write!(f, "{scalar}scalar"),
             Self::Unsuffixed(value) => write!(f, "{value}"),
             Self::String(string) => write!(f, "\"{string}\""),
@@ -161,7 +161,7 @@ impl fmt::Display for DisplayDecimal<'_> {
                     write!(f, "{v}{type_}")
                 }
             }
-            LiteralVariant::None => write!(f, "None"),
+            LiteralVariant::None => write!(f, "none"),
             LiteralVariant::Scalar(scalar) => write!(f, "{}", prepare_snarkvm_string(scalar, "scalar")),
             LiteralVariant::Unsuffixed(value) => write!(f, "{value}"),
             LiteralVariant::String(string) => write!(f, "\"{string}\""),

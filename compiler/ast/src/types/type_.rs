@@ -82,17 +82,16 @@ pub enum Type {
 impl Type {
     /// Are the types considered equal as far as the Leo user is concerned?
     ///
-    /// In particular, any comparison involving an `Err` is `true`,
-    /// composite types are resolved to the current program if not specified,
-    /// and Futures which aren't explicit compare equal to other Futures.
+    /// In particular, any comparison involving an `Err` is `true`, and Futures which aren't explicit compare equal to
+    /// other Futures.
     ///
     /// An array with an undetermined length (e.g., one that depends on a `const`) is considered equal to other arrays
     /// if their element types match. This allows const propagation to potentially resolve the length before type
     /// checking is performed again.
     ///
-    /// Composite types are considered equal if their names and resolved program names match.
-    /// If either side still has const generic arguments, they are treated as equal unconditionally
-    /// since monomorphization and other passes of type-checking will handle mismatches later.
+    /// Composite types are considered equal if their names and resolved program names match. If either side still has
+    /// const generic arguments, they are treated as equal unconditionally since monomorphization and other passes of
+    /// type-checking will handle mismatches later.
     pub fn eq_user(&self, other: &Type) -> bool {
         match (self, other) {
             (Type::Err, _)

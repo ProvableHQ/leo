@@ -64,6 +64,9 @@ function = "array_optional"
 input = ["{is_some:false, val:[{is_some:false, val:0u8}, {is_some:false, val:0u8}]}"]
 */
 
+// TODO: this test will currently fail because we don't allow inputs and outputs to have optionals in them.
+// This test should pass once that restriction is removed
+
 program test.aleo {
     // === Primitive Optionals ===
     transition u64_in_out(x: u64?) -> u64? {

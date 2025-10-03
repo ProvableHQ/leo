@@ -1177,6 +1177,17 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input.span()))
             }
 
+            // Check that the type of the input parameter does not contain an optional.
+            if self.contains_optional_type(table_type)
+                && matches!(function.variant, Variant::Transition | Variant::AsyncTransition | Variant::Function)
+            {
+                self.emit_err(TypeCheckerError::function_cannot_take_option_as_input(
+                    input.identifier,
+                    table_type,
+                    input.span(),
+                ))
+            }
+
             // Make sure only transitions can take a record as an input.
             if let Type::Composite(struct_) = table_type {
                 // Throw error for undefined type.
@@ -1260,6 +1271,17 @@ impl TypeCheckingVisitor<'_> {
             if matches!(&function_output.type_, Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
             }
+
+            // Check that the type of the input parameter does not contain an optional.
+            if self.contains_optional_type(&function_output.type_)
+                && matches!(function.variant, Variant::Transition | Variant::AsyncTransition | Variant::Function)
+            {
+                self.emit_err(TypeCheckerError::function_cannot_return_option_as_output(
+                    &function_output.type_,
+                    function_output.span(),
+                ))
+            }
+
             // Check that the mode of the output is valid.
             // For functions, only public and private outputs are allowed
             if function_output.mode == Mode::Constant {
