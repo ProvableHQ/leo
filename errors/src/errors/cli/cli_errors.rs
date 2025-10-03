@@ -329,6 +329,13 @@ create_messages!(
     }
 
     @backtraced
+    reserved_program_name {
+        args: (name: impl Display, reason: impl Display, help_msg: impl Display),
+        msg: format!("Cannot create program `{name}`: {reason}"),
+        help: Some(help_msg.to_string()),
+    }
+
+    @backtraced
     custom {
         args: (msg: impl Display),
         msg: format!("{msg}"),
