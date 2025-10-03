@@ -137,4 +137,27 @@ macro_rules! create_messages {
         // Steps the code value by one and calls on the rest of the functions.
         create_messages!(@step $code + 1i32, $(($(#[$docs])* $formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
     };
+    // matches the function if it is a formatted message with multiple spans.
+    (@step $code:expr, ($(#[$error_func_docs:meta])* formatted_multi_span, $name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($(#[$docs:meta])* $formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
+        $(#[$error_func_docs])*
+        pub fn $name($($arg_names: $arg_types,)* span: leo_span::Span, span_label: Option<String>, additional_spans: Vec<(leo_span::Span, String)>) -> Self {
+            Self::Formatted(
+                Formatted::new_from_spans(
+                    $message,
+                    $help,
+                    $code + Self::code_mask(),
+                    Self::code_identifier(),
+                    Self::message_type(),
+                    Self::is_error(),
+                    span,
+                    span_label,
+                    additional_spans,
+                    Backtrace::new(),
+                )
+            )
+        }
+
+        // Steps the code value by one and calls on the rest of the functions.
+        create_messages!(@step $code + 1i32, $(($(#[$docs])* $formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
+    };
 }
