@@ -148,54 +148,25 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
     true
 }
 
-/// List of reserved keywords from snarkVM that cannot be used as program names.
-/// Based on: https://github.com/ProvableHQ/snarkVM/blob/046a2964f75576b2c4afbab9aa9eabc43ceb6dc3/synthesizer/program/src/lib.rs#L192
-pub const RESERVED_KEYWORDS: &[&str] = &[
-    "storage",
-    "program",
-    "import",
-    "as",
-    "block",
-    "height",
-    "parent",
-    "timestamp",
-    "network",
-    "transition",
-    "function",
-    "inline",
-    "struct",
-    "record",
-    "mapping",
-    "public",
-    "private",
-    "constant",
-    "const",
-    "input",
-    "output",
-    "console",
-    "let",
-    "into",
-    "async",
-    "await",
-    "finalize",
-    "assert",
-    "assert_eq",
-    "assert_neq",
-    "return",
-    "future",
-];
+/// Get the list of reserved keywords from snarkVM.
+/// These keywords cannot be used as program names.
+/// See: https://github.com/ProvableHQ/snarkVM/blob/046a2964f75576b2c4afbab9aa9eabc43ceb6dc3/synthesizer/program/src/lib.rs#L192
+pub fn reserved_keywords() -> &'static [&'static str] {
+    use snarkvm::prelude::{Program, TestnetV0};
+    Program::<TestnetV0>::KEYWORDS
+}
 
 /// Check if a program name is a reserved keyword in snarkVM.
 pub fn is_reserved_program_name(name: &str) -> bool {
     let name_without_suffix = name.strip_suffix(".aleo").unwrap_or(name);
-    RESERVED_KEYWORDS.contains(&name_without_suffix)
+    reserved_keywords().contains(&name_without_suffix)
 }
 
 /// Generate a formatted help message listing all reserved keywords.
 pub fn reserved_keywords_help_message() -> String {
     format!(
         "Choose a different program name that is not a reserved keyword. Reserved keywords include: {}.",
-        RESERVED_KEYWORDS.join(", ")
+        reserved_keywords().join(", ")
     )
 }
 
