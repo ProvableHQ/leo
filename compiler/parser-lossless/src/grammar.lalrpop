@@ -882,7 +882,7 @@ extern {
         Arrow => LalrToken{ token: Token::Arrow, .. },
         BigArrow => LalrToken{ token: Token::BigArrow, .. },
         At => LalrToken{ token: Token::At, .. },
-        // Underscore => tokens::Token::Underscore,
+        Underscore => LalrToken { token: Token::Underscore, .. },
 
         // Keywords
         True => LalrToken { token: Token::True, .. },
