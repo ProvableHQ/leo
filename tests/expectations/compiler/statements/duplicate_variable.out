@@ -3,7 +3,7 @@ Error [EAST0372009]: variable `x` shadowed by
      |
    5 |       	let x: bool = true;
      |            ^
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372085]: A program must have at least one transition function.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

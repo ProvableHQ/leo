@@ -1,9 +1,53 @@
-Error [ETYC0372015]: Struct Bar defined with more than one member with the same name.
-    --> compiler-test:5:9
+Error [ETYC0372017]: the name `x` is defined multiple times in struct `Bar`
+    --> compiler-test:6:9
      |
    5 |         x: u32,
-     |         ^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+     |         ^^^^^^ previous definition of the member `x` here
+   6 |         x: u32,
+     |         ^^^^^^ `x` redefined here
+     |
+     = struct members must have unique names
+Error [ETYC0372017]: the name `name` is defined multiple times in struct `Person`
+    --> compiler-test:14:9
+     |
+  11 |         name: field,
+     |         ^^^^^^^^^^^ previous definition of the member `name` here
+     ...
+  14 |         name: field,
+     |         ^^^^^^^^^^^ `name` redefined here
+     |
+     = struct members must have unique names
+Error [ETYC0372017]: the name `id` is defined multiple times in struct `Data`
+    --> compiler-test:21:9
+     |
+  19 |         id: u32,
+     |         ^^^^^^^ previous definition of the member `id` here
+     ...
+  21 |         id: u32,
+     |         ^^^^^^^ `id` redefined here
+     |
+     = struct members must have unique names
+Error [ETYC0372017]: the name `value` is defined multiple times in struct `Data`
+    --> compiler-test:22:9
+     |
+  20 |         value: u64,
+     |         ^^^^^^^^^^ previous definition of the member `value` here
+     ...
+  22 |         value: u64,
+     |         ^^^^^^^^^^ `value` redefined here
+     |
+     = struct members must have unique names
+Error [ETYC0372017]: the name `host` is defined multiple times in struct `Config`
+    --> compiler-test:36:9
+     |
+  27 |         host: field,
+     |         ^^^^^^^^^^^ previous definition of the member `host` here
+     ...
+  36 |         host: field,
+     |         ^^^^^^^^^^^ `host` redefined here
+     |
+     = struct members must have unique names
+Error [ETYC0372085]: A program must have at least one transition function.
     --> compiler-test:2:9
      |
    2 | program test.aleo {
