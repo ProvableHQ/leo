@@ -1,4 +1,4 @@
-Error [EPAR0370047]: Identifier cannot start with an underscore
+Error [EPAR0370053]: Identifiers cannot start with an underscore.
     --> test:5:16
      |
    5 |         return _value;
