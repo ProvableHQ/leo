@@ -165,7 +165,7 @@ pub fn is_reserved_program_name(name: &str) -> bool {
 /// Generate a formatted help message listing all reserved keywords.
 pub fn reserved_keywords_help_message() -> String {
     format!(
-        "Choose a different program name that is not a reserved keyword. Reserved keywords include: {}.",
+        "Choose a different program name that is not an Aleo reserved keyword. Aleo reserved keywords are: {}.",
         reserved_keywords().join(", ")
     )
 }
