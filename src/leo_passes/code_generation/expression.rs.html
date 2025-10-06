@@ -277,16 +277,16 @@
 <a href=#277 id=277 data-nosnippet>277</a>
 <a href=#278 id=278 data-nosnippet>278</a>    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>StructExpression) -&gt; (String, String) {
 <a href=#279 id=279 data-nosnippet>279</a>        <span class="comment">// Lookup struct or record.
-<a href=#280 id=280 data-nosnippet>280</a>        </span><span class="kw">let </span>name = <span class="kw">if let </span><span class="prelude-val">Some</span>((is_record, type_)) = <span class="self">self</span>.composite_mapping.get(input.path.absolute_path()) {
+<a href=#280 id=280 data-nosnippet>280</a>        </span><span class="kw">let </span>name = <span class="kw">if let </span><span class="prelude-val">Some</span>((is_record, type_)) = <span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span>input.path.absolute_path()) {
 <a href=#281 id=281 data-nosnippet>281</a>            <span class="kw">if </span><span class="kw-2">*</span>is_record {
 <a href=#282 id=282 data-nosnippet>282</a>                <span class="comment">// record.private;
-<a href=#283 id=283 data-nosnippet>283</a>                </span><span class="kw">let </span>[record_name] = <span class="kw-2">&amp;</span>input.path.absolute_path() <span class="kw">else </span>{
+<a href=#283 id=283 data-nosnippet>283</a>                </span><span class="kw">let </span>[record_name] = <span class="kw-2">&amp;</span>input.path.absolute_path()[..] <span class="kw">else </span>{
 <a href=#284 id=284 data-nosnippet>284</a>                    <span class="macro">panic!</span>(<span class="string">"Absolute paths to records can only have a single segment at this stage."</span>)
 <a href=#285 id=285 data-nosnippet>285</a>                };
 <a href=#286 id=286 data-nosnippet>286</a>                <span class="macro">format!</span>(<span class="string">"{record_name}.{type_}"</span>)
 <a href=#287 id=287 data-nosnippet>287</a>            } <span class="kw">else </span>{
 <a href=#288 id=288 data-nosnippet>288</a>                <span class="comment">// foo; // no visibility for structs
-<a href=#289 id=289 data-nosnippet>289</a>                </span><span class="self">Self</span>::legalize_path(input.path.absolute_path()).expect(<span class="string">"path format cannot be legalized at this point"</span>)
+<a href=#289 id=289 data-nosnippet>289</a>                </span><span class="self">Self</span>::legalize_path(<span class="kw-2">&amp;</span>input.path.absolute_path()).expect(<span class="string">"path format cannot be legalized at this point"</span>)
 <a href=#290 id=290 data-nosnippet>290</a>            }
 <a href=#291 id=291 data-nosnippet>291</a>        } <span class="kw">else </span>{
 <a href=#292 id=292 data-nosnippet>292</a>            <span class="macro">panic!</span>(<span class="string">"All composite types should be known at this phase of compilation"</span>)
@@ -348,7 +348,7 @@
 <a href=#348 id=348 data-nosnippet>348</a>    <span class="kw">fn </span>visit_member_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>MemberAccess) -&gt; (String, String) {
 <a href=#349 id=349 data-nosnippet>349</a>        <span class="comment">// Handle `self.address`, `self.caller`, `self.checksum`, `self.edition`, `self.id`, `self.program_owner`, `self.signer`.
 <a href=#350 id=350 data-nosnippet>350</a>        </span><span class="kw">if let </span>Expression::Path(path) = input.inner.borrow()
-<a href=#351 id=351 data-nosnippet>351</a>            &amp;&amp; <span class="macro">matches!</span>(path.try_absolute_path(), <span class="prelude-val">Some</span>([sym::SelfLower]))
+<a href=#351 id=351 data-nosnippet>351</a>            &amp;&amp; <span class="macro">matches!</span>(path.try_absolute_path().as_deref(), <span class="prelude-val">Some</span>([sym::SelfLower]))
 <a href=#352 id=352 data-nosnippet>352</a>        {
 <a href=#353 id=353 data-nosnippet>353</a>            <span class="comment">// Get the current program ID.
 <a href=#354 id=354 data-nosnippet>354</a>            </span><span class="kw">let </span>program_id = <span class="self">self</span>.program_id.expect(<span class="string">"Program ID should be set before traversing the program"</span>);
@@ -495,266 +495,269 @@
 <a href=#495 id=495 data-nosnippet>495</a>                }
 <a href=#496 id=496 data-nosnippet>496</a>                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"The only variants of Mapping are get, get_or, and set"</span>),
 <a href=#497 id=497 data-nosnippet>497</a>            },
-<a href=#498 id=498 data-nosnippet>498</a>            sym::group =&gt; {
-<a href=#499 id=499 data-nosnippet>499</a>                <span class="kw">match </span>input.name {
-<a href=#500 id=500 data-nosnippet>500</a>                    Identifier { name: sym::to_x_coordinate, .. } =&gt; {
-<a href=#501 id=501 data-nosnippet>501</a>                        <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast"</span>.to_string();
-<a href=#502 id=502 data-nosnippet>502</a>                        <span class="kw">let </span>destination_register = <span class="self">self</span>.next_register();
-<a href=#503 id=503 data-nosnippet>503</a>                        <span class="comment">// Write the argument and the destination register.
-<a href=#504 id=504 data-nosnippet>504</a>                        </span><span class="macro">writeln!</span>(instruction, <span class="string">" {} into {destination_register} as group.x;"</span>, arguments[<span class="number">0</span>],)
-<a href=#505 id=505 data-nosnippet>505</a>                            .expect(<span class="string">"failed to write to string"</span>);
-<a href=#506 id=506 data-nosnippet>506</a>                        (destination_register, instruction)
-<a href=#507 id=507 data-nosnippet>507</a>                    }
-<a href=#508 id=508 data-nosnippet>508</a>                    Identifier { name: sym::to_y_coordinate, .. } =&gt; {
-<a href=#509 id=509 data-nosnippet>509</a>                        <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast"</span>.to_string();
-<a href=#510 id=510 data-nosnippet>510</a>                        <span class="kw">let </span>destination_register = <span class="self">self</span>.next_register();
-<a href=#511 id=511 data-nosnippet>511</a>                        <span class="comment">// Write the argument and the destination register.
-<a href=#512 id=512 data-nosnippet>512</a>                        </span><span class="macro">writeln!</span>(instruction, <span class="string">" {} into {destination_register} as group.y;"</span>, arguments[<span class="number">0</span>],)
-<a href=#513 id=513 data-nosnippet>513</a>                            .expect(<span class="string">"failed to write to string"</span>);
-<a href=#514 id=514 data-nosnippet>514</a>                        (destination_register, instruction)
-<a href=#515 id=515 data-nosnippet>515</a>                    }
-<a href=#516 id=516 data-nosnippet>516</a>                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"The only associated methods of `group` are `to_x_coordinate` and `to_y_coordinate`"</span>),
-<a href=#517 id=517 data-nosnippet>517</a>                }
-<a href=#518 id=518 data-nosnippet>518</a>            }
-<a href=#519 id=519 data-nosnippet>519</a>            sym::ChaCha =&gt; {
-<a href=#520 id=520 data-nosnippet>520</a>                <span class="comment">// Get the destination register.
-<a href=#521 id=521 data-nosnippet>521</a>                </span><span class="kw">let </span>destination_register = <span class="self">self</span>.next_register();
-<a href=#522 id=522 data-nosnippet>522</a>                <span class="comment">// Construct the instruction template.
-<a href=#523 id=523 data-nosnippet>523</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="macro">format!</span>(<span class="string">"    rand.chacha into {destination_register} as "</span>);
-<a href=#524 id=524 data-nosnippet>524</a>                <span class="comment">// Write the return type.
-<a href=#525 id=525 data-nosnippet>525</a>                </span><span class="kw">match </span>input.name {
-<a href=#526 id=526 data-nosnippet>526</a>                    Identifier { name: sym::rand_address, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"address;"</span>),
-<a href=#527 id=527 data-nosnippet>527</a>                    Identifier { name: sym::rand_bool, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"boolean;"</span>),
-<a href=#528 id=528 data-nosnippet>528</a>                    Identifier { name: sym::rand_field, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"field;"</span>),
-<a href=#529 id=529 data-nosnippet>529</a>                    Identifier { name: sym::rand_group, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"group;"</span>),
-<a href=#530 id=530 data-nosnippet>530</a>                    Identifier { name: sym::rand_i8, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i8;"</span>),
-<a href=#531 id=531 data-nosnippet>531</a>                    Identifier { name: sym::rand_i16, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i16;"</span>),
-<a href=#532 id=532 data-nosnippet>532</a>                    Identifier { name: sym::rand_i32, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i32;"</span>),
-<a href=#533 id=533 data-nosnippet>533</a>                    Identifier { name: sym::rand_i64, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i64;"</span>),
-<a href=#534 id=534 data-nosnippet>534</a>                    Identifier { name: sym::rand_i128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i128;"</span>),
-<a href=#535 id=535 data-nosnippet>535</a>                    Identifier { name: sym::rand_scalar, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"scalar;"</span>),
-<a href=#536 id=536 data-nosnippet>536</a>                    Identifier { name: sym::rand_u8, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u8;"</span>),
-<a href=#537 id=537 data-nosnippet>537</a>                    Identifier { name: sym::rand_u16, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u16;"</span>),
-<a href=#538 id=538 data-nosnippet>538</a>                    Identifier { name: sym::rand_u32, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u32;"</span>),
-<a href=#539 id=539 data-nosnippet>539</a>                    Identifier { name: sym::rand_u64, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u64;"</span>),
-<a href=#540 id=540 data-nosnippet>540</a>                    Identifier { name: sym::rand_u128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u128;"</span>),
-<a href=#541 id=541 data-nosnippet>541</a>                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"The only associated methods of ChaCha are `rand_*`"</span>),
-<a href=#542 id=542 data-nosnippet>542</a>                }
-<a href=#543 id=543 data-nosnippet>543</a>                .expect(<span class="string">"failed to write to string"</span>);
-<a href=#544 id=544 data-nosnippet>544</a>                (destination_register, instruction)
-<a href=#545 id=545 data-nosnippet>545</a>            }
-<a href=#546 id=546 data-nosnippet>546</a>            sym::signature =&gt; {
-<a href=#547 id=547 data-nosnippet>547</a>                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    sign.verify"</span>.to_string();
-<a href=#548 id=548 data-nosnippet>548</a>                <span class="kw">let </span>destination_register = <span class="self">self</span>.next_register();
-<a href=#549 id=549 data-nosnippet>549</a>                <span class="comment">// Write the arguments and the destination register.
-<a href=#550 id=550 data-nosnippet>550</a>                </span><span class="macro">writeln!</span>(
-<a href=#551 id=551 data-nosnippet>551</a>                    instruction,
-<a href=#552 id=552 data-nosnippet>552</a>                    <span class="string">" {} {} {} into {destination_register};"</span>,
-<a href=#553 id=553 data-nosnippet>553</a>                    arguments[<span class="number">0</span>], arguments[<span class="number">1</span>], arguments[<span class="number">2</span>]
-<a href=#554 id=554 data-nosnippet>554</a>                )
-<a href=#555 id=555 data-nosnippet>555</a>                .expect(<span class="string">"failed to write to string"</span>);
-<a href=#556 id=556 data-nosnippet>556</a>                (destination_register, instruction)
-<a href=#557 id=557 data-nosnippet>557</a>            }
-<a href=#558 id=558 data-nosnippet>558</a>            sym::Future =&gt; {
-<a href=#559 id=559 data-nosnippet>559</a>                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    await"</span>.to_string();
-<a href=#560 id=560 data-nosnippet>560</a>                <span class="macro">writeln!</span>(instruction, <span class="string">" {};"</span>, arguments[<span class="number">0</span>]).expect(<span class="string">"failed to write to string"</span>);
-<a href=#561 id=561 data-nosnippet>561</a>                (String::new(), instruction)
-<a href=#562 id=562 data-nosnippet>562</a>            }
-<a href=#563 id=563 data-nosnippet>563</a>            sym::ProgramCore =&gt; {
-<a href=#564 id=564 data-nosnippet>564</a>                <span class="kw">match </span>input.name.name {
-<a href=#565 id=565 data-nosnippet>565</a>                    <span class="comment">// Generate code for `Program::checksum`, `Program::edition`, and `Program::program_owner`
-<a href=#566 id=566 data-nosnippet>566</a>                    </span>name @ (sym::checksum | sym::edition | sym::program_owner) =&gt; {
-<a href=#567 id=567 data-nosnippet>567</a>                        <span class="comment">// Get the program ID from the first argument.
-<a href=#568 id=568 data-nosnippet>568</a>                        </span><span class="kw">let </span>program_id =
-<a href=#569 id=569 data-nosnippet>569</a>                            ProgramId::from_str_with_network(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].replace(<span class="string">"\""</span>, <span class="string">""</span>), <span class="self">self</span>.state.network)
-<a href=#570 id=570 data-nosnippet>570</a>                                .expect(<span class="string">"Type checking guarantees that the program name is valid"</span>);
-<a href=#571 id=571 data-nosnippet>571</a>                        <span class="comment">// If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
-<a href=#572 id=572 data-nosnippet>572</a>                        </span><span class="kw">let </span>operand = <span class="kw">match </span>program_id.to_string()
-<a href=#573 id=573 data-nosnippet>573</a>                            == <span class="self">self</span>.program_id.expect(<span class="string">"The program ID is set before traversing the program"</span>).to_string()
-<a href=#574 id=574 data-nosnippet>574</a>                        {
-<a href=#575 id=575 data-nosnippet>575</a>                            <span class="bool-val">true </span>=&gt; name.to_string(),
-<a href=#576 id=576 data-nosnippet>576</a>                            <span class="bool-val">false </span>=&gt; <span class="macro">format!</span>(<span class="string">"{program_id}/{name}"</span>),
-<a href=#577 id=577 data-nosnippet>577</a>                        };
-<a href=#578 id=578 data-nosnippet>578</a>                        (operand, String::new())
-<a href=#579 id=579 data-nosnippet>579</a>                    }
-<a href=#580 id=580 data-nosnippet>580</a>                    <span class="comment">// No other variants are allowed.
-<a href=#581 id=581 data-nosnippet>581</a>                    </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-<a href=#582 id=582 data-nosnippet>582</a>                        <span class="string">"The only associated methods of `Program` are `checksum`, `edition`, and `program_owner`"
-<a href=#583 id=583 data-nosnippet>583</a>                    </span>),
-<a href=#584 id=584 data-nosnippet>584</a>                }
-<a href=#585 id=585 data-nosnippet>585</a>            }
-<a href=#586 id=586 data-nosnippet>586</a>            sym::CheatCode =&gt; {
-<a href=#587 id=587 data-nosnippet>587</a>                (String::new(), String::new())
-<a href=#588 id=588 data-nosnippet>588</a>                <span class="comment">// Do nothing. Cheat codes do not generate instructions.
-<a href=#589 id=589 data-nosnippet>589</a>            </span>}
-<a href=#590 id=590 data-nosnippet>590</a>            <span class="kw">_ </span>=&gt; {
-<a href=#591 id=591 data-nosnippet>591</a>                <span class="macro">panic!</span>(<span class="string">"All core functions should be known at this phase of compilation"</span>)
-<a href=#592 id=592 data-nosnippet>592</a>            }
-<a href=#593 id=593 data-nosnippet>593</a>        };
-<a href=#594 id=594 data-nosnippet>594</a>        <span class="comment">// Add the instruction to the list of instructions.
-<a href=#595 id=595 data-nosnippet>595</a>        </span>instructions.push_str(<span class="kw-2">&amp;</span>instruction);
-<a href=#596 id=596 data-nosnippet>596</a>
-<a href=#597 id=597 data-nosnippet>597</a>        (destination, instructions)
-<a href=#598 id=598 data-nosnippet>598</a>    }
-<a href=#599 id=599 data-nosnippet>599</a>
-<a href=#600 id=600 data-nosnippet>600</a>    <span class="kw">fn </span>visit_async(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>AsyncExpression) -&gt; (String, String) {
-<a href=#601 id=601 data-nosnippet>601</a>        <span class="macro">panic!</span>(<span class="string">"`AsyncExpression`s should not be in the AST at this phase of compilation."</span>)
-<a href=#602 id=602 data-nosnippet>602</a>    }
-<a href=#603 id=603 data-nosnippet>603</a>
-<a href=#604 id=604 data-nosnippet>604</a>    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CallExpression) -&gt; (String, String) {
-<a href=#605 id=605 data-nosnippet>605</a>        <span class="kw">let </span>caller_program = <span class="self">self</span>.program_id.expect(<span class="string">"Calls only appear within programs."</span>).name.name;
-<a href=#606 id=606 data-nosnippet>606</a>        <span class="kw">let </span>callee_program = input.program.unwrap_or(caller_program);
-<a href=#607 id=607 data-nosnippet>607</a>        <span class="kw">let </span>func_symbol = <span class="self">self
-<a href=#608 id=608 data-nosnippet>608</a>            </span>.state
-<a href=#609 id=609 data-nosnippet>609</a>            .symbol_table
-<a href=#610 id=610 data-nosnippet>610</a>            .lookup_function(<span class="kw-2">&amp;</span>Location::new(callee_program, input.function.absolute_path().to_vec()))
-<a href=#611 id=611 data-nosnippet>611</a>            .expect(<span class="string">"Type checking guarantees functions exist"</span>);
-<a href=#612 id=612 data-nosnippet>612</a>
-<a href=#613 id=613 data-nosnippet>613</a>        <span class="comment">// Need to determine the program the function originated from as well as if the function has a finalize block.
-<a href=#614 id=614 data-nosnippet>614</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>call_instruction = <span class="kw">if </span>caller_program != callee_program {
-<a href=#615 id=615 data-nosnippet>615</a>            <span class="comment">// All external functions must be defined as stubs.
-<a href=#616 id=616 data-nosnippet>616</a>            </span><span class="macro">assert!</span>(
-<a href=#617 id=617 data-nosnippet>617</a>                <span class="self">self</span>.program.stubs.get(<span class="kw-2">&amp;</span>callee_program).is_some(),
-<a href=#618 id=618 data-nosnippet>618</a>                <span class="string">"Type checking guarantees that imported and stub programs are present."
-<a href=#619 id=619 data-nosnippet>619</a>            </span>);
-<a href=#620 id=620 data-nosnippet>620</a>            <span class="macro">format!</span>(<span class="string">"    call {}.aleo/{}"</span>, callee_program, input.function)
-<a href=#621 id=621 data-nosnippet>621</a>        } <span class="kw">else if </span>func_symbol.function.variant.is_async() {
-<a href=#622 id=622 data-nosnippet>622</a>            <span class="macro">format!</span>(<span class="string">"    async {}"</span>, <span class="self">self</span>.current_function.unwrap().identifier)
-<a href=#623 id=623 data-nosnippet>623</a>        } <span class="kw">else </span>{
-<a href=#624 id=624 data-nosnippet>624</a>            <span class="macro">format!</span>(<span class="string">"    call {}"</span>, input.function)
-<a href=#625 id=625 data-nosnippet>625</a>        };
-<a href=#626 id=626 data-nosnippet>626</a>
-<a href=#627 id=627 data-nosnippet>627</a>        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
-<a href=#628 id=628 data-nosnippet>628</a>
-<a href=#629 id=629 data-nosnippet>629</a>        <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
-<a href=#630 id=630 data-nosnippet>630</a>            <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
-<a href=#631 id=631 data-nosnippet>631</a>            <span class="macro">write!</span>(call_instruction, <span class="string">" {argument}"</span>).expect(<span class="string">"failed to write to string"</span>);
-<a href=#632 id=632 data-nosnippet>632</a>            instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
-<a href=#633 id=633 data-nosnippet>633</a>        }
-<a href=#634 id=634 data-nosnippet>634</a>
-<a href=#635 id=635 data-nosnippet>635</a>        <span class="comment">// Initialize storage for the destination registers.
-<a href=#636 id=636 data-nosnippet>636</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>destinations = Vec::new();
-<a href=#637 id=637 data-nosnippet>637</a>
-<a href=#638 id=638 data-nosnippet>638</a>        <span class="comment">// Create operands for the output registers.
-<a href=#639 id=639 data-nosnippet>639</a>        </span><span class="kw">match </span>func_symbol.function.output_type.clone() {
-<a href=#640 id=640 data-nosnippet>640</a>            Type::Unit =&gt; {} <span class="comment">// Do nothing
-<a href=#641 id=641 data-nosnippet>641</a>            </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
-<a href=#642 id=642 data-nosnippet>642</a>                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Parsing guarantees that a tuple type has at least two elements"</span>),
-<a href=#643 id=643 data-nosnippet>643</a>                len =&gt; {
-<a href=#644 id=644 data-nosnippet>644</a>                    <span class="kw">for _ in </span><span class="number">0</span>..len {
-<a href=#645 id=645 data-nosnippet>645</a>                        destinations.push(<span class="self">self</span>.next_register());
-<a href=#646 id=646 data-nosnippet>646</a>                    }
-<a href=#647 id=647 data-nosnippet>647</a>                }
-<a href=#648 id=648 data-nosnippet>648</a>            },
-<a href=#649 id=649 data-nosnippet>649</a>            <span class="kw">_ </span>=&gt; {
-<a href=#650 id=650 data-nosnippet>650</a>                destinations.push(<span class="self">self</span>.next_register());
-<a href=#651 id=651 data-nosnippet>651</a>            }
-<a href=#652 id=652 data-nosnippet>652</a>        }
-<a href=#653 id=653 data-nosnippet>653</a>
-<a href=#654 id=654 data-nosnippet>654</a>        <span class="comment">// Add a register for async functions to represent the future created.
-<a href=#655 id=655 data-nosnippet>655</a>        </span><span class="kw">if </span>func_symbol.function.variant == Variant::AsyncFunction {
-<a href=#656 id=656 data-nosnippet>656</a>            destinations.push(<span class="self">self</span>.next_register());
-<a href=#657 id=657 data-nosnippet>657</a>        }
-<a href=#658 id=658 data-nosnippet>658</a>
-<a href=#659 id=659 data-nosnippet>659</a>        <span class="comment">// Construct the output operands. These are the destination registers **without** the future.
-<a href=#660 id=660 data-nosnippet>660</a>        </span><span class="kw">let </span>output_operands = destinations.join(<span class="string">" "</span>);
-<a href=#661 id=661 data-nosnippet>661</a>
-<a href=#662 id=662 data-nosnippet>662</a>        <span class="comment">// If destination registers were created, write them to the call instruction.
-<a href=#663 id=663 data-nosnippet>663</a>        </span><span class="kw">if </span>!destinations.is_empty() {
-<a href=#664 id=664 data-nosnippet>664</a>            <span class="macro">write!</span>(call_instruction, <span class="string">" into"</span>).expect(<span class="string">"failed to write to string"</span>);
-<a href=#665 id=665 data-nosnippet>665</a>            <span class="kw">for </span>destination <span class="kw">in </span><span class="kw-2">&amp;</span>destinations {
-<a href=#666 id=666 data-nosnippet>666</a>                <span class="macro">write!</span>(call_instruction, <span class="string">" {destination}"</span>).expect(<span class="string">"failed to write to string"</span>);
-<a href=#667 id=667 data-nosnippet>667</a>            }
-<a href=#668 id=668 data-nosnippet>668</a>        }
-<a href=#669 id=669 data-nosnippet>669</a>
-<a href=#670 id=670 data-nosnippet>670</a>        <span class="comment">// Write the closing semicolon.
-<a href=#671 id=671 data-nosnippet>671</a>        </span><span class="macro">writeln!</span>(call_instruction, <span class="string">";"</span>).expect(<span class="string">"failed to write to string"</span>);
-<a href=#672 id=672 data-nosnippet>672</a>
-<a href=#673 id=673 data-nosnippet>673</a>        <span class="comment">// Push the call instruction to the list of instructions.
-<a href=#674 id=674 data-nosnippet>674</a>        </span>instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
-<a href=#675 id=675 data-nosnippet>675</a>
-<a href=#676 id=676 data-nosnippet>676</a>        <span class="comment">// Return the output operands and the instructions.
-<a href=#677 id=677 data-nosnippet>677</a>        </span>(output_operands, instructions)
-<a href=#678 id=678 data-nosnippet>678</a>    }
-<a href=#679 id=679 data-nosnippet>679</a>
-<a href=#680 id=680 data-nosnippet>680</a>    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleExpression) -&gt; (String, String) {
-<a href=#681 id=681 data-nosnippet>681</a>        <span class="comment">// Need to return a single string here so we will join the tuple elements with ' '
-<a href=#682 id=682 data-nosnippet>682</a>        // and split them after this method is called.
-<a href=#683 id=683 data-nosnippet>683</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>tuple_elements = Vec::with_capacity(input.elements.len());
-<a href=#684 id=684 data-nosnippet>684</a>        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
-<a href=#685 id=685 data-nosnippet>685</a>
-<a href=#686 id=686 data-nosnippet>686</a>        <span class="comment">// Visit each tuple element and accumulate instructions from expressions.
-<a href=#687 id=687 data-nosnippet>687</a>        </span><span class="kw">for </span>element <span class="kw">in </span>input.elements.iter() {
-<a href=#688 id=688 data-nosnippet>688</a>            <span class="kw">let </span>(element, element_instructions) = <span class="self">self</span>.visit_expression(element);
-<a href=#689 id=689 data-nosnippet>689</a>            tuple_elements.push(element);
-<a href=#690 id=690 data-nosnippet>690</a>            instructions.push_str(<span class="kw-2">&amp;</span>element_instructions);
-<a href=#691 id=691 data-nosnippet>691</a>        }
-<a href=#692 id=692 data-nosnippet>692</a>
-<a href=#693 id=693 data-nosnippet>693</a>        <span class="comment">// CAUTION: does not return the destination_register.
-<a href=#694 id=694 data-nosnippet>694</a>        </span>(tuple_elements.join(<span class="string">" "</span>), instructions)
-<a href=#695 id=695 data-nosnippet>695</a>    }
-<a href=#696 id=696 data-nosnippet>696</a>
-<a href=#697 id=697 data-nosnippet>697</a>    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression) -&gt; (String, String) {
-<a href=#698 id=698 data-nosnippet>698</a>        <span class="macro">panic!</span>(<span class="string">"`UnitExpression`s should not be visited during code generation."</span>)
-<a href=#699 id=699 data-nosnippet>699</a>    }
-<a href=#700 id=700 data-nosnippet>700</a>
-<a href=#701 id=701 data-nosnippet>701</a>    <span class="kw">pub fn </span>clone_register(<span class="kw-2">&amp;mut </span><span class="self">self</span>, register: <span class="kw-2">&amp;</span>str, typ: <span class="kw-2">&amp;</span>Type) -&gt; (String, String) {
-<a href=#702 id=702 data-nosnippet>702</a>        <span class="kw">let </span>new_reg = <span class="self">self</span>.next_register();
-<a href=#703 id=703 data-nosnippet>703</a>        <span class="kw">match </span>typ {
-<a href=#704 id=704 data-nosnippet>704</a>            Type::Address
-<a href=#705 id=705 data-nosnippet>705</a>            | Type::Boolean
-<a href=#706 id=706 data-nosnippet>706</a>            | Type::Field
-<a href=#707 id=707 data-nosnippet>707</a>            | Type::Group
-<a href=#708 id=708 data-nosnippet>708</a>            | Type::Scalar
-<a href=#709 id=709 data-nosnippet>709</a>            | Type::Signature
-<a href=#710 id=710 data-nosnippet>710</a>            | Type::Integer(<span class="kw">_</span>) =&gt; {
-<a href=#711 id=711 data-nosnippet>711</a>                <span class="comment">// These types can be cloned just by casting them to themselves.
-<a href=#712 id=712 data-nosnippet>712</a>                </span><span class="kw">let </span>instruction = <span class="macro">format!</span>(<span class="string">"    cast {register} into {new_reg} as {typ};\n"</span>);
-<a href=#713 id=713 data-nosnippet>713</a>                (new_reg, instruction)
-<a href=#714 id=714 data-nosnippet>714</a>            }
-<a href=#715 id=715 data-nosnippet>715</a>
-<a href=#716 id=716 data-nosnippet>716</a>            Type::Array(array_type) =&gt; {
-<a href=#717 id=717 data-nosnippet>717</a>                <span class="comment">// We need to cast the old array's members into the new array.
-<a href=#718 id=718 data-nosnippet>718</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast "</span>.to_string();
-<a href=#719 id=719 data-nosnippet>719</a>                <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..array_type.length.as_u32().expect(<span class="string">"length should be known at this point"</span>) <span class="kw">as </span>usize {
-<a href=#720 id=720 data-nosnippet>720</a>                    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>instruction, <span class="string">"{register}[{i}u32] "</span>).unwrap();
-<a href=#721 id=721 data-nosnippet>721</a>                }
-<a href=#722 id=722 data-nosnippet>722</a>                <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut </span>instruction, <span class="string">"into {new_reg} as {};"</span>, <span class="self">Self</span>::visit_type(typ)).unwrap();
-<a href=#723 id=723 data-nosnippet>723</a>                (new_reg, instruction)
-<a href=#724 id=724 data-nosnippet>724</a>            }
-<a href=#725 id=725 data-nosnippet>725</a>
-<a href=#726 id=726 data-nosnippet>726</a>            Type::Composite(comp_ty) =&gt; {
-<a href=#727 id=727 data-nosnippet>727</a>                <span class="comment">// We need to cast the old struct or record's members into the new one.
-<a href=#728 id=728 data-nosnippet>728</a>                </span><span class="kw">let </span>program = comp_ty.program.unwrap_or(<span class="self">self</span>.program_id.unwrap().name.name);
-<a href=#729 id=729 data-nosnippet>729</a>                <span class="kw">let </span>location = Location::new(program, comp_ty.path.absolute_path().to_vec());
-<a href=#730 id=730 data-nosnippet>730</a>                <span class="kw">let </span>comp = <span class="self">self
-<a href=#731 id=731 data-nosnippet>731</a>                    </span>.state
-<a href=#732 id=732 data-nosnippet>732</a>                    .symbol_table
-<a href=#733 id=733 data-nosnippet>733</a>                    .lookup_record(<span class="kw-2">&amp;</span>location)
-<a href=#734 id=734 data-nosnippet>734</a>                    .or_else(|| <span class="self">self</span>.state.symbol_table.lookup_struct(comp_ty.path.absolute_path()))
-<a href=#735 id=735 data-nosnippet>735</a>                    .unwrap();
-<a href=#736 id=736 data-nosnippet>736</a>                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast "</span>.to_string();
-<a href=#737 id=737 data-nosnippet>737</a>                <span class="kw">for </span>member <span class="kw">in </span><span class="kw-2">&amp;</span>comp.members {
-<a href=#738 id=738 data-nosnippet>738</a>                    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>instruction, <span class="string">"{register}.{} "</span>, member.identifier.name).unwrap();
-<a href=#739 id=739 data-nosnippet>739</a>                }
-<a href=#740 id=740 data-nosnippet>740</a>                <span class="macro">writeln!</span>(
-<a href=#741 id=741 data-nosnippet>741</a>                    <span class="kw-2">&amp;mut </span>instruction,
-<a href=#742 id=742 data-nosnippet>742</a>                    <span class="string">"into {new_reg} as {};"</span>,
-<a href=#743 id=743 data-nosnippet>743</a>                    <span class="comment">// We call `..with_visibility` just so we get the `.record` appended if it's a record.
-<a href=#744 id=744 data-nosnippet>744</a>                    </span><span class="self">self</span>.visit_type_with_visibility(typ, leo_ast::Mode::None)
-<a href=#745 id=745 data-nosnippet>745</a>                )
-<a href=#746 id=746 data-nosnippet>746</a>                .unwrap();
-<a href=#747 id=747 data-nosnippet>747</a>                (new_reg, instruction)
-<a href=#748 id=748 data-nosnippet>748</a>            }
-<a href=#749 id=749 data-nosnippet>749</a>
-<a href=#750 id=750 data-nosnippet>750</a>            Type::Mapping(..)
-<a href=#751 id=751 data-nosnippet>751</a>            | Type::Future(..)
-<a href=#752 id=752 data-nosnippet>752</a>            | Type::Tuple(..)
-<a href=#753 id=753 data-nosnippet>753</a>            | Type::Identifier(..)
-<a href=#754 id=754 data-nosnippet>754</a>            | Type::String
-<a href=#755 id=755 data-nosnippet>755</a>            | Type::Unit
-<a href=#756 id=756 data-nosnippet>756</a>            | Type::Numeric
-<a href=#757 id=757 data-nosnippet>757</a>            | Type::Err =&gt; <span class="macro">panic!</span>(<span class="string">"Objects of type {typ} cannot be cloned."</span>),
-<a href=#758 id=758 data-nosnippet>758</a>        }
-<a href=#759 id=759 data-nosnippet>759</a>    }
-<a href=#760 id=760 data-nosnippet>760</a>}</code></pre></div></section></main></body></html>
+<a href=#498 id=498 data-nosnippet>498</a>            sym::Optional =&gt; <span class="macro">panic!</span>(<span class="string">"Functions for optional types should have been lowered by now."</span>),
+<a href=#499 id=499 data-nosnippet>499</a>            sym::group =&gt; {
+<a href=#500 id=500 data-nosnippet>500</a>                <span class="kw">match </span>input.name {
+<a href=#501 id=501 data-nosnippet>501</a>                    Identifier { name: sym::to_x_coordinate, .. } =&gt; {
+<a href=#502 id=502 data-nosnippet>502</a>                        <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast"</span>.to_string();
+<a href=#503 id=503 data-nosnippet>503</a>                        <span class="kw">let </span>destination_register = <span class="self">self</span>.next_register();
+<a href=#504 id=504 data-nosnippet>504</a>                        <span class="comment">// Write the argument and the destination register.
+<a href=#505 id=505 data-nosnippet>505</a>                        </span><span class="macro">writeln!</span>(instruction, <span class="string">" {} into {destination_register} as group.x;"</span>, arguments[<span class="number">0</span>],)
+<a href=#506 id=506 data-nosnippet>506</a>                            .expect(<span class="string">"failed to write to string"</span>);
+<a href=#507 id=507 data-nosnippet>507</a>                        (destination_register, instruction)
+<a href=#508 id=508 data-nosnippet>508</a>                    }
+<a href=#509 id=509 data-nosnippet>509</a>                    Identifier { name: sym::to_y_coordinate, .. } =&gt; {
+<a href=#510 id=510 data-nosnippet>510</a>                        <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast"</span>.to_string();
+<a href=#511 id=511 data-nosnippet>511</a>                        <span class="kw">let </span>destination_register = <span class="self">self</span>.next_register();
+<a href=#512 id=512 data-nosnippet>512</a>                        <span class="comment">// Write the argument and the destination register.
+<a href=#513 id=513 data-nosnippet>513</a>                        </span><span class="macro">writeln!</span>(instruction, <span class="string">" {} into {destination_register} as group.y;"</span>, arguments[<span class="number">0</span>],)
+<a href=#514 id=514 data-nosnippet>514</a>                            .expect(<span class="string">"failed to write to string"</span>);
+<a href=#515 id=515 data-nosnippet>515</a>                        (destination_register, instruction)
+<a href=#516 id=516 data-nosnippet>516</a>                    }
+<a href=#517 id=517 data-nosnippet>517</a>                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"The only associated methods of `group` are `to_x_coordinate` and `to_y_coordinate`"</span>),
+<a href=#518 id=518 data-nosnippet>518</a>                }
+<a href=#519 id=519 data-nosnippet>519</a>            }
+<a href=#520 id=520 data-nosnippet>520</a>            sym::ChaCha =&gt; {
+<a href=#521 id=521 data-nosnippet>521</a>                <span class="comment">// Get the destination register.
+<a href=#522 id=522 data-nosnippet>522</a>                </span><span class="kw">let </span>destination_register = <span class="self">self</span>.next_register();
+<a href=#523 id=523 data-nosnippet>523</a>                <span class="comment">// Construct the instruction template.
+<a href=#524 id=524 data-nosnippet>524</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="macro">format!</span>(<span class="string">"    rand.chacha into {destination_register} as "</span>);
+<a href=#525 id=525 data-nosnippet>525</a>                <span class="comment">// Write the return type.
+<a href=#526 id=526 data-nosnippet>526</a>                </span><span class="kw">match </span>input.name {
+<a href=#527 id=527 data-nosnippet>527</a>                    Identifier { name: sym::rand_address, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"address;"</span>),
+<a href=#528 id=528 data-nosnippet>528</a>                    Identifier { name: sym::rand_bool, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"boolean;"</span>),
+<a href=#529 id=529 data-nosnippet>529</a>                    Identifier { name: sym::rand_field, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"field;"</span>),
+<a href=#530 id=530 data-nosnippet>530</a>                    Identifier { name: sym::rand_group, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"group;"</span>),
+<a href=#531 id=531 data-nosnippet>531</a>                    Identifier { name: sym::rand_i8, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i8;"</span>),
+<a href=#532 id=532 data-nosnippet>532</a>                    Identifier { name: sym::rand_i16, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i16;"</span>),
+<a href=#533 id=533 data-nosnippet>533</a>                    Identifier { name: sym::rand_i32, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i32;"</span>),
+<a href=#534 id=534 data-nosnippet>534</a>                    Identifier { name: sym::rand_i64, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i64;"</span>),
+<a href=#535 id=535 data-nosnippet>535</a>                    Identifier { name: sym::rand_i128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i128;"</span>),
+<a href=#536 id=536 data-nosnippet>536</a>                    Identifier { name: sym::rand_scalar, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"scalar;"</span>),
+<a href=#537 id=537 data-nosnippet>537</a>                    Identifier { name: sym::rand_u8, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u8;"</span>),
+<a href=#538 id=538 data-nosnippet>538</a>                    Identifier { name: sym::rand_u16, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u16;"</span>),
+<a href=#539 id=539 data-nosnippet>539</a>                    Identifier { name: sym::rand_u32, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u32;"</span>),
+<a href=#540 id=540 data-nosnippet>540</a>                    Identifier { name: sym::rand_u64, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u64;"</span>),
+<a href=#541 id=541 data-nosnippet>541</a>                    Identifier { name: sym::rand_u128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u128;"</span>),
+<a href=#542 id=542 data-nosnippet>542</a>                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"The only associated methods of ChaCha are `rand_*`"</span>),
+<a href=#543 id=543 data-nosnippet>543</a>                }
+<a href=#544 id=544 data-nosnippet>544</a>                .expect(<span class="string">"failed to write to string"</span>);
+<a href=#545 id=545 data-nosnippet>545</a>                (destination_register, instruction)
+<a href=#546 id=546 data-nosnippet>546</a>            }
+<a href=#547 id=547 data-nosnippet>547</a>            sym::signature =&gt; {
+<a href=#548 id=548 data-nosnippet>548</a>                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    sign.verify"</span>.to_string();
+<a href=#549 id=549 data-nosnippet>549</a>                <span class="kw">let </span>destination_register = <span class="self">self</span>.next_register();
+<a href=#550 id=550 data-nosnippet>550</a>                <span class="comment">// Write the arguments and the destination register.
+<a href=#551 id=551 data-nosnippet>551</a>                </span><span class="macro">writeln!</span>(
+<a href=#552 id=552 data-nosnippet>552</a>                    instruction,
+<a href=#553 id=553 data-nosnippet>553</a>                    <span class="string">" {} {} {} into {destination_register};"</span>,
+<a href=#554 id=554 data-nosnippet>554</a>                    arguments[<span class="number">0</span>], arguments[<span class="number">1</span>], arguments[<span class="number">2</span>]
+<a href=#555 id=555 data-nosnippet>555</a>                )
+<a href=#556 id=556 data-nosnippet>556</a>                .expect(<span class="string">"failed to write to string"</span>);
+<a href=#557 id=557 data-nosnippet>557</a>                (destination_register, instruction)
+<a href=#558 id=558 data-nosnippet>558</a>            }
+<a href=#559 id=559 data-nosnippet>559</a>            sym::Future =&gt; {
+<a href=#560 id=560 data-nosnippet>560</a>                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    await"</span>.to_string();
+<a href=#561 id=561 data-nosnippet>561</a>                <span class="macro">writeln!</span>(instruction, <span class="string">" {};"</span>, arguments[<span class="number">0</span>]).expect(<span class="string">"failed to write to string"</span>);
+<a href=#562 id=562 data-nosnippet>562</a>                (String::new(), instruction)
+<a href=#563 id=563 data-nosnippet>563</a>            }
+<a href=#564 id=564 data-nosnippet>564</a>            sym::ProgramCore =&gt; {
+<a href=#565 id=565 data-nosnippet>565</a>                <span class="kw">match </span>input.name.name {
+<a href=#566 id=566 data-nosnippet>566</a>                    <span class="comment">// Generate code for `Program::checksum`, `Program::edition`, and `Program::program_owner`
+<a href=#567 id=567 data-nosnippet>567</a>                    </span>name @ (sym::checksum | sym::edition | sym::program_owner) =&gt; {
+<a href=#568 id=568 data-nosnippet>568</a>                        <span class="comment">// Get the program ID from the first argument.
+<a href=#569 id=569 data-nosnippet>569</a>                        </span><span class="kw">let </span>program_id =
+<a href=#570 id=570 data-nosnippet>570</a>                            ProgramId::from_str_with_network(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].replace(<span class="string">"\""</span>, <span class="string">""</span>), <span class="self">self</span>.state.network)
+<a href=#571 id=571 data-nosnippet>571</a>                                .expect(<span class="string">"Type checking guarantees that the program name is valid"</span>);
+<a href=#572 id=572 data-nosnippet>572</a>                        <span class="comment">// If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
+<a href=#573 id=573 data-nosnippet>573</a>                        </span><span class="kw">let </span>operand = <span class="kw">match </span>program_id.to_string()
+<a href=#574 id=574 data-nosnippet>574</a>                            == <span class="self">self</span>.program_id.expect(<span class="string">"The program ID is set before traversing the program"</span>).to_string()
+<a href=#575 id=575 data-nosnippet>575</a>                        {
+<a href=#576 id=576 data-nosnippet>576</a>                            <span class="bool-val">true </span>=&gt; name.to_string(),
+<a href=#577 id=577 data-nosnippet>577</a>                            <span class="bool-val">false </span>=&gt; <span class="macro">format!</span>(<span class="string">"{program_id}/{name}"</span>),
+<a href=#578 id=578 data-nosnippet>578</a>                        };
+<a href=#579 id=579 data-nosnippet>579</a>                        (operand, String::new())
+<a href=#580 id=580 data-nosnippet>580</a>                    }
+<a href=#581 id=581 data-nosnippet>581</a>                    <span class="comment">// No other variants are allowed.
+<a href=#582 id=582 data-nosnippet>582</a>                    </span><span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
+<a href=#583 id=583 data-nosnippet>583</a>                        <span class="string">"The only associated methods of `Program` are `checksum`, `edition`, and `program_owner`"
+<a href=#584 id=584 data-nosnippet>584</a>                    </span>),
+<a href=#585 id=585 data-nosnippet>585</a>                }
+<a href=#586 id=586 data-nosnippet>586</a>            }
+<a href=#587 id=587 data-nosnippet>587</a>            sym::CheatCode =&gt; {
+<a href=#588 id=588 data-nosnippet>588</a>                (String::new(), String::new())
+<a href=#589 id=589 data-nosnippet>589</a>                <span class="comment">// Do nothing. Cheat codes do not generate instructions.
+<a href=#590 id=590 data-nosnippet>590</a>            </span>}
+<a href=#591 id=591 data-nosnippet>591</a>            <span class="kw">_ </span>=&gt; {
+<a href=#592 id=592 data-nosnippet>592</a>                <span class="macro">panic!</span>(<span class="string">"All core functions should be known at this phase of compilation"</span>)
+<a href=#593 id=593 data-nosnippet>593</a>            }
+<a href=#594 id=594 data-nosnippet>594</a>        };
+<a href=#595 id=595 data-nosnippet>595</a>        <span class="comment">// Add the instruction to the list of instructions.
+<a href=#596 id=596 data-nosnippet>596</a>        </span>instructions.push_str(<span class="kw-2">&amp;</span>instruction);
+<a href=#597 id=597 data-nosnippet>597</a>
+<a href=#598 id=598 data-nosnippet>598</a>        (destination, instructions)
+<a href=#599 id=599 data-nosnippet>599</a>    }
+<a href=#600 id=600 data-nosnippet>600</a>
+<a href=#601 id=601 data-nosnippet>601</a>    <span class="kw">fn </span>visit_async(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>AsyncExpression) -&gt; (String, String) {
+<a href=#602 id=602 data-nosnippet>602</a>        <span class="macro">panic!</span>(<span class="string">"`AsyncExpression`s should not be in the AST at this phase of compilation."</span>)
+<a href=#603 id=603 data-nosnippet>603</a>    }
+<a href=#604 id=604 data-nosnippet>604</a>
+<a href=#605 id=605 data-nosnippet>605</a>    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CallExpression) -&gt; (String, String) {
+<a href=#606 id=606 data-nosnippet>606</a>        <span class="kw">let </span>caller_program = <span class="self">self</span>.program_id.expect(<span class="string">"Calls only appear within programs."</span>).name.name;
+<a href=#607 id=607 data-nosnippet>607</a>        <span class="kw">let </span>callee_program = input.program.unwrap_or(caller_program);
+<a href=#608 id=608 data-nosnippet>608</a>        <span class="kw">let </span>func_symbol = <span class="self">self
+<a href=#609 id=609 data-nosnippet>609</a>            </span>.state
+<a href=#610 id=610 data-nosnippet>610</a>            .symbol_table
+<a href=#611 id=611 data-nosnippet>611</a>            .lookup_function(<span class="kw-2">&amp;</span>Location::new(callee_program, input.function.absolute_path().to_vec()))
+<a href=#612 id=612 data-nosnippet>612</a>            .expect(<span class="string">"Type checking guarantees functions exist"</span>);
+<a href=#613 id=613 data-nosnippet>613</a>
+<a href=#614 id=614 data-nosnippet>614</a>        <span class="comment">// Need to determine the program the function originated from as well as if the function has a finalize block.
+<a href=#615 id=615 data-nosnippet>615</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>call_instruction = <span class="kw">if </span>caller_program != callee_program {
+<a href=#616 id=616 data-nosnippet>616</a>            <span class="comment">// All external functions must be defined as stubs.
+<a href=#617 id=617 data-nosnippet>617</a>            </span><span class="macro">assert!</span>(
+<a href=#618 id=618 data-nosnippet>618</a>                <span class="self">self</span>.program.stubs.get(<span class="kw-2">&amp;</span>callee_program).is_some(),
+<a href=#619 id=619 data-nosnippet>619</a>                <span class="string">"Type checking guarantees that imported and stub programs are present."
+<a href=#620 id=620 data-nosnippet>620</a>            </span>);
+<a href=#621 id=621 data-nosnippet>621</a>            <span class="macro">format!</span>(<span class="string">"    call {}.aleo/{}"</span>, callee_program, input.function)
+<a href=#622 id=622 data-nosnippet>622</a>        } <span class="kw">else if </span>func_symbol.function.variant.is_async() {
+<a href=#623 id=623 data-nosnippet>623</a>            <span class="macro">format!</span>(<span class="string">"    async {}"</span>, <span class="self">self</span>.current_function.unwrap().identifier)
+<a href=#624 id=624 data-nosnippet>624</a>        } <span class="kw">else </span>{
+<a href=#625 id=625 data-nosnippet>625</a>            <span class="macro">format!</span>(<span class="string">"    call {}"</span>, input.function)
+<a href=#626 id=626 data-nosnippet>626</a>        };
+<a href=#627 id=627 data-nosnippet>627</a>
+<a href=#628 id=628 data-nosnippet>628</a>        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
+<a href=#629 id=629 data-nosnippet>629</a>
+<a href=#630 id=630 data-nosnippet>630</a>        <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
+<a href=#631 id=631 data-nosnippet>631</a>            <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
+<a href=#632 id=632 data-nosnippet>632</a>            <span class="macro">write!</span>(call_instruction, <span class="string">" {argument}"</span>).expect(<span class="string">"failed to write to string"</span>);
+<a href=#633 id=633 data-nosnippet>633</a>            instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
+<a href=#634 id=634 data-nosnippet>634</a>        }
+<a href=#635 id=635 data-nosnippet>635</a>
+<a href=#636 id=636 data-nosnippet>636</a>        <span class="comment">// Initialize storage for the destination registers.
+<a href=#637 id=637 data-nosnippet>637</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>destinations = Vec::new();
+<a href=#638 id=638 data-nosnippet>638</a>
+<a href=#639 id=639 data-nosnippet>639</a>        <span class="comment">// Create operands for the output registers.
+<a href=#640 id=640 data-nosnippet>640</a>        </span><span class="kw">match </span>func_symbol.function.output_type.clone() {
+<a href=#641 id=641 data-nosnippet>641</a>            Type::Unit =&gt; {} <span class="comment">// Do nothing
+<a href=#642 id=642 data-nosnippet>642</a>            </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
+<a href=#643 id=643 data-nosnippet>643</a>                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Parsing guarantees that a tuple type has at least two elements"</span>),
+<a href=#644 id=644 data-nosnippet>644</a>                len =&gt; {
+<a href=#645 id=645 data-nosnippet>645</a>                    <span class="kw">for _ in </span><span class="number">0</span>..len {
+<a href=#646 id=646 data-nosnippet>646</a>                        destinations.push(<span class="self">self</span>.next_register());
+<a href=#647 id=647 data-nosnippet>647</a>                    }
+<a href=#648 id=648 data-nosnippet>648</a>                }
+<a href=#649 id=649 data-nosnippet>649</a>            },
+<a href=#650 id=650 data-nosnippet>650</a>            <span class="kw">_ </span>=&gt; {
+<a href=#651 id=651 data-nosnippet>651</a>                destinations.push(<span class="self">self</span>.next_register());
+<a href=#652 id=652 data-nosnippet>652</a>            }
+<a href=#653 id=653 data-nosnippet>653</a>        }
+<a href=#654 id=654 data-nosnippet>654</a>
+<a href=#655 id=655 data-nosnippet>655</a>        <span class="comment">// Add a register for async functions to represent the future created.
+<a href=#656 id=656 data-nosnippet>656</a>        </span><span class="kw">if </span>func_symbol.function.variant == Variant::AsyncFunction {
+<a href=#657 id=657 data-nosnippet>657</a>            destinations.push(<span class="self">self</span>.next_register());
+<a href=#658 id=658 data-nosnippet>658</a>        }
+<a href=#659 id=659 data-nosnippet>659</a>
+<a href=#660 id=660 data-nosnippet>660</a>        <span class="comment">// Construct the output operands. These are the destination registers **without** the future.
+<a href=#661 id=661 data-nosnippet>661</a>        </span><span class="kw">let </span>output_operands = destinations.join(<span class="string">" "</span>);
+<a href=#662 id=662 data-nosnippet>662</a>
+<a href=#663 id=663 data-nosnippet>663</a>        <span class="comment">// If destination registers were created, write them to the call instruction.
+<a href=#664 id=664 data-nosnippet>664</a>        </span><span class="kw">if </span>!destinations.is_empty() {
+<a href=#665 id=665 data-nosnippet>665</a>            <span class="macro">write!</span>(call_instruction, <span class="string">" into"</span>).expect(<span class="string">"failed to write to string"</span>);
+<a href=#666 id=666 data-nosnippet>666</a>            <span class="kw">for </span>destination <span class="kw">in </span><span class="kw-2">&amp;</span>destinations {
+<a href=#667 id=667 data-nosnippet>667</a>                <span class="macro">write!</span>(call_instruction, <span class="string">" {destination}"</span>).expect(<span class="string">"failed to write to string"</span>);
+<a href=#668 id=668 data-nosnippet>668</a>            }
+<a href=#669 id=669 data-nosnippet>669</a>        }
+<a href=#670 id=670 data-nosnippet>670</a>
+<a href=#671 id=671 data-nosnippet>671</a>        <span class="comment">// Write the closing semicolon.
+<a href=#672 id=672 data-nosnippet>672</a>        </span><span class="macro">writeln!</span>(call_instruction, <span class="string">";"</span>).expect(<span class="string">"failed to write to string"</span>);
+<a href=#673 id=673 data-nosnippet>673</a>
+<a href=#674 id=674 data-nosnippet>674</a>        <span class="comment">// Push the call instruction to the list of instructions.
+<a href=#675 id=675 data-nosnippet>675</a>        </span>instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
+<a href=#676 id=676 data-nosnippet>676</a>
+<a href=#677 id=677 data-nosnippet>677</a>        <span class="comment">// Return the output operands and the instructions.
+<a href=#678 id=678 data-nosnippet>678</a>        </span>(output_operands, instructions)
+<a href=#679 id=679 data-nosnippet>679</a>    }
+<a href=#680 id=680 data-nosnippet>680</a>
+<a href=#681 id=681 data-nosnippet>681</a>    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleExpression) -&gt; (String, String) {
+<a href=#682 id=682 data-nosnippet>682</a>        <span class="comment">// Need to return a single string here so we will join the tuple elements with ' '
+<a href=#683 id=683 data-nosnippet>683</a>        // and split them after this method is called.
+<a href=#684 id=684 data-nosnippet>684</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>tuple_elements = Vec::with_capacity(input.elements.len());
+<a href=#685 id=685 data-nosnippet>685</a>        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
+<a href=#686 id=686 data-nosnippet>686</a>
+<a href=#687 id=687 data-nosnippet>687</a>        <span class="comment">// Visit each tuple element and accumulate instructions from expressions.
+<a href=#688 id=688 data-nosnippet>688</a>        </span><span class="kw">for </span>element <span class="kw">in </span>input.elements.iter() {
+<a href=#689 id=689 data-nosnippet>689</a>            <span class="kw">let </span>(element, element_instructions) = <span class="self">self</span>.visit_expression(element);
+<a href=#690 id=690 data-nosnippet>690</a>            tuple_elements.push(element);
+<a href=#691 id=691 data-nosnippet>691</a>            instructions.push_str(<span class="kw-2">&amp;</span>element_instructions);
+<a href=#692 id=692 data-nosnippet>692</a>        }
+<a href=#693 id=693 data-nosnippet>693</a>
+<a href=#694 id=694 data-nosnippet>694</a>        <span class="comment">// CAUTION: does not return the destination_register.
+<a href=#695 id=695 data-nosnippet>695</a>        </span>(tuple_elements.join(<span class="string">" "</span>), instructions)
+<a href=#696 id=696 data-nosnippet>696</a>    }
+<a href=#697 id=697 data-nosnippet>697</a>
+<a href=#698 id=698 data-nosnippet>698</a>    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression) -&gt; (String, String) {
+<a href=#699 id=699 data-nosnippet>699</a>        <span class="macro">panic!</span>(<span class="string">"`UnitExpression`s should not be visited during code generation."</span>)
+<a href=#700 id=700 data-nosnippet>700</a>    }
+<a href=#701 id=701 data-nosnippet>701</a>
+<a href=#702 id=702 data-nosnippet>702</a>    <span class="kw">pub fn </span>clone_register(<span class="kw-2">&amp;mut </span><span class="self">self</span>, register: <span class="kw-2">&amp;</span>str, typ: <span class="kw-2">&amp;</span>Type) -&gt; (String, String) {
+<a href=#703 id=703 data-nosnippet>703</a>        <span class="kw">let </span>new_reg = <span class="self">self</span>.next_register();
+<a href=#704 id=704 data-nosnippet>704</a>        <span class="kw">match </span>typ {
+<a href=#705 id=705 data-nosnippet>705</a>            Type::Address
+<a href=#706 id=706 data-nosnippet>706</a>            | Type::Boolean
+<a href=#707 id=707 data-nosnippet>707</a>            | Type::Field
+<a href=#708 id=708 data-nosnippet>708</a>            | Type::Group
+<a href=#709 id=709 data-nosnippet>709</a>            | Type::Scalar
+<a href=#710 id=710 data-nosnippet>710</a>            | Type::Signature
+<a href=#711 id=711 data-nosnippet>711</a>            | Type::Integer(<span class="kw">_</span>) =&gt; {
+<a href=#712 id=712 data-nosnippet>712</a>                <span class="comment">// These types can be cloned just by casting them to themselves.
+<a href=#713 id=713 data-nosnippet>713</a>                </span><span class="kw">let </span>instruction = <span class="macro">format!</span>(<span class="string">"    cast {register} into {new_reg} as {typ};\n"</span>);
+<a href=#714 id=714 data-nosnippet>714</a>                (new_reg, instruction)
+<a href=#715 id=715 data-nosnippet>715</a>            }
+<a href=#716 id=716 data-nosnippet>716</a>
+<a href=#717 id=717 data-nosnippet>717</a>            Type::Array(array_type) =&gt; {
+<a href=#718 id=718 data-nosnippet>718</a>                <span class="comment">// We need to cast the old array's members into the new array.
+<a href=#719 id=719 data-nosnippet>719</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast "</span>.to_string();
+<a href=#720 id=720 data-nosnippet>720</a>                <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..array_type.length.as_u32().expect(<span class="string">"length should be known at this point"</span>) <span class="kw">as </span>usize {
+<a href=#721 id=721 data-nosnippet>721</a>                    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>instruction, <span class="string">"{register}[{i}u32] "</span>).unwrap();
+<a href=#722 id=722 data-nosnippet>722</a>                }
+<a href=#723 id=723 data-nosnippet>723</a>                <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut </span>instruction, <span class="string">"into {new_reg} as {};"</span>, <span class="self">Self</span>::visit_type(typ)).unwrap();
+<a href=#724 id=724 data-nosnippet>724</a>                (new_reg, instruction)
+<a href=#725 id=725 data-nosnippet>725</a>            }
+<a href=#726 id=726 data-nosnippet>726</a>
+<a href=#727 id=727 data-nosnippet>727</a>            Type::Composite(comp_ty) =&gt; {
+<a href=#728 id=728 data-nosnippet>728</a>                <span class="comment">// We need to cast the old struct or record's members into the new one.
+<a href=#729 id=729 data-nosnippet>729</a>                </span><span class="kw">let </span>program = comp_ty.program.unwrap_or(<span class="self">self</span>.program_id.unwrap().name.name);
+<a href=#730 id=730 data-nosnippet>730</a>                <span class="kw">let </span>location = Location::new(program, comp_ty.path.absolute_path().to_vec());
+<a href=#731 id=731 data-nosnippet>731</a>                <span class="kw">let </span>comp = <span class="self">self
+<a href=#732 id=732 data-nosnippet>732</a>                    </span>.state
+<a href=#733 id=733 data-nosnippet>733</a>                    .symbol_table
+<a href=#734 id=734 data-nosnippet>734</a>                    .lookup_record(<span class="kw-2">&amp;</span>location)
+<a href=#735 id=735 data-nosnippet>735</a>                    .or_else(|| <span class="self">self</span>.state.symbol_table.lookup_struct(<span class="kw-2">&amp;</span>comp_ty.path.absolute_path()))
+<a href=#736 id=736 data-nosnippet>736</a>                    .unwrap();
+<a href=#737 id=737 data-nosnippet>737</a>                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast "</span>.to_string();
+<a href=#738 id=738 data-nosnippet>738</a>                <span class="kw">for </span>member <span class="kw">in </span><span class="kw-2">&amp;</span>comp.members {
+<a href=#739 id=739 data-nosnippet>739</a>                    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>instruction, <span class="string">"{register}.{} "</span>, member.identifier.name).unwrap();
+<a href=#740 id=740 data-nosnippet>740</a>                }
+<a href=#741 id=741 data-nosnippet>741</a>                <span class="macro">writeln!</span>(
+<a href=#742 id=742 data-nosnippet>742</a>                    <span class="kw-2">&amp;mut </span>instruction,
+<a href=#743 id=743 data-nosnippet>743</a>                    <span class="string">"into {new_reg} as {};"</span>,
+<a href=#744 id=744 data-nosnippet>744</a>                    <span class="comment">// We call `..with_visibility` just so we get the `.record` appended if it's a record.
+<a href=#745 id=745 data-nosnippet>745</a>                    </span><span class="self">self</span>.visit_type_with_visibility(typ, leo_ast::Mode::None)
+<a href=#746 id=746 data-nosnippet>746</a>                )
+<a href=#747 id=747 data-nosnippet>747</a>                .unwrap();
+<a href=#748 id=748 data-nosnippet>748</a>                (new_reg, instruction)
+<a href=#749 id=749 data-nosnippet>749</a>            }
+<a href=#750 id=750 data-nosnippet>750</a>
+<a href=#751 id=751 data-nosnippet>751</a>            Type::Optional(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"All optional types should have been lowered by now."</span>),
+<a href=#752 id=752 data-nosnippet>752</a>
+<a href=#753 id=753 data-nosnippet>753</a>            Type::Mapping(..)
+<a href=#754 id=754 data-nosnippet>754</a>            | Type::Future(..)
+<a href=#755 id=755 data-nosnippet>755</a>            | Type::Tuple(..)
+<a href=#756 id=756 data-nosnippet>756</a>            | Type::Identifier(..)
+<a href=#757 id=757 data-nosnippet>757</a>            | Type::String
+<a href=#758 id=758 data-nosnippet>758</a>            | Type::Unit
+<a href=#759 id=759 data-nosnippet>759</a>            | Type::Numeric
+<a href=#760 id=760 data-nosnippet>760</a>            | Type::Err =&gt; <span class="macro">panic!</span>(<span class="string">"Objects of type {typ} cannot be cloned."</span>),
+<a href=#761 id=761 data-nosnippet>761</a>        }
+<a href=#762 id=762 data-nosnippet>762</a>    }
+<a href=#763 id=763 data-nosnippet>763</a>}</code></pre></div></section></main></body></html>

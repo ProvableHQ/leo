@@ -97,10 +97,10 @@
 <a href=#97 id=97 data-nosnippet>97</a>}
 <a href=#98 id=98 data-nosnippet>98</a>
 <a href=#99 id=99 data-nosnippet>99</a><span class="comment">// Converts an `Identifier` to a `Path`
-<a href=#100 id=100 data-nosnippet>100</a>// Note that this sets the `absolute_path` field in `Path` to `None`.
-<a href=#101 id=101 data-nosnippet>101</a>// It's up to the caller of this method to figure out what to do `absolute_path`.
+<a href=#100 id=100 data-nosnippet>100</a>// Note that this sets the `absolute_path` field in `Path` to `None` and `is_absolute` to `false`.
+<a href=#101 id=101 data-nosnippet>101</a>// It's up to the caller of this method to figure out what to do with `absolute_path`.
 <a href=#102 id=102 data-nosnippet>102</a></span><span class="kw">impl </span>From&lt;Identifier&gt; <span class="kw">for </span>Path {
 <a href=#103 id=103 data-nosnippet>103</a>    <span class="kw">fn </span>from(value: Identifier) -&gt; <span class="self">Self </span>{
-<a href=#104 id=104 data-nosnippet>104</a>        Path::new(<span class="macro">vec!</span>[], value, <span class="prelude-val">None</span>, value.span, value.id)
+<a href=#104 id=104 data-nosnippet>104</a>        Path::new(<span class="macro">vec!</span>[], value, <span class="bool-val">false</span>, <span class="prelude-val">None</span>, value.span, value.id)
 <a href=#105 id=105 data-nosnippet>105</a>    }
 <a href=#106 id=106 data-nosnippet>106</a>}</code></pre></div></section></main></body></html>

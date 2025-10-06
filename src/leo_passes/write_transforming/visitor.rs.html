@@ -309,11 +309,11 @@
 <a href=#309 id=309 data-nosnippet>309</a>                        </span>.<span class="number">0
 <a href=#310 id=310 data-nosnippet>310</a>                        </span>.state
 <a href=#311 id=311 data-nosnippet>311</a>                        .symbol_table
-<a href=#312 id=312 data-nosnippet>312</a>                        .lookup_struct(comp.path.absolute_path())
+<a href=#312 id=312 data-nosnippet>312</a>                        .lookup_struct(<span class="kw-2">&amp;</span>comp.path.absolute_path())
 <a href=#313 id=313 data-nosnippet>313</a>                        .or_else(|| {
 <a href=#314 id=314 data-nosnippet>314</a>                            <span class="self">self</span>.<span class="number">0</span>.state.symbol_table.lookup_record(<span class="kw-2">&amp;</span>Location::new(
 <a href=#315 id=315 data-nosnippet>315</a>                                comp.program.unwrap_or(<span class="self">self</span>.<span class="number">0</span>.program),
-<a href=#316 id=316 data-nosnippet>316</a>                                comp.path.absolute_path().to_vec(),
+<a href=#316 id=316 data-nosnippet>316</a>                                comp.path.absolute_path(),
 <a href=#317 id=317 data-nosnippet>317</a>                            ))
 <a href=#318 id=318 data-nosnippet>318</a>                        })
 <a href=#319 id=319 data-nosnippet>319</a>                        .unwrap();

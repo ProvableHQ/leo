@@ -106,7 +106,7 @@
 <a href=#106 id=106 data-nosnippet>106</a>        <span class="comment">// Now retain only functions that are either not yet monomorphized or are still referenced by calls.
 <a href=#107 id=107 data-nosnippet>107</a>        </span><span class="self">self</span>.reconstructed_functions.retain(|f, <span class="kw">_</span>| {
 <a href=#108 id=108 data-nosnippet>108</a>            <span class="kw">let </span>is_monomorphized = <span class="self">self</span>.monomorphized_functions.contains(f);
-<a href=#109 id=109 data-nosnippet>109</a>            <span class="kw">let </span>is_still_called = <span class="self">self</span>.unresolved_calls.iter().any(|c| c.function.absolute_path() == f);
+<a href=#109 id=109 data-nosnippet>109</a>            <span class="kw">let </span>is_still_called = <span class="self">self</span>.unresolved_calls.iter().any(|c| <span class="kw-2">&amp;</span>c.function.absolute_path() == f);
 <a href=#110 id=110 data-nosnippet>110</a>            !is_monomorphized || is_still_called
 <a href=#111 id=111 data-nosnippet>111</a>        });
 <a href=#112 id=112 data-nosnippet>112</a>

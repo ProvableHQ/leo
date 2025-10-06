@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["make_optional_struct_symbol"],"mod":["ast","program","visitor"],"struct":["OptionLowering"]};
