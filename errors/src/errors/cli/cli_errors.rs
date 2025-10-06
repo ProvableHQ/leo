@@ -334,11 +334,4 @@ create_messages!(
         msg: format!("{msg}"),
         help: None,
     }
-
-    @backtraced
-    reserved_program_name {
-        args: (name: impl Display, reason: impl Display, help_msg: impl Display),
-        msg: format!("Invalid program name `{name}`: {reason}"),
-        help: Some(help_msg.to_string()),
-    }
 );

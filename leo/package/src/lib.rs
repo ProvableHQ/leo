@@ -145,29 +145,34 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
         return false;
     }
 
+    // Check that the name is not a SnarkVM reserved keyword
+    if reserved_keywords().any(|kw| kw == rest) {
+        tracing::error!(
+            "Aleo names cannot be a SnarkVM reserved keyword. Reserved keywords are: {}.",
+            reserved_keywords().collect::<Vec<_>>().join(", ")
+        );
+        return false;
+    }
+
+    // Check that the name does not contain `aleo`
+    if rest.contains("aleo") {
+        tracing::error!("Aleo names cannot contain the keyword `aleo`.",);
+        return false;
+    }
+
     true
 }
 
-/// Get the list of reserved keywords from snarkVM.
+/// Get the list of all reserved and restricted keywords from snarkVM.
 /// These keywords cannot be used as program names.
 /// See: https://github.com/ProvableHQ/snarkVM/blob/046a2964f75576b2c4afbab9aa9eabc43ceb6dc3/synthesizer/program/src/lib.rs#L192
-pub fn reserved_keywords() -> &'static [&'static str] {
+pub fn reserved_keywords() -> impl Iterator<Item = &'static str> {
     use snarkvm::prelude::{Program, TestnetV0};
-    Program::<TestnetV0>::KEYWORDS
-}
 
-/// Check if a program name is a reserved keyword in snarkVM.
-pub fn is_reserved_program_name(name: &str) -> bool {
-    let name_without_suffix = name.strip_suffix(".aleo").unwrap_or(name);
-    reserved_keywords().contains(&name_without_suffix)
-}
+    // Flatten RESTRICTED_KEYWORDS by ignoring ConsensusVersion
+    let restricted = Program::<TestnetV0>::RESTRICTED_KEYWORDS.iter().flat_map(|(_, kws)| kws.iter().copied());
 
-/// Generate a formatted help message listing all reserved keywords.
-pub fn reserved_keywords_help_message() -> String {
-    format!(
-        "Choose a different program name that is not an Aleo reserved keyword. Aleo reserved keywords are: {}.",
-        reserved_keywords().join(", ")
-    )
+    Program::<TestnetV0>::KEYWORDS.iter().copied().chain(restricted)
 }
 
 // Fetch the given endpoint url and return the sanitized response.

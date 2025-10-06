@@ -89,17 +89,6 @@ impl Package {
             return Err(CliError::invalid_program_name(package_name).into());
         }
 
-        // Check if the program name is an Aleo reserved keyword
-        if crate::is_reserved_program_name(&package_name) {
-            let name_without_suffix = package_name.strip_suffix(".aleo").unwrap();
-            return Err(CliError::reserved_program_name(
-                &package_name,
-                format!("'{name_without_suffix}' is a reserved keyword"),
-                crate::reserved_keywords_help_message(),
-            )
-            .into());
-        }
-
         let path = path.canonicalize().map_err(|e| PackageError::failed_path(path.display(), e))?;
         let full_path = path.join(package_name.strip_suffix(".aleo").unwrap());
 
