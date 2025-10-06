@@ -18,9 +18,47 @@ use super::FunctionInliningVisitor;
 use crate::Replacer;
 
 use leo_ast::*;
+use leo_span::Symbol;
 
 use indexmap::IndexMap;
 use itertools::Itertools;
+use std::collections::HashSet;
+
+/// Collects all local variable names defined in a block.
+/// This is used to identify which variables need renaming during inlining.
+fn collect_local_variables(block: &Block) -> HashSet<Symbol> {
+    let mut locals = HashSet::new();
+
+    fn collect_from_statements(statements: &[Statement], locals: &mut HashSet<Symbol>) {
+        for stmt in statements {
+            match stmt {
+                Statement::Definition(def) => match &def.place {
+                    DefinitionPlace::Single(id) => {
+                        locals.insert(id.name);
+                    }
+                    DefinitionPlace::Multiple(ids) => {
+                        for id in ids {
+                            locals.insert(id.name);
+                        }
+                    }
+                },
+                Statement::Block(block_stmt) => {
+                    collect_from_statements(&block_stmt.statements, locals);
+                }
+                Statement::Conditional(cond) => {
+                    collect_from_statements(&cond.then.statements, locals);
+                    if let Some(otherwise) = &cond.otherwise {
+                        collect_from_statements(&[*otherwise.clone()], locals);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    collect_from_statements(&block.statements, &mut locals);
+    locals
+}
 
 impl AstReconstructor for FunctionInliningVisitor<'_> {
     type AdditionalInput = ();
@@ -44,7 +82,24 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
         // Inline the callee function, if required, otherwise, return the call expression.
         match callee.variant {
             Variant::Inline => {
-                // Construct a mapping from input variables of the callee function to arguments passed to the callee.
+                // Collect all variables (parameters + locals) that need renaming.
+                let all_variables: Vec<Symbol> = callee
+                    .input
+                    .iter()
+                    .map(|input| input.identifier().name)
+                    .chain(collect_local_variables(&callee.block))
+                    .collect();
+
+                // Rename all variables to avoid shadowing.
+                let rename_map = all_variables
+                    .into_iter()
+                    .map(|var_name| {
+                        let new_name = self.state.assigner.unique_symbol(var_name, "$");
+                        (var_name, new_name)
+                    })
+                    .collect::<IndexMap<_, _>>();
+
+                // Build a mapping from original parameter names to their corresponding arguments.
                 let parameter_to_argument = callee
                     .input
                     .iter()
@@ -52,16 +107,46 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
                     .zip_eq(input.arguments)
                     .collect::<IndexMap<_, _>>();
 
-                // Function to replace path expressions with their corresponding const argument or keep them unchanged.
+                // Replace path expressions with their corresponding argument (for parameters) or renamed variable (for locals).
                 let replace_path = |expr: &Expression| match expr {
-                    Expression::Path(path) => parameter_to_argument
-                        .get(&path.identifier().name)
-                        .map_or(Expression::Path(path.clone()), |expr| expr.clone()),
+                    Expression::Path(path) => {
+                        let name = path.identifier().name;
+                        // If this is a parameter, substitute it with the corresponding argument.
+                        if let Some(arg) = parameter_to_argument.get(&name) {
+                            return arg.clone();
+                        }
+                        // Otherwise, rename the variable.
+                        if let Some(new_name) = rename_map.get(&name) {
+                            return Expression::Path(path.clone().with_updated_last_symbol(*new_name));
+                        }
+                        Expression::Path(path.clone())
+                    }
                     _ => expr.clone(),
                 };
 
+                // Clone and pre-process the callee block to rename definition statements.
+                let mut preprocessed_block = callee.block.clone();
+                for stmt in &mut preprocessed_block.statements {
+                    if let Statement::Definition(def) = stmt {
+                        match &mut def.place {
+                            DefinitionPlace::Single(id) => {
+                                if let Some(new_name) = rename_map.get(&id.name) {
+                                    id.name = *new_name;
+                                }
+                            }
+                            DefinitionPlace::Multiple(ids) => {
+                                for id in ids {
+                                    if let Some(new_name) = rename_map.get(&id.name) {
+                                        id.name = *new_name;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 let mut inlined_statements = Replacer::new(replace_path, false /* refresh IDs */, self.state)
-                    .reconstruct_block(callee.block.clone())
+                    .reconstruct_block(preprocessed_block)
                     .0
                     .statements;
 
@@ -70,7 +155,11 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
                     Some(Statement::Return(_)) => {
                         // Note that this unwrap is safe since we know that the last statement is a return statement.
                         match inlined_statements.pop().unwrap() {
-                            Statement::Return(ReturnStatement { expression, .. }) => expression,
+                            Statement::Return(ReturnStatement { mut expression, .. }) => {
+                                // Make sure the return expression also has renamed variables.
+                                expression = replace_path(&expression);
+                                expression
+                            }
                             _ => panic!("This branch checks that the last statement is a return statement."),
                         }
                     }
