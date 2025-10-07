@@ -1,0 +1,9 @@
+Error [EAST0372013]: the global constant `N` is being shadowed.
+    --> compiler-test:7:18
+     |
+   6 |     const N: u32 = 5;
+     |           ^ previous definition of the global constant `N` here
+   7 |     inline foo::[N: u32]() {}
+     |                  ^ `N` redefined here
+     |
+     = names must be unique within their scope

@@ -1,0 +1,9 @@
+Error [EAST0372013]: the input parameter `x` is being shadowed.
+    --> compiler-test:3:13
+     |
+   2 |     transition main(x: u32) -> u32 {
+     |                     ^ previous definition of the input parameter `x` here
+   3 |         let x: u32 = 10u32;
+     |             ^ `x` redefined here
+     |
+     = names must be unique within their scope
