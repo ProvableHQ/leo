@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Composite, Expression, Function, Location, NodeID, Type};
+use leo_ast::{Composite, Expression, Function, Location, NodeBuilder, NodeID, Type};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -96,14 +96,17 @@ impl LocalTable {
     }
 
     /// Creates a duplicate of this local scope with a new `NodeID`.
-    ///
-    /// TODO: This currently clones the `children` list, which is incorrect. The new scope may incorrectly
-    /// appear to have descendants that still belong to the original scope. This breaks the structure of
-    /// the scope tree and may cause symbol resolution to behave incorrectly.
-    fn dup(&self, new_id: NodeID) -> Self {
-        let mut inner = self.inner.borrow().clone();
-        inner.id = new_id;
-        LocalTable { inner: Rc::new(RefCell::new(inner)) }
+    fn dup(&self, new_id: NodeID, node_builder: &NodeBuilder) -> Self {
+        let inner = self.inner.borrow();
+        LocalTable {
+            inner: Rc::new(RefCell::new(LocalTableInner {
+                id: new_id,
+                parent: inner.parent,
+                children: (0..inner.children.len()).map(|_| node_builder.next_id()).collect(),
+                consts: inner.consts.clone(),
+                variables: inner.variables.clone(),
+            })),
+        }
     }
 }
 
@@ -212,9 +215,9 @@ impl SymbolTable {
     /// Enter the new scope with id `new_id`, duplicating its local symbol table from the scope at `old_id`.
     ///
     /// This is useful for a pass like loop unrolling, in which the loop body must be duplicated multiple times.
-    pub fn enter_scope_duped(&mut self, new_id: NodeID, old_id: NodeID) {
+    pub fn enter_scope_duped(&mut self, new_id: NodeID, old_id: NodeID, node_builder: &NodeBuilder) {
         let old_local_table = self.all_locals.get(&old_id).expect("Must have an old scope to dup from.");
-        let new_local_table = old_local_table.dup(new_id);
+        let new_local_table = old_local_table.dup(new_id, node_builder);
         let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
         new_local_table.inner.borrow_mut().parent = parent;
         self.all_locals.insert(new_id, new_local_table.clone());

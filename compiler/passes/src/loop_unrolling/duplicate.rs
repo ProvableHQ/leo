@@ -31,7 +31,7 @@ struct Duplicator<'a> {
 
 impl Duplicator<'_> {
     fn in_scope_duped<T>(&mut self, new_id: NodeID, old_id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
-        self.symbol_table.enter_scope_duped(new_id, old_id);
+        self.symbol_table.enter_scope_duped(new_id, old_id, self.node_builder);
         let result = func(self);
         self.symbol_table.enter_parent();
         result
