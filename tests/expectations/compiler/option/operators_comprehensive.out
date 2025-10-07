@@ -1,0 +1,86 @@
+program operators_comprehensive.aleo;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+struct Optional__ArToIDU52JP:
+    is_some as boolean;
+    val as i8;
+
+struct Optional__DbbQYuLaHdi:
+    is_some as boolean;
+    val as boolean;
+
+struct Optional__K4XRQPOk9yX:
+    is_some as boolean;
+    val as field;
+
+struct Optional__ehTh6DmpRN:
+    is_some as boolean;
+    val as u16;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+struct Optional__DOnC9eGtnsJ:
+    is_some as boolean;
+    val as u64;
+
+struct Optional__HuqQXGvtQU2:
+    is_some as boolean;
+    val as u128;
+
+struct Optional__1pdH6zSByBB:
+    is_some as boolean;
+    val as i16;
+
+struct Optional__9p9J8sbl23N:
+    is_some as boolean;
+    val as i32;
+
+struct Optional__5sKIb96heV9:
+    is_some as boolean;
+    val as i64;
+
+struct Optional__F9VPlVJMrn6:
+    is_some as boolean;
+    val as i128;
+
+function test_all_arithmetic:
+    output 42u8 as u8.private;
+
+function test_all_bitwise:
+    output 42u8 as u8.private;
+
+function test_all_wrapped:
+    output 42u8 as u8.private;
+
+function test_all_unary_signed:
+    output 42u8 as u8.private;
+
+function test_all_unary_unsigned:
+    output 42u8 as u8.private;
+
+function test_all_unary_bool:
+    output 42u8 as u8.private;
+
+function test_all_unary_field:
+    output 42u8 as u8.private;
+
+function test_complex_nested:
+    output 42u8 as u8.private;
+
+function test_all_integer_types:
+    output 42u8 as u8.private;
+
+function test_operator_precedence:
+    output 42u8 as u8.private;
+
+function test_comparison_operators:
+    gt 5u8 3u8 into r0;
+    output r0 as boolean.private;
+
+function test_logical_operators:
+    output false as boolean.private;
