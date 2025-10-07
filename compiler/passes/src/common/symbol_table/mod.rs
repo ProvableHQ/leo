@@ -350,15 +350,40 @@ impl SymbolTable {
     }
 
     fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {
-        let display_name = location.path.iter().format("::");
-        if self.functions.contains_key(location) {
-            Err(AstError::shadowed_function(display_name, span).into())
-        } else if self.records.contains_key(location) {
-            Err(AstError::shadowed_record(display_name, span).into())
-        } else if self.structs.contains_key(&location.path) {
-            Err(AstError::shadowed_struct(display_name, span).into())
-        } else if self.globals.contains_key(location) {
-            Err(AstError::shadowed_variable(display_name, span).into())
+        let name = location.path.last().expect("Location path must have at least one segment");
+
+        if let Some(func) = self.functions.get(location) {
+            Err(AstError::shadowed_variable_multi_span(
+                "function",
+                name,
+                span,
+                Some(format!("`{}` redefined here", name)),
+                vec![(func.function.span, format!("previous definition of the function `{}` here", name))],
+            ).into())
+        } else if let Some(record) = self.records.get(location) {
+            Err(AstError::shadowed_variable_multi_span(
+                "record",
+                name,
+                span,
+                Some(format!("`{}` redefined here", name)),
+                vec![(record.span, format!("previous definition of the record `{}` here", name))],
+            ).into())
+        } else if let Some(struct_) = self.structs.get(&location.path) {
+            Err(AstError::shadowed_variable_multi_span(
+                "struct",
+                name,
+                span,
+                Some(format!("`{}` redefined here", name)),
+                vec![(struct_.span, format!("previous definition of the struct `{}` here", name))],
+            ).into())
+        } else if let Some(global_var) = self.globals.get(location) {
+            Err(AstError::shadowed_variable_multi_span(
+                "global constant",
+                name,
+                span,
+                Some(format!("`{}` redefined here", name)),
+                vec![(global_var.span, format!("previous definition of the global constant `{}` here", name))],
+            ).into())
         } else {
             Ok(())
         }
@@ -369,8 +394,20 @@ impl SymbolTable {
 
         while let Some(table) = current {
             if let [name] = &path {
-                if table.inner.borrow().variables.contains_key(name) {
-                    return Err(AstError::shadowed_variable(name, span).into());
+                if let Some(var_symbol) = table.inner.borrow().variables.get(name) {
+                    let type_desc = match var_symbol.declaration {
+                        VariableType::Const => "local constant",
+                        VariableType::Input(_) => "input parameter",
+                        VariableType::Mut => "variable",
+                        VariableType::ConstParameter => "const generic parameter",
+                    };
+                    return Err(AstError::shadowed_variable_multi_span(
+                        type_desc,
+                        name,
+                        span,
+                        Some(format!("`{}` redefined here", name)),
+                        vec![(var_symbol.span, format!("previous definition of the {} `{}` here", type_desc, name))],
+                    ).into());
                 }
             }
             current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));

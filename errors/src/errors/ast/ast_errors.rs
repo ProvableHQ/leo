@@ -74,38 +74,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user shadows a function.
-    @formatted
-    shadowed_function {
-        args: (func: impl Display),
-        msg: format!("function `{func}` shadowed by"),
-        help: None,
-    }
-
-    /// For when a user shadows a struct.
-    @formatted
-    shadowed_struct {
-        args: (struct_: impl Display),
-        msg: format!("struct `{struct_}` shadowed by"),
-        help: None,
-    }
-
-    /// For when a user shadows a record.
-    @formatted
-    shadowed_record {
-        args: (record: impl Display),
-        msg: format!("record `{record}` shadowed by"),
-        help: None,
-    }
-
-    /// For when a user shadows a variable.
-    @formatted
-    shadowed_variable {
-        args: (var: impl Display),
-        msg: format!("variable `{var}` shadowed by"),
-        help: None,
-    }
-
     /// For when the symbol table fails to be represented as a JSON string.
     @backtraced
     failed_to_convert_symbol_table_to_json_string {
@@ -158,5 +126,13 @@ create_messages!(
         args: (func: impl Display),
         msg: format!("function `{func}` not found"),
         help: None,
+    }
+
+    /// For when a user shadows a type.
+    @formatted_multi_span
+    shadowed_variable_multi_span {
+        args: (type_: impl Display, var: impl Display),
+        msg: format!("the {type_} `{var}` is being shadowed."),
+        help: Some("names must be unique within their scope".to_string()),
     }
 );
