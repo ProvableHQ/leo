@@ -114,6 +114,32 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
+    /// Unwraps an optional type to its inner type for use with operands.
+    /// If the expected type is `T?`, returns `Some(T)`. Otherwise returns the type as-is.
+    pub fn unwrap_optional_type(&self, expected: &Option<Type>) -> Option<Type> {
+        match expected {
+            Some(Type::Optional(opt_type)) => Some(*opt_type.inner.clone()),
+            other => other.clone(),
+        }
+    }
+
+    /// Wraps a type in Optional if the destination type is Optional.
+    /// If destination is `T?` and actual is `T`, returns `T?`. Otherwise returns actual as-is.
+    pub fn wrap_if_optional(&self, actual: Type, destination: &Option<Type>) -> Type {
+        match (actual, destination) {
+            // if destination is Optional<T> and actual is T (not already Optional), wrap it
+            (actual_type, Some(Type::Optional(opt_type))) if !matches!(actual_type, Type::Optional(_)) => {
+                // only wrap if the inner type matches
+                if actual_type.can_coerce_to(&opt_type.inner) {
+                    Type::Optional(OptionalType { inner: Box::new(actual_type) })
+                } else {
+                    actual_type
+                }
+            }
+            (actual_type, _) => actual_type,
+        }
+    }
+
     pub fn assert_int_type(&self, type_: &Type, span: Span) {
         if !matches!(type_, Type::Err | Type::Integer(_)) {
             self.emit_err(TypeCheckerError::type_should_be2(type_, "an integer", span));
