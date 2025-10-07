@@ -1,0 +1,10 @@
+Error [EAST0372013]: the global constant `VALUE` is being shadowed.
+    --> compiler-test:5:15
+     |
+   2 |     const VALUE: u32 = 10;
+     |           ^^^^^ previous definition of the global constant `VALUE` here
+     ...
+   5 |         const VALUE: u32 = 20;
+     |               ^^^^^ `VALUE` redefined here
+     |
+     = names must be unique within their scope

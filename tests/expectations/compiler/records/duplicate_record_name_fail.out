@@ -1,0 +1,16 @@
+Error [EAST0372013]: the record `Token` is being shadowed.
+    --> compiler-test:7:5
+     |
+   2 |     record Token {
+        owner: address,
+        amount: u64,
+    }
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ previous definition of the record `Token` here
+     ...
+   7 |     record Token {
+        owner: address,
+        balance: u64,
+    }
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `Token` redefined here
+     |
+     = names must be unique within their scope
