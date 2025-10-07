@@ -23,6 +23,39 @@ use color_backtrace::{BacktracePrinter, Verbosity};
 use colored::Colorize;
 use std::fmt;
 
+/// Represents available colors for span labels in error messages.
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+pub enum SpanColor {
+    Red,
+    Yellow,
+    Blue,
+    Green,
+    Cyan,
+    Magenta,
+}
+
+impl SpanColor {
+    /// apply bold formatting with an optional color (defaults to red if None).
+    pub fn apply_bold(text: &str, color: Option<&SpanColor>) -> String {
+        let default = SpanColor::default();
+        let color = color.unwrap_or(&default);
+        match color {
+            SpanColor::Red => text.bold().red().to_string(),
+            SpanColor::Yellow => text.bold().yellow().to_string(),
+            SpanColor::Blue => text.bold().blue().to_string(),
+            SpanColor::Green => text.bold().green().to_string(),
+            SpanColor::Cyan => text.bold().cyan().to_string(),
+            SpanColor::Magenta => text.bold().magenta().to_string(),
+        }
+    }
+}
+
+impl Default for SpanColor {
+    fn default() -> Self {
+        SpanColor::Red
+    }
+}
+
 /// Formatted compiler error type
 ///     undefined value `x`
 ///     --> file.leo: 2:8
@@ -32,16 +65,30 @@ use std::fmt;
 ///      |
 ///      = help: Initialize a variable `x` first.
 /// Makes use of the same fields as a BacktracedError.
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub struct Formatted {
     /// The formatted error span information.
     pub span: Span,
     /// Optional label for the primary span
     pub span_label: Option<String>,
-    /// Additional spans with labels for multi-span errors.
-    pub additional_spans: Vec<(Span, String)>,
+    /// Optional color for the primary span (defaults to red)
+    pub span_color: Option<SpanColor>,
+    /// Additional spans with labels and optional colors for multi-span errors.
+    pub additional_spans: Vec<(Span, String, Option<SpanColor>)>,
     /// The backtrace to track where the Leo error originated.
     pub backtrace: Backtraced,
+}
+
+impl Default for Formatted {
+    fn default() -> Self {
+        Self {
+            span: Span::default(),
+            span_label: None,
+            span_color: None,
+            additional_spans: Vec::new(),
+            backtrace: Backtraced::default(),
+        }
+    }
 }
 
 impl Formatted {
@@ -63,6 +110,7 @@ impl Formatted {
         Self {
             span,
             span_label: None,
+            span_color: None,
             additional_spans: Vec::new(),
             backtrace: Backtraced::new_from_backtrace(
                 message.to_string(),
@@ -93,9 +141,52 @@ impl Formatted {
     where
         S: ToString,
     {
+        // Convert Vec<(Span, String)> to Vec<(Span, String, Option<SpanColor>)>
+        // by adding None for color (which will default to red)
+        let additional_spans_with_color = additional_spans
+            .into_iter()
+            .map(|(span, label)| (span, label, None))
+            .collect();
+
         Self {
             span,
             span_label,
+            span_color: None,
+            additional_spans: additional_spans_with_color,
+            backtrace: Backtraced::new_from_backtrace(
+                message.to_string(),
+                help,
+                code,
+                code_identifier,
+                type_,
+                error,
+                backtrace,
+            ),
+        }
+    }
+
+    /// Creates a backtraced error from multiple spans with labels, colors, and a backtrace.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_from_spans_with_colors<S>(
+        message: S,
+        help: Option<String>,
+        code: i32,
+        code_identifier: i8,
+        type_: String,
+        error: bool,
+        span: Span,
+        span_label: Option<String>,
+        span_color: Option<SpanColor>,
+        additional_spans: Vec<(Span, String, Option<SpanColor>)>,
+        backtrace: Backtrace,
+    ) -> Self
+    where
+        S: ToString,
+    {
+        Self {
+            span,
+            span_label,
+            span_color,
             additional_spans,
             backtrace: Backtraced::new_from_backtrace(
                 message.to_string(),
@@ -144,23 +235,23 @@ impl fmt::Display for Formatted {
         };
 
         if !self.additional_spans.is_empty() {
-            let mut all_spans: Vec<(Span, Option<&String>, usize)> = Vec::new();
+            let mut all_spans: Vec<(Span, Option<&String>, Option<&SpanColor>, usize)> = Vec::new();
 
             // "previous definition" spans
-            for (span, label) in &self.additional_spans {
+            for (span, label, color) in &self.additional_spans {
                 if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
                     let line_contents = source_file.line_contents(*span);
-                    all_spans.push((*span, Some(label), line_contents.line));
+                    all_spans.push((*span, Some(label), color.as_ref(), line_contents.line));
                 }
             }
 
             // duplicate/redefinition spans
             if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
                 let line_contents = source_file.line_contents(self.span);
-                all_spans.push((self.span, self.span_label.as_ref(), line_contents.line));
+                all_spans.push((self.span, self.span_label.as_ref(), self.span_color.as_ref(), line_contents.line));
             }
 
-            all_spans.sort_by_key(|(_, _, line)| *line);
+            all_spans.sort_by_key(|(_, _, _, line)| *line);
 
             // display source file name and line that the duplicate occured on
             if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
@@ -177,7 +268,8 @@ impl fmt::Display for Formatted {
             }
 
             let mut last_line: Option<usize> = None;
-            for (span, label_opt, line_num) in all_spans {
+            let use_color = std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty();
+            for (span, label_opt, color_opt, line_num) in all_spans {
                 // add "..." if there's a gap between spans
                 if let Some(last) = last_line {
                     if line_num > last + 1 {
@@ -204,14 +296,23 @@ impl fmt::Display for Formatted {
                     //    9 |         value: u32,
                     //      |         ^^^^^^^^^^
                     let caret_len = (line_contents.end - line_contents.start).max(1);
+
                     for _ in 0..caret_len {
-                        write!(f, "^")?;
+                        if use_color {
+                            write!(f, "{}", SpanColor::apply_bold("^", color_opt))?;
+                        } else {
+                            write!(f, "^")?;
+                        }
                     }
 
                     // add the label if present, i.e.:
                     //  `value` redefined here
                     if let Some(label) = label_opt {
-                        write!(f, " {}", label)?;
+                        if use_color {
+                            write!(f, " {}", SpanColor::apply_bold(label, color_opt))?;
+                        } else {
+                            write!(f, " {}", label)?;
+                        }
                     }
                     writeln!(f)?;
                 }
