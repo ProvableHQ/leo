@@ -35,7 +35,7 @@ use leo_ast::{
     Type,
     Variant,
 };
-use leo_errors::{AstError, LeoError, Result};
+use leo_errors::Result;
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
@@ -143,8 +143,9 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         // Allow up to one local redefinition for each external struct.
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
 
-        if !input.is_record && !self.structs.insert(full_name.clone()) {
-            return self.state.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
+        // duplicate struct checking is handled by insert_struct below via check_shadow_global
+        if !input.is_record {
+            self.structs.insert(full_name.clone());
         }
         if input.is_record {
             // While records are not allowed in submodules, we stll use their full name in the records table.

@@ -350,15 +350,40 @@ impl SymbolTable {
     }
 
     fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {
-        let display_name = location.path.iter().format("::");
-        if self.functions.contains_key(location) {
-            Err(AstError::shadowed_function(display_name, span).into())
-        } else if self.records.contains_key(location) {
-            Err(AstError::shadowed_record(display_name, span).into())
-        } else if self.structs.contains_key(&location.path) {
-            Err(AstError::shadowed_struct(display_name, span).into())
-        } else if self.globals.contains_key(location) {
-            Err(AstError::shadowed_variable(display_name, span).into())
+        let name = location.path.last().expect("Location path must have at least one segment");
+
+        if let Some(func) = self.functions.get(location) {
+            Err(AstError::shadowed_variable_multi_span(
+                "function",
+                name,
+                span,
+                Some(format!("`{}` redefined here", name)),
+                vec![(func.function.span, format!("previous definition of the function `{}` here", name))],
+            ).into())
+        } else if let Some(record) = self.records.get(location) {
+            Err(AstError::shadowed_variable_multi_span(
+                "record",
+                name,
+                span,
+                Some(format!("`{}` redefined here", name)),
+                vec![(record.span, format!("previous definition of the record `{}` here", name))],
+            ).into())
+        } else if let Some(struct_) = self.structs.get(&location.path) {
+            Err(AstError::shadowed_variable_multi_span(
+                "struct",
+                name,
+                span,
+                Some(format!("`{}` redefined here", name)),
+                vec![(struct_.span, format!("previous definition of the struct `{}` here", name))],
+            ).into())
+        } else if let Some(global_var) = self.globals.get(location) {
+            Err(AstError::shadowed_variable_multi_span(
+                "global constant",
+                name,
+                span,
+                Some(format!("`{}` redefined here", name)),
+                vec![(global_var.span, format!("previous definition of the global constant `{}` here", name))],
+            ).into())
         } else {
             Ok(())
         }
