@@ -338,7 +338,7 @@ Once it is deployed, it CANNOT be changed.
             let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
             let (message, status) = handle_broadcast(
-                &format!("{endpoint}/{network}/transaction/broadcast?check_transaction=true"),
+                &format!("{endpoint}/{network}/transaction/broadcast"),
                 transaction,
                 &program_id.to_string(),
             )?;
