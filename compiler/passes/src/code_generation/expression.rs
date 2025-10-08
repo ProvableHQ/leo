@@ -51,7 +51,7 @@ use leo_ast::{
 use leo_span::sym;
 use snarkvm::{
     prelude::{CanaryV0, MainnetV0, TestnetV0},
-    synthesizer::program::{CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, SerializeVariant},
+    synthesizer::program::{CommitVariant, DeserializeVariant, SerializeVariant},
 };
 
 use anyhow::bail;
@@ -448,7 +448,7 @@ impl CodeGeneratingVisitor<'_> {
                 (destination_register, instruction)
             }
             Some(CoreFunction::Hash(variant, ref type_)) => {
-                let mut instruction = format!("    {}", HashVariant::opcode(variant as u8));
+                let mut instruction = format!("    {}", variant.opcode());
                 let destination_register = self.next_register();
                 let type_ = match self.state.network {
                     NetworkName::TestnetV0 => {
@@ -547,7 +547,7 @@ impl CodeGeneratingVisitor<'_> {
                 (destination_register, instruction)
             }
             Some(CoreFunction::ECDSAVerify(variant)) => {
-                let mut instruction = format!("    {}", ECDSAVerifyVariant::opcode(variant as u8));
+                let mut instruction = format!("    {}", variant.opcode());
                 let destination_register = self.next_register();
                 // Write the arguments and the destination register.
                 writeln!(

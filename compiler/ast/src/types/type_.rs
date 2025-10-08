@@ -200,8 +200,8 @@ impl Type {
         F: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
     {
         match is_raw {
-            false => self.to_snarkvm::<N>()?.plaintext_size_in_bits(&get_structs),
-            true => self.to_snarkvm::<N>()?.plaintext_size_in_raw_bits(&get_structs),
+            false => self.to_snarkvm::<N>()?.size_in_bits(&get_structs),
+            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_structs),
         }
     }
 }
