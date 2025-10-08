@@ -69,7 +69,7 @@ impl Command for LeoProgram {
         } else if self.mappings {
             format!("program/{program}/mappings")
         } else {
-            // when no edition is specified, omit the edition from the URL to get the latest one
+            // When no edition is specified, omit the edition from the URL to get the latest one.
             match self.edition {
                 Some(edition) => format!("program/{program}/{edition}"),
                 None => format!("program/{program}"),
