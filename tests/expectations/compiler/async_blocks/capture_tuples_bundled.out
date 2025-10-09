@@ -1,0 +1,61 @@
+program test.aleo;
+
+struct main_0_bundle1:
+    field_0 as u32;
+    field_1 as u32;
+    field_2 as u32;
+    field_3 as u32;
+    field_4 as u32;
+    field_5 as u32;
+    field_6 as u32;
+    field_7 as u32;
+    field_8 as u32;
+    field_9 as u32;
+
+function main:
+    cast 16u32 17u32 18u32 19u32 20u32 21u32 22u32 23u32 100u32 200u32 into r0 as main_0_bundle1;
+    async main 1u32 2u32 3u32 4u32 5u32 6u32 7u32 8u32 9u32 10u32 11u32 12u32 13u32 14u32 15u32 r0 into r1;
+    output r1 as test.aleo/main.future;
+
+finalize main:
+    input r0 as u32.public;
+    input r1 as u32.public;
+    input r2 as u32.public;
+    input r3 as u32.public;
+    input r4 as u32.public;
+    input r5 as u32.public;
+    input r6 as u32.public;
+    input r7 as u32.public;
+    input r8 as u32.public;
+    input r9 as u32.public;
+    input r10 as u32.public;
+    input r11 as u32.public;
+    input r12 as u32.public;
+    input r13 as u32.public;
+    input r14 as u32.public;
+    input r15 as main_0_bundle1.public;
+    add r0 r1 into r16;
+    add r16 r2 into r17;
+    add r17 r3 into r18;
+    add r18 r4 into r19;
+    add r19 r5 into r20;
+    add r20 r6 into r21;
+    add r21 r7 into r22;
+    add r22 r8 into r23;
+    add r23 r9 into r24;
+    add r24 r10 into r25;
+    add r25 r11 into r26;
+    add r26 r12 into r27;
+    add r27 r13 into r28;
+    add r28 r14 into r29;
+    add r29 r15.field_0 into r30;
+    add r30 r15.field_1 into r31;
+    add r31 r15.field_2 into r32;
+    add r32 r15.field_3 into r33;
+    add r33 r15.field_4 into r34;
+    add r34 r15.field_5 into r35;
+    add r35 r15.field_6 into r36;
+    add r36 r15.field_7 into r37;
+    add r37 r15.field_8 into r38;
+    add r38 r15.field_9 into r39;
+    assert.eq r39 576u32;

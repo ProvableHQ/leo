@@ -1,0 +1,75 @@
+program test.aleo;
+
+struct Position:
+    x as u32;
+    y as u32;
+
+struct Entity:
+    pos as Position;
+    health as u32;
+
+struct main_0_bundle1:
+    field_0 as u32;
+    field_1 as u32;
+    field_2 as u32;
+    field_3 as u32;
+    field_4 as u32;
+    field_5 as u32;
+    field_6 as u32;
+    field_7 as u32;
+
+function main:
+    cast 10u32 20u32 into r0 as Position;
+    cast r0 100u32 into r1 as Entity;
+    cast 30u32 40u32 into r2 as Position;
+    cast r2 80u32 into r3 as Entity;
+    cast 1u32 2u32 3u32 into r4 as [u32; 3u32];
+    cast 4u32 5u32 6u32 into r5 as [u32; 3u32];
+    cast 7u32 8u32 9u32 into r6 as [u32; 3u32];
+    cast 10u32 11u32 12u32 13u32 14u32 15u32 16u32 17u32 into r7 as main_0_bundle1;
+    async main r1 r3 r4 r5 r6 0u32 1u32 2u32 3u32 4u32 5u32 6u32 7u32 8u32 9u32 r7 into r8;
+    output r8 as test.aleo/main.future;
+
+finalize main:
+    input r0 as Entity.public;
+    input r1 as Entity.public;
+    input r2 as [u32; 3u32].public;
+    input r3 as [u32; 3u32].public;
+    input r4 as [u32; 3u32].public;
+    input r5 as u32.public;
+    input r6 as u32.public;
+    input r7 as u32.public;
+    input r8 as u32.public;
+    input r9 as u32.public;
+    input r10 as u32.public;
+    input r11 as u32.public;
+    input r12 as u32.public;
+    input r13 as u32.public;
+    input r14 as u32.public;
+    input r15 as main_0_bundle1.public;
+    assert.eq r0.pos.x 10u32;
+    assert.eq r0.pos.y 20u32;
+    assert.eq r0.health 100u32;
+    assert.eq r1.pos.x 30u32;
+    assert.eq r1.health 80u32;
+    assert.eq r2[0u32] 1u32;
+    assert.eq r3[1u32] 5u32;
+    assert.eq r4[2u32] 9u32;
+    add r5 r6 into r16;
+    add r16 r7 into r17;
+    add r17 r8 into r18;
+    add r18 r9 into r19;
+    add r19 r10 into r20;
+    add r20 r11 into r21;
+    add r21 r12 into r22;
+    add r22 r13 into r23;
+    add r23 r14 into r24;
+    add r24 r15.field_0 into r25;
+    add r25 r15.field_1 into r26;
+    add r26 r15.field_2 into r27;
+    add r27 r15.field_3 into r28;
+    add r28 r15.field_4 into r29;
+    add r29 r15.field_5 into r30;
+    add r30 r15.field_6 into r31;
+    add r31 r15.field_7 into r32;
+    assert.eq r32 153u32;
