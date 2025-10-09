@@ -759,7 +759,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             BinaryOperation::BitwiseAnd | BinaryOperation::BitwiseOr | BinaryOperation::Xor => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type for both `left` and `right` is the unwrapped type
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
@@ -773,12 +773,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 let result_t = assert_same_type(self, &t1, &t2);
                 self.maybe_assert_type(&result_t, destination, input.span());
-                
+
                 self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Add => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type for both `left` and `right` is the unwrapped type
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
@@ -808,7 +808,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             BinaryOperation::Sub => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type for both `left` and `right` is the unwrapped type
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
@@ -828,7 +828,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             BinaryOperation::Mul => {
                 let unwrapped_dest = self.unwrap_optional_type(destination);
-                
+
                 // The expected type for both `left` and `right` is the same as unwrapped destination except when it is
                 // a `Type::Group`. In that case, the two operands should be a `Type::Group` and `Type::Scalar` but we can't
                 // known which one is which.
@@ -869,7 +869,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             BinaryOperation::Div => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type for both `left` and `right` is the unwrapped type
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
@@ -889,7 +889,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             BinaryOperation::Rem | BinaryOperation::RemWrapped => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type for both `left` and `right` is the unwrapped type
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
@@ -909,7 +909,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             BinaryOperation::Mod => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type for both `left` and `right` is the unwrapped type
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
@@ -929,7 +929,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             BinaryOperation::Pow => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type of `left` is the unwrapped destination
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
 
@@ -1034,7 +1034,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             | BinaryOperation::DivWrapped
             | BinaryOperation::MulWrapped => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type for both `left` and `right` is the unwrapped type
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
@@ -1058,7 +1058,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             | BinaryOperation::ShrWrapped
             | BinaryOperation::PowWrapped => {
                 let operand_expected = self.unwrap_optional_type(destination);
-                
+
                 // The expected type of `left` is the unwrapped `destination`
                 let t1 = self.visit_expression_reject_numeric(&input.left, &operand_expected);
 
@@ -1709,7 +1709,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_unary(&mut self, input: &UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         let operand_expected = self.unwrap_optional_type(destination);
-        
+
         let assert_signed_int = |slf: &mut Self, type_: &Type| {
             if !matches!(
                 type_,
