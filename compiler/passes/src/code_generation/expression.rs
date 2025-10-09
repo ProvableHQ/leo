@@ -306,8 +306,8 @@ impl CodeGeneratingVisitor<'_> {
                 variable_operand
             } else {
                 // Push operand identifier.
-                let (ident_operand, ident_instructions) = self
-                    .visit_path(&Path::from(member.identifier).with_absolute_path(Some(vec![member.identifier.name])));
+                let (ident_operand, ident_instructions) =
+                    self.visit_path(&Path::from(member.identifier).into_absolute());
                 instructions.push_str(&ident_instructions);
 
                 ident_operand
