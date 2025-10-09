@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{Function, NodeID};
+use leo_ast::{Composite, Function, NodeID};
 use leo_span::Symbol;
 
 pub struct ProcessingAsyncVisitor<'a> {
@@ -30,6 +30,8 @@ pub struct ProcessingAsyncVisitor<'a> {
     pub current_function: Symbol,
     /// A map of reconstructed functions in the current program scope.
     pub new_async_functions: Vec<(Symbol, Function)>,
+    /// Synthetic structs created to bundle captured variables when an async block captures more than MAX_INPUTS.
+    pub synthetic_structs: Vec<(Symbol, Composite)>,
     /// Indicates whether this pass actually processed any async blocks.
     pub modified: bool,
 }

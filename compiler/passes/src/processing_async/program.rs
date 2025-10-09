@@ -49,9 +49,15 @@ impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
         // Now append all newly created `async` functions. This ensures transition functions still show up before all other functions.
         reconstructed_functions.append(&mut self.new_async_functions);
 
+        // Reconstruct existing structs and append synthetic structs created for bundling captured variables
+        let mut all_structs: Vec<_> =
+            input.structs.into_iter().map(|(id, def)| (id, self.reconstruct_struct(def))).collect();
+
+        all_structs.append(&mut self.synthetic_structs);
+
         ProgramScope {
             program_id: input.program_id,
-            structs: input.structs.into_iter().map(|(id, def)| (id, self.reconstruct_struct(def))).collect(),
+            structs: all_structs,
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
             functions: reconstructed_functions,
             constructor: input.constructor,

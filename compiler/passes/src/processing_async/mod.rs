@@ -76,6 +76,7 @@ impl Pass for ProcessingAsync {
             current_program: Symbol::intern(""),
             current_function: Symbol::intern(""),
             new_async_functions: Vec::new(),
+            synthetic_structs: Vec::new(),
             modified: false,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
