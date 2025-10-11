@@ -140,7 +140,7 @@ macro_rules! create_messages {
     // matches the function if it is a formatted message with multiple spans.
     (@step $code:expr, ($(#[$error_func_docs:meta])* formatted_multi_span, $name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($(#[$docs:meta])* $formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
         $(#[$error_func_docs])*
-        pub fn $name($($arg_names: $arg_types,)* span: leo_span::Span, span_label: Option<String>, additional_spans: Vec<(leo_span::Span, String)>) -> Self {
+        pub fn $name($($arg_names: $arg_types,)* span: leo_span::Span, span_label: Option<String>, additional_spans: Vec<(leo_span::Span, String, Option<$crate::SpanColor>)>) -> Self {
             Self::Formatted(
                 Formatted::new_from_spans(
                     $message,
@@ -151,6 +151,7 @@ macro_rules! create_messages {
                     Self::is_error(),
                     span,
                     span_label,
+                    None,
                     additional_spans,
                     Backtrace::new(),
                 )

@@ -241,7 +241,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                         identifier.name,
                         *span,
                         Some(format!("`{}` redefined here", identifier.name)),
-                        vec![(*first_span, format!("previous definition of the variable `{}` here", identifier.name))],
+                        vec![(*first_span, format!("previous definition of the variable `{}` here", identifier.name), None)],
                     )
                 } else {
                     TypeCheckerError::duplicate_struct_member_multi_span(
@@ -249,7 +249,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                         identifier.name,
                         *span,
                         Some(format!("`{}` redefined here", identifier.name)),
-                        vec![(*first_span, format!("previous definition of the member `{}` here", identifier.name))],
+                        vec![(*first_span, format!("previous definition of the member `{}` here", identifier.name), None)],
                     )
                 });
             } else {
