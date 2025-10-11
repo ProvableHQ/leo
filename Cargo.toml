@@ -145,8 +145,8 @@ version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
 git = "https://github.com/ProvableHQ/snarkVM.git"
-tag = "v4.4.0"
-features = [ "test_consensus_heights" ]
+branch = "struct-namespace-squashed"
+features = ["test_consensus_heights"]
 
 [workspace.dependencies.tempfile]
 version = "3.13"

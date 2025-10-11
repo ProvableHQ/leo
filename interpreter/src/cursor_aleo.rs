@@ -421,6 +421,7 @@ impl Cursor {
                         );
                         (value, destination)
                     }
+                    CastType::Plaintext(PlaintextType::ExternalStruct(_struct_name)) => todo!(),
                     CastType::Record(record_name) => {
                         let program = self.current_program().unwrap();
                         let name = Symbol::intern(&record_name.to_string());

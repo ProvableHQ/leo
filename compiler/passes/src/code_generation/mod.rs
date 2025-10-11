@@ -532,6 +532,7 @@ pub enum AleoType {
     Future { name: String, program: String },
     Record { name: String, program: Option<String> },
     Ident { name: String },
+    Location { program: String, name: String },
     Array { inner: Box<AleoType>, len: u32 },
     GroupX,
     GroupY,
@@ -562,6 +563,7 @@ impl Display for AleoType {
             Self::GroupX => write!(f, "group.x"),
             Self::GroupY => write!(f, "group.y"),
             Self::Ident { name } => write!(f, "{name}"),
+            Self::Location { program, name } => write!(f, "{program}.aleo/{name}"),
             Self::Address => write!(f, "address"),
             Self::Boolean => write!(f, "boolean"),
             Self::Field => write!(f, "field"),
@@ -588,6 +590,9 @@ impl<N: Network> From<PlaintextType<N>> for AleoType {
         match value {
             PlaintextType::Literal(lit) => lit.into(),
             PlaintextType::Struct(id) => Self::Ident { name: id.to_string() },
+            PlaintextType::ExternalStruct(loc) => {
+                Self::Location { program: loc.program_id().to_string(), name: loc.name().to_string() }
+            }
             PlaintextType::Array(arr) => arr.into(),
         }
     }

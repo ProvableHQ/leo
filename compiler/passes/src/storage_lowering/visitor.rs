@@ -146,7 +146,7 @@ impl StorageLoweringVisitor<'_> {
         let symbol_table = &self.state.symbol_table;
         let struct_lookup = |sym: &[Symbol]| {
             symbol_table
-                .lookup_struct(sym)
+                .lookup_struct(&Location::new(self.program, sym.to_vec()))
                 .unwrap()
                 .members
                 .iter()

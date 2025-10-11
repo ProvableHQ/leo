@@ -59,7 +59,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let lookup = |name: &[Symbol]| {
             self.state
                 .symbol_table
-                .lookup_struct(name)
+                .lookup_struct(&Location::new(this_program, name.to_vec()))
                 .or_else(|| self.state.symbol_table.lookup_record(&Location::new(this_program, name.to_vec())))
         };
 
@@ -153,7 +153,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if var.type_.is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), Self::visit_type(&var.type_)))
+                    Some((var.identifier.to_string(), self.visit_type(&var.type_)))
                 }
             })
             .collect();
@@ -185,7 +185,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if var.type_.is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), Self::visit_type(&var.type_), match var.mode {
+                    Some((var.identifier.to_string(), self.visit_type(&var.type_), match var.mode {
                         Mode::Constant => AleoVisibility::Constant,
                         Mode::Public => AleoVisibility::Public,
                         Mode::None | Mode::Private => AleoVisibility::Private,

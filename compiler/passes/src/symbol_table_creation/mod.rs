@@ -165,8 +165,14 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
             {
                 self.state.handler.emit_err(err);
             }
-        } else if let Err(err) = self.state.symbol_table.insert_struct(self.program_name, &full_name, input.clone()) {
-            self.state.handler.emit_err(err);
+        } else {
+            let program_name = input.external.unwrap_or(self.program_name);
+
+            if let Err(err) =
+                self.state.symbol_table.insert_struct(Location::new(program_name, full_name), input.clone())
+            {
+                self.state.handler.emit_err(err);
+            }
         }
     }
 
@@ -260,10 +266,13 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
             {
                 self.state.handler.emit_err(err);
             }
-        } else if let Err(err) =
-            self.state.symbol_table.insert_struct(self.program_name, &[input.name()], input.clone())
-        {
-            self.state.handler.emit_err(err);
+        } else {
+            let program_name = input.external.unwrap_or(self.program_name);
+            if let Err(err) =
+                self.state.symbol_table.insert_struct(Location::new(program_name, vec![input.name()]), input.clone())
+            {
+                self.state.handler.emit_err(err);
+            }
         }
     }
 }

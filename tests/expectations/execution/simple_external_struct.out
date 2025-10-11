@@ -1,0 +1,204 @@
+program child1.aleo;
+
+struct Foo:
+    x as u32;
+    y as u32;
+    z as u32;
+
+function main1:
+    input r0 as Foo.private;
+
+function main2:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    cast r0 r1 r2 into r3 as Foo;
+    output r3 as Foo.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+program child2.aleo;
+
+struct Foo:
+    x as u32;
+    y as u32;
+    z as u32;
+    w as u32;
+
+function main1:
+    input r0 as Foo.private;
+
+function main2:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    input r3 as u32.private;
+    cast r0 r1 r2 r3 into r4 as Foo;
+    output r4 as Foo.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child1.aleo;
+import child2.aleo;
+program external_structs.aleo;
+
+struct Foo:
+    x as u32;
+    y as u32;
+
+function main1:
+    input r0 as Foo.private;
+    input r1 as child1.aleo/Foo.private;
+    input r2 as child2.aleo/Foo.private;
+    add r0.x r0.y into r3;
+    add r3 r1.x into r4;
+    add r4 r1.y into r5;
+    add r5 r1.z into r6;
+    add r6 r2.x into r7;
+    add r7 r2.y into r8;
+    add r8 r2.z into r9;
+    add r9 r2.w into r10;
+    assert.eq r10 495u32;
+
+function main2:
+    call child1.aleo/main2 1u32 2u32 3u32 into r0;
+    call child2.aleo/main2 1u32 2u32 3u32 4u32 into r1;
+    add r0.x r0.y into r2;
+    add r2 r0.z into r3;
+    add r3 r1.x into r4;
+    add r4 r1.y into r5;
+    add r5 r1.z into r6;
+    add r6 r1.w into r7;
+    output r7 as u32.public;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au14antzdxkjrdyafs3qx4qw5jg583l4fzw9uj7u5u4mkn8ym85cyqsa094x9",
+      "program": "external_structs.aleo",
+      "function": "main1",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2096312061641803215371098340476334597371507973629936572379485503380011532969field",
+          "value": "ciphertext1qyqvl75mva7x5046mt80l0wpakr23ff0wwdefyq9nyulw2ty2mr7czsklqnjj"
+        },
+        {
+          "type": "private",
+          "id": "3696003350536987238630844917134017047986947975697186289528638396061572956538field",
+          "value": "ciphertext1qgqyk88eylgy76639x8t5dnvnnr3egld6y872t0yl0yx9u05eeyx5zlpmgtednc475h3me7hu4dq39vdchu4932y4hfwg3v530qx9u4dqsv23t86"
+        },
+        {
+          "type": "private",
+          "id": "4899299611395521286988434910331436097942739560747652588410293177719722302424field",
+          "value": "ciphertext1qgqpnmfpywzk8pcpvrd0sh22xu845ndck4hwpunvvk4pc4slegxdvpqmusaqmwqmny5yh2cphq3cl8c4qvtcxrhg5qla68x0jaez7fkmpupqcuk9"
+        }
+      ],
+      "outputs": [],
+      "tpk": "1412376723741654545689775687894516286511091102925951564434033287426843274920group",
+      "tcm": "5491479151525498036107852033688148221191508608473778366056290873010986366739field",
+      "scm": "2807548869978713531425432334945858319538734134615969880248193629163275591201field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au10u7qsnh086vm7xufe8hq8edg5jvz44uqsj4fhylcw5yvm85atv8q9ff4nd",
+      "program": "child1.aleo",
+      "function": "main2",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2755238058249694371935524679709149619382148418396834315885656181411829168875field",
+          "value": "ciphertext1qyq9ncw55dmklqcqprzv70hzwqggcmrgsf3rx986ylfatu02mtjrqpgs9lae6"
+        },
+        {
+          "type": "private",
+          "id": "4716856688077675419943963333586057303787901195493030239011714779865128714378field",
+          "value": "ciphertext1qyqw7cmkva9s7dn7grqmu2er9jvvtf59zu3kurlugk43wxwq9w88szsuxglgf"
+        },
+        {
+          "type": "private",
+          "id": "1314263505953362413737123426159871293933045282810059888503661764649727503618field",
+          "value": "ciphertext1qyqyecqsscljly7kp0z4e00p9lzaa6txskscecquzv986ml4w7yrxzqfukdjw"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "2794390415797041762568526804679927659996837821272444902405023325440581780602field",
+          "value": "ciphertext1qgqtfn96v2elfpx3ugh2am7yka2t6keyyes6r2ujzmldvce0x0x5gqpn7xeuyc6gxdvr303jhvnszhsx9xtl2vsrg9y5py6m2fvpwl0jzqkanxvn"
+        }
+      ],
+      "tpk": "4656840751718663562093437303453249881710835279997727430823124417556130079794group",
+      "tcm": "314290009102398298399905295499615635071196189881948591077615638317970428907field",
+      "scm": "5281434977164411386066682085374193503124481260985546094677535317296954867500field"
+    },
+    {
+      "id": "au1ssrt7mtthwfeh8dpxcx3exreg3sgqmeju9xhypakz5y74u9wacysy0q08t",
+      "program": "child2.aleo",
+      "function": "main2",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2095034100587492345918785324590076929414219879873927678022407666821425146559field",
+          "value": "ciphertext1qyqg9k53w6mxu2t2qrukpqxygyn7lqjdw5e6s5dwcjp7ev4lkaaxczq80qw6j"
+        },
+        {
+          "type": "private",
+          "id": "3087373623848881653383908580165909055332143992617006860150831980842274773322field",
+          "value": "ciphertext1qyqdvlylefn9ftqyh2xj0vljcwrrpcm52hf5mug90x5hm2x3m55rwpgv2juty"
+        },
+        {
+          "type": "private",
+          "id": "6615245553506875021581572526625205167370364570076743373427398083253273590866field",
+          "value": "ciphertext1qyqvmnpv60kzzkmve6hq9hn9w3j8yyhc3t7dmhfnjatuvy94xcc4xygt6gwtu"
+        },
+        {
+          "type": "private",
+          "id": "2814240182120534535052537294001925778438098008643496042216587211247478620925field",
+          "value": "ciphertext1qyqvt0pdu05jhv555ewplvfttswulcm5vue0vt3x9esegrd5g7wtupcmhjkfw"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "1136644294072727374032937070235422212991809760639283394168293367122906070759field",
+          "value": "ciphertext1qgqrk0x5sf0zlshzwwf3mj6ackp2ks6dtqaljdn0zwctr4qyvpmv7q2qnvy7z5e0zagg32s6er23nwr284d693pm70yfd47u6fcm9mhypq7d0j9k"
+        }
+      ],
+      "tpk": "3400262666280429212684906619935974109231597352917104792040712478510112922490group",
+      "tcm": "6093749795924876453819354010204915871083510430393836040689023734375905008463field",
+      "scm": "5281434977164411386066682085374193503124481260985546094677535317296954867500field"
+    },
+    {
+      "id": "au19vjnw7c8rgv2aekn0r97fuy7akw368smkp399ssdydsluwg4lgzqvvykrn",
+      "program": "external_structs.aleo",
+      "function": "main2",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "6068131285950158922438604617377751920819817925263007347845842364822738853103field",
+          "value": "16u32"
+        }
+      ],
+      "tpk": "6087517221795247688155609380978429214872054624430698225905614131378520117419group",
+      "tcm": "2037352728007024067731450716486930683025401744104588925553539300547274302969field",
+      "scm": "5281434977164411386066682085374193503124481260985546094677535317296954867500field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

@@ -16,10 +16,10 @@
 
 use super::*;
 
-use leo_ast::{CompositeType, IntegerType, Location, Type};
+use leo_ast::{IntegerType, Location, Type};
 
 impl CodeGeneratingVisitor<'_> {
-    pub fn visit_type(input: &Type) -> AleoType {
+    pub fn visit_type(&self, input: &Type) -> AleoType {
         match input {
             Type::Address => AleoType::Address,
             Type::Field => AleoType::Field,
@@ -41,13 +41,32 @@ impl CodeGeneratingVisitor<'_> {
                 IntegerType::I128 => AleoType::I128,
             },
             Type::Identifier(id) => AleoType::Ident { name: id.to_string() },
-            Type::Composite(CompositeType { path, .. }) => AleoType::Ident {
+            Type::Composite(composite) => {
+                let name = composite.path.absolute_path();
+                let this_program_name = self.program_id.unwrap().name.name;
+                let program_name = composite.program.unwrap_or(this_program_name);
+
+                if self.state.symbol_table.lookup_struct(&Location::new(program_name, name.to_vec())).is_some() {
+                    let struct_name =
+                        Self::legalize_path(&name).expect("path format cannot be legalized at this point");
+                    if program_name == this_program_name {
+                        AleoType::Ident { name: struct_name.to_string() }
+                    } else {
+                        AleoType::Location { program: program_name.to_string(), name: struct_name.to_string() }
+                        //                        format!("{program_name}.aleo/{struct_name}")
+                    }
+                } else {
+                    panic!("")
+                }
+            }
+
+            /*AleoType::Ident {
                 name: Self::legalize_path(&path.absolute_path())
                     .expect("path format cannot be legalized at this point"),
-            },
+            },*/
             Type::Boolean => AleoType::Boolean,
             Type::Array(array_type) => AleoType::Array {
-                inner: Box::new(Self::visit_type(array_type.element_type())),
+                inner: Box::new(self.visit_type(array_type.element_type())),
                 len: array_type.length.as_u32().expect("length should be known at this point"),
             },
             Type::Future(..) => {
@@ -96,6 +115,6 @@ impl CodeGeneratingVisitor<'_> {
             }
         }
 
-        (Self::visit_type(type_), visibility)
+        (self.visit_type(type_), visibility)
     }
 }

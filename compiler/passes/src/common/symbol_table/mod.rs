@@ -37,7 +37,7 @@ pub struct SymbolTable {
     records: IndexMap<Location, Composite>,
 
     /// Structs indexed by a path.
-    structs: IndexMap<Vec<Symbol>, Composite>,
+    structs: IndexMap<Location, Composite>,
 
     /// Consts that have been successfully evaluated.
     global_consts: IndexMap<Location, Expression>,
@@ -165,7 +165,7 @@ impl SymbolTable {
     }
 
     /// Iterator over all the structs (not records) in this program.
-    pub fn iter_structs(&self) -> impl Iterator<Item = (&Vec<Symbol>, &Composite)> {
+    pub fn iter_structs(&self) -> impl Iterator<Item = (&Location, &Composite)> {
         self.structs.iter()
     }
 
@@ -180,8 +180,8 @@ impl SymbolTable {
     }
 
     /// Access the struct by this name if it exists.
-    pub fn lookup_struct(&self, path: &[Symbol]) -> Option<&Composite> {
-        self.structs.get(path)
+    pub fn lookup_struct(&self, location: &Location) -> Option<&Composite> {
+        self.structs.get(location)
     }
 
     /// Access the record at this location if it exists.
@@ -357,19 +357,10 @@ impl SymbolTable {
     /// Insert a struct at this name.
     ///
     /// Since structs are indexed only by name, the program is used only to check shadowing.
-    pub fn insert_struct(&mut self, program: Symbol, path: &[Symbol], composite: Composite) -> Result<()> {
-        if let Some(old_composite) = self.structs.get(path) {
-            if eq_struct(&composite, old_composite) {
-                Ok(())
-            } else {
-                Err(AstError::redefining_external_struct(path.iter().format("::"), old_composite.span).into())
-            }
-        } else {
-            let location = Location::new(program, path.to_vec());
-            self.check_shadow_global(&location, composite.identifier.span)?;
-            self.structs.insert(path.to_vec(), composite);
-            Ok(())
-        }
+    pub fn insert_struct(&mut self, location: Location, composite: Composite) -> Result<()> {
+        self.check_shadow_global(&location, composite.span)?;
+        self.structs.insert(location, composite);
+        Ok(())
     }
 
     /// Insert a record at this location.
@@ -414,7 +405,7 @@ impl SymbolTable {
             .get(location)
             .map(|f| f.function.identifier.span)
             .or_else(|| self.records.get(location).map(|r| r.identifier.span))
-            .or_else(|| self.structs.get(&location.path).map(|s| s.identifier.span))
+            .or_else(|| self.structs.get(location).map(|s| s.identifier.span))
             .or_else(|| self.globals.get(location).map(|g| g.span))
             .map_or_else(|| Ok(()), |prev_span| Err(Self::emit_shadow_error(*name, span, prev_span)))
     }
@@ -467,15 +458,4 @@ impl SymbolTable {
             Err(AstError::function_not_found(caller.path.iter().format("::")).into())
         }
     }
-}
-
-fn eq_struct(new: &Composite, old: &Composite) -> bool {
-    if new.members.len() != old.members.len() {
-        return false;
-    }
-
-    new.members
-        .iter()
-        .zip(old.members.iter())
-        .all(|(member1, member2)| member1.name() == member2.name() && member1.type_.eq_flat_relaxed(&member2.type_))
 }

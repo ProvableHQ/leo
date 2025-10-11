@@ -34,7 +34,7 @@ use snarkvm::prelude::{
     LiteralType,
     Network,
     PlaintextType,
-    PlaintextType::{Array, Literal, Struct},
+    PlaintextType::{Array, ExternalStruct, Literal, Struct},
 };
 use std::fmt;
 
@@ -234,6 +234,14 @@ impl Type {
                 const_arguments: Vec::new(),
                 program,
             }),
+            ExternalStruct(l) => Type::Composite(CompositeType {
+                path: {
+                    let ident = Identifier::from(l.name());
+                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                },
+                const_arguments: Vec::new(),
+                program: Some(Identifier::from(l.program_id().name()).name),
+            }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }
@@ -265,13 +273,19 @@ impl Type {
     }
 
     // A helper function to get the size in bits of the input type.
-    pub fn size_in_bits<N: Network, F>(&self, is_raw: bool, get_structs: F) -> anyhow::Result<usize>
+    pub fn size_in_bits<N: Network, F0, F1>(
+        &self,
+        is_raw: bool,
+        get_structs: &F0,
+        get_external_structs: &F1,
+    ) -> anyhow::Result<usize>
     where
-        F: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+        F0: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+        F1: Fn(&snarkvm::prelude::Locator<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
     {
         match is_raw {
-            false => self.to_snarkvm::<N>()?.size_in_bits(&get_structs),
-            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_structs),
+            false => self.to_snarkvm::<N>()?.size_in_bits(get_structs, get_external_structs),
+            true => self.to_snarkvm::<N>()?.size_in_bits_raw(get_structs, get_external_structs),
         }
     }
 
