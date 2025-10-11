@@ -36,7 +36,7 @@ pub enum SpanColor {
 
 impl SpanColor {
     /// apply bold formatting with an optional color (defaults to red if None).
-    pub fn apply_bold(text: &str, color: Option<&SpanColor>) -> String {
+    pub fn format_bold_colored(text: &str, color: Option<&SpanColor>) -> String {
         let default = SpanColor::default();
         let color = color.unwrap_or(&default);
         match color {
@@ -124,50 +124,9 @@ impl Formatted {
         }
     }
 
-    /// Creates a backtraced error from multiple spans with labels and a backtrace.
-    #[allow(clippy::too_many_arguments)]
-    pub fn new_from_spans<S>(
-        message: S,
-        help: Option<String>,
-        code: i32,
-        code_identifier: i8,
-        type_: String,
-        error: bool,
-        span: Span,
-        span_label: Option<String>,
-        additional_spans: Vec<(Span, String)>,
-        backtrace: Backtrace,
-    ) -> Self
-    where
-        S: ToString,
-    {
-        // Convert Vec<(Span, String)> to Vec<(Span, String, Option<SpanColor>)>
-        // by adding None for color (which will default to red)
-        let additional_spans_with_color = additional_spans
-            .into_iter()
-            .map(|(span, label)| (span, label, None))
-            .collect();
-
-        Self {
-            span,
-            span_label,
-            span_color: None,
-            additional_spans: additional_spans_with_color,
-            backtrace: Backtraced::new_from_backtrace(
-                message.to_string(),
-                help,
-                code,
-                code_identifier,
-                type_,
-                error,
-                backtrace,
-            ),
-        }
-    }
-
     /// Creates a backtraced error from multiple spans with labels, colors, and a backtrace.
     #[allow(clippy::too_many_arguments)]
-    pub fn new_from_spans_with_colors<S>(
+    pub fn new_from_spans<S>(
         message: S,
         help: Option<String>,
         code: i32,
@@ -299,7 +258,7 @@ impl fmt::Display for Formatted {
 
                     for _ in 0..caret_len {
                         if use_color {
-                            write!(f, "{}", SpanColor::apply_bold("^", color_opt))?;
+                            write!(f, "{}", SpanColor::format_bold_colored("^", color_opt))?;
                         } else {
                             write!(f, "^")?;
                         }
@@ -309,7 +268,7 @@ impl fmt::Display for Formatted {
                     //  `value` redefined here
                     if let Some(label) = label_opt {
                         if use_color {
-                            write!(f, " {}", SpanColor::apply_bold(label, color_opt))?;
+                            write!(f, " {}", SpanColor::format_bold_colored(label, color_opt))?;
                         } else {
                             write!(f, " {}", label)?;
                         }
