@@ -1,0 +1,7 @@
+program test.aleo {
+    transition main(x$$0$$5: u32) -> u32 {
+        let $var$2$#7 = 2u32;
+        let result$#3$#8 = x$$0$$5 * $var$2$#7;
+        return result$#3$#8;
+    }
+}
