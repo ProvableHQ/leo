@@ -1,0 +1,17 @@
+program test.aleo {
+    inline add(a$$3: u32, b$$4: u32) -> u32 {
+        let $var$5 = a$$3 + b$$4;
+        {
+        }
+        return $var$5;
+    }
+    transition main(x$$0: u32, y$$1: u32) -> u32 {
+        let $var$5 = x$$0 + y$$1;
+        {
+        }
+        let result$#2 = $var$5;
+        {
+        }
+        return result$#2;
+    }
+}

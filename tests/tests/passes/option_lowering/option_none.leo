@@ -1,0 +1,7 @@
+program test.aleo {
+    transition main(flag: bool) -> u32 {
+        let result: u32 = flag ? 42u32 : 0u32;
+        return result;
+    }
+}
+
