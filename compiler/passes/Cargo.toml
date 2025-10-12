@@ -61,3 +61,12 @@ workspace = true
 
 [dependencies.serde_json]
 workspace = true
+
+[dev-dependencies.leo-test-framework]
+workspace = true
+
+[dev-dependencies.leo-parser]
+workspace = true
+
+[dev-dependencies.serial_test]
+workspace = true

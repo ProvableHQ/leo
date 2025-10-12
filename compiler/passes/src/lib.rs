@@ -82,3 +82,6 @@ pub use type_checking::*;
 
 mod write_transforming;
 pub use write_transforming::*;
+
+#[cfg(test)]
+mod test_passes;

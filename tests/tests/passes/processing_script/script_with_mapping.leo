@@ -1,0 +1,8 @@
+program test.aleo {
+    mapping balances: address => u64;
+
+    transition update(addr: address, amount: u64) -> u64 {
+        return amount;
+    }
+}
+
