@@ -6,7 +6,7 @@ tables when it’s a path. Also changes <code>expression</code> into the found v
 </div></details><details class="toggle method-toggle" open><summary><section id="method.try_expr" class="method"><a class="src rightside" href="../../../src/leo_passes/common_subexpression_elimination/visitor.rs.html#129-264">Source</a><h4 class="code-header">pub fn <a href="#method.try_expr" class="fn">try_expr</a>(
     &amp;mut self,
     expression: <a class="enum" href="../../../leo_ast/expressions/enum.Expression.html" title="enum leo_ast::expressions::Expression">Expression</a>,
-    place: <a class="enum" href="https://doc.rust-lang.org/1.90.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Symbol&gt;,
+    place: <a class="enum" href="https://doc.rust-lang.org/1.90.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../../leo_span/symbol/struct.Symbol.html" title="struct leo_span::symbol::Symbol">Symbol</a>&gt;,
 ) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.90.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;(<a class="enum" href="../../../leo_ast/expressions/enum.Expression.html" title="enum leo_ast::expressions::Expression">Expression</a>, <a class="primitive" href="https://doc.rust-lang.org/1.90.0/std/primitive.bool.html">bool</a>)&gt;</h4></section></summary><div class="docblock"><p>Reconstruct the expression, looking it up in the table of expressions to try to replace it with a
 variable.</p>
 <ul>
