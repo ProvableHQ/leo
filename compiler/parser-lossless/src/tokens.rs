@@ -103,7 +103,7 @@ pub enum Token {
     // chase here.
 
     // Catch identifiers starting with underscore
-    #[regex(r"_[a-zA-Z][a-zA-Z0-9_]*", priority = 10)]
+    #[regex(r"_[a-zA-Z][a-zA-Z0-9_]*")]
     InvalidLeadingUnderscoreIdent,
 
     #[regex(r"[a-zA-Z][a-zA-Z0-9_]*", id_variant)]
