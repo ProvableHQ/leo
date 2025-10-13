@@ -63,18 +63,17 @@ impl Command for LeoProgram {
         if !leo_package::is_valid_aleo_name(&program) {
             return Err(CliError::invalid_program_name(program).into());
         }
-        // Get the edition, defaulting to the latest if not specified.
-        let edition = match self.edition {
-            Some(edition) => edition.to_string(),
-            None => "latest".to_string(),
-        };
         // Build custom url to fetch from based on the flags and user's input.
         let url = if let Some(mapping_info) = self.mapping_value {
             format!("program/{program}/mapping/{}/{}", mapping_info[0], mapping_info[1])
         } else if self.mappings {
             format!("program/{program}/mappings")
         } else {
-            format!("program/{program}/{edition}")
+            // When no edition is specified, omit the edition from the URL to get the latest one.
+            match self.edition {
+                Some(edition) => format!("program/{program}/{edition}"),
+                None => format!("program/{program}"),
+            }
         };
 
         Ok(url)
