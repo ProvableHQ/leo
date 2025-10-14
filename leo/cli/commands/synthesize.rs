@@ -103,9 +103,8 @@ impl Command for LeoSynthesize {
                 "❌ `--print` is not a valid option for `leo synthesize`. Please use `--save` and specify a valid directory."
             );
             return Ok(());
-        } else if self.action.save.is_none() {
-            println!("⚠️ You are running `leo synthesize` without `--save`");
         }
+
         // Get the network, accounting for overrides.
         let network = context.get_network(&self.env_override.network)?.parse()?;
         // Handle each network with the appropriate parameterization.
@@ -213,7 +212,7 @@ fn handle_synthesize<A: Aleo>(
         .into_iter()
         .map(|(program, edition)| {
             // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            let is_default = edition.is_some();
+            let is_default = edition.is_none();
             let edition = edition.unwrap_or(1);
             // Get the program ID.
             let id = program.id().to_string();
