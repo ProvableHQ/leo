@@ -25,7 +25,10 @@ use leo_span::{Span, Symbol};
 use anyhow::bail;
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
-use snarkvm::synthesizer::program::{CommitVariant, DeserializeVariant, HashVariant, SerializeVariant};
+use snarkvm::{
+    console::algorithms::ECDSASignature,
+    synthesizer::program::{CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, SerializeVariant},
+};
 use std::ops::Deref;
 
 pub struct TypeCheckingVisitor<'a> {
@@ -328,6 +331,36 @@ impl TypeCheckingVisitor<'_> {
                 type_.into()
             }
             CoreFunction::Hash(variant, type_) => {
+                // If the hash variant must be byte aligned, check that the number bits of the input is a multiple of 8.
+                if variant.requires_byte_alignment() {
+                    // Get the input type.
+                    let input_type = &arguments[0].0;
+                    // Get the size in bits.
+                    let size_in_bits = match self.state.network {
+                        NetworkName::TestnetV0 => input_type
+                            .size_in_bits::<TestnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::MainnetV0 => input_type
+                            .size_in_bits::<MainnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::CanaryV0 => input_type
+                            .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                    };
+                    let Ok(size_in_bits) = size_in_bits else {
+                        self.emit_err(TypeCheckerError::custom(
+                            "Could not determine the size in bits of the input to the hash function.",
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    };
+                    // Check that the size in bits is a multiple of 8.
+                    if size_in_bits % 8 != 0 {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            input_type,
+                            "a type with a size in bits that is a multiple of 8",
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    }
+                }
                 match variant {
                     HashVariant::HashPED64 => {
                         assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
@@ -341,8 +374,150 @@ impl TypeCheckingVisitor<'_> {
                 }
                 type_
             }
-            CoreFunction::ECDSAVerify(_variant) => {
-                // Allow any input type.
+            CoreFunction::ECDSAVerify(variant) => {
+                // Get the expected signature size.
+                let signature_size = ECDSASignature::SIGNATURE_SIZE_IN_BYTES;
+                // Check that the first input is a 65-byte array.
+                let Type::Array(array_type) = &arguments[0].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        &format!("a [u8; {signature_size}]"),
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(&array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+                if let Some(length) = array_type.length.as_u32() {
+                    if length as usize != signature_size {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            &arguments[0].0,
+                            &format!("a [u8; {signature_size}]"),
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    }
+                };
+
+                // Determine whether the core function is Ethereum-specifc.
+                let is_eth = match variant {
+                    ECDSAVerifyVariant::Digest => false,
+                    ECDSAVerifyVariant::DigestEth => true,
+                    ECDSAVerifyVariant::HashKeccak256 => false,
+                    ECDSAVerifyVariant::HashKeccak256Raw => false,
+                    ECDSAVerifyVariant::HashKeccak256Eth => true,
+                    ECDSAVerifyVariant::HashKeccak384 => false,
+                    ECDSAVerifyVariant::HashKeccak384Raw => false,
+                    ECDSAVerifyVariant::HashKeccak384Eth => true,
+                    ECDSAVerifyVariant::HashKeccak512 => false,
+                    ECDSAVerifyVariant::HashKeccak512Raw => false,
+                    ECDSAVerifyVariant::HashKeccak512Eth => true,
+                    ECDSAVerifyVariant::HashSha3_256 => false,
+                    ECDSAVerifyVariant::HashSha3_256Raw => false,
+                    ECDSAVerifyVariant::HashSha3_256Eth => true,
+                    ECDSAVerifyVariant::HashSha3_384 => false,
+                    ECDSAVerifyVariant::HashSha3_384Raw => false,
+                    ECDSAVerifyVariant::HashSha3_384Eth => true,
+                    ECDSAVerifyVariant::HashSha3_512 => false,
+                    ECDSAVerifyVariant::HashSha3_512Raw => false,
+                    ECDSAVerifyVariant::HashSha3_512Eth => true,
+                };
+                // Get the expected length of the second input.
+                let expected_length = if is_eth {
+                    ECDSASignature::ETHEREUM_ADDRESS_SIZE_IN_BYTES
+                } else {
+                    ECDSASignature::VERIFYING_KEY_SIZE_IN_BYTES
+                };
+                // Check that the second input is a byte array of the expected length.
+                let Type::Array(array_type) = &arguments[1].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[1].0,
+                        &format!("a [u8; {expected_length}]"),
+                        arguments[1].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(&array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[1].1.span());
+                if let Some(length) = array_type.length.as_u32() {
+                    if length as usize != expected_length {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            &arguments[1].0,
+                            &format!("a [u8; {expected_length}]"),
+                            arguments[1].1.span(),
+                        ));
+                        return Type::Err;
+                    }
+                };
+
+                // Check that the third input is not a mapping nor a tuple.
+                if matches!(&arguments[2].0, Type::Mapping(_) | Type::Tuple(_) | Type::Unit) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "anything but a mapping, tuple, or unit",
+                        arguments[2].1.span(),
+                    ));
+                }
+
+                // If the variant is a digest variant, check that the third input is a byte array of the correct length.
+                if matches!(variant, ECDSAVerifyVariant::Digest | ECDSAVerifyVariant::DigestEth) {
+                    // Get the expected length of the third input.
+                    let expected_length = ECDSASignature::PREHASH_SIZE_IN_BYTES;
+                    // Check that the third input is a byte array of the expected length.
+                    let Type::Array(array_type) = &arguments[2].0 else {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            &arguments[2].0,
+                            &format!("a [u8; {expected_length}]"),
+                            arguments[2].1.span(),
+                        ));
+                        return Type::Err;
+                    };
+                    self.assert_type(
+                        &array_type.element_type(),
+                        &Type::Integer(IntegerType::U8),
+                        arguments[2].1.span(),
+                    );
+                    if let Some(length) = array_type.length.as_u32() {
+                        if length as usize != expected_length {
+                            self.emit_err(TypeCheckerError::type_should_be2(
+                                &arguments[2].0,
+                                &format!("a [u8; {expected_length}]"),
+                                arguments[2].1.span(),
+                            ));
+                            return Type::Err;
+                        }
+                    }
+                }
+
+                // If the variant requires byte alignment, check that the third input is byte aligned.
+                if variant.requires_byte_alignment() {
+                    // Get the input type.
+                    let input_type = &arguments[2].0;
+                    // Get the size in bits.
+                    let size_in_bits = match self.state.network {
+                        NetworkName::TestnetV0 => input_type
+                            .size_in_bits::<TestnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::MainnetV0 => input_type
+                            .size_in_bits::<MainnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::CanaryV0 => input_type
+                            .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                    };
+                    let Ok(size_in_bits) = size_in_bits else {
+                        self.emit_err(TypeCheckerError::custom(
+                            "Could not determine the size in bits of the input to the hash function.",
+                            arguments[2].1.span(),
+                        ));
+                        return Type::Err;
+                    };
+                    // Check that the size in bits is a multiple of 8.
+                    if size_in_bits % 8 != 0 {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            input_type,
+                            "a type with a size in bits that is a multiple of 8",
+                            arguments[2].1.span(),
+                        ));
+                        return Type::Err;
+                    }
+                }
+
                 Type::Boolean
             }
             CoreFunction::MappingGet => {

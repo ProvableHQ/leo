@@ -1,12 +1,8 @@
 program test.aleo;
 
-struct Data:
-    a as u64;
-    b as u64;
-
 function main:
     input r0 as u64.private;
-    cast 100u64 200u64 into r1 as Data;
+    cast 100u64 200u64 into r1 as [u64; 2u32];
     hash.keccak256.raw r0 into r2 as field;
     hash.keccak256.raw r0 into r3 as scalar;
     hash.keccak256.raw r1 into r4 as address;
