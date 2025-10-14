@@ -305,7 +305,7 @@ impl ParserContext<'_> {
                 id: self.node_builder.next_id(),
             }
             .into())
-        } else if let (2, Some(CoreFunction::SignatureVerify(_))) =
+        } else if let (2, Some(CoreFunction::SignatureVerify)) =
             (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
         {
             Ok(AssociatedFunctionExpression {

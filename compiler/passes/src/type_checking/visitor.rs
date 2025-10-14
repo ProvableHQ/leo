@@ -440,7 +440,7 @@ impl TypeCheckingVisitor<'_> {
                 Type::Field
             }
             CoreFunction::ChaChaRand(type_) => type_.into(),
-            CoreFunction::SignatureVerify(_) => {
+            CoreFunction::SignatureVerify => {
                 // Check that the third argument is not a mapping nor a tuple. We have to do this
                 // before the other checks below to appease the borrow checker
                 assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1.span());

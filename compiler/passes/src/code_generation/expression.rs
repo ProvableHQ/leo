@@ -531,11 +531,8 @@ impl CodeGeneratingVisitor<'_> {
 
                 (destination_register, instruction)
             }
-            Some(CoreFunction::SignatureVerify(is_raw)) => {
-                let mut instruction = format!("    {}", match is_raw {
-                    true => "sign.verify.raw",
-                    false => "sign.verify",
-                });
+            Some(CoreFunction::SignatureVerify) => {
+                let mut instruction = "    sign.verify".to_string();
                 let destination_register = self.next_register();
                 // Write the arguments and the destination register.
                 writeln!(

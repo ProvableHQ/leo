@@ -119,12 +119,11 @@ pub fn evaluate_core_function(
         Ok(value.into())
     };
 
-    let doschnorr = |helper: &mut dyn CoreFunctionHelper, is_raw: bool| -> Result<Value> {
+    let doschnorr = |helper: &mut dyn CoreFunctionHelper| -> Result<Value> {
         let signature: Signature = helper.pop_value()?.try_into().expect_tc(span)?;
         let address: Address = helper.pop_value()?.try_into().expect_tc(span)?;
         let message: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
-        let is_valid =
-            snarkvm::synthesizer::program::evaluate_schnorr_verification(is_raw, &signature, &address, &message)?;
+        let is_valid = snarkvm::synthesizer::program::evaluate_schnorr_verification(&signature, &address, &message)?;
         Ok(Boolean::new(is_valid).into())
     };
 
@@ -202,7 +201,7 @@ pub fn evaluate_core_function(
         CoreFunction::Commit(commit_variant, type_) => docommit(helper, commit_variant, type_)?,
         CoreFunction::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
         CoreFunction::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
-        CoreFunction::SignatureVerify(is_raw) => doschnorr(helper, is_raw)?,
+        CoreFunction::SignatureVerify => doschnorr(helper)?,
         CoreFunction::Serialize(variant) => doserialize(helper, variant)?,
         CoreFunction::Deserialize(variant, type_) => dodeserialize(helper, variant, type_)?,
         CoreFunction::GroupToXCoordinate => {

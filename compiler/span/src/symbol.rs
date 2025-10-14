@@ -219,7 +219,6 @@ symbols! {
     to_x_coordinate,
     to_y_coordinate,
     verify,
-    verify_raw,
     verify_digest,
     verify_digest_eth,
     verify_keccak256,

@@ -44,8 +44,8 @@ pub enum CoreFunction {
     GroupToXCoordinate,
     GroupToYCoordinate,
 
-    // Schnorr signature verification with raw (bool) bytes.
-    SignatureVerify(bool),
+    // Schnorr signature verification.
+    SignatureVerify,
 
     FutureAwait,
 
@@ -583,8 +583,7 @@ impl CoreFunction {
             (sym::ProgramCore, sym::edition) => Self::ProgramEdition,
             (sym::ProgramCore, sym::program_owner) => Self::ProgramOwner,
 
-            (sym::signature, sym::verify) => Self::SignatureVerify(false),
-            (sym::signature, sym::verify_raw) => Self::SignatureVerify(true),
+            (sym::signature, sym::verify) => Self::SignatureVerify,
             (sym::Future, sym::Await) => Self::FutureAwait,
 
             (sym::Serialize, sym::to_bits) => Self::Serialize(SerializeVariant::ToBits),
@@ -613,7 +612,7 @@ impl CoreFunction {
             Self::GroupToXCoordinate => 1,
             Self::GroupToYCoordinate => 1,
 
-            Self::SignatureVerify(_) => 3,
+            Self::SignatureVerify => 3,
             Self::FutureAwait => 1,
 
             Self::ProgramChecksum => 1,
@@ -646,7 +645,7 @@ impl CoreFunction {
             | CoreFunction::Hash(_, _)
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
-            | CoreFunction::SignatureVerify(_)
+            | CoreFunction::SignatureVerify
             | CoreFunction::Serialize(_)
             | CoreFunction::Deserialize(_, _)
             | CoreFunction::CheatCodePrintMapping

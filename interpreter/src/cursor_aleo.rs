@@ -223,7 +223,7 @@ impl Cursor {
 
         macro_rules! schnorr_function {
             ($schnorr: expr, $variant: expr) => {{
-                let core_function = CoreFunction::SignatureVerify($variant);
+                let core_function = CoreFunction::SignatureVerify;
                 let signature = self.operand_value(&$schnorr.operands()[0]);
                 let public_key = self.operand_value(&$schnorr.operands()[1]);
                 let message = self.operand_value(&$schnorr.operands()[2]);
@@ -520,7 +520,6 @@ impl Cursor {
             Shr(shr) => binary!(shr, Shr),
             ShrWrapped(shr_wrapped) => binary!(shr_wrapped, ShrWrapped),
             SignVerify(schnorr) => schnorr_function!(schnorr, false),
-            SignVerifyRaw(schnorr) => schnorr_function!(schnorr, true),
             Square(square) => unary!(square, Square),
             SquareRoot(sqrt) => unary!(sqrt, SquareRoot),
             Sub(sub) => binary!(sub, Sub),
