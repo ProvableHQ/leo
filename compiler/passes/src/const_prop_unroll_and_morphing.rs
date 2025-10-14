@@ -116,7 +116,7 @@ impl Pass for ConstPropUnrollAndMorphing {
                 }
 
                 // Exit with the handler's last error.
-                state.handler.last_err().map_err(|e| *e)?;
+                state.handler.last_err()?;
 
                 if let Some(not_unrolled_span) = loop_unroll_output.loop_not_unrolled {
                     return Err(CompilerError::loop_bounds_not_evaluated(not_unrolled_span).into());

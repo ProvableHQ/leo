@@ -1,0 +1,11 @@
+Error [ETYC0372159]: The type `Foo` cannot be wrapped in an optional because it is a record.
+    --> compiler-test:10:9
+     |
+  10 |         let f: Foo? = Foo {
+     |         ^^^^^^^^^^^^^^^^^^^
+  11 |             owner: self.signer,
+     |             ^^^^^^^^^^^^^^^^^^^
+  12 |             value: 5,
+     |             ^^^^^^^^^
+  13 |         };
+     |         ^^

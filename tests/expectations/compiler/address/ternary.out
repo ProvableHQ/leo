@@ -4,6 +4,5 @@ function main:
     input r0 as address.private;
     is.eq r0 aleo1l7ytv5jqjzpxtjqttl5z9mle8ujcpac9t6tkge5f4haah4pxas8sagzecd into r1;
     is.eq aleo1dtpkpg3d653mdlzh6g028937qdgujecn5gw5tzh7ftcvyz7jxvfqw6t8p6 r0 into r2;
-    is.eq aleo1l7ytv5jqjzpxtjqttl5z9mle8ujcpac9t6tkge5f4haah4pxas8sagzecd r0 into r3;
-    ternary r1 r2 r3 into r4;
-    output r4 as boolean.private;
+    ternary r1 r2 r1 into r3;
+    output r3 as boolean.private;

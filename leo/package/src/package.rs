@@ -152,8 +152,9 @@ impl Package {
             .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
 
         let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
-        std::fs::write(&test_file_path, test_template(name_no_aleo))
-            .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e))?;
+        std::fs::write(&test_file_path, test_template(name_no_aleo)).map_err(|e| {
+            UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
+        })?;
 
         Ok(full_path)
     }

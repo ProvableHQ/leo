@@ -192,7 +192,11 @@ impl SourceFile {
         let start = self.relative_offset(span.lo) as usize;
         let end = self.relative_offset(span.hi) as usize;
 
-        let line_start = self.src[..=start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+        let line_start = if self.src.get(start..).is_some_and(|s| s.starts_with('\n')) {
+            start
+        } else {
+            self.src[..start].rfind('\n').map(|i| i + 1).unwrap_or(0)
+        };
         let line_end = self.src[end..].find('\n').map(|x| x + end).unwrap_or(self.src.len());
 
         LineContents {

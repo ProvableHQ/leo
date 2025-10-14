@@ -1,14 +1,8 @@
 Error [ETYC0372015]: Struct Bar defined with more than one member with the same name.
-    --> compiler-test:3:5
+    --> compiler-test:5:9
      |
-   3 |     struct Bar {
-     |     ^^^^^^^^^^^^
-   4 |         x: u32,
-     |         ^^^^^^^
    5 |         x: u32,
-     |         ^^^^^^^
-   6 |     }
-     |     ^
+     |         ^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

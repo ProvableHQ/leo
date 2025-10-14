@@ -1,265 +1,259 @@
-Error [EPAR0370009]: unexpected string: expected 'identifier', found '-'
+Error [EPAR0370005]: expected an identifier, an integer literal -- found '-'
     --> test_0:1:3
      |
    1 | x.-12
      |   ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'
-    --> test_1:1:5
-     |
-   1 | x.0_;
-     |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'
-    --> test_2:1:6
-     |
-   1 | x.0_0;
-     |      ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found ';'
-    --> test_3:1:5
-     |
-   1 | x.01;
-     |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '.'
+Error [EPAR0370003]: unexpected EOF
     --> test_4:1:5
      |
    1 | x.0_.
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'import'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'import'
     --> test_5:1:5
      |
    1 | x.0_import
      |     ^^^^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found ','
+Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found ','
     --> test_6:1:5
      |
    1 | x.0_,
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '*'
+Error [EPAR0370003]: unexpected EOF
     --> test_7:1:5
      |
    1 | x.0_*
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '+'
+Error [EPAR0370003]: unexpected EOF
     --> test_8:1:5
      |
    1 | x.0_+
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '-'
+Error [EPAR0370003]: unexpected EOF
     --> test_9:1:5
      |
    1 | x.0_-
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '/'
+Error [EPAR0370003]: unexpected EOF
     --> test_10:1:5
      |
    1 | x.0_/
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '['
+Error [EPAR0370003]: unexpected EOF
     --> test_11:1:5
      |
    1 | x.0_[
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found ']'
+Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found ']'
     --> test_12:1:5
      |
    1 | x.0_]
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '{'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found '{'
     --> test_13:1:5
      |
    1 | x.0_{
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '}'
+Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found '}'
     --> test_14:1:5
      |
    1 | x.0_}
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '('
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found '('
     --> test_15:1:5
      |
    1 | x.0_(
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found ')'
+Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found ')'
     --> test_16:1:5
      |
    1 | x.0_)
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found ':'
+Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found ':'
     --> test_17:1:5
      |
    1 | x.0_:
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '::'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found '::'
     --> test_18:1:5
      |
    1 | x.0_::
      |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '?'
+Error [EPAR0370003]: unexpected EOF
     --> test_19:1:5
      |
    1 | x.0_?
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '<eof>'
-    --> test_20:1:3
+Error [EPAR0370003]: unexpected EOF
+    --> test_20:1:5
      |
    1 | x.0__
-     |   ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '='
+     |     ^
+Error [EPAR0370003]: unexpected EOF
     --> test_21:1:5
      |
    1 | x.0_=
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '=='
-    --> test_22:1:5
+Error [EPAR0370003]: unexpected EOF
+    --> test_22:1:6
      |
    1 | x.0_==
-     |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '!'
+     |      ^
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found '!'
     --> test_23:1:5
      |
    1 | x.0_!
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '!='
-    --> test_24:1:5
+Error [EPAR0370003]: unexpected EOF
+    --> test_24:1:6
      |
    1 | x.0_!=
-     |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '>'
+     |      ^
+Error [EPAR0370003]: unexpected EOF
     --> test_25:1:5
      |
    1 | x.0_>
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '>='
-    --> test_26:1:5
+Error [EPAR0370003]: unexpected EOF
+    --> test_26:1:6
      |
    1 | x.0_>=
-     |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '<'
+     |      ^
+Error [EPAR0370003]: unexpected EOF
     --> test_27:1:5
      |
    1 | x.0_<
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '<='
-    --> test_28:1:5
+Error [EPAR0370003]: unexpected EOF
+    --> test_28:1:6
      |
    1 | x.0_<=
-     |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '>'
+     |      ^
+Error [EPAR0370003]: unexpected EOF
     --> test_29:1:5
      |
    1 | x.0_>
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '..'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found '..'
     --> test_30:1:5
      |
    1 | x.0_..
      |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'as'
-    --> test_31:1:5
+Error [EPAR0370003]: unexpected EOF
+    --> test_31:1:6
      |
    1 | x.0_as
-     |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'console'
+     |      ^
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'console'
     --> test_32:1:5
      |
    1 | x.0_console
      |     ^^^^^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'const'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'const'
     --> test_33:1:5
      |
    1 | x.0_const
      |     ^^^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'let'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'let'
     --> test_34:1:5
      |
    1 | x.0_let
      |     ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'for'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'for'
     --> test_35:1:5
      |
    1 | x.0_for
      |     ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'if'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'if'
     --> test_36:1:5
      |
    1 | x.0_if
      |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'else'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'else'
     --> test_37:1:5
      |
    1 | x.0_else
      |     ^^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i8'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'i8'
     --> test_38:1:5
      |
    1 | x.0_i8
      |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i16'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'i16'
     --> test_39:1:5
      |
    1 | x.0_i16
      |     ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i32'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'i32'
     --> test_40:1:5
      |
    1 | x.0_i32
      |     ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i64'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'i64'
     --> test_41:1:5
      |
    1 | x.0_i64
      |     ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'i128'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'i128'
     --> test_42:1:5
      |
    1 | x.0_i128
      |     ^^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u8'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'u8'
     --> test_43:1:5
      |
    1 | x.0_u8
      |     ^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u16'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'u16'
     --> test_44:1:5
      |
    1 | x.0_u16
      |     ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u32'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'u32'
     --> test_45:1:5
      |
    1 | x.0_u32
      |     ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u64'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'u64'
     --> test_46:1:5
      |
    1 | x.0_u64
      |     ^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'u128'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'u128'
     --> test_47:1:5
      |
    1 | x.0_u128
      |     ^^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found '&'
+Error [EPAR0370003]: unexpected EOF
     --> test_48:1:5
      |
    1 | x.0_&
      |     ^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'return'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'return'
     --> test_49:1:5
      |
    1 | x.0_return
      |     ^^^^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'self'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'self'
     --> test_50:1:5
      |
    1 | x.0_self
      |     ^^^^
-Error [EPAR0370043]: Digit S invalid in radix 10 (token 0_S).
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'true'
+Error [EPAR0370052]: Digit S invalid in radix 10 (token 0_S).
+    --> test_51:1:3
+     |
+   1 | x.0_Self
+     |   ^^^
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'elf'
+    --> test_51:1:6
+     |
+   1 | x.0_Self
+     |      ^^^
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'true'
     --> test_52:1:5
      |
    1 | x.0_true
      |     ^^^^
-Error [EPAR0370033]: expected no underscores or leading zeros -- found 'false'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'false'
     --> test_53:1:5
      |
    1 | x.0_false

@@ -1,19 +1,19 @@
-Error [EPAR0370009]: unexpected string: expected 'expression', found '<eof>'
+Error [EPAR0370003]: unexpected EOF
     --> test_0:1:7
      |
    1 | async {
      |       ^
-Error [EPAR0370005]: expected { -- found '<eof>'
-    --> test_1:1:1
+Error [EPAR0370003]: unexpected EOF
+    --> test_1:1:5
      |
    1 | async
-     | ^^^^^
-Error [EPAR0370005]: expected ; -- found '}'
+     |     ^
+Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found '}'
     --> test_2:1:11
      |
    1 | async { 0 }
      |           ^
-Error [EPAR0370005]: expected ; -- found 'y'
+Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'y'
     --> test_3:1:11
      |
    1 | async { x y }

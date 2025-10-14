@@ -37,6 +37,7 @@ rust-version = "1.88.0"
 members = [
   "compiler/ast",
   "compiler/compiler",
+  "compiler/parser-lossless",
   "compiler/parser",
   "compiler/passes",
   "compiler/span",
@@ -100,6 +101,11 @@ version = "=3.2.0"
 [workspace.dependencies.leo-parser]
 path = "./compiler/parser"
 version = "=3.2.0"
+
+[workspace.dependencies.leo-parser-lossless]
+path = "./compiler/parser-lossless"
+version = "=3.2.0"
+
 
 [workspace.dependencies.leo-passes]
 path = "./compiler/passes"
@@ -366,4 +372,4 @@ debug-assertions = true
 inherits = "test"
 incremental = false
 debug = false
-[dependencies]
+

@@ -138,11 +138,24 @@ impl CodeGeneratingVisitor<'_> {
             return Some(last);
         }
 
-        // === Case 2: Matches special form like `Name::[3, 4]` ===
+        // === Case 2: Matches special form like `path::to::Name::[3, 4]` ===
         let re = regex::Regex::new(r#"^([a-zA-Z_][\w]*)(?:::\[.*?\])?$"#).unwrap();
+
         if let Some(captures) = re.captures(&last) {
             let ident = captures.get(1)?.as_str();
+
+            // The produced name here will be of the form: `<last>__AYMqiUeJeQN`.
             return Some(generate_hashed_name(path, ident));
+        }
+
+        // === Case 3: Matches special form like `path::to::Name?` (last always ends with `?`) ===
+        if last.ends_with("?\"") {
+            // Because the last segment of `path` always ends with `?` in case 3, we can guarantee
+            // that there will be no conflicts with case 2 (which doesn't allow `?` anywhere).
+            //
+            // The produced name here will be of the form: `Optional__JZCpIGdQvEZ`.
+            // The suffix after the `__` cannot conflict with the suffix in case 2 because of the `?`
+            return Some(generate_hashed_name(path, "Optional"));
         }
 
         // Last segment is neither legal nor matches special pattern

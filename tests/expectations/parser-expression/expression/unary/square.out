@@ -13,14 +13,15 @@
                     "lo": 2,
                     "hi": 3
                   },
-                  "id": 0
+                  "id": 5
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 2,
                   "hi": 3
                 },
-                "id": 1
+                "id": 4
               }
             },
             "op": "Square",
@@ -28,7 +29,7 @@
               "lo": 2,
               "hi": 12
             },
-            "id": 3
+            "id": 2
           }
         },
         "op": "Negate",
@@ -36,7 +37,7 @@
           "lo": 1,
           "hi": 12
         },
-        "id": 4
+        "id": 1
       }
     },
     "op": "Not",
@@ -44,7 +45,7 @@
       "lo": 0,
       "hi": 12
     },
-    "id": 5
+    "id": 0
   }
 }
 
@@ -63,14 +64,15 @@
                     "lo": 13,
                     "hi": 14
                   },
-                  "id": 0
+                  "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 13,
                   "hi": 14
                 },
-                "id": 1
+                "id": 6
               }
             },
             "op": "Square",
@@ -78,7 +80,7 @@
               "lo": 13,
               "hi": 23
             },
-            "id": 3
+            "id": 4
           }
         },
         "op": "Square",
@@ -86,7 +88,7 @@
           "lo": 13,
           "hi": 32
         },
-        "id": 5
+        "id": 2
       }
     },
     "op": "Square",
@@ -94,7 +96,7 @@
       "lo": 13,
       "hi": 41
     },
-    "id": 7
+    "id": 0
   }
 }
 
@@ -111,14 +113,15 @@
                 "lo": 43,
                 "hi": 44
               },
-              "id": 0
+              "id": 4
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 43,
               "hi": 44
             },
-            "id": 1
+            "id": 3
           }
         },
         "op": "Square",
@@ -126,7 +129,7 @@
           "lo": 43,
           "hi": 53
         },
-        "id": 3
+        "id": 1
       }
     },
     "op": "Negate",
@@ -134,7 +137,7 @@
       "lo": 42,
       "hi": 53
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -151,14 +154,15 @@
                 "lo": 56,
                 "hi": 57
               },
-              "id": 0
+              "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 56,
               "hi": 57
             },
-            "id": 1
+            "id": 4
           }
         },
         "op": "Negate",
@@ -166,15 +170,15 @@
           "lo": 55,
           "hi": 57
         },
-        "id": 2
+        "id": 3
       }
     },
     "op": "Square",
     "span": {
-      "lo": 55,
+      "lo": 54,
       "hi": 67
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -191,14 +195,15 @@
                 "lo": 70,
                 "hi": 71
               },
-              "id": 0
+              "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 70,
               "hi": 71
             },
-            "id": 1
+            "id": 4
           }
         },
         "op": "Square",
@@ -206,15 +211,15 @@
           "lo": 70,
           "hi": 80
         },
-        "id": 3
+        "id": 2
       }
     },
     "op": "Negate",
     "span": {
       "lo": 68,
-      "hi": 80
+      "hi": 81
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -233,14 +238,15 @@
                     "lo": 84,
                     "hi": 85
                   },
-                  "id": 0
+                  "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 84,
                   "hi": 85
                 },
-                "id": 1
+                "id": 6
               }
             },
             "op": "Square",
@@ -248,7 +254,7 @@
               "lo": 84,
               "hi": 94
             },
-            "id": 3
+            "id": 4
           }
         },
         "op": "Negate",
@@ -256,15 +262,15 @@
           "lo": 83,
           "hi": 94
         },
-        "id": 4
+        "id": 3
       }
     },
     "op": "Square",
     "span": {
-      "lo": 83,
+      "lo": 82,
       "hi": 104
     },
-    "id": 6
+    "id": 0
   }
 }
 
@@ -281,14 +287,15 @@
                 "lo": 106,
                 "hi": 107
               },
-              "id": 0
+              "id": 4
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 106,
               "hi": 107
             },
-            "id": 1
+            "id": 3
           }
         },
         "op": "Square",
@@ -296,7 +303,7 @@
           "lo": 106,
           "hi": 116
         },
-        "id": 3
+        "id": 1
       }
     },
     "op": "Not",
@@ -304,7 +311,7 @@
       "lo": 105,
       "hi": 116
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -321,14 +328,15 @@
                 "lo": 119,
                 "hi": 120
               },
-              "id": 0
+              "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 119,
               "hi": 120
             },
-            "id": 1
+            "id": 4
           }
         },
         "op": "Not",
@@ -336,15 +344,15 @@
           "lo": 118,
           "hi": 120
         },
-        "id": 2
+        "id": 3
       }
     },
     "op": "Square",
     "span": {
-      "lo": 118,
+      "lo": 117,
       "hi": 130
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -361,14 +369,15 @@
                 "lo": 133,
                 "hi": 134
               },
-              "id": 0
+              "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 133,
               "hi": 134
             },
-            "id": 1
+            "id": 4
           }
         },
         "op": "Square",
@@ -376,15 +385,15 @@
           "lo": 133,
           "hi": 143
         },
-        "id": 3
+        "id": 2
       }
     },
     "op": "Not",
     "span": {
       "lo": 131,
-      "hi": 143
+      "hi": 144
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -403,14 +412,15 @@
                     "lo": 147,
                     "hi": 148
                   },
-                  "id": 0
+                  "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 147,
                   "hi": 148
                 },
-                "id": 1
+                "id": 6
               }
             },
             "op": "Square",
@@ -418,7 +428,7 @@
               "lo": 147,
               "hi": 157
             },
-            "id": 3
+            "id": 4
           }
         },
         "op": "Not",
@@ -426,15 +436,15 @@
           "lo": 146,
           "hi": 157
         },
-        "id": 4
+        "id": 3
       }
     },
     "op": "Square",
     "span": {
-      "lo": 146,
+      "lo": 145,
       "hi": 167
     },
-    "id": 6
+    "id": 0
   }
 }
 

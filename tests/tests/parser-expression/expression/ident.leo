@@ -25,8 +25,6 @@ constX
 
 test_test
 
-self
-
 Self
 
 input

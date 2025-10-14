@@ -1,4 +1,4 @@
-Error [EPAR0370009]: unexpected string: expected 'identifier', found '?'
+Error [EPAR0370005]: expected an identifier, ')', 'address, 'mapping' -- found '?'
     --> test:3:10
      |
    3 |     @foo(?, bar, ?)

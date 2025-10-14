@@ -48,7 +48,7 @@ impl Pass for StaticAnalyzing {
             non_async_external_call_seen: false,
         };
         visitor.visit_program(ast.as_repr());
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())
     }

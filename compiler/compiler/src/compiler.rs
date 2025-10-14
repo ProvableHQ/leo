@@ -147,7 +147,9 @@ impl Compiler {
 
         self.do_pass::<StaticAnalyzing>(())?;
 
-        self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config)?;
+        self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
+
+        self.do_pass::<OptionLowering>(type_checking_config)?;
 
         self.do_pass::<ProcessingScript>(())?;
 
@@ -164,6 +166,12 @@ impl Compiler {
         self.do_pass::<Flattening>(())?;
 
         self.do_pass::<FunctionInlining>(())?;
+
+        // Flattening may produce ternary expressions not in SSA form. In addition,
+        // inlining may create shadowed variables, so rename definitions.
+        self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: true })?;
+
+        self.do_pass::<CommonSubexpressionEliminating>(())?;
 
         let output = self.do_pass::<DeadCodeEliminating>(())?;
         self.statements_before_dce = output.statements_before;

@@ -2,7 +2,7 @@ Error [ETYC0372025]: Cannot reach the following statement.
     --> compiler-test:9:9
      |
    9 |         let double: u32 = x + x;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Remove the unreachable code.
 Error [ETYC0372025]: Cannot reach the following statement.

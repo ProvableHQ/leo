@@ -1241,4 +1241,82 @@ create_messages!(
         msg: format!("Constructors can only return unit, but found `{expression}`."),
         help: None,
     }
+
+    @formatted
+    none_found_non_optional {
+        args: (expected: impl Display),
+        msg: format!(
+            "Found `none`, but the expected type `{expected}` is not an optional type.",
+        ),
+        help: None,
+    }
+
+    @formatted
+    optional_wrapping_of_records_unsupported {
+        args: (ty: impl Display),
+        msg: format!(
+            "The type `{ty}` cannot be wrapped in an optional because it is a record.",
+        ),
+        help: None,
+    }
+
+    @formatted
+    optional_wrapping_unsupported {
+        args: (ty: impl Display),
+        msg: format!(
+            "The type `{ty}` cannot be wrapped in an optional.",
+        ),
+        help: None,
+    }
+
+    @formatted
+    optional_type_not_allowed_in_mapping {
+        args: (ty: impl Display, kind: impl Display),
+        msg: format!(
+            "The type `{ty}` is or contains an optional type which cannot be used as the {kind} in a mapping",
+        ),
+        help: None,
+    }
+
+    @formatted
+    record_field_cannot_be_optional {
+        args: (name: impl Display, ty: impl Display),
+        msg: format!(
+            "The field `{name}` in this record has type `{ty}`, which is or contains an optional type.",
+        ),
+        help: Some(
+            "Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record.".to_string()
+        ),
+    }
+
+    @formatted
+    const_cannot_be_optional {
+        args: (),
+        msg: format!(
+            "Constants cannot have an optional type or a type that contains an optional",
+        ),
+        help: None,
+    }
+
+    @formatted
+    function_cannot_take_option_as_input {
+        args: (name: impl Display, ty: impl Display),
+        msg: format!(
+            "The input `{name}` has type `{ty}`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.",
+        ),
+        help: Some(
+            "Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.".to_string()
+        ),
+    }
+
+    @formatted
+    function_cannot_return_option_as_output {
+        args: (ty: impl Display),
+        msg: format!(
+            "This function has an output of type `{ty}`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.",
+        ),
+        help: Some(
+            "Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.".to_string()
+        ),
+    }
 );

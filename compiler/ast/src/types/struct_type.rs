@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Path};
+use crate::{Expression, Path, Type};
 use itertools::Itertools as _;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
@@ -44,5 +44,11 @@ impl fmt::Display for CompositeType {
         }
 
         Ok(())
+    }
+}
+
+impl From<CompositeType> for Type {
+    fn from(value: CompositeType) -> Self {
+        Type::Composite(value)
     }
 }

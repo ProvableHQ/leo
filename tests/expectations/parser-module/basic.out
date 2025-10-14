@@ -1,5 +1,5 @@
 {
-  "program_name": "abs",
+  "program_name": "module_test",
   "path": [],
   "consts": [
     [
@@ -30,7 +30,7 @@
         },
         "span": {
           "lo": 10,
-          "hi": 26
+          "hi": 27
         },
         "id": 2
       }
@@ -41,7 +41,7 @@
 }
 
 {
-  "program_name": "abs",
+  "program_name": "module_test",
   "path": [],
   "consts": [],
   "structs": [
@@ -54,7 +54,7 @@
             "lo": 45,
             "hi": 48
           },
-          "id": 0
+          "id": 4
         },
         "const_parameters": [],
         "members": [
@@ -66,7 +66,7 @@
                 "lo": 51,
                 "hi": 52
               },
-              "id": 1
+              "id": 0
             },
             "type_": {
               "Integer": "U32"
@@ -75,7 +75,7 @@
               "lo": 51,
               "hi": 57
             },
-            "id": 2
+            "id": 1
           },
           {
             "mode": "None",
@@ -85,7 +85,7 @@
                 "lo": 59,
                 "hi": 60
               },
-              "id": 3
+              "id": 2
             },
             "type_": {
               "Integer": "U32"
@@ -94,7 +94,7 @@
               "lo": 59,
               "hi": 65
             },
-            "id": 4
+            "id": 3
           }
         ],
         "external": null,
@@ -111,7 +111,7 @@
 }
 
 {
-  "program_name": "abs",
+  "program_name": "module_test",
   "path": [],
   "consts": [],
   "structs": [],
@@ -152,7 +152,7 @@
 }
 
 {
-  "program_name": "abs",
+  "program_name": "module_test",
   "path": [],
   "consts": [
     [
@@ -164,7 +164,7 @@
             "lo": 111,
             "hi": 112
           },
-          "id": 0
+          "id": 18
         },
         "type_": {
           "Integer": "U32"
@@ -175,7 +175,7 @@
               "lo": 120,
               "hi": 121
             },
-            "id": 1,
+            "id": 19,
             "variant": {
               "Unsuffixed": "5"
             }
@@ -183,9 +183,9 @@
         },
         "span": {
           "lo": 105,
-          "hi": 121
+          "hi": 122
         },
-        "id": 2
+        "id": 20
       }
     ],
     [
@@ -197,7 +197,7 @@
             "lo": 207,
             "hi": 208
           },
-          "id": 18
+          "id": 21
         },
         "type_": {
           "Integer": "U32"
@@ -208,7 +208,7 @@
               "lo": 216,
               "hi": 217
             },
-            "id": 19,
+            "id": 22,
             "variant": {
               "Unsuffixed": "5"
             }
@@ -216,9 +216,9 @@
         },
         "span": {
           "lo": 201,
-          "hi": 217
+          "hi": 218
         },
-        "id": 20
+        "id": 23
       }
     ],
     [
@@ -249,7 +249,7 @@
         },
         "span": {
           "lo": 235,
-          "hi": 251
+          "hi": 252
         },
         "id": 26
       }
@@ -265,7 +265,7 @@
             "lo": 130,
             "hi": 133
           },
-          "id": 3
+          "id": 10
         },
         "const_parameters": [],
         "members": [
@@ -277,7 +277,7 @@
                 "lo": 136,
                 "hi": 137
               },
-              "id": 4
+              "id": 6
             },
             "type_": {
               "Integer": "U32"
@@ -286,7 +286,7 @@
               "lo": 136,
               "hi": 142
             },
-            "id": 5
+            "id": 7
           },
           {
             "mode": "None",
@@ -296,7 +296,7 @@
                 "lo": 144,
                 "hi": 145
               },
-              "id": 6
+              "id": 8
             },
             "type_": {
               "Integer": "U32"
@@ -305,7 +305,7 @@
               "lo": 144,
               "hi": 150
             },
-            "id": 7
+            "id": 9
           }
         ],
         "external": null,
@@ -314,7 +314,7 @@
           "lo": 123,
           "hi": 153
         },
-        "id": 8
+        "id": 11
       }
     ],
     [
@@ -326,7 +326,7 @@
             "lo": 177,
             "hi": 180
           },
-          "id": 12
+          "id": 16
         },
         "const_parameters": [],
         "members": [
@@ -338,7 +338,7 @@
                 "lo": 183,
                 "hi": 184
               },
-              "id": 13
+              "id": 12
             },
             "type_": {
               "Integer": "U32"
@@ -347,7 +347,7 @@
               "lo": 183,
               "hi": 189
             },
-            "id": 14
+            "id": 13
           },
           {
             "mode": "None",
@@ -357,7 +357,7 @@
                 "lo": 191,
                 "hi": 192
               },
-              "id": 15
+              "id": 14
             },
             "type_": {
               "Integer": "U32"
@@ -366,7 +366,7 @@
               "lo": 191,
               "hi": 197
             },
-            "id": 16
+            "id": 15
           }
         ],
         "external": null,
@@ -391,7 +391,7 @@
             "lo": 161,
             "hi": 164
           },
-          "id": 9
+          "id": 0
         },
         "const_parameters": [],
         "input": [],
@@ -403,13 +403,13 @@
             "lo": 167,
             "hi": 169
           },
-          "id": 10
+          "id": 1
         },
         "span": {
           "lo": 154,
           "hi": 169
         },
-        "id": 11
+        "id": 2
       }
     ],
     [
@@ -423,7 +423,7 @@
             "lo": 226,
             "hi": 229
           },
-          "id": 21
+          "id": 3
         },
         "const_parameters": [],
         "input": [],
@@ -435,13 +435,13 @@
             "lo": 232,
             "hi": 234
           },
-          "id": 22
+          "id": 4
         },
         "span": {
           "lo": 219,
           "hi": 234
         },
-        "id": 23
+        "id": 5
       }
     ]
   ]

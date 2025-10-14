@@ -191,6 +191,7 @@ symbols! {
     Keccak384,
     Keccak512,
     Mapping,
+    Optional,
     Pedersen64,
     Pedersen128,
     Poseidon2,
@@ -253,6 +254,8 @@ symbols! {
     from_bits_raw,
 
     Await: "await",
+    unwrap,
+    unwrap_or,
 
     // CheatCodes
     CheatCode,
@@ -285,6 +288,7 @@ symbols! {
     // values
     False: "false",
     True: "true",
+    None: "none",
 
     // annotations
     should_fail,

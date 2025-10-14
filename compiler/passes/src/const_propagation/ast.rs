@@ -26,11 +26,12 @@ use super::ConstPropagationVisitor;
 const VALUE_ERROR: &str = "A non-future value should always be able to be converted into an expression";
 
 impl AstReconstructor for ConstPropagationVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = Option<Value>;
 
     /* Types */
     fn reconstruct_array_type(&mut self, input: leo_ast::ArrayType) -> (leo_ast::Type, Self::AdditionalOutput) {
-        let (length, opt_value) = self.reconstruct_expression(*input.length);
+        let (length, opt_value) = self.reconstruct_expression(*input.length, &());
 
         // If we can't evaluate this array length, keep track of it for error reporting later
         if opt_value.is_none() {
@@ -47,29 +48,29 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     }
 
     /* Expressions */
-    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let opt_old_type = self.state.type_table.get(&input.id());
         let (new_expr, opt_value) = match input {
-            Expression::Array(array) => self.reconstruct_array(array),
-            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
-            Expression::Async(async_) => self.reconstruct_async(async_),
-            Expression::Binary(binary) => self.reconstruct_binary(*binary),
-            Expression::Call(call) => self.reconstruct_call(*call),
-            Expression::Cast(cast) => self.reconstruct_cast(*cast),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
-            Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Path(path) => self.reconstruct_path(path),
-            Expression::Literal(value) => self.reconstruct_literal(value),
-            Expression::Locator(locator) => self.reconstruct_locator(locator),
-            Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
-            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
-            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
-            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
-            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
-            Expression::Unary(unary) => self.reconstruct_unary(*unary),
-            Expression::Unit(unit) => self.reconstruct_unit(unit),
+            Expression::Array(array) => self.reconstruct_array(array, &()),
+            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
+            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, &()),
+            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, &()),
+            Expression::Async(async_) => self.reconstruct_async(async_, &()),
+            Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
+            Expression::Call(call) => self.reconstruct_call(*call, &()),
+            Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
+            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &()),
+            Expression::Err(err) => self.reconstruct_err(err, &()),
+            Expression::Path(path) => self.reconstruct_path(path, &()),
+            Expression::Literal(value) => self.reconstruct_literal(value, &()),
+            Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
+            Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
+            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
+            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),
+            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, &()),
+            Expression::Unary(unary) => self.reconstruct_unary(*unary, &()),
+            Expression::Unit(unit) => self.reconstruct_unit(unit, &()),
         };
 
         // If the expression was in the type table before, make an entry for the new expression.
@@ -80,16 +81,20 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (new_expr, opt_value)
     }
 
-    fn reconstruct_struct_init(&mut self, mut input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_struct_init(
+        &mut self,
+        mut input: StructExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
         input.const_arguments.iter_mut().for_each(|arg| {
-            *arg = self.reconstruct_expression(std::mem::take(arg)).0;
+            *arg = self.reconstruct_expression(std::mem::take(arg), &()).0;
         });
         for member in input.members.iter_mut() {
             let expression = member.expression.take().unwrap_or_else(|| {
                 Path::from(member.identifier).with_absolute_path(Some(vec![member.identifier.name])).into()
             });
-            let (new_expr, value_opt) = self.reconstruct_expression(expression);
+            let (new_expr, value_opt) = self.reconstruct_expression(expression, &());
             member.expression = Some(new_expr);
             if let Some(value) = value_opt {
                 values.push(value);
@@ -100,7 +105,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             let value = Value::make_struct(
                 input.members.iter().map(|mem| mem.identifier.name).zip(values),
                 self.program,
-                input.path.absolute_path().to_vec(),
+                input.path.absolute_path(),
             );
             (input.into(), Some(value))
         } else {
@@ -108,17 +113,21 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
     }
 
-    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
-        let (cond, cond_value) = self.reconstruct_expression(input.condition);
+    fn reconstruct_ternary(
+        &mut self,
+        input: TernaryExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        let (cond, cond_value) = self.reconstruct_expression(input.condition, &());
 
         match cond_value.and_then(|v| v.try_into().ok()) {
-            Some(true) => self.reconstruct_expression(input.if_true),
-            Some(false) => self.reconstruct_expression(input.if_false),
+            Some(true) => self.reconstruct_expression(input.if_true, &()),
+            Some(false) => self.reconstruct_expression(input.if_false, &()),
             _ => (
                 TernaryExpression {
                     condition: cond,
-                    if_true: self.reconstruct_expression(input.if_true).0,
-                    if_false: self.reconstruct_expression(input.if_false).0,
+                    if_true: self.reconstruct_expression(input.if_true, &()).0,
+                    if_false: self.reconstruct_expression(input.if_false, &()).0,
                     ..input
                 }
                 .into(),
@@ -127,12 +136,16 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
     }
 
-    fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_array_access(
+        &mut self,
+        input: ArrayAccess,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let id = input.id();
         let array_id = input.array.id();
-        let (array, array_opt) = self.reconstruct_expression(input.array);
-        let (index, index_opt) = self.reconstruct_expression(input.index);
+        let (array, array_opt) = self.reconstruct_expression(input.array, &());
+        let (index, index_opt) = self.reconstruct_expression(input.index, &());
         if let Some(index_value) = index_opt {
             // We can perform compile time bounds checking.
 
@@ -163,6 +176,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     let result_value = array_value
                         .array_index(index_value.as_u32().unwrap() as usize)
                         .expect("We already checked bounds.");
+                    dbg!(&result_value);
                     return (
                         self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR),
                         Some(result_value.clone()),
@@ -178,6 +192,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_associated_constant(
         &mut self,
         input: leo_ast::AssociatedConstantExpression,
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         // Currently there is only one associated constant.
         let generator = Value::generator();
@@ -188,10 +203,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_associated_function(
         &mut self,
         mut input: leo_ast::AssociatedFunctionExpression,
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
         for argument in input.arguments.iter_mut() {
-            let (new_argument, opt_value) = self.reconstruct_expression(std::mem::take(argument));
+            let (new_argument, opt_value) = self.reconstruct_expression(std::mem::take(argument), &());
             *argument = new_argument;
             if let Some(value) = opt_value {
                 values.push(value);
@@ -221,10 +237,14 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (input.into(), Default::default())
     }
 
-    fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_member_access(
+        &mut self,
+        input: MemberAccess,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let id = input.id();
-        let (inner, value_opt) = self.reconstruct_expression(input.inner);
+        let (inner, value_opt) = self.reconstruct_expression(input.inner, &());
         let member_name = input.name.name;
         if let Some(struct_) = value_opt {
             let value_result = struct_.member_access(member_name).expect("Type checking guarantees the member exists.");
@@ -235,9 +255,13 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
     }
 
-    fn reconstruct_repeat(&mut self, input: leo_ast::RepeatExpression) -> (Expression, Self::AdditionalOutput) {
-        let (expr, expr_value) = self.reconstruct_expression(input.expr.clone());
-        let (count, count_value) = self.reconstruct_expression(input.count.clone());
+    fn reconstruct_repeat(
+        &mut self,
+        input: leo_ast::RepeatExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        let (expr, expr_value) = self.reconstruct_expression(input.expr.clone(), &());
+        let (count, count_value) = self.reconstruct_expression(input.count.clone(), &());
 
         if count_value.is_none() {
             self.repeat_count_not_evaluated = Some(count.span());
@@ -252,10 +276,14 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
     }
 
-    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_tuple_access(
+        &mut self,
+        input: TupleAccess,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let id = input.id();
-        let (tuple, value_opt) = self.reconstruct_expression(input.tuple);
+        let (tuple, value_opt) = self.reconstruct_expression(input.tuple, &());
         if let Some(tuple_value) = value_opt {
             let value_result = tuple_value.tuple_index(input.index.value()).expect("Type checking checked bounds.");
             (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
@@ -264,10 +292,14 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
     }
 
-    fn reconstruct_array(&mut self, mut input: leo_ast::ArrayExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_array(
+        &mut self,
+        mut input: leo_ast::ArrayExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
         input.elements.iter_mut().for_each(|element| {
-            let (new_element, value_opt) = self.reconstruct_expression(std::mem::take(element));
+            let (new_element, value_opt) = self.reconstruct_expression(std::mem::take(element), &());
             if let Some(value) = value_opt {
                 values.push(value);
             }
@@ -280,12 +312,16 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
     }
 
-    fn reconstruct_binary(&mut self, input: leo_ast::BinaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_binary(
+        &mut self,
+        input: leo_ast::BinaryExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let input_id = input.id();
 
-        let (left, lhs_opt_value) = self.reconstruct_expression(input.left);
-        let (right, rhs_opt_value) = self.reconstruct_expression(input.right);
+        let (left, lhs_opt_value) = self.reconstruct_expression(input.left, &());
+        let (right, rhs_opt_value) = self.reconstruct_expression(input.right, &());
 
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
@@ -308,21 +344,29 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (BinaryExpression { left, right, ..input }.into(), None)
     }
 
-    fn reconstruct_call(&mut self, mut input: leo_ast::CallExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_call(
+        &mut self,
+        mut input: leo_ast::CallExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         input.const_arguments.iter_mut().for_each(|arg| {
-            *arg = self.reconstruct_expression(std::mem::take(arg)).0;
+            *arg = self.reconstruct_expression(std::mem::take(arg), &()).0;
         });
         input.arguments.iter_mut().for_each(|arg| {
-            *arg = self.reconstruct_expression(std::mem::take(arg)).0;
+            *arg = self.reconstruct_expression(std::mem::take(arg), &()).0;
         });
         (input.into(), Default::default())
     }
 
-    fn reconstruct_cast(&mut self, input: leo_ast::CastExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_cast(
+        &mut self,
+        input: leo_ast::CastExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let span = input.span();
         let id = input.id();
 
-        let (expr, opt_value) = self.reconstruct_expression(input.expression);
+        let (expr, opt_value) = self.reconstruct_expression(input.expression, &());
 
         if let Some(value) = opt_value {
             if let Some(cast_value) = value.cast(&input.type_) {
@@ -335,14 +379,18 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (CastExpression { expression: expr, ..input }.into(), None)
     }
 
-    fn reconstruct_err(&mut self, _input: leo_ast::ErrExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_err(
+        &mut self,
+        _input: leo_ast::ErrExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_path(&mut self, input: leo_ast::Path) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_path(&mut self, input: leo_ast::Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Substitute the identifier with the constant value if it is a constant that's been evaluated.
-        if let Some(expression) = self.state.symbol_table.lookup_const(self.program, input.absolute_path()) {
-            let (expression, opt_value) = self.reconstruct_expression(expression);
+        if let Some(expression) = self.state.symbol_table.lookup_const(self.program, &input.absolute_path()) {
+            let (expression, opt_value) = self.reconstruct_expression(expression, &());
             if opt_value.is_some() {
                 return (expression, opt_value);
             }
@@ -351,34 +399,53 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (input.into(), None)
     }
 
-    fn reconstruct_literal(&mut self, mut input: leo_ast::Literal) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_literal(
+        &mut self,
+        mut input: leo_ast::Literal,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let type_info = self.state.type_table.get(&input.id());
 
-        let value =
-            interpreter_value::literal_to_value(&input, &type_info).expect("Failed to convert literal to value");
+        // If this is an optional, then unwrap it first.
+        let type_info = type_info.as_ref().map(|ty| match ty {
+            Type::Optional(opt) => *opt.inner.clone(),
+            _ => ty.clone(),
+        });
 
-        // If we know the type of an unsuffixed literal, might as well change it to a suffixed literal. This way, we
-        // do not have to infer the type again in later passes of type checking.
-        if let LiteralVariant::Unsuffixed(s) = input.variant {
-            match type_info.expect("Expected type information to be available") {
-                Type::Integer(ty) => input.variant = LiteralVariant::Integer(ty, s),
-                Type::Field => input.variant = LiteralVariant::Field(s),
-                Type::Group => input.variant = LiteralVariant::Group(s),
-                Type::Scalar => input.variant = LiteralVariant::Scalar(s),
-                _ => panic!("Type checking should have prevented this."),
+        if let Ok(value) = interpreter_value::literal_to_value(&input, &type_info) {
+            // If we know the type of an unsuffixed literal, might as well change it to a suffixed literal. This way, we
+            // do not have to infer the type again in later passes of type checking.
+            if let LiteralVariant::Unsuffixed(s) = input.variant {
+                match type_info.expect("Expected type information to be available") {
+                    Type::Integer(ty) => input.variant = LiteralVariant::Integer(ty, s),
+                    Type::Field => input.variant = LiteralVariant::Field(s),
+                    Type::Group => input.variant = LiteralVariant::Group(s),
+                    Type::Scalar => input.variant = LiteralVariant::Scalar(s),
+                    _ => panic!("Type checking should have prevented this."),
+                }
             }
+            (input.into(), Some(value))
+        } else {
+            (input.into(), None)
         }
-        (input.into(), Some(value))
     }
 
-    fn reconstruct_locator(&mut self, input: leo_ast::LocatorExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_locator(
+        &mut self,
+        input: leo_ast::LocatorExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
-    fn reconstruct_tuple(&mut self, mut input: leo_ast::TupleExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_tuple(
+        &mut self,
+        mut input: leo_ast::TupleExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::with_capacity(input.elements.len());
         for expr in input.elements.iter_mut() {
-            let (new_expr, opt_value) = self.reconstruct_expression(std::mem::take(expr));
+            let (new_expr, opt_value) = self.reconstruct_expression(std::mem::take(expr), &());
             *expr = new_expr;
             if let Some(value) = opt_value {
                 values.push(value);
@@ -390,10 +457,10 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (input.into(), opt_value)
     }
 
-    fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_unary(&mut self, input: UnaryExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let input_id = input.id();
         let span = input.span;
-        let (receiver, opt_value) = self.reconstruct_expression(input.receiver);
+        let (receiver, opt_value) = self.reconstruct_expression(input.receiver, &());
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
@@ -408,7 +475,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (UnaryExpression { receiver, ..input }.into(), None)
     }
 
-    fn reconstruct_unit(&mut self, input: leo_ast::UnitExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_unit(
+        &mut self,
+        input: leo_ast::UnitExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), None)
     }
 
@@ -417,23 +488,25 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         // Catching asserts at compile time is not feasible here due to control flow, but could be done in
         // a later pass after loops are unrolled and conditionals are flattened.
         input.variant = match input.variant {
-            AssertVariant::Assert(expr) => AssertVariant::Assert(self.reconstruct_expression(expr).0),
+            AssertVariant::Assert(expr) => AssertVariant::Assert(self.reconstruct_expression(expr, &()).0),
 
-            AssertVariant::AssertEq(lhs, rhs) => {
-                AssertVariant::AssertEq(self.reconstruct_expression(lhs).0, self.reconstruct_expression(rhs).0)
-            }
+            AssertVariant::AssertEq(lhs, rhs) => AssertVariant::AssertEq(
+                self.reconstruct_expression(lhs, &()).0,
+                self.reconstruct_expression(rhs, &()).0,
+            ),
 
-            AssertVariant::AssertNeq(lhs, rhs) => {
-                AssertVariant::AssertNeq(self.reconstruct_expression(lhs).0, self.reconstruct_expression(rhs).0)
-            }
+            AssertVariant::AssertNeq(lhs, rhs) => AssertVariant::AssertNeq(
+                self.reconstruct_expression(lhs, &()).0,
+                self.reconstruct_expression(rhs, &()).0,
+            ),
         };
 
         (input.into(), None)
     }
 
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        let value = self.reconstruct_expression(assign.value).0;
-        let place = self.reconstruct_expression(assign.place).0;
+        let value = self.reconstruct_expression(assign.value, &()).0;
+        let place = self.reconstruct_expression(assign.place, &()).0;
         (AssignStatement { value, place, ..assign }.into(), None)
     }
 
@@ -453,7 +526,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         &mut self,
         mut conditional: ConditionalStatement,
     ) -> (Statement, Self::AdditionalOutput) {
-        conditional.condition = self.reconstruct_expression(conditional.condition).0;
+        conditional.condition = self.reconstruct_expression(conditional.condition, &()).0;
         conditional.then = self.reconstruct_block(conditional.then).0;
         if let Some(mut otherwise) = conditional.otherwise {
             *otherwise = self.reconstruct_statement(*otherwise).0;
@@ -464,10 +537,14 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_const(&mut self, mut input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
+        if matches!(input.type_, Type::Optional(_)) {
+            return (input.into(), None);
+        }
+
         let span = input.span();
 
         let type_ = self.reconstruct_type(input.type_).0;
-        let (expr, opt_value) = self.reconstruct_expression(input.value);
+        let (expr, opt_value) = self.reconstruct_expression(input.value, &());
 
         if opt_value.is_some() {
             let path: &[Symbol] = if self.state.symbol_table.global_scope() {
@@ -498,7 +575,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (
             DefinitionStatement {
                 type_: definition.type_.map(|ty| self.reconstruct_type(ty).0),
-                value: self.reconstruct_expression(definition.value).0,
+                value: self.reconstruct_expression(definition.value, &()).0,
                 ..definition
             }
             .into(),
@@ -510,7 +587,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         &mut self,
         mut input: ExpressionStatement,
     ) -> (Statement, Self::AdditionalOutput) {
-        input.expression = self.reconstruct_expression(input.expression).0;
+        input.expression = self.reconstruct_expression(input.expression, &()).0;
 
         if matches!(&input.expression, Expression::Unit(..) | Expression::Literal(..)) {
             // We were able to evaluate this at compile time, but we need to get rid of this statement as
@@ -524,8 +601,8 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_iteration(&mut self, iteration: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         let id = iteration.id();
         let type_ = iteration.type_.map(|ty| self.reconstruct_type(ty).0);
-        let start = self.reconstruct_expression(iteration.start).0;
-        let stop = self.reconstruct_expression(iteration.stop).0;
+        let start = self.reconstruct_expression(iteration.start, &()).0;
+        let stop = self.reconstruct_expression(iteration.stop, &()).0;
         self.in_scope(id, |slf| {
             (
                 IterationStatement { type_, start, stop, block: slf.reconstruct_block(iteration.block).0, ..iteration }
@@ -537,7 +614,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
         (
-            ReturnStatement { expression: self.reconstruct_expression(input.expression).0, ..input }.into(),
+            ReturnStatement { expression: self.reconstruct_expression(input.expression, &()).0, ..input }.into(),
             Default::default(),
         )
     }

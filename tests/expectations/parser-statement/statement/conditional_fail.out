@@ -1,5 +1,5 @@
-Error [EPAR0370008]: unexpected statement: expected 'Block or Conditional', found 'let x = 2'
+Error [EPAR0370005]: expected '{', 'if' -- found 'let'
     --> test_0:1:17
      |
    1 | if true {} else let x = 2;
-     |                 ^^^^^^^^^
+     |                 ^^^

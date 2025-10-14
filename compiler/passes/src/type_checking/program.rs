@@ -225,17 +225,17 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
-        // TODO: Better span to target duplicate member.
-        if !input.members.iter().all(|Member { identifier, type_, span, .. }| {
+        for Member { identifier, type_, span, .. } in &input.members {
             // Check that the member types are defined.
             self.assert_type_is_valid(type_, *span);
-            used.insert(identifier.name)
-        }) {
-            self.emit_err(if input.is_record {
-                TypeCheckerError::duplicate_record_variable(input.name(), input.span())
-            } else {
-                TypeCheckerError::duplicate_struct_member(input.name(), input.span())
-            });
+
+            if !used.insert(identifier.name) {
+                self.emit_err(if input.is_record {
+                    TypeCheckerError::duplicate_record_variable(input.name(), *span)
+                } else {
+                    TypeCheckerError::duplicate_struct_member(input.name(), *span)
+                });
+            }
         }
 
         // For records, enforce presence of the `owner: Address` member.
@@ -262,6 +262,12 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                     }
                 };
             check_has_field(sym::owner, Type::Address);
+
+            for Member { identifier, type_, span, .. } in input.members.iter() {
+                if self.contains_optional_type(type_) {
+                    self.emit_err(TypeCheckerError::record_field_cannot_be_optional(identifier, type_, *span));
+                }
+            }
         }
         // For structs, check that there is at least one member.
         else if input.members.is_empty() {
@@ -327,7 +333,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Composite(struct_type) => {
                 if let Some(comp) = self.lookup_struct(
                     struct_type.program.or(self.scope_state.program_name),
-                    struct_type.path.absolute_path(),
+                    &struct_type.path.absolute_path(),
                 ) {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
@@ -341,6 +347,14 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             _ => {}
         }
 
+        if self.contains_optional_type(&input.key_type) {
+            self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
+                input.key_type.clone(),
+                "key",
+                input.span,
+            ))
+        }
+
         // Check that a mapping's value type is valid.
         self.assert_type_is_valid(&input.value_type, input.span);
         // Check that a mapping's value type is not a future, tuple, record or mapping.
@@ -350,18 +364,26 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Composite(struct_type) => {
                 if let Some(comp) = self.lookup_struct(
                     struct_type.program.or(self.scope_state.program_name),
-                    struct_type.path.absolute_path(),
+                    &struct_type.path.absolute_path(),
                 ) {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::undefined_type(&input.key_type, input.span));
+                    self.emit_err(TypeCheckerError::undefined_type(&input.value_type, input.span));
                 }
             }
             // Note that this is not possible since the parser does not currently accept mapping types.
             Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span)),
             _ => {}
+        }
+
+        if self.contains_optional_type(&input.value_type) {
+            self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
+                input.value_type.clone(),
+                "value",
+                input.span,
+            ))
         }
     }
 

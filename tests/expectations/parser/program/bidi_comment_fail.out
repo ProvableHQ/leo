@@ -1,1 +1,5 @@
-Error [EPAR0370020]: Unicode bidi override code point encountered.
+Error [EPAR0370051]: Unicode bidi override code point encountered.
+    --> test:4:16
+     |
+   4 |         // 202E‮<-here
+     |                ^^^

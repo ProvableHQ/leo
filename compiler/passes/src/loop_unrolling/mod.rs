@@ -24,9 +24,6 @@ mod ast;
 
 mod duplicate;
 
-mod range_iterator;
-use range_iterator::*;
-
 mod program;
 
 mod visitor;
@@ -52,7 +49,7 @@ impl Pass for Unrolling {
         let mut visitor =
             UnrollingVisitor { state, program: Symbol::intern(""), loop_not_unrolled: None, loop_unrolled: false };
         ast.ast = visitor.reconstruct_program(ast.ast);
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(UnrollingOutput { loop_not_unrolled: visitor.loop_not_unrolled, loop_unrolled: visitor.loop_unrolled })
     }

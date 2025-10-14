@@ -14,10 +14,10 @@ Error [ETYC0372123]: The unit type () may appear only as the return type of a fu
   10 |     transition other(x: [(); 2]) {}
      |                      ^^^^^^^^^^
 Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
-    --> compiler-test:12:39
+    --> compiler-test:12:33
      |
   12 |     transition yet_another() -> [(); 2] {}
-     |                                       ^
+     |                                 ^^^^^^^
 Error [ETYC0372036]: Function must return a value.
     --> compiler-test:12:5
      |

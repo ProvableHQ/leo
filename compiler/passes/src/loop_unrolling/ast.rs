@@ -14,26 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Expression::Literal, *};
+use leo_ast::{Expression::Literal, interpreter_value::literal_to_value, *};
 
 use leo_errors::LoopUnrollerError;
 
 use super::UnrollingVisitor;
 
 impl AstReconstructor for UnrollingVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /* Expressions */
-    fn reconstruct_repeat(&mut self, input: RepeatExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_repeat(
+        &mut self,
+        input: RepeatExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         // Because the value of `count` affects the type of a repeat expression, we need to assign a new ID to the
         // reconstructed `RepeatExpression` and update the type table accordingly.
         let new_id = self.state.node_builder.next_id();
-        let new_count = self.reconstruct_expression(input.count).0;
+        let new_count = self.reconstruct_expression(input.count, &()).0;
         let el_ty = self.state.type_table.get(&input.expr.id()).expect("guaranteed by type checking");
         self.state.type_table.insert(new_id, Type::Array(ArrayType::new(el_ty, new_count.clone())));
         (
-            RepeatExpression { expr: self.reconstruct_expression(input.expr).0, count: new_count, id: new_id, ..input }
-                .into(),
+            RepeatExpression {
+                expr: self.reconstruct_expression(input.expr, &()).0,
+                count: new_count,
+                id: new_id,
+                ..input
+            }
+            .into(),
             Default::default(),
         )
     }
@@ -54,7 +64,7 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         (
             DefinitionStatement {
                 type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
-                value: self.reconstruct_expression(input.value).0,
+                value: self.reconstruct_expression(input.value, &()).0,
                 ..input
             }
             .into(),
@@ -92,31 +102,19 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         let resolved_stop_lit = resolve_unsuffixed(stop_lit_ref, input.stop.id());
 
         // Convert resolved literals into constant values
-        let start_value = Value::try_from(&resolved_start_lit).unwrap();
-        let stop_value = Value::try_from(&resolved_stop_lit).unwrap();
+        let start_value =
+            literal_to_value(&resolved_start_lit, &None).expect("Parsing and type checking guarantee this works.");
+        let stop_value =
+            literal_to_value(&resolved_stop_lit, &None).expect("Parsing and type checking guarantee this works.");
 
         // Ensure loop bounds are strictly increasing
-        let bounds_invalid = match (&start_value, &stop_value) {
-            (Value::I8(a, _), Value::I8(b, _)) => a >= b,
-            (Value::I16(a, _), Value::I16(b, _)) => a >= b,
-            (Value::I32(a, _), Value::I32(b, _)) => a >= b,
-            (Value::I64(a, _), Value::I64(b, _)) => a >= b,
-            (Value::I128(a, _), Value::I128(b, _)) => a >= b,
-            (Value::U8(a, _), Value::U8(b, _)) => a >= b,
-            (Value::U16(a, _), Value::U16(b, _)) => a >= b,
-            (Value::U32(a, _), Value::U32(b, _)) => a >= b,
-            (Value::U64(a, _), Value::U64(b, _)) => a >= b,
-            (Value::U128(a, _), Value::U128(b, _)) => a >= b,
-            _ => panic!("Type checking guarantees that loop bounds are integers of the same type."),
-        };
-
-        if bounds_invalid {
+        if start_value.gte(&stop_value).expect("Type checking guarantees these are the same type") {
             self.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
         }
 
         self.loop_unrolled = true;
 
-        // Perform loop unrolling using i128 — all numeric bounds are converted to this internally
-        (self.unroll_iteration_statement::<i128>(input, start_value, stop_value), Default::default())
+        // Actually unroll.
+        (self.unroll_iteration_statement(input, start_value, stop_value), Default::default())
     }
 }

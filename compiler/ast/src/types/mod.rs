@@ -26,6 +26,9 @@ pub use future::*;
 mod integer_type;
 pub use integer_type::*;
 
+mod optional;
+pub use optional::*;
+
 mod mapping;
 pub use mapping::*;
 

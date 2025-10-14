@@ -16,6 +16,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use std::fmt;
+
 /// Functions are always one of six variants.
 /// A transition function is permitted the ability to manipulate records.
 /// An asynchronous transition function is a transition function that calls an asynchronous function.
@@ -59,5 +61,18 @@ impl Variant {
     /// Returns true if the variant is an async function.
     pub fn is_async_function(self) -> bool {
         matches!(self, Variant::AsyncFunction)
+    }
+}
+
+impl fmt::Display for Variant {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::Inline => write!(f, "inline"),
+            Self::Function => write!(f, "function"),
+            Self::Transition => write!(f, "transition"),
+            Self::AsyncTransition => write!(f, "async transition"),
+            Self::AsyncFunction => write!(f, "async function"),
+            Self::Script => write!(f, "script"),
+        }
     }
 }

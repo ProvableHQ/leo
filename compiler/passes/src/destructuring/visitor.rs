@@ -48,10 +48,10 @@ impl DestructuringVisitor<'_> {
             self.state.type_table.get(&expression.id()).expect("Expressions should have types.")
         else {
             // It's not a tuple, so there's no more to do.
-            return self.reconstruct_expression(expression);
+            return self.reconstruct_expression(expression, &());
         };
 
-        let (new_expression, mut statements) = self.reconstruct_expression(expression);
+        let (new_expression, mut statements) = self.reconstruct_expression(expression, &());
 
         match new_expression {
             Expression::Path(path) => {

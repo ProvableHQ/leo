@@ -1,4 +1,4 @@
-Error [EPAR0370009]: unexpected string: expected 'expression', found '='
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '='
     --> compiler-test:15:30
      |
   15 |         for a: u32 in 10u32..=0u32 {

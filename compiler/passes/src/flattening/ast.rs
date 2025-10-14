@@ -21,18 +21,23 @@ use leo_ast::*;
 use itertools::Itertools;
 
 impl AstReconstructor for FlatteningVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
     /* Expressions */
     /// Reconstructs a struct init expression, flattening any tuples in the expression.
-    fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_struct_init(
+        &mut self,
+        input: StructExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         let mut members = Vec::with_capacity(input.members.len());
 
         // Reconstruct and flatten the argument expressions.
         for member in input.members.into_iter() {
             // Note that this unwrap is safe since SSA guarantees that all struct variable initializers are of the form `<name>: <expr>`.
-            let (expr, stmts) = self.reconstruct_expression(member.expression.unwrap());
+            let (expr, stmts) = self.reconstruct_expression(member.expression.unwrap(), &());
             // Accumulate any statements produced.
             statements.extend(stmts);
             // Accumulate the struct members.
@@ -62,7 +67,11 @@ impl AstReconstructor for FlatteningVisitor<'_> {
     /// let var$2 = Foo { bar: var$0, baz: var$1 };
     /// var$2
     /// ```
-    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_ternary(
+        &mut self,
+        input: TernaryExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let if_true_type = self
             .state
             .type_table
@@ -98,11 +107,9 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                 let if_true_type = self
                     .state
                     .symbol_table
-                    .lookup_struct(composite_path.absolute_path())
+                    .lookup_struct(&composite_path.absolute_path())
                     .or_else(|| {
-                        self.state
-                            .symbol_table
-                            .lookup_record(&Location::new(program, composite_path.absolute_path().to_vec()))
+                        self.state.symbol_table.lookup_record(&Location::new(program, composite_path.absolute_path()))
                     })
                     .expect("This definition should exist")
                     .clone();
@@ -162,21 +169,21 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             id: input.id,
             variant: match input.variant {
                 AssertVariant::Assert(expression) => {
-                    let (expression, additional_statements) = self.reconstruct_expression(expression);
+                    let (expression, additional_statements) = self.reconstruct_expression(expression, &());
                     statements.extend(additional_statements);
                     AssertVariant::Assert(expression)
                 }
                 AssertVariant::AssertEq(left, right) => {
-                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    let (left, additional_statements) = self.reconstruct_expression(left, &());
                     statements.extend(additional_statements);
-                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    let (right, additional_statements) = self.reconstruct_expression(right, &());
                     statements.extend(additional_statements);
                     AssertVariant::AssertEq(left, right)
                 }
                 AssertVariant::AssertNeq(left, right) => {
-                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    let (left, additional_statements) = self.reconstruct_expression(left, &());
                     statements.extend(additional_statements);
-                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    let (right, additional_statements) = self.reconstruct_expression(right, &());
                     statements.extend(additional_statements);
                     AssertVariant::AssertNeq(left, right)
                 }
@@ -375,7 +382,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
     /// Otherwise, the statement is returned as is.
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Flatten the rhs of the assignment.
-        let (value, statements) = self.reconstruct_expression(definition.value);
+        let (value, statements) = self.reconstruct_expression(definition.value, &());
         match (definition.place, &value) {
             (DefinitionPlace::Single(identifier), _) => (self.simple_definition(identifier, value), statements),
             (DefinitionPlace::Multiple(identifiers), expression) => {

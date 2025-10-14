@@ -2,7 +2,7 @@ Error [ETYC0372076]: An array cannot be empty
     --> compiler-test:6:13
      |
    6 |             let arr: [u32; i] = [1u32, 2u32]; // this should fail for all iterations except 2
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `[u32; 0]` but type `[u32; 2]` was found.
     --> compiler-test:6:33
      |
