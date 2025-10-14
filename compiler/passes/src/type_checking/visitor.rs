@@ -381,17 +381,17 @@ impl TypeCheckingVisitor<'_> {
                 let Type::Array(array_type) = &arguments[0].0 else {
                     self.emit_err(TypeCheckerError::type_should_be2(
                         &arguments[0].0,
-                        &format!("a [u8; {signature_size}]"),
+                        format!("a [u8; {signature_size}]"),
                         arguments[0].1.span(),
                     ));
                     return Type::Err;
                 };
-                self.assert_type(&array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
                 if let Some(length) = array_type.length.as_u32() {
                     if length as usize != signature_size {
                         self.emit_err(TypeCheckerError::type_should_be2(
                             &arguments[0].0,
-                            &format!("a [u8; {signature_size}]"),
+                            format!("a [u8; {signature_size}]"),
                             arguments[0].1.span(),
                         ));
                         return Type::Err;
@@ -431,17 +431,17 @@ impl TypeCheckingVisitor<'_> {
                 let Type::Array(array_type) = &arguments[1].0 else {
                     self.emit_err(TypeCheckerError::type_should_be2(
                         &arguments[1].0,
-                        &format!("a [u8; {expected_length}]"),
+                        format!("a [u8; {expected_length}]"),
                         arguments[1].1.span(),
                     ));
                     return Type::Err;
                 };
-                self.assert_type(&array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[1].1.span());
+                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[1].1.span());
                 if let Some(length) = array_type.length.as_u32() {
                     if length as usize != expected_length {
                         self.emit_err(TypeCheckerError::type_should_be2(
                             &arguments[1].0,
-                            &format!("a [u8; {expected_length}]"),
+                            format!("a [u8; {expected_length}]"),
                             arguments[1].1.span(),
                         ));
                         return Type::Err;
@@ -465,21 +465,17 @@ impl TypeCheckingVisitor<'_> {
                     let Type::Array(array_type) = &arguments[2].0 else {
                         self.emit_err(TypeCheckerError::type_should_be2(
                             &arguments[2].0,
-                            &format!("a [u8; {expected_length}]"),
+                            format!("a [u8; {expected_length}]"),
                             arguments[2].1.span(),
                         ));
                         return Type::Err;
                     };
-                    self.assert_type(
-                        &array_type.element_type(),
-                        &Type::Integer(IntegerType::U8),
-                        arguments[2].1.span(),
-                    );
+                    self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[2].1.span());
                     if let Some(length) = array_type.length.as_u32() {
                         if length as usize != expected_length {
                             self.emit_err(TypeCheckerError::type_should_be2(
                                 &arguments[2].0,
-                                &format!("a [u8; {expected_length}]"),
+                                format!("a [u8; {expected_length}]"),
                                 arguments[2].1.span(),
                             ));
                             return Type::Err;
