@@ -606,35 +606,21 @@ impl CodeGeneratingVisitor<'_> {
             }
             Some(CoreFunction::Deserialize(variant, output_type)) => {
                 // Get the instruction variant.
-                let (is_raw, variant) = match variant {
-                    DeserializeVariant::FromBits => (false, "bits"),
-                    DeserializeVariant::FromBitsRaw => (true, "bits.raw"),
+                let variant = match variant {
+                    DeserializeVariant::FromBits => "bits",
+                    DeserializeVariant::FromBitsRaw => "bits.raw",
                 };
                 // Get the input type.
                 let Some(input_type) = self.state.type_table.get(&input.arguments[0].id()) else {
                     panic!("All types should be known at this phase of compilation");
                 };
-                // Get the size in bits.
-                let size_in_bits = match self.state.network {
-                    NetworkName::TestnetV0 => {
-                        input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::MainnetV0 => {
-                        input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::CanaryV0 => {
-                        input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                }
-                .expect("TYC guarantees that all types have a valid size in bits");
-                // Construct the input array type.
-                let input_array_type = format!("[boolean; {size_in_bits}u32]");
                 // Construct the destination register.
                 let destination_register = self.next_register();
                 // Construct the instruction template.
                 let instruction = format!(
-                    "    deserialize.{variant} {} ({input_array_type}) into {destination_register} ({});",
+                    "    deserialize.{variant} {} ({}) into {destination_register} ({});",
                     arguments[0],
+                    Self::visit_type(&input_type),
                     Self::visit_type(&output_type)
                 );
 
