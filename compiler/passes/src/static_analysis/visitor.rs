@@ -46,7 +46,7 @@ impl StaticAnalyzingVisitor<'_> {
     pub fn assert_future_await(&mut self, future: &Option<&Expression>, span: Span) {
         // Make sure that it is an identifier expression.
         let future_variable = match future {
-            Some(Expression::Identifier(name)) => name,
+            Some(Expression::Path(path)) => path,
             _ => {
                 return self.emit_err(StaticAnalyzerError::invalid_await_call(span));
             }
@@ -56,30 +56,30 @@ impl StaticAnalyzingVisitor<'_> {
         match self.state.type_table.get(&future_variable.id) {
             Some(type_) => {
                 if !matches!(type_, Type::Future(_)) {
-                    self.emit_err(StaticAnalyzerError::expected_future(future_variable.name, future_variable.span()));
+                    self.emit_err(StaticAnalyzerError::expected_future(type_, future_variable.span()));
                 }
                 // Mark the future as consumed.
                 // If the call returns true, it means that a future was not awaited in the order of the input list, emit a warning.
-                if self.await_checker.remove(future_variable) {
+                if self.await_checker.remove(&future_variable.identifier().name) {
                     self.emit_warning(StaticAnalyzerWarning::future_not_awaited_in_order(
-                        future_variable.name,
+                        future_variable,
                         future_variable.span(),
                     ));
                 }
             }
             None => {
-                self.emit_err(StaticAnalyzerError::expected_future(future_variable.name, future_variable.span()));
+                self.emit_err(StaticAnalyzerError::expected_future(future_variable, future_variable.span()));
             }
         }
     }
 
     /// Assert that an async call is a "simple" one.
     /// Simple is defined as an async transition function which does not return a `Future` that itself takes a `Future` as an argument.
-    pub fn assert_simple_async_transition_call(&mut self, program: Symbol, function_name: Symbol, span: Span) {
+    pub fn assert_simple_async_transition_call(&mut self, program: Symbol, function_path: &Path, span: Span) {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(program, function_name))
+            .lookup_function(&Location::new(program, function_path.absolute_path().to_vec()))
             .expect("Type checking guarantees functions are present.");
 
         // If it is not an async transition, return.
@@ -95,12 +95,12 @@ impl StaticAnalyzingVisitor<'_> {
         let async_function = self
             .state
             .symbol_table
-            .lookup_function(finalizer.location)
+            .lookup_function(&finalizer.location)
             .expect("Type checking guarantees functions are present.");
 
         // If the async function takes a future as an argument, emit an error.
         if async_function.function.input.iter().any(|input| matches!(input.type_(), Type::Future(..))) {
-            self.emit_err(StaticAnalyzerError::async_transition_call_with_future_argument(function_name, span));
+            self.emit_err(StaticAnalyzerError::async_transition_call_with_future_argument(function_path, span));
         }
     }
 }
@@ -136,7 +136,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
             && self.variant == Some(Variant::AsyncTransition)
             && callee_program != caller_program
         {
-            self.assert_simple_async_transition_call(callee_program, input.function.name, input.span());
+            self.assert_simple_async_transition_call(callee_program, &input.function, input.span());
         }
 
         // Look up the function and check if it is a non-async call.
@@ -145,7 +145,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(function_program, input.function.name))
+            .lookup_function(&Location::new(function_program, input.function.absolute_path().to_vec()))
             .expect("Type checking guarantees functions exist.");
 
         if func_symbol.function.variant == Variant::Transition {

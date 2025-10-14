@@ -1,0 +1,3 @@
+Error [EPAR0370049]: Module `transition` uses the reserved keyword `transition` as a name
+     |
+     = Rename the module so it does not conflict with the language keyword `transition`.

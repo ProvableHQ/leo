@@ -1,0 +1,5 @@
+Error [EPAR0370005]: expected '=' -- found '?'
+    --> compiler-test:3:19
+     |
+   3 |         let x: u8?? = 0;
+     |                   ^

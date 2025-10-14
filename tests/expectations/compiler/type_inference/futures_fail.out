@@ -3,11 +3,6 @@ Error [ETYC0372003]: Expected type `u32` but type `Future<Fn()>` was found
      |
    7 |         let f: u32 = child.aleo/foo();
      |                      ^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `u8` but type `Future<Fn()>` was found.
-    --> compiler-test:8:21
-     |
-   8 |         let r: u8 = foo(f);
-     |                     ^^^^^^
 Error [ETYC0372117]: Expected type `Future<Fn()>` but type `u32` was found.
     --> compiler-test:8:25
      |
@@ -35,11 +30,6 @@ Error [ETYC0372003]: Expected type `(u8, u8)` but type `Future<Fn()>` was found
      |
   13 |         let f: (u8, u8) = child.aleo/bar();
      |                           ^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `bool` but type `Future<Fn()>` was found.
-    --> compiler-test:14:23
-     |
-  14 |         let r: bool = foo(f);
-     |                       ^^^^^^
 Error [ETYC0372117]: Expected type `Future<Fn()>` but type `(u8, u8)` was found.
     --> compiler-test:14:27
      |

@@ -19,12 +19,15 @@ use super::DeadCodeEliminatingVisitor;
 use leo_ast::*;
 
 impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /* Expressions */
-    // Use and reconstruct an identifier.
-    fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
-        self.used_variables.insert(input.name);
+    // Use and reconstruct a path.
+    fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
+        // At this stage, all `Path`s should refer to local variables or mappings, so it's safe to
+        // refer to them using the last symbol in the path.
+        self.used_variables.insert(input.identifier().name);
         (input.into(), Default::default())
     }
 
@@ -33,13 +36,14 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
     fn reconstruct_struct_init(
         &mut self,
         mut input: leo_ast::StructExpression,
+        _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         for member in input.members.iter_mut() {
             if let Some(expr) = std::mem::take(&mut member.expression) {
-                member.expression = Some(self.reconstruct_expression(expr).0);
+                member.expression = Some(self.reconstruct_expression(expr, &()).0);
             } else {
                 // We're not actually going to modify it.
-                self.reconstruct_identifier(member.identifier);
+                self.reconstruct_path(Path::from(member.identifier), &());
             }
         }
 
@@ -87,7 +91,7 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
             (Statement::dummy(), Default::default())
         } else {
             // We still need it.
-            input.value = self.reconstruct_expression(input.value).0;
+            input.value = self.reconstruct_expression(input.value, &()).0;
             (input.into(), Default::default())
         }
     }
@@ -102,7 +106,8 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
             (Statement::dummy(), Default::default())
         } else {
             (
-                ExpressionStatement { expression: self.reconstruct_expression(input.expression).0, ..input }.into(),
+                ExpressionStatement { expression: self.reconstruct_expression(input.expression, &()).0, ..input }
+                    .into(),
                 Default::default(),
             )
         }

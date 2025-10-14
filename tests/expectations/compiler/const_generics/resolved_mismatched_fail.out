@@ -1,0 +1,5 @@
+Error [ETYC0372117]: Expected type `Foo::[0u32]` but type `Foo::[1u32]` was found.
+    --> compiler-test:12:16
+     |
+  12 |         return Foo::[2 * N + 1] { x: 0 };
+     |                ^^^

@@ -25,7 +25,7 @@ mod ast;
 mod program;
 
 mod visitor;
-use visitor::*;
+pub use visitor::ConstPropagationVisitor;
 
 pub struct ConstPropagationOutput {
     /// Something about the program was actually changed during the pass.
@@ -68,6 +68,7 @@ impl Pass for ConstPropagation {
         let mut visitor = ConstPropagationVisitor {
             state,
             program: Symbol::intern(""),
+            module: vec![],
             changed: false,
             const_not_evaluated: None,
             array_index_not_evaluated: None,
@@ -75,7 +76,7 @@ impl Pass for ConstPropagation {
             repeat_count_not_evaluated: None,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(ConstPropagationOutput {
             changed: visitor.changed,
@@ -84,5 +85,20 @@ impl Pass for ConstPropagation {
             array_length_not_evaluated: visitor.array_length_not_evaluated,
             repeat_count_not_evaluated: visitor.repeat_count_not_evaluated,
         })
+    }
+}
+
+impl<'a> ConstPropagationVisitor<'a> {
+    pub fn new(state: &'a mut crate::CompilerState, program: Symbol) -> Self {
+        ConstPropagationVisitor {
+            state,
+            program,
+            module: vec![],
+            changed: false,
+            const_not_evaluated: None,
+            array_index_not_evaluated: None,
+            array_length_not_evaluated: None,
+            repeat_count_not_evaluated: None,
+        }
     }
 }

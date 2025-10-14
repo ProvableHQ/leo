@@ -106,7 +106,7 @@ impl Command for LeoSynthesize {
         }
 
         // Get the network, accounting for overrides.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
+        let network = get_network(&self.env_override.network)?;
         // Handle each network with the appropriate parameterization.
         match network {
             NetworkName::TestnetV0 => handle_synthesize::<AleoTestnetV0>(self, context, network, input),
@@ -134,7 +134,7 @@ fn handle_synthesize<A: Aleo>(
     package: Option<Package>,
 ) -> Result<<LeoSynthesize as Command>::Output> {
     // Get the endpoint, accounting for overrides.
-    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+    let endpoint = get_endpoint(&command.env_override.endpoint)?;
 
     // Parse the program name as a `ProgramID`.
     let program_id = ProgramID::<A::Network>::from_str(&command.program_name)

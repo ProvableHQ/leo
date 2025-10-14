@@ -7,7 +7,7 @@ Error [ETYC0372119]: Received different types `[u8; 32]` and `[u8; 31]` for the 
     --> compiler-test:6:9
      |
    6 |         assert_neq(c, d);
-     |         ^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^
      |
      = Make both operands the same type.
 Error [ETYC0372156]: `Program::edition` must be called on a program ID, e.g. `foo.aleo`
@@ -29,6 +29,6 @@ Error [ETYC0372119]: Received different types `u16` and `u8` for the operation `
     --> compiler-test:10:9
      |
   10 |         assert_neq(e, f);
-     |         ^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^
      |
      = Make both operands the same type.

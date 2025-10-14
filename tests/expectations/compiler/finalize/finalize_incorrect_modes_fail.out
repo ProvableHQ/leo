@@ -10,17 +10,17 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
 Error [ETYC0372032]: An input to an async function must be public.
-    --> compiler-test:9:76
+    --> compiler-test:9:67
      |
    9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     |                                                                            ^^^^^^^^^^^
+     |                                                                   ^^^^^^^^^^^^^^^^^^^^
      |
      = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
 Error [ETYC0372038]: A returned value cannot be a constant.
-    --> compiler-test:9:101
+    --> compiler-test:9:92
      |
    9 |     async function finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     |                                                                                                     ^^^
+     |                                                                                            ^^^^^^^^^^^^
 Error [ETYC0372036]: Function must return a value.
     --> compiler-test:9:5
      |

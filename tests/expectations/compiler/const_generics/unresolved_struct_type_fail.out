@@ -1,32 +1,20 @@
-Error [ECMP0376012]: Unable to resolve struct expression `Foo`. A non-const expression `self.caller` was provided where a const generic parameter is required.
-    --> compiler-test:10:16
+Error [ECMP0376012]: Unable to resolve struct expression `Foo`. A non-const expression was provided where a const generic parameter is required.
+    --> compiler-test:10:22
      |
   10 |             z: Foo::[self.caller] {
-     |                ^^^^^^^^^^^^^^^^^^^^
-  11 |                 x: 5,
-     |                 ^^^^^
-  12 |             }
-     |             ^
-Error [ECMP0376012]: Unable to resolve struct expression `Goo`. A non-const expression `y` was provided where a const generic parameter is required.
-    --> compiler-test:9:27
+     |                      ^^^^^^^^^^^
+Error [ECMP0376012]: Unable to resolve struct expression `Goo`. A non-const expression was provided where a const generic parameter is required.
+    --> compiler-test:9:33
      |
    9 |         let g: Goo::[y] = Goo::[y] {
-     |                           ^^^^^^^^^^
-  10 |             z: Foo::[self.caller] {
-     |             ^^^^^^^^^^^^^^^^^^^^^^^
-  11 |                 x: 5,
-     |                 ^^^^^
-  12 |             }
-     |             ^
-  13 |         };
-     |         ^
-Error [ECMP0376012]: Unable to resolve struct type `Foo`. A non-const expression `self.caller` was provided where a const generic parameter is required.
-    --> compiler-test:5:12
+     |                                 ^
+Error [ECMP0376012]: Unable to resolve struct type `Foo`. A non-const expression was provided where a const generic parameter is required.
+    --> compiler-test:5:18
      |
    5 |         z: Foo::[self.caller],
-     |            ^^^
-Error [ECMP0376012]: Unable to resolve struct type `Goo`. A non-const expression `y` was provided where a const generic parameter is required.
-    --> compiler-test:9:16
+     |                  ^^^^^^^^^^^
+Error [ECMP0376012]: Unable to resolve struct type `Goo`. A non-const expression was provided where a const generic parameter is required.
+    --> compiler-test:9:22
      |
    9 |         let g: Goo::[y] = Goo::[y] {
-     |                ^^^
+     |                      ^

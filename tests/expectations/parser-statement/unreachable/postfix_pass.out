@@ -7,27 +7,37 @@
           "lo": 4,
           "hi": 5
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aimport",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aimport",
+          "span": {
+            "lo": 12,
+            "hi": 19
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 12,
           "hi": 19
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 0,
-      "hi": 19
+      "hi": 20
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -40,27 +50,37 @@
           "lo": 25,
           "hi": 26
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "a_",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "a_",
+          "span": {
+            "lo": 33,
+            "hi": 35
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 33,
           "hi": 35
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 21,
-      "hi": 35
+      "hi": 36
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -73,27 +93,37 @@
           "lo": 41,
           "hi": 42
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aas",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aas",
+          "span": {
+            "lo": 49,
+            "hi": 52
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 49,
           "hi": 52
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 37,
-      "hi": 52
+      "hi": 53
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -106,27 +136,37 @@
           "lo": 58,
           "hi": 59
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aconsole",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aconsole",
+          "span": {
+            "lo": 66,
+            "hi": 74
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 66,
           "hi": 74
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 54,
-      "hi": 74
+      "hi": 75
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -139,27 +179,37 @@
           "lo": 80,
           "hi": 81
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aconst",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aconst",
+          "span": {
+            "lo": 88,
+            "hi": 94
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 88,
           "hi": 94
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 76,
-      "hi": 94
+      "hi": 95
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -172,27 +222,37 @@
           "lo": 100,
           "hi": 101
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "alet",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "alet",
+          "span": {
+            "lo": 108,
+            "hi": 112
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 108,
           "hi": 112
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 96,
-      "hi": 112
+      "hi": 113
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -205,27 +265,37 @@
           "lo": 118,
           "hi": 119
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "afor",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "afor",
+          "span": {
+            "lo": 126,
+            "hi": 130
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 126,
           "hi": 130
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 114,
-      "hi": 130
+      "hi": 131
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -238,27 +308,37 @@
           "lo": 136,
           "hi": 137
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aif",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aif",
+          "span": {
+            "lo": 144,
+            "hi": 147
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 144,
           "hi": 147
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 132,
-      "hi": 147
+      "hi": 148
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -271,27 +351,37 @@
           "lo": 153,
           "hi": 154
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aelse",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aelse",
+          "span": {
+            "lo": 161,
+            "hi": 166
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 161,
           "hi": 166
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 149,
-      "hi": 166
+      "hi": 167
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -304,27 +394,37 @@
           "lo": 172,
           "hi": 173
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai8",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai8",
+          "span": {
+            "lo": 180,
+            "hi": 183
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 180,
           "hi": 183
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 168,
-      "hi": 183
+      "hi": 184
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -337,27 +437,37 @@
           "lo": 189,
           "hi": 190
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai16",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai16",
+          "span": {
+            "lo": 197,
+            "hi": 201
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 197,
           "hi": 201
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 185,
-      "hi": 201
+      "hi": 202
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -370,27 +480,37 @@
           "lo": 207,
           "hi": 208
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai32",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai32",
+          "span": {
+            "lo": 215,
+            "hi": 219
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 215,
           "hi": 219
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 203,
-      "hi": 219
+      "hi": 220
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -403,27 +523,37 @@
           "lo": 225,
           "hi": 226
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai64",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai64",
+          "span": {
+            "lo": 233,
+            "hi": 237
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 233,
           "hi": 237
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 221,
-      "hi": 237
+      "hi": 238
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -436,27 +566,37 @@
           "lo": 243,
           "hi": 244
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "ai128",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "ai128",
+          "span": {
+            "lo": 251,
+            "hi": 256
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 251,
           "hi": 256
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 239,
-      "hi": 256
+      "hi": 257
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -469,27 +609,37 @@
           "lo": 262,
           "hi": 263
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au8",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au8",
+          "span": {
+            "lo": 270,
+            "hi": 273
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 270,
           "hi": 273
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 258,
-      "hi": 273
+      "hi": 274
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -502,27 +652,37 @@
           "lo": 279,
           "hi": 280
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au16",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au16",
+          "span": {
+            "lo": 287,
+            "hi": 291
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 287,
           "hi": 291
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 275,
-      "hi": 291
+      "hi": 292
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -535,27 +695,37 @@
           "lo": 297,
           "hi": 298
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au32",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au32",
+          "span": {
+            "lo": 305,
+            "hi": 309
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 305,
           "hi": 309
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 293,
-      "hi": 309
+      "hi": 310
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -568,27 +738,37 @@
           "lo": 315,
           "hi": 316
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au64",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au64",
+          "span": {
+            "lo": 323,
+            "hi": 327
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 323,
           "hi": 327
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 311,
-      "hi": 327
+      "hi": 328
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -601,27 +781,37 @@
           "lo": 333,
           "hi": 334
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "au128",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "au128",
+          "span": {
+            "lo": 341,
+            "hi": 346
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 341,
           "hi": 346
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 329,
-      "hi": 346
+      "hi": 347
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -634,27 +824,37 @@
           "lo": 352,
           "hi": 353
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "areturn",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "areturn",
+          "span": {
+            "lo": 360,
+            "hi": 367
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 360,
           "hi": 367
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 348,
-      "hi": 367
+      "hi": 368
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -667,27 +867,37 @@
           "lo": 373,
           "hi": 374
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aself",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aself",
+          "span": {
+            "lo": 381,
+            "hi": 386
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 381,
           "hi": 386
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 369,
-      "hi": 386
+      "hi": 387
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -700,27 +910,37 @@
           "lo": 392,
           "hi": 393
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "aSelf",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "aSelf",
+          "span": {
+            "lo": 400,
+            "hi": 405
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 400,
           "hi": 405
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 388,
-      "hi": 405
+      "hi": 406
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -733,27 +953,37 @@
           "lo": 411,
           "hi": 412
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "atrue",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "atrue",
+          "span": {
+            "lo": 419,
+            "hi": 424
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 419,
           "hi": 424
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 407,
-      "hi": 424
+      "hi": 425
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -766,27 +996,37 @@
           "lo": 430,
           "hi": 431
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "afalse",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "afalse",
+          "span": {
+            "lo": 438,
+            "hi": 444
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 438,
           "hi": 444
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 426,
-      "hi": 444
+      "hi": 445
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -799,27 +1039,37 @@
           "lo": 450,
           "hi": 451
         },
-        "id": 0
+        "id": 1
       }
     },
     "type_": {
       "Integer": "U8"
     },
     "value": {
-      "Identifier": {
-        "name": "a0",
+      "Path": {
+        "qualifier": [],
+        "identifier": {
+          "name": "a0",
+          "span": {
+            "lo": 458,
+            "hi": 460
+          },
+          "id": 3
+        },
+        "is_absolute": false,
+        "absolute_path": null,
         "span": {
           "lo": 458,
           "hi": 460
         },
-        "id": 1
+        "id": 2
       }
     },
     "span": {
       "lo": 446,
-      "hi": 460
+      "hi": 461
     },
-    "id": 2
+    "id": 0
   }
 }
 

@@ -37,4 +37,11 @@ create_messages!(
         msg: format!("The array index must be constant."),
         help: None,
     }
+
+    @formatted
+    value_out_of_i128_bounds {
+        args: (value: impl std::fmt::Display),
+        msg: format!("The loop bound {value} does not fit into an i128."),
+        help: Some("All loop bounds must fit into `i128`.".to_string()),
+    }
 );

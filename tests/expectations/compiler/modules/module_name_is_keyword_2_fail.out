@@ -1,0 +1,3 @@
+Error [EPAR0370049]: Module `dep::struct::mod` uses the reserved keyword `struct` as a name
+     |
+     = Rename the module so it does not conflict with the language keyword `struct`.

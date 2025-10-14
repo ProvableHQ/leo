@@ -88,6 +88,11 @@ impl SourceMap {
         Some(self.inner.borrow().source_files[self.find_source_file_index(pos)?].clone())
     }
 
+    pub fn source_file_by_filename(&self, filename: &FileName) -> Option<Rc<SourceFile>> {
+        // TODO: This linear search could be improved to a hash lookup with some adjustment.
+        self.inner.borrow().source_files.iter().find(|source_file| &source_file.name == filename).cloned()
+    }
+
     /// Returns the source contents that is spanned by `span`.
     pub fn contents_of_span(&self, span: Span) -> Option<String> {
         let source_file1 = self.find_source_file(span.lo)?;
@@ -111,7 +116,7 @@ impl SourceMapInner {
 ///
 /// This is either a wrapper around `PathBuf`,
 /// or a custom string description.
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum FileName {
     /// A real file.
     Real(PathBuf),
@@ -187,7 +192,11 @@ impl SourceFile {
         let start = self.relative_offset(span.lo) as usize;
         let end = self.relative_offset(span.hi) as usize;
 
-        let line_start = self.src[..=start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+        let line_start = if self.src.get(start..).is_some_and(|s| s.starts_with('\n')) {
+            start
+        } else {
+            self.src[..start].rfind('\n').map(|i| i + 1).unwrap_or(0)
+        };
         let line_end = self.src[end..].find('\n').map(|x| x + end).unwrap_or(self.src.len());
 
         LineContents {

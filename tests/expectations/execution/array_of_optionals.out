@@ -1,0 +1,66 @@
+program test.aleo;
+
+struct Optional__DOnC9eGtnsJ:
+    is_some as boolean;
+    val as u64;
+
+function main:
+    cast 1u64 0u64 3u64 0u64 into r0 as [u64; 4u32];
+    is.eq r0[0u32] 0u64 into r1;
+    cast false 0u64 into r2 as Optional__DOnC9eGtnsJ;
+    cast true r0[0u32] into r3 as Optional__DOnC9eGtnsJ;
+    ternary r1 r2.is_some r3.is_some into r4;
+    ternary r1 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__DOnC9eGtnsJ;
+    is.eq r0[1u32] 0u64 into r7;
+    cast false 0u64 into r8 as Optional__DOnC9eGtnsJ;
+    cast true r0[1u32] into r9 as Optional__DOnC9eGtnsJ;
+    ternary r7 r8.is_some r9.is_some into r10;
+    ternary r7 r8.val r9.val into r11;
+    cast r10 r11 into r12 as Optional__DOnC9eGtnsJ;
+    is.eq r0[2u32] 0u64 into r13;
+    cast false 0u64 into r14 as Optional__DOnC9eGtnsJ;
+    cast true r0[2u32] into r15 as Optional__DOnC9eGtnsJ;
+    ternary r13 r14.is_some r15.is_some into r16;
+    ternary r13 r14.val r15.val into r17;
+    cast r16 r17 into r18 as Optional__DOnC9eGtnsJ;
+    is.eq r0[3u32] 0u64 into r19;
+    cast false 0u64 into r20 as Optional__DOnC9eGtnsJ;
+    cast true r0[3u32] into r21 as Optional__DOnC9eGtnsJ;
+    ternary r19 r20.is_some r21.is_some into r22;
+    ternary r19 r20.val r21.val into r23;
+    cast r22 r23 into r24 as Optional__DOnC9eGtnsJ;
+    cast r6 r12 r18 r24 into r25 as [Optional__DOnC9eGtnsJ; 4u32];
+    ternary r25[0u32].is_some r25[0u32].val 0u64 into r26;
+    add 0u64 r26 into r27;
+    ternary r25[1u32].is_some r25[1u32].val 1u64 into r28;
+    add r27 r28 into r29;
+    ternary r25[2u32].is_some r25[2u32].val 4u64 into r30;
+    add r29 r30 into r31;
+    ternary r25[3u32].is_some r25[3u32].val 9u64 into r32;
+    add r31 r32 into r33;
+    is.eq r33 14u64 into r34;
+    assert.eq r34 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1qm0edyl2ur5qkcvu9zdaf29fe8yqzpeggqcd9p6286xt4fu36cysfy3jxa",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [],
+      "outputs": [],
+      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
+      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
+      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

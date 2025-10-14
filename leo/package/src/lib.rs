@@ -19,7 +19,6 @@
 //! The main type is `Package`, which deals with Leo packages on the local filesystem.
 //! A Leo package directory is intended to have a structure like this:
 //! .
-//! ├── .env
 //! ├── program.json
 //! ├── build
 //! │   ├── imports
@@ -36,15 +35,12 @@
 //! The file `program.json` is a manifest containing the program name, version, description,
 //! and license, together with information about its dependencies.
 //!
-//! The file `.env` contains definitions for the environment variables NETWORK, PRIVATE_KEY,
-//! and ENDPOINT that may be used when deploying or executing the program.
-//!
 //! Such a directory structure, together with a `.gitignore` file, may be created
 //! on the file system using `Package::initialize`.
 //! ```no_run
 //! # use leo_ast::NetworkName;
 //! # use leo_package::{Package};
-//! let path = Package::initialize("my_package", "path/to/parent", NetworkName::TestnetV0, "http://localhost:3030").unwrap();
+//! let path = Package::initialize("my_package", "path/to/parent").unwrap();
 //! ```
 //!
 //! `tests` is where unit test files may be placed.
@@ -54,12 +50,13 @@
 //! ```no_run
 //! # use leo_ast::NetworkName;
 //! use leo_package::Package;
-//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, NetworkName::TestnetV0, "http://localhost:3030").unwrap();
+//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030")).unwrap();
 //! ```
 //! This will read the manifest and env file and keep their data in `package.manifest` and `package.env`.
 //! It will also process dependencies and store them in topological order in `package.programs`. This processing
 //! will involve fetching bytecode from the network for network dependencies.
 //! If the `no_cache` option (3rd parameter) is set to `true`, the package will not use the dependency cache.
+//! The endpoint and network are optional and are only needed if the package has network dependencies.
 //!
 //! If you want to simply read the manifest and env file without processing dependencies, use
 //! `Package::from_directory_no_graph`.
@@ -78,9 +75,6 @@ use std::path::Path;
 
 mod dependency;
 pub use dependency::*;
-
-mod env;
-pub use env::*;
 
 mod location;
 pub use location::*;
@@ -105,6 +99,9 @@ pub const OUTPUTS_DIRECTORY: &str = "outputs";
 pub const BUILD_DIRECTORY: &str = "build";
 
 pub const TESTS_DIRECTORY: &str = "tests";
+
+/// Maximum allowed program size in bytes.
+pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
 
 pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 
@@ -148,7 +145,34 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
         return false;
     }
 
+    // Check that the name is not a SnarkVM reserved keyword
+    if reserved_keywords().any(|kw| kw == rest) {
+        tracing::error!(
+            "Aleo names cannot be a SnarkVM reserved keyword. Reserved keywords are: {}.",
+            reserved_keywords().collect::<Vec<_>>().join(", ")
+        );
+        return false;
+    }
+
+    // Check that the name does not contain `aleo`
+    if rest.contains("aleo") {
+        tracing::error!("Aleo names cannot contain the keyword `aleo`.",);
+        return false;
+    }
+
     true
+}
+
+/// Get the list of all reserved and restricted keywords from snarkVM.
+/// These keywords cannot be used as program names.
+/// See: https://github.com/ProvableHQ/snarkVM/blob/046a2964f75576b2c4afbab9aa9eabc43ceb6dc3/synthesizer/program/src/lib.rs#L192
+pub fn reserved_keywords() -> impl Iterator<Item = &'static str> {
+    use snarkvm::prelude::{Program, TestnetV0};
+
+    // Flatten RESTRICTED_KEYWORDS by ignoring ConsensusVersion
+    let restricted = Program::<TestnetV0>::RESTRICTED_KEYWORDS.iter().flat_map(|(_, kws)| kws.iter().copied());
+
+    Program::<TestnetV0>::KEYWORDS.iter().copied().chain(restricted)
 }
 
 // Fetch the given endpoint url and return the sanitized response.
@@ -184,6 +208,15 @@ pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkNa
 pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> {
     use snarkvm::prelude::{Program, TestnetV0};
     use std::str::FromStr as _;
+
+    // Check if the program size exceeds the maximum allowed limit.
+    let program_size = program.len();
+
+    if program_size > MAX_PROGRAM_SIZE {
+        return Err(UtilError::program_size_limit_exceeded(name, program_size, MAX_PROGRAM_SIZE));
+    }
+
+    // Parse the program to verify it's valid Aleo instructions.
     match Program::<TestnetV0>::from_str(program) {
         Ok(_) => Ok(()),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name)),

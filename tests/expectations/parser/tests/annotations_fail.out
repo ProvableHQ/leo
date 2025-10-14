@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected , or ) -- found 'oops'
+Error [EPAR0370005]: expected ')', ',' -- found 'oops'
     --> test:18:80
      |
   18 |     @failing_annotation(some_key = "SomeString", another_key = "AnotherString" oops)

@@ -105,7 +105,7 @@ impl DeadCodeEliminatingVisitor<'_> {
                 !halting_op && sef(&un.receiver)
             }
             Err(_) => false,
-            Identifier(_) | Literal(_) | Locator(_) | Unit(_) => true,
+            Path(_) | Literal(_) | Locator(_) | Unit(_) => true,
         }
     }
 }

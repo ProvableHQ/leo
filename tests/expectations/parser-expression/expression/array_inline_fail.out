@@ -1,55 +1,55 @@
-Error [EPAR0370005]: expected ] -- found '<eof>'
-    --> test_0:1:2
+Error [EPAR0370034]: An array expression must have at least one element.
+    --> test_0:1:1
      |
    1 | []
-     |  ^
+     | ^^
 Error [EPAR0370034]: An array expression must have at least one element.
     --> test_1:1:1
      |
    1 | [,]
      | ^^^
-Error [EPAR0370005]: expected ] -- found ','
+Error [EPAR0370005]: expected ']' -- found ','
     --> test_2:1:3
      |
    1 | [,,]
      |   ^
-Error [EPAR0370009]: unexpected string: expected 'expression', found ','
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', 'true', 'false', 'async', 'block', 'network', 'self' -- found ','
     --> test_3:1:4
      |
    1 | [0,,]
      |    ^
-Error [EPAR0370005]: expected ] -- found '0'
+Error [EPAR0370005]: expected ']' -- found '0'
     --> test_4:1:3
      |
    1 | [,0]
      |   ^
-Error [EPAR0370005]: expected ] -- found '0'
+Error [EPAR0370005]: expected ']' -- found '0'
     --> test_5:1:3
      |
    1 | [,0,]
      |   ^
-Error [EPAR0370034]: An array expression must have at least one element.
-    --> test_6:1:1
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', ',', 'true', 'false', 'async', 'block', 'network', 'self' -- found ';'
+    --> test_6:1:2
      |
    1 | [;]
-     | ^^^
-Error [EPAR0370005]: expected ] -- found ';'
-    --> test_7:1:3
+     |  ^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', ',', 'true', 'false', 'async', 'block', 'network', 'self' -- found ';'
+    --> test_7:1:2
      |
    1 | [;;]
-     |   ^
-Error [EPAR0370009]: unexpected string: expected 'expression', found ';'
+     |  ^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found ';'
     --> test_8:1:4
      |
    1 | [0;;]
      |    ^
-Error [EPAR0370005]: expected ] -- found '0'
-    --> test_9:1:3
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', ',', 'true', 'false', 'async', 'block', 'network', 'self' -- found ';'
+    --> test_9:1:2
      |
    1 | [;0]
-     |   ^
-Error [EPAR0370005]: expected ] -- found '0'
-    --> test_10:1:3
+     |  ^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', ',', 'true', 'false', 'async', 'block', 'network', 'self' -- found ';'
+    --> test_10:1:2
      |
    1 | [;0;]
-     |   ^
+     |  ^

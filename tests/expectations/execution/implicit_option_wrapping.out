@@ -1,0 +1,539 @@
+program implicit_wrapping.aleo;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+struct Foo:
+    x as Optional__8hhrPm4c3KB;
+
+struct Optional__IDgMhRtf8KJ:
+    is_some as boolean;
+    val as Foo;
+
+struct Wrapper:
+    arr as [Optional__IDgMhRtf8KJ; 2u32];
+
+struct Bar:
+    x as [Optional__8hhrPm4c3KB; 3u32];
+
+struct Optional__Lb0sxVVCPo1:
+    is_some as boolean;
+    val as Wrapper;
+
+struct Optional__3ewuyRC5LBk:
+    is_some as boolean;
+    val as [Wrapper; 3u32];
+
+function basic_implicit_return:
+    cast true 5u8 into r0 as Optional__8hhrPm4c3KB;
+    assert.eq r0.is_some true;
+    cast true 5u8 into r1 as Optional__8hhrPm4c3KB;
+    output r1.val as u8.private;
+
+function basic_implicit_argument:
+    cast true 42u8 into r0 as Optional__8hhrPm4c3KB;
+    ternary r0.is_some r0.val 100u8 into r1;
+    output r1 as u8.private;
+
+function basic_implicit_ternary:
+    input r0 as boolean.private;
+    cast true 10u8 into r1 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r2 as Optional__8hhrPm4c3KB;
+    ternary r0 r1.is_some r2.is_some into r3;
+    ternary r0 r1.val r2.val into r4;
+    cast r3 r4 into r5 as Optional__8hhrPm4c3KB;
+    ternary r5.is_some r5.val 42u8 into r6;
+    output r6 as u8.private;
+
+function basic_implicit_reassignment:
+    cast false 0u8 into r0 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r1 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r2 as Optional__8hhrPm4c3KB;
+    cast r0 r1 r2 into r3 as [Optional__8hhrPm4c3KB; 3u32];
+    cast r3 into r4 as Bar;
+    cast true 99u8 into r5 as Optional__8hhrPm4c3KB;
+    cast r5 r4.x[1u32] r4.x[2u32] into r6 as [Optional__8hhrPm4c3KB; 3u32];
+    assert.eq r6[0u32].is_some true;
+    output r6[0u32].val as u8.private;
+
+function complex_implicit_return:
+    cast true 8u8 into r0 as Optional__8hhrPm4c3KB;
+    cast r0 into r1 as Foo;
+    cast true r1 into r2 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r3 as Optional__8hhrPm4c3KB;
+    cast r3 into r4 as Foo;
+    cast false r4 into r5 as Optional__IDgMhRtf8KJ;
+    cast r2 r5 into r6 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r6 into r7 as Wrapper;
+    cast true r7 into r8 as Optional__Lb0sxVVCPo1;
+    assert.eq r8.is_some true;
+    cast true 8u8 into r9 as Optional__8hhrPm4c3KB;
+    cast r9 into r10 as Foo;
+    cast true r10 into r11 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r12 as Optional__8hhrPm4c3KB;
+    cast r12 into r13 as Foo;
+    cast false r13 into r14 as Optional__IDgMhRtf8KJ;
+    cast r11 r14 into r15 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r15 into r16 as Wrapper;
+    cast true r16 into r17 as Optional__Lb0sxVVCPo1;
+    assert.eq r17.val.arr[0u32].is_some true;
+    cast true 8u8 into r18 as Optional__8hhrPm4c3KB;
+    cast r18 into r19 as Foo;
+    cast true r19 into r20 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r21 as Optional__8hhrPm4c3KB;
+    cast r21 into r22 as Foo;
+    cast false r22 into r23 as Optional__IDgMhRtf8KJ;
+    cast r20 r23 into r24 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r24 into r25 as Wrapper;
+    cast true r25 into r26 as Optional__Lb0sxVVCPo1;
+    assert.eq r26.val.arr[0u32].val.x.is_some true;
+    cast true 8u8 into r27 as Optional__8hhrPm4c3KB;
+    cast r27 into r28 as Foo;
+    cast true r28 into r29 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r30 as Optional__8hhrPm4c3KB;
+    cast r30 into r31 as Foo;
+    cast false r31 into r32 as Optional__IDgMhRtf8KJ;
+    cast r29 r32 into r33 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r33 into r34 as Wrapper;
+    cast true r34 into r35 as Optional__Lb0sxVVCPo1;
+    output r35.val.arr[0u32].val.x.val as u8.private;
+
+function complex_implicit_argument:
+    cast false 0u8 into r0 as Optional__8hhrPm4c3KB;
+    cast r0 into r1 as Foo;
+    cast true r1 into r2 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r3 as Optional__8hhrPm4c3KB;
+    cast r3 into r4 as Foo;
+    cast false r4 into r5 as Optional__IDgMhRtf8KJ;
+    cast r2 r5 into r6 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r6 into r7 as Wrapper;
+    cast true r7 into r8 as Optional__Lb0sxVVCPo1;
+    assert.eq r8.is_some true;
+    assert.eq r8.val.arr[0u32].is_some true;
+    ternary r8.val.arr[0u32].val.x.is_some r8.val.arr[0u32].val.x.val 42u8 into r9;
+    output r9 as u8.private;
+
+function complex_implicit_ternary:
+    input r0 as boolean.private;
+    cast true 99u8 into r1 as Optional__8hhrPm4c3KB;
+    cast r1 into r2 as Foo;
+    cast true r2 into r3 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r4 as Optional__8hhrPm4c3KB;
+    cast r4 into r5 as Foo;
+    cast false r5 into r6 as Optional__IDgMhRtf8KJ;
+    cast r3 r6 into r7 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r7 into r8 as Wrapper;
+    cast true r8 into r9 as Optional__Lb0sxVVCPo1;
+    cast false 0u8 into r10 as Optional__8hhrPm4c3KB;
+    cast r10 into r11 as Foo;
+    cast false r11 into r12 as Optional__IDgMhRtf8KJ;
+    cast r12 r12 into r13 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r13 into r14 as Wrapper;
+    cast false r14 into r15 as Optional__Lb0sxVVCPo1;
+    ternary r0 r9.val.arr[0u32].val.x.is_some r15.val.arr[0u32].val.x.is_some into r16;
+    ternary r0 r9.val.arr[0u32].val.x.val r15.val.arr[0u32].val.x.val into r17;
+    cast r16 r17 into r18 as Optional__8hhrPm4c3KB;
+    cast r18 into r19 as Foo;
+    ternary r0 r9.val.arr[0u32].is_some r15.val.arr[0u32].is_some into r20;
+    cast r20 r19 into r21 as Optional__IDgMhRtf8KJ;
+    ternary r0 r9.val.arr[1u32].val.x.is_some r15.val.arr[1u32].val.x.is_some into r22;
+    ternary r0 r9.val.arr[1u32].val.x.val r15.val.arr[1u32].val.x.val into r23;
+    cast r22 r23 into r24 as Optional__8hhrPm4c3KB;
+    cast r24 into r25 as Foo;
+    ternary r0 r9.val.arr[1u32].is_some r15.val.arr[1u32].is_some into r26;
+    cast r26 r25 into r27 as Optional__IDgMhRtf8KJ;
+    cast r21 r27 into r28 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r28 into r29 as Wrapper;
+    ternary r0 r9.is_some r15.is_some into r30;
+    cast r30 r29 into r31 as Optional__Lb0sxVVCPo1;
+    assert.eq r31.is_some true;
+    assert.eq r31.val.arr[0u32].is_some true;
+    ternary r31.val.arr[0u32].val.x.is_some r31.val.arr[0u32].val.x.val 69u8 into r32;
+    output r32 as u8.private;
+
+function complex_implicit_reassignment:
+    cast true 7u8 into r0 as Optional__8hhrPm4c3KB;
+    cast r0 into r1 as Foo;
+    cast true r1 into r2 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r3 as Optional__8hhrPm4c3KB;
+    cast r3 into r4 as Foo;
+    cast false r4 into r5 as Optional__IDgMhRtf8KJ;
+    cast r2 r5 into r6 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r6 into r7 as Wrapper;
+    cast true r7 into r8 as Optional__Lb0sxVVCPo1;
+    assert.eq r8.is_some true;
+    assert.eq r8.val.arr[0u32].is_some true;
+    assert.eq r8.val.arr[0u32].val.x.is_some true;
+    output r8.val.arr[0u32].val.x.val as u8.private;
+
+function complex_array_wrapping:
+    cast true 1u8 into r0 as Optional__8hhrPm4c3KB;
+    cast r0 into r1 as Foo;
+    cast true r1 into r2 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r3 as Optional__8hhrPm4c3KB;
+    cast r3 into r4 as Foo;
+    cast false r4 into r5 as Optional__IDgMhRtf8KJ;
+    cast r2 r5 into r6 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r6 into r7 as Wrapper;
+    cast false 0u8 into r8 as Optional__8hhrPm4c3KB;
+    cast r8 into r9 as Foo;
+    cast false r9 into r10 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r11 as Optional__8hhrPm4c3KB;
+    cast r11 into r12 as Foo;
+    cast false r12 into r13 as Optional__IDgMhRtf8KJ;
+    cast r10 r13 into r14 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r14 into r15 as Wrapper;
+    cast true 2u8 into r16 as Optional__8hhrPm4c3KB;
+    cast r16 into r17 as Foo;
+    cast true r17 into r18 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r19 as Optional__8hhrPm4c3KB;
+    cast r19 into r20 as Foo;
+    cast false r20 into r21 as Optional__IDgMhRtf8KJ;
+    cast r18 r21 into r22 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r22 into r23 as Wrapper;
+    cast r7 r15 r23 into r24 as [Wrapper; 3u32];
+    cast true r24 into r25 as Optional__3ewuyRC5LBk;
+    assert.eq r25.is_some true;
+    assert.eq r25.val[0u32].arr[0u32].is_some true;
+    assert.eq r25.val[0u32].arr[0u32].val.x.is_some true;
+    output r25.val[0u32].arr[0u32].val.x.val as u8.private;
+
+function complex_array_access:
+    cast true 10u8 into r0 as Optional__8hhrPm4c3KB;
+    cast r0 into r1 as Foo;
+    cast true r1 into r2 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r3 as Optional__8hhrPm4c3KB;
+    cast r3 into r4 as Foo;
+    cast false r4 into r5 as Optional__IDgMhRtf8KJ;
+    cast r2 r5 into r6 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r6 into r7 as Wrapper;
+    cast true 20u8 into r8 as Optional__8hhrPm4c3KB;
+    cast r8 into r9 as Foo;
+    cast true r9 into r10 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r11 as Optional__8hhrPm4c3KB;
+    cast r11 into r12 as Foo;
+    cast false r12 into r13 as Optional__IDgMhRtf8KJ;
+    cast r10 r13 into r14 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r14 into r15 as Wrapper;
+    cast false 0u8 into r16 as Optional__8hhrPm4c3KB;
+    cast r16 into r17 as Foo;
+    cast false r17 into r18 as Optional__IDgMhRtf8KJ;
+    cast false 0u8 into r19 as Optional__8hhrPm4c3KB;
+    cast r19 into r20 as Foo;
+    cast false r20 into r21 as Optional__IDgMhRtf8KJ;
+    cast r18 r21 into r22 as [Optional__IDgMhRtf8KJ; 2u32];
+    cast r22 into r23 as Wrapper;
+    cast r7 r15 r23 into r24 as [Wrapper; 3u32];
+    cast true r24 into r25 as Optional__3ewuyRC5LBk;
+    assert.eq r25.is_some true;
+    assert.eq r25.val[1u32].arr[0u32].is_some true;
+    assert.eq r25.val[1u32].arr[0u32].val.x.is_some true;
+    output r25.val[1u32].arr[0u32].val.x.val as u8.private;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1tt9lrsjlktektpqx66jvwe43mjl39lsl3vl4qlk4v5jm6ptvz5pq6esge4",
+      "program": "implicit_wrapping.aleo",
+      "function": "basic_implicit_return",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "854140931668707084093360001564368538748144884920645694636488613130080646625field",
+          "value": "ciphertext1qyq000wzelph0wjasjz3qkvph4kcqhnpqffe0qx4gvzavq9f4sfqcrs8dg2mx"
+        }
+      ],
+      "tpk": "8306896357385535835175232294547450855162573613950085120148218630651775787585group",
+      "tcm": "6912066572478011773391159207515677636484285507247460871294030136655387708822field",
+      "scm": "7988685474607386957182270655195957192860675501043718038064178888232094409755field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1yd3gnud3nycf7rd4jh7pxa9vn08ee9rcth573veswv7tfnkklvrsjlye2u",
+      "program": "implicit_wrapping.aleo",
+      "function": "basic_implicit_argument",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "7652774892931779516506842279802212348673752792906030482551528174699095074732field",
+          "value": "ciphertext1qyq8d4hq2dawewvcs2g2cnszw73fcppu043v49cnjlvhrgmwjpceuzceyvuc2"
+        }
+      ],
+      "tpk": "406532799450574015626370361769896813310957763113661566190345668978254003635group",
+      "tcm": "919843692484350176188690169090756361384333335462993510288677928247220026125field",
+      "scm": "47515530560174726040252895912500178628741538506297066028239700846997914099field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1x2884f0ymfeucppv5xmzlwz5upmla4f99k0lkuh6hulhpjy6sc8srsk9lv",
+      "program": "implicit_wrapping.aleo",
+      "function": "basic_implicit_ternary",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6895225204216868202589029946036167178007336860713773060940293600655335655372field",
+          "value": "ciphertext1qyqrywsm5egwtqulmehhppw4sc7jch42krksuwvwlkshx3z6f8lpkrc54z8fj"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "7002121869464832627615078834032134293945358845754844167323509191050023814358field",
+          "value": "ciphertext1qyqw38mj3kukwvqmkywta4mr7y7m2te59zrds2vecahm7xhty08z7rgew4djr"
+        }
+      ],
+      "tpk": "5709798885411290864882957206915916243989279949838180744212545206285839480622group",
+      "tcm": "7602829725460497421968983646391953043411635752618025319929731645002519774332field",
+      "scm": "8215843006283932990024990270539554230372680067266271316383385666169329334670field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1uxkufycjc0jlkwmjp8zhawjjs0v9nn8gl3jjyraex8ya4cg09g9qmcj7rt",
+      "program": "implicit_wrapping.aleo",
+      "function": "basic_implicit_ternary",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5109493075735031503810758238530354807497181299794070800017059202387419133642field",
+          "value": "ciphertext1qyq84spy42xl0t6xfwgc5uc4duc70yytxa9qwrn2zzjkzl8v0appcqcug0cl0"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "7468399509032542126167154533456579640356391620052919156361205332278084281555field",
+          "value": "ciphertext1qyq2v6grxdzmsw0mmrf3tq6x7w2jlqmyz4vuc3xnpwsamwpw80svgyg8ajuj2"
+        }
+      ],
+      "tpk": "653489568340540904834004481973848455507160103002394755268116152571512808589group",
+      "tcm": "5551187044493364632000237397776233475402106712590012641183606692537084946839field",
+      "scm": "5354163616535213482525255376957317574149102373745435497495681687831673061764field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1em3hawt3rtg0m7jrqe759wjyvqjceypazc0ga4azyf0wa0a3pgrqjzqmg2",
+      "program": "implicit_wrapping.aleo",
+      "function": "basic_implicit_reassignment",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "1243744918539367761322033802732009421083897079223850813981193823033084635521field",
+          "value": "ciphertext1qyqf8papy2yjjya68lv4alr3h075p8rgp66vx7jf2hvdsc6rr2u0jrc2fr44y"
+        }
+      ],
+      "tpk": "3001833259707608237680906665635342143432334987873719817316382095884060615371group",
+      "tcm": "2177775757528988720430432600247279967855025158134600105760104314743954073042field",
+      "scm": "3483410662022111307340322955202736517228381712310573408838746166459982701774field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1g47scs5xdjxu48fz3tvflzepn4t5rmxqlegcyjjzdsz9dyensv8sy9xxxg",
+      "program": "implicit_wrapping.aleo",
+      "function": "complex_implicit_return",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "5318430433202629445796529456775989329688218043069712300545904959761961014066field",
+          "value": "ciphertext1qyqxaxl5z3fe5v0c2f7xl5ce7cqn7q96l0rjhhnqltfzegck2r38jqs5efh2f"
+        }
+      ],
+      "tpk": "4256099201940749793805363007269702826150878075697467108123401039227957385713group",
+      "tcm": "2380918056865146663485728166835674456531019350398897889687976169578048284997field",
+      "scm": "7152257235611940320308857486213064013456499129474603537438483410743885961857field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1rnnaulmu2pgwgevhch6t8m89uhd76xrdxzexql7fyh0llqp3jqrs7watk9",
+      "program": "implicit_wrapping.aleo",
+      "function": "complex_implicit_argument",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "2681955510644351114514774485361802811114688250456161284749817645130058907652field",
+          "value": "ciphertext1qyqghkfwm0822yu87uphn5eds2n34ntvspp5dm93xfhsdzvaaz79qqca0s08g"
+        }
+      ],
+      "tpk": "2248978578175192592029431382643758181445889282741257051247312053193473943233group",
+      "tcm": "2178692480667146763287249223268142216637976260534953013343112099624727691411field",
+      "scm": "7552590981982854747313106736027854656280747527750212941210459280765006041700field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1nps32fpx7c757nshalwsxhj99gu38lx3qf6pl3cqukncsklsdsrsxpdydg",
+      "program": "implicit_wrapping.aleo",
+      "function": "complex_implicit_ternary",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5593119808965273834594083338846945608327772383551490206294411826840709766535field",
+          "value": "ciphertext1qyqwtmsd509ds5m54rx2m40lmne4cce6c80czfnt2a4v5pl6md95xqqlxpuxn"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "4791134697561095584527991426415009327739635552649432962484471377911533401270field",
+          "value": "ciphertext1qyqq0xlt62zney0gm5fqvsaz6mw832mwl7wjh2a5qwurk6dmepx4gys0myd2j"
+        }
+      ],
+      "tpk": "5122992199727760960609513925446659764016111377002169737451184278186800431259group",
+      "tcm": "4896532442049664803079239011490261255771986554396833772129945507358113693058field",
+      "scm": "3332420816989939448611117874743065479764967447092535678924256625702399969177field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1jk7jpkamdv3ym6duy9umfsq4uj3388usry0f4cyjzu2mzkyepczsdgzp0w",
+      "program": "implicit_wrapping.aleo",
+      "function": "complex_implicit_reassignment",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "1318351991473143503418832147703505719687714504898044888089306592472620384524field",
+          "value": "ciphertext1qyqd6j9e50p8jlktfupxtrgu59e9zpt3c4uxucv3vun5m0d5t7upjqsdxq0rh"
+        }
+      ],
+      "tpk": "7051441258619766994505217621424666557415121034642348523933403681182076532841group",
+      "tcm": "4980388445915541807296566757205636076401753316740256700114490772841222465962field",
+      "scm": "7055176353792667626362523927908255388283423223148292831485585037721691096327field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1cm8vqs6vevvsajuw6wpve4y636s5fher5gsmt7m278723k4ruursz7n8pn",
+      "program": "implicit_wrapping.aleo",
+      "function": "complex_array_wrapping",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "3787079716052067784361304448421658439522653302580875903619373084023435056172field",
+          "value": "ciphertext1qyqgfleetucf3zaeedlsekadzr3z32npfrs585df5syuje5ctsyfczg448eu5"
+        }
+      ],
+      "tpk": "1833535793737764456569397901341939301899844423770829331662079761637667891688group",
+      "tcm": "2553489992939076915410901234969888988883223854871103837313215005264149682008field",
+      "scm": "4844090006990222506796697793355613178665493971575196450413006936395196598329field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au165j7wvlate35kd33nsd00ws67h52lsq3ppsmslpx7uzapusv2vps2806wh",
+      "program": "implicit_wrapping.aleo",
+      "function": "complex_array_access",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "5409990673798203942976773732019791355621477512693713040771285087451577926904field",
+          "value": "ciphertext1qyqgqad5uhn02catwq4ssr646r6kd2zd49wdtm6rje9ympk6wme3upgmu7zlc"
+        }
+      ],
+      "tpk": "3173660741366328054243024878928678045849150106014370280718726827046214859160group",
+      "tcm": "7683509100946617195696050743430767727173530730835376336937018122241894238160field",
+      "scm": "5584040166579926535622013292138394887026955104847272900460397163797770037008field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

@@ -1,4 +1,4 @@
-Error [EPAR0370009]: unexpected string: expected 'identifier', found 'const'
+Error [EPAR0370005]: expected an identifier -- found 'const'
     --> test:3:31
      |
    3 |     function x(x: u32, public const y: i32) {

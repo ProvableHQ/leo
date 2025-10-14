@@ -14,13 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::tokenizer;
-
 use leo_ast::{NetworkName, NodeBuilder};
 use leo_errors::{BufferEmitter, Handler, LeoError};
-use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
+use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName, with_session_globals};
 
-use itertools::Itertools as _;
 use serde::Serialize;
 use serial_test::serial;
 use std::fmt::Write as _;
@@ -61,31 +58,35 @@ fn runner_parse_many_test<'a, T: Serialize>(
     })
 }
 
-// Tokenizer tests.
-
-fn runner_tokenizer_test(test: &str) -> String {
-    let tests = test.lines().map(|line| line.trim()).filter(|line| !line.is_empty());
-
-    create_session_if_not_set_then(|_| {
-        let mut output = String::new();
-
-        for (i, test) in tests.enumerate() {
-            let source_map =
-                with_session_globals(|s| s.source_map.new_source(test, FileName::Custom(format!("test_{i}"))));
-            match tokenizer::tokenize(&source_map.src, source_map.absolute_start) {
-                Ok(tokens) => writeln!(output, "{}", tokens.iter().format(", ")).unwrap(),
-                Err(error) => writeln!(output, "{error}").unwrap(),
-            }
-        }
-
-        output
-    })
-}
-
 #[test]
 #[serial]
-fn tokenizer_tests() {
-    leo_test_framework::run_tests("parser-tokenizer", runner_tokenizer_test);
+fn parse_module_tests() {
+    leo_test_framework::run_tests("parser-module", runner_module_test);
+}
+
+// Parse module tests.
+
+fn runner_module_test(test: &str) -> String {
+    let test_cases: Vec<String> = test
+        .lines()
+        .map(str::trim)
+        .collect::<Vec<_>>()
+        .split(|line| line.is_empty())
+        .map(|paragraph| paragraph.join("\n"))
+        .filter(|s| !s.trim().is_empty())
+        .collect();
+
+    runner_parse_many_test(test_cases.iter().map(|s| s.as_str()), |handler, node_builder, source, start_pos| {
+        crate::parse_module(
+            handler,
+            node_builder,
+            source,
+            start_pos,
+            Symbol::intern("module_test"),
+            Vec::new(),
+            NetworkName::TestnetV0,
+        )
+    })
 }
 
 // Parse expression tests.
@@ -124,13 +125,8 @@ fn parse_statement_tests() {
 
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
-    let result = crate::parse_ast(
-        handler.clone(),
-        &Default::default(),
-        &source_file.src,
-        source_file.absolute_start,
-        NetworkName::TestnetV0,
-    );
+    let result =
+        crate::parse_ast(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
     let ast = handler.extend_if_error(result)?;
     let value = serde_json::to_value(&ast.ast).expect("Serialization failure");
     let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");

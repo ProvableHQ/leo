@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::*;
+use crate::{MAX_PROGRAM_SIZE, *};
 
 use leo_errors::{PackageError, Result, UtilError};
 use leo_span::Symbol;
@@ -77,21 +77,11 @@ impl Program {
             .into());
         }
         let source_directory = path.join(SOURCE_DIRECTORY);
-        let count = source_directory
-            .read_dir()
-            .map_err(|e| {
-                UtilError::util_file_io_error(
-                    format_args!("Failed to read directory {}", source_directory.display()),
-                    e,
-                )
-            })?
-            .count();
+        source_directory.read_dir().map_err(|e| {
+            UtilError::util_file_io_error(format_args!("Failed to read directory {}", source_directory.display()), e)
+        })?;
 
         let source_path = source_directory.join(MAIN_FILENAME);
-
-        if !source_path.exists() || count != 1 {
-            return Err(PackageError::source_directory_can_contain_only_one_file(source_directory.display()).into());
-        }
 
         Ok(Program {
             name,
@@ -301,6 +291,17 @@ fn parse_dependencies_from_aleo(
     bytecode: &str,
     existing: &IndexMap<Symbol, Dependency>,
 ) -> Result<IndexSet<Dependency>> {
+    // Check if the program size exceeds the maximum allowed limit.
+    let program_size = bytecode.len();
+
+    if program_size > MAX_PROGRAM_SIZE {
+        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
+            name,
+            program_size,
+            MAX_PROGRAM_SIZE,
+        )));
+    }
+
     // Parse the bytecode into an SVM program.
     let svm_program: SvmProgram<TestnetV0> = bytecode.parse().map_err(|_| UtilError::snarkvm_parsing_error(name))?;
     let dependencies = svm_program

@@ -39,6 +39,7 @@ impl Duplicator<'_> {
 }
 
 impl AstReconstructor for Duplicator<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /* Statements */

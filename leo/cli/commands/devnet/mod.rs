@@ -84,7 +84,7 @@ pub struct LeoDevnet {
     pub(crate) tmux: bool,
     #[clap(long, help = "snarkOS verbosity (0-4)", default_value = "1")]
     pub(crate) verbosity: u8,
-    #[clap(long, help = "Skip confirmation prompts and proceed with the devnet startup")]
+    #[clap(long, short = 'y', help = "Skip confirmation prompts and proceed with the devnet startup")]
     pub(crate) yes: bool,
 }
 
@@ -126,23 +126,30 @@ impl LeoDevnet {
             validate_consensus_heights(heights.as_slice())?;
         }
 
-        // If not installing, ensure the snarkOS binary exists at the provided path.
-        let snarkos = if !self.install {
-            // Resolve the snarkOS path to its canonical form.
-            let snarkos = canonicalize(&self.snarkos)
-                .context(format!("Failed to resolve snarkOS path: {}", self.snarkos.display()))?;
-            // Ensure the path exists.
-            if !snarkos.exists() {
+        // Resolve the snarkOS path to its canonical form.
+
+        if self.install {
+            // If installing, make sure we can write to a file at the path.
+            if let Some(parent) = self.snarkos.parent() {
+                if !parent.exists() {
+                    std::fs::create_dir_all(parent)
+                        .with_context(|| format!("Failed to create directory for binary: {}", parent.display()))?;
+                }
+            }
+            std::fs::write(&self.snarkos, [0u8]).with_context(|| {
+                format!("Failed to write to path {} for snarkos installation", self.snarkos.display())
+            })?;
+        } else {
+            // If not installing, ensure the snarkOS binary exists at the provided path.
+            if !self.snarkos.exists() {
                 bail!(
                     "The snarkOS binary at `{}` does not exist. Please provide a valid path or use `--install`.",
-                    snarkos.display()
+                    self.snarkos.display()
                 );
             }
-            snarkos
-        } else {
-            // If installing, use the provided path directly.
-            self.snarkos.clone()
         };
+        let snarkos = canonicalize(&self.snarkos)
+            .with_context(|| format!("Failed to resolve snarkOS path: {}", self.snarkos.display()))?;
 
         // Confirm with the user the options they provided.
         println!("🔧  Starting devnet with the following options:");
@@ -222,7 +229,7 @@ impl LeoDevnet {
             }
         }
 
-        if !confirm("\nProceed with devnet startup?", false)? {
+        if !confirm("\nProceed with devnet startup?", self.yes)? {
             println!("❌ Devnet aborted.");
             return Ok(());
         }
@@ -337,13 +344,19 @@ impl LeoDevnet {
         //────────────── tmux branch ──────────────
         if self.tmux {
             // Create session.
-            ensure!(
-                StdCommand::new("tmux")
-                    .args(["new-session", "-d", "-s", "devnet", "-n", "validator-0"])
-                    .status()?
-                    .success(),
-                "tmux failed to create session"
-            );
+            let mut args: Vec<String> =
+                vec!["new-session", "-d", "-s", "devnet", "-n", "validator-0"].into_iter().map(Into::into).collect();
+
+            // If a tmux server is already running, the new session will inherit the environment
+            // variables of the server. As such, we need to explicitly set the CONSENSUS_VERSION_HEIGHTS
+            // env var in the new session we are creatomg.
+            if let Some(ref heights) = self.consensus_heights {
+                let heights = heights.iter().join(",");
+                args.push("-e".to_string());
+                args.push(format!("CONSENSUS_VERSION_HEIGHTS={heights}"));
+            }
+
+            ensure!(StdCommand::new("tmux").args(args).status()?.success(), "tmux failed to create session");
 
             // Determine base-index.
             let base_index = {

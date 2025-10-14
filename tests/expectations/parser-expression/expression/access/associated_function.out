@@ -6,7 +6,7 @@
         "lo": 0,
         "hi": 5
       },
-      "id": 0
+      "id": 1
     },
     "name": {
       "name": "to_x_coordinate",
@@ -14,17 +14,27 @@
         "lo": 7,
         "hi": 22
       },
-      "id": 1
+      "id": 2
     },
     "arguments": [
       {
-        "Identifier": {
-          "name": "a",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "a",
+            "span": {
+              "lo": 23,
+              "hi": 24
+            },
+            "id": 4
+          },
+          "is_absolute": false,
+          "absolute_path": null,
           "span": {
             "lo": 23,
             "hi": 24
           },
-          "id": 2
+          "id": 3
         }
       }
     ],
@@ -32,7 +42,7 @@
       "lo": 0,
       "hi": 25
     },
-    "id": 3
+    "id": 0
   }
 }
 
@@ -44,7 +54,7 @@
         "lo": 26,
         "hi": 31
       },
-      "id": 0
+      "id": 1
     },
     "name": {
       "name": "to_y_coordinate",
@@ -52,17 +62,27 @@
         "lo": 33,
         "hi": 48
       },
-      "id": 1
+      "id": 2
     },
     "arguments": [
       {
-        "Identifier": {
-          "name": "a",
+        "Path": {
+          "qualifier": [],
+          "identifier": {
+            "name": "a",
+            "span": {
+              "lo": 49,
+              "hi": 50
+            },
+            "id": 4
+          },
+          "is_absolute": false,
+          "absolute_path": null,
           "span": {
             "lo": 49,
             "hi": 50
           },
-          "id": 2
+          "id": 3
         }
       }
     ],
@@ -70,7 +90,7 @@
       "lo": 26,
       "hi": 51
     },
-    "id": 3
+    "id": 0
   }
 }
 

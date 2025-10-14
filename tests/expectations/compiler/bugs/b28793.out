@@ -1,0 +1,5 @@
+Error [ETYC0372003]: Expected type `()` but type `Future<Fn()>` was found
+    --> compiler-test:4:16
+     |
+   4 |         return bar();
+     |                ^^^^^

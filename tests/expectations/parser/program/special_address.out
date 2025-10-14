@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -10,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 0
+          "id": 25
         },
         "network": {
           "name": "aleo",
@@ -18,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 1
+          "id": 26
         }
       },
       "consts": [],
@@ -33,7 +34,7 @@
                 "lo": 33,
                 "hi": 35
               },
-              "id": 2
+              "id": 23
             },
             "key_type": "Address",
             "value_type": {
@@ -43,7 +44,7 @@
               "lo": 25,
               "hi": 52
             },
-            "id": 3
+            "id": 24
           }
         ]
       ],
@@ -59,7 +60,7 @@
                 "lo": 69,
                 "hi": 73
               },
-              "id": 4
+              "id": 0
             },
             "const_parameters": [],
             "input": [
@@ -70,7 +71,7 @@
                     "lo": 74,
                     "hi": 75
                   },
-                  "id": 5
+                  "id": 1
                 },
                 "mode": "None",
                 "type_": "Address",
@@ -78,7 +79,7 @@
                   "lo": 74,
                   "hi": 84
                 },
-                "id": 6
+                "id": 2
               }
             ],
             "output": [],
@@ -90,25 +91,45 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 106,
+                                "hi": 107
+                              },
+                              "id": 5
+                            },
+                            "is_absolute": false,
+                            "absolute_path": null,
                             "span": {
                               "lo": 106,
                               "hi": 107
                             },
-                            "id": 7
+                            "id": 4
                           }
                         },
                         {
                           "MemberAccess": {
                             "inner": {
-                              "Identifier": {
-                                "name": "self",
+                              "Path": {
+                                "qualifier": [],
+                                "identifier": {
+                                  "name": "self",
+                                  "span": {
+                                    "lo": 109,
+                                    "hi": 113
+                                  },
+                                  "id": 7
+                                },
+                                "is_absolute": false,
+                                "absolute_path": null,
                                 "span": {
                                   "lo": 109,
                                   "hi": 113
                                 },
-                                "id": 8
+                                "id": 7
                               }
                             },
                             "name": {
@@ -117,22 +138,22 @@
                                 "lo": 114,
                                 "hi": 120
                               },
-                              "id": 9
+                              "id": 8
                             },
                             "span": {
                               "lo": 109,
                               "hi": 120
                             },
-                            "id": 10
+                            "id": 6
                           }
                         }
                       ]
                     },
                     "span": {
                       "lo": 96,
-                      "hi": 105
+                      "hi": 122
                     },
-                    "id": 11
+                    "id": 3
                   }
                 },
                 {
@@ -140,20 +161,40 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 141,
+                                "hi": 142
+                              },
+                              "id": 11
+                            },
+                            "is_absolute": false,
+                            "absolute_path": null,
                             "span": {
                               "lo": 141,
                               "hi": 142
                             },
-                            "id": 12
+                            "id": 10
                           }
                         },
                         {
                           "MemberAccess": {
                             "inner": {
-                              "Identifier": {
-                                "name": "self",
+                              "Path": {
+                                "qualifier": [],
+                                "identifier": {
+                                  "name": "self",
+                                  "span": {
+                                    "lo": 144,
+                                    "hi": 148
+                                  },
+                                  "id": 13
+                                },
+                                "is_absolute": false,
+                                "absolute_path": null,
                                 "span": {
                                   "lo": 144,
                                   "hi": 148
@@ -173,16 +214,16 @@
                               "lo": 144,
                               "hi": 156
                             },
-                            "id": 15
+                            "id": 12
                           }
                         }
                       ]
                     },
                     "span": {
                       "lo": 131,
-                      "hi": 140
+                      "hi": 158
                     },
-                    "id": 16
+                    "id": 9
                   }
                 },
                 {
@@ -190,22 +231,32 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 177,
+                                "hi": 178
+                              },
+                              "id": 17
+                            },
+                            "is_absolute": false,
+                            "absolute_path": null,
                             "span": {
                               "lo": 177,
                               "hi": 178
                             },
-                            "id": 17
+                            "id": 16
                           }
                         },
                         {
                           "Literal": {
                             "span": {
                               "lo": 180,
-                              "hi": 185
+                              "hi": 190
                             },
-                            "id": 19,
+                            "id": 18,
                             "variant": {
                               "Address": "hello.aleo"
                             }
@@ -215,9 +266,9 @@
                     },
                     "span": {
                       "lo": 167,
-                      "hi": 176
+                      "hi": 192
                     },
-                    "id": 20
+                    "id": 15
                   }
                 },
                 {
@@ -226,9 +277,9 @@
                       "Literal": {
                         "span": {
                           "lo": 208,
-                          "hi": 211
+                          "hi": 216
                         },
-                        "id": 22,
+                        "id": 20,
                         "variant": {
                           "Address": "foo.aleo"
                         }
@@ -238,7 +289,7 @@
                       "lo": 201,
                       "hi": 217
                     },
-                    "id": 23
+                    "id": 19
                   }
                 }
               ],
@@ -246,19 +297,19 @@
                 "lo": 86,
                 "hi": 223
               },
-              "id": 24
+              "id": 21
             },
             "span": {
               "lo": 58,
               "hi": 223
             },
-            "id": 25
+            "id": 22
           }
         ]
       ],
       "constructor": null,
       "span": {
-        "lo": 1,
+        "lo": 0,
         "hi": 225
       }
     }

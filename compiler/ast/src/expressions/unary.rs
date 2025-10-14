@@ -18,7 +18,7 @@ use super::*;
 use leo_span::{Symbol, sym};
 
 /// A unary operator for a unary expression.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum UnaryOperation {
     /// Absolute value checking for overflow, i.e. `.abs()`.
     Abs,

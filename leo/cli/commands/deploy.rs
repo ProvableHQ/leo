@@ -90,7 +90,7 @@ impl Command for LeoDeploy {
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the network, accounting for overrides.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
+        let network = get_network(&self.env_override.network)?;
         // Handle each network with the appropriate parameterization.
         match network {
             NetworkName::TestnetV0 => handle_deploy::<TestnetV0>(&self, context, network, input),
@@ -118,22 +118,22 @@ fn handle_deploy<N: Network>(
     package: Package,
 ) -> Result<<LeoDeploy as Command>::Output> {
     // Get the private key and associated address, accounting for overrides.
-    let private_key = context.get_private_key(&command.env_override.private_key)?;
+    let private_key = get_private_key(&command.env_override.private_key)?;
     let address =
         Address::try_from(&private_key).map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
-    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+    let endpoint = get_endpoint(&command.env_override.endpoint)?;
 
     // Get whether the network is a devnet, accounting for overrides.
-    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+    let is_devnet = get_is_devnet(command.env_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
     let consensus_heights =
         command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
     // Validate the provided consensus heights.
     validate_consensus_heights(&consensus_heights)
-        .map_err(|e| CliError::custom(format!("Invalid consensus heights: {e}")))?;
+        .map_err(|e| CliError::custom(format!("⚠️ Invalid consensus heights: {e}")))?;
     // Print the consensus heights being used.
     let consensus_heights_string = consensus_heights.iter().format(",").to_string();
     println!(
@@ -255,7 +255,11 @@ fn handle_deploy<N: Network>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(&endpoint);
+    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
+        endpoint
+            .parse::<Uri>()
+            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
+    );
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
@@ -287,7 +291,7 @@ Once it is deployed, it CANNOT be changed.
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
-            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee)?;
+            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
             // Save the transaction.
             transactions.push((id, transaction));
         }
@@ -441,10 +445,10 @@ fn check_tasks_for_warnings<N: Network>(
             warnings
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
         }
-        // Check for a consensus version mismatch.
-        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-            warnings.push(format!("{e}. In some cases, the deployment may fail"));
-        }
+    }
+    // Check for a consensus version mismatch.
+    if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+        warnings.push(format!("{e}. In some cases, the deployment may fail"));
     }
     warnings
 }
@@ -579,6 +583,7 @@ pub(crate) fn print_deployment_stats<N: Network>(
     program_id: &str,
     deployment: &Deployment<N>,
     priority_fee: Option<u64>,
+    consensus_version: ConsensusVersion,
 ) -> Result<()> {
     use colored::*;
     use num_format::{Locale, ToFormattedString};
@@ -587,7 +592,7 @@ pub(crate) fn print_deployment_stats<N: Network>(
     let variables = deployment.num_combined_variables()?;
     let constraints = deployment.num_combined_constraints()?;
     let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
-        deployment_cost(&vm.process().read(), deployment)?;
+        deployment_cost(&vm.process().read(), deployment, consensus_version)?;
 
     let base_fee_cr = base_fee as f64 / 1_000_000.0;
     let prio_fee_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;

@@ -1,21 +1,62 @@
-Error [EPAR0370014]: Empty block comment.
-Error [EPAR0370015]: Block comment does not close with content: `/* test`.
-Error [EPAR0370009]: unexpected string: expected 'expression', found '/'
+Error [EPAR0370050]: Could not lex the following content: `/*`.
+
+    --> test_0:1:1
+     |
+   1 | /*
+     | ^^
+Error [EPAR0370050]: Could not lex the following content: `/*`.
+
+    --> test_1:1:1
+     |
+   1 | /* test
+     | ^^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '/'
     --> test_2:1:1
      |
    1 | / /
      | ^
-Error [EPAR0370015]: Block comment does not close with content: `/*/`.
-Error [EPAR0370009]: unexpected string: expected 'expression', found '*'
+Error [EPAR0370050]: Could not lex the following content: `/*`.
+
+    --> test_3:1:1
+     |
+   1 | /*/
+     | ^^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '*'
     --> test_4:1:1
      |
    1 | */
      | ^
-Error [EPAR0370016]: Could not lex the following content: `🦀**/`.
+Error [EPAR0370050]: Could not lex the following content: `🦀`.
 
-Error [EPAR0370016]: Could not lex the following content: `🦀*/`.
+    --> test_5:1:1
+     |
+   1 | 🦀**/
+     | ^^^^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '/'
+    --> test_6:1:1
+     |
+   1 | /🦀*/
+     | ^
+Error [EPAR0370050]: Could not lex the following content: `/*`.
 
-Error [EPAR0370015]: Block comment does not close with content: `/*🦀/`.
-Error [EPAR0370015]: Block comment does not close with content: `/**🦀`.
-Error [EPAR0370015]: Block comment does not close with content: `/*🦀`.
-Error [EPAR0370015]: Block comment does not close with content: `/*/*`.
+    --> test_7:1:1
+     |
+   1 | /*🦀/
+     | ^^
+Error [EPAR0370050]: Could not lex the following content: `/*`.
+
+    --> test_8:1:1
+     |
+   1 | /**🦀
+     | ^^
+Error [EPAR0370050]: Could not lex the following content: `/*`.
+
+    --> test_9:1:1
+     |
+   1 | /*🦀
+     | ^^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '/*/*/'
+    --> test_10:1:1
+     |
+   1 | /*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
+     | ^^^^^

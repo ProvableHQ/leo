@@ -1,14 +1,14 @@
-Error [EPAR0370005]: expected <eof> -- found '>'
+Error [EPAR0370005]: expected '&&', '||', '==', '!=', '?' -- found '>'
     --> test_0:1:11
      |
    1 | 1u8 > 2u8 > 3u8
      |           ^
-Error [EPAR0370005]: expected <eof> -- found '>'
+Error [EPAR0370005]: expected '&&', '||', '==', '!=', '?' -- found '>'
     --> test_1:1:11
      |
    1 | 1u8 > 2u8 > 3u8
      |           ^
-Error [EPAR0370005]: expected <eof> -- found '>'
+Error [EPAR0370005]: expected '&&', '||', '==', '!=', '?' -- found '>'
     --> test_2:1:23
      |
    1 | 1u8 + 2u8 > 3u8 + 4u8 > 5u8 + 6u8

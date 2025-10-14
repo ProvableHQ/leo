@@ -1,9 +1,4 @@
-Error [EPAR0370041]: Each member declaration in a struct or record must be followed by a comma (except the last).
-    --> test:3:14
-     |
-   3 |         x: u8;
-     |              ^
-Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'
+Error [EPAR0370005]: expected '}', ',' -- found ';'
     --> test:3:14
      |
    3 |         x: u8;

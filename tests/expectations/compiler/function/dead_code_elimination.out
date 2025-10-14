@@ -16,5 +16,4 @@ function foo:
     add r0 r1 into r2;
     call eliminate_unused_function_call r0 r1 into r3;
     mul r0 r1 into r4;
-    add r0 r1 into r5;
-    output r5 as u8.private;
+    output r2 as u8.private;

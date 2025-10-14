@@ -29,15 +29,14 @@ use std::collections::HashMap;
 pub fn get_public_balance<N: Network>(
     private_key: &PrivateKey<N>,
     endpoint: &str,
-    network: &str,
+    network: NetworkName,
     context: &Context,
 ) -> Result<u64> {
     // Derive the account address.
     let address = Address::<N>::try_from(ViewKey::try_from(private_key)?)?;
     // Query the public balance of the address on the `account` mapping from `credits.aleo`.
     let mut public_balance = LeoQuery {
-        endpoint: Some(endpoint.to_string()),
-        network: Some(network.to_string()),
+        env_override: EnvOptions { endpoint: Some(endpoint.to_string()), network: Some(network), ..Default::default() },
         command: QueryCommands::Program {
             command: LeoProgram {
                 name: "credits".to_string(),
@@ -59,8 +58,7 @@ pub fn get_public_balance<N: Network>(
 pub fn get_latest_block_height(endpoint: &str, network: NetworkName, context: &Context) -> Result<u32> {
     // Query the latest block height.
     let height = LeoQuery {
-        endpoint: Some(endpoint.to_string()),
-        network: Some(network.to_string()),
+        env_override: EnvOptions { endpoint: Some(endpoint.to_string()), network: Some(network), ..Default::default() },
         command: QueryCommands::Block {
             command: LeoBlock {
                 id: None,

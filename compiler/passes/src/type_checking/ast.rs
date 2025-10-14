@@ -30,7 +30,7 @@ impl TypeCheckingVisitor<'_> {
     pub fn visit_expression_assign(&mut self, input: &Expression) -> Type {
         let ty = match input {
             Expression::ArrayAccess(array_access) => self.visit_array_access_general(array_access, true, &None),
-            Expression::Identifier(ident) => self.visit_identifier_assign(ident),
+            Expression::Path(path) if path.qualifier().is_empty() => self.visit_path_assign(path),
             Expression::MemberAccess(member_access) => self.visit_member_access_general(member_access, true, &None),
             Expression::TupleAccess(tuple_access) => self.visit_tuple_access_general(tuple_access, true, &None),
             _ => {
@@ -45,12 +45,12 @@ impl TypeCheckingVisitor<'_> {
             matches!(&ty, Type::Tuple(tuple) if tuple.elements().iter().any(|ty| self.is_external_record(ty)));
 
         if external_record || external_record_tuple {
-            let Expression::Identifier(id) = input else {
+            let Expression::Path(path) = input else {
                 // This is not valid Leo and will have triggered an error elsewhere.
                 return Type::Err;
             };
 
-            if !self.symbol_in_conditional_scope(id.name) {
+            if !self.symbol_in_conditional_scope(path.identifier().name) {
                 if external_record {
                     self.emit_err(TypeCheckerError::assignment_to_external_record_cond(&ty, input.span()));
                 } else {
@@ -120,9 +120,9 @@ impl TypeCheckingVisitor<'_> {
     pub fn visit_member_access_general(&mut self, input: &MemberAccess, assign: bool, expected: &Option<Type>) -> Type {
         // Handler member access expressions that correspond to valid operands in AVM code.
         if !assign {
-            match input.inner {
+            match &input.inner {
                 // If the access expression is of the form `self.<name>`, then check the <name> is valid.
-                Expression::Identifier(identifier) if identifier.name == sym::SelfLower => {
+                Expression::Path(path) if path.identifier().name == sym::SelfLower => {
                     match input.name.name {
                         sym::address => {
                             return Type::Address;
@@ -170,7 +170,7 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
                 // If the access expression is of the form `block.<name>`, then check the <name> is valid.
-                Expression::Identifier(identifier) if identifier.name == sym::block => match input.name.name {
+                Expression::Path(path) if path.identifier().name == sym::block => match input.name.name {
                     sym::height => {
                         // Check that the operation is invoked in a `finalize` block.
                         self.check_access_allowed("block.height", true, input.name.span());
@@ -184,7 +184,7 @@ impl TypeCheckingVisitor<'_> {
                     }
                 },
                 // If the access expression is of the form `network.<name>`, then check that the <name> is valid.
-                Expression::Identifier(identifier) if identifier.name == sym::network => match input.name.name {
+                Expression::Path(path) if path.identifier().name == sym::network => match input.name.name {
                     sym::id => {
                         // Check that the operation is not invoked outside a `finalize` block.
                         self.check_access_allowed("network.id", true, input.name.span());
@@ -217,8 +217,8 @@ impl TypeCheckingVisitor<'_> {
             Type::Err => Type::Err,
             Type::Composite(ref struct_) => {
                 // Retrieve the struct definition associated with `identifier`.
-                let Some(struct_) =
-                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.id.name)
+                let Some(struct_) = self
+                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                 else {
                     self.emit_err(TypeCheckerError::undefined_type(ty, input.inner.span()));
                     return Type::Err;
@@ -309,11 +309,12 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    pub fn visit_identifier_assign(&mut self, input: &Identifier) -> Type {
+    pub fn visit_path_assign(&mut self, input: &Path) -> Type {
         // Lookup the variable in the symbol table and retrieve its type.
-        let Some(var) = self.state.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), input.name)
+        let Some(var) =
+            self.state.symbol_table.lookup_path(self.scope_state.program_name.unwrap(), &input.absolute_path())
         else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span));
+            self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span));
             return Type::Err;
         };
 
@@ -330,21 +331,26 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // If the variable exists and it's in an async function, then check that it is in the current conditional scope.
-        if self.scope_state.variant.unwrap().is_async_function() && !self.symbol_in_conditional_scope(input.name) {
+        if self.scope_state.variant.unwrap().is_async_function()
+            && !self.symbol_in_conditional_scope(input.identifier().name)
+        {
             self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "function", var.span));
         }
 
         // Similarly, if the variable exists and it's in an async block, then check that it is in the current conditional scope.
-        if self.async_block_id.is_some() && !self.symbol_in_conditional_scope(input.name) {
+        if self.async_block_id.is_some() && !self.symbol_in_conditional_scope(input.identifier().name) {
             self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "block", var.span));
         }
 
         if let Some(async_block_id) = self.async_block_id {
-            if !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.name) {
+            if !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.identifier().name) {
                 // If we're inside an async block (i.e. in the scope of its block or one if its child scopes) and if
                 // we're trying to assign to a variable that is not local to the block (or its child scopes), then we
                 // should error out.
-                self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(input.name, input.span));
+                self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(
+                    input.identifier().name,
+                    input.span,
+                ));
             }
         }
 
@@ -396,7 +402,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_composite_type(&mut self, input: &CompositeType) {
-        let struct_ = self.lookup_struct(self.scope_state.program_name, input.id.name).clone();
+        let struct_ = self.lookup_struct(self.scope_state.program_name, &input.path.absolute_path()).clone();
+
         if let Some(struct_) = struct_ {
             // Check the number of const arguments against the number of the struct's const parameters
             if struct_.const_parameters.len() != input.const_arguments.len() {
@@ -404,7 +411,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     "Struct type",
                     struct_.const_parameters.len(),
                     input.const_arguments.len(),
-                    input.id.span,
+                    input.path.span,
                 ));
             }
 
@@ -413,7 +420,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 self.visit_expression(argument, &Some(expected.type_().clone()));
             }
         } else if !input.const_arguments.is_empty() {
-            self.emit_err(TypeCheckerError::unexpected_const_args(input, input.id.span));
+            self.emit_err(TypeCheckerError::unexpected_const_args(input, input.path.span));
         }
     }
 
@@ -430,7 +437,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Cast(cast) => self.visit_cast(cast, additional),
             Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
             Expression::Err(err) => self.visit_err(err, additional),
-            Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
+            Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
@@ -465,9 +472,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         }
 
-        // Grab the element type from the expected type if the expected type is an array
-        let element_type =
-            if let Some(Type::Array(array_ty)) = additional { Some(array_ty.element_type().clone()) } else { None };
+        // Grab the element type from the expected type if the expected type is an array or if it's
+        // an optional array
+        let element_type = match additional {
+            Some(Type::Array(array_ty)) => Some(array_ty.element_type().clone()),
+            Some(Type::Optional(opt)) => match &*opt.inner {
+                Type::Array(array_ty) => Some(array_ty.element_type().clone()),
+                _ => None,
+            },
+            _ => None,
+        };
 
         let inferred_type = self.visit_expression_reject_numeric(&input.elements[0], &element_type);
 
@@ -486,7 +500,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 return Type::Err;
             }
 
-            self.assert_type(&next_type, &inferred_type, expression.span());
+            if let Some(ref element_type) = element_type {
+                self.assert_type(&next_type, element_type, expression.span());
+            } else {
+                self.assert_type(&next_type, &inferred_type, expression.span());
+            }
         }
 
         if inferred_type == Type::Err {
@@ -509,9 +527,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        // Infer the type of the expression to repeat
-        let expected_element_type =
-            if let Some(Type::Array(array_ty)) = additional { Some(array_ty.element_type().clone()) } else { None };
+        // Grab the element type from the expected type if the expected type is an array or if it's
+        // an optional array
+        let expected_element_type = match additional {
+            Some(Type::Array(array_ty)) => Some(array_ty.element_type().clone()),
+            Some(Type::Optional(opt)) => match &*opt.inner {
+                Type::Array(array_ty) => Some(array_ty.element_type().clone()),
+                _ => None,
+            },
+            _ => None,
+        };
 
         let inferred_element_type = self.visit_expression_reject_numeric(&input.expr, &expected_element_type);
 
@@ -571,17 +596,50 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::operation_must_be_in_async_block_or_function(input.span()));
         }
 
-        // Get the types of the arguments. Error out on arguments that have `Type::Numeric`. We could potentially do
-        // better for some of the core functions, but that can get pretty tedious because it would have to be function
-        // specific.
-        let arguments_with_types = input
-            .arguments
-            .iter()
-            .map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg))
-            .collect::<Vec<_>>();
+        let return_type = if let CoreFunction::OptionalUnwrapOr = core_instruction {
+            // Ensure we have exactly two arguments
+            let (optional_expr, fallback_expr) = match &input.arguments[..] {
+                [opt, fallback] => (opt, fallback),
+                _ => {
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                        core_instruction.num_args(),
+                        input.arguments.len(),
+                        input.span(),
+                    ));
+                    return Type::Err;
+                }
+            };
 
-        // Check that the types of the arguments are valid.
-        let return_type = self.check_core_function_call(core_instruction.clone(), &arguments_with_types, input.span());
+            // Type check the first argument normally
+            let optional_ty = self.visit_expression(optional_expr, &None);
+
+            // This emits an error if the type is not optional
+            self.assert_optional_type(&optional_ty, optional_expr.span());
+
+            // If the type is not Optional, we return Err
+            let Type::Optional(OptionalType { inner }) = optional_ty else {
+                return Type::Err;
+            };
+
+            // Use the inner type of the optional as the expected type for the fallback
+            let fallback_ty = self.visit_expression_reject_numeric(fallback_expr, &Some(*inner.clone()));
+            self.assert_type(&fallback_ty, &inner, fallback_expr.span());
+
+            // Return the final type: the inner type (what unwrap_or returns)
+            *inner
+        } else {
+            // Get the types of the arguments. Error out on arguments that have `Type::Numeric`. We could potentially do
+            // better for some of the core functions, but that can get pretty tedious because it would have to be function
+            // specific.
+            let arguments_with_types = input
+                .arguments
+                .iter()
+                .map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg))
+                .collect::<Vec<_>>();
+
+            // Check return type if the expected type is known.
+            self.check_core_function_call(core_instruction.clone(), &arguments_with_types, input.span())
+        };
 
         // Check return type if the expected type is known.
         self.maybe_assert_type(&return_type, expected, input.span());
@@ -632,7 +690,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let assert_same_type = |slf: &Self, t1: &Type, t2: &Type| -> Type {
             if t1 == &Type::Err || t2 == &Type::Err {
                 Type::Err
-            } else if !slf.eq_user(t1, t2) {
+            } else if !t1.eq_user(t2) {
                 slf.emit_err(TypeCheckerError::operation_types_mismatch(input.op, t1, t2, input.span()));
                 Type::Err
             } else {
@@ -900,8 +958,25 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 ty
             }
             BinaryOperation::Eq | BinaryOperation::Neq => {
-                let mut t1 = self.visit_expression(&input.left, &None);
-                let mut t2 = self.visit_expression(&input.right, &None);
+                // Handle type inference for `None` as a special case.
+                //
+                // If either side of the binary expression is the literal `None`, we first type check the other side
+                // without any expected type to infer its type. Then we type check the `None` side using that inferred type
+                // as context, in hopes of resolving it to a more specific optional type.
+                //
+                // This helps with cases like `x == None`, allowing us to infer the type of `x` and apply it to `None`.
+                // However, this is **not sufficient for the general case**. For instance, in something like `[None] == [x]`,
+                // we won't be able to infer the type of `None`.
+                let (mut t1, mut t2) =
+                    if let Expression::Literal(Literal { variant: LiteralVariant::None, .. }) = input.right {
+                        let t1 = self.visit_expression(&input.left, &None);
+                        (t1.clone(), self.visit_expression(&input.right, &Some(t1.clone())))
+                    } else if let Expression::Literal(Literal { variant: LiteralVariant::None, .. }) = input.left {
+                        let t2 = self.visit_expression(&input.right, &None);
+                        (self.visit_expression(&input.left, &Some(t2.clone())), t2)
+                    } else {
+                        (self.visit_expression(&input.left, &None), self.visit_expression(&input.right, &None))
+                    };
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -989,10 +1064,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         let callee_program = input.program.or(self.scope_state.program_name).unwrap();
 
+        let callee_path = input.function.absolute_path();
+
         let Some(func_symbol) =
-            self.state.symbol_table.lookup_function(Location::new(callee_program, input.function.name))
+            self.state.symbol_table.lookup_function(&Location::new(callee_program, callee_path.clone()))
         else {
-            self.emit_err(TypeCheckerError::unknown_sym("function", input.function.name, input.function.span()));
+            self.emit_err(TypeCheckerError::unknown_sym("function", input.function.clone(), input.function.span()));
             return Type::Err;
         };
 
@@ -1006,7 +1083,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ),
             Variant::Transition | Variant::AsyncTransition
                 if matches!(func.variant, Variant::Transition)
-                    && input.program.unwrap() == self.scope_state.program_name.unwrap() =>
+                    && input.program.is_none_or(|program| program == self.scope_state.program_name.unwrap()) =>
             {
                 self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(input.span))
             }
@@ -1014,7 +1091,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Check that the call is not to an external `inline` function.
-        if func.variant == Variant::Inline && input.program.unwrap() != self.scope_state.program_name.unwrap() {
+        if func.variant == Variant::Inline
+            && input.program.is_some_and(|program| program != self.scope_state.program_name.unwrap())
+        {
             self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
         }
 
@@ -1025,41 +1104,31 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Async functions return a single future.
         let mut ret = if func.variant == Variant::AsyncFunction {
-            // Type check after resolving the input types.
-            let actual = Type::Future(FutureType::new(
+            // Async functions always return futures.
+            Type::Future(FutureType::new(
                 Vec::new(),
-                Some(Location::new(callee_program, input.function.name)),
+                Some(Location::new(callee_program, input.function.absolute_path())),
                 false,
-            ));
-            match expected {
-                Some(Type::Future(_)) | None => {
-                    // If the expected type is a `Future` or if it's not set, then just return the
-                    // actual type of the future from the expression itself
-                    actual
-                }
-                Some(_) => {
-                    // Otherwise, error out. There is a mismatch in types.
-                    self.maybe_assert_type(&actual, expected, input.span());
-                    Type::Unit
-                }
-            }
+            ))
         } else if func.variant == Variant::AsyncTransition {
             // Fully infer future type.
-            let Some(inputs) = self
-                .async_function_input_types
-                .get(&Location::new(callee_program, Symbol::intern(&format!("finalize/{}", input.function.name))))
+            let Some(inputs) =
+                self.async_function_input_types.get(&Location::new(callee_program, vec![Symbol::intern(&format!(
+                    "finalize/{}",
+                    input.function.identifier().name
+                ))]))
             else {
-                self.emit_err(TypeCheckerError::async_function_not_found(input.function.name, input.span));
+                self.emit_err(TypeCheckerError::async_function_not_found(input.function.clone(), input.span));
                 return Type::Future(FutureType::new(
                     Vec::new(),
-                    Some(Location::new(callee_program, input.function.name)),
+                    Some(Location::new(callee_program, callee_path.clone())),
                     false,
                 ));
             };
 
             let future_type = Type::Future(FutureType::new(
                 inputs.clone(),
-                Some(Location::new(callee_program, input.function.name)),
+                Some(Location::new(callee_program, callee_path.clone())),
                 true,
             ));
             let fully_inferred_type = match &func.output_type {
@@ -1112,14 +1181,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // Extract information about futures that are being consumed.
             if func.variant == Variant::AsyncFunction && matches!(expected.type_(), Type::Future(_)) {
                 // Consume the future.
-                let option_name =
-                    match argument {
-                        Expression::Identifier(id) => Some(id.name),
-                        Expression::TupleAccess(tuple_access) => {
-                            if let Expression::Identifier(id) = &tuple_access.tuple { Some(id.name) } else { None }
+                let option_name = match argument {
+                    Expression::Path(path) => Some(path.identifier().name),
+                    Expression::TupleAccess(tuple_access) => {
+                        if let Expression::Path(path) = &tuple_access.tuple {
+                            Some(path.identifier().name)
+                        } else {
+                            None
                         }
-                        _ => None,
-                    };
+                    }
+                    _ => None,
+                };
 
                 if let Some(name) = option_name {
                     match self.scope_state.futures.shift_remove(&name) {
@@ -1133,11 +1205,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 }
 
                 match argument {
-                    Expression::Identifier(_) | Expression::Call(_) | Expression::TupleAccess(_) => {
-                        match self.scope_state.call_location {
+                    Expression::Path(_) | Expression::Call(_) | Expression::TupleAccess(_) => {
+                        match &self.scope_state.call_location {
                             Some(location) => {
                                 // Get the external program and function name.
-                                input_futures.push(location);
+                                input_futures.push(location.clone());
                                 // Get the full inferred type.
                                 inferred_finalize_inputs.push(ty);
                             }
@@ -1155,10 +1227,6 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
-        let Some(caller_name) = self.scope_state.function else {
-            panic!("`self.function` is set every time a function is visited.");
-        };
-
         let caller_program =
             self.scope_state.program_name.expect("`program_name` is always set before traversing a program scope");
         // Note: Constructors are added to the call graph under the `constructor` symbol.
@@ -1168,8 +1236,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         } else {
             self.scope_state.function.expect("`function` is always set before traversing a function scope")
         };
-        let caller = Location::new(caller_program, caller_function);
-        let callee = Location::new(callee_program, input.function.name);
+
+        // This is the path to the function that we're in
+        let caller_path = self
+            .scope_state
+            .module_name
+            .iter()
+            .cloned()
+            .chain(std::iter::once(caller_function))
+            .collect::<Vec<Symbol>>();
+
+        let caller = Location::new(caller_program, caller_path.clone());
+        let callee = Location::new(callee_program, callee_path.clone());
         self.state.call_graph.add_edge(caller, callee);
 
         if func.variant.is_transition() && self.scope_state.variant == Some(Variant::AsyncTransition) {
@@ -1213,15 +1291,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.state
                 .symbol_table
                 .attach_finalizer(
-                    Location::new(callee_program, caller_name),
-                    Location::new(callee_program, input.function.name),
+                    Location::new(callee_program, caller_path),
+                    Location::new(callee_program, callee_path.clone()),
                     input_futures,
                     inferred_finalize_inputs.clone(),
                 )
                 .expect("Failed to attach finalizer");
             // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
             self.async_function_callers
-                .entry(Location::new(self.scope_state.program_name.unwrap(), input.function.name))
+                .entry(Location::new(self.scope_state.program_name.unwrap(), callee_path.clone()))
                 .or_default()
                 .insert(self.scope_state.location());
 
@@ -1231,7 +1309,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // Update ret to reflect fully inferred future type.
             ret = Type::Future(FutureType::new(
                 inferred_finalize_inputs,
-                Some(Location::new(callee_program, input.function.name)),
+                Some(Location::new(callee_program, callee_path.clone())),
                 true,
             ));
 
@@ -1240,7 +1318,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Set call location so that definition statement knows where future comes from.
-        self.scope_state.call_location = Some(Location::new(callee_program, input.function.name));
+        self.scope_state.call_location = Some(Location::new(callee_program, callee_path.clone()));
 
         ret
     }
@@ -1271,9 +1349,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.lookup_struct(self.scope_state.program_name, input.name.name).clone();
+        let struct_ = self.lookup_struct(self.scope_state.program_name, &input.path.absolute_path()).clone();
         let Some(struct_) = struct_ else {
-            self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.name.name, input.name.span()));
+            self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.path.clone(), input.path.span()));
             return Type::Err;
         };
 
@@ -1295,11 +1373,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Note that it is sufficient for the `program` to be `None` as composite types can only be initialized
         // in the program in which they are defined.
         let type_ = Type::Composite(CompositeType {
-            id: input.name,
-            const_arguments: Vec::new(), // TODO - grab const arguments from `StructExpression`
+            path: input.path.clone(),
+            const_arguments: input.const_arguments.clone(),
             program: None,
         });
-        self.maybe_assert_type(&type_, additional, input.name.span());
+        self.maybe_assert_type(&type_, additional, input.path.span());
 
         // Check number of struct members.
         if struct_.members.len() != input.members.len() {
@@ -1315,9 +1393,21 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 match &actual.expression {
                     None => {
                         // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
-                        // We visit it as an expression rather than just calling `visit_identifier` so it will get
+                        // We visit it as an expression rather than just calling `visit_path` so it will get
                         // put into the type table.
-                        self.visit_expression(&actual.identifier.into(), &Some(type_.clone()));
+                        self.visit_expression(
+                            &Path::from(actual.identifier)
+                                .with_absolute_path(Some(
+                                    self.scope_state
+                                        .module_name
+                                        .iter()
+                                        .cloned()
+                                        .chain(std::iter::once(actual.identifier.name))
+                                        .collect::<Vec<Symbol>>(),
+                                ))
+                                .into(),
+                            &Some(type_.clone()),
+                        );
                     }
                     Some(expr) => {
                         // Otherwise, visit the associated expression.
@@ -1351,12 +1441,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
                 if let Some(Expression::MemberAccess(access)) = &init.expression {
                     if let MemberAccess {
-                        inner: Expression::Identifier(Identifier { name: sym::SelfLower, .. }),
+                        inner: Expression::Path(path),
                         name: Identifier { name: sym::caller, .. },
                         ..
                     } = &**access
                     {
-                        self.emit_warning(TypeCheckerWarning::caller_as_record_owner(input.name, access.span()));
+                        if path.identifier().name == sym::SelfLower {
+                            self.emit_warning(TypeCheckerWarning::caller_as_record_owner(
+                                input.path.clone(),
+                                access.span(),
+                            ));
+                        }
                     }
                 }
             });
@@ -1370,13 +1465,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         Type::Err
     }
 
-    fn visit_identifier(&mut self, input: &Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        let var = self.state.symbol_table.lookup_variable(self.scope_state.program_name.unwrap(), input.name);
+    fn visit_path(&mut self, input: &Path, expected: &Self::AdditionalInput) -> Self::Output {
+        let var = self.state.symbol_table.lookup_path(self.scope_state.program_name.unwrap(), &input.absolute_path());
+
         if let Some(var) = var {
             self.maybe_assert_type(&var.type_, expected, input.span());
             var.type_.clone()
         } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
+            self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span()));
             Type::Err
         }
     }
@@ -1428,12 +1524,40 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     self.check_numeric_literal(input, ty);
                     ty.clone()
                 }
+                Some(ty @ Type::Optional(opt)) => {
+                    // Handle optional expected type, e.g., u32?
+                    let inner = &opt.inner;
+                    match &**inner {
+                        Type::Integer(_) | Type::Field | Type::Group | Type::Scalar => {
+                            self.check_numeric_literal(input, inner);
+                            Type::Optional(OptionalType { inner: Box::new(*inner.clone()) })
+                        }
+                        _ => {
+                            self.emit_err(TypeCheckerError::unexpected_unsuffixed_numeral(
+                                format!("type `{ty}`"),
+                                span,
+                            ));
+                            Type::Err
+                        }
+                    }
+                }
                 Some(ty) => {
                     self.emit_err(TypeCheckerError::unexpected_unsuffixed_numeral(format!("type `{ty}`"), span));
                     Type::Err
                 }
                 None => Type::Numeric,
             },
+            LiteralVariant::None => {
+                if let Some(ty @ Type::Optional(_)) = expected {
+                    ty.clone()
+                } else if let Some(ty) = expected {
+                    self.emit_err(TypeCheckerError::none_found_non_optional(format!("{ty}"), span));
+                    Type::Err
+                } else {
+                    self.emit_err(TypeCheckerError::could_not_determine_type(format!("{input}"), span));
+                    Type::Err
+                }
+            }
         };
 
         self.maybe_assert_type(&type_, expected, span);
@@ -1443,7 +1567,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_locator(&mut self, input: &LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
         let maybe_var =
-            self.state.symbol_table.lookup_global(Location::new(input.program.name.name, input.name)).cloned();
+            self.state.symbol_table.lookup_global(&Location::new(input.program.name.name, vec![input.name])).cloned();
         if let Some(var) = maybe_var {
             self.maybe_assert_type(&var.type_, expected, input.span());
             var.type_
@@ -1461,9 +1585,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
-        } else if !self.eq_user(&t1, &t2) {
+        } else if !t1.can_coerce_to(&t2) && !t2.can_coerce_to(&t1) {
             self.emit_err(TypeCheckerError::ternary_branch_mismatch(t1, t2, input.span()));
             Type::Err
+        } else if let Some(expected) = expected {
+            expected.clone()
         } else {
             t1
         };
@@ -1700,7 +1826,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let t1 = self.visit_expression_reject_numeric(left, &None);
                 let t2 = self.visit_expression_reject_numeric(right, &None);
 
-                if t1 != Type::Err && t2 != Type::Err && !self.eq_user(&t1, &t2) {
+                if t1 != Type::Err && t2 != Type::Err && !t1.eq_user(&t2) {
                     let op =
                         if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
                     self.emit_err(TypeCheckerError::operation_types_mismatch(op, t1, t2, input.span()));
@@ -1764,6 +1890,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_const(&mut self, input: &ConstDeclaration) {
         self.visit_type(&input.type_);
 
+        // For now, consts that contain optional types are not supported.
+        // TODO: remove this restriction by supporting const evaluation of optionals including `None`.
+        if self.contains_optional_type(&input.type_) {
+            self.emit_err(TypeCheckerError::const_cannot_be_optional(input.span));
+        }
+
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
@@ -1787,13 +1919,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check the expression on the right-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
-        // Add constants to symbol table so that any references to them in later statements will pass type checking.
-        if let Err(err) = self.state.symbol_table.insert_variable(
-            self.scope_state.program_name.unwrap(),
-            input.place.name,
-            VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
-        ) {
-            self.state.handler.emit_err(err);
+        if self.scope_state.function.is_some() {
+            // Global consts have already been added to the symbol table, so only
+            // add this one if it's local.
+            if let Err(err) = self.state.symbol_table.insert_variable(
+                self.scope_state.program_name.unwrap(),
+                &[input.place.name],
+                VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
+            ) {
+                self.state.handler.emit_err(err);
+            }
         }
     }
 
@@ -1915,7 +2050,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // Add the loop variable to the scope of the loop body.
             if let Err(err) = slf.state.symbol_table.insert_variable(
                 slf.scope_state.program_name.unwrap(),
-                input.variable.name,
+                &[input.variable.name],
                 VariableSymbol { type_: iterator_ty.clone(), span: input.span(), declaration: VariableType::Const },
             ) {
                 slf.state.handler.emit_err(err);
@@ -1948,18 +2083,30 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return self.emit_err(TypeCheckerError::async_block_cannot_return(input.span()));
         }
 
-        let func_name = self.scope_state.function.unwrap();
+        if self.scope_state.is_constructor {
+            // It must return a unit value; nothing else to check.
+            if !matches!(input.expression, Expression::Unit(..)) {
+                self.emit_err(TypeCheckerError::constructor_can_only_return_unit(&input.expression, input.span));
+            }
+            return;
+        }
+
+        let caller_name = self.scope_state.function.expect("`self.function` is set every time a function is visited.");
+        let caller_path =
+            self.scope_state.module_name.iter().cloned().chain(std::iter::once(caller_name)).collect::<Vec<Symbol>>();
+
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(Location::new(self.scope_state.program_name.unwrap(), func_name))
+            .lookup_function(&Location::new(self.scope_state.program_name.unwrap(), caller_path.clone()))
             .expect("The symbol table creator should already have visited all functions.");
+
         let mut return_type = func_symbol.function.output_type.clone();
 
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = Future(FutureType::new(
                 if let Some(finalizer) = &func_symbol.finalizer { finalizer.inferred_inputs.clone() } else { vec![] },
-                Some(Location::new(self.scope_state.program_name.unwrap(), func_name)),
+                Some(Location::new(self.scope_state.program_name.unwrap(), caller_path)),
                 true,
             ));
 

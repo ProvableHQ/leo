@@ -21,18 +21,23 @@ use leo_ast::*;
 use itertools::Itertools;
 
 impl AstReconstructor for FlatteningVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
     /* Expressions */
     /// Reconstructs a struct init expression, flattening any tuples in the expression.
-    fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_struct_init(
+        &mut self,
+        input: StructExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         let mut members = Vec::with_capacity(input.members.len());
 
         // Reconstruct and flatten the argument expressions.
         for member in input.members.into_iter() {
             // Note that this unwrap is safe since SSA guarantees that all struct variable initializers are of the form `<name>: <expr>`.
-            let (expr, stmts) = self.reconstruct_expression(member.expression.unwrap());
+            let (expr, stmts) = self.reconstruct_expression(member.expression.unwrap(), &());
             // Accumulate any statements produced.
             statements.extend(stmts);
             // Accumulate the struct members.
@@ -62,7 +67,11 @@ impl AstReconstructor for FlatteningVisitor<'_> {
     /// let var$2 = Foo { bar: var$0, baz: var$1 };
     /// var$2
     /// ```
-    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_ternary(
+        &mut self,
+        input: TernaryExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let if_true_type = self
             .state
             .type_table
@@ -77,11 +86,11 @@ impl AstReconstructor for FlatteningVisitor<'_> {
         // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
         assert!(if_true_type.eq_flat_relaxed(&if_false_type));
 
-        fn as_identifier(ident_expr: Expression) -> Identifier {
-            let Expression::Identifier(identifier) = ident_expr else {
-                panic!("SSA form should have guaranteed this is an identifier: {ident_expr}.");
+        fn as_identifier(path_expr: Expression) -> Identifier {
+            let Expression::Path(path) = path_expr else {
+                panic!("SSA form should have guaranteed this is a path: {path_expr}.");
             };
-            identifier
+            Identifier { name: path.identifier().name, span: path.span, id: path.id }
         }
 
         match &if_true_type {
@@ -94,15 +103,19 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             Type::Composite(if_true_type) => {
                 // Get the struct definitions.
                 let program = if_true_type.program.unwrap_or(self.program);
+                let composite_path = if_true_type.path.clone();
                 let if_true_type = self
                     .state
                     .symbol_table
-                    .lookup_struct(if_true_type.id.name)
-                    .or_else(|| self.state.symbol_table.lookup_record(Location::new(program, if_true_type.id.name)))
+                    .lookup_struct(&composite_path.absolute_path())
+                    .or_else(|| {
+                        self.state.symbol_table.lookup_record(&Location::new(program, composite_path.absolute_path()))
+                    })
                     .expect("This definition should exist")
                     .clone();
 
                 self.ternary_struct(
+                    &composite_path,
                     &if_true_type,
                     &input.condition,
                     &as_identifier(input.if_true),
@@ -116,8 +129,8 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                 // There's nothing to be done - SSA has guaranteed that `if_true` and `if_false` are identifiers,
                 // so there's not even any point in reconstructing them.
 
-                assert!(matches!(&input.if_true, Expression::Identifier(..)));
-                assert!(matches!(&input.if_false, Expression::Identifier(..)));
+                assert!(matches!(&input.if_true, Expression::Path(..)));
+                assert!(matches!(&input.if_false, Expression::Path(..)));
 
                 (input.into(), Default::default())
             }
@@ -156,21 +169,21 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             id: input.id,
             variant: match input.variant {
                 AssertVariant::Assert(expression) => {
-                    let (expression, additional_statements) = self.reconstruct_expression(expression);
+                    let (expression, additional_statements) = self.reconstruct_expression(expression, &());
                     statements.extend(additional_statements);
                     AssertVariant::Assert(expression)
                 }
                 AssertVariant::AssertEq(left, right) => {
-                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    let (left, additional_statements) = self.reconstruct_expression(left, &());
                     statements.extend(additional_statements);
-                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    let (right, additional_statements) = self.reconstruct_expression(right, &());
                     statements.extend(additional_statements);
                     AssertVariant::AssertEq(left, right)
                 }
                 AssertVariant::AssertNeq(left, right) => {
-                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    let (left, additional_statements) = self.reconstruct_expression(left, &());
                     statements.extend(additional_statements);
-                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    let (right, additional_statements) = self.reconstruct_expression(right, &());
                     statements.extend(additional_statements);
                     AssertVariant::AssertNeq(left, right)
                 }
@@ -186,7 +199,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             // that led to this assertion.
             let not_guard = UnaryExpression {
                 op: UnaryOperation::Not,
-                receiver: guard.into(),
+                receiver: Path::from(guard).into(),
                 span: Default::default(),
                 id: {
                     // Create a new node ID for the unary expression.
@@ -199,12 +212,12 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             .into();
             let (identifier, statement) = self.unique_simple_definition(not_guard);
             statements.push(statement);
-            guards.push(identifier.into());
+            guards.push(Path::from(identifier).into());
         }
 
         // We also need to guard against early returns.
         if let Some((guard, guard_statements)) = self.construct_early_return_guard() {
-            guards.push(guard.into());
+            guards.push(Path::from(guard).into());
             statements.extend(guard_statements);
         }
 
@@ -232,7 +245,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                 self.state.type_table.insert(binary.id, Type::Boolean);
                 let (identifier, statement) = self.unique_simple_definition(binary.into());
                 statements.push(statement);
-                identifier.into()
+                Path::from(identifier).into()
             }
         };
 
@@ -250,7 +263,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             self.state.type_table.insert(binary.id(), Type::Boolean);
             let (identifier, statement) = self.unique_simple_definition(binary.into());
             statements.push(statement);
-            expression = identifier.into();
+            expression = Path::from(identifier).into();
         }
 
         let assert_statement = AssertStatement { variant: AssertVariant::Assert(expression), ..input }.into();
@@ -369,7 +382,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
     /// Otherwise, the statement is returned as is.
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Flatten the rhs of the assignment.
-        let (value, statements) = self.reconstruct_expression(definition.value);
+        let (value, statements) = self.reconstruct_expression(definition.value, &());
         match (definition.place, &value) {
             (DefinitionPlace::Single(identifier), _) => (self.simple_definition(identifier, value), statements),
             (DefinitionPlace::Multiple(identifiers), expression) => {
@@ -416,9 +429,9 @@ impl AstReconstructor for FlatteningVisitor<'_> {
 
         let return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
 
-        let is_tuple_ids = matches!(&input.expression, Tuple(tuple_expr) if tuple_expr .elements.iter() .all(|expr| matches!(expr, Identifier(_))));
-        if !matches!(&input.expression, Unit(_) | Identifier(_) | AssociatedConstant(_)) && !is_tuple_ids {
-            panic!("SSA guarantees that the expression is always an identifier, unit expression, or tuple literal.")
+        let is_tuple_ids = matches!(&input.expression, Tuple(tuple_expr) if tuple_expr .elements.iter() .all(|expr| matches!(expr, Expression::Path(_))));
+        if !matches!(&input.expression, Unit(_) | Expression::Path(_) | AssociatedConstant(_)) && !is_tuple_ids {
+            panic!("SSA guarantees that the expression is always a Path, unit expression, or tuple literal.")
         }
 
         self.returns.push((return_guard, input));

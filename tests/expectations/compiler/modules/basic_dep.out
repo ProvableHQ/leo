@@ -1,0 +1,4 @@
+program parent.aleo;
+
+function foo:
+    output 64u32 as u32.private;

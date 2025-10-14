@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -10,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 0
+          "id": 8
         },
         "network": {
           "name": "aleo",
@@ -18,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 1
+          "id": 9
         }
       },
       "consts": [],
@@ -33,17 +34,27 @@
                 "lo": 33,
                 "hi": 36
               },
-              "id": 2
+              "id": 0
             },
             "key_type": {
               "Composite": {
-                "id": {
-                  "name": "bar",
+                "path": {
+                  "qualifier": [],
+                  "identifier": {
+                    "name": "bar",
+                    "span": {
+                      "lo": 38,
+                      "hi": 41
+                    },
+                    "id": 1
+                  },
+                  "is_absolute": false,
+                  "absolute_path": null,
                   "span": {
                     "lo": 38,
                     "hi": 41
                   },
-                  "id": 3
+                  "id": 2
                 },
                 "const_arguments": [],
                 "program": null
@@ -51,8 +62,18 @@
             },
             "value_type": {
               "Composite": {
-                "id": {
-                  "name": "baz",
+                "path": {
+                  "qualifier": [],
+                  "identifier": {
+                    "name": "baz",
+                    "span": {
+                      "lo": 45,
+                      "hi": 48
+                    },
+                    "id": 3
+                  },
+                  "is_absolute": false,
+                  "absolute_path": null,
                   "span": {
                     "lo": 45,
                     "hi": 48
@@ -98,7 +119,7 @@
       "functions": [],
       "constructor": null,
       "span": {
-        "lo": 1,
+        "lo": 0,
         "hi": 79
       }
     }

@@ -53,9 +53,6 @@ pub struct Package {
 
     /// The manifest file of this package.
     pub manifest: Manifest,
-
-    /// The .env file of this package.
-    pub env: Env,
 }
 
 impl Package {
@@ -80,16 +77,11 @@ impl Package {
     }
 
     /// Create a Leo package by the name `package_name` in a subdirectory of `path`.
-    pub fn initialize<P: AsRef<Path>>(
-        package_name: &str,
-        path: P,
-        network: NetworkName,
-        endpoint: &str,
-    ) -> Result<PathBuf> {
-        Self::initialize_impl(package_name, path.as_ref(), network, endpoint)
+    pub fn initialize<P: AsRef<Path>>(package_name: &str, path: P) -> Result<PathBuf> {
+        Self::initialize_impl(package_name, path.as_ref())
     }
 
-    fn initialize_impl(package_name: &str, path: &Path, network: NetworkName, endpoint: &str) -> Result<PathBuf> {
+    fn initialize_impl(package_name: &str, path: &Path) -> Result<PathBuf> {
         let package_name =
             if package_name.ends_with(".aleo") { package_name.to_string() } else { format!("{package_name}.aleo") };
 
@@ -124,19 +116,13 @@ impl Package {
 
         std::fs::write(gitignore_path, GITIGNORE_TEMPLATE).map_err(PackageError::io_error_gitignore_file)?;
 
-        // Create the .env file.
-        let env = Env { network, private_key: TEST_PRIVATE_KEY.to_string(), endpoint: endpoint.to_string() };
-
-        let env_path = full_path.join(ENV_FILENAME);
-
-        env.write_to_file(env_path)?;
-
         // Create the manifest.
         let manifest = Manifest {
             program: package_name.clone(),
             version: "0.1.0".to_string(),
             description: String::new(),
             license: "MIT".to_string(),
+            leo: env!("CARGO_PKG_VERSION").to_string(),
             dependencies: None,
             dev_dependencies: None,
         };
@@ -166,8 +152,9 @@ impl Package {
             .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
 
         let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
-        std::fs::write(&test_file_path, test_template(name_no_aleo))
-            .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e))?;
+        std::fs::write(&test_file_path, test_template(name_no_aleo)).map_err(|e| {
+            UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
+        })?;
 
         Ok(full_path)
     }
@@ -178,8 +165,8 @@ impl Package {
     pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -200,8 +187,8 @@ impl Package {
         home_path: Q,
         no_cache: bool,
         no_local: bool,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -222,8 +209,8 @@ impl Package {
         home_path: Q,
         no_cache: bool,
         no_local: bool,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -274,16 +261,14 @@ impl Package {
         with_tests: bool,
         no_cache: bool,
         no_local: bool,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
         };
 
         let path = path.canonicalize().map_err(|err| map_err(path, err))?;
-
-        let env = Env::read_from_file_or_environment(&path)?;
 
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
@@ -342,14 +327,14 @@ impl Package {
             Vec::new()
         };
 
-        Ok(Package { base_directory: path, programs, env, manifest })
+        Ok(Package { base_directory: path, programs, manifest })
     }
 
     #[allow(clippy::too_many_arguments)]
     fn graph_build(
         home_path: &Path,
-        network: NetworkName,
-        endpoint: &str,
+        network: Option<NetworkName>,
+        endpoint: Option<&str>,
         main_program: &Dependency,
         new: Dependency,
         map: &mut IndexMap<Symbol, (Dependency, Program)>,
@@ -393,6 +378,12 @@ impl Package {
                     }
                     (_, Location::Network) | (Some(_), Location::Local) => {
                         // It's a network dependency.
+                        let Some(endpoint) = endpoint else {
+                            return Err(anyhow!("An endpoint must be provided to fetch network dependencies.").into());
+                        };
+                        let Some(network) = network else {
+                            return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
+                        };
                         Program::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
                     }
                     _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),

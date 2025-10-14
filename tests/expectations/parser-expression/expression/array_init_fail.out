@@ -1,19 +1,19 @@
-Error [EPAR0370005]: expected ] -- found '.'
-    --> test_0:1:4
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', ',', 'true', 'false', 'async', 'block', 'network', 'self' -- found '..'
+    --> test_0:1:2
      |
    1 | [...0u8; 1]
-     |    ^
-Error [EPAR0370005]: expected ] -- found '.'
-    --> test_1:1:4
+     |  ^^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', ',', 'true', 'false', 'async', 'block', 'network', 'self' -- found '..'
+    --> test_1:1:2
      |
    1 | [...0; 1]
-     |    ^
+     |  ^^
 Error [EPAR0370029]: A tuple expression must have at least two elements.
     --> test_2:1:5
      |
    1 | [0; ()]
      |     ^^
-Error [EPAR0370005]: expected ] -- found ';'
+Error [EPAR0370005]: expected ']' -- found ';'
     --> test_4:1:6
      |
    1 | [0; 1;]

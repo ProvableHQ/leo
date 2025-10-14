@@ -21,7 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Execution, Itertools, Network, Program};
+use snarkvm::prelude::{Execution, Itertools, Network, Program, execution_cost};
 
 use clap::Parser;
 use colored::*;
@@ -36,8 +36,6 @@ use snarkvm::{
         Identifier,
         ProgramID,
         VM,
-        execution_cost_v1,
-        execution_cost_v2,
         query::Query as SnarkVMQuery,
         store::{
             ConsensusStore,
@@ -86,11 +84,11 @@ impl Command for LeoExecute {
         // Get the path to the home directory.
         let home_path = context.home()?;
         // Get the network, accounting for overrides.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
+        let network = get_network(&self.env_override.network)?;
         // Get the endpoint, accounting for overrides.
-        let endpoint = context.get_endpoint(&self.env_override.endpoint)?;
+        let endpoint = get_endpoint(&self.env_override.endpoint)?;
         // If the current directory is a valid Leo package, then build it.
-        if Package::from_directory_no_graph(path, home_path, network, &endpoint).is_ok() {
+        if Package::from_directory_no_graph(path, home_path, Some(network), Some(&endpoint)).is_ok() {
             let package = LeoBuild {
                 env_override: self.env_override.clone(),
                 options: {
@@ -109,7 +107,7 @@ impl Command for LeoExecute {
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Get the network, accounting for overrides.
-        let network = context.get_network(&self.env_override.network)?.parse()?;
+        let network = get_network(&self.env_override.network)?;
         // Handle each network with the appropriate parameterization.
         match network {
             NetworkName::TestnetV0 => handle_execute::<AleoTestnetV0>(self, context, network, input),
@@ -137,15 +135,15 @@ fn handle_execute<A: Aleo>(
     package: Option<Package>,
 ) -> Result<<LeoExecute as Command>::Output> {
     // Get the private key and associated address, accounting for overrides.
-    let private_key = context.get_private_key(&command.env_override.private_key)?;
+    let private_key = get_private_key(&command.env_override.private_key)?;
     let address = Address::<A::Network>::try_from(&private_key)
         .map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
-    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+    let endpoint = get_endpoint(&command.env_override.endpoint)?;
 
     // Get whether the network is a devnet, accounting for overrides.
-    let is_devnet = context.get_is_devnet(command.env_override.devnet);
+    let is_devnet = get_is_devnet(command.env_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
     let consensus_heights =
@@ -307,8 +305,11 @@ fn handle_execute<A: Aleo>(
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
     // Specify the query
-    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(&endpoint);
-
+    let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
+        endpoint
+            .parse::<Uri>()
+            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
+    );
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
@@ -471,10 +472,10 @@ fn check_task_for_warnings<N: Network>(
                 program.id()
             ));
         }
-        // Check for a consensus version mismatch.
-        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-            warnings.push(format!("{e}. In some cases, the deployment may fail"));
-        }
+    }
+    // Check for a consensus version mismatch.
+    if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+        warnings.push(format!("{e}. In some cases, the execution may fail"));
     }
     warnings
 }
@@ -557,11 +558,8 @@ fn print_execution_stats<N: Network>(
     use colored::*;
 
     // ── Gather cost components ────────────────────────────────────────────
-    let (base_fee, (storage_cost, execution_cost)) = if consensus_version == ConsensusVersion::V1 {
-        execution_cost_v1(&vm.process().read(), execution)?
-    } else {
-        execution_cost_v2(&vm.process().read(), execution)?
-    };
+    let (base_fee, (storage_cost, execution_cost)) =
+        execution_cost(&vm.process().read(), execution, consensus_version)?;
 
     let base_cr = base_fee as f64 / 1_000_000.0;
     let prio_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;

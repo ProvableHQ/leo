@@ -16,20 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{
-    ArrayExpression,
-    Expression,
-    Identifier,
-    IntegerType,
-    Literal,
-    NodeBuilder,
-    NodeID,
-    RepeatExpression,
-    StructExpression,
-    StructVariableInitializer,
-    TupleExpression,
-    interpreter_value::Value,
-};
+use leo_ast::{Expression, Node, NodeID, interpreter_value::Value};
 use leo_errors::StaticAnalyzerError;
 use leo_span::{Span, Symbol};
 
@@ -37,6 +24,8 @@ pub struct ConstPropagationVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// The program name.
     pub program: Symbol,
+    /// The module name.
+    pub module: Vec<Symbol>,
     /// Have we actually modified the program at all?
     pub changed: bool,
     /// The RHS of a const declaration we were not able to evaluate.
@@ -58,92 +47,36 @@ impl ConstPropagationVisitor<'_> {
         result
     }
 
+    /// Enter module scope with path `module`, execute `func`, and then return to the parent module.
+    pub fn in_module_scope<T>(&mut self, module: &[Symbol], func: impl FnOnce(&mut Self) -> T) -> T {
+        let parent_module = self.module.clone();
+        self.module = module.to_vec();
+        let result = func(self);
+        self.module = parent_module;
+        result
+    }
+
     /// Emit a `StaticAnalyzerError`.
     pub fn emit_err(&self, err: StaticAnalyzerError) {
         self.state.handler.emit_err(err);
     }
-}
 
-pub fn value_to_expression(value: &Value, span: Span, node_builder: &NodeBuilder) -> Option<Expression> {
-    use Value::*;
-    let id = node_builder.next_id();
+    pub fn value_to_expression(&self, value: &Value, span: Span, id: NodeID) -> Option<Expression> {
+        let ty = self.state.type_table.get(&id)?;
+        let symbol_table = &self.state.symbol_table;
+        let struct_lookup = |sym: &[Symbol]| {
+            symbol_table
+                .lookup_struct(sym)
+                .unwrap()
+                .members
+                .iter()
+                .map(|mem| (mem.identifier.name, mem.type_.clone()))
+                .collect()
+        };
+        value.to_expression(span, &self.state.node_builder, &ty, &struct_lookup)
+    }
 
-    let result = match value {
-        Unit => leo_ast::UnitExpression { span, id }.into(),
-        Bool(x) => Literal::boolean(*x, span, id).into(),
-        U8(x) => Literal::integer(IntegerType::U8, format!("{x}"), span, id).into(),
-        U16(x) => Literal::integer(IntegerType::U16, format!("{x}"), span, id).into(),
-        U32(x) => Literal::integer(IntegerType::U32, format!("{x}"), span, id).into(),
-        U64(x) => Literal::integer(IntegerType::U64, format!("{x}"), span, id).into(),
-        U128(x) => Literal::integer(IntegerType::U128, format!("{x}"), span, id).into(),
-        I8(x) => Literal::integer(IntegerType::I8, format!("{x}"), span, id).into(),
-        I16(x) => Literal::integer(IntegerType::I16, format!("{x}"), span, id).into(),
-        I32(x) => Literal::integer(IntegerType::I32, format!("{x}"), span, id).into(),
-        I64(x) => Literal::integer(IntegerType::I64, format!("{x}"), span, id).into(),
-        I128(x) => Literal::integer(IntegerType::I128, format!("{x}"), span, id).into(),
-        Address(x) => Literal::address(format!("{x}"), span, id).into(),
-        Group(x) => {
-            let mut s = format!("{x}");
-            // Strip off the `group` suffix.
-            s.truncate(s.len() - 5);
-            Literal::group(s, span, id).into()
-        }
-        Field(x) => {
-            let mut s = format!("{x}");
-            // Strip off the `field` suffix.
-            s.truncate(s.len() - 5);
-            Literal::field(s, span, id).into()
-        }
-        Scalar(x) => {
-            let mut s = format!("{x}");
-            // Strip off the `scalar` suffix.
-            s.truncate(s.len() - 6);
-            Literal::scalar(s, span, id).into()
-        }
-        Tuple(x) => {
-            let mut elements = Vec::with_capacity(x.len());
-            for value in x.iter() {
-                elements.push(value_to_expression(value, span, node_builder)?);
-            }
-            TupleExpression { elements, span, id }.into()
-        }
-        Array(x) => {
-            let mut elements = Vec::with_capacity(x.len());
-            for value in x.iter() {
-                elements.push(value_to_expression(value, span, node_builder)?);
-            }
-            ArrayExpression { elements, span, id }.into()
-        }
-        Repeat(expr, count) => RepeatExpression {
-            expr: value_to_expression(expr, span, node_builder)?,
-            count: value_to_expression(count, span, node_builder)?,
-            span,
-            id,
-        }
-        .into(),
-        Struct(x) => StructExpression {
-            name: Identifier { name: x.name, id: node_builder.next_id(), span },
-            const_arguments: Vec::new(), // `Value`s don't have const arguments
-            members: {
-                let mut members = Vec::with_capacity(x.contents.len());
-                for (name, val) in x.contents.iter() {
-                    let initializer = StructVariableInitializer {
-                        identifier: Identifier { name: *name, id: node_builder.next_id(), span },
-                        expression: Some(value_to_expression(val, span, node_builder)?),
-                        span,
-                        id: node_builder.next_id(),
-                    };
-                    members.push(initializer)
-                }
-                members
-            },
-            span,
-            id,
-        }
-        .into(),
-        Future(..) => return None,
-        Unsuffixed(..) => return None,
-    };
-
-    Some(result)
+    pub fn value_to_expression_node(&self, value: &Value, previous: &impl Node) -> Option<Expression> {
+        self.value_to_expression(value, previous.span(), previous.id())
+    }
 }

@@ -6,7 +6,7 @@
           "lo": 0,
           "hi": 4
         },
-        "id": 0,
+        "id": 1,
         "variant": {
           "Boolean": true
         }
@@ -18,7 +18,7 @@
           "lo": 8,
           "hi": 12
         },
-        "id": 1,
+        "id": 2,
         "variant": {
           "Boolean": true
         }
@@ -29,7 +29,7 @@
       "lo": 0,
       "hi": 12
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -41,7 +41,7 @@
           "lo": 13,
           "hi": 18
         },
-        "id": 0,
+        "id": 1,
         "variant": {
           "Boolean": false
         }
@@ -53,7 +53,7 @@
           "lo": 20,
           "hi": 24
         },
-        "id": 1,
+        "id": 2,
         "variant": {
           "Boolean": true
         }
@@ -64,7 +64,7 @@
       "lo": 13,
       "hi": 24
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -78,7 +78,7 @@
               "lo": 25,
               "hi": 29
             },
-            "id": 0,
+            "id": 2,
             "variant": {
               "Boolean": true
             }
@@ -90,7 +90,7 @@
               "lo": 31,
               "hi": 36
             },
-            "id": 1,
+            "id": 3,
             "variant": {
               "Boolean": false
             }
@@ -101,7 +101,7 @@
           "lo": 25,
           "hi": 36
         },
-        "id": 2
+        "id": 1
       }
     },
     "right": {
@@ -110,7 +110,7 @@
           "lo": 40,
           "hi": 45
         },
-        "id": 3,
+        "id": 4,
         "variant": {
           "Boolean": false
         }
@@ -121,7 +121,7 @@
       "lo": 25,
       "hi": 45
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -137,7 +137,7 @@
                   "lo": 46,
                   "hi": 50
                 },
-                "id": 0,
+                "id": 3,
                 "variant": {
                   "Boolean": true
                 }
@@ -149,7 +149,7 @@
                   "lo": 54,
                   "hi": 59
                 },
-                "id": 1,
+                "id": 4,
                 "variant": {
                   "Boolean": false
                 }
@@ -169,7 +169,7 @@
               "lo": 63,
               "hi": 67
             },
-            "id": 3,
+            "id": 5,
             "variant": {
               "Boolean": true
             }
@@ -180,7 +180,7 @@
           "lo": 46,
           "hi": 67
         },
-        "id": 4
+        "id": 1
       }
     },
     "right": {
@@ -189,7 +189,7 @@
           "lo": 71,
           "hi": 76
         },
-        "id": 5,
+        "id": 6,
         "variant": {
           "Boolean": false
         }
@@ -200,7 +200,7 @@
       "lo": 46,
       "hi": 76
     },
-    "id": 6
+    "id": 0
   }
 }
 
@@ -214,7 +214,7 @@
               "lo": 77,
               "hi": 81
             },
-            "id": 0,
+            "id": 2,
             "variant": {
               "Boolean": true
             }
@@ -228,7 +228,7 @@
                   "lo": 86,
                   "hi": 90
                 },
-                "id": 1,
+                "id": 5,
                 "variant": {
                   "Boolean": true
                 }
@@ -240,7 +240,7 @@
                   "lo": 94,
                   "hi": 99
                 },
-                "id": 2,
+                "id": 6,
                 "variant": {
                   "Boolean": false
                 }
@@ -251,15 +251,15 @@
               "lo": 86,
               "hi": 99
             },
-            "id": 3
+            "id": 4
           }
         },
         "op": "Or",
         "span": {
           "lo": 77,
-          "hi": 99
+          "hi": 100
         },
-        "id": 4
+        "id": 1
       }
     },
     "right": {
@@ -268,7 +268,7 @@
           "lo": 104,
           "hi": 108
         },
-        "id": 5,
+        "id": 7,
         "variant": {
           "Boolean": true
         }
@@ -279,7 +279,7 @@
       "lo": 77,
       "hi": 108
     },
-    "id": 6
+    "id": 0
   }
 }
 

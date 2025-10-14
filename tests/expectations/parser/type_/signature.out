@@ -1,4 +1,5 @@
 {
+  "modules": {},
   "imports": {},
   "stubs": {},
   "program_scopes": {
@@ -10,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 0
+          "id": 80
         },
         "network": {
           "name": "aleo",
@@ -18,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 1
+          "id": 81
         }
       },
       "consts": [],
@@ -36,7 +37,7 @@
                 "lo": 36,
                 "hi": 39
               },
-              "id": 2
+              "id": 0
             },
             "const_parameters": [],
             "input": [
@@ -47,7 +48,7 @@
                     "lo": 40,
                     "hi": 41
                   },
-                  "id": 3
+                  "id": 1
                 },
                 "mode": "None",
                 "type_": "Signature",
@@ -55,7 +56,7 @@
                   "lo": 40,
                   "hi": 52
                 },
-                "id": 4
+                "id": 2
               },
               {
                 "identifier": {
@@ -64,7 +65,7 @@
                     "lo": 54,
                     "hi": 55
                   },
-                  "id": 5
+                  "id": 3
                 },
                 "mode": "None",
                 "type_": "Address",
@@ -72,7 +73,7 @@
                   "lo": 54,
                   "hi": 64
                 },
-                "id": 6
+                "id": 4
               },
               {
                 "identifier": {
@@ -81,18 +82,28 @@
                     "lo": 66,
                     "hi": 67
                   },
-                  "id": 7
+                  "id": 5
                 },
                 "mode": "None",
                 "type_": {
                   "Composite": {
-                    "id": {
-                      "name": "value",
+                    "path": {
+                      "qualifier": [],
+                      "identifier": {
+                        "name": "value",
+                        "span": {
+                          "lo": 69,
+                          "hi": 74
+                        },
+                        "id": 6
+                      },
+                      "is_absolute": false,
+                      "absolute_path": null,
                       "span": {
                         "lo": 69,
                         "hi": 74
                       },
-                      "id": 8
+                      "id": 7
                     },
                     "const_arguments": [],
                     "program": null
@@ -102,7 +113,7 @@
                   "lo": 66,
                   "hi": 74
                 },
-                "id": 9
+                "id": 8
               }
             ],
             "output": [],
@@ -130,7 +141,7 @@
                             "lo": 100,
                             "hi": 109
                           },
-                          "id": 11
+                          "id": 12
                         },
                         "name": {
                           "name": "verify",
@@ -138,37 +149,67 @@
                             "lo": 111,
                             "hi": 117
                           },
-                          "id": 12
+                          "id": 13
                         },
                         "arguments": [
                           {
-                            "Identifier": {
-                              "name": "s",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "s",
+                                "span": {
+                                  "lo": 118,
+                                  "hi": 119
+                                },
+                                "id": 15
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
                               "span": {
                                 "lo": 118,
                                 "hi": 119
-                              },
-                              "id": 13
-                            }
-                          },
-                          {
-                            "Identifier": {
-                              "name": "a",
-                              "span": {
-                                "lo": 121,
-                                "hi": 122
                               },
                               "id": 14
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "v",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "a",
+                                "span": {
+                                  "lo": 121,
+                                  "hi": 122
+                                },
+                                "id": 17
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
+                              "span": {
+                                "lo": 121,
+                                "hi": 122
+                              },
+                              "id": 16
+                            }
+                          },
+                          {
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "v",
+                                "span": {
+                                  "lo": 124,
+                                  "hi": 125
+                                },
+                                "id": 19
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
                               "span": {
                                 "lo": 124,
                                 "hi": 125
                               },
-                              "id": 15
+                              "id": 18
                             }
                           }
                         ],
@@ -176,14 +217,14 @@
                           "lo": 100,
                           "hi": 126
                         },
-                        "id": 16
+                        "id": 11
                       }
                     },
                     "span": {
                       "lo": 86,
-                      "hi": 126
+                      "hi": 127
                     },
-                    "id": 17
+                    "id": 9
                   }
                 },
                 {
@@ -195,7 +236,7 @@
                           "lo": 140,
                           "hi": 141
                         },
-                        "id": 18
+                        "id": 21
                       }
                     },
                     "type_": "Boolean",
@@ -207,7 +248,7 @@
                             "lo": 0,
                             "hi": 0
                           },
-                          "id": 23
+                          "id": 30
                         },
                         "name": {
                           "name": "verify",
@@ -215,37 +256,67 @@
                             "lo": 152,
                             "hi": 158
                           },
-                          "id": 20
+                          "id": 23
                         },
                         "arguments": [
                           {
-                            "Identifier": {
-                              "name": "s",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "s",
+                                "span": {
+                                  "lo": 150,
+                                  "hi": 151
+                                },
+                                "id": 25
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
                               "span": {
                                 "lo": 150,
                                 "hi": 151
                               },
-                              "id": 19
+                              "id": 24
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "a",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "a",
+                                "span": {
+                                  "lo": 159,
+                                  "hi": 160
+                                },
+                                "id": 27
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
                               "span": {
                                 "lo": 159,
                                 "hi": 160
                               },
-                              "id": 21
+                              "id": 26
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "v",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "v",
+                                "span": {
+                                  "lo": 162,
+                                  "hi": 163
+                                },
+                                "id": 29
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
                               "span": {
                                 "lo": 162,
                                 "hi": 163
                               },
-                              "id": 22
+                              "id": 28
                             }
                           }
                         ],
@@ -253,14 +324,14 @@
                           "lo": 150,
                           "hi": 164
                         },
-                        "id": 24
+                        "id": 22
                       }
                     },
                     "span": {
                       "lo": 136,
-                      "hi": 164
+                      "hi": 165
                     },
-                    "id": 25
+                    "id": 20
                   }
                 },
                 {
@@ -268,32 +339,52 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 184,
+                                "hi": 185
+                              },
+                              "id": 33
+                            },
+                            "is_absolute": false,
+                            "absolute_path": null,
                             "span": {
                               "lo": 184,
                               "hi": 185
                             },
-                            "id": 26
+                            "id": 32
                           }
                         },
                         {
-                          "Identifier": {
-                            "name": "b",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "b",
+                              "span": {
+                                "lo": 187,
+                                "hi": 188
+                              },
+                              "id": 35
+                            },
+                            "is_absolute": false,
+                            "absolute_path": null,
                             "span": {
                               "lo": 187,
                               "hi": 188
                             },
-                            "id": 27
+                            "id": 34
                           }
                         }
                       ]
                     },
                     "span": {
                       "lo": 174,
-                      "hi": 183
+                      "hi": 190
                     },
-                    "id": 28
+                    "id": 31
                   }
                 }
               ],
@@ -301,13 +392,13 @@
                 "lo": 76,
                 "hi": 196
               },
-              "id": 29
+              "id": 36
             },
             "span": {
               "lo": 25,
               "hi": 196
             },
-            "id": 30
+            "id": 37
           }
         ],
         [
@@ -321,7 +412,7 @@
                 "lo": 213,
                 "hi": 216
               },
-              "id": 31
+              "id": 38
             },
             "const_parameters": [],
             "input": [
@@ -332,7 +423,7 @@
                     "lo": 217,
                     "hi": 218
                   },
-                  "id": 32
+                  "id": 39
                 },
                 "mode": "None",
                 "type_": {
@@ -342,7 +433,7 @@
                   "lo": 217,
                   "hi": 222
                 },
-                "id": 33
+                "id": 40
               }
             ],
             "output": [
@@ -355,7 +446,7 @@
                   "lo": 227,
                   "hi": 229
                 },
-                "id": 34
+                "id": 51
               }
             ],
             "output_type": {
@@ -372,7 +463,7 @@
                           "lo": 244,
                           "hi": 254
                         },
-                        "id": 35
+                        "id": 42
                       }
                     },
                     "type_": {
@@ -386,7 +477,7 @@
                               "lo": 261,
                               "hi": 264
                             },
-                            "id": 36,
+                            "id": 44,
                             "variant": {
                               "Integer": [
                                 "U8",
@@ -396,13 +487,23 @@
                           }
                         },
                         "right": {
-                          "Identifier": {
-                            "name": "x",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "x",
+                              "span": {
+                                "lo": 267,
+                                "hi": 268
+                              },
+                              "id": 46
+                            },
+                            "is_absolute": false,
+                            "absolute_path": null,
                             "span": {
                               "lo": 267,
                               "hi": 268
                             },
-                            "id": 37
+                            "id": 45
                           }
                         },
                         "op": "Add",
@@ -410,33 +511,43 @@
                           "lo": 261,
                           "hi": 268
                         },
-                        "id": 38
+                        "id": 43
                       }
                     },
                     "span": {
                       "lo": 240,
-                      "hi": 268
+                      "hi": 269
                     },
-                    "id": 39
+                    "id": 41
                   }
                 },
                 {
                   "Return": {
                     "expression": {
-                      "Identifier": {
-                        "name": "signature_",
+                      "Path": {
+                        "qualifier": [],
+                        "identifier": {
+                          "name": "signature_",
+                          "span": {
+                            "lo": 285,
+                            "hi": 295
+                          },
+                          "id": 49
+                        },
+                        "is_absolute": false,
+                        "absolute_path": null,
                         "span": {
                           "lo": 285,
                           "hi": 295
                         },
-                        "id": 40
+                        "id": 48
                       }
                     },
                     "span": {
                       "lo": 278,
                       "hi": 296
                     },
-                    "id": 41
+                    "id": 47
                   }
                 }
               ],
@@ -444,13 +555,13 @@
                 "lo": 230,
                 "hi": 302
               },
-              "id": 42
+              "id": 50
             },
             "span": {
               "lo": 202,
               "hi": 302
             },
-            "id": 43
+            "id": 52
           }
         ],
         [
@@ -464,7 +575,7 @@
                 "lo": 318,
                 "hi": 321
               },
-              "id": 44
+              "id": 53
             },
             "const_parameters": [],
             "input": [
@@ -475,7 +586,7 @@
                     "lo": 322,
                     "hi": 323
                   },
-                  "id": 45
+                  "id": 54
                 },
                 "mode": "None",
                 "type_": "Signature",
@@ -483,7 +594,7 @@
                   "lo": 322,
                   "hi": 334
                 },
-                "id": 46
+                "id": 55
               },
               {
                 "identifier": {
@@ -492,7 +603,7 @@
                     "lo": 336,
                     "hi": 337
                   },
-                  "id": 47
+                  "id": 56
                 },
                 "mode": "None",
                 "type_": "Address",
@@ -500,7 +611,7 @@
                   "lo": 336,
                   "hi": 346
                 },
-                "id": 48
+                "id": 57
               },
               {
                 "identifier": {
@@ -509,18 +620,28 @@
                     "lo": 348,
                     "hi": 349
                   },
-                  "id": 49
+                  "id": 58
                 },
                 "mode": "None",
                 "type_": {
                   "Composite": {
-                    "id": {
-                      "name": "value",
+                    "path": {
+                      "qualifier": [],
+                      "identifier": {
+                        "name": "value",
+                        "span": {
+                          "lo": 351,
+                          "hi": 356
+                        },
+                        "id": 59
+                      },
+                      "is_absolute": false,
+                      "absolute_path": null,
                       "span": {
                         "lo": 351,
                         "hi": 356
                       },
-                      "id": 50
+                      "id": 60
                     },
                     "const_arguments": [],
                     "program": null
@@ -530,7 +651,7 @@
                   "lo": 348,
                   "hi": 356
                 },
-                "id": 51
+                "id": 61
               }
             ],
             "output": [],
@@ -546,7 +667,7 @@
                           "lo": 371,
                           "hi": 372
                         },
-                        "id": 52
+                        "id": 63
                       }
                     },
                     "type_": "Boolean",
@@ -558,7 +679,7 @@
                             "lo": 381,
                             "hi": 390
                           },
-                          "id": 53
+                          "id": 65
                         },
                         "name": {
                           "name": "sign",
@@ -566,37 +687,67 @@
                             "lo": 392,
                             "hi": 396
                           },
-                          "id": 54
+                          "id": 66
                         },
                         "arguments": [
                           {
-                            "Identifier": {
-                              "name": "s",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "s",
+                                "span": {
+                                  "lo": 397,
+                                  "hi": 398
+                                },
+                                "id": 68
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
                               "span": {
                                 "lo": 397,
                                 "hi": 398
                               },
-                              "id": 55
+                              "id": 67
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "a",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "a",
+                                "span": {
+                                  "lo": 400,
+                                  "hi": 401
+                                },
+                                "id": 70
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
                               "span": {
                                 "lo": 400,
                                 "hi": 401
                               },
-                              "id": 56
+                              "id": 69
                             }
                           },
                           {
-                            "Identifier": {
-                              "name": "v",
+                            "Path": {
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "v",
+                                "span": {
+                                  "lo": 403,
+                                  "hi": 404
+                                },
+                                "id": 72
+                              },
+                              "is_absolute": false,
+                              "absolute_path": null,
                               "span": {
                                 "lo": 403,
                                 "hi": 404
                               },
-                              "id": 57
+                              "id": 71
                             }
                           }
                         ],
@@ -604,14 +755,14 @@
                           "lo": 381,
                           "hi": 405
                         },
-                        "id": 58
+                        "id": 64
                       }
                     },
                     "span": {
                       "lo": 367,
-                      "hi": 405
+                      "hi": 406
                     },
-                    "id": 59
+                    "id": 62
                   }
                 },
                 {
@@ -619,32 +770,52 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "Identifier": {
-                            "name": "a",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "span": {
+                                "lo": 424,
+                                "hi": 425
+                              },
+                              "id": 75
+                            },
+                            "is_absolute": false,
+                            "absolute_path": null,
                             "span": {
                               "lo": 424,
                               "hi": 425
                             },
-                            "id": 60
+                            "id": 74
                           }
                         },
                         {
-                          "Identifier": {
-                            "name": "b",
+                          "Path": {
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "b",
+                              "span": {
+                                "lo": 427,
+                                "hi": 428
+                              },
+                              "id": 77
+                            },
+                            "is_absolute": false,
+                            "absolute_path": null,
                             "span": {
                               "lo": 427,
                               "hi": 428
                             },
-                            "id": 61
+                            "id": 76
                           }
                         }
                       ]
                     },
                     "span": {
                       "lo": 414,
-                      "hi": 423
+                      "hi": 430
                     },
-                    "id": 62
+                    "id": 73
                   }
                 }
               ],
@@ -652,19 +823,19 @@
                 "lo": 358,
                 "hi": 435
               },
-              "id": 63
+              "id": 78
             },
             "span": {
               "lo": 307,
               "hi": 435
             },
-            "id": 64
+            "id": 79
           }
         ]
       ],
       "constructor": null,
       "span": {
-        "lo": 1,
+        "lo": 0,
         "hi": 437
       }
     }

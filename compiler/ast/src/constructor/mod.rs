@@ -27,7 +27,6 @@ use crate::{Annotation, Block, Indent, IntegerType, Location, NetworkName, Node,
 use leo_span::{Span, sym};
 
 use anyhow::{anyhow, bail};
-use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{Address, Literal, Locator, Network};
 use std::{fmt, str::FromStr};
@@ -116,7 +115,9 @@ impl Constructor {
 
 impl fmt::Display for Constructor {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.annotations.iter().join("\n"))?;
+        for annotation in &self.annotations {
+            writeln!(f, "{annotation}")?;
+        }
 
         writeln!(f, "async constructor() {{")?;
         for stmt in self.block.statements.iter() {

@@ -63,20 +63,28 @@ impl Command for LeoBuild {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Parse the network.
-        let network: NetworkName = context.get_network(&self.env_override.network)?.parse()?;
         // Build the program.
-        handle_build(&self, context, network)
+        handle_build(&self, context)
     }
 }
 
 // A helper function to handle the build command.
-fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> Result<<LeoBuild as Command>::Output> {
+fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Command>::Output> {
+    // Get the package path and home directory.
     let package_path = context.dir()?;
     let home_path = context.home()?;
 
-    // Get the endpoint, accounting for overrides.
-    let endpoint = context.get_endpoint(&command.env_override.endpoint)?;
+    // Get the network, defaulting to `TestnetV0` if none is specified.
+    let network = match get_network(&command.env_override.network) {
+        Ok(network) => network,
+        Err(_) => {
+            println!("⚠️ No network specified, defaulting to 'testnet'.");
+            NetworkName::TestnetV0
+        }
+    };
+
+    // Get the endpoint, if it is provided.
+    let endpoint = get_endpoint(&command.env_override.endpoint).ok();
 
     let package = if command.options.build_tests {
         Package::from_directory_with_tests(
@@ -84,8 +92,8 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
             &home_path,
             command.options.no_cache,
             command.options.no_local,
-            network,
-            &endpoint,
+            Some(network),
+            endpoint.as_deref(),
         )?
     } else {
         Package::from_directory(
@@ -93,10 +101,20 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
             &home_path,
             command.options.no_cache,
             command.options.no_local,
-            network,
-            &endpoint,
+            Some(network),
+            endpoint.as_deref(),
         )?
     };
+
+    // Check the manifest for the compiler version.
+    // If it does not match, warn the user and continue.
+    if package.manifest.leo != env!("CARGO_PKG_VERSION") {
+        tracing::warn!(
+            "The Leo compiler version in the manifest ({}) does not match the current version ({}).",
+            package.manifest.leo,
+            env!("CARGO_PKG_VERSION")
+        );
+    }
 
     let outputs_directory = package.outputs_directory();
     let build_directory = package.build_directory();
@@ -121,7 +139,7 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
                 // This was a network dependency or local .aleo dependency, and we have its bytecode.
                 (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
             }
-            leo_package::ProgramData::SourcePath { source, .. } => {
+            leo_package::ProgramData::SourcePath { directory, source } => {
                 // This is a local dependency, so we must compile it.
                 let build_path = if source == &main_source_path {
                     build_directory.join("main.aleo")
@@ -129,8 +147,10 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
                     imports_directory.join(format!("{}.aleo", program.name))
                 };
                 // Load the manifest in local dependency.
-                let bytecode = compile_leo_file(
-                    source,
+                let source_dir = directory.join("src");
+                let bytecode = compile_leo_source_directory(
+                    source, // entry file
+                    &source_dir,
                     program.name,
                     program.is_test,
                     &outputs_directory,
@@ -163,6 +183,7 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
         version: "0.1.0".to_string(),
         description: String::new(),
         license: String::new(),
+        leo: env!("CARGO_PKG_VERSION").to_string(),
         dependencies: None,
         dev_dependencies: None,
     };
@@ -173,8 +194,9 @@ fn handle_build(command: &LeoBuild, context: Context, network: NetworkName) -> R
 
 /// Compiles a Leo file. Writes and returns the compiled bytecode.
 #[allow(clippy::too_many_arguments)]
-fn compile_leo_file(
-    source_file_path: &Path,
+fn compile_leo_source_directory(
+    entry_file_path: &Path,
+    source_directory: &Path,
     program_name: Symbol,
     is_test: bool,
     output_path: &Path,
@@ -195,7 +217,19 @@ fn compile_leo_file(
     );
 
     // Compile the Leo program into Aleo instructions.
-    let bytecode = compiler.compile_from_file(source_file_path)?;
+    let bytecode = compiler.compile_from_directory(entry_file_path, source_directory)?;
+
+    // Check the program size limit.
+    use leo_package::MAX_PROGRAM_SIZE;
+    let program_size = bytecode.len();
+
+    if program_size > MAX_PROGRAM_SIZE {
+        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
+            program_name,
+            program_size,
+            MAX_PROGRAM_SIZE,
+        )));
+    }
 
     // Get the AVM bytecode.
     let checksum: String = match network {
@@ -204,7 +238,7 @@ fn compile_leo_file(
         NetworkName::CanaryV0 => Program::<CanaryV0>::from_str(&bytecode)?.to_checksum().iter().join(", "),
     };
 
-    tracing::info!("    \n{} statements before dead code elimination.", compiler.statements_before_dce);
+    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
     tracing::info!("    The program checksum is: '[{checksum}]'.");
 

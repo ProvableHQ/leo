@@ -45,6 +45,9 @@ pub mod interpreter_value;
 mod mapping;
 pub use self::mapping::*;
 
+mod module;
+pub use self::module::*;
+
 mod passes;
 pub use self::passes::*;
 
@@ -59,9 +62,6 @@ pub use self::types::*;
 
 mod stub;
 pub use self::stub::*;
-
-mod value;
-pub use value::*;
 
 pub use common::node::*;
 

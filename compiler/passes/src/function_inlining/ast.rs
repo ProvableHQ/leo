@@ -23,19 +23,23 @@ use indexmap::IndexMap;
 use itertools::Itertools;
 
 impl AstReconstructor for FunctionInliningVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
     /* Expressions */
-    fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Type checking guarantees that only functions local to the program scope can be inlined.
-        if input.program.unwrap() != self.program {
+        if input.program.is_some_and(|prog| prog != self.program) {
             return (input.into(), Default::default());
         }
 
         // Lookup the reconstructed callee function.
         // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
-        let (_, callee) =
-            self.reconstructed_functions.iter().find(|(symbol, _)| *symbol == input.function.name).unwrap();
+        let (_, callee) = self
+            .reconstructed_functions
+            .iter()
+            .find(|(path, _)| *path == input.function.absolute_path())
+            .expect("guaranteed to exist due to post-order traversal of the call graph.");
 
         // Inline the callee function, if required, otherwise, return the call expression.
         match callee.variant {
@@ -48,15 +52,15 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
                     .zip_eq(input.arguments)
                     .collect::<IndexMap<_, _>>();
 
-                // Function to replace identifier expressions with their corresponding const argument or keep them unchanged.
-                let replace_identifier = |expr: &Expression| match expr {
-                    Expression::Identifier(ident) => parameter_to_argument
-                        .get(&ident.name)
-                        .map_or(Expression::Identifier(*ident), |expr| expr.clone()),
+                // Function to replace path expressions with their corresponding const argument or keep them unchanged.
+                let replace_path = |expr: &Expression| match expr {
+                    Expression::Path(path) => parameter_to_argument
+                        .get(&path.identifier().name)
+                        .map_or(Expression::Path(path.clone()), |expr| expr.clone()),
                     _ => expr.clone(),
                 };
 
-                let mut inlined_statements = Replacer::new(replace_identifier, &self.state.node_builder)
+                let mut inlined_statements = Replacer::new(replace_path, false /* refresh IDs */, self.state)
                     .reconstruct_block(callee.block.clone())
                     .0
                     .statements;
@@ -112,7 +116,7 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
         } else {
             (
                 ConditionalStatement {
-                    condition: self.reconstruct_expression(input.condition).0,
+                    condition: self.reconstruct_expression(input.condition, &()).0,
                     then: self.reconstruct_block(input.then).0,
                     otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n).0)),
                     span: input.span,
@@ -127,7 +131,7 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
     /// Reconstruct a definition statement by inlining any function calls.
     /// This function also segments tuple assignment statements into multiple assignment statements.
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        let (value, mut statements) = self.reconstruct_expression(input.value);
+        let (value, mut statements) = self.reconstruct_expression(input.value, &());
         match (input.place, value) {
             // If we just inlined the production of a tuple literal, we need multiple definition statements.
             (DefinitionPlace::Multiple(left), Expression::Tuple(right)) => {
@@ -159,7 +163,7 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
         // Reconstruct the expression.
         // Note that type checking guarantees that the expression is a function call.
-        let (expression, additional_statements) = self.reconstruct_expression(input.expression);
+        let (expression, additional_statements) = self.reconstruct_expression(input.expression, &());
 
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {
