@@ -1,43 +1,35 @@
-Error [ETYC0372018]: the name `owner` is defined multiple times in record `Token`
+Error [ETYC0372016]: Record variable `owner` is already declared.
     --> compiler-test:6:9
      |
    5 |         owner: address,
-     |         ^^^^^^^^^^^^^^ previous definition of the variable `owner` here
+     |         ^^^^^^^^^^^^^^ `owner` first declared here
    6 |         owner: address, // Cannot define two record variables with the same name.
-     |         ^^^^^^^^^^^^^^ `owner` redefined here
-     |
-     = record variables must have unique names
-Error [ETYC0372018]: the name `owner` is defined multiple times in record `Asset`
+     |         ^^^^^^^^^^^^^^ record variable already declared
+Error [ETYC0372016]: Record variable `owner` is already declared.
     --> compiler-test:15:9
      |
   12 |         owner: address,
-     |         ^^^^^^^^^^^^^^ previous definition of the variable `owner` here
+     |         ^^^^^^^^^^^^^^ `owner` first declared here
      ...
   15 |         owner: address,
-     |         ^^^^^^^^^^^^^^ `owner` redefined here
-     |
-     = record variables must have unique names
-Error [ETYC0372018]: the name `owner` is defined multiple times in record `Data`
+     |         ^^^^^^^^^^^^^^ record variable already declared
+Error [ETYC0372016]: Record variable `owner` is already declared.
     --> compiler-test:22:9
      |
   20 |         owner: address,
-     |         ^^^^^^^^^^^^^^ previous definition of the variable `owner` here
+     |         ^^^^^^^^^^^^^^ `owner` first declared here
      ...
   22 |         owner: address,
-     |         ^^^^^^^^^^^^^^ `owner` redefined here
-     |
-     = record variables must have unique names
-Error [ETYC0372018]: the name `amount` is defined multiple times in record `Data`
+     |         ^^^^^^^^^^^^^^ record variable already declared
+Error [ETYC0372016]: Record variable `amount` is already declared.
     --> compiler-test:23:9
      |
   21 |         amount: u64,
-     |         ^^^^^^^^^^^ previous definition of the variable `amount` here
+     |         ^^^^^^^^^^^ `amount` first declared here
      ...
   23 |         amount: u64,
-     |         ^^^^^^^^^^^ `amount` redefined here
-     |
-     = record variables must have unique names
-Error [ETYC0372085]: A program must have at least one transition function.
+     |         ^^^^^^^^^^^ record variable already declared
+Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

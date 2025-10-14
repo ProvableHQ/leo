@@ -18,8 +18,8 @@ use super::TypeCheckingVisitor;
 use crate::{VariableSymbol, VariableType};
 
 use leo_ast::{DiGraphError, Type, *};
-use leo_errors::TypeCheckerError;
-use leo_span::{Span, Symbol, sym};
+use leo_errors::{Label, TypeCheckerError};
+use leo_span::{Symbol, sym};
 
 use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
@@ -229,36 +229,24 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         });
 
         // Check for conflicting struct/record member names.
-        let mut used: HashMap<Symbol, Span> = HashMap::new();
+        let mut used = HashMap::new();
         for Member { identifier, type_, span, .. } in &input.members {
             // Check that the member types are defined.
             self.assert_type_is_valid(type_, *span);
 
             if let Some(first_span) = used.get(&identifier.name) {
                 self.emit_err(if input.is_record {
-                    TypeCheckerError::duplicate_record_variable_multi_span(
-                        input.name(),
-                        identifier.name,
-                        *span,
-                        Some(format!("`{}` redefined here", identifier.name)),
-                        vec![(
-                            *first_span,
-                            format!("previous definition of the variable `{}` here", identifier.name),
-                            None,
-                        )],
-                    )
+                    TypeCheckerError::duplicate_record_variable(identifier.name, *span).with_labels(vec![
+                        Label::new(format!("`{}` first declared here", identifier.name), *first_span)
+                            .with_color(leo_errors::Color::Blue),
+                        Label::new("record variable already declared", *span),
+                    ])
                 } else {
-                    TypeCheckerError::duplicate_struct_member_multi_span(
-                        input.name(),
-                        identifier.name,
-                        *span,
-                        Some(format!("`{}` redefined here", identifier.name)),
-                        vec![(
-                            *first_span,
-                            format!("previous definition of the member `{}` here", identifier.name),
-                            None,
-                        )],
-                    )
+                    TypeCheckerError::duplicate_struct_member(identifier.name, *span).with_labels(vec![
+                        Label::new(format!("`{}` first declared here", identifier.name), *first_span)
+                            .with_color(leo_errors::Color::Blue),
+                        Label::new("struct field already declared", *span),
+                    ])
                 });
             } else {
                 used.insert(identifier.name, *span);

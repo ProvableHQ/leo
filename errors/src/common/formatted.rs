@@ -21,11 +21,13 @@ use leo_span::{Span, with_session_globals};
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
 use colored::Colorize;
+use itertools::Itertools;
 use std::fmt;
 
-/// Represents available colors for span labels in error messages.
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
-pub enum SpanColor {
+/// Represents available colors for error labels.
+#[derive(Default, Clone, Debug, Hash, PartialEq, Eq)]
+pub enum Color {
+    #[default]
     Red,
     Yellow,
     Blue,
@@ -34,25 +36,36 @@ pub enum SpanColor {
     Magenta,
 }
 
-impl SpanColor {
-    /// apply bold formatting with an optional color (defaults to red if None).
-    pub fn format_bold_colored(text: &str, color: Option<&SpanColor>) -> String {
-        let default = SpanColor::default();
-        let color = color.unwrap_or(&default);
-        match color {
-            SpanColor::Red => text.bold().red().to_string(),
-            SpanColor::Yellow => text.bold().yellow().to_string(),
-            SpanColor::Blue => text.bold().blue().to_string(),
-            SpanColor::Green => text.bold().green().to_string(),
-            SpanColor::Cyan => text.bold().cyan().to_string(),
-            SpanColor::Magenta => text.bold().magenta().to_string(),
+impl Color {
+    /// Color `text` with `self` ane make it bold.
+    pub fn color_and_bold(&self, text: &str) -> String {
+        match self {
+            Color::Red => text.bold().red().to_string(),
+            Color::Yellow => text.bold().yellow().to_string(),
+            Color::Blue => text.bold().blue().to_string(),
+            Color::Green => text.bold().green().to_string(),
+            Color::Cyan => text.bold().cyan().to_string(),
+            Color::Magenta => text.bold().magenta().to_string(),
         }
     }
 }
 
-impl Default for SpanColor {
-    fn default() -> Self {
-        SpanColor::Red
+/// Represents error labels.
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+pub struct Label {
+    msg: String,
+    span: Span,
+    color: Color,
+}
+
+impl Label {
+    pub fn new(msg: impl fmt::Display, span: Span) -> Self {
+        Self { msg: msg.to_string(), span, color: Color::default() }
+    }
+
+    pub fn with_color(mut self, color: Color) -> Self {
+        self.color = color;
+        self
     }
 }
 
@@ -69,26 +82,10 @@ impl Default for SpanColor {
 pub struct Formatted {
     /// The formatted error span information.
     pub span: Span,
-    /// Optional label for the primary span
-    pub span_label: Option<String>,
-    /// Optional color for the primary span (defaults to red)
-    pub span_color: Option<SpanColor>,
     /// Additional spans with labels and optional colors for multi-span errors.
-    pub additional_spans: Vec<(Span, String, Option<SpanColor>)>,
+    pub labels: Vec<Label>,
     /// The backtrace to track where the Leo error originated.
-    pub backtrace: Backtraced,
-}
-
-impl Default for Formatted {
-    fn default() -> Self {
-        Self {
-            span: Span::default(),
-            span_label: None,
-            span_color: None,
-            additional_spans: Vec::new(),
-            backtrace: Backtraced::default(),
-        }
-    }
+    pub backtrace: Box<Backtraced>,
 }
 
 impl Formatted {
@@ -109,10 +106,8 @@ impl Formatted {
     {
         Self {
             span,
-            span_label: None,
-            span_color: None,
-            additional_spans: Vec::new(),
-            backtrace: Backtraced::new_from_backtrace(
+            labels: Vec::new(),
+            backtrace: Box::new(Backtraced::new_from_backtrace(
                 message.to_string(),
                 help,
                 code,
@@ -120,42 +115,7 @@ impl Formatted {
                 type_,
                 error,
                 backtrace,
-            ),
-        }
-    }
-
-    /// Creates a backtraced error from multiple spans with labels, colors, and a backtrace.
-    #[allow(clippy::too_many_arguments)]
-    pub fn new_from_spans<S>(
-        message: S,
-        help: Option<String>,
-        code: i32,
-        code_identifier: i8,
-        type_: String,
-        error: bool,
-        span: Span,
-        span_label: Option<String>,
-        span_color: Option<SpanColor>,
-        additional_spans: Vec<(Span, String, Option<SpanColor>)>,
-        backtrace: Backtrace,
-    ) -> Self
-    where
-        S: ToString,
-    {
-        Self {
-            span,
-            span_label,
-            span_color,
-            additional_spans,
-            backtrace: Backtraced::new_from_backtrace(
-                message.to_string(),
-                help,
-                code,
-                code_identifier,
-                type_,
-                error,
-                backtrace,
-            ),
+            )),
         }
     }
 
@@ -172,6 +132,12 @@ impl Formatted {
     /// Returns an warning identifier.
     pub fn warning_code(&self) -> String {
         self.backtrace.warning_code()
+    }
+
+    /// Returns a new instance of `Formatted` which has labels.
+    pub fn with_labels(mut self, labels: Vec<Label>) -> Self {
+        self.labels = labels;
+        self
     }
 }
 
@@ -193,105 +159,89 @@ impl fmt::Display for Formatted {
             writeln!(f, "{message}")?;
         };
 
-        if !self.additional_spans.is_empty() {
-            let mut all_spans: Vec<(Span, Option<&String>, Option<&SpanColor>, usize)> = Vec::new();
+        if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
+            let line_contents = source_file.line_contents(self.span);
 
-            // "previous definition" spans
-            for (span, label, color) in &self.additional_spans {
-                if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
-                    let line_contents = source_file.line_contents(*span);
-                    all_spans.push((*span, Some(label), color.as_ref(), line_contents.line));
-                }
-            }
+            writeln!(
+                f,
+                "{indent     }--> {path}:{line_start}:{start}",
+                indent = INDENT,
+                path = &source_file.name,
+                // Report lines starting from line 1.
+                line_start = line_contents.line + 1,
+                // And columns - comments in some old code claims to report columns indexing from 0,
+                // but that doesn't appear to have been true.
+                start = line_contents.start + 1,
+            )?;
 
-            // duplicate/redefinition spans
-            if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
-                let line_contents = source_file.line_contents(self.span);
-                all_spans.push((self.span, self.span_label.as_ref(), self.span_color.as_ref(), line_contents.line));
-            }
-
-            all_spans.sort_by_key(|(_, _, _, line)| *line);
-
-            // display source file name and line that the duplicate occured on
-            if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
-                let line_contents = source_file.line_contents(self.span);
-                writeln!(
-                    f,
-                    "{indent     }--> {path}:{line_start}:{start}",
-                    indent = INDENT,
-                    path = &source_file.name,
-                    line_start = line_contents.line + 1,
-                    start = line_contents.start + 1,
-                )?;
-                writeln!(f, "{INDENT     } |")?;
-            }
-
-            let mut last_line: Option<usize> = None;
-            let use_color = std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty();
-            for (span, label_opt, color_opt, line_num) in all_spans {
-                // add "..." if there's a gap between spans
-                if let Some(last) = last_line {
-                    if line_num > last + 1 {
-                        writeln!(f, "{INDENT     } ...")?;
-                    }
-                }
-
-                if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
-                    let line_contents = source_file.line_contents(span);
-                    let line_start = line_contents.line + 1;
-
-                    // display the line with line number
-                    writeln!(f, "{line_start:>4} | {}", line_contents.contents.trim_end())?;
-
-                    // display the underline with label on the next line
-                    write!(f, "{INDENT     } | ")?;
-
-                    // spaces done to align with the span start
-                    for _ in 0..line_contents.start {
-                        write!(f, " ")?;
-                    }
-
-                    // carets to point out the error, i.e.:
-                    //    9 |         value: u32,
-                    //      |         ^^^^^^^^^^
-                    let caret_len = (line_contents.end - line_contents.start).max(1);
-
-                    for _ in 0..caret_len {
-                        if use_color {
-                            write!(f, "{}", SpanColor::format_bold_colored("^", color_opt))?;
-                        } else {
-                            write!(f, "^")?;
-                        }
-                    }
-
-                    // add the label if present, i.e.:
-                    //  `value` redefined here
-                    if let Some(label) = label_opt {
-                        if use_color {
-                            write!(f, " {}", SpanColor::format_bold_colored(label, color_opt))?;
-                        } else {
-                            write!(f, " {}", label)?;
-                        }
-                    }
-                    writeln!(f)?;
-                }
-
-                last_line = Some(line_num);
-            }
-        } else {
-            if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
-                let line_contents = source_file.line_contents(self.span);
-
-                writeln!(
-                    f,
-                    "{indent     }--> {path}:{line_start}:{start}",
-                    indent = INDENT,
-                    path = &source_file.name,
-                    line_start = line_contents.line + 1,
-                    start = line_contents.start + 1,
-                )?;
-
+            if self.labels.is_empty() {
+                // If there are no labels, just print the line contents which will point to the right location.
                 write!(f, "{line_contents}")?;
+            } else {
+                // If there are labels, we handle the printing manually. Something like:
+                //
+                // Error [ETYC0372016]: Record variable `y` is already declared.
+                //    --> /full/path/to/main.leo:12:9
+                //     |
+                //  10 |         y: u32,
+                //     |         ^^^^^^ `y` first declared here
+                //     ...
+                //  12 |         y: u32,
+                //     |         ^^^^^^ record variable already declared
+                //     |
+                //     = record variables must have unique names
+
+                writeln!(f, "{INDENT     } |")?;
+
+                // Sort the labels by their source line number.
+                let labels = self
+                    .labels
+                    .iter()
+                    .filter_map(|label| {
+                        with_session_globals(|s| s.source_map.find_source_file(label.span.lo)).map(|source_file| {
+                            let lc = source_file.line_contents(label.span);
+                            (label.clone(), lc.line)
+                        })
+                    })
+                    .sorted_by_key(|(_, line)| *line)
+                    .map(|(label, _)| label)
+                    .collect_vec();
+
+                let mut last_line = None;
+
+                for label in labels {
+                    let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(label.span.lo))
+                    else {
+                        continue;
+                    };
+                    let lc = source_file.line_contents(label.span);
+
+                    // Add ellipsis if there's a gap between spans.
+                    if last_line.is_some_and(|last| lc.line > last + 1) {
+                        writeln!(f, "{INDENT} ...")?;
+                    }
+
+                    // Print the line of source.
+                    writeln!(f, "{:>4} | {}", lc.line + 1, lc.contents.trim_end())?;
+                    write!(f, "{INDENT} | ")?;
+
+                    // Align to span start.
+                    write!(f, "{}", " ".repeat(lc.start))?;
+
+                    // Print carets.
+                    let caret_len = (lc.end - lc.start).max(1);
+                    let caret_str = "^".repeat(caret_len);
+
+                    if std::env::var("NOCOLOR").unwrap_or_default().trim().is_empty() {
+                        write!(f, "{}", label.color.color_and_bold(&caret_str))?;
+                        write!(f, " {}", label.color.color_and_bold(&label.msg))?;
+                    } else {
+                        write!(f, "{caret_str} {}", label.msg)?;
+                    }
+
+                    writeln!(f)?;
+                    last_line = Some(lc.line);
+                }
             }
         }
 
