@@ -1,13 +1,8 @@
-Error [EAST0372011]: There are two definitions of struct `Point` that do not match.
-    --> compiler-test:2:5
+Error [EAST0372017]: The name `Point` is defined multiple times.
+    --> compiler-test:7:12
      |
    2 |     struct Point {
-     |     ^^^^^^^^^^^^^^
-   3 |         x: u32,
-     |         ^^^^^^^
-   4 |         y: u32,
-     |         ^^^^^^^
-   5 |     }
-     |     ^
-     |
-     = Check the import files to see if there are any struct definitions of the same name.
+     |            ^^^^^ previous definition of `Point` here
+     ...
+   7 |     struct Point {
+     |            ^^^^^ `Point` redefined here

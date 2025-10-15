@@ -1,9 +1,7 @@
-Error [EAST0372013]: the global constant `N` is being shadowed.
+Error [EAST0372017]: The name `N` is defined multiple times.
     --> compiler-test:8:18
      |
    7 |     const N: u32 = 5;
-     |           ^ previous definition of the global constant `N` here
+     |           ^ previous definition of `N` here
    8 |     inline foo::[N: u32]() {}
      |                  ^ `N` redefined here
-     |
-     = names must be unique within their scope

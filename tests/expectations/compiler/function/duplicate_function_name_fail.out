@@ -1,14 +1,8 @@
-Error [EAST0372013]: the function `foo` is being shadowed.
-    --> compiler-test:10:5
+Error [EAST0372017]: The name `foo` is defined multiple times.
+    --> compiler-test:10:14
      |
    6 |     function foo() -> u32 {
-        return 1u32;
-    }
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ previous definition of the function `foo` here
+     |              ^^^ previous definition of `foo` here
      ...
   10 |     function foo() -> u32 {
-        return 2u32;
-    }
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `foo` redefined here
-     |
-     = names must be unique within their scope
+     |              ^^^ `foo` redefined here
