@@ -73,6 +73,9 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
     /// Turn `expression` into an `Atom` if possible, looking it up in the expression
     /// tables when it's a path. Also changes `expression` into the found value.
     fn try_atom(&self, expression: &mut Expression) -> Option<Atom> {
+        // Get the ID of the expression.
+        let id = expression.id();
+        // Modify the expression in place if it's a path that can be replaced.
         let value = match expression {
             Expression::Literal(literal) => Atom::Literal(literal.variant.clone()),
             Expression::Path(path) => {
@@ -80,8 +83,10 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     Atom::Path(path.qualifier().iter().map(|id| id.name).chain([path.identifier().name]).collect());
                 let expr = Expr::Atom(atom_path);
                 if let Some(name) = self.scopes.iter().rev().find_map(|scope| scope.expressions.get(&expr)) {
-                    // This path is mapped to some name already, so replace it.
-                    *path = Path::new(
+                    // Get the type of the expression.
+                    let type_ = self.state.type_table.get(&id)?;
+                    // Construct a new path for this identifier.
+                    let p = Path::new(
                         Vec::new(),
                         Identifier::new(*name, self.state.node_builder.next_id()),
                         true,
@@ -89,6 +94,10 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                         path.span(),
                         self.state.node_builder.next_id(),
                     );
+                    // Assign the type of the path.
+                    self.state.type_table.insert(p.id(), type_);
+                    // This path is mapped to some name already, so replace it.
+                    *path = p;
                     Atom::Path(vec![*name])
                 } else {
                     let Expr::Atom(atom_path) = expr else { unreachable!() };
@@ -245,6 +254,10 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             if let Some(name) = map.expressions.get(&expr).cloned() {
                 // We already have a symbol whose value is this expression.
                 let identifier = Identifier { name, span, id: self.state.node_builder.next_id() };
+                // Get the type of the expression.
+                let type_ = self.state.type_table.get(&expression.id())?.clone();
+                // Assign the type of the new expression.
+                self.state.type_table.insert(identifier.id, type_.clone());
                 if let Some(place) = place {
                     // We were defining a new variable, whose right hand side is already defined, so map
                     // this variable to the previous variable.

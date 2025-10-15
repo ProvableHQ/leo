@@ -427,7 +427,17 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 type_parameters = parameter_list
                     .children
                     .iter()
-                    .filter(|child| matches!(child.kind, SyntaxKind::Type(..)))
+                    .filter(|child| match child.kind {
+                        SyntaxKind::Type(..) => true,
+                        SyntaxKind::Expression(..) => {
+                            handler.emit_err(ParserError::custom(
+                                "Associated function calls may only have type parameters as generic arguments",
+                                child.span,
+                            ));
+                            false
+                        }
+                        _ => false,
+                    })
                     .map(|child| Ok((to_type(child, builder, handler)?, child.span)))
                     .collect::<Result<Vec<_>>>()?;
             }
@@ -523,7 +533,17 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 const_arguments = argument_list
                     .children
                     .iter()
-                    .filter(|child| matches!(child.kind, SyntaxKind::Expression(..)))
+                    .filter(|child| match child.kind {
+                        SyntaxKind::Expression(..) => true,
+                        SyntaxKind::Type(..) => {
+                            handler.emit_err(ParserError::custom(
+                                "Function calls may only have constant expressions as generic arguments",
+                                child.span,
+                            ));
+                            false
+                        }
+                        _ => false,
+                    })
                     .map(|child| to_expression(child, builder, handler))
                     .collect::<Result<Vec<_>>>()?;
             }
@@ -768,9 +788,18 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
             let maybe_const_params = &node.children[1];
             if maybe_const_params.kind == SyntaxKind::ConstArgumentList {
                 for argument in &maybe_const_params.children {
-                    if matches!(argument.kind, SyntaxKind::Expression(..)) {
-                        let expr = to_expression(argument, builder, handler)?;
-                        const_arguments.push(expr);
+                    match argument.kind {
+                        SyntaxKind::Type(..) => {
+                            handler.emit_err(ParserError::custom(
+                                "Struct expressions may only have constant expressions as generic arguments",
+                                argument.span,
+                            ));
+                        }
+                        SyntaxKind::Expression(..) => {
+                            let expr = to_expression(argument, builder, handler)?;
+                            const_arguments.push(expr);
+                        }
+                        _ => {}
                     }
                 }
             }
@@ -868,16 +897,6 @@ fn to_const_parameters(
                 id: builder.next_id(),
             })
         })
-        .collect::<Result<Vec<_>>>()
-}
-
-fn to_type_parameters(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) -> Result<Vec<leo_ast::Type>> {
-    assert_eq!(node.kind, SyntaxKind::ConstArgumentList);
-
-    node.children
-        .iter()
-        .filter(|child| matches!(child.kind, SyntaxKind::Type(_)))
-        .map(|child| to_type(child, builder, handler))
         .collect::<Result<Vec<_>>>()
 }
 
