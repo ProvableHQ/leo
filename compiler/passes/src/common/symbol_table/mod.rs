@@ -374,17 +374,10 @@ impl SymbolTable {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
-<<<<<<< HEAD
             if let [name] = &path
-                && table.inner.borrow().variables.contains_key(name)
+                && let Some(var_symbol) = table.inner.borrow().variables.get(name)
             {
-                return Err(AstError::shadowed_variable(name, span).into());
-=======
-            if let [name] = &path {
-                if let Some(var_symbol) = table.inner.borrow().variables.get(name) {
-                    return Err(Self::emit_shadow_error(*name, span, var_symbol.span));
-                }
->>>>>>> 8bc71efb2d (Tidying up a few things)
+                return Err(Self::emit_shadow_error(*name, span, var_symbol.span));
             }
             current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));
         }
