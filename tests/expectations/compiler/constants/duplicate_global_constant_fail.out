@@ -1,9 +1,7 @@
-Error [EAST0372013]: the global constant `MAX` is being shadowed.
+Error [EAST0372017]: The name `MAX` is defined multiple times.
     --> compiler-test:3:11
      |
    2 |     const MAX: u32 = 100;
-     |           ^^^ previous definition of the global constant `MAX` here
+     |           ^^^ previous definition of `MAX` here
    3 |     const MAX: u32 = 200;
      |           ^^^ `MAX` redefined here
-     |
-     = names must be unique within their scope

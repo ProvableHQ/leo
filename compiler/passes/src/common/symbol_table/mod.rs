@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Composite, Expression, Function, Location, NodeID, Type};
-use leo_errors::{AstError, Result};
+use leo_errors::{AstError, Color, Label, LeoError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -317,7 +317,7 @@ impl SymbolTable {
             }
         } else {
             let location = Location::new(program, path.to_vec());
-            self.check_shadow_global(&location, composite.span)?;
+            self.check_shadow_global(&location, composite.identifier.span)?;
             self.structs.insert(path.to_vec(), composite);
             Ok(())
         }
@@ -325,14 +325,14 @@ impl SymbolTable {
 
     /// Insert a record at this location.
     pub fn insert_record(&mut self, location: Location, composite: Composite) -> Result<()> {
-        self.check_shadow_global(&location, composite.span)?;
+        self.check_shadow_global(&location, composite.identifier.span)?;
         self.records.insert(location, composite);
         Ok(())
     }
 
     /// Insert a function at this location.
     pub fn insert_function(&mut self, location: Location, function: Function) -> Result<()> {
-        self.check_shadow_global(&location, function.span)?;
+        self.check_shadow_global(&location, function.identifier.span)?;
         self.functions.insert(location, FunctionSymbol { function, finalizer: None });
         Ok(())
     }
@@ -349,54 +349,42 @@ impl SymbolTable {
         self.globals.get(location)
     }
 
-    fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {
-        let name = location.path.last().expect("Location path must have at least one segment");
+    pub fn emit_shadow_error(name: Symbol, span: Span, prev_span: Span) -> LeoError {
+        AstError::name_defined_multiple_times(name, span)
+            .with_labels(vec![
+                Label::new(format!("previous definition of `{name}` here"), prev_span).with_color(Color::Blue),
+                Label::new(format!("`{name}` redefined here"), span),
+            ])
+            .into()
+    }
 
-        if let Some(func) = self.functions.get(location) {
-            Err(AstError::shadowed_variable_multi_span(
-                "function",
-                name,
-                span,
-                Some(format!("`{}` redefined here", name)),
-                vec![(func.function.span, format!("previous definition of the function `{}` here", name))],
-            ).into())
-        } else if let Some(record) = self.records.get(location) {
-            Err(AstError::shadowed_variable_multi_span(
-                "record",
-                name,
-                span,
-                Some(format!("`{}` redefined here", name)),
-                vec![(record.span, format!("previous definition of the record `{}` here", name))],
-            ).into())
-        } else if let Some(struct_) = self.structs.get(&location.path) {
-            Err(AstError::shadowed_variable_multi_span(
-                "struct",
-                name,
-                span,
-                Some(format!("`{}` redefined here", name)),
-                vec![(struct_.span, format!("previous definition of the struct `{}` here", name))],
-            ).into())
-        } else if let Some(global_var) = self.globals.get(location) {
-            Err(AstError::shadowed_variable_multi_span(
-                "global constant",
-                name,
-                span,
-                Some(format!("`{}` redefined here", name)),
-                vec![(global_var.span, format!("previous definition of the global constant `{}` here", name))],
-            ).into())
-        } else {
-            Ok(())
-        }
+    fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {
+        let name = location.path.last().expect("location path must have at least one segment.");
+
+        self.functions
+            .get(location)
+            .map(|f| f.function.identifier.span)
+            .or_else(|| self.records.get(location).map(|r| r.identifier.span))
+            .or_else(|| self.structs.get(&location.path).map(|s| s.identifier.span))
+            .or_else(|| self.globals.get(location).map(|g| g.span))
+            .map_or_else(|| Ok(()), |prev_span| Err(Self::emit_shadow_error(*name, span, prev_span)))
     }
 
     fn check_shadow_variable(&self, program: Symbol, path: &[Symbol], span: Span) -> Result<()> {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
+<<<<<<< HEAD
             if let [name] = &path
                 && table.inner.borrow().variables.contains_key(name)
             {
                 return Err(AstError::shadowed_variable(name, span).into());
+=======
+            if let [name] = &path {
+                if let Some(var_symbol) = table.inner.borrow().variables.get(name) {
+                    return Err(Self::emit_shadow_error(*name, span, var_symbol.span));
+                }
+>>>>>>> 8bc71efb2d (Tidying up a few things)
             }
             current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));
         }
