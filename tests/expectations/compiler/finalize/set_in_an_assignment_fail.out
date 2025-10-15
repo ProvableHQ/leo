@@ -11,7 +11,7 @@ Error [ETYC0372117]: Expected type `u128` but type `()` was found.
 Error [EAST0372017]: The name `result` is defined multiple times.
     --> compiler-test:11:13
      |
-  10 |         let result: () = Mapping::set(amounts, addr, amount);
-     |             ^^^^^^ previous definition of `result` here
-  11 |         let result: u128 = Mapping::set(amounts, addr, amount);
-     |             ^^^^^^ `result` redefined here
+  10 |           let result: () = Mapping::set(amounts, addr, amount);
+     |               ^^^^^^ previous definition of `result` here
+  11 |           let result: u128 = Mapping::set(amounts, addr, amount);
+     |               ^^^^^^ `result` redefined here
