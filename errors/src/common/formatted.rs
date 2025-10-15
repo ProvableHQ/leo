@@ -16,7 +16,7 @@
 
 use crate::{Backtraced, INDENT};
 
-use leo_span::{Span, with_session_globals};
+use leo_span::{Span, source_map::LineContents, with_session_globals};
 
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
@@ -38,14 +38,18 @@ pub enum Color {
 
 impl Color {
     /// Color `text` with `self` ane make it bold.
-    pub fn color_and_bold(&self, text: &str) -> String {
-        match self {
-            Color::Red => text.bold().red().to_string(),
-            Color::Yellow => text.bold().yellow().to_string(),
-            Color::Blue => text.bold().blue().to_string(),
-            Color::Green => text.bold().green().to_string(),
-            Color::Cyan => text.bold().cyan().to_string(),
-            Color::Magenta => text.bold().magenta().to_string(),
+    pub fn color_and_bold(&self, text: &str, use_colors: bool) -> String {
+        if use_colors {
+            match self {
+                Color::Red => text.bold().red().to_string(),
+                Color::Yellow => text.bold().yellow().to_string(),
+                Color::Blue => text.bold().blue().to_string(),
+                Color::Green => text.bold().green().to_string(),
+                Color::Cyan => text.bold().cyan().to_string(),
+                Color::Magenta => text.bold().magenta().to_string(),
+            }
+        } else {
+            text.to_string()
         }
     }
 }
@@ -141,6 +145,115 @@ impl Formatted {
     }
 }
 
+/// Compute the start and end columns of the highlight for each line
+fn compute_line_spans(lc: &LineContents) -> Vec<(usize, usize)> {
+    let lines: Vec<&str> = lc.contents.lines().collect();
+    let mut byte_index = 0;
+    let mut line_spans = Vec::new();
+
+    for line in &lines {
+        let line_start = byte_index;
+        let line_end = byte_index + line.len();
+        let start = lc.start.saturating_sub(line_start);
+        let end = lc.end.saturating_sub(line_start);
+        line_spans.push((start.min(line.len()), end.min(line.len())));
+        byte_index = line_end + 1; // +1 for '\n'
+    }
+
+    line_spans
+}
+
+/// Print a gap or ellipsis between blocks of code
+fn print_gap(
+    f: &mut impl std::fmt::Write,
+    prev_last_line: Option<usize>,
+    first_line_of_block: usize,
+) -> std::fmt::Result {
+    if let Some(prev_last) = prev_last_line {
+        let gap = first_line_of_block.saturating_sub(prev_last + 1);
+        if gap == 1 {
+            // Single skipped line
+            writeln!(f, "{:width$} |", prev_last + 1, width = INDENT.len())?;
+        } else if gap > 1 {
+            // Multiple skipped lines
+            writeln!(f, "{:width$}...", "", width = INDENT.len() - 1)?;
+        }
+    }
+    Ok(())
+}
+
+/// Print a single line of code with connector and optional highlight
+#[allow(clippy::too_many_arguments)]
+fn print_code_line(
+    f: &mut impl std::fmt::Write,
+    line_num: usize,
+    line_text: &str,
+    connector: &str,
+    start: usize,
+    end: usize,
+    multiline: bool,
+    first_line: Option<usize>,
+    last_line: Option<usize>,
+    label: &Label,
+) -> std::fmt::Result {
+    let use_colors = std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty();
+
+    // Print line number, connector, and code
+    write!(f, "{:width$} | {} ", line_num, label.color.color_and_bold(connector, use_colors), width = INDENT.len())?;
+    writeln!(f, "{line_text}")?;
+
+    // Single-line highlight with caret
+    if !multiline && end > start {
+        writeln!(
+            f,
+            "{INDENT} |   {:start$}{} {}",
+            "",
+            label.color.color_and_bold(&"^".repeat(end - start), use_colors),
+            label.color.color_and_bold(&label.msg, use_colors),
+            start = start
+        )?;
+    }
+    // Multi-line highlight: only print underline on last line
+    else if multiline {
+        if let (Some(first), Some(last)) = (first_line, last_line) {
+            if line_num - first_line.unwrap() == last - first {
+                let underline_len = (end - start).max(1);
+                writeln!(
+                    f,
+                    "{INDENT} | {:start$}{} {}",
+                    label.color.color_and_bold("|", use_colors), // vertical pointer
+                    label.color.color_and_bold(&"_".repeat(underline_len), use_colors), // underline
+                    label.color.color_and_bold(&label.msg, use_colors), // message
+                    start = start
+                )?;
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Print the final underline for a multi-line highlight (Rust-style with `-`)
+fn print_multiline_underline(
+    f: &mut impl std::fmt::Write,
+    start_col: usize,
+    end_col: usize,
+    label: &Label,
+) -> std::fmt::Result {
+    let use_colors = std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty();
+    let underline_len = (end_col - start_col).max(1);
+    let underline = format!("{}-", "_".repeat(underline_len));
+
+    writeln!(
+        f,
+        "{INDENT} | {:start$}{} {}",
+        label.color.color_and_bold("|", use_colors), // vertical pointer
+        label.color.color_and_bold(&underline, use_colors), // colored underline + dash
+        label.color.color_and_bold(&label.msg, use_colors), // message
+        start = start_col
+    )
+}
+
 impl fmt::Display for Formatted {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let (kind, code) =
@@ -179,19 +292,14 @@ impl fmt::Display for Formatted {
                 write!(f, "{line_contents}")?;
             } else {
                 // If there are labels, we handle the printing manually. Something like:
-                //
-                // Error [ETYC0372016]: Record variable `y` is already declared.
-                //    --> /full/path/to/main.leo:12:9
                 //     |
-                //  10 |         y: u32,
-                //     |         ^^^^^^ `y` first declared here
-                //     ...
-                //  12 |         y: u32,
-                //     |         ^^^^^^ record variable already declared
-                //     |
-                //     = record variables must have unique names
-
-                writeln!(f, "{INDENT     } |")?;
+                //  50 | /         x
+                //  51 | |             :
+                //  52 | |                 u32,
+                //     | |___________________- `x` first declared here
+                //   ...
+                //  55 |           x: u32
+                //     |           ^^^^^^ struct field already declared
 
                 // Sort the labels by their source line number.
                 let labels = self
@@ -207,40 +315,81 @@ impl fmt::Display for Formatted {
                     .map(|(label, _)| label)
                     .collect_vec();
 
-                let mut last_line = None;
+                // Track the last printed line number to handle gaps between blocks
+                let mut prev_last_line: Option<usize> = None;
 
                 for label in labels {
+                    // Find the source file corresponding to this label's span
                     let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(label.span.lo))
                     else {
                         continue;
                     };
+
+                    // Get the line contents and offsets for this span
                     let lc = source_file.line_contents(label.span);
 
-                    // Add ellipsis if there's a gap between spans.
-                    if last_line.is_some_and(|last| lc.line > last + 1) {
-                        writeln!(f, "{INDENT} ...")?;
+                    // Compute start and end columns of highlights for each line
+                    let line_spans = compute_line_spans(&lc);
+
+                    let first_line_of_block = lc.line + 1; // 1-based line number of the first line
+
+                    // Print a gap or ellipsis if there are skipped lines since previous label
+                    print_gap(f, prev_last_line, first_line_of_block)?;
+
+                    // Print a leading vertical margin only for the first label
+                    if prev_last_line.is_none() {
+                        writeln!(f, "{INDENT} |")?;
                     }
 
-                    // Print the line of source.
-                    writeln!(f, "{:>4} | {}", lc.line + 1, lc.contents.trim_end())?;
-                    write!(f, "{INDENT} | ")?;
+                    // Determine if this label spans multiple lines
+                    let multiline = line_spans.iter().any(|&(s, e)| e > s) && lc.contents.lines().count() > 1;
 
-                    // Align to span start.
-                    write!(f, "{}", " ".repeat(lc.start))?;
+                    // Identify first and last lines that have a highlight
+                    let first_line = line_spans.iter().position(|&(s, e)| e > s);
+                    let last_line = line_spans.iter().rposition(|&(s, e)| e > s);
 
-                    // Print carets.
-                    let caret_len = (lc.end - lc.start).max(1);
-                    let caret_str = "^".repeat(caret_len);
+                    // Iterate over each line in the span
+                    for (i, (line_text, &(start, end))) in lc.contents.lines().zip(&line_spans).enumerate() {
+                        let line_num = lc.line + i + 1;
 
-                    if std::env::var("NOCOLOR").unwrap_or_default().trim().is_empty() {
-                        write!(f, "{}", label.color.color_and_bold(&caret_str))?;
-                        write!(f, " {}", label.color.color_and_bold(&label.msg))?;
-                    } else {
-                        write!(f, "{caret_str} {}", label.msg)?;
+                        // Choose connector symbol for multi-line highlights:
+                        // "/" for first line, "|" for continuation lines
+                        let connector = if multiline {
+                            match (first_line, last_line) {
+                                (Some(first), Some(_last)) => {
+                                    if i == first {
+                                        "/"
+                                    } else {
+                                        "|"
+                                    }
+                                }
+                                _ => " ",
+                            }
+                        } else {
+                            " "
+                        };
+
+                        // Print the code line with connector and optional single-line caret
+                        print_code_line(
+                            f, line_num, line_text, connector, start, end, multiline, first_line, last_line, &label,
+                        )?;
                     }
 
-                    writeln!(f)?;
-                    last_line = Some(lc.line);
+                    // If this was a multi-line highlight, print the final underline + message
+                    if multiline {
+                        if let (Some(_), Some(last)) = (first_line, last_line) {
+                            // Start column: first highlighted character on the last line
+                            let start_col = line_spans[last].0;
+
+                            // End column: last highlighted character on the last line
+                            let end_col = line_spans[last].1;
+
+                            print_multiline_underline(f, start_col, end_col, &label)?;
+                        }
+                    }
+
+                    // Update the previous last line to track gaps for the next label
+                    prev_last_line = Some(lc.line + lc.contents.lines().count());
                 }
             }
         }
