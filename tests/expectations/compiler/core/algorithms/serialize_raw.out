@@ -6,7 +6,14 @@ function main:
     input r2 as u64.private;
     input r3 as i32.private;
     input r4 as address.private;
-    serialize.bits.raw r0 (field) into r5 ([boolean; 253u32]);    serialize.bits.raw r1 (group) into r6 ([boolean; 253u32]);    serialize.bits.raw r4 (address) into r7 ([boolean; 253u32]);    serialize.bits.raw r2 (u64) into r8 ([boolean; 64u32]);    serialize.bits.raw r3 (i32) into r9 ([boolean; 32u32]);    serialize.bits r0 (field) into r10 ([boolean; 279u32]);    serialize.bits r1 (group) into r11 ([boolean; 279u32]);    is.neq r10[0u32] r5[0u32] into r12;
+    serialize.bits.raw r0 (field) into r5 ([boolean; 253u32]);
+    serialize.bits.raw r1 (group) into r6 ([boolean; 253u32]);
+    serialize.bits.raw r4 (address) into r7 ([boolean; 253u32]);
+    serialize.bits.raw r2 (u64) into r8 ([boolean; 64u32]);
+    serialize.bits.raw r3 (i32) into r9 ([boolean; 32u32]);
+    serialize.bits r0 (field) into r10 ([boolean; 279u32]);
+    serialize.bits r1 (group) into r11 ([boolean; 279u32]);
+    is.neq r10[0u32] r5[0u32] into r12;
     is.neq r11[0u32] r6[0u32] into r13;
     output r5[0u32] as boolean.private;
     output r5[100u32] as boolean.private;

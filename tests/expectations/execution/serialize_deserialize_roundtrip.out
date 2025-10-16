@@ -6,119 +6,183 @@ mapping results:
 
 function test_u8_rt:
     input r0 as u8.private;
-    serialize.bits r0 (u8) into r1 ([boolean; 34u32]);    deserialize.bits r1 ([boolean; 34u32]) into r2 (u8);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (u8) into r4 ([boolean; 8u32]);    deserialize.bits.raw r4 ([boolean; 8u32]) into r5 (u8);    is.eq r0 r5 into r6;
+    serialize.bits r0 (u8) into r1 ([boolean; 34u32]);
+    deserialize.bits r1 ([boolean; 34u32]) into r2 (u8);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (u8) into r4 ([boolean; 8u32]);
+    deserialize.bits.raw r4 ([boolean; 8u32]) into r5 (u8);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_u16_rt:
     input r0 as u16.private;
-    serialize.bits r0 (u16) into r1 ([boolean; 42u32]);    deserialize.bits r1 ([boolean; 42u32]) into r2 (u16);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (u16) into r4 ([boolean; 16u32]);    deserialize.bits.raw r4 ([boolean; 16u32]) into r5 (u16);    is.eq r0 r5 into r6;
+    serialize.bits r0 (u16) into r1 ([boolean; 42u32]);
+    deserialize.bits r1 ([boolean; 42u32]) into r2 (u16);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (u16) into r4 ([boolean; 16u32]);
+    deserialize.bits.raw r4 ([boolean; 16u32]) into r5 (u16);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_u32_rt:
     input r0 as u32.private;
-    serialize.bits r0 (u32) into r1 ([boolean; 58u32]);    deserialize.bits r1 ([boolean; 58u32]) into r2 (u32);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (u32) into r4 ([boolean; 32u32]);    deserialize.bits.raw r4 ([boolean; 32u32]) into r5 (u32);    is.eq r0 r5 into r6;
+    serialize.bits r0 (u32) into r1 ([boolean; 58u32]);
+    deserialize.bits r1 ([boolean; 58u32]) into r2 (u32);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (u32) into r4 ([boolean; 32u32]);
+    deserialize.bits.raw r4 ([boolean; 32u32]) into r5 (u32);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_u64_rt:
     input r0 as u64.private;
-    serialize.bits r0 (u64) into r1 ([boolean; 90u32]);    deserialize.bits r1 ([boolean; 90u32]) into r2 (u64);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (u64) into r4 ([boolean; 64u32]);    deserialize.bits.raw r4 ([boolean; 64u32]) into r5 (u64);    is.eq r0 r5 into r6;
+    serialize.bits r0 (u64) into r1 ([boolean; 90u32]);
+    deserialize.bits r1 ([boolean; 90u32]) into r2 (u64);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (u64) into r4 ([boolean; 64u32]);
+    deserialize.bits.raw r4 ([boolean; 64u32]) into r5 (u64);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_u128_rt:
     input r0 as u128.private;
-    serialize.bits r0 (u128) into r1 ([boolean; 154u32]);    deserialize.bits r1 ([boolean; 154u32]) into r2 (u128);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (u128) into r4 ([boolean; 128u32]);    deserialize.bits.raw r4 ([boolean; 128u32]) into r5 (u128);    is.eq r0 r5 into r6;
+    serialize.bits r0 (u128) into r1 ([boolean; 154u32]);
+    deserialize.bits r1 ([boolean; 154u32]) into r2 (u128);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (u128) into r4 ([boolean; 128u32]);
+    deserialize.bits.raw r4 ([boolean; 128u32]) into r5 (u128);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_i8_rt:
     input r0 as i8.private;
-    serialize.bits r0 (i8) into r1 ([boolean; 34u32]);    deserialize.bits r1 ([boolean; 34u32]) into r2 (i8);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (i8) into r4 ([boolean; 8u32]);    deserialize.bits.raw r4 ([boolean; 8u32]) into r5 (i8);    is.eq r0 r5 into r6;
+    serialize.bits r0 (i8) into r1 ([boolean; 34u32]);
+    deserialize.bits r1 ([boolean; 34u32]) into r2 (i8);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (i8) into r4 ([boolean; 8u32]);
+    deserialize.bits.raw r4 ([boolean; 8u32]) into r5 (i8);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_i16_rt:
     input r0 as i16.private;
-    serialize.bits r0 (i16) into r1 ([boolean; 42u32]);    deserialize.bits r1 ([boolean; 42u32]) into r2 (i16);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (i16) into r4 ([boolean; 16u32]);    deserialize.bits.raw r4 ([boolean; 16u32]) into r5 (i16);    is.eq r0 r5 into r6;
+    serialize.bits r0 (i16) into r1 ([boolean; 42u32]);
+    deserialize.bits r1 ([boolean; 42u32]) into r2 (i16);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (i16) into r4 ([boolean; 16u32]);
+    deserialize.bits.raw r4 ([boolean; 16u32]) into r5 (i16);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_i32_rt:
     input r0 as i32.private;
-    serialize.bits r0 (i32) into r1 ([boolean; 58u32]);    deserialize.bits r1 ([boolean; 58u32]) into r2 (i32);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (i32) into r4 ([boolean; 32u32]);    deserialize.bits.raw r4 ([boolean; 32u32]) into r5 (i32);    is.eq r0 r5 into r6;
+    serialize.bits r0 (i32) into r1 ([boolean; 58u32]);
+    deserialize.bits r1 ([boolean; 58u32]) into r2 (i32);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (i32) into r4 ([boolean; 32u32]);
+    deserialize.bits.raw r4 ([boolean; 32u32]) into r5 (i32);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_i64_rt:
     input r0 as i64.private;
-    serialize.bits r0 (i64) into r1 ([boolean; 90u32]);    deserialize.bits r1 ([boolean; 90u32]) into r2 (i64);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (i64) into r4 ([boolean; 64u32]);    deserialize.bits.raw r4 ([boolean; 64u32]) into r5 (i64);    is.eq r0 r5 into r6;
+    serialize.bits r0 (i64) into r1 ([boolean; 90u32]);
+    deserialize.bits r1 ([boolean; 90u32]) into r2 (i64);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (i64) into r4 ([boolean; 64u32]);
+    deserialize.bits.raw r4 ([boolean; 64u32]) into r5 (i64);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_i128_rt:
     input r0 as i128.private;
-    serialize.bits r0 (i128) into r1 ([boolean; 154u32]);    deserialize.bits r1 ([boolean; 154u32]) into r2 (i128);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (i128) into r4 ([boolean; 128u32]);    deserialize.bits.raw r4 ([boolean; 128u32]) into r5 (i128);    is.eq r0 r5 into r6;
+    serialize.bits r0 (i128) into r1 ([boolean; 154u32]);
+    deserialize.bits r1 ([boolean; 154u32]) into r2 (i128);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (i128) into r4 ([boolean; 128u32]);
+    deserialize.bits.raw r4 ([boolean; 128u32]) into r5 (i128);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_field_rt:
     input r0 as field.private;
-    serialize.bits r0 (field) into r1 ([boolean; 279u32]);    deserialize.bits r1 ([boolean; 279u32]) into r2 (field);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (field) into r4 ([boolean; 253u32]);    deserialize.bits.raw r4 ([boolean; 253u32]) into r5 (field);    is.eq r0 r5 into r6;
+    serialize.bits r0 (field) into r1 ([boolean; 279u32]);
+    deserialize.bits r1 ([boolean; 279u32]) into r2 (field);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (field) into r4 ([boolean; 253u32]);
+    deserialize.bits.raw r4 ([boolean; 253u32]) into r5 (field);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_group_rt:
     input r0 as group.private;
-    serialize.bits r0 (group) into r1 ([boolean; 279u32]);    deserialize.bits r1 ([boolean; 279u32]) into r2 (group);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (group) into r4 ([boolean; 253u32]);    deserialize.bits.raw r4 ([boolean; 253u32]) into r5 (group);    is.eq r0 r5 into r6;
+    serialize.bits r0 (group) into r1 ([boolean; 279u32]);
+    deserialize.bits r1 ([boolean; 279u32]) into r2 (group);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (group) into r4 ([boolean; 253u32]);
+    deserialize.bits.raw r4 ([boolean; 253u32]) into r5 (group);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_scalar_rt:
     input r0 as scalar.private;
-    serialize.bits r0 (scalar) into r1 ([boolean; 277u32]);    deserialize.bits r1 ([boolean; 277u32]) into r2 (scalar);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (scalar) into r4 ([boolean; 251u32]);    deserialize.bits.raw r4 ([boolean; 251u32]) into r5 (scalar);    is.eq r0 r5 into r6;
+    serialize.bits r0 (scalar) into r1 ([boolean; 277u32]);
+    deserialize.bits r1 ([boolean; 277u32]) into r2 (scalar);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (scalar) into r4 ([boolean; 251u32]);
+    deserialize.bits.raw r4 ([boolean; 251u32]) into r5 (scalar);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_address_rt:
     input r0 as address.private;
-    serialize.bits r0 (address) into r1 ([boolean; 279u32]);    deserialize.bits r1 ([boolean; 279u32]) into r2 (address);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (address) into r4 ([boolean; 253u32]);    deserialize.bits.raw r4 ([boolean; 253u32]) into r5 (address);    is.eq r0 r5 into r6;
+    serialize.bits r0 (address) into r1 ([boolean; 279u32]);
+    deserialize.bits r1 ([boolean; 279u32]) into r2 (address);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (address) into r4 ([boolean; 253u32]);
+    deserialize.bits.raw r4 ([boolean; 253u32]) into r5 (address);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_bool_rt:
     input r0 as boolean.private;
-    serialize.bits r0 (boolean) into r1 ([boolean; 27u32]);    deserialize.bits r1 ([boolean; 27u32]) into r2 (boolean);    is.eq r0 r2 into r3;
-    serialize.bits.raw r0 (boolean) into r4 ([boolean; 1u32]);    deserialize.bits.raw r4 ([boolean; 1u32]) into r5 (boolean);    is.eq r0 r5 into r6;
+    serialize.bits r0 (boolean) into r1 ([boolean; 27u32]);
+    deserialize.bits r1 ([boolean; 27u32]) into r2 (boolean);
+    is.eq r0 r2 into r3;
+    serialize.bits.raw r0 (boolean) into r4 ([boolean; 1u32]);
+    deserialize.bits.raw r4 ([boolean; 1u32]) into r5 (boolean);
+    is.eq r0 r5 into r6;
     and r3 r6 into r7;
     output r7 as boolean.public;
 
 function test_array_rt:
     input r0 as [u32; 4u32].private;
-    serialize.bits r0 ([u32; 4u32]) into r1 ([boolean; 330u32]);    deserialize.bits r1 ([boolean; 330u32]) into r2 ([u32; 4u32]);    is.eq r0[0u32] r2[0u32] into r3;
+    serialize.bits r0 ([u32; 4u32]) into r1 ([boolean; 330u32]);
+    deserialize.bits r1 ([boolean; 330u32]) into r2 ([u32; 4u32]);
+    is.eq r0[0u32] r2[0u32] into r3;
     is.eq r0[1u32] r2[1u32] into r4;
     and r3 r4 into r5;
     is.eq r0[2u32] r2[2u32] into r6;
     and r5 r6 into r7;
     is.eq r0[3u32] r2[3u32] into r8;
     and r7 r8 into r9;
-    serialize.bits.raw r0 ([u32; 4u32]) into r10 ([boolean; 128u32]);    deserialize.bits.raw r10 ([boolean; 128u32]) into r11 ([u32; 4u32]);    is.eq r0[0u32] r11[0u32] into r12;
+    serialize.bits.raw r0 ([u32; 4u32]) into r10 ([boolean; 128u32]);
+    deserialize.bits.raw r10 ([boolean; 128u32]) into r11 ([u32; 4u32]);
+    is.eq r0[0u32] r11[0u32] into r12;
     is.eq r0[1u32] r11[1u32] into r13;
     and r12 r13 into r14;
     is.eq r0[2u32] r11[2u32] into r15;
@@ -136,8 +200,12 @@ function test_async_u32_rt:
 finalize test_async_u32_rt:
     input r0 as address.public;
     input r1 as u32.public;
-    serialize.bits r1 (u32) into r2 ([boolean; 58u32]);    deserialize.bits r2 ([boolean; 58u32]) into r3 (u32);    is.eq r1 r3 into r4;
-    serialize.bits.raw r1 (u32) into r5 ([boolean; 32u32]);    deserialize.bits.raw r5 ([boolean; 32u32]) into r6 (u32);    is.eq r1 r6 into r7;
+    serialize.bits r1 (u32) into r2 ([boolean; 58u32]);
+    deserialize.bits r2 ([boolean; 58u32]) into r3 (u32);
+    is.eq r1 r3 into r4;
+    serialize.bits.raw r1 (u32) into r5 ([boolean; 32u32]);
+    deserialize.bits.raw r5 ([boolean; 32u32]) into r6 (u32);
+    is.eq r1 r6 into r7;
     and r4 r7 into r8;
     assert.eq r8 true;
 
@@ -149,8 +217,12 @@ function test_async_field_rt:
 finalize test_async_field_rt:
     input r0 as address.public;
     input r1 as field.public;
-    serialize.bits r1 (field) into r2 ([boolean; 279u32]);    deserialize.bits r2 ([boolean; 279u32]) into r3 (field);    is.eq r1 r3 into r4;
-    serialize.bits.raw r1 (field) into r5 ([boolean; 253u32]);    deserialize.bits.raw r5 ([boolean; 253u32]) into r6 (field);    is.eq r1 r6 into r7;
+    serialize.bits r1 (field) into r2 ([boolean; 279u32]);
+    deserialize.bits r2 ([boolean; 279u32]) into r3 (field);
+    is.eq r1 r3 into r4;
+    serialize.bits.raw r1 (field) into r5 ([boolean; 253u32]);
+    deserialize.bits.raw r5 ([boolean; 253u32]) into r6 (field);
+    is.eq r1 r6 into r7;
     and r4 r7 into r8;
     assert.eq r8 true;
 
@@ -162,10 +234,14 @@ function test_async_array_rt:
 finalize test_async_array_rt:
     input r0 as address.public;
     input r1 as [u8; 2u32].public;
-    serialize.bits r1 ([u8; 2u32]) into r2 ([boolean; 134u32]);    deserialize.bits r2 ([boolean; 134u32]) into r3 ([u8; 2u32]);    is.eq r1[0u32] r3[0u32] into r4;
+    serialize.bits r1 ([u8; 2u32]) into r2 ([boolean; 134u32]);
+    deserialize.bits r2 ([boolean; 134u32]) into r3 ([u8; 2u32]);
+    is.eq r1[0u32] r3[0u32] into r4;
     is.eq r1[1u32] r3[1u32] into r5;
     and r4 r5 into r6;
-    serialize.bits.raw r1 ([u8; 2u32]) into r7 ([boolean; 16u32]);    deserialize.bits.raw r7 ([boolean; 16u32]) into r8 ([u8; 2u32]);    is.eq r1[0u32] r8[0u32] into r9;
+    serialize.bits.raw r1 ([u8; 2u32]) into r7 ([boolean; 16u32]);
+    deserialize.bits.raw r7 ([boolean; 16u32]) into r8 ([u8; 2u32]);
+    is.eq r1[0u32] r8[0u32] into r9;
     is.eq r1[1u32] r8[1u32] into r10;
     and r9 r10 into r11;
     and r6 r11 into r12;

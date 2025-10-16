@@ -5,4 +5,5 @@ function foo:
     output r0 as test.aleo/foo.future;
 
 finalize foo:
-    rand.chacha into r0 as boolean;    assert.eq r0 true;
+    rand.chacha into r0 as boolean;
+    assert.eq r0 true;
