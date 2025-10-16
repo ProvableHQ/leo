@@ -40,29 +40,36 @@ pub struct TypeCheckingInput {
     pub max_mappings: usize,
     pub max_functions: usize,
     pub max_inputs: usize,
+    pub max_outputs: usize,
 }
 
 impl TypeCheckingInput {
     /// Create a new `TypeCheckingInput` from the given network.
     pub fn new(network: NetworkName) -> Self {
-        let (max_array_elements, max_mappings, max_functions, max_inputs) = match network {
+        let (max_array_elements, max_mappings, max_functions, max_inputs, max_outputs) = match network {
             NetworkName::MainnetV0 => (
                 MainnetV0::MAX_ARRAY_ELEMENTS,
                 MainnetV0::MAX_MAPPINGS,
                 MainnetV0::MAX_FUNCTIONS,
                 MainnetV0::MAX_INPUTS,
+                MainnetV0::MAX_OUTPUTS,
             ),
             NetworkName::TestnetV0 => (
                 TestnetV0::MAX_ARRAY_ELEMENTS,
                 TestnetV0::MAX_MAPPINGS,
                 TestnetV0::MAX_FUNCTIONS,
                 TestnetV0::MAX_INPUTS,
+                TestnetV0::MAX_OUTPUTS,
             ),
-            NetworkName::CanaryV0 => {
-                (CanaryV0::MAX_ARRAY_ELEMENTS, CanaryV0::MAX_MAPPINGS, CanaryV0::MAX_FUNCTIONS, CanaryV0::MAX_INPUTS)
-            }
+            NetworkName::CanaryV0 => (
+                CanaryV0::MAX_ARRAY_ELEMENTS,
+                CanaryV0::MAX_MAPPINGS,
+                CanaryV0::MAX_FUNCTIONS,
+                CanaryV0::MAX_INPUTS,
+                CanaryV0::MAX_OUTPUTS,
+            ),
         };
-        Self { max_array_elements, max_mappings, max_functions, max_inputs }
+        Self { max_array_elements, max_mappings, max_functions, max_inputs, max_outputs }
     }
 }
 

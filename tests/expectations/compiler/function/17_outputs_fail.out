@@ -1,0 +1,21 @@
+Error [ETYC0372169]: The transition `bar` has 17 output parameters, which exceeds the allowed limit of 16.
+    --> compiler-test:3:16
+     |
+   3 |     transition bar() -> (
+     |                ^^^
+     |
+     = Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
+Error [ETYC0372169]: The async transition `baz` has 17 output parameters, which exceeds the allowed limit of 16.
+    --> compiler-test:14:22
+     |
+  14 |     async transition baz() ->
+     |                      ^^^
+     |
+     = Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
+Error [ETYC0372169]: The function `foo` has 17 output parameters, which exceeds the allowed limit of 16.
+    --> compiler-test:27:14
+     |
+  27 |     function foo(x: u8) -> (
+     |              ^^^
+     |
+     = Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.

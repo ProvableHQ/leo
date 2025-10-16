@@ -1431,6 +1431,17 @@ impl TypeCheckingVisitor<'_> {
             self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
         }
 
+        // Ensure there aren't too many inputs
+        if function.input.len() > self.limits.max_inputs && function.variant != Variant::Inline {
+            self.state.handler.emit_err(TypeCheckerError::function_has_too_many_inputs(
+                function.variant,
+                function.identifier,
+                self.limits.max_inputs,
+                function.input.len(),
+                function.identifier.span,
+            ));
+        }
+
         // The inputs should have access to the const parameters, so handle them after.
         for (i, input) in function.input.iter().enumerate() {
             self.visit_type(input.type_());
@@ -1514,6 +1525,17 @@ impl TypeCheckingVisitor<'_> {
                 // Add the input to the type table.
                 self.state.type_table.insert(input.identifier().id(), table_type.clone());
             }
+        }
+
+        // Ensure there aren't too many outputs
+        if function.output.len() > self.limits.max_outputs && function.variant != Variant::Inline {
+            self.state.handler.emit_err(TypeCheckerError::function_has_too_many_outputs(
+                function.variant,
+                function.identifier,
+                self.limits.max_outputs,
+                function.output.len(),
+                function.identifier.span,
+            ));
         }
 
         // Type check the function's return type.
