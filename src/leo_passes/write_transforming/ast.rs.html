@@ -60,13 +60,13 @@
 <a href=#60 id=60 data-nosnippet>60</a>                id,
 <a href=#61 id=61 data-nosnippet>61</a>            };
 <a href=#62 id=62 data-nosnippet>62</a>            <span class="kw">let </span>statement = AssignStatement {
-<a href=#63 id=63 data-nosnippet>63</a>                place: Path::from(input).into(),
+<a href=#63 id=63 data-nosnippet>63</a>                place: Path::from(input).into_absolute().into(),
 <a href=#64 id=64 data-nosnippet>64</a>                value: expr.into(),
 <a href=#65 id=65 data-nosnippet>65</a>                span: Default::default(),
 <a href=#66 id=66 data-nosnippet>66</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#67 id=67 data-nosnippet>67</a>            };
 <a href=#68 id=68 data-nosnippet>68</a>            statements.push(statement.into());
-<a href=#69 id=69 data-nosnippet>69</a>            (Path::from(input).into(), statements)
+<a href=#69 id=69 data-nosnippet>69</a>            (Path::from(input).into_absolute().into(), statements)
 <a href=#70 id=70 data-nosnippet>70</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(struct_members) = <span class="self">self</span>.struct_members.get(<span class="kw-2">&amp;</span>input.name) {
 <a href=#71 id=71 data-nosnippet>71</a>            <span class="comment">// Build the struct expression from the members.
 <a href=#72 id=72 data-nosnippet>72</a>            </span><span class="kw">let </span>id = <span class="self">self</span>.state.node_builder.next_id();
@@ -96,16 +96,16 @@
 <a href=#96 id=96 data-nosnippet>96</a>                id,
 <a href=#97 id=97 data-nosnippet>97</a>            };
 <a href=#98 id=98 data-nosnippet>98</a>            <span class="kw">let </span>statement = AssignStatement {
-<a href=#99 id=99 data-nosnippet>99</a>                place: Path::from(input).into(),
+<a href=#99 id=99 data-nosnippet>99</a>                place: Path::from(input).into_absolute().into(),
 <a href=#100 id=100 data-nosnippet>100</a>                value: expr.into(),
 <a href=#101 id=101 data-nosnippet>101</a>                span: Default::default(),
 <a href=#102 id=102 data-nosnippet>102</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#103 id=103 data-nosnippet>103</a>            };
 <a href=#104 id=104 data-nosnippet>104</a>            statements.push(statement.into());
-<a href=#105 id=105 data-nosnippet>105</a>            (Path::from(input).into(), statements)
+<a href=#105 id=105 data-nosnippet>105</a>            (Path::from(input).into_absolute().into(), statements)
 <a href=#106 id=106 data-nosnippet>106</a>        } <span class="kw">else </span>{
 <a href=#107 id=107 data-nosnippet>107</a>            <span class="comment">// This is not a struct or array whose members are written to, so there's nothing to do.
-<a href=#108 id=108 data-nosnippet>108</a>            </span>(Path::from(input).into(), Default::default())
+<a href=#108 id=108 data-nosnippet>108</a>            </span>(Path::from(input).into_absolute().into(), Default::default())
 <a href=#109 id=109 data-nosnippet>109</a>        }
 <a href=#110 id=110 data-nosnippet>110</a>    }
 <a href=#111 id=111 data-nosnippet>111</a>}

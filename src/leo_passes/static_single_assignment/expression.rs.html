@@ -54,7 +54,7 @@
 <a href=#54 id=54 data-nosnippet>54</a>        } <span class="kw">else </span>{
 <a href=#55 id=55 data-nosnippet>55</a>            <span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_definition(expr);
 <a href=#56 id=56 data-nosnippet>56</a>            statements.push(statement);
-<a href=#57 id=57 data-nosnippet>57</a>            (Path::from(place).into(), statements)
+<a href=#57 id=57 data-nosnippet>57</a>            (Path::from(place).into_absolute().into(), statements)
 <a href=#58 id=58 data-nosnippet>58</a>        }
 <a href=#59 id=59 data-nosnippet>59</a>    }
 <a href=#60 id=60 data-nosnippet>60</a>}
@@ -159,7 +159,7 @@
 <a href=#159 id=159 data-nosnippet>159</a>                <span class="kw">let </span>(expression, <span class="kw-2">mut </span>stmts) = <span class="kw">if let </span><span class="prelude-val">Some</span>(expr) = arg.expression {
 <a href=#160 id=160 data-nosnippet>160</a>                    <span class="self">self</span>.consume_expression_and_define(expr)
 <a href=#161 id=161 data-nosnippet>161</a>                } <span class="kw">else </span>{
-<a href=#162 id=162 data-nosnippet>162</a>                    <span class="self">self</span>.consume_path(Path::from(arg.identifier))
+<a href=#162 id=162 data-nosnippet>162</a>                    <span class="self">self</span>.consume_path(Path::from(arg.identifier).into_absolute())
 <a href=#163 id=163 data-nosnippet>163</a>                };
 <a href=#164 id=164 data-nosnippet>164</a>                <span class="comment">// Accumulate any statements produced.
 <a href=#165 id=165 data-nosnippet>165</a>                </span>statements.append(<span class="kw-2">&amp;mut </span>stmts);

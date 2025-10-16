@@ -36,7 +36,7 @@
 <a href=#36 id=36 data-nosnippet>36</a>
 <a href=#37 id=37 data-nosnippet>37</a>        <span class="comment">// Look up the expression in the tuple map.
 <a href=#38 id=38 data-nosnippet>38</a>        </span><span class="kw">match </span><span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>path.identifier().name).and_then(|tuple_names| tuple_names.get(input.index.value())) {
-<a href=#39 id=39 data-nosnippet>39</a>            <span class="prelude-val">Some</span>(id) =&gt; (Path::from(<span class="kw-2">*</span>id).into(), Default::default()),
+<a href=#39 id=39 data-nosnippet>39</a>            <span class="prelude-val">Some</span>(id) =&gt; (Path::from(<span class="kw-2">*</span>id).into_absolute().into(), Default::default()),
 <a href=#40 id=40 data-nosnippet>40</a>            <span class="prelude-val">None </span>=&gt; {
 <a href=#41 id=41 data-nosnippet>41</a>                <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>path.id), <span class="prelude-val">Some</span>(Type::Future(<span class="kw">_</span>))) {
 <a href=#42 id=42 data-nosnippet>42</a>                    <span class="macro">panic!</span>(<span class="string">"Type checking guarantees that all tuple accesses are declared and indices are valid."</span>);
@@ -96,7 +96,7 @@
 <a href=#96 id=96 data-nosnippet>96</a>
 <a href=#97 id=97 data-nosnippet>97</a>                    <span class="self">self</span>.state.type_table.insert(place.id(), Type::Boolean);
 <a href=#98 id=98 data-nosnippet>98</a>
-<a href=#99 id=99 data-nosnippet>99</a>                    Expression::Path(Path::from(place))
+<a href=#99 id=99 data-nosnippet>99</a>                    Expression::Path(Path::from(place).into_absolute())
 <a href=#100 id=100 data-nosnippet>100</a>                };
 <a href=#101 id=101 data-nosnippet>101</a>
 <a href=#102 id=102 data-nosnippet>102</a>                <span class="comment">// These will be the `elements` of our resulting tuple.
@@ -131,7 +131,7 @@
 <a href=#131 id=131 data-nosnippet>131</a>                    );
 <a href=#132 id=132 data-nosnippet>132</a>
 <a href=#133 id=133 data-nosnippet>133</a>                    statements.push(definition);
-<a href=#134 id=134 data-nosnippet>134</a>                    elements.push(Path::from(identifier).into());
+<a href=#134 id=134 data-nosnippet>134</a>                    elements.push(Path::from(identifier).into_absolute().into());
 <a href=#135 id=135 data-nosnippet>135</a>                }
 <a href=#136 id=136 data-nosnippet>136</a>
 <a href=#137 id=137 data-nosnippet>137</a>                <span class="kw">let </span>expr: Expression =
@@ -180,8 +180,8 @@
 <a href=#180 id=180 data-nosnippet>180</a>                <span class="comment">// Again, make an assignment for each identifier.
 <a href=#181 id=181 data-nosnippet>181</a>                </span><span class="kw">for </span>(<span class="kw-2">&amp;</span>identifier, <span class="kw-2">&amp;</span>rhs_identifier) <span class="kw">in </span>identifiers.iter().zip_eq(rhs_identifiers) {
 <a href=#182 id=182 data-nosnippet>182</a>                    <span class="kw">let </span>stmt = AssignStatement {
-<a href=#183 id=183 data-nosnippet>183</a>                        place: Path::from(identifier).into(),
-<a href=#184 id=184 data-nosnippet>184</a>                        value: Path::from(rhs_identifier).into(),
+<a href=#183 id=183 data-nosnippet>183</a>                        place: Path::from(identifier).into_absolute().into(),
+<a href=#184 id=184 data-nosnippet>184</a>                        value: Path::from(rhs_identifier).into_absolute().into(),
 <a href=#185 id=185 data-nosnippet>185</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#186 id=186 data-nosnippet>186</a>                        span: Default::default(),
 <a href=#187 id=187 data-nosnippet>187</a>                    }
@@ -215,7 +215,7 @@
 <a href=#215 id=215 data-nosnippet>215</a>                    <span class="comment">// This is the corresponding variable name of the member we're assigning to.
 <a href=#216 id=216 data-nosnippet>216</a>                    </span><span class="kw">let </span>identifier = tuple_ids[access.index.value()];
 <a href=#217 id=217 data-nosnippet>217</a>
-<a href=#218 id=218 data-nosnippet>218</a>                    <span class="kw-2">*</span>place = Path::from(identifier).into();
+<a href=#218 id=218 data-nosnippet>218</a>                    <span class="kw-2">*</span>place = Path::from(identifier).into_absolute().into();
 <a href=#219 id=219 data-nosnippet>219</a>
 <a href=#220 id=220 data-nosnippet>220</a>                    <span class="kw">return </span>(assign.into(), statements);
 <a href=#221 id=221 data-nosnippet>221</a>                }
@@ -295,7 +295,7 @@
 <a href=#295 id=295 data-nosnippet>295</a>                    </span><span class="kw">let </span>stmt = DefinitionStatement {
 <a href=#296 id=296 data-nosnippet>296</a>                        place: Single(<span class="kw-2">*</span>identifier),
 <a href=#297 id=297 data-nosnippet>297</a>                        type_: <span class="prelude-val">Some</span>(ty.clone()),
-<a href=#298 id=298 data-nosnippet>298</a>                        value: Expression::Path(Path::from(<span class="kw-2">*</span>rhs_identifier)),
+<a href=#298 id=298 data-nosnippet>298</a>                        value: Expression::Path(Path::from(<span class="kw-2">*</span>rhs_identifier).into_absolute()),
 <a href=#299 id=299 data-nosnippet>299</a>                        span: Default::default(),
 <a href=#300 id=300 data-nosnippet>300</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#301 id=301 data-nosnippet>301</a>                    }
@@ -379,7 +379,7 @@
 <a href=#379 id=379 data-nosnippet>379</a>                    <span class="kw">let </span>stmt = DefinitionStatement {
 <a href=#380 id=380 data-nosnippet>380</a>                        place: Single(identifier),
 <a href=#381 id=381 data-nosnippet>381</a>                        type_: <span class="prelude-val">None</span>,
-<a href=#382 id=382 data-nosnippet>382</a>                        value: Expression::Path(Path::from(<span class="kw-2">*</span>rhs_identifier)),
+<a href=#382 id=382 data-nosnippet>382</a>                        value: Expression::Path(Path::from(<span class="kw-2">*</span>rhs_identifier).into_absolute()),
 <a href=#383 id=383 data-nosnippet>383</a>                        span: Default::default(),
 <a href=#384 id=384 data-nosnippet>384</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#385 id=385 data-nosnippet>385</a>                    }

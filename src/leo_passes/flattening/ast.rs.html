@@ -199,7 +199,7 @@
 <a href=#199 id=199 data-nosnippet>199</a>            // that led to this assertion.
 <a href=#200 id=200 data-nosnippet>200</a>            </span><span class="kw">let </span>not_guard = UnaryExpression {
 <a href=#201 id=201 data-nosnippet>201</a>                op: UnaryOperation::Not,
-<a href=#202 id=202 data-nosnippet>202</a>                receiver: Path::from(guard).into(),
+<a href=#202 id=202 data-nosnippet>202</a>                receiver: Path::from(guard).into_absolute().into(),
 <a href=#203 id=203 data-nosnippet>203</a>                span: Default::default(),
 <a href=#204 id=204 data-nosnippet>204</a>                id: {
 <a href=#205 id=205 data-nosnippet>205</a>                    <span class="comment">// Create a new node ID for the unary expression.
@@ -212,12 +212,12 @@
 <a href=#212 id=212 data-nosnippet>212</a>            .into();
 <a href=#213 id=213 data-nosnippet>213</a>            <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(not_guard);
 <a href=#214 id=214 data-nosnippet>214</a>            statements.push(statement);
-<a href=#215 id=215 data-nosnippet>215</a>            guards.push(Path::from(identifier).into());
+<a href=#215 id=215 data-nosnippet>215</a>            guards.push(Path::from(identifier).into_absolute().into());
 <a href=#216 id=216 data-nosnippet>216</a>        }
 <a href=#217 id=217 data-nosnippet>217</a>
 <a href=#218 id=218 data-nosnippet>218</a>        <span class="comment">// We also need to guard against early returns.
 <a href=#219 id=219 data-nosnippet>219</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((guard, guard_statements)) = <span class="self">self</span>.construct_early_return_guard() {
-<a href=#220 id=220 data-nosnippet>220</a>            guards.push(Path::from(guard).into());
+<a href=#220 id=220 data-nosnippet>220</a>            guards.push(Path::from(guard).into_absolute().into());
 <a href=#221 id=221 data-nosnippet>221</a>            statements.extend(guard_statements);
 <a href=#222 id=222 data-nosnippet>222</a>        }
 <a href=#223 id=223 data-nosnippet>223</a>
@@ -245,7 +245,7 @@
 <a href=#245 id=245 data-nosnippet>245</a>                <span class="self">self</span>.state.type_table.insert(binary.id, Type::Boolean);
 <a href=#246 id=246 data-nosnippet>246</a>                <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(binary.into());
 <a href=#247 id=247 data-nosnippet>247</a>                statements.push(statement);
-<a href=#248 id=248 data-nosnippet>248</a>                Path::from(identifier).into()
+<a href=#248 id=248 data-nosnippet>248</a>                Path::from(identifier).into_absolute().into()
 <a href=#249 id=249 data-nosnippet>249</a>            }
 <a href=#250 id=250 data-nosnippet>250</a>        };
 <a href=#251 id=251 data-nosnippet>251</a>
@@ -263,7 +263,7 @@
 <a href=#263 id=263 data-nosnippet>263</a>            <span class="self">self</span>.state.type_table.insert(binary.id(), Type::Boolean);
 <a href=#264 id=264 data-nosnippet>264</a>            <span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_definition(binary.into());
 <a href=#265 id=265 data-nosnippet>265</a>            statements.push(statement);
-<a href=#266 id=266 data-nosnippet>266</a>            expression = Path::from(identifier).into();
+<a href=#266 id=266 data-nosnippet>266</a>            expression = Path::from(identifier).into_absolute().into();
 <a href=#267 id=267 data-nosnippet>267</a>        }
 <a href=#268 id=268 data-nosnippet>268</a>
 <a href=#269 id=269 data-nosnippet>269</a>        <span class="kw">let </span>assert_statement = AssertStatement { variant: AssertVariant::Assert(expression), ..input }.into();

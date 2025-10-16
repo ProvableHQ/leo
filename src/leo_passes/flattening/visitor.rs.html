@@ -160,8 +160,8 @@
 <a href=#160 id=160 data-nosnippet>160</a>            <span class="comment">// Construct an Or of the two expressions.
 <a href=#161 id=161 data-nosnippet>161</a>            </span><span class="kw">let </span>binary = BinaryExpression {
 <a href=#162 id=162 data-nosnippet>162</a>                op: BinaryOperation::Or,
-<a href=#163 id=163 data-nosnippet>163</a>                left: Path::from(previous_identifier).into(),
-<a href=#164 id=164 data-nosnippet>164</a>                right: Path::from(identifier).into(),
+<a href=#163 id=163 data-nosnippet>163</a>                left: Path::from(previous_identifier).into_absolute().into(),
+<a href=#164 id=164 data-nosnippet>164</a>                right: Path::from(identifier).into_absolute().into(),
 <a href=#165 id=165 data-nosnippet>165</a>                span: Default::default(),
 <a href=#166 id=166 data-nosnippet>166</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#167 id=167 data-nosnippet>167</a>            };
@@ -219,8 +219,8 @@
 <a href=#219 id=219 data-nosnippet>219</a>            <span class="comment">// Construct an And of the two expressions.
 <a href=#220 id=220 data-nosnippet>220</a>            </span><span class="kw">let </span>binary = BinaryExpression {
 <a href=#221 id=221 data-nosnippet>221</a>                op: BinaryOperation::And,
-<a href=#222 id=222 data-nosnippet>222</a>                left: Path::from(previous).into(),
-<a href=#223 id=223 data-nosnippet>223</a>                right: Path::from(identifier).into(),
+<a href=#222 id=222 data-nosnippet>222</a>                left: Path::from(previous).into_absolute().into(),
+<a href=#223 id=223 data-nosnippet>223</a>                right: Path::from(identifier).into_absolute().into(),
 <a href=#224 id=224 data-nosnippet>224</a>                span: Default::default(),
 <a href=#225 id=225 data-nosnippet>225</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#226 id=226 data-nosnippet>226</a>            };
@@ -288,7 +288,7 @@
 <a href=#288 id=288 data-nosnippet>288</a>                        } <span class="kw">else </span>{
 <a href=#289 id=289 data-nosnippet>289</a>                            <span class="comment">// Otherwise, assign the expression to a variable and return the variable.
 <a href=#290 id=290 data-nosnippet>290</a>                            </span>statements.push(<span class="self">self</span>.simple_definition(place, value));
-<a href=#291 id=291 data-nosnippet>291</a>                            Path::from(place).into()
+<a href=#291 id=291 data-nosnippet>291</a>                            Path::from(place).into_absolute().into()
 <a href=#292 id=292 data-nosnippet>292</a>                        }
 <a href=#293 id=293 data-nosnippet>293</a>                    };
 <a href=#294 id=294 data-nosnippet>294</a>
@@ -374,7 +374,7 @@
 <a href=#374 id=374 data-nosnippet>374</a>            Literal::integer(IntegerType::U32, i.to_string(), Default::default(), <span class="self">self</span>.state.node_builder.next_id());
 <a href=#375 id=375 data-nosnippet>375</a>        <span class="self">self</span>.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
 <a href=#376 id=376 data-nosnippet>376</a>        <span class="kw">let </span>access: Expression = ArrayAccess {
-<a href=#377 id=377 data-nosnippet>377</a>            array: Path::from(identifier).into(),
+<a href=#377 id=377 data-nosnippet>377</a>            array: Path::from(identifier).into_absolute().into(),
 <a href=#378 id=378 data-nosnippet>378</a>            index: index.into(),
 <a href=#379 id=379 data-nosnippet>379</a>            span: Default::default(),
 <a href=#380 id=380 data-nosnippet>380</a>            id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -407,9 +407,9 @@
 <a href=#407 id=407 data-nosnippet>407</a>                </span><span class="kw">let </span>ternary = TernaryExpression {
 <a href=#408 id=408 data-nosnippet>408</a>                    condition: condition.clone(),
 <a href=#409 id=409 data-nosnippet>409</a>                    <span class="comment">// Access the member of the first expression.
-<a href=#410 id=410 data-nosnippet>410</a>                    </span>if_true: Path::from(first).into(),
+<a href=#410 id=410 data-nosnippet>410</a>                    </span>if_true: Path::from(first).into_absolute().into(),
 <a href=#411 id=411 data-nosnippet>411</a>                    <span class="comment">// Access the member of the second expression.
-<a href=#412 id=412 data-nosnippet>412</a>                    </span>if_false: Path::from(second).into(),
+<a href=#412 id=412 data-nosnippet>412</a>                    </span>if_false: Path::from(second).into_absolute().into(),
 <a href=#413 id=413 data-nosnippet>413</a>                    span: Default::default(),
 <a href=#414 id=414 data-nosnippet>414</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#415 id=415 data-nosnippet>415</a>                };
@@ -448,7 +448,7 @@
 <a href=#448 id=448 data-nosnippet>448</a>
 <a href=#449 id=449 data-nosnippet>449</a>        statements.push(statement);
 <a href=#450 id=450 data-nosnippet>450</a>
-<a href=#451 id=451 data-nosnippet>451</a>        (Path::from(identifier).into(), statements)
+<a href=#451 id=451 data-nosnippet>451</a>        (Path::from(identifier).into_absolute().into(), statements)
 <a href=#452 id=452 data-nosnippet>452</a>    }
 <a href=#453 id=453 data-nosnippet>453</a>
 <a href=#454 id=454 data-nosnippet>454</a>    <span class="comment">// For use in `ternary_struct`.
@@ -459,7 +459,7 @@
 <a href=#459 id=459 data-nosnippet>459</a>        type_: Type,
 <a href=#460 id=460 data-nosnippet>460</a>    ) -&gt; (Identifier, Statement) {
 <a href=#461 id=461 data-nosnippet>461</a>        <span class="kw">let </span>expr: Expression = MemberAccess {
-<a href=#462 id=462 data-nosnippet>462</a>            inner: Path::from(inner).into(),
+<a href=#462 id=462 data-nosnippet>462</a>            inner: Path::from(inner).into_absolute().into(),
 <a href=#463 id=463 data-nosnippet>463</a>            name,
 <a href=#464 id=464 data-nosnippet>464</a>            span: Default::default(),
 <a href=#465 id=465 data-nosnippet>465</a>            id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -491,8 +491,8 @@
 <a href=#491 id=491 data-nosnippet>491</a>                <span class="comment">// Recursively reconstruct the ternary expression.
 <a href=#492 id=492 data-nosnippet>492</a>                </span><span class="kw">let </span>ternary = TernaryExpression {
 <a href=#493 id=493 data-nosnippet>493</a>                    condition: condition.clone(),
-<a href=#494 id=494 data-nosnippet>494</a>                    if_true: Path::from(first).into(),
-<a href=#495 id=495 data-nosnippet>495</a>                    if_false: Path::from(second).into(),
+<a href=#494 id=494 data-nosnippet>494</a>                    if_true: Path::from(first).into_absolute().into(),
+<a href=#495 id=495 data-nosnippet>495</a>                    if_false: Path::from(second).into_absolute().into(),
 <a href=#496 id=496 data-nosnippet>496</a>                    span: Default::default(),
 <a href=#497 id=497 data-nosnippet>497</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#498 id=498 data-nosnippet>498</a>                };
@@ -543,7 +543,7 @@
 <a href=#543 id=543 data-nosnippet>543</a>
 <a href=#544 id=544 data-nosnippet>544</a>        statements.push(statement);
 <a href=#545 id=545 data-nosnippet>545</a>
-<a href=#546 id=546 data-nosnippet>546</a>        (Path::from(identifier).into(), statements)
+<a href=#546 id=546 data-nosnippet>546</a>        (Path::from(identifier).into_absolute().into(), statements)
 <a href=#547 id=547 data-nosnippet>547</a>    }
 <a href=#548 id=548 data-nosnippet>548</a>
 <a href=#549 id=549 data-nosnippet>549</a>    <span class="kw">pub fn </span>ternary_tuple(
@@ -590,8 +590,8 @@
 <a href=#590 id=590 data-nosnippet>590</a>                <span class="comment">// Recursively reconstruct the ternary expression.
 <a href=#591 id=591 data-nosnippet>591</a>                </span><span class="kw">let </span>ternary = TernaryExpression {
 <a href=#592 id=592 data-nosnippet>592</a>                    condition: condition.clone(),
-<a href=#593 id=593 data-nosnippet>593</a>                    if_true: Path::from(first).into(),
-<a href=#594 id=594 data-nosnippet>594</a>                    if_false: Path::from(second).into(),
+<a href=#593 id=593 data-nosnippet>593</a>                    if_true: Path::from(first).into_absolute().into(),
+<a href=#594 id=594 data-nosnippet>594</a>                    if_false: Path::from(second).into_absolute().into(),
 <a href=#595 id=595 data-nosnippet>595</a>                    span: Default::default(),
 <a href=#596 id=596 data-nosnippet>596</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#597 id=597 data-nosnippet>597</a>                };
@@ -628,7 +628,7 @@
 <a href=#628 id=628 data-nosnippet>628</a>
 <a href=#629 id=629 data-nosnippet>629</a>            statements.push(statement);
 <a href=#630 id=630 data-nosnippet>630</a>
-<a href=#631 id=631 data-nosnippet>631</a>            (Path::from(identifier).into(), statements)
+<a href=#631 id=631 data-nosnippet>631</a>            (Path::from(identifier).into_absolute().into(), statements)
 <a href=#632 id=632 data-nosnippet>632</a>        } <span class="kw">else </span>{
 <a href=#633 id=633 data-nosnippet>633</a>            <span class="comment">// Just use the tuple we just made.
 <a href=#634 id=634 data-nosnippet>634</a>            </span>(expr, statements)

@@ -88,7 +88,7 @@
 <a href=#88 id=88 data-nosnippet>88</a>                );
 <a href=#89 id=89 data-nosnippet>89</a>                <span class="self">self</span>.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
 <a href=#90 id=90 data-nosnippet>90</a>                <span class="kw">let </span>access = ArrayAccess {
-<a href=#91 id=91 data-nosnippet>91</a>                    array: Path::from(name).into(),
+<a href=#91 id=91 data-nosnippet>91</a>                    array: Path::from(name).into_absolute().into(),
 <a href=#92 id=92 data-nosnippet>92</a>                    index: index.into(),
 <a href=#93 id=93 data-nosnippet>93</a>                    span: Default::default(),
 <a href=#94 id=94 data-nosnippet>94</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -109,7 +109,7 @@
 <a href=#109 id=109 data-nosnippet>109</a>            <span class="kw">for </span>(<span class="kw-2">&amp;</span>field_name, <span class="kw-2">&amp;</span>member) <span class="kw">in </span>members.clone().iter() {
 <a href=#110 id=110 data-nosnippet>110</a>                <span class="comment">// Create a definition for each field.
 <a href=#111 id=111 data-nosnippet>111</a>                </span><span class="kw">let </span>access = MemberAccess {
-<a href=#112 id=112 data-nosnippet>112</a>                    inner: Path::from(name).into(),
+<a href=#112 id=112 data-nosnippet>112</a>                    inner: Path::from(name).into_absolute().into(),
 <a href=#113 id=113 data-nosnippet>113</a>                    name: Identifier::new(field_name, <span class="self">self</span>.state.node_builder.next_id()),
 <a href=#114 id=114 data-nosnippet>114</a>                    span: Default::default(),
 <a href=#115 id=115 data-nosnippet>115</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -169,7 +169,7 @@
 <a href=#169 id=169 data-nosnippet>169</a>                // Change it to this:
 <a href=#170 id=170 data-nosnippet>170</a>                // `arr = x; arr_0 = x[0]; arr_1 = x[1]; arr_2 = x[2];`
 <a href=#171 id=171 data-nosnippet>171</a>                </span><span class="kw">let </span>one_assign = AssignStatement {
-<a href=#172 id=172 data-nosnippet>172</a>                    place: Path::from(place).into(),
+<a href=#172 id=172 data-nosnippet>172</a>                    place: Path::from(place).into_absolute().into(),
 <a href=#173 id=173 data-nosnippet>173</a>                    value,
 <a href=#174 id=174 data-nosnippet>174</a>                    span: Default::default(),
 <a href=#175 id=175 data-nosnippet>175</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -178,7 +178,7 @@
 <a href=#178 id=178 data-nosnippet>178</a>                accumulate.push(one_assign);
 <a href=#179 id=179 data-nosnippet>179</a>                <span class="kw">for </span>(i, <span class="kw-2">&amp;</span>member) <span class="kw">in </span>array_members.iter().enumerate() {
 <a href=#180 id=180 data-nosnippet>180</a>                    <span class="kw">let </span>access = ArrayAccess {
-<a href=#181 id=181 data-nosnippet>181</a>                        array: Path::from(place).into(),
+<a href=#181 id=181 data-nosnippet>181</a>                        array: Path::from(place).into_absolute().into(),
 <a href=#182 id=182 data-nosnippet>182</a>                        index: Literal::integer(
 <a href=#183 id=183 data-nosnippet>183</a>                            IntegerType::U32,
 <a href=#184 id=184 data-nosnippet>184</a>                            <span class="macro">format!</span>(<span class="string">"{i}u32"</span>),
@@ -210,7 +210,7 @@
 <a href=#210 id=210 data-nosnippet>210</a>                // Change it to this:
 <a href=#211 id=211 data-nosnippet>211</a>                // `struc = x; struc_field0 = x.field0; struc_field1 = x.field1;`
 <a href=#212 id=212 data-nosnippet>212</a>                </span><span class="kw">let </span>one_assign = AssignStatement {
-<a href=#213 id=213 data-nosnippet>213</a>                    place: Path::from(place).into(),
+<a href=#213 id=213 data-nosnippet>213</a>                    place: Path::from(place).into_absolute().into(),
 <a href=#214 id=214 data-nosnippet>214</a>                    value,
 <a href=#215 id=215 data-nosnippet>215</a>                    span: Default::default(),
 <a href=#216 id=216 data-nosnippet>216</a>                    id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -219,7 +219,7 @@
 <a href=#219 id=219 data-nosnippet>219</a>                accumulate.push(one_assign);
 <a href=#220 id=220 data-nosnippet>220</a>                <span class="kw">for </span>(field, member_name) <span class="kw">in </span>struct_members.iter() {
 <a href=#221 id=221 data-nosnippet>221</a>                    <span class="kw">let </span>access = MemberAccess {
-<a href=#222 id=222 data-nosnippet>222</a>                        inner: Path::from(place).into(),
+<a href=#222 id=222 data-nosnippet>222</a>                        inner: Path::from(place).into_absolute().into(),
 <a href=#223 id=223 data-nosnippet>223</a>                        name: Identifier::new(<span class="kw-2">*</span>field, <span class="self">self</span>.state.node_builder.next_id()),
 <a href=#224 id=224 data-nosnippet>224</a>                        span: Default::default(),
 <a href=#225 id=225 data-nosnippet>225</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
@@ -230,7 +230,7 @@
 <a href=#230 id=230 data-nosnippet>230</a>        } <span class="kw">else </span>{
 <a href=#231 id=231 data-nosnippet>231</a>            <span class="kw">let </span>stmt = AssignStatement {
 <a href=#232 id=232 data-nosnippet>232</a>                value,
-<a href=#233 id=233 data-nosnippet>233</a>                place: Path::from(place).into(),
+<a href=#233 id=233 data-nosnippet>233</a>                place: Path::from(place).into_absolute().into(),
 <a href=#234 id=234 data-nosnippet>234</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
 <a href=#235 id=235 data-nosnippet>235</a>                span: Default::default(),
 <a href=#236 id=236 data-nosnippet>236</a>            }
