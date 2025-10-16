@@ -322,6 +322,7 @@
                           },
                           "id": 22
                         },
+                        "type_parameters": [],
                         "arguments": [
                           {
                             "Path": {
