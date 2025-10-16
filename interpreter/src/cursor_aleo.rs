@@ -31,7 +31,16 @@ use snarkvm::{
     synthesizer::{
         Command,
         Instruction,
-        program::{CallOperator, CastType, CommitVariant, ECDSAVerifyVariant, HashVariant, Operand},
+        program::{
+            CallOperator,
+            CastType,
+            CommitVariant,
+            DeserializeVariant,
+            ECDSAVerifyVariant,
+            HashVariant,
+            Operand,
+            SerializeVariant,
+        },
     },
 };
 
@@ -234,6 +243,31 @@ impl Cursor {
                 let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $schnorr.destinations()[0].clone())
+            }};
+        }
+
+        macro_rules! serialize_function {
+            ($serialize: expr, $variant: expr) => {{
+                let core_function = CoreFunction::Serialize($variant);
+                let operand_value = self.operand_value(&$serialize.operands()[0]);
+                self.values.push(operand_value);
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                self.increment_instruction_index();
+                (value.expect("Evaluation should work"), $serialize.destinations()[0].clone())
+            }};
+        }
+
+        macro_rules! deserialize_function {
+            ($deserialize: expr, $variant: expr) => {{
+                let core_function = CoreFunction::Deserialize(
+                    $variant,
+                    Type::from_snarkvm::<TestnetV0>($deserialize.destination_type(), None),
+                );
+                let operand_value = self.operand_value(&$deserialize.operands()[0]);
+                self.values.push(operand_value);
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                self.increment_instruction_index();
+                (value.expect("Evaluation should work"), $deserialize.destinations()[0].clone())
             }};
         }
 
@@ -495,7 +529,7 @@ impl Cursor {
             ECDSAVerifySha3_512(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_512),
             ECDSAVerifySha3_512Raw(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_512Raw),
             ECDSAVerifySha3_512Eth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_512Eth),
-            HashManyPSD2(_) | HashManyPSD4(_) | HashManyPSD8(_) => panic!("these function!s don't exist yet"),
+            HashManyPSD2(_) | HashManyPSD4(_) | HashManyPSD8(_) => panic!("these functions don't exist yet"),
             Inv(inv) => unary!(inv, Inverse),
             IsEq(eq) => binary!(eq, Eq),
             IsNeq(neq) => binary!(neq, Neq),
@@ -533,10 +567,14 @@ impl Cursor {
                 (self.operand_value(result), ternary.destinations()[0].clone())
             }
             Xor(xor) => binary!(xor, Xor),
-            SerializeBits(_) => todo!(),
-            SerializeBitsRaw(_) => todo!(),
-            DeserializeBits(_) => todo!(),
-            DeserializeBitsRaw(_) => todo!(),
+            SerializeBits(serialize_bits) => serialize_function!(serialize_bits, SerializeVariant::ToBits),
+            SerializeBitsRaw(serialize_bits_raw) => {
+                serialize_function!(serialize_bits_raw, SerializeVariant::ToBitsRaw)
+            }
+            DeserializeBits(deserialize_bits) => deserialize_function!(deserialize_bits, DeserializeVariant::FromBits),
+            DeserializeBitsRaw(deserialize_bits_raw) => {
+                deserialize_function!(deserialize_bits_raw, DeserializeVariant::FromBitsRaw)
+            }
         };
 
         self.set_register(destination, value);

@@ -527,7 +527,7 @@ impl CodeGeneratingVisitor<'_> {
                 // Get the destination register.
                 let destination_register = self.next_register();
                 // Construct the instruction template.
-                let instruction = format!("    rand.chacha into {destination_register} as {type_};");
+                let instruction = format!("    rand.chacha into {destination_register} as {type_};\n");
 
                 (destination_register, instruction)
             }
@@ -597,7 +597,7 @@ impl CodeGeneratingVisitor<'_> {
                 let destination_register = self.next_register();
                 // Construct the instruction template.
                 let instruction = format!(
-                    "    serialize.{variant} {} ({}) into {destination_register} ({output_array_type});",
+                    "    serialize.{variant} {} ({}) into {destination_register} ({output_array_type});\n",
                     arguments[0],
                     Self::visit_type(&input_type)
                 );
@@ -618,7 +618,7 @@ impl CodeGeneratingVisitor<'_> {
                 let destination_register = self.next_register();
                 // Construct the instruction template.
                 let instruction = format!(
-                    "    deserialize.{variant} {} ({}) into {destination_register} ({});",
+                    "    deserialize.{variant} {} ({}) into {destination_register} ({});\n",
                     arguments[0],
                     Self::visit_type(&input_type),
                     Self::visit_type(&output_type)
