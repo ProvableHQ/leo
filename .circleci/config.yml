@@ -295,12 +295,19 @@ jobs:
 
 workflows:
   version: 2
-  main-workflow:
+  
+  platform-tests:
     jobs:
       - test-windows
       - test-macos
       - test-linux
+  
+  code-quality:
+    jobs:
       - check-style-clippy-docs
+  
+  leo-executable:
+    jobs:
       - leo-executable
       - leo-new:
           requires:
