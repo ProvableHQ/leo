@@ -1335,4 +1335,26 @@ create_messages!(
         ),
         help: None,
     }
+
+    @formatted
+    function_has_too_many_inputs {
+        args: (variant: impl Display, name: impl Display, limit: usize, actual: usize),
+        msg: format!(
+            "The {variant} `{name}` has {actual} input parameters, which exceeds the allowed limit of {limit}.",
+        ),
+        help: Some(
+            "Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.".to_string()
+        ),
+    }
+
+    @formatted
+    function_has_too_many_outputs {
+        args: (variant: impl Display, name: impl Display, limit: usize, actual: usize),
+        msg: format!(
+            "The {variant} `{name}` has {actual} output parameters, which exceeds the allowed limit of {limit}.",
+        ),
+        help: Some(
+            "Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.".to_string()
+        ),
+    }
 );

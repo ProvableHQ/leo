@@ -1,0 +1,20 @@
+program test.aleo;
+
+function baz_caller:
+    add 0u8 0u8 into r0;
+    add r0 0u8 into r1;
+    add r1 0u8 into r2;
+    add r2 0u8 into r3;
+    add r3 0u8 into r4;
+    add r4 0u8 into r5;
+    add r5 0u8 into r6;
+    add r6 0u8 into r7;
+    add r7 0u8 into r8;
+    add r8 0u8 into r9;
+    add r9 0u8 into r10;
+    add r10 0u8 into r11;
+    add r11 0u8 into r12;
+    add r12 0u8 into r13;
+    add r13 0u8 into r14;
+    add r14 0u8 into r15;
+    output r15 as u8.private;
