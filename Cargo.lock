@@ -1868,6 +1868,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serial_test",
+ "sha2",
  "signal-hook",
  "snarkvm",
  "sys-info",
