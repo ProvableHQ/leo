@@ -27,7 +27,9 @@ use snarkvm::{
     algorithms::crypto_hash::sha256,
     circuit::{Aleo, AleoTestnetV0},
     prelude::{
-        ProgramID, ToBytes, VM,
+        ProgramID,
+        ToBytes,
+        VM,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::StackTrait,
