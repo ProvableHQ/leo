@@ -24,3 +24,6 @@ sccache*/
 
 # environment
 .env
+
+# Claude
+.claude

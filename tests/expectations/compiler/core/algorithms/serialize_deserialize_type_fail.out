@@ -1,0 +1,30 @@
+Error [ETYC0372117]: Expected an array of 32 bits but type `[bool; 64]` was found.
+    --> compiler-test:15:65
+     |
+  15 |         let u32_result: u32 = Deserialize::from_bits_raw::[u32](u32_wrong);
+     |                                                                 ^^^^^^^^^
+Error [ETYC0372117]: Expected an array of 253 bits but type `[bool; 256]` was found.
+    --> compiler-test:19:60
+     |
+  19 |         let f: field = Deserialize::from_bits_raw::[field](field_wrong);
+     |                                                            ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an array of 251 bits but type `[bool; 253]` was found.
+    --> compiler-test:23:62
+     |
+  23 |         let s: scalar = Deserialize::from_bits_raw::[scalar](scalar_wrong);
+     |                                                              ^^^^^^^^^^^^
+Error [ETYC0372117]: Expected an array of 253 bits but type `[bool; 279]` was found.
+    --> compiler-test:27:64
+     |
+  27 |         let a: address = Deserialize::from_bits_raw::[address](addr_wrong);
+     |                                                                ^^^^^^^^^^
+Error [ETYC0372117]: Expected an array of 32 bits but type `[bool; 64]` was found.
+    --> compiler-test:31:66
+     |
+  31 |         let arr: [u8; 4] = Deserialize::from_bits_raw::[[u8; 4]](array_wrong);
+     |                                                                  ^^^^^^^^^^^
+Error [ETYC0372117]: Expected an array of 58 bits but type `[bool; 32]` was found.
+    --> compiler-test:40:57
+     |
+  40 |         let result: u32 = Deserialize::from_bits::[u32](wrong_bits);
+     |                                                         ^^^^^^^^^^
