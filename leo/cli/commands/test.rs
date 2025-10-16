@@ -142,7 +142,7 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
 
     let native_results: Vec<((String, String), Option<String>)> = cases
         .iter()
-        .zip(outcomes.into_iter())
+        .zip(outcomes)
         .map(|(case, outcome)| {
             let key = (case.program_name.clone(), case.function.clone());
             let should_fail = *should_fails.get(&key).unwrap_or(&false);
