@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "license": "",
+  "leo": "3.2.0",
   "dependencies": null,
   "dev_dependencies": null
 }

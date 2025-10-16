@@ -18,10 +18,11 @@
 //! execute its COMMAND file, comparing the output and resulting directory
 //! structure to the corresponding directory in `tests/expectations/cli`.
 //!
-//! It relies on a snarkOS with the `test_network` feature. If snarkos is not installed,
-//! it will be installed. If snarkos is installed, it will use the existing version
-//! (which may or may not be the correct one).
+//! It relies on a snarkOS with the `test_network` feature and uses `leo devnet`
+//! to start a local devnet using snarkOS.
 
+#[cfg(unix)]
+use std::os::unix::process::CommandExt;
 use std::{
     borrow::Cow,
     collections::HashSet,
@@ -33,6 +34,9 @@ use std::{
 };
 
 use anyhow::anyhow;
+
+const VALIDATOR_COUNT: usize = 4usize;
+const LARGEST_CONSENSUS_HEIGHT: usize = 9usize;
 
 struct Test {
     test_directory: PathBuf,
@@ -128,8 +132,9 @@ fn run_test(test: &Test, force_rewrite: bool) -> bool {
 fn filter_stdout(data: &str) -> String {
     use regex::Regex;
     let regexes = [
-        (Regex::new("  - transaction ID: '[a-zA-Z0-9]*'").unwrap(), " - transaction ID: 'XXXXXX'"),
-        (Regex::new("  - fee ID: '[a-zA-Z0-9]*'").unwrap(), " - fee ID: 'XXXXXX'"),
+        (Regex::new(" - transaction ID: '[a-zA-Z0-9]*'").unwrap(), " - transaction ID: 'XXXXXX'"),
+        (Regex::new(" - fee ID: '[a-zA-Z0-9]*'").unwrap(), " - fee ID: 'XXXXXX'"),
+        (Regex::new(" - fee transaction ID: '[a-zA-Z0-9]*'").unwrap(), " - fee transaction ID: 'XXXXXX'"),
         (
             Regex::new("💰Your current public balance is [0-9.]* credits.").unwrap(),
             "💰Your current public balance is XXXXXX credits.",
@@ -141,7 +146,7 @@ fn filter_stdout(data: &str) -> String {
 
     let mut cow = Cow::Borrowed(data);
     for (regex, replacement) in regexes {
-        if let Cow::Owned(s) = regex.replace_all(&*cow, replacement) {
+        if let Cow::Owned(s) = regex.replace_all(&cow, replacement) {
             cow = Cow::Owned(s);
         }
     }
@@ -151,14 +156,6 @@ fn filter_stdout(data: &str) -> String {
 
 const BINARY_PATH: &str = env!("CARGO_BIN_EXE_leo");
 
-struct ChildRaii(std::process::Child);
-
-impl Drop for ChildRaii {
-    fn drop(&mut self) {
-        let _ = self.0.kill();
-    }
-}
-
 #[test]
 fn integration_tests() {
     if !cfg!(target_os = "macos") {
@@ -166,38 +163,36 @@ fn integration_tests() {
         return;
     }
 
-    if !install_snarkos() {
-        panic!("Failed to install snarkOS!");
-    }
-
     let rewrite_expectations = !env::var("REWRITE_EXPECTATIONS").unwrap_or_default().trim().is_empty();
-
-    const VALIDATOR_COUNT: usize = 4usize;
 
     let directory = tempfile::TempDir::new().expect("Failed to create temporary directory.");
     remove_all_in_dir(directory.path()).expect("Should be able to remove.");
 
-    let mut children = Vec::new();
-    {
-        let _raii = CwdRaii::cwd(directory.path());
+    let _raii = CwdRaii::cwd(directory.path());
 
-        for i in 0..VALIDATOR_COUNT {
-            run_snarkos_clean(i).expect("OK");
-        }
+    let mut devnet_process = run_leo_devnet(VALIDATOR_COUNT).expect("OK");
 
-        for i in 0..VALIDATOR_COUNT {
-            let child = run_snarkos_validator(i, VALIDATOR_COUNT).expect("OK");
-            children.push(ChildRaii(child));
+    // Wait for snarkos to start listening on port 3030.
+    let height_url = "http://localhost:3030/testnet/block/height/latest";
+    let start = std::time::Instant::now();
+    let timeout = std::time::Duration::from_secs(90);
+
+    loop {
+        match leo_package::fetch_from_network_plain(height_url) {
+            Ok(_) => {
+                break;
+            }
+            Err(_) if start.elapsed() < timeout => {
+                std::thread::sleep(std::time::Duration::from_secs(1));
+            }
+            Err(e) => panic!("snarkos did not start within {timeout:?}: {e}"),
         }
     }
 
-    // Sleep for a bit to let snarkos get started.
-    std::thread::sleep(std::time::Duration::from_secs(20));
-
-    // Wait until block height 16.
+    // Wait until block height `LARGEST_CONSENSUS_HEIGHT`.
     loop {
         let height = current_height().expect("net");
-        if height >= 16 {
+        if height >= LARGEST_CONSENSUS_HEIGHT {
             break;
         }
         // Avoid rate limits.
@@ -215,7 +210,14 @@ fn integration_tests() {
         }
     }
 
-    std::mem::drop(children);
+    #[cfg(unix)]
+    unsafe {
+        // Kill the entire process group: devnet_process + all its children
+        libc::killpg(devnet_process.id() as i32, libc::SIGTERM);
+    }
+
+    // Wait to reap the main devnet_process (avoid zombie)
+    let _ = devnet_process.wait();
 
     if failed.is_empty() {
         println!("CLI Integration tests: All {} tests passed.", passed.len());
@@ -309,64 +311,52 @@ fn remove_all_in_dir(dir: &Path) -> io::Result<()> {
     Ok(())
 }
 
-fn snarkos_installed() -> bool {
-    Command::new("snarkos")
-        .arg("--version")
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()
-        .is_ok_and(|status| status.success())
-}
+/// Starts a Leo devnet for integration testing purposes.
+///
+/// This function launches a local devnet using the Leo CLI with snarkOS as the backend.
+/// The devnet is configured specifically for testing with predefined consensus heights
+/// and validators.
+fn run_leo_devnet(num_validators: usize) -> io::Result<Child> {
+    // Locate the path to the snarkOS binary using the `which` crate
+    let snarkos_path: PathBuf = which::which("snarkos").unwrap_or_else(|_| panic!("Cannot find snarkos path.")); // fallback for CI
+    assert!(snarkos_path.exists(), "snarkos binary not found at {snarkos_path:?}");
 
-const SNARKOS_VERSION: &str = "4.0.1";
+    // Create a new command using the Leo binary (defined by BINARY_PATH constant)
+    let mut leo_devnet_cmd = Command::new(BINARY_PATH);
 
-fn install_snarkos() -> bool {
-    snarkos_installed() || {
-        println!("Installing snarkOS!");
-        Command::new("cargo")
-            .arg("install")
-            .arg("snarkos")
-            .arg("--version")
-            .arg(SNARKOS_VERSION)
-            .arg("--features")
-            .arg("test_network") // Enable the testing consensus heights.
-            .status()
-            .is_ok_and(|status| status.success())
-    }
-}
+    let consensus_heights: String = (0..=LARGEST_CONSENSUS_HEIGHT).map(|n| n.to_string()).collect::<Vec<_>>().join(",");
 
-fn run_snarkos_validator(i: usize, num_validators: usize) -> io::Result<Child> {
-    Command::new("snarkos")
-        .arg("start")
-        .arg("--nodisplay")
-        .arg("--network")
-        .arg("1")
-        .arg("--dev")
-        .arg(i.to_string())
-        .arg("--allow-external-peers")
-        .arg("--dev-num-validators")
+    // Configure the Leo devnet command with all necessary arguments
+    leo_devnet_cmd.arg("devnet")        
+        .arg("-y")
+        .arg("--snarkos")
+        .arg(&snarkos_path)
+        .arg("--snarkos-features")
+        .arg("test_network") // Use test network configuration
+        .arg("--num-validators")
         .arg(num_validators.to_string())
-        .arg("--validator")
+        .arg("--consensus-heights")             // Define consensus heights for testing
+        .arg(&consensus_heights)
+        .arg("--clear-storage")                 
         .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-}
+        .stderr(Stdio::null());
 
-fn run_snarkos_clean(i: usize) -> io::Result<()> {
-    Command::new("snarkos")
-        .arg("clean")
-        .arg("--network")
-        .arg("1")
-        .arg("--dev")
-        .arg(i.to_string())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .output()?;
-    Ok(())
+    // On Unix systems, configure the child process to be its own process group leader
+    // This allows us to later kill the entire process group (parent + all children)
+    // which is important for properly cleaning up the devnet and all its validator processes
+    #[cfg(unix)]
+    unsafe {
+        leo_devnet_cmd.pre_exec(|| {
+            libc::setpgid(0, 0); // make child its own process group leader
+            Ok(())
+        });
+    }
+
+    leo_devnet_cmd.spawn()
 }
 
 fn current_height() -> Result<usize, anyhow::Error> {
-    let height_url = format!("http://localhost:3030/testnet/block/height/latest");
+    let height_url = "http://localhost:3030/testnet/block/height/latest".to_string();
     let height_str = leo_package::fetch_from_network_plain(&height_url)?;
     height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
 }
