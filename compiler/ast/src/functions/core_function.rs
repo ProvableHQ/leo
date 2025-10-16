@@ -284,6 +284,9 @@ pub enum CoreFunction {
     MappingRemove,
     MappingContains,
 
+    OptionalUnwrap,
+    OptionalUnwrapOr,
+
     GroupToXCoordinate,
     GroupToYCoordinate,
 
@@ -567,6 +570,9 @@ impl CoreFunction {
             (sym::Mapping, sym::set) => Self::MappingSet,
             (sym::Mapping, sym::remove) => Self::MappingRemove,
             (sym::Mapping, sym::contains) => Self::MappingContains,
+
+            (sym::Optional, sym::unwrap) => Self::OptionalUnwrap,
+            (sym::Optional, sym::unwrap_or) => Self::OptionalUnwrapOr,
 
             (sym::group, sym::to_x_coordinate) => Self::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
@@ -853,6 +859,9 @@ impl CoreFunction {
             Self::MappingRemove => 2,
             Self::MappingContains => 2,
 
+            Self::OptionalUnwrap => 1,
+            Self::OptionalUnwrapOr => 2,
+
             Self::GroupToXCoordinate => 1,
             Self::GroupToYCoordinate => 1,
 
@@ -894,7 +903,9 @@ impl CoreFunction {
             | CoreFunction::ProgramChecksum
             | CoreFunction::ProgramEdition
             | CoreFunction::ProgramOwner => true,
-            CoreFunction::BHP256CommitToAddress
+            CoreFunction::OptionalUnwrap
+            | CoreFunction::OptionalUnwrapOr
+            | CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP256CommitToField
             | CoreFunction::BHP256CommitToGroup
             | CoreFunction::BHP256HashToAddress

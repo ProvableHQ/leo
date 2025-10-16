@@ -1,5 +1,5 @@
 program comma_separators.aleo {
-    struct none {
+    struct None {
         x: u8
         y: u8
     }

@@ -51,6 +51,7 @@ pub trait AstVisitor {
             Type::Composite(composite_type) => self.visit_composite_type(composite_type),
             Type::Future(future_type) => self.visit_future_type(future_type),
             Type::Mapping(mapping_type) => self.visit_mapping_type(mapping_type),
+            Type::Optional(optional_type) => self.visit_optional_type(optional_type),
             Type::Tuple(tuple_type) => self.visit_tuple_type(tuple_type),
             Type::Address
             | Type::Boolean
@@ -87,6 +88,10 @@ pub trait AstVisitor {
         self.visit_type(&input.value);
     }
 
+    fn visit_optional_type(&mut self, input: &OptionalType) {
+        self.visit_type(&input.inner);
+    }
+
     fn visit_tuple_type(&mut self, input: &TupleType) {
         input.elements().iter().for_each(|input| self.visit_type(input));
     }
@@ -121,25 +126,25 @@ pub trait AstVisitor {
         }
     }
 
-    fn visit_array_access(&mut self, input: &ArrayAccess, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.array, additional);
-        self.visit_expression(&input.index, additional);
+    fn visit_array_access(&mut self, input: &ArrayAccess, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.array, &Default::default());
+        self.visit_expression(&input.index, &Default::default());
         Default::default()
     }
 
-    fn visit_member_access(&mut self, input: &MemberAccess, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.inner, additional);
+    fn visit_member_access(&mut self, input: &MemberAccess, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.inner, &Default::default());
         Default::default()
     }
 
-    fn visit_tuple_access(&mut self, input: &TupleAccess, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.tuple, additional);
+    fn visit_tuple_access(&mut self, input: &TupleAccess, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.tuple, &Default::default());
         Default::default()
     }
 
-    fn visit_array(&mut self, input: &ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_array(&mut self, input: &ArrayExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         input.elements.iter().for_each(|expr| {
-            self.visit_expression(expr, additional);
+            self.visit_expression(expr, &Default::default());
         });
         Default::default()
     }
@@ -168,34 +173,34 @@ pub trait AstVisitor {
         Default::default()
     }
 
-    fn visit_binary(&mut self, input: &BinaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.left, additional);
-        self.visit_expression(&input.right, additional);
+    fn visit_binary(&mut self, input: &BinaryExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.left, &Default::default());
+        self.visit_expression(&input.right, &Default::default());
         Default::default()
     }
 
-    fn visit_call(&mut self, input: &CallExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_call(&mut self, input: &CallExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         input.const_arguments.iter().for_each(|expr| {
-            self.visit_expression(expr, additional);
+            self.visit_expression(expr, &Default::default());
         });
         input.arguments.iter().for_each(|expr| {
-            self.visit_expression(expr, additional);
+            self.visit_expression(expr, &Default::default());
         });
         Default::default()
     }
 
-    fn visit_cast(&mut self, input: &CastExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.expression, additional);
+    fn visit_cast(&mut self, input: &CastExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.expression, &Default::default());
         Default::default()
     }
 
-    fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_struct_init(&mut self, input: &StructExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         input.const_arguments.iter().for_each(|expr| {
-            self.visit_expression(expr, additional);
+            self.visit_expression(expr, &Default::default());
         });
         for StructVariableInitializer { expression, .. } in input.members.iter() {
             if let Some(expression) = expression {
-                self.visit_expression(expression, additional);
+                self.visit_expression(expression, &Default::default());
             }
         }
         Default::default()
@@ -217,39 +222,39 @@ pub trait AstVisitor {
         Default::default()
     }
 
-    fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.expr, additional);
-        self.visit_expression(&input.count, additional);
+    fn visit_repeat(&mut self, input: &RepeatExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.expr, &Default::default());
+        self.visit_expression(&input.count, &Default::default());
         Default::default()
     }
 
-    fn visit_slice(&mut self, input: &SliceExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.array, additional);
+    fn visit_slice(&mut self, input: &SliceExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.array, &Default::default());
         if let Some(start) = input.start.as_ref() {
-            self.visit_expression(start, additional);
+            self.visit_expression(start, &Default::default());
         }
         if let Some((_, end)) = input.end.as_ref() {
-            self.visit_expression(end, additional);
+            self.visit_expression(end, &Default::default());
         }
         Default::default()
     }
 
-    fn visit_ternary(&mut self, input: &TernaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.condition, additional);
-        self.visit_expression(&input.if_true, additional);
-        self.visit_expression(&input.if_false, additional);
+    fn visit_ternary(&mut self, input: &TernaryExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.condition, &Default::default());
+        self.visit_expression(&input.if_true, &Default::default());
+        self.visit_expression(&input.if_false, &Default::default());
         Default::default()
     }
 
-    fn visit_tuple(&mut self, input: &TupleExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_tuple(&mut self, input: &TupleExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         input.elements.iter().for_each(|expr| {
-            self.visit_expression(expr, additional);
+            self.visit_expression(expr, &Default::default());
         });
         Default::default()
     }
 
-    fn visit_unary(&mut self, input: &UnaryExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.receiver, additional);
+    fn visit_unary(&mut self, input: &UnaryExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.receiver, &Default::default());
         Default::default()
     }
 

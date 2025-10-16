@@ -27,6 +27,7 @@ use leo_ast::{
     DefinitionPlace,
     Expression,
     Function,
+    Location,
     NodeID,
     Statement,
     StructVariableInitializer,
@@ -36,7 +37,6 @@ use leo_ast::{
     interpreter_value::{
         AsyncExecution,
         CoreFunctionHelper,
-        GlobalId,
         Value,
         evaluate_binary,
         evaluate_core_function,
@@ -198,7 +198,7 @@ pub enum Element {
         instruction_index: usize,
     },
 
-    DelayedCall(GlobalId),
+    DelayedCall(Location),
     DelayedAsyncBlock {
         program: Symbol,
         block: NodeID,
@@ -246,17 +246,17 @@ pub struct Cursor {
     pub values: Vec<Value>,
 
     /// All functions (or transitions or inlines) in any program being interpreted.
-    pub functions: HashMap<GlobalId, FunctionVariant>,
+    pub functions: HashMap<Location, FunctionVariant>,
 
     /// All the async blocks encountered. We identify them by their `NodeID`.
     pub async_blocks: HashMap<NodeID, Block>,
 
     /// Consts are stored here.
-    pub globals: HashMap<GlobalId, Value>,
+    pub globals: HashMap<Location, Value>,
 
     pub user_values: HashMap<Vec<Symbol>, Value>,
 
-    pub mappings: HashMap<GlobalId, HashMap<Value, Value>>,
+    pub mappings: HashMap<Location, HashMap<Value, Value>>,
 
     /// For each struct type, we only need to remember the names of its members, in order.
     pub structs: HashMap<Vec<Symbol>, IndexMap<Symbol, Type>>,
@@ -476,10 +476,8 @@ impl Cursor {
 
     fn lookup(&self, name: &[Symbol]) -> Option<Value> {
         if let Some(context) = self.contexts.last() {
-            let option_value = context
-                .names
-                .get(name)
-                .or_else(|| self.globals.get(&GlobalId { program: context.program, path: name.to_vec() }));
+            let option_value =
+                context.names.get(name).or_else(|| self.globals.get(&Location::new(context.program, name.to_vec())));
             if option_value.is_some() {
                 return option_value.cloned();
             }
@@ -493,7 +491,7 @@ impl Cursor {
             panic!("no program for mapping lookup");
         };
         // mappings can only show up in the top level program scope
-        self.mappings.get(&GlobalId { program, path: vec![name] })
+        self.mappings.get(&Location::new(program, vec![name]))
     }
 
     pub fn lookup_mapping_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut HashMap<Value, Value>> {
@@ -501,11 +499,11 @@ impl Cursor {
             panic!("no program for mapping lookup");
         };
         // mappings can only show up in the top level program scope
-        self.mappings.get_mut(&GlobalId { program, path: vec![name] })
+        self.mappings.get_mut(&Location::new(program, vec![name]))
     }
 
     fn lookup_function(&self, program: Symbol, name: &[Symbol]) -> Option<FunctionVariant> {
-        self.functions.get(&GlobalId { program, path: name.to_vec() }).cloned()
+        self.functions.get(&Location::new(program, name.to_vec())).cloned()
     }
 
     fn set_variable(&mut self, path: &[Symbol], value: Value) {
@@ -889,7 +887,7 @@ impl Cursor {
                 // The block actually executes when an `await` is called on its future.
                 if let Some(context) = self.contexts.last() {
                     let async_ex = AsyncExecution::AsyncBlock {
-                        containing_function: GlobalId { program: context.program, path: context.path.clone() },
+                        containing_function: Location::new(context.program, context.path.clone()),
                         block: block.id,
                         names: context.names.clone().into_iter().collect(),
                     };
@@ -1362,7 +1360,9 @@ impl Cursor {
                 };
 
                 if let Some(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future()) {
-                    self.futures.extend(asyncs.iter().cloned());
+                    if user_initiated {
+                        self.futures.extend(asyncs.iter().cloned());
+                    }
                 }
 
                 Ok(StepResult { finished, value })
@@ -1479,7 +1479,7 @@ impl Cursor {
                 if self.really_async && function.variant == Variant::AsyncFunction {
                     // Don't actually run the call now.
                     let async_ex = AsyncExecution::AsyncFunctionCall {
-                        function: GlobalId { path: function_path.to_vec(), program: function_program },
+                        function: Location::new(function_program, function_path.to_vec()),
                         arguments: arguments.collect(),
                     };
                     self.values.push(vec![async_ex].into());

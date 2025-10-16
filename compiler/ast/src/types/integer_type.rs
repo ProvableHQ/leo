@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit integer type.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum IntegerType {
     U8,
     U16,

@@ -1,0 +1,25 @@
+Error [ETYC0372160]: The type `(u8, u8)` cannot be wrapped in an optional.
+    --> compiler-test:4:9
+     |
+   4 |         let a: (u8, u8)? = (1u8, 2u8); // ERROR: Tuples cannot be optional just yet
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372117]: Expected (u8, u8)? but type `(u8, u8)` was found.
+    --> compiler-test:4:28
+     |
+   4 |         let a: (u8, u8)? = (1u8, 2u8); // ERROR: Tuples cannot be optional just yet
+     |                            ^^^^^^^^^^
+Error [ETYC0372160]: The type `signature` cannot be wrapped in an optional.
+    --> compiler-test:8:9
+     |
+   8 |         let s: signature? = s_;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372160]: The type `Future<Fn()>` cannot be wrapped in an optional.
+    --> compiler-test:14:9
+     |
+  14 |         let fut: Future? = finalize(); // ERROR: Future? is not allowed
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372003]: Expected type `Future<Fn()>?` but type `Future<Fn()>` was found
+    --> compiler-test:14:28
+     |
+  14 |         let fut: Future? = finalize(); // ERROR: Future? is not allowed
+     |                            ^^^^^^^^^^

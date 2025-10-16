@@ -70,6 +70,7 @@
                     },
                     "id": 3
                   },
+                  "is_absolute": false,
                   "absolute_path": null,
                   "span": {
                     "lo": 78,
@@ -93,6 +94,7 @@
                     },
                     "id": 5
                   },
+                  "is_absolute": false,
                   "absolute_path": null,
                   "span": {
                     "lo": 85,

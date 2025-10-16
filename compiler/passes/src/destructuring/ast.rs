@@ -21,17 +21,22 @@ use leo_span::Symbol;
 use itertools::{Itertools, izip};
 
 impl AstReconstructor for DestructuringVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
     /// Replaces a tuple access expression with the appropriate expression.
-    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_tuple_access(
+        &mut self,
+        input: TupleAccess,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let Expression::Path(path) = &input.tuple else {
             panic!("SSA guarantees that subexpressions are identifiers or literals.");
         };
 
         // Look up the expression in the tuple map.
         match self.tuples.get(&path.identifier().name).and_then(|tuple_names| tuple_names.get(input.index.value())) {
-            Some(id) => (Path::from(*id).into(), Default::default()),
+            Some(id) => (Path::from(*id).into_absolute().into(), Default::default()),
             None => {
                 if !matches!(self.state.type_table.get(&path.id), Some(Type::Future(_))) {
                     panic!("Type checking guarantees that all tuple accesses are declared and indices are valid.");
@@ -56,7 +61,11 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
     /// If this is a ternary expression on tuples of length `n`, we'll need to change it into
     /// `n` ternary expressions on the members.
-    fn reconstruct_ternary(&mut self, mut input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_ternary(
+        &mut self,
+        mut input: TernaryExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         let (if_true, mut statements) = self.reconstruct_expression_tuple(std::mem::take(&mut input.if_true));
         let (if_false, statements2) = self.reconstruct_expression_tuple(std::mem::take(&mut input.if_false));
         statements.extend(statements2);
@@ -87,7 +96,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
                     self.state.type_table.insert(place.id(), Type::Boolean);
 
-                    Expression::Path(Path::from(place))
+                    Expression::Path(Path::from(place).into_absolute())
                 };
 
                 // These will be the `elements` of our resulting tuple.
@@ -122,7 +131,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     );
 
                     statements.push(definition);
-                    elements.push(Path::from(identifier).into());
+                    elements.push(Path::from(identifier).into_absolute().into());
                 }
 
                 let expr: Expression =
@@ -153,7 +162,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     ///    `x_2[i].member = rhs;`
     ///    where `x_2` is the variable corresponding to `x.2`.
     fn reconstruct_assign(&mut self, mut assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        let (value, mut statements) = self.reconstruct_expression(assign.value);
+        let (value, mut statements) = self.reconstruct_expression(assign.value, &());
 
         if let Expression::Path(path) = &assign.place {
             if let Type::Tuple(..) = self.state.type_table.get(&value.id()).expect("Expressions should have types.") {
@@ -171,8 +180,8 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 // Again, make an assignment for each identifier.
                 for (&identifier, &rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
                     let stmt = AssignStatement {
-                        place: Path::from(identifier).into(),
-                        value: Path::from(rhs_identifier).into(),
+                        place: Path::from(identifier).into_absolute().into(),
+                        value: Path::from(rhs_identifier).into_absolute().into(),
                         id: self.state.node_builder.next_id(),
                         span: Default::default(),
                     }
@@ -206,7 +215,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     // This is the corresponding variable name of the member we're assigning to.
                     let identifier = tuple_ids[access.index.value()];
 
-                    *place = Path::from(identifier).into();
+                    *place = Path::from(identifier).into_absolute().into();
 
                     return (assign.into(), statements);
                 }
@@ -247,7 +256,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     }
 
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        let (condition, mut statements) = self.reconstruct_expression(input.condition);
+        let (condition, mut statements) = self.reconstruct_expression(input.condition, &());
         let (then, statements2) = self.reconstruct_block(input.then);
         statements.extend(statements2);
         let otherwise = input.otherwise.map(|oth| {
@@ -272,7 +281,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 .collect()
         };
 
-        let (value, mut statements) = self.reconstruct_expression(definition.value);
+        let (value, mut statements) = self.reconstruct_expression(definition.value, &());
         let ty = self.state.type_table.get(&value.id()).expect("Expressions should have a type.");
         match (definition.place, value, ty) {
             (Single(identifier), Expression::Path(rhs), Type::Tuple(tuple_type)) => {
@@ -286,7 +295,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
                         type_: Some(ty.clone()),
-                        value: Expression::Path(Path::from(*rhs_identifier)),
+                        value: Expression::Path(Path::from(*rhs_identifier).into_absolute()),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }
@@ -370,7 +379,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     let stmt = DefinitionStatement {
                         place: Single(identifier),
                         type_: None,
-                        value: Expression::Path(Path::from(*rhs_identifier)),
+                        value: Expression::Path(Path::from(*rhs_identifier).into_absolute()),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }

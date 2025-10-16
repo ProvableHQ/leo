@@ -1,0 +1,83 @@
+Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
+    --> compiler-test:16:5
+     |
+  16 |     const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `u8?` but type `i8` was found.
+    --> compiler-test:16:45
+     |
+  16 |     const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+     |                                             ^^^
+Error [ETYC0372117]: Expected type `u8?` but type `i8` was found.
+    --> compiler-test:16:45
+     |
+  16 |     const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+     |                                             ^^^
+Error [ETYC0372117]: Expected type `u8` but type `u8?` was found.
+    --> compiler-test:23:21
+     |
+  23 |         let b: u8 = a; // ERROR
+     |                     ^
+Error [ETYC0372158]: Found `none`, but the expected type `u8` is not an optional type.
+    --> compiler-test:28:21
+     |
+  28 |         let a: u8 = none; // ERROR
+     |                     ^^^^
+Error [ETYC0372119]: Received different types `u8?` and `i8?` for the operation `==`.
+    --> compiler-test:35:22
+     |
+  35 |         let result = a == b; // ERROR
+     |                      ^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372119]: Received different types `u8?` and `u8` for the operation `==`.
+    --> compiler-test:42:22
+     |
+  42 |         let result = a == b; // ERROR
+     |                      ^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372117]: Expected type `u8?` but type `i8` was found.
+    --> compiler-test:51:41
+     |
+  51 |         let arr: [u8?; 3] = [1u8, none, 3i8]; // ERROR
+     |                                         ^^^
+Error [ETYC0372117]: Expected type `u8?` but type `i8` was found.
+    --> compiler-test:51:41
+     |
+  51 |         let arr: [u8?; 3] = [1u8, none, 3i8]; // ERROR
+     |                                         ^^^
+Error [ETYC0372119]: Received different types `Foo` and `Foo?` for the operation `==`.
+    --> compiler-test:58:22
+     |
+  58 |         let result = a == b; // ERROR
+     |                      ^^^^^^
+     |
+     = Make both operands the same type.
+Error [ETYC0372117]: Expected type `[u8; 2]` but type `[u8?; 2]` was found.
+    --> compiler-test:64:26
+     |
+  64 |         let b: [u8; 2] = a; // ERROR
+     |                          ^
+Error [ETYC0372004]: Could not determine the type of `none`
+    --> compiler-test:72:36
+     |
+  72 |         let result = flag ? 10u8 : none; // ERROR
+     |                                    ^^^^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372117]: Expected type `bool` but type `bool?` was found.
+    --> compiler-test:78:17
+     |
+  78 |         let x = condition ? 1u8 : 2u8; // ERROR
+     |                 ^^^^^^^^^
+Error [ETYC0372117]: Expected type `u8` but type `u8?` was found.
+    --> compiler-test:90:31
+     |
+  90 |         let result = takes_u8(val); // ERROR
+     |                               ^^^
+Error [ETYC0372003]: Expected type `u8` but type `u8?` was found
+    --> compiler-test:99:26
+     |
+  99 |         let result: u8 = returns_optional(); // ERROR
+     |                          ^^^^^^^^^^^^^^^^^^

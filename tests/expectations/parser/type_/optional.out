@@ -1,0 +1,323 @@
+{
+  "modules": {},
+  "imports": {},
+  "stubs": {},
+  "program_scopes": {
+    "foo": {
+      "program_id": {
+        "name": {
+          "name": "foo",
+          "span": {
+            "lo": 8,
+            "hi": 11
+          },
+          "id": 24
+        },
+        "network": {
+          "name": "aleo",
+          "span": {
+            "lo": 12,
+            "hi": 16
+          },
+          "id": 25
+        }
+      },
+      "consts": [],
+      "structs": [],
+      "mappings": [],
+      "functions": [
+        [
+          "bar",
+          {
+            "annotations": [],
+            "variant": "Transition",
+            "identifier": {
+              "name": "bar",
+              "span": {
+                "lo": 34,
+                "hi": 37
+              },
+              "id": 0
+            },
+            "const_parameters": [],
+            "input": [
+              {
+                "identifier": {
+                  "name": "a",
+                  "span": {
+                    "lo": 47,
+                    "hi": 48
+                  },
+                  "id": 1
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": {
+                      "Integer": "U8"
+                    }
+                  }
+                },
+                "span": {
+                  "lo": 47,
+                  "hi": 53
+                },
+                "id": 2
+              },
+              {
+                "identifier": {
+                  "name": "b",
+                  "span": {
+                    "lo": 63,
+                    "hi": 64
+                  },
+                  "id": 3
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": {
+                      "Integer": "U16"
+                    }
+                  }
+                },
+                "span": {
+                  "lo": 63,
+                  "hi": 70
+                },
+                "id": 4
+              },
+              {
+                "identifier": {
+                  "name": "c",
+                  "span": {
+                    "lo": 80,
+                    "hi": 81
+                  },
+                  "id": 5
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": {
+                      "Array": {
+                        "element_type": {
+                          "Optional": {
+                            "inner": {
+                              "Integer": "U8"
+                            }
+                          }
+                        },
+                        "length": {
+                          "Literal": {
+                            "span": {
+                              "lo": 89,
+                              "hi": 90
+                            },
+                            "id": 6,
+                            "variant": {
+                              "Unsuffixed": "3"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "lo": 80,
+                  "hi": 92
+                },
+                "id": 7
+              },
+              {
+                "identifier": {
+                  "name": "d",
+                  "span": {
+                    "lo": 102,
+                    "hi": 103
+                  },
+                  "id": 8
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": {
+                      "Composite": {
+                        "path": {
+                          "qualifier": [],
+                          "identifier": {
+                            "name": "Foo",
+                            "span": {
+                              "lo": 105,
+                              "hi": 108
+                            },
+                            "id": 9
+                          },
+                          "is_absolute": false,
+                          "absolute_path": null,
+                          "span": {
+                            "lo": 105,
+                            "hi": 108
+                          },
+                          "id": 10
+                        },
+                        "const_arguments": [],
+                        "program": null
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "lo": 102,
+                  "hi": 109
+                },
+                "id": 11
+              },
+              {
+                "identifier": {
+                  "name": "e",
+                  "span": {
+                    "lo": 119,
+                    "hi": 120
+                  },
+                  "id": 12
+                },
+                "mode": "None",
+                "type_": {
+                  "Tuple": {
+                    "elements": [
+                      {
+                        "Optional": {
+                          "inner": {
+                            "Integer": "U8"
+                          }
+                        }
+                      },
+                      {
+                        "Optional": {
+                          "inner": {
+                            "Integer": "U16"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "span": {
+                  "lo": 119,
+                  "hi": 133
+                },
+                "id": 13
+              },
+              {
+                "identifier": {
+                  "name": "f",
+                  "span": {
+                    "lo": 143,
+                    "hi": 144
+                  },
+                  "id": 14
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": "Address"
+                  }
+                },
+                "span": {
+                  "lo": 143,
+                  "hi": 154
+                },
+                "id": 15
+              },
+              {
+                "identifier": {
+                  "name": "g",
+                  "span": {
+                    "lo": 164,
+                    "hi": 165
+                  },
+                  "id": 16
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": "Unit"
+                  }
+                },
+                "span": {
+                  "lo": 164,
+                  "hi": 170
+                },
+                "id": 17
+              },
+              {
+                "identifier": {
+                  "name": "h",
+                  "span": {
+                    "lo": 180,
+                    "hi": 181
+                  },
+                  "id": 18
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": "Scalar"
+                  }
+                },
+                "span": {
+                  "lo": 180,
+                  "hi": 190
+                },
+                "id": 19
+              },
+              {
+                "identifier": {
+                  "name": "i",
+                  "span": {
+                    "lo": 200,
+                    "hi": 201
+                  },
+                  "id": 20
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": "Field"
+                  }
+                },
+                "span": {
+                  "lo": 200,
+                  "hi": 209
+                },
+                "id": 21
+              }
+            ],
+            "output": [],
+            "output_type": "Unit",
+            "block": {
+              "statements": [],
+              "span": {
+                "lo": 217,
+                "hi": 225
+              },
+              "id": 22
+            },
+            "span": {
+              "lo": 23,
+              "hi": 225
+            },
+            "id": 23
+          }
+        ]
+      ],
+      "constructor": null,
+      "span": {
+        "lo": 0,
+        "hi": 227
+      }
+    }
+  }
+}

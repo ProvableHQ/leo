@@ -344,13 +344,19 @@ impl LeoDevnet {
         //────────────── tmux branch ──────────────
         if self.tmux {
             // Create session.
-            ensure!(
-                StdCommand::new("tmux")
-                    .args(["new-session", "-d", "-s", "devnet", "-n", "validator-0"])
-                    .status()?
-                    .success(),
-                "tmux failed to create session"
-            );
+            let mut args: Vec<String> =
+                vec!["new-session", "-d", "-s", "devnet", "-n", "validator-0"].into_iter().map(Into::into).collect();
+
+            // If a tmux server is already running, the new session will inherit the environment
+            // variables of the server. As such, we need to explicitly set the CONSENSUS_VERSION_HEIGHTS
+            // env var in the new session we are creatomg.
+            if let Some(ref heights) = self.consensus_heights {
+                let heights = heights.iter().join(",");
+                args.push("-e".to_string());
+                args.push(format!("CONSENSUS_VERSION_HEIGHTS={heights}"));
+            }
+
+            ensure!(StdCommand::new("tmux").args(args).status()?.success(), "tmux failed to create session");
 
             // Determine base-index.
             let base_index = {

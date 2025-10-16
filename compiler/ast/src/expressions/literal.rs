@@ -26,7 +26,7 @@ pub struct Literal {
     pub variant: LiteralVariant,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum LiteralVariant {
     /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9` or `hello.aleo`.
     Address(String),
@@ -39,6 +39,8 @@ pub enum LiteralVariant {
     Group(String),
     /// An integer literal, e.g., `42u32`.
     Integer(IntegerType, String),
+    /// A literal `None` for optional types.
+    None,
     /// A scalar literal, e.g. `1scalar`.
     /// An unsigned number followed by the keyword `scalar`.
     Scalar(String),
@@ -56,6 +58,7 @@ impl fmt::Display for LiteralVariant {
             Self::Field(field) => write!(f, "{field}field"),
             Self::Group(group) => write!(f, "{group}group"),
             Self::Integer(type_, value) => write!(f, "{value}{type_}"),
+            Self::None => write!(f, "none"),
             Self::Scalar(scalar) => write!(f, "{scalar}scalar"),
             Self::Unsuffixed(value) => write!(f, "{value}"),
             Self::String(string) => write!(f, "\"{string}\""),
@@ -106,6 +109,10 @@ impl Literal {
         Literal { variant: LiteralVariant::Unsuffixed(s), span, id }
     }
 
+    pub fn none(span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::None, span, id }
+    }
+
     /// For displaying a literal as decimal, regardless of the radix in which it was parsed.
     ///
     /// In particular this is useful for outputting .aleo files.
@@ -154,6 +161,7 @@ impl fmt::Display for DisplayDecimal<'_> {
                     write!(f, "{v}{type_}")
                 }
             }
+            LiteralVariant::None => write!(f, "none"),
             LiteralVariant::Scalar(scalar) => write!(f, "{}", prepare_snarkvm_string(scalar, "scalar")),
             LiteralVariant::Unsuffixed(value) => write!(f, "{value}"),
             LiteralVariant::String(string) => write!(f, "\"{string}\""),

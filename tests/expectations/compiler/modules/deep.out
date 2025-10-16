@@ -29,8 +29,7 @@ function main:
     add 4u32 r15.a[2u32] into r16;
     add r13 r16 into r17;
     add r10 r17 into r18;
-    cast 20u32 20u32 20u32 20u32 into r19 as [u32; 4u32];
-    cast r19 into r20 as Foo__KN4SHuYiDFN;
-    add 4u32 r20.a[2u32] into r21;
-    add r18 r21 into r22;
-    output r22 as u32.private;
+    cast r14 into r19 as Foo__KN4SHuYiDFN;
+    add 4u32 r19.a[2u32] into r20;
+    add r18 r20 into r21;
+    output r21 as u32.private;

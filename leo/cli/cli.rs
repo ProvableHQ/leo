@@ -107,6 +107,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoClean,
     },
+    #[clap(about = "Synthesize individual keys")]
+    Synthesize {
+        #[clap(flatten)]
+        command: LeoSynthesize,
+    },
     #[clap(about = "Update the Leo CLI")]
     Update {
         #[clap(flatten)]
@@ -174,6 +179,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Test { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Remove { command } => command.try_execute(context),
+        Commands::Synthesize { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
         Commands::Upgrade { command } => command.try_execute(context),
     }

@@ -23,7 +23,6 @@ use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
-use itertools::Itertools;
 use std::ops::Deref;
 
 pub struct TypeCheckingVisitor<'a> {
@@ -82,7 +81,7 @@ impl TypeCheckingVisitor<'_> {
     /// Emits an error if the two given types are not equal.
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !Type::eq_flat_relaxed(t1, t2) => {
+            (Some(t1), Some(t2)) if !t1.eq_flat_relaxed(t2) => {
                 self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
             (Some(type_), None) | (None, Some(type_)) => {
@@ -109,9 +108,35 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
-        if actual != &Type::Err && !Self::eq_user(actual, expected) {
+        if actual != &Type::Err && !actual.can_coerce_to(expected) {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
+        }
+    }
+
+    /// Unwraps an optional type to its inner type for use with operands.
+    /// If the expected type is `T?`, returns `Some(T)`. Otherwise returns the type as-is.
+    pub fn unwrap_optional_type(&self, expected: &Option<Type>) -> Option<Type> {
+        match expected {
+            Some(Type::Optional(opt_type)) => Some(*opt_type.inner.clone()),
+            other => other.clone(),
+        }
+    }
+
+    /// Wraps a type in Optional if the destination type is Optional.
+    /// If destination is `T?` and actual is `T`, returns `T?`. Otherwise returns actual as-is.
+    pub fn wrap_if_optional(&self, actual: Type, destination: &Option<Type>) -> Type {
+        match (actual, destination) {
+            // if destination is Optional<T> and actual is T (not already Optional), wrap it
+            (actual_type, Some(Type::Optional(opt_type))) if !matches!(actual_type, Type::Optional(_)) => {
+                // only wrap if the inner type matches
+                if actual_type.can_coerce_to(&opt_type.inner) {
+                    Type::Optional(OptionalType { inner: Box::new(actual_type) })
+                } else {
+                    actual_type
+                }
+            }
+            (actual_type, _) => actual_type,
         }
     }
 
@@ -774,6 +799,18 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
+            CoreFunction::OptionalUnwrap => {
+                // Check that the first argument is an optional.
+                self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
+
+                match &arguments[0].0 {
+                    Type::Optional(opt) => opt.inner.deref().clone(),
+                    _ => Type::Err,
+                }
+            }
+            CoreFunction::OptionalUnwrapOr => {
+                unreachable!("we should have handled separately outside `check_core_function_call`.")
+            }
             CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate => {
                 // Check that the first argument is a group.
                 self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1.span());
@@ -890,7 +927,7 @@ impl TypeCheckingVisitor<'_> {
         match type_ {
             Type::Composite(struct_)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.path.absolute_path())
+                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                     .is_some_and(|struct_| struct_.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
@@ -919,10 +956,10 @@ impl TypeCheckingVisitor<'_> {
             Type::String => {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
-            // Check that the named composite type has been defined.
+            // Check that named composite type has been defined.
             Type::Composite(struct_)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.path.absolute_path())
+                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                     .is_none() =>
             {
                 self.emit_err(TypeCheckerError::undefined_type(struct_.path.clone(), span));
@@ -965,7 +1002,7 @@ impl TypeCheckingVisitor<'_> {
                         // Look up the type.
                         if let Some(struct_) = self.lookup_struct(
                             struct_type.program.or(self.scope_state.program_name),
-                            struct_type.path.absolute_path(),
+                            &struct_type.path.absolute_path(),
                         ) {
                             // Check that the type is not a record.
                             if struct_.is_record {
@@ -977,6 +1014,32 @@ impl TypeCheckingVisitor<'_> {
                 }
                 self.assert_type_is_valid(array_type.element_type(), span);
             }
+            Type::Optional(OptionalType { inner }) => {
+                match &**inner {
+                    Type::Composite(struct_type) => {
+                        // Look up the type.
+                        if let Some(struct_) = self.lookup_struct(
+                            struct_type.program.or(self.scope_state.program_name),
+                            &struct_type.path.absolute_path(),
+                        ) {
+                            // Check that the type is not a record.
+                            if struct_.is_record {
+                                self.emit_err(TypeCheckerError::optional_wrapping_of_records_unsupported(inner, span));
+                            }
+                        }
+                    }
+                    Type::Future(_)
+                    | Type::Identifier(_)
+                    | Type::Mapping(_)
+                    | Type::Optional(_)
+                    | Type::String
+                    | Type::Signature
+                    | Type::Tuple(_) => {
+                        self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span));
+                    }
+                    _ => self.assert_type_is_valid(inner, span),
+                }
+            }
             _ => {} // Do nothing.
         }
     }
@@ -985,6 +1048,47 @@ impl TypeCheckingVisitor<'_> {
     pub fn assert_mapping_type(&self, type_: &Type, span: Span) {
         if type_ != &Type::Err && !matches!(type_, Type::Mapping(_)) {
             self.emit_err(TypeCheckerError::type_should_be2(type_, "a mapping", span));
+        }
+    }
+
+    /// Emits an error if the type is not an optional.
+    pub fn assert_optional_type(&self, type_: &Type, span: Span) {
+        if type_ != &Type::Err && !matches!(type_, Type::Optional(_)) {
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "an optional", span));
+        }
+    }
+
+    pub fn contains_optional_type(&mut self, ty: &Type) -> bool {
+        let mut visited_paths = IndexSet::<Vec<Symbol>>::new();
+        self.contains_optional_type_inner(ty, &mut visited_paths)
+    }
+
+    fn contains_optional_type_inner(&mut self, ty: &Type, visited_paths: &mut IndexSet<Vec<Symbol>>) -> bool {
+        match ty {
+            Type::Optional(_) => true,
+
+            Type::Tuple(tuple) => tuple.elements.iter().any(|e| self.contains_optional_type_inner(e, visited_paths)),
+
+            Type::Array(array) => self.contains_optional_type_inner(&array.element_type, visited_paths),
+
+            Type::Composite(struct_type) => {
+                let path = struct_type.path.absolute_path();
+
+                // Prevent revisiting the same type
+                if !visited_paths.insert(path.clone()) {
+                    return false;
+                }
+
+                if let Some(comp) = self.lookup_struct(struct_type.program.or(self.scope_state.program_name), &path) {
+                    comp.members
+                        .iter()
+                        .any(|Member { type_, .. }| self.contains_optional_type_inner(type_, visited_paths))
+                } else {
+                    false
+                }
+            }
+
+            _ => false,
         }
     }
 
@@ -1099,12 +1203,23 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input.span()))
             }
 
+            // Check that the type of the input parameter does not contain an optional.
+            if self.contains_optional_type(table_type)
+                && matches!(function.variant, Variant::Transition | Variant::AsyncTransition | Variant::Function)
+            {
+                self.emit_err(TypeCheckerError::function_cannot_take_option_as_input(
+                    input.identifier,
+                    table_type,
+                    input.span(),
+                ))
+            }
+
             // Make sure only transitions can take a record as an input.
             if let Type::Composite(struct_) = table_type {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
                     if let Some(elem) = self
-                        .lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.path.absolute_path())
+                        .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                     {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
@@ -1167,7 +1282,7 @@ impl TypeCheckingVisitor<'_> {
             // Note that an external output must always be a record.
             if let Type::Composite(struct_) = function_output.type_.clone() {
                 if let Some(val) =
-                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), struct_.path.absolute_path())
+                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
                 {
                     if val.is_record && !function.variant.is_transition() {
                         self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
@@ -1182,6 +1297,17 @@ impl TypeCheckingVisitor<'_> {
             if matches!(&function_output.type_, Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
             }
+
+            // Check that the type of the input parameter does not contain an optional.
+            if self.contains_optional_type(&function_output.type_)
+                && matches!(function.variant, Variant::Transition | Variant::AsyncTransition | Variant::Function)
+            {
+                self.emit_err(TypeCheckerError::function_cannot_return_option_as_output(
+                    &function_output.type_,
+                    function_output.span(),
+                ))
+            }
+
             // Check that the mode of the output is valid.
             // For functions, only public and private outputs are allowed
             if function_output.mode == Mode::Constant {
@@ -1223,77 +1349,8 @@ impl TypeCheckingVisitor<'_> {
             } else {
                 *lhs = Type::Err;
             }
-        } else if !Self::eq_user(lhs, rhs) {
+        } else if !lhs.eq_user(rhs) {
             *lhs = Type::Err;
-        }
-    }
-
-    /// Are the types considered equal as far as the Leo user is concerned?
-    ///
-    /// In particular, any comparison involving an `Err` is `true`,
-    /// composite types are resolved to the current program if not specified,
-    /// and Futures which aren't explicit compare equal to other Futures.
-    ///
-    /// An array with an undetermined length (e.g., one that depends on a `const`) is considered equal to other arrays
-    /// if their element types match. This allows const propagation to potentially resolve the length before type
-    /// checking is performed again.
-    ///
-    /// Composite types are considered equal if their names and resolved program names match.
-    /// If either side still has const generic arguments, they are treated as equal unconditionally
-    /// since monomorphization and other passes of type-checking will handle mismatches later.
-    pub fn eq_user(t1: &Type, t2: &Type) -> bool {
-        match (t1, t2) {
-            (Type::Err, _)
-            | (_, Type::Err)
-            | (Type::Address, Type::Address)
-            | (Type::Boolean, Type::Boolean)
-            | (Type::Field, Type::Field)
-            | (Type::Group, Type::Group)
-            | (Type::Scalar, Type::Scalar)
-            | (Type::Signature, Type::Signature)
-            | (Type::String, Type::String)
-            | (Type::Unit, Type::Unit) => true,
-            (Type::Array(left), Type::Array(right)) => {
-                (match (left.length.as_u32(), right.length.as_u32()) {
-                    (Some(l1), Some(l2)) => l1 == l2,
-                    _ => {
-                        // An array with an undetermined length (e.g., one that depends on a `const`) is considered
-                        // equal to other arrays because their lengths _may_ eventually be proven equal.
-                        true
-                    }
-                }) && Self::eq_user(left.element_type(), right.element_type())
-            }
-            (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
-            (Type::Integer(left), Type::Integer(right)) => left == right,
-            (Type::Mapping(left), Type::Mapping(right)) => {
-                Self::eq_user(&left.key, &right.key) && Self::eq_user(&left.value, &right.value)
-            }
-            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
-                .elements()
-                .iter()
-                .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| Self::eq_user(left_type, right_type)),
-            (Type::Composite(left), Type::Composite(right)) => {
-                // If either composite still has const generic arguments, treat them as equal.
-                // Type checking will run again after monomorphization.
-                if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
-                    return true;
-                }
-
-                // Two composite types are the same if their programs and their _absolute_ paths match.
-                (left.program == right.program)
-                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                        (Some(l), Some(r)) => l == r,
-                        _ => false,
-                    }
-            }
-            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
-            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
-                .inputs()
-                .iter()
-                .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| Self::eq_user(left_type, right_type)),
-            _ => false,
         }
     }
 

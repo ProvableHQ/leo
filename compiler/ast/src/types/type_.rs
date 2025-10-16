@@ -14,7 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, Path, TupleType};
+use crate::{
+    ArrayType,
+    CompositeType,
+    FutureType,
+    Identifier,
+    IntegerType,
+    MappingType,
+    OptionalType,
+    Path,
+    TupleType,
+};
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -49,6 +59,8 @@ pub enum Type {
     Integer(IntegerType),
     /// A mapping type.
     Mapping(MappingType),
+    /// A nullable type.
+    Optional(OptionalType),
     /// The `scalar` type.
     Scalar,
     /// The `signature` type.
@@ -68,6 +80,75 @@ pub enum Type {
 }
 
 impl Type {
+    /// Are the types considered equal as far as the Leo user is concerned?
+    ///
+    /// In particular, any comparison involving an `Err` is `true`, and Futures which aren't explicit compare equal to
+    /// other Futures.
+    ///
+    /// An array with an undetermined length (e.g., one that depends on a `const`) is considered equal to other arrays
+    /// if their element types match. This allows const propagation to potentially resolve the length before type
+    /// checking is performed again.
+    ///
+    /// Composite types are considered equal if their names and resolved program names match. If either side still has
+    /// const generic arguments, they are treated as equal unconditionally since monomorphization and other passes of
+    /// type-checking will handle mismatches later.
+    pub fn eq_user(&self, other: &Type) -> bool {
+        match (self, other) {
+            (Type::Err, _)
+            | (_, Type::Err)
+            | (Type::Address, Type::Address)
+            | (Type::Boolean, Type::Boolean)
+            | (Type::Field, Type::Field)
+            | (Type::Group, Type::Group)
+            | (Type::Scalar, Type::Scalar)
+            | (Type::Signature, Type::Signature)
+            | (Type::String, Type::String)
+            | (Type::Unit, Type::Unit) => true,
+            (Type::Array(left), Type::Array(right)) => {
+                (match (left.length.as_u32(), right.length.as_u32()) {
+                    (Some(l1), Some(l2)) => l1 == l2,
+                    _ => {
+                        // An array with an undetermined length (e.g., one that depends on a `const`) is considered
+                        // equal to other arrays because their lengths _may_ eventually be proven equal.
+                        true
+                    }
+                }) && left.element_type().eq_user(right.element_type())
+            }
+            (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
+            (Type::Integer(left), Type::Integer(right)) => left == right,
+            (Type::Mapping(left), Type::Mapping(right)) => {
+                left.key.eq_user(&right.key) && left.value.eq_user(&right.value)
+            }
+            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_user(&right.inner),
+            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
+                .elements()
+                .iter()
+                .zip_eq(right.elements().iter())
+                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
+            (Type::Composite(left), Type::Composite(right)) => {
+                // If either composite still has const generic arguments, treat them as equal.
+                // Type checking will run again after monomorphization.
+                if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
+                    return true;
+                }
+
+                // Two composite types are the same if their programs and their _absolute_ paths match.
+                (left.program == right.program)
+                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
+                        (Some(l), Some(r)) => l == r,
+                        _ => false,
+                    }
+            }
+            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
+            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
+                .inputs()
+                .iter()
+                .zip_eq(right.inputs().iter())
+                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
+            _ => false,
+        }
+    }
+
     /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin.
     ///
     /// In the case of futures, it also makes sure that if both are not explicit, they are equal.
@@ -104,6 +185,7 @@ impl Type {
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat_relaxed(&right.key) && left.value.eq_flat_relaxed(&right.value)
             }
+            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_flat_relaxed(&right.inner),
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
@@ -116,14 +198,13 @@ impl Type {
                     return true;
                 }
 
-                // Two composite types are the same if their programs and their _absolute_ paths match.
+                // Two composite types are the same if their _absolute_ paths match.
                 // If the absolute paths are not available, then we really can't compare the two
                 // types and we just return `false` to be conservative.
-                (left.program == right.program)
-                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                        (Some(l), Some(r)) => l == r,
-                        _ => false,
-                    }
+                match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
+                    (Some(l), Some(r)) => l == r,
+                    _ => false,
+                }
             }
             // Don't type check when type hasn't been explicitly defined.
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
@@ -168,6 +249,46 @@ impl Type {
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }
+
+    /// Determines whether `self` can be coerced to the `expected` type.
+    ///
+    /// This method checks if the current type can be implicitly coerced to the expected type
+    /// according to specific rules:
+    /// - `Optional<T>` can be coerced to `Optional<T>`.
+    /// - `T` can be coerced to `Optional<T>`.
+    /// - Arrays `[T; N]` can be coerced to `[Optional<T>; N]` if lengths match or are unknown,
+    ///   and element types are coercible.
+    /// - Falls back to an equality check for other types.
+    ///
+    /// # Arguments
+    /// * `expected` - The type to which `self` is being coerced.
+    ///
+    /// # Returns
+    /// `true` if coercion is allowed; `false` otherwise.
+    pub fn can_coerce_to(&self, expected: &Type) -> bool {
+        use Type::*;
+
+        match (self, expected) {
+            // Allow Optional<T> → Optional<T>
+            (Optional(actual_opt), Optional(expected_opt)) => actual_opt.inner.can_coerce_to(&expected_opt.inner),
+
+            // Allow T → Optional<T>
+            (a, Optional(opt)) => a.can_coerce_to(&opt.inner),
+
+            // Allow [T; N] → [Optional<T>; N]
+            (Array(a_arr), Array(e_arr)) => {
+                let lengths_equal = match (a_arr.length.as_u32(), e_arr.length.as_u32()) {
+                    (Some(l1), Some(l2)) => l1 == l2,
+                    _ => true,
+                };
+
+                lengths_equal && a_arr.element_type().can_coerce_to(e_arr.element_type())
+            }
+
+            // Fallback: check for exact match
+            _ => self.eq_user(expected),
+        }
+    }
 }
 
 impl fmt::Display for Type {
@@ -182,6 +303,7 @@ impl fmt::Display for Type {
             Type::Identifier(ref variable) => write!(f, "{variable}"),
             Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
             Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
+            Type::Optional(ref optional_type) => write!(f, "{optional_type}"),
             Type::Scalar => write!(f, "scalar"),
             Type::Signature => write!(f, "signature"),
             Type::String => write!(f, "string"),
