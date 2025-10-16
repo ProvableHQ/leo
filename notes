@@ -1,8 +1,0 @@
-
-call deposit(100u64), type failure
-
-cannot print register credits.aleo/transfer_public
-
-after set_program, message or print out symbols
-
-set self.signer

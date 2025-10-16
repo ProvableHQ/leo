@@ -24,7 +24,6 @@ use leo_span::Symbol;
 use snarkvm::prelude::TestnetV0;
 
 use colored::Colorize as _;
-use rayon::prelude::*;
 use std::{collections::HashMap, fs};
 
 /// Test a leo program.

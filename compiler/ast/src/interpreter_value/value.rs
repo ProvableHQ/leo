@@ -26,11 +26,26 @@ use itertools::Itertools as _;
 use crate::Location;
 
 use snarkvm::prelude::{
-    Access, Address as SvmAddress, Argument, Boolean as SvmBoolean, Entry, Field as SvmField, Future as FutureParam,
-    Group as SvmGroup, LiteralType, Owner, ProgramID as ProgramIDParam, Record, Scalar as SvmScalar,
+    Access,
+    Address as SvmAddress,
+    Argument,
+    Boolean as SvmBoolean,
+    Entry,
+    Field as SvmField,
+    Future as FutureParam,
+    Group as SvmGroup,
+    LiteralType,
+    Owner,
+    ProgramID as ProgramIDParam,
+    Record,
+    Scalar as SvmScalar,
 };
 pub(crate) use snarkvm::prelude::{
-    Identifier as SvmIdentifierParam, Literal as SvmLiteralParam, Plaintext, TestnetV0, Value as SvmValueParam,
+    Identifier as SvmIdentifierParam,
+    Literal as SvmLiteralParam,
+    Plaintext,
+    TestnetV0,
+    Value as SvmValueParam,
 };
 
 use leo_errors::Result;
@@ -344,6 +359,14 @@ impl From<SvmValue> for Value {
 impl From<Vec<AsyncExecution>> for Value {
     fn from(x: Vec<AsyncExecution>) -> Self {
         ValueVariants::Future(x).into()
+    }
+}
+
+impl TryFrom<Value> for String {
+    type Error = ();
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        if let ValueVariants::String(s) = value.contents { Ok(s) } else { Err(()) }
     }
 }
 
@@ -751,6 +774,10 @@ impl Value {
 
     pub fn make_tuple(contents: impl IntoIterator<Item = Value>) -> Self {
         ValueVariants::Tuple(contents.into_iter().collect()).into()
+    }
+
+    pub fn make_string(s: String) -> Self {
+        ValueVariants::String(s).into()
     }
 
     /// Gets the type of a `Value` but only if it is an integer, a field, a group, or a scalar.

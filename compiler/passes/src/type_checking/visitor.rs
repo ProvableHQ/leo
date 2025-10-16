@@ -919,6 +919,10 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1.span());
                 Type::Unit
             }
+            CoreFunction::CheatCodeSetSigner => {
+                self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());
+                Type::Unit
+            }
         }
     }
 

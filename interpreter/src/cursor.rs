@@ -31,6 +31,7 @@ use leo_ast::{
     NodeID,
     Statement,
     StructVariableInitializer,
+    TEST_PRIVATE_KEY,
     Type,
     UnaryOperation,
     Variant,
@@ -48,12 +49,14 @@ use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol, sym};
 
 use snarkvm::prelude::{
+    Address,
     CanaryV0,
     Closure as SvmClosure,
     Finalize as SvmFinalize,
     Function as SvmFunctionParam,
     MainnetV0,
     Network,
+    PrivateKey,
     ProgramID,
     TestnetV0,
 };
@@ -272,6 +275,7 @@ pub struct Cursor {
 
     pub contexts: ContextStack,
 
+    // The signer's address.
     pub signer: Value,
 
     pub rng: ChaCha20Rng,
@@ -283,6 +287,8 @@ pub struct Cursor {
     pub program: Option<Symbol>,
 
     pub network: NetworkName,
+
+    pub private_key: String,
 }
 
 impl CoreFunctionHelper for Cursor {
@@ -294,8 +300,19 @@ impl CoreFunctionHelper for Cursor {
         self.block_height = height;
     }
 
-    fn set_signer(&mut self, private_key: String) {
-        self.signer = private_key;
+    fn set_signer(&mut self, private_key: String) -> Result<()> {
+        // Get the address from the private key.
+        let address =
+            match PrivateKey::<TestnetV0>::from_str(&private_key).and_then(|pk| Address::<TestnetV0>::try_from(&pk)) {
+                Ok(address) => address.into(),
+                Err(_) => halt_no_span!("Invalid private key provided for signer."),
+            };
+        // Set the private key
+        self.private_key = private_key;
+        // Set the signer.
+        self.signer = address;
+
+        Ok(())
     }
 
     fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
@@ -314,7 +331,7 @@ impl CoreFunctionHelper for Cursor {
 impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
     pub fn new(really_async: bool, signer: Value, block_height: u32, network: NetworkName) -> Self {
-        Cursor {
+        let mut cursor = Cursor {
             frames: Default::default(),
             values: Default::default(),
             functions: Default::default(),
@@ -332,7 +349,13 @@ impl Cursor {
             really_async,
             program: None,
             network,
-        }
+            private_key: Default::default(),
+        };
+
+        // Set the default private key.
+        cursor.set_signer(TEST_PRIVATE_KEY.to_string()).expect("The default private key should be valid.");
+
+        cursor
     }
 
     // Clears the state of the cursor, but keeps the program definitions.
