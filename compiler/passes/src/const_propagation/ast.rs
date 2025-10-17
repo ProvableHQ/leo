@@ -176,7 +176,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     let result_value = array_value
                         .array_index(index_value.as_u32().unwrap() as usize)
                         .expect("We already checked bounds.");
-                    dbg!(&result_value);
                     return (
                         self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR),
                         Some(result_value.clone()),
