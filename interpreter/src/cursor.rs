@@ -1315,7 +1315,9 @@ impl Cursor {
                 };
 
                 if let Some(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future()) {
-                    self.futures.extend(asyncs.iter().cloned());
+                    if user_initiated {
+                        self.futures.extend(asyncs.iter().cloned());
+                    }
                 }
 
                 Ok(StepResult { finished, value })

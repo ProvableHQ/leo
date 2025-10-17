@@ -101,6 +101,11 @@ pub enum Token {
     // with an LR(1) parser - we potentially get shift-reduce conflicts and other ambiguities between
     // member accesses, program ids, tuple accesses, etc. We could make it work but let's just cut to the
     // chase here.
+
+    // Catch identifiers starting with underscore
+    #[regex(r"_[a-zA-Z][a-zA-Z0-9_]*")]
+    InvalidLeadingUnderscoreIdent,
+
     #[regex(r"[a-zA-Z][a-zA-Z0-9_]*", id_variant)]
     // We need to special case `group::abc` and `signature::abc` as otherwise these are keywords.
     #[token(r"group::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
@@ -515,6 +520,9 @@ impl<'a> Iterator for Lexer<'a> {
 
         if matches!(token, Token::Bidi) {
             self.handler.emit_err(ParserError::lexer_bidi_override_span(span));
+            return None;
+        } else if matches!(token, Token::InvalidLeadingUnderscoreIdent) {
+            self.handler.emit_err(ParserError::identifier_cannot_start_with_underscore(span));
             return None;
         } else if matches!(token, Token::Integer) {
             let (s, radix) = if let Some(s) = text.strip_prefix("0x") {

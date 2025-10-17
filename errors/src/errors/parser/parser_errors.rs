@@ -471,4 +471,11 @@ create_messages!(
         msg: format!("Digit {digit} invalid in radix {radix} (token {token})."),
         help: None,
     }
+
+    @formatted
+    identifier_cannot_start_with_underscore {
+        args: (),
+        msg: "Identifiers cannot start with an underscore.",
+        help: Some("Identifiers must start with a letter.".to_string()),
+    }
 );

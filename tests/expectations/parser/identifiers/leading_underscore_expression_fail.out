@@ -1,0 +1,7 @@
+Error [EPAR0370053]: Identifiers cannot start with an underscore.
+    --> test:5:16
+     |
+   5 |         return _value;
+     |                ^^^^^^
+     |
+     = Identifiers must start with a letter.
