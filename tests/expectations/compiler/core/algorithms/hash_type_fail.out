@@ -3,11 +3,6 @@ Error [ETYC0372117]: Expected a type with a size in bits that is a multiple of 8
      |
   22 |         let result: field = Keccak256::hash_to_field_raw(true);
      |                                                          ^^^^
-Error [ETYC0372156]: Could not determine the size in bits of the input to the hash function.
-    --> compiler-test:31:58
-     |
-  31 |         let result: [bool; 256] = Keccak256::hash_native(msg);
-     |                                                          ^^^
 Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `u128` was found.
     --> compiler-test:40:56
      |

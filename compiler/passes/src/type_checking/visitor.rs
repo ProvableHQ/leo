@@ -343,22 +343,17 @@ impl TypeCheckingVisitor<'_> {
                         NetworkName::CanaryV0 => input_type
                             .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
                     };
-                    let Ok(size_in_bits) = size_in_bits else {
-                        self.emit_err(TypeCheckerError::custom(
-                            "Could not determine the size in bits of the input to the hash function.",
-                            arguments[0].1.span(),
-                        ));
-                        return Type::Err;
+                    if let Ok(size_in_bits) = size_in_bits {
+                        // Check that the size in bits is a multiple of 8.
+                        if size_in_bits % 8 != 0 {
+                            self.emit_err(TypeCheckerError::type_should_be2(
+                                input_type,
+                                "a type with a size in bits that is a multiple of 8",
+                                arguments[0].1.span(),
+                            ));
+                            return Type::Err;
+                        }
                     };
-                    // Check that the size in bits is a multiple of 8.
-                    if size_in_bits % 8 != 0 {
-                        self.emit_err(TypeCheckerError::type_should_be2(
-                            input_type,
-                            "a type with a size in bits that is a multiple of 8",
-                            arguments[0].1.span(),
-                        ));
-                        return Type::Err;
-                    }
                 }
                 match variant {
                     HashVariant::HashPED64 => {
@@ -495,22 +490,17 @@ impl TypeCheckingVisitor<'_> {
                         NetworkName::CanaryV0 => input_type
                             .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
                     };
-                    let Ok(size_in_bits) = size_in_bits else {
-                        self.emit_err(TypeCheckerError::custom(
-                            "Could not determine the size in bits of the input to the hash function.",
-                            arguments[2].1.span(),
-                        ));
-                        return Type::Err;
+                    if let Ok(size_in_bits) = size_in_bits {
+                        // Check that the size in bits is a multiple of 8.
+                        if size_in_bits % 8 != 0 {
+                            self.emit_err(TypeCheckerError::type_should_be2(
+                                input_type,
+                                "a type with a size in bits that is a multiple of 8",
+                                arguments[2].1.span(),
+                            ));
+                            return Type::Err;
+                        }
                     };
-                    // Check that the size in bits is a multiple of 8.
-                    if size_in_bits % 8 != 0 {
-                        self.emit_err(TypeCheckerError::type_should_be2(
-                            input_type,
-                            "a type with a size in bits that is a multiple of 8",
-                            arguments[2].1.span(),
-                        ));
-                        return Type::Err;
-                    }
                 }
 
                 Type::Boolean
@@ -754,33 +744,30 @@ impl TypeCheckingVisitor<'_> {
                     }
                 };
 
-                let Ok(size_in_bits) = size_in_bits else {
-                    self.emit_err(TypeCheckerError::custom(
-                        "Could not determine the size in bits of the input to `Serialize::*`.",
-                        arguments[0].1.span(),
-                    ));
-                    return Type::Err;
-                };
-
-                // Check that the size in bits is valid.
-                let size_in_bits = if size_in_bits > self.limits.max_array_elements {
-                    self.emit_err(TypeCheckerError::custom(
+                if let Ok(size_in_bits) = size_in_bits {
+                    // Check that the size in bits is valid.
+                    let size_in_bits = if size_in_bits > self.limits.max_array_elements {
+                        self.emit_err(TypeCheckerError::custom(
                         format!("The input type to `Serialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
-                } else if size_in_bits == 0 {
-                    self.emit_err(TypeCheckerError::custom(
-                        "The input type to `Serialize::*` is empty.",
-                        arguments[0].1.span(),
-                    ));
-                    return Type::Err;
-                } else {
-                    u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
-                };
+                        return Type::Err;
+                    } else if size_in_bits == 0 {
+                        self.emit_err(TypeCheckerError::custom(
+                            "The input type to `Serialize::*` is empty.",
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    } else {
+                        u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
+                    };
 
-                // Return the array type.
-                Type::Array(ArrayType::bit_array(size_in_bits))
+                    // Return the array type.
+                    return Type::Array(ArrayType::bit_array(size_in_bits));
+                }
+
+                // Could not resolve the size in bits at this time.
+                Type::Err
             }
             CoreFunction::Deserialize(variant, type_) => {
                 // Determine the variant.
@@ -804,41 +791,35 @@ impl TypeCheckingVisitor<'_> {
                     }
                 };
 
-                let Ok(size_in_bits) = size_in_bits else {
-                    self.emit_err(TypeCheckerError::custom(
-                        "Could not determine the size in bits of the output of `Deserialize::*`.",
-                        arguments[0].1.span(),
-                    ));
-                    return Type::Err;
-                };
-
-                // Check that the size in bits is valid.
-                let size_in_bits = if size_in_bits > self.limits.max_array_elements {
-                    self.emit_err(TypeCheckerError::custom(
+                if let Ok(size_in_bits) = size_in_bits {
+                    // Check that the size in bits is valid.
+                    let size_in_bits = if size_in_bits > self.limits.max_array_elements {
+                        self.emit_err(TypeCheckerError::custom(
                         format!("The output type of `Deserialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
-                } else if size_in_bits == 0 {
-                    self.emit_err(TypeCheckerError::custom(
-                        "The output type of `Deserialize::*` is empty.",
-                        arguments[0].1.span(),
-                    ));
-                    return Type::Err;
-                } else {
-                    u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
-                };
+                        return Type::Err;
+                    } else if size_in_bits == 0 {
+                        self.emit_err(TypeCheckerError::custom(
+                            "The output type of `Deserialize::*` is empty.",
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    } else {
+                        u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
+                    };
 
-                // Check that the input type is an array of the correct size.
-                let expected_type = Type::Array(ArrayType::bit_array(size_in_bits));
-                if !input_type.eq_flat_relaxed(&expected_type) {
-                    self.emit_err(TypeCheckerError::type_should_be2(
-                        input_type,
-                        format!("an array of {size_in_bits} bits"),
-                        arguments[0].1.span(),
-                    ));
-                    return Type::Err;
-                }
+                    // Check that the input type is an array of the correct size.
+                    let expected_type = Type::Array(ArrayType::bit_array(size_in_bits));
+                    if !input_type.eq_flat_relaxed(&expected_type) {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            input_type,
+                            format!("an array of {size_in_bits} bits"),
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    }
+                };
 
                 type_.clone()
             }
