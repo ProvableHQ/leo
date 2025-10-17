@@ -19,7 +19,7 @@ edition = "2024"
 rust-version = "1.88.0"
 
 [dependencies.rayon]
-version = "1.10"
+workspace = true
 
 [dependencies.walkdir]
 workspace = true

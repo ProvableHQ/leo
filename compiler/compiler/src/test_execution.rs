@@ -43,12 +43,7 @@ impl Default for Config {
     }
 }
 
-fn execution_run_test(
-    config: &Config,
-    cases: &[run_with_ledger::Case],
-    handler: &Handler,
-    buf: &BufferEmitter,
-) -> Result<String> {
+fn execution_run_test(config: &Config, cases: &[run_with_ledger::Case], handler: &Handler) -> Result<String> {
     let mut import_stubs = IndexMap::new();
 
     let mut ledger_config =
@@ -64,7 +59,9 @@ fn execution_run_test(
         ledger_config.programs.push(run_with_ledger::Program { bytecode, name });
     }
 
-    let outcomes = run_with_ledger::run_with_ledger(&ledger_config, cases, handler, buf)?;
+    // Note: We wrap cases in a slice to run them all in one ledger instance.
+    let outcomes =
+        run_with_ledger::run_with_ledger(&ledger_config, &[cases.to_vec()])?.into_iter().flatten().collect::<Vec<_>>();
 
     assert_eq!(outcomes.len(), cases.len());
 
@@ -78,16 +75,11 @@ fn execution_run_test(
 
     // Output each case outcome.
     for outcome in outcomes {
-        let err_space = if outcome.errors.is_empty() { "" } else { " " };
-        let warning_space = if outcome.warnings.is_empty() { "" } else { " " };
-
         write!(
             output,
-            "verified: {verified}\nstatus: {status}\nerrors:{err_space}{errors}\nwarnings:{warning_space}{warnings}\n",
+            "verified: {verified}\nstatus: {status}\n",
             verified = outcome.verified,
             status = outcome.status,
-            errors = outcome.errors,
-            warnings = outcome.warnings,
         )
         .unwrap();
         writeln!(output, "{}\n", outcome.execution).unwrap();
@@ -128,7 +120,7 @@ fn execution_runner(source: &str) -> String {
     // Split the sources and add them to the config.
     config.sources = source.split(super::test_utils::PROGRAM_DELIMITER).map(|s| s.trim().to_string()).collect();
 
-    create_session_if_not_set_then(|_| match execution_run_test(&config, &cases, &handler, &buf) {
+    create_session_if_not_set_then(|_| match execution_run_test(&config, &cases, &handler) {
         Ok(s) => s,
         Err(e) => {
             format!("Error while running execution tests:\n{e}\n\nErrors:\n{}", buf.extract_errs())
