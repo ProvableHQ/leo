@@ -25,7 +25,7 @@ use aleo_std::StorageMode;
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     algorithms::crypto_hash::sha256,
-    circuit::{Aleo, AleoTestnetV0},
+    circuit::{Aleo, AleoTestnetV0, SYNTHESIS_INFO},
     prelude::{
         ProgramID,
         ToBytes,
@@ -253,6 +253,14 @@ fn handle_synthesize<A: Aleo>(
     for id in &function_ids {
         println!("    - {id}");
     }
+
+    // Read out SYNTHESIS_INFO and dump it to a file.
+    let synthesis_info = SYNTHESIS_INFO.lock().unwrap();
+    let synthesis_info_pretty = serde_json::to_string_pretty(&*synthesis_info)
+        .map_err(|e| CliError::custom(format!("Failed to serialize synthesis info: {e}")))?;
+    std::fs::write("synthesis_info.json", synthesis_info_pretty.as_bytes())
+        .map_err(|e| CliError::custom(format!("Failed to write synthesis info to file: {e}")))?;
+    println!("💾 Saved synthesis info to synthesis_info.json");
 
     for function_id in function_ids {
         stack.synthesize_key::<A, _>(function_id, rng)?;
