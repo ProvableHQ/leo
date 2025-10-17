@@ -30,6 +30,7 @@ use itertools::Itertools;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
+    LiteralType,
     Network,
     PlaintextType,
     PlaintextType::{Array, Literal, Struct},
@@ -219,25 +220,7 @@ impl Type {
 
     pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Option<Symbol>) -> Self {
         match t {
-            Literal(lit) => match lit {
-                snarkvm::prelude::LiteralType::Address => Type::Address,
-                snarkvm::prelude::LiteralType::Boolean => Type::Boolean,
-                snarkvm::prelude::LiteralType::Field => Type::Field,
-                snarkvm::prelude::LiteralType::Group => Type::Group,
-                snarkvm::prelude::LiteralType::U8 => Type::Integer(IntegerType::U8),
-                snarkvm::prelude::LiteralType::U16 => Type::Integer(IntegerType::U16),
-                snarkvm::prelude::LiteralType::U32 => Type::Integer(IntegerType::U32),
-                snarkvm::prelude::LiteralType::U64 => Type::Integer(IntegerType::U64),
-                snarkvm::prelude::LiteralType::U128 => Type::Integer(IntegerType::U128),
-                snarkvm::prelude::LiteralType::I8 => Type::Integer(IntegerType::I8),
-                snarkvm::prelude::LiteralType::I16 => Type::Integer(IntegerType::I16),
-                snarkvm::prelude::LiteralType::I32 => Type::Integer(IntegerType::I32),
-                snarkvm::prelude::LiteralType::I64 => Type::Integer(IntegerType::I64),
-                snarkvm::prelude::LiteralType::I128 => Type::Integer(IntegerType::I128),
-                snarkvm::prelude::LiteralType::Scalar => Type::Scalar,
-                snarkvm::prelude::LiteralType::Signature => Type::Signature,
-                snarkvm::prelude::LiteralType::String => Type::String,
-            },
+            Literal(lit) => (*lit).into(),
             Struct(s) => Type::Composite(CompositeType {
                 path: {
                     let ident = Identifier::from(s);
@@ -324,6 +307,30 @@ impl Type {
 
             // Fallback: check for exact match
             _ => self.eq_user(expected),
+        }
+    }
+}
+
+impl From<LiteralType> for Type {
+    fn from(value: LiteralType) -> Self {
+        match value {
+            LiteralType::Address => Type::Address,
+            LiteralType::Boolean => Type::Boolean,
+            LiteralType::Field => Type::Field,
+            LiteralType::Group => Type::Group,
+            LiteralType::U8 => Type::Integer(IntegerType::U8),
+            LiteralType::U16 => Type::Integer(IntegerType::U16),
+            LiteralType::U32 => Type::Integer(IntegerType::U32),
+            LiteralType::U64 => Type::Integer(IntegerType::U64),
+            LiteralType::U128 => Type::Integer(IntegerType::U128),
+            LiteralType::I8 => Type::Integer(IntegerType::I8),
+            LiteralType::I16 => Type::Integer(IntegerType::I16),
+            LiteralType::I32 => Type::Integer(IntegerType::I32),
+            LiteralType::I64 => Type::Integer(IntegerType::I64),
+            LiteralType::I128 => Type::Integer(IntegerType::I128),
+            LiteralType::Scalar => Type::Scalar,
+            LiteralType::Signature => Type::Signature,
+            LiteralType::String => Type::String,
         }
     }
 }

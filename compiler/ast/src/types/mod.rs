@@ -40,29 +40,3 @@ pub use tuple::*;
 
 mod type_;
 pub use type_::*;
-
-use snarkvm::prelude::LiteralType;
-
-impl From<LiteralType> for Type {
-    fn from(literal_type: LiteralType) -> Self {
-        match literal_type {
-            LiteralType::Boolean => Type::Boolean,
-            LiteralType::Field => Type::Field,
-            LiteralType::Group => Type::Group,
-            LiteralType::I8 => Type::Integer(IntegerType::I8),
-            LiteralType::I16 => Type::Integer(IntegerType::I16),
-            LiteralType::I32 => Type::Integer(IntegerType::I32),
-            LiteralType::I64 => Type::Integer(IntegerType::I64),
-            LiteralType::I128 => Type::Integer(IntegerType::I128),
-            LiteralType::U8 => Type::Integer(IntegerType::U8),
-            LiteralType::U16 => Type::Integer(IntegerType::U16),
-            LiteralType::U32 => Type::Integer(IntegerType::U32),
-            LiteralType::U64 => Type::Integer(IntegerType::U64),
-            LiteralType::U128 => Type::Integer(IntegerType::U128),
-            LiteralType::String => Type::String,
-            LiteralType::Address => Type::Address,
-            LiteralType::Scalar => Type::Scalar,
-            LiteralType::Signature => Type::Signature,
-        }
-    }
-}

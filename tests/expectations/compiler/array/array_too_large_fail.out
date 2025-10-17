@@ -1,5 +1,10 @@
-program test.aleo;
-
-function foo:
-    input r0 as [boolean; 33u32].private;
-    output true as boolean.private;
+Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
+    --> compiler-test:3:20
+     |
+   3 |     transition foo(a: [bool; 513]) -> bool {
+     |                    ^^^^^^^^^^^^^^
+Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
+    --> compiler-test:4:19
+     |
+   4 |         let bar = [false; 513];
+     |                   ^^^^^^^^^^^^
