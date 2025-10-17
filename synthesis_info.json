@@ -1,0 +1,22 @@
+[
+  {
+    "operation_name": "transfer_public_to_private_preamble",
+    "num_variables": 16054,
+    "num_constraints": 12132
+  },
+  {
+    "operation_name": "transfer_public_to_private_cast_r0_r1",
+    "num_variables": 18678,
+    "num_constraints": 14160
+  },
+  {
+    "operation_name": "transfer_public_to_private_async_self.caller_r1",
+    "num_variables": 18974,
+    "num_constraints": 14160
+  },
+  {
+    "operation_name": "transfer_public_to_private_postamble",
+    "num_variables": 38267,
+    "num_constraints": 29079
+  }
+]

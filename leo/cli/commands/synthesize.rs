@@ -254,14 +254,6 @@ fn handle_synthesize<A: Aleo>(
         println!("    - {id}");
     }
 
-    // Read out SYNTHESIS_INFO and dump it to a file.
-    let synthesis_info = SYNTHESIS_INFO.lock().unwrap();
-    let synthesis_info_pretty = serde_json::to_string_pretty(&*synthesis_info)
-        .map_err(|e| CliError::custom(format!("Failed to serialize synthesis info: {e}")))?;
-    std::fs::write("synthesis_info.json", synthesis_info_pretty.as_bytes())
-        .map_err(|e| CliError::custom(format!("Failed to write synthesis info to file: {e}")))?;
-    println!("💾 Saved synthesis info to synthesis_info.json");
-
     for function_id in function_ids {
         stack.synthesize_key::<A, _>(function_id, rng)?;
         let proving_key = stack.get_proving_key(function_id)?;
@@ -305,26 +297,33 @@ fn handle_synthesize<A: Aleo>(
         if let Some(path) = &command.action.save {
             // Create the directory if it doesn't exist.
             std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
-            // Get the current timestamp.
-            let timestamp = chrono::Utc::now().timestamp();
             // The edition.
             let edition = if command.local { "local".to_string() } else { edition.to_string() };
             // The prefix for the file names.
             let prefix = format!("{network}.{program_id}.{function_id}.{edition}");
             // Get the file paths.
-            let prover_file_path = PathBuf::from(path).join(format!("{prefix}.prover.{timestamp}"));
-            let verifier_file_path = PathBuf::from(path).join(format!("{prefix}.verifier.{timestamp}"));
-            let metadata_file_path = PathBuf::from(path)
-                .join(format!("{network}.{program_id}.{function_id}.{edition}.metadata.{timestamp}"));
+            let prover_file_path = PathBuf::from(path).join(format!("{prefix}.prover"));
+            let verifier_file_path = PathBuf::from(path).join(format!("{prefix}.verifier"));
+            let metadata_file_path =
+                PathBuf::from(path).join(format!("{network}.{program_id}.{function_id}.{edition}.metadata"));
             // Print the save location.
             println!(
-                "💾 Saving proving key, verifying key, and metadata to: {}/{network}.{program_id}.{function_id}.{edition}.prover|verifier|metadata.{timestamp}",
+                "💾 Saving proving key, verifying key, metadata and synthesis info to: {}/{network}.{program_id}.{function_id}.{edition}.prover|verifier|metadata|synthesis_info",
                 metadata_file_path.parent().unwrap().display()
             );
             // Save the keys.
             write_to_file(prover_file_path, &prover_bytes)?;
             write_to_file(verifier_file_path, &verifier_bytes)?;
             write_to_file(metadata_file_path, metadata_pretty.as_bytes())?;
+
+            // Read out SYNTHESIS_INFO and dump it to a file.
+            let mut synthesis_info = SYNTHESIS_INFO.lock().unwrap();
+            let synthesis_info_pretty = serde_json::to_string_pretty(&*synthesis_info)
+                .map_err(|e| CliError::custom(format!("Failed to serialize synthesis info: {e}")))?;
+            let synthesis_info_file_path = PathBuf::from(path).join(format!("{prefix}.synthesis_info.json"));
+            write_to_file(synthesis_info_file_path, synthesis_info_pretty.as_bytes())?;
+            // Clear the synthesis info.
+            synthesis_info.clear();
         }
     }
 

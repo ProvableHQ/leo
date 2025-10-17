@@ -170,7 +170,7 @@ version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
 git = "http://github.com/ProvableHQ/snarkVM.git"
-rev = "3029dbe87"
+rev = "f18b70c2d"
 # path = "../snarkVM"
 # version = "4.2.0"
 features = ["circuit", "test_consensus_heights"]
