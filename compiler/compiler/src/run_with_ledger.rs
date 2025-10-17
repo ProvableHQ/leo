@@ -91,7 +91,7 @@ impl fmt::Display for Status {
 }
 
 /// All details about the result of a case that was run.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CaseOutcome {
     pub program_name: String,
     pub function: String,
@@ -359,7 +359,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         .collect::<Result<Vec<_>>>()?;
 
     // Reorder results to match input order.
-    let mut ordered_results: Vec<Vec<CaseOutcome>> = Vec::with_capacity(case_sets.len());
+    let mut ordered_results: Vec<Vec<CaseOutcome>> = vec![Default::default(); case_sets.len()];
     for (index, outcomes) in results.into_iter() {
         ordered_results[index] = outcomes;
     }
