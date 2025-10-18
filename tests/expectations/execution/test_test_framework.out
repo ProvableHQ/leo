@@ -14,31 +14,29 @@ constructor:
     assert.eq edition 0u16;
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1f0egtr47qkg4f8pk3sj5yrs2t9qav2wfgwzxl3j987dxsr3hhc9sqpy3px",
+      "id": "au14r6g4khcuz0yehjk245eg3v0m2ap7fnmr25mgctxp58dln4akggsx8kd58",
       "program": "test.aleo",
       "function": "check_starting_height",
       "inputs": [
         {
           "type": "private",
-          "id": "473160645009144393707806193695022302299233884648031844011049798524734432668field",
-          "value": "ciphertext1qyqdv4yk636wmtc9pd8lcz9zphuv4zt7esfe2ktjmda85t28zeq5wpqw34tn0"
+          "id": "1553221872361350390328780308896629248271075349277151022618151446446804126621field",
+          "value": "ciphertext1qyqw5sj4rd3ll2hldd0juhh0rcztphwg60ts6vzyyjkul2s9ayawcrsc993xh"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "3777173429824206545670540837362767177819922310365285761903554890468837761959field",
+          "id": "6893088969801450645971579170253839939706086152684272478118310630648509258233field",
           "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    23u32\n  ]\n}"
         }
       ],
-      "tpk": "908360825709631317953159254724553545720474507537331703758336103561549853147group",
-      "tcm": "8014162907210337999815476476235242230252150874146462841852297853320304523488field",
-      "scm": "5940940960702541536377624413684142270200483974494281681814390986492808615714field"
+      "tpk": "2905672311966844198716069664590806530390302313264856617616375898018257051735group",
+      "tcm": "2481423588448870836371192248037209559359239915598773869461726199561920568755field",
+      "scm": "6884379395272189290334508407648077468009219861245593783809629085751623837409field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

@@ -55,25 +55,23 @@ constructor:
     assert.eq edition 0u16;
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1dsn9redlfvsqt9kafwnsxyukn6jw9dn7j80wask4kj2zj9qu7sqqskwry8",
+      "id": "au17pa0pjqrurapd094x4fxz0kherhvmtvagtekt7w3wvzfl32sluqq3lt5as",
       "program": "test.aleo",
       "function": "main",
       "inputs": [],
       "outputs": [
         {
           "type": "private",
-          "id": "7648859794670185753014266599015723000118129811374194614818845327045659808691field",
-          "value": "ciphertext1qyqdevsuld0lv5phptwr9lspme7uhs7zzdemzfef4l05za7nalhvzqqhv5j52"
+          "id": "6958397888272689093861545016948204653497611661297464784600686813168062159444field",
+          "value": "ciphertext1qyqdj0pwdhsrhkqc56eucvae6kugwrnqmt6fkepr8mhscyrvtzetyqgxmh20n"
         }
       ],
-      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
-      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
-      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+      "tpk": "4670688212372421114631005565732846657467809811527081882544500748171909345434group",
+      "tcm": "2264511877573072721701510206089090905852314419083634559581009308380035313588field",
+      "scm": "8087598493058591837040900202386618059099736669761157410046806408949699151796field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

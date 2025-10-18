@@ -30,10 +30,13 @@ program test.aleo {
         return finish(a);
     }
 
-    async function finish(public a: u64) {
+    async function finish(public a: u64, b: address) {
         CheatCode::print_mapping(Yo);
         CheatCode::print_mapping(test_dep.aleo/account);
         CheatCode::set_block_height(1u64);
         CheatCode::set_block_height(a);
+        CheatCode::set_signer(b);
+        // Invalid private key.
+        CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPW");
     }
 }

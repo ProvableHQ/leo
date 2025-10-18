@@ -31,7 +31,6 @@ use leo_ast::{
     NodeID,
     Statement,
     StructVariableInitializer,
-    TEST_PRIVATE_KEY,
     Type,
     UnaryOperation,
     Variant,
@@ -302,11 +301,12 @@ impl CoreFunctionHelper for Cursor {
 
     fn set_signer(&mut self, private_key: String) -> Result<()> {
         // Get the address from the private key.
-        let address =
-            match PrivateKey::<TestnetV0>::from_str(&private_key).and_then(|pk| Address::<TestnetV0>::try_from(&pk)) {
-                Ok(address) => address.into(),
-                Err(_) => halt_no_span!("Invalid private key provided for signer."),
-            };
+        let address = match PrivateKey::<TestnetV0>::from_str(&private_key.replace("\"", ""))
+            .and_then(|pk| Address::<TestnetV0>::try_from(&pk))
+        {
+            Ok(address) => address.into(),
+            Err(_) => halt_no_span!("Invalid private key provided for signer."),
+        };
         // Set the private key
         self.private_key = private_key;
         // Set the signer.
@@ -330,7 +330,7 @@ impl CoreFunctionHelper for Cursor {
 
 impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
-    pub fn new(really_async: bool, signer: Value, block_height: u32, network: NetworkName) -> Self {
+    pub fn new(really_async: bool, private_key: String, block_height: u32, network: NetworkName) -> Self {
         let mut cursor = Cursor {
             frames: Default::default(),
             values: Default::default(),
@@ -344,7 +344,7 @@ impl Cursor {
             contexts: Default::default(),
             futures: Default::default(),
             rng: ChaCha20Rng::from_entropy(),
-            signer,
+            signer: Default::default(),
             block_height,
             really_async,
             program: None,
@@ -353,7 +353,7 @@ impl Cursor {
         };
 
         // Set the default private key.
-        cursor.set_signer(TEST_PRIVATE_KEY.to_string()).expect("The default private key should be valid.");
+        cursor.set_signer(private_key).expect("The default private key should be valid.");
 
         cursor
     }

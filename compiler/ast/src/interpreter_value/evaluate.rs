@@ -203,7 +203,7 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
             unsuffixed.resolve_if_unsuffixed(expected_ty, literal.span)?
         }
         LiteralVariant::None => halt_no_span2!(""),
-        LiteralVariant::String(..) => tc_fail2!(),
+        LiteralVariant::String(s) => Value::make_string(s.clone()),
     })
 }
 

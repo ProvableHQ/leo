@@ -1,0 +1,10 @@
+Error [ETYC0372117]: Expected type `bool` but type `address` was found.
+    --> compiler-test:4:14
+     |
+   4 |       return self.address;
+     |              ^^^^^^^^^^^^
+Error [ETYC0372117]: Expected type `bool` but type `address` was found.
+    --> compiler-test:9:14
+     |
+   9 |       return a;
+     |              ^

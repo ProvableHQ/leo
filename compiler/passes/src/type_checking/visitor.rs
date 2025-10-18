@@ -23,7 +23,8 @@ use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
-use std::ops::Deref;
+use snarkvm::prelude::PrivateKey;
+use std::{ops::Deref, str::FromStr};
 
 pub struct TypeCheckingVisitor<'a> {
     pub state: &'a mut CompilerState,
@@ -920,7 +921,23 @@ impl TypeCheckingVisitor<'_> {
                 Type::Unit
             }
             CoreFunction::CheatCodeSetSigner => {
+                // Assert that the argument is a string.
                 self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());
+                // Validate that the argument is a valid private key.
+                if let Expression::Literal(Literal { variant: LiteralVariant::String(s), .. }) = arguments[0].1 {
+                    let s = s.replace("\"", "");
+                    let is_err = match self.state.network {
+                        NetworkName::TestnetV0 => PrivateKey::<TestnetV0>::from_str(&s).is_err(),
+                        NetworkName::MainnetV0 => PrivateKey::<MainnetV0>::from_str(&s).is_err(),
+                        NetworkName::CanaryV0 => PrivateKey::<CanaryV0>::from_str(&s).is_err(),
+                    };
+                    if is_err {
+                        self.emit_err(TypeCheckerError::custom(
+                            "`CheatCode::set_signer` must be called with a valid private key",
+                            arguments[0].1.span(),
+                        ));
+                    }
+                };
                 Type::Unit
             }
         }
