@@ -54,7 +54,7 @@ they are treated as equal unconditionally since monomorphization and other passe
 mismatches later.</p>
 </div></details><section id="method.from_snarkvm" class="method"><a class="src rightside" href="../../../src/leo_ast/types/type_.rs.html#220-251">Source</a><h4 class="code-header">pub fn <a href="#method.from_snarkvm" class="fn">from_snarkvm</a>&lt;N: Network&gt;(
     t: &amp;PlaintextType&lt;N&gt;,
-    program: <a class="enum" href="https://doc.rust-lang.org/1.90.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Symbol&gt;,
+    program: <a class="enum" href="https://doc.rust-lang.org/1.90.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../../leo_span/symbol/struct.Symbol.html" title="struct leo_span::symbol::Symbol">Symbol</a>&gt;,
 ) -&gt; Self</h4></section><details class="toggle method-toggle" open><summary><section id="method.can_coerce_to" class="method"><a class="src rightside" href="../../../src/leo_ast/types/type_.rs.html#268-291">Source</a><h4 class="code-header">pub fn <a href="#method.can_coerce_to" class="fn">can_coerce_to</a>(&amp;self, expected: &amp;<a class="enum" href="../../enum.Type.html" title="enum leo_ast::Type">Type</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.90.0/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Determines whether <code>self</code> can be coerced to the <code>expected</code> type.</p>
 <p>This method checks if the current type can be implicitly coerced to the expected type
 according to specific rules:</p>
