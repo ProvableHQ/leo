@@ -35,9 +35,12 @@ use snarkvm::{
     synthesizer::program::StackTrait,
 };
 
+use snarkvm::prelude::{ConsensusFeeVersion, cost_per_command};
+
 use clap::Parser;
+use itertools::Itertools;
 use serde::Serialize;
-use std::{fmt::Write, path::PathBuf};
+use std::{fmt::Write, ops::Deref, path::PathBuf};
 
 #[derive(Serialize)]
 pub struct Metadata {
@@ -45,6 +48,11 @@ pub struct Metadata {
     pub prover_size: usize,
     pub verifier_checksum: String,
     pub verifier_size: usize,
+}
+
+#[derive(Serialize)]
+pub struct FinalizeInfo {
+    pub cost_in_microcredits: Vec<(String, u64)>, // (command, cost in microcredits)
 }
 
 /// Synthesize proving and verifying keys for a given function.
@@ -308,7 +316,7 @@ fn handle_synthesize<A: Aleo>(
                 PathBuf::from(path).join(format!("{network}.{program_id}.{function_id}.{edition}.metadata"));
             // Print the save location.
             println!(
-                "💾 Saving proving key, verifying key, metadata and synthesis info to: {}/{network}.{program_id}.{function_id}.{edition}.prover|verifier|metadata|synthesis_info",
+                "💾 Saving proving key, verifying key, metadata, synthesis and finalize info to: {}/{network}.{program_id}.{function_id}.{edition}.prover|verifier|metadata|synthesis_info|finalize_info",
                 metadata_file_path.parent().unwrap().display()
             );
             // Save the keys.
@@ -318,12 +326,58 @@ fn handle_synthesize<A: Aleo>(
 
             // Read out SYNTHESIS_INFO and dump it to a file.
             let mut synthesis_info = SYNTHESIS_INFO.lock().unwrap();
+            // Convert the cumulative synthesis info to incremental synthesis info.
+            let mut cumulative_constraints = 0;
+            let mut cumulative_variables = 0;
+            for operation in synthesis_info.iter_mut() {
+                let incremental_constraints = operation.num_constraints - cumulative_constraints;
+                let incremental_variables = operation.num_variables - cumulative_variables;
+                cumulative_constraints = operation.num_constraints;
+                cumulative_variables = operation.num_variables;
+                operation.num_constraints = incremental_constraints;
+                operation.num_variables = incremental_variables;
+            }
+            // Save the synthesis info.
             let synthesis_info_pretty = serde_json::to_string_pretty(&*synthesis_info)
                 .map_err(|e| CliError::custom(format!("Failed to serialize synthesis info: {e}")))?;
             let synthesis_info_file_path = PathBuf::from(path).join(format!("{prefix}.synthesis_info.json"));
             write_to_file(synthesis_info_file_path, synthesis_info_pretty.as_bytes())?;
-            // Clear the synthesis info.
+            // Clear the global synthesis info object so it can collect information for the next function.
             synthesis_info.clear();
+
+            // Get the optional finalize logic.
+            if let Some(finalize) = stack.get_function_ref(function_id)?.finalize_logic() {
+                let consensus_fee_version = ConsensusFeeVersion::V3;
+                let mut finalize_cost = FinalizeInfo { cost_in_microcredits: Vec::new() };
+                // Get the finalize types.
+                let finalize_types = stack.get_finalize_types(finalize.name())?;
+                // Iterate over the commands in the finalize block.
+                for command in finalize.commands() {
+                    let cost = cost_per_command(&stack, &finalize_types, command, consensus_fee_version)?;
+                    let command_name = command.display_opcode();
+                    let operands = command
+                        .operands()
+                        .iter()
+                        .map(|operand| finalize_types.get_type_from_operand(&stack, operand).unwrap())
+                        .join("_");
+                    let destinations = command
+                        .destinations()
+                        .iter()
+                        .map(|destination| finalize_types.get_type(stack.deref(), destination).unwrap())
+                        .join("_");
+                    let command_string = if destinations.is_empty() {
+                        format!("{command_name}_{operands}")
+                    } else {
+                        format!("{command_name}_{operands}_{destinations}")
+                    };
+                    finalize_cost.cost_in_microcredits.push((command_string, cost));
+                }
+                // Save the finalize info.
+                let finalize_info_pretty = serde_json::to_string_pretty(&finalize_cost)
+                    .map_err(|e| CliError::custom(format!("Failed to serialize finalize info: {e}")))?;
+                let finalize_info_file_path = PathBuf::from(path).join(format!("{prefix}.finalize_info.json"));
+                write_to_file(finalize_info_file_path, finalize_info_pretty.as_bytes())?;
+            }
         }
     }
 
