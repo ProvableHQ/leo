@@ -60,6 +60,10 @@ path = "leo/lib.rs"
 name = "leo"
 path = "leo/cli/main.rs"
 
+[[test]]
+name = "integration"
+path = "leo/tests/integration.rs"
+
 # ----------------------------
 # Features
 # ----------------------------
@@ -184,6 +188,9 @@ version = "3.0.12"
 [workspace.dependencies.walkdir]
 version = "2.5"
 
+[workspace.dependencies.which]
+version = "4.4"
+
 # ----------------------------
 # Dependencies
 # ----------------------------
@@ -292,6 +299,9 @@ features = ["circuit", "console"]
 [dependencies.sys-info]
 version = "0.9.1"
 
+[dev-dependencies.regex]
+workspace = true
+
 [dependencies.tempfile]
 version = "3.20.0"
 
@@ -307,6 +317,9 @@ workspace = true
 features = ["json"]
 
 [dependencies.walkdir]
+workspace = true
+
+[dev-dependencies.which]
 workspace = true
 
 # ----------------------------
