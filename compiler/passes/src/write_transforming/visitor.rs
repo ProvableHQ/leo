@@ -88,7 +88,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 );
                 self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
                 let access = ArrayAccess {
-                    array: Path::from(name).into(),
+                    array: Path::from(name).into_absolute().into(),
                     index: index.into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -109,7 +109,7 @@ impl<'a> WriteTransformingVisitor<'a> {
             for (&field_name, &member) in members.clone().iter() {
                 // Create a definition for each field.
                 let access = MemberAccess {
-                    inner: Path::from(name).into(),
+                    inner: Path::from(name).into_absolute().into(),
                     name: Identifier::new(field_name, self.state.node_builder.next_id()),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -169,7 +169,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 // Change it to this:
                 // `arr = x; arr_0 = x[0]; arr_1 = x[1]; arr_2 = x[2];`
                 let one_assign = AssignStatement {
-                    place: Path::from(place).into(),
+                    place: Path::from(place).into_absolute().into(),
                     value,
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -178,7 +178,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 accumulate.push(one_assign);
                 for (i, &member) in array_members.iter().enumerate() {
                     let access = ArrayAccess {
-                        array: Path::from(place).into(),
+                        array: Path::from(place).into_absolute().into(),
                         index: Literal::integer(
                             IntegerType::U32,
                             format!("{i}u32"),
@@ -210,7 +210,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 // Change it to this:
                 // `struc = x; struc_field0 = x.field0; struc_field1 = x.field1;`
                 let one_assign = AssignStatement {
-                    place: Path::from(place).into(),
+                    place: Path::from(place).into_absolute().into(),
                     value,
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
@@ -219,7 +219,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 accumulate.push(one_assign);
                 for (field, member_name) in struct_members.iter() {
                     let access = MemberAccess {
-                        inner: Path::from(place).into(),
+                        inner: Path::from(place).into_absolute().into(),
                         name: Identifier::new(*field, self.state.node_builder.next_id()),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
@@ -230,7 +230,7 @@ impl<'a> WriteTransformingVisitor<'a> {
         } else {
             let stmt = AssignStatement {
                 value,
-                place: Path::from(place).into(),
+                place: Path::from(place).into_absolute().into(),
                 id: self.state.node_builder.next_id(),
                 span: Default::default(),
             }

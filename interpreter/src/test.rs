@@ -31,6 +31,23 @@ pub static TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6y
 /// A special token used to separate modules in test input source code.
 const MODULE_SEPARATOR: &str = "// --- Next Module:";
 
+fn run_and_format_output(interpreter: &mut Interpreter) -> String {
+    let action_result = interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into()));
+
+    let futures =
+        interpreter.cursor.futures.iter().map(|f| format!(" async call to {f}")).collect::<Vec<_>>().join("\n");
+
+    let futures_section = if futures.is_empty() { "# Futures".to_string() } else { format!("# Futures\n{futures}") };
+
+    let output_section = match action_result {
+        Err(e) => format!("# Output\n{e}"),
+        Ok(None) => "# Output\nno value received".to_string(),
+        Ok(Some(v)) => format!("# Output\n{v}"),
+    };
+
+    format!("{futures_section}\n\n{output_section}\n")
+}
+
 /// Runs a Leo test case provided as a string, with optional inlined module definitions.
 ///
 /// # Behavior
@@ -69,11 +86,7 @@ fn runner_leo_test(test: &str) -> String {
                 Interpreter::new(&[(filename, vec![])], empty, address.into(), 0, NetworkName::TestnetV0)
                     .expect("creating interpreter");
 
-            match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
-                Err(e) => format!("{e}\n"),
-                Ok(None) => "no value received\n".to_string(),
-                Ok(Some(v)) => format!("{v}\n"),
-            }
+            run_and_format_output(&mut interpreter)
         })
     } else {
         // === Multi-module case ===
@@ -146,11 +159,7 @@ fn runner_leo_test(test: &str) -> String {
                 Interpreter::new(&[(main_path, module_paths)], empty, address.into(), 0, NetworkName::TestnetV0)
                     .expect("creating interpreter");
 
-            match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
-                Err(e) => format!("{e}\n"),
-                Ok(None) => "no value received\n".to_string(),
-                Ok(Some(v)) => format!("{v}\n"),
-            }
+            run_and_format_output(&mut interpreter)
         })
     }
 }

@@ -43,7 +43,7 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
                 member.expression = Some(self.reconstruct_expression(expr, &()).0);
             } else {
                 // We're not actually going to modify it.
-                self.reconstruct_path(Path::from(member.identifier), &());
+                self.reconstruct_path(Path::from(member.identifier).into_absolute(), &());
             }
         }
 

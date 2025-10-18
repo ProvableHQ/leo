@@ -160,8 +160,8 @@ impl FlatteningVisitor<'_> {
             // Construct an Or of the two expressions.
             let binary = BinaryExpression {
                 op: BinaryOperation::Or,
-                left: Path::from(previous_identifier).into(),
-                right: Path::from(identifier).into(),
+                left: Path::from(previous_identifier).into_absolute().into(),
+                right: Path::from(identifier).into_absolute().into(),
                 span: Default::default(),
                 id: self.state.node_builder.next_id(),
             };
@@ -219,8 +219,8 @@ impl FlatteningVisitor<'_> {
             // Construct an And of the two expressions.
             let binary = BinaryExpression {
                 op: BinaryOperation::And,
-                left: Path::from(previous).into(),
-                right: Path::from(identifier).into(),
+                left: Path::from(previous).into_absolute().into(),
+                right: Path::from(identifier).into_absolute().into(),
                 span: Default::default(),
                 id: self.state.node_builder.next_id(),
             };
@@ -288,7 +288,7 @@ impl FlatteningVisitor<'_> {
                         } else {
                             // Otherwise, assign the expression to a variable and return the variable.
                             statements.push(self.simple_definition(place, value));
-                            Path::from(place).into()
+                            Path::from(place).into_absolute().into()
                         }
                     };
 
@@ -374,7 +374,7 @@ impl FlatteningVisitor<'_> {
             Literal::integer(IntegerType::U32, i.to_string(), Default::default(), self.state.node_builder.next_id());
         self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
         let access: Expression = ArrayAccess {
-            array: Path::from(identifier).into(),
+            array: Path::from(identifier).into_absolute().into(),
             index: index.into(),
             span: Default::default(),
             id: self.state.node_builder.next_id(),
@@ -407,9 +407,9 @@ impl FlatteningVisitor<'_> {
                 let ternary = TernaryExpression {
                     condition: condition.clone(),
                     // Access the member of the first expression.
-                    if_true: Path::from(first).into(),
+                    if_true: Path::from(first).into_absolute().into(),
                     // Access the member of the second expression.
-                    if_false: Path::from(second).into(),
+                    if_false: Path::from(second).into_absolute().into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
                 };
@@ -448,7 +448,7 @@ impl FlatteningVisitor<'_> {
 
         statements.push(statement);
 
-        (Path::from(identifier).into(), statements)
+        (Path::from(identifier).into_absolute().into(), statements)
     }
 
     // For use in `ternary_struct`.
@@ -459,7 +459,7 @@ impl FlatteningVisitor<'_> {
         type_: Type,
     ) -> (Identifier, Statement) {
         let expr: Expression = MemberAccess {
-            inner: Path::from(inner).into(),
+            inner: Path::from(inner).into_absolute().into(),
             name,
             span: Default::default(),
             id: self.state.node_builder.next_id(),
@@ -491,8 +491,8 @@ impl FlatteningVisitor<'_> {
                 // Recursively reconstruct the ternary expression.
                 let ternary = TernaryExpression {
                     condition: condition.clone(),
-                    if_true: Path::from(first).into(),
-                    if_false: Path::from(second).into(),
+                    if_true: Path::from(first).into_absolute().into(),
+                    if_false: Path::from(second).into_absolute().into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
                 };
@@ -543,7 +543,7 @@ impl FlatteningVisitor<'_> {
 
         statements.push(statement);
 
-        (Path::from(identifier).into(), statements)
+        (Path::from(identifier).into_absolute().into(), statements)
     }
 
     pub fn ternary_tuple(
@@ -590,8 +590,8 @@ impl FlatteningVisitor<'_> {
                 // Recursively reconstruct the ternary expression.
                 let ternary = TernaryExpression {
                     condition: condition.clone(),
-                    if_true: Path::from(first).into(),
-                    if_false: Path::from(second).into(),
+                    if_true: Path::from(first).into_absolute().into(),
+                    if_false: Path::from(second).into_absolute().into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
                 };
@@ -628,7 +628,7 @@ impl FlatteningVisitor<'_> {
 
             statements.push(statement);
 
-            (Path::from(identifier).into(), statements)
+            (Path::from(identifier).into_absolute().into(), statements)
         } else {
             // Just use the tuple we just made.
             (expr, statements)

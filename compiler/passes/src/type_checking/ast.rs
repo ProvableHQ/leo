@@ -758,9 +758,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 Type::Boolean
             }
             BinaryOperation::BitwiseAnd | BinaryOperation::BitwiseOr | BinaryOperation::Xor => {
-                // The expected type for both `left` and `right` is the same as `destination`.
-                let mut t1 = self.visit_expression(&input.left, destination);
-                let mut t2 = self.visit_expression(&input.right, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type for both `left` and `right` is the unwrapped type
+                let mut t1 = self.visit_expression(&input.left, &operand_expected);
+                let mut t2 = self.visit_expression(&input.right, &operand_expected);
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -771,12 +773,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 let result_t = assert_same_type(self, &t1, &t2);
                 self.maybe_assert_type(&result_t, destination, input.span());
-                result_t
+
+                self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Add => {
-                // The expected type for both `left` and `right` is the same as `destination`.
-                let mut t1 = self.visit_expression(&input.left, destination);
-                let mut t2 = self.visit_expression(&input.right, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type for both `left` and `right` is the unwrapped type
+                let mut t1 = self.visit_expression(&input.left, &operand_expected);
+                let mut t2 = self.visit_expression(&input.right, &operand_expected);
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -799,12 +804,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                result_t
+                self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Sub => {
-                // The expected type for both `left` and `right` is the same as `destination`.
-                let mut t1 = self.visit_expression(&input.left, destination);
-                let mut t2 = self.visit_expression(&input.right, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type for both `left` and `right` is the unwrapped type
+                let mut t1 = self.visit_expression(&input.left, &operand_expected);
+                let mut t2 = self.visit_expression(&input.right, &operand_expected);
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -817,13 +824,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                result_t
+                self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Mul => {
-                // The expected type for both `left` and `right` is the same as `destination` except when `destination` is
+                let unwrapped_dest = self.unwrap_optional_type(destination);
+
+                // The expected type for both `left` and `right` is the same as unwrapped destination except when it is
                 // a `Type::Group`. In that case, the two operands should be a `Type::Group` and `Type::Scalar` but we can't
                 // known which one is which.
-                let expected = if matches!(destination, Some(Type::Group)) { &None } else { destination };
+                let expected = if matches!(unwrapped_dest, Some(Type::Group)) { &None } else { &unwrapped_dest };
                 let mut t1 = self.visit_expression(&input.left, expected);
                 let mut t2 = self.visit_expression(&input.right, expected);
 
@@ -856,12 +865,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                result_t
+                self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Div => {
-                // The expected type for both `left` and `right` is the same as `destination`.
-                let mut t1 = self.visit_expression(&input.left, destination);
-                let mut t2 = self.visit_expression(&input.right, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type for both `left` and `right` is the unwrapped type
+                let mut t1 = self.visit_expression(&input.left, &operand_expected);
+                let mut t2 = self.visit_expression(&input.right, &operand_expected);
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -874,12 +885,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                result_t
+                self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Rem | BinaryOperation::RemWrapped => {
-                // The expected type for both `left` and `right` is the same as `destination`.
-                let mut t1 = self.visit_expression(&input.left, destination);
-                let mut t2 = self.visit_expression(&input.right, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type for both `left` and `right` is the unwrapped type
+                let mut t1 = self.visit_expression(&input.left, &operand_expected);
+                let mut t2 = self.visit_expression(&input.right, &operand_expected);
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -892,12 +905,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                result_t
+                self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Mod => {
-                // The expected type for both `left` and `right` is the same as `destination`.
-                let mut t1 = self.visit_expression(&input.left, destination);
-                let mut t2 = self.visit_expression(&input.right, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type for both `left` and `right` is the unwrapped type
+                let mut t1 = self.visit_expression(&input.left, &operand_expected);
+                let mut t2 = self.visit_expression(&input.right, &operand_expected);
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -910,11 +925,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                result_t
+                self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Pow => {
-                // The expected type of `left` is the same as `destination`
-                let mut t1 = self.visit_expression(&input.left, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type of `left` is the unwrapped destination
+                let mut t1 = self.visit_expression(&input.left, &operand_expected);
 
                 // The expected type of `right` is `field`, `u8`, `u16`, or `u32` so leave it as `None` for now.
                 let mut t2 = self.visit_expression(&input.right, &None);
@@ -955,7 +972,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&ty, destination, input.span());
 
-                ty
+                self.wrap_if_optional(ty, destination)
             }
             BinaryOperation::Eq | BinaryOperation::Neq => {
                 // Handle type inference for `None` as a special case.
@@ -1016,9 +1033,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             | BinaryOperation::SubWrapped
             | BinaryOperation::DivWrapped
             | BinaryOperation::MulWrapped => {
-                // The expected type for both `left` and `right` is the same as `destination`.
-                let mut t1 = self.visit_expression(&input.left, destination);
-                let mut t2 = self.visit_expression(&input.right, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type for both `left` and `right` is the unwrapped type
+                let mut t1 = self.visit_expression(&input.left, &operand_expected);
+                let mut t2 = self.visit_expression(&input.right, &operand_expected);
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -1031,15 +1050,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                result_t
+                self.wrap_if_optional(result_t, destination)
             }
             BinaryOperation::Shl
             | BinaryOperation::ShlWrapped
             | BinaryOperation::Shr
             | BinaryOperation::ShrWrapped
             | BinaryOperation::PowWrapped => {
-                // The expected type of `left` is the same as `destination`
-                let t1 = self.visit_expression_reject_numeric(&input.left, destination);
+                let operand_expected = self.unwrap_optional_type(destination);
+
+                // The expected type of `left` is the unwrapped `destination`
+                let t1 = self.visit_expression_reject_numeric(&input.left, &operand_expected);
 
                 // The expected type of `right` is `field`, `u8`, `u16`, or `u32` so leave it as `None` for now.
                 let t2 = self.visit_expression_reject_numeric(&input.right, &None);
@@ -1056,7 +1077,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     self.emit_err(TypeCheckerError::shift_type_magnitude(input.op, t2, input.right.span()));
                 }
 
-                t1
+                self.wrap_if_optional(t1, destination)
             }
         }
     }
@@ -1687,6 +1708,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_unary(&mut self, input: &UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
+        let operand_expected = self.unwrap_optional_type(destination);
+
         let assert_signed_int = |slf: &mut Self, type_: &Type| {
             if !matches!(
                 type_,
@@ -1703,24 +1726,24 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let ty = match input.op {
             UnaryOperation::Abs => {
-                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
                 assert_signed_int(self, &type_);
                 type_
             }
             UnaryOperation::AbsWrapped => {
-                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
                 assert_signed_int(self, &type_);
                 type_
             }
             UnaryOperation::Double => {
-                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
                 if !matches!(&type_, Type::Err | Type::Field | Type::Group) {
                     self.emit_err(TypeCheckerError::type_should_be2(&type_, "a field or group", input.span()));
                 }
                 type_
             }
             UnaryOperation::Inverse => {
-                let mut type_ = self.visit_expression(&input.receiver, destination);
+                let mut type_ = self.visit_expression(&input.receiver, &operand_expected);
                 if type_ == Type::Numeric {
                     // We can actually infer to `field` here because only fields can be inverted
                     type_ = Type::Field;
@@ -1731,7 +1754,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 type_
             }
             UnaryOperation::Negate => {
-                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
                 if !matches!(
                     &type_,
                     Type::Err
@@ -1752,14 +1775,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 type_
             }
             UnaryOperation::Not => {
-                let type_ = self.visit_expression_reject_numeric(&input.receiver, destination);
+                let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
                 if !matches!(&type_, Type::Err | Type::Boolean | Type::Integer(_)) {
                     self.emit_err(TypeCheckerError::type_should_be2(&type_, "a bool or integer", input.span()));
                 }
                 type_
             }
             UnaryOperation::Square => {
-                let mut type_ = self.visit_expression(&input.receiver, destination);
+                let mut type_ = self.visit_expression(&input.receiver, &operand_expected);
                 if type_ == Type::Numeric {
                     // We can actually infer to `field` here because only fields can be squared
                     type_ = Type::Field;
@@ -1770,7 +1793,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 type_
             }
             UnaryOperation::SquareRoot => {
-                let mut type_ = self.visit_expression(&input.receiver, destination);
+                let mut type_ = self.visit_expression(&input.receiver, &operand_expected);
                 if type_ == Type::Numeric {
                     // We can actually infer to `field` here because only fields can be square-rooted
                     type_ = Type::Field;
@@ -1789,7 +1812,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         self.maybe_assert_type(&ty, destination, input.span());
 
-        ty
+        self.wrap_if_optional(ty, destination)
     }
 
     fn visit_unit(&mut self, _input: &UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {

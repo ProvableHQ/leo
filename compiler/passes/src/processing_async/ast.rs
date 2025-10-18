@@ -155,12 +155,12 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                             id: slf.state.node_builder.next_id(),
                         };
 
-                        replacements.insert((symbol, Some(index)), Path::from(identifier).into());
+                        replacements.insert((symbol, Some(index)), Path::from(identifier).into_absolute().into());
 
                         vec![(
                             input,
                             TupleAccess {
-                                tuple: Path::from(make_identifier(slf, symbol)).into(),
+                                tuple: Path::from(make_identifier(slf, symbol)).into_absolute().into(),
                                 index: index.into(),
                                 span: Span::default(),
                                 id: slf.state.node_builder.next_id(),
@@ -196,14 +196,14 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                     id: slf.state.node_builder.next_id(),
                                 };
 
-                                let expr: Expression = Path::from(identifier).into();
+                                let expr: Expression = Path::from(identifier).into_absolute().into();
 
                                 replacements.insert(key, expr.clone());
                                 tuple_elements.push(expr.clone());
                                 inputs_and_arguments.push((
                                     input,
                                     TupleAccess {
-                                        tuple: Path::from(make_identifier(slf, symbol)).into(),
+                                        tuple: Path::from(make_identifier(slf, symbol)).into_absolute().into(),
                                         index: i.into(),
                                         span: Span::default(),
                                         id: slf.state.node_builder.next_id(),
@@ -235,9 +235,9 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                 id: slf.state.node_builder.next_id(),
                             };
 
-                            replacements.insert((symbol, None), Path::from(identifier).into());
+                            replacements.insert((symbol, None), Path::from(identifier).into_absolute().into());
 
-                            let argument = Path::from(make_identifier(slf, symbol)).into();
+                            let argument = Path::from(make_identifier(slf, symbol)).into_absolute().into();
                             vec![(input, argument)]
                         }
                     },
