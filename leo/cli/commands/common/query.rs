@@ -91,6 +91,7 @@ pub fn handle_broadcast<N: Network>(
         .build()
         .new_agent()
         .post(endpoint)
+        .query("check_transaction", "true")
         .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(transaction)
         .map_err(|err| CliError::broadcast_error(err.to_string()))?;

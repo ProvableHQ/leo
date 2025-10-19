@@ -24,3 +24,5 @@ sccache*/
 
 # environment
 .env
+
+tests/mismatches/
