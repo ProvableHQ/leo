@@ -33,14 +33,10 @@ function pop:
 finalize pop:
     get.or_use vec__len__[false] 0u32 into r0;
     gt r0 0u32 into r1;
-    branch.eq r1 false to end_then_0_0;
-    sub r0 1u32 into r2;
-    set r2 into vec__len__[false];
-    branch.eq true true to end_otherwise_0_1;
-    position end_then_0_0;
-    position end_otherwise_0_1;
-    sub r0 1u32 into r3;
-    get.or_use vec__[r3] 0u8 into r4;
+    sub.w r0 1u32 into r2;
+    ternary r1 r2 r0 into r3;
+    set r3 into vec__len__[false];
+    get.or_use vec__[r2] 0u8 into r4;
     cast true r4 into r5 as Optional__8hhrPm4c3KB;
     cast false 0u8 into r6 as Optional__8hhrPm4c3KB;
     ternary r1 r5.is_some r6.is_some into r7;

@@ -689,12 +689,12 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 }
                 .into()
             } else if let (1, Some(leo_ast::CoreFunction::Get)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(Symbol::intern("unresolved"), name.name))
+                (args.len(), leo_ast::CoreFunction::from_symbols(Symbol::intern("__unresolved"), name.name))
             {
-                // We use `unresolved` here because a `Get` might refer to `Vector::get` or
+                // We use `__unresolved` here because a `Get` might refer to `Vector::get` or
                 // `Mapping::get`. No way to know just yet.
                 leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(Symbol::intern("unresolved"), builder.next_id()),
+                    variant: leo_ast::Identifier::new(Symbol::intern("__unresolved"), builder.next_id()),
                     name,
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
@@ -702,12 +702,12 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 }
                 .into()
             } else if let (2, Some(leo_ast::CoreFunction::Set)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(Symbol::intern("unresolved"), name.name))
+                (args.len(), leo_ast::CoreFunction::from_symbols(Symbol::intern("__unresolved"), name.name))
             {
-                // We use `unresolved` here because a `Set` might refer to `Vector::set` or
+                // We use `__unresolved` here because a `Set` might refer to `Vector::set` or
                 // `Mapping::set`. No way to know just yet.
                 leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(Symbol::intern("unresolved"), builder.next_id()),
+                    variant: leo_ast::Identifier::new(Symbol::intern("__unresolved"), builder.next_id()),
                     name,
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,

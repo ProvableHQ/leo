@@ -337,10 +337,12 @@ impl<'a> CodeGeneratingVisitor<'a> {
     }
 
     fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {
+        let legalized_mapping_name = Self::legalize_path(&[mapping.identifier.name]);
         // Create the prefix of the mapping string, e.g. `mapping foo:`.
         let mut mapping_string = format!(
             "\nmapping {}:\n",
-            Self::legalize_path(&[mapping.identifier.name])
+            legalized_mapping_name
+                .clone()
                 .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier))
         );
 
@@ -368,7 +370,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // Add the mapping to the variable mapping.
         self.global_mapping.insert(
             mapping.identifier.name,
-            Self::legalize_path(&[mapping.identifier.name])
+            legalized_mapping_name
                 .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier)),
         );
 
