@@ -1,0 +1,68 @@
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[95u8, 99u8, 136u8, 243u8, 82u8, 169u8, 200u8, 72u8, 133u8, 227u8, 122u8, 161u8, 195u8, 178u8, 69u8, 37u8, 167u8, 114u8, 104u8, 192u8, 161u8, 175u8, 195u8, 180u8, 120u8, 4u8, 192u8, 16u8, 86u8, 199u8, 76u8, 235u8]'.
+       Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  10
+
+📦 Deployment Tasks:
+  • some_sample_leo_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+🔧 Your program 'some_sample_leo_program.aleo' has the following constructor.
+──────────────────────────────────────────────
+constructor:
+    assert.eq edition 0u16;
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+
+📦 Creating deployment transaction for 'some_sample_leo_program.aleo'...
+
+
+📊 Deployment Summary for some_sample_leo_program.aleo
+──────────────────────────────────────────────
+  Total Variables:      17,516
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.892000
+  Program Synthesis:    0.030443
+  Namespace:            1.000000
+  Constructor:          0.002000
+  Priority Fee:         0.000000
+  Total Fee:            1.924443
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for some_sample_leo_program.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
