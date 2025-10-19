@@ -159,9 +159,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 //
                 // Lowered reconstruction:
                 //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
-                //   if ($len_var > 0) {
-                //       Mapping::set(len_map, false, $len_var - 1);
-                //   }
+                //   Mapping::set(len_map, false, $len_var > 0 ? $len_var - 1 : $len_var);
                 //   $len_var > 0 ? Mapping::get_or_use(vec_map, $len_var - 1, zero_value) : None;
 
                 // Unpack argument
@@ -192,44 +190,35 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 );
                 let len_var_expr: Expression = len_var_ident.into();
 
-                // condition: $len_var > 0
+                // $len_var > 0
                 let literal_zero = self.literal_zero_u32();
                 let len_gt_zero_expr = self.binary_expr(len_var_expr.clone(), BinaryOperation::Gt, literal_zero);
 
                 // $len_var - 1
                 let literal_one = self.literal_one_u32();
-                let len_minus_one_expr = self.binary_expr(len_var_expr.clone(), BinaryOperation::Sub, literal_one);
+                let len_minus_one_expr =
+                    self.binary_expr(len_var_expr.clone(), BinaryOperation::SubWrapped, literal_one);
 
-                // Mapping::set(len_map, false, $len_var - 1) (inside if)
+                // ternary for new length: ($len_var > 0 ? $len_var - 1 : $len_var)
+                let new_len_expr = self.ternary_expr(
+                    len_gt_zero_expr.clone(),
+                    len_minus_one_expr.clone(),
+                    len_var_expr.clone(),
+                    input.span,
+                );
+
+                // Mapping::set(len_map, false, new_len)
                 let literal_false = self.literal_false();
                 let set_len_stmt = Statement::Expression(ExpressionStatement {
-                    expression: self.set_mapping_expr(
-                        len_path_expr.clone(),
-                        literal_false,
-                        len_minus_one_expr.clone(),
-                        input.span,
-                    ),
+                    expression: self.set_mapping_expr(len_path_expr.clone(), literal_false, new_len_expr, input.span),
                     span: input.span,
-                    id: self.state.node_builder.next_id(),
-                });
-
-                // if ($len_var > 0) { set(len_map, false, $len_var - 1) }
-                let if_stmt = Statement::Conditional(ConditionalStatement {
-                    condition: len_gt_zero_expr.clone(),
-                    then: Block {
-                        statements: vec![set_len_stmt],
-                        span: Span::default(),
-                        id: self.state.node_builder.next_id(),
-                    },
-                    otherwise: None,
-                    span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 });
 
                 // zero value for element type (used as default in get_or_use)
                 let zero = self.zero(&element_type);
 
-                // Mapping::get(vec_map, $len_var - 1) with fallback zero
+                // Mapping::get_or_use(vec_map, $len_var - 1, zero)
                 let get_or_use_expr =
                     self.get_or_use_mapping_expr(vec_path_expr, len_minus_one_expr.clone(), zero, input.span);
 
@@ -237,7 +226,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let none_expr: Expression = Literal::none(Span::default(), self.state.node_builder.next_id()).into();
                 let ternary_expr = self.ternary_expr(len_gt_zero_expr, get_or_use_expr, none_expr, input.span);
 
-                (ternary_expr, vec![len_stmt, if_stmt])
+                (ternary_expr, vec![len_stmt, set_len_stmt])
             }
 
             Some(CoreFunction::Get) => {
@@ -306,7 +295,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
                     Some(Type::Mapping(_)) => {
                         // Update the `key` argument of the `Get` as well as the variant name from
-                        // `unresolved` to `Mapping`.
+                        // `__unresolved` to `Mapping`.
                         input.arguments[1] = reconstructed_key_expr;
                         input.variant.name = sym::Mapping;
                         (input.into(), key_stmts)
@@ -385,7 +374,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
                     Some(Type::Mapping(_)) => {
                         // Update the `key` and `value` arguments as well as the variant name from
-                        // `unresolved` to `Mapping`.
+                        // `__unresolved` to `Mapping`.
                         input.arguments[1] = reconstructed_key_expr;
                         input.arguments[2] = reconstructed_value_expr;
                         input.variant.name = sym::Mapping;
@@ -404,6 +393,9 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 //
                 // Lowered reconstruction (conceptually):
                 //   Mapping::set(len_map, false, 0u32);
+                //
+                // Note: `VectorClear` does not actually remove any elements from the mapping of
+                // vector values.
 
                 // Unpack arguments
                 let [vector_expr] = &mut input.arguments[..] else {

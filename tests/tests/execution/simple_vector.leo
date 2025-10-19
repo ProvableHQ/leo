@@ -45,6 +45,18 @@ program test.aleo {
             // Clear
             vec.clear();
             assert(vec.len() == 0u32);
+
+            // Pop an empty vector
+            assert(vec.pop() == none);
+
+            vec.push(99u32);
+            assert(vec.len() == 1u32);
+
+            // Single-element swap_remove(0)
+            // Should remove the only element, returning 99
+            let removed_single = vec.swap_remove(0u32).unwrap();
+            assert(removed_single == 99u32);
+            assert(vec.len() == 0u32);
         };
     }
 
