@@ -1,0 +1,478 @@
+program vector_structs.aleo;
+
+struct Point:
+    x as field;
+    y as field;
+
+struct Container:
+    id as u32;
+    points as [Point; 2u32];
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+struct Optional__6Uxqmb23WYh:
+    is_some as boolean;
+    val as Point;
+
+struct Optional__Iw7fQz4CKJ0:
+    is_some as boolean;
+    val as Container;
+
+mapping ids__:
+    key as u32.public;
+    value as u32.public;
+
+mapping ids__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping points__:
+    key as u32.public;
+    value as Point.public;
+
+mapping points__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping containers__:
+    key as u32.public;
+    value as Container.public;
+
+mapping containers__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function test_vector_primitives_behavior:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    async test_vector_primitives_behavior r0 r1 into r2;
+    output r2 as vector_structs.aleo/test_vector_primitives_behavior.future;
+
+finalize test_vector_primitives_behavior:
+    input r0 as u32.public;
+    input r1 as u32.public;
+    set 0u32 into ids__len__[false];
+    get.or_use ids__len__[false] 0u32 into r2;
+    is.eq r2 0u32 into r3;
+    assert.eq r3 true;
+    get.or_use ids__len__[false] 0u32 into r4;
+    add r4 1u32 into r5;
+    set r5 into ids__len__[false];
+    set 10u32 into ids__[r4];
+    get.or_use ids__len__[false] 0u32 into r6;
+    add r6 1u32 into r7;
+    set r7 into ids__len__[false];
+    set 20u32 into ids__[r6];
+    get.or_use ids__len__[false] 0u32 into r8;
+    add r8 1u32 into r9;
+    set r9 into ids__len__[false];
+    set 30u32 into ids__[r8];
+    get.or_use ids__len__[false] 0u32 into r10;
+    is.eq r10 3u32 into r11;
+    assert.eq r11 true;
+    get.or_use ids__len__[false] 0u32 into r12;
+    lt r0 r12 into r13;
+    get.or_use ids__[r0] 0u32 into r14;
+    cast true r14 into r15 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r16 as Optional__EsDmm5O6sv6;
+    ternary r13 r15.is_some r16.is_some into r17;
+    ternary r13 r15.val r16.val into r18;
+    cast r17 r18 into r19 as Optional__EsDmm5O6sv6;
+    assert.eq r19.is_some true;
+    is.eq r19.val 20u32 into r20;
+    assert.eq r20 true;
+    assert.eq r19.is_some true;
+    is.eq r19.val 20u32 into r21;
+    assert.eq r21 true;
+    get.or_use ids__len__[false] 0u32 into r22;
+    lt r0 r22 into r23;
+    assert.eq r23 true;
+    set r1 into ids__[r0];
+    get.or_use ids__len__[false] 0u32 into r24;
+    lt r0 r24 into r25;
+    get.or_use ids__[r0] 0u32 into r26;
+    cast true r26 into r27 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r28 as Optional__EsDmm5O6sv6;
+    ternary r25 r27.is_some r28.is_some into r29;
+    ternary r25 r27.val r28.val into r30;
+    cast r29 r30 into r31 as Optional__EsDmm5O6sv6;
+    assert.eq r31.is_some true;
+    get.or_use ids__[r0] 0u32 into r32;
+    cast true r32 into r33 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r34 as Optional__EsDmm5O6sv6;
+    ternary r25 r33.is_some r34.is_some into r35;
+    ternary r25 r33.val r34.val into r36;
+    cast r35 r36 into r37 as Optional__EsDmm5O6sv6;
+    is.eq r37.val r1 into r38;
+    assert.eq r38 true;
+    get.or_use ids__len__[false] 0u32 into r39;
+    lt 2u32 r39 into r40;
+    assert.eq r40 true;
+    get ids__[2u32] into r41;
+    sub r39 1u32 into r42;
+    get ids__[r42] into r43;
+    set r43 into ids__[2u32];
+    set r42 into ids__len__[false];
+    is.eq r41 30u32 into r44;
+    assert.eq r44 true;
+    get.or_use ids__len__[false] 0u32 into r45;
+    is.eq r45 2u32 into r46;
+    assert.eq r46 true;
+    get.or_use ids__len__[false] 0u32 into r47;
+    gt r47 0u32 into r48;
+    sub.w r47 1u32 into r49;
+    ternary r48 r49 r47 into r50;
+    set r50 into ids__len__[false];
+    get.or_use ids__[r49] 0u32 into r51;
+    cast true r51 into r52 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r53 as Optional__EsDmm5O6sv6;
+    ternary r48 r52.is_some r53.is_some into r54;
+    ternary r48 r52.val r53.val into r55;
+    cast r54 r55 into r56 as Optional__EsDmm5O6sv6;
+    assert.eq r56.is_some true;
+    get.or_use ids__[r49] 0u32 into r57;
+    cast true r57 into r58 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r59 as Optional__EsDmm5O6sv6;
+    ternary r48 r58.is_some r59.is_some into r60;
+    ternary r48 r58.val r59.val into r61;
+    cast r60 r61 into r62 as Optional__EsDmm5O6sv6;
+    is.eq r62.val r1 into r63;
+    assert.eq r63 true;
+    get.or_use ids__len__[false] 0u32 into r64;
+    is.eq r64 1u32 into r65;
+    assert.eq r65 true;
+    set 0u32 into ids__len__[false];
+    get.or_use ids__len__[false] 0u32 into r66;
+    is.eq r66 0u32 into r67;
+    assert.eq r67 true;
+
+function test_vector_structs_behavior:
+    input r0 as u32.private;
+    async test_vector_structs_behavior r0 into r1;
+    output r1 as vector_structs.aleo/test_vector_structs_behavior.future;
+
+finalize test_vector_structs_behavior:
+    input r0 as u32.public;
+    get.or_use points__len__[false] 0u32 into r1;
+    is.eq r1 0u32 into r2;
+    assert.eq r2 true;
+    get.or_use points__len__[false] 0u32 into r3;
+    add r3 1u32 into r4;
+    set r4 into points__len__[false];
+    cast 1field 2field into r5 as Point;
+    set r5 into points__[r3];
+    get.or_use points__len__[false] 0u32 into r6;
+    add r6 1u32 into r7;
+    set r7 into points__len__[false];
+    cast 3field 4field into r8 as Point;
+    set r8 into points__[r6];
+    get.or_use points__len__[false] 0u32 into r9;
+    is.eq r9 2u32 into r10;
+    assert.eq r10 true;
+    get.or_use points__len__[false] 0u32 into r11;
+    lt r0 r11 into r12;
+    cast 0field 0field into r13 as Point;
+    get.or_use points__[r0] r13 into r14;
+    cast true r14 into r15 as Optional__6Uxqmb23WYh;
+    cast 0field 0field into r16 as Point;
+    cast false r16 into r17 as Optional__6Uxqmb23WYh;
+    ternary r12 r15.val.x r17.val.x into r18;
+    ternary r12 r15.val.y r17.val.y into r19;
+    cast r18 r19 into r20 as Point;
+    ternary r12 r15.is_some r17.is_some into r21;
+    cast r21 r20 into r22 as Optional__6Uxqmb23WYh;
+    assert.eq r22.is_some true;
+    cast 0field 0field into r23 as Point;
+    get.or_use points__[r0] r23 into r24;
+    cast true r24 into r25 as Optional__6Uxqmb23WYh;
+    cast 0field 0field into r26 as Point;
+    cast false r26 into r27 as Optional__6Uxqmb23WYh;
+    ternary r12 r25.val.x r27.val.x into r28;
+    ternary r12 r25.val.y r27.val.y into r29;
+    cast r28 r29 into r30 as Point;
+    ternary r12 r25.is_some r27.is_some into r31;
+    cast r31 r30 into r32 as Optional__6Uxqmb23WYh;
+    add r32.val.x r32.val.y into r33;
+    is.eq r33 3field into r34;
+    add r32.val.x r32.val.y into r35;
+    is.eq r35 7field into r36;
+    or r34 r36 into r37;
+    assert.eq r37 true;
+    get.or_use points__len__[false] 0u32 into r38;
+    lt r0 r38 into r39;
+    assert.eq r39 true;
+    cast 9field 9field into r40 as Point;
+    set r40 into points__[r0];
+    get.or_use points__len__[false] 0u32 into r41;
+    lt r0 r41 into r42;
+    cast 0field 0field into r43 as Point;
+    get.or_use points__[r0] r43 into r44;
+    cast true r44 into r45 as Optional__6Uxqmb23WYh;
+    cast 0field 0field into r46 as Point;
+    cast false r46 into r47 as Optional__6Uxqmb23WYh;
+    ternary r42 r45.val.x r47.val.x into r48;
+    ternary r42 r45.val.y r47.val.y into r49;
+    cast r48 r49 into r50 as Point;
+    ternary r42 r45.is_some r47.is_some into r51;
+    cast r51 r50 into r52 as Optional__6Uxqmb23WYh;
+    assert.eq r52.is_some true;
+    cast 0field 0field into r53 as Point;
+    get.or_use points__[r0] r53 into r54;
+    cast true r54 into r55 as Optional__6Uxqmb23WYh;
+    cast 0field 0field into r56 as Point;
+    cast false r56 into r57 as Optional__6Uxqmb23WYh;
+    ternary r42 r55.val.x r57.val.x into r58;
+    ternary r42 r55.val.y r57.val.y into r59;
+    cast r58 r59 into r60 as Point;
+    ternary r42 r55.is_some r57.is_some into r61;
+    cast r61 r60 into r62 as Optional__6Uxqmb23WYh;
+    is.eq r62.val.x 9field into r63;
+    assert.eq r63 true;
+    is.eq r62.val.y 9field into r64;
+    assert.eq r64 true;
+    set 0u32 into points__len__[false];
+    get.or_use points__len__[false] 0u32 into r65;
+    is.eq r65 0u32 into r66;
+    assert.eq r66 true;
+
+function test_vector_containers_behavior:
+    input r0 as u32.private;
+    async test_vector_containers_behavior r0 into r1;
+    output r1 as vector_structs.aleo/test_vector_containers_behavior.future;
+
+finalize test_vector_containers_behavior:
+    input r0 as u32.public;
+    get.or_use containers__len__[false] 0u32 into r1;
+    is.eq r1 0u32 into r2;
+    assert.eq r2 true;
+    cast 11field 22field into r3 as Point;
+    cast 33field 44field into r4 as Point;
+    cast r3 r4 into r5 as [Point; 2u32];
+    cast 1u32 r5 into r6 as Container;
+    cast 55field 66field into r7 as Point;
+    cast 77field 88field into r8 as Point;
+    cast r7 r8 into r9 as [Point; 2u32];
+    cast 2u32 r9 into r10 as Container;
+    get.or_use containers__len__[false] 0u32 into r11;
+    add r11 1u32 into r12;
+    set r12 into containers__len__[false];
+    set r6 into containers__[r11];
+    get.or_use containers__len__[false] 0u32 into r13;
+    add r13 1u32 into r14;
+    set r14 into containers__len__[false];
+    set r10 into containers__[r13];
+    get.or_use containers__len__[false] 0u32 into r15;
+    is.eq r15 2u32 into r16;
+    assert.eq r16 true;
+    get.or_use containers__len__[false] 0u32 into r17;
+    lt r0 r17 into r18;
+    cast 0field 0field into r19 as Point;
+    cast r19 r19 into r20 as [Point; 2u32];
+    cast 0u32 r20 into r21 as Container;
+    get.or_use containers__[r0] r21 into r22;
+    cast true r22 into r23 as Optional__Iw7fQz4CKJ0;
+    cast 0field 0field into r24 as Point;
+    cast r24 r24 into r25 as [Point; 2u32];
+    cast 0u32 r25 into r26 as Container;
+    cast false r26 into r27 as Optional__Iw7fQz4CKJ0;
+    ternary r18 r23.val.points[0u32].x r27.val.points[0u32].x into r28;
+    ternary r18 r23.val.points[0u32].y r27.val.points[0u32].y into r29;
+    cast r28 r29 into r30 as Point;
+    ternary r18 r23.val.points[1u32].x r27.val.points[1u32].x into r31;
+    ternary r18 r23.val.points[1u32].y r27.val.points[1u32].y into r32;
+    cast r31 r32 into r33 as Point;
+    cast r30 r33 into r34 as [Point; 2u32];
+    ternary r18 r23.val.id r27.val.id into r35;
+    cast r35 r34 into r36 as Container;
+    ternary r18 r23.is_some r27.is_some into r37;
+    cast r37 r36 into r38 as Optional__Iw7fQz4CKJ0;
+    assert.eq r38.is_some true;
+    cast 0field 0field into r39 as Point;
+    cast r39 r39 into r40 as [Point; 2u32];
+    cast 0u32 r40 into r41 as Container;
+    get.or_use containers__[r0] r41 into r42;
+    cast true r42 into r43 as Optional__Iw7fQz4CKJ0;
+    cast 0field 0field into r44 as Point;
+    cast r44 r44 into r45 as [Point; 2u32];
+    cast 0u32 r45 into r46 as Container;
+    cast false r46 into r47 as Optional__Iw7fQz4CKJ0;
+    ternary r18 r43.val.points[0u32].x r47.val.points[0u32].x into r48;
+    ternary r18 r43.val.points[0u32].y r47.val.points[0u32].y into r49;
+    cast r48 r49 into r50 as Point;
+    ternary r18 r43.val.points[1u32].x r47.val.points[1u32].x into r51;
+    ternary r18 r43.val.points[1u32].y r47.val.points[1u32].y into r52;
+    cast r51 r52 into r53 as Point;
+    cast r50 r53 into r54 as [Point; 2u32];
+    ternary r18 r43.val.id r47.val.id into r55;
+    cast r55 r54 into r56 as Container;
+    ternary r18 r43.is_some r47.is_some into r57;
+    cast r57 r56 into r58 as Optional__Iw7fQz4CKJ0;
+    is.eq r58.val.id 1u32 into r59;
+    is.eq r58.val.id 2u32 into r60;
+    or r59 r60 into r61;
+    assert.eq r61 true;
+    get.or_use containers__len__[false] 0u32 into r62;
+    lt r0 r62 into r63;
+    assert.eq r63 true;
+    cast 999field 999field into r64 as Point;
+    cast 33field 33field into r65 as Point;
+    cast r64 r65 into r66 as [Point; 2u32];
+    cast 99u32 r66 into r67 as Container;
+    set r67 into containers__[r0];
+    get.or_use containers__len__[false] 0u32 into r68;
+    lt r0 r68 into r69;
+    cast 0field 0field into r70 as Point;
+    cast r70 r70 into r71 as [Point; 2u32];
+    cast 0u32 r71 into r72 as Container;
+    get.or_use containers__[r0] r72 into r73;
+    cast true r73 into r74 as Optional__Iw7fQz4CKJ0;
+    cast 0field 0field into r75 as Point;
+    cast r75 r75 into r76 as [Point; 2u32];
+    cast 0u32 r76 into r77 as Container;
+    cast false r77 into r78 as Optional__Iw7fQz4CKJ0;
+    ternary r69 r74.val.points[0u32].x r78.val.points[0u32].x into r79;
+    ternary r69 r74.val.points[0u32].y r78.val.points[0u32].y into r80;
+    cast r79 r80 into r81 as Point;
+    ternary r69 r74.val.points[1u32].x r78.val.points[1u32].x into r82;
+    ternary r69 r74.val.points[1u32].y r78.val.points[1u32].y into r83;
+    cast r82 r83 into r84 as Point;
+    cast r81 r84 into r85 as [Point; 2u32];
+    ternary r69 r74.val.id r78.val.id into r86;
+    cast r86 r85 into r87 as Container;
+    ternary r69 r74.is_some r78.is_some into r88;
+    cast r88 r87 into r89 as Optional__Iw7fQz4CKJ0;
+    assert.eq r89.is_some true;
+    cast 0field 0field into r90 as Point;
+    cast r90 r90 into r91 as [Point; 2u32];
+    cast 0u32 r91 into r92 as Container;
+    get.or_use containers__[r0] r92 into r93;
+    cast true r93 into r94 as Optional__Iw7fQz4CKJ0;
+    cast 0field 0field into r95 as Point;
+    cast r95 r95 into r96 as [Point; 2u32];
+    cast 0u32 r96 into r97 as Container;
+    cast false r97 into r98 as Optional__Iw7fQz4CKJ0;
+    ternary r69 r94.val.points[0u32].x r98.val.points[0u32].x into r99;
+    ternary r69 r94.val.points[0u32].y r98.val.points[0u32].y into r100;
+    cast r99 r100 into r101 as Point;
+    ternary r69 r94.val.points[1u32].x r98.val.points[1u32].x into r102;
+    ternary r69 r94.val.points[1u32].y r98.val.points[1u32].y into r103;
+    cast r102 r103 into r104 as Point;
+    cast r101 r104 into r105 as [Point; 2u32];
+    ternary r69 r94.val.id r98.val.id into r106;
+    cast r106 r105 into r107 as Container;
+    ternary r69 r94.is_some r98.is_some into r108;
+    cast r108 r107 into r109 as Optional__Iw7fQz4CKJ0;
+    is.eq r109.val.id 99u32 into r110;
+    assert.eq r110 true;
+    is.eq r109.val.points[0u32].x 999field into r111;
+    assert.eq r111 true;
+    set 0u32 into containers__len__[false];
+    get.or_use containers__len__[false] 0u32 into r112;
+    is.eq r112 0u32 into r113;
+    assert.eq r113 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1trjq5kpxmazrjxlyegtl3ppt9qgtcfzh3m946gxnh58hyyfqjgpqzrmww9",
+      "program": "vector_structs.aleo",
+      "function": "test_vector_primitives_behavior",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2872858198295054679010964662015798115237494890849567206519582377601599113830field",
+          "value": "ciphertext1qyqxcafp995cwacaz95g94fknwlutj5x35h58gfxw3vq26g7n98rvps08zhxt"
+        },
+        {
+          "type": "private",
+          "id": "2702710938507374829138324520925823963002297806243819055651277541859971153590field",
+          "value": "ciphertext1qyqwlna3hxv3hut08rt98a3qkwnl6pstzfyt8eepg6tp8j9d0amj6pqmaue28"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7397517254279241212599494381914463372334958939760146873023844196783581569957field",
+          "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_primitives_behavior,\n  arguments: [\n    1u32,\n    25u32\n  ]\n}"
+        }
+      ],
+      "tpk": "1089465132806857055666925932741168426680032210185089090946582998238875937545group",
+      "tcm": "5048366293531218121282484352453660844297563175023906260732432518741373547651field",
+      "scm": "7233206248230409010373179920276423065250248653915667352739856899589375480598field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1akt50xfz7zkjp2vw9m72amsyh59py2663hs7ueqew2n664pnv5qqvphw5d",
+      "program": "vector_structs.aleo",
+      "function": "test_vector_structs_behavior",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6646789499296738386608485901124650591633616124564205171925161861208204709447field",
+          "value": "ciphertext1qyqxd32977va8lrdt24ejr3c4twl4gdphulr0ac4nwhuz8475mr5yqgu6xw92"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6490668780907192160623645589225067745142421768413517632918355105646106585910field",
+          "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_structs_behavior,\n  arguments: [\n    0u32\n  ]\n}"
+        }
+      ],
+      "tpk": "2318132272222563822888482429551924754260464284044523158365566933549316198672group",
+      "tcm": "2226883441790104099647521281025877837144456033641979976733890123979148404549field",
+      "scm": "146406619540950284275564834906079829653654148198218676624058761044769224084field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1zws5pfkp7qteuf9394hrfl6jwzh3qvmxkf5sj2upqjjyk98x2uzqq4uc9n",
+      "program": "vector_structs.aleo",
+      "function": "test_vector_containers_behavior",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7695494318500568005174531872359266794157994398733196537771499765335189398293field",
+          "value": "ciphertext1qyqvm7y4yjm9m6cr3fmdewj69hvkydcscqnmmz23lvxkc05gnca6zqqal7csc"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5974128139234547275175733361815913245530549394065923926939540630865608443622field",
+          "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_containers_behavior,\n  arguments: [\n    1u32\n  ]\n}"
+        }
+      ],
+      "tpk": "4708461349010197128139529746135301506531622937349344239746858554334999852505group",
+      "tcm": "1966431095609933492794026233707451435024960849077663502916557699132856217926field",
+      "scm": "790000807995628590722815538301513419586007163763998843554762043512984451296field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

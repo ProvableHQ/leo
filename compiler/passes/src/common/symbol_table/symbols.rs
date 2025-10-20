@@ -28,6 +28,7 @@ pub enum VariableType {
     ConstParameter,
     Input(Mode),
     Mut,
+    Storage,
 }
 
 impl Display for VariableType {
@@ -39,6 +40,7 @@ impl Display for VariableType {
             ConstParameter => write!(f, "const parameter"),
             Input(m) => write!(f, "{m} input"),
             Mut => write!(f, "mut var"),
+            Storage => write!(f, "storage var"),
         }
     }
 }

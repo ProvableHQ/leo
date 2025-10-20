@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'script', 'transition' -- found 'finalize'
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'storage', 'script', 'transition' -- found 'finalize'
     --> test:5:7
      |
    5 |     } finalize {

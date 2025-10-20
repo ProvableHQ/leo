@@ -73,10 +73,6 @@ struct Optional__IDgMhRtf8KJ:
     is_some as boolean;
     val as Foo;
 
-struct Optional__HdJPTit9rcT:
-    is_some as boolean;
-    val as address;
-
 struct Optional__8aTicnNTOvk:
     is_some as boolean;
     val as group;
@@ -193,18 +189,15 @@ function tuples_with_optional_elements:
     output r6 as u32.private;
 
 function optional_misc_primitive_types:
-    cast true aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r0 as Optional__HdJPTit9rcT;
-    cast true 0group into r1 as Optional__8aTicnNTOvk;
-    cast true 1field into r2 as Optional__K4XRQPOk9yX;
-    cast true 2scalar into r3 as Optional__JYP65FYVVJA;
+    cast true 0group into r0 as Optional__8aTicnNTOvk;
+    cast true 1field into r1 as Optional__K4XRQPOk9yX;
+    cast true 2scalar into r2 as Optional__JYP65FYVVJA;
     assert.eq r0.is_some true;
-    assert.eq r1.is_some true;
-    assert.eq r3.is_some true;
-    ternary r2.is_some r2.val 2field into r4;
-    output r0.val as address.private;
-    output r1.val as group.private;
-    output r4 as field.private;
-    output r3.val as scalar.private;
+    assert.eq r2.is_some true;
+    ternary r1.is_some r1.val 2field into r3;
+    output r0.val as group.private;
+    output r3 as field.private;
+    output r2.val as scalar.private;
 
 constructor:
     assert.eq edition 0u16;
@@ -405,30 +398,25 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1wlylwxxh8cy075wj9y8r2yhtr9qhgdr8us2l7wkjvy0ymvcxvqys455zzv",
+      "id": "au1ey4myydfp06fpdlv3yh32fk236w265pznan6vtzqum75c24g6q9qctpeq9",
       "program": "all_types.aleo",
       "function": "optional_misc_primitive_types",
       "inputs": [],
       "outputs": [
         {
           "type": "private",
-          "id": "5621710798985338836341737034107482198870402276156782711661484637801858870592field",
-          "value": "ciphertext1qgqrk2lezwaujcjpc8xyfs7jdaw3ezvrsythap67gfx38rxfs57turynfchu9wvmul3hgr4kvkfldtm0yy6kwwpd3hqyl7hqxrnw69q7qc968wz6"
+          "id": "3459365869179049740860113214466800204381291640599301848464120971502408704253field",
+          "value": "ciphertext1qgqyw2leuwglxg8pej5ut2wfjskklh84hppk9hlwsj6f2n6zpfs2qp742uctlwvmul3hgr4kvkfldtm0yy6kwwpd3hqyl7hqxrnw69q7qc46h5kq"
         },
         {
           "type": "private",
-          "id": "3941272022530247269851225978998572710824247678992028658238376405940807142477field",
-          "value": "ciphertext1qgq24awejga8ywhfm4j0cjft2jr5jm94g86yh6ga63zuxnahsa2eur6wgveeuu66rnft5stxwkum83nk3as7ukwkt69ccfvfnxkmx707zqqlkhda"
+          "id": "1043517705812122183352787197382565931248101026178319145662823369007065593620field",
+          "value": "ciphertext1qgq2dawejca8ywhfm4j0cjft2jr5jm94g86yh6ga63zuxnahsa2eur6wgveeuu66rnft5stxwkum83nk3as7ukwkt69ccfvfnxkmx707zqsggj8l"
         },
         {
           "type": "private",
-          "id": "1196528212080420404689112385505871604107525162820053970406308864884792621992field",
-          "value": "ciphertext1qgqg5e00wreddavaf80kjc96dqgx6jx7u7gmnf23avxe0anejvgzyq2lxlz4rvz3s7dgum9zqnpvjqf54jyhyrlxxncejhjq0pe69q68qg3xca62"
-        },
-        {
-          "type": "private",
-          "id": "200074638776902438111428414393148394662458758547115088795747855615039376378field",
-          "value": "ciphertext1qgqt2kuaaey38tharfjtztfd4yw0g9wnx9q3grz6fpyck75xqst6uqvgsaan7r465njyzpc4k4uk8ecchwxnxkfv55y83fma5r2lqs92pqdc4n6f"
+          "id": "3336846143410693652961885514652627166408266716035452116354183434316607902009field",
+          "value": "ciphertext1qgqt5h00wneddavaf80kjc96dqgx6jx7u7gmnf23avxe0anejvgzyq2lxlz5hvz3s7dgum9zqnpvjqf54jyhyrlxxncejhjq0pe69q68qgs0pp8n"
         }
       ],
       "tpk": "3068831351743405691969429266219668515579922413004105968786374094762939635262group",

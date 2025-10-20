@@ -69,7 +69,9 @@ impl OptionLoweringVisitor<'_> {
         // are actually registered in `self.new_structs`.
         let lowered_inner_type = self.reconstruct_type(ty).0;
 
-        let struct_name = crate::make_optional_struct_symbol(&lowered_inner_type);
+        // Create or get an optional wrapper struct for `lowered_inner_type`
+        let struct_name = self.insert_optional_wrapper_struct(&lowered_inner_type);
+
         let struct_expr = StructExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
             const_arguments: vec![],
@@ -137,10 +139,10 @@ impl OptionLoweringVisitor<'_> {
         };
 
         let zero_val_expr =
-            zero_value_expression(&lowered_inner_type, Span::default(), &self.state.node_builder, &struct_lookup)
-                .expect("");
+            Expression::zero(&lowered_inner_type, Span::default(), &self.state.node_builder, &struct_lookup).expect("");
 
-        let struct_name = crate::make_optional_struct_symbol(&lowered_inner_type);
+        // Create or get an optional wrapper struct for `lowered_inner_type`
+        let struct_name = self.insert_optional_wrapper_struct(&lowered_inner_type);
 
         let struct_expr = StructExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
@@ -165,79 +167,43 @@ impl OptionLoweringVisitor<'_> {
 
         struct_expr.into()
     }
-}
 
-#[allow(clippy::type_complexity)]
-fn zero_value_expression(
-    ty: &Type,
-    span: Span,
-    node_builder: &NodeBuilder,
-    struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
-) -> Option<Expression> {
-    let id = node_builder.next_id();
+    /// Inserts (or reuses) a compiler-generated struct representing `Optional<T>`.
+    ///
+    /// The struct has two fields:
+    /// - `is_some: bool` — indicates whether the value is present.
+    /// - `val: T` — the wrapped value.
+    ///
+    /// If the struct for this type already exists, it’s reused; otherwise, a new one is created.
+    /// Returns the `Symbol` for the struct name.
+    pub fn insert_optional_wrapper_struct(&mut self, ty: &Type) -> Symbol {
+        let struct_name = crate::make_optional_struct_symbol(ty);
 
-    match ty {
-        // Numeric types
-        Type::Integer(IntegerType::I8) => Some(Literal::integer(IntegerType::I8, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::I16) => Some(Literal::integer(IntegerType::I16, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::I32) => Some(Literal::integer(IntegerType::I32, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::I64) => Some(Literal::integer(IntegerType::I64, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::I128) => Some(Literal::integer(IntegerType::I128, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::U8) => Some(Literal::integer(IntegerType::U8, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::U16) => Some(Literal::integer(IntegerType::U16, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::U32) => Some(Literal::integer(IntegerType::U32, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::U64) => Some(Literal::integer(IntegerType::U64, "0".to_string(), span, id).into()),
-        Type::Integer(IntegerType::U128) => Some(Literal::integer(IntegerType::U128, "0".to_string(), span, id).into()),
+        self.new_structs.entry(struct_name).or_insert_with(|| Composite {
+            identifier: Identifier::new(struct_name, self.state.node_builder.next_id()),
+            const_parameters: vec![], // this is not a generic struct
+            members: vec![
+                Member {
+                    mode: Mode::None,
+                    identifier: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
+                    type_: Type::Boolean,
+                    span: Span::default(),
+                    id: self.state.node_builder.next_id(),
+                },
+                Member {
+                    mode: Mode::None,
+                    identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
+                    type_: ty.clone(),
+                    span: Span::default(),
+                    id: self.state.node_builder.next_id(),
+                },
+            ],
+            external: None,
+            is_record: false,
+            span: Span::default(),
+            id: self.state.node_builder.next_id(),
+        });
 
-        // Boolean
-        Type::Boolean => Some(Literal::boolean(false, span, id).into()),
-
-        // Field, Group, Scalar
-        Type::Field => Some(Literal::field("0".to_string(), span, id).into()),
-        Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
-        Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
-
-        // Structs (composite types)
-        Type::Composite(composite_type) => {
-            let path = &composite_type.path;
-            let members = struct_lookup(&path.absolute_path());
-
-            let struct_members = members
-                .into_iter()
-                .map(|(symbol, member_type)| {
-                    let member_id = node_builder.next_id();
-                    let zero_expr = zero_value_expression(&member_type, span, node_builder, struct_lookup)?;
-
-                    Some(StructVariableInitializer {
-                        span,
-                        id: member_id,
-                        identifier: Identifier::new(symbol, node_builder.next_id()),
-                        expression: Some(zero_expr),
-                    })
-                })
-                .collect::<Option<Vec<_>>>()?;
-
-            Some(Expression::Struct(StructExpression {
-                span,
-                id,
-                path: path.clone(),
-                const_arguments: composite_type.const_arguments.clone(),
-                members: struct_members,
-            }))
-        }
-
-        // Arrays
-        Type::Array(array_type) => {
-            let element_ty = &array_type.element_type;
-
-            let element_expr = zero_value_expression(element_ty, span, node_builder, struct_lookup)?;
-
-            Some(Expression::Repeat(
-                RepeatExpression { span, id, expr: element_expr, count: *array_type.length.clone() }.into(),
-            ))
-        }
-
-        // Other types are not expected or supported just yet
-        _ => None,
+        struct_name
     }
 }

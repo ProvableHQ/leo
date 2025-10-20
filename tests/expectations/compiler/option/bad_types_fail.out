@@ -59,13 +59,6 @@ Error [ETYC0372117]: Expected type `[u8; 2]` but type `[u8?; 2]` was found.
      |
   64 |         let b: [u8; 2] = a; // ERROR
      |                          ^
-Error [ETYC0372004]: Could not determine the type of `none`
-    --> compiler-test:72:36
-     |
-  72 |         let result = flag ? 10u8 : none; // ERROR
-     |                                    ^^^^
-     |
-     = Consider using explicit type annotations.
 Error [ETYC0372117]: Expected type `bool` but type `bool?` was found.
     --> compiler-test:78:17
      |
