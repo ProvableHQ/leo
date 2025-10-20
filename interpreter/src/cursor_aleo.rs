@@ -919,11 +919,11 @@ impl Cursor {
             panic!();
         };
         for (i, cmd) in finalize.commands().iter().enumerate() {
-            if let Command::Position(position) = cmd {
-                if position.name() == label {
-                    *instruction_index = i;
-                    return;
-                }
+            if let Command::Position(position) = cmd
+                && position.name() == label
+            {
+                *instruction_index = i;
+                return;
             }
         }
         panic!("branch to nonexistent label {label}");

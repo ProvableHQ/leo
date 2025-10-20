@@ -78,10 +78,10 @@ struct LocalTableInner {
 impl LocalTable {
     fn new(symbol_table: &mut SymbolTable, id: NodeID, parent: Option<NodeID>) -> Self {
         // If parent exists, register this scope as its child
-        if let Some(parent_id) = parent {
-            if let Some(parent_table) = symbol_table.all_locals.get_mut(&parent_id) {
-                parent_table.inner.borrow_mut().children.push(id);
-            }
+        if let Some(parent_id) = parent
+            && let Some(parent_table) = symbol_table.all_locals.get_mut(&parent_id)
+        {
+            parent_table.inner.borrow_mut().children.push(id);
         }
 
         LocalTable {
@@ -368,10 +368,10 @@ impl SymbolTable {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
-            if let [name] = &path {
-                if table.inner.borrow().variables.contains_key(name) {
-                    return Err(AstError::shadowed_variable(name, span).into());
-                }
+            if let [name] = &path
+                && table.inner.borrow().variables.contains_key(name)
+            {
+                return Err(AstError::shadowed_variable(name, span).into());
             }
             current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));
         }

@@ -950,17 +950,17 @@ impl FromStr for Value {
         }
 
         // Or it's a tuple.
-        if let Some(s) = s.strip_prefix("(") {
-            if let Some(s) = s.strip_suffix(")") {
-                let mut results = Vec::new();
-                for item in s.split(',') {
-                    let item = item.trim();
-                    let value: Value = item.parse().map_err(|_| ())?;
-                    results.push(value);
-                }
-
-                return Ok(Value::make_tuple(results));
+        if let Some(s) = s.strip_prefix("(")
+            && let Some(s) = s.strip_suffix(")")
+        {
+            let mut results = Vec::new();
+            for item in s.split(',') {
+                let item = item.trim();
+                let value: Value = item.parse().map_err(|_| ())?;
+                results.push(value);
             }
+
+            return Ok(Value::make_tuple(results));
         }
 
         // Or it's an unsuffixed numeric literal.

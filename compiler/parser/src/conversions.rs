@@ -900,14 +900,13 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     span,
                     ..
                 }) = &mut operand_expression
+                    && !string.starts_with('-')
                 {
-                    if !string.starts_with('-') {
-                        // The operation was a negation and the literal was not already negative, so fold it in
-                        // and discard the unary expression.
-                        string.insert(0, '-');
-                        *span = op.span + operand.span;
-                        return Ok(operand_expression);
-                    }
+                    // The operation was a negation and the literal was not already negative, so fold it in
+                    // and discard the unary expression.
+                    string.insert(0, '-');
+                    *span = op.span + operand.span;
+                    return Ok(operand_expression);
                 }
             }
             leo_ast::UnaryExpression { receiver: operand_expression, op: op_variant, span, id }.into()
