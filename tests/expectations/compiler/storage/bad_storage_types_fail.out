@@ -1,0 +1,60 @@
+Error [ETYC0372166]: tuple is an invalid storage type
+    --> compiler-test:7:5
+     |
+   7 |     storage tuple_storage: (u32, u32);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: future is an invalid storage type
+    --> compiler-test:8:5
+     |
+   8 |     storage future_storage: Future;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: address is an invalid storage type
+    --> compiler-test:9:5
+     |
+   9 |     storage address_storage: address;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: signature is an invalid storage type
+    --> compiler-test:10:5
+     |
+  10 |     storage signature_storage: signature;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: record is an invalid storage type
+    --> compiler-test:11:5
+     |
+  11 |     storage record_storage: MyRecord;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: unit is an invalid storage type
+    --> compiler-test:12:5
+     |
+  12 |     storage unit_storage: ();
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: tuple is an invalid storage type
+    --> compiler-test:15:5
+     |
+  15 |     storage vec_tuple: [(u32, u32)];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: future is an invalid storage type
+    --> compiler-test:16:5
+     |
+  16 |     storage vec_future: [Future];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: address is an invalid storage type
+    --> compiler-test:17:5
+     |
+  17 |     storage vec_address: [address];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: signature is an invalid storage type
+    --> compiler-test:18:5
+     |
+  18 |     storage vec_signature: [signature];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: record is an invalid storage type
+    --> compiler-test:19:5
+     |
+  19 |     storage vec_record: [MyRecord];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: unit is an invalid storage type
+    --> compiler-test:20:5
+     |
+  20 |     storage vec_unit: [()];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^

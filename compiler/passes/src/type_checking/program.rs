@@ -96,6 +96,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             mapping_count += 1;
         }
 
+        // Typecheck each storage variable definition.
+        for (_, storage_variable) in input.storage_variables.iter() {
+            self.visit_storage_variable(storage_variable);
+        }
+
         // Check that the number of mappings does not exceed the maximum.
         if mapping_count > self.limits.max_mappings {
             self.emit_err(TypeCheckerError::too_many_mappings(
@@ -385,6 +390,18 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 input.span,
             ))
         }
+    }
+
+    fn visit_storage_variable(&mut self, input: &StorageVariable) {
+        self.visit_type(&input.type_);
+
+        let storage_type = if let Type::Vector(VectorType { element_type }) = &input.type_ {
+            *element_type.clone()
+        } else {
+            input.type_.clone()
+        };
+
+        self.assert_storage_type_is_valid(&storage_type, input.span);
     }
 
     fn visit_function(&mut self, function: &Function) {

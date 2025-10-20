@@ -101,6 +101,7 @@ impl CodeGeneratingVisitor<'_> {
             let mut chars = s.chars();
             matches!(chars.next(), Some(c) if c.is_ascii_alphabetic())
                 && chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+                && s.len() <= 31
         }
 
         /// Generates a hashed Leo identifier from the full path, using the given base segment.
@@ -138,7 +139,37 @@ impl CodeGeneratingVisitor<'_> {
             return Some(last);
         }
 
-        // === Case 2: Matches special form like `path::to::Name::[3, 4]` ===
+        // === Case 2: Storage-generated identifiers ===
+        //
+        // These occur after lowering storage variables into mappings.
+        // They can take the forms:
+        //   - `some_var__` (for singleton storage)
+        //   - `some_var__len__` (for vector length mapping)
+        //
+        // Both can exceed 31 chars once the "__" or "__len__" suffix is added,
+        // so we truncate the base portion to preserve the suffix and make space
+        // for the hash. The truncation lengths below were chosen so that:
+        // ```
+        // total_length = prefix_len + suffix_len + "__" + hash_len <= 31
+        // ```
+        // where hash_len = 11.
+        if let Some(prefix) = last.strip_suffix("__len__") {
+            // "some_very_long_storage_variable__len__"
+            //  - Keep at most 13 chars from the prefix
+            //  - Produces something like: "some_very_lon__len__CpUbpLTf1Ow"
+            let truncated_prefix = &prefix[..13.min(prefix.len())];
+            return Some(generate_hashed_name(path, &(truncated_prefix.to_owned() + "__len")));
+        }
+
+        if let Some(prefix) = last.strip_suffix("__") {
+            // "some_very_long_storage_variable__"
+            //  - Keep at most 18 chars from the prefix
+            //  - Produces something like: "some_very_long_sto__Hn1pThQeV3"
+            let truncated_prefix = &prefix[..18.min(prefix.len())];
+            return Some(generate_hashed_name(path, &(truncated_prefix.to_owned() + "__")));
+        }
+
+        // === Case 3: Matches special form like `path::to::Name::[3, 4]` ===
         let re = regex::Regex::new(r#"^([a-zA-Z_][\w]*)(?:::\[.*?\])?$"#).unwrap();
 
         if let Some(captures) = re.captures(&last) {
@@ -148,7 +179,7 @@ impl CodeGeneratingVisitor<'_> {
             return Some(generate_hashed_name(path, ident));
         }
 
-        // === Case 3: Matches special form like `path::to::Name?` (last always ends with `?`) ===
+        // === Case 4: Matches special form like `path::to::Name?` (last always ends with `?`) ===
         if last.ends_with("?\"") {
             // Because the last segment of `path` always ends with `?` in case 3, we can guarantee
             // that there will be no conflicts with case 2 (which doesn't allow `?` anywhere).

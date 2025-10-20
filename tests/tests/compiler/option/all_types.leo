@@ -95,15 +95,13 @@ program all_types.aleo {
         return sum; // 100 + 200 + 300 + 50 = 650
     }
 
-    // --- Section 9: Optionals with address, group, field, scalar ---
-    transition optional_misc_primitive_types() -> (address, group, field, scalar) {
-        let a: address? = aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx;
+    // --- Section 9: Optionals with group, field, scalar ---
+    transition optional_misc_primitive_types() -> (group, field, scalar) {
         let gr: group? = 0group;
         let fl: field? = 1field;
         let sc: scalar? = 2scalar;
 
         return (
-            a.unwrap(),
             gr.unwrap(),
             fl.unwrap_or(2field),
             sc.unwrap(),

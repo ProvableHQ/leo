@@ -1,0 +1,197 @@
+program test_oob.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping vec__:
+    key as u32.public;
+    value as u32.public;
+
+mapping vec__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function oob_get:
+    async oob_get into r0;
+    output r0 as test_oob.aleo/oob_get.future;
+
+finalize oob_get:
+    set 0u32 into vec__len__[false];
+    get.or_use vec__len__[false] 0u32 into r0;
+    is.eq r0 0u32 into r1;
+    assert.eq r1 true;
+    get.or_use vec__len__[false] 0u32 into r2;
+    lt 0u32 r2 into r3;
+    get.or_use vec__[0u32] 0u32 into r4;
+    cast true r4 into r5 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r6 as Optional__EsDmm5O6sv6;
+    ternary r3 r5.is_some r6.is_some into r7;
+    ternary r3 r5.val r6.val into r8;
+    cast r7 r8 into r9 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r10 as Optional__EsDmm5O6sv6;
+    is.eq r9 r10 into r11;
+    assert.eq r11 true;
+
+function oob_set:
+    async oob_set into r0;
+    output r0 as test_oob.aleo/oob_set.future;
+
+finalize oob_set:
+    set 0u32 into vec__len__[false];
+    get.or_use vec__len__[false] 0u32 into r0;
+    is.eq r0 0u32 into r1;
+    assert.eq r1 true;
+    get.or_use vec__len__[false] 0u32 into r2;
+    lt 0u32 r2 into r3;
+    assert.eq r3 true;
+    set 123u32 into vec__[0u32];
+
+function oob_swap_remove:
+    async oob_swap_remove into r0;
+    output r0 as test_oob.aleo/oob_swap_remove.future;
+
+finalize oob_swap_remove:
+    set 0u32 into vec__len__[false];
+    get.or_use vec__len__[false] 0u32 into r0;
+    is.eq r0 0u32 into r1;
+    assert.eq r1 true;
+    get.or_use vec__len__[false] 0u32 into r2;
+    lt 0u32 r2 into r3;
+    assert.eq r3 true;
+    get vec__[0u32] into r4;
+    sub r2 1u32 into r5;
+    get vec__[r5] into r6;
+    set r6 into vec__[0u32];
+    set r5 into vec__len__[false];
+
+function oob_pop:
+    async oob_pop into r0;
+    output r0 as test_oob.aleo/oob_pop.future;
+
+finalize oob_pop:
+    set 0u32 into vec__len__[false];
+    get.or_use vec__len__[false] 0u32 into r0;
+    is.eq r0 0u32 into r1;
+    assert.eq r1 true;
+    get.or_use vec__len__[false] 0u32 into r2;
+    gt r2 0u32 into r3;
+    sub.w r2 1u32 into r4;
+    ternary r3 r4 r2 into r5;
+    set r5 into vec__len__[false];
+    get.or_use vec__[r4] 0u32 into r6;
+    cast true r6 into r7 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r8 as Optional__EsDmm5O6sv6;
+    ternary r3 r7.is_some r8.is_some into r9;
+    ternary r3 r7.val r8.val into r10;
+    cast r9 r10 into r11 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r12 as Optional__EsDmm5O6sv6;
+    is.eq r11 r12 into r13;
+    assert.eq r13 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au19fpt4zw3efpkk6h7q3fhwt3ygnh0rfp3yp94z7qdw8jf00640cyq099xkc",
+      "program": "test_oob.aleo",
+      "function": "oob_get",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5731236878452207723013327020032677030311481754208491666975077923570611197812field",
+          "value": "{\n  program_id: test_oob.aleo,\n  function_name: oob_get,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "3624323403681901343598936873162095754730183994733191464570438014739528535008group",
+      "tcm": "8026203841700191376238532538224025813107545641164319720703859520165390186410field",
+      "scm": "8111960946564644093806049080368640250465700351145129603686771509712125953784field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: rejected
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1mk8rz8kdyl2s6aqyegj2kdx7km8722mxwy7ucagrxu2utx3zmcxsml9l7a",
+      "program": "test_oob.aleo",
+      "function": "oob_set",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3084372646656352154386021029975669844871419101934868738592978512838741027738field",
+          "value": "{\n  program_id: test_oob.aleo,\n  function_name: oob_set,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "400812782568195639516329277224501285789970750488543866531779058014165881522group",
+      "tcm": "7526198462873088570248167433339267185457490371331812664054957953360345622695field",
+      "scm": "2771105956429082324621928901173889972492135582642565056291749840109780838399field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: rejected
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1v4msxgtcghkrxckz5xydycz57zlvpywgwafxsljtjvddgql3j5yqa5jxm2",
+      "program": "test_oob.aleo",
+      "function": "oob_swap_remove",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "2453578089359433043444411541301644333516589980017298958387602317033411630376field",
+          "value": "{\n  program_id: test_oob.aleo,\n  function_name: oob_swap_remove,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "6391520642900957007179861346929854585582237374908426201126737378047496289808group",
+      "tcm": "7186253704433632951446902606866199469774293810685911560184664495473933469756field",
+      "scm": "4253146435129910350904226225849096049229979348376537827238912416479652512103field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+errors:
+warnings:
+{
+  "transitions": [
+    {
+      "id": "au1gwmkgyjs79prc4avhv4xyewpp9gqxsjgeddceazww6gcs6dkyggsfhkmxm",
+      "program": "test_oob.aleo",
+      "function": "oob_pop",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1813102599485495876799781152863176423240825511882716175707150543130600029238field",
+          "value": "{\n  program_id: test_oob.aleo,\n  function_name: oob_pop,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "5554347281219211935554922593863866828516568901206525108098751846506574401168group",
+      "tcm": "3261327963017627577931781756983646162517606910157576873473161535805673767250field",
+      "scm": "4329527014580250744951242912448572211006929100476245838357352280912332831880field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

@@ -34,6 +34,7 @@ pub trait AstReconstructor {
             Type::Mapping(mapping_type) => self.reconstruct_mapping_type(mapping_type),
             Type::Optional(optional_type) => self.reconstruct_optional_type(optional_type),
             Type::Tuple(tuple_type) => self.reconstruct_tuple_type(tuple_type),
+            Type::Vector(vector_type) => self.reconstruct_vector_type(vector_type),
             Type::Address
             | Type::Boolean
             | Type::Field
@@ -103,6 +104,13 @@ pub trait AstReconstructor {
             Type::Tuple(TupleType {
                 elements: input.elements.into_iter().map(|element| self.reconstruct_type(element).0).collect(),
             }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_vector_type(&mut self, input: VectorType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Vector(VectorType { element_type: Box::new(self.reconstruct_type(*input.element_type).0) }),
             Default::default(),
         )
     }
@@ -600,6 +608,11 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            storage_variables: input
+                .storage_variables
+                .into_iter()
+                .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
+                .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
@@ -689,5 +702,9 @@ pub trait ProgramReconstructor: AstReconstructor {
             value_type: self.reconstruct_type(input.value_type).0,
             ..input
         }
+    }
+
+    fn reconstruct_storage_variable(&mut self, input: StorageVariable) -> StorageVariable {
+        StorageVariable { type_: self.reconstruct_type(input.type_).0, ..input }
     }
 }
