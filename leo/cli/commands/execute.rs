@@ -307,6 +307,8 @@ fn handle_execute<A: Aleo>(
     // Specify the query.
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
         endpoint
+            .replace("v1", "")
+            .replace("v2", "")
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );

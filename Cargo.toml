@@ -175,7 +175,7 @@ version = "0.10.9"
 [workspace.dependencies.snarkvm]
 #version = "4.2.0"
 git = "http://github.com/ProvableHQ/snarkVM.git"
-rev = "78a69b7" # canary v4.3.1
+rev = "7009257" # staging
 features = ["test_consensus_heights"]
 
 [workspace.dependencies.tempfile]
