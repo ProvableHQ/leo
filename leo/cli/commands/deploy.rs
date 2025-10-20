@@ -21,6 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
+use rand::CryptoRng;
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
@@ -30,11 +31,17 @@ use snarkvm::{
         Deployment,
         Program,
         ProgramID,
+        Rng,
         TestnetV0,
         VM,
+        cost_in_microcredits_v1,
+        cost_in_microcredits_v2,
+        cost_in_microcredits_v3,
         deployment_cost,
+        execution_cost_for_authorization,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
+    synthesizer::program::StackTrait,
 };
 
 use colored::*;
@@ -256,6 +263,8 @@ fn handle_deploy<N: Network>(
     // Specify the query
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
         endpoint
+            .replace("v1", "")
+            .replace("v2", "")
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
@@ -289,13 +298,17 @@ Once it is deployed, it CANNOT be changed.
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+            // Add the program to the VM before printing stats and validating limits.
+            // This is needed to invoke the correct program methods.
+            vm.process().write().add_program(&program)?;
             // Print the deployment stats.
             print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
             // Save the transaction.
             transactions.push((id, transaction));
+        } else {
+            // Add the program to the VM directly.
+            vm.process().write().add_program(&program)?;
         }
-        // Add the program to the VM.
-        vm.process().write().add_program(&program)?;
     }
 
     for (program_id, transaction) in transactions.iter() {
@@ -629,7 +642,98 @@ pub(crate) fn print_deployment_stats<N: Network>(
     println!("  {:22}{}{:.6}", "Priority Fee:".cyan(), "".yellow(), prio_fee_cr);
     println!("  {:22}{}{:.6}", "Total Fee:".cyan(), "".yellow(), total_fee_cr);
 
+    // --- Individual function costs ─────────────────────────────────────────────
+    for function_cost in calculate_function_costs(vm, deployment, consensus_version, &mut rand::thread_rng())? {
+        println!("\n{}", format!("🔍 Function '{}' Cost Breakdown", function_cost.name).bold());
+        println!(
+            "  {:22}{}",
+            "Variables:".cyan(),
+            function_cost.num_variables.to_formatted_string(&Locale::en).yellow()
+        );
+        println!(
+            "  {:22}{}",
+            "Constraints:".cyan(),
+            function_cost.num_constraints.to_formatted_string(&Locale::en).yellow()
+        );
+        println!(
+            "  {:22}{}{:.6}",
+            "Finalize Cost:".cyan(),
+            "".yellow(),
+            function_cost.finalize_cost as f64 / 1_000_000.0
+        );
+        if let Some(execution_cost) = function_cost.execution_cost {
+            println!("  {:22}{}{:.6}", "Execution Cost:".cyan(), "".yellow(), execution_cost as f64 / 1_000_000.0);
+        } else {
+            println!("  {:22}{}", "Execution Cost:".cyan(), "N/A".dimmed());
+        }
+    }
+
     // ── Footer rule ───────────────────────────────────────────────────────
     println!("{}", "──────────────────────────────────────────────".dimmed());
     Ok(())
+}
+
+pub(crate) struct FunctionCosts {
+    pub name: String,
+    pub num_variables: u64,
+    pub num_constraints: u64,
+    pub finalize_cost: u64,
+    pub execution_cost: Option<u64>,
+}
+
+/// Calculate individual function costs.
+pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
+    vm: &VM<N, ConsensusMemory<N>>,
+    deployment: &Deployment<N>,
+    consensus_version: ConsensusVersion,
+    rng: &mut R,
+) -> Result<Vec<FunctionCosts>> {
+    // Get the stack for the program.
+    let stack = vm.process().read().get_stack(deployment.program().id())?;
+
+    // Initialize the function costs.
+    let mut function_costs = Vec::new();
+
+    for (function_name, (key, _)) in deployment.verifying_keys() {
+        let name = function_name.to_string();
+
+        // Get the number of variables.
+        let num_variables = key.num_variables();
+        // Get the number of constraints.
+        let num_constraints = key.circuit_info.num_constraints as u64;
+        // Get the finalize cost.
+        let finalize_cost = if consensus_version >= ConsensusVersion::V10 {
+            cost_in_microcredits_v3(&stack, function_name)?
+        } else if consensus_version >= ConsensusVersion::V2 {
+            cost_in_microcredits_v2(&stack, function_name)?
+        } else {
+            cost_in_microcredits_v1(&stack, function_name)?
+        };
+
+        // Sample an authorization and attempt to get the execution cost.
+        // Note. `authorize` may fail on some functions, so this is a best-effort attempt.
+        let private_key = PrivateKey::new(rng)?;
+        let address = Address::try_from(&private_key)?;
+        let input_types = deployment.program().get_function(function_name)?.input_types();
+        let inputs = input_types
+            .into_iter()
+            .map(|ty| {
+                stack
+                    .sample_value(&address, &ty.into(), rng)
+                    .map_err(|e| CliError::custom(format!("Failed to sample value: {e}")).into())
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let execution_cost =
+            match vm.authorize(&private_key, deployment.program().id(), function_name, inputs.iter(), rng) {
+                Err(_) => None,
+                Ok(authorization) => {
+                    Some(execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?.0)
+                }
+            };
+
+        // Return the function cost.
+        function_costs.push(FunctionCosts { name, num_variables, num_constraints, finalize_cost, execution_cost });
+    }
+
+    Ok(function_costs)
 }

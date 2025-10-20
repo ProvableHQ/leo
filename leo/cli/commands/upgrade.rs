@@ -280,6 +280,8 @@ fn handle_upgrade<N: Network>(
     // Specify the query.
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
         endpoint
+            .replace("v1", "")
+            .replace("v2", "")
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
@@ -296,15 +298,19 @@ fn handle_upgrade<N: Network>(
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+            // Add the program to the VM before printing stats and validating limits.
+            // This is needed to invoke the correct program methods.
+            vm.process().write().add_program(&program)?;
             // Print the deployment stats.
             print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
             // Validate the deployment limits.
             validate_deployment_limits(deployment, &id, &network)?;
             // Save the transaction.
             transactions.push((id, transaction));
+        } else {
+            // Directly add the program to the VM.
+            vm.process().write().add_program(&program)?;
         }
-        // Add the program to the VM.
-        vm.process().write().add_program(&program)?;
     }
 
     // If the `print` option is set, print the deployment transaction to the console.
