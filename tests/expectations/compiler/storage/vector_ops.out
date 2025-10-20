@@ -88,10 +88,13 @@ finalize swap_remove:
     get.or_use vec__len__[false] 0u32 into r0;
     lt 3u32 r0 into r1;
     assert.eq r1 true;
-    sub r0 1u32 into r2;
-    set r2 into vec__len__[false];
-    get vec__[r2] into r3;
-    set r3 into vec__[3u32];
+    get vec__[3u32] into r2;
+    sub r0 1u32 into r3;
+    get vec__[r3] into r4;
+    set r4 into vec__[3u32];
+    set r3 into vec__len__[false];
+    gte r2 0u8 into r5;
+    assert.eq r5 true;
 
 constructor:
     assert.eq edition 0u16;

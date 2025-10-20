@@ -37,7 +37,8 @@ program singleton_storage.aleo {
 
     async transition swap_remove() -> Future {
         return async {
-            vec.swap_remove(3u32);
+            let x = vec.swap_remove(3u32);
+            assert(x >= 0);
         };
     }
 

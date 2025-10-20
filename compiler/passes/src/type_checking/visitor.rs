@@ -992,7 +992,7 @@ impl TypeCheckingVisitor<'_> {
                 self.check_access_allowed("Vector::swap_remove", true, function_span);
 
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                    *element_type.clone()
                 } else {
                     self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
                     Type::Err

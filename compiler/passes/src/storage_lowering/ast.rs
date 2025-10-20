@@ -135,7 +135,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 //   Vector::len(v)
                 //
                 // Lowered reconstruction:
-                //   Mapping::get_or_use(len_map, false, 0u32);
+                //   Mapping::get_or_use(len_map, false, 0u32)
 
                 //  Unpack arguments
                 let [vector_expr] = &mut input.arguments[..] else {
@@ -160,7 +160,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 // Lowered reconstruction:
                 //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
                 //   Mapping::set(len_map, false, $len_var > 0 ? $len_var - 1 : $len_var);
-                //   $len_var > 0 ? Mapping::get_or_use(vec_map, $len_var - 1, zero_value) : None;
+                //   $len_var > 0 ? Mapping::get_or_use(vec_map, $len_var - 1, zero_value) : None
 
                 // Unpack argument
                 let [vector_expr] = &mut input.arguments[..] else {
@@ -248,7 +248,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                         //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
                         //   index < $len_var
                         //       ? Mapping::get_or_use(vec_map, index, zero_value)
-                        //       : None;
+                        //       : None
 
                         let (vec_values_mapping_name, vec_length_mapping_name) =
                             self.generate_mapping_names_for_vector(container_expr);
@@ -424,13 +424,11 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 // Lowered reconstruction (conceptually):
                 //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
                 //   assert(index < $len_var);
+                //   let $removed = Mapping::get(vec_map, index);
+                //   Mapping::set(vec_map, index, Mapping::get(vec_map, $len_var - 1));
                 //   Mapping::set(len_map, false, $len_var - 1);
-                //   let element = Mapping::get(vec_map, index);
-                //   let last_elem = Mapping::get(vec_map, $len_var - 1);
-                //   Mapping::set(vec_map, index, last_elem);
-                //   index < $len_var ? element : None;
+                //   $removed
 
-                // Unpack arguments (vector, index)
                 let [vector_expr, index_expr] = &mut input.arguments[..] else {
                     panic!("Vector::swap_remove should have 2 arguments");
                 };
@@ -459,59 +457,65 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 );
                 let len_var_expr: Expression = len_var_ident.into();
 
-                // condition: index < len
+                // assert(index < $len_var);
                 let index_lt_len_expr =
                     self.binary_expr(reconstructed_index_expr.clone(), BinaryOperation::Lt, len_var_expr.clone());
+                let assert_stmt = Statement::Assert(AssertStatement {
+                    variant: AssertVariant::Assert(index_lt_len_expr.clone()),
+                    span: input.span,
+                    id: self.state.node_builder.next_id(),
+                });
+
+                // let $removed = Mapping::get(vec_map, index); // the element to return
+                let get_elem_expr =
+                    self.get_mapping_expr(vec_path_expr.clone(), reconstructed_index_expr.clone(), input.span);
+                let removed_sym = self.state.assigner.unique_symbol("$removed", "$");
+                let removed_ident =
+                    Identifier { name: removed_sym, span: Default::default(), id: self.state.node_builder.next_id() };
+                let removed_stmt = Statement::Definition(DefinitionStatement {
+                    place: DefinitionPlace::Single(removed_ident),
+                    type_: None,
+                    value: get_elem_expr,
+                    span: input.span,
+                    id: self.state.node_builder.next_id(),
+                });
 
                 // len - 1
                 let literal_one = self.literal_one_u32();
                 let len_minus_one_expr = self.binary_expr(len_var_expr.clone(), BinaryOperation::Sub, literal_one);
 
-                // Mapping::set(len_map, false, len - 1)
+                // Mapping::set(vec_map, index, Mapping::get(vec_map, len - 1));
+                let get_last_expr =
+                    self.get_mapping_expr(vec_path_expr.clone(), len_minus_one_expr.clone(), input.span);
+                let set_swap_stmt = Statement::Expression(ExpressionStatement {
+                    expression: self.set_mapping_expr(
+                        vec_path_expr.clone(),
+                        reconstructed_index_expr.clone(),
+                        get_last_expr,
+                        input.span,
+                    ),
+                    span: input.span,
+                    id: self.state.node_builder.next_id(),
+                });
+
+                // Mapping::set(len_map, false, len - 1);
                 let literal_false = self.literal_false();
                 let set_len_stmt = Statement::Expression(ExpressionStatement {
                     expression: self.set_mapping_expr(
                         len_path_expr.clone(),
                         literal_false,
-                        len_minus_one_expr.clone(),
+                        len_minus_one_expr,
                         input.span,
                     ),
                     span: input.span,
                     id: self.state.node_builder.next_id(),
                 });
 
-                // Mapping::get(vec_map, index)  // the element to return (old element)
-                let get_elem_expr =
-                    self.get_mapping_expr(vec_path_expr.clone(), reconstructed_index_expr.clone(), input.span);
-
-                // Mapping::get(vec_map, len - 1)  // last_elem
-                let get_last_expr =
-                    self.get_mapping_expr(vec_path_expr.clone(), len_minus_one_expr.clone(), input.span);
-
-                // Mapping::set(vec_map, index, last_elem)
-                let set_swap_stmt = Statement::Expression(ExpressionStatement {
-                    expression: self.set_mapping_expr(
-                        vec_path_expr.clone(),
-                        reconstructed_index_expr.clone(),
-                        get_last_expr.clone(),
-                        input.span,
-                    ),
-                    span: input.span,
-                    id: self.state.node_builder.next_id(),
-                });
-
-                // assert(index < len)
-                let assert_stmt = Statement::Assert(AssertStatement {
-                    variant: AssertVariant::Assert(index_lt_len_expr.clone()),
-                    span: Span::default(),
-                    id: self.state.node_builder.next_id(),
-                });
-
-                // ternary: index < len ? get(vec, index) : None
-                let none_expr: Expression = Literal::none(Span::default(), self.state.node_builder.next_id()).into();
-                let ternary_expr = self.ternary_expr(index_lt_len_expr, get_elem_expr, none_expr, input.span);
-
-                (ternary_expr, [index_stmts, vec![len_stmt, assert_stmt, set_len_stmt, set_swap_stmt]].concat())
+                // Return `$removed` as the resulting expression
+                (
+                    removed_ident.into(),
+                    [index_stmts, vec![len_stmt, assert_stmt, removed_stmt, set_swap_stmt, set_len_stmt]].concat(),
+                )
             }
 
             _ => {
