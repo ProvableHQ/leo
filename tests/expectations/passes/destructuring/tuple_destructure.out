@@ -1,8 +1,7 @@
 program test.aleo {
-    transition main(x$$0: u32, y$$1: u32) -> u32 {
-        let a$#2 = x$$0;
-        let b$#3 = y$$1;
-        let $var$4 = a$#2 + b$#3;
-        return $var$4;
+    transition main(x: u32, y: u32) -> u32 {
+        let a = x;
+        let b = y;
+        return a + b;
     }
 }

@@ -143,6 +143,9 @@ features = ["serde"]
 [workspace.dependencies.itertools]
 version = "0.13.0"
 
+[workspace.dependencies.paste]
+version = "1.0"
+
 [workspace.dependencies.rand]
 version = "0.8"
 default-features = false

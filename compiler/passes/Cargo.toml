@@ -68,5 +68,8 @@ workspace = true
 [dev-dependencies.leo-parser]
 workspace = true
 
+[dev-dependencies.paste]
+workspace = true
+
 [dev-dependencies.serial_test]
 workspace = true

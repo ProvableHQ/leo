@@ -1,9 +1,8 @@
 program test.aleo {
-    async transition main(x: u32) -> Future {
-        return finalize_main(x);
-    }
-
-    async function finalize_main(x: u32) {
-        assert_eq(x, 10u32);
+    mapping foo: u32 => u32;
+    async transition main(x: u32, y: u32) -> Future {
+        return async {
+            foo.set(x, y);
+        };
     }
 }

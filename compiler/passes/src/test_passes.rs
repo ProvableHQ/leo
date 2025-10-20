@@ -19,6 +19,66 @@
 // compiler passes in isolation. Each pass can be tested by providing Leo source
 // code and verifying the AST output after the pass runs.
 
+/*!
+# Compiler Pass Test Runners
+
+This module provides automatically generated test runners for all compiler transform passes in the Leo compiler.
+
+## Adding a New Compiler Pass Test
+
+To add a new compiler pass, you need to update this file and create the test directories:
+
+### 1. Update this file
+
+1. Add a new entry to the `compiler_passes!` table:
+
+```rust
+(runner_name, PassStruct, (input))
+```
+
+- `runner_name` – the function name for this pass runner (snake_case).
+- `PassStruct` – the compiler pass struct you are testing.
+- `input` – the argument to the pass (`()` if none, or a struct literal like `(SsaFormingInput { rename_defs: true })`).
+
+Example:
+
+```rust
+(new_pass_runner, NewPass, (NewPassInput { option: true })),
+```
+
+2. No other code needs to change — macros automatically generate:
+   - The runner function
+   - The test function (`#[test] fn new_pass_runner_test()`)
+
+---
+
+### 2. Create the test directories
+
+Each pass requires two directories in the Leo repository:
+
+1. **Source tests**: `leo/tests/tests/passes/<pass_name>`
+   - Contains `.leo` files with source programs to test this pass.
+
+2. **Expected outputs**: `leo/tests/expectations/passes/<pass_name>`
+   - Contains expected output files for each source test file.
+
+Example for `common_subexpression_elimination`:
+
+```
+leo/tests/tests/passes/common_subexpression_elimination/
+leo/tests/expectations/passes/common_subexpression_elimination/
+```
+
+- The runner will compare the output AST (or errors/warnings) against these expectations.
+
+---
+
+This structure ensures that **adding a new compiler pass test is minimal**:
+- Add a single line to the `compiler_passes!` table.
+- Create the two directories for tests and expected outputs.
+- All runners and test functions are generated automatically.
+*/
+
 use crate::*;
 use leo_ast::{Ast, NetworkName, NodeBuilder};
 use leo_errors::{BufferEmitter, Handler};
@@ -26,268 +86,113 @@ use leo_parser::parse_ast;
 use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
 use serial_test::serial;
 
-// =============================================================================
-// Compiler Pass Enumeration
-// =============================================================================
-
-/// Enum representing all compiler passes in their canonical order.
-/// This matches the order in `compiler/compiler/src/compiler.rs::intermediate_passes()`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CompilerPass {
-    PathResolution,
-    SymbolTableCreation,
-    TypeChecking,
-    ProcessingAsync,
-    StaticAnalyzing,
-    ConstPropUnrollAndMorphing,
-    OptionLowering,
-    ProcessingScript,
-    SsaForming1, // rename_defs: true
-    Destructuring,
-    SsaForming2, // rename_defs: false
-    WriteTransforming,
-    SsaForming3, // rename_defs: false
-    Flattening,
-    FunctionInlining,
-    SsaForming4, // rename_defs: true
-    CommonSubexpressionEliminating,
-    DeadCodeEliminating,
+/// Table of all compiler passes and their runner names.
+/// Each entry is a tuple of `(runner_name, pass_struct, input)`
+/// - `input` is the argument to the pass, can be `()` or a struct literal.
+macro_rules! compiler_passes {
+    ($macro:ident) => {
+        $macro! {
+            (common_subexpression_elimination_runner, CommonSubexpressionEliminating, ()),
+            (const_prop_unroll_and_morphing_runner, ConstPropUnrollAndMorphing, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+            (destructuring_runner, Destructuring, ()),
+            (dead_code_elimination_runner, DeadCodeEliminating, ()),
+            (flattening_runner, Flattening, ()),
+            (function_inlining_runner, FunctionInlining, ()),
+            (option_lowering_runner, OptionLowering, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+            (processing_async_runner, ProcessingAsync, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+            (processing_script_runner, ProcessingScript, ()),
+            (ssa_forming_runner, SsaForming, (SsaFormingInput { rename_defs: true })),
+            (storage_lowering_runner, StorageLowering, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+            (write_transforming_runner, WriteTransforming, ())
+        }
+    };
 }
 
-/// Helper function to parse Leo source code into an AST.
+/// Parse a Leo source program into an AST, returning errors via the handler.
 fn parse_program(source: &str, handler: &Handler) -> Result<Ast, ()> {
     let node_builder = NodeBuilder::default();
     let filename = FileName::Custom("test".into());
+
+    // Add the source to the session's source map
     let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
 
     handler.extend_if_error(parse_ast(handler.clone(), &node_builder, &source_file, &[], NetworkName::TestnetV0))
 }
 
-/// Helper to initialize a CompilerState with a parsed AST.
-fn initialize_state(ast: Ast, handler: Handler) -> CompilerState {
-    CompilerState {
-        ast,
-        handler,
-        type_table: TypeTable::default(),
-        node_builder: NodeBuilder::default(),
-        assigner: Assigner::default(),
-        symbol_table: SymbolTable::default(),
-        struct_graph: Default::default(),
-        call_graph: Default::default(),
-        warnings: Default::default(),
-        is_test: false,
-        network: NetworkName::TestnetV0,
-    }
-}
-
-/// Runs compiler passes up to and including the specified target pass.
-fn run_passes_until(source: &str, target_pass: CompilerPass, handler: &Handler) -> Result<String, ()> {
-    let ast = parse_program(source, handler)?;
-    let mut state = initialize_state(ast, handler.clone());
-
-    // Belo wis almost exactly the same as the intermediate_passes function in compiler.rs.
-    let type_check_input = TypeCheckingInput::new(state.network);
-    let all_passes = [
-        CompilerPass::PathResolution,
-        CompilerPass::SymbolTableCreation,
-        CompilerPass::TypeChecking,
-        CompilerPass::ProcessingAsync,
-        CompilerPass::StaticAnalyzing,
-        CompilerPass::ConstPropUnrollAndMorphing,
-        CompilerPass::OptionLowering,
-        CompilerPass::ProcessingScript,
-        CompilerPass::SsaForming1,
-        CompilerPass::Destructuring,
-        CompilerPass::SsaForming2,
-        CompilerPass::WriteTransforming,
-        CompilerPass::SsaForming3,
-        CompilerPass::Flattening,
-        CompilerPass::FunctionInlining,
-        CompilerPass::SsaForming4,
-        CompilerPass::CommonSubexpressionEliminating,
-        CompilerPass::DeadCodeEliminating,
-    ];
-
-    for pass in all_passes {
-        match pass {
-            CompilerPass::PathResolution => {
-                handler.extend_if_error(PathResolution::do_pass((), &mut state))?;
-            }
-            CompilerPass::SymbolTableCreation => {
-                handler.extend_if_error(SymbolTableCreation::do_pass((), &mut state))?;
-            }
-            CompilerPass::TypeChecking => {
-                handler.extend_if_error(TypeChecking::do_pass(type_check_input.clone(), &mut state))?;
-            }
-            CompilerPass::ProcessingAsync => {
-                handler.extend_if_error(ProcessingAsync::do_pass(type_check_input.clone(), &mut state))?;
-            }
-            CompilerPass::StaticAnalyzing => {
-                handler.extend_if_error(StaticAnalyzing::do_pass((), &mut state))?;
-            }
-            CompilerPass::ConstPropUnrollAndMorphing => {
-                handler.extend_if_error(ConstPropUnrollAndMorphing::do_pass(type_check_input.clone(), &mut state))?;
-            }
-            CompilerPass::OptionLowering => {
-                handler.extend_if_error(OptionLowering::do_pass(type_check_input.clone(), &mut state))?;
-            }
-            CompilerPass::ProcessingScript => {
-                handler.extend_if_error(ProcessingScript::do_pass((), &mut state))?;
-            }
-            CompilerPass::SsaForming1 => {
-                handler.extend_if_error(SsaForming::do_pass(SsaFormingInput { rename_defs: true }, &mut state))?;
-            }
-            CompilerPass::Destructuring => {
-                handler.extend_if_error(Destructuring::do_pass((), &mut state))?;
-            }
-            CompilerPass::SsaForming2 => {
-                handler.extend_if_error(SsaForming::do_pass(SsaFormingInput { rename_defs: false }, &mut state))?;
-            }
-            CompilerPass::WriteTransforming => {
-                handler.extend_if_error(WriteTransforming::do_pass((), &mut state))?;
-            }
-            CompilerPass::SsaForming3 => {
-                handler.extend_if_error(SsaForming::do_pass(SsaFormingInput { rename_defs: false }, &mut state))?;
-            }
-            CompilerPass::Flattening => {
-                handler.extend_if_error(Flattening::do_pass((), &mut state))?;
-            }
-            CompilerPass::FunctionInlining => {
-                handler.extend_if_error(FunctionInlining::do_pass((), &mut state))?;
-            }
-            CompilerPass::SsaForming4 => {
-                handler.extend_if_error(SsaForming::do_pass(SsaFormingInput { rename_defs: true }, &mut state))?;
-            }
-            CompilerPass::CommonSubexpressionEliminating => {
-                handler.extend_if_error(CommonSubexpressionEliminating::do_pass((), &mut state))?;
-            }
-            CompilerPass::DeadCodeEliminating => {
-                handler.extend_if_error(DeadCodeEliminating::do_pass((), &mut state))?;
-            }
-        }
-
-        // Stop on the targeted pass.
-        if pass == target_pass {
-            break;
-        }
-    }
-
-    if handler.err_count() != 0 {
-        return Err(());
-    }
-
-    // Get the AST  up to the targeted pass.
-    Ok(format!("{}", state.ast.ast))
-}
-
-// =============================================================================
-// Test Runner Macro
-// =============================================================================
-// This macro generates test runner functions for compiler passes.
-// Each runner follows the same pattern:
-// Setup error handling, call run_passess_until to get specified pass, and then return
-// the resulting AST or errors
-// Usage: make_runner!(function_name, CompilerPass::Variant);
-
+/// Macro to generate a single runner function for a compiler pass.
+///
+/// Each runner:
+/// - Sets up a BufferEmitter and Handler for error/warning reporting.
+/// - Runs the first three fixed passes: PathResolution, SymbolTableCreation, TypeChecking.
+/// - Runs the specified compiler pass.
+/// - Returns the resulting AST or formatted errors/warnings.
 macro_rules! make_runner {
-    ($runner_name:ident, $pass:expr) => {
+    ($runner_name:ident, $pass:ident, $input:expr) => {
         fn $runner_name(source: &str) -> String {
             let buf = BufferEmitter::new();
             let handler = Handler::new(buf.clone());
 
-            create_session_if_not_set_then(|_| match run_passes_until(source, $pass, &handler) {
-                Ok(ast) => format!("{}{}", buf.extract_warnings(), ast),
-                Err(()) => format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
+            create_session_if_not_set_then(|_| {
+                // Parse program into AST
+                let mut state = match parse_program(source, &handler) {
+                    Ok(ast) => CompilerState { ast, handler: handler.clone(), ..Default::default() },
+                    Err(()) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
+                };
+
+                // Always run these three passes before the tested pass; they populate symbol & type tables,
+                // which are required for the following compiler pass to function correctly.
+                if handler.extend_if_error(PathResolution::do_pass((), &mut state)).is_err()
+                    || handler.extend_if_error(SymbolTableCreation::do_pass((), &mut state)).is_err()
+                    || handler
+                        .extend_if_error(TypeChecking::do_pass(TypeCheckingInput::new(state.network), &mut state))
+                        .is_err()
+                {
+                    return format!("{}{}", buf.extract_errs(), buf.extract_warnings());
+                }
+
+                // Run the specific pass
+                if handler.extend_if_error($pass::do_pass($input, &mut state)).is_err() {
+                    return format!("{}{}", buf.extract_errs(), buf.extract_warnings());
+                }
+
+                // Success: return AST with any warnings
+                format!("{}{}", buf.extract_warnings(), state.ast.ast)
             })
         }
     };
 }
 
-make_runner!(function_inlining_runner, CompilerPass::FunctionInlining);
-make_runner!(dead_code_elimination_runner, CompilerPass::DeadCodeEliminating);
-make_runner!(static_single_assignment_runner, CompilerPass::SsaForming1);
-make_runner!(flattening_runner, CompilerPass::Flattening);
-make_runner!(destructuring_runner, CompilerPass::Destructuring);
-make_runner!(common_subexpression_elimination_runner, CompilerPass::CommonSubexpressionEliminating);
-make_runner!(processing_async_runner, CompilerPass::ProcessingAsync);
-make_runner!(static_analyzing_runner, CompilerPass::StaticAnalyzing);
-make_runner!(const_prop_unroll_and_morphing_runner, CompilerPass::ConstPropUnrollAndMorphing);
-make_runner!(option_lowering_runner, CompilerPass::OptionLowering);
-make_runner!(processing_script_runner, CompilerPass::ProcessingScript);
-make_runner!(write_transforming_runner, CompilerPass::WriteTransforming);
-
-// =============================================================================
-// Test Functions
-// =============================================================================
-
-#[test]
-#[serial]
-fn test_function_inlining() {
-    leo_test_framework::run_tests("passes/function_inlining", function_inlining_runner);
+/// Macro to generate all runners from the compiler_passes table.
+macro_rules! make_all_runners {
+    ($(($runner:ident, $pass:ident, $input:tt)),* $(,)?) => {
+        $(
+            make_runner!($runner, $pass, $input);
+        )*
+    };
 }
+compiler_passes!(make_all_runners);
 
-#[test]
-#[serial]
-fn test_dead_code_elimination() {
-    leo_test_framework::run_tests("passes/dead_code_elimination", dead_code_elimination_runner);
+/// Macro to generate `#[test]` functions for all compiler passes.
+///
+/// Each test function:
+/// - Uses the runner function generated above.
+/// - Uses `leo_test_framework::run_tests` with a path derived from the pass struct name.
+/// - Uses `paste::paste!` to safely concatenate identifiers.
+macro_rules! make_all_tests {
+    ($(($runner:ident, $pass:ident, $input:tt)),* $(,)?) => {
+        $(
+            paste::paste! {
+                #[test]
+                #[serial]
+                fn [<$runner _test>]() {
+                    // Automatically derive the snake_case directory name from the pass name
+                    leo_test_framework::run_tests(
+                        concat!("passes/", stringify!([<$pass:snake>])),
+                        $runner,
+                    );
+                }
+            }
+        )*
+    };
 }
-
-#[test]
-#[serial]
-fn test_static_single_assignment() {
-    leo_test_framework::run_tests("passes/static_single_assignment", static_single_assignment_runner);
-}
-
-#[test]
-#[serial]
-fn test_flattening() {
-    leo_test_framework::run_tests("passes/flattening", flattening_runner);
-}
-
-#[test]
-#[serial]
-fn test_destructuring() {
-    leo_test_framework::run_tests("passes/destructuring", destructuring_runner);
-}
-
-#[test]
-#[serial]
-fn test_common_subexpression_elimination() {
-    leo_test_framework::run_tests("passes/common_subexpression_elimination", common_subexpression_elimination_runner);
-}
-
-#[test]
-#[serial]
-fn test_processing_async() {
-    leo_test_framework::run_tests("passes/processing_async", processing_async_runner);
-}
-
-#[test]
-#[serial]
-fn test_static_analyzing() {
-    leo_test_framework::run_tests("passes/static_analyzing", static_analyzing_runner);
-}
-
-#[test]
-#[serial]
-fn test_const_prop_unroll_and_morphing() {
-    leo_test_framework::run_tests("passes/const_prop_unroll_and_morphing", const_prop_unroll_and_morphing_runner);
-}
-
-#[test]
-#[serial]
-fn test_option_lowering() {
-    leo_test_framework::run_tests("passes/option_lowering", option_lowering_runner);
-}
-
-#[test]
-#[serial]
-fn test_processing_script() {
-    leo_test_framework::run_tests("passes/processing_script", processing_script_runner);
-}
-
-#[test]
-#[serial]
-fn test_write_transforming() {
-    leo_test_framework::run_tests("passes/write_transforming", write_transforming_runner);
-}
+compiler_passes!(make_all_tests);
