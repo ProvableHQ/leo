@@ -1,15 +1,17 @@
 program test.aleo {
-    transition main(x$$0$$10: u32, y$$1$$11: u32, z$$2$$12: u32) -> u32 {
-        let $var$3$#13 = x$$0$$10 * y$$1$$11;
-        let a$#4$#14 = $var$3$#13 + z$$2$$12;
+    transition main(x$$0: u32, y$$1: u32, z$$2: u32) -> u32 {
+        let $var$3 = ::x$$0 * ::y$$1;
+        let a$#4 = ::$var$3 + ::z$$2;
         {
         }
         {
         }
         {
         }
-        let $var$8$#18 = a$#4$#14 + ::a$#4$#14;
-        let $var$9$#19 = $var$8$#18 + ::$var$3$#13;
-        return $var$9$#19;
+        let $var$8 = ::a$#4 + ::a$#4;
+        let $var$9 = ::$var$8 + ::$var$3;
+        {
+        }
+        return ::$var$9;
     }
 }

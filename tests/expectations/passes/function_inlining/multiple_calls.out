@@ -1,22 +1,10 @@
 program test.aleo {
-    inline square(x$$5: u32) -> u32 {
-        let $var$6 = x$$5 * x$$5;
-        {
-        }
-        return $var$6;
+    inline square(x: u32) -> u32 {
+        return x * x;
     }
-    transition main(a$$0: u32, b$$1: u32) -> u32 {
-        let $var$6 = a$$0 * a$$0;
-        {
-        }
-        let first$#2 = $var$6;
-        let $var$6 = b$$1 * b$$1;
-        {
-        }
-        let second$#3 = $var$6;
-        let $var$4 = first$#2 + second$#3;
-        {
-        }
-        return $var$4;
+    transition main(a: u32, b: u32) -> u32 {
+        let first: u32 = a * a;
+        let second: u32 = b * b;
+        return first + second;
     }
 }

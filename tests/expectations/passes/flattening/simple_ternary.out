@@ -1,8 +1,0 @@
-program test.aleo {
-    transition main(a$$0: u32, b$$1: u32, condition$$2: bool) -> u32 {
-        let $var$3 = condition$$2 ? a$$0 : b$$1;
-        {
-        }
-        return $var$3;
-    }
-}

@@ -1,6 +1,0 @@
-Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> test:3:16
-     |
-   3 |         return loop_forever(x);
-     |                ^^^^^^^^^^^^^^^
-Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/loop_forever` --> `test.aleo/loop_forever`
