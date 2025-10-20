@@ -53,29 +53,38 @@ program vector_structs.aleo {
     //
     async transition test_vector_primitives_behavior(index: u32, new_value: u32) -> Future {
         return async {
+            // Ensure empty at start
+            ids.clear();
             assert(ids.len() == 0u32);
 
+            // Push initial elements
             ids.push(10u32);
             ids.push(20u32);
             ids.push(30u32);
             assert(ids.len() == 3u32);
 
-            // Dynamic index from input
-            let val = ids.get(index).unwrap();
+            // Dynamic index from input 
+            let val_opt = ids.get(index);
+            assert(val_opt.unwrap() == 20u32);
+
+            let val = val_opt.unwrap();
             assert(val == 20u32);
 
             // Use input to set a new value dynamically
             ids.set(index, new_value);
             assert(ids.get(index).unwrap() == new_value);
 
-            let removed = ids.swap_remove(2u32).unwrap();
+            // Swap remove last element
+            let removed = ids.swap_remove(2u32);
             assert(removed == 30u32);
             assert(ids.len() == 2u32);
 
+            // Pop last element
             let popped = ids.pop().unwrap();
             assert(popped == new_value);
             assert(ids.len() == 1u32);
 
+            // Clear vector
             ids.clear();
             assert(ids.len() == 0u32);
         };
