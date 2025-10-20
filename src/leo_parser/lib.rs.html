@@ -155,61 +155,62 @@
 <a href=#155 id=155 data-nosnippet>155</a>        sym::Let |
 <a href=#156 id=156 data-nosnippet>156</a>        sym::leo |
 <a href=#157 id=157 data-nosnippet>157</a>        sym::mapping |
-<a href=#158 id=158 data-nosnippet>158</a>        sym::network |
-<a href=#159 id=159 data-nosnippet>159</a>        sym::private |
-<a href=#160 id=160 data-nosnippet>160</a>        sym::program |
-<a href=#161 id=161 data-nosnippet>161</a>        sym::public |
-<a href=#162 id=162 data-nosnippet>162</a>        sym::record |
-<a href=#163 id=163 data-nosnippet>163</a>        sym::Return |
-<a href=#164 id=164 data-nosnippet>164</a>        sym::scalar |
-<a href=#165 id=165 data-nosnippet>165</a>        sym::script |
-<a href=#166 id=166 data-nosnippet>166</a>        sym::SelfLower |
-<a href=#167 id=167 data-nosnippet>167</a>        sym::signature |
-<a href=#168 id=168 data-nosnippet>168</a>        sym::string |
-<a href=#169 id=169 data-nosnippet>169</a>        sym::Struct |
-<a href=#170 id=170 data-nosnippet>170</a>        sym::transition |
-<a href=#171 id=171 data-nosnippet>171</a>        sym::True |
-<a href=#172 id=172 data-nosnippet>172</a>        sym::u8 |
-<a href=#173 id=173 data-nosnippet>173</a>        sym::u16 |
-<a href=#174 id=174 data-nosnippet>174</a>        sym::u32 |
-<a href=#175 id=175 data-nosnippet>175</a>        sym::u64 |
-<a href=#176 id=176 data-nosnippet>176</a>        sym::u128
-<a href=#177 id=177 data-nosnippet>177</a>    )
-<a href=#178 id=178 data-nosnippet>178</a>}
-<a href=#179 id=179 data-nosnippet>179</a>
-<a href=#180 id=180 data-nosnippet>180</a><span class="doccomment">/// Computes a module key from a `FileName`, optionally relative to a root directory.
-<a href=#181 id=181 data-nosnippet>181</a>///
-<a href=#182 id=182 data-nosnippet>182</a>/// This function converts a file path like `src/foo/bar.leo` into a `Vec&lt;Symbol&gt;` key
-<a href=#183 id=183 data-nosnippet>183</a>/// like `["foo", "bar"]`, suitable for inserting into the program's module map.
-<a href=#184 id=184 data-nosnippet>184</a>///
-<a href=#185 id=185 data-nosnippet>185</a>/// # Arguments
-<a href=#186 id=186 data-nosnippet>186</a>/// * `name` - The filename of the module, either real (from disk) or synthetic (custom).
-<a href=#187 id=187 data-nosnippet>187</a>/// * `root_dir` - The root directory to strip from the path, if any.
-<a href=#188 id=188 data-nosnippet>188</a>///
-<a href=#189 id=189 data-nosnippet>189</a>/// # Returns
-<a href=#190 id=190 data-nosnippet>190</a>/// * `Some(Vec&lt;Symbol&gt;)` - The computed module key.
-<a href=#191 id=191 data-nosnippet>191</a>/// * `None` - If the path can't be stripped or processed.
-<a href=#192 id=192 data-nosnippet>192</a></span><span class="kw">fn </span>compute_module_key(name: <span class="kw-2">&amp;</span>FileName, root_dir: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>std::path::Path&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;Symbol&gt;&gt; {
-<a href=#193 id=193 data-nosnippet>193</a>    <span class="comment">// Normalize the path depending on whether it's a custom or real file
-<a href=#194 id=194 data-nosnippet>194</a>    </span><span class="kw">let </span>path = <span class="kw">match </span>name {
-<a href=#195 id=195 data-nosnippet>195</a>        FileName::Custom(name) =&gt; std::path::Path::new(name).to_path_buf(),
-<a href=#196 id=196 data-nosnippet>196</a>        FileName::Real(path) =&gt; {
-<a href=#197 id=197 data-nosnippet>197</a>            <span class="kw">let </span>root = root_dir<span class="question-mark">?</span>;
-<a href=#198 id=198 data-nosnippet>198</a>            path.strip_prefix(root).ok()<span class="question-mark">?</span>.to_path_buf()
-<a href=#199 id=199 data-nosnippet>199</a>        }
-<a href=#200 id=200 data-nosnippet>200</a>    };
-<a href=#201 id=201 data-nosnippet>201</a>
-<a href=#202 id=202 data-nosnippet>202</a>    <span class="comment">// Convert path components (e.g., "foo/bar") into symbols: ["foo", "bar"]
-<a href=#203 id=203 data-nosnippet>203</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>key: Vec&lt;Symbol&gt; =
-<a href=#204 id=204 data-nosnippet>204</a>        path.components().map(|comp| Symbol::intern(<span class="kw-2">&amp;</span>comp.as_os_str().to_string_lossy())).collect();
-<a href=#205 id=205 data-nosnippet>205</a>
-<a href=#206 id=206 data-nosnippet>206</a>    <span class="comment">// Strip the file extension from the last component (e.g., "bar.leo" → "bar")
-<a href=#207 id=207 data-nosnippet>207</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last) = path.file_name() {
-<a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(stem) = std::path::Path::new(last).file_stem() {
-<a href=#209 id=209 data-nosnippet>209</a>            key.pop(); <span class="comment">// Remove "bar.leo"
-<a href=#210 id=210 data-nosnippet>210</a>            </span>key.push(Symbol::intern(<span class="kw-2">&amp;</span>stem.to_string_lossy())); <span class="comment">// Add "bar"
-<a href=#211 id=211 data-nosnippet>211</a>        </span>}
-<a href=#212 id=212 data-nosnippet>212</a>    }
-<a href=#213 id=213 data-nosnippet>213</a>
-<a href=#214 id=214 data-nosnippet>214</a>    <span class="prelude-val">Some</span>(key)
-<a href=#215 id=215 data-nosnippet>215</a>}</code></pre></div></section></main></body></html>
+<a href=#158 id=158 data-nosnippet>158</a>        sym::storage |
+<a href=#159 id=159 data-nosnippet>159</a>        sym::network |
+<a href=#160 id=160 data-nosnippet>160</a>        sym::private |
+<a href=#161 id=161 data-nosnippet>161</a>        sym::program |
+<a href=#162 id=162 data-nosnippet>162</a>        sym::public |
+<a href=#163 id=163 data-nosnippet>163</a>        sym::record |
+<a href=#164 id=164 data-nosnippet>164</a>        sym::Return |
+<a href=#165 id=165 data-nosnippet>165</a>        sym::scalar |
+<a href=#166 id=166 data-nosnippet>166</a>        sym::script |
+<a href=#167 id=167 data-nosnippet>167</a>        sym::SelfLower |
+<a href=#168 id=168 data-nosnippet>168</a>        sym::signature |
+<a href=#169 id=169 data-nosnippet>169</a>        sym::string |
+<a href=#170 id=170 data-nosnippet>170</a>        sym::Struct |
+<a href=#171 id=171 data-nosnippet>171</a>        sym::transition |
+<a href=#172 id=172 data-nosnippet>172</a>        sym::True |
+<a href=#173 id=173 data-nosnippet>173</a>        sym::u8 |
+<a href=#174 id=174 data-nosnippet>174</a>        sym::u16 |
+<a href=#175 id=175 data-nosnippet>175</a>        sym::u32 |
+<a href=#176 id=176 data-nosnippet>176</a>        sym::u64 |
+<a href=#177 id=177 data-nosnippet>177</a>        sym::u128
+<a href=#178 id=178 data-nosnippet>178</a>    )
+<a href=#179 id=179 data-nosnippet>179</a>}
+<a href=#180 id=180 data-nosnippet>180</a>
+<a href=#181 id=181 data-nosnippet>181</a><span class="doccomment">/// Computes a module key from a `FileName`, optionally relative to a root directory.
+<a href=#182 id=182 data-nosnippet>182</a>///
+<a href=#183 id=183 data-nosnippet>183</a>/// This function converts a file path like `src/foo/bar.leo` into a `Vec&lt;Symbol&gt;` key
+<a href=#184 id=184 data-nosnippet>184</a>/// like `["foo", "bar"]`, suitable for inserting into the program's module map.
+<a href=#185 id=185 data-nosnippet>185</a>///
+<a href=#186 id=186 data-nosnippet>186</a>/// # Arguments
+<a href=#187 id=187 data-nosnippet>187</a>/// * `name` - The filename of the module, either real (from disk) or synthetic (custom).
+<a href=#188 id=188 data-nosnippet>188</a>/// * `root_dir` - The root directory to strip from the path, if any.
+<a href=#189 id=189 data-nosnippet>189</a>///
+<a href=#190 id=190 data-nosnippet>190</a>/// # Returns
+<a href=#191 id=191 data-nosnippet>191</a>/// * `Some(Vec&lt;Symbol&gt;)` - The computed module key.
+<a href=#192 id=192 data-nosnippet>192</a>/// * `None` - If the path can't be stripped or processed.
+<a href=#193 id=193 data-nosnippet>193</a></span><span class="kw">fn </span>compute_module_key(name: <span class="kw-2">&amp;</span>FileName, root_dir: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>std::path::Path&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;Symbol&gt;&gt; {
+<a href=#194 id=194 data-nosnippet>194</a>    <span class="comment">// Normalize the path depending on whether it's a custom or real file
+<a href=#195 id=195 data-nosnippet>195</a>    </span><span class="kw">let </span>path = <span class="kw">match </span>name {
+<a href=#196 id=196 data-nosnippet>196</a>        FileName::Custom(name) =&gt; std::path::Path::new(name).to_path_buf(),
+<a href=#197 id=197 data-nosnippet>197</a>        FileName::Real(path) =&gt; {
+<a href=#198 id=198 data-nosnippet>198</a>            <span class="kw">let </span>root = root_dir<span class="question-mark">?</span>;
+<a href=#199 id=199 data-nosnippet>199</a>            path.strip_prefix(root).ok()<span class="question-mark">?</span>.to_path_buf()
+<a href=#200 id=200 data-nosnippet>200</a>        }
+<a href=#201 id=201 data-nosnippet>201</a>    };
+<a href=#202 id=202 data-nosnippet>202</a>
+<a href=#203 id=203 data-nosnippet>203</a>    <span class="comment">// Convert path components (e.g., "foo/bar") into symbols: ["foo", "bar"]
+<a href=#204 id=204 data-nosnippet>204</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>key: Vec&lt;Symbol&gt; =
+<a href=#205 id=205 data-nosnippet>205</a>        path.components().map(|comp| Symbol::intern(<span class="kw-2">&amp;</span>comp.as_os_str().to_string_lossy())).collect();
+<a href=#206 id=206 data-nosnippet>206</a>
+<a href=#207 id=207 data-nosnippet>207</a>    <span class="comment">// Strip the file extension from the last component (e.g., "bar.leo" → "bar")
+<a href=#208 id=208 data-nosnippet>208</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last) = path.file_name() {
+<a href=#209 id=209 data-nosnippet>209</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(stem) = std::path::Path::new(last).file_stem() {
+<a href=#210 id=210 data-nosnippet>210</a>            key.pop(); <span class="comment">// Remove "bar.leo"
+<a href=#211 id=211 data-nosnippet>211</a>            </span>key.push(Symbol::intern(<span class="kw-2">&amp;</span>stem.to_string_lossy())); <span class="comment">// Add "bar"
+<a href=#212 id=212 data-nosnippet>212</a>        </span>}
+<a href=#213 id=213 data-nosnippet>213</a>    }
+<a href=#214 id=214 data-nosnippet>214</a>
+<a href=#215 id=215 data-nosnippet>215</a>    <span class="prelude-val">Some</span>(key)
+<a href=#216 id=216 data-nosnippet>216</a>}</code></pre></div></section></main></body></html>

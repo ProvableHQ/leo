@@ -1319,4 +1319,20 @@
 <a href=#1319 id=1319 data-nosnippet>1319</a>            <span class="string">"Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call."</span>.to_string()
 <a href=#1320 id=1320 data-nosnippet>1320</a>        ),
 <a href=#1321 id=1321 data-nosnippet>1321</a>    }
-<a href=#1322 id=1322 data-nosnippet>1322</a>);</code></pre></div></section></main></body></html>
+<a href=#1322 id=1322 data-nosnippet>1322</a>
+<a href=#1323 id=1323 data-nosnippet>1323</a>    @formatted
+<a href=#1324 id=1324 data-nosnippet>1324</a>    invalid_storage_type {
+<a href=#1325 id=1325 data-nosnippet>1325</a>        args: (type_: <span class="kw">impl </span>Display),
+<a href=#1326 id=1326 data-nosnippet>1326</a>        msg: <span class="macro">format!</span>(<span class="string">"{type_} is an invalid storage type"</span>),
+<a href=#1327 id=1327 data-nosnippet>1327</a>        help: <span class="prelude-val">None</span>,
+<a href=#1328 id=1328 data-nosnippet>1328</a>    }
+<a href=#1329 id=1329 data-nosnippet>1329</a>
+<a href=#1330 id=1330 data-nosnippet>1330</a>    @formatted
+<a href=#1331 id=1331 data-nosnippet>1331</a>    storage_vectors_cannot_be_moved_or_assigned {
+<a href=#1332 id=1332 data-nosnippet>1332</a>        args: (),
+<a href=#1333 id=1333 data-nosnippet>1333</a>        msg: <span class="macro">format!</span>(
+<a href=#1334 id=1334 data-nosnippet>1334</a>            <span class="string">"Storage vectors cannot be moved or assigned. You can only access or modify them using methods like `get`, `push`, or `pop`."
+<a href=#1335 id=1335 data-nosnippet>1335</a>        </span>),
+<a href=#1336 id=1336 data-nosnippet>1336</a>        help: <span class="prelude-val">None</span>,
+<a href=#1337 id=1337 data-nosnippet>1337</a>    }
+<a href=#1338 id=1338 data-nosnippet>1338</a>);</code></pre></div></section></main></body></html>

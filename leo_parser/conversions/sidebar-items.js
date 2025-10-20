@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["path_to_parts","to_annotation","to_block","to_composite","to_const_parameters","to_constructor","to_expression","to_function","to_global_const","to_identifier","to_main","to_mapping","to_mode","to_module","to_statement","to_type"]};
+window.SIDEBAR_ITEMS = {"fn":["path_to_parts","to_annotation","to_block","to_composite","to_const_parameters","to_constructor","to_expression","to_function","to_global_const","to_identifier","to_main","to_mapping","to_mode","to_module","to_statement","to_storage_variable","to_type"]};

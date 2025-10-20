@@ -751,14 +751,16 @@
 <a href=#751 id=751 data-nosnippet>751</a>
 <a href=#752 id=752 data-nosnippet>752</a>            Type::Optional(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"All optional types should have been lowered by now."</span>),
 <a href=#753 id=753 data-nosnippet>753</a>
-<a href=#754 id=754 data-nosnippet>754</a>            Type::Mapping(..)
-<a href=#755 id=755 data-nosnippet>755</a>            | Type::Future(..)
-<a href=#756 id=756 data-nosnippet>756</a>            | Type::Tuple(..)
-<a href=#757 id=757 data-nosnippet>757</a>            | Type::Identifier(..)
-<a href=#758 id=758 data-nosnippet>758</a>            | Type::String
-<a href=#759 id=759 data-nosnippet>759</a>            | Type::Unit
-<a href=#760 id=760 data-nosnippet>760</a>            | Type::Numeric
-<a href=#761 id=761 data-nosnippet>761</a>            | Type::Err =&gt; <span class="macro">panic!</span>(<span class="string">"Objects of type {typ} cannot be cloned."</span>),
-<a href=#762 id=762 data-nosnippet>762</a>        }
-<a href=#763 id=763 data-nosnippet>763</a>    }
-<a href=#764 id=764 data-nosnippet>764</a>}</code></pre></div></section></main></body></html>
+<a href=#754 id=754 data-nosnippet>754</a>            Type::Vector(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"All vector types should have been lowered by now."</span>),
+<a href=#755 id=755 data-nosnippet>755</a>
+<a href=#756 id=756 data-nosnippet>756</a>            Type::Mapping(..)
+<a href=#757 id=757 data-nosnippet>757</a>            | Type::Future(..)
+<a href=#758 id=758 data-nosnippet>758</a>            | Type::Tuple(..)
+<a href=#759 id=759 data-nosnippet>759</a>            | Type::Identifier(..)
+<a href=#760 id=760 data-nosnippet>760</a>            | Type::String
+<a href=#761 id=761 data-nosnippet>761</a>            | Type::Unit
+<a href=#762 id=762 data-nosnippet>762</a>            | Type::Numeric
+<a href=#763 id=763 data-nosnippet>763</a>            | Type::Err =&gt; <span class="macro">panic!</span>(<span class="string">"Objects of type {typ} cannot be cloned."</span>),
+<a href=#764 id=764 data-nosnippet>764</a>        }
+<a href=#765 id=765 data-nosnippet>765</a>    }
+<a href=#766 id=766 data-nosnippet>766</a>}</code></pre></div></section></main></body></html>

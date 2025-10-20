@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Performs lowering of `storage` variables and storage vectors into explicit `Mapping` operations."><title>leo_passes::storage_lowering - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0 (1159e78c4 2025-09-14)" data-channel="1.90.0" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../static.files/storage-68b7e25d.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../leo_passes/index.html">leo_<wbr>passes</a><span class="version">3.2.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module storage_<wbr>lowering</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#overview" title="Overview">Overview</a></li><li><a href="#example-storage-vector" title="Example: Storage Vector">Example: Storage Vector</a></li><li><a href="#example-singleton-storage" title="Example: Singleton Storage">Example: Singleton Storage</a></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate leo_<wbr>passes</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">leo_passes</a></div><h1>Module <span>storage_lowering</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/leo_passes/storage_lowering/mod.rs.html#17-137">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Performs lowering of <code>storage</code> variables and storage vectors into explicit <code>Mapping</code> operations.</p>
+<p>This pass rewrites high-level storage constructs—such as <code>storage</code> declarations and <code>Vector</code> methods concrete
+calls to the underlying <code>Mapping</code> API used in Aleo programs. Each <code>storage</code> variable is de-sugared into one or more
+<code>Mapping</code> instances, and all read/write operations are rewritten as <code>Mapping::get</code>, <code>Mapping::set</code>, or
+<code>Mapping::get_or_use</code> calls.</p>
+<h4 id="overview"><a class="doc-anchor" href="#overview">§</a>Overview</h4>
+<ul>
+<li>
+<p><strong>Storage Variables:</strong> Each top-level <code>storage</code> variable (e.g., <code>storage counter: u32;</code>) is represented by a
+<code>Mapping</code> that persists across transitions. The pass introduces ternary expressions that check whether the
+underlying mapping contains a value before reading it.</p>
+</li>
+<li>
+<p><strong>Storage Vectors:</strong> A <code>storage</code> vector (e.g., <code>storage vec: [u32];</code>) is lowered into two mappings:</p>
+<ul>
+<li><code>&lt;vec_name&gt;__</code> stores the vector elements keyed by a <code>u32</code> index.</li>
+<li><code>&lt;vec_name&gt;__len__</code> stores the current vector length under key <code>false</code>.</li>
+</ul>
+<p>Vector operations such as <code>.push()</code>, <code>.pop()</code>, <code>.len()</code>, <code>.get()</code>, <code>.set()</code>, <code>.swap_remove()</code>, and <code>.clear()</code>
+are translated into combinations of <code>Mapping</code> calls and helper expressions that manipulate the length mapping and
+element mappings directly.</p>
+</li>
+</ul>
+<h4 id="example-storage-vector"><a class="doc-anchor" href="#example-storage-vector">§</a>Example: Storage Vector</h4><div class="example-wrap"><pre class="language-leo"><code>storage vec: [u32];
+
+async transition test_vector_ops() -&gt; Future {
+    return async {
+        vec.push(10u32);
+        let x = vec.get(0u32).unwrap();
+        let y = vec.pop();
+    };
+}</code></pre></div>
+<p>is lowered to:</p>
+<div class="example-wrap"><pre class="language-leo"><code>mapping vec__: u32 =&gt; u32;       // vector values
+mapping vec__len__: bool =&gt; u32; // length
+
+// vec.push(10u32);
+let $len_var = Mapping::get_or_use(vec__len__, false, 0u32);
+Mapping::set(vec__, $len_var, 10u32);
+Mapping::set(vec__len__, false, $len_var + 1u32);
+
+// let x = vec.get(3u32);
+let $len_var = Mapping::get_or_use(vec__len__, false, 0u32);
+let x = 3u32 &lt; $len_var ? Mapping::get_or_use(vec__, 3u32, 0u32) : None;
+
+// let y = vec.pop();
+let $len_var = Mapping::get_or_use(vec__len__, false, 0u32);
+if ($len_var &gt; 0u32) { Mapping::set(vec__len__, false, $len_var - 1u32); }
+let y = $len_var &gt; 0u32 ? Mapping::get_or_use(vec__, $len_var - 1u32, 0u32) : None;</code></pre></div><h4 id="example-singleton-storage"><a class="doc-anchor" href="#example-singleton-storage">§</a>Example: Singleton Storage</h4><div class="example-wrap"><pre class="language-leo"><code>storage counter: u32;
+
+async transition increment() -&gt; Future {
+    return async {
+        let old = counter.unwrap_or(0u32);
+        counter = old + 1u32;
+    };
+}</code></pre></div>
+<p>is lowered to:</p>
+<div class="example-wrap"><pre class="language-leo"><code>mapping counter__: bool =&gt; u32;
+
+// let old = counter.unwrap_or(0u32)
+let old = counter__.contains(false) ? counter__.get_or_use(false, 0u32) : 0u32
+
+// counter = old + 1u32
+Mapping::set(counter__, false, old + 1u32)</code></pre></div></div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="ast/index.html" title="mod leo_passes::storage_lowering::ast">ast</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="program/index.html" title="mod leo_passes::storage_lowering::program">program</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="visitor/index.html" title="mod leo_passes::storage_lowering::visitor">visitor</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.StorageLowering.html" title="struct leo_passes::storage_lowering::StorageLowering">Storage<wbr>Lowering</a></dt></dl></section></div></main></body></html>

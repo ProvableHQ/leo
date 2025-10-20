@@ -337,33 +337,43 @@
 <a href=#337 id=337 data-nosnippet>337</a>    }
 <a href=#338 id=338 data-nosnippet>338</a>
 <a href=#339 id=339 data-nosnippet>339</a>    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mapping: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Mapping) -&gt; String {
-<a href=#340 id=340 data-nosnippet>340</a>        <span class="comment">// Create the prefix of the mapping string, e.g. `mapping foo:`.
-<a href=#341 id=341 data-nosnippet>341</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_string = <span class="macro">format!</span>(<span class="string">"\nmapping {}:\n"</span>, mapping.identifier);
-<a href=#342 id=342 data-nosnippet>342</a>
-<a href=#343 id=343 data-nosnippet>343</a>        <span class="comment">// Helper to construct the string associated with the type.
-<a href=#344 id=344 data-nosnippet>344</a>        </span><span class="kw">let </span>create_type = |type_: <span class="kw-2">&amp;</span>Type| {
-<a href=#345 id=345 data-nosnippet>345</a>            <span class="kw">match </span>type_ {
-<a href=#346 id=346 data-nosnippet>346</a>                Type::Mapping(<span class="kw">_</span>) | Type::Tuple(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Mappings cannot contain mappings or tuples."</span>),
-<a href=#347 id=347 data-nosnippet>347</a>                Type::Identifier(identifier) =&gt; {
-<a href=#348 id=348 data-nosnippet>348</a>                    <span class="comment">// Lookup the type in the composite mapping.
-<a href=#349 id=349 data-nosnippet>349</a>                    // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
-<a href=#350 id=350 data-nosnippet>350</a>                    </span><span class="kw">let </span>(is_record, <span class="kw">_</span>) = <span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[identifier.name]).unwrap();
-<a href=#351 id=351 data-nosnippet>351</a>                    <span class="macro">assert!</span>(!is_record, <span class="string">"Type checking guarantees that mappings cannot contain records."</span>);
-<a href=#352 id=352 data-nosnippet>352</a>                    <span class="self">self</span>.visit_type_with_visibility(type_, Mode::Public)
-<a href=#353 id=353 data-nosnippet>353</a>                }
-<a href=#354 id=354 data-nosnippet>354</a>                type_ =&gt; <span class="self">self</span>.visit_type_with_visibility(type_, Mode::Public),
-<a href=#355 id=355 data-nosnippet>355</a>            }
-<a href=#356 id=356 data-nosnippet>356</a>        };
-<a href=#357 id=357 data-nosnippet>357</a>
-<a href=#358 id=358 data-nosnippet>358</a>        <span class="comment">// Create the key string, e.g. `    key as address.public`.
-<a href=#359 id=359 data-nosnippet>359</a>        </span><span class="macro">writeln!</span>(mapping_string, <span class="string">"    key as {};"</span>, create_type(<span class="kw-2">&amp;</span>mapping.key_type)).expect(EXPECT_STR);
-<a href=#360 id=360 data-nosnippet>360</a>
-<a href=#361 id=361 data-nosnippet>361</a>        <span class="comment">// Create the value string, e.g. `    value as address.public`.
-<a href=#362 id=362 data-nosnippet>362</a>        </span><span class="macro">writeln!</span>(mapping_string, <span class="string">"    value as {};"</span>, create_type(<span class="kw-2">&amp;</span>mapping.value_type)).expect(EXPECT_STR);
+<a href=#340 id=340 data-nosnippet>340</a>        <span class="kw">let </span>legalized_mapping_name = <span class="self">Self</span>::legalize_path(<span class="kw-2">&amp;</span>[mapping.identifier.name]);
+<a href=#341 id=341 data-nosnippet>341</a>        <span class="comment">// Create the prefix of the mapping string, e.g. `mapping foo:`.
+<a href=#342 id=342 data-nosnippet>342</a>        </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_string = <span class="macro">format!</span>(
+<a href=#343 id=343 data-nosnippet>343</a>            <span class="string">"\nmapping {}:\n"</span>,
+<a href=#344 id=344 data-nosnippet>344</a>            legalized_mapping_name
+<a href=#345 id=345 data-nosnippet>345</a>                .clone()
+<a href=#346 id=346 data-nosnippet>346</a>                .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"path format cannot be legalized at this point: {}"</span>, mapping.identifier))
+<a href=#347 id=347 data-nosnippet>347</a>        );
+<a href=#348 id=348 data-nosnippet>348</a>
+<a href=#349 id=349 data-nosnippet>349</a>        <span class="comment">// Helper to construct the string associated with the type.
+<a href=#350 id=350 data-nosnippet>350</a>        </span><span class="kw">let </span>create_type = |type_: <span class="kw-2">&amp;</span>Type| {
+<a href=#351 id=351 data-nosnippet>351</a>            <span class="kw">match </span>type_ {
+<a href=#352 id=352 data-nosnippet>352</a>                Type::Mapping(<span class="kw">_</span>) | Type::Tuple(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Mappings cannot contain mappings or tuples."</span>),
+<a href=#353 id=353 data-nosnippet>353</a>                Type::Identifier(identifier) =&gt; {
+<a href=#354 id=354 data-nosnippet>354</a>                    <span class="comment">// Lookup the type in the composite mapping.
+<a href=#355 id=355 data-nosnippet>355</a>                    // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
+<a href=#356 id=356 data-nosnippet>356</a>                    </span><span class="kw">let </span>(is_record, <span class="kw">_</span>) = <span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[identifier.name]).unwrap();
+<a href=#357 id=357 data-nosnippet>357</a>                    <span class="macro">assert!</span>(!is_record, <span class="string">"Type checking guarantees that mappings cannot contain records."</span>);
+<a href=#358 id=358 data-nosnippet>358</a>                    <span class="self">self</span>.visit_type_with_visibility(type_, Mode::Public)
+<a href=#359 id=359 data-nosnippet>359</a>                }
+<a href=#360 id=360 data-nosnippet>360</a>                type_ =&gt; <span class="self">self</span>.visit_type_with_visibility(type_, Mode::Public),
+<a href=#361 id=361 data-nosnippet>361</a>            }
+<a href=#362 id=362 data-nosnippet>362</a>        };
 <a href=#363 id=363 data-nosnippet>363</a>
-<a href=#364 id=364 data-nosnippet>364</a>        <span class="comment">// Add the mapping to the variable mapping.
-<a href=#365 id=365 data-nosnippet>365</a>        </span><span class="self">self</span>.global_mapping.insert(mapping.identifier.name, mapping.identifier.to_string());
+<a href=#364 id=364 data-nosnippet>364</a>        <span class="comment">// Create the key string, e.g. `    key as address.public`.
+<a href=#365 id=365 data-nosnippet>365</a>        </span><span class="macro">writeln!</span>(mapping_string, <span class="string">"    key as {};"</span>, create_type(<span class="kw-2">&amp;</span>mapping.key_type)).expect(EXPECT_STR);
 <a href=#366 id=366 data-nosnippet>366</a>
-<a href=#367 id=367 data-nosnippet>367</a>        mapping_string
-<a href=#368 id=368 data-nosnippet>368</a>    }
-<a href=#369 id=369 data-nosnippet>369</a>}</code></pre></div></section></main></body></html>
+<a href=#367 id=367 data-nosnippet>367</a>        <span class="comment">// Create the value string, e.g. `    value as address.public`.
+<a href=#368 id=368 data-nosnippet>368</a>        </span><span class="macro">writeln!</span>(mapping_string, <span class="string">"    value as {};"</span>, create_type(<span class="kw-2">&amp;</span>mapping.value_type)).expect(EXPECT_STR);
+<a href=#369 id=369 data-nosnippet>369</a>
+<a href=#370 id=370 data-nosnippet>370</a>        <span class="comment">// Add the mapping to the variable mapping.
+<a href=#371 id=371 data-nosnippet>371</a>        </span><span class="self">self</span>.global_mapping.insert(
+<a href=#372 id=372 data-nosnippet>372</a>            mapping.identifier.name,
+<a href=#373 id=373 data-nosnippet>373</a>            legalized_mapping_name
+<a href=#374 id=374 data-nosnippet>374</a>                .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">"path format cannot be legalized at this point: {}"</span>, mapping.identifier)),
+<a href=#375 id=375 data-nosnippet>375</a>        );
+<a href=#376 id=376 data-nosnippet>376</a>
+<a href=#377 id=377 data-nosnippet>377</a>        mapping_string
+<a href=#378 id=378 data-nosnippet>378</a>    }
+<a href=#379 id=379 data-nosnippet>379</a>}</code></pre></div></section></main></body></html>

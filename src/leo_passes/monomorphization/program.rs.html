@@ -86,135 +86,141 @@
 <a href=#86 id=86 data-nosnippet>86</a>
 <a href=#87 id=87 data-nosnippet>87</a>        <span class="comment">// Get any
 <a href=#88 id=88 data-nosnippet>88</a>
-<a href=#89 id=89 data-nosnippet>89</a>        // Now reconstruct mappings
+<a href=#89 id=89 data-nosnippet>89</a>        // Now reconstruct mappings and storage variables
 <a href=#90 id=90 data-nosnippet>90</a>        </span><span class="kw">let </span>mappings =
 <a href=#91 id=91 data-nosnippet>91</a>            input.mappings.into_iter().map(|(id, mapping)| (id, <span class="self">self</span>.reconstruct_mapping(mapping))).collect();
-<a href=#92 id=92 data-nosnippet>92</a>
-<a href=#93 id=93 data-nosnippet>93</a>        <span class="comment">// Then consts
-<a href=#94 id=94 data-nosnippet>94</a>        </span><span class="kw">let </span>consts = input
-<a href=#95 id=95 data-nosnippet>95</a>            .consts
-<a href=#96 id=96 data-nosnippet>96</a>            .into_iter()
-<a href=#97 id=97 data-nosnippet>97</a>            .map(|(i, c)| <span class="kw">match </span><span class="self">self</span>.reconstruct_const(c) {
-<a href=#98 id=98 data-nosnippet>98</a>                (Statement::Const(declaration), <span class="kw">_</span>) =&gt; (i, declaration),
-<a href=#99 id=99 data-nosnippet>99</a>                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` can only return `Statement::Const`"</span>),
-<a href=#100 id=100 data-nosnippet>100</a>            })
-<a href=#101 id=101 data-nosnippet>101</a>            .collect();
-<a href=#102 id=102 data-nosnippet>102</a>
-<a href=#103 id=103 data-nosnippet>103</a>        <span class="comment">// Reconstruct the constructor last, as it cannot be called by any other function.
-<a href=#104 id=104 data-nosnippet>104</a>        </span><span class="kw">let </span>constructor = input.constructor.map(|c| <span class="self">self</span>.reconstruct_constructor(c));
-<a href=#105 id=105 data-nosnippet>105</a>
-<a href=#106 id=106 data-nosnippet>106</a>        <span class="comment">// Now retain only functions that are either not yet monomorphized or are still referenced by calls.
-<a href=#107 id=107 data-nosnippet>107</a>        </span><span class="self">self</span>.reconstructed_functions.retain(|f, <span class="kw">_</span>| {
-<a href=#108 id=108 data-nosnippet>108</a>            <span class="kw">let </span>is_monomorphized = <span class="self">self</span>.monomorphized_functions.contains(f);
-<a href=#109 id=109 data-nosnippet>109</a>            <span class="kw">let </span>is_still_called = <span class="self">self</span>.unresolved_calls.iter().any(|c| <span class="kw-2">&amp;</span>c.function.absolute_path() == f);
-<a href=#110 id=110 data-nosnippet>110</a>            !is_monomorphized || is_still_called
-<a href=#111 id=111 data-nosnippet>111</a>        });
-<a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a>        <span class="comment">// Move reconstructed functions into the final `ProgramScope`.
-<a href=#114 id=114 data-nosnippet>114</a>        // Make sure to place transitions before all the other functions.
-<a href=#115 id=115 data-nosnippet>115</a>        </span><span class="kw">let </span>(transitions, <span class="kw-2">mut </span>non_transitions): (Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;) =
-<a href=#116 id=116 data-nosnippet>116</a>            <span class="self">self</span>.reconstructed_functions.clone().into_iter().partition(|(<span class="kw">_</span>, f)| f.variant.is_transition());
+<a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">let </span>storage_variables = input
+<a href=#93 id=93 data-nosnippet>93</a>            .storage_variables
+<a href=#94 id=94 data-nosnippet>94</a>            .into_iter()
+<a href=#95 id=95 data-nosnippet>95</a>            .map(|(id, storage_variable)| (id, <span class="self">self</span>.reconstruct_storage_variable(storage_variable)))
+<a href=#96 id=96 data-nosnippet>96</a>            .collect();
+<a href=#97 id=97 data-nosnippet>97</a>
+<a href=#98 id=98 data-nosnippet>98</a>        <span class="comment">// Then consts
+<a href=#99 id=99 data-nosnippet>99</a>        </span><span class="kw">let </span>consts = input
+<a href=#100 id=100 data-nosnippet>100</a>            .consts
+<a href=#101 id=101 data-nosnippet>101</a>            .into_iter()
+<a href=#102 id=102 data-nosnippet>102</a>            .map(|(i, c)| <span class="kw">match </span><span class="self">self</span>.reconstruct_const(c) {
+<a href=#103 id=103 data-nosnippet>103</a>                (Statement::Const(declaration), <span class="kw">_</span>) =&gt; (i, declaration),
+<a href=#104 id=104 data-nosnippet>104</a>                <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` can only return `Statement::Const`"</span>),
+<a href=#105 id=105 data-nosnippet>105</a>            })
+<a href=#106 id=106 data-nosnippet>106</a>            .collect();
+<a href=#107 id=107 data-nosnippet>107</a>
+<a href=#108 id=108 data-nosnippet>108</a>        <span class="comment">// Reconstruct the constructor last, as it cannot be called by any other function.
+<a href=#109 id=109 data-nosnippet>109</a>        </span><span class="kw">let </span>constructor = input.constructor.map(|c| <span class="self">self</span>.reconstruct_constructor(c));
+<a href=#110 id=110 data-nosnippet>110</a>
+<a href=#111 id=111 data-nosnippet>111</a>        <span class="comment">// Now retain only functions that are either not yet monomorphized or are still referenced by calls.
+<a href=#112 id=112 data-nosnippet>112</a>        </span><span class="self">self</span>.reconstructed_functions.retain(|f, <span class="kw">_</span>| {
+<a href=#113 id=113 data-nosnippet>113</a>            <span class="kw">let </span>is_monomorphized = <span class="self">self</span>.monomorphized_functions.contains(f);
+<a href=#114 id=114 data-nosnippet>114</a>            <span class="kw">let </span>is_still_called = <span class="self">self</span>.unresolved_calls.iter().any(|c| <span class="kw-2">&amp;</span>c.function.absolute_path() == f);
+<a href=#115 id=115 data-nosnippet>115</a>            !is_monomorphized || is_still_called
+<a href=#116 id=116 data-nosnippet>116</a>        });
 <a href=#117 id=117 data-nosnippet>117</a>
-<a href=#118 id=118 data-nosnippet>118</a>        <span class="kw">let </span><span class="kw-2">mut </span>all_functions = transitions;
-<a href=#119 id=119 data-nosnippet>119</a>        all_functions.append(<span class="kw-2">&amp;mut </span>non_transitions);
-<a href=#120 id=120 data-nosnippet>120</a>
-<a href=#121 id=121 data-nosnippet>121</a>        <span class="comment">// Return the fully reconstructed scope with updated functions.
-<a href=#122 id=122 data-nosnippet>122</a>        </span>ProgramScope {
-<a href=#123 id=123 data-nosnippet>123</a>            program_id: input.program_id,
-<a href=#124 id=124 data-nosnippet>124</a>            structs: <span class="self">self
-<a href=#125 id=125 data-nosnippet>125</a>                </span>.reconstructed_structs
-<a href=#126 id=126 data-nosnippet>126</a>                .iter()
-<a href=#127 id=127 data-nosnippet>127</a>                .filter_map(|(path, c)| {
-<a href=#128 id=128 data-nosnippet>128</a>                    <span class="comment">// only consider structs defined at program scope. The rest will be added to their parent module.
-<a href=#129 id=129 data-nosnippet>129</a>                    </span>path.split_last().filter(|(<span class="kw">_</span>, rest)| rest.is_empty()).map(|(last, <span class="kw">_</span>)| (<span class="kw-2">*</span>last, c.clone()))
-<a href=#130 id=130 data-nosnippet>130</a>                })
-<a href=#131 id=131 data-nosnippet>131</a>                .collect(),
-<a href=#132 id=132 data-nosnippet>132</a>            mappings,
-<a href=#133 id=133 data-nosnippet>133</a>            functions: all_functions
-<a href=#134 id=134 data-nosnippet>134</a>                .iter()
-<a href=#135 id=135 data-nosnippet>135</a>                .filter_map(|(path, f)| {
-<a href=#136 id=136 data-nosnippet>136</a>                    <span class="comment">// only consider functions defined at program scope. The rest will be added to their parent module.
-<a href=#137 id=137 data-nosnippet>137</a>                    </span>path.split_last().filter(|(<span class="kw">_</span>, rest)| rest.is_empty()).map(|(last, <span class="kw">_</span>)| (<span class="kw-2">*</span>last, f.clone()))
-<a href=#138 id=138 data-nosnippet>138</a>                })
-<a href=#139 id=139 data-nosnippet>139</a>                .collect(),
-<a href=#140 id=140 data-nosnippet>140</a>            constructor,
-<a href=#141 id=141 data-nosnippet>141</a>            consts,
-<a href=#142 id=142 data-nosnippet>142</a>            span: input.span,
-<a href=#143 id=143 data-nosnippet>143</a>        }
-<a href=#144 id=144 data-nosnippet>144</a>    }
-<a href=#145 id=145 data-nosnippet>145</a>
-<a href=#146 id=146 data-nosnippet>146</a>    <span class="kw">fn </span>reconstruct_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Program) -&gt; Program {
-<a href=#147 id=147 data-nosnippet>147</a>        <span class="comment">// Populate `self.function_map` using the functions in the program scopes and the modules
-<a href=#148 id=148 data-nosnippet>148</a>        </span>input
-<a href=#149 id=149 data-nosnippet>149</a>            .modules
-<a href=#150 id=150 data-nosnippet>150</a>            .iter()
-<a href=#151 id=151 data-nosnippet>151</a>            .flat_map(|(module_path, m)| {
-<a href=#152 id=152 data-nosnippet>152</a>                m.functions.iter().map(<span class="kw">move </span>|(name, f)| {
-<a href=#153 id=153 data-nosnippet>153</a>                    (module_path.iter().cloned().chain(std::iter::once(<span class="kw-2">*</span>name)).collect(), f.clone())
-<a href=#154 id=154 data-nosnippet>154</a>                })
-<a href=#155 id=155 data-nosnippet>155</a>            })
-<a href=#156 id=156 data-nosnippet>156</a>            .chain(
-<a href=#157 id=157 data-nosnippet>157</a>                input
-<a href=#158 id=158 data-nosnippet>158</a>                    .program_scopes
-<a href=#159 id=159 data-nosnippet>159</a>                    .iter()
-<a href=#160 id=160 data-nosnippet>160</a>                    .flat_map(|(<span class="kw">_</span>, scope)| scope.functions.iter().map(|(name, f)| (<span class="macro">vec!</span>[<span class="kw-2">*</span>name], f.clone()))),
-<a href=#161 id=161 data-nosnippet>161</a>            )
-<a href=#162 id=162 data-nosnippet>162</a>            .for_each(|(full_name, f)| {
-<a href=#163 id=163 data-nosnippet>163</a>                <span class="self">self</span>.function_map.insert(full_name, f);
-<a href=#164 id=164 data-nosnippet>164</a>            });
-<a href=#165 id=165 data-nosnippet>165</a>
-<a href=#166 id=166 data-nosnippet>166</a>        <span class="comment">// Populate `self.struct_map` using the structs in the program scopes and the modules
-<a href=#167 id=167 data-nosnippet>167</a>        </span>input
-<a href=#168 id=168 data-nosnippet>168</a>            .modules
-<a href=#169 id=169 data-nosnippet>169</a>            .iter()
-<a href=#170 id=170 data-nosnippet>170</a>            .flat_map(|(module_path, m)| {
-<a href=#171 id=171 data-nosnippet>171</a>                m.structs.iter().map(<span class="kw">move </span>|(name, f)| {
-<a href=#172 id=172 data-nosnippet>172</a>                    (module_path.iter().cloned().chain(std::iter::once(<span class="kw-2">*</span>name)).collect(), f.clone())
-<a href=#173 id=173 data-nosnippet>173</a>                })
-<a href=#174 id=174 data-nosnippet>174</a>            })
-<a href=#175 id=175 data-nosnippet>175</a>            .chain(
-<a href=#176 id=176 data-nosnippet>176</a>                input
-<a href=#177 id=177 data-nosnippet>177</a>                    .program_scopes
-<a href=#178 id=178 data-nosnippet>178</a>                    .iter()
-<a href=#179 id=179 data-nosnippet>179</a>                    .flat_map(|(<span class="kw">_</span>, scope)| scope.structs.iter().map(|(name, f)| (<span class="macro">vec!</span>[<span class="kw-2">*</span>name], f.clone()))),
-<a href=#180 id=180 data-nosnippet>180</a>            )
-<a href=#181 id=181 data-nosnippet>181</a>            .for_each(|(full_name, f)| {
-<a href=#182 id=182 data-nosnippet>182</a>                <span class="self">self</span>.struct_map.insert(full_name, f);
-<a href=#183 id=183 data-nosnippet>183</a>            });
-<a href=#184 id=184 data-nosnippet>184</a>
-<a href=#185 id=185 data-nosnippet>185</a>        <span class="comment">// Reconstruct prrogram scopes first then reconstruct the modules after `self.reconstructed_structs`
-<a href=#186 id=186 data-nosnippet>186</a>        // and `self.reconstructed_functions` have been populated.
-<a href=#187 id=187 data-nosnippet>187</a>        </span>Program {
-<a href=#188 id=188 data-nosnippet>188</a>            program_scopes: input
-<a href=#189 id=189 data-nosnippet>189</a>                .program_scopes
-<a href=#190 id=190 data-nosnippet>190</a>                .into_iter()
-<a href=#191 id=191 data-nosnippet>191</a>                .map(|(id, scope)| (id, <span class="self">self</span>.reconstruct_program_scope(scope)))
-<a href=#192 id=192 data-nosnippet>192</a>                .collect(),
-<a href=#193 id=193 data-nosnippet>193</a>            modules: input.modules.into_iter().map(|(id, module)| (id, <span class="self">self</span>.reconstruct_module(module))).collect(),
-<a href=#194 id=194 data-nosnippet>194</a>            ..input
-<a href=#195 id=195 data-nosnippet>195</a>        }
-<a href=#196 id=196 data-nosnippet>196</a>    }
-<a href=#197 id=197 data-nosnippet>197</a>
-<a href=#198 id=198 data-nosnippet>198</a>    <span class="kw">fn </span>reconstruct_module(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Module) -&gt; Module {
-<a href=#199 id=199 data-nosnippet>199</a>        <span class="comment">// Here we're reconstructing structs and functions from `reconstructed_functions` and
-<a href=#200 id=200 data-nosnippet>200</a>        // `reconstructed_structs` based on their paths and whether they match the module path
-<a href=#201 id=201 data-nosnippet>201</a>        </span>Module {
-<a href=#202 id=202 data-nosnippet>202</a>            structs: <span class="self">self
-<a href=#203 id=203 data-nosnippet>203</a>                </span>.reconstructed_structs
-<a href=#204 id=204 data-nosnippet>204</a>                .iter()
-<a href=#205 id=205 data-nosnippet>205</a>                .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
-<a href=#206 id=206 data-nosnippet>206</a>                .filter(|<span class="kw-2">&amp;</span>(<span class="kw">_</span>, rest, <span class="kw">_</span>)| input.path == rest)
-<a href=#207 id=207 data-nosnippet>207</a>                .map(|(last, <span class="kw">_</span>, c)| (<span class="kw-2">*</span>last, c.clone()))
-<a href=#208 id=208 data-nosnippet>208</a>                .collect(),
-<a href=#209 id=209 data-nosnippet>209</a>
-<a href=#210 id=210 data-nosnippet>210</a>            functions: <span class="self">self
-<a href=#211 id=211 data-nosnippet>211</a>                </span>.reconstructed_functions
-<a href=#212 id=212 data-nosnippet>212</a>                .iter()
-<a href=#213 id=213 data-nosnippet>213</a>                .filter_map(|(path, f)| path.split_last().map(|(last, rest)| (last, rest, f)))
-<a href=#214 id=214 data-nosnippet>214</a>                .filter(|<span class="kw-2">&amp;</span>(<span class="kw">_</span>, rest, <span class="kw">_</span>)| input.path == rest)
-<a href=#215 id=215 data-nosnippet>215</a>                .map(|(last, <span class="kw">_</span>, f)| (<span class="kw-2">*</span>last, f.clone()))
-<a href=#216 id=216 data-nosnippet>216</a>                .collect(),
-<a href=#217 id=217 data-nosnippet>217</a>            ..input
-<a href=#218 id=218 data-nosnippet>218</a>        }
-<a href=#219 id=219 data-nosnippet>219</a>    }
-<a href=#220 id=220 data-nosnippet>220</a>}</code></pre></div></section></main></body></html>
+<a href=#118 id=118 data-nosnippet>118</a>        <span class="comment">// Move reconstructed functions into the final `ProgramScope`.
+<a href=#119 id=119 data-nosnippet>119</a>        // Make sure to place transitions before all the other functions.
+<a href=#120 id=120 data-nosnippet>120</a>        </span><span class="kw">let </span>(transitions, <span class="kw-2">mut </span>non_transitions): (Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;) =
+<a href=#121 id=121 data-nosnippet>121</a>            <span class="self">self</span>.reconstructed_functions.clone().into_iter().partition(|(<span class="kw">_</span>, f)| f.variant.is_transition());
+<a href=#122 id=122 data-nosnippet>122</a>
+<a href=#123 id=123 data-nosnippet>123</a>        <span class="kw">let </span><span class="kw-2">mut </span>all_functions = transitions;
+<a href=#124 id=124 data-nosnippet>124</a>        all_functions.append(<span class="kw-2">&amp;mut </span>non_transitions);
+<a href=#125 id=125 data-nosnippet>125</a>
+<a href=#126 id=126 data-nosnippet>126</a>        <span class="comment">// Return the fully reconstructed scope with updated functions.
+<a href=#127 id=127 data-nosnippet>127</a>        </span>ProgramScope {
+<a href=#128 id=128 data-nosnippet>128</a>            program_id: input.program_id,
+<a href=#129 id=129 data-nosnippet>129</a>            structs: <span class="self">self
+<a href=#130 id=130 data-nosnippet>130</a>                </span>.reconstructed_structs
+<a href=#131 id=131 data-nosnippet>131</a>                .iter()
+<a href=#132 id=132 data-nosnippet>132</a>                .filter_map(|(path, c)| {
+<a href=#133 id=133 data-nosnippet>133</a>                    <span class="comment">// only consider structs defined at program scope. The rest will be added to their parent module.
+<a href=#134 id=134 data-nosnippet>134</a>                    </span>path.split_last().filter(|(<span class="kw">_</span>, rest)| rest.is_empty()).map(|(last, <span class="kw">_</span>)| (<span class="kw-2">*</span>last, c.clone()))
+<a href=#135 id=135 data-nosnippet>135</a>                })
+<a href=#136 id=136 data-nosnippet>136</a>                .collect(),
+<a href=#137 id=137 data-nosnippet>137</a>            mappings,
+<a href=#138 id=138 data-nosnippet>138</a>            storage_variables,
+<a href=#139 id=139 data-nosnippet>139</a>            functions: all_functions
+<a href=#140 id=140 data-nosnippet>140</a>                .iter()
+<a href=#141 id=141 data-nosnippet>141</a>                .filter_map(|(path, f)| {
+<a href=#142 id=142 data-nosnippet>142</a>                    <span class="comment">// only consider functions defined at program scope. The rest will be added to their parent module.
+<a href=#143 id=143 data-nosnippet>143</a>                    </span>path.split_last().filter(|(<span class="kw">_</span>, rest)| rest.is_empty()).map(|(last, <span class="kw">_</span>)| (<span class="kw-2">*</span>last, f.clone()))
+<a href=#144 id=144 data-nosnippet>144</a>                })
+<a href=#145 id=145 data-nosnippet>145</a>                .collect(),
+<a href=#146 id=146 data-nosnippet>146</a>            constructor,
+<a href=#147 id=147 data-nosnippet>147</a>            consts,
+<a href=#148 id=148 data-nosnippet>148</a>            span: input.span,
+<a href=#149 id=149 data-nosnippet>149</a>        }
+<a href=#150 id=150 data-nosnippet>150</a>    }
+<a href=#151 id=151 data-nosnippet>151</a>
+<a href=#152 id=152 data-nosnippet>152</a>    <span class="kw">fn </span>reconstruct_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Program) -&gt; Program {
+<a href=#153 id=153 data-nosnippet>153</a>        <span class="comment">// Populate `self.function_map` using the functions in the program scopes and the modules
+<a href=#154 id=154 data-nosnippet>154</a>        </span>input
+<a href=#155 id=155 data-nosnippet>155</a>            .modules
+<a href=#156 id=156 data-nosnippet>156</a>            .iter()
+<a href=#157 id=157 data-nosnippet>157</a>            .flat_map(|(module_path, m)| {
+<a href=#158 id=158 data-nosnippet>158</a>                m.functions.iter().map(<span class="kw">move </span>|(name, f)| {
+<a href=#159 id=159 data-nosnippet>159</a>                    (module_path.iter().cloned().chain(std::iter::once(<span class="kw-2">*</span>name)).collect(), f.clone())
+<a href=#160 id=160 data-nosnippet>160</a>                })
+<a href=#161 id=161 data-nosnippet>161</a>            })
+<a href=#162 id=162 data-nosnippet>162</a>            .chain(
+<a href=#163 id=163 data-nosnippet>163</a>                input
+<a href=#164 id=164 data-nosnippet>164</a>                    .program_scopes
+<a href=#165 id=165 data-nosnippet>165</a>                    .iter()
+<a href=#166 id=166 data-nosnippet>166</a>                    .flat_map(|(<span class="kw">_</span>, scope)| scope.functions.iter().map(|(name, f)| (<span class="macro">vec!</span>[<span class="kw-2">*</span>name], f.clone()))),
+<a href=#167 id=167 data-nosnippet>167</a>            )
+<a href=#168 id=168 data-nosnippet>168</a>            .for_each(|(full_name, f)| {
+<a href=#169 id=169 data-nosnippet>169</a>                <span class="self">self</span>.function_map.insert(full_name, f);
+<a href=#170 id=170 data-nosnippet>170</a>            });
+<a href=#171 id=171 data-nosnippet>171</a>
+<a href=#172 id=172 data-nosnippet>172</a>        <span class="comment">// Populate `self.struct_map` using the structs in the program scopes and the modules
+<a href=#173 id=173 data-nosnippet>173</a>        </span>input
+<a href=#174 id=174 data-nosnippet>174</a>            .modules
+<a href=#175 id=175 data-nosnippet>175</a>            .iter()
+<a href=#176 id=176 data-nosnippet>176</a>            .flat_map(|(module_path, m)| {
+<a href=#177 id=177 data-nosnippet>177</a>                m.structs.iter().map(<span class="kw">move </span>|(name, f)| {
+<a href=#178 id=178 data-nosnippet>178</a>                    (module_path.iter().cloned().chain(std::iter::once(<span class="kw-2">*</span>name)).collect(), f.clone())
+<a href=#179 id=179 data-nosnippet>179</a>                })
+<a href=#180 id=180 data-nosnippet>180</a>            })
+<a href=#181 id=181 data-nosnippet>181</a>            .chain(
+<a href=#182 id=182 data-nosnippet>182</a>                input
+<a href=#183 id=183 data-nosnippet>183</a>                    .program_scopes
+<a href=#184 id=184 data-nosnippet>184</a>                    .iter()
+<a href=#185 id=185 data-nosnippet>185</a>                    .flat_map(|(<span class="kw">_</span>, scope)| scope.structs.iter().map(|(name, f)| (<span class="macro">vec!</span>[<span class="kw-2">*</span>name], f.clone()))),
+<a href=#186 id=186 data-nosnippet>186</a>            )
+<a href=#187 id=187 data-nosnippet>187</a>            .for_each(|(full_name, f)| {
+<a href=#188 id=188 data-nosnippet>188</a>                <span class="self">self</span>.struct_map.insert(full_name, f);
+<a href=#189 id=189 data-nosnippet>189</a>            });
+<a href=#190 id=190 data-nosnippet>190</a>
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="comment">// Reconstruct prrogram scopes first then reconstruct the modules after `self.reconstructed_structs`
+<a href=#192 id=192 data-nosnippet>192</a>        // and `self.reconstructed_functions` have been populated.
+<a href=#193 id=193 data-nosnippet>193</a>        </span>Program {
+<a href=#194 id=194 data-nosnippet>194</a>            program_scopes: input
+<a href=#195 id=195 data-nosnippet>195</a>                .program_scopes
+<a href=#196 id=196 data-nosnippet>196</a>                .into_iter()
+<a href=#197 id=197 data-nosnippet>197</a>                .map(|(id, scope)| (id, <span class="self">self</span>.reconstruct_program_scope(scope)))
+<a href=#198 id=198 data-nosnippet>198</a>                .collect(),
+<a href=#199 id=199 data-nosnippet>199</a>            modules: input.modules.into_iter().map(|(id, module)| (id, <span class="self">self</span>.reconstruct_module(module))).collect(),
+<a href=#200 id=200 data-nosnippet>200</a>            ..input
+<a href=#201 id=201 data-nosnippet>201</a>        }
+<a href=#202 id=202 data-nosnippet>202</a>    }
+<a href=#203 id=203 data-nosnippet>203</a>
+<a href=#204 id=204 data-nosnippet>204</a>    <span class="kw">fn </span>reconstruct_module(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Module) -&gt; Module {
+<a href=#205 id=205 data-nosnippet>205</a>        <span class="comment">// Here we're reconstructing structs and functions from `reconstructed_functions` and
+<a href=#206 id=206 data-nosnippet>206</a>        // `reconstructed_structs` based on their paths and whether they match the module path
+<a href=#207 id=207 data-nosnippet>207</a>        </span>Module {
+<a href=#208 id=208 data-nosnippet>208</a>            structs: <span class="self">self
+<a href=#209 id=209 data-nosnippet>209</a>                </span>.reconstructed_structs
+<a href=#210 id=210 data-nosnippet>210</a>                .iter()
+<a href=#211 id=211 data-nosnippet>211</a>                .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
+<a href=#212 id=212 data-nosnippet>212</a>                .filter(|<span class="kw-2">&amp;</span>(<span class="kw">_</span>, rest, <span class="kw">_</span>)| input.path == rest)
+<a href=#213 id=213 data-nosnippet>213</a>                .map(|(last, <span class="kw">_</span>, c)| (<span class="kw-2">*</span>last, c.clone()))
+<a href=#214 id=214 data-nosnippet>214</a>                .collect(),
+<a href=#215 id=215 data-nosnippet>215</a>
+<a href=#216 id=216 data-nosnippet>216</a>            functions: <span class="self">self
+<a href=#217 id=217 data-nosnippet>217</a>                </span>.reconstructed_functions
+<a href=#218 id=218 data-nosnippet>218</a>                .iter()
+<a href=#219 id=219 data-nosnippet>219</a>                .filter_map(|(path, f)| path.split_last().map(|(last, rest)| (last, rest, f)))
+<a href=#220 id=220 data-nosnippet>220</a>                .filter(|<span class="kw-2">&amp;</span>(<span class="kw">_</span>, rest, <span class="kw">_</span>)| input.path == rest)
+<a href=#221 id=221 data-nosnippet>221</a>                .map(|(last, <span class="kw">_</span>, f)| (<span class="kw-2">*</span>last, f.clone()))
+<a href=#222 id=222 data-nosnippet>222</a>                .collect(),
+<a href=#223 id=223 data-nosnippet>223</a>            ..input
+<a href=#224 id=224 data-nosnippet>224</a>        }
+<a href=#225 id=225 data-nosnippet>225</a>    }
+<a href=#226 id=226 data-nosnippet>226</a>}</code></pre></div></section></main></body></html>

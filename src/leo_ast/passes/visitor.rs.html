@@ -53,329 +53,339 @@
 <a href=#53 id=53 data-nosnippet>53</a>            Type::Mapping(mapping_type) =&gt; <span class="self">self</span>.visit_mapping_type(mapping_type),
 <a href=#54 id=54 data-nosnippet>54</a>            Type::Optional(optional_type) =&gt; <span class="self">self</span>.visit_optional_type(optional_type),
 <a href=#55 id=55 data-nosnippet>55</a>            Type::Tuple(tuple_type) =&gt; <span class="self">self</span>.visit_tuple_type(tuple_type),
-<a href=#56 id=56 data-nosnippet>56</a>            Type::Address
-<a href=#57 id=57 data-nosnippet>57</a>            | Type::Boolean
-<a href=#58 id=58 data-nosnippet>58</a>            | Type::Field
-<a href=#59 id=59 data-nosnippet>59</a>            | Type::Group
-<a href=#60 id=60 data-nosnippet>60</a>            | Type::Identifier(<span class="kw">_</span>)
-<a href=#61 id=61 data-nosnippet>61</a>            | Type::Integer(<span class="kw">_</span>)
-<a href=#62 id=62 data-nosnippet>62</a>            | Type::Scalar
-<a href=#63 id=63 data-nosnippet>63</a>            | Type::Signature
-<a href=#64 id=64 data-nosnippet>64</a>            | Type::String
-<a href=#65 id=65 data-nosnippet>65</a>            | Type::Numeric
-<a href=#66 id=66 data-nosnippet>66</a>            | Type::Unit
-<a href=#67 id=67 data-nosnippet>67</a>            | Type::Err =&gt; {}
-<a href=#68 id=68 data-nosnippet>68</a>        }
-<a href=#69 id=69 data-nosnippet>69</a>    }
-<a href=#70 id=70 data-nosnippet>70</a>
-<a href=#71 id=71 data-nosnippet>71</a>    <span class="kw">fn </span>visit_array_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayType) {
-<a href=#72 id=72 data-nosnippet>72</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.element_type);
-<a href=#73 id=73 data-nosnippet>73</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.length, <span class="kw-2">&amp;</span>Default::default());
-<a href=#74 id=74 data-nosnippet>74</a>    }
-<a href=#75 id=75 data-nosnippet>75</a>
-<a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">fn </span>visit_composite_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CompositeType) {
-<a href=#77 id=77 data-nosnippet>77</a>        input.const_arguments.iter().for_each(|expr| {
-<a href=#78 id=78 data-nosnippet>78</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
-<a href=#79 id=79 data-nosnippet>79</a>        });
-<a href=#80 id=80 data-nosnippet>80</a>    }
-<a href=#81 id=81 data-nosnippet>81</a>
-<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">fn </span>visit_future_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>FutureType) {
-<a href=#83 id=83 data-nosnippet>83</a>        input.inputs.iter().for_each(|input| <span class="self">self</span>.visit_type(input));
-<a href=#84 id=84 data-nosnippet>84</a>    }
-<a href=#85 id=85 data-nosnippet>85</a>
-<a href=#86 id=86 data-nosnippet>86</a>    <span class="kw">fn </span>visit_mapping_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>MappingType) {
-<a href=#87 id=87 data-nosnippet>87</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.key);
-<a href=#88 id=88 data-nosnippet>88</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.value);
-<a href=#89 id=89 data-nosnippet>89</a>    }
-<a href=#90 id=90 data-nosnippet>90</a>
-<a href=#91 id=91 data-nosnippet>91</a>    <span class="kw">fn </span>visit_optional_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>OptionalType) {
-<a href=#92 id=92 data-nosnippet>92</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.inner);
-<a href=#93 id=93 data-nosnippet>93</a>    }
-<a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a>    <span class="kw">fn </span>visit_tuple_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleType) {
-<a href=#96 id=96 data-nosnippet>96</a>        input.elements().iter().for_each(|input| <span class="self">self</span>.visit_type(input));
-<a href=#97 id=97 data-nosnippet>97</a>    }
-<a href=#98 id=98 data-nosnippet>98</a>
-<a href=#99 id=99 data-nosnippet>99</a>    <span class="comment">/* Expressions */
-<a href=#100 id=100 data-nosnippet>100</a>    </span><span class="kw">type </span>AdditionalInput: Default;
-<a href=#101 id=101 data-nosnippet>101</a>    <span class="kw">type </span>Output: Default;
-<a href=#102 id=102 data-nosnippet>102</a>
-<a href=#103 id=103 data-nosnippet>103</a>    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#104 id=104 data-nosnippet>104</a>        <span class="kw">match </span>input {
-<a href=#105 id=105 data-nosnippet>105</a>            Expression::Array(array) =&gt; <span class="self">self</span>.visit_array(array, additional),
-<a href=#106 id=106 data-nosnippet>106</a>            Expression::ArrayAccess(access) =&gt; <span class="self">self</span>.visit_array_access(access, additional),
-<a href=#107 id=107 data-nosnippet>107</a>            Expression::AssociatedConstant(constant) =&gt; <span class="self">self</span>.visit_associated_constant(constant, additional),
-<a href=#108 id=108 data-nosnippet>108</a>            Expression::AssociatedFunction(function) =&gt; <span class="self">self</span>.visit_associated_function(function, additional),
-<a href=#109 id=109 data-nosnippet>109</a>            Expression::Async(async_) =&gt; <span class="self">self</span>.visit_async(async_, additional),
-<a href=#110 id=110 data-nosnippet>110</a>            Expression::Binary(binary) =&gt; <span class="self">self</span>.visit_binary(binary, additional),
-<a href=#111 id=111 data-nosnippet>111</a>            Expression::Call(call) =&gt; <span class="self">self</span>.visit_call(call, additional),
-<a href=#112 id=112 data-nosnippet>112</a>            Expression::Cast(cast) =&gt; <span class="self">self</span>.visit_cast(cast, additional),
-<a href=#113 id=113 data-nosnippet>113</a>            Expression::Struct(struct_) =&gt; <span class="self">self</span>.visit_struct_init(struct_, additional),
-<a href=#114 id=114 data-nosnippet>114</a>            Expression::Err(err) =&gt; <span class="self">self</span>.visit_err(err, additional),
-<a href=#115 id=115 data-nosnippet>115</a>            Expression::Path(path) =&gt; <span class="self">self</span>.visit_path(path, additional),
-<a href=#116 id=116 data-nosnippet>116</a>            Expression::Literal(literal) =&gt; <span class="self">self</span>.visit_literal(literal, additional),
-<a href=#117 id=117 data-nosnippet>117</a>            Expression::Locator(locator) =&gt; <span class="self">self</span>.visit_locator(locator, additional),
-<a href=#118 id=118 data-nosnippet>118</a>            Expression::MemberAccess(access) =&gt; <span class="self">self</span>.visit_member_access(access, additional),
-<a href=#119 id=119 data-nosnippet>119</a>            Expression::Repeat(repeat) =&gt; <span class="self">self</span>.visit_repeat(repeat, additional),
-<a href=#120 id=120 data-nosnippet>120</a>            Expression::Ternary(ternary) =&gt; <span class="self">self</span>.visit_ternary(ternary, additional),
-<a href=#121 id=121 data-nosnippet>121</a>            Expression::Tuple(tuple) =&gt; <span class="self">self</span>.visit_tuple(tuple, additional),
-<a href=#122 id=122 data-nosnippet>122</a>            Expression::TupleAccess(access) =&gt; <span class="self">self</span>.visit_tuple_access(access, additional),
-<a href=#123 id=123 data-nosnippet>123</a>            Expression::Unary(unary) =&gt; <span class="self">self</span>.visit_unary(unary, additional),
-<a href=#124 id=124 data-nosnippet>124</a>            Expression::Unit(unit) =&gt; <span class="self">self</span>.visit_unit(unit, additional),
-<a href=#125 id=125 data-nosnippet>125</a>        }
-<a href=#126 id=126 data-nosnippet>126</a>    }
-<a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a>    <span class="kw">fn </span>visit_array_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayAccess, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#129 id=129 data-nosnippet>129</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.array, <span class="kw-2">&amp;</span>Default::default());
-<a href=#130 id=130 data-nosnippet>130</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span>Default::default());
-<a href=#131 id=131 data-nosnippet>131</a>        Default::default()
-<a href=#132 id=132 data-nosnippet>132</a>    }
-<a href=#133 id=133 data-nosnippet>133</a>
-<a href=#134 id=134 data-nosnippet>134</a>    <span class="kw">fn </span>visit_member_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>MemberAccess, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.inner, <span class="kw-2">&amp;</span>Default::default());
+<a href=#56 id=56 data-nosnippet>56</a>            Type::Vector(array_type) =&gt; <span class="self">self</span>.visit_vector_type(array_type),
+<a href=#57 id=57 data-nosnippet>57</a>            Type::Address
+<a href=#58 id=58 data-nosnippet>58</a>            | Type::Boolean
+<a href=#59 id=59 data-nosnippet>59</a>            | Type::Field
+<a href=#60 id=60 data-nosnippet>60</a>            | Type::Group
+<a href=#61 id=61 data-nosnippet>61</a>            | Type::Identifier(<span class="kw">_</span>)
+<a href=#62 id=62 data-nosnippet>62</a>            | Type::Integer(<span class="kw">_</span>)
+<a href=#63 id=63 data-nosnippet>63</a>            | Type::Scalar
+<a href=#64 id=64 data-nosnippet>64</a>            | Type::Signature
+<a href=#65 id=65 data-nosnippet>65</a>            | Type::String
+<a href=#66 id=66 data-nosnippet>66</a>            | Type::Numeric
+<a href=#67 id=67 data-nosnippet>67</a>            | Type::Unit
+<a href=#68 id=68 data-nosnippet>68</a>            | Type::Err =&gt; {}
+<a href=#69 id=69 data-nosnippet>69</a>        }
+<a href=#70 id=70 data-nosnippet>70</a>    }
+<a href=#71 id=71 data-nosnippet>71</a>
+<a href=#72 id=72 data-nosnippet>72</a>    <span class="kw">fn </span>visit_array_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayType) {
+<a href=#73 id=73 data-nosnippet>73</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.element_type);
+<a href=#74 id=74 data-nosnippet>74</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.length, <span class="kw-2">&amp;</span>Default::default());
+<a href=#75 id=75 data-nosnippet>75</a>    }
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">fn </span>visit_composite_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CompositeType) {
+<a href=#78 id=78 data-nosnippet>78</a>        input.const_arguments.iter().for_each(|expr| {
+<a href=#79 id=79 data-nosnippet>79</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
+<a href=#80 id=80 data-nosnippet>80</a>        });
+<a href=#81 id=81 data-nosnippet>81</a>    }
+<a href=#82 id=82 data-nosnippet>82</a>
+<a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">fn </span>visit_future_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>FutureType) {
+<a href=#84 id=84 data-nosnippet>84</a>        input.inputs.iter().for_each(|input| <span class="self">self</span>.visit_type(input));
+<a href=#85 id=85 data-nosnippet>85</a>    }
+<a href=#86 id=86 data-nosnippet>86</a>
+<a href=#87 id=87 data-nosnippet>87</a>    <span class="kw">fn </span>visit_mapping_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>MappingType) {
+<a href=#88 id=88 data-nosnippet>88</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.key);
+<a href=#89 id=89 data-nosnippet>89</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.value);
+<a href=#90 id=90 data-nosnippet>90</a>    }
+<a href=#91 id=91 data-nosnippet>91</a>
+<a href=#92 id=92 data-nosnippet>92</a>    <span class="kw">fn </span>visit_optional_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>OptionalType) {
+<a href=#93 id=93 data-nosnippet>93</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.inner);
+<a href=#94 id=94 data-nosnippet>94</a>    }
+<a href=#95 id=95 data-nosnippet>95</a>
+<a href=#96 id=96 data-nosnippet>96</a>    <span class="kw">fn </span>visit_tuple_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleType) {
+<a href=#97 id=97 data-nosnippet>97</a>        input.elements().iter().for_each(|input| <span class="self">self</span>.visit_type(input));
+<a href=#98 id=98 data-nosnippet>98</a>    }
+<a href=#99 id=99 data-nosnippet>99</a>
+<a href=#100 id=100 data-nosnippet>100</a>    <span class="kw">fn </span>visit_vector_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>VectorType) {
+<a href=#101 id=101 data-nosnippet>101</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.element_type);
+<a href=#102 id=102 data-nosnippet>102</a>    }
+<a href=#103 id=103 data-nosnippet>103</a>
+<a href=#104 id=104 data-nosnippet>104</a>    <span class="comment">/* Expressions */
+<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">type </span>AdditionalInput: Default;
+<a href=#106 id=106 data-nosnippet>106</a>    <span class="kw">type </span>Output: Default;
+<a href=#107 id=107 data-nosnippet>107</a>
+<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#109 id=109 data-nosnippet>109</a>        <span class="kw">match </span>input {
+<a href=#110 id=110 data-nosnippet>110</a>            Expression::Array(array) =&gt; <span class="self">self</span>.visit_array(array, additional),
+<a href=#111 id=111 data-nosnippet>111</a>            Expression::ArrayAccess(access) =&gt; <span class="self">self</span>.visit_array_access(access, additional),
+<a href=#112 id=112 data-nosnippet>112</a>            Expression::AssociatedConstant(constant) =&gt; <span class="self">self</span>.visit_associated_constant(constant, additional),
+<a href=#113 id=113 data-nosnippet>113</a>            Expression::AssociatedFunction(function) =&gt; <span class="self">self</span>.visit_associated_function(function, additional),
+<a href=#114 id=114 data-nosnippet>114</a>            Expression::Async(async_) =&gt; <span class="self">self</span>.visit_async(async_, additional),
+<a href=#115 id=115 data-nosnippet>115</a>            Expression::Binary(binary) =&gt; <span class="self">self</span>.visit_binary(binary, additional),
+<a href=#116 id=116 data-nosnippet>116</a>            Expression::Call(call) =&gt; <span class="self">self</span>.visit_call(call, additional),
+<a href=#117 id=117 data-nosnippet>117</a>            Expression::Cast(cast) =&gt; <span class="self">self</span>.visit_cast(cast, additional),
+<a href=#118 id=118 data-nosnippet>118</a>            Expression::Struct(struct_) =&gt; <span class="self">self</span>.visit_struct_init(struct_, additional),
+<a href=#119 id=119 data-nosnippet>119</a>            Expression::Err(err) =&gt; <span class="self">self</span>.visit_err(err, additional),
+<a href=#120 id=120 data-nosnippet>120</a>            Expression::Path(path) =&gt; <span class="self">self</span>.visit_path(path, additional),
+<a href=#121 id=121 data-nosnippet>121</a>            Expression::Literal(literal) =&gt; <span class="self">self</span>.visit_literal(literal, additional),
+<a href=#122 id=122 data-nosnippet>122</a>            Expression::Locator(locator) =&gt; <span class="self">self</span>.visit_locator(locator, additional),
+<a href=#123 id=123 data-nosnippet>123</a>            Expression::MemberAccess(access) =&gt; <span class="self">self</span>.visit_member_access(access, additional),
+<a href=#124 id=124 data-nosnippet>124</a>            Expression::Repeat(repeat) =&gt; <span class="self">self</span>.visit_repeat(repeat, additional),
+<a href=#125 id=125 data-nosnippet>125</a>            Expression::Ternary(ternary) =&gt; <span class="self">self</span>.visit_ternary(ternary, additional),
+<a href=#126 id=126 data-nosnippet>126</a>            Expression::Tuple(tuple) =&gt; <span class="self">self</span>.visit_tuple(tuple, additional),
+<a href=#127 id=127 data-nosnippet>127</a>            Expression::TupleAccess(access) =&gt; <span class="self">self</span>.visit_tuple_access(access, additional),
+<a href=#128 id=128 data-nosnippet>128</a>            Expression::Unary(unary) =&gt; <span class="self">self</span>.visit_unary(unary, additional),
+<a href=#129 id=129 data-nosnippet>129</a>            Expression::Unit(unit) =&gt; <span class="self">self</span>.visit_unit(unit, additional),
+<a href=#130 id=130 data-nosnippet>130</a>        }
+<a href=#131 id=131 data-nosnippet>131</a>    }
+<a href=#132 id=132 data-nosnippet>132</a>
+<a href=#133 id=133 data-nosnippet>133</a>    <span class="kw">fn </span>visit_array_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayAccess, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#134 id=134 data-nosnippet>134</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.array, <span class="kw-2">&amp;</span>Default::default());
+<a href=#135 id=135 data-nosnippet>135</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span>Default::default());
 <a href=#136 id=136 data-nosnippet>136</a>        Default::default()
 <a href=#137 id=137 data-nosnippet>137</a>    }
 <a href=#138 id=138 data-nosnippet>138</a>
-<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">fn </span>visit_tuple_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleAccess, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#140 id=140 data-nosnippet>140</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.tuple, <span class="kw-2">&amp;</span>Default::default());
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">fn </span>visit_member_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>MemberAccess, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.inner, <span class="kw-2">&amp;</span>Default::default());
 <a href=#141 id=141 data-nosnippet>141</a>        Default::default()
 <a href=#142 id=142 data-nosnippet>142</a>    }
 <a href=#143 id=143 data-nosnippet>143</a>
-<a href=#144 id=144 data-nosnippet>144</a>    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#145 id=145 data-nosnippet>145</a>        input.elements.iter().for_each(|expr| {
-<a href=#146 id=146 data-nosnippet>146</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
-<a href=#147 id=147 data-nosnippet>147</a>        });
-<a href=#148 id=148 data-nosnippet>148</a>        Default::default()
-<a href=#149 id=149 data-nosnippet>149</a>    }
-<a href=#150 id=150 data-nosnippet>150</a>
-<a href=#151 id=151 data-nosnippet>151</a>    <span class="kw">fn </span>visit_associated_constant(
-<a href=#152 id=152 data-nosnippet>152</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#153 id=153 data-nosnippet>153</a>        _input: <span class="kw-2">&amp;</span>AssociatedConstantExpression,
-<a href=#154 id=154 data-nosnippet>154</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
-<a href=#155 id=155 data-nosnippet>155</a>    ) -&gt; <span class="self">Self</span>::Output {
-<a href=#156 id=156 data-nosnippet>156</a>        Default::default()
-<a href=#157 id=157 data-nosnippet>157</a>    }
-<a href=#158 id=158 data-nosnippet>158</a>
-<a href=#159 id=159 data-nosnippet>159</a>    <span class="kw">fn </span>visit_associated_function(
-<a href=#160 id=160 data-nosnippet>160</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#161 id=161 data-nosnippet>161</a>        input: <span class="kw-2">&amp;</span>AssociatedFunctionExpression,
-<a href=#162 id=162 data-nosnippet>162</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
-<a href=#163 id=163 data-nosnippet>163</a>    ) -&gt; <span class="self">Self</span>::Output {
-<a href=#164 id=164 data-nosnippet>164</a>        input.arguments.iter().for_each(|arg| {
-<a href=#165 id=165 data-nosnippet>165</a>            <span class="self">self</span>.visit_expression(arg, <span class="kw-2">&amp;</span>Default::default());
-<a href=#166 id=166 data-nosnippet>166</a>        });
-<a href=#167 id=167 data-nosnippet>167</a>        Default::default()
-<a href=#168 id=168 data-nosnippet>168</a>    }
-<a href=#169 id=169 data-nosnippet>169</a>
-<a href=#170 id=170 data-nosnippet>170</a>    <span class="kw">fn </span>visit_async(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AsyncExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#171 id=171 data-nosnippet>171</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
+<a href=#144 id=144 data-nosnippet>144</a>    <span class="kw">fn </span>visit_tuple_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleAccess, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#145 id=145 data-nosnippet>145</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.tuple, <span class="kw-2">&amp;</span>Default::default());
+<a href=#146 id=146 data-nosnippet>146</a>        Default::default()
+<a href=#147 id=147 data-nosnippet>147</a>    }
+<a href=#148 id=148 data-nosnippet>148</a>
+<a href=#149 id=149 data-nosnippet>149</a>    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ArrayExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#150 id=150 data-nosnippet>150</a>        input.elements.iter().for_each(|expr| {
+<a href=#151 id=151 data-nosnippet>151</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
+<a href=#152 id=152 data-nosnippet>152</a>        });
+<a href=#153 id=153 data-nosnippet>153</a>        Default::default()
+<a href=#154 id=154 data-nosnippet>154</a>    }
+<a href=#155 id=155 data-nosnippet>155</a>
+<a href=#156 id=156 data-nosnippet>156</a>    <span class="kw">fn </span>visit_associated_constant(
+<a href=#157 id=157 data-nosnippet>157</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#158 id=158 data-nosnippet>158</a>        _input: <span class="kw-2">&amp;</span>AssociatedConstantExpression,
+<a href=#159 id=159 data-nosnippet>159</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+<a href=#160 id=160 data-nosnippet>160</a>    ) -&gt; <span class="self">Self</span>::Output {
+<a href=#161 id=161 data-nosnippet>161</a>        Default::default()
+<a href=#162 id=162 data-nosnippet>162</a>    }
+<a href=#163 id=163 data-nosnippet>163</a>
+<a href=#164 id=164 data-nosnippet>164</a>    <span class="kw">fn </span>visit_associated_function(
+<a href=#165 id=165 data-nosnippet>165</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#166 id=166 data-nosnippet>166</a>        input: <span class="kw-2">&amp;</span>AssociatedFunctionExpression,
+<a href=#167 id=167 data-nosnippet>167</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+<a href=#168 id=168 data-nosnippet>168</a>    ) -&gt; <span class="self">Self</span>::Output {
+<a href=#169 id=169 data-nosnippet>169</a>        input.arguments.iter().for_each(|arg| {
+<a href=#170 id=170 data-nosnippet>170</a>            <span class="self">self</span>.visit_expression(arg, <span class="kw-2">&amp;</span>Default::default());
+<a href=#171 id=171 data-nosnippet>171</a>        });
 <a href=#172 id=172 data-nosnippet>172</a>        Default::default()
 <a href=#173 id=173 data-nosnippet>173</a>    }
 <a href=#174 id=174 data-nosnippet>174</a>
-<a href=#175 id=175 data-nosnippet>175</a>    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>BinaryExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#176 id=176 data-nosnippet>176</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, <span class="kw-2">&amp;</span>Default::default());
-<a href=#177 id=177 data-nosnippet>177</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, <span class="kw-2">&amp;</span>Default::default());
-<a href=#178 id=178 data-nosnippet>178</a>        Default::default()
-<a href=#179 id=179 data-nosnippet>179</a>    }
-<a href=#180 id=180 data-nosnippet>180</a>
-<a href=#181 id=181 data-nosnippet>181</a>    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CallExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#182 id=182 data-nosnippet>182</a>        input.const_arguments.iter().for_each(|expr| {
-<a href=#183 id=183 data-nosnippet>183</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
-<a href=#184 id=184 data-nosnippet>184</a>        });
-<a href=#185 id=185 data-nosnippet>185</a>        input.arguments.iter().for_each(|expr| {
-<a href=#186 id=186 data-nosnippet>186</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
-<a href=#187 id=187 data-nosnippet>187</a>        });
-<a href=#188 id=188 data-nosnippet>188</a>        Default::default()
-<a href=#189 id=189 data-nosnippet>189</a>    }
-<a href=#190 id=190 data-nosnippet>190</a>
-<a href=#191 id=191 data-nosnippet>191</a>    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CastExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#192 id=192 data-nosnippet>192</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
+<a href=#175 id=175 data-nosnippet>175</a>    <span class="kw">fn </span>visit_async(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AsyncExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#176 id=176 data-nosnippet>176</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
+<a href=#177 id=177 data-nosnippet>177</a>        Default::default()
+<a href=#178 id=178 data-nosnippet>178</a>    }
+<a href=#179 id=179 data-nosnippet>179</a>
+<a href=#180 id=180 data-nosnippet>180</a>    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>BinaryExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#181 id=181 data-nosnippet>181</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, <span class="kw-2">&amp;</span>Default::default());
+<a href=#182 id=182 data-nosnippet>182</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, <span class="kw-2">&amp;</span>Default::default());
+<a href=#183 id=183 data-nosnippet>183</a>        Default::default()
+<a href=#184 id=184 data-nosnippet>184</a>    }
+<a href=#185 id=185 data-nosnippet>185</a>
+<a href=#186 id=186 data-nosnippet>186</a>    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CallExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#187 id=187 data-nosnippet>187</a>        input.const_arguments.iter().for_each(|expr| {
+<a href=#188 id=188 data-nosnippet>188</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
+<a href=#189 id=189 data-nosnippet>189</a>        });
+<a href=#190 id=190 data-nosnippet>190</a>        input.arguments.iter().for_each(|expr| {
+<a href=#191 id=191 data-nosnippet>191</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
+<a href=#192 id=192 data-nosnippet>192</a>        });
 <a href=#193 id=193 data-nosnippet>193</a>        Default::default()
 <a href=#194 id=194 data-nosnippet>194</a>    }
 <a href=#195 id=195 data-nosnippet>195</a>
-<a href=#196 id=196 data-nosnippet>196</a>    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>StructExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#197 id=197 data-nosnippet>197</a>        input.const_arguments.iter().for_each(|expr| {
-<a href=#198 id=198 data-nosnippet>198</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
-<a href=#199 id=199 data-nosnippet>199</a>        });
-<a href=#200 id=200 data-nosnippet>200</a>        <span class="kw">for </span>StructVariableInitializer { expression, .. } <span class="kw">in </span>input.members.iter() {
-<a href=#201 id=201 data-nosnippet>201</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(expression) = expression {
-<a href=#202 id=202 data-nosnippet>202</a>                <span class="self">self</span>.visit_expression(expression, <span class="kw-2">&amp;</span>Default::default());
-<a href=#203 id=203 data-nosnippet>203</a>            }
-<a href=#204 id=204 data-nosnippet>204</a>        }
-<a href=#205 id=205 data-nosnippet>205</a>        Default::default()
-<a href=#206 id=206 data-nosnippet>206</a>    }
-<a href=#207 id=207 data-nosnippet>207</a>
-<a href=#208 id=208 data-nosnippet>208</a>    <span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#209 id=209 data-nosnippet>209</a>        <span class="macro">panic!</span>(<span class="string">"`ErrExpression`s should not be in the AST at this phase of compilation."</span>)
-<a href=#210 id=210 data-nosnippet>210</a>    }
-<a href=#211 id=211 data-nosnippet>211</a>
-<a href=#212 id=212 data-nosnippet>212</a>    <span class="kw">fn </span>visit_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Path, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#213 id=213 data-nosnippet>213</a>        Default::default()
-<a href=#214 id=214 data-nosnippet>214</a>    }
-<a href=#215 id=215 data-nosnippet>215</a>
-<a href=#216 id=216 data-nosnippet>216</a>    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Literal, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#217 id=217 data-nosnippet>217</a>        Default::default()
-<a href=#218 id=218 data-nosnippet>218</a>    }
-<a href=#219 id=219 data-nosnippet>219</a>
-<a href=#220 id=220 data-nosnippet>220</a>    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>LocatorExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#221 id=221 data-nosnippet>221</a>        Default::default()
-<a href=#222 id=222 data-nosnippet>222</a>    }
-<a href=#223 id=223 data-nosnippet>223</a>
-<a href=#224 id=224 data-nosnippet>224</a>    <span class="kw">fn </span>visit_repeat(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>RepeatExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#225 id=225 data-nosnippet>225</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expr, <span class="kw-2">&amp;</span>Default::default());
-<a href=#226 id=226 data-nosnippet>226</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.count, <span class="kw-2">&amp;</span>Default::default());
-<a href=#227 id=227 data-nosnippet>227</a>        Default::default()
-<a href=#228 id=228 data-nosnippet>228</a>    }
-<a href=#229 id=229 data-nosnippet>229</a>
-<a href=#230 id=230 data-nosnippet>230</a>    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TernaryExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#231 id=231 data-nosnippet>231</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>Default::default());
-<a href=#232 id=232 data-nosnippet>232</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true, <span class="kw-2">&amp;</span>Default::default());
-<a href=#233 id=233 data-nosnippet>233</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_false, <span class="kw-2">&amp;</span>Default::default());
-<a href=#234 id=234 data-nosnippet>234</a>        Default::default()
-<a href=#235 id=235 data-nosnippet>235</a>    }
-<a href=#236 id=236 data-nosnippet>236</a>
-<a href=#237 id=237 data-nosnippet>237</a>    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#238 id=238 data-nosnippet>238</a>        input.elements.iter().for_each(|expr| {
-<a href=#239 id=239 data-nosnippet>239</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
-<a href=#240 id=240 data-nosnippet>240</a>        });
-<a href=#241 id=241 data-nosnippet>241</a>        Default::default()
-<a href=#242 id=242 data-nosnippet>242</a>    }
-<a href=#243 id=243 data-nosnippet>243</a>
-<a href=#244 id=244 data-nosnippet>244</a>    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>UnaryExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#245 id=245 data-nosnippet>245</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span>Default::default());
+<a href=#196 id=196 data-nosnippet>196</a>    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>CastExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#197 id=197 data-nosnippet>197</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
+<a href=#198 id=198 data-nosnippet>198</a>        Default::default()
+<a href=#199 id=199 data-nosnippet>199</a>    }
+<a href=#200 id=200 data-nosnippet>200</a>
+<a href=#201 id=201 data-nosnippet>201</a>    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>StructExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#202 id=202 data-nosnippet>202</a>        input.const_arguments.iter().for_each(|expr| {
+<a href=#203 id=203 data-nosnippet>203</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
+<a href=#204 id=204 data-nosnippet>204</a>        });
+<a href=#205 id=205 data-nosnippet>205</a>        <span class="kw">for </span>StructVariableInitializer { expression, .. } <span class="kw">in </span>input.members.iter() {
+<a href=#206 id=206 data-nosnippet>206</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(expression) = expression {
+<a href=#207 id=207 data-nosnippet>207</a>                <span class="self">self</span>.visit_expression(expression, <span class="kw-2">&amp;</span>Default::default());
+<a href=#208 id=208 data-nosnippet>208</a>            }
+<a href=#209 id=209 data-nosnippet>209</a>        }
+<a href=#210 id=210 data-nosnippet>210</a>        Default::default()
+<a href=#211 id=211 data-nosnippet>211</a>    }
+<a href=#212 id=212 data-nosnippet>212</a>
+<a href=#213 id=213 data-nosnippet>213</a>    <span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#214 id=214 data-nosnippet>214</a>        <span class="macro">panic!</span>(<span class="string">"`ErrExpression`s should not be in the AST at this phase of compilation."</span>)
+<a href=#215 id=215 data-nosnippet>215</a>    }
+<a href=#216 id=216 data-nosnippet>216</a>
+<a href=#217 id=217 data-nosnippet>217</a>    <span class="kw">fn </span>visit_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Path, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#218 id=218 data-nosnippet>218</a>        Default::default()
+<a href=#219 id=219 data-nosnippet>219</a>    }
+<a href=#220 id=220 data-nosnippet>220</a>
+<a href=#221 id=221 data-nosnippet>221</a>    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Literal, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#222 id=222 data-nosnippet>222</a>        Default::default()
+<a href=#223 id=223 data-nosnippet>223</a>    }
+<a href=#224 id=224 data-nosnippet>224</a>
+<a href=#225 id=225 data-nosnippet>225</a>    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>LocatorExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#226 id=226 data-nosnippet>226</a>        Default::default()
+<a href=#227 id=227 data-nosnippet>227</a>    }
+<a href=#228 id=228 data-nosnippet>228</a>
+<a href=#229 id=229 data-nosnippet>229</a>    <span class="kw">fn </span>visit_repeat(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>RepeatExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#230 id=230 data-nosnippet>230</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expr, <span class="kw-2">&amp;</span>Default::default());
+<a href=#231 id=231 data-nosnippet>231</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.count, <span class="kw-2">&amp;</span>Default::default());
+<a href=#232 id=232 data-nosnippet>232</a>        Default::default()
+<a href=#233 id=233 data-nosnippet>233</a>    }
+<a href=#234 id=234 data-nosnippet>234</a>
+<a href=#235 id=235 data-nosnippet>235</a>    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TernaryExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#236 id=236 data-nosnippet>236</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>Default::default());
+<a href=#237 id=237 data-nosnippet>237</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true, <span class="kw-2">&amp;</span>Default::default());
+<a href=#238 id=238 data-nosnippet>238</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_false, <span class="kw-2">&amp;</span>Default::default());
+<a href=#239 id=239 data-nosnippet>239</a>        Default::default()
+<a href=#240 id=240 data-nosnippet>240</a>    }
+<a href=#241 id=241 data-nosnippet>241</a>
+<a href=#242 id=242 data-nosnippet>242</a>    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>TupleExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#243 id=243 data-nosnippet>243</a>        input.elements.iter().for_each(|expr| {
+<a href=#244 id=244 data-nosnippet>244</a>            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
+<a href=#245 id=245 data-nosnippet>245</a>        });
 <a href=#246 id=246 data-nosnippet>246</a>        Default::default()
 <a href=#247 id=247 data-nosnippet>247</a>    }
 <a href=#248 id=248 data-nosnippet>248</a>
-<a href=#249 id=249 data-nosnippet>249</a>    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-<a href=#250 id=250 data-nosnippet>250</a>        Default::default()
-<a href=#251 id=251 data-nosnippet>251</a>    }
-<a href=#252 id=252 data-nosnippet>252</a>
-<a href=#253 id=253 data-nosnippet>253</a>    <span class="comment">/* Statements */
-<a href=#254 id=254 data-nosnippet>254</a>    </span><span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Statement) {
-<a href=#255 id=255 data-nosnippet>255</a>        <span class="kw">match </span>input {
-<a href=#256 id=256 data-nosnippet>256</a>            Statement::Assert(stmt) =&gt; <span class="self">self</span>.visit_assert(stmt),
-<a href=#257 id=257 data-nosnippet>257</a>            Statement::Assign(stmt) =&gt; <span class="self">self</span>.visit_assign(stmt),
-<a href=#258 id=258 data-nosnippet>258</a>            Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
-<a href=#259 id=259 data-nosnippet>259</a>            Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
-<a href=#260 id=260 data-nosnippet>260</a>            Statement::Const(stmt) =&gt; <span class="self">self</span>.visit_const(stmt),
-<a href=#261 id=261 data-nosnippet>261</a>            Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
-<a href=#262 id=262 data-nosnippet>262</a>            Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
-<a href=#263 id=263 data-nosnippet>263</a>            Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
-<a href=#264 id=264 data-nosnippet>264</a>            Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
-<a href=#265 id=265 data-nosnippet>265</a>        }
-<a href=#266 id=266 data-nosnippet>266</a>    }
-<a href=#267 id=267 data-nosnippet>267</a>
-<a href=#268 id=268 data-nosnippet>268</a>    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssertStatement) {
-<a href=#269 id=269 data-nosnippet>269</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
-<a href=#270 id=270 data-nosnippet>270</a>            AssertVariant::Assert(expr) =&gt; <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default()),
-<a href=#271 id=271 data-nosnippet>271</a>            AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) =&gt; {
-<a href=#272 id=272 data-nosnippet>272</a>                <span class="self">self</span>.visit_expression(left, <span class="kw-2">&amp;</span>Default::default());
-<a href=#273 id=273 data-nosnippet>273</a>                <span class="self">self</span>.visit_expression(right, <span class="kw-2">&amp;</span>Default::default())
-<a href=#274 id=274 data-nosnippet>274</a>            }
-<a href=#275 id=275 data-nosnippet>275</a>        };
-<a href=#276 id=276 data-nosnippet>276</a>    }
-<a href=#277 id=277 data-nosnippet>277</a>
-<a href=#278 id=278 data-nosnippet>278</a>    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssignStatement) {
-<a href=#279 id=279 data-nosnippet>279</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.place, <span class="kw-2">&amp;</span>Default::default());
-<a href=#280 id=280 data-nosnippet>280</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
+<a href=#249 id=249 data-nosnippet>249</a>    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>UnaryExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#250 id=250 data-nosnippet>250</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span>Default::default());
+<a href=#251 id=251 data-nosnippet>251</a>        Default::default()
+<a href=#252 id=252 data-nosnippet>252</a>    }
+<a href=#253 id=253 data-nosnippet>253</a>
+<a href=#254 id=254 data-nosnippet>254</a>    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+<a href=#255 id=255 data-nosnippet>255</a>        Default::default()
+<a href=#256 id=256 data-nosnippet>256</a>    }
+<a href=#257 id=257 data-nosnippet>257</a>
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="comment">/* Statements */
+<a href=#259 id=259 data-nosnippet>259</a>    </span><span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Statement) {
+<a href=#260 id=260 data-nosnippet>260</a>        <span class="kw">match </span>input {
+<a href=#261 id=261 data-nosnippet>261</a>            Statement::Assert(stmt) =&gt; <span class="self">self</span>.visit_assert(stmt),
+<a href=#262 id=262 data-nosnippet>262</a>            Statement::Assign(stmt) =&gt; <span class="self">self</span>.visit_assign(stmt),
+<a href=#263 id=263 data-nosnippet>263</a>            Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
+<a href=#264 id=264 data-nosnippet>264</a>            Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
+<a href=#265 id=265 data-nosnippet>265</a>            Statement::Const(stmt) =&gt; <span class="self">self</span>.visit_const(stmt),
+<a href=#266 id=266 data-nosnippet>266</a>            Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
+<a href=#267 id=267 data-nosnippet>267</a>            Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
+<a href=#268 id=268 data-nosnippet>268</a>            Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
+<a href=#269 id=269 data-nosnippet>269</a>            Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
+<a href=#270 id=270 data-nosnippet>270</a>        }
+<a href=#271 id=271 data-nosnippet>271</a>    }
+<a href=#272 id=272 data-nosnippet>272</a>
+<a href=#273 id=273 data-nosnippet>273</a>    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssertStatement) {
+<a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
+<a href=#275 id=275 data-nosnippet>275</a>            AssertVariant::Assert(expr) =&gt; <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default()),
+<a href=#276 id=276 data-nosnippet>276</a>            AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) =&gt; {
+<a href=#277 id=277 data-nosnippet>277</a>                <span class="self">self</span>.visit_expression(left, <span class="kw-2">&amp;</span>Default::default());
+<a href=#278 id=278 data-nosnippet>278</a>                <span class="self">self</span>.visit_expression(right, <span class="kw-2">&amp;</span>Default::default())
+<a href=#279 id=279 data-nosnippet>279</a>            }
+<a href=#280 id=280 data-nosnippet>280</a>        };
 <a href=#281 id=281 data-nosnippet>281</a>    }
 <a href=#282 id=282 data-nosnippet>282</a>
-<a href=#283 id=283 data-nosnippet>283</a>    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Block) {
-<a href=#284 id=284 data-nosnippet>284</a>        input.statements.iter().for_each(|stmt| <span class="self">self</span>.visit_statement(stmt));
-<a href=#285 id=285 data-nosnippet>285</a>    }
-<a href=#286 id=286 data-nosnippet>286</a>
-<a href=#287 id=287 data-nosnippet>287</a>    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConditionalStatement) {
-<a href=#288 id=288 data-nosnippet>288</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>Default::default());
-<a href=#289 id=289 data-nosnippet>289</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.then);
-<a href=#290 id=290 data-nosnippet>290</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(stmt) = input.otherwise.as_ref() {
-<a href=#291 id=291 data-nosnippet>291</a>            <span class="self">self</span>.visit_statement(stmt);
-<a href=#292 id=292 data-nosnippet>292</a>        }
-<a href=#293 id=293 data-nosnippet>293</a>    }
-<a href=#294 id=294 data-nosnippet>294</a>
-<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConstDeclaration) {
-<a href=#296 id=296 data-nosnippet>296</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_);
-<a href=#297 id=297 data-nosnippet>297</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
+<a href=#283 id=283 data-nosnippet>283</a>    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>AssignStatement) {
+<a href=#284 id=284 data-nosnippet>284</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.place, <span class="kw-2">&amp;</span>Default::default());
+<a href=#285 id=285 data-nosnippet>285</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
+<a href=#286 id=286 data-nosnippet>286</a>    }
+<a href=#287 id=287 data-nosnippet>287</a>
+<a href=#288 id=288 data-nosnippet>288</a>    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Block) {
+<a href=#289 id=289 data-nosnippet>289</a>        input.statements.iter().for_each(|stmt| <span class="self">self</span>.visit_statement(stmt));
+<a href=#290 id=290 data-nosnippet>290</a>    }
+<a href=#291 id=291 data-nosnippet>291</a>
+<a href=#292 id=292 data-nosnippet>292</a>    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConditionalStatement) {
+<a href=#293 id=293 data-nosnippet>293</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>Default::default());
+<a href=#294 id=294 data-nosnippet>294</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.then);
+<a href=#295 id=295 data-nosnippet>295</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(stmt) = input.otherwise.as_ref() {
+<a href=#296 id=296 data-nosnippet>296</a>            <span class="self">self</span>.visit_statement(stmt);
+<a href=#297 id=297 data-nosnippet>297</a>        }
 <a href=#298 id=298 data-nosnippet>298</a>    }
 <a href=#299 id=299 data-nosnippet>299</a>
-<a href=#300 id=300 data-nosnippet>300</a>    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>DefinitionStatement) {
-<a href=#301 id=301 data-nosnippet>301</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(ty) = input.type_.as_ref() {
-<a href=#302 id=302 data-nosnippet>302</a>            <span class="self">self</span>.visit_type(ty)
-<a href=#303 id=303 data-nosnippet>303</a>        }
-<a href=#304 id=304 data-nosnippet>304</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
-<a href=#305 id=305 data-nosnippet>305</a>    }
-<a href=#306 id=306 data-nosnippet>306</a>
-<a href=#307 id=307 data-nosnippet>307</a>    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ExpressionStatement) {
-<a href=#308 id=308 data-nosnippet>308</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
-<a href=#309 id=309 data-nosnippet>309</a>    }
-<a href=#310 id=310 data-nosnippet>310</a>
-<a href=#311 id=311 data-nosnippet>311</a>    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement) {
-<a href=#312 id=312 data-nosnippet>312</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(ty) = input.type_.as_ref() {
-<a href=#313 id=313 data-nosnippet>313</a>            <span class="self">self</span>.visit_type(ty)
-<a href=#314 id=314 data-nosnippet>314</a>        }
-<a href=#315 id=315 data-nosnippet>315</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.start, <span class="kw-2">&amp;</span>Default::default());
-<a href=#316 id=316 data-nosnippet>316</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.stop, <span class="kw-2">&amp;</span>Default::default());
-<a href=#317 id=317 data-nosnippet>317</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
-<a href=#318 id=318 data-nosnippet>318</a>    }
-<a href=#319 id=319 data-nosnippet>319</a>
-<a href=#320 id=320 data-nosnippet>320</a>    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ReturnStatement) {
-<a href=#321 id=321 data-nosnippet>321</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
-<a href=#322 id=322 data-nosnippet>322</a>    }
-<a href=#323 id=323 data-nosnippet>323</a>}
+<a href=#300 id=300 data-nosnippet>300</a>    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ConstDeclaration) {
+<a href=#301 id=301 data-nosnippet>301</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_);
+<a href=#302 id=302 data-nosnippet>302</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
+<a href=#303 id=303 data-nosnippet>303</a>    }
+<a href=#304 id=304 data-nosnippet>304</a>
+<a href=#305 id=305 data-nosnippet>305</a>    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>DefinitionStatement) {
+<a href=#306 id=306 data-nosnippet>306</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(ty) = input.type_.as_ref() {
+<a href=#307 id=307 data-nosnippet>307</a>            <span class="self">self</span>.visit_type(ty)
+<a href=#308 id=308 data-nosnippet>308</a>        }
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
+<a href=#310 id=310 data-nosnippet>310</a>    }
+<a href=#311 id=311 data-nosnippet>311</a>
+<a href=#312 id=312 data-nosnippet>312</a>    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ExpressionStatement) {
+<a href=#313 id=313 data-nosnippet>313</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
+<a href=#314 id=314 data-nosnippet>314</a>    }
+<a href=#315 id=315 data-nosnippet>315</a>
+<a href=#316 id=316 data-nosnippet>316</a>    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement) {
+<a href=#317 id=317 data-nosnippet>317</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(ty) = input.type_.as_ref() {
+<a href=#318 id=318 data-nosnippet>318</a>            <span class="self">self</span>.visit_type(ty)
+<a href=#319 id=319 data-nosnippet>319</a>        }
+<a href=#320 id=320 data-nosnippet>320</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.start, <span class="kw-2">&amp;</span>Default::default());
+<a href=#321 id=321 data-nosnippet>321</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.stop, <span class="kw-2">&amp;</span>Default::default());
+<a href=#322 id=322 data-nosnippet>322</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
+<a href=#323 id=323 data-nosnippet>323</a>    }
 <a href=#324 id=324 data-nosnippet>324</a>
-<a href=#325 id=325 data-nosnippet>325</a><span class="doccomment">/// A Visitor trait for the program represented by the AST.
-<a href=#326 id=326 data-nosnippet>326</a></span><span class="kw">pub trait </span>ProgramVisitor: AstVisitor {
-<a href=#327 id=327 data-nosnippet>327</a>    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Program) {
-<a href=#328 id=328 data-nosnippet>328</a>        input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
-<a href=#329 id=329 data-nosnippet>329</a>        input.modules.values().for_each(|module| <span class="self">self</span>.visit_module(module));
-<a href=#330 id=330 data-nosnippet>330</a>        input.imports.values().for_each(|import| <span class="self">self</span>.visit_import(<span class="kw-2">&amp;</span>import.<span class="number">0</span>));
-<a href=#331 id=331 data-nosnippet>331</a>        input.stubs.values().for_each(|stub| <span class="self">self</span>.visit_stub(stub));
-<a href=#332 id=332 data-nosnippet>332</a>    }
-<a href=#333 id=333 data-nosnippet>333</a>
-<a href=#334 id=334 data-nosnippet>334</a>    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ProgramScope) {
-<a href=#335 id=335 data-nosnippet>335</a>        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
-<a href=#336 id=336 data-nosnippet>336</a>        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
-<a href=#337 id=337 data-nosnippet>337</a>        input.mappings.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_mapping(c)));
-<a href=#338 id=338 data-nosnippet>338</a>        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function(c)));
-<a href=#339 id=339 data-nosnippet>339</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = input.constructor.as_ref() {
-<a href=#340 id=340 data-nosnippet>340</a>            <span class="self">self</span>.visit_constructor(c);
-<a href=#341 id=341 data-nosnippet>341</a>        }
-<a href=#342 id=342 data-nosnippet>342</a>    }
-<a href=#343 id=343 data-nosnippet>343</a>
-<a href=#344 id=344 data-nosnippet>344</a>    <span class="kw">fn </span>visit_module(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Module) {
-<a href=#345 id=345 data-nosnippet>345</a>        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
-<a href=#346 id=346 data-nosnippet>346</a>        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
-<a href=#347 id=347 data-nosnippet>347</a>        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function(c)));
+<a href=#325 id=325 data-nosnippet>325</a>    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ReturnStatement) {
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
+<a href=#327 id=327 data-nosnippet>327</a>    }
+<a href=#328 id=328 data-nosnippet>328</a>}
+<a href=#329 id=329 data-nosnippet>329</a>
+<a href=#330 id=330 data-nosnippet>330</a><span class="doccomment">/// A Visitor trait for the program represented by the AST.
+<a href=#331 id=331 data-nosnippet>331</a></span><span class="kw">pub trait </span>ProgramVisitor: AstVisitor {
+<a href=#332 id=332 data-nosnippet>332</a>    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Program) {
+<a href=#333 id=333 data-nosnippet>333</a>        input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
+<a href=#334 id=334 data-nosnippet>334</a>        input.modules.values().for_each(|module| <span class="self">self</span>.visit_module(module));
+<a href=#335 id=335 data-nosnippet>335</a>        input.imports.values().for_each(|import| <span class="self">self</span>.visit_import(<span class="kw-2">&amp;</span>import.<span class="number">0</span>));
+<a href=#336 id=336 data-nosnippet>336</a>        input.stubs.values().for_each(|stub| <span class="self">self</span>.visit_stub(stub));
+<a href=#337 id=337 data-nosnippet>337</a>    }
+<a href=#338 id=338 data-nosnippet>338</a>
+<a href=#339 id=339 data-nosnippet>339</a>    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ProgramScope) {
+<a href=#340 id=340 data-nosnippet>340</a>        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
+<a href=#341 id=341 data-nosnippet>341</a>        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
+<a href=#342 id=342 data-nosnippet>342</a>        input.mappings.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_mapping(c)));
+<a href=#343 id=343 data-nosnippet>343</a>        input.storage_variables.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_storage_variable(c)));
+<a href=#344 id=344 data-nosnippet>344</a>        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function(c)));
+<a href=#345 id=345 data-nosnippet>345</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = input.constructor.as_ref() {
+<a href=#346 id=346 data-nosnippet>346</a>            <span class="self">self</span>.visit_constructor(c);
+<a href=#347 id=347 data-nosnippet>347</a>        }
 <a href=#348 id=348 data-nosnippet>348</a>    }
 <a href=#349 id=349 data-nosnippet>349</a>
-<a href=#350 id=350 data-nosnippet>350</a>    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Stub) {}
-<a href=#351 id=351 data-nosnippet>351</a>
-<a href=#352 id=352 data-nosnippet>352</a>    <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Program) {
-<a href=#353 id=353 data-nosnippet>353</a>        <span class="self">self</span>.visit_program(input)
+<a href=#350 id=350 data-nosnippet>350</a>    <span class="kw">fn </span>visit_module(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Module) {
+<a href=#351 id=351 data-nosnippet>351</a>        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
+<a href=#352 id=352 data-nosnippet>352</a>        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
+<a href=#353 id=353 data-nosnippet>353</a>        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function(c)));
 <a href=#354 id=354 data-nosnippet>354</a>    }
 <a href=#355 id=355 data-nosnippet>355</a>
-<a href=#356 id=356 data-nosnippet>356</a>    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Composite) {
-<a href=#357 id=357 data-nosnippet>357</a>        input.const_parameters.iter().for_each(|input| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_));
-<a href=#358 id=358 data-nosnippet>358</a>        input.members.iter().for_each(|member| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>member.type_));
-<a href=#359 id=359 data-nosnippet>359</a>    }
-<a href=#360 id=360 data-nosnippet>360</a>
-<a href=#361 id=361 data-nosnippet>361</a>    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Mapping) {
-<a href=#362 id=362 data-nosnippet>362</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.key_type);
-<a href=#363 id=363 data-nosnippet>363</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.value_type);
-<a href=#364 id=364 data-nosnippet>364</a>    }
-<a href=#365 id=365 data-nosnippet>365</a>
-<a href=#366 id=366 data-nosnippet>366</a>    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Function) {
-<a href=#367 id=367 data-nosnippet>367</a>        input.const_parameters.iter().for_each(|input| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_));
-<a href=#368 id=368 data-nosnippet>368</a>        input.input.iter().for_each(|input| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_));
-<a href=#369 id=369 data-nosnippet>369</a>        input.output.iter().for_each(|output| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>output.type_));
-<a href=#370 id=370 data-nosnippet>370</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.output_type);
-<a href=#371 id=371 data-nosnippet>371</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
-<a href=#372 id=372 data-nosnippet>372</a>    }
-<a href=#373 id=373 data-nosnippet>373</a>
-<a href=#374 id=374 data-nosnippet>374</a>    <span class="kw">fn </span>visit_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Constructor) {
-<a href=#375 id=375 data-nosnippet>375</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
-<a href=#376 id=376 data-nosnippet>376</a>    }
-<a href=#377 id=377 data-nosnippet>377</a>
-<a href=#378 id=378 data-nosnippet>378</a>    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>FunctionStub) {}
-<a href=#379 id=379 data-nosnippet>379</a>
-<a href=#380 id=380 data-nosnippet>380</a>    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Composite) {}
-<a href=#381 id=381 data-nosnippet>381</a>}</code></pre></div></section></main></body></html>
+<a href=#356 id=356 data-nosnippet>356</a>    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Stub) {}
+<a href=#357 id=357 data-nosnippet>357</a>
+<a href=#358 id=358 data-nosnippet>358</a>    <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Program) {
+<a href=#359 id=359 data-nosnippet>359</a>        <span class="self">self</span>.visit_program(input)
+<a href=#360 id=360 data-nosnippet>360</a>    }
+<a href=#361 id=361 data-nosnippet>361</a>
+<a href=#362 id=362 data-nosnippet>362</a>    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Composite) {
+<a href=#363 id=363 data-nosnippet>363</a>        input.const_parameters.iter().for_each(|input| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_));
+<a href=#364 id=364 data-nosnippet>364</a>        input.members.iter().for_each(|member| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>member.type_));
+<a href=#365 id=365 data-nosnippet>365</a>    }
+<a href=#366 id=366 data-nosnippet>366</a>
+<a href=#367 id=367 data-nosnippet>367</a>    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Mapping) {
+<a href=#368 id=368 data-nosnippet>368</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.key_type);
+<a href=#369 id=369 data-nosnippet>369</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.value_type);
+<a href=#370 id=370 data-nosnippet>370</a>    }
+<a href=#371 id=371 data-nosnippet>371</a>
+<a href=#372 id=372 data-nosnippet>372</a>    <span class="kw">fn </span>visit_storage_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>StorageVariable) {
+<a href=#373 id=373 data-nosnippet>373</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_);
+<a href=#374 id=374 data-nosnippet>374</a>    }
+<a href=#375 id=375 data-nosnippet>375</a>
+<a href=#376 id=376 data-nosnippet>376</a>    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Function) {
+<a href=#377 id=377 data-nosnippet>377</a>        input.const_parameters.iter().for_each(|input| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_));
+<a href=#378 id=378 data-nosnippet>378</a>        input.input.iter().for_each(|input| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.type_));
+<a href=#379 id=379 data-nosnippet>379</a>        input.output.iter().for_each(|output| <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>output.type_));
+<a href=#380 id=380 data-nosnippet>380</a>        <span class="self">self</span>.visit_type(<span class="kw-2">&amp;</span>input.output_type);
+<a href=#381 id=381 data-nosnippet>381</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
+<a href=#382 id=382 data-nosnippet>382</a>    }
+<a href=#383 id=383 data-nosnippet>383</a>
+<a href=#384 id=384 data-nosnippet>384</a>    <span class="kw">fn </span>visit_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Constructor) {
+<a href=#385 id=385 data-nosnippet>385</a>        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
+<a href=#386 id=386 data-nosnippet>386</a>    }
+<a href=#387 id=387 data-nosnippet>387</a>
+<a href=#388 id=388 data-nosnippet>388</a>    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>FunctionStub) {}
+<a href=#389 id=389 data-nosnippet>389</a>
+<a href=#390 id=390 data-nosnippet>390</a>    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Composite) {}
+<a href=#391 id=391 data-nosnippet>391</a>}</code></pre></div></section></main></body></html>

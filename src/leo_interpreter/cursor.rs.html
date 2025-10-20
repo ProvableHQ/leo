@@ -990,10 +990,10 @@
 <a href=#990 id=990 data-nosnippet>990</a>                <span class="comment">// We want to push expressions for each of the arguments... except for mappings,
 <a href=#991 id=991 data-nosnippet>991</a>                // because we don't look them up as Values.
 <a href=#992 id=992 data-nosnippet>992</a>                </span><span class="kw">match </span>core_function {
-<a href=#993 id=993 data-nosnippet>993</a>                    CoreFunction::MappingGet | CoreFunction::MappingRemove | CoreFunction::MappingContains =&gt; {
+<a href=#993 id=993 data-nosnippet>993</a>                    CoreFunction::Get | CoreFunction::MappingRemove | CoreFunction::MappingContains =&gt; {
 <a href=#994 id=994 data-nosnippet>994</a>                        <span class="macro">push!</span>()(<span class="kw-2">&amp;</span>function.arguments[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 <a href=#995 id=995 data-nosnippet>995</a>                    }
-<a href=#996 id=996 data-nosnippet>996</a>                    CoreFunction::MappingGetOrUse | CoreFunction::MappingSet =&gt; {
+<a href=#996 id=996 data-nosnippet>996</a>                    CoreFunction::MappingGetOrUse | CoreFunction::Set =&gt; {
 <a href=#997 id=997 data-nosnippet>997</a>                        <span class="macro">push!</span>()(<span class="kw-2">&amp;</span>function.arguments[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 <a href=#998 id=998 data-nosnippet>998</a>                        <span class="macro">push!</span>()(<span class="kw-2">&amp;</span>function.arguments[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 <a href=#999 id=999 data-nosnippet>999</a>                    }

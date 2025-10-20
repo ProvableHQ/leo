@@ -52,58 +52,60 @@
 <a href=#52 id=52 data-nosnippet>52</a>        input.structs = input.structs.into_iter().map(|(i, c)| (i, <span class="self">self</span>.reconstruct_struct(c))).collect();
 <a href=#53 id=53 data-nosnippet>53</a>        input.mappings =
 <a href=#54 id=54 data-nosnippet>54</a>            input.mappings.into_iter().map(|(id, mapping)| (id, <span class="self">self</span>.reconstruct_mapping(mapping))).collect();
-<a href=#55 id=55 data-nosnippet>55</a>
-<a href=#56 id=56 data-nosnippet>56</a>        input
-<a href=#57 id=57 data-nosnippet>57</a>    }
-<a href=#58 id=58 data-nosnippet>58</a>
-<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">fn </span>reconstruct_module(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Module) -&gt; Module {
-<a href=#60 id=60 data-nosnippet>60</a>        <span class="self">self</span>.program = input.program_name;
-<a href=#61 id=61 data-nosnippet>61</a>        <span class="self">self</span>.in_module_scope(<span class="kw-2">&amp;</span>input.path.clone(), |slf| {
-<a href=#62 id=62 data-nosnippet>62</a>            Module {
-<a href=#63 id=63 data-nosnippet>63</a>                <span class="comment">// Reconstruct consts firsts
-<a href=#64 id=64 data-nosnippet>64</a>                </span>consts: input
-<a href=#65 id=65 data-nosnippet>65</a>                    .consts
-<a href=#66 id=66 data-nosnippet>66</a>                    .into_iter()
-<a href=#67 id=67 data-nosnippet>67</a>                    .map(|(i, c)| <span class="kw">match </span>slf.reconstruct_const(c) {
-<a href=#68 id=68 data-nosnippet>68</a>                        (Statement::Const(declaration), <span class="kw">_</span>) =&gt; (i, declaration),
-<a href=#69 id=69 data-nosnippet>69</a>                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` can only return `Statement::Const`"</span>),
-<a href=#70 id=70 data-nosnippet>70</a>                    })
-<a href=#71 id=71 data-nosnippet>71</a>                    .collect(),
-<a href=#72 id=72 data-nosnippet>72</a>                program_name: input.program_name,
-<a href=#73 id=73 data-nosnippet>73</a>                path: input.path,
-<a href=#74 id=74 data-nosnippet>74</a>                structs: input.structs.into_iter().map(|(i, c)| (i, slf.reconstruct_struct(c))).collect(),
-<a href=#75 id=75 data-nosnippet>75</a>                functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
-<a href=#76 id=76 data-nosnippet>76</a>            }
-<a href=#77 id=77 data-nosnippet>77</a>        })
-<a href=#78 id=78 data-nosnippet>78</a>    }
-<a href=#79 id=79 data-nosnippet>79</a>
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>function: Function) -&gt; Function {
-<a href=#81 id=81 data-nosnippet>81</a>        <span class="self">self</span>.in_scope(function.id(), |slf| {
-<a href=#82 id=82 data-nosnippet>82</a>            function.const_parameters = function
-<a href=#83 id=83 data-nosnippet>83</a>                .const_parameters
-<a href=#84 id=84 data-nosnippet>84</a>                .iter()
-<a href=#85 id=85 data-nosnippet>85</a>                .map(|param| ConstParameter { type_: slf.reconstruct_type(param.type_.clone()).<span class="number">0</span>, ..param.clone() })
-<a href=#86 id=86 data-nosnippet>86</a>                .collect();
-<a href=#87 id=87 data-nosnippet>87</a>            function.input = function
-<a href=#88 id=88 data-nosnippet>88</a>                .input
-<a href=#89 id=89 data-nosnippet>89</a>                .iter()
-<a href=#90 id=90 data-nosnippet>90</a>                .map(|input| Input { type_: slf.reconstruct_type(input.type_.clone()).<span class="number">0</span>, ..input.clone() })
-<a href=#91 id=91 data-nosnippet>91</a>                .collect();
-<a href=#92 id=92 data-nosnippet>92</a>            function.output = function
-<a href=#93 id=93 data-nosnippet>93</a>                .output
-<a href=#94 id=94 data-nosnippet>94</a>                .iter()
-<a href=#95 id=95 data-nosnippet>95</a>                .map(|output| Output { type_: slf.reconstruct_type(output.type_.clone()).<span class="number">0</span>, ..output.clone() })
-<a href=#96 id=96 data-nosnippet>96</a>                .collect();
-<a href=#97 id=97 data-nosnippet>97</a>            function.output_type = slf.reconstruct_type(function.output_type).<span class="number">0</span>;
-<a href=#98 id=98 data-nosnippet>98</a>            function.block = slf.reconstruct_block(function.block).<span class="number">0</span>;
-<a href=#99 id=99 data-nosnippet>99</a>            function
-<a href=#100 id=100 data-nosnippet>100</a>        })
-<a href=#101 id=101 data-nosnippet>101</a>    }
-<a href=#102 id=102 data-nosnippet>102</a>
-<a href=#103 id=103 data-nosnippet>103</a>    <span class="kw">fn </span>reconstruct_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>constructor: Constructor) -&gt; Constructor {
-<a href=#104 id=104 data-nosnippet>104</a>        <span class="self">self</span>.in_scope(constructor.id(), |slf| {
-<a href=#105 id=105 data-nosnippet>105</a>            constructor.block = slf.reconstruct_block(constructor.block).<span class="number">0</span>;
-<a href=#106 id=106 data-nosnippet>106</a>            constructor
-<a href=#107 id=107 data-nosnippet>107</a>        })
-<a href=#108 id=108 data-nosnippet>108</a>    }
-<a href=#109 id=109 data-nosnippet>109</a>}</code></pre></div></section></main></body></html>
+<a href=#55 id=55 data-nosnippet>55</a>        input.storage_variables =
+<a href=#56 id=56 data-nosnippet>56</a>            input.storage_variables.into_iter().map(|(id, var)| (id, <span class="self">self</span>.reconstruct_storage_variable(var))).collect();
+<a href=#57 id=57 data-nosnippet>57</a>
+<a href=#58 id=58 data-nosnippet>58</a>        input
+<a href=#59 id=59 data-nosnippet>59</a>    }
+<a href=#60 id=60 data-nosnippet>60</a>
+<a href=#61 id=61 data-nosnippet>61</a>    <span class="kw">fn </span>reconstruct_module(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Module) -&gt; Module {
+<a href=#62 id=62 data-nosnippet>62</a>        <span class="self">self</span>.program = input.program_name;
+<a href=#63 id=63 data-nosnippet>63</a>        <span class="self">self</span>.in_module_scope(<span class="kw-2">&amp;</span>input.path.clone(), |slf| {
+<a href=#64 id=64 data-nosnippet>64</a>            Module {
+<a href=#65 id=65 data-nosnippet>65</a>                <span class="comment">// Reconstruct consts firsts
+<a href=#66 id=66 data-nosnippet>66</a>                </span>consts: input
+<a href=#67 id=67 data-nosnippet>67</a>                    .consts
+<a href=#68 id=68 data-nosnippet>68</a>                    .into_iter()
+<a href=#69 id=69 data-nosnippet>69</a>                    .map(|(i, c)| <span class="kw">match </span>slf.reconstruct_const(c) {
+<a href=#70 id=70 data-nosnippet>70</a>                        (Statement::Const(declaration), <span class="kw">_</span>) =&gt; (i, declaration),
+<a href=#71 id=71 data-nosnippet>71</a>                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` can only return `Statement::Const`"</span>),
+<a href=#72 id=72 data-nosnippet>72</a>                    })
+<a href=#73 id=73 data-nosnippet>73</a>                    .collect(),
+<a href=#74 id=74 data-nosnippet>74</a>                program_name: input.program_name,
+<a href=#75 id=75 data-nosnippet>75</a>                path: input.path,
+<a href=#76 id=76 data-nosnippet>76</a>                structs: input.structs.into_iter().map(|(i, c)| (i, slf.reconstruct_struct(c))).collect(),
+<a href=#77 id=77 data-nosnippet>77</a>                functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
+<a href=#78 id=78 data-nosnippet>78</a>            }
+<a href=#79 id=79 data-nosnippet>79</a>        })
+<a href=#80 id=80 data-nosnippet>80</a>    }
+<a href=#81 id=81 data-nosnippet>81</a>
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>function: Function) -&gt; Function {
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="self">self</span>.in_scope(function.id(), |slf| {
+<a href=#84 id=84 data-nosnippet>84</a>            function.const_parameters = function
+<a href=#85 id=85 data-nosnippet>85</a>                .const_parameters
+<a href=#86 id=86 data-nosnippet>86</a>                .iter()
+<a href=#87 id=87 data-nosnippet>87</a>                .map(|param| ConstParameter { type_: slf.reconstruct_type(param.type_.clone()).<span class="number">0</span>, ..param.clone() })
+<a href=#88 id=88 data-nosnippet>88</a>                .collect();
+<a href=#89 id=89 data-nosnippet>89</a>            function.input = function
+<a href=#90 id=90 data-nosnippet>90</a>                .input
+<a href=#91 id=91 data-nosnippet>91</a>                .iter()
+<a href=#92 id=92 data-nosnippet>92</a>                .map(|input| Input { type_: slf.reconstruct_type(input.type_.clone()).<span class="number">0</span>, ..input.clone() })
+<a href=#93 id=93 data-nosnippet>93</a>                .collect();
+<a href=#94 id=94 data-nosnippet>94</a>            function.output = function
+<a href=#95 id=95 data-nosnippet>95</a>                .output
+<a href=#96 id=96 data-nosnippet>96</a>                .iter()
+<a href=#97 id=97 data-nosnippet>97</a>                .map(|output| Output { type_: slf.reconstruct_type(output.type_.clone()).<span class="number">0</span>, ..output.clone() })
+<a href=#98 id=98 data-nosnippet>98</a>                .collect();
+<a href=#99 id=99 data-nosnippet>99</a>            function.output_type = slf.reconstruct_type(function.output_type).<span class="number">0</span>;
+<a href=#100 id=100 data-nosnippet>100</a>            function.block = slf.reconstruct_block(function.block).<span class="number">0</span>;
+<a href=#101 id=101 data-nosnippet>101</a>            function
+<a href=#102 id=102 data-nosnippet>102</a>        })
+<a href=#103 id=103 data-nosnippet>103</a>    }
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a>    <span class="kw">fn </span>reconstruct_constructor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>constructor: Constructor) -&gt; Constructor {
+<a href=#106 id=106 data-nosnippet>106</a>        <span class="self">self</span>.in_scope(constructor.id(), |slf| {
+<a href=#107 id=107 data-nosnippet>107</a>            constructor.block = slf.reconstruct_block(constructor.block).<span class="number">0</span>;
+<a href=#108 id=108 data-nosnippet>108</a>            constructor
+<a href=#109 id=109 data-nosnippet>109</a>        })
+<a href=#110 id=110 data-nosnippet>110</a>    }
+<a href=#111 id=111 data-nosnippet>111</a>}</code></pre></div></section></main></body></html>

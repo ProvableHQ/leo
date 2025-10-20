@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/processing_async/program.rs`."><title>program.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0 (1159e78c4 2025-09-14)" data-channel="1.90.0" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/processing_async/</div>program.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/processing_async/program.rs`."><title>program.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-aa0817cf.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.90.0 (1159e78c4 2025-09-14)" data-channel="1.90.0" data-search-js="search-fa3e91e5.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-68b7e25d.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-eebb9057.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-32bb7600.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/processing_async/</div>program.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 <a href=#2 id=2 data-nosnippet>2</a>// This file is part of the Leo library.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a>// The Leo library is free software: you can redistribute it and/or modify
@@ -53,47 +53,52 @@
 <a href=#53 id=53 data-nosnippet>53</a>            program_id: input.program_id,
 <a href=#54 id=54 data-nosnippet>54</a>            structs: input.structs.into_iter().map(|(id, def)| (id, <span class="self">self</span>.reconstruct_struct(def))).collect(),
 <a href=#55 id=55 data-nosnippet>55</a>            mappings: input.mappings.into_iter().map(|(id, mapping)| (id, <span class="self">self</span>.reconstruct_mapping(mapping))).collect(),
-<a href=#56 id=56 data-nosnippet>56</a>            functions: reconstructed_functions,
-<a href=#57 id=57 data-nosnippet>57</a>            constructor: input.constructor,
-<a href=#58 id=58 data-nosnippet>58</a>            consts: input
-<a href=#59 id=59 data-nosnippet>59</a>                .consts
-<a href=#60 id=60 data-nosnippet>60</a>                .into_iter()
-<a href=#61 id=61 data-nosnippet>61</a>                .map(|(id, stmt)| <span class="kw">match </span><span class="self">self</span>.reconstruct_const(stmt) {
-<a href=#62 id=62 data-nosnippet>62</a>                    (Statement::Const(decl), <span class="kw">_</span>) =&gt; (id, decl),
-<a href=#63 id=63 data-nosnippet>63</a>                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` must return `Statement::Const`"</span>),
-<a href=#64 id=64 data-nosnippet>64</a>                })
-<a href=#65 id=65 data-nosnippet>65</a>                .collect(),
-<a href=#66 id=66 data-nosnippet>66</a>            span: input.span,
-<a href=#67 id=67 data-nosnippet>67</a>        }
-<a href=#68 id=68 data-nosnippet>68</a>    }
-<a href=#69 id=69 data-nosnippet>69</a>
-<a href=#70 id=70 data-nosnippet>70</a>    <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Function) -&gt; Function {
-<a href=#71 id=71 data-nosnippet>71</a>        <span class="self">self</span>.current_function = input.name();
-<a href=#72 id=72 data-nosnippet>72</a>
-<a href=#73 id=73 data-nosnippet>73</a>        <span class="comment">// Enter the scope of the function for correct symbols lookup later
-<a href=#74 id=74 data-nosnippet>74</a>        </span><span class="self">self</span>.in_scope(input.id(), |slf| Function {
-<a href=#75 id=75 data-nosnippet>75</a>            annotations: input.annotations,
-<a href=#76 id=76 data-nosnippet>76</a>            variant: input.variant,
-<a href=#77 id=77 data-nosnippet>77</a>            identifier: input.identifier,
-<a href=#78 id=78 data-nosnippet>78</a>            const_parameters: input
-<a href=#79 id=79 data-nosnippet>79</a>                .const_parameters
-<a href=#80 id=80 data-nosnippet>80</a>                .iter()
-<a href=#81 id=81 data-nosnippet>81</a>                .map(|param| ConstParameter { type_: slf.reconstruct_type(param.type_.clone()).<span class="number">0</span>, ..param.clone() })
-<a href=#82 id=82 data-nosnippet>82</a>                .collect(),
-<a href=#83 id=83 data-nosnippet>83</a>            input: input
-<a href=#84 id=84 data-nosnippet>84</a>                .input
+<a href=#56 id=56 data-nosnippet>56</a>            storage_variables: input
+<a href=#57 id=57 data-nosnippet>57</a>                .storage_variables
+<a href=#58 id=58 data-nosnippet>58</a>                .into_iter()
+<a href=#59 id=59 data-nosnippet>59</a>                .map(|(id, storage_variable)| (id, <span class="self">self</span>.reconstruct_storage_variable(storage_variable)))
+<a href=#60 id=60 data-nosnippet>60</a>                .collect(),
+<a href=#61 id=61 data-nosnippet>61</a>            functions: reconstructed_functions,
+<a href=#62 id=62 data-nosnippet>62</a>            constructor: input.constructor,
+<a href=#63 id=63 data-nosnippet>63</a>            consts: input
+<a href=#64 id=64 data-nosnippet>64</a>                .consts
+<a href=#65 id=65 data-nosnippet>65</a>                .into_iter()
+<a href=#66 id=66 data-nosnippet>66</a>                .map(|(id, stmt)| <span class="kw">match </span><span class="self">self</span>.reconstruct_const(stmt) {
+<a href=#67 id=67 data-nosnippet>67</a>                    (Statement::Const(decl), <span class="kw">_</span>) =&gt; (id, decl),
+<a href=#68 id=68 data-nosnippet>68</a>                    <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"`reconstruct_const` must return `Statement::Const`"</span>),
+<a href=#69 id=69 data-nosnippet>69</a>                })
+<a href=#70 id=70 data-nosnippet>70</a>                .collect(),
+<a href=#71 id=71 data-nosnippet>71</a>            span: input.span,
+<a href=#72 id=72 data-nosnippet>72</a>        }
+<a href=#73 id=73 data-nosnippet>73</a>    }
+<a href=#74 id=74 data-nosnippet>74</a>
+<a href=#75 id=75 data-nosnippet>75</a>    <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Function) -&gt; Function {
+<a href=#76 id=76 data-nosnippet>76</a>        <span class="self">self</span>.current_function = input.name();
+<a href=#77 id=77 data-nosnippet>77</a>
+<a href=#78 id=78 data-nosnippet>78</a>        <span class="comment">// Enter the scope of the function for correct symbols lookup later
+<a href=#79 id=79 data-nosnippet>79</a>        </span><span class="self">self</span>.in_scope(input.id(), |slf| Function {
+<a href=#80 id=80 data-nosnippet>80</a>            annotations: input.annotations,
+<a href=#81 id=81 data-nosnippet>81</a>            variant: input.variant,
+<a href=#82 id=82 data-nosnippet>82</a>            identifier: input.identifier,
+<a href=#83 id=83 data-nosnippet>83</a>            const_parameters: input
+<a href=#84 id=84 data-nosnippet>84</a>                .const_parameters
 <a href=#85 id=85 data-nosnippet>85</a>                .iter()
-<a href=#86 id=86 data-nosnippet>86</a>                .map(|input| Input { type_: slf.reconstruct_type(input.type_.clone()).<span class="number">0</span>, ..input.clone() })
+<a href=#86 id=86 data-nosnippet>86</a>                .map(|param| ConstParameter { type_: slf.reconstruct_type(param.type_.clone()).<span class="number">0</span>, ..param.clone() })
 <a href=#87 id=87 data-nosnippet>87</a>                .collect(),
-<a href=#88 id=88 data-nosnippet>88</a>            output: input
-<a href=#89 id=89 data-nosnippet>89</a>                .output
+<a href=#88 id=88 data-nosnippet>88</a>            input: input
+<a href=#89 id=89 data-nosnippet>89</a>                .input
 <a href=#90 id=90 data-nosnippet>90</a>                .iter()
-<a href=#91 id=91 data-nosnippet>91</a>                .map(|output| Output { type_: slf.reconstruct_type(output.type_.clone()).<span class="number">0</span>, ..output.clone() })
+<a href=#91 id=91 data-nosnippet>91</a>                .map(|input| Input { type_: slf.reconstruct_type(input.type_.clone()).<span class="number">0</span>, ..input.clone() })
 <a href=#92 id=92 data-nosnippet>92</a>                .collect(),
-<a href=#93 id=93 data-nosnippet>93</a>            output_type: slf.reconstruct_type(input.output_type).<span class="number">0</span>,
-<a href=#94 id=94 data-nosnippet>94</a>            block: slf.reconstruct_block(input.block).<span class="number">0</span>,
-<a href=#95 id=95 data-nosnippet>95</a>            span: input.span,
-<a href=#96 id=96 data-nosnippet>96</a>            id: input.id,
-<a href=#97 id=97 data-nosnippet>97</a>        })
-<a href=#98 id=98 data-nosnippet>98</a>    }
-<a href=#99 id=99 data-nosnippet>99</a>}</code></pre></div></section></main></body></html>
+<a href=#93 id=93 data-nosnippet>93</a>            output: input
+<a href=#94 id=94 data-nosnippet>94</a>                .output
+<a href=#95 id=95 data-nosnippet>95</a>                .iter()
+<a href=#96 id=96 data-nosnippet>96</a>                .map(|output| Output { type_: slf.reconstruct_type(output.type_.clone()).<span class="number">0</span>, ..output.clone() })
+<a href=#97 id=97 data-nosnippet>97</a>                .collect(),
+<a href=#98 id=98 data-nosnippet>98</a>            output_type: slf.reconstruct_type(input.output_type).<span class="number">0</span>,
+<a href=#99 id=99 data-nosnippet>99</a>            block: slf.reconstruct_block(input.block).<span class="number">0</span>,
+<a href=#100 id=100 data-nosnippet>100</a>            span: input.span,
+<a href=#101 id=101 data-nosnippet>101</a>            id: input.id,
+<a href=#102 id=102 data-nosnippet>102</a>        })
+<a href=#103 id=103 data-nosnippet>103</a>    }
+<a href=#104 id=104 data-nosnippet>104</a>}</code></pre></div></section></main></body></html>

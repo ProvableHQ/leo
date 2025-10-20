@@ -53,34 +53,37 @@
 <a href=#53 id=53 data-nosnippet>53</a>            Type::Tuple(<span class="kw">_</span>) =&gt; {
 <a href=#54 id=54 data-nosnippet>54</a>                <span class="macro">panic!</span>(<span class="string">"Tuple types should not be visited at this phase of compilation"</span>)
 <a href=#55 id=55 data-nosnippet>55</a>            }
-<a href=#56 id=56 data-nosnippet>56</a>            Type::Numeric =&gt; <span class="macro">panic!</span>(<span class="string">"`Numeric` types should not exist at this phase of compilation"</span>),
-<a href=#57 id=57 data-nosnippet>57</a>            Type::Err =&gt; <span class="macro">panic!</span>(<span class="string">"Error types should not exist at this phase of compilation"</span>),
-<a href=#58 id=58 data-nosnippet>58</a>            Type::Unit =&gt; <span class="macro">panic!</span>(<span class="string">"Unit types are not supported at this phase of compilation"</span>),
-<a href=#59 id=59 data-nosnippet>59</a>        }
-<a href=#60 id=60 data-nosnippet>60</a>    }
-<a href=#61 id=61 data-nosnippet>61</a>
-<a href=#62 id=62 data-nosnippet>62</a>    <span class="kw">pub fn </span>visit_type_with_visibility(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type, visibility: Mode) -&gt; String {
-<a href=#63 id=63 data-nosnippet>63</a>        <span class="comment">// If the type is a record, handle it separately.
-<a href=#64 id=64 data-nosnippet>64</a>        </span><span class="kw">if let </span>Type::Composite(composite) = type_ {
-<a href=#65 id=65 data-nosnippet>65</a>            <span class="kw">let </span>name = composite.path.absolute_path();
-<a href=#66 id=66 data-nosnippet>66</a>            <span class="kw">let </span>this_program_name = <span class="self">self</span>.program_id.unwrap().name.name;
-<a href=#67 id=67 data-nosnippet>67</a>            <span class="kw">let </span>program_name = composite.program.unwrap_or(this_program_name);
-<a href=#68 id=68 data-nosnippet>68</a>            <span class="kw">if </span><span class="self">self</span>.state.symbol_table.lookup_record(<span class="kw-2">&amp;</span>Location::new(program_name, name.to_vec())).is_some() {
-<a href=#69 id=69 data-nosnippet>69</a>                <span class="kw">let </span>[record_name] = <span class="kw-2">&amp;</span>name[..] <span class="kw">else </span>{
-<a href=#70 id=70 data-nosnippet>70</a>                    <span class="macro">panic!</span>(<span class="string">"Absolute paths to records can only have a single segment at this stage."</span>)
-<a href=#71 id=71 data-nosnippet>71</a>                };
-<a href=#72 id=72 data-nosnippet>72</a>                <span class="kw">if </span>program_name == this_program_name {
-<a href=#73 id=73 data-nosnippet>73</a>                    <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{record_name}.record"</span>);
-<a href=#74 id=74 data-nosnippet>74</a>                } <span class="kw">else </span>{
-<a href=#75 id=75 data-nosnippet>75</a>                    <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{program_name}.aleo/{record_name}.record"</span>);
-<a href=#76 id=76 data-nosnippet>76</a>                }
-<a href=#77 id=77 data-nosnippet>77</a>            }
-<a href=#78 id=78 data-nosnippet>78</a>        }
-<a href=#79 id=79 data-nosnippet>79</a>
-<a href=#80 id=80 data-nosnippet>80</a>        <span class="kw">if let </span>Mode::None = visibility {
-<a href=#81 id=81 data-nosnippet>81</a>            <span class="self">Self</span>::visit_type(type_)
-<a href=#82 id=82 data-nosnippet>82</a>        } <span class="kw">else </span>{
-<a href=#83 id=83 data-nosnippet>83</a>            <span class="macro">format!</span>(<span class="string">"{}.{visibility}"</span>, <span class="self">Self</span>::visit_type(type_))
-<a href=#84 id=84 data-nosnippet>84</a>        }
-<a href=#85 id=85 data-nosnippet>85</a>    }
-<a href=#86 id=86 data-nosnippet>86</a>}</code></pre></div></section></main></body></html>
+<a href=#56 id=56 data-nosnippet>56</a>            Type::Vector(<span class="kw">_</span>) =&gt; {
+<a href=#57 id=57 data-nosnippet>57</a>                <span class="macro">panic!</span>(<span class="string">"Vector types should not be visited at this phase of compilation"</span>)
+<a href=#58 id=58 data-nosnippet>58</a>            }
+<a href=#59 id=59 data-nosnippet>59</a>            Type::Numeric =&gt; <span class="macro">panic!</span>(<span class="string">"`Numeric` types should not exist at this phase of compilation"</span>),
+<a href=#60 id=60 data-nosnippet>60</a>            Type::Err =&gt; <span class="macro">panic!</span>(<span class="string">"Error types should not exist at this phase of compilation"</span>),
+<a href=#61 id=61 data-nosnippet>61</a>            Type::Unit =&gt; <span class="macro">panic!</span>(<span class="string">"Unit types are not supported at this phase of compilation"</span>),
+<a href=#62 id=62 data-nosnippet>62</a>        }
+<a href=#63 id=63 data-nosnippet>63</a>    }
+<a href=#64 id=64 data-nosnippet>64</a>
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">pub fn </span>visit_type_with_visibility(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type, visibility: Mode) -&gt; String {
+<a href=#66 id=66 data-nosnippet>66</a>        <span class="comment">// If the type is a record, handle it separately.
+<a href=#67 id=67 data-nosnippet>67</a>        </span><span class="kw">if let </span>Type::Composite(composite) = type_ {
+<a href=#68 id=68 data-nosnippet>68</a>            <span class="kw">let </span>name = composite.path.absolute_path();
+<a href=#69 id=69 data-nosnippet>69</a>            <span class="kw">let </span>this_program_name = <span class="self">self</span>.program_id.unwrap().name.name;
+<a href=#70 id=70 data-nosnippet>70</a>            <span class="kw">let </span>program_name = composite.program.unwrap_or(this_program_name);
+<a href=#71 id=71 data-nosnippet>71</a>            <span class="kw">if </span><span class="self">self</span>.state.symbol_table.lookup_record(<span class="kw-2">&amp;</span>Location::new(program_name, name.to_vec())).is_some() {
+<a href=#72 id=72 data-nosnippet>72</a>                <span class="kw">let </span>[record_name] = <span class="kw-2">&amp;</span>name[..] <span class="kw">else </span>{
+<a href=#73 id=73 data-nosnippet>73</a>                    <span class="macro">panic!</span>(<span class="string">"Absolute paths to records can only have a single segment at this stage."</span>)
+<a href=#74 id=74 data-nosnippet>74</a>                };
+<a href=#75 id=75 data-nosnippet>75</a>                <span class="kw">if </span>program_name == this_program_name {
+<a href=#76 id=76 data-nosnippet>76</a>                    <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{record_name}.record"</span>);
+<a href=#77 id=77 data-nosnippet>77</a>                } <span class="kw">else </span>{
+<a href=#78 id=78 data-nosnippet>78</a>                    <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{program_name}.aleo/{record_name}.record"</span>);
+<a href=#79 id=79 data-nosnippet>79</a>                }
+<a href=#80 id=80 data-nosnippet>80</a>            }
+<a href=#81 id=81 data-nosnippet>81</a>        }
+<a href=#82 id=82 data-nosnippet>82</a>
+<a href=#83 id=83 data-nosnippet>83</a>        <span class="kw">if let </span>Mode::None = visibility {
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="self">Self</span>::visit_type(type_)
+<a href=#85 id=85 data-nosnippet>85</a>        } <span class="kw">else </span>{
+<a href=#86 id=86 data-nosnippet>86</a>            <span class="macro">format!</span>(<span class="string">"{}.{visibility}"</span>, <span class="self">Self</span>::visit_type(type_))
+<a href=#87 id=87 data-nosnippet>87</a>        }
+<a href=#88 id=88 data-nosnippet>88</a>    }
+<a href=#89 id=89 data-nosnippet>89</a>}</code></pre></div></section></main></body></html>
