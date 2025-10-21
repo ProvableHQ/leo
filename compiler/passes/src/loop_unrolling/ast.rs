@@ -89,10 +89,10 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         // Helper to clone and resolve Unsuffixed -> Integer literal based on type table
         let resolve_unsuffixed = |lit: &leo_ast::Literal, expr_id| {
             let mut resolved = lit.clone();
-            if let LiteralVariant::Unsuffixed(s) = &resolved.variant {
-                if let Some(Type::Integer(integer_type)) = self.state.type_table.get(&expr_id) {
-                    resolved.variant = LiteralVariant::Integer(integer_type, s.clone());
-                }
+            if let LiteralVariant::Unsuffixed(s) = &resolved.variant
+                && let Some(Type::Integer(integer_type)) = self.state.type_table.get(&expr_id)
+            {
+                resolved.variant = LiteralVariant::Integer(integer_type, s.clone());
             }
             resolved
         };

@@ -122,11 +122,11 @@ Input history is available - use the up and down arrow keys.
 
 fn parse_breakpoint(s: &str) -> Option<Breakpoint> {
     let strings: Vec<&str> = s.split_whitespace().collect();
-    if strings.len() == 2 {
-        if let Ok(line) = strings[1].parse::<usize>() {
-            let program = strings[0].strip_suffix(".aleo").unwrap_or(strings[0]).to_string();
-            return Some(Breakpoint { program, line });
-        }
+    if strings.len() == 2
+        && let Ok(line) = strings[1].parse::<usize>()
+    {
+        let program = strings[0].strip_suffix(".aleo").unwrap_or(strings[0]).to_string();
+        return Some(Breakpoint { program, line });
     }
     None
 }

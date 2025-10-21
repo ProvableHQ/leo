@@ -337,20 +337,20 @@ pub trait ProgramVisitor: AstVisitor {
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
-        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
-        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
-        input.storage_variables.iter().for_each(|(_, c)| (self.visit_storage_variable(c)));
-        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.structs.iter().for_each(|(_, c)| self.visit_struct(c));
+        input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
+        input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
         }
     }
 
     fn visit_module(&mut self, input: &Module) {
-        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
-        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.structs.iter().for_each(|(_, c)| self.visit_struct(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
     }
 
     fn visit_stub(&mut self, _input: &Stub) {}

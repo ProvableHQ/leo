@@ -16,7 +16,6 @@ categories = [ "compilers", "cryptography" ]
 include = [ "Cargo.toml", "src", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.88.0"
 
 [dependencies.rayon]
 version = "1.10"

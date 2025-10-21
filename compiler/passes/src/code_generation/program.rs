@@ -237,10 +237,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
                 if let Some(record) =
                     self.state.symbol_table.lookup_record(&Location::new(program, comp.path.absolute_path().to_vec()))
+                    && (record.external.is_none() || record.external == self.program_id.map(|id| id.name.name))
                 {
-                    if record.external.is_none() || record.external == self.program_id.map(|id| id.name.name) {
-                        self.internal_record_inputs.insert(register_string.clone());
-                    }
+                    self.internal_record_inputs.insert(register_string.clone());
                 }
             }
 

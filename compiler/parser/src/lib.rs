@@ -205,11 +205,11 @@ fn compute_module_key(name: &FileName, root_dir: Option<&std::path::Path>) -> Op
         path.components().map(|comp| Symbol::intern(&comp.as_os_str().to_string_lossy())).collect();
 
     // Strip the file extension from the last component (e.g., "bar.leo" → "bar")
-    if let Some(last) = path.file_name() {
-        if let Some(stem) = std::path::Path::new(last).file_stem() {
-            key.pop(); // Remove "bar.leo"
-            key.push(Symbol::intern(&stem.to_string_lossy())); // Add "bar"
-        }
+    if let Some(last) = path.file_name()
+        && let Some(stem) = std::path::Path::new(last).file_stem()
+    {
+        key.pop(); // Remove "bar.leo"
+        key.push(Symbol::intern(&stem.to_string_lossy())); // Add "bar"
     }
 
     Some(key)

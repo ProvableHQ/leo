@@ -89,10 +89,10 @@ impl ArrayType {
 impl fmt::Display for ArrayType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // For display purposes (in error messages for example.), do not include the type suffix.
-        if let Expression::Literal(literal) = &*self.length {
-            if let LiteralVariant::Integer(_, s) = &literal.variant {
-                return write!(f, "[{}; {s}]", self.element_type);
-            }
+        if let Expression::Literal(literal) = &*self.length
+            && let LiteralVariant::Integer(_, s) = &literal.variant
+        {
+            return write!(f, "[{}; {s}]", self.element_type);
         }
 
         write!(f, "[{}; {}]", self.element_type, self.length)

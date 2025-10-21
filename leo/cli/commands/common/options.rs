@@ -247,10 +247,10 @@ pub fn get_consensus_version(
 
     // Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
     // If it returns a result and does not match the given version, print a warning.
-    if let Ok(consensus_version) = result {
-        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-            println!("⚠️ Warning: {e}");
-        }
+    if let Ok(consensus_version) = result
+        && let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network)
+    {
+        println!("⚠️ Warning: {e}");
     }
 
     result
@@ -263,12 +263,12 @@ pub fn check_consensus_version_mismatch(
     network: NetworkName,
 ) -> anyhow::Result<()> {
     // Check the `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
-    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version")) {
-        if let Ok(response) = response.parse::<u8>() {
-            let consensus_version = consensus_version as u8;
-            if response != consensus_version {
-                bail!("Expected consensus version {consensus_version} but found {response} at {endpoint}",);
-            }
+    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version"))
+        && let Ok(response) = response.parse::<u8>()
+    {
+        let consensus_version = consensus_version as u8;
+        if response != consensus_version {
+            bail!("Expected consensus version {consensus_version} but found {response} at {endpoint}",);
         }
     }
     Ok(())

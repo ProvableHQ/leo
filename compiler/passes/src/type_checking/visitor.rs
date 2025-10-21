@@ -1230,10 +1230,10 @@ impl TypeCheckingVisitor<'_> {
 
             // Arrays
             Type::Array(array_type) => {
-                if let Some(length) = array_type.length.as_u32() {
-                    if length == 0 || length > self.limits.max_array_elements as u32 {
-                        self.emit_err(TypeCheckerError::invalid_storage_type("array", span));
-                    }
+                if let Some(length) = array_type.length.as_u32()
+                    && (length == 0 || length > self.limits.max_array_elements as u32)
+                {
+                    self.emit_err(TypeCheckerError::invalid_storage_type("array", span));
                 }
 
                 let element_ty = array_type.element_type();
@@ -1502,14 +1502,13 @@ impl TypeCheckingVisitor<'_> {
 
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
-            if let Type::Composite(struct_) = function_output.type_.clone() {
-                if let Some(val) =
+            if let Type::Composite(struct_) = function_output.type_.clone()
+                && let Some(val) =
                     self.lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                {
-                    if val.is_record && !function.variant.is_transition() {
-                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
-                    }
-                }
+                && val.is_record
+                && !function.variant.is_transition()
+            {
+                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
             }
 
             // Check that the output type is valid.

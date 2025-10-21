@@ -31,7 +31,7 @@ include = [
 ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.88.0"
+rust-version = "1.90.0"
 
 [workspace]
 members = [
