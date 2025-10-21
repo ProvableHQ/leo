@@ -1050,7 +1050,7 @@ impl Cursor {
                 }
             }
             Expression::AssociatedFunction(function) if step == 0 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
 
@@ -1072,7 +1072,7 @@ impl Cursor {
                 None
             }
             Expression::AssociatedFunction(function) if step == 1 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
 
@@ -1117,7 +1117,7 @@ impl Cursor {
                 }
             }
             Expression::AssociatedFunction(function) if step == 2 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
                 assert!(core_function == CoreFunction::FutureAwait);
@@ -1381,10 +1381,10 @@ impl Cursor {
                     value.clone()
                 };
 
-                if let Some(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future()) {
-                    if user_initiated {
-                        self.futures.extend(asyncs.iter().cloned());
-                    }
+                if let Some(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future())
+                    && user_initiated
+                {
+                    self.futures.extend(asyncs.iter().cloned());
                 }
 
                 Ok(StepResult { finished, value })

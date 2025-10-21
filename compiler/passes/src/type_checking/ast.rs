@@ -373,16 +373,16 @@ impl TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "block", var.span));
         }
 
-        if let Some(async_block_id) = self.async_block_id {
-            if !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.identifier().name) {
-                // If we're inside an async block (i.e. in the scope of its block or one if its child scopes) and if
-                // we're trying to assign to a variable that is not local to the block (or its child scopes), then we
-                // should error out.
-                self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(
-                    input.identifier().name,
-                    input.span,
-                ));
-            }
+        if let Some(async_block_id) = self.async_block_id
+            && !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.identifier().name)
+        {
+            // If we're inside an async block (i.e. in the scope of its block or one if its child scopes) and if
+            // we're trying to assign to a variable that is not local to the block (or its child scopes), then we
+            // should error out.
+            self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(
+                input.identifier().name,
+                input.span,
+            ));
         }
 
         (var.type_.clone(), false)
@@ -409,10 +409,10 @@ impl TypeCheckingVisitor<'_> {
         if inferred == Type::Numeric {
             inferred = Type::Integer(IntegerType::U32);
 
-            if let Expression::Literal(literal) = expr {
-                if !self.check_numeric_literal(literal, &inferred) {
-                    inferred = Type::Err;
-                }
+            if let Expression::Literal(literal) = expr
+                && !self.check_numeric_literal(literal, &inferred)
+            {
+                inferred = Type::Err;
             }
 
             self.state.type_table.insert(expr.id(), inferred.clone());
@@ -615,7 +615,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         expected: &Self::AdditionalInput,
     ) -> Self::Output {
         // Check core struct name and function.
-        let Some(core_instruction) = self.get_core_function_call(&input.variant, &input.name) else {
+        let Some(core_instruction) = self.get_core_function_call(input) else {
             self.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
             return Type::Err;
         };
@@ -1449,20 +1449,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             //
             // Multiple occurrences of `owner` here is an error but that should be flagged somewhere else.
             input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
-                if let Some(Expression::MemberAccess(access)) = &init.expression {
-                    if let MemberAccess {
+                if let Some(Expression::MemberAccess(access)) = &init.expression
+                    && let MemberAccess {
                         inner: Expression::Path(path),
                         name: Identifier { name: sym::caller, .. },
                         ..
                     } = &**access
-                    {
-                        if path.identifier().name == sym::SelfLower {
-                            self.emit_warning(TypeCheckerWarning::caller_as_record_owner(
-                                input.path.clone(),
-                                access.span(),
-                            ));
-                        }
-                    }
+                    && path.identifier().name == sym::SelfLower
+                {
+                    self.emit_warning(TypeCheckerWarning::caller_as_record_owner(input.path.clone(), access.span()));
                 }
             });
         }
@@ -1649,10 +1644,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         // None of its members may be external record types either.
-        if let Type::Tuple(tuple) = &typ {
-            if tuple.elements().iter().any(|ty| self.is_external_record(ty)) {
-                self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span));
-            }
+        if let Type::Tuple(tuple) = &typ
+            && tuple.elements().iter().any(|ty| self.is_external_record(ty))
+        {
+            self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span));
         }
 
         typ

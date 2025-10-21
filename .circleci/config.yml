@@ -6,7 +6,7 @@ version: 2.1
 # - Incremental builds should be disabled in CI, since they don't provide much benefit.
 # - Enabling `--only_testnet` feature flag to reduce the amount of time spent building leo-lang, since it's not needed for the test suite.
 
-# Rust Version: 1.88.0
+# Rust Version: 1.90.0
 # Ensure that this matches the `rust-version` in `Cargo.toml`.
 # If this is changed, propogate the changes to all places in this file, including the `install-rust` command.
 
@@ -18,6 +18,7 @@ version: 2.1
 environment:
   CARGO_INCREMENTAL: 0
   RUSTFLAGS: "-D warnings"
+  SNARKOS_REV: "79936b5" # testnet-v4.3.0
 
 orbs:
   windows: circleci/windows@5.1.0
@@ -33,7 +34,7 @@ executors:
 
   linux-executor:
     docker:
-      - image: "cimg/rust:1.88"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+      - image: "cimg/rust:1.90"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
     resource_class: 2xlarge
 
 commands:
@@ -44,12 +45,12 @@ commands:
           name: Install Rust
           command: |
             # If Rust is not installed on the machine, install it
-            # (temporarily install it regardless, as we want 1.88.0, not 1.85.0)
+            # (temporarily install it regardless, as we want 1.90.0, not 1.85.0)
             # if ! command -v rustc &> /dev/null; then
               curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
               source "$HOME/.cargo/env"
-              rustup install 1.88.0
-              rustup override set 1.88.0
+              rustup install 1.90.0
+              rustup override set 1.90.0
               cargo --version --verbose
               rustc --version
             # fi
@@ -71,14 +72,27 @@ commands:
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
             Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
-            rustup install 1.88.0
-            rustup default 1.88.0
+            rustup install 1.90.0
+            rustup default 1.90.0
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
                 cargo generate-lockfile
             }
             cargo install cargo-mtime
+
+  install-snarkos:
+    description: "Install snarkOS (Linux/macOS)"
+    steps:
+      - run:
+          name: Install snarkOS 
+          command: |
+            git clone https://github.com/ProvableHQ/snarkOS.git
+            cd snarkOS
+            git checkout $SNARKOS_REV
+            cargo install --path . --features test_network --locked --force
+            cd ..
+            rm -rf snarkOS
 
   build-and-test:
     description: "Build and run tests"
@@ -109,6 +123,8 @@ jobs:
       size: xlarge
     environment:
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUST_MIN_STACK: "16777216"    # 16 MB stack for rustc
+      CARGO_INCREMENTAL: 0
     steps:
       - run:
           name: Force git to use HTTPS
@@ -142,10 +158,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
-      - run:
-          name: Install SnarkOS with test_network feature
-          command: |
-            cargo install snarkos --version $SNARKOS_VERSION --features test_network --locked --force
+      - install-snarkos
       - run:
           name: Verify SnarkOS installation
           command: |
@@ -265,7 +278,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.88
+      - image: cimg/rust:1.90
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -278,7 +291,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.88
+      - image: cimg/rust:1.90
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -291,7 +304,7 @@ jobs:
 
   test-examples:
     docker:
-      - image: cimg/rust:1.88
+      - image: cimg/rust:1.90
     resource_class: xlarge
     steps:
       - attach_workspace:

@@ -90,7 +90,7 @@ fn append_lines<'a>(
     last_chunk
 }
 
-fn code_text(s: &str, highlight: Option<(usize, usize)>) -> (Text, usize) {
+fn code_text(s: &str, highlight: Option<(usize, usize)>) -> (Text<'_>, usize) {
     let Some((lo, hi)) = highlight else {
         return (Text::from(s), 0);
     };

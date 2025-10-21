@@ -1,0 +1,31 @@
+program test.aleo;
+
+function main:
+    cast 1u8 2u8 3u8 4u8 into r0 as [u8; 4u32];
+    cast 100u32 200u32 into r1 as [u32; 2u32];
+    cast 1u8 2u8 into r2 as [u8; 2u32];
+    cast 3u8 4u8 into r3 as [u8; 2u32];
+    cast r2 r3 into r4 as [[u8; 2u32]; 2u32];
+    serialize.bits r0 ([u8; 4u32]) into r5 ([boolean; 234u32]);
+    serialize.bits r1 ([u32; 2u32]) into r6 ([boolean; 182u32]);
+    serialize.bits.raw r0 ([u8; 4u32]) into r7 ([boolean; 32u32]);
+    serialize.bits.raw r1 ([u32; 2u32]) into r8 ([boolean; 64u32]);
+    serialize.bits.raw r4 ([[u8; 2u32]; 2u32]) into r9 ([boolean; 32u32]);
+    is.neq r5[0u32] r7[0u32] into r10;
+    is.neq r6[0u32] r8[0u32] into r11;
+    output r5[0u32] as boolean.private;
+    output r5[50u32] as boolean.private;
+    output r5[100u32] as boolean.private;
+    output r5[200u32] as boolean.private;
+    output r6[0u32] as boolean.private;
+    output r6[50u32] as boolean.private;
+    output r6[100u32] as boolean.private;
+    output r6[150u32] as boolean.private;
+    output r7[0u32] as boolean.private;
+    output r7[8u32] as boolean.private;
+    output r7[16u32] as boolean.private;
+    output r7[24u32] as boolean.private;
+    output r9[0u32] as boolean.private;
+    output r9[16u32] as boolean.private;
+    output r10 as boolean.private;
+    output r11 as boolean.private;

@@ -233,6 +233,7 @@ pub fn get_consensus_version(
         Some(8) => Ok(ConsensusVersion::V8),
         Some(9) => Ok(ConsensusVersion::V9),
         Some(10) => Ok(ConsensusVersion::V10),
+        Some(11) => Ok(ConsensusVersion::V11),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -251,10 +252,10 @@ pub fn get_consensus_version(
 
     // Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
     // If it returns a result and does not match the given version, print a warning.
-    if let Ok(consensus_version) = result {
-        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-            println!("⚠️ Warning: {e}");
-        }
+    if let Ok(consensus_version) = result
+        && let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network)
+    {
+        println!("⚠️ Warning: {e}");
     }
 
     result
@@ -267,12 +268,12 @@ pub fn check_consensus_version_mismatch(
     network: NetworkName,
 ) -> anyhow::Result<()> {
     // Check the `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
-    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version")) {
-        if let Ok(response) = response.parse::<u8>() {
-            let consensus_version = consensus_version as u8;
-            if response != consensus_version {
-                bail!("Expected consensus version {consensus_version} but found {response} at {endpoint}",);
-            }
+    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version"))
+        && let Ok(response) = response.parse::<u8>()
+    {
+        let consensus_version = consensus_version as u8;
+        if response != consensus_version {
+            bail!("Expected consensus version {consensus_version} but found {response} at {endpoint}",);
         }
     }
     Ok(())
@@ -312,6 +313,7 @@ pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
         8 => ConsensusVersion::V8,
         9 => ConsensusVersion::V9,
         10 => ConsensusVersion::V10,
+        11 => ConsensusVersion::V11,
         _ => panic!("Invalid consensus version: {index}"),
     }
 }
@@ -428,6 +430,6 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V10); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V11); // If this fails, update the test and any code that matches on `ConsensusVersion`.
     }
 }

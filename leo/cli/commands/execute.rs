@@ -304,12 +304,13 @@ fn handle_execute<A: Aleo>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
-    // Specify the query
+    // Specify the query.
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
         endpoint
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
+
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {

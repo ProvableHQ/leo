@@ -429,6 +429,27 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
             let mut components = path_to_parts(&node.children[0], builder);
             let name = components.pop().unwrap();
             let variant = components.pop().unwrap();
+            let mut type_parameters = Vec::new();
+            if let Some(parameter_list) =
+                node.children.iter().find(|child| matches!(child.kind, SyntaxKind::ConstArgumentList))
+            {
+                type_parameters = parameter_list
+                    .children
+                    .iter()
+                    .filter(|child| match child.kind {
+                        SyntaxKind::Type(..) => true,
+                        SyntaxKind::Expression(..) => {
+                            handler.emit_err(ParserError::custom(
+                                "Associated function calls may only have type parameters as generic arguments",
+                                child.span,
+                            ));
+                            false
+                        }
+                        _ => false,
+                    })
+                    .map(|child| Ok((to_type(child, builder, handler)?, child.span)))
+                    .collect::<Result<Vec<_>>>()?;
+            }
             let arguments = node
                 .children
                 .iter()
@@ -436,7 +457,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 .map(|child| to_expression(child, builder, handler))
                 .collect::<Result<Vec<_>>>()?;
 
-            leo_ast::AssociatedFunctionExpression { variant, name, arguments, span, id }.into()
+            leo_ast::AssociatedFunctionExpression { variant, name, type_parameters, arguments, span, id }.into()
         }
         ExpressionKind::Async => {
             let [_a, block] = &node.children[..] else {
@@ -521,7 +542,17 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 const_arguments = argument_list
                     .children
                     .iter()
-                    .filter(|child| matches!(child.kind, SyntaxKind::Expression(..)))
+                    .filter(|child| match child.kind {
+                        SyntaxKind::Expression(..) => true,
+                        SyntaxKind::Type(..) => {
+                            handler.emit_err(ParserError::custom(
+                                "Function calls may only have constant expressions as generic arguments",
+                                child.span,
+                            ));
+                            false
+                        }
+                        _ => false,
+                    })
                     .map(|child| to_expression(child, builder, handler))
                     .collect::<Result<Vec<_>>>()?;
             }
@@ -650,6 +681,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::signature, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
                     id,
@@ -661,6 +693,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::Future, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: vec![receiver],
                     span,
                     id: builder.next_id(),
@@ -672,6 +705,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::Optional, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: vec![receiver],
                     span,
                     id: builder.next_id(),
@@ -683,6 +717,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::Optional, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
                     id: builder.next_id(),
@@ -696,6 +731,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(Symbol::intern("__unresolved"), builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
                     id: builder.next_id(),
@@ -709,6 +745,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(Symbol::intern("__unresolved"), builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
                     id,
@@ -720,6 +757,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
                     id: builder.next_id(),
@@ -731,6 +769,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: vec![receiver],
                     span,
                     id: builder.next_id(),
@@ -742,6 +781,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: vec![receiver],
                     span,
                     id: builder.next_id(),
@@ -753,6 +793,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: vec![receiver],
                     span,
                     id: builder.next_id(),
@@ -764,6 +805,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 leo_ast::AssociatedFunctionExpression {
                     variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
                     name,
+                    type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
                     id: builder.next_id(),
@@ -779,6 +821,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                         leo_ast::AssociatedFunctionExpression {
                             variant: leo_ast::Identifier::new(sym::Mapping, builder.next_id()),
                             name,
+                            type_parameters: Vec::new(),
                             arguments: std::iter::once(receiver).chain(args).collect(),
                             span,
                             id: builder.next_id(),
@@ -840,9 +883,18 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
             let maybe_const_params = &node.children[1];
             if maybe_const_params.kind == SyntaxKind::ConstArgumentList {
                 for argument in &maybe_const_params.children {
-                    if matches!(argument.kind, SyntaxKind::Expression(..)) {
-                        let expr = to_expression(argument, builder, handler)?;
-                        const_arguments.push(expr);
+                    match argument.kind {
+                        SyntaxKind::Type(..) => {
+                            handler.emit_err(ParserError::custom(
+                                "Struct expressions may only have constant expressions as generic arguments",
+                                argument.span,
+                            ));
+                        }
+                        SyntaxKind::Expression(..) => {
+                            let expr = to_expression(argument, builder, handler)?;
+                            const_arguments.push(expr);
+                        }
+                        _ => {}
                     }
                 }
             }
@@ -900,14 +952,13 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     span,
                     ..
                 }) = &mut operand_expression
+                    && !string.starts_with('-')
                 {
-                    if !string.starts_with('-') {
-                        // The operation was a negation and the literal was not already negative, so fold it in
-                        // and discard the unary expression.
-                        string.insert(0, '-');
-                        *span = op.span + operand.span;
-                        return Ok(operand_expression);
-                    }
+                    // The operation was a negation and the literal was not already negative, so fold it in
+                    // and discard the unary expression.
+                    string.insert(0, '-');
+                    *span = op.span + operand.span;
+                    return Ok(operand_expression);
                 }
             }
             leo_ast::UnaryExpression { receiver: operand_expression, op: op_variant, span, id }.into()

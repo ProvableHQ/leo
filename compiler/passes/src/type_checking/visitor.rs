@@ -22,8 +22,13 @@ use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
+use anyhow::bail;
 use indexmap::{IndexMap, IndexSet};
-use snarkvm::prelude::PrivateKey;
+use snarkvm::{
+    console::algorithms::ECDSASignature,
+    prelude::PrivateKey,
+    synthesizer::program::{CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, SerializeVariant},
+};
 use std::{ops::Deref, str::FromStr};
 
 pub struct TypeCheckingVisitor<'a> {
@@ -224,15 +229,34 @@ impl TypeCheckingVisitor<'_> {
 
     /// Emits an error if the `struct` is not a core library struct.
     /// Emits an error if the `function` is not supported by the struct.
-    pub fn get_core_function_call(&self, struct_: &Identifier, function: &Identifier) -> Option<CoreFunction> {
+    pub fn get_core_function_call(&self, associated_function: &AssociatedFunctionExpression) -> Option<CoreFunction> {
         // Lookup core struct
-        match CoreFunction::from_symbols(struct_.name, function.name) {
+        match CoreFunction::try_from(associated_function).ok() {
             None => {
                 // Not a core library struct.
-                self.emit_err(TypeCheckerError::invalid_core_function(struct_.name, function.name, struct_.span()));
+                self.emit_err(TypeCheckerError::invalid_core_function(
+                    associated_function.variant.name,
+                    associated_function.name.name,
+                    associated_function.variant.span(),
+                ));
                 None
             }
-            Some(core_instruction) => Some(core_instruction),
+            core_function @ Some(CoreFunction::Deserialize(_, _)) => core_function,
+            Some(core_instruction) => {
+                // Check that the number of type parameters is 0.
+                if !associated_function.type_parameters.is_empty() {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!(
+                            "The core function `{}::{}` cannot have type parameters.",
+                            associated_function.variant, associated_function.name
+                        ),
+                        associated_function.name.span(),
+                    ));
+                    return None;
+                };
+
+                Some(core_instruction)
+            }
         }
     }
 
@@ -448,399 +472,196 @@ impl TypeCheckingVisitor<'_> {
 
         // Check that the arguments are of the correct type.
         match core_function {
-            CoreFunction::BHP256CommitToAddress
-            | CoreFunction::BHP512CommitToAddress
-            | CoreFunction::BHP768CommitToAddress
-            | CoreFunction::BHP1024CommitToAddress => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
+            CoreFunction::Commit(variant, type_) => {
+                match variant {
+                    CommitVariant::CommitPED64 => {
+                        assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
+                    }
+                    CommitVariant::CommitPED128 => {
+                        assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
+                    }
+                    _ => {
+                        assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
+                    }
+                }
                 self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Address
+                type_.into()
             }
-            CoreFunction::BHP256CommitToField
-            | CoreFunction::BHP512CommitToField
-            | CoreFunction::BHP768CommitToField
-            | CoreFunction::BHP1024CommitToField => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Field
+            CoreFunction::Hash(variant, type_) => {
+                // If the hash variant must be byte aligned, check that the number bits of the input is a multiple of 8.
+                if variant.requires_byte_alignment() {
+                    // Get the input type.
+                    let input_type = &arguments[0].0;
+                    // Get the size in bits.
+                    let size_in_bits = match self.state.network {
+                        NetworkName::TestnetV0 => input_type
+                            .size_in_bits::<TestnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::MainnetV0 => input_type
+                            .size_in_bits::<MainnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::CanaryV0 => input_type
+                            .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                    };
+                    if let Ok(size_in_bits) = size_in_bits {
+                        // Check that the size in bits is a multiple of 8.
+                        if size_in_bits % 8 != 0 {
+                            self.emit_err(TypeCheckerError::type_should_be2(
+                                input_type,
+                                "a type with a size in bits that is a multiple of 8",
+                                arguments[0].1.span(),
+                            ));
+                            return Type::Err;
+                        }
+                    };
+                }
+                match variant {
+                    HashVariant::HashPED64 => {
+                        assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
+                    }
+                    HashVariant::HashPED128 => {
+                        assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
+                    }
+                    _ => {
+                        assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
+                    }
+                }
+                type_
             }
-            CoreFunction::BHP256CommitToGroup
-            | CoreFunction::BHP512CommitToGroup
-            | CoreFunction::BHP768CommitToGroup
-            | CoreFunction::BHP1024CommitToGroup => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Group
-            }
-            CoreFunction::BHP256HashToAddress
-            | CoreFunction::BHP512HashToAddress
-            | CoreFunction::BHP768HashToAddress
-            | CoreFunction::BHP1024HashToAddress
-            | CoreFunction::Keccak256HashToAddress
-            | CoreFunction::Keccak384HashToAddress
-            | CoreFunction::Keccak512HashToAddress
-            | CoreFunction::Poseidon2HashToAddress
-            | CoreFunction::Poseidon4HashToAddress
-            | CoreFunction::Poseidon8HashToAddress
-            | CoreFunction::SHA3_256HashToAddress
-            | CoreFunction::SHA3_384HashToAddress
-            | CoreFunction::SHA3_512HashToAddress => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Address
-            }
-            CoreFunction::BHP256HashToField
-            | CoreFunction::BHP512HashToField
-            | CoreFunction::BHP768HashToField
-            | CoreFunction::BHP1024HashToField
-            | CoreFunction::Keccak256HashToField
-            | CoreFunction::Keccak384HashToField
-            | CoreFunction::Keccak512HashToField
-            | CoreFunction::Poseidon2HashToField
-            | CoreFunction::Poseidon4HashToField
-            | CoreFunction::Poseidon8HashToField
-            | CoreFunction::SHA3_256HashToField
-            | CoreFunction::SHA3_384HashToField
-            | CoreFunction::SHA3_512HashToField => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Field
-            }
-            CoreFunction::BHP256HashToGroup
-            | CoreFunction::BHP512HashToGroup
-            | CoreFunction::BHP768HashToGroup
-            | CoreFunction::BHP1024HashToGroup
-            | CoreFunction::Keccak256HashToGroup
-            | CoreFunction::Keccak384HashToGroup
-            | CoreFunction::Keccak512HashToGroup
-            | CoreFunction::Poseidon2HashToGroup
-            | CoreFunction::Poseidon4HashToGroup
-            | CoreFunction::Poseidon8HashToGroup
-            | CoreFunction::SHA3_256HashToGroup
-            | CoreFunction::SHA3_384HashToGroup
-            | CoreFunction::SHA3_512HashToGroup => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Group
-            }
-            CoreFunction::BHP256HashToI8
-            | CoreFunction::BHP512HashToI8
-            | CoreFunction::BHP768HashToI8
-            | CoreFunction::BHP1024HashToI8
-            | CoreFunction::Keccak256HashToI8
-            | CoreFunction::Keccak384HashToI8
-            | CoreFunction::Keccak512HashToI8
-            | CoreFunction::Poseidon2HashToI8
-            | CoreFunction::Poseidon4HashToI8
-            | CoreFunction::Poseidon8HashToI8
-            | CoreFunction::SHA3_256HashToI8
-            | CoreFunction::SHA3_384HashToI8
-            | CoreFunction::SHA3_512HashToI8 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I8)
-            }
-            CoreFunction::BHP256HashToI16
-            | CoreFunction::BHP512HashToI16
-            | CoreFunction::BHP768HashToI16
-            | CoreFunction::BHP1024HashToI16
-            | CoreFunction::Keccak256HashToI16
-            | CoreFunction::Keccak384HashToI16
-            | CoreFunction::Keccak512HashToI16
-            | CoreFunction::Poseidon2HashToI16
-            | CoreFunction::Poseidon4HashToI16
-            | CoreFunction::Poseidon8HashToI16
-            | CoreFunction::SHA3_256HashToI16
-            | CoreFunction::SHA3_384HashToI16
-            | CoreFunction::SHA3_512HashToI16 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I16)
-            }
-            CoreFunction::BHP256HashToI32
-            | CoreFunction::BHP512HashToI32
-            | CoreFunction::BHP768HashToI32
-            | CoreFunction::BHP1024HashToI32
-            | CoreFunction::Keccak256HashToI32
-            | CoreFunction::Keccak384HashToI32
-            | CoreFunction::Keccak512HashToI32
-            | CoreFunction::Poseidon2HashToI32
-            | CoreFunction::Poseidon4HashToI32
-            | CoreFunction::Poseidon8HashToI32
-            | CoreFunction::SHA3_256HashToI32
-            | CoreFunction::SHA3_384HashToI32
-            | CoreFunction::SHA3_512HashToI32 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I32)
-            }
-            CoreFunction::BHP256HashToI64
-            | CoreFunction::BHP512HashToI64
-            | CoreFunction::BHP768HashToI64
-            | CoreFunction::BHP1024HashToI64
-            | CoreFunction::Keccak256HashToI64
-            | CoreFunction::Keccak384HashToI64
-            | CoreFunction::Keccak512HashToI64
-            | CoreFunction::Poseidon2HashToI64
-            | CoreFunction::Poseidon4HashToI64
-            | CoreFunction::Poseidon8HashToI64
-            | CoreFunction::SHA3_256HashToI64
-            | CoreFunction::SHA3_384HashToI64
-            | CoreFunction::SHA3_512HashToI64 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I64)
-            }
-            CoreFunction::BHP256HashToI128
-            | CoreFunction::BHP512HashToI128
-            | CoreFunction::BHP768HashToI128
-            | CoreFunction::BHP1024HashToI128
-            | CoreFunction::Keccak256HashToI128
-            | CoreFunction::Keccak384HashToI128
-            | CoreFunction::Keccak512HashToI128
-            | CoreFunction::Poseidon2HashToI128
-            | CoreFunction::Poseidon4HashToI128
-            | CoreFunction::Poseidon8HashToI128
-            | CoreFunction::SHA3_256HashToI128
-            | CoreFunction::SHA3_384HashToI128
-            | CoreFunction::SHA3_512HashToI128 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I128)
-            }
-            CoreFunction::BHP256HashToU8
-            | CoreFunction::BHP512HashToU8
-            | CoreFunction::BHP768HashToU8
-            | CoreFunction::BHP1024HashToU8
-            | CoreFunction::Keccak256HashToU8
-            | CoreFunction::Keccak384HashToU8
-            | CoreFunction::Keccak512HashToU8
-            | CoreFunction::Poseidon2HashToU8
-            | CoreFunction::Poseidon4HashToU8
-            | CoreFunction::Poseidon8HashToU8
-            | CoreFunction::SHA3_256HashToU8
-            | CoreFunction::SHA3_384HashToU8
-            | CoreFunction::SHA3_512HashToU8 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U8)
-            }
-            CoreFunction::BHP256HashToU16
-            | CoreFunction::BHP512HashToU16
-            | CoreFunction::BHP768HashToU16
-            | CoreFunction::BHP1024HashToU16
-            | CoreFunction::Keccak256HashToU16
-            | CoreFunction::Keccak384HashToU16
-            | CoreFunction::Keccak512HashToU16
-            | CoreFunction::Poseidon2HashToU16
-            | CoreFunction::Poseidon4HashToU16
-            | CoreFunction::Poseidon8HashToU16
-            | CoreFunction::SHA3_256HashToU16
-            | CoreFunction::SHA3_384HashToU16
-            | CoreFunction::SHA3_512HashToU16 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U16)
-            }
-            CoreFunction::BHP256HashToU32
-            | CoreFunction::BHP512HashToU32
-            | CoreFunction::BHP768HashToU32
-            | CoreFunction::BHP1024HashToU32
-            | CoreFunction::Keccak256HashToU32
-            | CoreFunction::Keccak384HashToU32
-            | CoreFunction::Keccak512HashToU32
-            | CoreFunction::Poseidon2HashToU32
-            | CoreFunction::Poseidon4HashToU32
-            | CoreFunction::Poseidon8HashToU32
-            | CoreFunction::SHA3_256HashToU32
-            | CoreFunction::SHA3_384HashToU32
-            | CoreFunction::SHA3_512HashToU32 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U32)
-            }
-            CoreFunction::BHP256HashToU64
-            | CoreFunction::BHP512HashToU64
-            | CoreFunction::BHP768HashToU64
-            | CoreFunction::BHP1024HashToU64
-            | CoreFunction::Keccak256HashToU64
-            | CoreFunction::Keccak384HashToU64
-            | CoreFunction::Keccak512HashToU64
-            | CoreFunction::Poseidon2HashToU64
-            | CoreFunction::Poseidon4HashToU64
-            | CoreFunction::Poseidon8HashToU64
-            | CoreFunction::SHA3_256HashToU64
-            | CoreFunction::SHA3_384HashToU64
-            | CoreFunction::SHA3_512HashToU64 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U64)
-            }
-            CoreFunction::BHP256HashToU128
-            | CoreFunction::BHP512HashToU128
-            | CoreFunction::BHP768HashToU128
-            | CoreFunction::BHP1024HashToU128
-            | CoreFunction::Keccak256HashToU128
-            | CoreFunction::Keccak384HashToU128
-            | CoreFunction::Keccak512HashToU128
-            | CoreFunction::Poseidon2HashToU128
-            | CoreFunction::Poseidon4HashToU128
-            | CoreFunction::Poseidon8HashToU128
-            | CoreFunction::SHA3_256HashToU128
-            | CoreFunction::SHA3_384HashToU128
-            | CoreFunction::SHA3_512HashToU128 => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U128)
-            }
-            CoreFunction::BHP256HashToScalar
-            | CoreFunction::BHP512HashToScalar
-            | CoreFunction::BHP768HashToScalar
-            | CoreFunction::BHP1024HashToScalar
-            | CoreFunction::Keccak256HashToScalar
-            | CoreFunction::Keccak384HashToScalar
-            | CoreFunction::Keccak512HashToScalar
-            | CoreFunction::Poseidon2HashToScalar
-            | CoreFunction::Poseidon4HashToScalar
-            | CoreFunction::Poseidon8HashToScalar
-            | CoreFunction::SHA3_256HashToScalar
-            | CoreFunction::SHA3_384HashToScalar
-            | CoreFunction::SHA3_512HashToScalar => {
-                assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
-                Type::Scalar
-            }
-            CoreFunction::Pedersen64CommitToAddress => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                // Check that the second argument is a scalar.
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Address
-            }
-            CoreFunction::Pedersen64CommitToField => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                // Check that the second argument is a scalar.
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Field
-            }
-            CoreFunction::Pedersen64CommitToGroup => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                // Check that the second argument is a scalar.
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Group
-            }
-            CoreFunction::Pedersen64HashToAddress => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Address
-            }
-            CoreFunction::Pedersen64HashToField => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Field
-            }
-            CoreFunction::Pedersen64HashToGroup => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Group
-            }
-            CoreFunction::Pedersen64HashToI8 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I8)
-            }
-            CoreFunction::Pedersen64HashToI16 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I16)
-            }
-            CoreFunction::Pedersen64HashToI32 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I32)
-            }
-            CoreFunction::Pedersen64HashToI64 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I64)
-            }
-            CoreFunction::Pedersen64HashToI128 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I128)
-            }
-            CoreFunction::Pedersen64HashToU8 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U8)
-            }
-            CoreFunction::Pedersen64HashToU16 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U16)
-            }
-            CoreFunction::Pedersen64HashToU32 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U32)
-            }
-            CoreFunction::Pedersen64HashToU64 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U64)
-            }
-            CoreFunction::Pedersen64HashToU128 => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U128)
-            }
-            CoreFunction::Pedersen64HashToScalar => {
-                assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Scalar
-            }
-            CoreFunction::Pedersen128CommitToAddress => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Address
-            }
-            CoreFunction::Pedersen128CommitToField => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Field
-            }
-            CoreFunction::Pedersen128CommitToGroup => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
-                Type::Group
-            }
-            CoreFunction::Pedersen128HashToAddress => {
-                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Address
-            }
-            CoreFunction::Pedersen128HashToField => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Field
-            }
-            CoreFunction::Pedersen128HashToGroup => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Group
-            }
-            CoreFunction::Pedersen128HashToI8 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I8)
-            }
-            CoreFunction::Pedersen128HashToI16 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I16)
-            }
-            CoreFunction::Pedersen128HashToI32 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I32)
-            }
-            CoreFunction::Pedersen128HashToI64 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I64)
-            }
-            CoreFunction::Pedersen128HashToI128 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::I128)
-            }
-            CoreFunction::Pedersen128HashToU8 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U8)
-            }
-            CoreFunction::Pedersen128HashToU16 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U16)
-            }
-            CoreFunction::Pedersen128HashToU32 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U32)
-            }
-            CoreFunction::Pedersen128HashToU64 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U64)
-            }
-            CoreFunction::Pedersen128HashToU128 => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Integer(IntegerType::U128)
-            }
-            CoreFunction::Pedersen128HashToScalar => {
-                assert_pedersen_128_bit_input(&arguments[0].0, arguments[0].1.span());
-                Type::Scalar
+            CoreFunction::ECDSAVerify(variant) => {
+                // Get the expected signature size.
+                let signature_size = ECDSASignature::SIGNATURE_SIZE_IN_BYTES;
+                // Check that the first input is a 65-byte array.
+                let Type::Array(array_type) = &arguments[0].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        format!("a [u8; {signature_size}]"),
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+                if let Some(length) = array_type.length.as_u32()
+                    && length as usize != signature_size
+                {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        format!("a [u8; {signature_size}]"),
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+
+                // Determine whether the core function is Ethereum-specifc.
+                let is_eth = match variant {
+                    ECDSAVerifyVariant::Digest => false,
+                    ECDSAVerifyVariant::DigestEth => true,
+                    ECDSAVerifyVariant::HashKeccak256 => false,
+                    ECDSAVerifyVariant::HashKeccak256Raw => false,
+                    ECDSAVerifyVariant::HashKeccak256Eth => true,
+                    ECDSAVerifyVariant::HashKeccak384 => false,
+                    ECDSAVerifyVariant::HashKeccak384Raw => false,
+                    ECDSAVerifyVariant::HashKeccak384Eth => true,
+                    ECDSAVerifyVariant::HashKeccak512 => false,
+                    ECDSAVerifyVariant::HashKeccak512Raw => false,
+                    ECDSAVerifyVariant::HashKeccak512Eth => true,
+                    ECDSAVerifyVariant::HashSha3_256 => false,
+                    ECDSAVerifyVariant::HashSha3_256Raw => false,
+                    ECDSAVerifyVariant::HashSha3_256Eth => true,
+                    ECDSAVerifyVariant::HashSha3_384 => false,
+                    ECDSAVerifyVariant::HashSha3_384Raw => false,
+                    ECDSAVerifyVariant::HashSha3_384Eth => true,
+                    ECDSAVerifyVariant::HashSha3_512 => false,
+                    ECDSAVerifyVariant::HashSha3_512Raw => false,
+                    ECDSAVerifyVariant::HashSha3_512Eth => true,
+                };
+                // Get the expected length of the second input.
+                let expected_length = if is_eth {
+                    ECDSASignature::ETHEREUM_ADDRESS_SIZE_IN_BYTES
+                } else {
+                    ECDSASignature::VERIFYING_KEY_SIZE_IN_BYTES
+                };
+                // Check that the second input is a byte array of the expected length.
+                let Type::Array(array_type) = &arguments[1].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[1].0,
+                        format!("a [u8; {expected_length}]"),
+                        arguments[1].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[1].1.span());
+                if let Some(length) = array_type.length.as_u32()
+                    && length as usize != expected_length
+                {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[1].0,
+                        format!("a [u8; {expected_length}]"),
+                        arguments[1].1.span(),
+                    ));
+                    return Type::Err;
+                };
+
+                // Check that the third input is not a mapping nor a tuple.
+                if matches!(&arguments[2].0, Type::Mapping(_) | Type::Tuple(_) | Type::Unit) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "anything but a mapping, tuple, or unit",
+                        arguments[2].1.span(),
+                    ));
+                }
+
+                // If the variant is a digest variant, check that the third input is a byte array of the correct length.
+                if matches!(variant, ECDSAVerifyVariant::Digest | ECDSAVerifyVariant::DigestEth) {
+                    // Get the expected length of the third input.
+                    let expected_length = ECDSASignature::PREHASH_SIZE_IN_BYTES;
+                    // Check that the third input is a byte array of the expected length.
+                    let Type::Array(array_type) = &arguments[2].0 else {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            &arguments[2].0,
+                            format!("a [u8; {expected_length}]"),
+                            arguments[2].1.span(),
+                        ));
+                        return Type::Err;
+                    };
+                    self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[2].1.span());
+                    if let Some(length) = array_type.length.as_u32()
+                        && length as usize != expected_length
+                    {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            &arguments[2].0,
+                            format!("a [u8; {expected_length}]"),
+                            arguments[2].1.span(),
+                        ));
+                        return Type::Err;
+                    }
+                }
+
+                // If the variant requires byte alignment, check that the third input is byte aligned.
+                if variant.requires_byte_alignment() {
+                    // Get the input type.
+                    let input_type = &arguments[2].0;
+                    // Get the size in bits.
+                    let size_in_bits = match self.state.network {
+                        NetworkName::TestnetV0 => input_type
+                            .size_in_bits::<TestnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::MainnetV0 => input_type
+                            .size_in_bits::<MainnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::CanaryV0 => input_type
+                            .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                    };
+                    if let Ok(size_in_bits) = size_in_bits {
+                        // Check that the size in bits is a multiple of 8.
+                        if size_in_bits % 8 != 0 {
+                            self.emit_err(TypeCheckerError::type_should_be2(
+                                input_type,
+                                "a type with a size in bits that is a multiple of 8",
+                                arguments[2].1.span(),
+                            ));
+                            return Type::Err;
+                        }
+                    };
+                }
+
+                Type::Boolean
             }
             CoreFunction::Get => {
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
@@ -1012,21 +833,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1.span());
                 Type::Field
             }
-            CoreFunction::ChaChaRandAddress => Type::Address,
-            CoreFunction::ChaChaRandBool => Type::Boolean,
-            CoreFunction::ChaChaRandField => Type::Field,
-            CoreFunction::ChaChaRandGroup => Type::Group,
-            CoreFunction::ChaChaRandI8 => Type::Integer(IntegerType::I8),
-            CoreFunction::ChaChaRandI16 => Type::Integer(IntegerType::I16),
-            CoreFunction::ChaChaRandI32 => Type::Integer(IntegerType::I32),
-            CoreFunction::ChaChaRandI64 => Type::Integer(IntegerType::I64),
-            CoreFunction::ChaChaRandI128 => Type::Integer(IntegerType::I128),
-            CoreFunction::ChaChaRandScalar => Type::Scalar,
-            CoreFunction::ChaChaRandU8 => Type::Integer(IntegerType::U8),
-            CoreFunction::ChaChaRandU16 => Type::Integer(IntegerType::U16),
-            CoreFunction::ChaChaRandU32 => Type::Integer(IntegerType::U32),
-            CoreFunction::ChaChaRandU64 => Type::Integer(IntegerType::U64),
-            CoreFunction::ChaChaRandU128 => Type::Integer(IntegerType::U128),
+            CoreFunction::ChaChaRand(type_) => type_.into(),
             CoreFunction::SignatureVerify => {
                 // Check that the third argument is not a mapping nor a tuple. We have to do this
                 // before the other checks below to appease the borrow checker
@@ -1106,6 +913,137 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(type_, &Type::Address, span);
                 // Return the type.
                 Type::Address
+            }
+            CoreFunction::Serialize(variant) => {
+                // Determine the variant.
+                let is_raw = match variant {
+                    SerializeVariant::ToBits => false,
+                    SerializeVariant::ToBitsRaw => true,
+                };
+                // Get the input type.
+                let input_type = &arguments[0].0;
+
+                // A helper function to check that a type is an allowed literal type.
+                let is_allowed_literal_type = |type_: &Type| -> bool {
+                    matches!(
+                        type_,
+                        Type::Boolean
+                            | Type::Field
+                            | Type::Group
+                            | Type::Scalar
+                            | Type::Signature
+                            | Type::Address
+                            | Type::Integer(_)
+                            | Type::String
+                            | Type::Numeric
+                    )
+                };
+
+                // Check that the input type is an allowed literal or a (possibly multi-dimensional) array of literals.
+                let is_allowed = match input_type {
+                    Type::Array(array_type) => is_allowed_literal_type(array_type.base_element_type()),
+                    type_ => is_allowed_literal_type(type_),
+                };
+                if !is_allowed {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        input_type,
+                        "a literal type or an (multi-dimensional) array of literal types",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                }
+
+                // Get the size in bits.
+                let size_in_bits = match self.state.network {
+                    NetworkName::TestnetV0 => {
+                        input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                    NetworkName::MainnetV0 => {
+                        input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                    NetworkName::CanaryV0 => {
+                        input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                };
+
+                if let Ok(size_in_bits) = size_in_bits {
+                    // Check that the size in bits is valid.
+                    let size_in_bits = if size_in_bits > self.limits.max_array_elements {
+                        self.emit_err(TypeCheckerError::custom(
+                        format!("The input type to `Serialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
+                        arguments[0].1.span(),
+                    ));
+                        return Type::Err;
+                    } else if size_in_bits == 0 {
+                        self.emit_err(TypeCheckerError::custom(
+                            "The input type to `Serialize::*` is empty.",
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    } else {
+                        u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
+                    };
+
+                    // Return the array type.
+                    return Type::Array(ArrayType::bit_array(size_in_bits));
+                }
+
+                // Could not resolve the size in bits at this time.
+                Type::Err
+            }
+            CoreFunction::Deserialize(variant, type_) => {
+                // Determine the variant.
+                let is_raw = match variant {
+                    DeserializeVariant::FromBits => false,
+                    DeserializeVariant::FromBitsRaw => true,
+                };
+                // Get the input type.
+                let input_type = &arguments[0].0;
+
+                // Get the size in bits.
+                let size_in_bits = match self.state.network {
+                    NetworkName::TestnetV0 => {
+                        type_.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                    NetworkName::MainnetV0 => {
+                        type_.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                    NetworkName::CanaryV0 => {
+                        type_.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    }
+                };
+
+                if let Ok(size_in_bits) = size_in_bits {
+                    // Check that the size in bits is valid.
+                    let size_in_bits = if size_in_bits > self.limits.max_array_elements {
+                        self.emit_err(TypeCheckerError::custom(
+                        format!("The output type of `Deserialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
+                        arguments[0].1.span(),
+                    ));
+                        return Type::Err;
+                    } else if size_in_bits == 0 {
+                        self.emit_err(TypeCheckerError::custom(
+                            "The output type of `Deserialize::*` is empty.",
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    } else {
+                        u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
+                    };
+
+                    // Check that the input type is an array of the correct size.
+                    let expected_type = Type::Array(ArrayType::bit_array(size_in_bits));
+                    if !input_type.eq_flat_relaxed(&expected_type) {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            input_type,
+                            format!("an array of {size_in_bits} bits"),
+                            arguments[0].1.span(),
+                        ));
+                        return Type::Err;
+                    }
+                };
+
+                type_.clone()
             }
             CoreFunction::CheatCodePrintMapping => {
                 self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
@@ -1313,10 +1251,10 @@ impl TypeCheckingVisitor<'_> {
 
             // Arrays
             Type::Array(array_type) => {
-                if let Some(length) = array_type.length.as_u32() {
-                    if length == 0 || length > self.limits.max_array_elements as u32 {
-                        self.emit_err(TypeCheckerError::invalid_storage_type("array", span));
-                    }
+                if let Some(length) = array_type.length.as_u32()
+                    && (length == 0 || length > self.limits.max_array_elements as u32)
+                {
+                    self.emit_err(TypeCheckerError::invalid_storage_type("array", span));
                 }
 
                 let element_ty = array_type.element_type();
@@ -1585,14 +1523,13 @@ impl TypeCheckingVisitor<'_> {
 
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
-            if let Type::Composite(struct_) = function_output.type_.clone() {
-                if let Some(val) =
+            if let Type::Composite(struct_) = function_output.type_.clone()
+                && let Some(val) =
                     self.lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                {
-                    if val.is_record && !function.variant.is_transition() {
-                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
-                    }
-                }
+                && val.is_record
+                && !function.variant.is_transition()
+            {
+                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
             }
 
             // Check that the output type is valid.

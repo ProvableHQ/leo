@@ -25,4 +25,9 @@ sccache*/
 # environment
 .env
 
+<<<<<<< HEAD
+# Claude
+.claude
+=======
 tests/mismatches/
+>>>>>>> mainnet

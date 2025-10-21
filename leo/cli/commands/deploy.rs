@@ -420,12 +420,12 @@ fn check_tasks_for_warnings<N: Network>(
                 .push(format!("The program '{id}' already exists on the network. Please use `leo upgrade` instead.",));
         }
         // Check if the program has a valid naming scheme.
-        if consensus_version >= ConsensusVersion::V7 {
-            if let Err(e) = program.check_program_naming_structure() {
-                warnings.push(format!(
-                    "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
-                ));
-            }
+        if consensus_version >= ConsensusVersion::V7
+            && let Err(e) = program.check_program_naming_structure()
+        {
+            warnings.push(format!(
+                "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
+            ));
         }
 
         // Check if the program contains restricted keywords.

@@ -44,6 +44,7 @@ pub(crate) use snarkvm::prelude::{
     Identifier as SvmIdentifierParam,
     Literal as SvmLiteralParam,
     Plaintext,
+    Signature as SvmSignature,
     TestnetV0,
     Value as SvmValueParam,
 };
@@ -66,6 +67,7 @@ pub(crate) type Scalar = SvmScalar<CurrentNetwork>;
 pub(crate) type Address = SvmAddress<CurrentNetwork>;
 pub(crate) type Boolean = SvmBoolean<CurrentNetwork>;
 pub(crate) type Future = FutureParam<CurrentNetwork>;
+pub(crate) type Signature = SvmSignature<CurrentNetwork>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StructContents {
@@ -299,6 +301,20 @@ macro_rules! impl_from_literal {
 
 impl_from_literal! {
     Field; Group; Scalar; Address;
+}
+
+impl TryFrom<Value> for snarkvm::prelude::Signature<CurrentNetwork> {
+    type Error = ();
+
+    fn try_from(x: Value) -> Result<Self, Self::Error> {
+        if let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(SvmLiteralParam::Signature(val), ..))) =
+            x.contents
+        {
+            Ok(*val)
+        } else {
+            Err(())
+        }
+    }
 }
 
 impl From<Future> for Value {
@@ -968,17 +984,17 @@ impl FromStr for Value {
         }
 
         // Or it's a tuple.
-        if let Some(s) = s.strip_prefix("(") {
-            if let Some(s) = s.strip_suffix(")") {
-                let mut results = Vec::new();
-                for item in s.split(',') {
-                    let item = item.trim();
-                    let value: Value = item.parse().map_err(|_| ())?;
-                    results.push(value);
-                }
-
-                return Ok(Value::make_tuple(results));
+        if let Some(s) = s.strip_prefix("(")
+            && let Some(s) = s.strip_suffix(")")
+        {
+            let mut results = Vec::new();
+            for item in s.split(',') {
+                let item = item.trim();
+                let value: Value = item.parse().map_err(|_| ())?;
+                results.push(value);
             }
+
+            return Ok(Value::make_tuple(results));
         }
 
         // Or it's an unsuffixed numeric literal.

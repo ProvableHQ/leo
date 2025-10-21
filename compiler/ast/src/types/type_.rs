@@ -31,6 +31,7 @@ use itertools::Itertools;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
+    LiteralType,
     Network,
     PlaintextType,
     PlaintextType::{Array, Literal, Struct},
@@ -224,25 +225,7 @@ impl Type {
 
     pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Option<Symbol>) -> Self {
         match t {
-            Literal(lit) => match lit {
-                snarkvm::prelude::LiteralType::Address => Type::Address,
-                snarkvm::prelude::LiteralType::Boolean => Type::Boolean,
-                snarkvm::prelude::LiteralType::Field => Type::Field,
-                snarkvm::prelude::LiteralType::Group => Type::Group,
-                snarkvm::prelude::LiteralType::U8 => Type::Integer(IntegerType::U8),
-                snarkvm::prelude::LiteralType::U16 => Type::Integer(IntegerType::U16),
-                snarkvm::prelude::LiteralType::U32 => Type::Integer(IntegerType::U32),
-                snarkvm::prelude::LiteralType::U64 => Type::Integer(IntegerType::U64),
-                snarkvm::prelude::LiteralType::U128 => Type::Integer(IntegerType::U128),
-                snarkvm::prelude::LiteralType::I8 => Type::Integer(IntegerType::I8),
-                snarkvm::prelude::LiteralType::I16 => Type::Integer(IntegerType::I16),
-                snarkvm::prelude::LiteralType::I32 => Type::Integer(IntegerType::I32),
-                snarkvm::prelude::LiteralType::I64 => Type::Integer(IntegerType::I64),
-                snarkvm::prelude::LiteralType::I128 => Type::Integer(IntegerType::I128),
-                snarkvm::prelude::LiteralType::Scalar => Type::Scalar,
-                snarkvm::prelude::LiteralType::Signature => Type::Signature,
-                snarkvm::prelude::LiteralType::String => Type::String,
-            },
+            Literal(lit) => (*lit).into(),
             Struct(s) => Type::Composite(CompositeType {
                 path: {
                     let ident = Identifier::from(s);
@@ -252,6 +235,43 @@ impl Type {
                 program,
             }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
+        }
+    }
+
+    // Attempts to convert `self` to a snarkVM `PlaintextType`.
+    pub fn to_snarkvm<N: Network>(&self) -> anyhow::Result<PlaintextType<N>> {
+        match self {
+            Type::Address => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Address)),
+            Type::Boolean => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Boolean)),
+            Type::Field => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Field)),
+            Type::Group => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Group)),
+            Type::Integer(int_type) => match int_type {
+                IntegerType::U8 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U8)),
+                IntegerType::U16 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U16)),
+                IntegerType::U32 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U32)),
+                IntegerType::U64 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U64)),
+                IntegerType::U128 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U128)),
+                IntegerType::I8 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I8)),
+                IntegerType::I16 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I16)),
+                IntegerType::I32 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I32)),
+                IntegerType::I64 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I64)),
+                IntegerType::I128 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I128)),
+            },
+            Type::Scalar => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Scalar)),
+            Type::Signature => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Signature)),
+            Type::Array(array_type) => Ok(PlaintextType::<N>::Array(array_type.to_snarkvm()?)),
+            _ => anyhow::bail!("Converting from type {self} to snarkVM type is not supported"),
+        }
+    }
+
+    // A helper function to get the size in bits of the input type.
+    pub fn size_in_bits<N: Network, F>(&self, is_raw: bool, get_structs: F) -> anyhow::Result<usize>
+    where
+        F: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+    {
+        match is_raw {
+            false => self.to_snarkvm::<N>()?.size_in_bits(&get_structs),
+            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_structs),
         }
     }
 
@@ -309,6 +329,30 @@ impl Type {
 
     pub fn to_optional(&self) -> Type {
         Type::Optional(OptionalType { inner: Box::new(self.clone()) })
+    }
+}
+
+impl From<LiteralType> for Type {
+    fn from(value: LiteralType) -> Self {
+        match value {
+            LiteralType::Address => Type::Address,
+            LiteralType::Boolean => Type::Boolean,
+            LiteralType::Field => Type::Field,
+            LiteralType::Group => Type::Group,
+            LiteralType::U8 => Type::Integer(IntegerType::U8),
+            LiteralType::U16 => Type::Integer(IntegerType::U16),
+            LiteralType::U32 => Type::Integer(IntegerType::U32),
+            LiteralType::U64 => Type::Integer(IntegerType::U64),
+            LiteralType::U128 => Type::Integer(IntegerType::U128),
+            LiteralType::I8 => Type::Integer(IntegerType::I8),
+            LiteralType::I16 => Type::Integer(IntegerType::I16),
+            LiteralType::I32 => Type::Integer(IntegerType::I32),
+            LiteralType::I64 => Type::Integer(IntegerType::I64),
+            LiteralType::I128 => Type::Integer(IntegerType::I128),
+            LiteralType::Scalar => Type::Scalar,
+            LiteralType::Signature => Type::Signature,
+            LiteralType::String => Type::String,
+        }
     }
 }
 

@@ -31,7 +31,16 @@ use snarkvm::{
     synthesizer::{
         Command,
         Instruction,
-        program::{CallOperator, CastType, Operand},
+        program::{
+            CallOperator,
+            CastType,
+            CommitVariant,
+            DeserializeVariant,
+            ECDSAVerifyVariant,
+            HashVariant,
+            Operand,
+            SerializeVariant,
+        },
     },
 };
 
@@ -140,9 +149,9 @@ impl Cursor {
             }
             Operand::BlockHeight => self.block_height.into(),
             Operand::NetworkID => todo!(),
-            Operand::Checksum(_) => todo!("Look up the program in the global namespace and get its checksum"),
-            Operand::Edition(_) => todo!("Look up the program in the global namespace and get its edition"),
-            Operand::ProgramOwner(_) => todo!("Prompt user if not set"),
+            Operand::Checksum(_) => todo!(),
+            Operand::Edition(_) => todo!(),
+            Operand::ProgramOwner(_) => todo!(),
         }
     }
 
@@ -182,18 +191,8 @@ impl Cursor {
         }
 
         macro_rules! commit_function {
-            ($commit: expr,
-             $to_address: ident,
-             $to_field: ident,
-             $to_group: ident,
-            ) => {{
-                let core_function = match $commit.destination_type() {
-                    LiteralType::Address => CoreFunction::$to_address,
-                    LiteralType::Field => CoreFunction::$to_field,
-                    LiteralType::Group => CoreFunction::$to_group,
-                    _ => panic!("invalid commit destination type"),
-                };
-
+            ($commit: expr, $variant: expr) => {{
+                let core_function = CoreFunction::Commit($variant, $commit.destination_type());
                 let randomizer_value = self.operand_value(&$commit.operands()[0]);
                 let operand_value = self.operand_value(&$commit.operands()[1]);
                 self.values.push(randomizer_value);
@@ -205,44 +204,70 @@ impl Cursor {
         }
 
         macro_rules! hash_function {
-            ($hash: expr,
-             $to_address: ident,
-             $to_field: ident,
-             $to_group: ident,
-             $to_i8: ident,
-             $to_i16: ident,
-             $to_i32: ident,
-             $to_i64: ident,
-             $to_i128: ident,
-             $to_u8: ident,
-             $to_u16: ident,
-             $to_u32: ident,
-             $to_u64: ident,
-             $to_u128: ident,
-             $to_scalar: ident,
-            ) => {{
-                let core_function = match $hash.destination_type() {
-                    PlaintextType::Literal(LiteralType::Address) => CoreFunction::$to_address,
-                    PlaintextType::Literal(LiteralType::Field) => CoreFunction::$to_field,
-                    PlaintextType::Literal(LiteralType::Group) => CoreFunction::$to_group,
-                    PlaintextType::Literal(LiteralType::I8) => CoreFunction::$to_i8,
-                    PlaintextType::Literal(LiteralType::I16) => CoreFunction::$to_i16,
-                    PlaintextType::Literal(LiteralType::I32) => CoreFunction::$to_i32,
-                    PlaintextType::Literal(LiteralType::I64) => CoreFunction::$to_i64,
-                    PlaintextType::Literal(LiteralType::I128) => CoreFunction::$to_i128,
-                    PlaintextType::Literal(LiteralType::U8) => CoreFunction::$to_u8,
-                    PlaintextType::Literal(LiteralType::U16) => CoreFunction::$to_u16,
-                    PlaintextType::Literal(LiteralType::U32) => CoreFunction::$to_u32,
-                    PlaintextType::Literal(LiteralType::U64) => CoreFunction::$to_u64,
-                    PlaintextType::Literal(LiteralType::U128) => CoreFunction::$to_u128,
-                    PlaintextType::Literal(LiteralType::Scalar) => CoreFunction::$to_scalar,
-                    _ => panic!("invalid hash destination type"),
-                };
+            ($hash: expr, $variant: expr) => {{
+                // Note. The only supported output types of a `hash` function are literals or bit arrays.
+                let core_function =
+                    CoreFunction::Hash($variant, Type::from_snarkvm::<TestnetV0>($hash.destination_type(), None));
                 let operand_value = self.operand_value(&$hash.operands()[0]);
                 self.values.push(operand_value);
                 let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $hash.destinations()[0].clone())
+            }};
+        }
+
+        macro_rules! ecdsa_function {
+            ($ecdsa: expr, $variant: expr) => {{
+                let core_function = CoreFunction::ECDSAVerify($variant);
+                let signature = self.operand_value(&$ecdsa.operands()[0]);
+                let public_key = self.operand_value(&$ecdsa.operands()[1]);
+                let message = self.operand_value(&$ecdsa.operands()[2]);
+                self.values.push(signature);
+                self.values.push(public_key);
+                self.values.push(message);
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                self.increment_instruction_index();
+                (value.expect("Evaluation should work"), $ecdsa.destinations()[0].clone())
+            }};
+        }
+
+        macro_rules! schnorr_function {
+            ($schnorr: expr, $variant: expr) => {{
+                let core_function = CoreFunction::SignatureVerify;
+                let signature = self.operand_value(&$schnorr.operands()[0]);
+                let public_key = self.operand_value(&$schnorr.operands()[1]);
+                let message = self.operand_value(&$schnorr.operands()[2]);
+                self.values.push(signature);
+                self.values.push(public_key);
+                self.values.push(message);
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                self.increment_instruction_index();
+                (value.expect("Evaluation should work"), $schnorr.destinations()[0].clone())
+            }};
+        }
+
+        macro_rules! serialize_function {
+            ($serialize: expr, $variant: expr) => {{
+                let core_function = CoreFunction::Serialize($variant);
+                let operand_value = self.operand_value(&$serialize.operands()[0]);
+                self.values.push(operand_value);
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                self.increment_instruction_index();
+                (value.expect("Evaluation should work"), $serialize.destinations()[0].clone())
+            }};
+        }
+
+        macro_rules! deserialize_function {
+            ($deserialize: expr, $variant: expr) => {{
+                let core_function = CoreFunction::Deserialize(
+                    $variant,
+                    Type::from_snarkvm::<TestnetV0>($deserialize.destination_type(), None),
+                );
+                let operand_value = self.operand_value(&$deserialize.operands()[0]);
+                self.values.push(operand_value);
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                self.increment_instruction_index();
+                (value.expect("Evaluation should work"), $deserialize.destinations()[0].clone())
             }};
         }
 
@@ -431,285 +456,80 @@ impl Cursor {
                     _ => tc_fail!(),
                 }
             }
-            CommitBHP256(commit) => {
-                commit_function!(commit, BHP256CommitToAddress, BHP256CommitToField, BHP256CommitToGroup,)
-            }
-            CommitBHP512(commit) => {
-                commit_function!(commit, BHP512CommitToAddress, BHP512CommitToField, BHP512CommitToGroup,)
-            }
-            CommitBHP768(commit) => {
-                commit_function!(commit, BHP768CommitToAddress, BHP768CommitToField, BHP768CommitToGroup,)
-            }
-            CommitBHP1024(commit) => {
-                commit_function!(commit, BHP1024CommitToAddress, BHP1024CommitToField, BHP1024CommitToGroup,)
-            }
-            CommitPED64(commit) => {
-                commit_function!(commit, Pedersen64CommitToAddress, Pedersen64CommitToField, Pedersen64CommitToGroup,)
-            }
-            CommitPED128(commit) => {
-                commit_function!(commit, Pedersen128CommitToAddress, Pedersen128CommitToField, Pedersen128CommitToGroup,)
-            }
+            CommitBHP256(commit) => commit_function!(commit, CommitVariant::CommitBHP256),
+            CommitBHP512(commit) => commit_function!(commit, CommitVariant::CommitBHP512),
+            CommitBHP768(commit) => commit_function!(commit, CommitVariant::CommitBHP768),
+            CommitBHP1024(commit) => commit_function!(commit, CommitVariant::CommitBHP1024),
+            CommitPED64(commit) => commit_function!(commit, CommitVariant::CommitPED64),
+            CommitPED128(commit) => commit_function!(commit, CommitVariant::CommitPED128),
             Div(div) => binary!(div, Div),
             DivWrapped(div_wrapped) => binary!(div_wrapped, DivWrapped),
             Double(double) => unary!(double, Double),
             GreaterThan(gt) => binary!(gt, Gt),
             GreaterThanOrEqual(gte) => binary!(gte, Gte),
-            HashBHP256(hash) => hash_function!(
-                hash,
-                BHP256HashToAddress,
-                BHP256HashToField,
-                BHP256HashToGroup,
-                BHP256HashToI8,
-                BHP256HashToI16,
-                BHP256HashToI32,
-                BHP256HashToI64,
-                BHP256HashToI128,
-                BHP256HashToU8,
-                BHP256HashToU16,
-                BHP256HashToU32,
-                BHP256HashToU64,
-                BHP256HashToU128,
-                BHP256HashToScalar,
-            ),
-            HashBHP512(hash) => hash_function!(
-                hash,
-                BHP512HashToAddress,
-                BHP512HashToField,
-                BHP512HashToGroup,
-                BHP512HashToI8,
-                BHP512HashToI16,
-                BHP512HashToI32,
-                BHP512HashToI64,
-                BHP512HashToI128,
-                BHP512HashToU8,
-                BHP512HashToU16,
-                BHP512HashToU32,
-                BHP512HashToU64,
-                BHP512HashToU128,
-                BHP512HashToScalar,
-            ),
-            HashBHP768(hash) => hash_function!(
-                hash,
-                BHP768HashToAddress,
-                BHP768HashToField,
-                BHP768HashToGroup,
-                BHP768HashToI8,
-                BHP768HashToI16,
-                BHP768HashToI32,
-                BHP768HashToI64,
-                BHP768HashToI128,
-                BHP768HashToU8,
-                BHP768HashToU16,
-                BHP768HashToU32,
-                BHP768HashToU64,
-                BHP768HashToU128,
-                BHP768HashToScalar,
-            ),
-            HashBHP1024(hash) => hash_function!(
-                hash,
-                BHP1024HashToAddress,
-                BHP1024HashToField,
-                BHP1024HashToGroup,
-                BHP1024HashToI8,
-                BHP1024HashToI16,
-                BHP1024HashToI32,
-                BHP1024HashToI64,
-                BHP1024HashToI128,
-                BHP1024HashToU8,
-                BHP1024HashToU16,
-                BHP1024HashToU32,
-                BHP1024HashToU64,
-                BHP1024HashToU128,
-                BHP1024HashToScalar,
-            ),
-            HashKeccak256(hash) => hash_function!(
-                hash,
-                Keccak256HashToAddress,
-                Keccak256HashToField,
-                Keccak256HashToGroup,
-                Keccak256HashToI8,
-                Keccak256HashToI16,
-                Keccak256HashToI32,
-                Keccak256HashToI64,
-                Keccak256HashToI128,
-                Keccak256HashToU8,
-                Keccak256HashToU16,
-                Keccak256HashToU32,
-                Keccak256HashToU64,
-                Keccak256HashToU128,
-                Keccak256HashToScalar,
-            ),
-            HashKeccak384(hash) => hash_function!(
-                hash,
-                Keccak384HashToAddress,
-                Keccak384HashToField,
-                Keccak384HashToGroup,
-                Keccak384HashToI8,
-                Keccak384HashToI16,
-                Keccak384HashToI32,
-                Keccak384HashToI64,
-                Keccak384HashToI128,
-                Keccak384HashToU8,
-                Keccak384HashToU16,
-                Keccak384HashToU32,
-                Keccak384HashToU64,
-                Keccak384HashToU128,
-                Keccak384HashToScalar,
-            ),
-            HashKeccak512(hash) => hash_function!(
-                hash,
-                Keccak512HashToAddress,
-                Keccak512HashToField,
-                Keccak512HashToGroup,
-                Keccak512HashToI8,
-                Keccak512HashToI16,
-                Keccak512HashToI32,
-                Keccak512HashToI64,
-                Keccak512HashToI128,
-                Keccak512HashToU8,
-                Keccak512HashToU16,
-                Keccak512HashToU32,
-                Keccak512HashToU64,
-                Keccak512HashToU128,
-                Keccak512HashToScalar,
-            ),
-            HashPED64(hash) => hash_function!(
-                hash,
-                Pedersen64HashToAddress,
-                Pedersen64HashToField,
-                Pedersen64HashToGroup,
-                Pedersen64HashToI8,
-                Pedersen64HashToI16,
-                Pedersen64HashToI32,
-                Pedersen64HashToI64,
-                Pedersen64HashToI128,
-                Pedersen64HashToU8,
-                Pedersen64HashToU16,
-                Pedersen64HashToU32,
-                Pedersen64HashToU64,
-                Pedersen64HashToU128,
-                Pedersen64HashToScalar,
-            ),
-            HashPED128(hash) => hash_function!(
-                hash,
-                Pedersen128HashToAddress,
-                Pedersen128HashToField,
-                Pedersen128HashToGroup,
-                Pedersen128HashToI8,
-                Pedersen128HashToI16,
-                Pedersen128HashToI32,
-                Pedersen128HashToI64,
-                Pedersen128HashToI128,
-                Pedersen128HashToU8,
-                Pedersen128HashToU16,
-                Pedersen128HashToU32,
-                Pedersen128HashToU64,
-                Pedersen128HashToU128,
-                Pedersen128HashToScalar,
-            ),
-            HashPSD2(hash) => hash_function!(
-                hash,
-                Poseidon2HashToAddress,
-                Poseidon2HashToField,
-                Poseidon2HashToGroup,
-                Poseidon2HashToI8,
-                Poseidon2HashToI16,
-                Poseidon2HashToI32,
-                Poseidon2HashToI64,
-                Poseidon2HashToI128,
-                Poseidon2HashToU8,
-                Poseidon2HashToU16,
-                Poseidon2HashToU32,
-                Poseidon2HashToU64,
-                Poseidon2HashToU128,
-                Poseidon2HashToScalar,
-            ),
-            HashPSD4(hash) => hash_function!(
-                hash,
-                Poseidon4HashToAddress,
-                Poseidon4HashToField,
-                Poseidon4HashToGroup,
-                Poseidon4HashToI8,
-                Poseidon4HashToI16,
-                Poseidon4HashToI32,
-                Poseidon4HashToI64,
-                Poseidon4HashToI128,
-                Poseidon4HashToU8,
-                Poseidon4HashToU16,
-                Poseidon4HashToU32,
-                Poseidon4HashToU64,
-                Poseidon4HashToU128,
-                Poseidon4HashToScalar,
-            ),
-            HashPSD8(hash) => hash_function!(
-                hash,
-                Poseidon8HashToAddress,
-                Poseidon8HashToField,
-                Poseidon8HashToGroup,
-                Poseidon8HashToI8,
-                Poseidon8HashToI16,
-                Poseidon8HashToI32,
-                Poseidon8HashToI64,
-                Poseidon8HashToI128,
-                Poseidon8HashToU8,
-                Poseidon8HashToU16,
-                Poseidon8HashToU32,
-                Poseidon8HashToU64,
-                Poseidon8HashToU128,
-                Poseidon8HashToScalar,
-            ),
-            HashSha3_256(hash) => hash_function!(
-                hash,
-                SHA3_256HashToAddress,
-                SHA3_256HashToField,
-                SHA3_256HashToGroup,
-                SHA3_256HashToI8,
-                SHA3_256HashToI16,
-                SHA3_256HashToI32,
-                SHA3_256HashToI64,
-                SHA3_256HashToI128,
-                SHA3_256HashToU8,
-                SHA3_256HashToU16,
-                SHA3_256HashToU32,
-                SHA3_256HashToU64,
-                SHA3_256HashToU128,
-                SHA3_256HashToScalar,
-            ),
-            HashSha3_384(hash) => hash_function!(
-                hash,
-                SHA3_384HashToAddress,
-                SHA3_384HashToField,
-                SHA3_384HashToGroup,
-                SHA3_384HashToI8,
-                SHA3_384HashToI16,
-                SHA3_384HashToI32,
-                SHA3_384HashToI64,
-                SHA3_384HashToI128,
-                SHA3_384HashToU8,
-                SHA3_384HashToU16,
-                SHA3_384HashToU32,
-                SHA3_384HashToU64,
-                SHA3_384HashToU128,
-                SHA3_384HashToScalar,
-            ),
-            HashSha3_512(hash) => hash_function!(
-                hash,
-                SHA3_512HashToAddress,
-                SHA3_512HashToField,
-                SHA3_512HashToGroup,
-                SHA3_512HashToI8,
-                SHA3_512HashToI16,
-                SHA3_512HashToI32,
-                SHA3_512HashToI64,
-                SHA3_512HashToI128,
-                SHA3_512HashToU8,
-                SHA3_512HashToU16,
-                SHA3_512HashToU32,
-                SHA3_512HashToU64,
-                SHA3_512HashToU128,
-                SHA3_512HashToScalar,
-            ),
-            HashManyPSD2(_) | HashManyPSD4(_) | HashManyPSD8(_) => panic!("these instructions don't exist yet"),
+            HashBHP256(hash) => hash_function!(hash, HashVariant::HashBHP256),
+            HashBHP512(hash) => hash_function!(hash, HashVariant::HashBHP512),
+            HashBHP768(hash) => hash_function!(hash, HashVariant::HashBHP768),
+            HashBHP1024(hash) => hash_function!(hash, HashVariant::HashBHP1024),
+            HashKeccak256(hash) => hash_function!(hash, HashVariant::HashKeccak256),
+            HashKeccak384(hash) => hash_function!(hash, HashVariant::HashKeccak384),
+            HashKeccak512(hash) => hash_function!(hash, HashVariant::HashKeccak512),
+            HashPED64(hash) => hash_function!(hash, HashVariant::HashPED64),
+            HashPED128(hash) => hash_function!(hash, HashVariant::HashPED128),
+            HashPSD2(hash) => hash_function!(hash, HashVariant::HashPSD2),
+            HashPSD4(hash) => hash_function!(hash, HashVariant::HashPSD4),
+            HashPSD8(hash) => hash_function!(hash, HashVariant::HashPSD8),
+            HashSha3_256(hash) => hash_function!(hash, HashVariant::HashSha3_256),
+            HashSha3_384(hash) => hash_function!(hash, HashVariant::HashSha3_384),
+            HashSha3_512(hash) => hash_function!(hash, HashVariant::HashSha3_512),
+            HashBHP256Raw(hash) => hash_function!(hash, HashVariant::HashBHP256Raw),
+            HashBHP512Raw(hash) => hash_function!(hash, HashVariant::HashBHP512Raw),
+            HashBHP768Raw(hash) => hash_function!(hash, HashVariant::HashBHP768Raw),
+            HashBHP1024Raw(hash) => hash_function!(hash, HashVariant::HashBHP1024Raw),
+            HashKeccak256Raw(hash) => hash_function!(hash, HashVariant::HashKeccak256Raw),
+            HashKeccak384Raw(hash) => hash_function!(hash, HashVariant::HashKeccak384Raw),
+            HashKeccak512Raw(hash) => hash_function!(hash, HashVariant::HashKeccak512Raw),
+            HashPED64Raw(hash) => hash_function!(hash, HashVariant::HashPED64Raw),
+            HashPED128Raw(hash) => hash_function!(hash, HashVariant::HashPED128Raw),
+            HashPSD2Raw(hash) => hash_function!(hash, HashVariant::HashPSD2Raw),
+            HashPSD4Raw(hash) => hash_function!(hash, HashVariant::HashPSD4Raw),
+            HashPSD8Raw(hash) => hash_function!(hash, HashVariant::HashPSD8Raw),
+            HashSha3_256Raw(hash) => hash_function!(hash, HashVariant::HashSha3_256Raw),
+            HashSha3_384Raw(hash) => hash_function!(hash, HashVariant::HashSha3_384Raw),
+            HashSha3_512Raw(hash) => hash_function!(hash, HashVariant::HashSha3_512Raw),
+            HashKeccak256Native(hash) => hash_function!(hash, HashVariant::HashKeccak256Native),
+            HashKeccak384Native(hash) => hash_function!(hash, HashVariant::HashKeccak384Native),
+            HashKeccak512Native(hash) => hash_function!(hash, HashVariant::HashKeccak512Native),
+            HashSha3_256Native(hash) => hash_function!(hash, HashVariant::HashSha3_256Native),
+            HashSha3_384Native(hash) => hash_function!(hash, HashVariant::HashSha3_384Native),
+            HashSha3_512Native(hash) => hash_function!(hash, HashVariant::HashSha3_512Native),
+            HashKeccak256NativeRaw(hash) => hash_function!(hash, HashVariant::HashKeccak256NativeRaw),
+            HashKeccak384NativeRaw(hash) => hash_function!(hash, HashVariant::HashKeccak384NativeRaw),
+            HashKeccak512NativeRaw(hash) => hash_function!(hash, HashVariant::HashKeccak512NativeRaw),
+            HashSha3_256NativeRaw(hash) => hash_function!(hash, HashVariant::HashSha3_256NativeRaw),
+            HashSha3_384NativeRaw(hash) => hash_function!(hash, HashVariant::HashSha3_384NativeRaw),
+            HashSha3_512NativeRaw(hash) => hash_function!(hash, HashVariant::HashSha3_512NativeRaw),
+            ECDSAVerifyDigest(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::Digest),
+            ECDSAVerifyDigestEth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::DigestEth),
+            ECDSAVerifyKeccak256(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak256),
+            ECDSAVerifyKeccak256Raw(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak256Raw),
+            ECDSAVerifyKeccak256Eth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak256Eth),
+            ECDSAVerifyKeccak384(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak384),
+            ECDSAVerifyKeccak384Raw(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak384Raw),
+            ECDSAVerifyKeccak384Eth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak384Eth),
+            ECDSAVerifyKeccak512(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak512),
+            ECDSAVerifyKeccak512Raw(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak512Raw),
+            ECDSAVerifyKeccak512Eth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashKeccak512Eth),
+            ECDSAVerifySha3_256(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_256),
+            ECDSAVerifySha3_256Raw(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_256Raw),
+            ECDSAVerifySha3_256Eth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_256Eth),
+            ECDSAVerifySha3_384(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_384),
+            ECDSAVerifySha3_384Raw(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_384Raw),
+            ECDSAVerifySha3_384Eth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_384Eth),
+            ECDSAVerifySha3_512(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_512),
+            ECDSAVerifySha3_512Raw(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_512Raw),
+            ECDSAVerifySha3_512Eth(ecdsa) => ecdsa_function!(ecdsa, ECDSAVerifyVariant::HashSha3_512Eth),
+            HashManyPSD2(_) | HashManyPSD4(_) | HashManyPSD8(_) => panic!("these functions don't exist yet"),
             Inv(inv) => unary!(inv, Inverse),
             IsEq(eq) => binary!(eq, Eq),
             IsNeq(neq) => binary!(neq, Neq),
@@ -731,7 +551,7 @@ impl Cursor {
             ShlWrapped(shl_wrapped) => binary!(shl_wrapped, ShlWrapped),
             Shr(shr) => binary!(shr, Shr),
             ShrWrapped(shr_wrapped) => binary!(shr_wrapped, ShrWrapped),
-            SignVerify(_) => todo!(),
+            SignVerify(schnorr) => schnorr_function!(schnorr, false),
             Square(square) => unary!(square, Square),
             SquareRoot(sqrt) => unary!(sqrt, SquareRoot),
             Sub(sub) => binary!(sub, Sub),
@@ -747,6 +567,14 @@ impl Cursor {
                 (self.operand_value(result), ternary.destinations()[0].clone())
             }
             Xor(xor) => binary!(xor, Xor),
+            SerializeBits(serialize_bits) => serialize_function!(serialize_bits, SerializeVariant::ToBits),
+            SerializeBitsRaw(serialize_bits_raw) => {
+                serialize_function!(serialize_bits_raw, SerializeVariant::ToBitsRaw)
+            }
+            DeserializeBits(deserialize_bits) => deserialize_function!(deserialize_bits, DeserializeVariant::FromBits),
+            DeserializeBitsRaw(deserialize_bits_raw) => {
+                deserialize_function!(deserialize_bits_raw, DeserializeVariant::FromBitsRaw)
+            }
         };
 
         self.set_register(destination, value);
@@ -854,25 +682,7 @@ impl Cursor {
             RandChaCha(rand) => {
                 // TODO - this is not using the other operands which are supposed to seed the RNG.
                 use CoreFunction::*;
-                let function = match rand.destination_type() {
-                    LiteralType::Address => ChaChaRandAddress,
-                    LiteralType::Boolean => ChaChaRandBool,
-                    LiteralType::Field => ChaChaRandField,
-                    LiteralType::Group => ChaChaRandGroup,
-                    LiteralType::I8 => ChaChaRandI8,
-                    LiteralType::I16 => ChaChaRandI16,
-                    LiteralType::I32 => ChaChaRandI32,
-                    LiteralType::I64 => ChaChaRandI64,
-                    LiteralType::I128 => ChaChaRandI128,
-                    LiteralType::U8 => ChaChaRandU8,
-                    LiteralType::U16 => ChaChaRandU16,
-                    LiteralType::U32 => ChaChaRandU32,
-                    LiteralType::U64 => ChaChaRandU64,
-                    LiteralType::U128 => ChaChaRandU128,
-                    LiteralType::Scalar => ChaChaRandScalar,
-                    LiteralType::Signature => todo!(),
-                    LiteralType::String => todo!(),
-                };
+                let function = ChaChaRand(rand.destination_type());
                 let value =
                     interpreter_value::evaluate_core_function(self, function, &[], Default::default())?.unwrap();
                 self.increment_instruction_index();
@@ -919,11 +729,11 @@ impl Cursor {
             panic!();
         };
         for (i, cmd) in finalize.commands().iter().enumerate() {
-            if let Command::Position(position) = cmd {
-                if position.name() == label {
-                    *instruction_index = i;
-                    return;
-                }
+            if let Command::Position(position) = cmd
+                && position.name() == label
+            {
+                *instruction_index = i;
+                return;
             }
         }
         panic!("branch to nonexistent label {label}");

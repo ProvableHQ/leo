@@ -216,8 +216,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         if values.len() == input.arguments.len() && !matches!(input.variant.name, sym::CheatCode | sym::Mapping) {
             // We've evaluated every argument, and this function isn't a cheat code or mapping
             // operation, so maybe we can compute the result at compile time.
-            let core_function = CoreFunction::from_symbols(input.variant.name, input.name.name)
-                .expect("Type checking guarantees this is valid.");
+            let core_function = CoreFunction::try_from(&input).expect("Type checking guarantees this is valid.");
 
             match interpreter_value::evaluate_core_function(&mut values, core_function, &[], input.span()) {
                 Ok(Some(value)) => {
