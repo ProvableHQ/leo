@@ -203,7 +203,7 @@
 <a href=#203 id=203 data-nosnippet>203</a>            unsuffixed.resolve_if_unsuffixed(expected_ty, literal.span)<span class="question-mark">?
 <a href=#204 id=204 data-nosnippet>204</a>        </span>}
 <a href=#205 id=205 data-nosnippet>205</a>        LiteralVariant::None =&gt; <span class="macro">halt_no_span2!</span>(<span class="string">""</span>),
-<a href=#206 id=206 data-nosnippet>206</a>        LiteralVariant::String(..) =&gt; <span class="macro">tc_fail2!</span>(),
+<a href=#206 id=206 data-nosnippet>206</a>        LiteralVariant::String(s) =&gt; Value::make_string(s.clone()),
 <a href=#207 id=207 data-nosnippet>207</a>    })
 <a href=#208 id=208 data-nosnippet>208</a>}
 <a href=#209 id=209 data-nosnippet>209</a>

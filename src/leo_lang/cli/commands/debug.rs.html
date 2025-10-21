@@ -68,49 +68,47 @@
 <a href=#68 id=68 data-nosnippet>68</a>        <span class="kw">let </span>package = package.unwrap();
 <a href=#69 id=69 data-nosnippet>69</a>
 <a href=#70 id=70 data-nosnippet>70</a>        <span class="comment">// Get the private key.
-<a href=#71 id=71 data-nosnippet>71</a>        </span><span class="kw">let </span>private_key = get_private_key(<span class="kw-2">&amp;</span><span class="prelude-val">None</span>)<span class="question-mark">?</span>;
-<a href=#72 id=72 data-nosnippet>72</a>        <span class="kw">let </span>address = Address::&lt;TestnetV0&gt;::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
-<a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a>        <span class="comment">// Get the paths of all local Leo dependencies.
-<a href=#75 id=75 data-nosnippet>75</a>        </span><span class="kw">let </span>local_dependency_paths = collect_leo_paths(<span class="kw-2">&amp;</span>package);
-<a href=#76 id=76 data-nosnippet>76</a>        <span class="kw">let </span>aleo_paths = collect_aleo_paths(<span class="kw-2">&amp;</span>package);
-<a href=#77 id=77 data-nosnippet>77</a>
-<a href=#78 id=78 data-nosnippet>78</a>        <span class="comment">// No need to keep this around while the interpreter runs.
-<a href=#79 id=79 data-nosnippet>79</a>        </span>std::mem::drop(package);
-<a href=#80 id=80 data-nosnippet>80</a>
-<a href=#81 id=81 data-nosnippet>81</a>        leo_interpreter::interpret(
-<a href=#82 id=82 data-nosnippet>82</a>            <span class="kw-2">&amp;</span>local_dependency_paths,
-<a href=#83 id=83 data-nosnippet>83</a>            <span class="kw-2">&amp;</span>aleo_paths,
-<a href=#84 id=84 data-nosnippet>84</a>            address.into(),
-<a href=#85 id=85 data-nosnippet>85</a>            command.block_height,
-<a href=#86 id=86 data-nosnippet>86</a>            command.tui,
-<a href=#87 id=87 data-nosnippet>87</a>            network_name,
-<a href=#88 id=88 data-nosnippet>88</a>        )
-<a href=#89 id=89 data-nosnippet>89</a>    } <span class="kw">else </span>{
-<a href=#90 id=90 data-nosnippet>90</a>        <span class="comment">// Program that have submodules aren't supported in this mode.
-<a href=#91 id=91 data-nosnippet>91</a>        </span><span class="kw">let </span>private_key: PrivateKey&lt;TestnetV0&gt; = PrivateKey::from_str(leo_package::TEST_PRIVATE_KEY)<span class="question-mark">?</span>;
-<a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">let </span>address = Address::&lt;TestnetV0&gt;::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
-<a href=#93 id=93 data-nosnippet>93</a>
-<a href=#94 id=94 data-nosnippet>94</a>        <span class="kw">let </span>leo_paths: Vec&lt;(PathBuf, Vec&lt;PathBuf&gt;)&gt; = command
-<a href=#95 id=95 data-nosnippet>95</a>            .paths
-<a href=#96 id=96 data-nosnippet>96</a>            .iter()
-<a href=#97 id=97 data-nosnippet>97</a>            .filter(|path_str| path_str.ends_with(<span class="string">".leo"</span>))
-<a href=#98 id=98 data-nosnippet>98</a>            .map(|path_str| (path_str.into(), <span class="macro">vec!</span>[]))
-<a href=#99 id=99 data-nosnippet>99</a>            .collect();
-<a href=#100 id=100 data-nosnippet>100</a>        <span class="kw">let </span>aleo_paths: Vec&lt;PathBuf&gt; = command
-<a href=#101 id=101 data-nosnippet>101</a>            .paths
-<a href=#102 id=102 data-nosnippet>102</a>            .iter()
-<a href=#103 id=103 data-nosnippet>103</a>            .filter(|path_str| !path_str.ends_with(<span class="string">".leo"</span>))
-<a href=#104 id=104 data-nosnippet>104</a>            .map(|path_str| path_str.into())
-<a href=#105 id=105 data-nosnippet>105</a>            .collect();
-<a href=#106 id=106 data-nosnippet>106</a>
-<a href=#107 id=107 data-nosnippet>107</a>        leo_interpreter::interpret(
-<a href=#108 id=108 data-nosnippet>108</a>            <span class="kw-2">&amp;</span>leo_paths,
-<a href=#109 id=109 data-nosnippet>109</a>            <span class="kw-2">&amp;</span>aleo_paths,
-<a href=#110 id=110 data-nosnippet>110</a>            address.into(),
-<a href=#111 id=111 data-nosnippet>111</a>            command.block_height,
-<a href=#112 id=112 data-nosnippet>112</a>            command.tui,
-<a href=#113 id=113 data-nosnippet>113</a>            network_name,
-<a href=#114 id=114 data-nosnippet>114</a>        )
-<a href=#115 id=115 data-nosnippet>115</a>    }
-<a href=#116 id=116 data-nosnippet>116</a>}</code></pre></div></section></main></body></html>
+<a href=#71 id=71 data-nosnippet>71</a>        </span><span class="kw">let </span>private_key = get_private_key::&lt;TestnetV0&gt;(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(leo_ast::TEST_PRIVATE_KEY.to_string()))<span class="question-mark">?</span>;
+<a href=#72 id=72 data-nosnippet>72</a>
+<a href=#73 id=73 data-nosnippet>73</a>        <span class="comment">// Get the paths of all local Leo dependencies.
+<a href=#74 id=74 data-nosnippet>74</a>        </span><span class="kw">let </span>local_dependency_paths = collect_leo_paths(<span class="kw-2">&amp;</span>package);
+<a href=#75 id=75 data-nosnippet>75</a>        <span class="kw">let </span>aleo_paths = collect_aleo_paths(<span class="kw-2">&amp;</span>package);
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>        <span class="comment">// No need to keep this around while the interpreter runs.
+<a href=#78 id=78 data-nosnippet>78</a>        </span>std::mem::drop(package);
+<a href=#79 id=79 data-nosnippet>79</a>
+<a href=#80 id=80 data-nosnippet>80</a>        leo_interpreter::interpret(
+<a href=#81 id=81 data-nosnippet>81</a>            <span class="kw-2">&amp;</span>local_dependency_paths,
+<a href=#82 id=82 data-nosnippet>82</a>            <span class="kw-2">&amp;</span>aleo_paths,
+<a href=#83 id=83 data-nosnippet>83</a>            private_key.to_string(),
+<a href=#84 id=84 data-nosnippet>84</a>            command.block_height,
+<a href=#85 id=85 data-nosnippet>85</a>            command.tui,
+<a href=#86 id=86 data-nosnippet>86</a>            network_name,
+<a href=#87 id=87 data-nosnippet>87</a>        )
+<a href=#88 id=88 data-nosnippet>88</a>    } <span class="kw">else </span>{
+<a href=#89 id=89 data-nosnippet>89</a>        <span class="comment">// Program that have submodules aren't supported in this mode.
+<a href=#90 id=90 data-nosnippet>90</a>        </span><span class="kw">let </span>private_key: PrivateKey&lt;TestnetV0&gt; = PrivateKey::from_str(leo_ast::TEST_PRIVATE_KEY)<span class="question-mark">?</span>;
+<a href=#91 id=91 data-nosnippet>91</a>
+<a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">let </span>leo_paths: Vec&lt;(PathBuf, Vec&lt;PathBuf&gt;)&gt; = command
+<a href=#93 id=93 data-nosnippet>93</a>            .paths
+<a href=#94 id=94 data-nosnippet>94</a>            .iter()
+<a href=#95 id=95 data-nosnippet>95</a>            .filter(|path_str| path_str.ends_with(<span class="string">".leo"</span>))
+<a href=#96 id=96 data-nosnippet>96</a>            .map(|path_str| (path_str.into(), <span class="macro">vec!</span>[]))
+<a href=#97 id=97 data-nosnippet>97</a>            .collect();
+<a href=#98 id=98 data-nosnippet>98</a>        <span class="kw">let </span>aleo_paths: Vec&lt;PathBuf&gt; = command
+<a href=#99 id=99 data-nosnippet>99</a>            .paths
+<a href=#100 id=100 data-nosnippet>100</a>            .iter()
+<a href=#101 id=101 data-nosnippet>101</a>            .filter(|path_str| !path_str.ends_with(<span class="string">".leo"</span>))
+<a href=#102 id=102 data-nosnippet>102</a>            .map(|path_str| path_str.into())
+<a href=#103 id=103 data-nosnippet>103</a>            .collect();
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a>        leo_interpreter::interpret(
+<a href=#106 id=106 data-nosnippet>106</a>            <span class="kw-2">&amp;</span>leo_paths,
+<a href=#107 id=107 data-nosnippet>107</a>            <span class="kw-2">&amp;</span>aleo_paths,
+<a href=#108 id=108 data-nosnippet>108</a>            private_key.to_string(),
+<a href=#109 id=109 data-nosnippet>109</a>            command.block_height,
+<a href=#110 id=110 data-nosnippet>110</a>            command.tui,
+<a href=#111 id=111 data-nosnippet>111</a>            network_name,
+<a href=#112 id=112 data-nosnippet>112</a>        )
+<a href=#113 id=113 data-nosnippet>113</a>    }
+<a href=#114 id=114 data-nosnippet>114</a>}</code></pre></div></section></main></body></html>
