@@ -82,14 +82,14 @@ commands:
             cargo install cargo-mtime
 
   install-snarkos:
-  description: "Install snarkOS (Linux/macOS)"
-  steps:
-    - run:
-        name: Install snarkOS 
-        command: |
-          git clone https://github.com/ProvableHQ/snarkOS.git
-          git checkout $SNARKOS_VERSION
-          cargo install --path . --features test_network --locked --force
+    description: "Install snarkOS (Linux/macOS)"
+    steps:
+      - run:
+          name: Install snarkOS 
+          command: |
+            git clone https://github.com/ProvableHQ/snarkOS.git
+            git checkout $SNARKOS_VERSION
+            cargo install --path . --features test_network --locked --force
 
   build-and-test:
     description: "Build and run tests"
