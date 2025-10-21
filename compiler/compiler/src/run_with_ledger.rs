@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::interpreter_value::Value;
-use leo_errors::{BufferEmitter, ErrBuffer, Handler, LeoError, Result, WarningBuffer};
+use leo_ast::{TEST_PRIVATE_KEY, interpreter_value::Value};
+use leo_errors::Result;
 
 use aleo_std_storage::StorageMode;
 use anyhow::anyhow;
@@ -36,6 +36,7 @@ use snarkvm::{
 };
 
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
+use rayon::prelude::*;
 use serde_json;
 use snarkvm::prelude::{ConsensusVersion, Network};
 use std::{fmt, str::FromStr as _};
@@ -46,6 +47,7 @@ type CurrentNetwork = TestnetV0;
 #[derive(Debug)]
 pub struct Config {
     pub seed: u64,
+    // If `None`, start at the height for the latest consensus version.
     pub start_height: Option<u32>,
     pub programs: Vec<Program>,
 }
@@ -89,12 +91,12 @@ impl fmt::Display for Status {
 }
 
 /// All details about the result of a case that was run.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CaseOutcome {
+    pub program_name: String,
+    pub function: String,
     pub status: Status,
     pub verified: bool,
-    pub errors: ErrBuffer,
-    pub warnings: WarningBuffer,
     pub execution: String,
     pub output: Value,
 }
@@ -104,13 +106,8 @@ pub struct CaseOutcome {
 // as well as the Leo test in `cli/commands/test.rs`.
 // `leo-compiler` is not necessarily the perfect place for it, but
 // it's the easiest place for now to make it accessible to both of those.
-pub fn run_with_ledger(
-    config: &Config,
-    cases: &[Case],
-    handler: &Handler,
-    buf: &BufferEmitter,
-) -> Result<Vec<CaseOutcome>> {
-    if cases.is_empty() {
+pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<Vec<CaseOutcome>>> {
+    if case_sets.is_empty() {
         return Ok(Vec::new());
     }
 
@@ -118,7 +115,10 @@ pub fn run_with_ledger(
     let mut rng = ChaCha20Rng::seed_from_u64(config.seed);
 
     // Initialize a genesis private key.
-    let genesis_private_key = PrivateKey::new(&mut rng).unwrap();
+    let genesis_private_key = PrivateKey::from_str(TEST_PRIVATE_KEY).unwrap();
+
+    // Store all of the non-genesis blocks created during set up.
+    let mut blocks = Vec::new();
 
     // Initialize a `VM` and construct the genesis block. This should always succeed.
     let genesis_block = VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(0).unwrap())
@@ -128,7 +128,7 @@ pub fn run_with_ledger(
 
     // Initialize a `Ledger`. This should always succeed.
     let ledger =
-        Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
+        Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block.clone(), StorageMode::Production)
             .unwrap();
 
     // Advance the `VM` to the start height, defaulting to the height for the latest consensus version.
@@ -140,6 +140,7 @@ pub fn run_with_ledger(
             .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![], &mut rng)
             .map_err(|_| anyhow!("Failed to prepare advance to next beacon block"))?;
         ledger.advance_to_next_block(&block).map_err(|_| anyhow!("Failed to advance to next block"))?;
+        blocks.push(block);
     }
 
     // Deploy each bytecode separately.
@@ -167,6 +168,10 @@ pub fn run_with_ledger(
             if block.transactions().num_accepted() != 1 {
                 return Err(anyhow!("Deployment transaction for program {name} not accepted.").into());
             }
+
+            // Store the block.
+            blocks.push(block);
+
             Ok(())
         };
 
@@ -178,146 +183,186 @@ pub fn run_with_ledger(
         }
     }
 
-    // Fund each private key used in the test cases with 1M ALEO.
-    let transactions: Vec<Transaction<CurrentNetwork>> = cases
-        .iter()
-        .filter_map(|case| case.private_key.as_ref())
-        .map(|key| {
-            // Parse the private key.
-            let private_key = PrivateKey::<CurrentNetwork>::from_str(key).expect("Failed to parse private key.");
-            // Convert the private key to an address.
-            let address = Address::try_from(private_key).expect("Failed to convert private key to address.");
-            // Generate the transaction.
-            ledger
-                .vm()
-                .execute(
-                    &genesis_private_key,
-                    ("credits.aleo", "transfer_public"),
-                    [
-                        SvmValue::from_str(&format!("{address}")).expect("Failed to parse recipient address"),
-                        SvmValue::from_str("1_000_000_000_000u64").expect("Failed to parse amount"),
-                    ]
-                    .iter(),
-                    None,
-                    0u64,
-                    None,
-                    &mut rng,
+    // Initialize ledger instances for each case set.
+    let mut indexed_ledgers = vec![(0, ledger)];
+    indexed_ledgers.extend(
+        (1..case_sets.len())
+            .into_par_iter()
+            .map(|i| {
+                // Initialize a `Ledger`. This should always succeed.
+                let l = Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(
+                    genesis_block.clone(),
+                    StorageMode::Production,
                 )
-                .expect("Failed to generate funding transaction")
-        })
-        .collect();
-
-    // Create a block with the funding transactions.
-    let block = ledger
-        .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], transactions, &mut rng)
-        .expect("Failed to prepare advance to next beacon block");
-    // Assert that no transactions were aborted or rejected.
-    assert!(block.aborted_transaction_ids().is_empty());
-    assert_eq!(block.transactions().num_rejected(), 0);
-    // Advance the ledger to the next block.
-    ledger.advance_to_next_block(&block).expect("Failed to advance to next block");
-
-    let mut case_outcomes = Vec::new();
-
-    for case in cases {
-        assert!(
-            ledger.vm().contains_program(&ProgramID::from_str(&case.program_name).unwrap()),
-            "Program {} should exist.",
-            case.program_name
-        );
-
-        let private_key = case
-            .private_key
-            .as_ref()
-            .map(|key| PrivateKey::from_str(key).expect("Failed to parse private key."))
-            .unwrap_or(genesis_private_key);
-
-        let mut execution = None;
-        let mut verified = false;
-        let mut status = Status::None;
-
-        // Halts are handled by panics, so we need to catch them.
-        // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
-        // used frequently in SnarkVM anyway.
-        let execute_output = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            ledger.vm().execute_with_response(
-                &private_key,
-                (&case.program_name, &case.function),
-                case.input.iter(),
-                None,
-                0,
-                None,
-                &mut rng,
-            )
-        }));
-
-        if let Err(payload) = execute_output {
-            let s1 = payload.downcast_ref::<&str>().map(|s| s.to_string());
-            let s2 = payload.downcast_ref::<String>().cloned();
-            let s = s1.or(s2).unwrap_or_else(|| "Unknown panic payload".to_string());
-
-            case_outcomes.push(CaseOutcome {
-                status: Status::Halted(s),
-                verified: false,
-                errors: buf.extract_errs(),
-                warnings: buf.extract_warnings(),
-                execution: "".to_string(),
-                output: Value::make_unit(),
-            });
-            continue;
-        }
-
-        let result = execute_output.unwrap().and_then(|(transaction, response)| {
-            verified = ledger.vm().check_transaction(&transaction, None, &mut rng).is_ok();
-            execution = Some(transaction.clone());
-            let block = ledger.prepare_advance_to_next_beacon_block(
-                &private_key,
-                vec![],
-                vec![],
-                vec![transaction],
-                &mut rng,
-            )?;
-            status = match (block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == 1) {
-                (false, _) => Status::Aborted,
-                (true, true) => Status::Accepted,
-                (true, false) => Status::Rejected,
-            };
-            ledger.advance_to_next_block(&block)?;
-            Ok(response)
-        });
-
-        let output = match result {
-            Ok(response) => {
-                let outputs = response.outputs();
-                match outputs.len() {
-                    0 => Value::make_unit(),
-                    1 => outputs[0].clone().into(),
-                    _ => Value::make_tuple(outputs.iter().map(|x| x.clone().into())),
+                .expect("Failed to load copy of ledger");
+                // Add the setup blocks.
+                for block in blocks.iter() {
+                    l.advance_to_next_block(block).expect("Failed to add setup block to ledger");
                 }
-            }
-            Err(e) => {
-                handler.emit_err(LeoError::Anyhow(e));
-                Value::make_unit()
-            }
-        };
 
-        // Extract the execution, removing the global state root and proof.
-        // This is necessary as they are not deterministic across runs, even with RNG fixed.
-        let execution = if let Some(Transaction::Execute(_, _, execution, _)) = execution {
-            Some(Execution::from(execution.into_transitions(), Default::default(), None).unwrap())
-        } else {
-            None
-        };
+                (i, l)
+            })
+            .collect::<Vec<_>>(),
+    );
 
-        case_outcomes.push(CaseOutcome {
-            status,
-            verified,
-            errors: buf.extract_errs(),
-            warnings: buf.extract_warnings(),
-            execution: serde_json::to_string_pretty(&execution).expect("Serialization failure"),
-            output,
-        });
+    // For each of the case sets, run the cases sequentially.
+    let results = indexed_ledgers
+        .into_par_iter()
+        .map(|(index, ledger)| {
+            // Get the cases for this ledger.
+            let cases = &case_sets[index];
+            // Clone the RNG.
+            let mut rng = rng.clone();
+
+            // Fund each private key used in the test cases with 1M ALEO.
+            let transactions: Vec<Transaction<CurrentNetwork>> = cases
+                .iter()
+                .filter_map(|case| case.private_key.as_ref())
+                .map(|key| {
+                    // Parse the private key.
+                    let private_key =
+                        PrivateKey::<CurrentNetwork>::from_str(key).expect("Failed to parse private key.");
+                    // Convert the private key to an address.
+                    let address = Address::try_from(private_key).expect("Failed to convert private key to address.");
+                    // Generate the transaction.
+                    ledger
+                        .vm()
+                        .execute(
+                            &genesis_private_key,
+                            ("credits.aleo", "transfer_public"),
+                            [
+                                SvmValue::from_str(&format!("{address}")).expect("Failed to parse recipient address"),
+                                SvmValue::from_str("1_000_000_000_000u64").expect("Failed to parse amount"),
+                            ]
+                            .iter(),
+                            None,
+                            0u64,
+                            None,
+                            &mut rng,
+                        )
+                        .expect("Failed to generate funding transaction")
+                })
+                .collect();
+
+            // Create a block with the funding transactions.
+            let block = ledger
+                .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], transactions, &mut rng)
+                .expect("Failed to prepare advance to next beacon block");
+            // Assert that no transactions were aborted or rejected.
+            assert!(block.aborted_transaction_ids().is_empty());
+            assert_eq!(block.transactions().num_rejected(), 0);
+            // Advance the ledger to the next block.
+            ledger.advance_to_next_block(&block).expect("Failed to advance to next block");
+
+            let mut case_outcomes = Vec::new();
+
+            for case in cases {
+                assert!(
+                    ledger.vm().contains_program(&ProgramID::from_str(&case.program_name).unwrap()),
+                    "Program {} should exist.",
+                    case.program_name
+                );
+
+                let private_key = case
+                    .private_key
+                    .as_ref()
+                    .map(|key| PrivateKey::from_str(key).expect("Failed to parse private key."))
+                    .unwrap_or(genesis_private_key);
+
+                let mut execution = None;
+                let mut verified = false;
+                let mut status = Status::None;
+
+                // Halts are handled by panics, so we need to catch them.
+                // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
+                // used frequently in SnarkVM anyway.
+                let execute_output = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    ledger.vm().execute_with_response(
+                        &private_key,
+                        (&case.program_name, &case.function),
+                        case.input.iter(),
+                        None,
+                        0,
+                        None,
+                        &mut rng,
+                    )
+                }));
+
+                if let Err(payload) = execute_output {
+                    let s1 = payload.downcast_ref::<&str>().map(|s| s.to_string());
+                    let s2 = payload.downcast_ref::<String>().cloned();
+                    let s = s1.or(s2).unwrap_or_else(|| "Unknown panic payload".to_string());
+
+                    case_outcomes.push(CaseOutcome {
+                        program_name: case.program_name.clone(),
+                        function: case.function.clone(),
+                        status: Status::Halted(s),
+                        verified: false,
+                        execution: "".to_string(),
+                        output: Value::make_unit(),
+                    });
+                    continue;
+                }
+
+                let result = execute_output.unwrap().and_then(|(transaction, response)| {
+                    verified = ledger.vm().check_transaction(&transaction, None, &mut rng).is_ok();
+                    execution = Some(transaction.clone());
+                    let block = ledger.prepare_advance_to_next_beacon_block(
+                        &private_key,
+                        vec![],
+                        vec![],
+                        vec![transaction],
+                        &mut rng,
+                    )?;
+                    status =
+                        match (block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == 1) {
+                            (false, _) => Status::Aborted,
+                            (true, true) => Status::Accepted,
+                            (true, false) => Status::Rejected,
+                        };
+                    ledger.advance_to_next_block(&block)?;
+                    Ok(response)
+                });
+
+                let output = match result {
+                    Ok(response) => {
+                        let outputs = response.outputs();
+                        match outputs.len() {
+                            0 => Value::make_unit(),
+                            1 => outputs[0].clone().into(),
+                            _ => Value::make_tuple(outputs.iter().map(|x| x.clone().into())),
+                        }
+                    }
+                    Err(e) => Value::make_string(format!("Failed to extract output: {e}")),
+                };
+
+                // Extract the execution, removing the global state root and proof.
+                // This is necessary as they are not deterministic across runs, even with RNG fixed.
+                let execution = if let Some(Transaction::Execute(_, _, execution, _)) = execution {
+                    Some(Execution::from(execution.into_transitions(), Default::default(), None).unwrap())
+                } else {
+                    None
+                };
+
+                case_outcomes.push(CaseOutcome {
+                    program_name: case.program_name.clone(),
+                    function: case.function.clone(),
+                    status,
+                    verified,
+                    execution: serde_json::to_string_pretty(&execution).expect("Serialization failure"),
+                    output,
+                });
+            }
+
+            Ok((index, case_outcomes))
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    // Reorder results to match input order.
+    let mut ordered_results: Vec<Vec<CaseOutcome>> = vec![Default::default(); case_sets.len()];
+    for (index, outcomes) in results.into_iter() {
+        ordered_results[index] = outcomes;
     }
 
-    Ok(case_outcomes)
+    Ok(ordered_results)
 }

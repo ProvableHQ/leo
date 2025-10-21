@@ -93,6 +93,7 @@ commands:
             cargo install --path . --features test_network --locked --force
             cd ..
             rm -rf snarkOS
+            ulimit -n 65535 
 
   build-and-test:
     description: "Build and run tests"

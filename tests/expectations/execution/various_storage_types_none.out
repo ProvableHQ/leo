@@ -419,8 +419,6 @@ constructor:
     assert.eq edition 0u16;
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
@@ -445,8 +443,6 @@ warnings:
 
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
@@ -471,8 +467,6 @@ warnings:
 
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
@@ -497,8 +491,6 @@ warnings:
 
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {

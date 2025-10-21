@@ -44,6 +44,9 @@ version = "1.0"
 [dependencies.rand_chacha]
 workspace = true
 
+[dependencies.rayon]
+workspace = true
+
 [dependencies.snarkvm]
 workspace = true
 

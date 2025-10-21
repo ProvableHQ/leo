@@ -60,6 +60,10 @@ pub trait CoreFunctionHelper {
 
     fn set_block_height(&mut self, _height: u32) {}
 
+    fn set_signer(&mut self, _private_key: String) -> Result<()> {
+        Ok(())
+    }
+
     fn lookup_mapping(&self, _program: Option<Symbol>, _name: Symbol) -> Option<&HashMap<Value, Value>> {
         None
     }
@@ -232,12 +236,17 @@ pub fn evaluate_core_function(
             } else {
                 tc_fail2!();
             }
-            Value { id: None, contents: ValueVariants::Unit }
+            Value::make_unit()
         }
         CoreFunction::CheatCodeSetBlockHeight => {
             let height: u32 = helper.pop_value()?.try_into().expect_tc(span)?;
             helper.set_block_height(height);
-            Value { id: None, contents: ValueVariants::Unit }
+            Value::make_unit()
+        }
+        CoreFunction::CheatCodeSetSigner => {
+            let private_key: String = helper.pop_value()?.try_into().expect_tc(span)?;
+            helper.set_signer(private_key)?;
+            Value::make_unit()
         }
         CoreFunction::Get => {
             // TODO handle vector get

@@ -52,13 +52,13 @@
 //! use leo_package::Package;
 //! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030")).unwrap();
 //! ```
-//! This will read the manifest and env file and keep their data in `package.manifest` and `package.env`.
+//! This will read the manifest and keep their data in `package.manifest`.
 //! It will also process dependencies and store them in topological order in `package.programs`. This processing
 //! will involve fetching bytecode from the network for network dependencies.
 //! If the `no_cache` option (3rd parameter) is set to `true`, the package will not use the dependency cache.
 //! The endpoint and network are optional and are only needed if the package has network dependencies.
 //!
-//! If you want to simply read the manifest and env file without processing dependencies, use
+//! If you want to simply read the manifest file without processing dependencies, use
 //! `Package::from_directory_no_graph`.
 //!
 //! `Program` generally doesn't need to be created directly, as `Package` will create `Program`s
@@ -102,8 +102,6 @@ pub const TESTS_DIRECTORY: &str = "tests";
 
 /// Maximum allowed program size in bytes.
 pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
-
-pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 
 fn symbol(name: &str) -> Result<Symbol> {
     name.strip_suffix(".aleo").map(Symbol::intern).ok_or_else(|| PackageError::invalid_network_name(name).into())

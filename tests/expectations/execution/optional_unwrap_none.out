@@ -36,25 +36,23 @@ constructor:
     assert.eq edition 0u16;
 verified: true
 status: rejected
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au18eep05vpcxj440uph82cfnuze6npsvnuxupp6czxt024u20ukgxsgmhfe7",
+      "id": "au1wz54uy8ttf2upuvz9q5l0e4fvwdj4yhhp9hk87ujcuk5jxt7vg9qckcwft",
       "program": "unwrap_none_test.aleo",
       "function": "unwrap_none",
       "inputs": [],
       "outputs": [
         {
           "type": "future",
-          "id": "447137748217171121547788515677137667975221269373560498321734497964861456118field",
+          "id": "6344021062615212194622365059902666618213162260514613750772429907142554141910field",
           "value": "{\n  program_id: unwrap_none_test.aleo,\n  function_name: unwrap_none,\n  arguments: []\n}"
         }
       ],
-      "tpk": "7831352421160326944322874045982765847644577749903206468311124698655062494310group",
-      "tcm": "687178050901923620410292481294359030851472205107992980591016563912120148415field",
-      "scm": "6465630406957644271883312806126129330296686289775775341103024114474947230082field"
+      "tpk": "5866750136584722133604663336682692237103046411683744092138945649129038106556group",
+      "tcm": "6450366671625401994317861095570783155486300360236005490534857242757019551337field",
+      "scm": "5946394361260428465261193713804410699153951285905537610748756507642505849523field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -62,25 +60,23 @@ warnings:
 
 verified: true
 status: rejected
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1ug8raaft0x6j3hnprpmqvuqu0q7w3a6l66l24xutdtfg4dfvevgsvak6jc",
+      "id": "au1nvxdgxk9dprewt3n2h8glq22ylfwew4zfn9ujx6ssxan4jtcsgyqxsn4zw",
       "program": "unwrap_none_test.aleo",
       "function": "unwrap_struct_field_none",
       "inputs": [],
       "outputs": [
         {
           "type": "future",
-          "id": "8092040943189360076632305651772686077362651602755008821832232667031828621275field",
+          "id": "3493386058864818059134559588675171151315794129097024382640013468187206518166field",
           "value": "{\n  program_id: unwrap_none_test.aleo,\n  function_name: unwrap_struct_field_none,\n  arguments: []\n}"
         }
       ],
-      "tpk": "1266194150618730662479513976729972089380427943162514400627376157635333239709group",
-      "tcm": "3908600373712996799138746365434857604614804687885564939809855708719883814441field",
-      "scm": "31176297159710315381516017906715891247158323005666911229663066304802158033field"
+      "tpk": "6155911484600833708348796870079933492568616046184315313595427188199578619991group",
+      "tcm": "5130543908931465109899926604020688401027349282078582631706682113012679617493field",
+      "scm": "843142616379387264150780500055571583031606936932881280651613568277956081676field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

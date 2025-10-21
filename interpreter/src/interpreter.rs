@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_ast::{
-    NetworkName,
-    interpreter_value::{AsyncExecution, Value},
-};
+use leo_ast::{NetworkName, interpreter_value::AsyncExecution};
 use leo_errors::{CompilerError, Handler, InterpreterHalt, LeoError, Result};
 
 /// Contains the state of interpretation, in the form of the `Cursor`,
@@ -68,14 +65,14 @@ impl Interpreter {
     pub fn new<'a, Q: 'a + AsRef<std::path::Path> + ?Sized>(
         leo_source_files: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
-        signer: Value,
+        private_key: String,
         block_height: u32,
         network: NetworkName,
     ) -> Result<Self> {
         Self::new_impl(
             leo_source_files,
             &mut aleo_source_files.into_iter().map(|p| p.as_ref()),
-            signer,
+            private_key,
             block_height,
             network,
         )
@@ -122,7 +119,7 @@ impl Interpreter {
     fn new_impl(
         leo_source_files: &[(PathBuf, Vec<PathBuf>)],
         aleo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
-        signer: Value,
+        private_key: String,
         block_height: u32,
         network: NetworkName,
     ) -> Result<Self> {
@@ -130,8 +127,9 @@ impl Interpreter {
         let node_builder = Default::default();
         let mut cursor: Cursor = Cursor::new(
             true, // really_async
-            signer,
+            private_key,
             block_height,
+            network,
         );
         let mut filename_to_program = HashMap::new();
 

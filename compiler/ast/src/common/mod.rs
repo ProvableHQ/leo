@@ -45,3 +45,5 @@ pub use node_builder::*;
 
 mod static_string;
 pub use static_string::*;
+
+pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";

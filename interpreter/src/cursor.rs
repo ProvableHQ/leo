@@ -48,9 +48,14 @@ use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol, sym};
 
 use snarkvm::prelude::{
+    Address,
+    CanaryV0,
     Closure as SvmClosure,
     Finalize as SvmFinalize,
     Function as SvmFunctionParam,
+    MainnetV0,
+    Network,
+    PrivateKey,
     ProgramID,
     TestnetV0,
 };
@@ -269,6 +274,7 @@ pub struct Cursor {
 
     pub contexts: ContextStack,
 
+    // The signer's address.
     pub signer: Value,
 
     pub rng: ChaCha20Rng,
@@ -278,6 +284,10 @@ pub struct Cursor {
     pub really_async: bool,
 
     pub program: Option<Symbol>,
+
+    pub network: NetworkName,
+
+    pub private_key: String,
 }
 
 impl CoreFunctionHelper for Cursor {
@@ -287,6 +297,22 @@ impl CoreFunctionHelper for Cursor {
 
     fn set_block_height(&mut self, height: u32) {
         self.block_height = height;
+    }
+
+    fn set_signer(&mut self, private_key: String) -> Result<()> {
+        // Get the address from the private key.
+        let address = match PrivateKey::<TestnetV0>::from_str(&private_key.replace("\"", ""))
+            .and_then(|pk| Address::<TestnetV0>::try_from(&pk))
+        {
+            Ok(address) => address.into(),
+            Err(_) => halt_no_span!("Invalid private key provided for signer."),
+        };
+        // Set the private key
+        self.private_key = private_key;
+        // Set the signer.
+        self.signer = address;
+
+        Ok(())
     }
 
     fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
@@ -304,8 +330,8 @@ impl CoreFunctionHelper for Cursor {
 
 impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
-    pub fn new(really_async: bool, signer: Value, block_height: u32) -> Self {
-        Cursor {
+    pub fn new(really_async: bool, private_key: String, block_height: u32, network: NetworkName) -> Self {
+        let mut cursor = Cursor {
             frames: Default::default(),
             values: Default::default(),
             functions: Default::default(),
@@ -318,11 +344,27 @@ impl Cursor {
             contexts: Default::default(),
             futures: Default::default(),
             rng: ChaCha20Rng::from_entropy(),
-            signer,
+            signer: Default::default(),
             block_height,
             really_async,
             program: None,
-        }
+            network,
+            private_key: Default::default(),
+        };
+
+        // Set the default private key.
+        cursor.set_signer(private_key).expect("The default private key should be valid.");
+
+        cursor
+    }
+
+    // Clears the state of the cursor, but keeps the program definitions.
+    pub fn clear(&mut self) {
+        self.frames.clear();
+        self.values.clear();
+        self.mappings.iter_mut().for_each(|(_, map)| map.clear());
+        self.contexts = Default::default();
+        self.futures.clear();
     }
 
     fn set_place(
@@ -905,6 +947,31 @@ impl Cursor {
                         } else {
                             Some(self.signer.clone())
                         }
+                    }
+                    sym::address => {
+                        // A helper function to convert a program ID string to an address value.
+                        fn program_to_address<N: Network>(program_id: &str) -> Result<Value> {
+                            let Ok(program_id) = ProgramID::<N>::from_str(&format!("{program_id}.aleo")) else {
+                                halt_no_span!("Failed to parse program ID");
+                            };
+                            let Ok(address) = program_id.to_address() else {
+                                halt_no_span!("Failed to convert program ID to address");
+                            };
+                            let Ok(value) = Value::from_str(&address.to_string()) else {
+                                halt_no_span!("Failed to convert address to value");
+                            };
+                            Ok(value)
+                        }
+                        // Get the current program.
+                        let Some(program) = self.current_program() else {
+                            halt_no_span!("No program context for address");
+                        };
+                        let result = match self.network {
+                            NetworkName::TestnetV0 => program_to_address::<TestnetV0>(&program.to_string())?,
+                            NetworkName::MainnetV0 => program_to_address::<MainnetV0>(&program.to_string())?,
+                            NetworkName::CanaryV0 => program_to_address::<CanaryV0>(&program.to_string())?,
+                        };
+                        Some(result)
                     }
                     _ => halt!(access.span(), "unknown member of self"),
                 },

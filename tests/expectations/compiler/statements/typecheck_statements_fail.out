@@ -15,11 +15,6 @@ Error [ETYC0372120]: Received types `i16` and `i32` for the operation `*`.
      |                        ^^^^^^^^^^^^^^^
      |
      = Valid operands are two integers of the same type, two fields, or a scalar and a group.
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:5:24
-     |
-   5 |         let c2 : u32 = "123i32" * 123i16 * "sss";
-     |                        ^^^^^^^^
 Error [ETYC0372117]: Expected type `u32` but type `string` was found.
     --> compiler-test:5:24
      |
@@ -37,31 +32,16 @@ Error [ETYC0372120]: Received types `string` and `i16` for the operation `*`.
      |                        ^^^^^^^^^^^^^^^^^
      |
      = Valid operands are two integers of the same type, two fields, or a scalar and a group.
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:5:44
-     |
-   5 |         let c2 : u32 = "123i32" * 123i16 * "sss";
-     |                                            ^^^^^
 Error [ETYC0372117]: Expected type `u32` but type `string` was found.
     --> compiler-test:5:44
      |
    5 |         let c2 : u32 = "123i32" * 123i16 * "sss";
      |                                            ^^^^^
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:6:24
-     |
-   6 |         let c3 : u32 = "123i32" * "sss";
-     |                        ^^^^^^^^
 Error [ETYC0372117]: Expected type `u32` but type `string` was found.
     --> compiler-test:6:24
      |
    6 |         let c3 : u32 = "123i32" * "sss";
      |                        ^^^^^^^^
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:6:35
-     |
-   6 |         let c3 : u32 = "123i32" * "sss";
-     |                                   ^^^^^
 Error [ETYC0372117]: Expected type `u32` but type `string` was found.
     --> compiler-test:6:35
      |
@@ -116,11 +96,6 @@ Error [ETYC0372117]: Expected type `u32` but type `u64` was found.
      |
    7 |         let c4 : u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
      |                                                                       ^^^^
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:8:26
-     |
-   8 |         let c16: bool = ("123i32" & 123i16) == ("sss" / 1i8 - 1i8 + 22u32);
-     |                          ^^^^^^^^
 Error [ETYC0372117]: Expected a bool or integer but type `string` was found.
     --> compiler-test:8:26
      |
@@ -133,11 +108,6 @@ Error [ETYC0372119]: Received different types `string` and `i16` for the operati
      |                          ^^^^^^^^^^^^^^^^^
      |
      = Make both operands the same type.
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:8:49
-     |
-   8 |         let c16: bool = ("123i32" & 123i16) == ("sss" / 1i8 - 1i8 + 22u32);
-     |                                                 ^^^^^
 Error [ETYC0372117]: Expected a field or integer but type `string` was found.
     --> compiler-test:8:49
      |

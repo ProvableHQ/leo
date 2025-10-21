@@ -134,17 +134,20 @@ impl TypeCheckingVisitor<'_> {
                 Expression::Path(path) if path.identifier().name == sym::SelfLower => {
                     match input.name.name {
                         sym::address => {
-                            return Type::Address;
+                            let ty = Type::Address;
+                            self.maybe_assert_type(&ty, expected, input.span());
+                            return ty;
                         }
                         sym::caller => {
                             // Check that the operation is not invoked in a `finalize` block.
                             self.check_access_allowed("self.caller", false, input.name.span());
+
                             let ty = Type::Address;
                             self.maybe_assert_type(&ty, expected, input.span());
                             return ty;
                         }
                         sym::checksum => {
-                            return Type::Array(ArrayType::new(
+                            let ty = Type::Array(ArrayType::new(
                                 Type::Integer(IntegerType::U8),
                                 Expression::Literal(Literal::integer(
                                     IntegerType::U8,
@@ -153,21 +156,31 @@ impl TypeCheckingVisitor<'_> {
                                     Default::default(),
                                 )),
                             ));
+                            self.maybe_assert_type(&ty, expected, input.span());
+                            return ty;
                         }
                         sym::edition => {
-                            return Type::Integer(IntegerType::U16);
+                            let ty = Type::Integer(IntegerType::U16);
+                            self.maybe_assert_type(&ty, expected, input.span());
+                            return ty;
                         }
                         sym::id => {
-                            return Type::Address;
+                            let ty = Type::Address;
+                            self.maybe_assert_type(&ty, expected, input.span());
+                            return ty;
                         }
                         sym::program_owner => {
                             // Check that the operation is only invoked in a `finalize` block.
                             self.check_access_allowed("self.program_owner", true, input.name.span());
-                            return Type::Address;
+
+                            let ty = Type::Address;
+                            self.maybe_assert_type(&ty, expected, input.span());
+                            return ty;
                         }
                         sym::signer => {
                             // Check that operation is not invoked in a `finalize` block.
                             self.check_access_allowed("self.signer", false, input.name.span());
+
                             let ty = Type::Address;
                             self.maybe_assert_type(&ty, expected, input.span());
                             return ty;
@@ -1488,10 +1501,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             LiteralVariant::Boolean(..) => Type::Boolean,
             LiteralVariant::Field(..) => Type::Field,
             LiteralVariant::Scalar(..) => Type::Scalar,
-            LiteralVariant::String(..) => {
-                self.emit_err(TypeCheckerError::strings_are_not_supported(span));
-                Type::String
-            }
+            LiteralVariant::String(..) => Type::String,
             LiteralVariant::Integer(kind, string) => match kind {
                 IntegerType::U8 => parse_and_return!(u8, IntegerType::U8, string, "u8"),
                 IntegerType::U16 => parse_and_return!(u16, IntegerType::U16, string, "u16"),

@@ -43,7 +43,7 @@ pub enum Account {
         /// Seed the RNG with a numeric value.
         #[clap(short = 's', long)]
         seed: Option<u64>,
-        /// Write the private key to the .env file.
+        /// Write the private key to the .env file in the current directory.
         #[clap(short = 'w', long)]
         write: bool,
         /// Print sensitive information (such as private key) discreetly to an alternate screen
@@ -63,7 +63,7 @@ pub enum Account {
     Import {
         /// Private key plaintext
         private_key: Option<String>,
-        /// Write the private key to the .env file.
+        /// Write the private key to the .env file in the current directory.
         #[clap(short = 'w', long)]
         write: bool,
         /// Print sensitive information (such as private key) discreetly to an alternate screen

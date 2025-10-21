@@ -93,31 +93,29 @@ constructor:
     assert.eq edition 0u16;
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1x7jup66txcdf66uhtz9ztd2f5hfyytzx5hn6rchex0k23jnvsv9sufv0tw",
+      "id": "au1dn8ldwgwlqavg6ax9cdrpqmpacmw7vvdk0nl9r9hkkttqkae0v8q0009sv",
       "program": "bubble_sort.aleo",
       "function": "sort",
       "inputs": [
         {
           "type": "private",
-          "id": "4890242155236904298630998384389275635343421861137506424766118570689268282187field",
-          "value": "ciphertext1qvqzw3ye0xds6642nws7ynw85lw5xvekgrvky2mkh0jg8veqv2apkrly7hhpuszrn0ukldld67f3zlayx75wnxp03ajmtzcknxgmu8q0pzqwcv63vfr470dmfkjd8amaa6jawphyxulk79kgzry97aan3q9qsfcp4nn"
+          "id": "623349835917516701076591902636520312268183118351282408945261418805045154174field",
+          "value": "ciphertext1qvqfd2luvxn7w4vvz3gpdl7kcplvf352skhea23zl2ykue8f8fjdxqcd23qdnv0vlx9gyhrvjadfw2lr8453n0neeecrcuzychw6dkjsqy72acpcugz0pygvluvxly4ue4xurn3v74053ccmv3kjg74rmktqjzwyhxa"
         }
       ],
       "outputs": [
         {
           "type": "public",
-          "id": "1919393362878402635169849444796982226489694526057884984849089444334702848739field",
+          "id": "2894648044415187462149457976788166533485360476549686063925564816201791469282field",
           "value": "[\n  0u32,\n  0u32,\n  2u32,\n  5u32,\n  10u32,\n  100u32,\n  200u32,\n  300u32\n]"
         }
       ],
-      "tpk": "8127437964174420753776014445241514262944089371814894523276400046876569529123group",
-      "tcm": "6937436789184964112497960141706902359272983420587345267067261189483875442560field",
-      "scm": "7589774827963503497792246887384001964125015972546989106273956620737268256834field"
+      "tpk": "7620047334465816648891373867009187094715983074414026856376035435616644506419group",
+      "tcm": "2478511802095008621015276834365359730432320171771269952219059425809151001950field",
+      "scm": "2706670216255850145436332135370305709954853150833440135126124075813370157058field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -125,31 +123,29 @@ warnings:
 
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1m858axy8t8sljzjc4svey8lz2kzxk8mrfdreyxnh9csqrx3yncpqgp03dy",
+      "id": "au192ae7h5t05lz96jwemrdmkds0sa2z6rdmzz6c33qd2fa33d9yczsq3g3ze",
       "program": "bubble_sort.aleo",
       "function": "sort",
       "inputs": [
         {
           "type": "private",
-          "id": "7306579946905284447779362871097885173091415196723952109405898265277093660207field",
-          "value": "ciphertext1qvqq5q3eee20xd5cv3n3k898cv4xl2zpng3tm5mzlkt2tjfmxddr7q4m4zm08akm5za4qdhdjkuhj0sjs55cdafrycxqeurgp8j7ma6vp2hzdjwl2qh8e526gxw63jg47nlt2kk9yhwwzx0rapf7x75uuag3zlwg9ck"
+          "id": "8370328839449613050347908751510920097783459862505968779331124713426518107913field",
+          "value": "ciphertext1qvqy5jsultql39ys3g4ty5kxx7wyjplrjxh0px2446rmdll5qm687zu3wpzn6qlwknmxygd9pseynt4r5cm0yxmreclvn2wtxyd70d23p9rz84slkaj2x05ru27lcg8xc07gmcnzlctlww9p33puj8kpxh3sz683lyq"
         }
       ],
       "outputs": [
         {
           "type": "public",
-          "id": "2040453733231161485573507211070861734372056449567086971396869142178630563866field",
+          "id": "3270390535067024304215017020048670407818728929949691242157615573958188539762field",
           "value": "[\n  1u32,\n  2u32,\n  3u32,\n  4u32,\n  5u32,\n  6u32,\n  7u32,\n  8u32\n]"
         }
       ],
-      "tpk": "237858531195832627963440614234249102922725442689794146167575962672385937514group",
-      "tcm": "8326177960008538548068313452897129549251018682625001734289989869191230383109field",
-      "scm": "2512731469001254441692410784867685936513175377481934847735529196958870097070field"
+      "tpk": "748524939368844869502203700792088989207706291200898442910021599080932416438group",
+      "tcm": "4267506324026130933824451532970355886583699948752976695523527361461229211956field",
+      "scm": "1751191612931304356128870139945272965815241659812878077336343276548371008068field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -157,31 +153,29 @@ warnings:
 
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1ewucht32qjs7fq7ydegmvqguj42tf8smtf5h96mjpq92lrfk8vfqc2z9jr",
+      "id": "au1fa38n8c0uckcvkr7sywdvdjqt0gl5aer09nzu6zuxyy3jf90my8q3dzwlr",
       "program": "bubble_sort.aleo",
       "function": "sort",
       "inputs": [
         {
           "type": "private",
-          "id": "295902178525215647670399810615894610378631998278974531638133195171388306062field",
-          "value": "ciphertext1qvqgdmc5yw00tu2p4qka536yfmrzv0wlftlfprv32kfwzkyuutec7p08u3zkd2lsttttgcv5zcwu6q5e5sd8kkmssv0zjvxycmqj0zckpj885ue2yxtgf30quvq59dte07v0zmvryrjktxhud4smv8mvq2jqkytsxqy"
+          "id": "6828154689779250994715200715224117693435910858063838710261436578997300528421field",
+          "value": "ciphertext1qvq9zfyk92e3m9pcxpl6r49gs900jegl8tsthw62wghqf0v068hcvr7z28z4wanjxee5e6fnrws4vfqv5ks5lmpy5jghgnzuwlqnwxzjp090z2y8264wc5k3f3sl6jz4cp769jxa6r9vf67a9j46kqatep3s6twwe24"
         }
       ],
       "outputs": [
         {
           "type": "public",
-          "id": "6666556358802593147074215186894171573766588857652792311186116608931608963837field",
+          "id": "3850422150849865167608367876183827100964807924467808716091674879771224852388field",
           "value": "[\n  1u32,\n  2u32,\n  3u32,\n  4u32,\n  5u32,\n  6u32,\n  7u32,\n  8u32\n]"
         }
       ],
-      "tpk": "4351681232534412571624912666841049954730139990234375444616354897840351541803group",
-      "tcm": "4409176717500749598924150518092574857373721052388750091005632003040917140418field",
-      "scm": "3983057154931725414684517169487633612345135203618640181706733517848173860032field"
+      "tpk": "8175007159019227699829353183929919670491313122404607670698954367703520905879group",
+      "tcm": "4978374463084213475475992334182429193666980093987842643519708540404015483076field",
+      "scm": "802336339358196000650320974507819719439930809606779221002364918276062737859field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

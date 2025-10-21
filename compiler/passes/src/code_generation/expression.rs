@@ -564,7 +564,9 @@ impl CodeGeneratingVisitor<'_> {
             Some(CoreFunction::ProgramChecksum) => generate_program_core(&arguments[0], "checksum"),
             Some(CoreFunction::ProgramEdition) => generate_program_core(&arguments[0], "edition"),
             Some(CoreFunction::ProgramOwner) => generate_program_core(&arguments[0], "program_owner"),
-            Some(CoreFunction::CheatCodePrintMapping) | Some(CoreFunction::CheatCodeSetBlockHeight) => {
+            Some(CoreFunction::CheatCodePrintMapping)
+            | Some(CoreFunction::CheatCodeSetBlockHeight)
+            | Some(CoreFunction::CheatCodeSetSigner) => {
                 (String::new(), String::new())
                 // Do nothing. Cheat codes do not generate instructions.
             }

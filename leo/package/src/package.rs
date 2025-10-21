@@ -161,7 +161,7 @@ impl Package {
 
     /// Examine the Leo package at `path` to create a `Package`, but don't find dependencies.
     ///
-    /// This may be useful if you just need other information like the manifest or env file.
+    /// This may be useful if you just need other information like the manifest file.
     pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,

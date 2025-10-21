@@ -11,42 +11,38 @@ constructor:
     assert.eq edition 0u16;
 verified: false
 status: none
-errors: Failed to evaluate instruction (assert.eq r0 r1;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)
-warnings:
 null
 
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1y49kgevwaj2k7ecqt74xnm2v8q2jppwjmj6vtgrp7e7xz2a3egzsfmdp5s",
+      "id": "au1xxx5eyeh2wt5etfud0m9xxwk95tpapm49sck8rs7vu069pshucqseqmnc8",
       "program": "test.aleo",
       "function": "main",
       "inputs": [
         {
           "type": "private",
-          "id": "1159333702057901539052344385658535272724951450731483680205437530078717259323field",
-          "value": "ciphertext1qyqrxdcj6n29djgnxcs0nxyvhwxtzj96qehw90as895w0yqv7hrpxyqmpnzda"
+          "id": "1642813527134686705672070280406607446432819052628399670903153242086637409619field",
+          "value": "ciphertext1qyqty56hd4sjawzf6fmz8awatg87eaqgw42hf0zwjg0qphya7x8nxqc8klf9c"
         },
         {
           "type": "private",
-          "id": "3426572761874087895872016833005282118143249322497557953371686752010616152845field",
-          "value": "ciphertext1qyq0ds8jn97zu3pp09lcq8hzxuj7542emug34x6tclkawl8x0auj6psymvjcn"
+          "id": "4043973058391680941793645400124685646497975635359390217326560993644799776762field",
+          "value": "ciphertext1qyqg6ldwvzrw32qkqtus2p58px0d2a427d4f7u20e2ev84uukhr2kygy2g4pl"
         }
       ],
       "outputs": [
         {
           "type": "private",
-          "id": "7827645593152581634588602558242113334047899277354732033849788936006193751628field",
-          "value": "ciphertext1qyqrhasjdcscxylrqzgrq70hrk3e6w0trrvt86mzvh7wcss32gdf7ys846jz3"
+          "id": "3106709701079157715977902975137382519149800889722979215909178833494965768667field",
+          "value": "ciphertext1qyq02zqgudv6uekh9xpltrcu00g5jdzzyf96c6wqcfywsaefge0jcpqd9kp5c"
         }
       ],
-      "tpk": "8435794109427421463283452622280921961610820780082811724986460415761009931166group",
-      "tcm": "3510222395383234646837160032471063601757060649538208554778028953287870502742field",
-      "scm": "7313543812425141437588685741803154361996950831744879062537822776235007704632field"
+      "tpk": "6373718224838073536803860829638049194561989564755401205658301015696191366090group",
+      "tcm": "5664822226403379628159757940447744056069986517068960076928226892917348704296field",
+      "scm": "5676325233121699107048557908033121840844329323401950925709080348351425973728field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -54,42 +50,38 @@ warnings:
 
 verified: false
 status: none
-errors: Failed to evaluate instruction (assert.eq r0 r1;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)
-warnings:
 null
 
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au13ccd8f32ysp7ywvxfe8eat4w2dv5qel8r70ehtg44pqe7g9tyuxs33f3zs",
+      "id": "au1s4xepyly05mpaa6qs23v087twzqcj8rggk8p4w0crwxksusq3sps8uvwyt",
       "program": "test.aleo",
       "function": "main",
       "inputs": [
         {
           "type": "private",
-          "id": "4182096381011713011433383830912345535428635575823884496449873105537029003379field",
-          "value": "ciphertext1qyqtk3f9tqf9m54sp2pfdyvlh349xvuuun7hfh9ln7h99wyctjaegrssc67f3"
+          "id": "4542843952717379765026584736880784814303453821667173875790572184443243296049field",
+          "value": "ciphertext1qyq8d5d0xhfvgactt4gju485plcqejn3t8qnkzsy6jnyyytr820xzpgk9euc9"
         },
         {
           "type": "private",
-          "id": "2866407236729979491463013217720935053107446055478550133322409971472620328586field",
-          "value": "ciphertext1qyq2gn0m6j2cv4uzwtjtvh3sax28rl99lt9n3m7j43py96phv30uzqqt6d5gp"
+          "id": "1888555685965520838311434532528424851754286429760577403994654564487387990164field",
+          "value": "ciphertext1qyqpt2mx8y95vd6seyldqyunmerp5ndqj5qry83gcjk4tl4h9xm9kpqsy4xg6"
         }
       ],
       "outputs": [
         {
           "type": "private",
-          "id": "8097210648225143147656298579283031697204442470429428397247778038224140478174field",
-          "value": "ciphertext1qyqyvgutguk979wqyeuhhw66k7u8h8n8jsld2srjrkecarzngrxgxqgsx25rc"
+          "id": "4295348545721785246620748522961086631969358326202406724670548588166242869650field",
+          "value": "ciphertext1qyq2u745h5esm3e45wxxdzs4mjcjvlw0knm43xtt99vd2ezzdsxmxygwlrpcg"
         }
       ],
-      "tpk": "426811307073639213832184903866593531590434332470300920862044015793910358548group",
-      "tcm": "8244342662490605690757540417883671911377782366297244219598633229173876757808field",
-      "scm": "3420440635405762727625742714625470392142906807852697318525205876112804082394field"
+      "tpk": "7447856092333335722197567336932763532146271247928721874046364714921805365370group",
+      "tcm": "6667718657901249793003217929903572381355910633671096449805180537989497283034field",
+      "scm": "1027674287776529103783018768157775209832261275927998778421370002277573955461field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

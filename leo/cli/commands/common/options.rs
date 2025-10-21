@@ -78,28 +78,33 @@ impl Default for BuildOptions {
 pub struct EnvOptions {
     #[clap(
         long,
-        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production."
+        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production.",
+        global = true
     )]
     pub(crate) private_key: Option<String>,
     #[clap(
         long,
-        help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file."
+        help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file.",
+        global = true
     )]
     pub(crate) network: Option<NetworkName>,
     #[clap(
         long,
-        help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets."
+        help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets.",
+        global = true
     )]
     pub(crate) endpoint: Option<String>,
     #[clap(
         long,
-        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell or `.env` file."
+        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell.",
+        global = true
     )]
     pub(crate) devnet: bool,
     #[clap(
         long,
         help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
-        value_delimiter = ','
+        value_delimiter = ',',
+        global = true
     )]
     pub(crate) consensus_heights: Option<Vec<u32>>,
 }

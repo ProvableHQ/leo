@@ -1,4 +1,5 @@
 /*
+seed = 987654321
 start_height = 20
 
 [case]

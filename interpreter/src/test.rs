@@ -21,7 +21,7 @@ use crate::{Interpreter, InterpreterAction};
 use leo_ast::NetworkName;
 use leo_span::create_session_if_not_set_then;
 
-use snarkvm::prelude::{Address, PrivateKey, TestnetV0};
+use snarkvm::prelude::{PrivateKey, TestnetV0};
 
 use serial_test::serial;
 use std::{fs, path::PathBuf, str::FromStr as _};
@@ -79,11 +79,10 @@ fn runner_leo_test(test: &str) -> String {
             // Set up interpreter using testnet private key
             let private_key: PrivateKey<TestnetV0> =
                 PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
-            let address = Address::try_from(&private_key).expect("should create address");
 
             let empty: [&PathBuf; 0] = [];
             let mut interpreter =
-                Interpreter::new(&[(filename, vec![])], empty, address.into(), 0, NetworkName::TestnetV0)
+                Interpreter::new(&[(filename, vec![])], empty, private_key.to_string(), 0, NetworkName::TestnetV0)
                     .expect("creating interpreter");
 
             run_and_format_output(&mut interpreter)
@@ -151,13 +150,17 @@ fn runner_leo_test(test: &str) -> String {
             // === Step 3: Run interpreter on main() ===
             let private_key: PrivateKey<TestnetV0> =
                 PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
-            let address = Address::try_from(&private_key).expect("should create address");
 
             let empty: [&PathBuf; 0] = [];
 
-            let mut interpreter =
-                Interpreter::new(&[(main_path, module_paths)], empty, address.into(), 0, NetworkName::TestnetV0)
-                    .expect("creating interpreter");
+            let mut interpreter = Interpreter::new(
+                &[(main_path, module_paths)],
+                empty,
+                private_key.to_string(),
+                0,
+                NetworkName::TestnetV0,
+            )
+            .expect("creating interpreter");
 
             run_and_format_output(&mut interpreter)
         })

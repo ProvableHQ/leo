@@ -154,6 +154,9 @@ default-features = false
 version = "0.3.0"
 default-features = false
 
+[workspace.dependencies.rayon]
+version = "1.11.0"
+
 [workspace.dependencies.regex]
 version = "1.11.1"
 
@@ -274,6 +277,9 @@ version = "1.21.3"
 version = "0.12.1"
 
 [dependencies.rand]
+workspace = true
+
+[dependencies.rayon]
 workspace = true
 
 [dependencies.rand_chacha]
