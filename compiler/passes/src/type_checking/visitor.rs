@@ -538,15 +538,15 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
                 self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
-                if let Some(length) = array_type.length.as_u32() {
-                    if length as usize != signature_size {
-                        self.emit_err(TypeCheckerError::type_should_be2(
-                            &arguments[0].0,
-                            format!("a [u8; {signature_size}]"),
-                            arguments[0].1.span(),
-                        ));
-                        return Type::Err;
-                    }
+                if let Some(length) = array_type.length.as_u32()
+                    && length as usize != signature_size
+                {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        format!("a [u8; {signature_size}]"),
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
                 };
 
                 // Determine whether the core function is Ethereum-specifc.
@@ -588,15 +588,15 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
                 self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[1].1.span());
-                if let Some(length) = array_type.length.as_u32() {
-                    if length as usize != expected_length {
-                        self.emit_err(TypeCheckerError::type_should_be2(
-                            &arguments[1].0,
-                            format!("a [u8; {expected_length}]"),
-                            arguments[1].1.span(),
-                        ));
-                        return Type::Err;
-                    }
+                if let Some(length) = array_type.length.as_u32()
+                    && length as usize != expected_length
+                {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[1].0,
+                        format!("a [u8; {expected_length}]"),
+                        arguments[1].1.span(),
+                    ));
+                    return Type::Err;
                 };
 
                 // Check that the third input is not a mapping nor a tuple.
@@ -622,15 +622,15 @@ impl TypeCheckingVisitor<'_> {
                         return Type::Err;
                     };
                     self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[2].1.span());
-                    if let Some(length) = array_type.length.as_u32() {
-                        if length as usize != expected_length {
-                            self.emit_err(TypeCheckerError::type_should_be2(
-                                &arguments[2].0,
-                                format!("a [u8; {expected_length}]"),
-                                arguments[2].1.span(),
-                            ));
-                            return Type::Err;
-                        }
+                    if let Some(length) = array_type.length.as_u32()
+                        && length as usize != expected_length
+                    {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            &arguments[2].0,
+                            format!("a [u8; {expected_length}]"),
+                            arguments[2].1.span(),
+                        ));
+                        return Type::Err;
                     }
                 }
 

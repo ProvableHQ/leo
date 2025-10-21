@@ -34,9 +34,9 @@ use std::{
 };
 
 use anyhow::anyhow;
+use snarkvm::prelude::ConsensusVersion;
 
 const VALIDATOR_COUNT: usize = 4usize;
-const LARGEST_CONSENSUS_HEIGHT: usize = 9usize;
 
 struct Test {
     test_directory: PathBuf,
@@ -189,10 +189,10 @@ fn integration_tests() {
         }
     }
 
-    // Wait until block height `LARGEST_CONSENSUS_HEIGHT`.
+    // Wait until the appropriate block height.
     loop {
         let height = current_height().expect("net");
-        if height >= LARGEST_CONSENSUS_HEIGHT {
+        if height > ConsensusVersion::latest() as usize {
             break;
         }
         // Avoid rate limits.
@@ -324,7 +324,8 @@ fn run_leo_devnet(num_validators: usize) -> io::Result<Child> {
     // Create a new command using the Leo binary (defined by BINARY_PATH constant)
     let mut leo_devnet_cmd = Command::new(BINARY_PATH);
 
-    let consensus_heights: String = (0..=LARGEST_CONSENSUS_HEIGHT).map(|n| n.to_string()).collect::<Vec<_>>().join(",");
+    let consensus_heights: String =
+        (0..ConsensusVersion::latest() as usize).map(|n| n.to_string()).collect::<Vec<_>>().join(",");
 
     // Configure the Leo devnet command with all necessary arguments
     leo_devnet_cmd.arg("devnet")        

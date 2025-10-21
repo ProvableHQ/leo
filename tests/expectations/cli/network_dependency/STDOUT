@@ -16,7 +16,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  10
+  Consensus Version:  11
 
 📦 Deployment Tasks:
   • test_program1.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -85,7 +85,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  10
+  Consensus Version:  11
 
 📦 Deployment Tasks:
   • test_program2.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -158,7 +158,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  10
+  Consensus Version:  11
 
 🎯 Execution Target:
   Program:        test_program2.aleo

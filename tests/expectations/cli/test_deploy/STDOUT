@@ -15,7 +15,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  10
+  Consensus Version:  11
 
 📦 Deployment Tasks:
   • some_sample_leo_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
