@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
+
+# We need this options for this test beacuse it has the network dependency `credits.aleo`
+OPTS="--network testnet --endpoint http://localhost:3030"
+
+$LEO_BIN test $OPTS
