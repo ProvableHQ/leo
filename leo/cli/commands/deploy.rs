@@ -27,18 +27,8 @@ use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     ledger::{query::Query as SnarkVMQuery, store::helpers::memory::BlockMemory},
     prelude::{
-        ConsensusVersion,
-        Deployment,
-        Program,
-        ProgramID,
-        Rng,
-        TestnetV0,
-        VM,
-        cost_in_microcredits_v1,
-        cost_in_microcredits_v2,
-        cost_in_microcredits_v3,
-        deployment_cost,
-        execution_cost_for_authorization,
+        ConsensusVersion, Deployment, Program, ProgramID, Rng, TestnetV0, VM, cost_in_microcredits_v1,
+        cost_in_microcredits_v2, cost_in_microcredits_v3, deployment_cost, execution_cost_for_authorization,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::StackTrait,
@@ -655,16 +645,33 @@ pub(crate) fn print_deployment_stats<N: Network>(
             "Constraints:".cyan(),
             function_cost.num_constraints.to_formatted_string(&Locale::en).yellow()
         );
-        println!(
-            "  {:22}{}{:.6}",
-            "Finalize Cost:".cyan(),
-            "".yellow(),
-            function_cost.finalize_cost as f64 / 1_000_000.0
-        );
         if let Some(execution_cost) = function_cost.execution_cost {
-            println!("  {:22}{}{:.6}", "Execution Cost:".cyan(), "".yellow(), execution_cost as f64 / 1_000_000.0);
+            println!(
+                "  {:22}{}{:.6}",
+                "Total Execution Cost:".cyan(),
+                "".yellow(),
+                execution_cost as f64 / 1_000_000.0
+            );
+            println!(
+                "  {:22}{}{:.6}",
+                "|- Finalize Cost:".cyan(),
+                "".yellow(),
+                function_cost.finalize_cost as f64 / 1_000_000.0
+            );
+            println!(
+                "  {:22}{}{:.6}",
+                "|- Storage Cost:".cyan(),
+                "".yellow(),
+                (execution_cost - function_cost.finalize_cost) as f64 / 1_000_000.0
+            );
         } else {
-            println!("  {:22}{}", "Execution Cost:".cyan(), "N/A".dimmed());
+            println!("  {:22}{}", "Total Execution Cost:".cyan(), "Undetermined".dimmed());
+            println!(
+                "  {:22}{}{:.6}",
+                "|- Finalize Cost:".cyan(),
+                "".yellow(),
+                function_cost.finalize_cost as f64 / 1_000_000.0
+            );
         }
     }
 
