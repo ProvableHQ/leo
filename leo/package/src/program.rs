@@ -237,13 +237,13 @@ impl Program {
                     })?;
 
                 // If the file already exists, compare it to the new contents.
-                if let Some(existing_contents) = existing {
-                    if existing_contents != contents {
-                        println!(
-                            "Warning: The cached file at `{}` is different from the one fetched from the network. The cached file will be overwritten.",
-                            full_cache_path.display()
-                        );
-                    }
+                if let Some(existing_contents) = existing
+                    && existing_contents != contents
+                {
+                    println!(
+                        "Warning: The cached file at `{}` is different from the one fetched from the network. The cached file will be overwritten.",
+                        full_cache_path.display()
+                    );
                 }
 
                 // Write the bytecode to the cache.
@@ -276,11 +276,11 @@ impl Program {
 /// This needs to be done when collecting local dependencies from manifests which
 /// may be located at different places on the file system.
 fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
-    if let Some(path) = &mut dependency.path {
-        if !path.is_absolute() {
-            let joined = base.join(&path);
-            *path = joined.canonicalize().map_err(|e| PackageError::failed_path(joined.display(), e))?;
-        }
+    if let Some(path) = &mut dependency.path
+        && !path.is_absolute()
+    {
+        let joined = base.join(&path);
+        *path = joined.canonicalize().map_err(|e| PackageError::failed_path(joined.display(), e))?;
     }
     Ok(dependency)
 }

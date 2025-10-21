@@ -69,10 +69,10 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
 
     fn consume_member_access(&mut self, input: MemberAccess) -> Self::Output {
         // If the access expression is of the form `self.<name>`, then don't rename it.
-        if let Expression::Path(path) = &input.inner {
-            if path.identifier().name == sym::SelfLower {
-                return (input.into(), Vec::new());
-            }
+        if let Expression::Path(path) = &input.inner
+            && path.identifier().name == sym::SelfLower
+        {
+            return (input.into(), Vec::new());
         }
 
         let (inner, statements) = self.consume_expression_and_define(input.inner);

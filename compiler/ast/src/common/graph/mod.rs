@@ -198,10 +198,10 @@ impl<N: GraphNode> DiGraph<N> {
                     return Some(child.clone());
                 }
                 // If the node has not been explored, explore it.
-                if !finished.contains(child) {
-                    if let Some(cycle_node) = self.contains_cycle_from(child, discovered, finished) {
-                        return Some(cycle_node);
-                    }
+                if !finished.contains(child)
+                    && let Some(cycle_node) = self.contains_cycle_from(child, discovered, finished)
+                {
+                    return Some(cycle_node);
                 }
             }
         }

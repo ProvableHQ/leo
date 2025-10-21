@@ -130,11 +130,11 @@ impl LeoDevnet {
 
         if self.install {
             // If installing, make sure we can write to a file at the path.
-            if let Some(parent) = self.snarkos.parent() {
-                if !parent.exists() {
-                    std::fs::create_dir_all(parent)
-                        .with_context(|| format!("Failed to create directory for binary: {}", parent.display()))?;
-                }
+            if let Some(parent) = self.snarkos.parent()
+                && !parent.exists()
+            {
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("Failed to create directory for binary: {}", parent.display()))?;
             }
             std::fs::write(&self.snarkos, [0u8]).with_context(|| {
                 format!("Failed to write to path {} for snarkos installation", self.snarkos.display())
