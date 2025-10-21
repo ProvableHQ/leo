@@ -95,18 +95,47 @@ impl LocalTable {
         }
     }
 
-    /// Creates a duplicate of this local scope with a new `NodeID`.
-    fn dup(&self, new_id: NodeID, node_builder: &NodeBuilder) -> Self {
+    /// Recursively duplicates this table and all children.
+    /// `new_parent` is the NodeID of the parent in the new tree (None for root).
+    pub fn dup(
+        &self,
+        node_builder: &NodeBuilder,
+        all_locals: &mut HashMap<NodeID, LocalTable>,
+        new_parent: Option<NodeID>,
+    ) -> LocalTable {
         let inner = self.inner.borrow();
-        LocalTable {
+
+        // Generate a new ID for this table
+        let new_id = node_builder.next_id();
+
+        // Recursively duplicate children with new_id as their parent
+        let new_children: Vec<NodeID> = inner
+            .children
+            .iter()
+            .map(|child_id| {
+                let child_table = all_locals.get(child_id).expect("Child must exist").clone();
+                let duped_child = child_table.dup(node_builder, all_locals, Some(new_id));
+                let child_new_id = duped_child.inner.borrow().id;
+                all_locals.insert(child_new_id, duped_child);
+                child_new_id
+            })
+            .collect();
+
+        // Duplicate this table with correct parent
+        let new_table = LocalTable {
             inner: Rc::new(RefCell::new(LocalTableInner {
                 id: new_id,
-                parent: inner.parent,
-                children: (0..inner.children.len()).map(|_| node_builder.next_id()).collect(),
+                parent: new_parent,
+                children: new_children,
                 consts: inner.consts.clone(),
                 variables: inner.variables.clone(),
             })),
-        }
+        };
+
+        // Register in all_locals
+        all_locals.insert(new_id, new_table.clone());
+
+        new_table
     }
 }
 
@@ -212,16 +241,24 @@ impl SymbolTable {
         });
     }
 
-    /// Enter the new scope with id `new_id`, duplicating its local symbol table from the scope at `old_id`.
+    /// Enter a new scope by duplicating the local table at `old_id` recursively.
     ///
-    /// This is useful for a pass like loop unrolling, in which the loop body must be duplicated multiple times.
-    pub fn enter_scope_duped(&mut self, new_id: NodeID, old_id: NodeID, node_builder: &NodeBuilder) {
-        let old_local_table = self.all_locals.get(&old_id).expect("Must have an old scope to dup from.");
-        let new_local_table = old_local_table.dup(new_id, node_builder);
-        let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
-        new_local_table.inner.borrow_mut().parent = parent;
-        self.all_locals.insert(new_id, new_local_table.clone());
+    /// Each scope in the subtree receives a fresh NodeID from `node_builder`.
+    /// The new root scope's parent is set to the current scope (if any).
+    /// Returns the NodeID of the new duplicated root scope.
+    pub fn enter_scope_duped(&mut self, old_id: NodeID, node_builder: &NodeBuilder) -> usize {
+        let old_local_table = self.all_locals.get(&old_id).expect("Must have an old scope to dup from.").clone();
+
+        // Recursively duplicate the table and all its children
+        let new_local_table =
+            old_local_table.dup(node_builder, &mut self.all_locals, self.local.as_ref().map(|t| t.inner.borrow().id));
+
+        let new_id = new_local_table.inner.borrow().id;
+
+        // Update current scope
         self.local = Some(new_local_table);
+
+        new_id
     }
 
     /// Enter the parent scope of the current scope (or the global scope if there is no local parent scope).
