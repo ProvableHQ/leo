@@ -92,6 +92,7 @@ commands:
             git checkout $SNARKOS_REV
             cargo install --path . --features test_network --locked --force
             cd ..
+            rm -rf snarkOS
 
   build-and-test:
     description: "Build and run tests"
