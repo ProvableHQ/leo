@@ -1335,4 +1335,26 @@
 <a href=#1335 id=1335 data-nosnippet>1335</a>        </span>),
 <a href=#1336 id=1336 data-nosnippet>1336</a>        help: <span class="prelude-val">None</span>,
 <a href=#1337 id=1337 data-nosnippet>1337</a>    }
-<a href=#1338 id=1338 data-nosnippet>1338</a>);</code></pre></div></section></main></body></html>
+<a href=#1338 id=1338 data-nosnippet>1338</a>
+<a href=#1339 id=1339 data-nosnippet>1339</a>    @formatted
+<a href=#1340 id=1340 data-nosnippet>1340</a>    function_has_too_many_inputs {
+<a href=#1341 id=1341 data-nosnippet>1341</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
+<a href=#1342 id=1342 data-nosnippet>1342</a>        msg: <span class="macro">format!</span>(
+<a href=#1343 id=1343 data-nosnippet>1343</a>            <span class="string">"The {variant} `{name}` has {actual} input parameters, which exceeds the allowed limit of {limit}."</span>,
+<a href=#1344 id=1344 data-nosnippet>1344</a>        ),
+<a href=#1345 id=1345 data-nosnippet>1345</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1346 id=1346 data-nosnippet>1346</a>            <span class="string">"Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
+<a href=#1347 id=1347 data-nosnippet>1347</a>        ),
+<a href=#1348 id=1348 data-nosnippet>1348</a>    }
+<a href=#1349 id=1349 data-nosnippet>1349</a>
+<a href=#1350 id=1350 data-nosnippet>1350</a>    @formatted
+<a href=#1351 id=1351 data-nosnippet>1351</a>    function_has_too_many_outputs {
+<a href=#1352 id=1352 data-nosnippet>1352</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
+<a href=#1353 id=1353 data-nosnippet>1353</a>        msg: <span class="macro">format!</span>(
+<a href=#1354 id=1354 data-nosnippet>1354</a>            <span class="string">"The {variant} `{name}` has {actual} output parameters, which exceeds the allowed limit of {limit}."</span>,
+<a href=#1355 id=1355 data-nosnippet>1355</a>        ),
+<a href=#1356 id=1356 data-nosnippet>1356</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1357 id=1357 data-nosnippet>1357</a>            <span class="string">"Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
+<a href=#1358 id=1358 data-nosnippet>1358</a>        ),
+<a href=#1359 id=1359 data-nosnippet>1359</a>    }
+<a href=#1360 id=1360 data-nosnippet>1360</a>);</code></pre></div></section></main></body></html>
