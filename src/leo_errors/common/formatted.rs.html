@@ -214,219 +214,216 @@
 <a href=#214 id=214 data-nosnippet>214</a>        )<span class="question-mark">?</span>;
 <a href=#215 id=215 data-nosnippet>215</a>    }
 <a href=#216 id=216 data-nosnippet>216</a>    <span class="comment">// Multi-line highlight: only print underline on last line
-<a href=#217 id=217 data-nosnippet>217</a>    </span><span class="kw">else if </span>multiline {
-<a href=#218 id=218 data-nosnippet>218</a>        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(first), <span class="prelude-val">Some</span>(last)) = (first_line, last_line) {
-<a href=#219 id=219 data-nosnippet>219</a>            <span class="kw">if </span>line_num - first_line.unwrap() == last - first {
-<a href=#220 id=220 data-nosnippet>220</a>                <span class="kw">let </span>underline_len = (end - start).max(<span class="number">1</span>);
-<a href=#221 id=221 data-nosnippet>221</a>                <span class="macro">writeln!</span>(
-<a href=#222 id=222 data-nosnippet>222</a>                    f,
-<a href=#223 id=223 data-nosnippet>223</a>                    <span class="string">"{INDENT} | {:start$}{} {}"</span>,
-<a href=#224 id=224 data-nosnippet>224</a>                    label.color.color_and_bold(<span class="string">"|"</span>, use_colors), <span class="comment">// vertical pointer
-<a href=#225 id=225 data-nosnippet>225</a>                    </span>label.color.color_and_bold(<span class="kw-2">&amp;</span><span class="string">"_"</span>.repeat(underline_len), use_colors), <span class="comment">// underline
-<a href=#226 id=226 data-nosnippet>226</a>                    </span>label.color.color_and_bold(<span class="kw-2">&amp;</span>label.msg, use_colors), <span class="comment">// message
-<a href=#227 id=227 data-nosnippet>227</a>                    </span>start = start
-<a href=#228 id=228 data-nosnippet>228</a>                )<span class="question-mark">?</span>;
-<a href=#229 id=229 data-nosnippet>229</a>            }
-<a href=#230 id=230 data-nosnippet>230</a>        }
-<a href=#231 id=231 data-nosnippet>231</a>    }
-<a href=#232 id=232 data-nosnippet>232</a>
-<a href=#233 id=233 data-nosnippet>233</a>    <span class="prelude-val">Ok</span>(())
-<a href=#234 id=234 data-nosnippet>234</a>}
-<a href=#235 id=235 data-nosnippet>235</a>
-<a href=#236 id=236 data-nosnippet>236</a><span class="doccomment">/// Print the final underline for a multi-line highlight (Rust-style with `-`)
-<a href=#237 id=237 data-nosnippet>237</a></span><span class="kw">fn </span>print_multiline_underline(
-<a href=#238 id=238 data-nosnippet>238</a>    f: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>std::fmt::Write,
-<a href=#239 id=239 data-nosnippet>239</a>    start_col: usize,
-<a href=#240 id=240 data-nosnippet>240</a>    end_col: usize,
-<a href=#241 id=241 data-nosnippet>241</a>    label: <span class="kw-2">&amp;</span>Label,
-<a href=#242 id=242 data-nosnippet>242</a>) -&gt; std::fmt::Result {
-<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">let </span>use_colors = std::env::var(<span class="string">"NOCOLOR"</span>).unwrap_or_default().trim().to_owned().is_empty();
-<a href=#244 id=244 data-nosnippet>244</a>    <span class="kw">let </span>underline_len = (end_col - start_col).max(<span class="number">1</span>);
-<a href=#245 id=245 data-nosnippet>245</a>    <span class="kw">let </span>underline = <span class="macro">format!</span>(<span class="string">"{}-"</span>, <span class="string">"_"</span>.repeat(underline_len));
-<a href=#246 id=246 data-nosnippet>246</a>
-<a href=#247 id=247 data-nosnippet>247</a>    <span class="macro">writeln!</span>(
-<a href=#248 id=248 data-nosnippet>248</a>        f,
-<a href=#249 id=249 data-nosnippet>249</a>        <span class="string">"{INDENT} | {:start$}{} {}"</span>,
-<a href=#250 id=250 data-nosnippet>250</a>        label.color.color_and_bold(<span class="string">"|"</span>, use_colors), <span class="comment">// vertical pointer
-<a href=#251 id=251 data-nosnippet>251</a>        </span>label.color.color_and_bold(<span class="kw-2">&amp;</span>underline, use_colors), <span class="comment">// colored underline + dash
-<a href=#252 id=252 data-nosnippet>252</a>        </span>label.color.color_and_bold(<span class="kw-2">&amp;</span>label.msg, use_colors), <span class="comment">// message
-<a href=#253 id=253 data-nosnippet>253</a>        </span>start = start_col
-<a href=#254 id=254 data-nosnippet>254</a>    )
-<a href=#255 id=255 data-nosnippet>255</a>}
-<a href=#256 id=256 data-nosnippet>256</a>
-<a href=#257 id=257 data-nosnippet>257</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Formatted {
-<a href=#258 id=258 data-nosnippet>258</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-<a href=#259 id=259 data-nosnippet>259</a>        <span class="kw">let </span>(kind, code) =
-<a href=#260 id=260 data-nosnippet>260</a>            <span class="kw">if </span><span class="self">self</span>.backtrace.error { (<span class="string">"Error"</span>, <span class="self">self</span>.error_code()) } <span class="kw">else </span>{ (<span class="string">"Warning"</span>, <span class="self">self</span>.warning_code()) };
-<a href=#261 id=261 data-nosnippet>261</a>
-<a href=#262 id=262 data-nosnippet>262</a>        <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">"{kind} [{code}]: {message}"</span>, message = <span class="self">self</span>.backtrace.message,);
-<a href=#263 id=263 data-nosnippet>263</a>
-<a href=#264 id=264 data-nosnippet>264</a>        <span class="comment">// To avoid the color enabling characters for comparison with test expectations.
-<a href=#265 id=265 data-nosnippet>265</a>        </span><span class="kw">if </span>std::env::var(<span class="string">"NOCOLOR"</span>).unwrap_or_default().trim().to_owned().is_empty() {
-<a href=#266 id=266 data-nosnippet>266</a>            <span class="kw">if </span><span class="self">self</span>.backtrace.error {
-<a href=#267 id=267 data-nosnippet>267</a>                <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, message.bold().red())<span class="question-mark">?</span>;
-<a href=#268 id=268 data-nosnippet>268</a>            } <span class="kw">else </span>{
-<a href=#269 id=269 data-nosnippet>269</a>                <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, message.bold().yellow())<span class="question-mark">?</span>;
-<a href=#270 id=270 data-nosnippet>270</a>            }
-<a href=#271 id=271 data-nosnippet>271</a>        } <span class="kw">else </span>{
-<a href=#272 id=272 data-nosnippet>272</a>            <span class="macro">writeln!</span>(f, <span class="string">"{message}"</span>)<span class="question-mark">?</span>;
-<a href=#273 id=273 data-nosnippet>273</a>        };
-<a href=#274 id=274 data-nosnippet>274</a>
-<a href=#275 id=275 data-nosnippet>275</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(source_file) = with_session_globals(|s| s.source_map.find_source_file(<span class="self">self</span>.span.lo)) {
-<a href=#276 id=276 data-nosnippet>276</a>            <span class="kw">let </span>line_contents = source_file.line_contents(<span class="self">self</span>.span);
-<a href=#277 id=277 data-nosnippet>277</a>
-<a href=#278 id=278 data-nosnippet>278</a>            <span class="macro">writeln!</span>(
-<a href=#279 id=279 data-nosnippet>279</a>                f,
-<a href=#280 id=280 data-nosnippet>280</a>                <span class="string">"{indent     }--&gt; {path}:{line_start}:{start}"</span>,
-<a href=#281 id=281 data-nosnippet>281</a>                indent = INDENT,
-<a href=#282 id=282 data-nosnippet>282</a>                path = <span class="kw-2">&amp;</span>source_file.name,
-<a href=#283 id=283 data-nosnippet>283</a>                <span class="comment">// Report lines starting from line 1.
-<a href=#284 id=284 data-nosnippet>284</a>                </span>line_start = line_contents.line + <span class="number">1</span>,
-<a href=#285 id=285 data-nosnippet>285</a>                <span class="comment">// And columns - comments in some old code claims to report columns indexing from 0,
-<a href=#286 id=286 data-nosnippet>286</a>                // but that doesn't appear to have been true.
-<a href=#287 id=287 data-nosnippet>287</a>                </span>start = line_contents.start + <span class="number">1</span>,
-<a href=#288 id=288 data-nosnippet>288</a>            )<span class="question-mark">?</span>;
-<a href=#289 id=289 data-nosnippet>289</a>
-<a href=#290 id=290 data-nosnippet>290</a>            <span class="kw">if </span><span class="self">self</span>.labels.is_empty() {
-<a href=#291 id=291 data-nosnippet>291</a>                <span class="comment">// If there are no labels, just print the line contents which will point to the right location.
-<a href=#292 id=292 data-nosnippet>292</a>                </span><span class="macro">write!</span>(f, <span class="string">"{line_contents}"</span>)<span class="question-mark">?</span>;
-<a href=#293 id=293 data-nosnippet>293</a>            } <span class="kw">else </span>{
-<a href=#294 id=294 data-nosnippet>294</a>                <span class="comment">// If there are labels, we handle the printing manually. Something like:
-<a href=#295 id=295 data-nosnippet>295</a>                //     |
-<a href=#296 id=296 data-nosnippet>296</a>                //  50 | /         x
-<a href=#297 id=297 data-nosnippet>297</a>                //  51 | |             :
-<a href=#298 id=298 data-nosnippet>298</a>                //  52 | |                 u32,
-<a href=#299 id=299 data-nosnippet>299</a>                //     | |___________________- `x` first declared here
-<a href=#300 id=300 data-nosnippet>300</a>                //   ...
-<a href=#301 id=301 data-nosnippet>301</a>                //  55 |           x: u32
-<a href=#302 id=302 data-nosnippet>302</a>                //     |           ^^^^^^ struct field already declared
-<a href=#303 id=303 data-nosnippet>303</a>
-<a href=#304 id=304 data-nosnippet>304</a>                // Sort the labels by their source line number.
-<a href=#305 id=305 data-nosnippet>305</a>                </span><span class="kw">let </span>labels = <span class="self">self
-<a href=#306 id=306 data-nosnippet>306</a>                    </span>.labels
-<a href=#307 id=307 data-nosnippet>307</a>                    .iter()
-<a href=#308 id=308 data-nosnippet>308</a>                    .filter_map(|label| {
-<a href=#309 id=309 data-nosnippet>309</a>                        with_session_globals(|s| s.source_map.find_source_file(label.span.lo)).map(|source_file| {
-<a href=#310 id=310 data-nosnippet>310</a>                            <span class="kw">let </span>lc = source_file.line_contents(label.span);
-<a href=#311 id=311 data-nosnippet>311</a>                            (label.clone(), lc.line)
-<a href=#312 id=312 data-nosnippet>312</a>                        })
-<a href=#313 id=313 data-nosnippet>313</a>                    })
-<a href=#314 id=314 data-nosnippet>314</a>                    .sorted_by_key(|(<span class="kw">_</span>, line)| <span class="kw-2">*</span>line)
-<a href=#315 id=315 data-nosnippet>315</a>                    .map(|(label, <span class="kw">_</span>)| label)
-<a href=#316 id=316 data-nosnippet>316</a>                    .collect_vec();
-<a href=#317 id=317 data-nosnippet>317</a>
-<a href=#318 id=318 data-nosnippet>318</a>                <span class="comment">// Track the last printed line number to handle gaps between blocks
-<a href=#319 id=319 data-nosnippet>319</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>prev_last_line: <span class="prelude-ty">Option</span>&lt;usize&gt; = <span class="prelude-val">None</span>;
-<a href=#320 id=320 data-nosnippet>320</a>
-<a href=#321 id=321 data-nosnippet>321</a>                <span class="kw">for </span>label <span class="kw">in </span>labels {
-<a href=#322 id=322 data-nosnippet>322</a>                    <span class="comment">// Find the source file corresponding to this label's span
-<a href=#323 id=323 data-nosnippet>323</a>                    </span><span class="kw">let </span><span class="prelude-val">Some</span>(source_file) = with_session_globals(|s| s.source_map.find_source_file(label.span.lo))
-<a href=#324 id=324 data-nosnippet>324</a>                    <span class="kw">else </span>{
-<a href=#325 id=325 data-nosnippet>325</a>                        <span class="kw">continue</span>;
-<a href=#326 id=326 data-nosnippet>326</a>                    };
-<a href=#327 id=327 data-nosnippet>327</a>
-<a href=#328 id=328 data-nosnippet>328</a>                    <span class="comment">// Get the line contents and offsets for this span
-<a href=#329 id=329 data-nosnippet>329</a>                    </span><span class="kw">let </span>lc = source_file.line_contents(label.span);
-<a href=#330 id=330 data-nosnippet>330</a>
-<a href=#331 id=331 data-nosnippet>331</a>                    <span class="comment">// Compute start and end columns of highlights for each line
-<a href=#332 id=332 data-nosnippet>332</a>                    </span><span class="kw">let </span>line_spans = compute_line_spans(<span class="kw-2">&amp;</span>lc);
-<a href=#333 id=333 data-nosnippet>333</a>
-<a href=#334 id=334 data-nosnippet>334</a>                    <span class="kw">let </span>first_line_of_block = lc.line + <span class="number">1</span>; <span class="comment">// 1-based line number of the first line
-<a href=#335 id=335 data-nosnippet>335</a>
-<a href=#336 id=336 data-nosnippet>336</a>                    // Print a gap or ellipsis if there are skipped lines since previous label
-<a href=#337 id=337 data-nosnippet>337</a>                    </span>print_gap(f, prev_last_line, first_line_of_block)<span class="question-mark">?</span>;
-<a href=#338 id=338 data-nosnippet>338</a>
-<a href=#339 id=339 data-nosnippet>339</a>                    <span class="comment">// Print a leading vertical margin only for the first label
-<a href=#340 id=340 data-nosnippet>340</a>                    </span><span class="kw">if </span>prev_last_line.is_none() {
-<a href=#341 id=341 data-nosnippet>341</a>                        <span class="macro">writeln!</span>(f, <span class="string">"{INDENT} |"</span>)<span class="question-mark">?</span>;
-<a href=#342 id=342 data-nosnippet>342</a>                    }
-<a href=#343 id=343 data-nosnippet>343</a>
-<a href=#344 id=344 data-nosnippet>344</a>                    <span class="comment">// Determine if this label spans multiple lines
-<a href=#345 id=345 data-nosnippet>345</a>                    </span><span class="kw">let </span>multiline = line_spans.iter().any(|<span class="kw-2">&amp;</span>(s, e)| e &gt; s) &amp;&amp; lc.contents.lines().count() &gt; <span class="number">1</span>;
-<a href=#346 id=346 data-nosnippet>346</a>
-<a href=#347 id=347 data-nosnippet>347</a>                    <span class="comment">// Identify first and last lines that have a highlight
-<a href=#348 id=348 data-nosnippet>348</a>                    </span><span class="kw">let </span>first_line = line_spans.iter().position(|<span class="kw-2">&amp;</span>(s, e)| e &gt; s);
-<a href=#349 id=349 data-nosnippet>349</a>                    <span class="kw">let </span>last_line = line_spans.iter().rposition(|<span class="kw-2">&amp;</span>(s, e)| e &gt; s);
-<a href=#350 id=350 data-nosnippet>350</a>
-<a href=#351 id=351 data-nosnippet>351</a>                    <span class="comment">// Iterate over each line in the span
-<a href=#352 id=352 data-nosnippet>352</a>                    </span><span class="kw">for </span>(i, (line_text, <span class="kw-2">&amp;</span>(start, end))) <span class="kw">in </span>lc.contents.lines().zip(<span class="kw-2">&amp;</span>line_spans).enumerate() {
-<a href=#353 id=353 data-nosnippet>353</a>                        <span class="kw">let </span>line_num = lc.line + i + <span class="number">1</span>;
-<a href=#354 id=354 data-nosnippet>354</a>
-<a href=#355 id=355 data-nosnippet>355</a>                        <span class="comment">// Choose connector symbol for multi-line highlights:
-<a href=#356 id=356 data-nosnippet>356</a>                        // "/" for first line, "|" for continuation lines
-<a href=#357 id=357 data-nosnippet>357</a>                        </span><span class="kw">let </span>connector = <span class="kw">if </span>multiline {
-<a href=#358 id=358 data-nosnippet>358</a>                            <span class="kw">match </span>(first_line, last_line) {
-<a href=#359 id=359 data-nosnippet>359</a>                                (<span class="prelude-val">Some</span>(first), <span class="prelude-val">Some</span>(_last)) =&gt; {
-<a href=#360 id=360 data-nosnippet>360</a>                                    <span class="kw">if </span>i == first {
-<a href=#361 id=361 data-nosnippet>361</a>                                        <span class="string">"/"
-<a href=#362 id=362 data-nosnippet>362</a>                                    </span>} <span class="kw">else </span>{
-<a href=#363 id=363 data-nosnippet>363</a>                                        <span class="string">"|"
-<a href=#364 id=364 data-nosnippet>364</a>                                    </span>}
-<a href=#365 id=365 data-nosnippet>365</a>                                }
-<a href=#366 id=366 data-nosnippet>366</a>                                <span class="kw">_ </span>=&gt; <span class="string">" "</span>,
-<a href=#367 id=367 data-nosnippet>367</a>                            }
-<a href=#368 id=368 data-nosnippet>368</a>                        } <span class="kw">else </span>{
-<a href=#369 id=369 data-nosnippet>369</a>                            <span class="string">" "
-<a href=#370 id=370 data-nosnippet>370</a>                        </span>};
-<a href=#371 id=371 data-nosnippet>371</a>
-<a href=#372 id=372 data-nosnippet>372</a>                        <span class="comment">// Print the code line with connector and optional single-line caret
-<a href=#373 id=373 data-nosnippet>373</a>                        </span>print_code_line(
-<a href=#374 id=374 data-nosnippet>374</a>                            f, line_num, line_text, connector, start, end, multiline, first_line, last_line, <span class="kw-2">&amp;</span>label,
-<a href=#375 id=375 data-nosnippet>375</a>                        )<span class="question-mark">?</span>;
-<a href=#376 id=376 data-nosnippet>376</a>                    }
-<a href=#377 id=377 data-nosnippet>377</a>
-<a href=#378 id=378 data-nosnippet>378</a>                    <span class="comment">// If this was a multi-line highlight, print the final underline + message
-<a href=#379 id=379 data-nosnippet>379</a>                    </span><span class="kw">if </span>multiline {
-<a href=#380 id=380 data-nosnippet>380</a>                        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(last)) = (first_line, last_line) {
-<a href=#381 id=381 data-nosnippet>381</a>                            <span class="comment">// Start column: first highlighted character on the last line
-<a href=#382 id=382 data-nosnippet>382</a>                            </span><span class="kw">let </span>start_col = line_spans[last].<span class="number">0</span>;
-<a href=#383 id=383 data-nosnippet>383</a>
-<a href=#384 id=384 data-nosnippet>384</a>                            <span class="comment">// End column: last highlighted character on the last line
-<a href=#385 id=385 data-nosnippet>385</a>                            </span><span class="kw">let </span>end_col = line_spans[last].<span class="number">1</span>;
-<a href=#386 id=386 data-nosnippet>386</a>
-<a href=#387 id=387 data-nosnippet>387</a>                            print_multiline_underline(f, start_col, end_col, <span class="kw-2">&amp;</span>label)<span class="question-mark">?</span>;
-<a href=#388 id=388 data-nosnippet>388</a>                        }
-<a href=#389 id=389 data-nosnippet>389</a>                    }
-<a href=#390 id=390 data-nosnippet>390</a>
-<a href=#391 id=391 data-nosnippet>391</a>                    <span class="comment">// Update the previous last line to track gaps for the next label
-<a href=#392 id=392 data-nosnippet>392</a>                    </span>prev_last_line = <span class="prelude-val">Some</span>(lc.line + lc.contents.lines().count());
-<a href=#393 id=393 data-nosnippet>393</a>                }
-<a href=#394 id=394 data-nosnippet>394</a>            }
-<a href=#395 id=395 data-nosnippet>395</a>        }
-<a href=#396 id=396 data-nosnippet>396</a>
-<a href=#397 id=397 data-nosnippet>397</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(help) = <span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.help {
-<a href=#398 id=398 data-nosnippet>398</a>            <span class="macro">writeln!</span>(
-<a href=#399 id=399 data-nosnippet>399</a>                f,
-<a href=#400 id=400 data-nosnippet>400</a>                <span class="string">"{INDENT     } |\n\
-<a href=#401 id=401 data-nosnippet>401</a>                {INDENT     } = {help}"</span>,
-<a href=#402 id=402 data-nosnippet>402</a>            )<span class="question-mark">?</span>;
-<a href=#403 id=403 data-nosnippet>403</a>        }
-<a href=#404 id=404 data-nosnippet>404</a>
-<a href=#405 id=405 data-nosnippet>405</a>        <span class="kw">let </span>leo_backtrace = std::env::var(<span class="string">"LEO_BACKTRACE"</span>).unwrap_or_default().trim().to_owned();
-<a href=#406 id=406 data-nosnippet>406</a>        <span class="kw">match </span>leo_backtrace.as_ref() {
-<a href=#407 id=407 data-nosnippet>407</a>            <span class="string">"1" </span>=&gt; {
-<a href=#408 id=408 data-nosnippet>408</a>                <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
-<a href=#409 id=409 data-nosnippet>409</a>                printer = printer.verbosity(Verbosity::Medium);
-<a href=#410 id=410 data-nosnippet>410</a>                printer = printer.lib_verbosity(Verbosity::Medium);
-<a href=#411 id=411 data-nosnippet>411</a>                <span class="kw">let </span>trace = printer.format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.backtrace).map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
-<a href=#412 id=412 data-nosnippet>412</a>                <span class="macro">write!</span>(f, <span class="string">"\n{trace}"</span>)<span class="question-mark">?</span>;
-<a href=#413 id=413 data-nosnippet>413</a>            }
-<a href=#414 id=414 data-nosnippet>414</a>            <span class="string">"full" </span>=&gt; {
-<a href=#415 id=415 data-nosnippet>415</a>                <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
-<a href=#416 id=416 data-nosnippet>416</a>                printer = printer.verbosity(Verbosity::Full);
-<a href=#417 id=417 data-nosnippet>417</a>                printer = printer.lib_verbosity(Verbosity::Full);
-<a href=#418 id=418 data-nosnippet>418</a>                <span class="kw">let </span>trace = printer.format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.backtrace).map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
-<a href=#419 id=419 data-nosnippet>419</a>                <span class="macro">write!</span>(f, <span class="string">"\n{trace}"</span>)<span class="question-mark">?</span>;
-<a href=#420 id=420 data-nosnippet>420</a>            }
-<a href=#421 id=421 data-nosnippet>421</a>            <span class="kw">_ </span>=&gt; {}
-<a href=#422 id=422 data-nosnippet>422</a>        }
-<a href=#423 id=423 data-nosnippet>423</a>
-<a href=#424 id=424 data-nosnippet>424</a>        <span class="prelude-val">Ok</span>(())
-<a href=#425 id=425 data-nosnippet>425</a>    }
-<a href=#426 id=426 data-nosnippet>426</a>}
-<a href=#427 id=427 data-nosnippet>427</a>
-<a href=#428 id=428 data-nosnippet>428</a><span class="kw">impl </span>std::error::Error <span class="kw">for </span>Formatted {
-<a href=#429 id=429 data-nosnippet>429</a>    <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-<a href=#430 id=430 data-nosnippet>430</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.message
-<a href=#431 id=431 data-nosnippet>431</a>    }
-<a href=#432 id=432 data-nosnippet>432</a>}</code></pre></div></section></main></body></html>
+<a href=#217 id=217 data-nosnippet>217</a>    </span><span class="kw">else if </span>multiline
+<a href=#218 id=218 data-nosnippet>218</a>        &amp;&amp; <span class="kw">let </span>(<span class="prelude-val">Some</span>(first), <span class="prelude-val">Some</span>(last)) = (first_line, last_line)
+<a href=#219 id=219 data-nosnippet>219</a>        &amp;&amp; line_num - first_line.unwrap() == last - first
+<a href=#220 id=220 data-nosnippet>220</a>    {
+<a href=#221 id=221 data-nosnippet>221</a>        <span class="kw">let </span>underline_len = (end - start).max(<span class="number">1</span>);
+<a href=#222 id=222 data-nosnippet>222</a>        <span class="macro">writeln!</span>(
+<a href=#223 id=223 data-nosnippet>223</a>            f,
+<a href=#224 id=224 data-nosnippet>224</a>            <span class="string">"{INDENT} | {:start$}{} {}"</span>,
+<a href=#225 id=225 data-nosnippet>225</a>            label.color.color_and_bold(<span class="string">"|"</span>, use_colors), <span class="comment">// vertical pointer
+<a href=#226 id=226 data-nosnippet>226</a>            </span>label.color.color_and_bold(<span class="kw-2">&amp;</span><span class="string">"_"</span>.repeat(underline_len), use_colors), <span class="comment">// underline
+<a href=#227 id=227 data-nosnippet>227</a>            </span>label.color.color_and_bold(<span class="kw-2">&amp;</span>label.msg, use_colors), <span class="comment">// message
+<a href=#228 id=228 data-nosnippet>228</a>            </span>start = start
+<a href=#229 id=229 data-nosnippet>229</a>        )<span class="question-mark">?</span>;
+<a href=#230 id=230 data-nosnippet>230</a>    }
+<a href=#231 id=231 data-nosnippet>231</a>
+<a href=#232 id=232 data-nosnippet>232</a>    <span class="prelude-val">Ok</span>(())
+<a href=#233 id=233 data-nosnippet>233</a>}
+<a href=#234 id=234 data-nosnippet>234</a>
+<a href=#235 id=235 data-nosnippet>235</a><span class="doccomment">/// Print the final underline for a multi-line highlight (Rust-style with `-`)
+<a href=#236 id=236 data-nosnippet>236</a></span><span class="kw">fn </span>print_multiline_underline(
+<a href=#237 id=237 data-nosnippet>237</a>    f: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>std::fmt::Write,
+<a href=#238 id=238 data-nosnippet>238</a>    start_col: usize,
+<a href=#239 id=239 data-nosnippet>239</a>    end_col: usize,
+<a href=#240 id=240 data-nosnippet>240</a>    label: <span class="kw-2">&amp;</span>Label,
+<a href=#241 id=241 data-nosnippet>241</a>) -&gt; std::fmt::Result {
+<a href=#242 id=242 data-nosnippet>242</a>    <span class="kw">let </span>use_colors = std::env::var(<span class="string">"NOCOLOR"</span>).unwrap_or_default().trim().to_owned().is_empty();
+<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">let </span>underline_len = (end_col - start_col).max(<span class="number">1</span>);
+<a href=#244 id=244 data-nosnippet>244</a>    <span class="kw">let </span>underline = <span class="macro">format!</span>(<span class="string">"{}-"</span>, <span class="string">"_"</span>.repeat(underline_len));
+<a href=#245 id=245 data-nosnippet>245</a>
+<a href=#246 id=246 data-nosnippet>246</a>    <span class="macro">writeln!</span>(
+<a href=#247 id=247 data-nosnippet>247</a>        f,
+<a href=#248 id=248 data-nosnippet>248</a>        <span class="string">"{INDENT} | {:start$}{} {}"</span>,
+<a href=#249 id=249 data-nosnippet>249</a>        label.color.color_and_bold(<span class="string">"|"</span>, use_colors), <span class="comment">// vertical pointer
+<a href=#250 id=250 data-nosnippet>250</a>        </span>label.color.color_and_bold(<span class="kw-2">&amp;</span>underline, use_colors), <span class="comment">// colored underline + dash
+<a href=#251 id=251 data-nosnippet>251</a>        </span>label.color.color_and_bold(<span class="kw-2">&amp;</span>label.msg, use_colors), <span class="comment">// message
+<a href=#252 id=252 data-nosnippet>252</a>        </span>start = start_col
+<a href=#253 id=253 data-nosnippet>253</a>    )
+<a href=#254 id=254 data-nosnippet>254</a>}
+<a href=#255 id=255 data-nosnippet>255</a>
+<a href=#256 id=256 data-nosnippet>256</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Formatted {
+<a href=#257 id=257 data-nosnippet>257</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<a href=#258 id=258 data-nosnippet>258</a>        <span class="kw">let </span>(kind, code) =
+<a href=#259 id=259 data-nosnippet>259</a>            <span class="kw">if </span><span class="self">self</span>.backtrace.error { (<span class="string">"Error"</span>, <span class="self">self</span>.error_code()) } <span class="kw">else </span>{ (<span class="string">"Warning"</span>, <span class="self">self</span>.warning_code()) };
+<a href=#260 id=260 data-nosnippet>260</a>
+<a href=#261 id=261 data-nosnippet>261</a>        <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">"{kind} [{code}]: {message}"</span>, message = <span class="self">self</span>.backtrace.message,);
+<a href=#262 id=262 data-nosnippet>262</a>
+<a href=#263 id=263 data-nosnippet>263</a>        <span class="comment">// To avoid the color enabling characters for comparison with test expectations.
+<a href=#264 id=264 data-nosnippet>264</a>        </span><span class="kw">if </span>std::env::var(<span class="string">"NOCOLOR"</span>).unwrap_or_default().trim().to_owned().is_empty() {
+<a href=#265 id=265 data-nosnippet>265</a>            <span class="kw">if </span><span class="self">self</span>.backtrace.error {
+<a href=#266 id=266 data-nosnippet>266</a>                <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, message.bold().red())<span class="question-mark">?</span>;
+<a href=#267 id=267 data-nosnippet>267</a>            } <span class="kw">else </span>{
+<a href=#268 id=268 data-nosnippet>268</a>                <span class="macro">writeln!</span>(f, <span class="string">"{}"</span>, message.bold().yellow())<span class="question-mark">?</span>;
+<a href=#269 id=269 data-nosnippet>269</a>            }
+<a href=#270 id=270 data-nosnippet>270</a>        } <span class="kw">else </span>{
+<a href=#271 id=271 data-nosnippet>271</a>            <span class="macro">writeln!</span>(f, <span class="string">"{message}"</span>)<span class="question-mark">?</span>;
+<a href=#272 id=272 data-nosnippet>272</a>        };
+<a href=#273 id=273 data-nosnippet>273</a>
+<a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(source_file) = with_session_globals(|s| s.source_map.find_source_file(<span class="self">self</span>.span.lo)) {
+<a href=#275 id=275 data-nosnippet>275</a>            <span class="kw">let </span>line_contents = source_file.line_contents(<span class="self">self</span>.span);
+<a href=#276 id=276 data-nosnippet>276</a>
+<a href=#277 id=277 data-nosnippet>277</a>            <span class="macro">writeln!</span>(
+<a href=#278 id=278 data-nosnippet>278</a>                f,
+<a href=#279 id=279 data-nosnippet>279</a>                <span class="string">"{indent     }--&gt; {path}:{line_start}:{start}"</span>,
+<a href=#280 id=280 data-nosnippet>280</a>                indent = INDENT,
+<a href=#281 id=281 data-nosnippet>281</a>                path = <span class="kw-2">&amp;</span>source_file.name,
+<a href=#282 id=282 data-nosnippet>282</a>                <span class="comment">// Report lines starting from line 1.
+<a href=#283 id=283 data-nosnippet>283</a>                </span>line_start = line_contents.line + <span class="number">1</span>,
+<a href=#284 id=284 data-nosnippet>284</a>                <span class="comment">// And columns - comments in some old code claims to report columns indexing from 0,
+<a href=#285 id=285 data-nosnippet>285</a>                // but that doesn't appear to have been true.
+<a href=#286 id=286 data-nosnippet>286</a>                </span>start = line_contents.start + <span class="number">1</span>,
+<a href=#287 id=287 data-nosnippet>287</a>            )<span class="question-mark">?</span>;
+<a href=#288 id=288 data-nosnippet>288</a>
+<a href=#289 id=289 data-nosnippet>289</a>            <span class="kw">if </span><span class="self">self</span>.labels.is_empty() {
+<a href=#290 id=290 data-nosnippet>290</a>                <span class="comment">// If there are no labels, just print the line contents which will point to the right location.
+<a href=#291 id=291 data-nosnippet>291</a>                </span><span class="macro">write!</span>(f, <span class="string">"{line_contents}"</span>)<span class="question-mark">?</span>;
+<a href=#292 id=292 data-nosnippet>292</a>            } <span class="kw">else </span>{
+<a href=#293 id=293 data-nosnippet>293</a>                <span class="comment">// If there are labels, we handle the printing manually. Something like:
+<a href=#294 id=294 data-nosnippet>294</a>                //     |
+<a href=#295 id=295 data-nosnippet>295</a>                //  50 | /         x
+<a href=#296 id=296 data-nosnippet>296</a>                //  51 | |             :
+<a href=#297 id=297 data-nosnippet>297</a>                //  52 | |                 u32,
+<a href=#298 id=298 data-nosnippet>298</a>                //     | |___________________- `x` first declared here
+<a href=#299 id=299 data-nosnippet>299</a>                //   ...
+<a href=#300 id=300 data-nosnippet>300</a>                //  55 |           x: u32
+<a href=#301 id=301 data-nosnippet>301</a>                //     |           ^^^^^^ struct field already declared
+<a href=#302 id=302 data-nosnippet>302</a>
+<a href=#303 id=303 data-nosnippet>303</a>                // Sort the labels by their source line number.
+<a href=#304 id=304 data-nosnippet>304</a>                </span><span class="kw">let </span>labels = <span class="self">self
+<a href=#305 id=305 data-nosnippet>305</a>                    </span>.labels
+<a href=#306 id=306 data-nosnippet>306</a>                    .iter()
+<a href=#307 id=307 data-nosnippet>307</a>                    .filter_map(|label| {
+<a href=#308 id=308 data-nosnippet>308</a>                        with_session_globals(|s| s.source_map.find_source_file(label.span.lo)).map(|source_file| {
+<a href=#309 id=309 data-nosnippet>309</a>                            <span class="kw">let </span>lc = source_file.line_contents(label.span);
+<a href=#310 id=310 data-nosnippet>310</a>                            (label.clone(), lc.line)
+<a href=#311 id=311 data-nosnippet>311</a>                        })
+<a href=#312 id=312 data-nosnippet>312</a>                    })
+<a href=#313 id=313 data-nosnippet>313</a>                    .sorted_by_key(|(<span class="kw">_</span>, line)| <span class="kw-2">*</span>line)
+<a href=#314 id=314 data-nosnippet>314</a>                    .map(|(label, <span class="kw">_</span>)| label)
+<a href=#315 id=315 data-nosnippet>315</a>                    .collect_vec();
+<a href=#316 id=316 data-nosnippet>316</a>
+<a href=#317 id=317 data-nosnippet>317</a>                <span class="comment">// Track the last printed line number to handle gaps between blocks
+<a href=#318 id=318 data-nosnippet>318</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>prev_last_line: <span class="prelude-ty">Option</span>&lt;usize&gt; = <span class="prelude-val">None</span>;
+<a href=#319 id=319 data-nosnippet>319</a>
+<a href=#320 id=320 data-nosnippet>320</a>                <span class="kw">for </span>label <span class="kw">in </span>labels {
+<a href=#321 id=321 data-nosnippet>321</a>                    <span class="comment">// Find the source file corresponding to this label's span
+<a href=#322 id=322 data-nosnippet>322</a>                    </span><span class="kw">let </span><span class="prelude-val">Some</span>(source_file) = with_session_globals(|s| s.source_map.find_source_file(label.span.lo))
+<a href=#323 id=323 data-nosnippet>323</a>                    <span class="kw">else </span>{
+<a href=#324 id=324 data-nosnippet>324</a>                        <span class="kw">continue</span>;
+<a href=#325 id=325 data-nosnippet>325</a>                    };
+<a href=#326 id=326 data-nosnippet>326</a>
+<a href=#327 id=327 data-nosnippet>327</a>                    <span class="comment">// Get the line contents and offsets for this span
+<a href=#328 id=328 data-nosnippet>328</a>                    </span><span class="kw">let </span>lc = source_file.line_contents(label.span);
+<a href=#329 id=329 data-nosnippet>329</a>
+<a href=#330 id=330 data-nosnippet>330</a>                    <span class="comment">// Compute start and end columns of highlights for each line
+<a href=#331 id=331 data-nosnippet>331</a>                    </span><span class="kw">let </span>line_spans = compute_line_spans(<span class="kw-2">&amp;</span>lc);
+<a href=#332 id=332 data-nosnippet>332</a>
+<a href=#333 id=333 data-nosnippet>333</a>                    <span class="kw">let </span>first_line_of_block = lc.line + <span class="number">1</span>; <span class="comment">// 1-based line number of the first line
+<a href=#334 id=334 data-nosnippet>334</a>
+<a href=#335 id=335 data-nosnippet>335</a>                    // Print a gap or ellipsis if there are skipped lines since previous label
+<a href=#336 id=336 data-nosnippet>336</a>                    </span>print_gap(f, prev_last_line, first_line_of_block)<span class="question-mark">?</span>;
+<a href=#337 id=337 data-nosnippet>337</a>
+<a href=#338 id=338 data-nosnippet>338</a>                    <span class="comment">// Print a leading vertical margin only for the first label
+<a href=#339 id=339 data-nosnippet>339</a>                    </span><span class="kw">if </span>prev_last_line.is_none() {
+<a href=#340 id=340 data-nosnippet>340</a>                        <span class="macro">writeln!</span>(f, <span class="string">"{INDENT} |"</span>)<span class="question-mark">?</span>;
+<a href=#341 id=341 data-nosnippet>341</a>                    }
+<a href=#342 id=342 data-nosnippet>342</a>
+<a href=#343 id=343 data-nosnippet>343</a>                    <span class="comment">// Determine if this label spans multiple lines
+<a href=#344 id=344 data-nosnippet>344</a>                    </span><span class="kw">let </span>multiline = line_spans.iter().any(|<span class="kw-2">&amp;</span>(s, e)| e &gt; s) &amp;&amp; lc.contents.lines().count() &gt; <span class="number">1</span>;
+<a href=#345 id=345 data-nosnippet>345</a>
+<a href=#346 id=346 data-nosnippet>346</a>                    <span class="comment">// Identify first and last lines that have a highlight
+<a href=#347 id=347 data-nosnippet>347</a>                    </span><span class="kw">let </span>first_line = line_spans.iter().position(|<span class="kw-2">&amp;</span>(s, e)| e &gt; s);
+<a href=#348 id=348 data-nosnippet>348</a>                    <span class="kw">let </span>last_line = line_spans.iter().rposition(|<span class="kw-2">&amp;</span>(s, e)| e &gt; s);
+<a href=#349 id=349 data-nosnippet>349</a>
+<a href=#350 id=350 data-nosnippet>350</a>                    <span class="comment">// Iterate over each line in the span
+<a href=#351 id=351 data-nosnippet>351</a>                    </span><span class="kw">for </span>(i, (line_text, <span class="kw-2">&amp;</span>(start, end))) <span class="kw">in </span>lc.contents.lines().zip(<span class="kw-2">&amp;</span>line_spans).enumerate() {
+<a href=#352 id=352 data-nosnippet>352</a>                        <span class="kw">let </span>line_num = lc.line + i + <span class="number">1</span>;
+<a href=#353 id=353 data-nosnippet>353</a>
+<a href=#354 id=354 data-nosnippet>354</a>                        <span class="comment">// Choose connector symbol for multi-line highlights:
+<a href=#355 id=355 data-nosnippet>355</a>                        // "/" for first line, "|" for continuation lines
+<a href=#356 id=356 data-nosnippet>356</a>                        </span><span class="kw">let </span>connector = <span class="kw">if </span>multiline {
+<a href=#357 id=357 data-nosnippet>357</a>                            <span class="kw">match </span>(first_line, last_line) {
+<a href=#358 id=358 data-nosnippet>358</a>                                (<span class="prelude-val">Some</span>(first), <span class="prelude-val">Some</span>(_last)) =&gt; {
+<a href=#359 id=359 data-nosnippet>359</a>                                    <span class="kw">if </span>i == first {
+<a href=#360 id=360 data-nosnippet>360</a>                                        <span class="string">"/"
+<a href=#361 id=361 data-nosnippet>361</a>                                    </span>} <span class="kw">else </span>{
+<a href=#362 id=362 data-nosnippet>362</a>                                        <span class="string">"|"
+<a href=#363 id=363 data-nosnippet>363</a>                                    </span>}
+<a href=#364 id=364 data-nosnippet>364</a>                                }
+<a href=#365 id=365 data-nosnippet>365</a>                                <span class="kw">_ </span>=&gt; <span class="string">" "</span>,
+<a href=#366 id=366 data-nosnippet>366</a>                            }
+<a href=#367 id=367 data-nosnippet>367</a>                        } <span class="kw">else </span>{
+<a href=#368 id=368 data-nosnippet>368</a>                            <span class="string">" "
+<a href=#369 id=369 data-nosnippet>369</a>                        </span>};
+<a href=#370 id=370 data-nosnippet>370</a>
+<a href=#371 id=371 data-nosnippet>371</a>                        <span class="comment">// Print the code line with connector and optional single-line caret
+<a href=#372 id=372 data-nosnippet>372</a>                        </span>print_code_line(
+<a href=#373 id=373 data-nosnippet>373</a>                            f, line_num, line_text, connector, start, end, multiline, first_line, last_line, <span class="kw-2">&amp;</span>label,
+<a href=#374 id=374 data-nosnippet>374</a>                        )<span class="question-mark">?</span>;
+<a href=#375 id=375 data-nosnippet>375</a>                    }
+<a href=#376 id=376 data-nosnippet>376</a>
+<a href=#377 id=377 data-nosnippet>377</a>                    <span class="comment">// If this was a multi-line highlight, print the final underline + message
+<a href=#378 id=378 data-nosnippet>378</a>                    </span><span class="kw">if </span>multiline &amp;&amp; <span class="kw">let </span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(last)) = (first_line, last_line) {
+<a href=#379 id=379 data-nosnippet>379</a>                        <span class="comment">// Start column: first highlighted character on the last line
+<a href=#380 id=380 data-nosnippet>380</a>                        </span><span class="kw">let </span>start_col = line_spans[last].<span class="number">0</span>;
+<a href=#381 id=381 data-nosnippet>381</a>
+<a href=#382 id=382 data-nosnippet>382</a>                        <span class="comment">// End column: last highlighted character on the last line
+<a href=#383 id=383 data-nosnippet>383</a>                        </span><span class="kw">let </span>end_col = line_spans[last].<span class="number">1</span>;
+<a href=#384 id=384 data-nosnippet>384</a>
+<a href=#385 id=385 data-nosnippet>385</a>                        print_multiline_underline(f, start_col, end_col, <span class="kw-2">&amp;</span>label)<span class="question-mark">?</span>;
+<a href=#386 id=386 data-nosnippet>386</a>                    }
+<a href=#387 id=387 data-nosnippet>387</a>
+<a href=#388 id=388 data-nosnippet>388</a>                    <span class="comment">// Update the previous last line to track gaps for the next label
+<a href=#389 id=389 data-nosnippet>389</a>                    </span>prev_last_line = <span class="prelude-val">Some</span>(lc.line + lc.contents.lines().count());
+<a href=#390 id=390 data-nosnippet>390</a>                }
+<a href=#391 id=391 data-nosnippet>391</a>            }
+<a href=#392 id=392 data-nosnippet>392</a>        }
+<a href=#393 id=393 data-nosnippet>393</a>
+<a href=#394 id=394 data-nosnippet>394</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(help) = <span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.help {
+<a href=#395 id=395 data-nosnippet>395</a>            <span class="macro">writeln!</span>(
+<a href=#396 id=396 data-nosnippet>396</a>                f,
+<a href=#397 id=397 data-nosnippet>397</a>                <span class="string">"{INDENT     } |\n\
+<a href=#398 id=398 data-nosnippet>398</a>                {INDENT     } = {help}"</span>,
+<a href=#399 id=399 data-nosnippet>399</a>            )<span class="question-mark">?</span>;
+<a href=#400 id=400 data-nosnippet>400</a>        }
+<a href=#401 id=401 data-nosnippet>401</a>
+<a href=#402 id=402 data-nosnippet>402</a>        <span class="kw">let </span>leo_backtrace = std::env::var(<span class="string">"LEO_BACKTRACE"</span>).unwrap_or_default().trim().to_owned();
+<a href=#403 id=403 data-nosnippet>403</a>        <span class="kw">match </span>leo_backtrace.as_ref() {
+<a href=#404 id=404 data-nosnippet>404</a>            <span class="string">"1" </span>=&gt; {
+<a href=#405 id=405 data-nosnippet>405</a>                <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
+<a href=#406 id=406 data-nosnippet>406</a>                printer = printer.verbosity(Verbosity::Medium);
+<a href=#407 id=407 data-nosnippet>407</a>                printer = printer.lib_verbosity(Verbosity::Medium);
+<a href=#408 id=408 data-nosnippet>408</a>                <span class="kw">let </span>trace = printer.format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.backtrace).map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
+<a href=#409 id=409 data-nosnippet>409</a>                <span class="macro">write!</span>(f, <span class="string">"\n{trace}"</span>)<span class="question-mark">?</span>;
+<a href=#410 id=410 data-nosnippet>410</a>            }
+<a href=#411 id=411 data-nosnippet>411</a>            <span class="string">"full" </span>=&gt; {
+<a href=#412 id=412 data-nosnippet>412</a>                <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
+<a href=#413 id=413 data-nosnippet>413</a>                printer = printer.verbosity(Verbosity::Full);
+<a href=#414 id=414 data-nosnippet>414</a>                printer = printer.lib_verbosity(Verbosity::Full);
+<a href=#415 id=415 data-nosnippet>415</a>                <span class="kw">let </span>trace = printer.format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.backtrace).map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
+<a href=#416 id=416 data-nosnippet>416</a>                <span class="macro">write!</span>(f, <span class="string">"\n{trace}"</span>)<span class="question-mark">?</span>;
+<a href=#417 id=417 data-nosnippet>417</a>            }
+<a href=#418 id=418 data-nosnippet>418</a>            <span class="kw">_ </span>=&gt; {}
+<a href=#419 id=419 data-nosnippet>419</a>        }
+<a href=#420 id=420 data-nosnippet>420</a>
+<a href=#421 id=421 data-nosnippet>421</a>        <span class="prelude-val">Ok</span>(())
+<a href=#422 id=422 data-nosnippet>422</a>    }
+<a href=#423 id=423 data-nosnippet>423</a>}
+<a href=#424 id=424 data-nosnippet>424</a>
+<a href=#425 id=425 data-nosnippet>425</a><span class="kw">impl </span>std::error::Error <span class="kw">for </span>Formatted {
+<a href=#426 id=426 data-nosnippet>426</a>    <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+<a href=#427 id=427 data-nosnippet>427</a>        <span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.message
+<a href=#428 id=428 data-nosnippet>428</a>    }
+<a href=#429 id=429 data-nosnippet>429</a>}</code></pre></div></section></main></body></html>
