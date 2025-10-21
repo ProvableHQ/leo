@@ -88,8 +88,10 @@ commands:
           name: Install snarkOS 
           command: |
             git clone https://github.com/ProvableHQ/snarkOS.git
+            cd snarkOS
             git checkout $SNARKOS_REV
             cargo install --path . --features test_network --locked --force
+            cd ..
 
   build-and-test:
     description: "Build and run tests"
