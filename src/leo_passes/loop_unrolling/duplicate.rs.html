@@ -30,9 +30,9 @@
 <a href=#30 id=30 data-nosnippet>30</a>}
 <a href=#31 id=31 data-nosnippet>31</a>
 <a href=#32 id=32 data-nosnippet>32</a><span class="kw">impl </span>Duplicator&lt;<span class="lifetime">'_</span>&gt; {
-<a href=#33 id=33 data-nosnippet>33</a>    <span class="kw">fn </span>in_scope_duped&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_id: NodeID, old_id: NodeID, func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; T) -&gt; T {
-<a href=#34 id=34 data-nosnippet>34</a>        <span class="self">self</span>.symbol_table.enter_scope_duped(new_id, old_id);
-<a href=#35 id=35 data-nosnippet>35</a>        <span class="kw">let </span>result = func(<span class="self">self</span>);
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="kw">fn </span>in_scope_duped&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, old_id: NodeID, func: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span><span class="self">Self</span>, NodeID) -&gt; T) -&gt; T {
+<a href=#34 id=34 data-nosnippet>34</a>        <span class="kw">let </span>new_id = <span class="self">self</span>.symbol_table.enter_scope_duped(old_id, <span class="self">self</span>.node_builder);
+<a href=#35 id=35 data-nosnippet>35</a>        <span class="kw">let </span>result = func(<span class="self">self</span>, new_id);
 <a href=#36 id=36 data-nosnippet>36</a>        <span class="self">self</span>.symbol_table.enter_parent();
 <a href=#37 id=37 data-nosnippet>37</a>        result
 <a href=#38 id=38 data-nosnippet>38</a>    }
@@ -56,30 +56,28 @@
 <a href=#56 id=56 data-nosnippet>56</a>    }
 <a href=#57 id=57 data-nosnippet>57</a>
 <a href=#58 id=58 data-nosnippet>58</a>    <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#59 id=59 data-nosnippet>59</a>        <span class="kw">let </span>next_id = <span class="self">self</span>.node_builder.next_id();
-<a href=#60 id=60 data-nosnippet>60</a>        <span class="self">self</span>.in_scope_duped(next_id, input.id(), |slf| {
-<a href=#61 id=61 data-nosnippet>61</a>            input.id = next_id;
-<a href=#62 id=62 data-nosnippet>62</a>            input.statements = input.statements.into_iter().map(|stmt| slf.reconstruct_statement(stmt).<span class="number">0</span>).collect();
-<a href=#63 id=63 data-nosnippet>63</a>            (input, Default::default())
-<a href=#64 id=64 data-nosnippet>64</a>        })
-<a href=#65 id=65 data-nosnippet>65</a>    }
-<a href=#66 id=66 data-nosnippet>66</a>
-<a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#68 id=68 data-nosnippet>68</a>        input.then = <span class="self">self</span>.reconstruct_block(input.then).<span class="number">0</span>;
-<a href=#69 id=69 data-nosnippet>69</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>otherwise) = input.otherwise {
-<a href=#70 id=70 data-nosnippet>70</a>            <span class="kw-2">*</span>otherwise = <span class="self">self</span>.reconstruct_statement(<span class="kw-2">*</span>otherwise).<span class="number">0</span>;
-<a href=#71 id=71 data-nosnippet>71</a>            input.otherwise = <span class="prelude-val">Some</span>(otherwise);
-<a href=#72 id=72 data-nosnippet>72</a>        }
-<a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a>        (input.into(), Default::default())
-<a href=#75 id=75 data-nosnippet>75</a>    }
-<a href=#76 id=76 data-nosnippet>76</a>
-<a href=#77 id=77 data-nosnippet>77</a>    <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#78 id=78 data-nosnippet>78</a>        <span class="kw">let </span>next_id = <span class="self">self</span>.node_builder.next_id();
-<a href=#79 id=79 data-nosnippet>79</a>        <span class="self">self</span>.in_scope_duped(next_id, input.id(), |slf| {
-<a href=#80 id=80 data-nosnippet>80</a>            input.id = next_id;
-<a href=#81 id=81 data-nosnippet>81</a>            input.block = slf.reconstruct_block(input.block).<span class="number">0</span>;
-<a href=#82 id=82 data-nosnippet>82</a>            (input.into(), Default::default())
-<a href=#83 id=83 data-nosnippet>83</a>        })
-<a href=#84 id=84 data-nosnippet>84</a>    }
-<a href=#85 id=85 data-nosnippet>85</a>}</code></pre></div></section></main></body></html>
+<a href=#59 id=59 data-nosnippet>59</a>        <span class="self">self</span>.in_scope_duped(input.id(), |slf, new_id| {
+<a href=#60 id=60 data-nosnippet>60</a>            input.id = new_id;
+<a href=#61 id=61 data-nosnippet>61</a>            input.statements = input.statements.into_iter().map(|stmt| slf.reconstruct_statement(stmt).<span class="number">0</span>).collect();
+<a href=#62 id=62 data-nosnippet>62</a>            (input, Default::default())
+<a href=#63 id=63 data-nosnippet>63</a>        })
+<a href=#64 id=64 data-nosnippet>64</a>    }
+<a href=#65 id=65 data-nosnippet>65</a>
+<a href=#66 id=66 data-nosnippet>66</a>    <span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#67 id=67 data-nosnippet>67</a>        input.then = <span class="self">self</span>.reconstruct_block(input.then).<span class="number">0</span>;
+<a href=#68 id=68 data-nosnippet>68</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>otherwise) = input.otherwise {
+<a href=#69 id=69 data-nosnippet>69</a>            <span class="kw-2">*</span>otherwise = <span class="self">self</span>.reconstruct_statement(<span class="kw-2">*</span>otherwise).<span class="number">0</span>;
+<a href=#70 id=70 data-nosnippet>70</a>            input.otherwise = <span class="prelude-val">Some</span>(otherwise);
+<a href=#71 id=71 data-nosnippet>71</a>        }
+<a href=#72 id=72 data-nosnippet>72</a>
+<a href=#73 id=73 data-nosnippet>73</a>        (input.into(), Default::default())
+<a href=#74 id=74 data-nosnippet>74</a>    }
+<a href=#75 id=75 data-nosnippet>75</a>
+<a href=#76 id=76 data-nosnippet>76</a>    <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#77 id=77 data-nosnippet>77</a>        <span class="self">self</span>.in_scope_duped(input.id(), |slf, new_id| {
+<a href=#78 id=78 data-nosnippet>78</a>            input.id = new_id;
+<a href=#79 id=79 data-nosnippet>79</a>            input.block = slf.reconstruct_block(input.block).<span class="number">0</span>;
+<a href=#80 id=80 data-nosnippet>80</a>            (input.into(), Default::default())
+<a href=#81 id=81 data-nosnippet>81</a>        })
+<a href=#82 id=82 data-nosnippet>82</a>    }
+<a href=#83 id=83 data-nosnippet>83</a>}</code></pre></div></section></main></body></html>
