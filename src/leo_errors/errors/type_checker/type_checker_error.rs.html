@@ -176,9 +176,9 @@
 <a href=#176 id=176 data-nosnippet>176</a>    <span class="doccomment">/// Attempted to define more that one struct member with the same name.
 <a href=#177 id=177 data-nosnippet>177</a>    </span>@formatted
 <a href=#178 id=178 data-nosnippet>178</a>    duplicate_struct_member {
-<a href=#179 id=179 data-nosnippet>179</a>        args: (struct_: <span class="kw">impl </span>Display),
+<a href=#179 id=179 data-nosnippet>179</a>        args: (member_name: <span class="kw">impl </span>Display),
 <a href=#180 id=180 data-nosnippet>180</a>        msg: <span class="macro">format!</span>(
-<a href=#181 id=181 data-nosnippet>181</a>            <span class="string">"Struct {struct_} defined with more than one member with the same name."
+<a href=#181 id=181 data-nosnippet>181</a>            <span class="string">"Struct field `{member_name}` is already declared."
 <a href=#182 id=182 data-nosnippet>182</a>        </span>),
 <a href=#183 id=183 data-nosnippet>183</a>        help: <span class="prelude-val">None</span>,
 <a href=#184 id=184 data-nosnippet>184</a>    }
@@ -186,9 +186,9 @@
 <a href=#186 id=186 data-nosnippet>186</a>    <span class="doccomment">/// Attempted to define more that one record variable with the same name.
 <a href=#187 id=187 data-nosnippet>187</a>    </span>@formatted
 <a href=#188 id=188 data-nosnippet>188</a>    duplicate_record_variable {
-<a href=#189 id=189 data-nosnippet>189</a>        args: (record: <span class="kw">impl </span>Display),
+<a href=#189 id=189 data-nosnippet>189</a>        args: (variable_name: <span class="kw">impl </span>Display),
 <a href=#190 id=190 data-nosnippet>190</a>        msg: <span class="macro">format!</span>(
-<a href=#191 id=191 data-nosnippet>191</a>            <span class="string">"Record {record} defined with more than one variable with the same name."
+<a href=#191 id=191 data-nosnippet>191</a>            <span class="string">"Record variable `{variable_name}` is already declared."
 <a href=#192 id=192 data-nosnippet>192</a>        </span>),
 <a href=#193 id=193 data-nosnippet>193</a>        help: <span class="prelude-val">None</span>,
 <a href=#194 id=194 data-nosnippet>194</a>    }

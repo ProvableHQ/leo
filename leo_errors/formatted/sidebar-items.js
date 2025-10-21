@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Formatted"]};
+window.SIDEBAR_ITEMS = {"enum":["Color"],"struct":["Formatted","Label"]};

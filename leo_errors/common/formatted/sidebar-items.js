@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Formatted"]};
+window.SIDEBAR_ITEMS = {"enum":["Color"],"fn":["compute_line_spans","print_code_line","print_gap","print_multiline_underline"],"struct":["Formatted","Label"]};
