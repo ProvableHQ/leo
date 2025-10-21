@@ -112,7 +112,8 @@ fn run_test(test: &Test, force_rewrite: bool) -> bool {
     let stdout_utf8 = std::str::from_utf8(&output.stdout).expect("stdout should be utf8");
     fs::write(&stdout_path, filter_stdout(stdout_utf8).as_bytes()).expect("Failed to write STDOUT");
     let stderr_path = test_context_directory.path().join("STDERR");
-    fs::write(&stderr_path, &output.stderr).expect("Failed to write STDERR");
+    let stderr_utf8 = std::str::from_utf8(&output.stderr).expect("stderr should be utf8");
+    fs::write(&stderr_path, filter_stderr(stderr_utf8).as_bytes()).expect("Failed to write STDERR");
 
     if force_rewrite {
         copy_recursively(test_context_directory.path(), &test.expectation_directory)
@@ -149,6 +150,22 @@ fn filter_stdout(data: &str) -> String {
         if let Cow::Owned(s) = regex.replace_all(&cow, replacement) {
             cow = Cow::Owned(s);
         }
+    }
+
+    cow.into_owned()
+}
+
+/// Replace strings in the stderr of a Leo execution that we don't need to match exactly.
+fn filter_stderr(data: &str) -> String {
+    use regex::Regex;
+    use std::borrow::Cow;
+
+    // Match `-->` followed by any path, capture only the filename with line/col
+    let path_regex = Regex::new(r"-->\s+.*?/([^/]+\.leo:\d+:\d+)").unwrap();
+
+    let mut cow = Cow::Borrowed(data);
+    if let Cow::Owned(s) = path_regex.replace_all(&cow, "--> SOURCE_DIRECTORY/$1") {
+        cow = Cow::Owned(s);
     }
 
     cow.into_owned()
