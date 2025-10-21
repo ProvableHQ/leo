@@ -65,6 +65,7 @@ impl StorageLoweringVisitor<'_> {
         AssociatedFunctionExpression {
             variant: Identifier::new(sym::Mapping, self.state.node_builder.next_id()),
             name: Identifier::new(Symbol::intern("get_or_use"), self.state.node_builder.next_id()),
+            type_parameters: vec![],
             arguments: vec![len_path_expr, self.literal_false(), self.literal_zero_u32()],
             span,
             id: self.state.node_builder.next_id(),
@@ -83,6 +84,7 @@ impl StorageLoweringVisitor<'_> {
         AssociatedFunctionExpression {
             variant: Identifier::new(sym::Mapping, self.state.node_builder.next_id()),
             name: Identifier::new(Symbol::intern("set"), self.state.node_builder.next_id()),
+            type_parameters: vec![],
             arguments: vec![path_expr, key_expr, value_expr],
             span,
             id: self.state.node_builder.next_id(),
@@ -95,6 +97,7 @@ impl StorageLoweringVisitor<'_> {
         AssociatedFunctionExpression {
             variant: Identifier::new(sym::Mapping, self.state.node_builder.next_id()),
             name: Identifier::new(Symbol::intern("get"), self.state.node_builder.next_id()),
+            type_parameters: vec![],
             arguments: vec![path_expr, key_expr],
             span,
             id: self.state.node_builder.next_id(),
@@ -113,6 +116,7 @@ impl StorageLoweringVisitor<'_> {
         AssociatedFunctionExpression {
             variant: Identifier::new(sym::Mapping, self.state.node_builder.next_id()),
             name: Identifier::new(Symbol::intern("get_or_use"), self.state.node_builder.next_id()),
+            type_parameters: vec![],
             arguments: vec![path_expr, key_expr, default_expr],
             span,
             id: self.state.node_builder.next_id(),

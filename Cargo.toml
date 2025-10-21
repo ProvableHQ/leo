@@ -173,8 +173,10 @@ version = "3.1.1"
 version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
-version = "4.2.0"
-features = ["cli", "test_consensus_heights"]
+#version = "4.2.0"
+git = "http://github.com/ProvableHQ/snarkVM.git"
+rev = "eb44d39" # testnet-v4.3.0
+features = ["test_consensus_heights"]
 
 [workspace.dependencies.tempfile]
 version = "3.13"

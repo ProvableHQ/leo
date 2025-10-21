@@ -4,7 +4,7 @@ DEPLOYMENT 1
        Leo     The program checksum is: '[192u8, 225u8, 38u8, 151u8, 139u8, 155u8, 148u8, 209u8, 105u8, 110u8, 246u8, 83u8, 90u8, 243u8, 78u8, 35u8, 155u8, 186u8, 242u8, 17u8, 196u8, 169u8, 179u8, 144u8, 71u8, 227u8, 34u8, 207u8, 121u8, 158u8, 34u8, 25u8]'.
        Leo ✅ Compiled 'test_program1.aleo' into Aleo instructions.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -16,7 +16,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  10
+  Consensus Version:  11
 
 📦 Deployment Tasks:
   • test_program1.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -73,7 +73,7 @@ DEPLOYMENT 2
        Leo     The program checksum is: '[206u8, 255u8, 111u8, 48u8, 59u8, 85u8, 122u8, 166u8, 182u8, 205u8, 10u8, 141u8, 58u8, 23u8, 70u8, 232u8, 105u8, 221u8, 83u8, 216u8, 186u8, 14u8, 207u8, 24u8, 13u8, 221u8, 236u8, 0u8, 143u8, 199u8, 151u8, 2u8]'.
        Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -85,7 +85,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  10
+  Consensus Version:  11
 
 📦 Deployment Tasks:
   • test_program2.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -146,7 +146,7 @@ EXECUTION
        Leo     The program checksum is: '[206u8, 255u8, 111u8, 48u8, 59u8, 85u8, 122u8, 166u8, 182u8, 205u8, 10u8, 141u8, 58u8, 23u8, 70u8, 232u8, 105u8, 221u8, 83u8, 216u8, 186u8, 14u8, 207u8, 24u8, 13u8, 221u8, 236u8, 0u8, 143u8, 199u8, 151u8, 2u8]'.
        Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -158,7 +158,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  10
+  Consensus Version:  11
 
 🎯 Execution Target:
   Program:        test_program2.aleo

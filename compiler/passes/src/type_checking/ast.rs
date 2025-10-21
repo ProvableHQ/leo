@@ -602,7 +602,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         expected: &Self::AdditionalInput,
     ) -> Self::Output {
         // Check core struct name and function.
-        let Some(core_instruction) = self.get_core_function_call(&input.variant, &input.name) else {
+        let Some(core_instruction) = self.get_core_function_call(input) else {
             self.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
             return Type::Err;
         };

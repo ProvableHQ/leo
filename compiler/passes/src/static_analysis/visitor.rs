@@ -115,13 +115,8 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         input: &AssociatedFunctionExpression,
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        // Get the core function.
-        let Some(core_function) = CoreFunction::from_symbols(input.variant.name, input.name.name) else {
-            panic!("Typechecking guarantees that this function exists.");
-        };
-
-        // Check that the future was awaited correctly.
-        if core_function == CoreFunction::FutureAwait {
+        // Check `Future::await` core functions.
+        if let Ok(CoreFunction::FutureAwait) = CoreFunction::try_from(input) {
             self.assert_future_await(&input.arguments.first(), input.span());
         }
     }

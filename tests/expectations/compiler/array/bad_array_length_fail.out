@@ -18,23 +18,23 @@ Error [ETYC0372144]: An array length must be small enough to fit in a `u32`
      |
    4 |         let b: [u32; 111111111111111] = [1u32]; // overflow
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 100 elements
+Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
     --> compiler-test:6:9
      |
-   6 |         let d: [u32; 100u128] = [1u32]; // passes limits
+   6 |         let d: [u32; 513u128] = [1u32]; // passes limits
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `[u32; 100]` but type `[u32; 1]` was found.
+Error [ETYC0372117]: Expected type `[u32; 513]` but type `[u32; 1]` was found.
     --> compiler-test:6:33
      |
-   6 |         let d: [u32; 100u128] = [1u32]; // passes limits
+   6 |         let d: [u32; 513u128] = [1u32]; // passes limits
      |                                 ^^^^^^
-Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 100 elements
+Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
     --> compiler-test:7:9
      |
-   7 |         let e: [u32; 100] = [1u32]; // passes limits
+   7 |         let e: [u32; 513] = [1u32]; // passes limits
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `[u32; 100]` but type `[u32; 1]` was found.
+Error [ETYC0372117]: Expected type `[u32; 513]` but type `[u32; 1]` was found.
     --> compiler-test:7:29
      |
-   7 |         let e: [u32; 100] = [1u32]; // passes limits
+   7 |         let e: [u32; 513] = [1u32]; // passes limits
      |                             ^^^^^^

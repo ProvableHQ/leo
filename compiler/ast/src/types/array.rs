@@ -35,6 +35,18 @@ impl ArrayType {
         Self { element_type: Box::new(element), length: Box::new(length) }
     }
 
+    /// Creates a new bit array type.
+    pub fn bit_array(length: u32) -> Self {
+        Self {
+            element_type: Box::new(Type::Boolean),
+            length: Box::new(Expression::Literal(Literal {
+                variant: LiteralVariant::Integer(IntegerType::U32, length.to_string()),
+                id: Default::default(),
+                span: Span::default(),
+            })),
+        }
+    }
+
     /// Returns the element type of the array.
     pub fn element_type(&self) -> &Type {
         &self.element_type
@@ -57,6 +69,20 @@ impl ArrayType {
                 span: Span::default(),
             })),
         }
+    }
+
+    pub fn to_snarkvm<N: Network>(&self) -> anyhow::Result<ConsoleArrayType<N>> {
+        let length = if let Expression::Literal(literal) = &*self.length {
+            match &literal.variant {
+                LiteralVariant::Integer(_, s) => s.parse::<u32>().unwrap(),
+                LiteralVariant::Unsuffixed(s) => s.parse::<u32>().unwrap(),
+                _ => anyhow::bail!("Array length must be an integer literal"),
+            }
+        } else {
+            anyhow::bail!("Array length must be an integer literal")
+        };
+
+        ConsoleArrayType::new(self.element_type.to_snarkvm()?, vec![snarkvm::console::types::U32::new(length)])
     }
 }
 

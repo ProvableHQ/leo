@@ -44,6 +44,7 @@ pub(crate) use snarkvm::prelude::{
     Identifier as SvmIdentifierParam,
     Literal as SvmLiteralParam,
     Plaintext,
+    Signature as SvmSignature,
     TestnetV0,
     Value as SvmValueParam,
 };
@@ -66,6 +67,7 @@ pub(crate) type Scalar = SvmScalar<CurrentNetwork>;
 pub(crate) type Address = SvmAddress<CurrentNetwork>;
 pub(crate) type Boolean = SvmBoolean<CurrentNetwork>;
 pub(crate) type Future = FutureParam<CurrentNetwork>;
+pub(crate) type Signature = SvmSignature<CurrentNetwork>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StructContents {
@@ -294,6 +296,20 @@ macro_rules! impl_from_literal {
 
 impl_from_literal! {
     Field; Group; Scalar; Address;
+}
+
+impl TryFrom<Value> for snarkvm::prelude::Signature<CurrentNetwork> {
+    type Error = ();
+
+    fn try_from(x: Value) -> Result<Self, Self::Error> {
+        if let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(SvmLiteralParam::Signature(val), ..))) =
+            x.contents
+        {
+            Ok(*val)
+        } else {
+            Err(())
+        }
+    }
 }
 
 impl From<Future> for Value {

@@ -983,7 +983,7 @@ impl Cursor {
                 }
             }
             Expression::AssociatedFunction(function) if step == 0 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
 
@@ -1005,7 +1005,7 @@ impl Cursor {
                 None
             }
             Expression::AssociatedFunction(function) if step == 1 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
 
@@ -1050,7 +1050,7 @@ impl Cursor {
                 }
             }
             Expression::AssociatedFunction(function) if step == 2 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
                 assert!(core_function == CoreFunction::FutureAwait);

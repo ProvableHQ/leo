@@ -1,10 +1,10 @@
-Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 33 elements
+Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
     --> compiler-test:3:20
      |
-   3 |     transition foo(a: [bool; 33]) -> bool {
-     |                    ^^^^^^^^^^^^^
-Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 33 elements
+   3 |     transition foo(a: [bool; 513]) -> bool {
+     |                    ^^^^^^^^^^^^^^
+Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
     --> compiler-test:4:19
      |
-   4 |         let bar = [false; 33];
-     |                   ^^^^^^^^^^^
+   4 |         let bar = [false; 513];
+     |                   ^^^^^^^^^^^^

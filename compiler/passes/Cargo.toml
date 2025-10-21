@@ -20,6 +20,9 @@ edition = "2024"
 [lib]
 path = "src/lib.rs"
 
+[dependencies.anyhow]
+workspace = true
+
 [dependencies.base62]
 workspace = true
 

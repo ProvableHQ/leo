@@ -98,26 +98,26 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1fnnz6d70c2ypp583nhctyts96jzn6exdvsxeau35t7u8gxpjqvzsufhfe7",
+      "id": "au1x7jup66txcdf66uhtz9ztd2f5hfyytzx5hn6rchex0k23jnvsv9sufv0tw",
       "program": "bubble_sort.aleo",
       "function": "sort",
       "inputs": [
         {
           "type": "private",
-          "id": "932979235630496126898538224871590867203406560542283808228979125483938122827field",
-          "value": "ciphertext1qvqy36w5cwc0h2ht966vj92gjck7fld4ftekdp0qa5hj6ulz3s2ycquaw3n9qku6mn6x3yeffcz9hcxclamshqlcjfcqdkscqy3lyemhpesznkzwjpj5pjasfem83me5fat5upkgpr2zylh94l9dzu7pk20qcvtlww9"
+          "id": "4890242155236904298630998384389275635343421861137506424766118570689268282187field",
+          "value": "ciphertext1qvqzw3ye0xds6642nws7ynw85lw5xvekgrvky2mkh0jg8veqv2apkrly7hhpuszrn0ukldld67f3zlayx75wnxp03ajmtzcknxgmu8q0pzqwcv63vfr470dmfkjd8amaa6jawphyxulk79kgzry97aan3q9qsfcp4nn"
         }
       ],
       "outputs": [
         {
           "type": "public",
-          "id": "7247225791634994422658311574126662936671565705728328073788777539391384422519field",
+          "id": "1919393362878402635169849444796982226489694526057884984849089444334702848739field",
           "value": "[\n  0u32,\n  0u32,\n  2u32,\n  5u32,\n  10u32,\n  100u32,\n  200u32,\n  300u32\n]"
         }
       ],
-      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
-      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
-      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+      "tpk": "8127437964174420753776014445241514262944089371814894523276400046876569529123group",
+      "tcm": "6937436789184964112497960141706902359272983420587345267067261189483875442560field",
+      "scm": "7589774827963503497792246887384001964125015972546989106273956620737268256834field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -130,26 +130,26 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au1kwucenpua6tn5uxsp60548x6fl4cg5yhtthq5exzr2yl8mztp5ysm99qn0",
+      "id": "au1m858axy8t8sljzjc4svey8lz2kzxk8mrfdreyxnh9csqrx3yncpqgp03dy",
       "program": "bubble_sort.aleo",
       "function": "sort",
       "inputs": [
         {
           "type": "private",
-          "id": "7480516965272357825393166723753450425972472025105749456862709731301600778246field",
-          "value": "ciphertext1qvqympxxpgc9pcuf5qkd0v5724hgnxcuhwwfqh0s6vhp8a7k57yzjzedggxjf576eaehdahhlz930m2kucx3zpl3q6gy52l3uxklry5np8zq0v5l6205ursdtw7zfpkl8jv8494jzd5vf0z08gvyqd6d6pyq7jvhhj2"
+          "id": "7306579946905284447779362871097885173091415196723952109405898265277093660207field",
+          "value": "ciphertext1qvqq5q3eee20xd5cv3n3k898cv4xl2zpng3tm5mzlkt2tjfmxddr7q4m4zm08akm5za4qdhdjkuhj0sjs55cdafrycxqeurgp8j7ma6vp2hzdjwl2qh8e526gxw63jg47nlt2kk9yhwwzx0rapf7x75uuag3zlwg9ck"
         }
       ],
       "outputs": [
         {
           "type": "public",
-          "id": "4270215169802068257961365731743112288319446106694700230793049790578035968004field",
+          "id": "2040453733231161485573507211070861734372056449567086971396869142178630563866field",
           "value": "[\n  1u32,\n  2u32,\n  3u32,\n  4u32,\n  5u32,\n  6u32,\n  7u32,\n  8u32\n]"
         }
       ],
-      "tpk": "209923920366316979358835823024524595725466082699377569762700210131035917463group",
-      "tcm": "4972663126249935768762313800081143256565302075358692358234187986117099072922field",
-      "scm": "4173904850343490045907797727384617256297345307958493992977439426479269378380field"
+      "tpk": "237858531195832627963440614234249102922725442689794146167575962672385937514group",
+      "tcm": "8326177960008538548068313452897129549251018682625001734289989869191230383109field",
+      "scm": "2512731469001254441692410784867685936513175377481934847735529196958870097070field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -162,26 +162,26 @@ warnings:
 {
   "transitions": [
     {
-      "id": "au19t6ckaxh7cetsdlwvcdq33964h8prk58tn9sqgfv56ly6lnrsurq8q379g",
+      "id": "au1ewucht32qjs7fq7ydegmvqguj42tf8smtf5h96mjpq92lrfk8vfqc2z9jr",
       "program": "bubble_sort.aleo",
       "function": "sort",
       "inputs": [
         {
           "type": "private",
-          "id": "3907507156967843919041089740703628040976000564600582836631799152770341737882field",
-          "value": "ciphertext1qvqyzx3zcyrx3rp0gzvy5zmqj2rly7nwuy26k3mp2cl5n9mlwe0nkysk4557ncvsqwrn3v6xzjq0wmta5u22xw4wzf8g6c8atars80kzqt99ajj98nu6m04unnmggn8juylhhwuw5gd49zquulma9eep2qqsqna48u6"
+          "id": "295902178525215647670399810615894610378631998278974531638133195171388306062field",
+          "value": "ciphertext1qvqgdmc5yw00tu2p4qka536yfmrzv0wlftlfprv32kfwzkyuutec7p08u3zkd2lsttttgcv5zcwu6q5e5sd8kkmssv0zjvxycmqj0zckpj885ue2yxtgf30quvq59dte07v0zmvryrjktxhud4smv8mvq2jqkytsxqy"
         }
       ],
       "outputs": [
         {
           "type": "public",
-          "id": "3960010261664051608152242360933664851484489725751572084480604560911905843049field",
+          "id": "6666556358802593147074215186894171573766588857652792311186116608931608963837field",
           "value": "[\n  1u32,\n  2u32,\n  3u32,\n  4u32,\n  5u32,\n  6u32,\n  7u32,\n  8u32\n]"
         }
       ],
-      "tpk": "7405387285384878685758513211926272429797949802446444955563219562394388686782group",
-      "tcm": "5776434732135628598310261387121645085554142890376957752679325924436566567139field",
-      "scm": "2602986417051967563062912954328222254382242840477749724884958597178018196549field"
+      "tpk": "4351681232534412571624912666841049954730139990234375444616354897840351541803group",
+      "tcm": "4409176717500749598924150518092574857373721052388750091005632003040917140418field",
+      "scm": "3983057154931725414684517169487633612345135203618640181706733517848173860032field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

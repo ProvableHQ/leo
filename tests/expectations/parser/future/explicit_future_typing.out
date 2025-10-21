@@ -627,6 +627,7 @@
                           },
                           "id": 39
                         },
+                        "type_parameters": [],
                         "arguments": [
                           {
                             "Path": {
@@ -683,6 +684,7 @@
                           },
                           "id": 46
                         },
+                        "type_parameters": [],
                         "arguments": [
                           {
                             "Path": {

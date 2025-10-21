@@ -693,6 +693,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let contains_expr: Expression = AssociatedFunctionExpression {
                     variant: Identifier::new(sym::Mapping, id()),
                     name: Identifier::new(Symbol::intern("contains"), id()),
+                    type_parameters: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal.clone()],
                     span: Span::default(),
                     id: id(),
@@ -706,6 +707,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let get_or_use_expr: Expression = AssociatedFunctionExpression {
                     variant: Identifier::new(sym::Mapping, id()),
                     name: Identifier::new(Symbol::intern("get_or_use"), id()),
+                    type_parameters: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal, zero],
                     span: Span::default(),
                     id: id(),
@@ -849,6 +851,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     let remove_expr: Expression = AssociatedFunctionExpression {
                         variant: Identifier::new(sym::Mapping, id()),
                         name: Identifier::new(Symbol::intern("remove"), id()),
+                        type_parameters: vec![],
                         arguments: vec![mapping_expr, false_literal],
                         span,
                         id: id(),
@@ -868,6 +871,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     let set_expr: Expression = AssociatedFunctionExpression {
                         variant: Identifier::new(sym::Mapping, id()),
                         name: Identifier::new(Symbol::intern("set"), id()),
+                        type_parameters: vec![],
                         arguments: vec![mapping_expr, false_literal, new_value],
                         span,
                         id: id(),
