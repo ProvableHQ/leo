@@ -214,20 +214,19 @@ fn print_code_line(
         )?;
     }
     // Multi-line highlight: only print underline on last line
-    else if multiline {
-        if let (Some(first), Some(last)) = (first_line, last_line) {
-            if line_num - first_line.unwrap() == last - first {
-                let underline_len = (end - start).max(1);
-                writeln!(
-                    f,
-                    "{INDENT} | {:start$}{} {}",
-                    label.color.color_and_bold("|", use_colors), // vertical pointer
-                    label.color.color_and_bold(&"_".repeat(underline_len), use_colors), // underline
-                    label.color.color_and_bold(&label.msg, use_colors), // message
-                    start = start
-                )?;
-            }
-        }
+    else if multiline
+        && let (Some(first), Some(last)) = (first_line, last_line)
+        && line_num - first_line.unwrap() == last - first
+    {
+        let underline_len = (end - start).max(1);
+        writeln!(
+            f,
+            "{INDENT} | {:start$}{} {}",
+            label.color.color_and_bold("|", use_colors), // vertical pointer
+            label.color.color_and_bold(&"_".repeat(underline_len), use_colors), // underline
+            label.color.color_and_bold(&label.msg, use_colors), // message
+            start = start
+        )?;
     }
 
     Ok(())
@@ -376,16 +375,14 @@ impl fmt::Display for Formatted {
                     }
 
                     // If this was a multi-line highlight, print the final underline + message
-                    if multiline {
-                        if let (Some(_), Some(last)) = (first_line, last_line) {
-                            // Start column: first highlighted character on the last line
-                            let start_col = line_spans[last].0;
+                    if multiline && let (Some(_), Some(last)) = (first_line, last_line) {
+                        // Start column: first highlighted character on the last line
+                        let start_col = line_spans[last].0;
 
-                            // End column: last highlighted character on the last line
-                            let end_col = line_spans[last].1;
+                        // End column: last highlighted character on the last line
+                        let end_col = line_spans[last].1;
 
-                            print_multiline_underline(f, start_col, end_col, &label)?;
-                        }
+                        print_multiline_underline(f, start_col, end_col, &label)?;
                     }
 
                     // Update the previous last line to track gaps for the next label
