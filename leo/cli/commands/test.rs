@@ -38,6 +38,8 @@ pub struct LeoTest {
 
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for LeoTest {
