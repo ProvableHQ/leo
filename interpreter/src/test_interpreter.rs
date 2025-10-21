@@ -106,7 +106,7 @@ fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<Test
     // Note. We wrap the cases in a slice to run them on a single ledger instance.
     // This is just to be consistent with previous semantics.
     let outcomes = handler
-        .extend_if_error(run_with_ledger::run_with_ledger(&ledger_config, &[cases.clone()]))?
+        .extend_if_error(run_with_ledger::run_with_ledger(&ledger_config, std::slice::from_ref(&cases)))?
         .into_iter()
         .flatten()
         .collect::<Vec<_>>();
