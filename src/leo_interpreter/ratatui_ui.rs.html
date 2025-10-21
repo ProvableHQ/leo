@@ -90,7 +90,7 @@
 <a href=#90 id=90 data-nosnippet>90</a>    last_chunk
 <a href=#91 id=91 data-nosnippet>91</a>}
 <a href=#92 id=92 data-nosnippet>92</a>
-<a href=#93 id=93 data-nosnippet>93</a><span class="kw">fn </span>code_text(s: <span class="kw-2">&amp;</span>str, highlight: <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt;) -&gt; (Text, usize) {
+<a href=#93 id=93 data-nosnippet>93</a><span class="kw">fn </span>code_text(s: <span class="kw-2">&amp;</span>str, highlight: <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt;) -&gt; (Text&lt;<span class="lifetime">'_</span>&gt;, usize) {
 <a href=#94 id=94 data-nosnippet>94</a>    <span class="kw">let </span><span class="prelude-val">Some</span>((lo, hi)) = highlight <span class="kw">else </span>{
 <a href=#95 id=95 data-nosnippet>95</a>        <span class="kw">return </span>(Text::from(s), <span class="number">0</span>);
 <a href=#96 id=96 data-nosnippet>96</a>    };

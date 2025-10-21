@@ -1314,10 +1314,10 @@
 <a href=#1314 id=1314 data-nosnippet>1314</a>                    value.clone()
 <a href=#1315 id=1315 data-nosnippet>1315</a>                };
 <a href=#1316 id=1316 data-nosnippet>1316</a>
-<a href=#1317 id=1317 data-nosnippet>1317</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future()) {
-<a href=#1318 id=1318 data-nosnippet>1318</a>                    <span class="kw">if </span>user_initiated {
-<a href=#1319 id=1319 data-nosnippet>1319</a>                        <span class="self">self</span>.futures.extend(asyncs.iter().cloned());
-<a href=#1320 id=1320 data-nosnippet>1320</a>                    }
+<a href=#1317 id=1317 data-nosnippet>1317</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future())
+<a href=#1318 id=1318 data-nosnippet>1318</a>                    &amp;&amp; user_initiated
+<a href=#1319 id=1319 data-nosnippet>1319</a>                {
+<a href=#1320 id=1320 data-nosnippet>1320</a>                    <span class="self">self</span>.futures.extend(asyncs.iter().cloned());
 <a href=#1321 id=1321 data-nosnippet>1321</a>                }
 <a href=#1322 id=1322 data-nosnippet>1322</a>
 <a href=#1323 id=1323 data-nosnippet>1323</a>                <span class="prelude-val">Ok</span>(StepResult { finished, value })

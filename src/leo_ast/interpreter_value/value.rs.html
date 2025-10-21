@@ -950,17 +950,17 @@
 <a href=#950 id=950 data-nosnippet>950</a>        }
 <a href=#951 id=951 data-nosnippet>951</a>
 <a href=#952 id=952 data-nosnippet>952</a>        <span class="comment">// Or it's a tuple.
-<a href=#953 id=953 data-nosnippet>953</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = s.strip_prefix(<span class="string">"("</span>) {
-<a href=#954 id=954 data-nosnippet>954</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(s) = s.strip_suffix(<span class="string">")"</span>) {
-<a href=#955 id=955 data-nosnippet>955</a>                <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
-<a href=#956 id=956 data-nosnippet>956</a>                <span class="kw">for </span>item <span class="kw">in </span>s.split(<span class="string">','</span>) {
-<a href=#957 id=957 data-nosnippet>957</a>                    <span class="kw">let </span>item = item.trim();
-<a href=#958 id=958 data-nosnippet>958</a>                    <span class="kw">let </span>value: Value = item.parse().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
-<a href=#959 id=959 data-nosnippet>959</a>                    results.push(value);
-<a href=#960 id=960 data-nosnippet>960</a>                }
-<a href=#961 id=961 data-nosnippet>961</a>
-<a href=#962 id=962 data-nosnippet>962</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(Value::make_tuple(results));
-<a href=#963 id=963 data-nosnippet>963</a>            }
+<a href=#953 id=953 data-nosnippet>953</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = s.strip_prefix(<span class="string">"("</span>)
+<a href=#954 id=954 data-nosnippet>954</a>            &amp;&amp; <span class="kw">let </span><span class="prelude-val">Some</span>(s) = s.strip_suffix(<span class="string">")"</span>)
+<a href=#955 id=955 data-nosnippet>955</a>        {
+<a href=#956 id=956 data-nosnippet>956</a>            <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+<a href=#957 id=957 data-nosnippet>957</a>            <span class="kw">for </span>item <span class="kw">in </span>s.split(<span class="string">','</span>) {
+<a href=#958 id=958 data-nosnippet>958</a>                <span class="kw">let </span>item = item.trim();
+<a href=#959 id=959 data-nosnippet>959</a>                <span class="kw">let </span>value: Value = item.parse().map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
+<a href=#960 id=960 data-nosnippet>960</a>                results.push(value);
+<a href=#961 id=961 data-nosnippet>961</a>            }
+<a href=#962 id=962 data-nosnippet>962</a>
+<a href=#963 id=963 data-nosnippet>963</a>            <span class="kw">return </span><span class="prelude-val">Ok</span>(Value::make_tuple(results));
 <a href=#964 id=964 data-nosnippet>964</a>        }
 <a href=#965 id=965 data-nosnippet>965</a>
 <a href=#966 id=966 data-nosnippet>966</a>        <span class="comment">// Or it's an unsuffixed numeric literal.

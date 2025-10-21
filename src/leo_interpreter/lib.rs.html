@@ -122,11 +122,11 @@
 <a href=#122 id=122 data-nosnippet>122</a>
 <a href=#123 id=123 data-nosnippet>123</a><span class="kw">fn </span>parse_breakpoint(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Breakpoint&gt; {
 <a href=#124 id=124 data-nosnippet>124</a>    <span class="kw">let </span>strings: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = s.split_whitespace().collect();
-<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">if </span>strings.len() == <span class="number">2 </span>{
-<a href=#126 id=126 data-nosnippet>126</a>        <span class="kw">if let </span><span class="prelude-val">Ok</span>(line) = strings[<span class="number">1</span>].parse::&lt;usize&gt;() {
-<a href=#127 id=127 data-nosnippet>127</a>            <span class="kw">let </span>program = strings[<span class="number">0</span>].strip_suffix(<span class="string">".aleo"</span>).unwrap_or(strings[<span class="number">0</span>]).to_string();
-<a href=#128 id=128 data-nosnippet>128</a>            <span class="kw">return </span><span class="prelude-val">Some</span>(Breakpoint { program, line });
-<a href=#129 id=129 data-nosnippet>129</a>        }
+<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">if </span>strings.len() == <span class="number">2
+<a href=#126 id=126 data-nosnippet>126</a>        </span>&amp;&amp; <span class="kw">let </span><span class="prelude-val">Ok</span>(line) = strings[<span class="number">1</span>].parse::&lt;usize&gt;()
+<a href=#127 id=127 data-nosnippet>127</a>    {
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="kw">let </span>program = strings[<span class="number">0</span>].strip_suffix(<span class="string">".aleo"</span>).unwrap_or(strings[<span class="number">0</span>]).to_string();
+<a href=#129 id=129 data-nosnippet>129</a>        <span class="kw">return </span><span class="prelude-val">Some</span>(Breakpoint { program, line });
 <a href=#130 id=130 data-nosnippet>130</a>    }
 <a href=#131 id=131 data-nosnippet>131</a>    <span class="prelude-val">None
 <a href=#132 id=132 data-nosnippet>132</a></span>}

@@ -246,10 +246,10 @@
 <a href=#246 id=246 data-nosnippet>246</a>
 <a href=#247 id=247 data-nosnippet>247</a>    <span class="comment">// Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
 <a href=#248 id=248 data-nosnippet>248</a>    // If it returns a result and does not match the given version, print a warning.
-<a href=#249 id=249 data-nosnippet>249</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(consensus_version) = result {
-<a href=#250 id=250 data-nosnippet>250</a>        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-<a href=#251 id=251 data-nosnippet>251</a>            <span class="macro">println!</span>(<span class="string">"⚠️ Warning: {e}"</span>);
-<a href=#252 id=252 data-nosnippet>252</a>        }
+<a href=#249 id=249 data-nosnippet>249</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(consensus_version) = result
+<a href=#250 id=250 data-nosnippet>250</a>        &amp;&amp; <span class="kw">let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network)
+<a href=#251 id=251 data-nosnippet>251</a>    {
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="macro">println!</span>(<span class="string">"⚠️ Warning: {e}"</span>);
 <a href=#253 id=253 data-nosnippet>253</a>    }
 <a href=#254 id=254 data-nosnippet>254</a>
 <a href=#255 id=255 data-nosnippet>255</a>    result
@@ -262,12 +262,12 @@
 <a href=#262 id=262 data-nosnippet>262</a>    network: NetworkName,
 <a href=#263 id=263 data-nosnippet>263</a>) -&gt; anyhow::Result&lt;()&gt; {
 <a href=#264 id=264 data-nosnippet>264</a>    <span class="comment">// Check the `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
-<a href=#265 id=265 data-nosnippet>265</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(response) = fetch_from_network(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/consensus_version"</span>)) {
-<a href=#266 id=266 data-nosnippet>266</a>        <span class="kw">if let </span><span class="prelude-val">Ok</span>(response) = response.parse::&lt;u8&gt;() {
-<a href=#267 id=267 data-nosnippet>267</a>            <span class="kw">let </span>consensus_version = consensus_version <span class="kw">as </span>u8;
-<a href=#268 id=268 data-nosnippet>268</a>            <span class="kw">if </span>response != consensus_version {
-<a href=#269 id=269 data-nosnippet>269</a>                <span class="macro">bail!</span>(<span class="string">"Expected consensus version {consensus_version} but found {response} at {endpoint}"</span>,);
-<a href=#270 id=270 data-nosnippet>270</a>            }
+<a href=#265 id=265 data-nosnippet>265</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(response) = fetch_from_network(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/consensus_version"</span>))
+<a href=#266 id=266 data-nosnippet>266</a>        &amp;&amp; <span class="kw">let </span><span class="prelude-val">Ok</span>(response) = response.parse::&lt;u8&gt;()
+<a href=#267 id=267 data-nosnippet>267</a>    {
+<a href=#268 id=268 data-nosnippet>268</a>        <span class="kw">let </span>consensus_version = consensus_version <span class="kw">as </span>u8;
+<a href=#269 id=269 data-nosnippet>269</a>        <span class="kw">if </span>response != consensus_version {
+<a href=#270 id=270 data-nosnippet>270</a>            <span class="macro">bail!</span>(<span class="string">"Expected consensus version {consensus_version} but found {response} at {endpoint}"</span>,);
 <a href=#271 id=271 data-nosnippet>271</a>        }
 <a href=#272 id=272 data-nosnippet>272</a>    }
 <a href=#273 id=273 data-nosnippet>273</a>    <span class="prelude-val">Ok</span>(())

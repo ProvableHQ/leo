@@ -89,10 +89,10 @@
 <a href=#89 id=89 data-nosnippet>89</a>        <span class="comment">// Helper to clone and resolve Unsuffixed -&gt; Integer literal based on type table
 <a href=#90 id=90 data-nosnippet>90</a>        </span><span class="kw">let </span>resolve_unsuffixed = |lit: <span class="kw-2">&amp;</span>leo_ast::Literal, expr_id| {
 <a href=#91 id=91 data-nosnippet>91</a>            <span class="kw">let </span><span class="kw-2">mut </span>resolved = lit.clone();
-<a href=#92 id=92 data-nosnippet>92</a>            <span class="kw">if let </span>LiteralVariant::Unsuffixed(s) = <span class="kw-2">&amp;</span>resolved.variant {
-<a href=#93 id=93 data-nosnippet>93</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(Type::Integer(integer_type)) = <span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>expr_id) {
-<a href=#94 id=94 data-nosnippet>94</a>                    resolved.variant = LiteralVariant::Integer(integer_type, s.clone());
-<a href=#95 id=95 data-nosnippet>95</a>                }
+<a href=#92 id=92 data-nosnippet>92</a>            <span class="kw">if let </span>LiteralVariant::Unsuffixed(s) = <span class="kw-2">&amp;</span>resolved.variant
+<a href=#93 id=93 data-nosnippet>93</a>                &amp;&amp; <span class="kw">let </span><span class="prelude-val">Some</span>(Type::Integer(integer_type)) = <span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>expr_id)
+<a href=#94 id=94 data-nosnippet>94</a>            {
+<a href=#95 id=95 data-nosnippet>95</a>                resolved.variant = LiteralVariant::Integer(integer_type, s.clone());
 <a href=#96 id=96 data-nosnippet>96</a>            }
 <a href=#97 id=97 data-nosnippet>97</a>            resolved
 <a href=#98 id=98 data-nosnippet>98</a>        };

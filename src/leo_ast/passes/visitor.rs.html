@@ -337,20 +337,20 @@
 <a href=#337 id=337 data-nosnippet>337</a>    }
 <a href=#338 id=338 data-nosnippet>338</a>
 <a href=#339 id=339 data-nosnippet>339</a>    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>ProgramScope) {
-<a href=#340 id=340 data-nosnippet>340</a>        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
-<a href=#341 id=341 data-nosnippet>341</a>        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
-<a href=#342 id=342 data-nosnippet>342</a>        input.mappings.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_mapping(c)));
-<a href=#343 id=343 data-nosnippet>343</a>        input.storage_variables.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_storage_variable(c)));
-<a href=#344 id=344 data-nosnippet>344</a>        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function(c)));
+<a href=#340 id=340 data-nosnippet>340</a>        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_const(c));
+<a href=#341 id=341 data-nosnippet>341</a>        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_struct(c));
+<a href=#342 id=342 data-nosnippet>342</a>        input.mappings.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_mapping(c));
+<a href=#343 id=343 data-nosnippet>343</a>        input.storage_variables.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_storage_variable(c));
+<a href=#344 id=344 data-nosnippet>344</a>        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_function(c));
 <a href=#345 id=345 data-nosnippet>345</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = input.constructor.as_ref() {
 <a href=#346 id=346 data-nosnippet>346</a>            <span class="self">self</span>.visit_constructor(c);
 <a href=#347 id=347 data-nosnippet>347</a>        }
 <a href=#348 id=348 data-nosnippet>348</a>    }
 <a href=#349 id=349 data-nosnippet>349</a>
 <a href=#350 id=350 data-nosnippet>350</a>    <span class="kw">fn </span>visit_module(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>Module) {
-<a href=#351 id=351 data-nosnippet>351</a>        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
-<a href=#352 id=352 data-nosnippet>352</a>        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
-<a href=#353 id=353 data-nosnippet>353</a>        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function(c)));
+<a href=#351 id=351 data-nosnippet>351</a>        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_const(c));
+<a href=#352 id=352 data-nosnippet>352</a>        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_struct(c));
+<a href=#353 id=353 data-nosnippet>353</a>        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_function(c));
 <a href=#354 id=354 data-nosnippet>354</a>    }
 <a href=#355 id=355 data-nosnippet>355</a>
 <a href=#356 id=356 data-nosnippet>356</a>    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>Stub) {}

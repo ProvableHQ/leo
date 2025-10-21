@@ -130,11 +130,11 @@
 <a href=#130 id=130 data-nosnippet>130</a>
 <a href=#131 id=131 data-nosnippet>131</a>        </span><span class="kw">if </span><span class="self">self</span>.install {
 <a href=#132 id=132 data-nosnippet>132</a>            <span class="comment">// If installing, make sure we can write to a file at the path.
-<a href=#133 id=133 data-nosnippet>133</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.snarkos.parent() {
-<a href=#134 id=134 data-nosnippet>134</a>                <span class="kw">if </span>!parent.exists() {
-<a href=#135 id=135 data-nosnippet>135</a>                    std::fs::create_dir_all(parent)
-<a href=#136 id=136 data-nosnippet>136</a>                        .with_context(|| <span class="macro">format!</span>(<span class="string">"Failed to create directory for binary: {}"</span>, parent.display()))<span class="question-mark">?</span>;
-<a href=#137 id=137 data-nosnippet>137</a>                }
+<a href=#133 id=133 data-nosnippet>133</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.snarkos.parent()
+<a href=#134 id=134 data-nosnippet>134</a>                &amp;&amp; !parent.exists()
+<a href=#135 id=135 data-nosnippet>135</a>            {
+<a href=#136 id=136 data-nosnippet>136</a>                std::fs::create_dir_all(parent)
+<a href=#137 id=137 data-nosnippet>137</a>                    .with_context(|| <span class="macro">format!</span>(<span class="string">"Failed to create directory for binary: {}"</span>, parent.display()))<span class="question-mark">?</span>;
 <a href=#138 id=138 data-nosnippet>138</a>            }
 <a href=#139 id=139 data-nosnippet>139</a>            std::fs::write(<span class="kw-2">&amp;</span><span class="self">self</span>.snarkos, [<span class="number">0u8</span>]).with_context(|| {
 <a href=#140 id=140 data-nosnippet>140</a>                <span class="macro">format!</span>(<span class="string">"Failed to write to path {} for snarkos installation"</span>, <span class="self">self</span>.snarkos.display())

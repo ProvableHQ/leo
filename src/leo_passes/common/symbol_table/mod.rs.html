@@ -78,10 +78,10 @@
 <a href=#78 id=78 data-nosnippet>78</a><span class="kw">impl </span>LocalTable {
 <a href=#79 id=79 data-nosnippet>79</a>    <span class="kw">fn </span>new(symbol_table: <span class="kw-2">&amp;mut </span>SymbolTable, id: NodeID, parent: <span class="prelude-ty">Option</span>&lt;NodeID&gt;) -&gt; <span class="self">Self </span>{
 <a href=#80 id=80 data-nosnippet>80</a>        <span class="comment">// If parent exists, register this scope as its child
-<a href=#81 id=81 data-nosnippet>81</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(parent_id) = parent {
-<a href=#82 id=82 data-nosnippet>82</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(parent_table) = symbol_table.all_locals.get_mut(<span class="kw-2">&amp;</span>parent_id) {
-<a href=#83 id=83 data-nosnippet>83</a>                parent_table.inner.borrow_mut().children.push(id);
-<a href=#84 id=84 data-nosnippet>84</a>            }
+<a href=#81 id=81 data-nosnippet>81</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(parent_id) = parent
+<a href=#82 id=82 data-nosnippet>82</a>            &amp;&amp; <span class="kw">let </span><span class="prelude-val">Some</span>(parent_table) = symbol_table.all_locals.get_mut(<span class="kw-2">&amp;</span>parent_id)
+<a href=#83 id=83 data-nosnippet>83</a>        {
+<a href=#84 id=84 data-nosnippet>84</a>            parent_table.inner.borrow_mut().children.push(id);
 <a href=#85 id=85 data-nosnippet>85</a>        }
 <a href=#86 id=86 data-nosnippet>86</a>
 <a href=#87 id=87 data-nosnippet>87</a>        LocalTable {
@@ -368,10 +368,10 @@
 <a href=#368 id=368 data-nosnippet>368</a>        <span class="kw">let </span><span class="kw-2">mut </span>current = <span class="self">self</span>.local.as_ref();
 <a href=#369 id=369 data-nosnippet>369</a>
 <a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">while let </span><span class="prelude-val">Some</span>(table) = current {
-<a href=#371 id=371 data-nosnippet>371</a>            <span class="kw">if let </span>[name] = <span class="kw-2">&amp;</span>path {
-<a href=#372 id=372 data-nosnippet>372</a>                <span class="kw">if </span>table.inner.borrow().variables.contains_key(name) {
-<a href=#373 id=373 data-nosnippet>373</a>                    <span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_variable(name, span).into());
-<a href=#374 id=374 data-nosnippet>374</a>                }
+<a href=#371 id=371 data-nosnippet>371</a>            <span class="kw">if let </span>[name] = <span class="kw-2">&amp;</span>path
+<a href=#372 id=372 data-nosnippet>372</a>                &amp;&amp; table.inner.borrow().variables.contains_key(name)
+<a href=#373 id=373 data-nosnippet>373</a>            {
+<a href=#374 id=374 data-nosnippet>374</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_variable(name, span).into());
 <a href=#375 id=375 data-nosnippet>375</a>            }
 <a href=#376 id=376 data-nosnippet>376</a>            current = table.inner.borrow().parent.map(|id| <span class="self">self</span>.all_locals.get(<span class="kw-2">&amp;</span>id).expect(<span class="string">"Parent should exist."</span>));
 <a href=#377 id=377 data-nosnippet>377</a>        }

@@ -205,12 +205,12 @@
 <a href=#205 id=205 data-nosnippet>205</a>        path.components().map(|comp| Symbol::intern(<span class="kw-2">&amp;</span>comp.as_os_str().to_string_lossy())).collect();
 <a href=#206 id=206 data-nosnippet>206</a>
 <a href=#207 id=207 data-nosnippet>207</a>    <span class="comment">// Strip the file extension from the last component (e.g., "bar.leo" → "bar")
-<a href=#208 id=208 data-nosnippet>208</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last) = path.file_name() {
-<a href=#209 id=209 data-nosnippet>209</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(stem) = std::path::Path::new(last).file_stem() {
-<a href=#210 id=210 data-nosnippet>210</a>            key.pop(); <span class="comment">// Remove "bar.leo"
-<a href=#211 id=211 data-nosnippet>211</a>            </span>key.push(Symbol::intern(<span class="kw-2">&amp;</span>stem.to_string_lossy())); <span class="comment">// Add "bar"
-<a href=#212 id=212 data-nosnippet>212</a>        </span>}
-<a href=#213 id=213 data-nosnippet>213</a>    }
+<a href=#208 id=208 data-nosnippet>208</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last) = path.file_name()
+<a href=#209 id=209 data-nosnippet>209</a>        &amp;&amp; <span class="kw">let </span><span class="prelude-val">Some</span>(stem) = std::path::Path::new(last).file_stem()
+<a href=#210 id=210 data-nosnippet>210</a>    {
+<a href=#211 id=211 data-nosnippet>211</a>        key.pop(); <span class="comment">// Remove "bar.leo"
+<a href=#212 id=212 data-nosnippet>212</a>        </span>key.push(Symbol::intern(<span class="kw-2">&amp;</span>stem.to_string_lossy())); <span class="comment">// Add "bar"
+<a href=#213 id=213 data-nosnippet>213</a>    </span>}
 <a href=#214 id=214 data-nosnippet>214</a>
 <a href=#215 id=215 data-nosnippet>215</a>    <span class="prelude-val">Some</span>(key)
 <a href=#216 id=216 data-nosnippet>216</a>}</code></pre></div></section></main></body></html>

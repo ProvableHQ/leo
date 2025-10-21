@@ -442,10 +442,10 @@
 <a href=#442 id=442 data-nosnippet>442</a>
 <a href=#443 id=443 data-nosnippet>443</a>            Run =&gt; {
 <a href=#444 id=444 data-nosnippet>444</a>                <span class="kw">while </span>!<span class="self">self</span>.cursor.frames.is_empty() {
-<a href=#445 id=445 data-nosnippet>445</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>((program, line)) = <span class="self">self</span>.current_program_and_line() {
-<a href=#446 id=446 data-nosnippet>446</a>                        <span class="kw">if </span><span class="self">self</span>.breakpoints.iter().any(|bp| bp.program == program &amp;&amp; bp.line == line) {
-<a href=#447 id=447 data-nosnippet>447</a>                            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
-<a href=#448 id=448 data-nosnippet>448</a>                        }
+<a href=#445 id=445 data-nosnippet>445</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>((program, line)) = <span class="self">self</span>.current_program_and_line()
+<a href=#446 id=446 data-nosnippet>446</a>                        &amp;&amp; <span class="self">self</span>.breakpoints.iter().any(|bp| bp.program == program &amp;&amp; bp.line == line)
+<a href=#447 id=447 data-nosnippet>447</a>                    {
+<a href=#448 id=448 data-nosnippet>448</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
 <a href=#449 id=449 data-nosnippet>449</a>                    }
 <a href=#450 id=450 data-nosnippet>450</a>                    <span class="self">self</span>.cursor.step()<span class="question-mark">?</span>;
 <a href=#451 id=451 data-nosnippet>451</a>                    <span class="kw">if </span><span class="self">self</span>.update_watchpoints()<span class="question-mark">? </span>{
@@ -462,10 +462,10 @@
 <a href=#462 id=462 data-nosnippet>462</a>    }
 <a href=#463 id=463 data-nosnippet>463</a>
 <a href=#464 id=464 data-nosnippet>464</a>    <span class="kw">pub fn </span>view_current(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Display&gt; {
-<a href=#465 id=465 data-nosnippet>465</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = <span class="self">self</span>.current_span() {
-<a href=#466 id=466 data-nosnippet>466</a>            <span class="kw">if </span>span != Default::default() {
-<a href=#467 id=467 data-nosnippet>467</a>                <span class="kw">return </span>with_session_globals(|s| s.source_map.contents_of_span(span));
-<a href=#468 id=468 data-nosnippet>468</a>            }
+<a href=#465 id=465 data-nosnippet>465</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = <span class="self">self</span>.current_span()
+<a href=#466 id=466 data-nosnippet>466</a>            &amp;&amp; span != Default::default()
+<a href=#467 id=467 data-nosnippet>467</a>        {
+<a href=#468 id=468 data-nosnippet>468</a>            <span class="kw">return </span>with_session_globals(|s| s.source_map.contents_of_span(span));
 <a href=#469 id=469 data-nosnippet>469</a>        }
 <a href=#470 id=470 data-nosnippet>470</a>
 <a href=#471 id=471 data-nosnippet>471</a>        <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.cursor.frames.last()<span class="question-mark">?</span>.element {
@@ -556,14 +556,14 @@
 <a href=#556 id=556 data-nosnippet>556</a>    }
 <a href=#557 id=557 data-nosnippet>557</a>
 <a href=#558 id=558 data-nosnippet>558</a>    <span class="kw">fn </span>current_program_and_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(String, usize)&gt; {
-<a href=#559 id=559 data-nosnippet>559</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = <span class="self">self</span>.current_span() {
-<a href=#560 id=560 data-nosnippet>560</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
-<a href=#561 id=561 data-nosnippet>561</a>                <span class="kw">let </span>(line, <span class="kw">_</span>) = source_file.line_col(span.lo);
-<a href=#562 id=562 data-nosnippet>562</a>                <span class="kw">if let </span>FileName::Real(name) = <span class="kw-2">&amp;</span>source_file.name {
-<a href=#563 id=563 data-nosnippet>563</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(program) = <span class="self">self</span>.filename_to_program.get(name) {
-<a href=#564 id=564 data-nosnippet>564</a>                        <span class="kw">return </span><span class="prelude-val">Some</span>((program.clone(), line <span class="kw">as </span>usize + <span class="number">1</span>));
-<a href=#565 id=565 data-nosnippet>565</a>                    }
-<a href=#566 id=566 data-nosnippet>566</a>                }
+<a href=#559 id=559 data-nosnippet>559</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(span) = <span class="self">self</span>.current_span()
+<a href=#560 id=560 data-nosnippet>560</a>            &amp;&amp; <span class="kw">let </span><span class="prelude-val">Some</span>(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo))
+<a href=#561 id=561 data-nosnippet>561</a>        {
+<a href=#562 id=562 data-nosnippet>562</a>            <span class="kw">let </span>(line, <span class="kw">_</span>) = source_file.line_col(span.lo);
+<a href=#563 id=563 data-nosnippet>563</a>            <span class="kw">if let </span>FileName::Real(name) = <span class="kw-2">&amp;</span>source_file.name
+<a href=#564 id=564 data-nosnippet>564</a>                &amp;&amp; <span class="kw">let </span><span class="prelude-val">Some</span>(program) = <span class="self">self</span>.filename_to_program.get(name)
+<a href=#565 id=565 data-nosnippet>565</a>            {
+<a href=#566 id=566 data-nosnippet>566</a>                <span class="kw">return </span><span class="prelude-val">Some</span>((program.clone(), line <span class="kw">as </span>usize + <span class="number">1</span>));
 <a href=#567 id=567 data-nosnippet>567</a>            }
 <a href=#568 id=568 data-nosnippet>568</a>        }
 <a href=#569 id=569 data-nosnippet>569</a>        <span class="prelude-val">None

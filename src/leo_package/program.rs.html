@@ -237,13 +237,13 @@
 <a href=#237 id=237 data-nosnippet>237</a>                    })<span class="question-mark">?</span>;
 <a href=#238 id=238 data-nosnippet>238</a>
 <a href=#239 id=239 data-nosnippet>239</a>                <span class="comment">// If the file already exists, compare it to the new contents.
-<a href=#240 id=240 data-nosnippet>240</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(existing_contents) = existing {
-<a href=#241 id=241 data-nosnippet>241</a>                    <span class="kw">if </span>existing_contents != contents {
-<a href=#242 id=242 data-nosnippet>242</a>                        <span class="macro">println!</span>(
-<a href=#243 id=243 data-nosnippet>243</a>                            <span class="string">"Warning: The cached file at `{}` is different from the one fetched from the network. The cached file will be overwritten."</span>,
-<a href=#244 id=244 data-nosnippet>244</a>                            full_cache_path.display()
-<a href=#245 id=245 data-nosnippet>245</a>                        );
-<a href=#246 id=246 data-nosnippet>246</a>                    }
+<a href=#240 id=240 data-nosnippet>240</a>                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(existing_contents) = existing
+<a href=#241 id=241 data-nosnippet>241</a>                    &amp;&amp; existing_contents != contents
+<a href=#242 id=242 data-nosnippet>242</a>                {
+<a href=#243 id=243 data-nosnippet>243</a>                    <span class="macro">println!</span>(
+<a href=#244 id=244 data-nosnippet>244</a>                        <span class="string">"Warning: The cached file at `{}` is different from the one fetched from the network. The cached file will be overwritten."</span>,
+<a href=#245 id=245 data-nosnippet>245</a>                        full_cache_path.display()
+<a href=#246 id=246 data-nosnippet>246</a>                    );
 <a href=#247 id=247 data-nosnippet>247</a>                }
 <a href=#248 id=248 data-nosnippet>248</a>
 <a href=#249 id=249 data-nosnippet>249</a>                <span class="comment">// Write the bytecode to the cache.
@@ -276,11 +276,11 @@
 <a href=#276 id=276 data-nosnippet>276</a>/// This needs to be done when collecting local dependencies from manifests which
 <a href=#277 id=277 data-nosnippet>277</a>/// may be located at different places on the file system.
 <a href=#278 id=278 data-nosnippet>278</a></span><span class="kw">fn </span>canonicalize_dependency_path_relative_to(base: <span class="kw-2">&amp;</span>Path, <span class="kw-2">mut </span>dependency: Dependency) -&gt; <span class="prelude-ty">Result</span>&lt;Dependency&gt; {
-<a href=#279 id=279 data-nosnippet>279</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;mut </span>dependency.path {
-<a href=#280 id=280 data-nosnippet>280</a>        <span class="kw">if </span>!path.is_absolute() {
-<a href=#281 id=281 data-nosnippet>281</a>            <span class="kw">let </span>joined = base.join(<span class="kw-2">&amp;</span>path);
-<a href=#282 id=282 data-nosnippet>282</a>            <span class="kw-2">*</span>path = joined.canonicalize().map_err(|e| PackageError::failed_path(joined.display(), e))<span class="question-mark">?</span>;
-<a href=#283 id=283 data-nosnippet>283</a>        }
+<a href=#279 id=279 data-nosnippet>279</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;mut </span>dependency.path
+<a href=#280 id=280 data-nosnippet>280</a>        &amp;&amp; !path.is_absolute()
+<a href=#281 id=281 data-nosnippet>281</a>    {
+<a href=#282 id=282 data-nosnippet>282</a>        <span class="kw">let </span>joined = base.join(<span class="kw-2">&amp;</span>path);
+<a href=#283 id=283 data-nosnippet>283</a>        <span class="kw-2">*</span>path = joined.canonicalize().map_err(|e| PackageError::failed_path(joined.display(), e))<span class="question-mark">?</span>;
 <a href=#284 id=284 data-nosnippet>284</a>    }
 <a href=#285 id=285 data-nosnippet>285</a>    <span class="prelude-val">Ok</span>(dependency)
 <a href=#286 id=286 data-nosnippet>286</a>}

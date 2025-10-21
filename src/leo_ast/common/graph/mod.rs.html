@@ -198,10 +198,10 @@
 <a href=#198 id=198 data-nosnippet>198</a>                    </span><span class="kw">return </span><span class="prelude-val">Some</span>(child.clone());
 <a href=#199 id=199 data-nosnippet>199</a>                }
 <a href=#200 id=200 data-nosnippet>200</a>                <span class="comment">// If the node has not been explored, explore it.
-<a href=#201 id=201 data-nosnippet>201</a>                </span><span class="kw">if </span>!finished.contains(child) {
-<a href=#202 id=202 data-nosnippet>202</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(cycle_node) = <span class="self">self</span>.contains_cycle_from(child, discovered, finished) {
-<a href=#203 id=203 data-nosnippet>203</a>                        <span class="kw">return </span><span class="prelude-val">Some</span>(cycle_node);
-<a href=#204 id=204 data-nosnippet>204</a>                    }
+<a href=#201 id=201 data-nosnippet>201</a>                </span><span class="kw">if </span>!finished.contains(child)
+<a href=#202 id=202 data-nosnippet>202</a>                    &amp;&amp; <span class="kw">let </span><span class="prelude-val">Some</span>(cycle_node) = <span class="self">self</span>.contains_cycle_from(child, discovered, finished)
+<a href=#203 id=203 data-nosnippet>203</a>                {
+<a href=#204 id=204 data-nosnippet>204</a>                    <span class="kw">return </span><span class="prelude-val">Some</span>(cycle_node);
 <a href=#205 id=205 data-nosnippet>205</a>                }
 <a href=#206 id=206 data-nosnippet>206</a>            }
 <a href=#207 id=207 data-nosnippet>207</a>        }
