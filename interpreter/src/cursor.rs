@@ -990,10 +990,10 @@ impl Cursor {
                 // We want to push expressions for each of the arguments... except for mappings,
                 // because we don't look them up as Values.
                 match core_function {
-                    CoreFunction::MappingGet | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
+                    CoreFunction::Get | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
                         push!()(&function.arguments[1], &None);
                     }
-                    CoreFunction::MappingGetOrUse | CoreFunction::MappingSet => {
+                    CoreFunction::MappingGetOrUse | CoreFunction::Set => {
                         push!()(&function.arguments[2], &None);
                         push!()(&function.arguments[1], &None);
                     }
@@ -1314,10 +1314,10 @@ impl Cursor {
                     value.clone()
                 };
 
-                if let Some(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future()) {
-                    if user_initiated {
-                        self.futures.extend(asyncs.iter().cloned());
-                    }
+                if let Some(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future())
+                    && user_initiated
+                {
+                    self.futures.extend(asyncs.iter().cloned());
                 }
 
                 Ok(StepResult { finished, value })

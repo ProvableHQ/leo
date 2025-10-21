@@ -164,35 +164,33 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     fn reconstruct_assign(&mut self, mut assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         let (value, mut statements) = self.reconstruct_expression(assign.value, &());
 
-        if let Expression::Path(path) = &assign.place {
-            if let Type::Tuple(..) = self.state.type_table.get(&value.id()).expect("Expressions should have types.") {
-                // This is the first case, assigning to a variable of tuple type.
-                let identifiers =
-                    self.tuples.get(&path.identifier().name).expect("Tuple should have been encountered.");
+        if let Expression::Path(path) = &assign.place
+            && let Type::Tuple(..) = self.state.type_table.get(&value.id()).expect("Expressions should have types.")
+        {
+            // This is the first case, assigning to a variable of tuple type.
+            let identifiers = self.tuples.get(&path.identifier().name).expect("Tuple should have been encountered.");
 
-                let Expression::Path(rhs) = value else {
-                    panic!("SSA should have ensured this is an identifier.");
-                };
+            let Expression::Path(rhs) = value else {
+                panic!("SSA should have ensured this is an identifier.");
+            };
 
-                let rhs_identifiers =
-                    self.tuples.get(&rhs.identifier().name).expect("Tuple should have been encountered.");
+            let rhs_identifiers = self.tuples.get(&rhs.identifier().name).expect("Tuple should have been encountered.");
 
-                // Again, make an assignment for each identifier.
-                for (&identifier, &rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
-                    let stmt = AssignStatement {
-                        place: Path::from(identifier).into_absolute().into(),
-                        value: Path::from(rhs_identifier).into_absolute().into(),
-                        id: self.state.node_builder.next_id(),
-                        span: Default::default(),
-                    }
-                    .into();
-
-                    statements.push(stmt);
+            // Again, make an assignment for each identifier.
+            for (&identifier, &rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
+                let stmt = AssignStatement {
+                    place: Path::from(identifier).into_absolute().into(),
+                    value: Path::from(rhs_identifier).into_absolute().into(),
+                    id: self.state.node_builder.next_id(),
+                    span: Default::default(),
                 }
+                .into();
 
-                // We don't need the original assignment, just the ones we've created.
-                return (Statement::dummy(), statements);
+                statements.push(stmt);
             }
+
+            // We don't need the original assignment, just the ones we've created.
+            return (Statement::dummy(), statements);
         }
 
         // We need to check for case 2, so we loop and see if we find a tuple access.

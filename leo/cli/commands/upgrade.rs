@@ -450,12 +450,12 @@ fn check_tasks_for_warnings<N: Network>(
             warnings.push(format!("The program '{id}' does not exist on the network. The upgrade will likely fail.",));
         }
         // Check if the program has a valid naming scheme.
-        if consensus_version >= ConsensusVersion::V7 {
-            if let Err(e) = program.check_program_naming_structure() {
-                warnings.push(format!(
-                    "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
-                ));
-            }
+        if consensus_version >= ConsensusVersion::V7
+            && let Err(e) = program.check_program_naming_structure()
+        {
+            warnings.push(format!(
+                "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
+            ));
         }
         // Check if the program contains restricted keywords.
         if let Err(e) = program.check_restricted_keywords_for_consensus_version(consensus_version) {

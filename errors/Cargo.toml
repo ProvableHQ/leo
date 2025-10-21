@@ -16,7 +16,6 @@ categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.88.0"
 
 [dependencies.leo-span]
 workspace = true

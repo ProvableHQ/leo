@@ -18,12 +18,12 @@ use super::TypeCheckingVisitor;
 use crate::{VariableSymbol, VariableType};
 
 use leo_ast::{DiGraphError, Type, *};
-use leo_errors::TypeCheckerError;
+use leo_errors::{Label, TypeCheckerError};
 use leo_span::{Symbol, sym};
 
 use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 
 impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
@@ -94,6 +94,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         for (_, mapping) in input.mappings.iter() {
             self.visit_mapping(mapping);
             mapping_count += 1;
+        }
+
+        // Typecheck each storage variable definition.
+        for (_, storage_variable) in input.storage_variables.iter() {
+            self.visit_storage_variable(storage_variable);
         }
 
         // Check that the number of mappings does not exceed the maximum.
@@ -224,17 +229,27 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         });
 
         // Check for conflicting struct/record member names.
-        let mut used = HashSet::new();
+        let mut used = HashMap::new();
         for Member { identifier, type_, span, .. } in &input.members {
             // Check that the member types are defined.
             self.assert_type_is_valid(type_, *span);
 
-            if !used.insert(identifier.name) {
+            if let Some(first_span) = used.get(&identifier.name) {
                 self.emit_err(if input.is_record {
-                    TypeCheckerError::duplicate_record_variable(input.name(), *span)
+                    TypeCheckerError::duplicate_record_variable(identifier.name, *span).with_labels(vec![
+                        Label::new(format!("`{}` first declared here", identifier.name), *first_span)
+                            .with_color(leo_errors::Color::Blue),
+                        Label::new("record variable already declared", *span),
+                    ])
                 } else {
-                    TypeCheckerError::duplicate_struct_member(input.name(), *span)
+                    TypeCheckerError::duplicate_struct_member(identifier.name, *span).with_labels(vec![
+                        Label::new(format!("`{}` first declared here", identifier.name), *first_span)
+                            .with_color(leo_errors::Color::Blue),
+                        Label::new("struct field already declared", *span),
+                    ])
                 });
+            } else {
+                used.insert(identifier.name, *span);
             }
         }
 
@@ -385,6 +400,18 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 input.span,
             ))
         }
+    }
+
+    fn visit_storage_variable(&mut self, input: &StorageVariable) {
+        self.visit_type(&input.type_);
+
+        let storage_type = if let Type::Vector(VectorType { element_type }) = &input.type_ {
+            *element_type.clone()
+        } else {
+            input.type_.clone()
+        };
+
+        self.assert_storage_type_is_valid(&storage_type, input.span);
     }
 
     fn visit_function(&mut self, function: &Function) {

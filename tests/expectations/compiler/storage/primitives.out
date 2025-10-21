@@ -1,0 +1,204 @@
+program primitives.aleo;
+
+struct Optional__DbbQYuLaHdi:
+    is_some as boolean;
+    val as boolean;
+
+struct Optional__JYP65FYVVJA:
+    is_some as boolean;
+    val as scalar;
+
+struct Optional__K4XRQPOk9yX:
+    is_some as boolean;
+    val as field;
+
+struct Optional__8aTicnNTOvk:
+    is_some as boolean;
+    val as group;
+
+mapping flag__:
+    key as boolean.public;
+    value as boolean.public;
+
+mapping scalar_val__:
+    key as boolean.public;
+    value as scalar.public;
+
+mapping field_val__:
+    key as boolean.public;
+    value as field.public;
+
+mapping group_val__:
+    key as boolean.public;
+    value as group.public;
+
+function initialize:
+    async initialize into r0;
+    output r0 as primitives.aleo/initialize.future;
+
+finalize initialize:
+    set true into flag__[false];
+    set 1scalar into scalar_val__[false];
+    set 42field into field_val__[false];
+    set 0group into group_val__[false];
+
+function to_none:
+    async to_none into r0;
+    output r0 as primitives.aleo/to_none.future;
+
+finalize to_none:
+    remove flag__[false];
+    remove scalar_val__[false];
+    remove field_val__[false];
+    remove group_val__[false];
+
+function check1:
+    async check1 into r0;
+    output r0 as primitives.aleo/check1.future;
+
+finalize check1:
+    contains flag__[false] into r0;
+    get.or_use flag__[false] false into r1;
+    cast true r1 into r2 as Optional__DbbQYuLaHdi;
+    cast false false into r3 as Optional__DbbQYuLaHdi;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__DbbQYuLaHdi;
+    assert.eq r6.is_some true;
+    contains flag__[false] into r7;
+    get.or_use flag__[false] false into r8;
+    cast true r8 into r9 as Optional__DbbQYuLaHdi;
+    cast false false into r10 as Optional__DbbQYuLaHdi;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__DbbQYuLaHdi;
+    is.eq r13.val true into r14;
+    assert.eq r14 true;
+    contains scalar_val__[false] into r15;
+    get.or_use scalar_val__[false] 0scalar into r16;
+    cast true r16 into r17 as Optional__JYP65FYVVJA;
+    cast false 0scalar into r18 as Optional__JYP65FYVVJA;
+    ternary r15 r17.is_some r18.is_some into r19;
+    ternary r15 r17.val r18.val into r20;
+    cast r19 r20 into r21 as Optional__JYP65FYVVJA;
+    assert.eq r21.is_some true;
+    contains scalar_val__[false] into r22;
+    get.or_use scalar_val__[false] 0scalar into r23;
+    cast true r23 into r24 as Optional__JYP65FYVVJA;
+    cast false 0scalar into r25 as Optional__JYP65FYVVJA;
+    ternary r22 r24.is_some r25.is_some into r26;
+    ternary r22 r24.val r25.val into r27;
+    cast r26 r27 into r28 as Optional__JYP65FYVVJA;
+    is.eq r28.val 1scalar into r29;
+    assert.eq r29 true;
+    contains field_val__[false] into r30;
+    get.or_use field_val__[false] 0field into r31;
+    cast true r31 into r32 as Optional__K4XRQPOk9yX;
+    cast false 0field into r33 as Optional__K4XRQPOk9yX;
+    ternary r30 r32.is_some r33.is_some into r34;
+    ternary r30 r32.val r33.val into r35;
+    cast r34 r35 into r36 as Optional__K4XRQPOk9yX;
+    assert.eq r36.is_some true;
+    contains field_val__[false] into r37;
+    get.or_use field_val__[false] 0field into r38;
+    cast true r38 into r39 as Optional__K4XRQPOk9yX;
+    cast false 0field into r40 as Optional__K4XRQPOk9yX;
+    ternary r37 r39.is_some r40.is_some into r41;
+    ternary r37 r39.val r40.val into r42;
+    cast r41 r42 into r43 as Optional__K4XRQPOk9yX;
+    is.eq r43.val 42field into r44;
+    assert.eq r44 true;
+    contains group_val__[false] into r45;
+    get.or_use group_val__[false] 0group into r46;
+    cast true r46 into r47 as Optional__8aTicnNTOvk;
+    cast false 0group into r48 as Optional__8aTicnNTOvk;
+    ternary r45 r47.is_some r48.is_some into r49;
+    ternary r45 r47.val r48.val into r50;
+    cast r49 r50 into r51 as Optional__8aTicnNTOvk;
+    assert.eq r51.is_some true;
+    contains group_val__[false] into r52;
+    get.or_use group_val__[false] 0group into r53;
+    cast true r53 into r54 as Optional__8aTicnNTOvk;
+    cast false 0group into r55 as Optional__8aTicnNTOvk;
+    ternary r52 r54.is_some r55.is_some into r56;
+    ternary r52 r54.val r55.val into r57;
+    cast r56 r57 into r58 as Optional__8aTicnNTOvk;
+    is.eq r58.val 0group into r59;
+    assert.eq r59 true;
+
+function check2:
+    async check2 into r0;
+    output r0 as primitives.aleo/check2.future;
+
+finalize check2:
+    contains flag__[false] into r0;
+    get.or_use flag__[false] false into r1;
+    cast true r1 into r2 as Optional__DbbQYuLaHdi;
+    cast false false into r3 as Optional__DbbQYuLaHdi;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__DbbQYuLaHdi;
+    contains flag__[false] into r7;
+    get.or_use flag__[false] false into r8;
+    cast true r8 into r9 as Optional__DbbQYuLaHdi;
+    cast false false into r10 as Optional__DbbQYuLaHdi;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__DbbQYuLaHdi;
+    ternary r6.is_some r13.val false into r14;
+    is.eq r14 true into r15;
+    assert.eq r15 true;
+    contains scalar_val__[false] into r16;
+    get.or_use scalar_val__[false] 0scalar into r17;
+    cast true r17 into r18 as Optional__JYP65FYVVJA;
+    cast false 0scalar into r19 as Optional__JYP65FYVVJA;
+    ternary r16 r18.is_some r19.is_some into r20;
+    ternary r16 r18.val r19.val into r21;
+    cast r20 r21 into r22 as Optional__JYP65FYVVJA;
+    contains scalar_val__[false] into r23;
+    get.or_use scalar_val__[false] 0scalar into r24;
+    cast true r24 into r25 as Optional__JYP65FYVVJA;
+    cast false 0scalar into r26 as Optional__JYP65FYVVJA;
+    ternary r23 r25.is_some r26.is_some into r27;
+    ternary r23 r25.val r26.val into r28;
+    cast r27 r28 into r29 as Optional__JYP65FYVVJA;
+    ternary r22.is_some r29.val 0scalar into r30;
+    is.eq r30 1scalar into r31;
+    assert.eq r31 true;
+    contains field_val__[false] into r32;
+    get.or_use field_val__[false] 0field into r33;
+    cast true r33 into r34 as Optional__K4XRQPOk9yX;
+    cast false 0field into r35 as Optional__K4XRQPOk9yX;
+    ternary r32 r34.is_some r35.is_some into r36;
+    ternary r32 r34.val r35.val into r37;
+    cast r36 r37 into r38 as Optional__K4XRQPOk9yX;
+    contains field_val__[false] into r39;
+    get.or_use field_val__[false] 0field into r40;
+    cast true r40 into r41 as Optional__K4XRQPOk9yX;
+    cast false 0field into r42 as Optional__K4XRQPOk9yX;
+    ternary r39 r41.is_some r42.is_some into r43;
+    ternary r39 r41.val r42.val into r44;
+    cast r43 r44 into r45 as Optional__K4XRQPOk9yX;
+    ternary r38.is_some r45.val 0field into r46;
+    is.eq r46 42field into r47;
+    assert.eq r47 true;
+    contains group_val__[false] into r48;
+    get.or_use group_val__[false] 0group into r49;
+    cast true r49 into r50 as Optional__8aTicnNTOvk;
+    cast false 0group into r51 as Optional__8aTicnNTOvk;
+    ternary r48 r50.is_some r51.is_some into r52;
+    ternary r48 r50.val r51.val into r53;
+    cast r52 r53 into r54 as Optional__8aTicnNTOvk;
+    contains group_val__[false] into r55;
+    get.or_use group_val__[false] 0group into r56;
+    cast true r56 into r57 as Optional__8aTicnNTOvk;
+    cast false 0group into r58 as Optional__8aTicnNTOvk;
+    ternary r55 r57.is_some r58.is_some into r59;
+    ternary r55 r57.val r58.val into r60;
+    cast r59 r60 into r61 as Optional__8aTicnNTOvk;
+    ternary r54.is_some r61.val 0group into r62;
+    is.eq r62 0group into r63;
+    assert.eq r63 true;
+
+constructor:
+    assert.eq edition 0u16;

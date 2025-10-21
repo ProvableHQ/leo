@@ -1,0 +1,11 @@
+program test.aleo {
+    struct "u32?" {
+        is_some: bool,
+        val: u32,
+    }
+    transition main(flag: bool) -> u32 {
+        let result: ::"u32?" = ::"u32?" { is_some: false, val: 0u32 };
+        assert(result.is_some);
+        return result.val;
+    }
+}

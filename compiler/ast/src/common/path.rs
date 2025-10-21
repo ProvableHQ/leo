@@ -128,10 +128,10 @@ impl Path {
         self.identifier.name = new_symbol;
 
         // Update absolute_path's last symbol if present
-        if let Some(ref mut abs_path) = self.absolute_path {
-            if let Some(last) = abs_path.last_mut() {
-                *last = new_symbol;
-            }
+        if let Some(ref mut abs_path) = self.absolute_path
+            && let Some(last) = abs_path.last_mut()
+        {
+            *last = new_symbol;
         }
 
         self

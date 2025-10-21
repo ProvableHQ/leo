@@ -240,6 +240,7 @@
         ]
       ],
       "mappings": [],
+      "storage_variables": [],
       "functions": [
         [
           "main",

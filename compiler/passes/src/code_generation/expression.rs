@@ -467,7 +467,7 @@ impl CodeGeneratingVisitor<'_> {
                     .expect("failed to write to string");
                 (destination_register, instruction)
             }
-            Some(CoreFunction::MappingGet) => {
+            Some(CoreFunction::Get) => {
                 let mut instruction = "    get".to_string();
                 let destination_register = self.next_register();
                 // Write the mapping name and the key.
@@ -487,7 +487,7 @@ impl CodeGeneratingVisitor<'_> {
                 .expect("failed to write to string");
                 (destination_register, instruction)
             }
-            Some(CoreFunction::MappingSet) => {
+            Some(CoreFunction::Set) => {
                 let mut instruction = "    set".to_string();
                 // Write the value, mapping name, and the key.
                 writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
@@ -629,6 +629,13 @@ impl CodeGeneratingVisitor<'_> {
             }
             Some(CoreFunction::OptionalUnwrap) | Some(CoreFunction::OptionalUnwrapOr) => {
                 panic!("`Optional` core functions should have been lowered before code generation")
+            }
+            Some(CoreFunction::VectorPush)
+            | Some(CoreFunction::VectorPop)
+            | Some(CoreFunction::VectorLen)
+            | Some(CoreFunction::VectorClear)
+            | Some(CoreFunction::VectorSwapRemove) => {
+                panic!("`Vector` core functions should have been lowered before code generation")
             }
             None => {
                 panic!("All core functions should be known at this phase of compilation")
@@ -791,6 +798,8 @@ impl CodeGeneratingVisitor<'_> {
             }
 
             Type::Optional(_) => panic!("All optional types should have been lowered by now."),
+
+            Type::Vector(_) => panic!("All vector types should have been lowered by now."),
 
             Type::Mapping(..)
             | Type::Future(..)

@@ -442,10 +442,10 @@ impl Interpreter {
 
             Run => {
                 while !self.cursor.frames.is_empty() {
-                    if let Some((program, line)) = self.current_program_and_line() {
-                        if self.breakpoints.iter().any(|bp| bp.program == program && bp.line == line) {
-                            return Ok(None);
-                        }
+                    if let Some((program, line)) = self.current_program_and_line()
+                        && self.breakpoints.iter().any(|bp| bp.program == program && bp.line == line)
+                    {
+                        return Ok(None);
                     }
                     self.cursor.step()?;
                     if self.update_watchpoints()? {
@@ -462,10 +462,10 @@ impl Interpreter {
     }
 
     pub fn view_current(&self) -> Option<impl Display> {
-        if let Some(span) = self.current_span() {
-            if span != Default::default() {
-                return with_session_globals(|s| s.source_map.contents_of_span(span));
-            }
+        if let Some(span) = self.current_span()
+            && span != Default::default()
+        {
+            return with_session_globals(|s| s.source_map.contents_of_span(span));
         }
 
         Some(match &self.cursor.frames.last()?.element {
@@ -556,14 +556,14 @@ impl Interpreter {
     }
 
     fn current_program_and_line(&self) -> Option<(String, usize)> {
-        if let Some(span) = self.current_span() {
-            if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo)) {
-                let (line, _) = source_file.line_col(span.lo);
-                if let FileName::Real(name) = &source_file.name {
-                    if let Some(program) = self.filename_to_program.get(name) {
-                        return Some((program.clone(), line as usize + 1));
-                    }
-                }
+        if let Some(span) = self.current_span()
+            && let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(span.lo))
+        {
+            let (line, _) = source_file.line_col(span.lo);
+            if let FileName::Real(name) = &source_file.name
+                && let Some(program) = self.filename_to_program.get(name)
+            {
+                return Some((program.clone(), line as usize + 1));
             }
         }
         None

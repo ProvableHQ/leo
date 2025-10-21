@@ -1,8 +1,42 @@
-Error [ETYC0372015]: Struct Bar defined with more than one member with the same name.
-    --> compiler-test:5:9
+Error [ETYC0372015]: Struct field `x` is already declared.
+    --> compiler-test:6:9
      |
-   5 |         x: u32,
-     |         ^^^^^^
+   5 |           x: u32,
+     |           ^^^^^^ `x` first declared here
+   6 |           x: u32,
+     |           ^^^^^^ struct field already declared
+Error [ETYC0372015]: Struct field `name` is already declared.
+    --> compiler-test:14:9
+     |
+  11 |           name: field,
+     |           ^^^^^^^^^^^ `name` first declared here
+   ...
+  14 |           name: field,
+     |           ^^^^^^^^^^^ struct field already declared
+Error [ETYC0372015]: Struct field `id` is already declared.
+    --> compiler-test:21:9
+     |
+  19 |           id: u32,
+     |           ^^^^^^^ `id` first declared here
+  20 |
+  21 |           id: u32,
+     |           ^^^^^^^ struct field already declared
+Error [ETYC0372015]: Struct field `value` is already declared.
+    --> compiler-test:22:9
+     |
+  20 |           value: u64,
+     |           ^^^^^^^^^^ `value` first declared here
+  21 |
+  22 |           value: u64,
+     |           ^^^^^^^^^^ struct field already declared
+Error [ETYC0372015]: Struct field `host` is already declared.
+    --> compiler-test:36:9
+     |
+  27 |           host: field,
+     |           ^^^^^^^^^^^ `host` first declared here
+   ...
+  36 |           host: field,
+     |           ^^^^^^^^^^^ struct field already declared
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

@@ -1,0 +1,100 @@
+program singleton_storage.aleo;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+mapping counter__:
+    key as boolean.public;
+    value as u8.public;
+
+mapping vec__:
+    key as u32.public;
+    value as u8.public;
+
+mapping vec__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function push:
+    async push into r0;
+    output r0 as singleton_storage.aleo/push.future;
+
+finalize push:
+    get.or_use vec__len__[false] 0u32 into r0;
+    add r0 1u32 into r1;
+    set r1 into vec__len__[false];
+    set 42u8 into vec__[r0];
+
+function pop:
+    async pop into r0;
+    output r0 as singleton_storage.aleo/pop.future;
+
+finalize pop:
+    get.or_use vec__len__[false] 0u32 into r0;
+    gt r0 0u32 into r1;
+    sub.w r0 1u32 into r2;
+    ternary r1 r2 r0 into r3;
+    set r3 into vec__len__[false];
+    get.or_use vec__[r2] 0u8 into r4;
+    cast true r4 into r5 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r6 as Optional__8hhrPm4c3KB;
+    ternary r1 r5.is_some r6.is_some into r7;
+    ternary r1 r5.val r6.val into r8;
+    cast r7 r8 into r9 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r10 as Optional__8hhrPm4c3KB;
+    is.neq r9 r10 into r11;
+    assert.eq r11 true;
+
+function get:
+    async get into r0;
+    output r0 as singleton_storage.aleo/get.future;
+
+finalize get:
+    get.or_use vec__len__[false] 0u32 into r0;
+    lt 3u32 r0 into r1;
+    get.or_use vec__[3u32] 0u8 into r2;
+    cast true r2 into r3 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r4 as Optional__8hhrPm4c3KB;
+    ternary r1 r3.is_some r4.is_some into r5;
+    ternary r1 r3.val r4.val into r6;
+    cast r5 r6 into r7 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r8 as Optional__8hhrPm4c3KB;
+    is.neq r7 r8 into r9;
+    assert.eq r9 true;
+
+function set:
+    async set into r0;
+    output r0 as singleton_storage.aleo/set.future;
+
+finalize set:
+    get.or_use vec__len__[false] 0u32 into r0;
+    lt 3u32 r0 into r1;
+    assert.eq r1 true;
+    set 42u8 into vec__[3u32];
+
+function clear:
+    async clear into r0;
+    output r0 as singleton_storage.aleo/clear.future;
+
+finalize clear:
+    set 0u32 into vec__len__[false];
+
+function swap_remove:
+    async swap_remove into r0;
+    output r0 as singleton_storage.aleo/swap_remove.future;
+
+finalize swap_remove:
+    get.or_use vec__len__[false] 0u32 into r0;
+    lt 3u32 r0 into r1;
+    assert.eq r1 true;
+    get vec__[3u32] into r2;
+    sub r0 1u32 into r3;
+    get vec__[r3] into r4;
+    set r4 into vec__[3u32];
+    set r3 into vec__len__[false];
+    gte r2 0u8 into r5;
+    assert.eq r5 true;
+
+constructor:
+    assert.eq edition 0u16;

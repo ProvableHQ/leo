@@ -130,6 +130,7 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
             | Type::Numeric
             | Type::Identifier(_)
             | Type::Future(_)
+            | Type::Vector(_)
             | Type::String
             | Type::Err
             | Type::Unit => {

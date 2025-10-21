@@ -1,0 +1,33 @@
+program test.aleo {
+    transition main() -> u32 {
+        let sum = 0u32;
+        {
+            {
+                {
+                    sum = sum + 0u32;
+                }
+            }
+            {
+                {
+                    sum = sum + 1u32;
+                }
+            }
+            {
+                {
+                    sum = sum + 2u32;
+                }
+            }
+            {
+                {
+                    sum = sum + 3u32;
+                }
+            }
+            {
+                {
+                    sum = sum + 4u32;
+                }
+            }
+        }
+        return sum;
+    }
+}

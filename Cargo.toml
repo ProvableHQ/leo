@@ -31,7 +31,7 @@ include = [
 ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.88.0"
+rust-version = "1.90.0"
 
 [workspace]
 members = [
@@ -142,6 +142,9 @@ features = ["serde"]
 
 [workspace.dependencies.itertools]
 version = "0.13.0"
+
+[workspace.dependencies.paste]
+version = "1.0"
 
 [workspace.dependencies.rand]
 version = "0.8"

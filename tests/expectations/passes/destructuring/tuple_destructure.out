@@ -1,0 +1,7 @@
+program test.aleo {
+    transition main(x: u32, y: u32) -> u32 {
+        let a = x;
+        let b = y;
+        return a + b;
+    }
+}

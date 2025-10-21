@@ -1,0 +1,43 @@
+program st.aleo;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+mapping some_very_long_sto__3ynimxWUALp:
+    key as boolean.public;
+    value as u8.public;
+
+mapping some_verrry_long_s__F3Lfva7X0lK:
+    key as u32.public;
+    value as u8.public;
+
+mapping some_verrry_l__len__5biJXePTdHq:
+    key as boolean.public;
+    value as u32.public;
+
+function foo:
+    async foo into r0;
+    output r0 as st.aleo/foo.future;
+
+finalize foo:
+    set 0u8 into some_very_long_sto__3ynimxWUALp[false];
+    get.or_use some_verrry_l__len__5biJXePTdHq[false] 0u32 into r0;
+    add r0 1u32 into r1;
+    set r1 into some_verrry_l__len__5biJXePTdHq[false];
+    contains some_very_long_sto__3ynimxWUALp[false] into r2;
+    get.or_use some_very_long_sto__3ynimxWUALp[false] 0u8 into r3;
+    cast true r3 into r4 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r5 as Optional__8hhrPm4c3KB;
+    ternary r2 r4.is_some r5.is_some into r6;
+    ternary r2 r4.val r5.val into r7;
+    cast r6 r7 into r8 as Optional__8hhrPm4c3KB;
+    assert.eq r8.is_some true;
+    contains some_very_long_sto__3ynimxWUALp[false] into r9;
+    get.or_use some_very_long_sto__3ynimxWUALp[false] 0u8 into r10;
+    cast true r10 into r11 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r12 as Optional__8hhrPm4c3KB;
+    ternary r9 r11.is_some r12.is_some into r13;
+    ternary r9 r11.val r12.val into r14;
+    cast r13 r14 into r15 as Optional__8hhrPm4c3KB;
+    set r15.val into some_verrry_long_s__F3Lfva7X0lK[r0];

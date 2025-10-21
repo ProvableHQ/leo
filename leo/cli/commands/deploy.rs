@@ -27,8 +27,18 @@ use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     ledger::{query::Query as SnarkVMQuery, store::helpers::memory::BlockMemory},
     prelude::{
-        ConsensusVersion, Deployment, Program, ProgramID, Rng, TestnetV0, VM, cost_in_microcredits_v1,
-        cost_in_microcredits_v2, cost_in_microcredits_v3, deployment_cost, execution_cost_for_authorization,
+        ConsensusVersion,
+        Deployment,
+        Program,
+        ProgramID,
+        Rng,
+        TestnetV0,
+        VM,
+        cost_in_microcredits_v1,
+        cost_in_microcredits_v2,
+        cost_in_microcredits_v3,
+        deployment_cost,
+        execution_cost_for_authorization,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::StackTrait,
@@ -423,12 +433,12 @@ fn check_tasks_for_warnings<N: Network>(
                 .push(format!("The program '{id}' already exists on the network. Please use `leo upgrade` instead.",));
         }
         // Check if the program has a valid naming scheme.
-        if consensus_version >= ConsensusVersion::V7 {
-            if let Err(e) = program.check_program_naming_structure() {
-                warnings.push(format!(
-                    "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
-                ));
-            }
+        if consensus_version >= ConsensusVersion::V7
+            && let Err(e) = program.check_program_naming_structure()
+        {
+            warnings.push(format!(
+                "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
+            ));
         }
 
         // Check if the program contains restricted keywords.

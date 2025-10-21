@@ -1,0 +1,86 @@
+Error [ETYC0372117]: Expected type `field` but type `field?` was found.
+    --> compiler-test:9:23
+     |
+   9 |             s_field = opt_val; // ❌ illegal
+     |                       ^^^^^^^
+Error [ETYC0372000]: Invalid assignment target: s_vec.
+    --> compiler-test:15:13
+     |
+  15 |             s_vec = [1u32, 2u32]; // ❌ cannot assign whole vector directly
+     |             ^^^^^
+     |
+     = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
+Error [ETYC0372000]: Invalid assignment target: s_vec.
+    --> compiler-test:16:13
+     |
+  16 |             s_vec = none;         // ❌ cannot assign none to a storage vector
+     |             ^^^^^
+     |
+     = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
+Error [ETYC0372004]: Could not determine the type of `none`
+    --> compiler-test:16:21
+     |
+  16 |             s_vec = none;         // ❌ cannot assign none to a storage vector
+     |                     ^^^^
+     |
+     = Consider using explicit type annotations.
+Error [ETYC0372167]: Storage vectors cannot be moved or assigned. You can only access or modify them using methods like `get`, `push`, or `pop`.
+    --> compiler-test:22:30
+     |
+  22 |             let local_vec1 = s_vec;       // ❌ cannot move storage vector
+     |                              ^^^^^
+Error [ETYC0372117]: Expected type `[u32; 2]` but type `[u32]` was found.
+    --> compiler-test:24:26
+     |
+  24 |             local_vec2 = s_vec;           // ❌ cannot copy storage vector
+     |                          ^^^^^
+Error [ETYC0372117]: Expected a vector but type `field` was found.
+    --> compiler-test:31:13
+     |
+  31 |             x.push(3field);        // ❌ not a vector
+     |             ^
+Error [ETYC0372117]: Expected a vector but type `field` was found.
+    --> compiler-test:32:13
+     |
+  32 |             x.pop();               // ❌ not a vector
+     |             ^
+Error [ETYC0372117]: Expected a vector but type `field` was found.
+    --> compiler-test:33:13
+     |
+  33 |             x.len();               // ❌ not a vector
+     |             ^
+Error [ETYC0372117]: Expected a vector but type `field` was found.
+    --> compiler-test:34:13
+     |
+  34 |             x.swap_remove(0u32);   // ❌ not a vector
+     |             ^
+Error [ETYC0372117]: Expected a vector or a mapping but type `field` was found.
+    --> compiler-test:35:13
+     |
+  35 |             x.set(0u32, 1field);   // ❌ not a vector
+     |             ^
+Error [ETYC0372117]: Expected a vector or a mapping but type `field` was found.
+    --> compiler-test:36:13
+     |
+  36 |             x.get(0u32);           // ❌ not a vector
+     |             ^
+Error [ETYC0372117]: Expected a vector but type `field?` was found.
+    --> compiler-test:42:13
+     |
+  42 |             s_field.push(10field);     // ❌ cannot push to non-vector storage
+     |             ^^^^^^^
+Error [ETYC0372117]: Expected a vector but type `(u32 => u32)` was found.
+    --> compiler-test:43:13
+     |
+  43 |             s_map.push(5u32);          // ❌ cannot push to mapping
+     |             ^^^^^
+Error [ETYC0372117]: Expected a vector or a mapping but type `field?` was found.
+    --> compiler-test:49:13
+     |
+  49 |             s_field.set(0u32, 10field);  // ❌ not a vector or mapping
+     |             ^^^^^^^
+Error [ETYC0372117]: Expected a vector or a mapping but type `field?` was found.
+    --> compiler-test:50:13
+     |
+  50 |             s_field.get(0u32);           // ❌ not a vector or mapping
+     |             ^^^^^^^

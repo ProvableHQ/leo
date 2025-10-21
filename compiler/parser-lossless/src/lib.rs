@@ -63,6 +63,7 @@ pub enum SyntaxKind {
     StructMemberDeclarationList,
 
     Mapping,
+    Storage,
 
     GlobalConst,
 
@@ -119,6 +120,7 @@ pub enum TypeKind {
     Signature,
     String,
     Tuple,
+    Vector,
     Numeric,
     Unit,
 }

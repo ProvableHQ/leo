@@ -1,0 +1,10 @@
+program test.aleo {
+    inline square(x: u32) -> u32 {
+        return x * x;
+    }
+    transition main(a: u32, b: u32) -> u32 {
+        let first: u32 = a * a;
+        let second: u32 = b * b;
+        return first + second;
+    }
+}

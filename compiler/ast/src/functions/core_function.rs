@@ -35,14 +35,22 @@ pub enum CoreFunction {
     // Hash function with variant (HashVariant) returning value of type (LiteralType).
     Hash(HashVariant, Type),
 
-    MappingGet,
+    // These are used for both mappings and vectors
+    Get,
+    Set,
+
     MappingGetOrUse,
-    MappingSet,
     MappingRemove,
     MappingContains,
 
     OptionalUnwrap,
     OptionalUnwrapOr,
+
+    VectorPush,
+    VectorLen,
+    VectorClear,
+    VectorPop,
+    VectorSwapRemove,
 
     GroupToXCoordinate,
     GroupToYCoordinate,
@@ -573,14 +581,21 @@ impl CoreFunction {
             (sym::ECDSA, sym::verify_sha3_512_raw)    => Self::ECDSAVerify(ECDSAVerifyVariant::HashSha3_512Raw),
             (sym::ECDSA, sym::verify_sha3_512_eth)    => Self::ECDSAVerify(ECDSAVerifyVariant::HashSha3_512Eth),
 
-            (sym::Mapping, sym::get) => Self::MappingGet,
+            (_, sym::get) => Self::Get,
+            (_, sym::set) => Self::Set,
+
             (sym::Mapping, sym::get_or_use) => Self::MappingGetOrUse,
-            (sym::Mapping, sym::set) => Self::MappingSet,
             (sym::Mapping, sym::remove) => Self::MappingRemove,
             (sym::Mapping, sym::contains) => Self::MappingContains,
 
             (sym::Optional, sym::unwrap) => Self::OptionalUnwrap,
             (sym::Optional, sym::unwrap_or) => Self::OptionalUnwrapOr,
+
+            (sym::Vector, sym::push) => Self::VectorPush,
+            (sym::Vector, sym::len) => Self::VectorLen,
+            (sym::Vector, sym::clear) => Self::VectorClear,
+            (sym::Vector, sym::pop) => Self::VectorPop,
+            (sym::Vector, sym::swap_remove) => Self::VectorSwapRemove,
 
             (sym::group, sym::to_x_coordinate) => Self::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
@@ -609,14 +624,21 @@ impl CoreFunction {
             Self::Hash(_, _) => 1,
             Self::ECDSAVerify(_) => 3,
 
-            Self::MappingGet => 2,
+            Self::Get => 2,
+            Self::Set => 3,
+
             Self::MappingGetOrUse => 3,
-            Self::MappingSet => 3,
             Self::MappingRemove => 2,
             Self::MappingContains => 2,
 
             Self::OptionalUnwrap => 1,
             Self::OptionalUnwrapOr => 2,
+
+            Self::VectorPush => 2,
+            Self::VectorLen => 1,
+            Self::VectorClear => 1,
+            Self::VectorPop => 1,
+            Self::VectorSwapRemove => 2,
 
             Self::GroupToXCoordinate => 1,
             Self::GroupToYCoordinate => 1,
@@ -642,14 +664,19 @@ impl CoreFunction {
             CoreFunction::FutureAwait
             | CoreFunction::ChaChaRand(_)
             | CoreFunction::ECDSAVerify(_)
-            | CoreFunction::MappingGet
+            | CoreFunction::Get
             | CoreFunction::MappingGetOrUse
-            | CoreFunction::MappingSet
+            | CoreFunction::Set
             | CoreFunction::MappingRemove
             | CoreFunction::MappingContains
             | CoreFunction::ProgramChecksum
             | CoreFunction::ProgramEdition
-            | CoreFunction::ProgramOwner => true,
+            | CoreFunction::ProgramOwner
+            | CoreFunction::VectorPush
+            | CoreFunction::VectorLen
+            | CoreFunction::VectorClear
+            | CoreFunction::VectorPop
+            | CoreFunction::VectorSwapRemove => true,
             CoreFunction::Commit(_, _)
             | CoreFunction::Hash(_, _)
             | CoreFunction::OptionalUnwrap

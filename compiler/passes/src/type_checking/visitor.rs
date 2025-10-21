@@ -265,7 +265,8 @@ impl TypeCheckingVisitor<'_> {
     pub fn check_core_function_call(
         &mut self,
         core_function: CoreFunction,
-        arguments: &[(Type, &Expression)],
+        arguments: &[Expression],
+        expected: &Option<Type>,
         function_span: Span,
     ) -> Type {
         // Check that the number of arguments is correct.
@@ -277,6 +278,136 @@ impl TypeCheckingVisitor<'_> {
             ));
             return Type::Err;
         }
+
+        // Type check and reconstructs the arguments for a given core function call.
+        //
+        // Depending on the `core_function`, this handles:
+        // - Optional operations (`unwrap`, `unwrap_or`) with proper type inference
+        // - Container access (`Get`, `Set`) for vectors and mappings
+        // - Vector-specific operations (`push`, `swap_remove`)
+        // - Default handling for other core functions
+        //
+        // Returns a `Vec<(Type, &Expression)>` pairing each argument with its inferred type, or `Type::Err` if
+        // type-checking fails. Argument counts are assumed to be already validated
+        let arguments = match core_function {
+            CoreFunction::OptionalUnwrap => {
+                // Expect exactly one argument
+                let [opt] = arguments else { panic!("number of arguments is already checked") };
+
+                // If an expected type is provided, wrap it in Optional for type-checking
+                let opt_ty = if let Some(expected) = expected {
+                    self.visit_expression(
+                        opt,
+                        &Some(Type::Optional(OptionalType { inner: Box::new(expected.clone()) })),
+                    )
+                } else {
+                    self.visit_expression(opt, &None)
+                };
+
+                vec![(opt_ty, opt)]
+            }
+
+            CoreFunction::OptionalUnwrapOr => {
+                // Expect exactly two arguments: the optional and the fallback value
+                let [opt, fallback] = arguments else { panic!("number of arguments is already checked") };
+
+                if let Some(expected) = expected {
+                    // Both arguments are typed based on the expected type
+                    let opt_ty = self.visit_expression(
+                        opt,
+                        &Some(Type::Optional(OptionalType { inner: Box::new(expected.clone()) })),
+                    );
+                    let fallback_ty = self.visit_expression(fallback, &Some(expected.clone()));
+                    vec![(opt_ty, opt), (fallback_ty, fallback)]
+                } else {
+                    // Infer type from the optional argument
+                    let opt_ty = self.visit_expression(opt, &None);
+                    let fallback_ty = if let Type::Optional(OptionalType { inner }) = &opt_ty {
+                        self.visit_expression(fallback, &Some(*inner.clone()))
+                    } else {
+                        self.visit_expression(fallback, &None)
+                    };
+                    vec![(opt_ty, opt), (fallback_ty, fallback)]
+                }
+            }
+
+            // Get an element from a container (vector or mapping)
+            CoreFunction::Get => {
+                let [container, key_or_index] = arguments else { panic!("number of arguments is already checked") };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                // Key type depends on container type
+                let key_or_index_ty = match container_ty {
+                    Type::Vector(_) => self.visit_expression_infer_default_u32(key_or_index),
+                    Type::Mapping(MappingType { ref key, .. }) => {
+                        self.visit_expression(key_or_index, &Some(*key.clone()))
+                    }
+                    _ => self.visit_expression(key_or_index, &None),
+                };
+
+                vec![(container_ty, container), (key_or_index_ty, key_or_index)]
+            }
+
+            // Set an element in a container (vector or mapping)
+            CoreFunction::Set => {
+                let [container, key_or_index, val] = arguments else {
+                    panic!("number of arguments is already checked")
+                };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                let key_or_index_ty = match container_ty {
+                    Type::Vector(_) => self.visit_expression_infer_default_u32(key_or_index),
+                    Type::Mapping(MappingType { ref key, .. }) => {
+                        self.visit_expression(key_or_index, &Some(*key.clone()))
+                    }
+                    _ => self.visit_expression(key_or_index, &None),
+                };
+
+                let val_ty = match container_ty {
+                    Type::Vector(VectorType { ref element_type }) => {
+                        self.visit_expression(val, &Some(*element_type.clone()))
+                    }
+                    Type::Mapping(MappingType { ref value, .. }) => self.visit_expression(val, &Some(*value.clone())),
+                    _ => self.visit_expression(val, &None),
+                };
+
+                vec![(container_ty, container), (key_or_index_ty, key_or_index), (val_ty, val)]
+            }
+
+            CoreFunction::VectorPush => {
+                let [vec, val] = arguments else { panic!("number of arguments is already checked") };
+
+                // Check vector type
+                let vec_ty = self.visit_expression(vec, &None);
+
+                // Type-check value against vector element type
+                let val_ty = if let Type::Vector(VectorType { element_type }) = &vec_ty {
+                    self.visit_expression(val, &Some(*element_type.clone()))
+                } else {
+                    self.visit_expression(val, &None)
+                };
+
+                vec![(vec_ty, vec), (val_ty, val)]
+            }
+
+            CoreFunction::VectorSwapRemove => {
+                let [vec, index] = arguments else { panic!("number of arguments is already checked") };
+
+                let vec_ty = self.visit_expression(vec, &None);
+
+                // Default to u32 index for vector operations
+                let index_ty = self.visit_expression_infer_default_u32(index);
+
+                vec![(vec_ty, vec), (index_ty, index)]
+            }
+
+            // Default case for other core functions
+            _ => {
+                arguments.iter().map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg)).collect::<Vec<_>>()
+            }
+        };
 
         let assert_not_mapping_tuple_unit = |type_: &Type, span: Span| {
             if matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Unit) {
@@ -407,15 +538,15 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
                 self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
-                if let Some(length) = array_type.length.as_u32() {
-                    if length as usize != signature_size {
-                        self.emit_err(TypeCheckerError::type_should_be2(
-                            &arguments[0].0,
-                            format!("a [u8; {signature_size}]"),
-                            arguments[0].1.span(),
-                        ));
-                        return Type::Err;
-                    }
+                if let Some(length) = array_type.length.as_u32()
+                    && length as usize != signature_size
+                {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        format!("a [u8; {signature_size}]"),
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
                 };
 
                 // Determine whether the core function is Ethereum-specifc.
@@ -457,15 +588,15 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
                 self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[1].1.span());
-                if let Some(length) = array_type.length.as_u32() {
-                    if length as usize != expected_length {
-                        self.emit_err(TypeCheckerError::type_should_be2(
-                            &arguments[1].0,
-                            format!("a [u8; {expected_length}]"),
-                            arguments[1].1.span(),
-                        ));
-                        return Type::Err;
-                    }
+                if let Some(length) = array_type.length.as_u32()
+                    && length as usize != expected_length
+                {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[1].0,
+                        format!("a [u8; {expected_length}]"),
+                        arguments[1].1.span(),
+                    ));
+                    return Type::Err;
                 };
 
                 // Check that the third input is not a mapping nor a tuple.
@@ -491,15 +622,15 @@ impl TypeCheckingVisitor<'_> {
                         return Type::Err;
                     };
                     self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[2].1.span());
-                    if let Some(length) = array_type.length.as_u32() {
-                        if length as usize != expected_length {
-                            self.emit_err(TypeCheckerError::type_should_be2(
-                                &arguments[2].0,
-                                format!("a [u8; {expected_length}]"),
-                                arguments[2].1.span(),
-                            ));
-                            return Type::Err;
-                        }
+                    if let Some(length) = array_type.length.as_u32()
+                        && length as usize != expected_length
+                    {
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            &arguments[2].0,
+                            format!("a [u8; {expected_length}]"),
+                            arguments[2].1.span(),
+                        ));
+                        return Type::Err;
                     }
                 }
 
@@ -531,19 +662,37 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
-            CoreFunction::MappingGet => {
-                // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("Mapping::get", true, function_span);
-                // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
-                let Type::Mapping(mapping_type) = &arguments[0].0 else {
-                    // We will have already handled the error in the assertion.
-                    return Type::Err;
-                };
+            CoreFunction::Get => {
+                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
+                    // Check that the operation is invoked in a `finalize` or `async` block.
+                    self.check_access_allowed("Vector::get", true, function_span);
 
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
+                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                } else if let Type::Mapping(MappingType { value, .. }) = &arguments[0].0 {
+                    // Check that the operation is invoked in a `finalize` or `async` block.
+                    self.check_access_allowed("Mapping::get", true, function_span);
 
-                mapping_type.value.deref().clone()
+                    *value.clone()
+                } else {
+                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
+            }
+            CoreFunction::Set => {
+                if arguments[0].0.is_vector() {
+                    // Check that the operation is invoked in a `finalize` or `async` block.
+                    self.check_access_allowed("Vector::set", true, function_span);
+
+                    Type::Unit
+                } else if let Type::Mapping(_) = &arguments[0].0 {
+                    // Check that the operation is invoked in a `finalize` or `async` block.
+                    self.check_access_allowed("Mapping::set", true, function_span);
+
+                    Type::Unit
+                } else {
+                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
             }
             CoreFunction::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
@@ -562,24 +711,6 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1.span());
 
                 mapping_type.value.deref().clone()
-            }
-            CoreFunction::MappingSet => {
-                // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("Mapping::set", true, function_span);
-                // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
-
-                let Type::Mapping(mapping_type) = &arguments[0].0 else {
-                    // We will have already handled the error in the assertion.
-                    return Type::Err;
-                };
-
-                // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
-                // Check that the third argument matches the value type of the mapping.
-                self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1.span());
-
-                Type::Unit
             }
             CoreFunction::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
@@ -630,7 +761,71 @@ impl TypeCheckingVisitor<'_> {
                 }
             }
             CoreFunction::OptionalUnwrapOr => {
-                unreachable!("we should have handled separately outside `check_core_function_call`.")
+                // Check that the first argument is an optional.
+                self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
+
+                match &arguments[0].0 {
+                    Type::Optional(OptionalType { inner }) => {
+                        // Ensure that the wrapped type and the fallback type are the same
+                        self.assert_type(&arguments[1].0, inner, arguments[1].1.span());
+                        inner.deref().clone()
+                    }
+                    _ => Type::Err,
+                }
+            }
+            CoreFunction::VectorPush => {
+                self.check_access_allowed("Vector::push", true, function_span);
+
+                // Check that the first argument is a vector
+                match &arguments[0].0 {
+                    Type::Vector(VectorType { element_type }) => {
+                        // Ensure that the element type and the type of the value to push are the same
+                        self.assert_type(&arguments[1].0, element_type, arguments[1].1.span());
+                        Type::Unit
+                    }
+                    _ => {
+                        self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
+                        Type::Err
+                    }
+                }
+            }
+            CoreFunction::VectorLen => {
+                self.check_access_allowed("Vector::len", true, function_span);
+
+                if arguments[0].0.is_vector() {
+                    Type::Integer(IntegerType::U32)
+                } else {
+                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
+            }
+            CoreFunction::VectorPop => {
+                self.check_access_allowed("Vector::pop", true, function_span);
+
+                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
+                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                } else {
+                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
+            }
+            CoreFunction::VectorSwapRemove => {
+                self.check_access_allowed("Vector::swap_remove", true, function_span);
+
+                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
+                    *element_type.clone()
+                } else {
+                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
+            }
+            CoreFunction::VectorClear => {
+                if arguments[0].0.is_vector() {
+                    Type::Unit
+                } else {
+                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
             }
             CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate => {
                 // Check that the first argument is a group.
@@ -971,6 +1166,7 @@ impl TypeCheckingVisitor<'_> {
                     | Type::Mapping(_)
                     | Type::Optional(_)
                     | Type::String
+                    | Type::Address
                     | Type::Signature
                     | Type::Tuple(_) => {
                         self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span));
@@ -979,6 +1175,80 @@ impl TypeCheckingVisitor<'_> {
                 }
             }
             _ => {} // Do nothing.
+        }
+    }
+
+    /// Ensures the given type is valid for use in storage.
+    /// Emits an error if the type or any of its inner types are invalid.
+    pub fn assert_storage_type_is_valid(&mut self, type_: &Type, span: Span) {
+        match type_ {
+            // Prohibited top-level kinds
+            Type::Unit => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("unit", span));
+            }
+            Type::String => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("string", span));
+            }
+            Type::Address => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("address", span));
+            }
+            Type::Signature => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("signature", span));
+            }
+            Type::Future(_) => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("future", span));
+            }
+            Type::Optional(_) => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("optional", span));
+            }
+            Type::Mapping(_) => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("mapping", span));
+            }
+            Type::Tuple(_) => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span));
+            }
+
+            // Structs (composites)
+            Type::Composite(struct_type) => {
+                if let Some(struct_) = self.lookup_struct(
+                    struct_type.program.or(self.scope_state.program_name),
+                    &struct_type.path.absolute_path(),
+                ) {
+                    if struct_.is_record {
+                        self.emit_err(TypeCheckerError::invalid_storage_type("record", span));
+                        return;
+                    }
+
+                    // Recursively check fields.
+                    for field in &struct_.members {
+                        self.assert_storage_type_is_valid(&field.type_, span);
+                    }
+                } else {
+                    self.emit_err(TypeCheckerError::invalid_storage_type("undefined struct", span));
+                }
+            }
+
+            // Arrays
+            Type::Array(array_type) => {
+                if let Some(length) = array_type.length.as_u32()
+                    && (length == 0 || length > self.limits.max_array_elements as u32)
+                {
+                    self.emit_err(TypeCheckerError::invalid_storage_type("array", span));
+                }
+
+                let element_ty = array_type.element_type();
+                match element_ty {
+                    Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", span)),
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span)),
+                    Type::Optional(_) => self.emit_err(TypeCheckerError::invalid_storage_type("optional", span)),
+                    _ => {}
+                }
+
+                self.assert_storage_type_is_valid(element_ty, span);
+            }
+
+            // Everything else (integers, bool, group, etc.)
+            _ => {} // valid
         }
     }
 
@@ -993,6 +1263,20 @@ impl TypeCheckingVisitor<'_> {
     pub fn assert_optional_type(&self, type_: &Type, span: Span) {
         if type_ != &Type::Err && !matches!(type_, Type::Optional(_)) {
             self.emit_err(TypeCheckerError::type_should_be2(type_, "an optional", span));
+        }
+    }
+
+    /// Emits an error if the type is not a vector
+    pub fn assert_vector_type(&self, type_: &Type, span: Span) {
+        if type_ != &Type::Err && !matches!(type_, Type::Vector(_)) {
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "a vector", span));
+        }
+    }
+
+    /// Emits an error if the type is not a vector or a mapping.
+    pub fn assert_vector_or_mapping_type(&self, type_: &Type, span: Span) {
+        if type_ != &Type::Err && !matches!(type_, Type::Vector(_)) && !matches!(type_, Type::Mapping(_)) {
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "a vector or a mapping", span));
         }
     }
 
@@ -1218,14 +1502,13 @@ impl TypeCheckingVisitor<'_> {
 
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
-            if let Type::Composite(struct_) = function_output.type_.clone() {
-                if let Some(val) =
+            if let Type::Composite(struct_) = function_output.type_.clone()
+                && let Some(val) =
                     self.lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                {
-                    if val.is_record && !function.variant.is_transition() {
-                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
-                    }
-                }
+                && val.is_record
+                && !function.variant.is_transition()
+            {
+                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
             }
 
             // Check that the output type is valid.

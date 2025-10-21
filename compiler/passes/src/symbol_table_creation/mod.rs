@@ -26,9 +26,11 @@ use leo_ast::{
     Mapping,
     MappingType,
     Module,
+    OptionalType,
     Program,
     ProgramScope,
     ProgramVisitor,
+    StorageVariable,
     Stub,
     Type,
     Variant,
@@ -114,10 +116,11 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         self.is_stub = false;
 
         // Visit the program scope
-        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
-        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
-        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.structs.iter().for_each(|(_, c)| self.visit_struct(c));
+        input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
+        input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
         }
@@ -126,9 +129,9 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     fn visit_module(&mut self, input: &Module) {
         self.program_name = input.program_name;
         self.in_module_scope(&input.path.clone(), |slf| {
-            input.structs.iter().for_each(|(_, c)| (slf.visit_struct(c)));
-            input.functions.iter().for_each(|(_, c)| (slf.visit_function(c)));
-            input.consts.iter().for_each(|(_, c)| (slf.visit_const(c)));
+            input.structs.iter().for_each(|(_, c)| slf.visit_struct(c));
+            input.functions.iter().for_each(|(_, c)| slf.visit_function(c));
+            input.consts.iter().for_each(|(_, c)| slf.visit_const(c));
         })
     }
 
@@ -168,8 +171,25 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
                     program: self.program_name,
                 }),
                 span: input.span,
-                declaration: VariableType::Mut,
+                declaration: VariableType::Storage,
             },
+        ) {
+            self.state.handler.emit_err(err);
+        }
+    }
+
+    fn visit_storage_variable(&mut self, input: &StorageVariable) {
+        // Add the variable associated with the mapping to the symbol table.
+
+        // The type of non-vector storage variables is implicitly wrapped in an optional.
+        let type_ = match input.type_ {
+            Type::Vector(_) => input.type_.clone(),
+            _ => Type::Optional(OptionalType { inner: Box::new(input.type_.clone()) }),
+        };
+
+        if let Err(err) = self.state.symbol_table.insert_global(
+            Location::new(self.program_name, vec![input.identifier.name]),
+            VariableSymbol { type_, span: input.span, declaration: VariableType::Storage },
         ) {
             self.state.handler.emit_err(err);
         }
@@ -187,9 +207,9 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     fn visit_stub(&mut self, input: &Stub) {
         self.is_stub = true;
         self.program_name = input.stub_id.name.name;
-        input.functions.iter().for_each(|(_, c)| (self.visit_function_stub(c)));
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct_stub(c)));
-        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
+        input.functions.iter().for_each(|(_, c)| self.visit_function_stub(c));
+        input.structs.iter().for_each(|(_, c)| self.visit_struct_stub(c));
+        input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {
