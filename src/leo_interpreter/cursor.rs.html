@@ -983,7 +983,7 @@
 <a href=#983 id=983 data-nosnippet>983</a>                }
 <a href=#984 id=984 data-nosnippet>984</a>            }
 <a href=#985 id=985 data-nosnippet>985</a>            Expression::AssociatedFunction(function) <span class="kw">if </span>step == <span class="number">0 </span>=&gt; {
-<a href=#986 id=986 data-nosnippet>986</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) <span class="kw">else </span>{
+<a href=#986 id=986 data-nosnippet>986</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::try_from(function).ok() <span class="kw">else </span>{
 <a href=#987 id=987 data-nosnippet>987</a>                    <span class="macro">halt!</span>(function.span(), <span class="string">"Unkown core function {function}"</span>);
 <a href=#988 id=988 data-nosnippet>988</a>                };
 <a href=#989 id=989 data-nosnippet>989</a>
@@ -1005,7 +1005,7 @@
 <a href=#1005 id=1005 data-nosnippet>1005</a>                <span class="prelude-val">None
 <a href=#1006 id=1006 data-nosnippet>1006</a>            </span>}
 <a href=#1007 id=1007 data-nosnippet>1007</a>            Expression::AssociatedFunction(function) <span class="kw">if </span>step == <span class="number">1 </span>=&gt; {
-<a href=#1008 id=1008 data-nosnippet>1008</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) <span class="kw">else </span>{
+<a href=#1008 id=1008 data-nosnippet>1008</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::try_from(function).ok() <span class="kw">else </span>{
 <a href=#1009 id=1009 data-nosnippet>1009</a>                    <span class="macro">halt!</span>(function.span(), <span class="string">"Unkown core function {function}"</span>);
 <a href=#1010 id=1010 data-nosnippet>1010</a>                };
 <a href=#1011 id=1011 data-nosnippet>1011</a>
@@ -1050,7 +1050,7 @@
 <a href=#1050 id=1050 data-nosnippet>1050</a>                }
 <a href=#1051 id=1051 data-nosnippet>1051</a>            }
 <a href=#1052 id=1052 data-nosnippet>1052</a>            Expression::AssociatedFunction(function) <span class="kw">if </span>step == <span class="number">2 </span>=&gt; {
-<a href=#1053 id=1053 data-nosnippet>1053</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) <span class="kw">else </span>{
+<a href=#1053 id=1053 data-nosnippet>1053</a>                <span class="kw">let </span><span class="prelude-val">Some</span>(core_function) = CoreFunction::try_from(function).ok() <span class="kw">else </span>{
 <a href=#1054 id=1054 data-nosnippet>1054</a>                    <span class="macro">halt!</span>(function.span(), <span class="string">"Unkown core function {function}"</span>);
 <a href=#1055 id=1055 data-nosnippet>1055</a>                };
 <a href=#1056 id=1056 data-nosnippet>1056</a>                <span class="macro">assert!</span>(core_function == CoreFunction::FutureAwait);

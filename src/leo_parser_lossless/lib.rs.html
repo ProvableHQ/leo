@@ -300,7 +300,7 @@
 <a href=#300 id=300 data-nosnippet>300</a>    <span class="kw">let </span><span class="kw-2">mut </span>iter = text.split(<span class="string">"::"</span>);
 <a href=#301 id=301 data-nosnippet>301</a>
 <a href=#302 id=302 data-nosnippet>302</a>    <span class="kw">match </span>(iter.next(), iter.next(), iter.next()) {
-<a href=#303 id=303 data-nosnippet>303</a>        (<span class="prelude-val">Some</span>(first), <span class="prelude-val">Some</span>(second), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Some</span>((first, second)),
+<a href=#303 id=303 data-nosnippet>303</a>        (<span class="prelude-val">Some</span>(first), <span class="prelude-val">Some</span>(second), <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>((first, second)),
 <a href=#304 id=304 data-nosnippet>304</a>        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
 <a href=#305 id=305 data-nosnippet>305</a>    }
 <a href=#306 id=306 data-nosnippet>306</a>}

@@ -602,7 +602,7 @@
 <a href=#602 id=602 data-nosnippet>602</a>        expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
 <a href=#603 id=603 data-nosnippet>603</a>    ) -&gt; <span class="self">Self</span>::Output {
 <a href=#604 id=604 data-nosnippet>604</a>        <span class="comment">// Check core struct name and function.
-<a href=#605 id=605 data-nosnippet>605</a>        </span><span class="kw">let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.get_core_function_call(<span class="kw-2">&amp;</span>input.variant, <span class="kw-2">&amp;</span>input.name) <span class="kw">else </span>{
+<a href=#605 id=605 data-nosnippet>605</a>        </span><span class="kw">let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.get_core_function_call(input) <span class="kw">else </span>{
 <a href=#606 id=606 data-nosnippet>606</a>            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
 <a href=#607 id=607 data-nosnippet>607</a>            <span class="kw">return </span>Type::Err;
 <a href=#608 id=608 data-nosnippet>608</a>        };
