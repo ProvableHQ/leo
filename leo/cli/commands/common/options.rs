@@ -27,6 +27,8 @@ use snarkvm::prelude::{
     TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
 };
 
+pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
+
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
