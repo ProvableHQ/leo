@@ -169,9 +169,8 @@ impl Compiler {
 
         self.do_pass::<FunctionInlining>(())?;
 
-        // Flattening may produce ternary expressions not in SSA form. In addition,
-        // inlining may create shadowed variables, so rename definitions.
-        self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: true })?;
+        // Flattening may produce ternary expressions not in SSA form.
+        self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 

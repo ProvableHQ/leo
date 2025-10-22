@@ -62,7 +62,7 @@ mod program;
 
 mod statement;
 
-mod visitor;
+pub mod visitor;
 use visitor::*;
 
 #[derive(Clone)]

@@ -1,4 +1,4 @@
-program test.aleo {
+program inline_no_shadowing.aleo {
     inline square(x: u32) -> u32 {
         return x * x;
     }
