@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::FunctionInliningVisitor;
-use crate::Replacer;
+use crate::{Replacer, SsaFormingInput, static_single_assignment::visitor::SsaFormingVisitor};
 
 use leo_ast::*;
 
@@ -60,10 +60,15 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
                     _ => expr.clone(),
                 };
 
-                let mut inlined_statements = Replacer::new(replace_path, false /* refresh IDs */, self.state)
+                // Replace path expressions with their corresponding const argument or keep them unchanged.
+                let reconstructed_block = Replacer::new(replace_path, false /* refresh IDs */, self.state)
                     .reconstruct_block(callee.block.clone())
-                    .0
-                    .statements;
+                    .0;
+
+                // Run SSA formation on the inlined block and rename definitions. Renaming is necessary to avoid shadowing variables.
+                let mut inlined_statements =
+                    SsaFormingVisitor::new(self.state, SsaFormingInput { rename_defs: true }, self.program)
+                        .consume_block(reconstructed_block);
 
                 // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
                 let result = match inlined_statements.last() {

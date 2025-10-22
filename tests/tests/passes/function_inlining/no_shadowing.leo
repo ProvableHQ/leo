@@ -1,12 +1,11 @@
-program test.aleo {
+program inline_no_shadowing.aleo {
     inline square(x: u32) -> u32 {
         return x * x;
     }
+
     transition main(a: u32, b: u32) -> u32 {
-        let $var$0 = a * a;
-        let first: u32 = ::$var$0;
-        let $var$1 = b * b;
-        let second: u32 = ::$var$1;
+        let first: u32 = square(a);
+        let second: u32 = square(b);
         return first + second;
     }
 }

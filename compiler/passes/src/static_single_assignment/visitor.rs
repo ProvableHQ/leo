@@ -29,7 +29,11 @@ pub struct SsaFormingVisitor<'a> {
     pub rename_defs: bool,
 }
 
-impl SsaFormingVisitor<'_> {
+impl<'a> SsaFormingVisitor<'a> {
+    pub fn new(state: &'a mut CompilerState, input: crate::SsaFormingInput, program: Symbol) -> Self {
+        Self { state, rename_table: RenameTable::new(None), program, rename_defs: input.rename_defs }
+    }
+
     /// Pushes a new scope, setting the current scope as the new scope's parent.
     pub(crate) fn push(&mut self) {
         let parent_table = core::mem::take(&mut self.rename_table);
