@@ -320,12 +320,18 @@ jobs:
 workflows:
   version: 2
   
-  platform-tests:
+  test-windows:
     jobs:
       - test-windows
+
+  test-macos:
+    jobs:
       - test-macos
+
+  test-linux:
+    jobs:
       - test-linux
-  
+
   code-quality:
     jobs:
       - check-style-clippy-docs
