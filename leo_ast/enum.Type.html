@@ -56,7 +56,7 @@ they are treated as equal unconditionally since monomorphization and other passe
 mismatches later.</p>
 </div></details><section id="method.from_snarkvm" class="method"><a class="src rightside" href="../src/leo_ast/types/type_.rs.html#226-239">Source</a><h4 class="code-header">pub fn <a href="#method.from_snarkvm" class="fn">from_snarkvm</a>&lt;N: Network&gt;(
     t: &amp;PlaintextType&lt;N&gt;,
-    program: <a class="enum" href="https://doc.rust-lang.org/1.90.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Symbol&gt;,
+    program: <a class="enum" href="https://doc.rust-lang.org/1.90.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../leo_span/symbol/struct.Symbol.html" title="struct leo_span::symbol::Symbol">Symbol</a>&gt;,
 ) -&gt; Self</h4></section><section id="method.to_snarkvm" class="method"><a class="src rightside" href="../src/leo_ast/types/type_.rs.html#242-265">Source</a><h4 class="code-header">pub fn <a href="#method.to_snarkvm" class="fn">to_snarkvm</a>&lt;N: Network&gt;(&amp;self) -&gt; <a class="type" href="https://docs.rs/anyhow/1.0.100/anyhow/type.Result.html" title="type anyhow::Result">Result</a>&lt;PlaintextType&lt;N&gt;&gt;</h4></section><section id="method.size_in_bits" class="method"><a class="src rightside" href="../src/leo_ast/types/type_.rs.html#268-276">Source</a><h4 class="code-header">pub fn <a href="#method.size_in_bits" class="fn">size_in_bits</a>&lt;N: Network, F&gt;(
     &amp;self,
     is_raw: <a class="primitive" href="https://doc.rust-lang.org/1.90.0/std/primitive.bool.html">bool</a>,

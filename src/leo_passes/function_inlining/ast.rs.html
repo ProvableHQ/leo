@@ -15,7 +15,7 @@
 <a href=#15 id=15 data-nosnippet>15</a>// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">super</span>::FunctionInliningVisitor;
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use </span><span class="kw">crate</span>::Replacer;
+<a href=#18 id=18 data-nosnippet>18</a><span class="kw">use crate</span>::{Replacer, SsaFormingInput, static_single_assignment::visitor::SsaFormingVisitor};
 <a href=#19 id=19 data-nosnippet>19</a>
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <a href=#21 id=21 data-nosnippet>21</a>
@@ -60,122 +60,127 @@
 <a href=#60 id=60 data-nosnippet>60</a>                    <span class="kw">_ </span>=&gt; expr.clone(),
 <a href=#61 id=61 data-nosnippet>61</a>                };
 <a href=#62 id=62 data-nosnippet>62</a>
-<a href=#63 id=63 data-nosnippet>63</a>                <span class="kw">let </span><span class="kw-2">mut </span>inlined_statements = Replacer::new(replace_path, <span class="bool-val">false </span><span class="comment">/* refresh IDs */</span>, <span class="self">self</span>.state)
-<a href=#64 id=64 data-nosnippet>64</a>                    .reconstruct_block(callee.block.clone())
-<a href=#65 id=65 data-nosnippet>65</a>                    .<span class="number">0
-<a href=#66 id=66 data-nosnippet>66</a>                    </span>.statements;
+<a href=#63 id=63 data-nosnippet>63</a>                <span class="comment">// Replace path expressions with their corresponding const argument or keep them unchanged.
+<a href=#64 id=64 data-nosnippet>64</a>                </span><span class="kw">let </span>reconstructed_block = Replacer::new(replace_path, <span class="bool-val">false </span><span class="comment">/* refresh IDs */</span>, <span class="self">self</span>.state)
+<a href=#65 id=65 data-nosnippet>65</a>                    .reconstruct_block(callee.block.clone())
+<a href=#66 id=66 data-nosnippet>66</a>                    .<span class="number">0</span>;
 <a href=#67 id=67 data-nosnippet>67</a>
-<a href=#68 id=68 data-nosnippet>68</a>                <span class="comment">// If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
-<a href=#69 id=69 data-nosnippet>69</a>                </span><span class="kw">let </span>result = <span class="kw">match </span>inlined_statements.last() {
-<a href=#70 id=70 data-nosnippet>70</a>                    <span class="prelude-val">Some</span>(Statement::Return(<span class="kw">_</span>)) =&gt; {
-<a href=#71 id=71 data-nosnippet>71</a>                        <span class="comment">// Note that this unwrap is safe since we know that the last statement is a return statement.
-<a href=#72 id=72 data-nosnippet>72</a>                        </span><span class="kw">match </span>inlined_statements.pop().unwrap() {
-<a href=#73 id=73 data-nosnippet>73</a>                            Statement::Return(ReturnStatement { expression, .. }) =&gt; expression,
-<a href=#74 id=74 data-nosnippet>74</a>                            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"This branch checks that the last statement is a return statement."</span>),
-<a href=#75 id=75 data-nosnippet>75</a>                        }
-<a href=#76 id=76 data-nosnippet>76</a>                    }
-<a href=#77 id=77 data-nosnippet>77</a>                    <span class="kw">_ </span>=&gt; {
-<a href=#78 id=78 data-nosnippet>78</a>                        <span class="kw">let </span>id = <span class="self">self</span>.state.node_builder.next_id();
-<a href=#79 id=79 data-nosnippet>79</a>                        <span class="self">self</span>.state.type_table.insert(id, Type::Unit);
-<a href=#80 id=80 data-nosnippet>80</a>                        UnitExpression { span: Default::default(), id }.into()
+<a href=#68 id=68 data-nosnippet>68</a>                <span class="comment">// Run SSA formation on the inlined block and rename definitions. Renaming is necessary to avoid shadowing variables.
+<a href=#69 id=69 data-nosnippet>69</a>                </span><span class="kw">let </span><span class="kw-2">mut </span>inlined_statements =
+<a href=#70 id=70 data-nosnippet>70</a>                    SsaFormingVisitor::new(<span class="self">self</span>.state, SsaFormingInput { rename_defs: <span class="bool-val">true </span>}, <span class="self">self</span>.program)
+<a href=#71 id=71 data-nosnippet>71</a>                        .consume_block(reconstructed_block);
+<a href=#72 id=72 data-nosnippet>72</a>
+<a href=#73 id=73 data-nosnippet>73</a>                <span class="comment">// If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
+<a href=#74 id=74 data-nosnippet>74</a>                </span><span class="kw">let </span>result = <span class="kw">match </span>inlined_statements.last() {
+<a href=#75 id=75 data-nosnippet>75</a>                    <span class="prelude-val">Some</span>(Statement::Return(<span class="kw">_</span>)) =&gt; {
+<a href=#76 id=76 data-nosnippet>76</a>                        <span class="comment">// Note that this unwrap is safe since we know that the last statement is a return statement.
+<a href=#77 id=77 data-nosnippet>77</a>                        </span><span class="kw">match </span>inlined_statements.pop().unwrap() {
+<a href=#78 id=78 data-nosnippet>78</a>                            Statement::Return(ReturnStatement { expression, .. }) =&gt; expression,
+<a href=#79 id=79 data-nosnippet>79</a>                            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"This branch checks that the last statement is a return statement."</span>),
+<a href=#80 id=80 data-nosnippet>80</a>                        }
 <a href=#81 id=81 data-nosnippet>81</a>                    }
-<a href=#82 id=82 data-nosnippet>82</a>                };
-<a href=#83 id=83 data-nosnippet>83</a>
-<a href=#84 id=84 data-nosnippet>84</a>                (result, inlined_statements)
-<a href=#85 id=85 data-nosnippet>85</a>            }
-<a href=#86 id=86 data-nosnippet>86</a>            Variant::Function
-<a href=#87 id=87 data-nosnippet>87</a>            | Variant::Script
-<a href=#88 id=88 data-nosnippet>88</a>            | Variant::AsyncFunction
-<a href=#89 id=89 data-nosnippet>89</a>            | Variant::Transition
-<a href=#90 id=90 data-nosnippet>90</a>            | Variant::AsyncTransition =&gt; (input.into(), Default::default()),
-<a href=#91 id=91 data-nosnippet>91</a>        }
-<a href=#92 id=92 data-nosnippet>92</a>    }
-<a href=#93 id=93 data-nosnippet>93</a>
-<a href=#94 id=94 data-nosnippet>94</a>    <span class="comment">/* Statements */
-<a href=#95 id=95 data-nosnippet>95</a>    </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#96 id=96 data-nosnippet>96</a>        <span class="macro">panic!</span>(<span class="string">"`AssignStatement`s should not exist in the AST at this phase of compilation."</span>)
+<a href=#82 id=82 data-nosnippet>82</a>                    <span class="kw">_ </span>=&gt; {
+<a href=#83 id=83 data-nosnippet>83</a>                        <span class="kw">let </span>id = <span class="self">self</span>.state.node_builder.next_id();
+<a href=#84 id=84 data-nosnippet>84</a>                        <span class="self">self</span>.state.type_table.insert(id, Type::Unit);
+<a href=#85 id=85 data-nosnippet>85</a>                        UnitExpression { span: Default::default(), id }.into()
+<a href=#86 id=86 data-nosnippet>86</a>                    }
+<a href=#87 id=87 data-nosnippet>87</a>                };
+<a href=#88 id=88 data-nosnippet>88</a>
+<a href=#89 id=89 data-nosnippet>89</a>                (result, inlined_statements)
+<a href=#90 id=90 data-nosnippet>90</a>            }
+<a href=#91 id=91 data-nosnippet>91</a>            Variant::Function
+<a href=#92 id=92 data-nosnippet>92</a>            | Variant::Script
+<a href=#93 id=93 data-nosnippet>93</a>            | Variant::AsyncFunction
+<a href=#94 id=94 data-nosnippet>94</a>            | Variant::Transition
+<a href=#95 id=95 data-nosnippet>95</a>            | Variant::AsyncTransition =&gt; (input.into(), Default::default()),
+<a href=#96 id=96 data-nosnippet>96</a>        }
 <a href=#97 id=97 data-nosnippet>97</a>    }
 <a href=#98 id=98 data-nosnippet>98</a>
-<a href=#99 id=99 data-nosnippet>99</a>    <span class="doccomment">/// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
-<a href=#100 id=100 data-nosnippet>100</a>    </span><span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#101 id=101 data-nosnippet>101</a>        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::with_capacity(block.statements.len());
-<a href=#102 id=102 data-nosnippet>102</a>
-<a href=#103 id=103 data-nosnippet>103</a>        <span class="kw">for </span>statement <span class="kw">in </span>block.statements {
-<a href=#104 id=104 data-nosnippet>104</a>            <span class="kw">let </span>(reconstructed_statement, additional_statements) = <span class="self">self</span>.reconstruct_statement(statement);
-<a href=#105 id=105 data-nosnippet>105</a>            statements.extend(additional_statements);
-<a href=#106 id=106 data-nosnippet>106</a>            statements.push(reconstructed_statement);
-<a href=#107 id=107 data-nosnippet>107</a>        }
-<a href=#108 id=108 data-nosnippet>108</a>
-<a href=#109 id=109 data-nosnippet>109</a>        (Block { span: block.span, statements, id: block.id }, Default::default())
-<a href=#110 id=110 data-nosnippet>110</a>    }
-<a href=#111 id=111 data-nosnippet>111</a>
-<a href=#112 id=112 data-nosnippet>112</a>    <span class="doccomment">/// Flattening removes conditional statements from the program.
-<a href=#113 id=113 data-nosnippet>113</a>    </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#114 id=114 data-nosnippet>114</a>        <span class="kw">if </span>!<span class="self">self</span>.is_async {
-<a href=#115 id=115 data-nosnippet>115</a>            <span class="macro">panic!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
-<a href=#116 id=116 data-nosnippet>116</a>        } <span class="kw">else </span>{
-<a href=#117 id=117 data-nosnippet>117</a>            (
-<a href=#118 id=118 data-nosnippet>118</a>                ConditionalStatement {
-<a href=#119 id=119 data-nosnippet>119</a>                    condition: <span class="self">self</span>.reconstruct_expression(input.condition, <span class="kw-2">&amp;</span>()).<span class="number">0</span>,
-<a href=#120 id=120 data-nosnippet>120</a>                    then: <span class="self">self</span>.reconstruct_block(input.then).<span class="number">0</span>,
-<a href=#121 id=121 data-nosnippet>121</a>                    otherwise: input.otherwise.map(|n| Box::new(<span class="self">self</span>.reconstruct_statement(<span class="kw-2">*</span>n).<span class="number">0</span>)),
-<a href=#122 id=122 data-nosnippet>122</a>                    span: input.span,
-<a href=#123 id=123 data-nosnippet>123</a>                    id: input.id,
-<a href=#124 id=124 data-nosnippet>124</a>                }
-<a href=#125 id=125 data-nosnippet>125</a>                .into(),
-<a href=#126 id=126 data-nosnippet>126</a>                Default::default(),
-<a href=#127 id=127 data-nosnippet>127</a>            )
-<a href=#128 id=128 data-nosnippet>128</a>        }
-<a href=#129 id=129 data-nosnippet>129</a>    }
-<a href=#130 id=130 data-nosnippet>130</a>
-<a href=#131 id=131 data-nosnippet>131</a>    <span class="doccomment">/// Reconstruct a definition statement by inlining any function calls.
-<a href=#132 id=132 data-nosnippet>132</a>    /// This function also segments tuple assignment statements into multiple assignment statements.
-<a href=#133 id=133 data-nosnippet>133</a>    </span><span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#134 id=134 data-nosnippet>134</a>        <span class="kw">let </span>(value, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.reconstruct_expression(input.value, <span class="kw-2">&amp;</span>());
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="kw">match </span>(input.place, value) {
-<a href=#136 id=136 data-nosnippet>136</a>            <span class="comment">// If we just inlined the production of a tuple literal, we need multiple definition statements.
-<a href=#137 id=137 data-nosnippet>137</a>            </span>(DefinitionPlace::Multiple(left), Expression::Tuple(right)) =&gt; {
-<a href=#138 id=138 data-nosnippet>138</a>                <span class="macro">assert_eq!</span>(left.len(), right.elements.len());
-<a href=#139 id=139 data-nosnippet>139</a>                <span class="kw">for </span>(identifier, rhs_value) <span class="kw">in </span>left.into_iter().zip(right.elements) {
-<a href=#140 id=140 data-nosnippet>140</a>                    <span class="kw">let </span>stmt = DefinitionStatement {
-<a href=#141 id=141 data-nosnippet>141</a>                        place: DefinitionPlace::Single(identifier),
-<a href=#142 id=142 data-nosnippet>142</a>                        type_: <span class="prelude-val">None</span>,
-<a href=#143 id=143 data-nosnippet>143</a>                        value: rhs_value,
-<a href=#144 id=144 data-nosnippet>144</a>                        span: Default::default(),
-<a href=#145 id=145 data-nosnippet>145</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
-<a href=#146 id=146 data-nosnippet>146</a>                    }
-<a href=#147 id=147 data-nosnippet>147</a>                    .into();
-<a href=#148 id=148 data-nosnippet>148</a>
-<a href=#149 id=149 data-nosnippet>149</a>                    statements.push(stmt);
-<a href=#150 id=150 data-nosnippet>150</a>                }
-<a href=#151 id=151 data-nosnippet>151</a>                (Statement::dummy(), statements)
-<a href=#152 id=152 data-nosnippet>152</a>            }
+<a href=#99 id=99 data-nosnippet>99</a>    <span class="comment">/* Statements */
+<a href=#100 id=100 data-nosnippet>100</a>    </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#101 id=101 data-nosnippet>101</a>        <span class="macro">panic!</span>(<span class="string">"`AssignStatement`s should not exist in the AST at this phase of compilation."</span>)
+<a href=#102 id=102 data-nosnippet>102</a>    }
+<a href=#103 id=103 data-nosnippet>103</a>
+<a href=#104 id=104 data-nosnippet>104</a>    <span class="doccomment">/// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
+<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#106 id=106 data-nosnippet>106</a>        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::with_capacity(block.statements.len());
+<a href=#107 id=107 data-nosnippet>107</a>
+<a href=#108 id=108 data-nosnippet>108</a>        <span class="kw">for </span>statement <span class="kw">in </span>block.statements {
+<a href=#109 id=109 data-nosnippet>109</a>            <span class="kw">let </span>(reconstructed_statement, additional_statements) = <span class="self">self</span>.reconstruct_statement(statement);
+<a href=#110 id=110 data-nosnippet>110</a>            statements.extend(additional_statements);
+<a href=#111 id=111 data-nosnippet>111</a>            statements.push(reconstructed_statement);
+<a href=#112 id=112 data-nosnippet>112</a>        }
+<a href=#113 id=113 data-nosnippet>113</a>
+<a href=#114 id=114 data-nosnippet>114</a>        (Block { span: block.span, statements, id: block.id }, Default::default())
+<a href=#115 id=115 data-nosnippet>115</a>    }
+<a href=#116 id=116 data-nosnippet>116</a>
+<a href=#117 id=117 data-nosnippet>117</a>    <span class="doccomment">/// Flattening removes conditional statements from the program.
+<a href=#118 id=118 data-nosnippet>118</a>    </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#119 id=119 data-nosnippet>119</a>        <span class="kw">if </span>!<span class="self">self</span>.is_async {
+<a href=#120 id=120 data-nosnippet>120</a>            <span class="macro">panic!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
+<a href=#121 id=121 data-nosnippet>121</a>        } <span class="kw">else </span>{
+<a href=#122 id=122 data-nosnippet>122</a>            (
+<a href=#123 id=123 data-nosnippet>123</a>                ConditionalStatement {
+<a href=#124 id=124 data-nosnippet>124</a>                    condition: <span class="self">self</span>.reconstruct_expression(input.condition, <span class="kw-2">&amp;</span>()).<span class="number">0</span>,
+<a href=#125 id=125 data-nosnippet>125</a>                    then: <span class="self">self</span>.reconstruct_block(input.then).<span class="number">0</span>,
+<a href=#126 id=126 data-nosnippet>126</a>                    otherwise: input.otherwise.map(|n| Box::new(<span class="self">self</span>.reconstruct_statement(<span class="kw-2">*</span>n).<span class="number">0</span>)),
+<a href=#127 id=127 data-nosnippet>127</a>                    span: input.span,
+<a href=#128 id=128 data-nosnippet>128</a>                    id: input.id,
+<a href=#129 id=129 data-nosnippet>129</a>                }
+<a href=#130 id=130 data-nosnippet>130</a>                .into(),
+<a href=#131 id=131 data-nosnippet>131</a>                Default::default(),
+<a href=#132 id=132 data-nosnippet>132</a>            )
+<a href=#133 id=133 data-nosnippet>133</a>        }
+<a href=#134 id=134 data-nosnippet>134</a>    }
+<a href=#135 id=135 data-nosnippet>135</a>
+<a href=#136 id=136 data-nosnippet>136</a>    <span class="doccomment">/// Reconstruct a definition statement by inlining any function calls.
+<a href=#137 id=137 data-nosnippet>137</a>    /// This function also segments tuple assignment statements into multiple assignment statements.
+<a href=#138 id=138 data-nosnippet>138</a>    </span><span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#139 id=139 data-nosnippet>139</a>        <span class="kw">let </span>(value, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.reconstruct_expression(input.value, <span class="kw-2">&amp;</span>());
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="kw">match </span>(input.place, value) {
+<a href=#141 id=141 data-nosnippet>141</a>            <span class="comment">// If we just inlined the production of a tuple literal, we need multiple definition statements.
+<a href=#142 id=142 data-nosnippet>142</a>            </span>(DefinitionPlace::Multiple(left), Expression::Tuple(right)) =&gt; {
+<a href=#143 id=143 data-nosnippet>143</a>                <span class="macro">assert_eq!</span>(left.len(), right.elements.len());
+<a href=#144 id=144 data-nosnippet>144</a>                <span class="kw">for </span>(identifier, rhs_value) <span class="kw">in </span>left.into_iter().zip(right.elements) {
+<a href=#145 id=145 data-nosnippet>145</a>                    <span class="kw">let </span>stmt = DefinitionStatement {
+<a href=#146 id=146 data-nosnippet>146</a>                        place: DefinitionPlace::Single(identifier),
+<a href=#147 id=147 data-nosnippet>147</a>                        type_: <span class="prelude-val">None</span>,
+<a href=#148 id=148 data-nosnippet>148</a>                        value: rhs_value,
+<a href=#149 id=149 data-nosnippet>149</a>                        span: Default::default(),
+<a href=#150 id=150 data-nosnippet>150</a>                        id: <span class="self">self</span>.state.node_builder.next_id(),
+<a href=#151 id=151 data-nosnippet>151</a>                    }
+<a href=#152 id=152 data-nosnippet>152</a>                    .into();
 <a href=#153 id=153 data-nosnippet>153</a>
-<a href=#154 id=154 data-nosnippet>154</a>            (place, value) =&gt; {
-<a href=#155 id=155 data-nosnippet>155</a>                input.value = value;
-<a href=#156 id=156 data-nosnippet>156</a>                input.place = place;
-<a href=#157 id=157 data-nosnippet>157</a>                (input.into(), statements)
-<a href=#158 id=158 data-nosnippet>158</a>            }
-<a href=#159 id=159 data-nosnippet>159</a>        }
-<a href=#160 id=160 data-nosnippet>160</a>    }
-<a href=#161 id=161 data-nosnippet>161</a>
-<a href=#162 id=162 data-nosnippet>162</a>    <span class="doccomment">/// Reconstructs expression statements by inlining any function calls.
-<a href=#163 id=163 data-nosnippet>163</a>    </span><span class="kw">fn </span>reconstruct_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#164 id=164 data-nosnippet>164</a>        <span class="comment">// Reconstruct the expression.
-<a href=#165 id=165 data-nosnippet>165</a>        // Note that type checking guarantees that the expression is a function call.
-<a href=#166 id=166 data-nosnippet>166</a>        </span><span class="kw">let </span>(expression, additional_statements) = <span class="self">self</span>.reconstruct_expression(input.expression, <span class="kw-2">&amp;</span>());
-<a href=#167 id=167 data-nosnippet>167</a>
-<a href=#168 id=168 data-nosnippet>168</a>        <span class="comment">// If the resulting expression is a unit expression, return a dummy statement.
-<a href=#169 id=169 data-nosnippet>169</a>        </span><span class="kw">let </span>statement = <span class="kw">match </span>expression {
-<a href=#170 id=170 data-nosnippet>170</a>            Expression::Unit(<span class="kw">_</span>) =&gt; Statement::dummy(),
-<a href=#171 id=171 data-nosnippet>171</a>            <span class="kw">_ </span>=&gt; ExpressionStatement { expression, ..input }.into(),
-<a href=#172 id=172 data-nosnippet>172</a>        };
-<a href=#173 id=173 data-nosnippet>173</a>
-<a href=#174 id=174 data-nosnippet>174</a>        (statement, additional_statements)
-<a href=#175 id=175 data-nosnippet>175</a>    }
-<a href=#176 id=176 data-nosnippet>176</a>
-<a href=#177 id=177 data-nosnippet>177</a>    <span class="doccomment">/// Loop unrolling unrolls and removes iteration statements from the program.
-<a href=#178 id=178 data-nosnippet>178</a>    </span><span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#179 id=179 data-nosnippet>179</a>        <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
+<a href=#154 id=154 data-nosnippet>154</a>                    statements.push(stmt);
+<a href=#155 id=155 data-nosnippet>155</a>                }
+<a href=#156 id=156 data-nosnippet>156</a>                (Statement::dummy(), statements)
+<a href=#157 id=157 data-nosnippet>157</a>            }
+<a href=#158 id=158 data-nosnippet>158</a>
+<a href=#159 id=159 data-nosnippet>159</a>            (place, value) =&gt; {
+<a href=#160 id=160 data-nosnippet>160</a>                input.value = value;
+<a href=#161 id=161 data-nosnippet>161</a>                input.place = place;
+<a href=#162 id=162 data-nosnippet>162</a>                (input.into(), statements)
+<a href=#163 id=163 data-nosnippet>163</a>            }
+<a href=#164 id=164 data-nosnippet>164</a>        }
+<a href=#165 id=165 data-nosnippet>165</a>    }
+<a href=#166 id=166 data-nosnippet>166</a>
+<a href=#167 id=167 data-nosnippet>167</a>    <span class="doccomment">/// Reconstructs expression statements by inlining any function calls.
+<a href=#168 id=168 data-nosnippet>168</a>    </span><span class="kw">fn </span>reconstruct_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#169 id=169 data-nosnippet>169</a>        <span class="comment">// Reconstruct the expression.
+<a href=#170 id=170 data-nosnippet>170</a>        // Note that type checking guarantees that the expression is a function call.
+<a href=#171 id=171 data-nosnippet>171</a>        </span><span class="kw">let </span>(expression, additional_statements) = <span class="self">self</span>.reconstruct_expression(input.expression, <span class="kw-2">&amp;</span>());
+<a href=#172 id=172 data-nosnippet>172</a>
+<a href=#173 id=173 data-nosnippet>173</a>        <span class="comment">// If the resulting expression is a unit expression, return a dummy statement.
+<a href=#174 id=174 data-nosnippet>174</a>        </span><span class="kw">let </span>statement = <span class="kw">match </span>expression {
+<a href=#175 id=175 data-nosnippet>175</a>            Expression::Unit(<span class="kw">_</span>) =&gt; Statement::dummy(),
+<a href=#176 id=176 data-nosnippet>176</a>            <span class="kw">_ </span>=&gt; ExpressionStatement { expression, ..input }.into(),
+<a href=#177 id=177 data-nosnippet>177</a>        };
+<a href=#178 id=178 data-nosnippet>178</a>
+<a href=#179 id=179 data-nosnippet>179</a>        (statement, additional_statements)
 <a href=#180 id=180 data-nosnippet>180</a>    }
-<a href=#181 id=181 data-nosnippet>181</a>}</code></pre></div></section></main></body></html>
+<a href=#181 id=181 data-nosnippet>181</a>
+<a href=#182 id=182 data-nosnippet>182</a>    <span class="doccomment">/// Loop unrolling unrolls and removes iteration statements from the program.
+<a href=#183 id=183 data-nosnippet>183</a>    </span><span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#184 id=184 data-nosnippet>184</a>        <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
+<a href=#185 id=185 data-nosnippet>185</a>    }
+<a href=#186 id=186 data-nosnippet>186</a>}</code></pre></div></section></main></body></html>
