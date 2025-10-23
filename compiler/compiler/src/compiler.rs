@@ -56,7 +56,7 @@ pub struct Compiler {
 impl Compiler {
     pub fn parse(&mut self, source: &str, filename: FileName, modules: &[(&str, FileName)]) -> Result<()> {
         // Register the source in the source map.
-        let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
+        let source_file = with_session_globals(|s| s.source_map.new_source(source, filename.clone()));
 
         // Register the sources of all the modules in the source map.
         let modules = modules
@@ -81,7 +81,15 @@ impl Compiler {
         } else if self.program_name != Some(program_scope.program_id.name.to_string()) {
             return Err(CompilerError::program_name_should_match_file_name(
                 program_scope.program_id.name,
-                self.program_name.as_ref().unwrap(),
+                // If this is a test, use the filename as the expected name.
+                if self.state.is_test {
+                    format!(
+                        "`{}` (the test file name)",
+                        filename.to_string().split("/").last().expect("Could not get file name")
+                    )
+                } else {
+                    format!("`{}` (specified in `program.json`)", self.program_name.as_ref().unwrap())
+                },
                 program_scope.program_id.name.span,
             )
             .into());
