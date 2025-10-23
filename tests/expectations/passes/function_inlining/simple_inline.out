@@ -3,7 +3,8 @@ program test.aleo {
         return a + b;
     }
     transition main(x: u32, y: u32) -> u32 {
-        let result: u32 = x + y;
+        let $var$0 = x + y;
+        let result: u32 = ::$var$0;
         return result;
     }
 }
