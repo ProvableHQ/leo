@@ -253,9 +253,13 @@ fn handle_deploy<N: Network>(
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
+    // Remove version suffixes from the endpoint.
+    let re = regex::Regex::new(r"v\d+$").unwrap();
+    let query_endpoint = re.replace(&endpoint, "").to_string();
+
     // Specify the query
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
-        endpoint
+        query_endpoint
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );

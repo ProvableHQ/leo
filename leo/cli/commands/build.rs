@@ -87,7 +87,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     let endpoint = match get_endpoint(&command.env_override.endpoint) {
         Ok(endpoint) => endpoint,
         Err(_) => {
-            println!("⚠️ No endpointt specified, defaulting to '{}'.", DEFAULT_ENDPOINT);
+            println!("⚠️ No endpoint specified, defaulting to '{}'.", DEFAULT_ENDPOINT);
             DEFAULT_ENDPOINT.to_string()
         }
     };

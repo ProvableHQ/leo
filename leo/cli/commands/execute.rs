@@ -304,9 +304,13 @@ fn handle_execute<A: Aleo>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
+    // Remove version suffixes from the endpoint.
+    let re = regex::Regex::new(r"v\d+$").unwrap();
+    let query_endpoint = re.replace(&endpoint, "").to_string();
+
     // Specify the query.
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
-        endpoint
+        query_endpoint
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
@@ -338,6 +342,7 @@ fn handle_execute<A: Aleo>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Execute the program and produce a transaction.
+    println!("\n⚙️ Executing {program_name}/{function_name}...");
     let (transaction, response) = vm.execute_with_response(
         &private_key,
         (&program_name, &function_name),
