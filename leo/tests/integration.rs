@@ -143,8 +143,14 @@ fn filter_stdout(data: &str) -> String {
         (Regex::new("Explored [0-9]* blocks.").unwrap(), "Explored XXXXXX blocks."),
         (Regex::new("Max Variables:        [0-9,]*").unwrap(), "Max Variables:        XXXXXX"),
         (Regex::new("Max Constraints:      [0-9,]*").unwrap(), "Max Constraints:      XXXXXX"),
-        // This is filtered out since the cache can frequently differ between local and CI runs.
+        // These are filtered out since the cache can frequently differ between local and CI runs.
         (Regex::new("Warning: The cached file.*\n").unwrap(), ""),
+        (
+            Regex::new(r"  • The program '[A-Za-z0-9_]+\.aleo' on the network does not match the local copy.*\n")
+                .unwrap(),
+            "",
+        ),
+        (Regex::new(r"  • The program '[A-Za-z0-9_]+\.aleo' does not exist on the network.*\n").unwrap(), ""),
     ];
 
     let mut cow = Cow::Borrowed(data);
