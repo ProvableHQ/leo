@@ -180,6 +180,8 @@ Attempting to determine the consensus version from the latest block height at ht
   - test_program1.aleo (edition: 0)
   - test_program2.aleo (edition: 1)
 
+⚙️ Executing test_program2.aleo/main...
+
 📊 Execution Summary for test_program2.aleo
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
