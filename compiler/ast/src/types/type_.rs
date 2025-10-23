@@ -138,7 +138,7 @@ impl Type {
                 }
 
                 // Two composite types are the same if their programs and their _absolute_ paths match.
-                (left.program == right.program)
+                (left.path.program() == right.path.program())
                     && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
                         (Some(l), Some(r)) => l == r,
                         _ => false,

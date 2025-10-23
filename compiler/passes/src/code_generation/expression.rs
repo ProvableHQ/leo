@@ -55,6 +55,7 @@ use snarkvm::{
 };
 
 use anyhow::bail;
+use itertools::Itertools;
 use std::{borrow::Borrow, fmt::Write as _};
 
 /// Implement the necessary methods to visit nodes in the AST.
@@ -199,7 +200,7 @@ impl CodeGeneratingVisitor<'_> {
 
         let cast_instruction = format!(
             "    cast {expression_operand} into {destination_register} as {};\n",
-            Self::visit_type(&input.type_)
+            self.visit_type(&input.type_)
         );
 
         // Concatenate the instructions.
@@ -224,7 +225,7 @@ impl CodeGeneratingVisitor<'_> {
         let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
             panic!("All types should be known at this phase of compilation");
         };
-        let array_type: String = Self::visit_type(&array_type);
+        let array_type: String = self.visit_type(&array_type);
 
         let array_instruction =
             format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
@@ -392,7 +393,7 @@ impl CodeGeneratingVisitor<'_> {
         let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
             panic!("All types should be known at this phase of compilation");
         };
-        let array_type: String = Self::visit_type(&array_type);
+        let array_type: String = self.visit_type(&array_type);
 
         let array_instruction =
             format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
@@ -602,7 +603,7 @@ impl CodeGeneratingVisitor<'_> {
                 let instruction = format!(
                     "    serialize.{variant} {} ({}) into {destination_register} ({output_array_type});\n",
                     arguments[0],
-                    Self::visit_type(&input_type)
+                    self.visit_type(&input_type)
                 );
 
                 (destination_register, instruction)
@@ -623,8 +624,8 @@ impl CodeGeneratingVisitor<'_> {
                 let instruction = format!(
                     "    deserialize.{variant} {} ({}) into {destination_register} ({});\n",
                     arguments[0],
-                    Self::visit_type(&input_type),
-                    Self::visit_type(&output_type)
+                    self.visit_type(&input_type),
+                    self.visit_type(&output_type)
                 );
 
                 (destination_register, instruction)
@@ -655,7 +656,7 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_call(&mut self, input: &CallExpression) -> (String, String) {
         let caller_program = self.program_id.expect("Calls only appear within programs.").name.name;
-        let callee_program = input.program.unwrap_or(caller_program);
+        let callee_program = input.function.program().unwrap_or(caller_program);
         let func_symbol = self
             .state
             .symbol_table
@@ -665,11 +666,11 @@ impl CodeGeneratingVisitor<'_> {
         // Need to determine the program the function originated from as well as if the function has a finalize block.
         let mut call_instruction = if caller_program != callee_program {
             // All external functions must be defined as stubs.
-            assert!(
+            /*assert!(
                 self.program.stubs.get(&callee_program).is_some(),
                 "Type checking guarantees that imported and stub programs are present."
-            );
-            format!("    call {}.aleo/{}", callee_program, input.function)
+            );*/
+            format!("    call {}.aleo/{}", callee_program, input.function.absolute_path().iter().format("::"))
         } else if func_symbol.function.variant.is_async() {
             format!("    async {}", self.current_function.unwrap().identifier)
         } else {
@@ -771,7 +772,7 @@ impl CodeGeneratingVisitor<'_> {
                 for i in 0..array_type.length.as_u32().expect("length should be known at this point") as usize {
                     write!(&mut instruction, "{register}[{i}u32] ").unwrap();
                 }
-                writeln!(&mut instruction, "into {new_reg} as {};", Self::visit_type(typ)).unwrap();
+                writeln!(&mut instruction, "into {new_reg} as {};", self.visit_type(typ)).unwrap();
                 (new_reg, instruction)
             }
 
@@ -783,7 +784,7 @@ impl CodeGeneratingVisitor<'_> {
                     .state
                     .symbol_table
                     .lookup_record(&location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(&comp_ty.path.absolute_path()))
+                    .or_else(|| self.state.symbol_table.lookup_struct(&location))
                     .unwrap();
                 let mut instruction = "    cast ".to_string();
                 for member in &comp.members {

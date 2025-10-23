@@ -29,7 +29,7 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
     /* Expressions */
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Type checking guarantees that only functions local to the program scope can be inlined.
-        if input.program.is_some_and(|prog| prog != self.program) {
+        if input.function.program().is_some_and(|prog| prog != self.program) {
             return (input.into(), Default::default());
         }
 

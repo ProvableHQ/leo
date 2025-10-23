@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, Pass, SymbolTable, VariableSymbol, VariableType};
+use crate::{CompilerState, Pass, VariableSymbol, VariableType};
 
 use leo_ast::{
     AstVisitor,
@@ -36,9 +36,7 @@ use leo_ast::{
     Variant,
 };
 use leo_errors::Result;
-use leo_span::{Span, Symbol};
-
-use indexmap::IndexMap;
+use leo_span::Symbol;
 
 /// A pass to fill the SymbolTable.
 ///
@@ -53,13 +51,8 @@ impl Pass for SymbolTableCreation {
 
     fn do_pass(_input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
-        let mut visitor = SymbolTableCreationVisitor {
-            state,
-            structs: IndexMap::new(),
-            program_name: Symbol::intern(""),
-            module: vec![],
-            is_stub: false,
-        };
+        let mut visitor =
+            SymbolTableCreationVisitor { state, program_name: Symbol::intern(""), module: vec![], is_stub: false };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
@@ -76,8 +69,6 @@ struct SymbolTableCreationVisitor<'a> {
     module: Vec<Symbol>,
     /// Whether or not traversing stub.
     is_stub: bool,
-    /// The set of local structs that have been successfully visited.
-    structs: IndexMap<Vec<Symbol>, Span>,
 }
 
 impl SymbolTableCreationVisitor<'_> {
@@ -143,19 +134,6 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         // Allow up to one local redefinition for each external struct.
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
 
-        if !input.is_record {
-            if let Some(prev_span) = self.structs.get(&full_name) {
-                // The struct already existed
-                return self.state.handler.emit_err(SymbolTable::emit_shadow_error(
-                    input.identifier.name,
-                    input.identifier.span,
-                    *prev_span,
-                ));
-            }
-
-            self.structs.insert(full_name.clone(), input.identifier.span);
-        }
-
         if input.is_record {
             // While records are not allowed in submodules, we stll use their full name in the records table.
             // We don't expect the full name to have more than a single Symbol though.
@@ -165,8 +143,14 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
             {
                 self.state.handler.emit_err(err);
             }
-        } else if let Err(err) = self.state.symbol_table.insert_struct(self.program_name, &full_name, input.clone()) {
-            self.state.handler.emit_err(err);
+        } else {
+            let program_name = input.external.unwrap_or(self.program_name);
+
+            if let Err(err) =
+                self.state.symbol_table.insert_struct(Location::new(program_name, full_name), input.clone())
+            {
+                self.state.handler.emit_err(err);
+            }
         }
     }
 
@@ -260,10 +244,13 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
             {
                 self.state.handler.emit_err(err);
             }
-        } else if let Err(err) =
-            self.state.symbol_table.insert_struct(self.program_name, &[input.name()], input.clone())
-        {
-            self.state.handler.emit_err(err);
+        } else {
+            let program_name = input.external.unwrap_or(self.program_name);
+            if let Err(err) =
+                self.state.symbol_table.insert_struct(Location::new(program_name, vec![input.name()]), input.clone())
+            {
+                self.state.handler.emit_err(err);
+            }
         }
     }
 }

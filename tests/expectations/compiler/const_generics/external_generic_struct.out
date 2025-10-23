@@ -17,8 +17,10 @@ function main:
     cast r3 into r4 as Bar__5Qh5JlRc8cY;
     output r4 as Bar__5Qh5JlRc8cY.private;
 // --- Next Program --- //
-import child.aleo;
 program parent.aleo;
+
+struct Bar__An8FVFF3i8s:
+    arr as [u32; 2u32];
 
 struct Bar__DI7sPAg0NJ0:
     arr as [u32; 5u32];
@@ -26,4 +28,13 @@ struct Bar__DI7sPAg0NJ0:
 struct Bar__5Qh5JlRc8cY:
     arr as [u32; 3u32];
 
+struct Bar__IEGwqtYsUsS:
+    arr as [u32; 4u32];
+
 function main:
+    cast 10u32 20u32 into r0 as [u32; 2u32];
+    cast r0 into r1 as Bar__An8FVFF3i8s;
+    is.eq r1.arr[0u32] 10u32 into r2;
+    assert.eq r2 true;
+    is.eq r1.arr[1u32] 20u32 into r3;
+    assert.eq r3 true;

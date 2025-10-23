@@ -16,10 +16,10 @@
 
 use super::*;
 
-use leo_ast::{CompositeType, Location, Mode, Type};
+use leo_ast::{Location, Mode, Type};
 
 impl CodeGeneratingVisitor<'_> {
-    pub fn visit_type(input: &Type) -> String {
+    pub fn visit_type(&self, input: &Type) -> String {
         match input {
             Type::Address
             | Type::Field
@@ -30,8 +30,22 @@ impl CodeGeneratingVisitor<'_> {
             | Type::Future(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
-            Type::Composite(CompositeType { path, .. }) => {
-                Self::legalize_path(&path.absolute_path()).expect("path format cannot be legalized at this point")
+            Type::Composite(composite) => {
+                let name = composite.path.absolute_path();
+                let this_program_name = self.program_id.unwrap().name.name;
+                let program_name = composite.program.unwrap_or(this_program_name);
+
+                if self.state.symbol_table.lookup_struct(&Location::new(program_name, name.to_vec())).is_some() {
+                    let struct_name =
+                        Self::legalize_path(&name).expect("path format cannot be legalized at this point");
+                    //if program_name == this_program_name {
+                    struct_name.to_string()
+                    //} else {
+                    // format!("{program_name}.aleo/{struct_name}")
+                    // }
+                } else {
+                    panic!("Type checking prevents this.")
+                }
             }
             Type::Boolean => {
                 // Leo calls this just `bool`, which isn't what we need.
@@ -40,7 +54,7 @@ impl CodeGeneratingVisitor<'_> {
             Type::Array(array_type) => {
                 format!(
                     "[{}; {}u32]",
-                    Self::visit_type(array_type.element_type()),
+                    self.visit_type(array_type.element_type()),
                     array_type.length.as_u32().expect("length should be known at this point")
                 )
             }
@@ -81,9 +95,9 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         if let Mode::None = visibility {
-            Self::visit_type(type_)
+            self.visit_type(type_)
         } else {
-            format!("{}.{visibility}", Self::visit_type(type_))
+            format!("{}.{visibility}", self.visit_type(type_))
         }
     }
 }

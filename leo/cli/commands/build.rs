@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::{NetworkName, Stub};
+use leo_ast::{NetworkName, NodeBuilder, Stub};
 use leo_compiler::{AstSnapshots, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
 use leo_package::{Manifest, Package};
@@ -25,7 +25,7 @@ use leo_span::Symbol;
 use snarkvm::prelude::{CanaryV0, Itertools, MainnetV0, Program, TestnetV0};
 
 use indexmap::IndexMap;
-use std::path::Path;
+use std::{path::Path, rc::Rc};
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -136,14 +136,17 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
     // Initialize error handler.
     let handler = Handler::default();
+    let node_builder = Default::default();
+    let node_builder = Rc::new(node_builder);
 
-    let mut stubs: IndexMap<Symbol, Stub> = IndexMap::new();
+    let stubs: IndexMap<Symbol, Stub> = IndexMap::new();
+    let mut programs: IndexMap<Symbol, leo_ast::Program> = IndexMap::new();
 
     for program in package.programs.iter() {
-        let (bytecode, build_path) = match &program.data {
+        let (ast_program, bytecode, build_path) = match &program.data {
             leo_package::ProgramData::Bytecode(bytecode) => {
                 // This was a network dependency or local .aleo dependency, and we have its bytecode.
-                (bytecode.clone(), imports_directory.join(format!("{}.aleo", program.name)))
+                (None, Some(bytecode.clone()), imports_directory.join(format!("{}.aleo", program.name)))
             }
             leo_package::ProgramData::SourcePath { directory, source } => {
                 // This is a local dependency, so we must compile it.
@@ -154,6 +157,21 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                 };
                 // Load the manifest in local dependency.
                 let source_dir = directory.join("src");
+
+                let ast_program = parse_leo_source_directory(
+                    source, // entry file
+                    &source_dir,
+                    program.name,
+                    program.is_test,
+                    &outputs_directory,
+                    &handler,
+                    &node_builder,
+                    command.options.clone(),
+                    stubs.clone(),
+                    programs.clone(),
+                    network,
+                )?;
+
                 let bytecode = compile_leo_source_directory(
                     source, // entry file
                     &source_dir,
@@ -161,24 +179,32 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     program.is_test,
                     &outputs_directory,
                     &handler,
+                    &node_builder,
                     command.options.clone(),
                     stubs.clone(),
+                    programs.clone(),
                     network,
                 )?;
-                (bytecode, build_path)
+
+                (Some(ast_program), Some(bytecode), build_path)
             }
         };
 
         // Write the .aleo file.
-        std::fs::write(build_path, &bytecode).map_err(CliError::failed_to_load_instructions)?;
+        if let Some(bytecode) = bytecode {
+            std::fs::write(build_path, &bytecode).map_err(CliError::failed_to_load_instructions)?;
+        }
 
         // Track the Stub.
-        let stub = match network {
-            NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str::<MainnetV0>(program.name, &bytecode),
-            NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str::<TestnetV0>(program.name, &bytecode),
-            NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(program.name, &bytecode),
-        }?;
-        stubs.insert(program.name, stub);
+        //        let stub = match network {
+        //            NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str::<MainnetV0>(program.name, &bytecode),
+        //            NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str::<TestnetV0>(program.name, &bytecode),
+        //            NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(program.name, &bytecode),
+        //        }?;
+        // stubs.insert(program.name, stub);
+        if let Some(ast_program) = &ast_program {
+            programs.insert(program.name, ast_program.clone());
+        }
     }
 
     // SnarkVM expects to find a `program.json` file in the build directory, so make
@@ -207,8 +233,10 @@ fn compile_leo_source_directory(
     is_test: bool,
     output_path: &Path,
     handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
+    programs: IndexMap<Symbol, leo_ast::Program>,
     network: NetworkName,
 ) -> Result<String> {
     // Create a new instance of the Leo compiler.
@@ -216,9 +244,11 @@ fn compile_leo_source_directory(
         Some(program_name.to_string()),
         is_test,
         handler.clone(),
+        Rc::clone(node_builder),
         output_path.to_path_buf(),
         Some(options.into()),
         stubs,
+        programs,
         network,
     );
 
@@ -250,4 +280,36 @@ fn compile_leo_source_directory(
 
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions.");
     Ok(bytecode)
+}
+
+/// Compiles a Leo file. Writes and returns the compiled bytecode.
+#[allow(clippy::too_many_arguments)]
+fn parse_leo_source_directory(
+    entry_file_path: &Path,
+    source_directory: &Path,
+    program_name: Symbol,
+    is_test: bool,
+    output_path: &Path,
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+    options: BuildOptions,
+    stubs: IndexMap<Symbol, Stub>,
+    programs: IndexMap<Symbol, leo_ast::Program>,
+    network: NetworkName,
+) -> Result<leo_ast::Program> {
+    // Create a new instance of the Leo compiler.
+    let mut compiler = Compiler::new(
+        Some(program_name.to_string()),
+        is_test,
+        handler.clone(),
+        Rc::clone(node_builder),
+        output_path.to_path_buf(),
+        Some(options.into()),
+        stubs,
+        programs,
+        network,
+    );
+
+    // Parse the Leo program into an AST.
+    compiler.parse_from_directory(entry_file_path, source_directory)
 }

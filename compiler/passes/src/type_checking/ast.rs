@@ -1072,7 +1072,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        let callee_program = input.program.or(self.scope_state.program_name).unwrap();
+        let callee_program = input.function.program().or(self.scope_state.program_name).unwrap();
 
         let callee_path = input.function.absolute_path();
 
@@ -1093,7 +1093,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ),
             Variant::Transition | Variant::AsyncTransition
                 if matches!(func.variant, Variant::Transition)
-                    && input.program.is_none_or(|program| program == self.scope_state.program_name.unwrap()) =>
+                    && input
+                        .function
+                        .program()
+                        .is_none_or(|program| program == self.scope_state.program_name.unwrap()) =>
             {
                 self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(input.span))
             }
@@ -1102,7 +1105,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the call is not to an external `inline` function.
         if func.variant == Variant::Inline
-            && input.program.is_some_and(|program| program != self.scope_state.program_name.unwrap())
+            && input.function.program().is_some_and(|program| program != self.scope_state.program_name.unwrap())
         {
             self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
         }
@@ -1182,8 +1185,19 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
         for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {
+            let mut ty = expected.type_().clone();
+            match &mut ty {
+                Type::Composite(comp) => {
+                    comp.path = comp
+                        .path
+                        .clone()
+                        .into_external(Identifier::new(callee_program, self.state.node_builder.next_id()));
+                }
+                _ => {}
+            }
+
             // Get the type of the expression. If the type is not known, do not attempt to attempt any further inference.
-            let ty = self.visit_expression(argument, &Some(expected.type_().clone()));
+            let ty = self.visit_expression(argument, &Some(ty.clone()));
 
             if ty == Type::Err {
                 return Type::Err;
@@ -1359,7 +1373,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.lookup_struct(self.scope_state.program_name, &input.path.absolute_path()).clone();
+        let program = input.path.program().or(self.scope_state.program_name);
+
+        let struct_ = self.lookup_struct(program, &input.path.absolute_path()).clone();
         let Some(struct_) = struct_ else {
             self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.path.clone(), input.path.span()));
             return Type::Err;
@@ -1380,13 +1396,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.visit_expression(argument, &Some(expected.type_().clone()));
         }
 
-        // Note that it is sufficient for the `program` to be `None` as composite types can only be initialized
-        // in the program in which they are defined.
         let type_ = Type::Composite(CompositeType {
             path: input.path.clone(),
             const_arguments: input.const_arguments.clone(),
-            program: None,
+            program: input.path.program(),
         });
+
         self.maybe_assert_type(&type_, additional, input.path.span());
 
         // Check number of struct members.

@@ -31,6 +31,7 @@ use leo_ast::{
     Location,
     Node,
     Path,
+    PathKind,
     ProgramVisitor,
     Statement,
     TupleAccess,
@@ -327,7 +328,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
             function: Path::new(
                 vec![],
                 make_identifier(self, finalize_fn_name),
-                true,
+                PathKind::Absolute,
                 Some(vec![finalize_fn_name]), // the finalize function lives in the top level program scope
                 Span::default(),
                 self.state.node_builder.next_id(),

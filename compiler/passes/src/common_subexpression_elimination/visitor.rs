@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{BinaryOperation, Expression, Identifier, LiteralVariant, Node as _, Path, UnaryOperation};
+use leo_ast::{BinaryOperation, Expression, Identifier, LiteralVariant, Node as _, Path, PathKind, UnaryOperation};
 use leo_span::Symbol;
 
 use std::collections::HashMap;
@@ -89,7 +89,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     let p = Path::new(
                         Vec::new(),
                         Identifier::new(*name, self.state.node_builder.next_id()),
-                        true,
+                        PathKind::Absolute,
                         Some(vec![*name]),
                         path.span(),
                         self.state.node_builder.next_id(),

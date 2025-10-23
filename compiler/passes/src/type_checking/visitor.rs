@@ -1458,7 +1458,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Check that the type of the input parameter does not contain an optional.
-            if self.contains_optional_type(table_type)
+            /*if self.contains_optional_type(table_type)
                 && matches!(function.variant, Variant::Transition | Variant::AsyncTransition | Variant::Function)
             {
                 self.emit_err(TypeCheckerError::function_cannot_take_option_as_input(
@@ -1466,7 +1466,7 @@ impl TypeCheckingVisitor<'_> {
                     table_type,
                     input.span(),
                 ))
-            }
+            }*/
 
             // Make sure only transitions can take a record as an input.
             if let Type::Composite(struct_) = table_type {
@@ -1622,7 +1622,10 @@ impl TypeCheckingVisitor<'_> {
     pub fn lookup_struct(&mut self, program: Option<Symbol>, name: &[Symbol]) -> Option<Composite> {
         let record_comp =
             program.and_then(|prog| self.state.symbol_table.lookup_record(&Location::new(prog, name.to_vec())));
-        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name));
+        let comp = program.and_then(|prog| {
+            record_comp.or_else(|| self.state.symbol_table.lookup_struct(&Location::new(prog, name.to_vec())))
+        });
+
         // Record the usage.
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.

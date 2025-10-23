@@ -26,7 +26,7 @@ impl AstReconstructor for ProcessingScriptVisitor<'_> {
     /* Expressions */
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         if !matches!(self.current_variant, Variant::Script) {
-            let callee_program = input.program.unwrap_or(self.program_name);
+            let callee_program = input.function.program().unwrap_or(self.program_name);
 
             let Some(func_symbol) = self
                 .state

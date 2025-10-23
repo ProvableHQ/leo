@@ -22,8 +22,19 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::{fmt, hash::Hash};
 
+/// The kind of a path: local absolute, local relative, or external (i.e. from another program).
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub enum PathKind {
+    /// A path like `::foo::bar`.
+    Absolute,
+    /// A path like `foo::bar`.
+    Relative,
+    /// A path like `program.aleo::foo::bar`. The `Identifier` here is the name of the program without `.aleo`.
+    External(Identifier),
+}
+
 /// A Path in a program.
-#[derive(Clone, Default, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Path {
     /// The qualifying namespace segments written by the user, excluding the item itself.
     /// e.g., in `foo::bar::baz`, this would be `[foo, bar]`.
@@ -33,7 +44,7 @@ pub struct Path {
     identifier: Identifier,
 
     /// Is this path an absolute path? e.g. `::foo::bar::baz`.
-    is_absolute: bool,
+    kind: PathKind,
 
     /// The fully resolved path. We may not know this until the pass PathResolution pass runs.
     /// For path that refer to global items (structs, consts, functions), `absolute_path` is
@@ -54,19 +65,19 @@ impl Path {
     ///
     /// - `qualifier`: The namespace segments (e.g., `foo::bar` in `foo::bar::baz`).
     /// - `identifier`: The final item in the path (e.g., `baz`).
-    /// - `is_absolute`: Whether the path is absolute (starts with `::`).
+    /// - `kind`: The kind of the path (absolute, relative, or external).
     /// - `absolute_path`: Optionally, the fully resolved symbolic path.
     /// - `span`: The source code span for this path.
     /// - `id`: The node ID.
     pub fn new(
         qualifier: Vec<Identifier>,
         identifier: Identifier,
-        is_absolute: bool,
+        kind: PathKind,
         absolute_path: Option<Vec<Symbol>>,
         span: Span,
         id: NodeID,
     ) -> Self {
-        Self { qualifier, identifier, is_absolute, absolute_path, span, id }
+        Self { qualifier, identifier, kind, absolute_path, span, id }
     }
 
     /// Returns the final identifier of the path (e.g., `baz` in `foo::bar::baz`).
@@ -79,9 +90,22 @@ impl Path {
         self.qualifier.as_slice()
     }
 
+    /// Returns the program name if this is an external path, or `None` otherwise (implying current program).
+    pub fn program(&self) -> Option<Symbol> {
+        match &self.kind {
+            PathKind::External(program) => Some(program.name),
+            _ => None,
+        }
+    }
+
     /// Returns `true` if the path is absolute (i.e., starts with `::`).
     pub fn is_absolute(&self) -> bool {
-        self.is_absolute
+        matches!(self.kind, PathKind::Absolute)
+    }
+
+    /// Returns `true` if the path is external (i.e., starts with `<program>.aleo::`).
+    pub fn is_external(&self) -> bool {
+        matches!(self.kind, PathKind::External(_))
     }
 
     /// Returns a `Vec<Symbol>` representing the full symbolic path:
@@ -95,7 +119,10 @@ impl Path {
     /// Returns an optional vector of `Symbol`s representing the resolved absolute path,
     /// or `None` if resolution has not yet occurred.
     pub fn try_absolute_path(&self) -> Option<Vec<Symbol>> {
-        if self.is_absolute { Some(self.as_symbols()) } else { self.absolute_path.clone() }
+        match self.kind {
+            PathKind::Absolute | PathKind::External(_) => Some(self.as_symbols()),
+            PathKind::Relative => self.absolute_path.clone(),
+        }
     }
 
     /// Returns a vector of `Symbol`s representing the resolved absolute path.
@@ -103,19 +130,25 @@ impl Path {
     /// If the path is not an absolute path, this method panics if the absolute path has not been resolved yet.
     /// For relative paths, this is expected to be called only after path resolution has occurred.
     pub fn absolute_path(&self) -> Vec<Symbol> {
-        if self.is_absolute {
-            self.as_symbols()
-        } else {
-            self.absolute_path.as_ref().expect("absolute path must be known at this stage").to_vec()
+        match self.kind {
+            PathKind::Absolute | PathKind::External(_) => self.as_symbols(),
+            PathKind::Relative => {
+                self.absolute_path.as_ref().expect("absolute path must be known at this stage").to_vec()
+            }
         }
     }
 
-    /// Converts this `Path` into an absolute path by setting its `is_absolute` flag to `true`.
+    /// Converts this `Path` into an absolute path by setting its `kind` to `Absolute`.
     ///
     /// This does not alter the qualifier or identifier, nor does it compute or modify
     /// the resolved `absolute_path`.
     pub fn into_absolute(mut self) -> Self {
-        self.is_absolute = true;
+        self.kind = PathKind::Absolute;
+        self
+    }
+
+    pub fn into_external(mut self, program: Identifier) -> Self {
+        self.kind = PathKind::External(program);
         self
     }
 
@@ -160,9 +193,12 @@ impl Path {
 
 impl fmt::Display for Path {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.is_absolute {
-            write!(f, "::")?;
+        match &self.kind {
+            PathKind::Absolute => write!(f, "::")?,
+            PathKind::External(program) => write!(f, "{}.aleo::", program)?,
+            PathKind::Relative => {}
         }
+
         if self.qualifier.is_empty() {
             write!(f, "{}", self.identifier)
         } else {
@@ -173,15 +209,15 @@ impl fmt::Display for Path {
 
 impl fmt::Debug for Path {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Print user path (Display impl)
+        // same as Display
         write!(f, "{self}")?;
 
-        // Print resolved absolute path if available
+        // append the resolved absolute path, if any
         if let Some(abs_path) = &self.absolute_path {
-            write!(f, "(::{})", abs_path.iter().format("::"))
-        } else {
-            write!(f, "()")
+            write!(f, " [abs=::{}]", abs_path.iter().format("::"))?;
         }
+
+        Ok(())
     }
 }
 

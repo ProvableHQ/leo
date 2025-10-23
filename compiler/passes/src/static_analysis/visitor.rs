@@ -135,7 +135,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         }
 
         // Look up the function and check if it is a non-async call.
-        let function_program = input.program.unwrap_or(self.current_program);
+        let function_program = input.function.program().unwrap_or(self.current_program);
 
         let func_symbol = self
             .state

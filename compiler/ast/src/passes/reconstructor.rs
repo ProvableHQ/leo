@@ -578,6 +578,7 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
                 .collect(),
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
+            programs: input.programs.into_iter().map(|(id, program)| (id, self.reconstruct_program(program))).collect(),
             modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
             program_scopes,
         }

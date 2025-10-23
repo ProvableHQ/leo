@@ -20,8 +20,8 @@
 
 use crate::{AstSnapshots, CompilerOptions};
 
-pub use leo_ast::Ast;
-use leo_ast::{NetworkName, Stub};
+pub use leo_ast::{Ast, NodeBuilder};
+use leo_ast::{NetworkName, Program, Stub};
 use leo_errors::{CompilerError, Handler, Result};
 use leo_passes::*;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
@@ -30,6 +30,7 @@ use std::{
     ffi::OsStr,
     fs,
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
 use indexmap::{IndexMap, IndexSet};
@@ -47,6 +48,8 @@ pub struct Compiler {
     state: CompilerState,
     /// The stubs for imported programs.
     import_stubs: IndexMap<Symbol, Stub>,
+    /// The stubs for imported programs.
+    imported_programs: IndexMap<Symbol, Program>,
     /// How many statements were in the AST before DCE?
     pub statements_before_dce: u32,
     /// How many statements were in the AST after DCE?
@@ -54,7 +57,12 @@ pub struct Compiler {
 }
 
 impl Compiler {
-    pub fn parse(&mut self, source: &str, filename: FileName, modules: &[(&str, FileName)]) -> Result<()> {
+    pub fn parse(
+        &mut self,
+        source: &str,
+        filename: FileName,
+        modules: &[(&str, FileName)],
+    ) -> Result<leo_ast::Program> {
         // Register the source in the source map.
         let source_file = with_session_globals(|s| s.source_map.new_source(source, filename.clone()));
 
@@ -100,7 +108,7 @@ impl Compiler {
             self.write_ast("initial.ast")?;
         }
 
-        Ok(())
+        Ok(self.state.ast.ast.clone())
     }
 
     /// Returns a new Leo compiler.
@@ -109,17 +117,26 @@ impl Compiler {
         expected_program_name: Option<String>,
         is_test: bool,
         handler: Handler,
+        node_builder: Rc<NodeBuilder>,
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
+        imported_programs: IndexMap<Symbol, Program>,
         network: NetworkName,
     ) -> Self {
         Self {
-            state: CompilerState { handler, is_test, network, ..Default::default() },
+            state: CompilerState {
+                handler,
+                is_test,
+                network,
+                node_builder: Rc::clone(&node_builder),
+                ..Default::default()
+            },
             output_directory,
             program_name: expected_program_name,
             compiler_options: compiler_options.unwrap_or_default(),
             import_stubs,
+            imported_programs,
             statements_before_dce: 0,
             statements_after_dce: 0,
         }
@@ -143,6 +160,7 @@ impl Compiler {
 
     /// Runs the compiler stages.
     pub fn intermediate_passes(&mut self) -> Result<()> {
+        println!("{}", self.state.ast.ast);
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
         self.do_pass::<NameValidation>(())?;
@@ -188,6 +206,8 @@ impl Compiler {
         self.statements_before_dce = output.statements_before;
         self.statements_after_dce = output.statements_after;
 
+        println!("{}", self.state.ast.ast);
+
         Ok(())
     }
 
@@ -209,7 +229,9 @@ impl Compiler {
         // Parse the program.
         self.parse(source, filename, modules)?;
         // Merge the stubs into the AST.
-        self.add_import_stubs()?;
+        // self.add_import_stubs()?;
+        // Merge the programs into the AST.
+        self.add_import_programs()?;
         // Run the intermediate compiler stages.
         self.intermediate_passes()?;
         // Run code generation.
@@ -277,6 +299,46 @@ impl Compiler {
         self.compile(&source, FileName::Real(entry_file_path.as_ref().into()), &modules)
     }
 
+    pub fn parse_from_directory(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+    ) -> Result<leo_ast::Program> {
+        // Read the contents of the main source file.
+        let source = fs::read_to_string(&entry_file_path)
+            .map_err(|e| CompilerError::file_read_error(entry_file_path.as_ref().display().to_string(), e))?;
+
+        // Walk all files under source_directory recursively, excluding the main source file itself.
+        let files = WalkDir::new(source_directory)
+            .into_iter()
+            .filter_map(Result::ok)
+            .filter(|e| {
+                e.file_type().is_file()
+                    && e.path() != entry_file_path.as_ref()
+                    && e.path().extension() == Some(OsStr::new("leo"))
+            })
+            .collect::<Vec<_>>();
+
+        let mut module_sources = Vec::new(); // Keep Strings alive for valid borrowing
+        let mut modules = Vec::new(); // Parsed (source, filename) tuples for compilation
+
+        // Read all module files and store their contents
+        for file in &files {
+            let source = fs::read_to_string(file.path())
+                .map_err(|e| CompilerError::file_read_error(file.path().display().to_string(), e))?;
+            module_sources.push(source); // Keep the String alive
+        }
+
+        // Create tuples of (&str, FileName) for the compiler
+        for (i, file) in files.iter().enumerate() {
+            let source = &module_sources[i]; // Borrow from the alive String
+            modules.push((&source[..], FileName::Real(file.path().into())));
+        }
+
+        // Compile the main source along with all collected modules
+        self.parse(&source, FileName::Real(entry_file_path.as_ref().into()), &modules)
+    }
+
     /// Writes the AST to a JSON file.
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
@@ -335,6 +397,41 @@ impl Compiler {
             .iter()
             .filter(|(symbol, _stub)| explored.contains(*symbol))
             .map(|(symbol, stub)| (*symbol, stub.clone()))
+            .collect();
+        Ok(())
+    }
+
+    /// Merge the imported programs which are dependencies of the current program into the AST
+    /// in topological order.
+    pub fn add_import_programs(&mut self) -> Result<()> {
+        let mut explored = IndexSet::<Symbol>::new();
+        let mut to_explore: Vec<Symbol> = self.state.ast.ast.imports.keys().cloned().collect();
+
+        while let Some(import) = to_explore.pop() {
+            explored.insert(import);
+            if let Some(program) = self.imported_programs.get(&import) {
+                for new_import_id in program.imports.iter() {
+                    if !explored.contains(new_import_id.0) {
+                        to_explore.push(*new_import_id.0);
+                    }
+                }
+            } else {
+                return Err(CompilerError::imported_program_not_found(
+                    self.program_name.as_ref().unwrap(),
+                    import,
+                    self.state.ast.ast.imports[&import].1,
+                )
+                .into());
+            }
+        }
+
+        // Iterate in the order of `import_programs` to make sure they
+        // stay topologically sorted.
+        self.state.ast.ast.programs = self
+            .imported_programs
+            .iter()
+            .filter(|(symbol, _program)| explored.contains(*symbol))
+            .map(|(symbol, program)| (*symbol, program.clone()))
             .collect();
         Ok(())
     }

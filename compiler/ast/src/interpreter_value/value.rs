@@ -826,9 +826,10 @@ impl Value {
     pub fn to_expression(
         &self,
         span: Span,
+        current_program: &Symbol,
         node_builder: &NodeBuilder,
         ty: &Type,
-        struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+        struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
     ) -> Option<Expression> {
         use crate::{Literal, TupleExpression, UnitExpression};
 
@@ -850,7 +851,7 @@ impl Value {
                     elements: vec
                         .iter()
                         .zip(tuple_type.elements())
-                        .map(|(val, ty)| val.to_expression(span, node_builder, ty, struct_lookup))
+                        .map(|(val, ty)| val.to_expression(span, current_program, node_builder, ty, struct_lookup))
                         .collect::<Option<Vec<_>>>()?,
                 }
                 .into()
@@ -858,7 +859,7 @@ impl Value {
             ValueVariants::Unsuffixed(s) => Literal::unsuffixed(s.clone(), span, id).into(),
             ValueVariants::Svm(value) => match value {
                 SvmValueParam::Plaintext(plaintext) => {
-                    plaintext_to_expression(plaintext, span, node_builder, ty, &struct_lookup)?
+                    plaintext_to_expression(plaintext, span, current_program, node_builder, ty, &struct_lookup)?
                 }
                 SvmValueParam::Record(..) => return None,
                 SvmValueParam::Future(..) => return None,
@@ -875,9 +876,10 @@ impl Value {
 fn plaintext_to_expression(
     plaintext: &SvmPlaintext,
     span: Span,
+    current_program: &Symbol,
     node_builder: &NodeBuilder,
     ty: &Type,
-    struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+    struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
 ) -> Option<Expression> {
     use crate::{ArrayExpression, Identifier, IntegerType, Literal, StructExpression, StructVariableInitializer};
 
@@ -924,8 +926,10 @@ fn plaintext_to_expression(
             let Type::Composite(composite_type) = ty else {
                 return None;
             };
-            let symbols = composite_type.path.as_symbols();
-            let iter_members = struct_lookup(&symbols);
+            let program = composite_type.program.unwrap_or(*current_program);
+            let location = Location::new(program, composite_type.path.absolute_path().to_vec());
+            let iter_members = struct_lookup(&location);
+
             StructExpression {
                 span,
                 id,
@@ -945,6 +949,7 @@ fn plaintext_to_expression(
                             expression: Some(plaintext_to_expression(
                                 index_map.get(&svm_identifier)?,
                                 span,
+                                current_program,
                                 node_builder,
                                 &ty,
                                 &struct_lookup,
@@ -964,7 +969,16 @@ fn plaintext_to_expression(
                 id,
                 elements: vec
                     .iter()
-                    .map(|pt| plaintext_to_expression(pt, span, node_builder, &array_ty.element_type, &struct_lookup))
+                    .map(|pt| {
+                        plaintext_to_expression(
+                            pt,
+                            span,
+                            current_program,
+                            node_builder,
+                            &array_ty.element_type,
+                            &struct_lookup,
+                        )
+                    })
                     .collect::<Option<Vec<_>>>()?,
             }
             .into()

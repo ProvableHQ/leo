@@ -44,9 +44,11 @@ fn whole_compile(source: &str, handler: &Handler, import_stubs: IndexMap<Symbol,
         None,
         /* is_test (a Leo test) */ false,
         handler.clone(),
+        std::rc::Rc::new(leo_ast::NodeBuilder::default()),
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
+        IndexMap::new(),
         NetworkName::TestnetV0,
     );
 

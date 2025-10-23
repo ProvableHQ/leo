@@ -71,7 +71,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let lookup = |name: &[Symbol]| {
             self.state
                 .symbol_table
-                .lookup_struct(name)
+                .lookup_struct(&Location::new(this_program, name.to_vec()))
                 .or_else(|| self.state.symbol_table.lookup_record(&Location::new(this_program, name.to_vec())))
         };
 
@@ -159,7 +159,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
-            writeln!(output_string, "    {} as {};", var.identifier, Self::visit_type(&var.type_),).expect(EXPECT_STR);
+            writeln!(output_string, "    {} as {};", var.identifier, self.visit_type(&var.type_),).expect(EXPECT_STR);
         }
 
         output_string
@@ -193,7 +193,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 output_string,
                 "    {} as {}.{mode};", // todo: CAUTION private record variables only.
                 var.identifier,
-                Self::visit_type(&var.type_)
+                self.visit_type(&var.type_)
             )
             .expect(EXPECT_STR);
         }

@@ -151,6 +151,7 @@ impl ProgramConsumer for SsaFormingVisitor<'_> {
                 .map(|(name, (import, span))| (name, (self.consume_program(import), span)))
                 .collect(),
             stubs: input.stubs,
+            programs: input.programs.into_iter().map(|(name, prog)| (name, self.consume_program(prog))).collect(),
             program_scopes: input
                 .program_scopes
                 .into_iter()

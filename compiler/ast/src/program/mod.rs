@@ -38,6 +38,8 @@ pub struct Program {
     pub imports: IndexMap<Symbol, (Program, Span)>,
     /// A map from program stub names to program stub scopes.
     pub stubs: IndexMap<Symbol, Stub>,
+    /// A map from program names to program definitions.
+    pub programs: IndexMap<Symbol, Program>,
     /// A map from program names to program scopes.
     pub program_scopes: IndexMap<Symbol, ProgramScope>,
 }
@@ -53,6 +55,9 @@ impl fmt::Display for Program {
         for (_, stub) in self.stubs.iter() {
             writeln!(f, "{stub}")?;
         }
+        for (_, program) in self.programs.iter() {
+            writeln!(f, "{program}")?;
+        }
         for (_, program_scope) in self.program_scopes.iter() {
             writeln!(f, "{program_scope}")?;
         }
@@ -67,6 +72,7 @@ impl Default for Program {
             modules: IndexMap::new(),
             imports: IndexMap::new(),
             stubs: IndexMap::new(),
+            programs: IndexMap::new(),
             program_scopes: IndexMap::new(),
         }
     }

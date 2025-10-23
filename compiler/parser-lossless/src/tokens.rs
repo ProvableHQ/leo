@@ -29,7 +29,8 @@ pub enum IdVariants {
 fn id_variant(lex: &mut logos::Lexer<Token>) -> IdVariants {
     // Use LazyLock to not recompile these regexes every time.
     static REGEX_LOCATOR: LazyLock<regex::Regex> =
-        LazyLock::new(|| regex::Regex::new(r"^\.aleo/[a-zA-Z][a-zA-Z0-9_]*").unwrap());
+        LazyLock::new(|| regex::Regex::new(r"^\.aleo(?:::[a-zA-Z][a-zA-Z0-9_]*)+").unwrap());
+
     static REGEX_PROGRAM_ID: LazyLock<regex::Regex> = LazyLock::new(|| regex::Regex::new(r"^\.aleo\b").unwrap());
     static REGEX_PATH: LazyLock<regex::Regex> =
         LazyLock::new(|| regex::Regex::new(r"^(?:::[a-zA-Z][a-zA-Z0-9_]*)+").unwrap());

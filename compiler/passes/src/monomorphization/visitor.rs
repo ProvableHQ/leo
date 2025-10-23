@@ -44,7 +44,7 @@ pub struct MonomorphizationVisitor<'a> {
     /// the functions not the names of the monomorphized versions.
     pub monomorphized_functions: IndexSet<Vec<Symbol>>,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_structs: IndexMap<Vec<Symbol>, Composite>,
+    pub reconstructed_structs: IndexMap<(Symbol, Vec<Symbol>), Composite>,
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
     /// the functions not the names of the monomorphized versions.
     pub monomorphized_structs: IndexSet<Vec<Symbol>>,
@@ -79,20 +79,30 @@ impl MonomorphizationVisitor<'_> {
         // valid identifier in the user code.
         //
         // Later, we have to legalize these names because they are not valid Aleo identifiers. We do this in codegen.
-        let new_struct_path = path.clone().with_updated_last_symbol(leo_span::Symbol::intern(&format!(
+        /*let new_struct_path = path.clone().with_updated_last_symbol(leo_span::Symbol::intern(&format!(
             "{}::[{}]",
             path.identifier().name,
             const_arguments.iter().format(", ")
-        )));
+        )));*/
+
+        let new_struct_path = {
+            let new_name = format!("{}::[{}]", path.identifier().name, const_arguments.iter().format(", "));
+            let new_path = path.clone().with_updated_last_symbol(leo_span::Symbol::intern(&new_name));
+            new_path
+        };
 
         // Check if the new struct name is not already present in `reconstructed_structs`. This ensures that we do not
         // add a duplicate definition for the same struct.
-        if self.reconstructed_structs.get(&new_struct_path.absolute_path()).is_none() {
+        if self
+            .reconstructed_structs
+            .get(&(path.program().unwrap_or(self.program), new_struct_path.absolute_path()))
+            .is_none()
+        {
             let full_name = path.absolute_path();
             // Look up the already reconstructed struct by name.
             let struct_ = self
                 .reconstructed_structs
-                .get(&full_name)
+                .get(&(path.program().unwrap_or(self.program), full_name.clone()))
                 .expect("Struct should already be reconstructed (post-order traversal).");
 
             // Build mapping from const parameters to const argument values.
@@ -123,12 +133,13 @@ impl MonomorphizationVisitor<'_> {
             struct_.id = self.state.node_builder.next_id();
 
             // Keep track of the new struct in case other structs need it.
-            self.reconstructed_structs.insert(new_struct_path.absolute_path(), struct_);
+            self.reconstructed_structs
+                .insert((path.program().unwrap_or(self.program), new_struct_path.absolute_path()), struct_);
 
             // Now keep track of the struct we just monomorphized
             self.monomorphized_structs.insert(full_name);
         }
 
-        new_struct_path
+        dbg!(new_struct_path)
     }
 }

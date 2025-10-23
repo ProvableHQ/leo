@@ -42,6 +42,9 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.is_stub = false;
 
         // Typecheck the modules.
+        input.programs.values().for_each(|program| self.visit_program(program));
+
+        // Typecheck the modules.
         input.modules.values().for_each(|module| self.visit_module(module));
 
         // Typecheck the program scopes.

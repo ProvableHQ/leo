@@ -45,13 +45,23 @@ impl Default for Config {
 
 fn execution_run_test(config: &Config, cases: &[run_with_ledger::Case], handler: &Handler) -> Result<String> {
     let mut import_stubs = IndexMap::new();
+    let mut import_programs = IndexMap::new();
 
     let mut ledger_config =
         run_with_ledger::Config { seed: config.seed, start_height: config.start_height, programs: Vec::new() };
 
+    let node_builder: leo_ast::NodeBuilder = Default::default();
+    let node_builder = std::rc::Rc::new(node_builder);
+
     // Compile each source file.
     for source in &config.sources {
-        let (bytecode, name) = super::test_utils::whole_compile(source, handler, import_stubs.clone())?;
+        let (bytecode, name) = super::test_utils::whole_compile(
+            source,
+            handler,
+            &node_builder,
+            import_stubs.clone(),
+            import_programs.clone(),
+        )?;
 
         let stub = disassemble_from_str::<CurrentNetwork>(&name, &bytecode)?;
         import_stubs.insert(Symbol::intern(&name), stub);

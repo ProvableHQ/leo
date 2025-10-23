@@ -16,11 +16,11 @@
 
 use crate::Compiler;
 
-use leo_ast::{NetworkName, Stub};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
 use leo_errors::{Handler, LeoError};
 use leo_span::{Symbol, source_map::FileName};
 
-use std::path::PathBuf;
+use std::{path::PathBuf, rc::Rc};
 
 use indexmap::IndexMap;
 
@@ -36,15 +36,19 @@ pub const MODULE_DELIMITER: &str = "// --- Next Module:";
 pub fn whole_compile(
     source: &str,
     handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
     import_stubs: IndexMap<Symbol, Stub>,
+    import_programs: IndexMap<Symbol, Program>,
 ) -> Result<(String, String), LeoError> {
     let mut compiler = Compiler::new(
         None,
         /* is_test */ false,
         handler.clone(),
+        std::rc::Rc::clone(&node_builder),
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
+        import_programs,
         NetworkName::TestnetV0,
     );
 
@@ -96,4 +100,73 @@ pub fn whole_compile(
     let bytecode = compiler.compile(&main_source, filename, &module_refs)?;
 
     Ok((bytecode, compiler.program_name.unwrap()))
+}
+
+pub fn parse(
+    source: &str,
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+    import_stubs: IndexMap<Symbol, Stub>,
+    import_programs: IndexMap<Symbol, Program>,
+) -> Result<(Program, String), LeoError> {
+    let mut compiler = Compiler::new(
+        None,
+        /* is_test */ false,
+        handler.clone(),
+        std::rc::Rc::clone(&node_builder),
+        "/fakedirectory-wont-use".into(),
+        None,
+        import_stubs,
+        import_programs,
+        NetworkName::TestnetV0,
+    );
+
+    if !source.contains(MODULE_DELIMITER) {
+        // Fast path: no modules
+        let filename = FileName::Custom("compiler-test".into());
+        let parsed = compiler.parse(source, filename.clone(), &Vec::new())?;
+        return Ok((parsed, compiler.program_name.unwrap()));
+    }
+
+    let mut main_source = String::new();
+    let mut modules: Vec<(String, PathBuf)> = Vec::new();
+
+    let mut current_module_path: Option<PathBuf> = None;
+    let mut current_module_source = String::new();
+
+    for line in source.lines() {
+        if let Some(rest) = line.strip_prefix(MODULE_DELIMITER) {
+            // Save previous block
+            if let Some(path) = current_module_path.take() {
+                modules.push((current_module_source.clone(), path));
+                current_module_source.clear();
+            } else {
+                main_source = current_module_source.clone();
+                current_module_source.clear();
+            }
+
+            // Start new module
+            let trimmed_path = rest.trim().trim_end_matches(" --- //");
+            current_module_path = Some(PathBuf::from(trimmed_path));
+        } else {
+            current_module_source.push_str(line);
+            current_module_source.push('\n');
+        }
+    }
+
+    // Push the last module or main
+    if let Some(path) = current_module_path {
+        modules.push((current_module_source.clone(), path));
+    } else {
+        main_source = current_module_source;
+    }
+
+    // Prepare module references for compiler
+    let module_refs: Vec<(&str, FileName)> =
+        modules.iter().map(|(src, path)| (src.as_str(), FileName::Custom(path.to_string_lossy().into()))).collect();
+
+    let filename = FileName::Custom("compiler-test".into());
+    let parsed = compiler.parse(&main_source, filename, &module_refs)?;
+
+    Ok((parsed, compiler.program_name.unwrap()))
 }

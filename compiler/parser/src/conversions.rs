@@ -78,20 +78,55 @@ fn to_type(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) -> R
         TypeKind::Boolean => leo_ast::Type::Boolean,
         TypeKind::Composite => {
             let name = &node.children[0];
-            if let Some((program, name_str)) = name.text.split_once(".aleo/") {
+
+            /*let function = if let Some((first, second)) = name.text.split_once(".aleo::") {
+                // This is a locator.
+                let symbol = Symbol::intern(second);
+                let lo = node.span.lo + first.len() as u32 + ".aleo/".len() as u32;
+                let second_span = Span { lo, hi: lo + second.len() as u32 };
+                let identifier = leo_ast::Identifier { name: symbol, span: second_span, id: builder.next_id() };
+                let program = leo_ast::Identifier {
+                    name: Symbol::intern(first),
+                    span: Span { lo: node.span.lo, hi: node.span.lo + first.len() as u32 + "aleo/".len() as u32 },
+                    id: builder.next_id(),
+                };
+                leo_ast::Path::new(
+                    Vec::new(),
+                    identifier,
+                    leo_ast::PathKind::External(program),
+                    None,
+                    span,
+                    builder.next_id(),
+                )
+            }*/
+
+            dbg!(&name);
+            if let Some((first, name_str)) = name.text.split_once(".aleo::") {
                 // This is a locator.
                 let name_id = leo_ast::Identifier {
                     name: Symbol::intern(name_str),
                     span: leo_span::Span {
-                        lo: name.span.lo + program.len() as u32 + 5,
+                        lo: name.span.lo + first.len() as u32 + 5,
                         hi: name.span.lo + name.text.len() as u32,
                     },
                     id: builder.next_id(),
                 };
+                let program = leo_ast::Identifier {
+                    name: Symbol::intern(first),
+                    span: Span { lo: node.span.lo, hi: node.span.lo + first.len() as u32 + "aleo/".len() as u32 },
+                    id: builder.next_id(),
+                };
                 leo_ast::CompositeType {
-                    path: leo_ast::Path::new(Vec::new(), name_id, false, None, name_id.span, builder.next_id()),
+                    path: leo_ast::Path::new(
+                        Vec::new(),
+                        name_id,
+                        leo_ast::PathKind::External(program),
+                        None,
+                        name_id.span,
+                        builder.next_id(),
+                    ),
                     const_arguments: Vec::new(),
-                    program: Some(Symbol::intern(program)),
+                    program: Some(Symbol::intern(first)),
                 }
                 .into()
             } else {
@@ -107,7 +142,14 @@ fn to_type(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) -> R
                         .collect::<Result<Vec<_>>>()?;
                 }
                 let identifier = path_components.pop().unwrap();
-                let path = leo_ast::Path::new(path_components, identifier, false, None, name.span, builder.next_id());
+                let path = leo_ast::Path::new(
+                    path_components,
+                    identifier,
+                    leo_ast::PathKind::Relative,
+                    None,
+                    name.span,
+                    builder.next_id(),
+                );
                 leo_ast::CompositeType { path, const_arguments, program: None }.into()
             }
         }
@@ -519,20 +561,37 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 .map(|child| to_expression(child, builder, handler))
                 .collect::<Result<Vec<_>>>()?;
 
-            let (function, program) = if let Some((first, second)) = name.text.split_once(".aleo/") {
+            let function = if let Some((first, second)) = name.text.split_once(".aleo::") {
                 // This is a locator.
                 let symbol = Symbol::intern(second);
                 let lo = node.span.lo + first.len() as u32 + ".aleo/".len() as u32;
                 let second_span = Span { lo, hi: lo + second.len() as u32 };
                 let identifier = leo_ast::Identifier { name: symbol, span: second_span, id: builder.next_id() };
-                let function = leo_ast::Path::new(Vec::new(), identifier, false, None, span, builder.next_id());
-                (function, Some(Symbol::intern(first)))
+                let program = leo_ast::Identifier {
+                    name: Symbol::intern(first),
+                    span: Span { lo: node.span.lo, hi: node.span.lo + first.len() as u32 + "aleo/".len() as u32 },
+                    id: builder.next_id(),
+                };
+                leo_ast::Path::new(
+                    Vec::new(),
+                    identifier,
+                    leo_ast::PathKind::External(program),
+                    None,
+                    span,
+                    builder.next_id(),
+                )
             } else {
                 // It's a path.
                 let mut components = path_to_parts(name, builder);
                 let identifier = components.pop().unwrap();
-                let function = leo_ast::Path::new(components, identifier, false, None, name.span, builder.next_id());
-                (function, None)
+                leo_ast::Path::new(
+                    components,
+                    identifier,
+                    leo_ast::PathKind::Relative,
+                    None,
+                    name.span,
+                    builder.next_id(),
+                )
             };
 
             let mut const_arguments = Vec::new();
@@ -557,7 +616,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     .collect::<Result<Vec<_>>>()?;
             }
 
-            leo_ast::CallExpression { function, const_arguments, arguments, program, span, id }.into()
+            leo_ast::CallExpression { function, const_arguments, arguments, program: None, span, id }.into()
         }
         ExpressionKind::Cast => {
             let [expression, _as, type_] = &node.children[..] else {
@@ -574,7 +633,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
             // lossless tree just has the span of the entire path.
             let mut identifiers = path_to_parts(&node.children[0], builder);
             let identifier = identifiers.pop().unwrap();
-            leo_ast::Path::new(identifiers, identifier, false, None, span, id).into()
+            leo_ast::Path::new(identifiers, identifier, leo_ast::PathKind::Relative, None, span, id).into()
         }
         ExpressionKind::Literal(literal_kind) => match literal_kind {
             LiteralKind::Address => {
@@ -617,7 +676,7 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
             let text = node.children[0].text;
 
             // Parse the locator string in format "some_program.aleo/some_name"
-            if let Some((program_part, name_part)) = text.split_once(".aleo/") {
+            if let Some((program_part, name_part)) = text.split_once(".aleo::") {
                 // Create the program identifier
                 let program_name_symbol = Symbol::intern(program_part);
                 let program_name_span = Span { lo: node.span.lo, hi: node.span.lo + program_part.len() as u32 };
@@ -899,9 +958,49 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 }
             }
 
-            let mut identifiers = path_to_parts(name, builder);
+            let path = if let Some((first, second)) = name.text.split_once(".aleo::") {
+                // This is a locator.
+                let symbol = Symbol::intern(second);
+                let lo = node.span.lo + first.len() as u32 + ".aleo/".len() as u32;
+                let second_span = Span { lo, hi: lo + second.len() as u32 };
+                let identifier = leo_ast::Identifier { name: symbol, span: second_span, id: builder.next_id() };
+                let program = leo_ast::Identifier {
+                    name: Symbol::intern(first),
+                    span: Span { lo: node.span.lo, hi: node.span.lo + first.len() as u32 + "aleo/".len() as u32 },
+                    id: builder.next_id(),
+                };
+                leo_ast::Path::new(
+                    Vec::new(),
+                    identifier,
+                    leo_ast::PathKind::External(program),
+                    None,
+                    span,
+                    builder.next_id(),
+                )
+            } else {
+                // It's a path.
+                let mut components = path_to_parts(name, builder);
+                let identifier = components.pop().unwrap();
+                leo_ast::Path::new(
+                    components,
+                    identifier,
+                    leo_ast::PathKind::Relative,
+                    None,
+                    name.span,
+                    builder.next_id(),
+                )
+            };
+
+            /*let mut identifiers = path_to_parts(name, builder);
             let identifier = identifiers.pop().unwrap();
-            let path = leo_ast::Path::new(identifiers, identifier, false, None, name.span, builder.next_id());
+            let path = leo_ast::Path::new(
+                identifiers,
+                identifier,
+                leo_ast::PathKind::Relative,
+                None,
+                name.span,
+                builder.next_id(),
+            );*/
 
             leo_ast::StructExpression { path, const_arguments, members, span, id }.into()
         }
@@ -1379,6 +1478,7 @@ pub fn to_main(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) 
         modules: Default::default(),
         imports,
         stubs: Default::default(),
+        programs: Default::default(),
         program_scopes: std::iter::once((program_name_symbol, program_scope)).collect(),
     })
 }

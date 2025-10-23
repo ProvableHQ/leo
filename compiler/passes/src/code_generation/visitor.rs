@@ -45,6 +45,7 @@ pub struct CodeGeneratingVisitor<'a> {
     /// The variant of the function we are currently traversing.
     pub variant: Option<Variant>,
     /// A reference to program. This is needed to look up external programs.
+    #[allow(dead_code)]
     pub program: &'a Program,
     /// The program ID of the current program.
     pub program_id: Option<ProgramId>,
@@ -170,13 +171,20 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         // === Case 3: Matches special form like `path::to::Name::[3, 4]` ===
-        let re = regex::Regex::new(r#"^([a-zA-Z_][\w]*)(?:::\[.*?\])?$"#).unwrap();
+        /*let re = regex::Regex::new(r#"^([a-zA-Z_][\w]*)(?:::\[.*?\])?$"#).unwrap();
 
         if let Some(captures) = re.captures(&last) {
             let ident = captures.get(1)?.as_str();
 
             // The produced name here will be of the form: `<last>__AYMqiUeJeQN`.
             return Some(generate_hashed_name(path, ident));
+        }*/
+        if let Some(idx) = last.rfind("::[") {
+            // Extract everything before the array index
+            let base = &last[..idx];
+            // Take the last identifier before the brackets
+            let base_ident = base.rsplit("::").next().filter(|s| is_legal_identifier(s)).unwrap_or("Indexed");
+            return Some(generate_hashed_name(path, base_ident));
         }
 
         // === Case 4: Matches special form like `path::to::Name?` (last always ends with `?`) ===

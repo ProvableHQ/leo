@@ -15,7 +15,18 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{AstReconstructor, Module, Program, ProgramReconstructor, ProgramScope, Statement, Variant};
+use leo_ast::{
+    AstReconstructor,
+    Composite,
+    ConstParameter,
+    Member,
+    Module,
+    Program,
+    ProgramReconstructor,
+    ProgramScope,
+    Statement,
+    Variant,
+};
 use leo_span::sym;
 
 impl ProgramReconstructor for MonomorphizationVisitor<'_> {
@@ -33,7 +44,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_struct = self.reconstruct_struct(r#struct);
                 // Store the reconstructed struct for inclusion in the output scope.
-                self.reconstructed_structs.insert(struct_name.clone(), reconstructed_struct);
+                self.reconstructed_structs.insert((self.program, struct_name.clone()), reconstructed_struct);
             }
         }
 
@@ -84,8 +95,6 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             }
         }
 
-        // Get any
-
         // Now reconstruct mappings and storage variables
         let mappings =
             input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
@@ -129,9 +138,11 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             structs: self
                 .reconstructed_structs
                 .iter()
-                .filter_map(|(path, c)| {
+                .filter_map(|((program, path), c)| {
                     // only consider structs defined at program scope. The rest will be added to their parent module.
-                    path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, c.clone()))
+                    path.split_last()
+                        .filter(|(_, rest)| rest.is_empty() && *program == input.program_id.name.name)
+                        .map(|(last, _)| (*last, c.clone()))
                 })
                 .collect(),
             mappings,
@@ -149,7 +160,27 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         }
     }
 
+    fn reconstruct_struct(&mut self, input: Composite) -> Composite {
+        Composite {
+            const_parameters: input
+                .const_parameters
+                .iter()
+                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .collect(),
+            members: input
+                .members
+                .iter()
+                .map(|member| Member { type_: self.reconstruct_type(member.type_.clone()).0, ..member.clone() })
+                .collect(),
+            id: self.state.node_builder.next_id(), // I thought this would reset the scopes :hmmmm:
+            ..input
+        }
+    }
+
     fn reconstruct_program(&mut self, input: Program) -> Program {
+        let mut reconstructed_programs: indexmap::IndexMap<leo_span::Symbol, Program> =
+            input.programs.into_iter().map(|(id, program)| (id, self.reconstruct_program(program))).collect();
+
         // Populate `self.function_map` using the functions in the program scopes and the modules
         input
             .modules
@@ -188,17 +219,56 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 self.struct_map.insert(full_name, f);
             });
 
+        let program_scopes =
+            input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
+
+        let modules = input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect();
+
+        for (program_id, program) in reconstructed_programs.iter_mut() {
+            // Collect all top-level structs that belong to this program
+            let structs_for_program: Vec<_> = self
+                .reconstructed_structs
+                .iter()
+                .filter_map(|((owner_program, path), c)| {
+                    path.split_last()
+                        .filter(|(_, rest)| rest.is_empty() && *owner_program == *program_id)
+                        .map(|(last, _)| (*last, c.clone()))
+                })
+                .collect();
+
+            // Insert them directly into each program scope
+            for (_, scope) in program.program_scopes.iter_mut() {
+                for (struct_id, strukt) in &structs_for_program {
+                    // Avoid duplicates (e.g., if it was already reconstructed earlier)
+                    if !scope.structs.iter().any(|(id, _)| id == struct_id) {
+                        scope.structs.push((*struct_id, strukt.clone()));
+                    }
+                }
+            }
+
+            // Handle structs that belong to modules under this program
+            for (_, module) in program.modules.iter_mut() {
+                let structs_for_module: Vec<_> = self
+                    .reconstructed_structs
+                    .iter()
+                    .filter_map(|((owner_program, path), c)| {
+                        path.split_last()
+                            .filter(|(_, rest)| *owner_program == *program_id && *rest == module.path)
+                            .map(|(last, _)| (*last, c.clone()))
+                    })
+                    .collect();
+
+                for (struct_id, strukt) in structs_for_module {
+                    if !module.structs.iter().any(|(id, _)| *id == struct_id) {
+                        module.structs.push((struct_id, strukt));
+                    }
+                }
+            }
+        }
+
         // Reconstruct prrogram scopes first then reconstruct the modules after `self.reconstructed_structs`
         // and `self.reconstructed_functions` have been populated.
-        Program {
-            program_scopes: input
-                .program_scopes
-                .into_iter()
-                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
-                .collect(),
-            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
-            ..input
-        }
+        Program { programs: reconstructed_programs, program_scopes, modules, ..input }
     }
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
@@ -208,9 +278,9 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             structs: self
                 .reconstructed_structs
                 .iter()
-                .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
-                .filter(|&(_, rest, _)| input.path == rest)
-                .map(|(last, _, c)| (*last, c.clone()))
+                .filter_map(|((program, path), c)| path.split_last().map(|(last, rest)| (program, last, rest, c)))
+                .filter(|&(program, _, rest, _)| input.path == rest && *program == input.program_name)
+                .map(|(_, last, _, c)| (*last, c.clone()))
                 .collect(),
 
             functions: self

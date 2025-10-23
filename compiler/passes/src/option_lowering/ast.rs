@@ -353,7 +353,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         mut input: CallExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
-        let callee_program = input.program.unwrap_or(self.program);
+        let callee_program = input.function.program().unwrap_or(self.program);
 
         let func_symbol = self
             .state
@@ -419,7 +419,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     .state
                     .symbol_table
                     .lookup_record(&location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(&composite.path.absolute_path()))
+                    .or_else(|| self.state.symbol_table.lookup_struct(&location))
                     .or_else(|| self.new_structs.get(&composite.path.identifier().name))
                     .expect("guaranteed by type checking");
 

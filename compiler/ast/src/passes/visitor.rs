@@ -334,6 +334,7 @@ pub trait ProgramVisitor: AstVisitor {
         input.modules.values().for_each(|module| self.visit_module(module));
         input.imports.values().for_each(|import| self.visit_import(&import.0));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
+        input.programs.values().for_each(|program| self.visit_program(program));
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {

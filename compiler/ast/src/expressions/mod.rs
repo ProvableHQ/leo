@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, Node, NodeBuilder, NodeID, Path, Type};
+use crate::{Identifier, IntegerType, Location, Node, NodeBuilder, NodeID, Path, Type};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -354,8 +354,9 @@ impl Expression {
     pub fn zero(
         ty: &Type,
         span: Span,
+        program: Symbol,
         node_builder: &NodeBuilder,
-        struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+        struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
     ) -> Option<Self> {
         let id = node_builder.next_id();
 
@@ -399,13 +400,13 @@ impl Expression {
             // Structs (composite types)
             Type::Composite(composite_type) => {
                 let path = &composite_type.path;
-                let members = struct_lookup(&path.absolute_path());
+                let members = struct_lookup(&Location::new(program, path.absolute_path()));
 
                 let struct_members = members
                     .into_iter()
                     .map(|(symbol, member_type)| {
                         let member_id = node_builder.next_id();
-                        let zero_expr = Self::zero(&member_type, span, node_builder, struct_lookup)?;
+                        let zero_expr = Self::zero(&member_type, span, program, node_builder, struct_lookup)?;
 
                         Some(StructVariableInitializer {
                             span,
@@ -429,7 +430,7 @@ impl Expression {
             Type::Array(array_type) => {
                 let element_ty = &array_type.element_type;
 
-                let element_expr = Self::zero(element_ty, span, node_builder, struct_lookup)?;
+                let element_expr = Self::zero(element_ty, span, program, node_builder, struct_lookup)?;
 
                 Some(Expression::Repeat(
                     RepeatExpression { span, id, expr: element_expr, count: *array_type.length.clone() }.into(),

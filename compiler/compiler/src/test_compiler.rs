@@ -34,12 +34,29 @@ fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
 
     let mut import_stubs = IndexMap::new();
 
+    let mut import_programs = IndexMap::new();
+
     let mut bytecodes = Vec::<String>::new();
+
+    let node_builder: leo_ast::NodeBuilder = Default::default();
+    let node_builder = std::rc::Rc::new(node_builder);
 
     // Compile each source file separately.
     for source in test.split(super::test_utils::PROGRAM_DELIMITER) {
-        let (bytecode, program_name) =
-            handler.extend_if_error(super::test_utils::whole_compile(source, handler, import_stubs.clone()))?;
+        let (parsed, _) = handler.extend_if_error(super::test_utils::parse(
+            source,
+            handler,
+            &node_builder,
+            import_stubs.clone(),
+            import_programs.clone(),
+        ))?;
+        let (bytecode, program_name) = handler.extend_if_error(super::test_utils::whole_compile(
+            source,
+            handler,
+            &node_builder,
+            import_stubs.clone(),
+            import_programs.clone(),
+        ))?;
 
         // Parse the bytecode as an Aleo program.
         // Note that this function checks that the bytecode is well-formed.
@@ -53,6 +70,7 @@ fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
         let stub = handler
             .extend_if_error(disassemble_from_str::<TestnetV0>(&program_name, &bytecode).map_err(|err| err.into()))?;
         import_stubs.insert(Symbol::intern(&program_name), stub);
+        import_programs.insert(Symbol::intern(&program_name), parsed);
 
         // Only error out if there are errors. Warnings are okay but we still want to print them later.
         if handler.err_count() != 0 {

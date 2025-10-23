@@ -54,6 +54,7 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                 .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
                 .collect(),
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
+            programs: input.programs.into_iter().map(|(id, program)| (id, self.reconstruct_program(program))).collect(),
             program_scopes: input
                 .program_scopes
                 .into_iter()
