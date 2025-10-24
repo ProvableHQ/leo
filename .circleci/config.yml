@@ -15,12 +15,6 @@ version: 2.1
 #    See swatinem/rust-cache for a sensible approach. Unfortunately, we'd have to build this for CircleCI.
 
 
-environment:
-  CARGO_INCREMENTAL: 0
-  RUSTFLAGS: "-D warnings"
-  # testnet-v4.3.0
-  SNARKOS_REV: "79936b5bfce6b158fe942c6cfb44a0cc07a7a3e0" 
-
 orbs:
   windows: circleci/windows@5.1.0
   codecov: codecov/codecov@1.0.2
@@ -155,6 +149,8 @@ jobs:
 
   test-macos:
     executor: macos-executor
+    environment:
+      SNARKOS_REV: "79936b5bfce6b158fe942c6cfb44a0cc07a7a3e0" # testnet-v4.3.0
     steps:
       - checkout
       - restore_cache:
