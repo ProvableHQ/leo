@@ -60,77 +60,78 @@
 <a href=#60 id=60 data-nosnippet>60</a>    @formatted
 <a href=#61 id=61 data-nosnippet>61</a>    program_name_should_match_file_name {
 <a href=#62 id=62 data-nosnippet>62</a>        args: (program_name: <span class="kw">impl </span>Display, file_name: <span class="kw">impl </span>Display),
-<a href=#63 id=63 data-nosnippet>63</a>        msg: <span class="macro">format!</span>(<span class="string">"Program name in main.leo `{program_name}` should match the name in program.json `{file_name}`"</span>),
+<a href=#63 id=63 data-nosnippet>63</a>        msg: <span class="macro">format!</span>(<span class="string">"The program name `{program_name}` must match {file_name}"</span>),
 <a href=#64 id=64 data-nosnippet>64</a>        help: <span class="prelude-val">None</span>,
 <a href=#65 id=65 data-nosnippet>65</a>    }
 <a href=#66 id=66 data-nosnippet>66</a>
-<a href=#67 id=67 data-nosnippet>67</a>    @formatted
-<a href=#68 id=68 data-nosnippet>68</a>    program_scope_name_does_not_match {
-<a href=#69 id=69 data-nosnippet>69</a>        args: (program_scope_name: <span class="kw">impl </span>Display, file_name: <span class="kw">impl </span>Display),
-<a href=#70 id=70 data-nosnippet>70</a>        msg: <span class="macro">format!</span>(<span class="string">"The program scope name `{program_scope_name}` must match `{file_name}`."</span>),
-<a href=#71 id=71 data-nosnippet>71</a>        help: <span class="prelude-val">None</span>,
-<a href=#72 id=72 data-nosnippet>72</a>    }
-<a href=#73 id=73 data-nosnippet>73</a>
-<a href=#74 id=74 data-nosnippet>74</a>    @formatted
-<a href=#75 id=75 data-nosnippet>75</a>    imported_program_not_found {
-<a href=#76 id=76 data-nosnippet>76</a>        args: (main_program_name: <span class="kw">impl </span>Display, dependency_name: <span class="kw">impl </span>Display),
-<a href=#77 id=77 data-nosnippet>77</a>        msg: <span class="macro">format!</span>(<span class="string">"`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in program manifest. Use `leo add --help` for more information on how to add a dependency."</span>),
-<a href=#78 id=78 data-nosnippet>78</a>        help: <span class="prelude-val">None</span>,
-<a href=#79 id=79 data-nosnippet>79</a>    }
-<a href=#80 id=80 data-nosnippet>80</a>
-<a href=#81 id=81 data-nosnippet>81</a>    @formatted
-<a href=#82 id=82 data-nosnippet>82</a>    const_not_evaluated {
-<a href=#83 id=83 data-nosnippet>83</a>        args: (),
-<a href=#84 id=84 data-nosnippet>84</a>        msg: <span class="string">"The value of this const could not be determined at compile time."</span>.to_string(),
-<a href=#85 id=85 data-nosnippet>85</a>        help: <span class="prelude-val">None</span>,
-<a href=#86 id=86 data-nosnippet>86</a>    }
-<a href=#87 id=87 data-nosnippet>87</a>
-<a href=#88 id=88 data-nosnippet>88</a>    @formatted
-<a href=#89 id=89 data-nosnippet>89</a>    loop_bounds_not_evaluated {
-<a href=#90 id=90 data-nosnippet>90</a>        args: (),
-<a href=#91 id=91 data-nosnippet>91</a>        msg: <span class="string">"This loop bound could not be determined at compile time."</span>.to_string(),
-<a href=#92 id=92 data-nosnippet>92</a>        help: <span class="prelude-val">None</span>,
-<a href=#93 id=93 data-nosnippet>93</a>    }
-<a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a>    @formatted
-<a href=#96 id=96 data-nosnippet>96</a>    array_index_not_evaluated {
-<a href=#97 id=97 data-nosnippet>97</a>        args: (),
-<a href=#98 id=98 data-nosnippet>98</a>        msg: <span class="string">"This array index could not be determined at compile time."</span>.to_string(),
-<a href=#99 id=99 data-nosnippet>99</a>        help: <span class="prelude-val">None</span>,
-<a href=#100 id=100 data-nosnippet>100</a>    }
-<a href=#101 id=101 data-nosnippet>101</a>
-<a href=#102 id=102 data-nosnippet>102</a>    @formatted
-<a href=#103 id=103 data-nosnippet>103</a>    const_prop_unroll_many_loops {
-<a href=#104 id=104 data-nosnippet>104</a>        args: (bound: usize),
-<a href=#105 id=105 data-nosnippet>105</a>        msg: <span class="macro">format!</span>(<span class="string">"The const propagation and loop unrolling passes ran {bound} times without reaching a fixed point."</span>),
-<a href=#106 id=106 data-nosnippet>106</a>        help: <span class="prelude-val">Some</span>(<span class="string">"This should only happen with a pathological Leo program containing numerous nested loops or nested operations. Otherwise, this may be a bug in the Leo compiler."</span>.to_string()),
-<a href=#107 id=107 data-nosnippet>107</a>    }
-<a href=#108 id=108 data-nosnippet>108</a>
-<a href=#109 id=109 data-nosnippet>109</a>    @backtraced
-<a href=#110 id=110 data-nosnippet>110</a>    failed_ast_file {
-<a href=#111 id=111 data-nosnippet>111</a>        args: (filename: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>Display),
-<a href=#112 id=112 data-nosnippet>112</a>        msg: <span class="macro">format!</span>(<span class="string">"Failed to write AST to file {filename}: {error}."</span>),
-<a href=#113 id=113 data-nosnippet>113</a>        help: <span class="prelude-val">None</span>,
-<a href=#114 id=114 data-nosnippet>114</a>    }
-<a href=#115 id=115 data-nosnippet>115</a>
-<a href=#116 id=116 data-nosnippet>116</a>    @formatted
-<a href=#117 id=117 data-nosnippet>117</a>    const_generic_not_resolved {
-<a href=#118 id=118 data-nosnippet>118</a>        args: (kind: <span class="kw">impl </span>Display, item: <span class="kw">impl </span>Display),
-<a href=#119 id=119 data-nosnippet>119</a>        msg: <span class="macro">format!</span>(<span class="string">"Unable to resolve {kind} `{item}`. A non-const expression was provided where a const generic parameter is required."</span>),
-<a href=#120 id=120 data-nosnippet>120</a>        help: <span class="prelude-val">None</span>,
-<a href=#121 id=121 data-nosnippet>121</a>    }
-<a href=#122 id=122 data-nosnippet>122</a>
-<a href=#123 id=123 data-nosnippet>123</a>    @formatted
-<a href=#124 id=124 data-nosnippet>124</a>    array_length_not_evaluated {
-<a href=#125 id=125 data-nosnippet>125</a>        args: (),
-<a href=#126 id=126 data-nosnippet>126</a>        msg: <span class="string">"This array length could not be determined at compile time."</span>.to_string(),
-<a href=#127 id=127 data-nosnippet>127</a>        help: <span class="prelude-val">None</span>,
-<a href=#128 id=128 data-nosnippet>128</a>    }
-<a href=#129 id=129 data-nosnippet>129</a>
-<a href=#130 id=130 data-nosnippet>130</a>    @formatted
-<a href=#131 id=131 data-nosnippet>131</a>    repeat_count_not_evaluated {
-<a href=#132 id=132 data-nosnippet>132</a>        args: (),
-<a href=#133 id=133 data-nosnippet>133</a>        msg: <span class="string">"This repeat count could not be determined at compile time."</span>.to_string(),
-<a href=#134 id=134 data-nosnippet>134</a>        help: <span class="prelude-val">None</span>,
-<a href=#135 id=135 data-nosnippet>135</a>    }
-<a href=#136 id=136 data-nosnippet>136</a>);</code></pre></div></section></main></body></html>
+<a href=#67 id=67 data-nosnippet>67</a>    <span class="comment">// Unused error.
+<a href=#68 id=68 data-nosnippet>68</a>    </span>@formatted
+<a href=#69 id=69 data-nosnippet>69</a>    program_scope_name_does_not_match {
+<a href=#70 id=70 data-nosnippet>70</a>        args: (program_scope_name: <span class="kw">impl </span>Display, file_name: <span class="kw">impl </span>Display),
+<a href=#71 id=71 data-nosnippet>71</a>        msg: <span class="macro">format!</span>(<span class="string">"The program scope name `{program_scope_name}` must match `{file_name}`."</span>),
+<a href=#72 id=72 data-nosnippet>72</a>        help: <span class="prelude-val">None</span>,
+<a href=#73 id=73 data-nosnippet>73</a>    }
+<a href=#74 id=74 data-nosnippet>74</a>
+<a href=#75 id=75 data-nosnippet>75</a>    @formatted
+<a href=#76 id=76 data-nosnippet>76</a>    imported_program_not_found {
+<a href=#77 id=77 data-nosnippet>77</a>        args: (main_program_name: <span class="kw">impl </span>Display, dependency_name: <span class="kw">impl </span>Display),
+<a href=#78 id=78 data-nosnippet>78</a>        msg: <span class="macro">format!</span>(<span class="string">"`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in program manifest. Use `leo add --help` for more information on how to add a dependency."</span>),
+<a href=#79 id=79 data-nosnippet>79</a>        help: <span class="prelude-val">None</span>,
+<a href=#80 id=80 data-nosnippet>80</a>    }
+<a href=#81 id=81 data-nosnippet>81</a>
+<a href=#82 id=82 data-nosnippet>82</a>    @formatted
+<a href=#83 id=83 data-nosnippet>83</a>    const_not_evaluated {
+<a href=#84 id=84 data-nosnippet>84</a>        args: (),
+<a href=#85 id=85 data-nosnippet>85</a>        msg: <span class="string">"The value of this const could not be determined at compile time."</span>.to_string(),
+<a href=#86 id=86 data-nosnippet>86</a>        help: <span class="prelude-val">None</span>,
+<a href=#87 id=87 data-nosnippet>87</a>    }
+<a href=#88 id=88 data-nosnippet>88</a>
+<a href=#89 id=89 data-nosnippet>89</a>    @formatted
+<a href=#90 id=90 data-nosnippet>90</a>    loop_bounds_not_evaluated {
+<a href=#91 id=91 data-nosnippet>91</a>        args: (),
+<a href=#92 id=92 data-nosnippet>92</a>        msg: <span class="string">"This loop bound could not be determined at compile time."</span>.to_string(),
+<a href=#93 id=93 data-nosnippet>93</a>        help: <span class="prelude-val">None</span>,
+<a href=#94 id=94 data-nosnippet>94</a>    }
+<a href=#95 id=95 data-nosnippet>95</a>
+<a href=#96 id=96 data-nosnippet>96</a>    @formatted
+<a href=#97 id=97 data-nosnippet>97</a>    array_index_not_evaluated {
+<a href=#98 id=98 data-nosnippet>98</a>        args: (),
+<a href=#99 id=99 data-nosnippet>99</a>        msg: <span class="string">"This array index could not be determined at compile time."</span>.to_string(),
+<a href=#100 id=100 data-nosnippet>100</a>        help: <span class="prelude-val">None</span>,
+<a href=#101 id=101 data-nosnippet>101</a>    }
+<a href=#102 id=102 data-nosnippet>102</a>
+<a href=#103 id=103 data-nosnippet>103</a>    @formatted
+<a href=#104 id=104 data-nosnippet>104</a>    const_prop_unroll_many_loops {
+<a href=#105 id=105 data-nosnippet>105</a>        args: (bound: usize),
+<a href=#106 id=106 data-nosnippet>106</a>        msg: <span class="macro">format!</span>(<span class="string">"The const propagation and loop unrolling passes ran {bound} times without reaching a fixed point."</span>),
+<a href=#107 id=107 data-nosnippet>107</a>        help: <span class="prelude-val">Some</span>(<span class="string">"This should only happen with a pathological Leo program containing numerous nested loops or nested operations. Otherwise, this may be a bug in the Leo compiler."</span>.to_string()),
+<a href=#108 id=108 data-nosnippet>108</a>    }
+<a href=#109 id=109 data-nosnippet>109</a>
+<a href=#110 id=110 data-nosnippet>110</a>    @backtraced
+<a href=#111 id=111 data-nosnippet>111</a>    failed_ast_file {
+<a href=#112 id=112 data-nosnippet>112</a>        args: (filename: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>Display),
+<a href=#113 id=113 data-nosnippet>113</a>        msg: <span class="macro">format!</span>(<span class="string">"Failed to write AST to file {filename}: {error}."</span>),
+<a href=#114 id=114 data-nosnippet>114</a>        help: <span class="prelude-val">None</span>,
+<a href=#115 id=115 data-nosnippet>115</a>    }
+<a href=#116 id=116 data-nosnippet>116</a>
+<a href=#117 id=117 data-nosnippet>117</a>    @formatted
+<a href=#118 id=118 data-nosnippet>118</a>    const_generic_not_resolved {
+<a href=#119 id=119 data-nosnippet>119</a>        args: (kind: <span class="kw">impl </span>Display, item: <span class="kw">impl </span>Display),
+<a href=#120 id=120 data-nosnippet>120</a>        msg: <span class="macro">format!</span>(<span class="string">"Unable to resolve {kind} `{item}`. A non-const expression was provided where a const generic parameter is required."</span>),
+<a href=#121 id=121 data-nosnippet>121</a>        help: <span class="prelude-val">None</span>,
+<a href=#122 id=122 data-nosnippet>122</a>    }
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a>    @formatted
+<a href=#125 id=125 data-nosnippet>125</a>    array_length_not_evaluated {
+<a href=#126 id=126 data-nosnippet>126</a>        args: (),
+<a href=#127 id=127 data-nosnippet>127</a>        msg: <span class="string">"This array length could not be determined at compile time."</span>.to_string(),
+<a href=#128 id=128 data-nosnippet>128</a>        help: <span class="prelude-val">None</span>,
+<a href=#129 id=129 data-nosnippet>129</a>    }
+<a href=#130 id=130 data-nosnippet>130</a>
+<a href=#131 id=131 data-nosnippet>131</a>    @formatted
+<a href=#132 id=132 data-nosnippet>132</a>    repeat_count_not_evaluated {
+<a href=#133 id=133 data-nosnippet>133</a>        args: (),
+<a href=#134 id=134 data-nosnippet>134</a>        msg: <span class="string">"This repeat count could not be determined at compile time."</span>.to_string(),
+<a href=#135 id=135 data-nosnippet>135</a>        help: <span class="prelude-val">None</span>,
+<a href=#136 id=136 data-nosnippet>136</a>    }
+<a href=#137 id=137 data-nosnippet>137</a>);</code></pre></div></section></main></body></html>
