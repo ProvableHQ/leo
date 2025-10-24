@@ -60,10 +60,11 @@ create_messages!(
     @formatted
     program_name_should_match_file_name {
         args: (program_name: impl Display, file_name: impl Display),
-        msg: format!("Program name in main.leo `{program_name}` should match the name in program.json `{file_name}`"),
+        msg: format!("The program name `{program_name}` must match {file_name}"),
         help: None,
     }
 
+    // Unused error.
     @formatted
     program_scope_name_does_not_match {
         args: (program_scope_name: impl Display, file_name: impl Display),

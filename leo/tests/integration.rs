@@ -95,7 +95,7 @@ impl Drop for CwdRaii {
     }
 }
 
-fn run_test(test: &Test, force_rewrite: bool) -> bool {
+fn run_test(test: &Test, force_rewrite: bool) -> Option<String> {
     let test_context_directory = tempfile::TempDir::new().expect("Failed to create temporary directory.");
 
     copy_recursively(&test.test_directory, test_context_directory.path()).expect("Failed to copy test directory.");
@@ -118,14 +118,14 @@ fn run_test(test: &Test, force_rewrite: bool) -> bool {
     if force_rewrite {
         copy_recursively(test_context_directory.path(), &test.expectation_directory)
             .expect("Failed to copy directory.");
-        true
-    } else if dirs_equal(test_context_directory.path(), &test.expectation_directory)
-        .expect("Failed to compare directories.")
+        None
+    } else if let Some(error) =
+        dirs_equal(test_context_directory.path(), &test.expectation_directory).expect("Failed to compare directories.")
     {
-        true
+        Some(error)
     } else {
         copy_recursively(test_context_directory.path(), &test.mismatch_directory).expect("Failed to copy directory.");
-        false
+        None
     }
 }
 
@@ -143,6 +143,14 @@ fn filter_stdout(data: &str) -> String {
         (Regex::new("Explored [0-9]* blocks.").unwrap(), "Explored XXXXXX blocks."),
         (Regex::new("Max Variables:        [0-9,]*").unwrap(), "Max Variables:        XXXXXX"),
         (Regex::new("Max Constraints:      [0-9,]*").unwrap(), "Max Constraints:      XXXXXX"),
+        // These are filtered out since the cache can frequently differ between local and CI runs.
+        (Regex::new("Warning: The cached file.*\n").unwrap(), ""),
+        (
+            Regex::new(r"  • The program '[A-Za-z0-9_]+\.aleo' on the network does not match the local copy.*\n")
+                .unwrap(),
+            "",
+        ),
+        (Regex::new(r"  • The program '[A-Za-z0-9_]+\.aleo' does not exist on the network.*\n").unwrap(), ""),
     ];
 
     let mut cow = Cow::Borrowed(data);
@@ -220,10 +228,10 @@ fn integration_tests() {
     let mut passed = Vec::new();
     let mut failed = Vec::new();
     for test in tests.into_iter() {
-        if run_test(&test, rewrite_expectations) {
-            passed.push(test);
+        if let Some(err) = run_test(&test, rewrite_expectations) {
+            failed.push((test, err));
         } else {
-            failed.push(test);
+            passed.push(test);
         }
     }
 
@@ -240,9 +248,9 @@ fn integration_tests() {
         println!("CLI Integration tests: All {} tests passed.", passed.len());
     } else {
         println!("CLI Integration tests: {}/{} tests failed.", failed.len(), failed.len() + passed.len());
-        for test in &failed {
+        for (test, err) in &failed {
             println!(
-                "FAILED: {}; produced files written to {}",
+                "FAILED: {}; produced files written to {}\nERROR: {err}",
                 test.test_directory.file_name().unwrap().display(),
                 test.mismatch_directory.display()
             );
@@ -276,29 +284,38 @@ fn copy_recursively(src: &Path, dst: &Path) -> io::Result<()> {
 }
 
 /// Recursively compares the contents of two directories
-fn dirs_equal(dir1: &Path, dir2: &Path) -> io::Result<bool> {
-    let entries1 = collect_files(dir1)?;
-    let entries2 = collect_files(dir2)?;
+fn dirs_equal(actual: &Path, expected: &Path) -> io::Result<Option<String>> {
+    let entries1 = collect_files(actual)?;
+    let entries2 = collect_files(expected)?;
 
     // Check both directories have the same files
     if entries1 != entries2 {
-        return Ok(false);
+        return Ok(Some(format!(
+            "Directory entries differ:\n  - Actual: {}\n  - Expected: {:?}",
+            entries1.iter().map(|p| p.to_string_lossy()).collect::<Vec<_>>().join(","),
+            entries2.iter().map(|p| p.to_string_lossy()).collect::<Vec<_>>().join(",")
+        )));
     }
 
     // Compare contents of each file
     for relative_path in &entries1 {
-        let path1 = dir1.join(relative_path);
-        let path2 = dir2.join(relative_path);
+        let path1 = actual.join(relative_path);
+        let path2 = expected.join(relative_path);
 
         let bytes1 = fs::read(&path1)?;
         let bytes2 = fs::read(&path2)?;
 
         if bytes1 != bytes2 {
-            return Ok(false);
+            let actual = String::from_utf8_lossy(&bytes1);
+            let expected = String::from_utf8_lossy(&bytes2);
+            return Ok(Some(format!(
+                "File contents differ: {}\n  - Actual: {actual}\n  - Expected: {expected}",
+                relative_path.display()
+            )));
         }
     }
 
-    Ok(true)
+    Ok(None)
 }
 
 /// Collects all file paths relative to the base directory

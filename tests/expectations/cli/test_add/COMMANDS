@@ -3,3 +3,9 @@
 LEO_BIN=${1}
 
 ${LEO_BIN} add --network credits.aleo
+
+${LEO_BIN} build
+
+${LEO_BIN} execute main 1u32 2u32 --network testnet --endpoint https://api.explorer.provable.com/v1 --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH --yes
+
+${LEO_BIN} execute main 1u32 2u32 --network testnet --endpoint http://localhost:3030 --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH --yes

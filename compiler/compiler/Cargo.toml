@@ -75,7 +75,7 @@ workspace = true
 workspace = true
 
 [dev-dependencies.regex]
-version = "1.11.1"
+workspace = true
 
 [dev-dependencies.serial_test]
 workspace = true

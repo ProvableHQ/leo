@@ -285,6 +285,9 @@ workspace = true
 [dependencies.rand_chacha]
 workspace = true
 
+[dependencies.regex]
+workspace = true
+
 [dependencies.rpassword]
 version = "7.4.0"
 

@@ -1,4 +1,4 @@
-Error [ECMP0376004]: Program name in main.leo `bar` should match the name in program.json `foo`
+Error [ECMP0376004]: The program name `bar` must match `foo` (specified in `program.json`)
     --> SOURCE_DIRECTORY/main.leo:1:9
      |
    1 | program bar.aleo {

@@ -1,1 +1,121 @@
        Leo ✅ Added network dependency `credits.aleo` from network `true`.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[208u8, 46u8, 107u8, 120u8, 67u8, 35u8, 254u8, 232u8, 167u8, 173u8, 0u8, 130u8, 249u8, 123u8, 65u8, 159u8, 169u8, 93u8, 168u8, 232u8, 33u8, 125u8, 49u8, 130u8, 118u8, 142u8, 183u8, 31u8, 60u8, 106u8, 136u8, 65u8]'.
+       Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[208u8, 46u8, 107u8, 120u8, 67u8, 35u8, 254u8, 232u8, 167u8, 173u8, 0u8, 130u8, 249u8, 123u8, 65u8, 159u8, 169u8, 93u8, 168u8, 232u8, 33u8, 125u8, 49u8, 130u8, 118u8, 142u8, 183u8, 31u8, 60u8, 106u8, 136u8, 65u8]'.
+       Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
+
+📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at https://api.explorer.provable.com/v1...
+
+🚀 Execution Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           https://api.explorer.provable.com/v1
+  Network:            testnet
+  Consensus Version:  11
+
+🎯 Execution Target:
+  Program:        some_sample_leo_program.aleo
+  Function:       main
+  Source:         local
+
+💸 Fee Info:
+  Priority Fee:   0 μcredits
+  Fee Record:     no (public fee)
+
+⚙️ Actions:
+  - Transaction will NOT be printed to the console.
+  - Transaction will NOT be saved to a file.
+  - Transaction will NOT be broadcast to the network.
+
+⚠️ Warnings:
+──────────────────────────────────────────────
+
+
+➕Adding programs to the VM in the following order:
+  - credits.aleo (already included)
+  - some_sample_leo_program.aleo (edition: 1)
+
+⚙️ Executing some_sample_leo_program.aleo/main...
+
+📊 Execution Summary for some_sample_leo_program.aleo
+──────────────────────────────────────────────
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.001334
+  On‑chain Execution:   0.000000
+  Priority Fee:         0.000000
+  Total Fee:            0.001334
+──────────────────────────────────────────────
+
+➡️  Output
+
+ • 3u32
+
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[208u8, 46u8, 107u8, 120u8, 67u8, 35u8, 254u8, 232u8, 167u8, 173u8, 0u8, 130u8, 249u8, 123u8, 65u8, 159u8, 169u8, 93u8, 168u8, 232u8, 33u8, 125u8, 49u8, 130u8, 118u8, 142u8, 183u8, 31u8, 60u8, 106u8, 136u8, 65u8]'.
+       Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
+
+📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+⚠️ Warning: Expected consensus version 1 but found 11 at http://localhost:3030
+
+🚀 Execution Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  1
+
+🎯 Execution Target:
+  Program:        some_sample_leo_program.aleo
+  Function:       main
+  Source:         local
+
+💸 Fee Info:
+  Priority Fee:   0 μcredits
+  Fee Record:     no (public fee)
+
+⚙️ Actions:
+  - Transaction will NOT be printed to the console.
+  - Transaction will NOT be saved to a file.
+  - Transaction will NOT be broadcast to the network.
+
+⚠️ Warnings:
+  • Expected consensus version 1 but found 11 at http://localhost:3030. In some cases, the execution may fail
+──────────────────────────────────────────────
+
+
+➕Adding programs to the VM in the following order:
+  - credits.aleo (already included)
+  - some_sample_leo_program.aleo (edition: 1)
+
+⚙️ Executing some_sample_leo_program.aleo/main...
+
+📊 Execution Summary for some_sample_leo_program.aleo
+──────────────────────────────────────────────
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.001334
+  On‑chain Execution:   0.000000
+  Priority Fee:         0.000000
+  Total Fee:            0.001334
+──────────────────────────────────────────────
+
+➡️  Output
+
+ • 3u32
+

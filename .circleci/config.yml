@@ -15,11 +15,6 @@ version: 2.1
 #    See swatinem/rust-cache for a sensible approach. Unfortunately, we'd have to build this for CircleCI.
 
 
-environment:
-  CARGO_INCREMENTAL: 0
-  RUSTFLAGS: "-D warnings"
-  SNARKOS_REV: "79936b5" # testnet-v4.3.0
-
 orbs:
   windows: circleci/windows@5.1.0
   codecov: codecov/codecov@1.0.2
@@ -29,8 +24,6 @@ executors:
     macos:
       xcode: "26.0.1"  # Use appropriate Xcode version
     resource_class: m4pro.large
-    environment:
-      SNARKOS_VERSION: "4.2.2"
 
   linux-executor:
     docker:
@@ -83,13 +76,18 @@ commands:
 
   install-snarkos:
     description: "Install snarkOS (Linux/macOS)"
+    parameters:
+      revision:
+        type: string
+        description: "The git revision of snarkOS to check out"
     steps:
       - run:
           name: Install snarkOS 
           command: |
+            set -euo pipefail
             git clone https://github.com/ProvableHQ/snarkOS.git
             cd snarkOS
-            git checkout $SNARKOS_REV
+            git checkout << parameters.revision >>
             cargo install --path . --features test_network --locked --force
             cd ..
             rm -rf snarkOS
@@ -151,6 +149,8 @@ jobs:
 
   test-macos:
     executor: macos-executor
+    environment:
+      SNARKOS_REV: "79936b5bfce6b158fe942c6cfb44a0cc07a7a3e0" # testnet-v4.3.0
     steps:
       - checkout
       - restore_cache:
@@ -159,7 +159,8 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
-      - install-snarkos
+      - install-snarkos:
+          revision: $SNARKOS_REV
       - run:
           name: Verify SnarkOS installation
           command: |
