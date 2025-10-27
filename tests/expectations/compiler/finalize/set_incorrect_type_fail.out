@@ -29,15 +29,15 @@ Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
   21 |         amounts.set(addr, 1u8);
      |                           ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:22:65
+    --> compiler-test:22:70
      |
-  22 |         Mapping::set(tokens, addr, Token { owner: addr, amount: 1u8 });
-     |                                                                 ^^^
+  22 |         Mapping::set(tokens, addr, Token { owner_addr: addr, amount: 1u8 });
+     |                                                                      ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:23:55
+    --> compiler-test:23:60
      |
-  23 |         tokens.set(addr, Token { owner: addr, amount: 1u8 });
-     |                                                       ^^^
+  23 |         tokens.set(addr, Token { owner_addr: addr, amount: 1u8 });
+     |                                                            ^^^
 Error [ETYC0372005]: Unknown variable `foo`
     --> compiler-test:24:22
      |

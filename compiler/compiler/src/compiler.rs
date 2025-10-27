@@ -145,6 +145,8 @@ impl Compiler {
     pub fn intermediate_passes(&mut self) -> Result<()> {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
+        self.do_pass::<NameValidation>(())?;
+
         self.do_pass::<PathResolution>(())?;
 
         self.do_pass::<SymbolTableCreation>(())?;

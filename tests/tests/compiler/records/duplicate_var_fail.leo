@@ -10,7 +10,7 @@ program test.aleo {
     // test 2: duplicate with gap - "..." marker
     record Asset {
         owner: address,
-        value: u64,
+        val: u64,
         description: field,
         owner: address,
     }

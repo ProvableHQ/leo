@@ -1,34 +1,24 @@
-Error [ETYC0372132]: `childaleo` is an invalid program name. A program cannot have "aleo" in its name.
+Error [ENV03711001]: `childaleo` is an invalid program name. A program cannot have "aleo" in its name.
     --> compiler-test:1:9
      |
    1 | program childaleo.aleo {
      |         ^^^^^^^^^
-Error [ETYC0372133]: Record name `FooBar` is prefixed by the record name `Foo`. Record names must not be prefixes of other record names.
-    --> compiler-test:10:12
-     |
-  10 |     record FooBar {
-     |            ^^^^^^
-Error [ETYC0372133]: Record name `FooBarBaz` is prefixed by the record name `FooBar`. Record names must not be prefixes of other record names.
-    --> compiler-test:6:12
-     |
-   6 |     record FooBarBaz {
-     |            ^^^^^^^^^
-Error [ETYC0372132]: `FooaleoBar` is an invalid record name. A record cannot have "aleo" in its name.
+Error [ENV03711001]: `FooaleoBar` is an invalid record name. A record cannot have "aleo" in its name.
     --> compiler-test:14:12
      |
   14 |     record FooaleoBar {
      |            ^^^^^^^^^^
-Error [ETYC0372132]: `aaleob` is an invalid record entry name. A record entry cannot have "aleo" in its name.
+Error [ENV03711001]: `aaleob` is an invalid record member name. A record member cannot have "aleo" in its name.
     --> compiler-test:16:9
      |
   16 |         aaleob: u32,
      |         ^^^^^^
-Error [ETYC0372132]: `aleob` is an invalid record entry name. A record entry cannot have "aleo" in its name.
+Error [ENV03711001]: `aleob` is an invalid record member name. A record member cannot have "aleo" in its name.
     --> compiler-test:17:9
      |
   17 |         aleob: u32,
      |         ^^^^^
-Error [ETYC0372132]: `daleo` is an invalid record entry name. A record entry cannot have "aleo" in its name.
+Error [ENV03711001]: `daleo` is an invalid record member name. A record member cannot have "aleo" in its name.
     --> compiler-test:18:9
      |
   18 |         daleo: u32,

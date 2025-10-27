@@ -1,7 +1,7 @@
 
 program test.aleo {
     struct Token {
-        owner: address,
+        owner_addr: address,
         amount: u128,
     }
 
@@ -19,8 +19,8 @@ program test.aleo {
         amounts.get_or_use(1u8, amount);
         Mapping::get_or_use(amounts, addr, 1u8);
         amounts.get_or_use(addr, 1u8);
-        Mapping::get_or_use(tokens, addr, Token { owner: addr, amount: 1u8 });
-        tokens.get_or_use(addr, Token { owner: addr, amount: 1u8 });
+        Mapping::get_or_use(tokens, addr, Token { owner_addr: addr, amount: 1u8 });
+        tokens.get_or_use(addr, Token { owner_addr: addr, amount: 1u8 });
         Mapping::get_or_use(foo, addr, amount);
         foo.get_or_use(addr, amount);
     }
