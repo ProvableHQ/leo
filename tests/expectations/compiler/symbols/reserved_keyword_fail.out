@@ -1,0 +1,5 @@
+Error [ENV03711000]: `value` is an invalid struct member name. A struct member cannot be called "value".
+    --> compiler-test:3:9
+     |
+   3 |         value: u32,
+     |         ^^^^^

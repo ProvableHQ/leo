@@ -1049,6 +1049,7 @@ create_messages!(
         help: Some("External record types and tuples containing them may not be assigned to.".to_string()),
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     illegal_name {
         args: (item_name: impl Display, item_type: impl Display, keyword: impl Display),
