@@ -17,9 +17,9 @@ program test.aleo {
     // test 3: multiple different duplicates
     struct Data {
         id: u32,
-        value: u64,
+        val: u64,
         id: u32,
-        value: u64,
+        val: u64,
     }
 
     // test 4: large gap between duplicates

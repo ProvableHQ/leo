@@ -80,6 +80,9 @@ pub use symbol_table_creation::*;
 mod type_checking;
 pub use type_checking::*;
 
+mod name_validation;
+pub use name_validation::*;
+
 mod write_transforming;
 pub use write_transforming::*;
 

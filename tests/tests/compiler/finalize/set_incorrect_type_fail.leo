@@ -1,7 +1,7 @@
 
 program test.aleo {
     struct Token {
-        owner: address,
+        owner_addr: address,
         amount: u128,
     }
 
@@ -19,8 +19,8 @@ program test.aleo {
         amounts.set(1u8, amount);
         Mapping::set(amounts, addr, 1u8);
         amounts.set(addr, 1u8);
-        Mapping::set(tokens, addr, Token { owner: addr, amount: 1u8 });
-        tokens.set(addr, Token { owner: addr, amount: 1u8 });
+        Mapping::set(tokens, addr, Token { owner_addr: addr, amount: 1u8 });
+        tokens.set(addr, Token { owner_addr: addr, amount: 1u8 });
         Mapping::set(foo, addr, amount);
         foo.set(addr, amount);
     }

@@ -5,7 +5,7 @@ Error [ETYC0372159]: The type `Foo` cannot be wrapped in an optional because it 
      |         ^^^^^^^^^^^^^^^^^^^
   11 |             owner: self.signer,
      |             ^^^^^^^^^^^^^^^^^^^
-  12 |             value: 5,
-     |             ^^^^^^^^^
+  12 |             val: 5,
+     |             ^^^^^^^
   13 |         };
      |         ^^

@@ -51,9 +51,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         let program_name = input.program_id.name;
 
-        // Ensure that the program name is legal, i.e., it does not contain the keyword `aleo`
-        check_name(&self.state.handler, program_name, "program");
-
         // Set the current program name.
         self.scope_state.program_name = Some(program_name.name);
 
@@ -255,15 +252,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         // For records, enforce presence of the `owner: Address` member.
         if input.is_record {
-            // Ensure that the record name is legal, i.e., it does not contain the keyword `aleo`
-            check_name(&self.state.handler, input.identifier, "record");
-
-            // Ensure that the names of the record entries are all legal, i.e., they do not contain the
-            // keyword `aleo`
-            input.members.iter().for_each(|member| {
-                check_name(&self.state.handler, member.identifier, "record entry");
-            });
-
             let check_has_field =
                 |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
                     (identifier.name == need).then_some((identifier, type_))
@@ -671,11 +659,5 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_struct_stub(&mut self, input: &Composite) {
         self.visit_struct(input);
-    }
-}
-
-fn check_name(handler: &leo_errors::Handler, name: Identifier, item_type: &str) {
-    if name.to_string().contains(&sym::aleo.to_string()) {
-        handler.emit_err(TypeCheckerError::illegal_name(name, item_type, sym::aleo, name.span));
     }
 }

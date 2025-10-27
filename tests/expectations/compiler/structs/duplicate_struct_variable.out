@@ -21,14 +21,14 @@ Error [ETYC0372015]: Struct field `id` is already declared.
   20 |
   21 |           id: u32,
      |           ^^^^^^^ struct field already declared
-Error [ETYC0372015]: Struct field `value` is already declared.
+Error [ETYC0372015]: Struct field `val` is already declared.
     --> compiler-test:22:9
      |
-  20 |           value: u64,
-     |           ^^^^^^^^^^ `value` first declared here
+  20 |           val: u64,
+     |           ^^^^^^^^ `val` first declared here
   21 |
-  22 |           value: u64,
-     |           ^^^^^^^^^^ struct field already declared
+  22 |           val: u64,
+     |           ^^^^^^^^ struct field already declared
 Error [ETYC0372015]: Struct field `host` is already declared.
     --> compiler-test:36:9
      |
