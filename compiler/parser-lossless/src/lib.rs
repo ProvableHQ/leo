@@ -17,12 +17,14 @@
 //! The lossless syntax tree and parser for Leo.
 
 use itertools::Itertools as _;
-use lalrpop_util::lalrpop_mod;
-
 use leo_errors::{Handler, LeoError, ParserError, Result};
 use leo_span::Span;
 
+// Comment me during release.
+use lalrpop_util::lalrpop_mod;
 lalrpop_mod!(pub grammar);
+// Uncomment me during release and be sure to generate and copy `grammar.rs` into `src/`.
+//pub mod grammar;
 
 pub mod tokens;
 
