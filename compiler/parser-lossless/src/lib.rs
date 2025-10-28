@@ -20,10 +20,10 @@ use itertools::Itertools as _;
 use leo_errors::{Handler, LeoError, ParserError, Result};
 use leo_span::Span;
 
-// Comment me during release.
+// Comment me when running `cargo publish`.
 use lalrpop_util::lalrpop_mod;
 lalrpop_mod!(pub grammar);
-// Uncomment me during release and be sure to generate and copy `grammar.rs` into `src/`.
+// Uncomment me when running `cargo publish` and be sure to generate and copy `grammar.rs` from `target/` into `src/`.
 //pub mod grammar;
 
 pub mod tokens;
