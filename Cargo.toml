@@ -1,7 +1,7 @@
 [package]
 name = "leo-lang"
-version = "3.2.0"
-authors = ["The Leo Team <leo@provable.com>"]
+version = "3.3.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The Leo programming language"
 homepage = "https://leo-lang.org"
 repository = "https://github.com/ProvableHQ/leo"
@@ -12,11 +12,7 @@ keywords = [
   "programming-language",
   "zero-knowledge"
 ]
-categories = [
-  "compilers",
-  "cryptography",
-  "web-programming"
-]
+categories = [ "compilers", "cryptography", "web-programming" ]
 include = [
   "Cargo.toml",
   "leo",
@@ -46,82 +42,52 @@ members = [
   "interpreter",
   "leo/package",
   "test-framework",
-  "utils/disassembler",
+  "utils/disassembler"
 ]
-
-# ----------------------------
-# Binaries
-# ----------------------------
-
-[lib]
-path = "leo/lib.rs"
-
-[[bin]]
-name = "leo"
-path = "leo/cli/main.rs"
-
-[[test]]
-name = "integration"
-path = "leo/tests/integration.rs"
-
-# ----------------------------
-# Features
-# ----------------------------
-
-[features]
-default = []
-ci_skip = ["leo-compiler/ci_skip"]
-noconfig = []
-only_testnet = []
-
-# ----------------------------
-# Workspace Dependencies
-# ----------------------------
 
 [workspace.dependencies.leo-ast]
 path = "./compiler/ast"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-compiler]
 path = "./compiler/compiler"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-disassembler]
 path = "./utils/disassembler"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-errors]
 path = "./errors"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-interpreter]
 path = "./interpreter"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-package]
 path = "./leo/package"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-parser]
 path = "./compiler/parser"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-parser-lossless]
 path = "./compiler/parser-lossless"
-version = "=3.2.0"
-
+version = "=3.3.0"
 
 [workspace.dependencies.leo-passes]
 path = "./compiler/passes"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-span]
 path = "./compiler/span"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.leo-test-framework]
 path = "./test-framework"
-version = "=3.2.0"
+version = "=3.3.0"
 
 [workspace.dependencies.aleo-std]
 version = "1.0.1"
@@ -138,7 +104,7 @@ version = "2.0"
 
 [workspace.dependencies.indexmap]
 version = "2.6"
-features = ["serde"]
+features = [ "serde" ]
 
 [workspace.dependencies.itertools]
 version = "0.13.0"
@@ -162,15 +128,15 @@ version = "1.11.1"
 
 [workspace.dependencies.self_update]
 version = "0.41.0"
-features = ["archive-zip", "compression-zip-deflate"]
+features = [ "archive-zip", "compression-zip-deflate" ]
 
 [workspace.dependencies.serde]
 version = "1.0.214"
-features = ["derive", "rc"]
+features = [ "derive", "rc" ]
 
 [workspace.dependencies.serde_json]
 version = "1.0"
-features = ["preserve_order"]
+features = [ "preserve_order" ]
 
 [workspace.dependencies.serial_test]
 version = "3.1.1"
@@ -179,10 +145,8 @@ version = "3.1.1"
 version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
-#version = "4.2.0"
-git = "http://github.com/ProvableHQ/snarkVM.git"
-rev = "eb44d39" # testnet-v4.3.0
-features = ["test_consensus_heights"]
+version = "4.3.0"
+features = [ "test_consensus_heights" ]
 
 [workspace.dependencies.tempfile]
 version = "3.13"
@@ -199,9 +163,22 @@ version = "2.5"
 [workspace.dependencies.which]
 version = "4.4"
 
-# ----------------------------
-# Dependencies
-# ----------------------------
+[lib]
+path = "leo/lib.rs"
+
+[[bin]]
+name = "leo"
+path = "leo/cli/main.rs"
+
+[[test]]
+name = "integration"
+path = "leo/tests/integration.rs"
+
+[features]
+default = [ ]
+ci_skip = [ "leo-compiler/ci_skip" ]
+noconfig = [ ]
+only_testnet = [ ]
 
 [dependencies.leo-ast]
 workspace = true
@@ -238,7 +215,7 @@ version = "0.4.41"
 
 [dependencies.clap]
 version = "4.5"
-features = ["derive", "env", "color", "unstable-styles"]
+features = [ "derive", "env", "color", "unstable-styles" ]
 
 [dependencies.colored]
 workspace = true
@@ -308,13 +285,10 @@ workspace = true
 
 [dependencies.snarkvm]
 workspace = true
-features = ["circuit", "console"]
+features = [ "circuit", "console" ]
 
 [dependencies.sys-info]
 version = "0.9.1"
-
-[dev-dependencies.regex]
-workspace = true
 
 [dependencies.tempfile]
 version = "3.20.0"
@@ -324,44 +298,48 @@ workspace = true
 
 [dependencies.tracing-subscriber]
 version = "0.3.18"
-features = ["fmt"]
+features = [ "fmt" ]
 
 [dependencies.ureq]
 workspace = true
-features = ["json"]
+features = [ "json" ]
 
 [dependencies.walkdir]
+workspace = true
+
+[dev-dependencies.regex]
 workspace = true
 
 [dev-dependencies.which]
 workspace = true
 
-# ----------------------------
-# Platform-specific dependencies
-# ----------------------------
+[target."cfg(unix)".dependencies.nix]
+version = "0.30.1"
+features = [ "process", "term", "fs", "poll" ]
 
-[target.'cfg(unix)'.dependencies]
-nix = { version = "0.30.1", features = ["process", "term", "fs", "poll"] }
-libc = { version = "0.2.174" }
-signal-hook = { version = "0.3.17", features = ["iterator"] }
+[target."cfg(unix)".dependencies.libc]
+version = "0.2.174"
 
-[target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3.9" }
-ansi_term = { version = "0.12.1" }
-windows-sys = { version = "0.59", features = ["Win32_Foundation",
+[target."cfg(unix)".dependencies.signal-hook]
+version = "0.3.17"
+features = [ "iterator" ]
+
+[target."cfg(windows)".dependencies.winapi]
+version = "0.3.9"
+
+[target."cfg(windows)".dependencies.ansi_term]
+version = "0.12.1"
+
+[target."cfg(windows)".dependencies.windows-sys]
+version = "0.59"
+features = [
+  "Win32_Foundation",
   "Win32_System_Threading",
-  "Win32_System_JobObjects"] }
-
-# ----------------------------
-# Build Dependencies
-# ----------------------------
+  "Win32_System_JobObjects"
+]
 
 [build-dependencies.walkdir]
 workspace = true
-
-# ----------------------------
-# Profiles
-# ----------------------------
 
 [profile.release]
 opt-level = 3
@@ -380,13 +358,6 @@ debug-assertions = false
 opt-level = 2
 lto = "off"
 incremental = true
-
-# snarkVM has a lot of verbose output if debug assertions are on. They'll already be off
-# in release builds; let's turn them off in dev builds too. Theoretically we should be
-# able to turn them off only in snarkvm, like this:
-# [profile.dev.package.snarkvm]
-# debug-assertions = false
-# But that doesn't seem to work, so just do it here.
 debug-assertions = false
 
 [profile.test]
