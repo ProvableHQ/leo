@@ -1,6 +1,6 @@
 [package]
 name = "leo-parser"
-version = "3.2.0"
+version = "3.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Translating from the lossless syntax tree to the AST for the Leo language language"
 homepage = "https://leo-lang.org"
