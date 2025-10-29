@@ -240,88 +240,72 @@
 <a href=#240 id=240 data-nosnippet>240</a>
 <a href=#241 id=241 data-nosnippet>241</a>    <span class="doccomment">/// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
 <a href=#242 id=242 data-nosnippet>242</a>    </span><span class="kw">fn </span>consume_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, definition: DefinitionStatement) -&gt; <span class="self">Self</span>::Output {
-<a href=#243 id=243 data-nosnippet>243</a>        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
-<a href=#244 id=244 data-nosnippet>244</a>
-<a href=#245 id=245 data-nosnippet>245</a>        <span class="kw">match </span>definition.place {
-<a href=#246 id=246 data-nosnippet>246</a>            DefinitionPlace::Single(identifier) =&gt; {
-<a href=#247 id=247 data-nosnippet>247</a>                <span class="comment">// Consume the right-hand-side of the definition.
-<a href=#248 id=248 data-nosnippet>248</a>                </span><span class="kw">let </span>(value, statements2) = <span class="self">self</span>.consume_expression(definition.value);
-<a href=#249 id=249 data-nosnippet>249</a>                statements = statements2;
-<a href=#250 id=250 data-nosnippet>250</a>                <span class="kw">let </span>new_identifier = <span class="kw">if </span><span class="self">self</span>.rename_defs { <span class="self">self</span>.rename_identifier(identifier) } <span class="kw">else </span>{ identifier };
+<a href=#243 id=243 data-nosnippet>243</a>        <span class="kw">match </span>definition.place {
+<a href=#244 id=244 data-nosnippet>244</a>            DefinitionPlace::Single(identifier) =&gt; {
+<a href=#245 id=245 data-nosnippet>245</a>                <span class="comment">// Consume the right-hand-side of the definition.
+<a href=#246 id=246 data-nosnippet>246</a>                </span><span class="kw">let </span>(value, <span class="kw-2">mut </span>rhs_statements) = <span class="self">self</span>.consume_expression(definition.value);
+<a href=#247 id=247 data-nosnippet>247</a>
+<a href=#248 id=248 data-nosnippet>248</a>                <span class="comment">// Rename identifier if needed.
+<a href=#249 id=249 data-nosnippet>249</a>                </span><span class="kw">let </span>new_identifier = <span class="kw">if </span><span class="self">self</span>.rename_defs { <span class="self">self</span>.rename_identifier(identifier) } <span class="kw">else </span>{ identifier };
+<a href=#250 id=250 data-nosnippet>250</a>
 <a href=#251 id=251 data-nosnippet>251</a>                <span class="comment">// Create a new assignment statement.
-<a href=#252 id=252 data-nosnippet>252</a>                </span>statements.push(<span class="self">self</span>.simple_definition(new_identifier, value));
-<a href=#253 id=253 data-nosnippet>253</a>            }
-<a href=#254 id=254 data-nosnippet>254</a>            DefinitionPlace::Multiple(identifiers) =&gt; {
-<a href=#255 id=255 data-nosnippet>255</a>                <span class="kw">let </span>new_identifiers: Vec&lt;Identifier&gt; = <span class="kw">if </span><span class="self">self</span>.rename_defs {
-<a href=#256 id=256 data-nosnippet>256</a>                    identifiers
-<a href=#257 id=257 data-nosnippet>257</a>                        .into_iter()
-<a href=#258 id=258 data-nosnippet>258</a>                        .map(
-<a href=#259 id=259 data-nosnippet>259</a>                            |identifier| <span class="kw">if </span><span class="self">self</span>.rename_defs { <span class="self">self</span>.rename_identifier(identifier) } <span class="kw">else </span>{ identifier },
-<a href=#260 id=260 data-nosnippet>260</a>                        )
-<a href=#261 id=261 data-nosnippet>261</a>                        .collect()
-<a href=#262 id=262 data-nosnippet>262</a>                } <span class="kw">else </span>{
-<a href=#263 id=263 data-nosnippet>263</a>                    identifiers
-<a href=#264 id=264 data-nosnippet>264</a>                };
+<a href=#252 id=252 data-nosnippet>252</a>                </span>rhs_statements.push(<span class="self">self</span>.simple_definition(new_identifier, value));
+<a href=#253 id=253 data-nosnippet>253</a>                rhs_statements
+<a href=#254 id=254 data-nosnippet>254</a>            }
+<a href=#255 id=255 data-nosnippet>255</a>            DefinitionPlace::Multiple(identifiers) =&gt; {
+<a href=#256 id=256 data-nosnippet>256</a>                <span class="comment">// Rename identifiers if needed.
+<a href=#257 id=257 data-nosnippet>257</a>                </span><span class="kw">let </span>new_identifiers = <span class="kw">if </span><span class="self">self</span>.rename_defs {
+<a href=#258 id=258 data-nosnippet>258</a>                    identifiers.into_iter().map(|id| <span class="self">self</span>.rename_identifier(id)).collect()
+<a href=#259 id=259 data-nosnippet>259</a>                } <span class="kw">else </span>{
+<a href=#260 id=260 data-nosnippet>260</a>                    identifiers
+<a href=#261 id=261 data-nosnippet>261</a>                };
+<a href=#262 id=262 data-nosnippet>262</a>
+<a href=#263 id=263 data-nosnippet>263</a>                <span class="comment">// We don't need to update the type table, as the new identifiers have
+<a href=#264 id=264 data-nosnippet>264</a>                // the same IDs as the old ones.
 <a href=#265 id=265 data-nosnippet>265</a>
-<a href=#266 id=266 data-nosnippet>266</a>                <span class="comment">// We don't need to update the type table, as the new identifiers have
-<a href=#267 id=267 data-nosnippet>267</a>                // the same IDs as the old ones.
+<a href=#266 id=266 data-nosnippet>266</a>                // Construct the lhs of the assignment.
+<a href=#267 id=267 data-nosnippet>267</a>                </span><span class="kw">let </span>place = DefinitionPlace::Multiple(new_identifiers);
 <a href=#268 id=268 data-nosnippet>268</a>
-<a href=#269 id=269 data-nosnippet>269</a>                // Construct the lhs of the assignment.
-<a href=#270 id=270 data-nosnippet>270</a>                </span><span class="kw">let </span>place = DefinitionPlace::Multiple(new_identifiers);
-<a href=#271 id=271 data-nosnippet>271</a>
-<a href=#272 id=272 data-nosnippet>272</a>                <span class="kw">let </span>value = <span class="kw">if let </span>Expression::Call(<span class="kw-2">mut </span>call) = definition.value {
-<a href=#273 id=273 data-nosnippet>273</a>                    <span class="kw">for </span>argument <span class="kw">in </span>call.arguments.iter_mut() {
-<a href=#274 id=274 data-nosnippet>274</a>                        <span class="kw">let </span>(new_argument, new_statements) = <span class="self">self</span>.consume_expression(std::mem::take(argument));
-<a href=#275 id=275 data-nosnippet>275</a>                        <span class="kw-2">*</span>argument = new_argument;
-<a href=#276 id=276 data-nosnippet>276</a>                        statements.extend(new_statements);
-<a href=#277 id=277 data-nosnippet>277</a>                    }
-<a href=#278 id=278 data-nosnippet>278</a>                    Expression::Call(call)
-<a href=#279 id=279 data-nosnippet>279</a>                } <span class="kw">else </span>{
-<a href=#280 id=280 data-nosnippet>280</a>                    <span class="kw">let </span>(value, new_statements) = <span class="self">self</span>.consume_expression(definition.value);
-<a href=#281 id=281 data-nosnippet>281</a>                    statements.extend(new_statements);
-<a href=#282 id=282 data-nosnippet>282</a>                    value
-<a href=#283 id=283 data-nosnippet>283</a>                };
-<a href=#284 id=284 data-nosnippet>284</a>
-<a href=#285 id=285 data-nosnippet>285</a>                <span class="comment">// Create the definition.
-<a href=#286 id=286 data-nosnippet>286</a>                </span><span class="kw">let </span>definition = DefinitionStatement { place, type_: <span class="prelude-val">None</span>, value, ..definition }.into();
-<a href=#287 id=287 data-nosnippet>287</a>
-<a href=#288 id=288 data-nosnippet>288</a>                statements.push(definition);
-<a href=#289 id=289 data-nosnippet>289</a>            }
-<a href=#290 id=290 data-nosnippet>290</a>        }
-<a href=#291 id=291 data-nosnippet>291</a>
-<a href=#292 id=292 data-nosnippet>292</a>        statements
-<a href=#293 id=293 data-nosnippet>293</a>    }
-<a href=#294 id=294 data-nosnippet>294</a>
-<a href=#295 id=295 data-nosnippet>295</a>    <span class="doccomment">/// Consumes the expressions associated with `ExpressionStatement`, returning the simplified `ExpressionStatement`.
-<a href=#296 id=296 data-nosnippet>296</a>    </span><span class="kw">fn </span>consume_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: ExpressionStatement) -&gt; <span class="self">Self</span>::Output {
-<a href=#297 id=297 data-nosnippet>297</a>        <span class="kw">let </span>(expr, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.expression);
-<a href=#298 id=298 data-nosnippet>298</a>        input.expression = expr;
-<a href=#299 id=299 data-nosnippet>299</a>        statements.push(input.into());
-<a href=#300 id=300 data-nosnippet>300</a>        statements
-<a href=#301 id=301 data-nosnippet>301</a>    }
-<a href=#302 id=302 data-nosnippet>302</a>
-<a href=#303 id=303 data-nosnippet>303</a>    <span class="kw">fn </span>consume_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: IterationStatement) -&gt; <span class="self">Self</span>::Output {
-<a href=#304 id=304 data-nosnippet>304</a>        <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
-<a href=#305 id=305 data-nosnippet>305</a>    }
-<a href=#306 id=306 data-nosnippet>306</a>
-<a href=#307 id=307 data-nosnippet>307</a>    <span class="doccomment">/// Reconstructs the expression associated with the return statement, returning a simplified `ReturnStatement`.
-<a href=#308 id=308 data-nosnippet>308</a>    /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
-<a href=#309 id=309 data-nosnippet>309</a>    </span><span class="kw">fn </span>consume_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: ReturnStatement) -&gt; <span class="self">Self</span>::Output {
-<a href=#310 id=310 data-nosnippet>310</a>        <span class="kw">if let </span>Expression::Tuple(tuple_expr) = <span class="kw-2">&amp;mut </span>input.expression {
-<a href=#311 id=311 data-nosnippet>311</a>            <span class="comment">// Leave tuple expressions alone.
-<a href=#312 id=312 data-nosnippet>312</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
-<a href=#313 id=313 data-nosnippet>313</a>            <span class="kw">for </span>element <span class="kw">in </span>tuple_expr.elements.iter_mut() {
-<a href=#314 id=314 data-nosnippet>314</a>                <span class="kw">let </span>(new_element, new_statements) = <span class="self">self</span>.consume_expression_and_define(std::mem::take(element));
-<a href=#315 id=315 data-nosnippet>315</a>                <span class="kw-2">*</span>element = new_element;
-<a href=#316 id=316 data-nosnippet>316</a>                statements.extend(new_statements);
-<a href=#317 id=317 data-nosnippet>317</a>            }
-<a href=#318 id=318 data-nosnippet>318</a>            statements.push(input.into());
-<a href=#319 id=319 data-nosnippet>319</a>            statements
-<a href=#320 id=320 data-nosnippet>320</a>        } <span class="kw">else </span>{
-<a href=#321 id=321 data-nosnippet>321</a>            <span class="kw">let </span>(expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression_and_define(input.expression);
-<a href=#322 id=322 data-nosnippet>322</a>            input.expression = expression;
-<a href=#323 id=323 data-nosnippet>323</a>            statements.push(input.into());
-<a href=#324 id=324 data-nosnippet>324</a>            statements
-<a href=#325 id=325 data-nosnippet>325</a>        }
-<a href=#326 id=326 data-nosnippet>326</a>    }
-<a href=#327 id=327 data-nosnippet>327</a>}</code></pre></div></section></main></body></html>
+<a href=#269 id=269 data-nosnippet>269</a>                <span class="kw">let </span>(value, <span class="kw-2">mut </span>rhs_statements) = <span class="self">self</span>.consume_expression(definition.value);
+<a href=#270 id=270 data-nosnippet>270</a>
+<a href=#271 id=271 data-nosnippet>271</a>                <span class="comment">// Create the definition.
+<a href=#272 id=272 data-nosnippet>272</a>                </span><span class="kw">let </span>def_stmt = DefinitionStatement { place, type_: <span class="prelude-val">None</span>, value, ..definition }.into();
+<a href=#273 id=273 data-nosnippet>273</a>                rhs_statements.push(def_stmt);
+<a href=#274 id=274 data-nosnippet>274</a>                rhs_statements
+<a href=#275 id=275 data-nosnippet>275</a>            }
+<a href=#276 id=276 data-nosnippet>276</a>        }
+<a href=#277 id=277 data-nosnippet>277</a>    }
+<a href=#278 id=278 data-nosnippet>278</a>
+<a href=#279 id=279 data-nosnippet>279</a>    <span class="doccomment">/// Consumes the expressions associated with `ExpressionStatement`, returning the simplified `ExpressionStatement`.
+<a href=#280 id=280 data-nosnippet>280</a>    </span><span class="kw">fn </span>consume_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: ExpressionStatement) -&gt; <span class="self">Self</span>::Output {
+<a href=#281 id=281 data-nosnippet>281</a>        <span class="kw">let </span>(expr, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.expression);
+<a href=#282 id=282 data-nosnippet>282</a>        input.expression = expr;
+<a href=#283 id=283 data-nosnippet>283</a>        statements.push(input.into());
+<a href=#284 id=284 data-nosnippet>284</a>        statements
+<a href=#285 id=285 data-nosnippet>285</a>    }
+<a href=#286 id=286 data-nosnippet>286</a>
+<a href=#287 id=287 data-nosnippet>287</a>    <span class="kw">fn </span>consume_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: IterationStatement) -&gt; <span class="self">Self</span>::Output {
+<a href=#288 id=288 data-nosnippet>288</a>        <span class="macro">panic!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
+<a href=#289 id=289 data-nosnippet>289</a>    }
+<a href=#290 id=290 data-nosnippet>290</a>
+<a href=#291 id=291 data-nosnippet>291</a>    <span class="doccomment">/// Reconstructs the expression associated with the return statement, returning a simplified `ReturnStatement`.
+<a href=#292 id=292 data-nosnippet>292</a>    /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
+<a href=#293 id=293 data-nosnippet>293</a>    </span><span class="kw">fn </span>consume_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: ReturnStatement) -&gt; <span class="self">Self</span>::Output {
+<a href=#294 id=294 data-nosnippet>294</a>        <span class="kw">if let </span>Expression::Tuple(tuple_expr) = <span class="kw-2">&amp;mut </span>input.expression {
+<a href=#295 id=295 data-nosnippet>295</a>            <span class="comment">// Leave tuple expressions alone.
+<a href=#296 id=296 data-nosnippet>296</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+<a href=#297 id=297 data-nosnippet>297</a>            <span class="kw">for </span>element <span class="kw">in </span>tuple_expr.elements.iter_mut() {
+<a href=#298 id=298 data-nosnippet>298</a>                <span class="kw">let </span>(new_element, new_statements) = <span class="self">self</span>.consume_expression_and_define(std::mem::take(element));
+<a href=#299 id=299 data-nosnippet>299</a>                <span class="kw-2">*</span>element = new_element;
+<a href=#300 id=300 data-nosnippet>300</a>                statements.extend(new_statements);
+<a href=#301 id=301 data-nosnippet>301</a>            }
+<a href=#302 id=302 data-nosnippet>302</a>            statements.push(input.into());
+<a href=#303 id=303 data-nosnippet>303</a>            statements
+<a href=#304 id=304 data-nosnippet>304</a>        } <span class="kw">else </span>{
+<a href=#305 id=305 data-nosnippet>305</a>            <span class="kw">let </span>(expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression_and_define(input.expression);
+<a href=#306 id=306 data-nosnippet>306</a>            input.expression = expression;
+<a href=#307 id=307 data-nosnippet>307</a>            statements.push(input.into());
+<a href=#308 id=308 data-nosnippet>308</a>            statements
+<a href=#309 id=309 data-nosnippet>309</a>        }
+<a href=#310 id=310 data-nosnippet>310</a>    }
+<a href=#311 id=311 data-nosnippet>311</a>}</code></pre></div></section></main></body></html>
