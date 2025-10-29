@@ -169,7 +169,9 @@ impl Interpreter {
                     });
                     cursor.over()?;
                     let value = cursor.values.pop().unwrap();
-                    cursor.globals.insert(Location::new(program, vec![*name]), value);
+                    cursor
+                        .globals
+                        .insert(Location::new(program, vec![*name]), (value, const_declaration.type_.clone()));
                 }
             }
 
@@ -209,7 +211,10 @@ impl Interpreter {
                     });
                     cursor.over()?;
                     let value = cursor.values.pop().unwrap();
-                    cursor.globals.insert(Location::new(program, to_absolute_path(*name)), value);
+                    cursor.globals.insert(
+                        Location::new(program, to_absolute_path(*name)),
+                        (value, const_declaration.type_.clone()),
+                    );
                 }
             }
         }
@@ -374,8 +379,8 @@ impl Interpreter {
                         source_file.absolute_start,
                         self.network,
                     )
-                    .map_err(|_e| {
-                        LeoError::InterpreterHalt(InterpreterHalt::new("failed to parse statement".into()))
+                    .map_err(|e| {
+                        LeoError::InterpreterHalt(InterpreterHalt::new(format!("failed to parse statement: {e}")))
                     })?;
                     // The spans of the code the user wrote at the REPL are meaningless, so get rid of them.
                     self.cursor.frames.push(Frame {

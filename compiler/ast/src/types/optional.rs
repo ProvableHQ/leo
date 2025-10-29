@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
+use crate::{ArrayType, CompositeType, Type};
 
+use itertools::Itertools;
+use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -23,6 +25,43 @@ use std::fmt;
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OptionalType {
     pub inner: Box<Type>,
+}
+
+pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
+    // Step 1: Extract a usable type name
+    fn display_type(ty: &Type) -> String {
+        match ty {
+            Type::Address
+            | Type::Field
+            | Type::Group
+            | Type::Scalar
+            | Type::Signature
+            | Type::Boolean
+            | Type::Integer(..) => format!("{ty}"),
+            Type::Array(ArrayType { element_type, length }) => {
+                format!("[{}; {length}]", display_type(element_type))
+            }
+            Type::Composite(CompositeType { path, .. }) => {
+                format!("::{}", path.absolute_path().iter().format("::"))
+            }
+
+            Type::Tuple(_)
+            | Type::Optional(_)
+            | Type::Mapping(_)
+            | Type::Numeric
+            | Type::Identifier(_)
+            | Type::Future(_)
+            | Type::Vector(_)
+            | Type::String
+            | Type::Err
+            | Type::Unit => {
+                panic!("unexpected inner type in optional struct name")
+            }
+        }
+    }
+
+    // Step 3: Build symbol that ends with `?`.
+    Symbol::intern(&format!("\"{}?\"", display_type(ty)))
 }
 
 impl fmt::Display for OptionalType {

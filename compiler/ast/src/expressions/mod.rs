@@ -129,6 +129,81 @@ impl Default for Expression {
     }
 }
 
+#[allow(clippy::type_complexity)]
+pub fn zero_value_expression(
+    ty: &Type,
+    span: Span,
+    node_builder: &NodeBuilder,
+    struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+) -> Option<Expression> {
+    let id = node_builder.next_id();
+
+    match ty {
+        // Numeric types
+        Type::Integer(IntegerType::I8) => Some(Literal::integer(IntegerType::I8, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::I16) => Some(Literal::integer(IntegerType::I16, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::I32) => Some(Literal::integer(IntegerType::I32, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::I64) => Some(Literal::integer(IntegerType::I64, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::I128) => Some(Literal::integer(IntegerType::I128, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U8) => Some(Literal::integer(IntegerType::U8, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U16) => Some(Literal::integer(IntegerType::U16, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U32) => Some(Literal::integer(IntegerType::U32, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U64) => Some(Literal::integer(IntegerType::U64, "0".to_string(), span, id).into()),
+        Type::Integer(IntegerType::U128) => Some(Literal::integer(IntegerType::U128, "0".to_string(), span, id).into()),
+
+        // Boolean
+        Type::Boolean => Some(Literal::boolean(false, span, id).into()),
+
+        // Field, Group, Scalar
+        Type::Field => Some(Literal::field("0".to_string(), span, id).into()),
+        Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
+        Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
+
+        // Structs (composite types)
+        Type::Composite(composite_type) => {
+            let path = &composite_type.path;
+            let members = struct_lookup(&path.absolute_path());
+
+            let struct_members = members
+                .into_iter()
+                .map(|(symbol, member_type)| {
+                    let member_id = node_builder.next_id();
+                    let zero_expr = zero_value_expression(&member_type, span, node_builder, struct_lookup)?;
+
+                    Some(StructVariableInitializer {
+                        span,
+                        id: member_id,
+                        identifier: crate::Identifier::new(symbol, node_builder.next_id()),
+                        expression: Some(zero_expr),
+                    })
+                })
+                .collect::<Option<Vec<_>>>()?;
+
+            Some(Expression::Struct(StructExpression {
+                span,
+                id,
+                path: path.clone(),
+                const_arguments: composite_type.const_arguments.clone(),
+                members: struct_members,
+            }))
+        }
+
+        // Arrays
+        Type::Array(array_type) => {
+            let element_ty = &array_type.element_type;
+
+            let element_expr = zero_value_expression(element_ty, span, node_builder, struct_lookup)?;
+
+            Some(Expression::Repeat(
+                RepeatExpression { span, id, expr: element_expr, count: *array_type.length.clone() }.into(),
+            ))
+        }
+
+        // Other types are not expected or supported just yet
+        _ => None,
+    }
+}
+
 impl Node for Expression {
     fn span(&self) -> Span {
         use Expression::*;

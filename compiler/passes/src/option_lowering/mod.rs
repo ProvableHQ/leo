@@ -67,12 +67,11 @@ use crate::{
     TypeCheckingInput,
 };
 
-use leo_ast::{ArrayType, CompositeType, ProgramReconstructor as _, Type};
+use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
-use itertools::Itertools;
 
 mod ast;
 
@@ -114,41 +113,4 @@ impl Pass for OptionLowering {
 
         Ok(())
     }
-}
-
-pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
-    // Step 1: Extract a usable type name
-    fn display_type(ty: &Type) -> String {
-        match ty {
-            Type::Address
-            | Type::Field
-            | Type::Group
-            | Type::Scalar
-            | Type::Signature
-            | Type::Boolean
-            | Type::Integer(..) => format!("{ty}"),
-            Type::Array(ArrayType { element_type, length }) => {
-                format!("[{}; {length}]", display_type(element_type))
-            }
-            Type::Composite(CompositeType { path, .. }) => {
-                format!("::{}", path.absolute_path().iter().format("::"))
-            }
-
-            Type::Tuple(_)
-            | Type::Optional(_)
-            | Type::Mapping(_)
-            | Type::Numeric
-            | Type::Identifier(_)
-            | Type::Future(_)
-            | Type::Vector(_)
-            | Type::String
-            | Type::Err
-            | Type::Unit => {
-                panic!("unexpected inner type in optional struct name")
-            }
-        }
-    }
-
-    // Step 3: Build symbol that ends with `?`.
-    Symbol::intern(&format!("\"{}?\"", display_type(ty)))
 }

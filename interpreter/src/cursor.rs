@@ -38,14 +38,21 @@ use leo_ast::{
         AsyncExecution,
         CoreFunctionHelper,
         Value,
+        ValueVariants,
         evaluate_binary,
         evaluate_core_function,
         evaluate_unary,
         literal_to_value,
     },
+    make_optional_struct_symbol,
+    zero_value_expression,
 };
 use leo_errors::{InterpreterHalt, Result};
-use leo_span::{Span, Symbol, sym};
+use leo_span::{
+    Span,
+    Symbol,
+    sym::{self},
+};
 
 use snarkvm::prelude::{
     Address,
@@ -75,7 +82,7 @@ pub struct FunctionContext {
     path: Vec<Symbol>,
     program: Symbol,
     pub caller: Value,
-    names: HashMap<Vec<Symbol>, Value>,
+    names: HashMap<Vec<Symbol>, (Value, Option<Type>)>,
     accumulated_futures: Vec<AsyncExecution>,
     is_async: bool,
 }
@@ -98,7 +105,7 @@ impl ContextStack {
         program: Symbol,
         caller: Value,
         is_async: bool,
-        names: HashMap<Vec<Symbol>, Value>, // a map of variable names that are already known
+        names: HashMap<Vec<Symbol>, (Value, Option<Type>)>, // a map of variable names that are already known
     ) {
         if self.current_len == self.contexts.len() {
             self.contexts.push(FunctionContext {
@@ -138,9 +145,9 @@ impl ContextStack {
         mem::take(&mut self.contexts[self.current_len - 1].accumulated_futures)
     }
 
-    fn set(&mut self, path: &[Symbol], value: Value) {
+    fn set(&mut self, path: &[Symbol], value: Value, type_: Option<Type>) {
         assert!(self.current_len > 0);
-        self.last_mut().unwrap().names.insert(path.to_vec(), value);
+        self.last_mut().unwrap().names.insert(path.to_vec(), (value, type_));
     }
 
     pub fn add_future(&mut self, future: Vec<AsyncExecution>) {
@@ -207,7 +214,7 @@ pub enum Element {
     DelayedAsyncBlock {
         program: Symbol,
         block: NodeID,
-        names: HashMap<Vec<Symbol>, Value>,
+        names: HashMap<Vec<Symbol>, (Value, Option<Type>)>,
     },
 }
 
@@ -257,9 +264,9 @@ pub struct Cursor {
     pub async_blocks: HashMap<NodeID, Block>,
 
     /// Consts are stored here.
-    pub globals: HashMap<Location, Value>,
+    pub globals: HashMap<Location, (Value, Type)>,
 
-    pub user_values: HashMap<Vec<Symbol>, Value>,
+    pub user_values: HashMap<Vec<Symbol>, (Value, Option<Type>)>,
 
     pub mappings: HashMap<Location, HashMap<Value, Value>>,
 
@@ -446,10 +453,10 @@ impl Cursor {
 
         let full_name = self.to_absolute_path(&path.as_symbols());
 
-        let mut leo_value = self.lookup(&full_name).unwrap_or(Value::make_unit());
+        let mut leo_value = self.lookup(&full_name).unwrap_or((Value::make_unit(), None));
 
         // Do an ad hoc evaluation of the lhs of the assignment to determine its type.
-        let mut temp_value = leo_value.clone();
+        let (mut temp_value, mut type_) = leo_value.clone();
         let mut indices_iter = indices.iter();
 
         for place in places.iter().rev() {
@@ -457,12 +464,25 @@ impl Cursor {
                 Expression::ArrayAccess(_access) => {
                     let next_index = indices_iter.next().unwrap();
                     temp_value = temp_value.array_index(next_index.as_u32().unwrap() as usize).unwrap();
+                    type_ = type_
+                        .and_then(|t| if let Type::Array(at) = t { Some(at.element_type().clone()) } else { None });
                 }
                 Expression::TupleAccess(access) => {
                     temp_value = temp_value.tuple_index(access.index.value()).unwrap();
+                    type_ = type_.and_then(|t| {
+                        if let Type::Tuple(tt) = t { Some(tt.elements()[access.index.value()].clone()) } else { None }
+                    });
                 }
                 Expression::MemberAccess(access) => {
                     temp_value = temp_value.member_access(access.name.name).unwrap();
+                    type_ = type_.and_then(|t| {
+                        if let Type::Composite(ct) = t {
+                            let members = self.structs.get(&self.to_absolute_path(ct.path.as_symbols().as_slice()));
+                            members.and_then(|m| m.get(&access.name.name).cloned())
+                        } else {
+                            None
+                        }
+                    });
                 }
                 Expression::Path(_path) =>
                     // temp_value is already set to leo_value
@@ -474,8 +494,8 @@ impl Cursor {
         let ty = temp_value.get_numeric_type();
         let value = value.resolve_if_unsuffixed(&ty, place.span())?;
 
-        Self::set_place(value, &mut leo_value, &mut places.into_iter().rev(), &mut indices.into_iter())?;
-        self.set_variable(&full_name, leo_value);
+        Self::set_place(value, &mut leo_value.0, &mut places.into_iter().rev(), &mut indices.into_iter())?;
+        self.set_variable(&full_name, leo_value.0, type_);
         Ok(())
     }
 
@@ -515,12 +535,15 @@ impl Cursor {
         }
     }
 
-    fn lookup(&self, name: &[Symbol]) -> Option<Value> {
+    fn lookup(&self, name: &[Symbol]) -> Option<(Value, Option<Type>)> {
         if let Some(context) = self.contexts.last() {
-            let option_value =
-                context.names.get(name).or_else(|| self.globals.get(&Location::new(context.program, name.to_vec())));
+            let option_value = context.names.get(name).cloned().or_else(|| {
+                self.globals
+                    .get(&Location::new(context.program, name.to_vec()))
+                    .map(|(v, t)| (v.clone(), Some(t.clone())))
+            });
             if option_value.is_some() {
-                return option_value.cloned();
+                return option_value;
             }
         };
 
@@ -547,11 +570,11 @@ impl Cursor {
         self.functions.get(&Location::new(program, name.to_vec())).cloned()
     }
 
-    fn set_variable(&mut self, path: &[Symbol], value: Value) {
+    fn set_variable(&mut self, path: &[Symbol], value: Value, type_: Option<Type>) {
         if self.contexts.len() > 0 {
-            self.contexts.set(path, value);
+            self.contexts.set(path, value, type_);
         } else {
-            self.user_values.insert(path.to_vec(), value);
+            self.user_values.insert(path.to_vec(), (value, type_));
         }
     }
 
@@ -694,24 +717,78 @@ impl Cursor {
             }
             Statement::Assign(assign) if step == 0 => {
                 // Step 0: push the expression frame and any array index expression frames.
-                push(&assign.value, &None);
-                let mut place = &assign.place;
-                loop {
+                let place = &assign.place;
+                let mut to_push = Vec::new();
+
+                // Reverse extract the expected type of the assignee.
+                fn recurse<'a, 'b: 'a>(
+                    lookup: &'a impl Fn(&[Symbol]) -> Option<Type>,
+                    mut place: &'b Expression,
+                    to_push: &'a mut Vec<&'b Expression>,
+                ) -> Option<Type> {
                     match place {
                         leo_ast::Expression::ArrayAccess(access) => {
-                            push(&access.index, &None);
                             place = &access.array;
+                            to_push.push(&access.index);
+                            let type_ = recurse(lookup, place, to_push);
+                            type_.map(|t| {
+                                let Type::Array(at) = t else { panic!("Can't happen") };
+                                at.element_type().clone()
+                            })
                         }
-                        leo_ast::Expression::Path(..) => break,
+                        leo_ast::Expression::Path(p) => lookup(&p.as_symbols()),
                         leo_ast::Expression::MemberAccess(access) => {
                             place = &access.inner;
+                            let type_ = recurse(lookup, place, to_push);
+                            type_.and_then(|t| {
+                                let Type::Composite(ct) = t else { panic!("Can't happen") };
+                                lookup(&ct.path.as_symbols())
+                            })
                         }
                         leo_ast::Expression::TupleAccess(access) => {
                             place = &access.tuple;
+                            let type_ = recurse(lookup, place, to_push);
+                            type_.map(|t| {
+                                let Type::Tuple(tt) = t else { panic!("Can't happen") };
+                                tt.elements()[access.index.value()].clone()
+                            })
                         }
                         _ => panic!("Can't happen"),
                     }
                 }
+
+                let abs = |name: &[Symbol]| {
+                    if let Some(context) = self.contexts.last() {
+                        let mut full_name = context.path.clone();
+                        full_name.pop(); // This pops the function name, keeping only the module prefix 
+                        full_name.extend(name);
+                        full_name
+                    } else {
+                        name.to_vec()
+                    }
+                };
+
+                let lookup = |name: &[Symbol]| {
+                    if let Some(context) = self.contexts.last() {
+                        let option_value = context.names.get(name).cloned().or_else(|| {
+                            self.globals
+                                .get(&Location::new(context.program, name.to_vec()))
+                                .map(|(v, t)| (v.clone(), Some(t.clone())))
+                        });
+                        if let Some(optv) = option_value {
+                            return optv.1;
+                        }
+                    };
+
+                    self.user_values.get(name).cloned().unwrap().1
+                };
+
+                let type_ = recurse(&|sym| lookup(abs(sym).as_slice()), place, &mut to_push);
+                push(&assign.value, &type_);
+                for tp in to_push.into_iter() {
+                    push(tp, &None)
+                }
+
                 false
             }
             Statement::Assign(assign) if step == 1 => {
@@ -778,7 +855,7 @@ impl Cursor {
             }
             Statement::Const(const_) if step == 1 => {
                 let value = self.pop_value()?;
-                self.set_variable(&self.to_absolute_path(&[const_.place.name]), value);
+                self.set_variable(&self.to_absolute_path(&[const_.place.name]), value, Some(const_.type_.clone()));
                 true
             }
             Statement::Definition(definition) if step == 0 => {
@@ -788,12 +865,24 @@ impl Cursor {
             Statement::Definition(definition) if step == 1 => {
                 let value = self.pop_value()?;
                 match &definition.place {
-                    DefinitionPlace::Single(id) => self.set_variable(&self.to_absolute_path(&[id.name]), value),
+                    DefinitionPlace::Single(id) => {
+                        self.set_variable(&self.to_absolute_path(&[id.name]), value, definition.type_.clone())
+                    }
                     DefinitionPlace::Multiple(ids) => {
+                        let maybe_types = definition.type_.clone().map(|t| {
+                            if let Type::Tuple(tt) = t
+                                && tt.length().eq(&ids.len())
+                            {
+                                tt
+                            } else {
+                                panic!("")
+                            }
+                        });
                         for (i, id) in ids.iter().enumerate() {
                             self.set_variable(
                                 &self.to_absolute_path(&[id.name]),
                                 value.tuple_index(i).expect("Place for definition should be a tuple."),
+                                maybe_types.as_ref().map(|tt| tt.elements()[i].clone()),
                             );
                         }
                     }
@@ -822,7 +911,11 @@ impl Cursor {
                     true
                 } else {
                     let new_start = start.inc_wrapping().expect_tc(iteration.span())?;
-                    self.set_variable(&self.to_absolute_path(&[iteration.variable.name]), start);
+                    self.set_variable(
+                        &self.to_absolute_path(&[iteration.variable.name]),
+                        start,
+                        iteration.type_.clone(),
+                    );
                     self.frames.push(Frame {
                         step: 0,
                         element: Element::Block { block: iteration.block.clone(), function_body: false },
@@ -895,6 +988,8 @@ impl Cursor {
                 }
             };
         }
+
+        let mut is_some = true;
 
         if let Some(value) = match expression {
             Expression::ArrayAccess(array) if step == 0 => {
@@ -1252,9 +1347,17 @@ impl Cursor {
             }
             Expression::Err(_) => todo!(),
             Expression::Path(path) if step == 0 => {
-                Some(self.lookup(&self.to_absolute_path(&path.as_symbols())).expect_tc(path.span())?)
+                Some(self.lookup(&self.to_absolute_path(&path.as_symbols())).expect_tc(path.span())?.0)
             }
-            Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
+            Expression::Literal(literal) if step == 0 => {
+                if literal.variant == leo_ast::LiteralVariant::None {
+                    is_some = false;
+                    let Type::Optional(_) = expected_ty.as_ref().expect_tc(literal.span)? else { tc_fail!() };
+                    Some(self.resolve_none(expected_ty.as_ref().unwrap())?)
+                } else {
+                    Some(literal_to_value(literal, expected_ty)?)
+                }
+            }
             Expression::Locator(_locator) => todo!(),
             Expression::Struct(struct_) if step == 0 => {
                 let members =
@@ -1337,12 +1440,93 @@ impl Cursor {
         } {
             assert_eq!(self.frames.len(), len);
             self.frames.pop();
+
+            let value = match (expected_ty, &value.contents, is_some) {
+                (Some(Type::Optional(otp)), ValueVariants::Svm(snarkvm::prelude::Value::Plaintext(_)), true) => {
+                    let wrapper = self.register_optional(&otp.inner);
+                    self.wrap_optional_value(value, wrapper, true)
+                }
+                _ => value,
+            };
+
             self.values.push(value);
             Ok(true)
         } else {
             self.frames[len - 1].step += 1;
             Ok(false)
         }
+    }
+
+    // Try to convert the none value to a reasonable typed value that should be represented
+    // as the in memory value for the snarkVM.
+    fn resolve_none(&mut self, expected_ty: &Type) -> Result<Value> {
+        match expected_ty {
+            Type::Address
+            | Type::Boolean
+            | Type::Field
+            | Type::Group
+            | Type::Scalar
+            | Type::Signature
+            | Type::Integer(_) => {
+                let struct_lookup = |symbols: &[Symbol]| {
+                    self.structs.get(symbols).unwrap().iter().map(|st| (*st.0, st.1.clone())).collect::<Vec<_>>()
+                };
+                let Expression::Literal(lit) =
+                    zero_value_expression(expected_ty, Span::dummy(), &NodeBuilder::default(), &struct_lookup).unwrap()
+                else {
+                    panic!("Can't happen")
+                };
+                literal_to_value(&lit, &Some(expected_ty.clone()))
+            }
+
+            Type::Array(array_type) => {
+                let val = self.resolve_none(array_type.element_type())?;
+                Ok(Value::make_array(std::iter::repeat_n(val, array_type.length.as_u32().unwrap() as usize)))
+            }
+
+            Type::Composite(composite_type) => {
+                let contents: Result<Vec<(Symbol, Value)>> = self
+                    .structs
+                    .get(&composite_type.path.as_symbols())
+                    .unwrap()
+                    .clone()
+                    .into_iter()
+                    .map(|(s, t)| Ok((s, self.resolve_none(&t)?)))
+                    .collect();
+                Ok(Value::make_struct(
+                    contents?.into_iter(),
+                    self.current_program().unwrap_or_default(),
+                    composite_type.path.as_symbols(),
+                ))
+            }
+
+            Type::Optional(optional_type) => {
+                let val = self.resolve_none(&optional_type.inner)?;
+                let opt = self.register_optional(&optional_type.inner);
+                Ok(self.wrap_optional_value(val, opt, false))
+            }
+
+            _ => todo!(),
+        }
+    }
+
+    fn register_optional(&mut self, type_: &Type) -> Symbol {
+        let is_some = Symbol::intern("is_some");
+        let val = Symbol::intern("val");
+        let sym = make_optional_struct_symbol(type_);
+        self.structs.insert(vec![sym], IndexMap::from([(is_some, Type::Boolean), (val, type_.clone())]));
+        sym
+    }
+
+    fn wrap_optional_value(&self, value: Value, path: Symbol, is_some: bool) -> Value {
+        let is_some_symbol = Symbol::intern("is_some");
+        let val_symbol = Symbol::intern("val");
+
+        Value::make_struct(
+            vec![(is_some_symbol, is_some.into()), (val_symbol, value)].into_iter(),
+            self.current_program().unwrap_or_default(),
+            vec![path],
+        )
     }
 
     /// Execute one step of the current element.
@@ -1406,9 +1590,10 @@ impl Cursor {
                             true, // is_async
                             HashMap::new(),
                         );
-                        let param_names = function.input.iter().map(|input| input.identifier.name);
-                        for (name, value) in param_names.zip(values) {
-                            self.set_variable(&self.to_absolute_path(&[name]), value);
+                        let param_names =
+                            function.input.iter().map(|input| (input.identifier.name, input.type_.clone()));
+                        for ((name, type_), value) in param_names.zip(values) {
+                            self.set_variable(&self.to_absolute_path(&[name]), value, Some(type_));
                         }
                         self.frames.last_mut().unwrap().step = 1;
                         self.frames.push(Frame {
@@ -1512,10 +1697,10 @@ impl Cursor {
                     let param_names = function
                         .const_parameters
                         .iter()
-                        .map(|param| param.identifier.name)
-                        .chain(function.input.iter().map(|input| input.identifier.name));
-                    for (name, value) in param_names.zip(arguments) {
-                        self.set_variable(&self.to_absolute_path(&[name]), value);
+                        .map(|param| (param.identifier.name, param.type_.clone()))
+                        .chain(function.input.iter().map(|input| (input.identifier.name, input.type_.clone())));
+                    for ((name, type_), value) in param_names.zip(arguments) {
+                        self.set_variable(&self.to_absolute_path(&[name]), value, Some(type_));
                     }
                     self.frames.push(Frame {
                         step: 0,

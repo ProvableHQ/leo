@@ -77,13 +77,13 @@ pub struct StructContents {
 #[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
 pub struct Value {
     pub id: Option<Location>,
-    pub(crate) contents: ValueVariants,
+    pub contents: ValueVariants,
 }
 
 #[derive(Clone, Default, Debug, Eq, PartialEq)]
 // SnarkVM's Value is large, but that's okay.
 #[allow(clippy::large_enum_variant)]
-pub(crate) enum ValueVariants {
+pub enum ValueVariants {
     #[default]
     Unit,
     Svm(SvmValue),
@@ -93,7 +93,7 @@ pub(crate) enum ValueVariants {
     String(String),
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum AsyncExecution {
     AsyncFunctionCall {
         function: Location,
@@ -102,8 +102,26 @@ pub enum AsyncExecution {
     AsyncBlock {
         containing_function: Location, // The function that contains the async block.
         block: crate::NodeID,
-        names: BTreeMap<Vec<Symbol>, Value>, // Use a `BTreeMap` here because `HashMap` does not implement `Hash`.
+        names: BTreeMap<Vec<Symbol>, (Value, Option<Type>)>, // Use a `BTreeMap` here because `HashMap` does not implement `Hash`.
     },
+}
+
+impl Hash for AsyncExecution {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            Self::AsyncBlock { containing_function, block, names } => {
+                0u8.hash(state);
+                containing_function.hash(state);
+                block.hash(state);
+                names.iter().map(|(k, v)| (k.clone(), v.0.clone())).collect::<BTreeMap<_, _>>().hash(state);
+            }
+            Self::AsyncFunctionCall { function, arguments } => {
+                1u8.hash(state);
+                function.hash(state);
+                arguments.hash(state);
+            }
+        }
+    }
 }
 
 impl fmt::Display for AsyncExecution {
