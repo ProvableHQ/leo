@@ -1971,12 +1971,6 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_const(&mut self, input: &ConstDeclaration) {
         self.visit_type(&input.type_);
 
-        // For now, consts that contain optional types are not supported.
-        // TODO: remove this restriction by supporting const evaluation of optionals including `None`.
-        if self.contains_optional_type(&input.type_) {
-            self.emit_err(TypeCheckerError::const_cannot_be_optional(input.span));
-        }
-
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.

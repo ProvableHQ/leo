@@ -405,11 +405,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         let type_info = self.state.type_table.get(&input.id());
 
-        // If this is an optional, then unwrap it first.
-        let type_info = type_info.as_ref().map(|ty| match ty {
-            Type::Optional(opt) => *opt.inner.clone(),
-            _ => ty.clone(),
-        });
+        if let Some(Type::Optional(_)) = type_info {
+            return (input.into(), None);
+        }
 
         if let Ok(value) = interpreter_value::literal_to_value(&input, &type_info) {
             // If we know the type of an unsuffixed literal, might as well change it to a suffixed literal. This way, we
@@ -536,7 +534,26 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_const(&mut self, mut input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
-        if matches!(input.type_, Type::Optional(_)) {
+        // If there is any optional in the type definition, leave it for now.
+        fn recursive_optional(type_: &Type, slf: &ConstPropagationVisitor) -> bool {
+            match type_ {
+                Type::Array(array_type) => recursive_optional(array_type.element_type(), slf),
+                Type::Composite(composite_type) => {
+                    if let Some(cmp) =
+                        slf.state.symbol_table.lookup_struct(composite_type.path.absolute_path().as_ref())
+                    {
+                        cmp.members.iter().any(|mbr| recursive_optional(&mbr.type_, slf))
+                    } else {
+                        false
+                    }
+                }
+                Type::Optional(_) => true,
+                Type::Tuple(tuple_type) => tuple_type.elements.iter().any(|element| recursive_optional(element, slf)),
+                _ => false,
+            }
+        }
+
+        if recursive_optional(&input.type_, self) {
             return (input.into(), None);
         }
 

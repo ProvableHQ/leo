@@ -28,6 +28,7 @@ use crate::{
     CoreFunction,
     Expression,
     Type,
+    halt2,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
 };
@@ -300,12 +301,22 @@ pub fn evaluate_core_function(
             helper.mapping_get(program, name, &key).is_some().into()
         }
         CoreFunction::OptionalUnwrap => {
-            // TODO
-            return Ok(None);
+            let (is_some, val) = unpack_option_struct(helper.pop_value().expect_tc(span)?.contents, span)?;
+
+            if is_some {
+                Value { id: None, contents: ValueVariants::Svm(val.into()) }
+            } else {
+                halt2!(span, "called unwrap on a none value")
+            }
         }
         CoreFunction::OptionalUnwrapOr => {
-            // TODO
-            return Ok(None);
+            let (is_some, val) = unpack_option_struct(helper.pop_value().expect_tc(span)?.contents, span)?;
+
+            let ValueVariants::Svm(SvmValue::Plaintext(or)) = helper.pop_value().expect_tc(span)?.contents else {
+                tc_fail2!()
+            };
+
+            Value { id: None, contents: ValueVariants::Svm(if is_some { val.into() } else { or.into() }) }
         }
         CoreFunction::VectorPush
         | CoreFunction::VectorLen
@@ -332,4 +343,19 @@ pub fn evaluate_core_function(
     };
 
     Ok(Some(value))
+}
+
+fn unpack_option_struct(v: ValueVariants, span: Span) -> Result<(bool, SvmPlaintext)> {
+    let ValueVariants::Svm(SvmValue::Plaintext(Plaintext::Struct(members, _))) = v else { tc_fail2!() };
+
+    let get = |name: &str| {
+        let id = Symbol::intern(name).to_string().parse::<SvmIdentifier>().expect("type checker failure");
+        members.get(&id).expect_tc(span)
+    };
+
+    let SvmPlaintext::Literal(SvmLiteral::Boolean(is_some), _) = get("is_some")? else { tc_fail2!() };
+
+    let val = get("val")?.clone();
+
+    Ok((**is_some, val))
 }

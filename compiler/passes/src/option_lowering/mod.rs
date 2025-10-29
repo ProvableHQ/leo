@@ -57,7 +57,15 @@
 //! After this pass, no `T?` types remain in the program: all optional values are represented explicitly
 //! as structs with `is_some` and `val` fields.
 
-use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use crate::{
+    ConstPropagation,
+    Pass,
+    PathResolution,
+    SymbolTable,
+    SymbolTableCreation,
+    TypeChecking,
+    TypeCheckingInput,
+};
 
 use leo_ast::{ArrayType, CompositeType, ProgramReconstructor as _, Type};
 use leo_errors::Result;
@@ -101,6 +109,8 @@ impl Pass for OptionLowering {
         PathResolution::do_pass((), state)?;
         SymbolTableCreation::do_pass((), state)?;
         TypeChecking::do_pass(input.clone(), state)?;
+        // Now there are no more optionals, we can now evaluate the core unwrap functions of const optionals in the interpreter.
+        ConstPropagation::do_pass((), state)?;
 
         Ok(())
     }

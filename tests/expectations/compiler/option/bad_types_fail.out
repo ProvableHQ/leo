@@ -1,8 +1,3 @@
-Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
-    --> compiler-test:16:5
-     |
-  16 |     const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `u8?` but type `i8` was found.
     --> compiler-test:16:45
      |
