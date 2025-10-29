@@ -127,102 +127,6 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn visit_member_access_general(&mut self, input: &MemberAccess, assign: bool, expected: &Option<Type>) -> Type {
-        // Handler member access expressions that correspond to valid operands in AVM code.
-        if !assign {
-            match &input.inner {
-                // If the access expression is of the form `self.<name>`, then check the <name> is valid.
-                Expression::Path(path) if path.identifier().name == sym::SelfLower => {
-                    match input.name.name {
-                        sym::address => {
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::caller => {
-                            // Check that the operation is not invoked in a `finalize` block.
-                            self.check_access_allowed("self.caller", false, input.name.span());
-
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::checksum => {
-                            let ty = Type::Array(ArrayType::new(
-                                Type::Integer(IntegerType::U8),
-                                Expression::Literal(Literal::integer(
-                                    IntegerType::U8,
-                                    "32".to_string(),
-                                    Default::default(),
-                                    Default::default(),
-                                )),
-                            ));
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::edition => {
-                            let ty = Type::Integer(IntegerType::U16);
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::id => {
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::program_owner => {
-                            // Check that the operation is only invoked in a `finalize` block.
-                            self.check_access_allowed("self.program_owner", true, input.name.span());
-
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::signer => {
-                            // Check that operation is not invoked in a `finalize` block.
-                            self.check_access_allowed("self.signer", false, input.name.span());
-
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        _ => {
-                            self.emit_err(TypeCheckerError::invalid_self_access(input.name.span()));
-                            return Type::Err;
-                        }
-                    }
-                }
-                // If the access expression is of the form `block.<name>`, then check the <name> is valid.
-                Expression::Path(path) if path.identifier().name == sym::block => match input.name.name {
-                    sym::height => {
-                        // Check that the operation is invoked in a `finalize` block.
-                        self.check_access_allowed("block.height", true, input.name.span());
-                        let ty = Type::Integer(IntegerType::U32);
-                        self.maybe_assert_type(&ty, expected, input.span());
-                        return ty;
-                    }
-                    _ => {
-                        self.emit_err(TypeCheckerError::invalid_block_access(input.name.span()));
-                        return Type::Err;
-                    }
-                },
-                // If the access expression is of the form `network.<name>`, then check that the <name> is valid.
-                Expression::Path(path) if path.identifier().name == sym::network => match input.name.name {
-                    sym::id => {
-                        // Check that the operation is not invoked outside a `finalize` block.
-                        self.check_access_allowed("network.id", true, input.name.span());
-                        let ty = Type::Integer(IntegerType::U16);
-                        self.maybe_assert_type(&ty, expected, input.span());
-                        return ty;
-                    }
-                    _ => {
-                        self.emit_err(TypeCheckerError::invalid_block_access(input.name.span()));
-                        return Type::Err;
-                    }
-                },
-                _ => {}
-            }
-        }
-
         let ty = if assign {
             self.visit_expression_assign(&input.inner).0
         } else {
@@ -472,6 +376,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
+            Expression::SpecialAccess(access) => self.visit_special_access(access, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
@@ -495,6 +400,74 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_tuple_access(&mut self, _input: &TupleAccess, _additional: &Self::AdditionalInput) -> Self::Output {
         panic!("Should not be called.");
+    }
+
+    fn visit_special_access(&mut self, input: &SpecialAccess, expected: &Self::AdditionalInput) -> Self::Output {
+        match input.variant {
+            SpecialAccessVariant::Id => {
+                let ty = Type::Address;
+                self.maybe_assert_type(&ty, expected, input.span());
+                ty
+            }
+            SpecialAccessVariant::Caller => {
+                // Check that the operation is not invoked in a `finalize` block.
+                self.check_access_allowed("self.caller", false, input.span());
+                let ty = Type::Address;
+                self.maybe_assert_type(&ty, expected, input.span());
+                ty
+            }
+            SpecialAccessVariant::Signer => {
+                // Check that operation is not invoked in a `finalize` block.
+                self.check_access_allowed("self.signer", false, input.span());
+                let ty = Type::Address;
+                self.maybe_assert_type(&ty, expected, input.span());
+                ty
+            }
+            SpecialAccessVariant::Address => {
+                let ty = Type::Address;
+                self.maybe_assert_type(&ty, expected, input.span());
+                ty
+            }
+            SpecialAccessVariant::Edition => {
+                let ty = Type::Integer(IntegerType::U16);
+                self.maybe_assert_type(&ty, expected, input.span());
+                return ty;
+            }
+            SpecialAccessVariant::Checksum => {
+                let ty = Type::Array(ArrayType::new(
+                    Type::Integer(IntegerType::U8),
+                    Expression::Literal(Literal::integer(
+                        IntegerType::U8,
+                        "32".to_string(),
+                        Default::default(),
+                        Default::default(),
+                    )),
+                ));
+                self.maybe_assert_type(&ty, expected, input.span());
+                ty
+            }
+            SpecialAccessVariant::ProgramOwner => {
+                // Check that the operation is only invoked in a `finalize` block.
+                self.check_access_allowed("self.program_owner", true, input.span());
+                let ty = Type::Address;
+                self.maybe_assert_type(&ty, expected, input.span());
+                ty
+            }
+            SpecialAccessVariant::NetworkId => {
+                // Check that the operation is not invoked outside a `finalize` block.
+                self.check_access_allowed("network.id", true, input.span());
+                let ty = Type::Integer(IntegerType::U16);
+                self.maybe_assert_type(&ty, expected, input.span());
+                ty
+            }
+            SpecialAccessVariant::BlockHeight => {
+                // Check that the operation is invoked in a `finalize` block.
+                self.check_access_allowed("block.height", true, input.span());
+                let ty = Type::Integer(IntegerType::U32);
+                self.maybe_assert_type(&ty, expected, input.span());
+                ty
+            }
+        }
     }
 
     fn visit_array(&mut self, input: &ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
@@ -1449,15 +1422,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             //
             // Multiple occurrences of `owner` here is an error but that should be flagged somewhere else.
             input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
-                if let Some(Expression::MemberAccess(access)) = &init.expression
-                    && let MemberAccess {
-                        inner: Expression::Path(path),
-                        name: Identifier { name: sym::caller, .. },
-                        ..
-                    } = &**access
-                    && path.identifier().name == sym::SelfLower
-                {
-                    self.emit_warning(TypeCheckerWarning::caller_as_record_owner(input.path.clone(), access.span()));
+                if let Some(Expression::SpecialAccess(access)) = &init.expression {
+                    if let SpecialAccessVariant::Caller = access.variant {
+                        self.emit_warning(TypeCheckerWarning::caller_as_record_owner(
+                            input.path.clone(),
+                            access.span(),
+                        ));
+                    }
                 }
             });
         }

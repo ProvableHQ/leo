@@ -136,6 +136,7 @@ pub trait AstReconstructor {
             Expression::Literal(value) => self.reconstruct_literal(value, additional),
             Expression::Locator(locator) => self.reconstruct_locator(locator, additional),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, additional),
+            Expression::SpecialAccess(access) => self.reconstruct_special_access(access, additional),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, additional),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, additional),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, additional),
@@ -205,6 +206,14 @@ pub trait AstReconstructor {
             MemberAccess { inner: self.reconstruct_expression(input.inner, &Default::default()).0, ..input }.into(),
             Default::default(),
         )
+    }
+
+    fn reconstruct_special_access(
+        &mut self,
+        input: SpecialAccess,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (input.into(), Default::default())
     }
 
     fn reconstruct_repeat(

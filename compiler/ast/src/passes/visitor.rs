@@ -121,6 +121,7 @@ pub trait AstVisitor {
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access(access, additional),
+            Expression::SpecialAccess(access) => self.visit_special_access(access, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
@@ -141,8 +142,12 @@ pub trait AstVisitor {
         Default::default()
     }
 
-    fn visit_tuple_access(&mut self, input: &TupleAccess, _additional: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.tuple, &Default::default());
+    fn visit_special_access(&mut self, _input: &SpecialAccess, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_tuple_access(&mut self, input: &TupleAccess, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.tuple, additional);
         Default::default()
     }
 

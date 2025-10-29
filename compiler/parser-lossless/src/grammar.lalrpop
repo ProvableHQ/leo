@@ -336,17 +336,45 @@ Expr0: SyntaxNode<'a> = {
 
     // Special access.
     <x:WithTrivia<Block>> <d:WithTrivia<Dot>> <y:WithTrivia<Identifier>> => {
-        SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y])
+        match y.text {
+            "height" => SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y]),
+            _ => {
+                let node = SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y]);
+                handler.emit_err(ParserError::invalid_block_access(node.span));
+                node
+            }
+        }
     },
     <x:WithTrivia<SelfLower>> <d:WithTrivia<Dot>> <y:WithTrivia<Identifier>> => {
-        SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y])
+        match y.text {
+            "caller"
+            | "checksum"
+            | "edition"
+            | "program_owner"
+            | "signer"
+            | "address"
+            | "id" => SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y]),
+
+            _ => {
+                let node = SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y]);
+                handler.emit_err(ParserError::invalid_self_access(node.span));
+                node
+            }
+        }
     },
     // `address` is otherwise a keyword, so special case it.
     <x:WithTrivia<SelfLower>> <d:WithTrivia<Dot>> <y:WithTrivia<Address>> => {
         SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y])
     },
     <x:WithTrivia<Network>> <d:WithTrivia<Dot>> <y:WithTrivia<Identifier>> => {
-        SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y])
+        match y.text {
+            "id" => SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y]),
+            _ => {
+                let node = SyntaxNode::new(ExpressionKind::SpecialAccess, [x, d, y]);
+                handler.emit_err(ParserError::invalid_network_access(node.span));
+                node
+            }
+        }
     },
 
     // async block.

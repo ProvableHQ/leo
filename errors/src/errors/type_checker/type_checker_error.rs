@@ -364,6 +364,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     invalid_self_access {
         args: (),
@@ -553,6 +554,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     /// For when an invalid field of block is called.
     @formatted
     invalid_block_access {

@@ -81,6 +81,7 @@ where
                 Expression::Literal(value) => self.reconstruct_literal(value, &()),
                 Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
                 Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
+                Expression::SpecialAccess(access) => self.reconstruct_special_access(access, &()),
                 Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
                 Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
                 Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),

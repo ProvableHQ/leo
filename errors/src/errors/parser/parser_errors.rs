@@ -478,4 +478,26 @@ create_messages!(
         msg: "Identifiers cannot start with an underscore.",
         help: Some("Identifiers must start with a letter.".to_string()),
     }
+
+    /// For when an invalid field of block is called.
+    @formatted
+    invalid_block_access {
+        args: (),
+        msg: format!("The allowed accesses to `block` are `block.height`."),
+        help: None,
+    }
+
+    @formatted
+    invalid_self_access {
+        args: (),
+        msg: format!("The allowed accesses to `self` are `self.{{caller, checksum, edition, program_owner, signer, address, id}}`."),
+        help: None,
+    }
+
+    @formatted
+    invalid_network_access {
+        args: (),
+        msg: format!("The allowed accesses to `network` are `network.id`."),
+        help: None,
+    }
 );

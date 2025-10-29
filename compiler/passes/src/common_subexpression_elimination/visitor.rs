@@ -116,6 +116,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::Err(_)
             | Expression::Locator(_)
             | Expression::MemberAccess(_)
+            | Expression::SpecialAccess(_)
             | Expression::Repeat(_)
             | Expression::Struct(_)
             | Expression::Ternary(_)
@@ -244,6 +245,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             Expression::Locator(_)
             | Expression::Async(_)
             | Expression::AssociatedConstant(_)
+            | Expression::SpecialAccess(_)
             | Expression::Err(_)
             | Expression::Unit(_) => {
                 return Some((expression, false));

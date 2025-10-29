@@ -39,6 +39,8 @@ use leo_ast::{
     Path,
     ProgramId,
     RepeatExpression,
+    SpecialAccess,
+    SpecialAccessVariant,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -75,6 +77,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Literal(expr) => self.visit_value(expr),
             Expression::Locator(expr) => self.visit_locator(expr),
             Expression::MemberAccess(expr) => self.visit_member_access(expr),
+            Expression::SpecialAccess(expr) => self.visit_special_access(expr),
             Expression::Repeat(expr) => self.visit_repeat(expr),
             Expression::Ternary(expr) => self.visit_ternary(expr),
             Expression::Tuple(expr) => self.visit_tuple(expr),
@@ -377,6 +380,25 @@ impl CodeGeneratingVisitor<'_> {
         let member_access = format!("{}.{}", inner_expr, input.name);
 
         (member_access, String::new())
+    }
+
+    fn visit_special_access(&mut self, input: &SpecialAccess) -> (String, String) {
+        // Handle `self.address`, `self.caller`, `self.checksum`, `self.edition`, `self.id`, `self.program_owner`, `self.signer`.
+
+        // Get the current program ID.
+        let program_id = self.program_id.expect("Program ID should be set before traversing the program");
+
+        match input.variant {
+            // Return the program ID directly.
+            SpecialAccessVariant::Address | SpecialAccessVariant::Id => (program_id.to_string(), String::new()),
+            // Return the appropriate snarkVM operand.
+            name @ (SpecialAccessVariant::Checksum
+            | SpecialAccessVariant::Edition
+            | SpecialAccessVariant::ProgramOwner) => {
+                (name.to_string().strip_prefix("self.").expect("can't happen").to_string(), String::new())
+            }
+            var => (var.to_string(), String::new()),
+        }
     }
 
     fn visit_repeat(&mut self, input: &RepeatExpression) -> (String, String) {

@@ -434,6 +434,7 @@ impl Cursor {
                 | Expression::Cast(..)
                 | Expression::Err(..)
                 | Expression::Literal(..)
+                | Expression::SpecialAccess(..)
                 | Expression::Locator(..)
                 | Expression::Repeat(..)
                 | Expression::Struct(..)

@@ -855,10 +855,20 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 panic!("Can't happen");
             };
 
-            let inner = to_identifier(qualifier, builder).into();
-            let name = to_identifier(name, builder);
+            let access = match (qualifier.text, name.text) {
+                ("self", "id") => leo_ast::SpecialAccessVariant::Id,
+                ("self", "caller") => leo_ast::SpecialAccessVariant::Caller,
+                ("self", "signer") => leo_ast::SpecialAccessVariant::Signer,
+                ("self", "edition") => leo_ast::SpecialAccessVariant::Edition,
+                ("self", "address") => leo_ast::SpecialAccessVariant::Address,
+                ("self", "checksum") => leo_ast::SpecialAccessVariant::Checksum,
+                ("self", "program_owner") => leo_ast::SpecialAccessVariant::ProgramOwner,
+                ("network", "id") => leo_ast::SpecialAccessVariant::NetworkId,
+                ("block", "height") => leo_ast::SpecialAccessVariant::BlockHeight,
+                _ => panic!("Can't happen"),
+            };
 
-            leo_ast::MemberAccess { inner, name, span, id }.into()
+            leo_ast::SpecialAccess { variant: access, span, id }.into()
         }
         ExpressionKind::Struct => {
             let name = &node.children[0];
