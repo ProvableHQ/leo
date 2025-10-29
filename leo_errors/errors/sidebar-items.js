@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["LeoError","LeoWarning"],"mod":["ast","cli","compiler","flattener","interpreter_halt","loop_unroller","package","parser","static_analyzer","type_checker","utils"],"type":["Result"]};
+window.SIDEBAR_ITEMS = {"enum":["LeoError","LeoWarning"],"mod":["ast","cli","compiler","flattener","interpreter_halt","loop_unroller","name_validation","package","parser","static_analyzer","type_checker","utils"],"type":["Result"]};

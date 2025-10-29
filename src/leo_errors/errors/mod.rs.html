@@ -56,126 +56,135 @@
 <a href=#56 id=56 data-nosnippet>56</a></span><span class="kw">mod </span>type_checker;
 <a href=#57 id=57 data-nosnippet>57</a><span class="kw">pub use </span><span class="self">self</span>::type_checker::<span class="kw-2">*</span>;
 <a href=#58 id=58 data-nosnippet>58</a>
-<a href=#59 id=59 data-nosnippet>59</a><span class="doccomment">/// Contains the Utils error definitions.
-<a href=#60 id=60 data-nosnippet>60</a></span><span class="kw">mod </span>utils;
-<a href=#61 id=61 data-nosnippet>61</a><span class="kw">pub use </span><span class="self">self</span>::utils::<span class="kw-2">*</span>;
+<a href=#59 id=59 data-nosnippet>59</a><span class="doccomment">/// Contains the Name Validation error definitions.
+<a href=#60 id=60 data-nosnippet>60</a></span><span class="kw">mod </span>name_validation;
+<a href=#61 id=61 data-nosnippet>61</a><span class="kw">pub use </span><span class="self">self</span>::name_validation::<span class="kw-2">*</span>;
 <a href=#62 id=62 data-nosnippet>62</a>
-<a href=#63 id=63 data-nosnippet>63</a><span class="doccomment">/// The LeoError type that contains all sub error types.
-<a href=#64 id=64 data-nosnippet>64</a>/// This allows a unified error type throughout the Leo crates.
-<a href=#65 id=65 data-nosnippet>65</a></span><span class="attr">#[derive(Debug, Error)]
-<a href=#66 id=66 data-nosnippet>66</a></span><span class="kw">pub enum </span>LeoError {
-<a href=#67 id=67 data-nosnippet>67</a>    <span class="doccomment">/// Represents an AST Error in a Leo Error.
-<a href=#68 id=68 data-nosnippet>68</a>    </span><span class="attr">#[error(transparent)]
-<a href=#69 id=69 data-nosnippet>69</a>    </span>AstError(<span class="attr">#[from] </span>AstError),
-<a href=#70 id=70 data-nosnippet>70</a>    <span class="doccomment">/// Represents a CLI Error in a Leo Error.
-<a href=#71 id=71 data-nosnippet>71</a>    </span><span class="attr">#[error(transparent)]
-<a href=#72 id=72 data-nosnippet>72</a>    </span>CliError(<span class="attr">#[from] </span>CliError),
-<a href=#73 id=73 data-nosnippet>73</a>    <span class="doccomment">/// Represents a Compiler Error in a Leo Error.
-<a href=#74 id=74 data-nosnippet>74</a>    </span><span class="attr">#[error(transparent)]
-<a href=#75 id=75 data-nosnippet>75</a>    </span>CompilerError(<span class="attr">#[from] </span>CompilerError),
-<a href=#76 id=76 data-nosnippet>76</a>    <span class="attr">#[error(transparent)]
-<a href=#77 id=77 data-nosnippet>77</a>    </span>InterpreterHalt(<span class="attr">#[from] </span>InterpreterHalt),
-<a href=#78 id=78 data-nosnippet>78</a>    <span class="doccomment">/// Represents a Package Error in a Leo Error.
-<a href=#79 id=79 data-nosnippet>79</a>    </span><span class="attr">#[error(transparent)]
-<a href=#80 id=80 data-nosnippet>80</a>    </span>PackageError(<span class="attr">#[from] </span>PackageError),
-<a href=#81 id=81 data-nosnippet>81</a>    <span class="doccomment">/// Represents a Parser Error in a Leo Error.
-<a href=#82 id=82 data-nosnippet>82</a>    </span><span class="attr">#[error(transparent)]
-<a href=#83 id=83 data-nosnippet>83</a>    </span>ParserError(<span class="attr">#[from] </span>ParserError),
-<a href=#84 id=84 data-nosnippet>84</a>    <span class="doccomment">/// Represents a Static Analyzer Error in a Leo Error.
-<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="attr">#[error(transparent)]
-<a href=#86 id=86 data-nosnippet>86</a>    </span>StaticAnalyzerError(<span class="attr">#[from] </span>StaticAnalyzerError),
-<a href=#87 id=87 data-nosnippet>87</a>    <span class="doccomment">/// Represents a Type Checker Error in a Leo Error.
-<a href=#88 id=88 data-nosnippet>88</a>    </span><span class="attr">#[error(transparent)]
-<a href=#89 id=89 data-nosnippet>89</a>    </span>TypeCheckerError(<span class="attr">#[from] </span>TypeCheckerError),
-<a href=#90 id=90 data-nosnippet>90</a>    <span class="doccomment">/// Represents a Loop Unroller Error in a Leo Error.
-<a href=#91 id=91 data-nosnippet>91</a>    </span><span class="attr">#[error(transparent)]
-<a href=#92 id=92 data-nosnippet>92</a>    </span>LoopUnrollerError(<span class="attr">#[from] </span>LoopUnrollerError),
-<a href=#93 id=93 data-nosnippet>93</a>    <span class="doccomment">/// Represents a Flatten Error in a Leo Error.
-<a href=#94 id=94 data-nosnippet>94</a>    </span><span class="attr">#[error(transparent)]
-<a href=#95 id=95 data-nosnippet>95</a>    </span>FlattenError(<span class="attr">#[from] </span>FlattenError),
-<a href=#96 id=96 data-nosnippet>96</a>    <span class="doccomment">/// Purely for just exiting with the correct status code and
-<a href=#97 id=97 data-nosnippet>97</a>    /// not re-displaying an error.
-<a href=#98 id=98 data-nosnippet>98</a>    </span><span class="attr">#[error(<span class="string">""</span>)]
-<a href=#99 id=99 data-nosnippet>99</a>    </span>LastErrorCode(i32),
-<a href=#100 id=100 data-nosnippet>100</a>    <span class="doccomment">/// Represents a Utils Error in a Leo Error.
+<a href=#63 id=63 data-nosnippet>63</a><span class="doccomment">/// Contains the Utils error definitions.
+<a href=#64 id=64 data-nosnippet>64</a></span><span class="kw">mod </span>utils;
+<a href=#65 id=65 data-nosnippet>65</a><span class="kw">pub use </span><span class="self">self</span>::utils::<span class="kw-2">*</span>;
+<a href=#66 id=66 data-nosnippet>66</a>
+<a href=#67 id=67 data-nosnippet>67</a><span class="doccomment">/// The LeoError type that contains all sub error types.
+<a href=#68 id=68 data-nosnippet>68</a>/// This allows a unified error type throughout the Leo crates.
+<a href=#69 id=69 data-nosnippet>69</a></span><span class="attr">#[derive(Debug, Error)]
+<a href=#70 id=70 data-nosnippet>70</a></span><span class="kw">pub enum </span>LeoError {
+<a href=#71 id=71 data-nosnippet>71</a>    <span class="doccomment">/// Represents an AST Error in a Leo Error.
+<a href=#72 id=72 data-nosnippet>72</a>    </span><span class="attr">#[error(transparent)]
+<a href=#73 id=73 data-nosnippet>73</a>    </span>AstError(<span class="attr">#[from] </span>AstError),
+<a href=#74 id=74 data-nosnippet>74</a>    <span class="doccomment">/// Represents a CLI Error in a Leo Error.
+<a href=#75 id=75 data-nosnippet>75</a>    </span><span class="attr">#[error(transparent)]
+<a href=#76 id=76 data-nosnippet>76</a>    </span>CliError(<span class="attr">#[from] </span>CliError),
+<a href=#77 id=77 data-nosnippet>77</a>    <span class="doccomment">/// Represents a Compiler Error in a Leo Error.
+<a href=#78 id=78 data-nosnippet>78</a>    </span><span class="attr">#[error(transparent)]
+<a href=#79 id=79 data-nosnippet>79</a>    </span>CompilerError(<span class="attr">#[from] </span>CompilerError),
+<a href=#80 id=80 data-nosnippet>80</a>    <span class="attr">#[error(transparent)]
+<a href=#81 id=81 data-nosnippet>81</a>    </span>InterpreterHalt(<span class="attr">#[from] </span>InterpreterHalt),
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="doccomment">/// Represents a Package Error in a Leo Error.
+<a href=#83 id=83 data-nosnippet>83</a>    </span><span class="attr">#[error(transparent)]
+<a href=#84 id=84 data-nosnippet>84</a>    </span>PackageError(<span class="attr">#[from] </span>PackageError),
+<a href=#85 id=85 data-nosnippet>85</a>    <span class="doccomment">/// Represents a Parser Error in a Leo Error.
+<a href=#86 id=86 data-nosnippet>86</a>    </span><span class="attr">#[error(transparent)]
+<a href=#87 id=87 data-nosnippet>87</a>    </span>ParserError(<span class="attr">#[from] </span>ParserError),
+<a href=#88 id=88 data-nosnippet>88</a>    <span class="doccomment">/// Represents a Static Analyzer Error in a Leo Error.
+<a href=#89 id=89 data-nosnippet>89</a>    </span><span class="attr">#[error(transparent)]
+<a href=#90 id=90 data-nosnippet>90</a>    </span>StaticAnalyzerError(<span class="attr">#[from] </span>StaticAnalyzerError),
+<a href=#91 id=91 data-nosnippet>91</a>    <span class="doccomment">/// Represents a Type Checker Error in a Leo Error.
+<a href=#92 id=92 data-nosnippet>92</a>    </span><span class="attr">#[error(transparent)]
+<a href=#93 id=93 data-nosnippet>93</a>    </span>TypeCheckerError(<span class="attr">#[from] </span>TypeCheckerError),
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="doccomment">/// Represents a Name Validation Error in a Leo Error.
+<a href=#95 id=95 data-nosnippet>95</a>    </span><span class="attr">#[error(transparent)]
+<a href=#96 id=96 data-nosnippet>96</a>    </span>NameValidationError(<span class="attr">#[from] </span>NameValidationError),
+<a href=#97 id=97 data-nosnippet>97</a>    <span class="doccomment">/// Represents a Loop Unroller Error in a Leo Error.
+<a href=#98 id=98 data-nosnippet>98</a>    </span><span class="attr">#[error(transparent)]
+<a href=#99 id=99 data-nosnippet>99</a>    </span>LoopUnrollerError(<span class="attr">#[from] </span>LoopUnrollerError),
+<a href=#100 id=100 data-nosnippet>100</a>    <span class="doccomment">/// Represents a Flatten Error in a Leo Error.
 <a href=#101 id=101 data-nosnippet>101</a>    </span><span class="attr">#[error(transparent)]
-<a href=#102 id=102 data-nosnippet>102</a>    </span>UtilError(<span class="attr">#[from] </span>UtilError),
-<a href=#103 id=103 data-nosnippet>103</a>    <span class="doccomment">/// Anyhow errors.
-<a href=#104 id=104 data-nosnippet>104</a>    </span><span class="attr">#[error(transparent)]
-<a href=#105 id=105 data-nosnippet>105</a>    </span>Anyhow(<span class="attr">#[from] </span>anyhow::Error),
-<a href=#106 id=106 data-nosnippet>106</a>}
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a><span class="kw">impl </span>LeoError {
-<a href=#109 id=109 data-nosnippet>109</a>    <span class="doccomment">/// Implement error code for each type of Error.
-<a href=#110 id=110 data-nosnippet>110</a>    </span><span class="kw">pub fn </span>error_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-<a href=#111 id=111 data-nosnippet>111</a>        <span class="kw">use </span>LeoError::<span class="kw-2">*</span>;
-<a href=#112 id=112 data-nosnippet>112</a>
-<a href=#113 id=113 data-nosnippet>113</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#114 id=114 data-nosnippet>114</a>            AstError(error) =&gt; error.error_code(),
-<a href=#115 id=115 data-nosnippet>115</a>            CompilerError(error) =&gt; error.error_code(),
-<a href=#116 id=116 data-nosnippet>116</a>            CliError(error) =&gt; error.error_code(),
-<a href=#117 id=117 data-nosnippet>117</a>            ParserError(error) =&gt; error.error_code(),
-<a href=#118 id=118 data-nosnippet>118</a>            PackageError(error) =&gt; error.error_code(),
-<a href=#119 id=119 data-nosnippet>119</a>            StaticAnalyzerError(error) =&gt; error.error_code(),
-<a href=#120 id=120 data-nosnippet>120</a>            TypeCheckerError(error) =&gt; error.error_code(),
-<a href=#121 id=121 data-nosnippet>121</a>            LoopUnrollerError(error) =&gt; error.error_code(),
-<a href=#122 id=122 data-nosnippet>122</a>            FlattenError(error) =&gt; error.error_code(),
-<a href=#123 id=123 data-nosnippet>123</a>            UtilError(error) =&gt; error.error_code(),
-<a href=#124 id=124 data-nosnippet>124</a>            LastErrorCode(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-<a href=#125 id=125 data-nosnippet>125</a>            Anyhow(<span class="kw">_</span>) =&gt; <span class="string">"SnarkVM Error"</span>.to_string(), <span class="comment">// todo: implement error codes for snarkvm errors.
-<a href=#126 id=126 data-nosnippet>126</a>            </span>InterpreterHalt(<span class="kw">_</span>) =&gt; <span class="string">"Interpreter Halt"</span>.to_string(),
-<a href=#127 id=127 data-nosnippet>127</a>        }
-<a href=#128 id=128 data-nosnippet>128</a>    }
-<a href=#129 id=129 data-nosnippet>129</a>
-<a href=#130 id=130 data-nosnippet>130</a>    <span class="doccomment">/// Implement exit code for each type of Error.
-<a href=#131 id=131 data-nosnippet>131</a>    </span><span class="kw">pub fn </span>exit_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
-<a href=#132 id=132 data-nosnippet>132</a>        <span class="kw">use </span>LeoError::<span class="kw-2">*</span>;
-<a href=#133 id=133 data-nosnippet>133</a>
-<a href=#134 id=134 data-nosnippet>134</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#135 id=135 data-nosnippet>135</a>            AstError(error) =&gt; error.exit_code(),
-<a href=#136 id=136 data-nosnippet>136</a>            CompilerError(error) =&gt; error.exit_code(),
-<a href=#137 id=137 data-nosnippet>137</a>            CliError(error) =&gt; error.exit_code(),
-<a href=#138 id=138 data-nosnippet>138</a>            ParserError(error) =&gt; error.exit_code(),
-<a href=#139 id=139 data-nosnippet>139</a>            PackageError(error) =&gt; error.exit_code(),
-<a href=#140 id=140 data-nosnippet>140</a>            StaticAnalyzerError(error) =&gt; error.exit_code(),
-<a href=#141 id=141 data-nosnippet>141</a>            TypeCheckerError(error) =&gt; error.exit_code(),
-<a href=#142 id=142 data-nosnippet>142</a>            LoopUnrollerError(error) =&gt; error.exit_code(),
-<a href=#143 id=143 data-nosnippet>143</a>            FlattenError(error) =&gt; error.exit_code(),
-<a href=#144 id=144 data-nosnippet>144</a>            UtilError(error) =&gt; error.exit_code(),
-<a href=#145 id=145 data-nosnippet>145</a>            LastErrorCode(code) =&gt; <span class="kw-2">*</span>code,
-<a href=#146 id=146 data-nosnippet>146</a>            Anyhow(<span class="kw">_</span>) =&gt; <span class="number">11000</span>, <span class="comment">// todo: implement exit codes for snarkvm errors.
-<a href=#147 id=147 data-nosnippet>147</a>            </span>InterpreterHalt(<span class="kw">_</span>) =&gt; <span class="number">1</span>,
-<a href=#148 id=148 data-nosnippet>148</a>        }
-<a href=#149 id=149 data-nosnippet>149</a>    }
-<a href=#150 id=150 data-nosnippet>150</a>}
-<a href=#151 id=151 data-nosnippet>151</a>
-<a href=#152 id=152 data-nosnippet>152</a><span class="doccomment">/// The LeoWarning type that contains all sub warning types.
-<a href=#153 id=153 data-nosnippet>153</a>/// This allows a unified warning type throughout the Leo crates.
-<a href=#154 id=154 data-nosnippet>154</a></span><span class="attr">#[derive(Debug, Error, Hash, PartialEq, Eq)]
-<a href=#155 id=155 data-nosnippet>155</a></span><span class="kw">pub enum </span>LeoWarning {
-<a href=#156 id=156 data-nosnippet>156</a>    <span class="doccomment">/// Represents an Parser Warning in a Leo Warning.
-<a href=#157 id=157 data-nosnippet>157</a>    </span><span class="attr">#[error(transparent)]
-<a href=#158 id=158 data-nosnippet>158</a>    </span>ParserWarning(<span class="attr">#[from] </span>ParserWarning),
-<a href=#159 id=159 data-nosnippet>159</a>    <span class="doccomment">/// Represents a Static Analyzer Warning in a Leo Warning.
-<a href=#160 id=160 data-nosnippet>160</a>    </span><span class="attr">#[error(transparent)]
-<a href=#161 id=161 data-nosnippet>161</a>    </span>StaticAnalyzerWarning(<span class="attr">#[from] </span>StaticAnalyzerWarning),
-<a href=#162 id=162 data-nosnippet>162</a>    <span class="doccomment">/// Represents a Type Checker Warning in a Leo Warning.
-<a href=#163 id=163 data-nosnippet>163</a>    </span><span class="attr">#[error(transparent)]
-<a href=#164 id=164 data-nosnippet>164</a>    </span>TypeCheckerWarning(<span class="attr">#[from] </span>TypeCheckerWarning),
-<a href=#165 id=165 data-nosnippet>165</a>}
-<a href=#166 id=166 data-nosnippet>166</a>
-<a href=#167 id=167 data-nosnippet>167</a><span class="kw">impl </span>LeoWarning {
-<a href=#168 id=168 data-nosnippet>168</a>    <span class="doccomment">/// Implement warning code for each type of Warning.
-<a href=#169 id=169 data-nosnippet>169</a>    </span><span class="kw">pub fn </span>error_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-<a href=#170 id=170 data-nosnippet>170</a>        <span class="kw">use </span>LeoWarning::<span class="kw-2">*</span>;
-<a href=#171 id=171 data-nosnippet>171</a>
-<a href=#172 id=172 data-nosnippet>172</a>        <span class="kw">match </span><span class="self">self </span>{
-<a href=#173 id=173 data-nosnippet>173</a>            ParserWarning(warning) =&gt; warning.warning_code(),
-<a href=#174 id=174 data-nosnippet>174</a>            TypeCheckerWarning(warning) =&gt; warning.warning_code(),
-<a href=#175 id=175 data-nosnippet>175</a>            StaticAnalyzerWarning(warning) =&gt; warning.warning_code(),
-<a href=#176 id=176 data-nosnippet>176</a>        }
-<a href=#177 id=177 data-nosnippet>177</a>    }
-<a href=#178 id=178 data-nosnippet>178</a>}
-<a href=#179 id=179 data-nosnippet>179</a>
-<a href=#180 id=180 data-nosnippet>180</a><span class="doccomment">/// A global result type for all Leo crates, that defaults the errors to be a LeoError.
-<a href=#181 id=181 data-nosnippet>181</a></span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T, E = LeoError&gt; = core::result::Result&lt;T, E&gt;;</code></pre></div></section></main></body></html>
+<a href=#102 id=102 data-nosnippet>102</a>    </span>FlattenError(<span class="attr">#[from] </span>FlattenError),
+<a href=#103 id=103 data-nosnippet>103</a>    <span class="doccomment">/// Purely for just exiting with the correct status code and
+<a href=#104 id=104 data-nosnippet>104</a>    /// not re-displaying an error.
+<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="attr">#[error(<span class="string">""</span>)]
+<a href=#106 id=106 data-nosnippet>106</a>    </span>LastErrorCode(i32),
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="doccomment">/// Represents a Utils Error in a Leo Error.
+<a href=#108 id=108 data-nosnippet>108</a>    </span><span class="attr">#[error(transparent)]
+<a href=#109 id=109 data-nosnippet>109</a>    </span>UtilError(<span class="attr">#[from] </span>UtilError),
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="doccomment">/// Anyhow errors.
+<a href=#111 id=111 data-nosnippet>111</a>    </span><span class="attr">#[error(transparent)]
+<a href=#112 id=112 data-nosnippet>112</a>    </span>Anyhow(<span class="attr">#[from] </span>anyhow::Error),
+<a href=#113 id=113 data-nosnippet>113</a>}
+<a href=#114 id=114 data-nosnippet>114</a>
+<a href=#115 id=115 data-nosnippet>115</a><span class="kw">impl </span>LeoError {
+<a href=#116 id=116 data-nosnippet>116</a>    <span class="doccomment">/// Implement error code for each type of Error.
+<a href=#117 id=117 data-nosnippet>117</a>    </span><span class="kw">pub fn </span>error_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+<a href=#118 id=118 data-nosnippet>118</a>        <span class="kw">use </span>LeoError::<span class="kw-2">*</span>;
+<a href=#119 id=119 data-nosnippet>119</a>
+<a href=#120 id=120 data-nosnippet>120</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#121 id=121 data-nosnippet>121</a>            AstError(error) =&gt; error.error_code(),
+<a href=#122 id=122 data-nosnippet>122</a>            CompilerError(error) =&gt; error.error_code(),
+<a href=#123 id=123 data-nosnippet>123</a>            CliError(error) =&gt; error.error_code(),
+<a href=#124 id=124 data-nosnippet>124</a>            ParserError(error) =&gt; error.error_code(),
+<a href=#125 id=125 data-nosnippet>125</a>            PackageError(error) =&gt; error.error_code(),
+<a href=#126 id=126 data-nosnippet>126</a>            StaticAnalyzerError(error) =&gt; error.error_code(),
+<a href=#127 id=127 data-nosnippet>127</a>            TypeCheckerError(error) =&gt; error.error_code(),
+<a href=#128 id=128 data-nosnippet>128</a>            NameValidationError(error) =&gt; error.error_code(),
+<a href=#129 id=129 data-nosnippet>129</a>            LoopUnrollerError(error) =&gt; error.error_code(),
+<a href=#130 id=130 data-nosnippet>130</a>            FlattenError(error) =&gt; error.error_code(),
+<a href=#131 id=131 data-nosnippet>131</a>            UtilError(error) =&gt; error.error_code(),
+<a href=#132 id=132 data-nosnippet>132</a>            LastErrorCode(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+<a href=#133 id=133 data-nosnippet>133</a>            Anyhow(<span class="kw">_</span>) =&gt; <span class="string">"SnarkVM Error"</span>.to_string(), <span class="comment">// todo: implement error codes for snarkvm errors.
+<a href=#134 id=134 data-nosnippet>134</a>            </span>InterpreterHalt(<span class="kw">_</span>) =&gt; <span class="string">"Interpreter Halt"</span>.to_string(),
+<a href=#135 id=135 data-nosnippet>135</a>        }
+<a href=#136 id=136 data-nosnippet>136</a>    }
+<a href=#137 id=137 data-nosnippet>137</a>
+<a href=#138 id=138 data-nosnippet>138</a>    <span class="doccomment">/// Implement exit code for each type of Error.
+<a href=#139 id=139 data-nosnippet>139</a>    </span><span class="kw">pub fn </span>exit_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="kw">use </span>LeoError::<span class="kw-2">*</span>;
+<a href=#141 id=141 data-nosnippet>141</a>
+<a href=#142 id=142 data-nosnippet>142</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#143 id=143 data-nosnippet>143</a>            AstError(error) =&gt; error.exit_code(),
+<a href=#144 id=144 data-nosnippet>144</a>            CompilerError(error) =&gt; error.exit_code(),
+<a href=#145 id=145 data-nosnippet>145</a>            CliError(error) =&gt; error.exit_code(),
+<a href=#146 id=146 data-nosnippet>146</a>            ParserError(error) =&gt; error.exit_code(),
+<a href=#147 id=147 data-nosnippet>147</a>            PackageError(error) =&gt; error.exit_code(),
+<a href=#148 id=148 data-nosnippet>148</a>            StaticAnalyzerError(error) =&gt; error.exit_code(),
+<a href=#149 id=149 data-nosnippet>149</a>            TypeCheckerError(error) =&gt; error.exit_code(),
+<a href=#150 id=150 data-nosnippet>150</a>            NameValidationError(error) =&gt; error.exit_code(),
+<a href=#151 id=151 data-nosnippet>151</a>            LoopUnrollerError(error) =&gt; error.exit_code(),
+<a href=#152 id=152 data-nosnippet>152</a>            FlattenError(error) =&gt; error.exit_code(),
+<a href=#153 id=153 data-nosnippet>153</a>            UtilError(error) =&gt; error.exit_code(),
+<a href=#154 id=154 data-nosnippet>154</a>            LastErrorCode(code) =&gt; <span class="kw-2">*</span>code,
+<a href=#155 id=155 data-nosnippet>155</a>            Anyhow(<span class="kw">_</span>) =&gt; <span class="number">11000</span>, <span class="comment">// todo: implement exit codes for snarkvm errors.
+<a href=#156 id=156 data-nosnippet>156</a>            </span>InterpreterHalt(<span class="kw">_</span>) =&gt; <span class="number">1</span>,
+<a href=#157 id=157 data-nosnippet>157</a>        }
+<a href=#158 id=158 data-nosnippet>158</a>    }
+<a href=#159 id=159 data-nosnippet>159</a>}
+<a href=#160 id=160 data-nosnippet>160</a>
+<a href=#161 id=161 data-nosnippet>161</a><span class="doccomment">/// The LeoWarning type that contains all sub warning types.
+<a href=#162 id=162 data-nosnippet>162</a>/// This allows a unified warning type throughout the Leo crates.
+<a href=#163 id=163 data-nosnippet>163</a></span><span class="attr">#[derive(Debug, Error, Hash, PartialEq, Eq)]
+<a href=#164 id=164 data-nosnippet>164</a></span><span class="kw">pub enum </span>LeoWarning {
+<a href=#165 id=165 data-nosnippet>165</a>    <span class="doccomment">/// Represents an Parser Warning in a Leo Warning.
+<a href=#166 id=166 data-nosnippet>166</a>    </span><span class="attr">#[error(transparent)]
+<a href=#167 id=167 data-nosnippet>167</a>    </span>ParserWarning(<span class="attr">#[from] </span>ParserWarning),
+<a href=#168 id=168 data-nosnippet>168</a>    <span class="doccomment">/// Represents a Static Analyzer Warning in a Leo Warning.
+<a href=#169 id=169 data-nosnippet>169</a>    </span><span class="attr">#[error(transparent)]
+<a href=#170 id=170 data-nosnippet>170</a>    </span>StaticAnalyzerWarning(<span class="attr">#[from] </span>StaticAnalyzerWarning),
+<a href=#171 id=171 data-nosnippet>171</a>    <span class="doccomment">/// Represents a Type Checker Warning in a Leo Warning.
+<a href=#172 id=172 data-nosnippet>172</a>    </span><span class="attr">#[error(transparent)]
+<a href=#173 id=173 data-nosnippet>173</a>    </span>TypeCheckerWarning(<span class="attr">#[from] </span>TypeCheckerWarning),
+<a href=#174 id=174 data-nosnippet>174</a>}
+<a href=#175 id=175 data-nosnippet>175</a>
+<a href=#176 id=176 data-nosnippet>176</a><span class="kw">impl </span>LeoWarning {
+<a href=#177 id=177 data-nosnippet>177</a>    <span class="doccomment">/// Implement warning code for each type of Warning.
+<a href=#178 id=178 data-nosnippet>178</a>    </span><span class="kw">pub fn </span>error_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+<a href=#179 id=179 data-nosnippet>179</a>        <span class="kw">use </span>LeoWarning::<span class="kw-2">*</span>;
+<a href=#180 id=180 data-nosnippet>180</a>
+<a href=#181 id=181 data-nosnippet>181</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#182 id=182 data-nosnippet>182</a>            ParserWarning(warning) =&gt; warning.warning_code(),
+<a href=#183 id=183 data-nosnippet>183</a>            TypeCheckerWarning(warning) =&gt; warning.warning_code(),
+<a href=#184 id=184 data-nosnippet>184</a>            StaticAnalyzerWarning(warning) =&gt; warning.warning_code(),
+<a href=#185 id=185 data-nosnippet>185</a>        }
+<a href=#186 id=186 data-nosnippet>186</a>    }
+<a href=#187 id=187 data-nosnippet>187</a>}
+<a href=#188 id=188 data-nosnippet>188</a>
+<a href=#189 id=189 data-nosnippet>189</a><span class="doccomment">/// A global result type for all Leo crates, that defaults the errors to be a LeoError.
+<a href=#190 id=190 data-nosnippet>190</a></span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T, E = LeoError&gt; = core::result::Result&lt;T, E&gt;;</code></pre></div></section></main></body></html>

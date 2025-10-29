@@ -1049,312 +1049,313 @@
 <a href=#1049 id=1049 data-nosnippet>1049</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record types and tuples containing them may not be assigned to."</span>.to_string()),
 <a href=#1050 id=1050 data-nosnippet>1050</a>    }
 <a href=#1051 id=1051 data-nosnippet>1051</a>
-<a href=#1052 id=1052 data-nosnippet>1052</a>    @formatted
-<a href=#1053 id=1053 data-nosnippet>1053</a>    illegal_name {
-<a href=#1054 id=1054 data-nosnippet>1054</a>        args: (item_name: <span class="kw">impl </span>Display, item_type: <span class="kw">impl </span>Display, keyword: <span class="kw">impl </span>Display),
-<a href=#1055 id=1055 data-nosnippet>1055</a>        msg: <span class="macro">format!</span>(<span class="string">"`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."</span>),
-<a href=#1056 id=1056 data-nosnippet>1056</a>        help: <span class="prelude-val">None</span>,
-<a href=#1057 id=1057 data-nosnippet>1057</a>    }
-<a href=#1058 id=1058 data-nosnippet>1058</a>
-<a href=#1059 id=1059 data-nosnippet>1059</a>    @formatted
-<a href=#1060 id=1060 data-nosnippet>1060</a>    record_prefixed_by_other_record {
-<a href=#1061 id=1061 data-nosnippet>1061</a>        args: (r1: <span class="kw">impl </span>Display, r2: <span class="kw">impl </span>Display),
-<a href=#1062 id=1062 data-nosnippet>1062</a>        msg: <span class="macro">format!</span>(<span class="string">"Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."</span>),
-<a href=#1063 id=1063 data-nosnippet>1063</a>        help: <span class="prelude-val">None</span>,
-<a href=#1064 id=1064 data-nosnippet>1064</a>    }
-<a href=#1065 id=1065 data-nosnippet>1065</a>
-<a href=#1066 id=1066 data-nosnippet>1066</a>    @formatted
-<a href=#1067 id=1067 data-nosnippet>1067</a>    range_bounds_type_mismatch {
-<a href=#1068 id=1068 data-nosnippet>1068</a>        args: (),
-<a href=#1069 id=1069 data-nosnippet>1069</a>        msg: <span class="macro">format!</span>(<span class="string">"mismatched types in loop iterator range bounds"</span>),
-<a href=#1070 id=1070 data-nosnippet>1070</a>        help: <span class="prelude-val">None</span>,
-<a href=#1071 id=1071 data-nosnippet>1071</a>    }
-<a href=#1072 id=1072 data-nosnippet>1072</a>
-<a href=#1073 id=1073 data-nosnippet>1073</a>    @formatted
-<a href=#1074 id=1074 data-nosnippet>1074</a>    assignment_to_external_record_member {
-<a href=#1075 id=1075 data-nosnippet>1075</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1076 id=1076 data-nosnippet>1076</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to a member of the external record `{ty}`."</span>),
-<a href=#1077 id=1077 data-nosnippet>1077</a>        help: <span class="prelude-val">None</span>,
-<a href=#1078 id=1078 data-nosnippet>1078</a>    }
-<a href=#1079 id=1079 data-nosnippet>1079</a>
-<a href=#1080 id=1080 data-nosnippet>1080</a>    @formatted
-<a href=#1081 id=1081 data-nosnippet>1081</a>    assignment_to_external_record_cond {
-<a href=#1082 id=1082 data-nosnippet>1082</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1083 id=1083 data-nosnippet>1083</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the external record type `{ty}` in this location."</span>),
-<a href=#1084 id=1084 data-nosnippet>1084</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record variables may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
-<a href=#1085 id=1085 data-nosnippet>1085</a>    }
-<a href=#1086 id=1086 data-nosnippet>1086</a>
-<a href=#1087 id=1087 data-nosnippet>1087</a>    @formatted
-<a href=#1088 id=1088 data-nosnippet>1088</a>    assignment_to_external_record_tuple_cond {
-<a href=#1089 id=1089 data-nosnippet>1089</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1090 id=1090 data-nosnippet>1090</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the tuple type `{ty}` containing an external record in this location."</span>),
-<a href=#1091 id=1091 data-nosnippet>1091</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
-<a href=#1092 id=1092 data-nosnippet>1092</a>    }
-<a href=#1093 id=1093 data-nosnippet>1093</a>
-<a href=#1094 id=1094 data-nosnippet>1094</a>    @formatted
-<a href=#1095 id=1095 data-nosnippet>1095</a>    hexbin_literal_nonintegers {
-<a href=#1096 id=1096 data-nosnippet>1096</a>        args: (),
-<a href=#1097 id=1097 data-nosnippet>1097</a>        msg: <span class="macro">format!</span>(<span class="string">"Hex, octal, and binary literals may only be used for integer types."</span>),
-<a href=#1098 id=1098 data-nosnippet>1098</a>        help: <span class="prelude-val">None</span>,
-<a href=#1099 id=1099 data-nosnippet>1099</a>    }
-<a href=#1100 id=1100 data-nosnippet>1100</a>
-<a href=#1101 id=1101 data-nosnippet>1101</a>    @formatted
-<a href=#1102 id=1102 data-nosnippet>1102</a>    unexpected_unsuffixed_numeral {
-<a href=#1103 id=1103 data-nosnippet>1103</a>        args: (expected: <span class="kw">impl </span>Display),
-<a href=#1104 id=1104 data-nosnippet>1104</a>        msg: <span class="macro">format!</span>(
-<a href=#1105 id=1105 data-nosnippet>1105</a>            <span class="string">"Expected {expected} but an unsuffixed numeral was found."</span>,
-<a href=#1106 id=1106 data-nosnippet>1106</a>        ),
-<a href=#1107 id=1107 data-nosnippet>1107</a>        help: <span class="prelude-val">None</span>,
-<a href=#1108 id=1108 data-nosnippet>1108</a>    }
-<a href=#1109 id=1109 data-nosnippet>1109</a>
-<a href=#1110 id=1110 data-nosnippet>1110</a>    @formatted
-<a href=#1111 id=1111 data-nosnippet>1111</a>    incorrect_num_const_args {
-<a href=#1112 id=1112 data-nosnippet>1112</a>        args: (kind: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
-<a href=#1113 id=1113 data-nosnippet>1113</a>        msg: <span class="macro">format!</span>(
-<a href=#1114 id=1114 data-nosnippet>1114</a>            <span class="string">"{kind} expected `{expected}` const args, but got `{received}`"</span>,
-<a href=#1115 id=1115 data-nosnippet>1115</a>        ),
-<a href=#1116 id=1116 data-nosnippet>1116</a>        help: <span class="prelude-val">None</span>,
-<a href=#1117 id=1117 data-nosnippet>1117</a>    }
-<a href=#1118 id=1118 data-nosnippet>1118</a>
-<a href=#1119 id=1119 data-nosnippet>1119</a>    @formatted
-<a href=#1120 id=1120 data-nosnippet>1120</a>    bad_const_generic_type {
-<a href=#1121 id=1121 data-nosnippet>1121</a>        args: (found: <span class="kw">impl </span>Display),
-<a href=#1122 id=1122 data-nosnippet>1122</a>        msg: <span class="macro">format!</span>(<span class="string">"A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but {found} was found"</span>),
-<a href=#1123 id=1123 data-nosnippet>1123</a>        help: <span class="prelude-val">None</span>,
-<a href=#1124 id=1124 data-nosnippet>1124</a>    }
-<a href=#1125 id=1125 data-nosnippet>1125</a>
-<a href=#1126 id=1126 data-nosnippet>1126</a>    <span class="doccomment">/// For when the user tries to assign to a generic const function parameter.
-<a href=#1127 id=1127 data-nosnippet>1127</a>    </span>@formatted
-<a href=#1128 id=1128 data-nosnippet>1128</a>    cannot_assign_to_generic_const_function_parameter {
-<a href=#1129 id=1129 data-nosnippet>1129</a>        args: (param: <span class="kw">impl </span>Display),
-<a href=#1130 id=1130 data-nosnippet>1130</a>        msg: <span class="macro">format!</span>(
-<a href=#1131 id=1131 data-nosnippet>1131</a>            <span class="string">"Cannot assign to const parameter `{param}`"</span>,
-<a href=#1132 id=1132 data-nosnippet>1132</a>        ),
-<a href=#1133 id=1133 data-nosnippet>1133</a>        help: <span class="prelude-val">None</span>,
-<a href=#1134 id=1134 data-nosnippet>1134</a>    }
-<a href=#1135 id=1135 data-nosnippet>1135</a>
-<a href=#1136 id=1136 data-nosnippet>1136</a>    @formatted
-<a href=#1137 id=1137 data-nosnippet>1137</a>    only_inline_can_have_const_generics {
-<a href=#1138 id=1138 data-nosnippet>1138</a>        args: (),
-<a href=#1139 id=1139 data-nosnippet>1139</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `inline` functions can have generic const parameters."</span>),
-<a href=#1140 id=1140 data-nosnippet>1140</a>        help: <span class="prelude-val">None</span>,
-<a href=#1141 id=1141 data-nosnippet>1141</a>    }
-<a href=#1142 id=1142 data-nosnippet>1142</a>
-<a href=#1143 id=1143 data-nosnippet>1143</a>    @formatted
-<a href=#1144 id=1144 data-nosnippet>1144</a>    array_too_large_for_u32 {
-<a href=#1145 id=1145 data-nosnippet>1145</a>        args: (),
-<a href=#1146 id=1146 data-nosnippet>1146</a>        msg: <span class="macro">format!</span>(<span class="string">"An array length must be small enough to fit in a `u32`"</span>),
-<a href=#1147 id=1147 data-nosnippet>1147</a>        help: <span class="prelude-val">None</span>,
-<a href=#1148 id=1148 data-nosnippet>1148</a>    }
-<a href=#1149 id=1149 data-nosnippet>1149</a>
-<a href=#1150 id=1150 data-nosnippet>1150</a>    @formatted
-<a href=#1151 id=1151 data-nosnippet>1151</a>    unexpected_record_const_parameters {
-<a href=#1152 id=1152 data-nosnippet>1152</a>        args: (),
-<a href=#1153 id=1153 data-nosnippet>1153</a>        msg: <span class="macro">format!</span>(<span class="string">"Records cannot be declared with generic const parameters."</span>),
-<a href=#1154 id=1154 data-nosnippet>1154</a>        help: <span class="prelude-val">None</span>,
-<a href=#1155 id=1155 data-nosnippet>1155</a>    }
-<a href=#1156 id=1156 data-nosnippet>1156</a>
-<a href=#1157 id=1157 data-nosnippet>1157</a>    @formatted
-<a href=#1158 id=1158 data-nosnippet>1158</a>    unexpected_const_args {
-<a href=#1159 id=1159 data-nosnippet>1159</a>        args: (item: <span class="kw">impl </span>Display),
-<a href=#1160 id=1160 data-nosnippet>1160</a>        msg: <span class="macro">format!</span>(<span class="string">"unexpected generic const argment for {item}."</span>),
-<a href=#1161 id=1161 data-nosnippet>1161</a>        help: <span class="prelude-val">Some</span>(<span class="string">"If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments"</span>.to_string()),
-<a href=#1162 id=1162 data-nosnippet>1162</a>    }
-<a href=#1163 id=1163 data-nosnippet>1163</a>
-<a href=#1164 id=1164 data-nosnippet>1164</a>    @formatted
-<a href=#1165 id=1165 data-nosnippet>1165</a>    invalid_operation_inside_async_block {
-<a href=#1166 id=1166 data-nosnippet>1166</a>        args: (operation: <span class="kw">impl </span>Display),
-<a href=#1167 id=1167 data-nosnippet>1167</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid expression in an async block. `{operation}` cannot be used directly here"</span>),
-<a href=#1168 id=1168 data-nosnippet>1168</a>        help: <span class="prelude-val">None</span>,
-<a href=#1169 id=1169 data-nosnippet>1169</a>    }
-<a href=#1170 id=1170 data-nosnippet>1170</a>
-<a href=#1171 id=1171 data-nosnippet>1171</a>    @formatted
-<a href=#1172 id=1172 data-nosnippet>1172</a>    illegal_async_block_location {
-<a href=#1173 id=1173 data-nosnippet>1173</a>        args: (),
-<a href=#1174 id=1174 data-nosnippet>1174</a>        msg: <span class="string">"`async` blocks are only allowed inside an `async` transition or a script function."</span>.to_string(),
-<a href=#1175 id=1175 data-nosnippet>1175</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Try moving this `async` block into an `async` transition or a script function."</span>.to_string()),
-<a href=#1176 id=1176 data-nosnippet>1176</a>    }
-<a href=#1177 id=1177 data-nosnippet>1177</a>
-<a href=#1178 id=1178 data-nosnippet>1178</a>    @formatted
-<a href=#1179 id=1179 data-nosnippet>1179</a>    conflicting_async_call_and_block {
-<a href=#1180 id=1180 data-nosnippet>1180</a>        args: (),
-<a href=#1181 id=1181 data-nosnippet>1181</a>        msg: <span class="string">"A transition function cannot contain both an `async` function call and an `async` block at the same time."</span>.to_string(),
-<a href=#1182 id=1182 data-nosnippet>1182</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Refactor the transition to use either an `async` call or an `async` block, but not both."</span>.to_string()),
-<a href=#1183 id=1183 data-nosnippet>1183</a>    }
-<a href=#1184 id=1184 data-nosnippet>1184</a>
-<a href=#1185 id=1185 data-nosnippet>1185</a>    @formatted
-<a href=#1186 id=1186 data-nosnippet>1186</a>    multiple_async_blocks_not_allowed {
-<a href=#1187 id=1187 data-nosnippet>1187</a>        args: (),
-<a href=#1188 id=1188 data-nosnippet>1188</a>        msg: <span class="string">"A transition function cannot contain more than one `async` block."</span>.to_string(),
-<a href=#1189 id=1189 data-nosnippet>1189</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition."</span>.to_string()),
-<a href=#1190 id=1190 data-nosnippet>1190</a>    }
-<a href=#1191 id=1191 data-nosnippet>1191</a>
-<a href=#1192 id=1192 data-nosnippet>1192</a>    @formatted
-<a href=#1193 id=1193 data-nosnippet>1193</a>    async_block_in_conditional {
-<a href=#1194 id=1194 data-nosnippet>1194</a>        args: (),
-<a href=#1195 id=1195 data-nosnippet>1195</a>        msg: <span class="string">"`async` blocks are not allowed inside conditional blocks."</span>.to_string(),
-<a href=#1196 id=1196 data-nosnippet>1196</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Refactor your code to move the `async` block outside of the conditional block."</span>.to_string()),
-<a href=#1197 id=1197 data-nosnippet>1197</a>    }
-<a href=#1198 id=1198 data-nosnippet>1198</a>
-<a href=#1199 id=1199 data-nosnippet>1199</a>    @formatted
-<a href=#1200 id=1200 data-nosnippet>1200</a>    cannot_use_private_inpt_in_async_block {
-<a href=#1201 id=1201 data-nosnippet>1201</a>        args: (),
-<a href=#1202 id=1202 data-nosnippet>1202</a>        msg: <span class="macro">format!</span>(<span class="string">"`private` inputs cannot be used inside async blocks."</span>),
-<a href=#1203 id=1203 data-nosnippet>1203</a>        help: <span class="prelude-val">None</span>,
-<a href=#1204 id=1204 data-nosnippet>1204</a>    }
-<a href=#1205 id=1205 data-nosnippet>1205</a>
-<a href=#1206 id=1206 data-nosnippet>1206</a>    @formatted
-<a href=#1207 id=1207 data-nosnippet>1207</a>    async_block_cannot_return {
-<a href=#1208 id=1208 data-nosnippet>1208</a>        args: (),
-<a href=#1209 id=1209 data-nosnippet>1209</a>        msg: <span class="string">"An `async` block cannot contain a `return` statement."</span>.to_string(),
-<a href=#1210 id=1210 data-nosnippet>1210</a>        help: <span class="prelude-val">None</span>,
-<a href=#1211 id=1211 data-nosnippet>1211</a>    }
-<a href=#1212 id=1212 data-nosnippet>1212</a>
-<a href=#1213 id=1213 data-nosnippet>1213</a>    @formatted
-<a href=#1214 id=1214 data-nosnippet>1214</a>    invalid_async_block_future_access {
-<a href=#1215 id=1215 data-nosnippet>1215</a>        args: (),
-<a href=#1216 id=1216 data-nosnippet>1216</a>        msg: <span class="macro">format!</span>(
-<a href=#1217 id=1217 data-nosnippet>1217</a>            <span class="string">"Cannot access argument from future produced by an `async` block."
-<a href=#1218 id=1218 data-nosnippet>1218</a>        </span>),
-<a href=#1219 id=1219 data-nosnippet>1219</a>        help: <span class="prelude-val">None</span>,
-<a href=#1220 id=1220 data-nosnippet>1220</a>    }
-<a href=#1221 id=1221 data-nosnippet>1221</a>
-<a href=#1222 id=1222 data-nosnippet>1222</a>    @formatted
-<a href=#1223 id=1223 data-nosnippet>1223</a>    cannot_assign_to_vars_outside_async_block {
-<a href=#1224 id=1224 data-nosnippet>1224</a>        args: (input: <span class="kw">impl </span>Display),
-<a href=#1225 id=1225 data-nosnippet>1225</a>        msg: <span class="macro">format!</span>(
-<a href=#1226 id=1226 data-nosnippet>1226</a>            <span class="string">"Cannot assign to `{input}` inside an `async` block because it was declared outside the block."
-<a href=#1227 id=1227 data-nosnippet>1227</a>        </span>),
-<a href=#1228 id=1228 data-nosnippet>1228</a>        help: <span class="prelude-val">None</span>,
-<a href=#1229 id=1229 data-nosnippet>1229</a>    }
-<a href=#1230 id=1230 data-nosnippet>1230</a>
-<a href=#1231 id=1231 data-nosnippet>1231</a>    @formatted
-<a href=#1232 id=1232 data-nosnippet>1232</a>    custom {
-<a href=#1233 id=1233 data-nosnippet>1233</a>        args: (msg: <span class="kw">impl </span>Display),
-<a href=#1234 id=1234 data-nosnippet>1234</a>        msg: msg.to_string(),
-<a href=#1235 id=1235 data-nosnippet>1235</a>        help: <span class="prelude-val">None</span>,
-<a href=#1236 id=1236 data-nosnippet>1236</a>    }
-<a href=#1237 id=1237 data-nosnippet>1237</a>
-<a href=#1238 id=1238 data-nosnippet>1238</a>    @formatted
-<a href=#1239 id=1239 data-nosnippet>1239</a>    constructor_can_only_return_unit {
-<a href=#1240 id=1240 data-nosnippet>1240</a>        args: (expression: <span class="kw">impl </span>Display),
-<a href=#1241 id=1241 data-nosnippet>1241</a>        msg: <span class="macro">format!</span>(<span class="string">"Constructors can only return unit, but found `{expression}`."</span>),
-<a href=#1242 id=1242 data-nosnippet>1242</a>        help: <span class="prelude-val">None</span>,
-<a href=#1243 id=1243 data-nosnippet>1243</a>    }
-<a href=#1244 id=1244 data-nosnippet>1244</a>
-<a href=#1245 id=1245 data-nosnippet>1245</a>    @formatted
-<a href=#1246 id=1246 data-nosnippet>1246</a>    none_found_non_optional {
-<a href=#1247 id=1247 data-nosnippet>1247</a>        args: (expected: <span class="kw">impl </span>Display),
-<a href=#1248 id=1248 data-nosnippet>1248</a>        msg: <span class="macro">format!</span>(
-<a href=#1249 id=1249 data-nosnippet>1249</a>            <span class="string">"Found `none`, but the expected type `{expected}` is not an optional type."</span>,
-<a href=#1250 id=1250 data-nosnippet>1250</a>        ),
-<a href=#1251 id=1251 data-nosnippet>1251</a>        help: <span class="prelude-val">None</span>,
-<a href=#1252 id=1252 data-nosnippet>1252</a>    }
-<a href=#1253 id=1253 data-nosnippet>1253</a>
-<a href=#1254 id=1254 data-nosnippet>1254</a>    @formatted
-<a href=#1255 id=1255 data-nosnippet>1255</a>    optional_wrapping_of_records_unsupported {
-<a href=#1256 id=1256 data-nosnippet>1256</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1257 id=1257 data-nosnippet>1257</a>        msg: <span class="macro">format!</span>(
-<a href=#1258 id=1258 data-nosnippet>1258</a>            <span class="string">"The type `{ty}` cannot be wrapped in an optional because it is a record."</span>,
-<a href=#1259 id=1259 data-nosnippet>1259</a>        ),
-<a href=#1260 id=1260 data-nosnippet>1260</a>        help: <span class="prelude-val">None</span>,
-<a href=#1261 id=1261 data-nosnippet>1261</a>    }
-<a href=#1262 id=1262 data-nosnippet>1262</a>
-<a href=#1263 id=1263 data-nosnippet>1263</a>    @formatted
-<a href=#1264 id=1264 data-nosnippet>1264</a>    optional_wrapping_unsupported {
-<a href=#1265 id=1265 data-nosnippet>1265</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1266 id=1266 data-nosnippet>1266</a>        msg: <span class="macro">format!</span>(
-<a href=#1267 id=1267 data-nosnippet>1267</a>            <span class="string">"The type `{ty}` cannot be wrapped in an optional."</span>,
-<a href=#1268 id=1268 data-nosnippet>1268</a>        ),
-<a href=#1269 id=1269 data-nosnippet>1269</a>        help: <span class="prelude-val">None</span>,
-<a href=#1270 id=1270 data-nosnippet>1270</a>    }
-<a href=#1271 id=1271 data-nosnippet>1271</a>
-<a href=#1272 id=1272 data-nosnippet>1272</a>    @formatted
-<a href=#1273 id=1273 data-nosnippet>1273</a>    optional_type_not_allowed_in_mapping {
-<a href=#1274 id=1274 data-nosnippet>1274</a>        args: (ty: <span class="kw">impl </span>Display, kind: <span class="kw">impl </span>Display),
-<a href=#1275 id=1275 data-nosnippet>1275</a>        msg: <span class="macro">format!</span>(
-<a href=#1276 id=1276 data-nosnippet>1276</a>            <span class="string">"The type `{ty}` is or contains an optional type which cannot be used as the {kind} in a mapping"</span>,
-<a href=#1277 id=1277 data-nosnippet>1277</a>        ),
-<a href=#1278 id=1278 data-nosnippet>1278</a>        help: <span class="prelude-val">None</span>,
-<a href=#1279 id=1279 data-nosnippet>1279</a>    }
-<a href=#1280 id=1280 data-nosnippet>1280</a>
-<a href=#1281 id=1281 data-nosnippet>1281</a>    @formatted
-<a href=#1282 id=1282 data-nosnippet>1282</a>    record_field_cannot_be_optional {
-<a href=#1283 id=1283 data-nosnippet>1283</a>        args: (name: <span class="kw">impl </span>Display, ty: <span class="kw">impl </span>Display),
-<a href=#1284 id=1284 data-nosnippet>1284</a>        msg: <span class="macro">format!</span>(
-<a href=#1285 id=1285 data-nosnippet>1285</a>            <span class="string">"The field `{name}` in this record has type `{ty}`, which is or contains an optional type."</span>,
-<a href=#1286 id=1286 data-nosnippet>1286</a>        ),
-<a href=#1287 id=1287 data-nosnippet>1287</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1288 id=1288 data-nosnippet>1288</a>            <span class="string">"Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record."</span>.to_string()
-<a href=#1289 id=1289 data-nosnippet>1289</a>        ),
-<a href=#1290 id=1290 data-nosnippet>1290</a>    }
-<a href=#1291 id=1291 data-nosnippet>1291</a>
-<a href=#1292 id=1292 data-nosnippet>1292</a>    @formatted
-<a href=#1293 id=1293 data-nosnippet>1293</a>    const_cannot_be_optional {
-<a href=#1294 id=1294 data-nosnippet>1294</a>        args: (),
-<a href=#1295 id=1295 data-nosnippet>1295</a>        msg: <span class="macro">format!</span>(
-<a href=#1296 id=1296 data-nosnippet>1296</a>            <span class="string">"Constants cannot have an optional type or a type that contains an optional"</span>,
-<a href=#1297 id=1297 data-nosnippet>1297</a>        ),
-<a href=#1298 id=1298 data-nosnippet>1298</a>        help: <span class="prelude-val">None</span>,
-<a href=#1299 id=1299 data-nosnippet>1299</a>    }
-<a href=#1300 id=1300 data-nosnippet>1300</a>
-<a href=#1301 id=1301 data-nosnippet>1301</a>    @formatted
-<a href=#1302 id=1302 data-nosnippet>1302</a>    function_cannot_take_option_as_input {
-<a href=#1303 id=1303 data-nosnippet>1303</a>        args: (name: <span class="kw">impl </span>Display, ty: <span class="kw">impl </span>Display),
-<a href=#1304 id=1304 data-nosnippet>1304</a>        msg: <span class="macro">format!</span>(
-<a href=#1305 id=1305 data-nosnippet>1305</a>            <span class="string">"The input `{name}` has type `{ty}`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`."</span>,
-<a href=#1306 id=1306 data-nosnippet>1306</a>        ),
-<a href=#1307 id=1307 data-nosnippet>1307</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1308 id=1308 data-nosnippet>1308</a>            <span class="string">"Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site."</span>.to_string()
-<a href=#1309 id=1309 data-nosnippet>1309</a>        ),
-<a href=#1310 id=1310 data-nosnippet>1310</a>    }
-<a href=#1311 id=1311 data-nosnippet>1311</a>
-<a href=#1312 id=1312 data-nosnippet>1312</a>    @formatted
-<a href=#1313 id=1313 data-nosnippet>1313</a>    function_cannot_return_option_as_output {
-<a href=#1314 id=1314 data-nosnippet>1314</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1315 id=1315 data-nosnippet>1315</a>        msg: <span class="macro">format!</span>(
-<a href=#1316 id=1316 data-nosnippet>1316</a>            <span class="string">"This function has an output of type `{ty}`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`."</span>,
-<a href=#1317 id=1317 data-nosnippet>1317</a>        ),
-<a href=#1318 id=1318 data-nosnippet>1318</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1319 id=1319 data-nosnippet>1319</a>            <span class="string">"Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call."</span>.to_string()
-<a href=#1320 id=1320 data-nosnippet>1320</a>        ),
-<a href=#1321 id=1321 data-nosnippet>1321</a>    }
-<a href=#1322 id=1322 data-nosnippet>1322</a>
-<a href=#1323 id=1323 data-nosnippet>1323</a>    @formatted
-<a href=#1324 id=1324 data-nosnippet>1324</a>    invalid_storage_type {
-<a href=#1325 id=1325 data-nosnippet>1325</a>        args: (type_: <span class="kw">impl </span>Display),
-<a href=#1326 id=1326 data-nosnippet>1326</a>        msg: <span class="macro">format!</span>(<span class="string">"{type_} is an invalid storage type"</span>),
-<a href=#1327 id=1327 data-nosnippet>1327</a>        help: <span class="prelude-val">None</span>,
-<a href=#1328 id=1328 data-nosnippet>1328</a>    }
-<a href=#1329 id=1329 data-nosnippet>1329</a>
-<a href=#1330 id=1330 data-nosnippet>1330</a>    @formatted
-<a href=#1331 id=1331 data-nosnippet>1331</a>    storage_vectors_cannot_be_moved_or_assigned {
-<a href=#1332 id=1332 data-nosnippet>1332</a>        args: (),
-<a href=#1333 id=1333 data-nosnippet>1333</a>        msg: <span class="macro">format!</span>(
-<a href=#1334 id=1334 data-nosnippet>1334</a>            <span class="string">"Storage vectors cannot be moved or assigned. You can only access or modify them using methods like `get`, `push`, or `pop`."
-<a href=#1335 id=1335 data-nosnippet>1335</a>        </span>),
-<a href=#1336 id=1336 data-nosnippet>1336</a>        help: <span class="prelude-val">None</span>,
-<a href=#1337 id=1337 data-nosnippet>1337</a>    }
-<a href=#1338 id=1338 data-nosnippet>1338</a>
-<a href=#1339 id=1339 data-nosnippet>1339</a>    @formatted
-<a href=#1340 id=1340 data-nosnippet>1340</a>    function_has_too_many_inputs {
-<a href=#1341 id=1341 data-nosnippet>1341</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
-<a href=#1342 id=1342 data-nosnippet>1342</a>        msg: <span class="macro">format!</span>(
-<a href=#1343 id=1343 data-nosnippet>1343</a>            <span class="string">"The {variant} `{name}` has {actual} input parameters, which exceeds the allowed limit of {limit}."</span>,
-<a href=#1344 id=1344 data-nosnippet>1344</a>        ),
-<a href=#1345 id=1345 data-nosnippet>1345</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1346 id=1346 data-nosnippet>1346</a>            <span class="string">"Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
-<a href=#1347 id=1347 data-nosnippet>1347</a>        ),
-<a href=#1348 id=1348 data-nosnippet>1348</a>    }
-<a href=#1349 id=1349 data-nosnippet>1349</a>
-<a href=#1350 id=1350 data-nosnippet>1350</a>    @formatted
-<a href=#1351 id=1351 data-nosnippet>1351</a>    function_has_too_many_outputs {
-<a href=#1352 id=1352 data-nosnippet>1352</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
-<a href=#1353 id=1353 data-nosnippet>1353</a>        msg: <span class="macro">format!</span>(
-<a href=#1354 id=1354 data-nosnippet>1354</a>            <span class="string">"The {variant} `{name}` has {actual} output parameters, which exceeds the allowed limit of {limit}."</span>,
-<a href=#1355 id=1355 data-nosnippet>1355</a>        ),
-<a href=#1356 id=1356 data-nosnippet>1356</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1357 id=1357 data-nosnippet>1357</a>            <span class="string">"Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
-<a href=#1358 id=1358 data-nosnippet>1358</a>        ),
-<a href=#1359 id=1359 data-nosnippet>1359</a>    }
-<a href=#1360 id=1360 data-nosnippet>1360</a>);</code></pre></div></section></main></body></html>
+<a href=#1052 id=1052 data-nosnippet>1052</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#1053 id=1053 data-nosnippet>1053</a>    </span>@formatted
+<a href=#1054 id=1054 data-nosnippet>1054</a>    illegal_name {
+<a href=#1055 id=1055 data-nosnippet>1055</a>        args: (item_name: <span class="kw">impl </span>Display, item_type: <span class="kw">impl </span>Display, keyword: <span class="kw">impl </span>Display),
+<a href=#1056 id=1056 data-nosnippet>1056</a>        msg: <span class="macro">format!</span>(<span class="string">"`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."</span>),
+<a href=#1057 id=1057 data-nosnippet>1057</a>        help: <span class="prelude-val">None</span>,
+<a href=#1058 id=1058 data-nosnippet>1058</a>    }
+<a href=#1059 id=1059 data-nosnippet>1059</a>
+<a href=#1060 id=1060 data-nosnippet>1060</a>    @formatted
+<a href=#1061 id=1061 data-nosnippet>1061</a>    record_prefixed_by_other_record {
+<a href=#1062 id=1062 data-nosnippet>1062</a>        args: (r1: <span class="kw">impl </span>Display, r2: <span class="kw">impl </span>Display),
+<a href=#1063 id=1063 data-nosnippet>1063</a>        msg: <span class="macro">format!</span>(<span class="string">"Record name `{r1}` is prefixed by the record name `{r2}`. Record names must not be prefixes of other record names."</span>),
+<a href=#1064 id=1064 data-nosnippet>1064</a>        help: <span class="prelude-val">None</span>,
+<a href=#1065 id=1065 data-nosnippet>1065</a>    }
+<a href=#1066 id=1066 data-nosnippet>1066</a>
+<a href=#1067 id=1067 data-nosnippet>1067</a>    @formatted
+<a href=#1068 id=1068 data-nosnippet>1068</a>    range_bounds_type_mismatch {
+<a href=#1069 id=1069 data-nosnippet>1069</a>        args: (),
+<a href=#1070 id=1070 data-nosnippet>1070</a>        msg: <span class="macro">format!</span>(<span class="string">"mismatched types in loop iterator range bounds"</span>),
+<a href=#1071 id=1071 data-nosnippet>1071</a>        help: <span class="prelude-val">None</span>,
+<a href=#1072 id=1072 data-nosnippet>1072</a>    }
+<a href=#1073 id=1073 data-nosnippet>1073</a>
+<a href=#1074 id=1074 data-nosnippet>1074</a>    @formatted
+<a href=#1075 id=1075 data-nosnippet>1075</a>    assignment_to_external_record_member {
+<a href=#1076 id=1076 data-nosnippet>1076</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1077 id=1077 data-nosnippet>1077</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to a member of the external record `{ty}`."</span>),
+<a href=#1078 id=1078 data-nosnippet>1078</a>        help: <span class="prelude-val">None</span>,
+<a href=#1079 id=1079 data-nosnippet>1079</a>    }
+<a href=#1080 id=1080 data-nosnippet>1080</a>
+<a href=#1081 id=1081 data-nosnippet>1081</a>    @formatted
+<a href=#1082 id=1082 data-nosnippet>1082</a>    assignment_to_external_record_cond {
+<a href=#1083 id=1083 data-nosnippet>1083</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1084 id=1084 data-nosnippet>1084</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the external record type `{ty}` in this location."</span>),
+<a href=#1085 id=1085 data-nosnippet>1085</a>        help: <span class="prelude-val">Some</span>(<span class="string">"External record variables may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
+<a href=#1086 id=1086 data-nosnippet>1086</a>    }
+<a href=#1087 id=1087 data-nosnippet>1087</a>
+<a href=#1088 id=1088 data-nosnippet>1088</a>    @formatted
+<a href=#1089 id=1089 data-nosnippet>1089</a>    assignment_to_external_record_tuple_cond {
+<a href=#1090 id=1090 data-nosnippet>1090</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1091 id=1091 data-nosnippet>1091</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot assign to the tuple type `{ty}` containing an external record in this location."</span>),
+<a href=#1092 id=1092 data-nosnippet>1092</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined."</span>.into()),
+<a href=#1093 id=1093 data-nosnippet>1093</a>    }
+<a href=#1094 id=1094 data-nosnippet>1094</a>
+<a href=#1095 id=1095 data-nosnippet>1095</a>    @formatted
+<a href=#1096 id=1096 data-nosnippet>1096</a>    hexbin_literal_nonintegers {
+<a href=#1097 id=1097 data-nosnippet>1097</a>        args: (),
+<a href=#1098 id=1098 data-nosnippet>1098</a>        msg: <span class="macro">format!</span>(<span class="string">"Hex, octal, and binary literals may only be used for integer types."</span>),
+<a href=#1099 id=1099 data-nosnippet>1099</a>        help: <span class="prelude-val">None</span>,
+<a href=#1100 id=1100 data-nosnippet>1100</a>    }
+<a href=#1101 id=1101 data-nosnippet>1101</a>
+<a href=#1102 id=1102 data-nosnippet>1102</a>    @formatted
+<a href=#1103 id=1103 data-nosnippet>1103</a>    unexpected_unsuffixed_numeral {
+<a href=#1104 id=1104 data-nosnippet>1104</a>        args: (expected: <span class="kw">impl </span>Display),
+<a href=#1105 id=1105 data-nosnippet>1105</a>        msg: <span class="macro">format!</span>(
+<a href=#1106 id=1106 data-nosnippet>1106</a>            <span class="string">"Expected {expected} but an unsuffixed numeral was found."</span>,
+<a href=#1107 id=1107 data-nosnippet>1107</a>        ),
+<a href=#1108 id=1108 data-nosnippet>1108</a>        help: <span class="prelude-val">None</span>,
+<a href=#1109 id=1109 data-nosnippet>1109</a>    }
+<a href=#1110 id=1110 data-nosnippet>1110</a>
+<a href=#1111 id=1111 data-nosnippet>1111</a>    @formatted
+<a href=#1112 id=1112 data-nosnippet>1112</a>    incorrect_num_const_args {
+<a href=#1113 id=1113 data-nosnippet>1113</a>        args: (kind: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+<a href=#1114 id=1114 data-nosnippet>1114</a>        msg: <span class="macro">format!</span>(
+<a href=#1115 id=1115 data-nosnippet>1115</a>            <span class="string">"{kind} expected `{expected}` const args, but got `{received}`"</span>,
+<a href=#1116 id=1116 data-nosnippet>1116</a>        ),
+<a href=#1117 id=1117 data-nosnippet>1117</a>        help: <span class="prelude-val">None</span>,
+<a href=#1118 id=1118 data-nosnippet>1118</a>    }
+<a href=#1119 id=1119 data-nosnippet>1119</a>
+<a href=#1120 id=1120 data-nosnippet>1120</a>    @formatted
+<a href=#1121 id=1121 data-nosnippet>1121</a>    bad_const_generic_type {
+<a href=#1122 id=1122 data-nosnippet>1122</a>        args: (found: <span class="kw">impl </span>Display),
+<a href=#1123 id=1123 data-nosnippet>1123</a>        msg: <span class="macro">format!</span>(<span class="string">"A generic const parameter must be a `bool`, an integer, a `scalar`, a `group`, a `field`, or an `address`, but {found} was found"</span>),
+<a href=#1124 id=1124 data-nosnippet>1124</a>        help: <span class="prelude-val">None</span>,
+<a href=#1125 id=1125 data-nosnippet>1125</a>    }
+<a href=#1126 id=1126 data-nosnippet>1126</a>
+<a href=#1127 id=1127 data-nosnippet>1127</a>    <span class="doccomment">/// For when the user tries to assign to a generic const function parameter.
+<a href=#1128 id=1128 data-nosnippet>1128</a>    </span>@formatted
+<a href=#1129 id=1129 data-nosnippet>1129</a>    cannot_assign_to_generic_const_function_parameter {
+<a href=#1130 id=1130 data-nosnippet>1130</a>        args: (param: <span class="kw">impl </span>Display),
+<a href=#1131 id=1131 data-nosnippet>1131</a>        msg: <span class="macro">format!</span>(
+<a href=#1132 id=1132 data-nosnippet>1132</a>            <span class="string">"Cannot assign to const parameter `{param}`"</span>,
+<a href=#1133 id=1133 data-nosnippet>1133</a>        ),
+<a href=#1134 id=1134 data-nosnippet>1134</a>        help: <span class="prelude-val">None</span>,
+<a href=#1135 id=1135 data-nosnippet>1135</a>    }
+<a href=#1136 id=1136 data-nosnippet>1136</a>
+<a href=#1137 id=1137 data-nosnippet>1137</a>    @formatted
+<a href=#1138 id=1138 data-nosnippet>1138</a>    only_inline_can_have_const_generics {
+<a href=#1139 id=1139 data-nosnippet>1139</a>        args: (),
+<a href=#1140 id=1140 data-nosnippet>1140</a>        msg: <span class="macro">format!</span>(<span class="string">"Only `inline` functions can have generic const parameters."</span>),
+<a href=#1141 id=1141 data-nosnippet>1141</a>        help: <span class="prelude-val">None</span>,
+<a href=#1142 id=1142 data-nosnippet>1142</a>    }
+<a href=#1143 id=1143 data-nosnippet>1143</a>
+<a href=#1144 id=1144 data-nosnippet>1144</a>    @formatted
+<a href=#1145 id=1145 data-nosnippet>1145</a>    array_too_large_for_u32 {
+<a href=#1146 id=1146 data-nosnippet>1146</a>        args: (),
+<a href=#1147 id=1147 data-nosnippet>1147</a>        msg: <span class="macro">format!</span>(<span class="string">"An array length must be small enough to fit in a `u32`"</span>),
+<a href=#1148 id=1148 data-nosnippet>1148</a>        help: <span class="prelude-val">None</span>,
+<a href=#1149 id=1149 data-nosnippet>1149</a>    }
+<a href=#1150 id=1150 data-nosnippet>1150</a>
+<a href=#1151 id=1151 data-nosnippet>1151</a>    @formatted
+<a href=#1152 id=1152 data-nosnippet>1152</a>    unexpected_record_const_parameters {
+<a href=#1153 id=1153 data-nosnippet>1153</a>        args: (),
+<a href=#1154 id=1154 data-nosnippet>1154</a>        msg: <span class="macro">format!</span>(<span class="string">"Records cannot be declared with generic const parameters."</span>),
+<a href=#1155 id=1155 data-nosnippet>1155</a>        help: <span class="prelude-val">None</span>,
+<a href=#1156 id=1156 data-nosnippet>1156</a>    }
+<a href=#1157 id=1157 data-nosnippet>1157</a>
+<a href=#1158 id=1158 data-nosnippet>1158</a>    @formatted
+<a href=#1159 id=1159 data-nosnippet>1159</a>    unexpected_const_args {
+<a href=#1160 id=1160 data-nosnippet>1160</a>        args: (item: <span class="kw">impl </span>Display),
+<a href=#1161 id=1161 data-nosnippet>1161</a>        msg: <span class="macro">format!</span>(<span class="string">"unexpected generic const argment for {item}."</span>),
+<a href=#1162 id=1162 data-nosnippet>1162</a>        help: <span class="prelude-val">Some</span>(<span class="string">"If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments"</span>.to_string()),
+<a href=#1163 id=1163 data-nosnippet>1163</a>    }
+<a href=#1164 id=1164 data-nosnippet>1164</a>
+<a href=#1165 id=1165 data-nosnippet>1165</a>    @formatted
+<a href=#1166 id=1166 data-nosnippet>1166</a>    invalid_operation_inside_async_block {
+<a href=#1167 id=1167 data-nosnippet>1167</a>        args: (operation: <span class="kw">impl </span>Display),
+<a href=#1168 id=1168 data-nosnippet>1168</a>        msg: <span class="macro">format!</span>(<span class="string">"Invalid expression in an async block. `{operation}` cannot be used directly here"</span>),
+<a href=#1169 id=1169 data-nosnippet>1169</a>        help: <span class="prelude-val">None</span>,
+<a href=#1170 id=1170 data-nosnippet>1170</a>    }
+<a href=#1171 id=1171 data-nosnippet>1171</a>
+<a href=#1172 id=1172 data-nosnippet>1172</a>    @formatted
+<a href=#1173 id=1173 data-nosnippet>1173</a>    illegal_async_block_location {
+<a href=#1174 id=1174 data-nosnippet>1174</a>        args: (),
+<a href=#1175 id=1175 data-nosnippet>1175</a>        msg: <span class="string">"`async` blocks are only allowed inside an `async` transition or a script function."</span>.to_string(),
+<a href=#1176 id=1176 data-nosnippet>1176</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Try moving this `async` block into an `async` transition or a script function."</span>.to_string()),
+<a href=#1177 id=1177 data-nosnippet>1177</a>    }
+<a href=#1178 id=1178 data-nosnippet>1178</a>
+<a href=#1179 id=1179 data-nosnippet>1179</a>    @formatted
+<a href=#1180 id=1180 data-nosnippet>1180</a>    conflicting_async_call_and_block {
+<a href=#1181 id=1181 data-nosnippet>1181</a>        args: (),
+<a href=#1182 id=1182 data-nosnippet>1182</a>        msg: <span class="string">"A transition function cannot contain both an `async` function call and an `async` block at the same time."</span>.to_string(),
+<a href=#1183 id=1183 data-nosnippet>1183</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Refactor the transition to use either an `async` call or an `async` block, but not both."</span>.to_string()),
+<a href=#1184 id=1184 data-nosnippet>1184</a>    }
+<a href=#1185 id=1185 data-nosnippet>1185</a>
+<a href=#1186 id=1186 data-nosnippet>1186</a>    @formatted
+<a href=#1187 id=1187 data-nosnippet>1187</a>    multiple_async_blocks_not_allowed {
+<a href=#1188 id=1188 data-nosnippet>1188</a>        args: (),
+<a href=#1189 id=1189 data-nosnippet>1189</a>        msg: <span class="string">"A transition function cannot contain more than one `async` block."</span>.to_string(),
+<a href=#1190 id=1190 data-nosnippet>1190</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition."</span>.to_string()),
+<a href=#1191 id=1191 data-nosnippet>1191</a>    }
+<a href=#1192 id=1192 data-nosnippet>1192</a>
+<a href=#1193 id=1193 data-nosnippet>1193</a>    @formatted
+<a href=#1194 id=1194 data-nosnippet>1194</a>    async_block_in_conditional {
+<a href=#1195 id=1195 data-nosnippet>1195</a>        args: (),
+<a href=#1196 id=1196 data-nosnippet>1196</a>        msg: <span class="string">"`async` blocks are not allowed inside conditional blocks."</span>.to_string(),
+<a href=#1197 id=1197 data-nosnippet>1197</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Refactor your code to move the `async` block outside of the conditional block."</span>.to_string()),
+<a href=#1198 id=1198 data-nosnippet>1198</a>    }
+<a href=#1199 id=1199 data-nosnippet>1199</a>
+<a href=#1200 id=1200 data-nosnippet>1200</a>    @formatted
+<a href=#1201 id=1201 data-nosnippet>1201</a>    cannot_use_private_inpt_in_async_block {
+<a href=#1202 id=1202 data-nosnippet>1202</a>        args: (),
+<a href=#1203 id=1203 data-nosnippet>1203</a>        msg: <span class="macro">format!</span>(<span class="string">"`private` inputs cannot be used inside async blocks."</span>),
+<a href=#1204 id=1204 data-nosnippet>1204</a>        help: <span class="prelude-val">None</span>,
+<a href=#1205 id=1205 data-nosnippet>1205</a>    }
+<a href=#1206 id=1206 data-nosnippet>1206</a>
+<a href=#1207 id=1207 data-nosnippet>1207</a>    @formatted
+<a href=#1208 id=1208 data-nosnippet>1208</a>    async_block_cannot_return {
+<a href=#1209 id=1209 data-nosnippet>1209</a>        args: (),
+<a href=#1210 id=1210 data-nosnippet>1210</a>        msg: <span class="string">"An `async` block cannot contain a `return` statement."</span>.to_string(),
+<a href=#1211 id=1211 data-nosnippet>1211</a>        help: <span class="prelude-val">None</span>,
+<a href=#1212 id=1212 data-nosnippet>1212</a>    }
+<a href=#1213 id=1213 data-nosnippet>1213</a>
+<a href=#1214 id=1214 data-nosnippet>1214</a>    @formatted
+<a href=#1215 id=1215 data-nosnippet>1215</a>    invalid_async_block_future_access {
+<a href=#1216 id=1216 data-nosnippet>1216</a>        args: (),
+<a href=#1217 id=1217 data-nosnippet>1217</a>        msg: <span class="macro">format!</span>(
+<a href=#1218 id=1218 data-nosnippet>1218</a>            <span class="string">"Cannot access argument from future produced by an `async` block."
+<a href=#1219 id=1219 data-nosnippet>1219</a>        </span>),
+<a href=#1220 id=1220 data-nosnippet>1220</a>        help: <span class="prelude-val">None</span>,
+<a href=#1221 id=1221 data-nosnippet>1221</a>    }
+<a href=#1222 id=1222 data-nosnippet>1222</a>
+<a href=#1223 id=1223 data-nosnippet>1223</a>    @formatted
+<a href=#1224 id=1224 data-nosnippet>1224</a>    cannot_assign_to_vars_outside_async_block {
+<a href=#1225 id=1225 data-nosnippet>1225</a>        args: (input: <span class="kw">impl </span>Display),
+<a href=#1226 id=1226 data-nosnippet>1226</a>        msg: <span class="macro">format!</span>(
+<a href=#1227 id=1227 data-nosnippet>1227</a>            <span class="string">"Cannot assign to `{input}` inside an `async` block because it was declared outside the block."
+<a href=#1228 id=1228 data-nosnippet>1228</a>        </span>),
+<a href=#1229 id=1229 data-nosnippet>1229</a>        help: <span class="prelude-val">None</span>,
+<a href=#1230 id=1230 data-nosnippet>1230</a>    }
+<a href=#1231 id=1231 data-nosnippet>1231</a>
+<a href=#1232 id=1232 data-nosnippet>1232</a>    @formatted
+<a href=#1233 id=1233 data-nosnippet>1233</a>    custom {
+<a href=#1234 id=1234 data-nosnippet>1234</a>        args: (msg: <span class="kw">impl </span>Display),
+<a href=#1235 id=1235 data-nosnippet>1235</a>        msg: msg.to_string(),
+<a href=#1236 id=1236 data-nosnippet>1236</a>        help: <span class="prelude-val">None</span>,
+<a href=#1237 id=1237 data-nosnippet>1237</a>    }
+<a href=#1238 id=1238 data-nosnippet>1238</a>
+<a href=#1239 id=1239 data-nosnippet>1239</a>    @formatted
+<a href=#1240 id=1240 data-nosnippet>1240</a>    constructor_can_only_return_unit {
+<a href=#1241 id=1241 data-nosnippet>1241</a>        args: (expression: <span class="kw">impl </span>Display),
+<a href=#1242 id=1242 data-nosnippet>1242</a>        msg: <span class="macro">format!</span>(<span class="string">"Constructors can only return unit, but found `{expression}`."</span>),
+<a href=#1243 id=1243 data-nosnippet>1243</a>        help: <span class="prelude-val">None</span>,
+<a href=#1244 id=1244 data-nosnippet>1244</a>    }
+<a href=#1245 id=1245 data-nosnippet>1245</a>
+<a href=#1246 id=1246 data-nosnippet>1246</a>    @formatted
+<a href=#1247 id=1247 data-nosnippet>1247</a>    none_found_non_optional {
+<a href=#1248 id=1248 data-nosnippet>1248</a>        args: (expected: <span class="kw">impl </span>Display),
+<a href=#1249 id=1249 data-nosnippet>1249</a>        msg: <span class="macro">format!</span>(
+<a href=#1250 id=1250 data-nosnippet>1250</a>            <span class="string">"Found `none`, but the expected type `{expected}` is not an optional type."</span>,
+<a href=#1251 id=1251 data-nosnippet>1251</a>        ),
+<a href=#1252 id=1252 data-nosnippet>1252</a>        help: <span class="prelude-val">None</span>,
+<a href=#1253 id=1253 data-nosnippet>1253</a>    }
+<a href=#1254 id=1254 data-nosnippet>1254</a>
+<a href=#1255 id=1255 data-nosnippet>1255</a>    @formatted
+<a href=#1256 id=1256 data-nosnippet>1256</a>    optional_wrapping_of_records_unsupported {
+<a href=#1257 id=1257 data-nosnippet>1257</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1258 id=1258 data-nosnippet>1258</a>        msg: <span class="macro">format!</span>(
+<a href=#1259 id=1259 data-nosnippet>1259</a>            <span class="string">"The type `{ty}` cannot be wrapped in an optional because it is a record."</span>,
+<a href=#1260 id=1260 data-nosnippet>1260</a>        ),
+<a href=#1261 id=1261 data-nosnippet>1261</a>        help: <span class="prelude-val">None</span>,
+<a href=#1262 id=1262 data-nosnippet>1262</a>    }
+<a href=#1263 id=1263 data-nosnippet>1263</a>
+<a href=#1264 id=1264 data-nosnippet>1264</a>    @formatted
+<a href=#1265 id=1265 data-nosnippet>1265</a>    optional_wrapping_unsupported {
+<a href=#1266 id=1266 data-nosnippet>1266</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1267 id=1267 data-nosnippet>1267</a>        msg: <span class="macro">format!</span>(
+<a href=#1268 id=1268 data-nosnippet>1268</a>            <span class="string">"The type `{ty}` cannot be wrapped in an optional."</span>,
+<a href=#1269 id=1269 data-nosnippet>1269</a>        ),
+<a href=#1270 id=1270 data-nosnippet>1270</a>        help: <span class="prelude-val">None</span>,
+<a href=#1271 id=1271 data-nosnippet>1271</a>    }
+<a href=#1272 id=1272 data-nosnippet>1272</a>
+<a href=#1273 id=1273 data-nosnippet>1273</a>    @formatted
+<a href=#1274 id=1274 data-nosnippet>1274</a>    optional_type_not_allowed_in_mapping {
+<a href=#1275 id=1275 data-nosnippet>1275</a>        args: (ty: <span class="kw">impl </span>Display, kind: <span class="kw">impl </span>Display),
+<a href=#1276 id=1276 data-nosnippet>1276</a>        msg: <span class="macro">format!</span>(
+<a href=#1277 id=1277 data-nosnippet>1277</a>            <span class="string">"The type `{ty}` is or contains an optional type which cannot be used as the {kind} in a mapping"</span>,
+<a href=#1278 id=1278 data-nosnippet>1278</a>        ),
+<a href=#1279 id=1279 data-nosnippet>1279</a>        help: <span class="prelude-val">None</span>,
+<a href=#1280 id=1280 data-nosnippet>1280</a>    }
+<a href=#1281 id=1281 data-nosnippet>1281</a>
+<a href=#1282 id=1282 data-nosnippet>1282</a>    @formatted
+<a href=#1283 id=1283 data-nosnippet>1283</a>    record_field_cannot_be_optional {
+<a href=#1284 id=1284 data-nosnippet>1284</a>        args: (name: <span class="kw">impl </span>Display, ty: <span class="kw">impl </span>Display),
+<a href=#1285 id=1285 data-nosnippet>1285</a>        msg: <span class="macro">format!</span>(
+<a href=#1286 id=1286 data-nosnippet>1286</a>            <span class="string">"The field `{name}` in this record has type `{ty}`, which is or contains an optional type."</span>,
+<a href=#1287 id=1287 data-nosnippet>1287</a>        ),
+<a href=#1288 id=1288 data-nosnippet>1288</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1289 id=1289 data-nosnippet>1289</a>            <span class="string">"Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record."</span>.to_string()
+<a href=#1290 id=1290 data-nosnippet>1290</a>        ),
+<a href=#1291 id=1291 data-nosnippet>1291</a>    }
+<a href=#1292 id=1292 data-nosnippet>1292</a>
+<a href=#1293 id=1293 data-nosnippet>1293</a>    @formatted
+<a href=#1294 id=1294 data-nosnippet>1294</a>    const_cannot_be_optional {
+<a href=#1295 id=1295 data-nosnippet>1295</a>        args: (),
+<a href=#1296 id=1296 data-nosnippet>1296</a>        msg: <span class="macro">format!</span>(
+<a href=#1297 id=1297 data-nosnippet>1297</a>            <span class="string">"Constants cannot have an optional type or a type that contains an optional"</span>,
+<a href=#1298 id=1298 data-nosnippet>1298</a>        ),
+<a href=#1299 id=1299 data-nosnippet>1299</a>        help: <span class="prelude-val">None</span>,
+<a href=#1300 id=1300 data-nosnippet>1300</a>    }
+<a href=#1301 id=1301 data-nosnippet>1301</a>
+<a href=#1302 id=1302 data-nosnippet>1302</a>    @formatted
+<a href=#1303 id=1303 data-nosnippet>1303</a>    function_cannot_take_option_as_input {
+<a href=#1304 id=1304 data-nosnippet>1304</a>        args: (name: <span class="kw">impl </span>Display, ty: <span class="kw">impl </span>Display),
+<a href=#1305 id=1305 data-nosnippet>1305</a>        msg: <span class="macro">format!</span>(
+<a href=#1306 id=1306 data-nosnippet>1306</a>            <span class="string">"The input `{name}` has type `{ty}`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`."</span>,
+<a href=#1307 id=1307 data-nosnippet>1307</a>        ),
+<a href=#1308 id=1308 data-nosnippet>1308</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1309 id=1309 data-nosnippet>1309</a>            <span class="string">"Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site."</span>.to_string()
+<a href=#1310 id=1310 data-nosnippet>1310</a>        ),
+<a href=#1311 id=1311 data-nosnippet>1311</a>    }
+<a href=#1312 id=1312 data-nosnippet>1312</a>
+<a href=#1313 id=1313 data-nosnippet>1313</a>    @formatted
+<a href=#1314 id=1314 data-nosnippet>1314</a>    function_cannot_return_option_as_output {
+<a href=#1315 id=1315 data-nosnippet>1315</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1316 id=1316 data-nosnippet>1316</a>        msg: <span class="macro">format!</span>(
+<a href=#1317 id=1317 data-nosnippet>1317</a>            <span class="string">"This function has an output of type `{ty}`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`."</span>,
+<a href=#1318 id=1318 data-nosnippet>1318</a>        ),
+<a href=#1319 id=1319 data-nosnippet>1319</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1320 id=1320 data-nosnippet>1320</a>            <span class="string">"Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call."</span>.to_string()
+<a href=#1321 id=1321 data-nosnippet>1321</a>        ),
+<a href=#1322 id=1322 data-nosnippet>1322</a>    }
+<a href=#1323 id=1323 data-nosnippet>1323</a>
+<a href=#1324 id=1324 data-nosnippet>1324</a>    @formatted
+<a href=#1325 id=1325 data-nosnippet>1325</a>    invalid_storage_type {
+<a href=#1326 id=1326 data-nosnippet>1326</a>        args: (type_: <span class="kw">impl </span>Display),
+<a href=#1327 id=1327 data-nosnippet>1327</a>        msg: <span class="macro">format!</span>(<span class="string">"{type_} is an invalid storage type"</span>),
+<a href=#1328 id=1328 data-nosnippet>1328</a>        help: <span class="prelude-val">None</span>,
+<a href=#1329 id=1329 data-nosnippet>1329</a>    }
+<a href=#1330 id=1330 data-nosnippet>1330</a>
+<a href=#1331 id=1331 data-nosnippet>1331</a>    @formatted
+<a href=#1332 id=1332 data-nosnippet>1332</a>    storage_vectors_cannot_be_moved_or_assigned {
+<a href=#1333 id=1333 data-nosnippet>1333</a>        args: (),
+<a href=#1334 id=1334 data-nosnippet>1334</a>        msg: <span class="macro">format!</span>(
+<a href=#1335 id=1335 data-nosnippet>1335</a>            <span class="string">"Storage vectors cannot be moved or assigned. You can only access or modify them using methods like `get`, `push`, or `pop`."
+<a href=#1336 id=1336 data-nosnippet>1336</a>        </span>),
+<a href=#1337 id=1337 data-nosnippet>1337</a>        help: <span class="prelude-val">None</span>,
+<a href=#1338 id=1338 data-nosnippet>1338</a>    }
+<a href=#1339 id=1339 data-nosnippet>1339</a>
+<a href=#1340 id=1340 data-nosnippet>1340</a>    @formatted
+<a href=#1341 id=1341 data-nosnippet>1341</a>    function_has_too_many_inputs {
+<a href=#1342 id=1342 data-nosnippet>1342</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
+<a href=#1343 id=1343 data-nosnippet>1343</a>        msg: <span class="macro">format!</span>(
+<a href=#1344 id=1344 data-nosnippet>1344</a>            <span class="string">"The {variant} `{name}` has {actual} input parameters, which exceeds the allowed limit of {limit}."</span>,
+<a href=#1345 id=1345 data-nosnippet>1345</a>        ),
+<a href=#1346 id=1346 data-nosnippet>1346</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1347 id=1347 data-nosnippet>1347</a>            <span class="string">"Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
+<a href=#1348 id=1348 data-nosnippet>1348</a>        ),
+<a href=#1349 id=1349 data-nosnippet>1349</a>    }
+<a href=#1350 id=1350 data-nosnippet>1350</a>
+<a href=#1351 id=1351 data-nosnippet>1351</a>    @formatted
+<a href=#1352 id=1352 data-nosnippet>1352</a>    function_has_too_many_outputs {
+<a href=#1353 id=1353 data-nosnippet>1353</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
+<a href=#1354 id=1354 data-nosnippet>1354</a>        msg: <span class="macro">format!</span>(
+<a href=#1355 id=1355 data-nosnippet>1355</a>            <span class="string">"The {variant} `{name}` has {actual} output parameters, which exceeds the allowed limit of {limit}."</span>,
+<a href=#1356 id=1356 data-nosnippet>1356</a>        ),
+<a href=#1357 id=1357 data-nosnippet>1357</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1358 id=1358 data-nosnippet>1358</a>            <span class="string">"Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
+<a href=#1359 id=1359 data-nosnippet>1359</a>        ),
+<a href=#1360 id=1360 data-nosnippet>1360</a>    }
+<a href=#1361 id=1361 data-nosnippet>1361</a>);</code></pre></div></section></main></body></html>
