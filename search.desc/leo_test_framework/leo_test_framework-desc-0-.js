@@ -1,1 +1,0 @@
-searchState.loadedDescShard("leo_test_framework", 0, "This is a simple test framework for the Leo compiler.\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.\nPulls tests from <code>category</code>, running them through the <code>runner</code> …")
