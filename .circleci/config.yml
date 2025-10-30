@@ -150,7 +150,7 @@ jobs:
   test-macos:
     executor: macos-executor
     environment:
-      SNARKOS_REV: "79936b5bfce6b158fe942c6cfb44a0cc07a7a3e0" # testnet-v4.3.0
+      SNARKOS_REV: "8d710d7e211111d339dc9a6292a0e6f87508eb74" # v4.3.0
     steps:
       - checkout
       - restore_cache:
