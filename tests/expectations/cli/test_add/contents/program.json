@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "license": "MIT",
-  "leo": "3.3.0",
+  "leo": "3.3.1",
   "dependencies": [
     {
       "name": "credits.aleo",
