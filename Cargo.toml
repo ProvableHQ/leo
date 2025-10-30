@@ -30,6 +30,7 @@ edition = "2024"
 rust-version = "1.90.0"
 
 [workspace]
+resolver = "2"
 members = [
   "compiler/ast",
   "compiler/compiler",
@@ -369,5 +370,12 @@ debug-assertions = true
 
 [profile.ci]
 inherits = "test"
-incremental = false
-debug = false
+opt-level = 1              # Slight optimization for reasonable test runtime
+lto = "off"                # Disable link-time optimization (slow)
+codegen-units = 16         # More parallelism for faster compile
+incremental = false        # Deterministic, avoids cache bloat
+debug = 1                  # Minimal debug info for readable stack traces
+debug-assertions = true    # Keep sanity checks active
+overflow-checks = true     # Keep integer overflow checks on
+panic = "unwind"           # Allows backtraces on panic
+strip = "none"             # Keep symbols for diagnostics

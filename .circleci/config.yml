@@ -94,21 +94,24 @@ commands:
             ulimit -n 65535 
 
   build-and-test:
-    description: "Build and run tests"
+    description: "Build and run tests using cargo-nextest"
     steps:
       - run:
-          name: Build
+          name: Install cargo-nextest
+          command: |
+            cargo install cargo-nextest --locked
+      - run:
+          name: Build tests (no run)
           no_output_timeout: 30m
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --no-run --all --locked --profile ci --features only_testnet
+            cargo nextest run --workspace --no-run --locked --cargo-profile ci --features only_testnet
       - run:
           name: Run tests
           no_output_timeout: 30m
-          # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --all --locked --profile ci --features only_testnet --verbose
+            cargo nextest run --workspace --locked --cargo-profile ci --features only_testnet --verbose
 
   install_rust_nightly:
     description: "Install Rust nightly toolchain"
@@ -192,6 +195,37 @@ jobs:
       - save_cache:
           key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
           paths:
+            - ~/.cargo
+            - ~/.aleo/resources
+
+  nextest-crate:
+    parameters:
+      crate:
+        type: string
+    executor: linux-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}-<< parameters.crate >>
+            - cargo-v1-{{ arch }}-<< parameters.crate >>
+      - install-rust
+      - run:
+          name: Install cargo-nextest
+          command: cargo install cargo-nextest --locked
+      - run:
+          name: Run tests for << parameters.crate >>
+          no_output_timeout: 30m
+          command: |
+            if [ "<< parameters.crate >>" = "leo-lang" ]; then
+                cargo nextest run -p << parameters.crate >> --locked --cargo-profile ci --features only_testnet --verbose
+            else
+                cargo nextest run -p << parameters.crate >> --locked --cargo-profile ci --verbose
+            fi
+      - save_cache:
+          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}-<< parameters.crate >>
+          paths:
+            - target
             - ~/.cargo
             - ~/.aleo/resources
 
@@ -331,7 +365,30 @@ workflows:
 
   test-linux:
     jobs:
-      - test-linux
+      - nextest-crate:
+          name: test-leo-ast
+          crate: leo-ast
+      - nextest-crate:
+          name: test-leo-compiler
+          crate: leo-compiler
+      - nextest-crate:
+          name: test-leo-errors
+          crate: leo-errors
+      - nextest-crate:
+          name: test-leo-interpreter
+          crate: leo-interpreter
+      - nextest-crate:
+          name: test-leo-lang
+          crate: leo-lang
+      - nextest-crate:
+          name: test-leo-lang-integration
+          crate: leo-lang::integration
+      - nextest-crate:
+          name: test-leo-parser
+          crate: leo-parser
+      - nextest-crate:
+          name: test-leo-passes
+          crate: leo-passes
 
   code-quality:
     jobs:
