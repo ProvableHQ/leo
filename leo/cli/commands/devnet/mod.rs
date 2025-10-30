@@ -77,7 +77,8 @@ pub struct LeoDevnet {
     #[clap(
         long,
         help = "Optional consensus heights to use. The `test_network` feature must be enabled for this to work.",
-        value_delimiter = ','
+        value_delimiter = ',',
+        env = "CONSENSUS_VERSION_HEIGHTS"
     )]
     pub(crate) consensus_heights: Option<Vec<u32>>,
     #[clap(long, help = "Run nodes in tmux (only available on Unix)")]
