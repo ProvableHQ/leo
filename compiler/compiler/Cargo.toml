@@ -65,10 +65,10 @@ path = "../../utils/disassembler"
 [dev-dependencies.leo-test-framework]
 workspace = true
 
-[dev-dependencies.itertools]
+[dev-dependencies.tempfile]
 workspace = true
 
-[dev-dependencies.snarkvm]
+[dev-dependencies.itertools]
 workspace = true
 
 [dev-dependencies.serde]
@@ -79,6 +79,9 @@ workspace = true
 
 [dev-dependencies.serial_test]
 workspace = true
+
+[dev-dependencies]
+cargo_metadata = "0.18"
 
 [features]
 default = [ ]

@@ -1,18 +1,3 @@
-/*
-seed = 123456789
-min_height = 17
-
-[case]
-program = "test.aleo"
-function = "mint"
-input = ["aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs",  "0u64"]
-[case]
-program = "test.aleo"
-function = "mint"
-input = ["aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q", "1u64"]
-*/
-
-
 program test.aleo {
     record Token {
         // The token owner.
@@ -29,6 +14,38 @@ program test.aleo {
             amount: amount,
             flag: true,
         };
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+
+    @test
+    transition mint_1() {
+        let result = test.aleo/mint(
+            aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs,
+            0u64
+        );
+        assert_eq(result.owner, aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs);
+        assert_eq(result.amount, 0u64);
+        assert_eq(result.flag, true);
+    }
+
+    @test
+    transition mint_2() {
+        let result = test.aleo/mint(
+            aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q,
+            1u64
+        );
+        assert_eq(result.owner, aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q);
+        assert_eq(result.amount, 1u64);
+        assert_eq(result.flag, true);
     }
 
     @noupgrade

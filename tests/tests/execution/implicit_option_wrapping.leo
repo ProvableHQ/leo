@@ -1,62 +1,3 @@
-/*
-seed = 20250911
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "basic_implicit_return"
-input = []
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "basic_implicit_argument"
-input = []
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "basic_implicit_ternary"
-input = ["true"]
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "basic_implicit_ternary"
-input = ["false"]
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "basic_implicit_reassignment"
-input = []
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "complex_implicit_return"
-input = []
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "complex_implicit_argument"
-input = []
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "complex_implicit_ternary"
-input = ["true"]
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "complex_implicit_reassignment"
-input = []
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "complex_array_wrapping"
-input = []
-
-[case]
-program = "implicit_wrapping.aleo"
-function = "complex_array_access"
-input = []
-*/
-
 program implicit_wrapping.aleo {
     // === Shared Structs ===
 
@@ -161,6 +102,82 @@ program implicit_wrapping.aleo {
         let w = arr_opt.unwrap()[1];
         let f = w.arr[0].unwrap();
         return f.x.unwrap(); // should be 20
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import implicit_wrapping.aleo;
+
+program test_implicit_wrapping.aleo {
+
+    @test
+    transition basic_implicit_return() {
+        let result = implicit_wrapping.aleo/basic_implicit_return();
+        assert_eq(result, 5u8);
+    }
+
+    @test
+    transition basic_implicit_argument() {
+        let result = implicit_wrapping.aleo/basic_implicit_argument();
+        assert_eq(result, 42u8);
+    }
+
+    @test
+    transition basic_implicit_ternary_true() {
+        let result = implicit_wrapping.aleo/basic_implicit_ternary(true);
+        assert_eq(result, 10u8);
+    }
+
+    @test
+    transition basic_implicit_ternary_false() {
+        let result = implicit_wrapping.aleo/basic_implicit_ternary(false);
+        assert_eq(result, 42u8);
+    }
+
+    @test
+    transition basic_implicit_reassignment() {
+        let result = implicit_wrapping.aleo/basic_implicit_reassignment();
+        assert_eq(result, 99u8);
+    }
+
+    @test
+    transition complex_implicit_return() {
+        let result = implicit_wrapping.aleo/complex_implicit_return();
+        assert_eq(result, 8u8);
+    }
+
+    @test
+    transition complex_implicit_argument() {
+        let result = implicit_wrapping.aleo/complex_implicit_argument();
+        assert_eq(result, 42u8);
+    }
+
+    @test
+    transition complex_implicit_ternary_true() {
+        let result = implicit_wrapping.aleo/complex_implicit_ternary(true);
+        assert_eq(result, 99u8);
+    }
+
+    @test
+    transition complex_implicit_reassignment() {
+        let result = implicit_wrapping.aleo/complex_implicit_reassignment();
+        assert_eq(result, 7u8);
+    }
+
+    @test
+    transition complex_array_wrapping() {
+        let result = implicit_wrapping.aleo/complex_array_wrapping();
+        assert_eq(result, 1u8);
+    }
+
+    @test
+    transition complex_array_access() {
+        let result = implicit_wrapping.aleo/complex_array_access();
+        assert_eq(result, 20u8);
     }
 
     @noupgrade

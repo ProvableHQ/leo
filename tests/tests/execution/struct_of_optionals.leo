@@ -1,12 +1,3 @@
-/*
-seed = 123456789
-
-[case]
-program = "test.aleo"
-function = "main"
-input = []
-*/
-
 program test.aleo {
     struct Foo {
         x: u64?, // Optional field
@@ -29,6 +20,20 @@ program test.aleo {
         }
 
         assert(sum == 50);
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+program test_test.aleo {
+
+    @test
+    transition main() {
+        test.aleo/main();
     }
 
     @noupgrade

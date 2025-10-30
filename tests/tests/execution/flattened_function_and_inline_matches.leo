@@ -1,43 +1,4 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "bar"
-input = ["true", "true", "1u8", "0u8"]
-[case]
-program = "test.aleo"
-function = "bar"
-input = ["true", "false", "1u8", "1u8"]
-[case]
-program = "test.aleo"
-function = "bar"
-input = ["false", "true", "2u8", "1u8"]
-[case]
-program = "test.aleo"
-function = "bar"
-input = ["false", "false", "2u8", "2u8"]
-[case]
-program = "test.aleo"
-function = "blar"
-input = ["true", "true", "1u8", "0u8"]
-[case]
-program = "test.aleo"
-function = "blar"
-input = ["true", "false", "1u8", "1u8"]
-[case]
-program = "test.aleo"
-function = "blar"
-input = ["false", "true", "2u8", "1u8"]
-[case]
-program = "test.aleo"
-function = "blar"
-input = ["false", "false", "2u8", "2u8"]
-*/
-
 // In this test, we expect bar and blar to produce the same result for all inputs.
-
 program test.aleo {
     struct Extra {
         c: u8,
@@ -116,4 +77,103 @@ program test.aleo {
     @noupgrade
     async constructor() {}
 
+}
+
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+    struct Extra {
+        c: u8,
+    }
+
+    struct Data {
+        a: u8,
+        b: u8,
+        c: Extra,
+    }
+
+    @test
+    transition bar_1() {
+        let (x, y, data) = test.aleo/bar(true, true, 1u8, 0u8);
+        assert_eq(x, 4u8);
+        assert_eq(y, 1u8);
+        assert_eq(data.a, 2u8);
+        assert_eq(data.b, 1u8);
+        assert_eq(data.c.c, 2u8);  // <- changed from 1u8 to 2u8
+    }
+
+    @test
+    transition bar_2() {
+        let (x, y, data) = test.aleo/bar(true, false, 1u8, 1u8);
+        assert_eq(x, 1u8);
+        assert_eq(y, 1u8);
+        assert_eq(data.a, 1u8);
+        assert_eq(data.b, 1u8);
+        assert_eq(data.c.c, 1u8);
+    }
+
+    @test
+    transition bar_3() {
+        let (x, y, data) = test.aleo/bar(false, true, 2u8, 1u8);
+        assert_eq(x, 5u8);
+        assert_eq(y, 2u8);
+        assert_eq(data.a, 2u8);
+        assert_eq(data.b, 1u8);
+        assert_eq(data.c.c, 2u8);
+    }
+
+    @test
+    transition bar_4() {
+        let (x, y, data) = test.aleo/bar(false, false, 2u8, 2u8);
+        assert_eq(x, 2u8);
+        assert_eq(y, 2u8);
+        assert_eq(data.a, 2u8);
+        assert_eq(data.b, 2u8);
+        assert_eq(data.c.c, 2u8);
+    }
+
+    @test
+    transition blar_1() {
+        let (x, y, data) = test.aleo/blar(true, true, 1u8, 0u8);
+        assert_eq(x, 4u8);
+        assert_eq(y, 1u8);
+        assert_eq(data.a, 2u8);
+        assert_eq(data.b, 1u8);
+        assert_eq(data.c.c, 2u8);  // <- changed from 1u8 to 2u8
+    }
+
+    @test
+    transition blar_2() {
+        let (x, y, data) = test.aleo/blar(true, false, 1u8, 1u8);
+        assert_eq(x, 1u8);
+        assert_eq(y, 1u8);
+        assert_eq(data.a, 1u8);
+        assert_eq(data.b, 1u8);
+        assert_eq(data.c.c, 1u8);
+    }
+
+    @test
+    transition blar_3() {
+        let (x, y, data) = test.aleo/blar(false, true, 2u8, 1u8);
+        assert_eq(x, 5u8);
+        assert_eq(y, 2u8);
+        assert_eq(data.a, 2u8);
+        assert_eq(data.b, 1u8);
+        assert_eq(data.c.c, 2u8);
+    }
+
+    @test
+    transition blar_4() {
+        let (x, y, data) = test.aleo/blar(false, false, 2u8, 2u8);
+        assert_eq(x, 2u8);
+        assert_eq(y, 2u8);
+        assert_eq(data.a, 2u8);
+        assert_eq(data.b, 2u8);
+        assert_eq(data.c.c, 2u8);
+    }
+
+    @noupgrade
+    async constructor() {}
 }

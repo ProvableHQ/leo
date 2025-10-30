@@ -1,52 +1,3 @@
-/*
-seed = 123456789
-
-[case]
-program = "all_types.aleo"
-function = "optional_basic_primitives"
-input = []
-
-[case]
-program = "all_types.aleo"
-function = "array_of_optionals"
-input = []
-
-[case]
-program = "all_types.aleo"
-function = "optional_array"
-input = []
-
-[case]
-program = "all_types.aleo"
-function = "optional_struct_field"
-input = []
-
-[case]
-program = "all_types.aleo"
-function = "optional_struct"
-input = []
-
-[case]
-program = "all_types.aleo"
-function = "array_of_optional_structs"
-input = []
-
-[case]
-program = "all_types.aleo"
-function = "nested_optional_structs"
-input = []
-
-[case]
-program = "all_types.aleo"
-function = "tuples_with_optional_elements"
-input = []
-
-[case]
-program = "all_types.aleo"
-function = "optional_misc_primitive_types"
-input = [] 
-*/
-
 program all_types.aleo {
 
     // --- Shared Structs ---
@@ -159,6 +110,72 @@ program all_types.aleo {
             fl.unwrap_or(2),
             sc.unwrap(),
         );
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import all_types.aleo;
+
+program test_all_types.aleo {
+
+    @test
+    transition optional_basic_primitives() {
+        let result = all_types.aleo/optional_basic_primitives();
+        assert_eq(result, 52u32);
+    }
+
+    @test
+    transition array_of_optionals() {
+        let result = all_types.aleo/array_of_optionals();
+        assert_eq(result, 24u8);
+    }
+
+    @test
+    transition optional_array() {
+        let result = all_types.aleo/optional_array();
+        assert_eq(result, 1095u128);
+    }
+
+    @test
+    transition optional_struct_field() {
+        let result = all_types.aleo/optional_struct_field();
+        assert_eq(result, 123u16);
+    }
+
+    @test
+    transition optional_struct() {
+        let result = all_types.aleo/optional_struct();
+        assert_eq(result, 5u8);
+    }
+
+    @test
+    transition array_of_optional_structs() {
+        let result = all_types.aleo/array_of_optional_structs();
+        assert_eq(result, 10u8);
+    }
+
+    @test
+    transition nested_optional_structs() {
+        let result = all_types.aleo/nested_optional_structs();
+        assert_eq(result, 10u8);
+    }
+
+    @test
+    transition tuples_with_optional_elements() {
+        let result = all_types.aleo/tuples_with_optional_elements();
+        assert_eq(result, 650u32);
+    }
+
+    @test
+    transition optional_misc_primitive_types() {
+        let (gr, fl, sc) = all_types.aleo/optional_misc_primitive_types();
+        assert_eq(gr, 0group);
+        assert_eq(fl, 1field);
+        assert_eq(sc, 2scalar);
     }
 
     @noupgrade

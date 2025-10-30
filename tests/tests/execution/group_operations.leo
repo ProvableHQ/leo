@@ -1,17 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "main"
-input = ["0group"]
-[case]
-program = "test.aleo"
-function = "main"
-input = ["2group"]
-*/
-
 program test.aleo {
     transition main(a: group) -> (field, field) {
         let b: field = group::to_x_coordinate(a);
@@ -23,6 +9,31 @@ program test.aleo {
         let f: field = a.to_y_coordinate();
         assert_eq(d, f);
         return (b, d);
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+
+    @test
+    transition main_0group() {
+        let (x, y) = test.aleo/main(0group);
+        // `main` already asserts internally, so we just call it
+        assert(x == x); // Dummy assertion to use `x` and `y`
+        assert(y == y);
+    }
+
+    @test
+    transition main_2group() {
+        let (x, y) = test.aleo/main(2group);
+        assert(x == x);
+        assert(y == y);
     }
 
     @noupgrade

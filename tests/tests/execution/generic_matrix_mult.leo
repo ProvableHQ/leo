@@ -1,17 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "main_1"
-input = []
-[case]
-program = "test.aleo"
-function = "main_2"
-input = []
-*/
-
 program test.aleo {
     const M_: u32 = 2u32; // Rows in A
     const K_: u32 = 3u32; // Columns in A / Rows in B
@@ -92,3 +78,31 @@ program test.aleo {
     @noupgrade
     async constructor() {}
 }
+
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+
+    @test
+    transition main_1_test() {
+        let C = test.aleo/main_1();
+
+        // Manually assert each element of the resulting 2x2 matrix
+        assert_eq(C.data[0][0], 58i32);
+        assert_eq(C.data[0][1], 64i32);
+        assert_eq(C.data[1][0], 139i32);
+        assert_eq(C.data[1][1], 154i32);
+    }
+
+    @test
+    transition main_2_test() {
+        let result = test.aleo/main_2();
+        assert_eq(result, true);
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+

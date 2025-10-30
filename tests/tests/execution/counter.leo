@@ -1,29 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "dubble"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[case]
-program = "test.aleo"
-function = "dubble"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[case]
-program = "test.aleo"
-function = "dubble"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[case]
-program = "test.aleo"
-function = "dubble"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-*/
-
 program test.aleo {
     const SMALL:u64 = 0_1u64;
     mapping counter: address => u64;
@@ -50,6 +24,47 @@ program test.aleo {
             current_value = current_value + 1u64;
         }
         Mapping::set(counter, addr, current_value + 0__1u64);
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+program test_test.aleo {
+
+    @test
+    async transition dubble_first() -> Future {
+        let f = test.aleo/dubble();
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition dubble_second() -> Future {
+        let f = test.aleo/dubble();
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition dubble_third() -> Future {
+        let f = test.aleo/dubble();
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition dubble_fourth() -> Future {
+        let f = test.aleo/dubble();
+        return async {
+            f.await();
+        };
     }
 
     @noupgrade

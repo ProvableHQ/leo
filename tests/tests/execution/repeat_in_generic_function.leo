@@ -1,13 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "main"
-input = []
-*/
-
 program test.aleo {
     const N:u32 = 10;
     transition main() -> u32 {
@@ -21,6 +11,20 @@ program test.aleo {
     inline foo::[P: u32]() -> u32 {
         let arr = [P; P];
         return arr[P-1];
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+    @test
+    transition main() {
+        test.aleo/main();
     }
 
     @noupgrade

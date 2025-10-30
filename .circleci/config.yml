@@ -97,18 +97,24 @@ commands:
     description: "Build and run tests"
     steps:
       - run:
-          name: Build
-          no_output_timeout: 30m
+          name: Install cargo-nextest
+          no_output_timeout: 10m
           command: |
-            cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --no-run --all --locked --profile ci --features only_testnet
+            cargo install --locked cargo-nextest
+
       - run:
-          name: Run tests
+          name: Build Leo binary
           no_output_timeout: 30m
-          # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
             cargo-mtime . ~/.cache/mtimes/project.db
-            cargo test --all --locked --profile ci --features only_testnet --verbose
+            cargo build --bin leo --locked --profile ci --features only_testnet -j 12
+
+      - run:
+          name: Run tests with nextest
+          no_output_timeout: 30m
+          command: |
+            cargo-mtime . ~/.cache/mtimes/project.db
+            cargo nextest run --manifest-path integration-tests/Cargo.toml --locked --cargo-profile ci -j 12 --verbose
 
   install_rust_nightly:
     description: "Install Rust nightly toolchain"
@@ -159,12 +165,12 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
-      - install-snarkos:
-          revision: $SNARKOS_REV
-      - run:
-          name: Verify SnarkOS installation
-          command: |
-            snarkos --version
+      #- install-snarkos:
+      #    revision: $SNARKOS_REV
+      #- run:
+      #    name: Verify SnarkOS installation
+      #    command: |
+      #      snarkos --version
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive

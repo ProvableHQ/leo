@@ -1,26 +1,3 @@
-/*
-seed = 246801357
-min_height = 16
-
-[case]
-program = "vector_structs.aleo"
-function = "test_vector_primitives_behavior"
-input = ["1u32", "25u32"]
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "vector_structs.aleo"
-function = "test_vector_structs_behavior"
-input = ["0u32"]
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "vector_structs.aleo"
-function = "test_vector_containers_behavior"
-input = ["1u32"]
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-*/
-
 program vector_structs.aleo {
     //
     // ────────────────────────────────────────────────────────────────
@@ -160,6 +137,39 @@ program vector_structs.aleo {
 
             containers.clear();
             assert(containers.len() == 0u32);
+        };
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import vector_structs.aleo;
+program test_vector_structs.aleo {
+
+    @test
+    async transition test_vector_primitives_behavior() -> Future {
+        let f = vector_structs.aleo/test_vector_primitives_behavior(1u32, 25u32);
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition test_vector_structs_behavior() -> Future {
+        let f = vector_structs.aleo/test_vector_structs_behavior(0u32);
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition test_vector_containers_behavior() -> Future {
+        let f = vector_structs.aleo/test_vector_containers_behavior(1u32);
+        return async {
+            f.await();
         };
     }
 

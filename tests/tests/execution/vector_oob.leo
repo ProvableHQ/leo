@@ -1,32 +1,3 @@
-/*
-seed = 987654321
-min_height = 16
-
-[case]
-program = "test_oob.aleo"
-function = "oob_get"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "test_oob.aleo"
-function = "oob_set"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "test_oob.aleo"
-function = "oob_swap_remove"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "test_oob.aleo"
-function = "oob_pop"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-*/
-
 program test_oob.aleo {
     storage vec: [u32];
 
@@ -69,6 +40,54 @@ program test_oob.aleo {
 
             let popped = vec.pop();
             assert(popped == none);
+        };
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test_oob.aleo;
+
+program test_test_oob.aleo {
+
+    // Safe: oob_get returns none
+    @test
+    async transition test_oob_get() -> Future {
+        let f = test_oob.aleo/oob_get();
+        return async {
+            f.await();
+        };
+    }
+
+    // Fails: oob_set is out-of-bounds
+    @test
+    @should_fail
+    async transition test_oob_set() -> Future {
+        let f = test_oob.aleo/oob_set();
+        return async {
+            f.await();
+        };
+    }
+
+    // Fails: oob_swap_remove is out-of-bounds
+    @test
+    @should_fail
+    async transition test_oob_swap_remove() -> Future {
+        let f = test_oob.aleo/oob_swap_remove();
+        return async {
+            f.await();
+        };
+    }
+
+    // Safe: oob_pop returns none
+    @test
+    async transition test_oob_pop() -> Future {
+        let f = test_oob.aleo/oob_pop();
+        return async {
+            f.await();
         };
     }
 

@@ -32,6 +32,3 @@ mod test_utils;
 
 #[cfg(test)]
 mod test_compiler;
-
-#[cfg(test)]
-mod test_execution;

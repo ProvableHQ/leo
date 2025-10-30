@@ -1,47 +1,3 @@
-/*
-seed = 2468101214
-
-[case]
-program = "compare_optionals.aleo"
-function = "u8_some_eq_none"
-input = []
-
-[case]
-program = "compare_optionals.aleo"
-function = "i128_none_eq_none"
-input = []
-
-[case]
-program = "compare_optionals.aleo"
-function = "u8_some_eq_some"
-input = []
-
-[case]
-program = "compare_optionals.aleo"
-function = "i128_some_neq_some"
-input = []
-
-[case]
-program = "compare_optionals.aleo"
-function = "struct_some_eq_some"
-input = []
-
-[case]
-program = "compare_optionals.aleo"
-function = "struct_some_neq_none"
-input = []
-
-[case]
-program = "compare_optionals.aleo"
-function = "array_some_eq_some"
-input = []
-
-[case]
-program = "compare_optionals.aleo"
-function = "array_some_neq_some"
-input = []
-*/
-
 program compare_optionals.aleo {
     struct Point {
         x: u8,
@@ -106,3 +62,51 @@ program compare_optionals.aleo {
     async constructor() {}
 }
 
+// --- Test --- //
+
+import compare_optionals.aleo;
+program test_compare_optionals.aleo {
+
+    @test
+    transition u8_some_eq_none_test() {
+        assert_eq(false, compare_optionals.aleo/u8_some_eq_none());
+    }
+
+    @test
+    transition i128_none_eq_none_test() {
+        assert_eq(true, compare_optionals.aleo/i128_none_eq_none());
+    }
+
+    @test
+    transition u8_some_eq_some_test() {
+        assert_eq(true, compare_optionals.aleo/u8_some_eq_some());
+    }
+
+    @test
+    transition i128_some_neq_some_test() {
+        assert_eq(true, compare_optionals.aleo/i128_some_neq_some());
+    }
+
+    @test
+    transition struct_some_eq_some_test() {
+        assert_eq(true, compare_optionals.aleo/struct_some_eq_some());
+    }
+
+    @test
+    transition struct_some_neq_none_test() {
+        assert_eq(true, compare_optionals.aleo/struct_some_neq_none());
+    }
+
+    @test
+    transition array_some_eq_some_test() {
+        assert_eq(true, compare_optionals.aleo/array_some_eq_some());
+    }
+
+    @test
+    transition array_some_neq_some_test() {
+        assert_eq(true, compare_optionals.aleo/array_some_neq_some());
+    }
+
+    @noupgrade
+    async constructor() {}
+}

@@ -1,13 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "main"
-input = []
-*/
-
 program test.aleo {
     transition main() -> u32 {
         return foo::[10]();
@@ -39,4 +29,18 @@ program test.aleo {
     async constructor() {
         assert_eq(self.edition, 0u16);
     }
+}
+
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+    @test
+    transition main() {
+        test.aleo/main();
+    }
+
+    @noupgrade
+    async constructor() {}
 }

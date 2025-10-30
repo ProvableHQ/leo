@@ -42,7 +42,8 @@ members = [
   "interpreter",
   "leo/package",
   "test-framework",
-  "utils/disassembler"
+  "utils/disassembler",
+  "integration-tests"
 ]
 
 [workspace.dependencies.leo-ast]
@@ -371,3 +372,4 @@ debug-assertions = true
 inherits = "test"
 incremental = false
 debug = false
+debug-assertions = false

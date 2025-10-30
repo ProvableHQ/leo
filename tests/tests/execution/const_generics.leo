@@ -1,13 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "main"
-input = []
-*/
-
 program test.aleo {
     const M: u32 = 1u32;
     const P: u32 = 2u32;
@@ -33,6 +23,20 @@ program test.aleo {
 
     inline other::[Q: u32]() -> u32 {
         return Q;
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+program test_test.aleo {
+
+    @test
+    transition main_1() {
+        assert_eq(145u32, test.aleo/main());
     }
 
     @noupgrade

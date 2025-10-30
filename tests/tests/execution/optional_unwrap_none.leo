@@ -1,25 +1,8 @@
-/*
-seed = 987654321
-min_height = 16
-
-[case]
-program = "unwrap_none_test.aleo"
-function = "unwrap_none"
-input = []
-
-[case]
-program = "unwrap_none_test.aleo"
-function = "unwrap_struct_field_none"
-input = []
-*/
-
 program unwrap_none_test.aleo {
     // === Direct unwrap of a none value ===
-    async transition unwrap_none() -> Future {
-        return async {
-            let x: u8? = none;
-            assert(x.unwrap() > 0); // ❌ should fail
-        };
+    transition unwrap_none() {
+        let x: u8? = none;
+        assert(x.unwrap() > 0); // ❌ should fail
     }
 
     // === Struct with optional field ===
@@ -27,13 +10,33 @@ program unwrap_none_test.aleo {
         val: u64?,
     }
 
-    async transition unwrap_struct_field_none() -> Future {
-        return async {
-            let s: MaybeValue = MaybeValue { val: none };
-            assert(s.val.unwrap() > 0); // ❌ should also fail
-        };
+    transition unwrap_struct_field_none() {
+        let s: MaybeValue = MaybeValue { val: none };
+        assert(s.val.unwrap() > 0); // ❌ should also fail
     }
 
     @noupgrade
     async constructor() {}
 }
+
+// --- DO NOT RUN THIS TEST JUST YET --- //
+
+import unwrap_none_test.aleo;
+
+program test_unwrap_none_test.aleo {
+    @test
+    @should_fail
+    transition unwrap_none() {
+        unwrap_none_test.aleo/unwrap_none();
+    }
+
+    @test
+    @should_fail
+    transition unwrap_struct_field_none() {
+        unwrap_none_test.aleo/unwrap_struct_field_none();
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+

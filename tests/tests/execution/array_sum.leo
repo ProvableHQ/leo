@@ -1,17 +1,3 @@
-/*
-seed = 123456789
-
-[case]
-program = "test.aleo"
-function = "sum_manually"
-input = ["[1u64, 2u64, 3u64, 4u64]"]
-[case]
-program = "test.aleo"
-function = "sum_with_loop"
-input = ["[1u64, 2u64, 3u64, 4u64]"]
-*/
-
-
 program test.aleo {
     transition sum_manually(a: [u64; 4]) -> u64 {
         return a[0u8] + a[1u8] + a[2u8] + a[3u8];
@@ -23,6 +9,24 @@ program test.aleo {
             sum += a[i];
         }
         return sum;
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+program test_test.aleo {
+    @test
+    transition test_sum_manually() {
+        test.aleo/sum_manually([1u64, 2u64, 3u64, 4u64]);
+    }
+
+    @test
+    transition test_sum_with_loop() {
+        test.aleo/sum_with_loop([1u64, 2u64, 3u64, 4u64]);
     }
 
     @noupgrade

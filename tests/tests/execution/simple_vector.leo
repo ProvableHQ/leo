@@ -1,14 +1,3 @@
-/*
-seed = 987654321
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "test_vector_ops"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-*/
-
 program test.aleo {
     storage vec: [u32];
 
@@ -64,6 +53,23 @@ program test.aleo {
             let removed_single = vec.swap_remove(0);
             assert(removed_single == 99);
             assert(vec.len() == 0);
+        };
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+    @test
+    async transition test_vector_ops() -> Future {
+        let f = test.aleo/test_vector_ops();
+        return async {
+            f.await();
         };
     }
 

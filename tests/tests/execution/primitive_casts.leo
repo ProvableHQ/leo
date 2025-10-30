@@ -1,68 +1,3 @@
-/*
-seed = 1114567890
-
-[case]
-program = "test.aleo"
-function = "address_cast"
-input = ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey"]
-[case]
-program = "test.aleo"
-function = "bool_cast"
-input = ["false"]
-[case]
-program = "test.aleo"
-function = "field_casts"
-input = ["0field"]
-[case]
-program = "test.aleo"
-function = "group_casts"
-input = ["0group"]
-[case]
-program = "test.aleo"
-function = "i8_casts"
-input = ["0i8"]
-[case]
-program = "test.aleo"
-function = "i16_casts"
-input = ["0i16"]
-[case]
-program = "test.aleo"
-function = "i32_casts"
-input = ["0i32"]
-[case]
-program = "test.aleo"
-function = "i64_casts"
-input = ["0i64"]
-[case]
-program = "test.aleo"
-function = "i128_casts"
-input = ["0i128"]
-[case]
-program = "test.aleo"
-function = "u8_casts"
-input = ["0u8"]
-[case]
-program = "test.aleo"
-function = "u16_casts"
-input = ["0u16"]
-[case]
-program = "test.aleo"
-function = "u32_casts"
-input = ["0u32"]
-[case]
-program = "test.aleo"
-function = "u64_casts"
-input = ["0u64"]
-[case]
-program = "test.aleo"
-function = "u128_casts"
-input = ["0u128"]
-[case]
-program = "test.aleo"
-function = "scalar_cast"
-input = ["0scalar"]
-*/
-
 program test.aleo {
     transition address_cast(a: address) -> (address, bool, field, group, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, scalar) {
         return (a as address, a as bool, a as field, a as group, a as i8, a as i16, a as i32, a as i64, a as i128, a as u8, a as u16, a as u32, a as u64, a as u128, a as scalar);
@@ -128,6 +63,87 @@ program test.aleo {
     async constructor() {}
 }
 
+// --- Test --- //
 
+import test.aleo;
 
+program test_test.aleo {
+    @test
+    @should_fail
+    transition address_cast() {
+        test.aleo/address_cast(aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey);
+    }
 
+    @test
+    transition bool_cast() {
+        test.aleo/bool_cast(false);
+    }
+
+    @test
+    transition field_casts() {
+        test.aleo/field_casts(0);
+    }
+
+    @test
+    transition group_casts() {
+        test.aleo/group_casts(0);
+    }
+
+    @test
+    transition i8_casts() {
+        test.aleo/i8_casts(0);
+    }
+
+    @test
+    transition i16_casts() {
+        test.aleo/i16_casts(0);
+    }
+
+    @test
+    transition i32_casts() {
+        test.aleo/i32_casts(0);
+    }
+
+    @test
+    transition i64_casts() {
+        test.aleo/i64_casts(0);
+    }
+
+    @test
+    transition i128_casts() {
+        test.aleo/i128_casts(0);
+    }
+
+    @test
+    transition u8_casts() {
+        test.aleo/u8_casts(0);
+    }
+
+    @test
+    transition u16_casts() {
+        test.aleo/u16_casts(0);
+    }
+
+    @test
+    transition u32_casts() {
+        test.aleo/u32_casts(0);
+    }
+
+    @test
+    transition u64_casts() {
+        test.aleo/u64_casts(0);
+    }
+
+    @test
+    transition u128_casts() {
+        test.aleo/u128_casts(0);
+    }
+
+    @test
+    transition scalar_cast() {
+        test.aleo/scalar_cast(0);
+    }
+
+    @noupgrade
+    async constructor() {}
+}

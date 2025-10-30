@@ -1,29 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "increment"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[case]
-program = "test.aleo"
-function = "increment"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[case]
-program = "test.aleo"
-function = "increment"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[case]
-program = "test.aleo"
-function = "increment"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-*/
-
 program test.aleo {
     storage counter: u32;
 
@@ -45,3 +19,44 @@ program test.aleo {
     async constructor() {}
 }
 
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+
+    @test
+    async transition increment_first() -> Future {
+        let f = test.aleo/increment();
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition increment_second() -> Future {
+        let f = test.aleo/increment();
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition increment_third() -> Future {
+        let f = test.aleo/increment();
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition increment_fourth() -> Future {
+        let f = test.aleo/increment();
+        return async {
+            f.await();
+        };
+    }
+
+    @noupgrade
+    async constructor() {}
+}

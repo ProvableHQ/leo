@@ -1,92 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "test_u8_rt"
-input = ["42u8"]
-[case]
-program = "test.aleo"
-function = "test_u16_rt"
-input = ["1234u16"]
-[case]
-program = "test.aleo"
-function = "test_u32_rt"
-input = ["123456u32"]
-[case]
-program = "test.aleo"
-function = "test_u64_rt"
-input = ["9876543210u64"]
-[case]
-program = "test.aleo"
-function = "test_u128_rt"
-input = ["123456789012345678u128"]
-[case]
-program = "test.aleo"
-function = "test_i8_rt"
-input = ["-42i8"]
-[case]
-program = "test.aleo"
-function = "test_i16_rt"
-input = ["-1234i16"]
-[case]
-program = "test.aleo"
-function = "test_i32_rt"
-input = ["-123456i32"]
-[case]
-program = "test.aleo"
-function = "test_i64_rt"
-input = ["-9876543210i64"]
-[case]
-program = "test.aleo"
-function = "test_i128_rt"
-input = ["-123456789012345678i128"]
-[case]
-program = "test.aleo"
-function = "test_field_rt"
-input = ["123456field"]
-[case]
-program = "test.aleo"
-function = "test_group_rt"
-input = ["0group"]
-[case]
-program = "test.aleo"
-function = "test_scalar_rt"
-input = ["1scalar"]
-[case]
-program = "test.aleo"
-function = "test_address_rt"
-input = ["aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc"]
-[case]
-program = "test.aleo"
-function = "test_bool_rt"
-input = ["true"]
-[case]
-program = "test.aleo"
-function = "test_bool_rt"
-input = ["false"]
-[case]
-program = "test.aleo"
-function = "test_array_rt"
-input = ["[10u32, 20u32, 30u32, 40u32]"]
-[case]
-program = "test.aleo"
-function = "test_async_u32_rt"
-input = ["99999u32"]
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[case]
-program = "test.aleo"
-function = "test_async_field_rt"
-input = ["999999field"]
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-[case]
-program = "test.aleo"
-function = "test_async_array_rt"
-input = ["[100u8, 200u8]"]
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-*/
-
 program test.aleo {
     mapping results: u8 => bool;
 
@@ -340,6 +251,65 @@ program test.aleo {
             value[1u8] == reconstructed_raw[1u8];
 
         assert(matches_non_raw && matches_raw);
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+
+program test_test.aleo {
+    // --- Primitive casts ---
+    @test transition test_u8() { test.aleo/test_u8_rt(42u8); }
+    @test transition test_u16() { test.aleo/test_u16_rt(1234u16); }
+    @test transition test_u32() { test.aleo/test_u32_rt(123456u32); }
+    @test transition test_u64() { test.aleo/test_u64_rt(9876543210u64); }
+    @test transition test_u128() { test.aleo/test_u128_rt(123456789012345678u128); }
+    @test transition test_i8() { test.aleo/test_i8_rt(-42i8); }
+    @test transition test_i16() { test.aleo/test_i16_rt(-1234i16); }
+    @test transition test_i32() { test.aleo/test_i32_rt(-123456i32); }
+    @test transition test_i64() { test.aleo/test_i64_rt(-9876543210i64); }
+    @test transition test_i128() { test.aleo/test_i128_rt(-123456789012345678i128); }
+
+    // --- Field, group, scalar, address ---
+    @test transition test_field() { test.aleo/test_field_rt(123456field); }
+    @test transition test_group() { test.aleo/test_group_rt(0group); }
+    @test transition test_scalar() { test.aleo/test_scalar_rt(1scalar); }
+    @test transition test_address() { test.aleo/test_address_rt(aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc); }
+
+    // --- Booleans ---
+    @test transition test_bool_true() { test.aleo/test_bool_rt(true); }
+    @test transition test_bool_false() { test.aleo/test_bool_rt(false); }
+
+    // --- Arrays ---
+    @test transition test_array() { test.aleo/test_array_rt([10u32, 20u32, 30u32, 40u32]); }
+
+    // --- Async transitions ---
+    @test
+    async transition test_async_u32() -> Future {
+        let f = test.aleo/test_async_u32_rt(99999u32);
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition test_async_field() -> Future {
+        let f = test.aleo/test_async_field_rt(999999field);
+        return async {
+            f.await();
+        };
+    }
+
+    @test
+    async transition test_async_array() -> Future {
+        let f = test.aleo/test_async_array_rt([100u8, 200u8]);
+        return async {
+            f.await();
+        };
     }
 
     @noupgrade

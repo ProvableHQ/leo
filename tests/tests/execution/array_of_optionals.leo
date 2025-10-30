@@ -1,12 +1,3 @@
-/*
-seed = 123456789
-
-[case]
-program = "test.aleo"
-function = "main"
-input = []
-*/
-
 program test.aleo {
 
     // Treat any 0-value as none for testing purposes
@@ -25,7 +16,20 @@ program test.aleo {
             sum += arr[i].unwrap_or((i * i) as u64);
         }
 
-        assert(sum == 14u64);
+        assert_eq(sum, 14u64);
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import test.aleo;
+program test_test.aleo {
+    @test
+    transition main() {
+        test.aleo/main();
     }
 
     @noupgrade

@@ -1,26 +1,3 @@
-/*
-seed = 123456789
-min_height = 16
-
-[case]
-program = "test.aleo"
-function = "some_assignments"
-input = ["false", "false"]
-[case]
-program = "test.aleo"
-function = "some_assignments"
-input = ["false", "true"]
-[case]
-program = "test.aleo"
-function = "some_assignments"
-input = ["true", "false"]
-[case]
-program = "test.aleo"
-function = "some_assignments"
-input = ["true", "true"]
-*/
-
-
 program test.aleo {
     struct S {
         x: u32,
@@ -68,3 +45,49 @@ program test.aleo {
     @noupgrade
     async constructor() {}
 }
+
+// --- Test --- //
+
+import test.aleo;
+program test_test.aleo {
+
+    @test
+    transition some_assignments_1() {
+        // a=false, b=false
+        assert_eq(
+            [0u32, 1u32, 2u32, 3u32, 0u32, 1u32, 2u32, 3u32, 0u32, 1u32, 2u32],
+            test.aleo/some_assignments(false, false)
+        );
+    }
+
+    @test
+    transition some_assignments_2() {
+        // a=false, b=true
+        assert_eq(
+            [0u32, 1u32, 2u32, 3u32, 20u32, 1u32, 2u32, 30u32, 0u32, 1u32, 2u32],
+            test.aleo/some_assignments(false, true)
+        );
+    }
+
+    @test
+    transition some_assignments_3() {
+        // a=true, b=false
+        assert_eq(
+            [10u32, 1u32, 2u32, 3u32, 10u32, 1u32, 2u32, 3u32, 10u32, 1u32, 2u32],
+            test.aleo/some_assignments(true, false)
+        );
+    }
+
+    @test
+    transition some_assignments_4() {
+        // a=true, b=true
+        assert_eq(
+            [10u32, 1u32, 2u32, 3u32, 10u32, 1u32, 2u32, 30u32, 50u32, 60u32, 70u32],
+            test.aleo/some_assignments(true, true)
+        );
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+

@@ -1,32 +1,3 @@
-/*
-seed = 987654321
-min_height = 16
-
-[case]
-program = "mixed_types.aleo"
-function = "unsigned_integers"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "mixed_types.aleo"
-function = "signed_integers"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "mixed_types.aleo"
-function = "primitive_types"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "mixed_types.aleo"
-function = "structs_and_arrays"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-*/
-
 program mixed_types.aleo {
     //
     // ────────────────────────────────────────────────────────────────
@@ -165,6 +136,40 @@ program mixed_types.aleo {
             let arr3 = points_array.unwrap();
             assert(arr3[1].x == 13field);
         };
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Tests --- //
+
+import mixed_types.aleo;
+
+program test_mixed_types.aleo {
+
+    @test
+    async transition unsigned_integers_test() -> Future {
+        let f = mixed_types.aleo/unsigned_integers();
+        return async { f.await(); };
+    }
+
+    @test
+    async transition signed_integers_test() -> Future {
+        let f = mixed_types.aleo/signed_integers();
+        return async { f.await(); };
+    }
+
+    @test
+    async transition primitive_types_test() -> Future {
+        let f = mixed_types.aleo/primitive_types();
+        return async { f.await(); };
+    }
+
+    @test
+    async transition structs_and_arrays_test() -> Future {
+        let f = mixed_types.aleo/structs_and_arrays();
+        return async { f.await(); };
     }
 
     @noupgrade

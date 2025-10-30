@@ -1,32 +1,3 @@
-/*
-seed = 1122334455
-min_height = 16
-
-[case]
-program = "none_cases.aleo"
-function = "integers_none_behavior"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "none_cases.aleo"
-function = "primitives_none_behavior"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "none_cases.aleo"
-function = "arrays_none_behavior"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-
-[case]
-program = "none_cases.aleo"
-function = "structs_none_behavior"
-input = []
-private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
-*/
-
 program none_cases.aleo {
     //
     // ────────────────────────────────────────────────────────────────
@@ -146,6 +117,39 @@ program none_cases.aleo {
             container = Container { id: 9, point: Point { x: 9field, y: 9field } };
             assert(container.unwrap().point.x == 9field);
         };
+    }
+
+    @noupgrade
+    async constructor() {}
+}
+
+// --- Test --- //
+
+import none_cases.aleo;
+program test_none_cases.aleo {
+
+    @test
+    async transition integers_none_behavior_test() -> Future {
+        let f = none_cases.aleo/integers_none_behavior();
+        return async { f.await(); };
+    }
+
+    @test
+    async transition primitives_none_behavior_test() -> Future {
+        let f = none_cases.aleo/primitives_none_behavior();
+        return async { f.await(); };
+    }
+
+    @test
+    async transition arrays_none_behavior_test() -> Future {
+        let f = none_cases.aleo/arrays_none_behavior();
+        return async { f.await(); };
+    }
+
+    @test
+    async transition structs_none_behavior_test() -> Future {
+        let f = none_cases.aleo/structs_none_behavior();
+        return async { f.await(); };
     }
 
     @noupgrade
