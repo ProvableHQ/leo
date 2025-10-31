@@ -163,8 +163,8 @@ version = "3.1.1"
 version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
-version = "4.2.0"
-features = ["cli", "test_consensus_heights"]
+git = "https://github.com/ProvableHQ/snarkVM.git"
+branch = "feat/execute-alternates-2"
 
 [workspace.dependencies.tempfile]
 version = "3.13"
@@ -278,7 +278,7 @@ workspace = true
 
 [dependencies.snarkvm]
 workspace = true
-features = ["circuit", "console"]
+features = ["circuit", "console", "dev_skip_checks","test_consensus_heights"]
 
 [dependencies.sys-info]
 version = "0.9.1"

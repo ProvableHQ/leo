@@ -1,0 +1,60 @@
+[package]
+name = "devnode-rest"
+version = "4.2.2"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "A REST API server for a decentralized virtual machine"
+homepage = "https://aleo.org"
+repository = "https://github.com/ProvableHQ/snarkOS"
+keywords = ["aleo", "cryptography", "blockchain", "decentralized", "zero-knowledge"]
+categories = ["cryptography", "cryptography::cryptocurrencies", "os"]
+license = "Apache-2.0"
+edition = "2021"
+
+[features]
+default = []
+history = ["snarkvm/synthesizer", "snarkvm/history"]
+
+locktick = [
+  "dep:locktick",
+  "snarkvm/locktick"
+]
+# serial = [
+#   "snarkos-node-router/serial",
+#   "snarkos-node-consensus/serial"
+# ]
+
+[dependencies]
+anyhow = "1"
+axum = "0.8.0"
+axum-extra = { version = "0.10", features = ["erased-json", "typed-header"] }
+http = "1"
+indexmap = { version = "2", features = ["serde", "rayon"] }
+jsonwebtoken = "9.2"
+locktick = { path = "../locktick", features = ["parking_lot"], optional = true }
+once_cell = "1"
+parking_lot = "0.12"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+serde_with = "3"
+rand = "0.8"
+rayon = "1"
+time = "0.3"
+tokio = { version = "1", features = ["full"] }
+tower_governor = "0.7"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+tracing = "0.1"
+
+# Local snarkOS crates
+# snarkos-node-cdn = { path = "../cdn" }
+# snarkos-node-consensus = { path = "../consensus" }
+# snarkos-node-network = { path = "../network" }
+# snarkos-node-router = { path = "../router" }
+# snarkos-node-sync = { path = "../sync" }
+snarkvm = {git = "https://github.com/ProvableHQ/snarkVM.git", branch="feat/execute-alternates-2", features=["rocks", "test_consensus_heights","dev_skip_checks"]}
+
+[dev-dependencies]
+base64 = "0.22"
+tower = { version = "0.4", features = ["util"] }
+
+[build-dependencies]
+built = "0.7"
