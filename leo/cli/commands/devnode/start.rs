@@ -1,0 +1,42 @@
+// Copyright (C) 2019-2025 Provable Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use logger::initialize_terminal_logger;
+
+
+// Start the devnode server. This will start a local node that can be used for testing and development purposes. The devnode will run in the background and will be accessible via a REST API.
+// The devnode will be configured to use the local network and will be pre-populated with test accounts and data. This allows developers to interact with the node without needing to connect to the live network, making it easier to test and debug their applications.
+pub(crate) fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
+    // Start the devnode server
+    println!("Starting the devnode server...");
+    initialize_terminal_logger(2).expect("Failed to initialize logger");
+    let socket_addr: SocketAddr = "127.0.0.1:3030".parse().unwrap();
+    let rps = 999999999;
+    // Load the genesis block
+    let buffer = std::fs::read("./genesis/victor_genesis.txt").unwrap();
+    let genesis_block: Block<TestnetV0> = Block::from_bytes_le(&buffer).unwrap();
+    // Initialize the storage mode.
+    let storage_mode = StorageMode::new_test(None);
+    // Initialize the ledger.
+    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> = Ledger::load(genesis_block, storage_mode).unwrap();
+    // Start the REST API server
+    Rest::start(socket_addr, rps, ledger).await.expect("Failed to start the REST API server");
+    println!("Server running on http://{socket_addr}");
+    // Prevent main from exiting
+    std::future::pending::<()>().await;
+
+    Ok(())
+}

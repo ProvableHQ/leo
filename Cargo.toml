@@ -278,7 +278,7 @@ workspace = true
 
 [dependencies.snarkvm]
 workspace = true
-features = ["circuit", "console", "dev_skip_checks","test_consensus_heights"]
+features = ["circuit", "console", "dev_skip_checks","test_consensus_heights", "test_targets"]
 
 [dependencies.sys-info]
 version = "0.9.1"
