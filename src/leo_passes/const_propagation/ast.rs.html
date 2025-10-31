@@ -555,66 +555,63 @@
 <a href=#555 id=555 data-nosnippet>555</a>            <span class="kw">if </span><span class="self">self</span>.state.symbol_table.lookup_const(<span class="self">self</span>.program, path).is_none() {
 <a href=#556 id=556 data-nosnippet>556</a>                <span class="comment">// It wasn't already evaluated - insert it and record that we've made a change.
 <a href=#557 id=557 data-nosnippet>557</a>                </span><span class="self">self</span>.state.symbol_table.insert_const(<span class="self">self</span>.program, path, expr.clone());
-<a href=#558 id=558 data-nosnippet>558</a>                <span class="kw">if </span><span class="self">self</span>.state.symbol_table.global_scope() {
-<a href=#559 id=559 data-nosnippet>559</a>                    <span class="comment">// We made a change in the global scope, so this was a real change.
-<a href=#560 id=560 data-nosnippet>560</a>                    </span><span class="self">self</span>.changed = <span class="bool-val">true</span>;
-<a href=#561 id=561 data-nosnippet>561</a>                }
-<a href=#562 id=562 data-nosnippet>562</a>            }
-<a href=#563 id=563 data-nosnippet>563</a>        } <span class="kw">else </span>{
-<a href=#564 id=564 data-nosnippet>564</a>            <span class="self">self</span>.const_not_evaluated = <span class="prelude-val">Some</span>(span);
-<a href=#565 id=565 data-nosnippet>565</a>        }
+<a href=#558 id=558 data-nosnippet>558</a>                <span class="self">self</span>.changed = <span class="bool-val">true</span>;
+<a href=#559 id=559 data-nosnippet>559</a>            }
+<a href=#560 id=560 data-nosnippet>560</a>        } <span class="kw">else </span>{
+<a href=#561 id=561 data-nosnippet>561</a>            <span class="self">self</span>.const_not_evaluated = <span class="prelude-val">Some</span>(span);
+<a href=#562 id=562 data-nosnippet>562</a>        }
+<a href=#563 id=563 data-nosnippet>563</a>
+<a href=#564 id=564 data-nosnippet>564</a>        input.type_ = type_;
+<a href=#565 id=565 data-nosnippet>565</a>        input.value = expr;
 <a href=#566 id=566 data-nosnippet>566</a>
-<a href=#567 id=567 data-nosnippet>567</a>        input.type_ = type_;
-<a href=#568 id=568 data-nosnippet>568</a>        input.value = expr;
+<a href=#567 id=567 data-nosnippet>567</a>        (Statement::Const(input), <span class="prelude-val">None</span>)
+<a href=#568 id=568 data-nosnippet>568</a>    }
 <a href=#569 id=569 data-nosnippet>569</a>
-<a href=#570 id=570 data-nosnippet>570</a>        (Statement::Const(input), <span class="prelude-val">None</span>)
-<a href=#571 id=571 data-nosnippet>571</a>    }
-<a href=#572 id=572 data-nosnippet>572</a>
-<a href=#573 id=573 data-nosnippet>573</a>    <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, definition: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#574 id=574 data-nosnippet>574</a>        (
-<a href=#575 id=575 data-nosnippet>575</a>            DefinitionStatement {
-<a href=#576 id=576 data-nosnippet>576</a>                type_: definition.type_.map(|ty| <span class="self">self</span>.reconstruct_type(ty).<span class="number">0</span>),
-<a href=#577 id=577 data-nosnippet>577</a>                value: <span class="self">self</span>.reconstruct_expression(definition.value, <span class="kw-2">&amp;</span>()).<span class="number">0</span>,
-<a href=#578 id=578 data-nosnippet>578</a>                ..definition
-<a href=#579 id=579 data-nosnippet>579</a>            }
-<a href=#580 id=580 data-nosnippet>580</a>            .into(),
-<a href=#581 id=581 data-nosnippet>581</a>            <span class="prelude-val">None</span>,
-<a href=#582 id=582 data-nosnippet>582</a>        )
-<a href=#583 id=583 data-nosnippet>583</a>    }
-<a href=#584 id=584 data-nosnippet>584</a>
-<a href=#585 id=585 data-nosnippet>585</a>    <span class="kw">fn </span>reconstruct_expression_statement(
-<a href=#586 id=586 data-nosnippet>586</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#587 id=587 data-nosnippet>587</a>        <span class="kw-2">mut </span>input: ExpressionStatement,
-<a href=#588 id=588 data-nosnippet>588</a>    ) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#589 id=589 data-nosnippet>589</a>        input.expression = <span class="self">self</span>.reconstruct_expression(input.expression, <span class="kw-2">&amp;</span>()).<span class="number">0</span>;
-<a href=#590 id=590 data-nosnippet>590</a>
-<a href=#591 id=591 data-nosnippet>591</a>        <span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.expression, Expression::Unit(..) | Expression::Literal(..)) {
-<a href=#592 id=592 data-nosnippet>592</a>            <span class="comment">// We were able to evaluate this at compile time, but we need to get rid of this statement as
-<a href=#593 id=593 data-nosnippet>593</a>            // we can't have expression statements that aren't calls.
-<a href=#594 id=594 data-nosnippet>594</a>            </span>(Statement::dummy(), Default::default())
-<a href=#595 id=595 data-nosnippet>595</a>        } <span class="kw">else </span>{
-<a href=#596 id=596 data-nosnippet>596</a>            (input.into(), Default::default())
-<a href=#597 id=597 data-nosnippet>597</a>        }
-<a href=#598 id=598 data-nosnippet>598</a>    }
-<a href=#599 id=599 data-nosnippet>599</a>
-<a href=#600 id=600 data-nosnippet>600</a>    <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iteration: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#601 id=601 data-nosnippet>601</a>        <span class="kw">let </span>id = iteration.id();
-<a href=#602 id=602 data-nosnippet>602</a>        <span class="kw">let </span>type_ = iteration.type_.map(|ty| <span class="self">self</span>.reconstruct_type(ty).<span class="number">0</span>);
-<a href=#603 id=603 data-nosnippet>603</a>        <span class="kw">let </span>start = <span class="self">self</span>.reconstruct_expression(iteration.start, <span class="kw-2">&amp;</span>()).<span class="number">0</span>;
-<a href=#604 id=604 data-nosnippet>604</a>        <span class="kw">let </span>stop = <span class="self">self</span>.reconstruct_expression(iteration.stop, <span class="kw-2">&amp;</span>()).<span class="number">0</span>;
-<a href=#605 id=605 data-nosnippet>605</a>        <span class="self">self</span>.in_scope(id, |slf| {
-<a href=#606 id=606 data-nosnippet>606</a>            (
-<a href=#607 id=607 data-nosnippet>607</a>                IterationStatement { type_, start, stop, block: slf.reconstruct_block(iteration.block).<span class="number">0</span>, ..iteration }
-<a href=#608 id=608 data-nosnippet>608</a>                    .into(),
-<a href=#609 id=609 data-nosnippet>609</a>                <span class="prelude-val">None</span>,
-<a href=#610 id=610 data-nosnippet>610</a>            )
-<a href=#611 id=611 data-nosnippet>611</a>        })
-<a href=#612 id=612 data-nosnippet>612</a>    }
-<a href=#613 id=613 data-nosnippet>613</a>
-<a href=#614 id=614 data-nosnippet>614</a>    <span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#615 id=615 data-nosnippet>615</a>        (
-<a href=#616 id=616 data-nosnippet>616</a>            ReturnStatement { expression: <span class="self">self</span>.reconstruct_expression(input.expression, <span class="kw-2">&amp;</span>()).<span class="number">0</span>, ..input }.into(),
-<a href=#617 id=617 data-nosnippet>617</a>            Default::default(),
-<a href=#618 id=618 data-nosnippet>618</a>        )
-<a href=#619 id=619 data-nosnippet>619</a>    }
-<a href=#620 id=620 data-nosnippet>620</a>}</code></pre></div></section></main></body></html>
+<a href=#570 id=570 data-nosnippet>570</a>    <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, definition: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#571 id=571 data-nosnippet>571</a>        (
+<a href=#572 id=572 data-nosnippet>572</a>            DefinitionStatement {
+<a href=#573 id=573 data-nosnippet>573</a>                type_: definition.type_.map(|ty| <span class="self">self</span>.reconstruct_type(ty).<span class="number">0</span>),
+<a href=#574 id=574 data-nosnippet>574</a>                value: <span class="self">self</span>.reconstruct_expression(definition.value, <span class="kw-2">&amp;</span>()).<span class="number">0</span>,
+<a href=#575 id=575 data-nosnippet>575</a>                ..definition
+<a href=#576 id=576 data-nosnippet>576</a>            }
+<a href=#577 id=577 data-nosnippet>577</a>            .into(),
+<a href=#578 id=578 data-nosnippet>578</a>            <span class="prelude-val">None</span>,
+<a href=#579 id=579 data-nosnippet>579</a>        )
+<a href=#580 id=580 data-nosnippet>580</a>    }
+<a href=#581 id=581 data-nosnippet>581</a>
+<a href=#582 id=582 data-nosnippet>582</a>    <span class="kw">fn </span>reconstruct_expression_statement(
+<a href=#583 id=583 data-nosnippet>583</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#584 id=584 data-nosnippet>584</a>        <span class="kw-2">mut </span>input: ExpressionStatement,
+<a href=#585 id=585 data-nosnippet>585</a>    ) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#586 id=586 data-nosnippet>586</a>        input.expression = <span class="self">self</span>.reconstruct_expression(input.expression, <span class="kw-2">&amp;</span>()).<span class="number">0</span>;
+<a href=#587 id=587 data-nosnippet>587</a>
+<a href=#588 id=588 data-nosnippet>588</a>        <span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.expression, Expression::Unit(..) | Expression::Literal(..)) {
+<a href=#589 id=589 data-nosnippet>589</a>            <span class="comment">// We were able to evaluate this at compile time, but we need to get rid of this statement as
+<a href=#590 id=590 data-nosnippet>590</a>            // we can't have expression statements that aren't calls.
+<a href=#591 id=591 data-nosnippet>591</a>            </span>(Statement::dummy(), Default::default())
+<a href=#592 id=592 data-nosnippet>592</a>        } <span class="kw">else </span>{
+<a href=#593 id=593 data-nosnippet>593</a>            (input.into(), Default::default())
+<a href=#594 id=594 data-nosnippet>594</a>        }
+<a href=#595 id=595 data-nosnippet>595</a>    }
+<a href=#596 id=596 data-nosnippet>596</a>
+<a href=#597 id=597 data-nosnippet>597</a>    <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iteration: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#598 id=598 data-nosnippet>598</a>        <span class="kw">let </span>id = iteration.id();
+<a href=#599 id=599 data-nosnippet>599</a>        <span class="kw">let </span>type_ = iteration.type_.map(|ty| <span class="self">self</span>.reconstruct_type(ty).<span class="number">0</span>);
+<a href=#600 id=600 data-nosnippet>600</a>        <span class="kw">let </span>start = <span class="self">self</span>.reconstruct_expression(iteration.start, <span class="kw-2">&amp;</span>()).<span class="number">0</span>;
+<a href=#601 id=601 data-nosnippet>601</a>        <span class="kw">let </span>stop = <span class="self">self</span>.reconstruct_expression(iteration.stop, <span class="kw-2">&amp;</span>()).<span class="number">0</span>;
+<a href=#602 id=602 data-nosnippet>602</a>        <span class="self">self</span>.in_scope(id, |slf| {
+<a href=#603 id=603 data-nosnippet>603</a>            (
+<a href=#604 id=604 data-nosnippet>604</a>                IterationStatement { type_, start, stop, block: slf.reconstruct_block(iteration.block).<span class="number">0</span>, ..iteration }
+<a href=#605 id=605 data-nosnippet>605</a>                    .into(),
+<a href=#606 id=606 data-nosnippet>606</a>                <span class="prelude-val">None</span>,
+<a href=#607 id=607 data-nosnippet>607</a>            )
+<a href=#608 id=608 data-nosnippet>608</a>        })
+<a href=#609 id=609 data-nosnippet>609</a>    }
+<a href=#610 id=610 data-nosnippet>610</a>
+<a href=#611 id=611 data-nosnippet>611</a>    <span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#612 id=612 data-nosnippet>612</a>        (
+<a href=#613 id=613 data-nosnippet>613</a>            ReturnStatement { expression: <span class="self">self</span>.reconstruct_expression(input.expression, <span class="kw-2">&amp;</span>()).<span class="number">0</span>, ..input }.into(),
+<a href=#614 id=614 data-nosnippet>614</a>            Default::default(),
+<a href=#615 id=615 data-nosnippet>615</a>        )
+<a href=#616 id=616 data-nosnippet>616</a>    }
+<a href=#617 id=617 data-nosnippet>617</a>}</code></pre></div></section></main></body></html>
