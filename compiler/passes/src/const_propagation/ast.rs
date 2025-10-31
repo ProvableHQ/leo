@@ -555,10 +555,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             if self.state.symbol_table.lookup_const(self.program, path).is_none() {
                 // It wasn't already evaluated - insert it and record that we've made a change.
                 self.state.symbol_table.insert_const(self.program, path, expr.clone());
-                if self.state.symbol_table.global_scope() {
-                    // We made a change in the global scope, so this was a real change.
-                    self.changed = true;
-                }
+                self.changed = true;
             }
         } else {
             self.const_not_evaluated = Some(span);

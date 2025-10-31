@@ -95,6 +95,10 @@ impl LocalTable {
         }
     }
 
+    fn clear_but_consts(&mut self) {
+        self.inner.borrow_mut().variables.clear();
+    }
+
     /// Recursively duplicates this table and all children.
     /// `new_parent` is the NodeID of the parent in the new tree (None for root).
     pub fn dup(
@@ -140,13 +144,18 @@ impl LocalTable {
 }
 
 impl SymbolTable {
-    /// Reset everything except leave global consts that have been evaluated.
+    /// Reset everything except leave consts that have been evaluated.
     pub fn reset_but_consts(&mut self) {
         self.functions.clear();
         self.records.clear();
         self.structs.clear();
         self.globals.clear();
-        self.all_locals.clear();
+
+        // clear all non-const locals
+        for local_table in self.all_locals.values_mut() {
+            local_table.clear_but_consts();
+        }
+
         self.local = None;
     }
 
