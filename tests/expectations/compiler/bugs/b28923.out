@@ -1,0 +1,9 @@
+program b28923.aleo;
+
+function main:
+    input r0 as [u8; 4u32].private;
+    cast r0[0u32] r0[1u32] r0[2u32] r0[3u32] into r1 as [u8; 4u32];
+    output r1 as [u8; 4u32].private;
+
+constructor:
+    assert.eq edition 0u16;

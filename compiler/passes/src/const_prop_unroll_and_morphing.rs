@@ -49,8 +49,7 @@ impl Pass for ConstPropUnrollAndMorphing {
 
             // Clear the symbol table and create it again. This is important because after all the passes above run, the
             // program may have changed significantly (new functions may have been added, some functions may have been
-            // deleted, etc.) We do want to retain globally evaluated consts, so that const propagation can tell when
-            // it has evaluated a new one.
+            // deleted, etc.) We do want to retain evaluated consts, so that const propagation can tell when it has evaluated a new one.
             state.symbol_table.reset_but_consts();
             SymbolTableCreation::do_pass((), state)?;
 
