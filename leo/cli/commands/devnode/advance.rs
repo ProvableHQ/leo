@@ -15,6 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use serde_json::json;
+
 
 // Advance the devnode ledger by a specified number of blocks.  The default value is 1.
 #[derive(Parser, Debug)]
@@ -38,11 +40,11 @@ impl Command for Advance {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let network: NetworkName = get_network(&context.env_override.network)?;
         let endpoint = get_endpoint(&context.env_override.endpoint)?;
-        handle_advance_devnode(context, network, &endpoint, self.num_blocks)
+        handle_advance_devnode(context, network, &endpoint, self.num_blocks).await
     }
 }
 
-fn handle_advance_devnode(
+async fn handle_advance_devnode(
     context: Context,
     network: NetworkName,
     endpoint: &str,

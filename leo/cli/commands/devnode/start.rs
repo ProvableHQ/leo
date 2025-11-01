@@ -14,12 +14,43 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use logger::initialize_terminal_logger;
+use super::logger::initialize_terminal_logger;
+use std::net::SocketAddr;
+use super::rest::Rest;
+
+use aleo_std::storage::StorageMode;
+use snarkvm::prelude::{Block, FromBytes, Ledger, TestnetV0};
+use snarkvm::ledger::store::helpers::memory::ConsensusMemory;
+
+use super::*;
+
+// Advance the devnode ledger by a specified number of blocks.  The default value is 1.
+#[derive(Parser, Debug)]
+pub struct Start;
+
+impl Command for Start {
+    type Input = ();
+    type Output = ();
+
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Leo")
+    }
+
+    fn prelude(&self, _context: Context) -> Result<Self::Input> {
+        Ok(())
+    }
+
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let network: NetworkName = get_network(&context.env_override.network)?;
+        let endpoint = get_endpoint(&context.env_override.endpoint)?;
+        handle_start_devnode(context, network, &endpoint, self.num_blocks)
+    }
+}
 
 
 // Start the devnode server. This will start a local node that can be used for testing and development purposes. The devnode will run in the background and will be accessible via a REST API.
 // The devnode will be configured to use the local network and will be pre-populated with test accounts and data. This allows developers to interact with the node without needing to connect to the live network, making it easier to test and debug their applications.
-pub(crate) fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
+pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
     // Start the devnode server
     println!("Starting the devnode server...");
     initialize_terminal_logger(2).expect("Failed to initialize logger");

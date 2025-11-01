@@ -17,7 +17,7 @@
 #![forbid(unsafe_code)]
 
 #[macro_use]
-extern crate tracing;
+// extern crate tracing;
 
 mod helpers;
 // Imports custom `Path` type, to be used instead of `axum`'s.
@@ -58,6 +58,7 @@ use tower_http::{
     cors::{Any, CorsLayer},
     trace::TraceLayer,
 };
+use tracing::{debug, info};
 
 /// The default port used for the REST API
 pub const DEFAULT_REST_PORT: u16 = 3030;

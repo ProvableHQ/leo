@@ -77,6 +77,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoDevnet,
     },
+    #[clap(about = "Run a local devnode")]
+    Devnode {
+        #[clap(flatten)]
+        command: LeoDevnode,
+    },
     #[clap(about = "Query live data from the Aleo network")]
     Query {
         #[clap(flatten)]
@@ -170,6 +175,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
         Commands::Devnet { command } => command.try_execute(context),
+        Commands::Devnode { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Test { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),

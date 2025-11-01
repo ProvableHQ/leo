@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use tracing_subscriber::EnvFilter;
+use tracing_subscriber::prelude::*;
+use std::io;
+
 pub fn initialize_terminal_logger(verbosity: u8) -> Result<()> {
     let stdout_filter = parse_log_verbosity(verbosity)?;
 

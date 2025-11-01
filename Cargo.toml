@@ -120,11 +120,21 @@ default-features = false
 [workspace.dependencies.anyhow]
 version = "1.0"
 
+[workspace.dependencies.axum]
+version = "0.8.0"
+
+[workspace.dependencies.axum-extra]
+version = "0.10"
+features = ["erased-json", "typed-header"]
+
 [workspace.dependencies.base62]
 version = "2.2.1"
 
 [workspace.dependencies.colored]
 version = "2.0"
+
+[workspace.dependencies.http]
+version = "1"
 
 [workspace.dependencies.indexmap]
 version = "2.6"
@@ -132,6 +142,12 @@ features = ["serde"]
 
 [workspace.dependencies.itertools]
 version = "0.13.0"
+
+# [workspace.dependencies.locktick]
+# version = ""
+
+[workspace.dependencies.parking_lot]
+version = "0.12"
 
 [workspace.dependencies.rand]
 version = "0.8"
@@ -141,8 +157,14 @@ default-features = false
 version = "0.3.0"
 default-features = false
 
+[workspace.dependencies.rayon]
+version = "0.8"
+
 [workspace.dependencies.regex]
 version = "1.11.1"
+
+[workspace.dependencies.reqwest]
+version = "0.12.23"
 
 [workspace.dependencies.self_update]
 version = "0.41.0"
@@ -169,8 +191,22 @@ branch = "feat/execute-alternates-2"
 [workspace.dependencies.tempfile]
 version = "3.13"
 
+[workspace.dependencies.tokio]
+version = "1"
+features = ["full"]
+
+[workspace.dependencies.tower-http]
+version = "0.6.0"
+
+[workspace.dependencies.tower_governor]
+version = "0.7"
+
 [workspace.dependencies.tracing]
 version = "0.1"
+
+[workspace.dependencies.tracing-subscriber] 
+version = "0.3" 
+features = ["env-filter", "fmt"]
 
 [workspace.dependencies.ureq]
 version = "3.0.12"
@@ -207,6 +243,12 @@ workspace = true
 workspace = true
 
 [dependencies.aleo-std]
+workspace = true
+
+[dependencies.axum]
+workspace = true
+
+[dependencies.axum-extra]
 workspace = true
 
 [dependencies.backtrace]
@@ -261,8 +303,14 @@ workspace = true
 [dependencies.rand_chacha]
 workspace = true
 
+[dependencies.reqwest]
+workspace = true
+
 [dependencies.rpassword]
 version = "7.4.0"
+
+[dependencies.rayon]
+workspace = true
 
 [dependencies.self_update]
 workspace = true
@@ -285,6 +333,17 @@ version = "0.9.1"
 
 [dependencies.tempfile]
 version = "3.20.0"
+
+[dependencies.tokio]
+workspace = true
+features = ["full", "rt-multi-thread", "macros"]
+
+[dependencies.tower-http]
+workspace = true
+features = ["cors", "trace"]
+
+[dependencies.tower_governor]
+workspace = true
 
 [dependencies.tracing]
 workspace = true

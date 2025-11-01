@@ -14,21 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+mod advance;
+pub use advance::Advance;
 pub mod logger;
 pub mod rest;
-pub mod start;
+mod start;
+pub use start::Start;
+
+use clap::Parser;
+use crate::cli::{Command, EnvOptions, commands::{Context, Span}, get_network, get_endpoint};
+
+use leo_ast::NetworkName;
 
 #[derive(Parser, Debug)]
 pub enum DevnodeCommands{
     #[clap(name = "start", about = "Start the devnode")]
     Start {
         #[clap(flatten)]
-        command: start::start_devnode;,
+        command: start::Start,
     },
     #[clap(name = "advance", about = "Advance the ledger by a specified number of blocks")]
     Advance {
         #[clap(flatten)]
-        command: advance::advance_devnode;,
+        command: advance::Advance,
     },
 }
 
