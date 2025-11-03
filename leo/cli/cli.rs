@@ -148,7 +148,10 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     // Initialize the `.env` file.
     dotenvy::dotenv().ok();
 
-    if !cli.quiet {
+    // Skip logger initialization for devnode -- it uses it's own logger.
+    let is_devnode = matches!(&cli.command, Commands::Devnode { .. });
+
+    if !cli.quiet && !is_devnode {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match cli.debug {
             false => 1,

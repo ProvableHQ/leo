@@ -16,9 +16,6 @@
 
 #![forbid(unsafe_code)]
 
-#[macro_use]
-// extern crate tracing;
-
 mod helpers;
 // Imports custom `Path` type, to be used instead of `axum`'s.
 pub use helpers::*;
@@ -249,7 +246,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
 
 /// Creates a log message for every HTTP request.
 async fn log_middleware(ConnectInfo(addr): ConnectInfo<SocketAddr>, request: Request<Body>) -> Request<Body> {
-    info!("Received '{} {}' from '{addr}'", request.method(), request.uri());
+    info!("Received {:?} {:?} from {:?}", request.method(), request.uri(), addr);
     request
 }
 
