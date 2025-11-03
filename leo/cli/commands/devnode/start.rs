@@ -44,7 +44,7 @@ impl Command for Start {
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         let rt = tokio::runtime::Runtime::new().unwrap();
-        let _ =rt.block_on(async {
+        let _ = rt.block_on(async {
             start_devnode().await
         });
         Ok(())
@@ -61,7 +61,9 @@ pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
     let socket_addr: SocketAddr = "127.0.0.1:3030".parse().unwrap();
     let rps = 999999999;
     // Load the genesis block
-    let buffer = std::fs::read("./genesis/victor_genesis.txt").unwrap();
+    use std::env;
+    println!("Current working directory: {}", env::current_dir()?.display());
+    let buffer = std::fs::read("./leo/cli/commands/devnode/rest/victor_genesis.txt").unwrap();
     let genesis_block: Block<TestnetV0> = Block::from_bytes_le(&buffer).unwrap();
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
