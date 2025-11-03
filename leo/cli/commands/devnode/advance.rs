@@ -62,17 +62,17 @@ async fn handle_advance_devnode(
     // Call the REST API to advance the ledger by one block.
     let client = reqwest::blocking::Client::new();
 
-    for i in 0..num_blocks {
-        let payload = json!({
-            "private_key": private_key_str
-        });
+    
+    let payload = json!({
+        "private_key": private_key_str,
+        "num_blocks": num_blocks,
+    });
 
-        let response = client
-            .post("http://localhost:3030/testnet/block/create")
-            .header("Content-Type", "application/json")
-            .json(&payload)
-            .send();
-    }
+    let response = client
+        .post("http://localhost:3030/testnet/block/create")
+        .header("Content-Type", "application/json")
+        .json(&payload)
+        .send();
 
     Ok(())
 }

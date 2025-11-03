@@ -71,11 +71,13 @@ pub(crate) struct Commitments {
     #[serde(deserialize_with = "de_csv")]
     commitments: Vec<String>,
 }
-
+/// The request object for creating a new block.
 #[derive(Clone, Deserialize, Serialize)]
 pub(crate) struct CreateBlockRequest {
     /// Private key that is used for signing the block.
-    pub private_key: String,
+    pub private_key: String, 
+    /// number of blocks to create.
+    pub num_blocks: Option<u32>,
 }
 
 impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
@@ -629,30 +631,81 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
     }
 
     /// POST /{network}/block/create
-    pub(crate) async fn create_block(State(rest): State<Self>, Json(req): Json<CreateBlockRequest>) -> Result<ErasedJson, RestError> {
-        // Extract the unconfirmed transactions from the buffer.
-        let unconfirmed_txs = {
-            let mut buffer = rest.buffer.lock();
-            let txs = buffer.drain(..).collect::<Vec<_>>();
-            txs
-        };
-        // Parse the private key.
-        let private_key = PrivateKey::<N>::from_str(&req.private_key)?;
+    // pub(crate) async fn create_block(State(rest): State<Self>, Json(req): Json<CreateBlockRequest>) -> Result<ErasedJson, RestError> {
+    //     // Extract the unconfirmed transactions from the buffer.
+    //     let unconfirmed_txs = {
+    //         let mut buffer = rest.buffer.lock();
+    //         let txs = buffer.drain(..).collect::<Vec<_>>();
+    //         txs
+    //     };
+    //     // Parse the private key.
+    //     let private_key = PrivateKey::<N>::from_str(&req.private_key)?;
 
-        // Create a block.
-        let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
-            &private_key,
-            vec![],
-            vec![],
-            unconfirmed_txs,
-            &mut rand::thread_rng(),
-        )?;
+    //     // Create a block.
+    //     let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
+    //         &private_key,
+    //         vec![],
+    //         vec![],
+    //         unconfirmed_txs,
+    //         &mut rand::thread_rng(),
+    //     )?;
 
-        // Advance to the next block.
-        rest.ledger.advance_to_next_block(&new_block)?;
+    //     // Advance to the next block.
+    //     rest.ledger.advance_to_next_block(&new_block)?;
 
-        Ok(ErasedJson::pretty(new_block))
-    }
+    //     if let Some(num_blocks) = req.num_blocks {
+    //         for _ in 1..num_blocks {
+    //             let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
+    //                 &private_key,
+    //                 vec![],
+    //                 vec![],
+    //                 vec![],
+    //                 &mut rand::thread_rng(),
+    //             )?;
+
+    //             // Advance to the next block.
+    //             rest.ledger.advance_to_next_block(&new_block)?;
+    //         }
+    //     }
+
+    //     Ok(ErasedJson::pretty(new_block))
+    // }
+pub(crate) async fn create_block(
+    State(rest): State<Self>, 
+    Json(req): Json<CreateBlockRequest>
+) -> Result<ErasedJson, RestError> {
+    let num_blocks = req.num_blocks.unwrap_or(1);
+    
+    let last_block = tokio::task::spawn_blocking(move || -> Result<ErasedJson, RestError> {
+        let private_key = PrivateKey::<N>::from_str(&req.private_key)
+            .map_err(|e| RestError::bad_request(anyhow!("Invalid private key: {}", e)))?;
+        
+        let mut last_block = None;
+        
+        for i in 0..num_blocks {
+            let unconfirmed_txs = if i == 0 {
+                let mut buffer = rest.buffer.lock();
+                buffer.drain(..).collect()
+            } else {
+                vec![]
+            };
+            
+            let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
+                &private_key, vec![], vec![], unconfirmed_txs, &mut rand::thread_rng()
+            ).map_err(|e| RestError::internal_server_error(anyhow!("Failed to prepare block: {}", e)))?;
+            
+            rest.ledger.advance_to_next_block(&new_block)
+                .map_err(|e| RestError::internal_server_error(anyhow!("Failed to advance block: {}", e)))?;
+            
+            last_block = Some(new_block);
+        }
+        
+        Ok(ErasedJson::pretty(last_block.unwrap()))
+    }).await
+    .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
+    
+    Ok(last_block)
+}
 
     /// GET /{network}/block/{blockHeight}/history/{mapping}
     #[cfg(feature = "history")]
