@@ -1,5 +1,7 @@
-Error [ELUN0379000]: The loop range must be increasing.
-    --> compiler-test:5:26
-     |
-   5 |         const STOP: u8 = 0u8;
-     |                          ^^^
+program test.aleo;
+
+function foo:
+    input r0 as u8.private;
+    input r1 as u8.private;
+    input r2 as boolean.private;
+    output 1u8 as u8.private;

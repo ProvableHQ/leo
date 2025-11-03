@@ -16,8 +16,6 @@
 
 use leo_ast::{Expression::Literal, interpreter_value::literal_to_value, *};
 
-use leo_errors::LoopUnrollerError;
-
 use super::UnrollingVisitor;
 
 impl AstReconstructor for UnrollingVisitor<'_> {
@@ -107,14 +105,19 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         let stop_value =
             literal_to_value(&resolved_stop_lit, &None).expect("Parsing and type checking guarantee this works.");
 
-        // Ensure loop bounds are strictly increasing
-        if start_value.gte(&stop_value).expect("Type checking guarantees these are the same type") {
-            self.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
-        }
-
         self.loop_unrolled = true;
 
         // Actually unroll.
-        (self.unroll_iteration_statement(input, start_value, stop_value), Default::default())
+        (
+            if start_value.gte(&stop_value).expect("Type checking guarantees these are the same type") {
+                let new_block_id = self.state.node_builder.next_id();
+                self.in_scope(new_block_id, |_| {
+                    Statement::from(Block { span: input.span, statements: vec![], id: new_block_id })
+                })
+            } else {
+                self.unroll_iteration_statement(input, start_value, stop_value)
+            },
+            Default::default(),
+        )
     }
 }

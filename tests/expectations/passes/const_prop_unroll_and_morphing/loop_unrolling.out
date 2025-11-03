@@ -28,6 +28,8 @@ program test.aleo {
                 }
             }
         }
+        sum = sum + 1u32;
+        sum = sum + 1u32;
         return sum;
     }
 }

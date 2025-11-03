@@ -50,11 +50,6 @@ impl UnrollingVisitor<'_> {
         result
     }
 
-    /// Emits a Loop Unrolling Error
-    pub fn emit_err(&self, err: LoopUnrollerError) {
-        self.state.handler.emit_err(err);
-    }
-
     /// Unrolls an IterationStatement.
     pub fn unroll_iteration_statement(&mut self, input: IterationStatement, start: Value, stop: Value) -> Statement {
         // We already know these are integers since loop unrolling occurs after type checking.
