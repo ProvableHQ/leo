@@ -39,7 +39,7 @@ impl Command for Advance {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
     let private_key = std::env::var("PRIVATE_KEY")
-                .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?;;
+                .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?;
              
     tokio::runtime::Runtime::new()
         .unwrap()

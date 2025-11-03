@@ -573,6 +573,34 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         //     // Propagate error if any.
         //     res?;
 
+        // Create a block with the transaction if the BLOCK_CREATE feauture is not disabled.
+        let block_boolean = std::env::var("BLOCK_CREATE").unwrap_or_else(|_| "true".to_string());
+        if block_boolean == "true" {
+            // Create a block by advancing the ledger using the transaction buffer.
+            let tx_copy = tx.clone();
+            let tx_id = tx_copy.id();
+            // Parse the private key.
+            let private_key_str = std::env::var("PRIVATE_KEY")
+                .map_err(|_| RestError::internal_server_error(
+                    anyhow!("PRIVATE_KEY environment variable not set")
+                )
+            )?;
+
+            let private_key = PrivateKey::<N>::from_str(&private_key_str)?;
+            // Create a block.
+            let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
+                &private_key,
+                vec![],
+                vec![],
+                vec![tx_copy],
+                &mut rand::thread_rng(),
+            )?;
+
+            // Advance to the next block.
+            rest.ledger.advance_to_next_block(&new_block)?;
+            return Ok((StatusCode::OK, ErasedJson::pretty(tx_id)))
+        }
+
             // Add the transaction to the Rest buffer.
             {
                 let mut buffer = rest.buffer.lock();
