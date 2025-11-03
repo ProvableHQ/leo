@@ -35,7 +35,7 @@ use leo_ast::{
     Type,
     Variant,
 };
-use leo_errors::{LeoError, Result};
+use leo_errors::Result;
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -146,7 +146,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         if !input.is_record {
             if let Some(prev_span) = self.structs.get(&full_name) {
                 // The struct already existed
-                return self.state.handler.emit_err::<LeoError>(SymbolTable::emit_shadow_error(
+                return self.state.handler.emit_err(SymbolTable::emit_shadow_error(
                     input.identifier.name,
                     input.identifier.span,
                     *prev_span,

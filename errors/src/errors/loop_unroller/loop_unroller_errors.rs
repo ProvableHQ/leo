@@ -23,6 +23,7 @@ create_messages!(
     code_mask: 9000i32,
     code_prefix: "LUN",
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     loop_range_decreasing {
         args: (),

@@ -187,17 +187,17 @@ impl Handler {
     }
 
     /// Emit the error `err`.
-    pub fn emit_err<E: Into<LeoError>>(&self, err: E) {
+    pub fn emit_err(&self, err: impl Into<LeoError>) {
         let mut inner = self.inner.borrow_mut();
         inner.err_count = inner.err_count.saturating_add(1);
         inner.emitter.emit_err(err.into());
     }
 
     /// Emit the error `err`.
-    pub fn emit_warning(&self, warning: LeoWarning) {
+    pub fn emit_warning(&self, warning: impl Into<LeoWarning>) {
         let mut inner = self.inner.borrow_mut();
         inner.warn_count = inner.warn_count.saturating_add(1);
-        inner.emitter.emit_warning(warning);
+        inner.emitter.emit_warning(warning.into());
     }
 
     /// The number of errors thus far.

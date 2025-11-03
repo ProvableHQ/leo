@@ -80,7 +80,7 @@ impl TypeCheckingVisitor<'_> {
     /// Emits a type checker warning
     pub fn emit_warning(&mut self, warning: TypeCheckerWarning) {
         if self.state.warnings.insert(warning.clone().into()) {
-            self.state.handler.emit_warning(warning.into());
+            self.state.handler.emit_warning(warning);
         }
     }
 
