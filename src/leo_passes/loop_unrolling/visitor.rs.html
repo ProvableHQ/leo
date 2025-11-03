@@ -50,80 +50,75 @@
 <a href=#50 id=50 data-nosnippet>50</a>        result
 <a href=#51 id=51 data-nosnippet>51</a>    }
 <a href=#52 id=52 data-nosnippet>52</a>
-<a href=#53 id=53 data-nosnippet>53</a>    <span class="doccomment">/// Emits a Loop Unrolling Error
-<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub fn </span>emit_err(<span class="kw-2">&amp;</span><span class="self">self</span>, err: LoopUnrollerError) {
-<a href=#55 id=55 data-nosnippet>55</a>        <span class="self">self</span>.state.handler.emit_err(err);
-<a href=#56 id=56 data-nosnippet>56</a>    }
-<a href=#57 id=57 data-nosnippet>57</a>
-<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Unrolls an IterationStatement.
-<a href=#59 id=59 data-nosnippet>59</a>    </span><span class="kw">pub fn </span>unroll_iteration_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IterationStatement, start: Value, stop: Value) -&gt; Statement {
-<a href=#60 id=60 data-nosnippet>60</a>        <span class="comment">// We already know these are integers since loop unrolling occurs after type checking.
-<a href=#61 id=61 data-nosnippet>61</a>        </span><span class="kw">let </span>cast_to_number = |v: Value| -&gt; <span class="prelude-ty">Result</span>&lt;i128, Statement&gt; {
-<a href=#62 id=62 data-nosnippet>62</a>            <span class="kw">match </span>v.as_i128() {
-<a href=#63 id=63 data-nosnippet>63</a>                <span class="prelude-val">Some</span>(val_as_i128) =&gt; <span class="prelude-val">Ok</span>(val_as_i128),
-<a href=#64 id=64 data-nosnippet>64</a>                <span class="prelude-val">None </span>=&gt; {
-<a href=#65 id=65 data-nosnippet>65</a>                    <span class="self">self</span>.state.handler.emit_err(LoopUnrollerError::value_out_of_i128_bounds(v, input.span()));
-<a href=#66 id=66 data-nosnippet>66</a>                    <span class="prelude-val">Err</span>(Statement::dummy())
-<a href=#67 id=67 data-nosnippet>67</a>                }
-<a href=#68 id=68 data-nosnippet>68</a>            }
-<a href=#69 id=69 data-nosnippet>69</a>        };
-<a href=#70 id=70 data-nosnippet>70</a>
-<a href=#71 id=71 data-nosnippet>71</a>        <span class="comment">// Cast `start` to `i128`.
-<a href=#72 id=72 data-nosnippet>72</a>        </span><span class="kw">let </span>start = <span class="kw">match </span>cast_to_number(start) {
+<a href=#53 id=53 data-nosnippet>53</a>    <span class="doccomment">/// Unrolls an IterationStatement.
+<a href=#54 id=54 data-nosnippet>54</a>    </span><span class="kw">pub fn </span>unroll_iteration_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IterationStatement, start: Value, stop: Value) -&gt; Statement {
+<a href=#55 id=55 data-nosnippet>55</a>        <span class="comment">// We already know these are integers since loop unrolling occurs after type checking.
+<a href=#56 id=56 data-nosnippet>56</a>        </span><span class="kw">let </span>cast_to_number = |v: Value| -&gt; <span class="prelude-ty">Result</span>&lt;i128, Statement&gt; {
+<a href=#57 id=57 data-nosnippet>57</a>            <span class="kw">match </span>v.as_i128() {
+<a href=#58 id=58 data-nosnippet>58</a>                <span class="prelude-val">Some</span>(val_as_i128) =&gt; <span class="prelude-val">Ok</span>(val_as_i128),
+<a href=#59 id=59 data-nosnippet>59</a>                <span class="prelude-val">None </span>=&gt; {
+<a href=#60 id=60 data-nosnippet>60</a>                    <span class="self">self</span>.state.handler.emit_err(LoopUnrollerError::value_out_of_i128_bounds(v, input.span()));
+<a href=#61 id=61 data-nosnippet>61</a>                    <span class="prelude-val">Err</span>(Statement::dummy())
+<a href=#62 id=62 data-nosnippet>62</a>                }
+<a href=#63 id=63 data-nosnippet>63</a>            }
+<a href=#64 id=64 data-nosnippet>64</a>        };
+<a href=#65 id=65 data-nosnippet>65</a>
+<a href=#66 id=66 data-nosnippet>66</a>        <span class="comment">// Cast `start` to `i128`.
+<a href=#67 id=67 data-nosnippet>67</a>        </span><span class="kw">let </span>start = <span class="kw">match </span>cast_to_number(start) {
+<a href=#68 id=68 data-nosnippet>68</a>            <span class="prelude-val">Ok</span>(v) =&gt; v,
+<a href=#69 id=69 data-nosnippet>69</a>            <span class="prelude-val">Err</span>(s) =&gt; <span class="kw">return </span>s,
+<a href=#70 id=70 data-nosnippet>70</a>        };
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="comment">// Cast `stop` to `i128`.
+<a href=#72 id=72 data-nosnippet>72</a>        </span><span class="kw">let </span>stop = <span class="kw">match </span>cast_to_number(stop) {
 <a href=#73 id=73 data-nosnippet>73</a>            <span class="prelude-val">Ok</span>(v) =&gt; v,
 <a href=#74 id=74 data-nosnippet>74</a>            <span class="prelude-val">Err</span>(s) =&gt; <span class="kw">return </span>s,
 <a href=#75 id=75 data-nosnippet>75</a>        };
-<a href=#76 id=76 data-nosnippet>76</a>        <span class="comment">// Cast `stop` to `i128`.
-<a href=#77 id=77 data-nosnippet>77</a>        </span><span class="kw">let </span>stop = <span class="kw">match </span>cast_to_number(stop) {
-<a href=#78 id=78 data-nosnippet>78</a>            <span class="prelude-val">Ok</span>(v) =&gt; v,
-<a href=#79 id=79 data-nosnippet>79</a>            <span class="prelude-val">Err</span>(s) =&gt; <span class="kw">return </span>s,
-<a href=#80 id=80 data-nosnippet>80</a>        };
-<a href=#81 id=81 data-nosnippet>81</a>
-<a href=#82 id=82 data-nosnippet>82</a>        <span class="kw">let </span>new_block_id = <span class="self">self</span>.state.node_builder.next_id();
-<a href=#83 id=83 data-nosnippet>83</a>
-<a href=#84 id=84 data-nosnippet>84</a>        <span class="kw">let </span>iter = <span class="kw">if </span>input.inclusive { Either::Left(start..=stop) } <span class="kw">else </span>{ Either::Right(start..stop) };
-<a href=#85 id=85 data-nosnippet>85</a>
-<a href=#86 id=86 data-nosnippet>86</a>        <span class="comment">// Create a block statement to replace the iteration statement.
-<a href=#87 id=87 data-nosnippet>87</a>        </span><span class="self">self</span>.in_scope(new_block_id, |slf| {
-<a href=#88 id=88 data-nosnippet>88</a>            Block {
-<a href=#89 id=89 data-nosnippet>89</a>                span: input.span,
-<a href=#90 id=90 data-nosnippet>90</a>                statements: iter.map(|iteration_count| slf.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count)).collect(),
-<a href=#91 id=91 data-nosnippet>91</a>                id: new_block_id,
-<a href=#92 id=92 data-nosnippet>92</a>            }
-<a href=#93 id=93 data-nosnippet>93</a>            .into()
-<a href=#94 id=94 data-nosnippet>94</a>        })
-<a href=#95 id=95 data-nosnippet>95</a>    }
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>        <span class="kw">let </span>new_block_id = <span class="self">self</span>.state.node_builder.next_id();
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a>        <span class="kw">let </span>iter = <span class="kw">if </span>input.inclusive { Either::Left(start..=stop) } <span class="kw">else </span>{ Either::Right(start..stop) };
+<a href=#80 id=80 data-nosnippet>80</a>
+<a href=#81 id=81 data-nosnippet>81</a>        <span class="comment">// Create a block statement to replace the iteration statement.
+<a href=#82 id=82 data-nosnippet>82</a>        </span><span class="self">self</span>.in_scope(new_block_id, |slf| {
+<a href=#83 id=83 data-nosnippet>83</a>            Block {
+<a href=#84 id=84 data-nosnippet>84</a>                span: input.span,
+<a href=#85 id=85 data-nosnippet>85</a>                statements: iter.map(|iteration_count| slf.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count)).collect(),
+<a href=#86 id=86 data-nosnippet>86</a>                id: new_block_id,
+<a href=#87 id=87 data-nosnippet>87</a>            }
+<a href=#88 id=88 data-nosnippet>88</a>            .into()
+<a href=#89 id=89 data-nosnippet>89</a>        })
+<a href=#90 id=90 data-nosnippet>90</a>    }
+<a href=#91 id=91 data-nosnippet>91</a>
+<a href=#92 id=92 data-nosnippet>92</a>    <span class="doccomment">/// A helper function to unroll a single iteration an IterationStatement.
+<a href=#93 id=93 data-nosnippet>93</a>    </span><span class="kw">fn </span>unroll_single_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement, iteration_count: i128) -&gt; Statement {
+<a href=#94 id=94 data-nosnippet>94</a>        <span class="comment">// Construct a new node ID.
+<a href=#95 id=95 data-nosnippet>95</a>        </span><span class="kw">let </span>const_id = <span class="self">self</span>.state.node_builder.next_id();
 <a href=#96 id=96 data-nosnippet>96</a>
-<a href=#97 id=97 data-nosnippet>97</a>    <span class="doccomment">/// A helper function to unroll a single iteration an IterationStatement.
-<a href=#98 id=98 data-nosnippet>98</a>    </span><span class="kw">fn </span>unroll_single_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement, iteration_count: i128) -&gt; Statement {
-<a href=#99 id=99 data-nosnippet>99</a>        <span class="comment">// Construct a new node ID.
-<a href=#100 id=100 data-nosnippet>100</a>        </span><span class="kw">let </span>const_id = <span class="self">self</span>.state.node_builder.next_id();
-<a href=#101 id=101 data-nosnippet>101</a>
-<a href=#102 id=102 data-nosnippet>102</a>        <span class="kw">let </span>iterator_type =
-<a href=#103 id=103 data-nosnippet>103</a>            <span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>input.variable.id()).expect(<span class="string">"guaranteed to have a type after type checking"</span>);
+<a href=#97 id=97 data-nosnippet>97</a>        <span class="kw">let </span>iterator_type =
+<a href=#98 id=98 data-nosnippet>98</a>            <span class="self">self</span>.state.type_table.get(<span class="kw-2">&amp;</span>input.variable.id()).expect(<span class="string">"guaranteed to have a type after type checking"</span>);
+<a href=#99 id=99 data-nosnippet>99</a>
+<a href=#100 id=100 data-nosnippet>100</a>        <span class="comment">// Update the type table.
+<a href=#101 id=101 data-nosnippet>101</a>        </span><span class="self">self</span>.state.type_table.insert(const_id, iterator_type.clone());
+<a href=#102 id=102 data-nosnippet>102</a>
+<a href=#103 id=103 data-nosnippet>103</a>        <span class="kw">let </span>outer_block_id = <span class="self">self</span>.state.node_builder.next_id();
 <a href=#104 id=104 data-nosnippet>104</a>
-<a href=#105 id=105 data-nosnippet>105</a>        <span class="comment">// Update the type table.
-<a href=#106 id=106 data-nosnippet>106</a>        </span><span class="self">self</span>.state.type_table.insert(const_id, iterator_type.clone());
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a>        <span class="kw">let </span>outer_block_id = <span class="self">self</span>.state.node_builder.next_id();
+<a href=#105 id=105 data-nosnippet>105</a>        <span class="comment">// Reconstruct `iteration_count` as a `Literal`.
+<a href=#106 id=106 data-nosnippet>106</a>        </span><span class="kw">let </span>Type::Integer(integer_type) = <span class="kw-2">&amp;</span>iterator_type <span class="kw">else </span>{
+<a href=#107 id=107 data-nosnippet>107</a>            <span class="macro">unreachable!</span>(<span class="string">"Type checking enforces that the iteration variable is of integer type"</span>);
+<a href=#108 id=108 data-nosnippet>108</a>        };
 <a href=#109 id=109 data-nosnippet>109</a>
-<a href=#110 id=110 data-nosnippet>110</a>        <span class="comment">// Reconstruct `iteration_count` as a `Literal`.
-<a href=#111 id=111 data-nosnippet>111</a>        </span><span class="kw">let </span>Type::Integer(integer_type) = <span class="kw-2">&amp;</span>iterator_type <span class="kw">else </span>{
-<a href=#112 id=112 data-nosnippet>112</a>            <span class="macro">unreachable!</span>(<span class="string">"Type checking enforces that the iteration variable is of integer type"</span>);
-<a href=#113 id=113 data-nosnippet>113</a>        };
-<a href=#114 id=114 data-nosnippet>114</a>
-<a href=#115 id=115 data-nosnippet>115</a>        <span class="self">self</span>.in_scope(outer_block_id, |slf| {
-<a href=#116 id=116 data-nosnippet>116</a>            <span class="kw">let </span>value = Literal::integer(<span class="kw-2">*</span>integer_type, iteration_count.to_string(), Default::default(), const_id);
-<a href=#117 id=117 data-nosnippet>117</a>
-<a href=#118 id=118 data-nosnippet>118</a>            <span class="comment">// Add the loop variable as a constant for the current scope.
-<a href=#119 id=119 data-nosnippet>119</a>            </span>slf.state.symbol_table.insert_const(slf.program, <span class="kw-2">&amp;</span>[input.variable.name], value.into());
+<a href=#110 id=110 data-nosnippet>110</a>        <span class="self">self</span>.in_scope(outer_block_id, |slf| {
+<a href=#111 id=111 data-nosnippet>111</a>            <span class="kw">let </span>value = Literal::integer(<span class="kw-2">*</span>integer_type, iteration_count.to_string(), Default::default(), const_id);
+<a href=#112 id=112 data-nosnippet>112</a>
+<a href=#113 id=113 data-nosnippet>113</a>            <span class="comment">// Add the loop variable as a constant for the current scope.
+<a href=#114 id=114 data-nosnippet>114</a>            </span>slf.state.symbol_table.insert_const(slf.program, <span class="kw-2">&amp;</span>[input.variable.name], value.into());
+<a href=#115 id=115 data-nosnippet>115</a>
+<a href=#116 id=116 data-nosnippet>116</a>            <span class="kw">let </span>duplicated_body =
+<a href=#117 id=117 data-nosnippet>117</a>                <span class="kw">super</span>::duplicate::duplicate(input.block.clone(), <span class="kw-2">&amp;mut </span>slf.state.symbol_table, <span class="kw-2">&amp;</span>slf.state.node_builder);
+<a href=#118 id=118 data-nosnippet>118</a>
+<a href=#119 id=119 data-nosnippet>119</a>            <span class="kw">let </span>result = slf.reconstruct_block(duplicated_body).<span class="number">0</span>.into();
 <a href=#120 id=120 data-nosnippet>120</a>
-<a href=#121 id=121 data-nosnippet>121</a>            <span class="kw">let </span>duplicated_body =
-<a href=#122 id=122 data-nosnippet>122</a>                <span class="kw">super</span>::duplicate::duplicate(input.block.clone(), <span class="kw-2">&amp;mut </span>slf.state.symbol_table, <span class="kw-2">&amp;</span>slf.state.node_builder);
-<a href=#123 id=123 data-nosnippet>123</a>
-<a href=#124 id=124 data-nosnippet>124</a>            <span class="kw">let </span>result = slf.reconstruct_block(duplicated_body).<span class="number">0</span>.into();
-<a href=#125 id=125 data-nosnippet>125</a>
-<a href=#126 id=126 data-nosnippet>126</a>            Block { statements: <span class="macro">vec!</span>[result], span: input.span(), id: outer_block_id }.into()
-<a href=#127 id=127 data-nosnippet>127</a>        })
-<a href=#128 id=128 data-nosnippet>128</a>    }
-<a href=#129 id=129 data-nosnippet>129</a>}</code></pre></div></section></main></body></html>
+<a href=#121 id=121 data-nosnippet>121</a>            Block { statements: <span class="macro">vec!</span>[result], span: input.span(), id: outer_block_id }.into()
+<a href=#122 id=122 data-nosnippet>122</a>        })
+<a href=#123 id=123 data-nosnippet>123</a>    }
+<a href=#124 id=124 data-nosnippet>124</a>}</code></pre></div></section></main></body></html>

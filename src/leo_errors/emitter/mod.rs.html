@@ -187,17 +187,17 @@
 <a href=#187 id=187 data-nosnippet>187</a>    }
 <a href=#188 id=188 data-nosnippet>188</a>
 <a href=#189 id=189 data-nosnippet>189</a>    <span class="doccomment">/// Emit the error `err`.
-<a href=#190 id=190 data-nosnippet>190</a>    </span><span class="kw">pub fn </span>emit_err&lt;E: Into&lt;LeoError&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, err: E) {
+<a href=#190 id=190 data-nosnippet>190</a>    </span><span class="kw">pub fn </span>emit_err(<span class="kw-2">&amp;</span><span class="self">self</span>, err: <span class="kw">impl </span>Into&lt;LeoError&gt;) {
 <a href=#191 id=191 data-nosnippet>191</a>        <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.borrow_mut();
 <a href=#192 id=192 data-nosnippet>192</a>        inner.err_count = inner.err_count.saturating_add(<span class="number">1</span>);
 <a href=#193 id=193 data-nosnippet>193</a>        inner.emitter.emit_err(err.into());
 <a href=#194 id=194 data-nosnippet>194</a>    }
 <a href=#195 id=195 data-nosnippet>195</a>
 <a href=#196 id=196 data-nosnippet>196</a>    <span class="doccomment">/// Emit the error `err`.
-<a href=#197 id=197 data-nosnippet>197</a>    </span><span class="kw">pub fn </span>emit_warning(<span class="kw-2">&amp;</span><span class="self">self</span>, warning: LeoWarning) {
+<a href=#197 id=197 data-nosnippet>197</a>    </span><span class="kw">pub fn </span>emit_warning(<span class="kw-2">&amp;</span><span class="self">self</span>, warning: <span class="kw">impl </span>Into&lt;LeoWarning&gt;) {
 <a href=#198 id=198 data-nosnippet>198</a>        <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.borrow_mut();
 <a href=#199 id=199 data-nosnippet>199</a>        inner.warn_count = inner.warn_count.saturating_add(<span class="number">1</span>);
-<a href=#200 id=200 data-nosnippet>200</a>        inner.emitter.emit_warning(warning);
+<a href=#200 id=200 data-nosnippet>200</a>        inner.emitter.emit_warning(warning.into());
 <a href=#201 id=201 data-nosnippet>201</a>    }
 <a href=#202 id=202 data-nosnippet>202</a>
 <a href=#203 id=203 data-nosnippet>203</a>    <span class="doccomment">/// The number of errors thus far.

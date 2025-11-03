@@ -35,7 +35,7 @@
 <a href=#35 id=35 data-nosnippet>35</a>    Type,
 <a href=#36 id=36 data-nosnippet>36</a>    Variant,
 <a href=#37 id=37 data-nosnippet>37</a>};
-<a href=#38 id=38 data-nosnippet>38</a><span class="kw">use </span>leo_errors::{LeoError, <span class="prelude-ty">Result</span>};
+<a href=#38 id=38 data-nosnippet>38</a><span class="kw">use </span>leo_errors::Result;
 <a href=#39 id=39 data-nosnippet>39</a><span class="kw">use </span>leo_span::{Span, Symbol};
 <a href=#40 id=40 data-nosnippet>40</a>
 <a href=#41 id=41 data-nosnippet>41</a><span class="kw">use </span>indexmap::IndexMap;
@@ -146,7 +146,7 @@
 <a href=#146 id=146 data-nosnippet>146</a>        <span class="kw">if </span>!input.is_record {
 <a href=#147 id=147 data-nosnippet>147</a>            <span class="kw">if let </span><span class="prelude-val">Some</span>(prev_span) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>full_name) {
 <a href=#148 id=148 data-nosnippet>148</a>                <span class="comment">// The struct already existed
-<a href=#149 id=149 data-nosnippet>149</a>                </span><span class="kw">return </span><span class="self">self</span>.state.handler.emit_err::&lt;LeoError&gt;(SymbolTable::emit_shadow_error(
+<a href=#149 id=149 data-nosnippet>149</a>                </span><span class="kw">return </span><span class="self">self</span>.state.handler.emit_err(SymbolTable::emit_shadow_error(
 <a href=#150 id=150 data-nosnippet>150</a>                    input.identifier.name,
 <a href=#151 id=151 data-nosnippet>151</a>                    input.identifier.span,
 <a href=#152 id=152 data-nosnippet>152</a>                    <span class="kw-2">*</span>prev_span,
