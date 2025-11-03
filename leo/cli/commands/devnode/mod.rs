@@ -21,6 +21,7 @@ pub mod rest;
 mod start;
 pub use start::Start;
 
+use super::*;
 use clap::Parser;
 use crate::cli::{Command, EnvOptions, commands::{Context, Span}, get_network, get_endpoint};
 
@@ -51,7 +52,7 @@ pub struct LeoDevnode {
 
 impl Command for LeoDevnode {
     type Input = ();
-    type Output = String;
+    type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -62,10 +63,7 @@ impl Command for LeoDevnode {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Parse the network.
-        let network: NetworkName = get_network(&self.env_override.network)?;
-        let endpoint = get_endpoint(&self.env_override.endpoint)?;
-        hanlde_devnode(self, context, network, &endpoint)
+        hanlde_devnode(self, context)
     }
 }
 
@@ -73,23 +71,14 @@ impl Command for LeoDevnode {
 fn hanlde_devnode(
     devnode_command: LeoDevnode,
     context: Context,
-    network: NetworkName,
-    endpoint: &str,
 ) -> Result<<LeoDevnode as Command>::Output> {
     let recursive = context.recursive;
     match devnode_command.command {
         DevnodeCommands::Start { command } => {
-            if endpoint != "http://localhost:3030" {
-                tracing::warn!(
-                    "⚠️  Using a custom endpoint for the devnode: {}. This may lead to unexpected behavior.",
-                    endpoint
-                );
-            }
-            tracing::info!("Starting the devnode on network: {} with endpoint: {}", network, endpoint);
+            tracing::info!("Starting the devnode server...");
             command.apply(context, ())
         }
         DevnodeCommands::Advance { command } => {
-            tracing::info!("Advancing the devnode on network: {} with endpoint: {}", network, endpoint);
             command.apply(context, ())
         }
     }

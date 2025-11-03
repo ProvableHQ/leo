@@ -16,7 +16,10 @@
 
 use tracing_subscriber::EnvFilter;
 use tracing_subscriber::prelude::*;
-use std::io;
+use is_terminal::IsTerminal;
+use std::{io, str::FromStr};
+
+use super::*;
 
 pub fn initialize_terminal_logger(verbosity: u8) -> Result<()> {
     let stdout_filter = parse_log_verbosity(verbosity)?;

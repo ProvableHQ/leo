@@ -16,15 +16,17 @@
 
 use super::logger::initialize_terminal_logger;
 use std::net::SocketAddr;
-use super::rest::Rest;
+use super::*;
 
-use aleo_std::storage::StorageMode;
+use aleo_std_storage::StorageMode;
 use snarkvm::prelude::{Block, FromBytes, Ledger, TestnetV0};
 use snarkvm::ledger::store::helpers::memory::ConsensusMemory;
 
+use crate::cli::commands::devnode::rest::Rest;
+
 use super::*;
 
-// Advance the devnode ledger by a specified number of blocks.  The default value is 1.
+// Command for starting the devnode server.
 #[derive(Parser, Debug)]
 pub struct Start;
 
@@ -40,10 +42,12 @@ impl Command for Start {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let network: NetworkName = get_network(&context.env_override.network)?;
-        let endpoint = get_endpoint(&context.env_override.endpoint)?;
-        handle_start_devnode(context, network, &endpoint, self.num_blocks)
+    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let _ =rt.block_on(async {
+            start_devnode().await
+        });
+        Ok(())
     }
 }
 

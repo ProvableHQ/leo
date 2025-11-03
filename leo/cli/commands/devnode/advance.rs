@@ -38,38 +38,40 @@ impl Command for Advance {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let network: NetworkName = get_network(&context.env_override.network)?;
-        let endpoint = get_endpoint(&context.env_override.endpoint)?;
-        handle_advance_devnode(context, network, &endpoint, self.num_blocks).await
-    }
+    let private_key = std::env::var("PRIVATE_KEY")
+                .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?;;
+             
+    tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(async {
+            handle_advance_devnode(context, &private_key, self.num_blocks).await
+        })
+    }   
 }
 
 async fn handle_advance_devnode(
     context: Context,
-    network: NetworkName,
-    endpoint: &str,
+    private_key_str: &str,
     num_blocks: u32,
 ) -> Result<()> {
     tracing::info!(
-        "Advancing the devnode ledger by {} block(s) on network '{}' at endpoint '{}'",
+        "Advancing the devnode ledger by {} block(s)",
         num_blocks,
-        network,
-        endpoint
     );
 
+    // Call the REST API to advance the ledger by one block.
+    let client = reqwest::blocking::Client::new();
+
     for i in 0..num_blocks {
-        // Call the REST API to advance the ledger by one block.
-        let client = reqwest::blocking::Client::new();
         let payload = json!({
-            private_key: context.env_override.private_key,
+            "private_key": private_key_str
         });
 
         let response = client
             .post("http://localhost:3030/testnet/block/create")
             .header("Content-Type", "application/json")
             .json(&payload)
-            .send()
-            .await?;
+            .send();
     }
 
     Ok(())
