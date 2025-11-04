@@ -1,0 +1,10 @@
+Warning [WLINT03711009]: the import `mod.aleo` is defined multiple times
+    --> linter-test:4:1
+     |
+   4 | import mod.aleo;
+     | ^^^^^^^^^^^^^^^^
+Warning [WLINT03711009]: the import `mod.aleo` is defined multiple times
+    --> linter-test:6:1
+     |
+   6 | import mod.aleo;
+     | ^^^^^^^^^^^^^^^^

@@ -33,6 +33,7 @@ rust-version = "1.90.0"
 members = [
   "compiler/ast",
   "compiler/compiler",
+  "compiler/linter",
   "compiler/parser-lossless",
   "compiler/parser",
   "compiler/passes",
@@ -63,6 +64,10 @@ version = "=3.3.1"
 
 [workspace.dependencies.leo-interpreter]
 path = "./interpreter"
+version = "=3.3.1"
+
+[workspace.dependencies.leo-linter]
+path = "./compiler/linter"
 version = "=3.3.1"
 
 [workspace.dependencies.leo-package]
@@ -193,6 +198,9 @@ workspace = true
 workspace = true
 
 [dependencies.leo-interpreter]
+workspace = true
+
+[dependencies.leo-linter]
 workspace = true
 
 [dependencies.leo-package]

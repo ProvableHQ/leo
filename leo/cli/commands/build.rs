@@ -200,7 +200,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
 /// Compiles a Leo file. Writes and returns the compiled bytecode.
 #[allow(clippy::too_many_arguments)]
-fn compile_leo_source_directory(
+pub fn compile_leo_source_directory(
     entry_file_path: &Path,
     source_directory: &Path,
     program_name: Symbol,

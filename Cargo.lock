@@ -1959,6 +1959,7 @@ dependencies = [
  "leo-disassembler",
  "leo-errors",
  "leo-interpreter",
+ "leo-linter",
  "leo-package",
  "leo-span",
  "libc",
@@ -1987,6 +1988,24 @@ dependencies = [
  "which",
  "winapi",
  "windows-sys 0.59.0",
+]
+
+[[package]]
+name = "leo-linter"
+version = "3.3.1"
+dependencies = [
+ "indexmap",
+ "leo-ast",
+ "leo-compiler",
+ "leo-errors",
+ "leo-parser",
+ "leo-parser-lossless",
+ "leo-passes",
+ "leo-span",
+ "leo-test-framework",
+ "serial_test",
+ "snarkvm",
+ "walkdir",
 ]
 
 [[package]]

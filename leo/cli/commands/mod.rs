@@ -21,7 +21,7 @@ mod account;
 pub use account::Account;
 
 mod build;
-pub use build::LeoBuild;
+pub use build::{LeoBuild, compile_leo_source_directory};
 
 mod clean;
 pub use clean::LeoClean;
@@ -65,6 +65,9 @@ pub use update::LeoUpdate;
 
 pub mod upgrade;
 pub use upgrade::LeoUpgrade;
+
+pub mod check;
+pub use check::LeoCheck;
 
 use super::*;
 use crate::cli::{helpers::context::*, query::QueryCommands};

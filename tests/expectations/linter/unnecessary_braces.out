@@ -1,0 +1,39 @@
+Warning [WLINT03711005]: Unnecessary braces around the statements.
+    --> linter-test:3:30
+     |
+   3 |     transition main() -> u32 {{
+     |                              ^^
+   4 |         let a = 4u32;
+     |         ^^^^^^^^^^^^^
+   5 |         {
+     |         ^
+   6 | 
+   7 |         }
+     |         ^
+   8 | 
+   9 |         return a;
+     |         ^^^^^^^^^
+  10 |     }}
+     |     ^^
+     |
+     = Consider removing the extra braces.
+Warning [WLINT03711006]: Empty block statement.
+    --> linter-test:5:9
+     |
+   5 |         {
+     |         ^
+   6 | 
+   7 |         }
+     |         ^
+     |
+     = Consider removing the block or adding statements to it.
+Warning [WLINT03711006]: Empty block statement.
+    --> linter-test:5:9
+     |
+   5 |         {
+     |         ^
+   6 | 
+   7 |         }
+     |         ^
+     |
+     = Consider removing the block or adding statements to it.

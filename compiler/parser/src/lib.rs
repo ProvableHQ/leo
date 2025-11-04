@@ -28,13 +28,14 @@ use itertools::Itertools as _;
 
 use leo_ast::{NetworkName, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result};
+use leo_parser_lossless::SyntaxNode;
 use leo_span::{
     Symbol,
     source_map::{FileName, SourceFile},
     sym,
 };
 
-mod conversions;
+pub mod conversions;
 
 #[cfg(test)]
 mod test;
@@ -81,18 +82,36 @@ pub fn parse(
     modules: &[std::rc::Rc<SourceFile>],
     _network: NetworkName,
 ) -> Result<leo_ast::Program> {
-    let program_node = leo_parser_lossless::parse_main(handler.clone(), &source.src, source.absolute_start)?;
-    let mut program = conversions::to_main(&program_node, node_builder, &handler)?;
+    let (program_node, module_nodes) = parse_cst(&handler, Some(source), modules)?;
+    let mut program = conversions::to_main(&program_node.unwrap(), node_builder, &handler)?;
     let program_name = *program.program_scopes.first().unwrap().0;
 
+    for (key, module) in module_nodes {
+        let module_ast = conversions::to_module(&module, node_builder, program_name, key.clone(), &handler)?;
+        program.modules.insert(key, module_ast);
+    }
+
+    Ok(program)
+}
+
+#[expect(clippy::type_complexity)]
+pub fn parse_cst<'a>(
+    handler: &Handler,
+    source: Option<&'a SourceFile>,
+    modules: &'a [std::rc::Rc<SourceFile>],
+) -> Result<(Option<SyntaxNode<'a>>, Vec<(Vec<Symbol>, SyntaxNode<'a>)>)> {
+    let main_parse_tree =
+        source.map(|s| leo_parser_lossless::parse_main(handler.clone(), &s.src, s.absolute_start)).transpose()?;
+
     // Determine the root directory of the main file (for module resolution)
-    let root_dir = match &source.name {
-        FileName::Real(path) => path.parent().map(|p| p.to_path_buf()),
+    let root_dir = match source.map(|s| &s.name) {
+        Some(FileName::Real(path)) => path.parent().map(|p| p.to_path_buf()),
         _ => None,
     };
 
+    let mut module_parse_trees = Vec::new();
     for module in modules {
-        let node_module = leo_parser_lossless::parse_module(handler.clone(), &module.src, module.absolute_start)?;
+        let module_parse_tree = leo_parser_lossless::parse_module(handler.clone(), &module.src, module.absolute_start)?;
         if let Some(key) = compute_module_key(&module.name, root_dir.as_deref()) {
             // Ensure no module uses a keyword in its name
             for segment in &key {
@@ -101,12 +120,11 @@ pub fn parse(
                 }
             }
 
-            let module_ast = conversions::to_module(&node_module, node_builder, program_name, key.clone(), &handler)?;
-            program.modules.insert(key, module_ast);
+            module_parse_trees.push((key, module_parse_tree));
         }
     }
 
-    Ok(program)
+    Ok((main_parse_tree, module_parse_trees))
 }
 
 /// Creates a new AST from a given file path and source code text.

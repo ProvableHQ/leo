@@ -1,0 +1,10 @@
+Warning [WLINT03711010]: literal has leading zeroes
+    --> dep.leo:2:16
+     |
+   2 | const x: u32 = 00123u32;
+     |                ^^^^^^^^
+     |
+     = consider removing the leading zeroes to imporve coding practices
+
+-	00123
++	123

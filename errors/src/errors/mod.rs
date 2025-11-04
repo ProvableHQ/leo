@@ -40,6 +40,9 @@ pub use self::loop_unroller::*;
 mod interpreter_halt;
 pub use self::interpreter_halt::*;
 
+mod linter;
+pub use self::linter::*;
+
 /// Contains the Package error definitions.
 mod package;
 pub use self::package::*;
@@ -171,6 +174,8 @@ pub enum LeoWarning {
     /// Represents a Type Checker Warning in a Leo Warning.
     #[error(transparent)]
     TypeCheckerWarning(#[from] TypeCheckerWarning),
+    #[error(transparent)]
+    LinterWarning(#[from] Lint),
 }
 
 impl LeoWarning {
@@ -182,6 +187,7 @@ impl LeoWarning {
             ParserWarning(warning) => warning.warning_code(),
             TypeCheckerWarning(warning) => warning.warning_code(),
             StaticAnalyzerWarning(warning) => warning.warning_code(),
+            LinterWarning(lint) => lint.warning_code(),
         }
     }
 }
