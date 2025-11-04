@@ -41,11 +41,8 @@ use axum::{
     routing::{get, post},
 };
 use axum_extra::response::ErasedJson;
-#[cfg(feature = "locktick")]
-use locktick::parking_lot::Mutex;
-#[cfg(not(feature = "locktick"))]
+
 use parking_lot::Mutex;
-use routes::*;
 use std::{
     net::SocketAddr,
     sync::{Arc, atomic::AtomicUsize},
@@ -57,9 +54,6 @@ use tower_http::{
     trace::TraceLayer,
 };
 use tracing::{debug, info};
-
-/// The default port used for the REST API
-pub const DEFAULT_REST_PORT: u16 = 3030;
 
 /// The API version prefixes.
 pub const API_VERSION_V1: &str = "v1";
@@ -98,17 +92,17 @@ impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
     }
 }
 
-impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
-    /// Returns the ledger.
-    pub const fn ledger(&self) -> &Ledger<N, C> {
-        &self.ledger
-    }
+// impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
+//     /// Returns the ledger.
+//     pub const fn ledger(&self) -> &Ledger<N, C> {
+//         &self.ledger
+//     }
 
-    /// Returns the handles.
-    pub const fn handles(&self) -> &Arc<Mutex<Vec<JoinHandle<()>>>> {
-        &self.handles
-    }
-}
+//     /// Returns the handles.
+//     pub const fn handles(&self) -> &Arc<Mutex<Vec<JoinHandle<()>>>> {
+//         &self.handles
+//     }
+// }
 
 impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
     fn build_routes(&self, rest_rps: u32) -> axum::Router {
@@ -185,8 +179,8 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/stateRoot/{height}", get(Self::get_state_root));
 
         // If the `history` feature is enabled, enable the additional endpoint.
-        #[cfg(feature = "history")]
-        let routes = routes.route("/block/{blockHeight}/history/{mapping}", get(Self::get_history));
+        // #[cfg(feature = "history")]
+        // let routes = routes.route("/block/{blockHeight}/history/{mapping}", get(Self::get_history));
 
         routes
             // Pass in `Rest` to make things convenient.
@@ -285,14 +279,14 @@ async fn v1_error_middleware(response: Response) -> Response {
 }
 
 /// Formats an ID into a truncated identifier (for logging purposes).
-pub fn fmt_id(id: impl ToString) -> String {
-    let id = id.to_string();
-    let mut formatted_id = id.chars().take(16).collect::<String>();
-    if id.chars().count() > 16 {
-        formatted_id.push_str("..");
-    }
-    formatted_id
-}
+// pub fn fmt_id(id: impl ToString) -> String {
+//     let id = id.to_string();
+//     let mut formatted_id = id.chars().take(16).collect::<String>();
+//     if id.chars().count() > 16 {
+//         formatted_id.push_str("..");
+//     }
+//     formatted_id
+// }
 
 #[cfg(test)]
 mod tests {

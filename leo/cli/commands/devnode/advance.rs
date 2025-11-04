@@ -36,17 +36,17 @@ impl Command for Advance {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         let private_key = std::env::var("PRIVATE_KEY")
             .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?;
 
         tokio::runtime::Runtime::new()
             .unwrap()
-            .block_on(async { handle_advance_devnode(context, &private_key, self.num_blocks).await })
+            .block_on(async { handle_advance_devnode(&private_key, self.num_blocks).await })
     }
 }
 
-async fn handle_advance_devnode(context: Context, private_key_str: &str, num_blocks: u32) -> Result<()> {
+async fn handle_advance_devnode(private_key_str: &str, num_blocks: u32) -> Result<()> {
     tracing::info!("Advancing the devnode ledger by {} block(s)", num_blocks,);
 
     // Call the REST API to advance the ledger by one block.
@@ -57,7 +57,7 @@ async fn handle_advance_devnode(context: Context, private_key_str: &str, num_blo
         "num_blocks": num_blocks,
     });
 
-    let response = client
+    let _response = client
         .post("http://localhost:3030/testnet/block/create")
         .header("Content-Type", "application/json")
         .json(&payload)

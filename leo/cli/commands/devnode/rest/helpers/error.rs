@@ -34,8 +34,8 @@ pub enum RestError {
     UnprocessableEntity(AnyhowError),
     /// 429 Too Many Requests - Rate limiting
     TooManyRequests(AnyhowError),
-    /// 503 Service Unavailable - Temporary service issues (node syncing, feature unavailable)
-    ServiceUnavailable(AnyhowError),
+    // /// 503 Service Unavailable - Temporary service issues (node syncing, feature unavailable)
+    // ServiceUnavailable(AnyhowError),
     /// 500 Internal Server Error - Actual server errors, unexpected failures
     InternalServerError(AnyhowError),
 }
@@ -71,10 +71,10 @@ impl RestError {
         Self::TooManyRequests(inner)
     }
 
-    /// Create a ServiceUnavailable error
-    pub fn service_unavailable(inner: anyhow::Error) -> Self {
-        Self::ServiceUnavailable(inner)
-    }
+    // /// Create a ServiceUnavailable error
+    // pub fn service_unavailable(inner: anyhow::Error) -> Self {
+    //     Self::ServiceUnavailable(inner)
+    // }
 
     /// Create an InternalServerError error
     pub fn internal_server_error(inner: anyhow::Error) -> Self {
@@ -101,7 +101,7 @@ impl IntoResponse for RestError {
             RestError::NotFound(err) => (StatusCode::NOT_FOUND, "not_found", err),
             RestError::UnprocessableEntity(err) => (StatusCode::UNPROCESSABLE_ENTITY, "unprocessable_entity", err),
             RestError::TooManyRequests(err) => (StatusCode::TOO_MANY_REQUESTS, "too_many_requests", err),
-            RestError::ServiceUnavailable(err) => (StatusCode::SERVICE_UNAVAILABLE, "service_unavailable", err),
+            // RestError::ServiceUnavailable(err) => (StatusCode::SERVICE_UNAVAILABLE, "service_unavailable", err),
             RestError::InternalServerError(err) => (StatusCode::INTERNAL_SERVER_ERROR, "internal_server_error", err),
         };
 

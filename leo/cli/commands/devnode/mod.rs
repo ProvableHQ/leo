@@ -15,21 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod advance;
-pub use advance::Advance;
 pub mod logger;
 pub mod rest;
 mod start;
-pub use start::Start;
 
 use super::*;
 use crate::cli::{
     Command, EnvOptions,
     commands::{Context, Span},
-    get_endpoint, get_network,
 };
 use clap::Parser;
-
-use leo_ast::NetworkName;
 
 #[derive(Parser, Debug)]
 pub enum DevnodeCommands {
@@ -73,7 +68,6 @@ impl Command for LeoDevnode {
 
 // A helper function to handle the devnode command based on the subcommand provided.
 fn hanlde_devnode(devnode_command: LeoDevnode, context: Context) -> Result<<LeoDevnode as Command>::Output> {
-    let recursive = context.recursive;
     match devnode_command.command {
         DevnodeCommands::Start { command } => {
             tracing::info!("Starting the devnode server...");

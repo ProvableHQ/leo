@@ -24,8 +24,6 @@ use snarkvm::prelude::{Block, FromBytes, Ledger, TestnetV0};
 
 use crate::cli::commands::devnode::rest::Rest;
 
-use super::*;
-
 // Command for starting the devnode server.
 #[derive(Parser, Debug)]
 pub struct Start;
@@ -56,17 +54,15 @@ pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
     // Start the devnode server
     println!("Starting the devnode server...");
     initialize_terminal_logger(2).expect("Failed to initialize logger");
-    let socket_addr: SocketAddr = "127.0.0.1:3030".parse().unwrap();
+    let socket_addr: SocketAddr = "127.0.0.1:3030".parse()?;
     let rps = 999999999;
     // Load the genesis block
-    use std::env;
-    println!("Current working directory: {}", env::current_dir()?.display());
-    let buffer = std::fs::read("./leo/cli/commands/devnode/rest/victor_genesis.txt").unwrap();
-    let genesis_block: Block<TestnetV0> = Block::from_bytes_le(&buffer).unwrap();
+    let buffer = std::fs::read("./leo/cli/commands/devnode/rest/victor_genesis.txt")?;
+    let genesis_block: Block<TestnetV0> = Block::from_bytes_le(&buffer)?;
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
     // Initialize the ledger.
-    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> = Ledger::load(genesis_block, storage_mode).unwrap();
+    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> = Ledger::load(genesis_block, storage_mode)?;
     // Start the REST API server
     Rest::start(socket_addr, rps, ledger).await.expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
