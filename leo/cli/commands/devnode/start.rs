@@ -15,12 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::logger::initialize_terminal_logger;
-use std::net::SocketAddr;
 use super::*;
+use std::net::SocketAddr;
 
 use aleo_std_storage::StorageMode;
-use snarkvm::prelude::{Block, FromBytes, Ledger, TestnetV0};
 use snarkvm::ledger::store::helpers::memory::ConsensusMemory;
+use snarkvm::prelude::{Block, FromBytes, Ledger, TestnetV0};
 
 use crate::cli::commands::devnode::rest::Rest;
 
@@ -44,16 +44,14 @@ impl Command for Start {
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         let rt = tokio::runtime::Runtime::new().unwrap();
-        let _ = rt.block_on(async {
-            start_devnode().await
-        });
+        let _ = rt.block_on(async { start_devnode().await });
         Ok(())
     }
 }
 
-
-// Start the devnode server. This will start a local node that can be used for testing and development purposes. The devnode will run in the background and will be accessible via a REST API.
-// The devnode will be configured to use the local network and will be pre-populated with test accounts and data. This allows developers to interact with the node without needing to connect to the live network, making it easier to test and debug their applications.
+// This will start a local node that can be used for testing and development purposes. 
+// The devnode will run in the background and will be accessible via a REST API.
+// The devnode will be configured to use the local network and will be pre-populated with test accounts and data. 
 pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
     // Start the devnode server
     println!("Starting the devnode server...");

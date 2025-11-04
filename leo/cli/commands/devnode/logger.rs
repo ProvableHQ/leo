@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use tracing_subscriber::EnvFilter;
-use tracing_subscriber::prelude::*;
 use is_terminal::IsTerminal;
 use std::{io, str::FromStr};
+use tracing_subscriber::EnvFilter;
+use tracing_subscriber::prelude::*;
 
 use super::*;
 

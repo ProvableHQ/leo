@@ -24,10 +24,9 @@ mod routes;
 
 mod version;
 
-
 use snarkvm::{
     console::{program::ProgramID, types::Field},
-    prelude::{Ledger, Network, cfg_into_iter, store::ConsensusStorage, Transaction},
+    prelude::{Ledger, Network, Transaction, cfg_into_iter, store::ConsensusStorage},
 };
 
 use super::*;
@@ -83,11 +82,7 @@ pub struct Rest<N: Network, C: ConsensusStorage<N>> {
 
 impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
     /// Initializes a new instance of the server.
-    pub async fn start(
-        rest_ip: SocketAddr,
-        rest_rps: u32,
-        ledger: Ledger<N, C>,
-    ) -> Result<Self> {
+    pub async fn start(rest_ip: SocketAddr, rest_rps: u32, ledger: Ledger<N, C>) -> Result<Self> {
         // Initialize the server.
         let mut server = Self {
             ledger,
@@ -234,7 +229,8 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             TcpListener::bind(rest_ip).await.with_context(|| "Failed to bind TCP port for REST endpoints")?;
 
         let handle = tokio::spawn(async move {
-            if let Err(e) = axum::serve(rest_listener, router.into_make_service_with_connect_info::<SocketAddr>()).await {
+            if let Err(e) = axum::serve(rest_listener, router.into_make_service_with_connect_info::<SocketAddr>()).await
+            {
                 eprintln!("REST server crashed: {e:?}");
             }
         });

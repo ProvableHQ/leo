@@ -76,7 +76,7 @@ pub(crate) struct Commitments {
 #[derive(Clone, Deserialize, Serialize)]
 pub(crate) struct CreateBlockRequest {
     /// Private key that is used for signing the block.
-    pub private_key: String, 
+    pub private_key: String,
     /// number of blocks to create.
     pub num_blocks: Option<u32>,
 }
@@ -480,28 +480,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
 
     // /// POST /<network>/transaction/broadcast
     // /// POST /<network>/transaction/broadcast?check_transaction={true}
-    // ///
-    // /// Transaction Broadcast Flow
-    // ///
-    // /// /transaction/broadcast
-    // ///         |
-    // ///    +----+---------------------------+
-    // ///    |                               |
-    // ///    v                               v
-    // /// Without Query Params        With Query Param
-    // ///                                check_transaction=true
-    // ///    |                               |
-    // ///    +                               +---------+
-    // ///    |                               |         |
-    // ///    v                               v         v
-    // /// Synced                         Synced   Not Synced
-    // ///    |                               |         |
-    // ///    v                               v         v
-    // ///   200                  check_transaction  check_transaction
-    // ///                           +---------+        +---------+
-    // ///                           |         |        |         |
-    // ///                           v         v        v         v
-    // ///                          200       422      203       503
     pub(crate) async fn transaction_broadcast(
         State(rest): State<Self>,
         check_transaction: Query<CheckTransaction>,
@@ -542,7 +520,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
                     "Too many deploy verifications in progress",
                 )
             };
-        
 
             // Try to acquire a slot.
             if counter
@@ -557,12 +534,12 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             {
                 return Err(RestError::too_many_requests(anyhow!("{err_msg}")));
             }
-        
 
             // Perform the check.
-            let res = rest.ledger.check_transaction_basic(&tx, None, &mut rand::thread_rng()).map_err(|err| {
-                RestError::unprocessable_entity(err.context("Invalid transaction"))
-            });
+            let res = rest
+                .ledger
+                .check_transaction_basic(&tx, None, &mut rand::thread_rng())
+                .map_err(|err| RestError::unprocessable_entity(err.context("Invalid transaction")));
 
             // Release the slot.
             counter.fetch_sub(1, Ordering::Relaxed);
@@ -577,10 +554,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             let tx_id = tx_copy.id();
             // Parse the private key.
             let private_key_str = std::env::var("PRIVATE_KEY")
-                .map_err(|_| RestError::internal_server_error(
-                    anyhow!("PRIVATE_KEY environment variable not set")
-                )
-            )?;
+                .map_err(|_| RestError::internal_server_error(anyhow!("PRIVATE_KEY environment variable not set")))?;
 
             let private_key = PrivateKey::<N>::from_str(&private_key_str)?;
             // Create a block.
@@ -594,14 +568,14 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
 
             // Advance to the next block.
             rest.ledger.advance_to_next_block(&new_block)?;
-            return Ok((StatusCode::OK, ErasedJson::pretty(tx_id)))
+            return Ok((StatusCode::OK, ErasedJson::pretty(tx_id)));
         }
 
-            // Add the transaction to the Rest buffer.
-            {
-                let mut buffer = rest.buffer.lock();
-                buffer.push(tx.clone());
-            }
+        // Add the transaction to the Rest buffer.
+        {
+            let mut buffer = rest.buffer.lock();
+            buffer.push(tx.clone());
+        }
         // }
 
         // // Determine if the node is synced and if the transaction was checked.
@@ -626,40 +600,50 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
 
     /// POST /{network}/create_block
     pub(crate) async fn create_block(
-        State(rest): State<Self>, 
-        Json(req): Json<CreateBlockRequest>
+        State(rest): State<Self>,
+        Json(req): Json<CreateBlockRequest>,
     ) -> Result<ErasedJson, RestError> {
         let num_blocks = req.num_blocks.unwrap_or(1);
-    
+
         let last_block = tokio::task::spawn_blocking(move || -> Result<ErasedJson, RestError> {
             let private_key = PrivateKey::<N>::from_str(&req.private_key)
                 .map_err(|e| RestError::bad_request(anyhow!("Invalid private key: {}", e)))?;
-        
-        let mut last_block = None;
-        
-        for i in 0..num_blocks {
-            let unconfirmed_txs = if i == 0 {
-                let mut buffer = rest.buffer.lock();
-                buffer.drain(..).collect()
-            } else {
-                vec![]
-            };
-            
-            let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
-                &private_key, vec![], vec![], unconfirmed_txs, &mut rand::thread_rng()
-            ).map_err(|e| RestError::internal_server_error(anyhow!("Failed to prepare block: {}", e)))?;
-            
-            rest.ledger.advance_to_next_block(&new_block)
-                .map_err(|e| RestError::internal_server_error(anyhow!("Failed to advance block: {}", e)))?;
-            
-            last_block = Some(new_block);
-        }
-        
-        Ok(ErasedJson::pretty(last_block.unwrap()))}).await
-            .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
-    
-    Ok(last_block)
-}
+
+            let mut last_block = None;
+
+            for i in 0..num_blocks {
+                let unconfirmed_txs = if i == 0 {
+                    let mut buffer = rest.buffer.lock();
+                    buffer.drain(..).collect()
+                } else {
+                    vec![]
+                };
+
+                let new_block = rest
+                    .ledger
+                    .prepare_advance_to_next_beacon_block(
+                        &private_key,
+                        vec![],
+                        vec![],
+                        unconfirmed_txs,
+                        &mut rand::thread_rng(),
+                    )
+                    .map_err(|e| RestError::internal_server_error(anyhow!("Failed to prepare block: {}", e)))?;
+
+                rest.ledger
+                    .advance_to_next_block(&new_block)
+                    .map_err(|e| RestError::internal_server_error(anyhow!("Failed to advance block: {}", e)))?;
+
+                last_block = Some(new_block);
+            }
+
+            Ok(ErasedJson::pretty(last_block.unwrap()))
+        })
+        .await
+        .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
+
+        Ok(last_block)
+    }
 
     /// GET /{network}/block/{blockHeight}/history/{mapping}
     #[cfg(feature = "history")]

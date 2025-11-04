@@ -22,14 +22,18 @@ mod start;
 pub use start::Start;
 
 use super::*;
+use crate::cli::{
+    Command, EnvOptions,
+    commands::{Context, Span},
+    get_endpoint, get_network,
+};
 use clap::Parser;
-use crate::cli::{Command, EnvOptions, commands::{Context, Span}, get_network, get_endpoint};
 
 use leo_ast::NetworkName;
 
 #[derive(Parser, Debug)]
-pub enum DevnodeCommands{
-    #[clap(name = "start", about = "Start the devnode")]
+pub enum DevnodeCommands {
+    #[clap(name = "start", about = "Start the Devnode")]
     Start {
         #[clap(flatten)]
         command: start::Start,
@@ -68,18 +72,13 @@ impl Command for LeoDevnode {
 }
 
 // A helper function to handle the devnode command based on the subcommand provided.
-fn hanlde_devnode(
-    devnode_command: LeoDevnode,
-    context: Context,
-) -> Result<<LeoDevnode as Command>::Output> {
+fn hanlde_devnode(devnode_command: LeoDevnode, context: Context) -> Result<<LeoDevnode as Command>::Output> {
     let recursive = context.recursive;
     match devnode_command.command {
         DevnodeCommands::Start { command } => {
             tracing::info!("Starting the devnode server...");
             command.apply(context, ())
         }
-        DevnodeCommands::Advance { command } => {
-            command.apply(context, ())
-        }
+        DevnodeCommands::Advance { command } => command.apply(context, ()),
     }
 }
