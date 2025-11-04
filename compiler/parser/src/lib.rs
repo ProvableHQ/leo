@@ -34,7 +34,7 @@ use leo_span::{
     sym,
 };
 
-mod conversions;
+pub mod conversions;
 
 #[cfg(test)]
 mod test;
