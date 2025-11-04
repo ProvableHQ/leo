@@ -49,6 +49,7 @@ impl DeadCodeEliminatingVisitor<'_> {
             Repeat(repeat) => sef(&repeat.expr) && sef(&repeat.count),
             TupleAccess(tuple) => sef(&tuple.tuple),
             Array(array) => array.elements.iter().all(sef),
+            Slice(slice) => sef(&slice.source_array) && slice.start.iter().all(sef) && slice.stop.iter().all(sef),
             AssociatedConstant(_) => true,
             AssociatedFunction(func) => {
                 // CheatCode, Mapping, and Future operations obviously have side effects.

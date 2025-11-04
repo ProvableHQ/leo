@@ -460,6 +460,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let output = match input {
             Expression::Array(array) => self.visit_array(array, additional),
             Expression::ArrayAccess(access) => self.visit_array_access_general(access, false, additional),
+            // Slices will be converted to normal arrays after the const propogation.
+            Expression::Slice(slice) => self.visit_slice(slice, additional),
             Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
             Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
             Expression::Async(async_) => self.visit_async(async_, additional),
@@ -555,6 +557,40 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         self.maybe_assert_type(&type_, additional, input.span());
 
         type_
+    }
+
+    fn visit_slice(&mut self, input: &Slice, _additional: &Self::AdditionalInput) -> Self::Output {
+        let Type::Array(arr) = self.visit_expression(&input.source_array, &None) else { panic!("Can't happen.") };
+
+        let mut type_checker = |index| {
+            let mut index_type = self.visit_expression(index, &None);
+
+            if index_type == Type::Numeric {
+                // If the index has type `Numeric`, then it's an unsuffixed literal. Just infer its type to be `u32` and
+                // then check it's validity as a `u32`.
+                index_type = Type::Integer(IntegerType::U32);
+                if let Expression::Literal(literal) = index {
+                    self.check_numeric_literal(literal, &index_type);
+                }
+            };
+
+            self.assert_int_type(&index_type, index.span());
+
+            // Keep track of the type of the index in the type table.
+            // This is important for when the index is an unsuffixed literal.
+            self.state.type_table.insert(index.id(), index_type.clone());
+
+            index_type
+        };
+
+        let start = input.start.as_ref().map(&mut type_checker);
+        let stop = input.stop.as_ref().map(&mut type_checker);
+
+        if let (Some(strt), Some(stp)) = (start, stop) {
+            self.assert_type(&strt, &stp, input.span());
+        }
+
+        ArrayType::new(arr.element_type().clone(), input.clone().into()).into()
     }
 
     fn visit_repeat(&mut self, input: &RepeatExpression, additional: &Self::AdditionalInput) -> Self::Output {
@@ -777,7 +813,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 // Now sanity check everything
                 let assert_add_type = |type_: &Type, span: Span| {
-                    if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_)) {
+                    if !matches!(
+                        type_,
+                        Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_) | Type::Array(_)
+                    ) {
                         self.emit_err(TypeCheckerError::type_should_be2(
                             type_,
                             "a field, group, scalar, or integer",
@@ -789,7 +828,24 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 assert_add_type(&t1, input.left.span());
                 assert_add_type(&t2, input.right.span());
 
-                let result_t = assert_same_type(self, &t1, &t2);
+                let result_t = match (&t1, &t2) {
+                    (Type::Array(array_type1), Type::Array(array_type2))
+                        if array_type1.element_type() == array_type2.element_type() =>
+                    {
+                        let len_expr = Expression::Binary(Box::new(BinaryExpression {
+                            left: *array_type1.length.clone(),
+                            op: BinaryOperation::Add,
+                            right: *array_type2.length.clone(),
+                            id: self.state.node_builder.next_id(),
+                            span: Default::default(),
+                        }));
+
+                        self.state.type_table.insert(len_expr.id(), Type::Integer(IntegerType::U32));
+
+                        Type::Array(ArrayType::new(array_type1.element_type().clone(), len_expr))
+                    }
+                    _ => assert_same_type(self, &t1, &t2),
+                };
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 

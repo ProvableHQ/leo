@@ -364,6 +364,28 @@ Expr1<S>: SyntaxNode<'a> = {
     <x:Expr1<S>> <d:WithTrivia<Dot>> <i:WithTrivia<Integer>> => {
         SyntaxNode::new(ExpressionKind::TupleAccess, [x, d, i])
     },
+    // Array slice.
+    <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <start:Expr?> <d:WithTrivia<DotDot>> <eq:WithTrivia<Assign>?> <stop:Expr?> <r:WithTrivia<RightSquare>> => {
+        let inclusive_range_without_an_end = eq.is_some() && stop.is_none();
+        let node = SyntaxNode::new(
+            ExpressionKind::Slice,
+            [x, l]
+                .into_iter()
+                .chain(start)
+                .chain(std::iter::once(d))
+                .chain(eq)
+                .chain(stop)
+                .chain(std::iter::once(r))
+        );
+
+        // Emit error for inclusive slices without an end
+        if inclusive_range_without_an_end {
+            handler.emit_err(ParserError::inclusive_range_with_no_end(node.span));
+        }
+
+        node
+    },
+    // todo: Maybe a seperate Range expression can be introduced here along with a new DotDotEq token, which can also be used with the loops.
     // Array access.
     <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <index:Expr> <r:WithTrivia<RightSquare>> => {
         SyntaxNode::new(ExpressionKind::ArrayAccess, [x, l, index, r])

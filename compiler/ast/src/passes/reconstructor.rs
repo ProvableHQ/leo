@@ -119,29 +119,34 @@ pub trait AstReconstructor {
     fn reconstruct_expression(
         &mut self,
         input: Expression,
-        additional: &Self::AdditionalInput,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         match input {
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, additional),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, additional),
-            Expression::Async(async_) => self.reconstruct_async(async_, additional),
-            Expression::Array(array) => self.reconstruct_array(array, additional),
-            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, additional),
-            Expression::Binary(binary) => self.reconstruct_binary(*binary, additional),
-            Expression::Call(call) => self.reconstruct_call(*call, additional),
-            Expression::Cast(cast) => self.reconstruct_cast(*cast, additional),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, additional),
-            Expression::Err(err) => self.reconstruct_err(err, additional),
-            Expression::Path(path) => self.reconstruct_path(path, additional),
-            Expression::Literal(value) => self.reconstruct_literal(value, additional),
-            Expression::Locator(locator) => self.reconstruct_locator(locator, additional),
-            Expression::MemberAccess(access) => self.reconstruct_member_access(*access, additional),
-            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, additional),
-            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, additional),
-            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, additional),
-            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, additional),
-            Expression::Unary(unary) => self.reconstruct_unary(*unary, additional),
-            Expression::Unit(unit) => self.reconstruct_unit(unit, additional),
+            Expression::AssociatedConstant(constant) => {
+                self.reconstruct_associated_constant(constant, &Default::default())
+            }
+            Expression::AssociatedFunction(function) => {
+                self.reconstruct_associated_function(function, &Default::default())
+            }
+            Expression::Async(async_) => self.reconstruct_async(async_, &Default::default()),
+            Expression::Slice(slice) => self.reconstruct_slice(*slice, &Default::default()),
+            Expression::Array(array) => self.reconstruct_array(array, &Default::default()),
+            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &Default::default()),
+            Expression::Binary(binary) => self.reconstruct_binary(*binary, &Default::default()),
+            Expression::Call(call) => self.reconstruct_call(*call, &Default::default()),
+            Expression::Cast(cast) => self.reconstruct_cast(*cast, &Default::default()),
+            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &Default::default()),
+            Expression::Err(err) => self.reconstruct_err(err, &Default::default()),
+            Expression::Path(path) => self.reconstruct_path(path, &Default::default()),
+            Expression::Literal(value) => self.reconstruct_literal(value, &Default::default()),
+            Expression::Locator(locator) => self.reconstruct_locator(locator, &Default::default()),
+            Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &Default::default()),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &Default::default()),
+            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &Default::default()),
+            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &Default::default()),
+            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, &Default::default()),
+            Expression::Unary(unary) => self.reconstruct_unary(*unary, &Default::default()),
+            Expression::Unit(unit) => self.reconstruct_unit(unit, &Default::default()),
         }
     }
 
@@ -246,6 +251,23 @@ pub trait AstReconstructor {
                     .into_iter()
                     .map(|element| self.reconstruct_expression(element, &Default::default()).0)
                     .collect(),
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_slice(
+        &mut self,
+        input: Slice,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            Slice {
+                source_array: self.reconstruct_expression(input.source_array, &Default::default()).0,
+                start: input.start.map(|expr| self.reconstruct_expression(expr, &Default::default()).0),
+                stop: input.stop.map(|expr| self.reconstruct_expression(expr, &Default::default()).0),
                 ..input
             }
             .into(),

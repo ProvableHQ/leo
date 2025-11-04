@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Pass;
+use crate::{Pass, TypeCheckingInput};
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
@@ -38,6 +38,8 @@ pub struct ConstPropagationOutput {
     pub array_length_not_evaluated: Option<Span>,
     /// A repeat expression count which was not able to be evaluated.
     pub repeat_count_not_evaluated: Option<Span>,
+    /// Slice expression bounds which were not able to be evaluated.
+    pub slice_bounds_not_evaluated: Option<Span>,
 }
 
 /// A pass to perform const propagation and folding.
@@ -66,6 +68,7 @@ impl Pass for ConstPropagation {
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let mut ast = std::mem::take(&mut state.ast);
         let mut visitor = ConstPropagationVisitor {
+            limits: TypeCheckingInput::new(state.network),
             state,
             program: Symbol::intern(""),
             module: vec![],
@@ -74,6 +77,7 @@ impl Pass for ConstPropagation {
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
+            slice_bounds_not_evaluated: None,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err()?;
@@ -84,6 +88,7 @@ impl Pass for ConstPropagation {
             array_index_not_evaluated: visitor.array_index_not_evaluated,
             array_length_not_evaluated: visitor.array_length_not_evaluated,
             repeat_count_not_evaluated: visitor.repeat_count_not_evaluated,
+            slice_bounds_not_evaluated: visitor.slice_bounds_not_evaluated,
         })
     }
 }
@@ -91,6 +96,7 @@ impl Pass for ConstPropagation {
 impl<'a> ConstPropagationVisitor<'a> {
     pub fn new(state: &'a mut crate::CompilerState, program: Symbol) -> Self {
         ConstPropagationVisitor {
+            limits: TypeCheckingInput::new(state.network),
             state,
             program,
             module: vec![],
@@ -99,6 +105,7 @@ impl<'a> ConstPropagationVisitor<'a> {
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
+            slice_bounds_not_evaluated: None,
         }
     }
 }

@@ -474,6 +474,32 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 .collect::<Result<Vec<_>>>()?;
             leo_ast::ArrayExpression { elements, span, id }.into()
         }
+        ExpressionKind::Slice => {
+            let mut slice_iter = node.children.iter();
+
+            let mut next_token = || slice_iter.next().expect("Can't happen");
+
+            let array = to_expression(next_token(), builder, handler)?;
+            let _left = next_token();
+
+            let token = next_token();
+            let (start, _d) = if token.text != ".." {
+                (Some(to_expression(token, builder, handler)?), next_token())
+            } else {
+                (None, token)
+            };
+
+            let token = next_token();
+            let (clusivity, stop) = if token.text == "=" {
+                (true, Some(to_expression(next_token(), builder, handler)?))
+            } else if token.text != "]" {
+                (false, Some(to_expression(token, builder, handler)?))
+            } else {
+                (false, None)
+            };
+
+            leo_ast::Slice { source_array: array, start, stop, clusivity, span, id }.into()
+        }
         ExpressionKind::Binary => {
             let [lhs, op, rhs] = &node.children[..] else {
                 panic!("Can't happen");

@@ -72,6 +72,7 @@ where
                 Expression::Async(async_) => self.reconstruct_async(async_, &()),
                 Expression::Array(array) => self.reconstruct_array(array, &()),
                 Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
+                Expression::Slice(slice) => self.reconstruct_slice(*slice, &()),
                 Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
                 Expression::Call(call) => self.reconstruct_call(*call, &()),
                 Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),

@@ -91,6 +91,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array, &()),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
+            Expression::Slice(slice) => self.reconstruct_slice(*slice, &()),
             Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, &()),
             Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, &()),
             Expression::Async(async_) => self.reconstruct_async(async_, &()),

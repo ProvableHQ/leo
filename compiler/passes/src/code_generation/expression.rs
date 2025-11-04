@@ -63,6 +63,7 @@ impl CodeGeneratingVisitor<'_> {
         match input {
             Expression::Array(expr) => self.visit_array(expr),
             Expression::ArrayAccess(expr) => self.visit_array_access(expr),
+            Expression::Slice(_) => panic!("Slices should not appear in the AST at this point of compilation"),
             Expression::AssociatedConstant(expr) => self.visit_associated_constant(expr),
             Expression::AssociatedFunction(expr) => self.visit_associated_function(expr),
             Expression::Async(expr) => self.visit_async(expr),
@@ -146,6 +147,19 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_binary(&mut self, input: &BinaryExpression) -> (String, String) {
         let (left_operand, left_instructions) = self.visit_expression(&input.left);
         let (right_operand, right_instructions) = self.visit_expression(&input.right);
+
+        // Check that the types are not arrays.
+        // This is a sanity check.
+        // Below types may note be in the type table
+        // as common subexpression elimination can change the AST quite aggresively
+        // and also we are/should not be reconstructing the type table after it unless really need.
+        if let Some(left_type) = self.state.type_table.get(&input.left.id()) {
+            assert!(!matches!(left_type, Type::Array(_)));
+        }
+
+        if let Some(right_type) = self.state.type_table.get(&input.right.id()) {
+            assert!(!matches!(right_type, Type::Array(_)));
+        }
 
         let opcode = match input.op {
             BinaryOperation::Add => String::from("add"),

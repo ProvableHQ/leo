@@ -91,6 +91,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             Expression::Async(e) => self.reconstruct_async(e, additional),
             Expression::Array(e) => self.reconstruct_array(e, additional),
             Expression::ArrayAccess(e) => self.reconstruct_array_access(*e, additional),
+            Expression::Slice(e) => self.reconstruct_slice(*e, additional),
             Expression::Binary(e) => self.reconstruct_binary(*e, additional),
             Expression::Call(e) => self.reconstruct_call(*e, additional),
             Expression::Cast(e) => self.reconstruct_cast(*e, additional),
@@ -329,6 +330,47 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         input.elements = new_elements;
 
         (input.into(), all_stmts)
+    }
+
+    fn reconstruct_slice(
+        &mut self,
+        mut input: Slice,
+        additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        // Get the expected type of array expression.
+        let expected_array_type = additional.clone().or_else(|| self.state.type_table.get(&input.source_array.id()));
+
+        // Use the expected type (if available) for `array`
+        let (array, mut stmts_array) = self.reconstruct_expression(input.source_array, &expected_array_type);
+
+        // Reconstruct the `start` expression if it exists.
+        let (start, mut stmts_start) = match input.start {
+            Some(start_expr) => {
+                let (expr, stmts) = self.reconstruct_expression(start_expr, &None);
+                (Some(expr), stmts)
+            }
+            None => (None, vec![]),
+        };
+
+        // Reconstruct the `end` expression if it exists.
+        let (end, mut stmts_end) = match input.stop {
+            Some(end_expr) => {
+                let (expr, stmts) = self.reconstruct_expression(end_expr, &None);
+                (Some(expr), stmts)
+            }
+            None => (None, vec![]),
+        };
+
+        // Update the slice expression with reconstructed parts.
+        input.source_array = array;
+        input.start = start;
+        input.stop = end;
+
+        // Merge all side effects.
+        stmts_array.append(&mut stmts_start);
+        stmts_array.append(&mut stmts_end);
+
+        (input.into(), stmts_array)
     }
 
     fn reconstruct_binary(

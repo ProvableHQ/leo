@@ -27,6 +27,7 @@ pub trait ExpressionConsumer {
         match input {
             Expression::Array(array) => self.consume_array(array),
             Expression::ArrayAccess(access) => self.consume_array_access(*access),
+            Expression::Slice(slice) => self.consume_slice(*slice),
             Expression::AssociatedConstant(constant) => self.consume_associated_constant(constant),
             Expression::AssociatedFunction(function) => self.consume_associated_function(function),
             Expression::Async(async_) => self.consume_async(async_),
@@ -61,6 +62,8 @@ pub trait ExpressionConsumer {
     fn consume_async(&mut self, _input: AsyncExpression) -> Self::Output;
 
     fn consume_array(&mut self, _input: ArrayExpression) -> Self::Output;
+
+    fn consume_slice(&mut self, _input: Slice) -> Self::Output;
 
     fn consume_binary(&mut self, _input: BinaryExpression) -> Self::Output;
 
