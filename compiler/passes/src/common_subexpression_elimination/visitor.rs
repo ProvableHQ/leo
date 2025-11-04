@@ -41,6 +41,7 @@ pub enum Expr {
     ArrayAccess { array: Atom, index: Atom },
     Binary { op: BinaryOperation, left: Atom, right: Atom },
     Repeat { value: Atom, count: Atom },
+    Slice { array: Atom, start: Atom, end: Option<(bool, Atom)> },
     Ternary { condition: Atom, if_true: Atom, if_false: Atom },
     Unary { op: UnaryOperation, receiver: Atom },
 }
@@ -117,6 +118,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::Locator(_)
             | Expression::MemberAccess(_)
             | Expression::Repeat(_)
+            | Expression::Slice(_)
             | Expression::Struct(_)
             | Expression::Ternary(_)
             | Expression::Tuple(_)
@@ -180,6 +182,15 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                 let value = self.try_atom(&mut repeat_expression.expr)?;
                 let count = self.try_atom(&mut repeat_expression.count)?;
                 Expr::Repeat { value, count }
+            }
+            Expression::Slice(slice_expression) => {
+                let array = self.try_atom(&mut slice_expression.array)?;
+                let start = slice_expression.start.as_mut().and_then(|expr| self.try_atom(expr))?;
+                let end = slice_expression
+                    .end
+                    .as_mut()
+                    .map(|(inclusive, expr)| self.try_atom(expr).map(|end| (*inclusive, end)))?;
+                Expr::Slice { array, start, end }
             }
             Expression::Ternary(ternary_expression) => {
                 let condition = self.try_atom(&mut ternary_expression.condition)?;

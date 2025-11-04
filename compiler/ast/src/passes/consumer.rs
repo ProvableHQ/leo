@@ -40,6 +40,7 @@ pub trait ExpressionConsumer {
             Expression::Locator(locator) => self.consume_locator(locator),
             Expression::MemberAccess(access) => self.consume_member_access(*access),
             Expression::Repeat(repeat) => self.consume_repeat(*repeat),
+            Expression::Slice(slice) => self.consume_slice(*slice),
             Expression::Ternary(ternary) => self.consume_ternary(*ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
             Expression::TupleAccess(access) => self.consume_tuple_access(*access),
@@ -81,6 +82,8 @@ pub trait ExpressionConsumer {
     fn consume_locator(&mut self, _input: LocatorExpression) -> Self::Output;
 
     fn consume_repeat(&mut self, _input: RepeatExpression) -> Self::Output;
+
+    fn consume_slice(&mut self, _input: SliceExpression) -> Self::Output;
 
     fn consume_ternary(&mut self, _input: TernaryExpression) -> Self::Output;
 

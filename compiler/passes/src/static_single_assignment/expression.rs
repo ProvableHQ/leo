@@ -234,6 +234,13 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         (RepeatExpression { expr, ..input }.into(), statements)
     }
 
+    fn consume_slice(&mut self, input: leo_ast::SliceExpression) -> Self::Output {
+        let (array, statements) = self.consume_expression_and_define(input.array);
+
+        // By now, the start and end expressions should be literals. So we just ignore them. There is no need to SSA them.
+        (leo_ast::SliceExpression { array, ..input }.into(), statements)
+    }
+
     /// Consumes a ternary expression, accumulating any statements that are generated.
     fn consume_ternary(&mut self, input: TernaryExpression) -> Self::Output {
         // Reconstruct the condition of the ternary expression.

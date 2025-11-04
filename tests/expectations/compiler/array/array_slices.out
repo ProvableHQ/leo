@@ -1,0 +1,22 @@
+program test.aleo;
+
+function simple_slices:
+    input r0 as [boolean; 1u32].private;
+    cast r0[0u32] into r1 as [boolean; 1u32];
+    assert.eq r1 r1;
+    assert.eq r1 r1;
+    assert.eq r1 r1;
+    assert.eq r1 r1;
+    assert.eq r1 r1;
+    output r0[0u32] as boolean.private;
+
+function nested_slices:
+    input r0 as [[boolean; 1u32]; 1u32].private;
+    cast r0[0u32] into r1 as [[boolean; 1u32]; 1u32];
+    cast r1[0u32] into r2 as [[boolean; 1u32]; 1u32];
+    cast r2[0u32] into r3 as [[boolean; 1u32]; 1u32];
+    cast r3[0u32] into r4 as [[boolean; 1u32]; 1u32];
+    cast r4[0u32] into r5 as [[boolean; 1u32]; 1u32];
+    cast r5[0u32] into r6 as [[boolean; 1u32]; 1u32];
+    assert.eq r6 r6;
+    output r0[0u32][0u32] as boolean.private;

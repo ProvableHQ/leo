@@ -53,6 +53,9 @@ pub use member_access::*;
 mod repeat;
 pub use repeat::*;
 
+mod slice;
+pub use slice::*;
+
 mod struct_init;
 pub use struct_init::*;
 
@@ -109,6 +112,8 @@ pub enum Expression {
     MemberAccess(Box<MemberAccess>),
     /// An array expression constructed from one repeated element, e.g., `[1u32; 5]`.
     Repeat(Box<RepeatExpression>),
+    /// An array expression constructed from a slice of another array, e.g., `arr[1..4]`.
+    Slice(Box<SliceExpression>),
     /// An expression constructing a struct like `Foo { bar: 42, baz }`.
     Struct(StructExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
@@ -147,6 +152,7 @@ impl Node for Expression {
             Locator(n) => n.span(),
             MemberAccess(n) => n.span(),
             Repeat(n) => n.span(),
+            Slice(n) => n.span(),
             Struct(n) => n.span(),
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
@@ -173,6 +179,7 @@ impl Node for Expression {
             Locator(n) => n.set_span(span),
             MemberAccess(n) => n.set_span(span),
             Repeat(n) => n.set_span(span),
+            Slice(n) => n.set_span(span),
             Struct(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
@@ -198,6 +205,7 @@ impl Node for Expression {
             Locator(n) => n.id(),
             MemberAccess(n) => n.id(),
             Repeat(n) => n.id(),
+            Slice(n) => n.id(),
             Err(n) => n.id(),
             Struct(n) => n.id(),
             Ternary(n) => n.id(),
@@ -224,6 +232,7 @@ impl Node for Expression {
             Locator(n) => n.set_id(id),
             MemberAccess(n) => n.set_id(id),
             Repeat(n) => n.set_id(id),
+            Slice(n) => n.set_id(id),
             Err(n) => n.set_id(id),
             Struct(n) => n.set_id(id),
             Ternary(n) => n.set_id(id),
@@ -253,6 +262,7 @@ impl fmt::Display for Expression {
             Locator(n) => n.fmt(f),
             MemberAccess(n) => n.fmt(f),
             Repeat(n) => n.fmt(f),
+            Slice(n) => n.fmt(f),
             Struct(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
@@ -289,6 +299,7 @@ impl Expression {
             | Locator(_)
             | MemberAccess(_)
             | Repeat(_)
+            | Slice(_)
             | Struct(_)
             | Tuple(_)
             | TupleAccess(_)

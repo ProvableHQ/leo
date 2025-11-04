@@ -1,0 +1,9 @@
+program test.aleo;
+
+function flatten:
+    input r0 as [[boolean; 2u32]; 2u32].private;
+    cast r0[0u32][0u32] r0[0u32][1u32] r0[1u32][0u32] r0[1u32][1u32] into r1 as [boolean; 4u32];
+    assert.eq r1 r1;
+    assert.eq r1 r1;
+    assert.eq r1 r1;
+    output r1 as [boolean; 4u32].private;

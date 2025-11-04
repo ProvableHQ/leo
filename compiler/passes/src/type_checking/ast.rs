@@ -473,6 +473,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
+            Expression::Slice(slice) => self.visit_slice(slice, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access_general(access, false, additional),
@@ -590,6 +591,135 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));
 
+        self.maybe_assert_type(&type_, additional, input.span());
+        type_
+    }
+
+    fn visit_slice(&mut self, input: &SliceExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        // Check that the expression is an array.
+        let array_type = match self.visit_expression(&input.array, &None) {
+            Type::Array(array_type) => array_type,
+            Type::Err => return Type::Err,
+            type_ => {
+                self.emit_err(TypeCheckerError::type_should_be2(type_, "an array", input.array.span()));
+                return Type::Err;
+            }
+        };
+
+        // A helper function to get check the start or end index.
+        let mut check_index = |expression: &Expression| -> Option<u32> {
+            let mut type_ = self.visit_expression(expression, &None);
+
+            if type_ == Type::Numeric {
+                // If the index has type `Numeric`, then it's an unsuffixed literal. Just infer its type to be `u32` and
+                // then check it's validity as a `u32`.
+                type_ = Type::Integer(IntegerType::U32);
+                if let Expression::Literal(literal) = expression {
+                    self.check_numeric_literal(literal, &type_);
+                }
+            }
+
+            self.assert_int_type(&type_, expression.span());
+
+            // Keep track of the type of the start index in the type table.
+            // This is important for when the index is an unsuffixed literal.
+            self.state.type_table.insert(expression.id(), type_);
+
+            // Get the value of the index if it's a literal.
+            expression.as_u32()
+        };
+
+        // Get an expression for the start index.
+        let (start, start_value_opt) = if let Some(start) = &input.start {
+            // If the start index is provided, check it.
+            (start.clone(), check_index(start))
+        } else {
+            (Expression::Literal(Literal::unsuffixed("0".to_string(), Default::default(), Default::default())), Some(0))
+        };
+
+        // Get an expression for the end index.
+        let (end, end_value_opt) = if let Some((inclusive, end)) = &input.end {
+            // If the end index is provided, check it.
+            let value_opt = check_index(end);
+
+            // If the end index is inclusive, then we need to add 1 to it.
+            if *inclusive {
+                if let Some(value) = value_opt {
+                    let expression = Expression::Literal(Literal::integer(
+                        IntegerType::U32,
+                        (value + 1).to_string(),
+                        Default::default(),
+                        Default::default(),
+                    ));
+                    (expression, Some(value + 1))
+                } else {
+                    let expression = Expression::Binary(Box::new(BinaryExpression {
+                        left: end.clone(),
+                        op: BinaryOperation::Add,
+                        right: Expression::Literal(Literal::unsuffixed(
+                            "1".to_string(),
+                            Default::default(),
+                            Default::default(),
+                        )),
+                        id: Default::default(),
+                        span: Default::default(),
+                    }));
+                    (expression, None)
+                }
+            } else {
+                (end.clone(), value_opt)
+            }
+        } else {
+            (*array_type.length.clone(), array_type.length.as_u32())
+        };
+
+        // Create an expression for the length of the slice: `end - start`.
+        let length = match (start_value_opt, end_value_opt, array_type.length.as_u32()) {
+            (Some(start_value), Some(end_value), Some(array_length)) => {
+                // Check that `start` is in bounds.
+                if start_value > array_length {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!("The index `{start_value}` is out of bounds. The array length is `{array_length}`."),
+                        input.start.as_ref().map(|e| e.span()).unwrap_or(input.span()),
+                    ));
+                    return Type::Err;
+                }
+                // Check that `end` is in bounds.
+                if end_value > array_length {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!("The index `{end_value}` is out of bounds. The array length is `{array_length}`."),
+                        input.end.as_ref().map(|(_, e)| e.span()).unwrap_or(input.span()),
+                    ));
+                    return Type::Err;
+                }
+                // Check that start is strictly less than end.
+                if start_value >= end_value {
+                    println!("{input}");
+                    self.emit_err(TypeCheckerError::custom(
+                        format!(
+                            "The start index `{start_value}` must be strictly less than the end index `{end_value}`."
+                        ),
+                        input.start.as_ref().map(|e| e.span()).unwrap_or(input.span()),
+                    ));
+                    return Type::Err;
+                }
+                Expression::Literal(Literal::integer(
+                    IntegerType::U32,
+                    (end_value - start_value).to_string(),
+                    Default::default(),
+                    Default::default(),
+                ))
+            }
+            _ => Expression::Binary(Box::new(BinaryExpression {
+                left: end,
+                op: BinaryOperation::Sub,
+                right: start,
+                id: Default::default(),
+                span: Default::default(),
+            })),
+        };
+
+        let type_ = Type::Array(ArrayType::new(array_type.element_type().clone(), length));
         self.maybe_assert_type(&type_, additional, input.span());
         type_
     }
@@ -777,7 +907,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 // Now sanity check everything
                 let assert_add_type = |type_: &Type, span: Span| {
-                    if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_)) {
+                    if !matches!(
+                        type_,
+                        Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_) | Type::Array(_)
+                    ) {
                         self.emit_err(TypeCheckerError::type_should_be2(
                             type_,
                             "a field, group, scalar, or integer",
@@ -789,7 +922,25 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 assert_add_type(&t1, input.left.span());
                 assert_add_type(&t2, input.right.span());
 
-                let result_t = assert_same_type(self, &t1, &t2);
+                let result_t = match (&t1, &t2) {
+                    (Type::Array(array_type1), Type::Array(array_type2))
+                        if array_type1.element_type() == array_type2.element_type() =>
+                    {
+                        // Define the length expression.
+                        let length = Expression::Binary(Box::new(BinaryExpression {
+                            left: *array_type1.length.clone(),
+                            op: BinaryOperation::Add,
+                            right: *array_type2.length.clone(),
+                            id: self.state.node_builder.next_id(),
+                            span: Default::default(),
+                        }));
+                        // Set the type of the length expression to `U32` in the type table.
+                        self.state.type_table.insert(length.id(), Type::Integer(IntegerType::U32));
+
+                        Type::Array(ArrayType::new(array_type1.element_type().clone(), length))
+                    }
+                    _ => assert_same_type(self, &t1, &t2),
+                };
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 

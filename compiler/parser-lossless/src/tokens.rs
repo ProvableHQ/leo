@@ -216,6 +216,8 @@ pub enum Token {
     Dot,
     #[token("..")]
     DotDot,
+    #[token("..=")]
+    DotDotEq,
     #[token(";")]
     Semicolon,
     #[token(":")]
@@ -413,6 +415,7 @@ impl Token {
             "Comma" => "','",
             "Dot" => "'.'",
             "DotDot" => "'..'",
+            "DotDotEq" => "'..='",
             "Semicolon" => "';'",
             "Colon" => "':'",
             "DoubleColon" => "'::'",

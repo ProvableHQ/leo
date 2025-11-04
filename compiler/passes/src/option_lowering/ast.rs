@@ -101,6 +101,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             Expression::Locator(e) => self.reconstruct_locator(e, additional),
             Expression::MemberAccess(e) => self.reconstruct_member_access(*e, additional),
             Expression::Repeat(e) => self.reconstruct_repeat(*e, additional),
+            Expression::Slice(e) => self.reconstruct_slice(*e, additional),
             Expression::Ternary(e) => self.reconstruct_ternary(*e, additional),
             Expression::Tuple(e) => self.reconstruct_tuple(e, additional),
             Expression::TupleAccess(e) => self.reconstruct_tuple_access(*e, additional),
@@ -259,17 +260,8 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         mut input: RepeatExpression,
         additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
-        // Derive expected element type from the type of the whole expression
-        let expected_element_type =
-            additional.clone().or_else(|| self.state.type_table.get(&input.id)).and_then(|mut ty| {
-                if let Type::Optional(inner) = ty {
-                    ty = *inner.inner;
-                }
-                match ty {
-                    Type::Array(array_ty) => Some(*array_ty.element_type),
-                    _ => None,
-                }
-            });
+        // Get the expected type of the element expression.
+        let expected_element_type = additional.clone().or_else(|| self.state.type_table.get(&input.expr.id()));
 
         // Use expected type (if available) for `expr`
         let (expr, mut stmts_expr) = self.reconstruct_expression(input.expr, &expected_element_type);
@@ -282,6 +274,47 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         stmts_expr.append(&mut stmts_count);
 
         (input.into(), stmts_expr)
+    }
+
+    fn reconstruct_slice(
+        &mut self,
+        mut input: SliceExpression,
+        additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        // Get the expected type of array expression.
+        let expected_array_type = additional.clone().or_else(|| self.state.type_table.get(&input.array.id()));
+
+        // Use the expected type (if available) for `array`
+        let (array, mut stmts_array) = self.reconstruct_expression(input.array, &expected_array_type);
+
+        // Reconstruct the `start` expression if it exists.
+        let (start, mut stmts_start) = match input.start {
+            Some(start_expr) => {
+                let (expr, stmts) = self.reconstruct_expression(start_expr, &None);
+                (Some(expr), stmts)
+            }
+            None => (None, vec![]),
+        };
+
+        // Reconstruct the `end` expression if it exists.
+        let (end, mut stmts_end) = match input.end {
+            Some((inclusive, end_expr)) => {
+                let (expr, stmts) = self.reconstruct_expression(end_expr, &None);
+                (Some((inclusive, expr)), stmts)
+            }
+            None => (None, vec![]),
+        };
+
+        // Update the slice expression with reconstructed parts.
+        input.array = array;
+        input.start = start;
+        input.end = end;
+
+        // Merge all side effects.
+        stmts_array.append(&mut stmts_start);
+        stmts_array.append(&mut stmts_end);
+
+        (input.into(), stmts_array)
     }
 
     fn reconstruct_tuple_access(

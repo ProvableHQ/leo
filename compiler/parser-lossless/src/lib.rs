@@ -162,6 +162,10 @@ pub enum ExpressionKind {
     MethodCall,
     Parenthesized,
     Repeat,
+    SliceBoth,
+    SliceFirst,
+    SliceLast,
+    SliceNone,
     // program.id, block.height, etc
     SpecialAccess,
     Struct,

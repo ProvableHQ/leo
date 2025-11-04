@@ -49,7 +49,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     /* Expressions */
     fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
+        // Look up the old type before reconstructing the expression.
         let opt_old_type = self.state.type_table.get(&input.id());
+
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array, &()),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
@@ -66,6 +68,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
+            Expression::Slice(slice) => self.reconstruct_slice(*slice, &()),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, &()),
@@ -73,7 +76,8 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Unit(unit) => self.reconstruct_unit(unit, &()),
         };
 
-        // If the expression was in the type table before, make an entry for the new expression.
+        // Update the type table to reflect that the new expression has the same type as the old one.
+        // Note. The old type must be looked up after reconstructing the expression.
         if let Some(old_type) = opt_old_type {
             self.state.type_table.insert(new_expr.id(), old_type);
         }
@@ -247,7 +251,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let member_name = input.name.name;
         if let Some(struct_) = value_opt {
             let value_result = struct_.member_access(member_name).expect("Type checking guarantees the member exists.");
-
             (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
         } else {
             (MemberAccess { inner, ..input }.into(), None)
@@ -273,6 +276,130 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             ),
             _ => (RepeatExpression { expr, count, ..input }.into(), None),
         }
+    }
+
+    fn reconstruct_slice(&mut self, input: SliceExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
+        let span = input.span();
+        let id = input.id();
+        let array_id = input.array.id();
+
+        // Reconstruct the array expression.
+        let (array, array_opt) = self.reconstruct_expression(input.array, &());
+
+        // Reconstruct the array type.
+        let array_type = match self.state.type_table.get(&array_id) {
+            Some(Type::Array(array_type)) => match self.reconstruct_array_type(array_type.clone()) {
+                (Type::Array(array_type), _) => array_type,
+                _ => panic!("`reconstruct_array_type` always returns an array"),
+            },
+            _ => panic!("Type checking guaranteed that this is an array"),
+        };
+
+        // Reconstruct the start expression, if it was provided. Otherwise, default to 0.
+        let (start, start_value) = if let Some(start_expr) = input.start {
+            self.reconstruct_expression(start_expr, &())
+        } else {
+            (
+                Literal::integer(IntegerType::U32, "0".to_string(), Default::default(), Default::default()).into(),
+                interpreter_value::literal_to_value(
+                    &Literal {
+                        variant: LiteralVariant::Integer(IntegerType::U32, "0".to_string()),
+                        id: Default::default(),
+                        span,
+                    },
+                    &Some(Type::Integer(IntegerType::U32)),
+                )
+                .ok(),
+            )
+        };
+
+        // Reconstruct the end expression if it was provided, otherwise, default to the array length.
+        let (end, end_value) = if let Some((end_inclusive, end_expr)) = input.end {
+            // Get the span of the end expression.
+            let end_expr_span = end_expr.span();
+            // If the end is inclusive, we need to add 1 to it to make it exclusive.
+            let expression = if end_inclusive {
+                // Create a new integer literal.
+                let literal = Expression::Literal(Literal::integer(
+                    IntegerType::U32,
+                    "1".to_string(),
+                    end_expr_span,
+                    self.state.node_builder.next_id(),
+                ));
+                // Assign its type.
+                self.state.type_table.insert(literal.id(), Type::Integer(IntegerType::U32));
+                // Create a new expression.
+                let expression = Expression::Binary(Box::new(BinaryExpression {
+                    left: end_expr,
+                    op: BinaryOperation::Add,
+                    right: literal,
+                    id: self.state.node_builder.next_id(),
+                    span: end_expr_span,
+                }));
+                // Assign its type.
+                self.state.type_table.insert(expression.id(), Type::Integer(IntegerType::U32));
+
+                expression
+            } else {
+                end_expr
+            };
+            let (end_expr, end_value) = self.reconstruct_expression(expression, &());
+            (end_expr, end_value.and_then(|v| v.as_u32()))
+        } else {
+            (*array_type.length.clone(), array_type.length.as_u32())
+        };
+
+        // Check the indices.
+        match (start_value.as_ref().and_then(|v| v.as_u32()), end_value, array_type.length.as_u32()) {
+            (Some(start_value), Some(end_value), Some(array_length)) => {
+                // A helper to check that a value is in bounds.
+                let check_in_bounds = |value: u32| {
+                    if value > array_length {
+                        // Only emit a bounds error if we have no other errors yet.
+                        // This prevents a chain of redundant error messages when a loop is unrolled.
+                        if !self.state.handler.had_errors() {
+                            self.emit_err(StaticAnalyzerError::array_bounds(value.to_string(), array_length, span));
+                        }
+                        false
+                    } else {
+                        true
+                    }
+                };
+
+                // Check that the start value is in bounds.
+                check_in_bounds(start_value);
+
+                // Check that the end value is in bounds.
+                check_in_bounds(end_value);
+
+                // Check that the start value is strictly less than the end value.
+                if start_value >= end_value {
+                    // Only emit a bounds error if we have no other errors yet.
+                    if !self.state.handler.had_errors() {
+                        self.emit_err(StaticAnalyzerError::custom_error(
+                            "The slice's starting index must be strictly less than the ending index.",
+                            None::<String>,
+                            span,
+                        ));
+                    }
+                } else if let Some(array_value) = array_opt {
+                    // If the array is determined, evaluate the slice at compile time.
+                    let result_value = array_value
+                        .array_slice(start_value as usize, Some(end_value as usize))
+                        .expect("Type checking checked bounds.");
+                    return (self.value_to_expression(&result_value, span, id).expect(VALUE_ERROR), Some(result_value));
+                }
+            }
+            _ => {
+                if end_value.is_none() {
+                    self.array_index_not_evaluated = Some(end.span());
+                }
+                if start_value.is_none() {
+                    self.array_index_not_evaluated = Some(start.span());
+                }
+            }
+        }
+        (SliceExpression { array, start: Some(start), end: Some((false, end)), ..input }.into(), None)
     }
 
     fn reconstruct_tuple_access(
@@ -322,6 +449,10 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left, &());
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right, &());
 
+        // Get the types of the left and right operands.
+        let left_type = self.state.type_table.get(&left.id());
+        let right_type = self.state.type_table.get(&right.id());
+
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
             match interpreter_value::evaluate_binary(
@@ -337,6 +468,96 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 }
                 Err(err) => self
                     .emit_err(StaticAnalyzerError::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span)),
+            }
+        } else if let (BinaryOperation::Add, Some(Type::Array(left_array_type)), Some(Type::Array(right_array_type))) =
+            (input.op, left_type, right_type)
+        {
+            // Reconstruct the array types.
+            let (Type::Array(left_array_type), _) = self.reconstruct_array_type(left_array_type.clone()) else {
+                panic!("`reconstruct_array_type` always returns an array");
+            };
+            let (Type::Array(right_array_type), _) = self.reconstruct_array_type(right_array_type.clone()) else {
+                panic!("`reconstruct_array_type` always returns an array");
+            };
+
+            // If the lengths of both arrays are known at compile time, we can rewrite the addition as an array expression.
+            if let (Some(left_length), Some(right_length)) =
+                (left_array_type.length.as_u32(), right_array_type.length.as_u32())
+            {
+                // Check that the new array length does not exceed the maximum allowed length.
+                let total_length = left_length as usize + right_length as usize;
+                if total_length > self.limits.max_array_elements {
+                    self.emit_err(StaticAnalyzerError::custom_error(
+                        format!(
+                            "The resulting array length exceeds the maximum allowed length: {}.",
+                            self.limits.max_array_elements,
+                        ),
+                        None::<String>,
+                        span,
+                    ));
+                    return (BinaryExpression { left, right, ..input }.into(), None);
+                }
+
+                // The new array length is the sum of the two lengths.
+                let new_length = Expression::Literal(Literal::integer(
+                    IntegerType::U32,
+                    (left_length + right_length).to_string(),
+                    Default::default(),
+                    self.state.node_builder.next_id(),
+                ));
+                // Assign its type.
+                self.state.type_table.insert(new_length.id(), Type::Integer(IntegerType::U32));
+                // Create the elements.
+                let mut elements = Vec::with_capacity(total_length);
+
+                // A helper function to add the elements to the new array.
+                let mut add_elements = |length: u32, array: &Expression, element_type: &Type| {
+                    elements.extend((0..length as usize).map(|i| {
+                        // Create the index.
+                        let index = Expression::Literal(Literal::integer(
+                            IntegerType::U32,
+                            i.to_string(),
+                            Default::default(),
+                            self.state.node_builder.next_id(),
+                        ));
+                        // Assign its type.
+                        self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
+                        // Create the access expression.
+                        let element: Expression = ArrayAccess {
+                            array: array.clone(),
+                            index,
+                            id: self.state.node_builder.next_id(),
+                            span: Default::default(),
+                        }
+                        .into();
+                        // Assign its type.
+                        self.state.type_table.insert(element.id(), element_type.clone());
+                        // Reconstruct and return the element.
+                        self.reconstruct_expression(element, &()).0
+                    }))
+                };
+
+                // Add the elements from the left array.
+                add_elements(left_length, &left, &left_array_type.element_type);
+                // Add the elements from the right array.
+                add_elements(right_length, &right, &right_array_type.element_type);
+
+                // Create the new array expression.
+                let new_array: Expression =
+                    ArrayExpression { elements, id: self.state.node_builder.next_id(), span: Default::default() }
+                        .into();
+
+                // Assign its type.
+                self.state.type_table.insert(
+                    new_array.id(),
+                    Type::Array(leo_ast::ArrayType {
+                        element_type: left_array_type.element_type.clone(),
+                        length: Box::new(new_length.clone()),
+                    }),
+                );
+
+                // Reconstruct and return the new array expression.
+                return self.reconstruct_expression(new_array, &());
             }
         }
 
