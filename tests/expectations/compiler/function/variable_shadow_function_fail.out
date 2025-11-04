@@ -1,8 +1,11 @@
-Error [EAST0372006]: function `f1` shadowed by
+Error [EAST0372017]: The name `f1` is defined multiple times.
     --> compiler-test:8:13
      |
-   8 |         let f1: u8 = 1u8;
-     |             ^^
+   3 |       function f1(a: u8) -> u8 {
+     |                ^^ previous definition of `f1` here
+   ...
+   8 |           let f1: u8 = 1u8;
+     |               ^^ `f1` redefined here
 Error [ETYC0372005]: Unknown variable `f1`
     --> compiler-test:9:16
      |

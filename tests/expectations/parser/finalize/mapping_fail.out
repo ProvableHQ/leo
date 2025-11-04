@@ -1,4 +1,4 @@
-Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u8'
+Error [EPAR0370005]: expected an identifier -- found 'u8'
     --> test:3:13
      |
    3 |     mapping u8: u8 => u8;

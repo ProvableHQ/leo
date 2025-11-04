@@ -25,10 +25,11 @@
       "consts": [],
       "structs": [],
       "mappings": [],
+      "storage_variables": [],
       "functions": [],
       "constructor": null,
       "span": {
-        "lo": 112,
+        "lo": 0,
         "hi": 193
       }
     }

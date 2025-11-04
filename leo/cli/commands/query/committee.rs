@@ -35,6 +35,6 @@ impl Command for LeoCommittee {
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
-        Ok("/committee/latest".to_string())
+        Ok("committee/latest".to_string())
     }
 }

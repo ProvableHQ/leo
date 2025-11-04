@@ -26,6 +26,9 @@ pub use code_generation::*;
 mod common;
 pub use common::*;
 
+mod common_subexpression_elimination;
+pub use common_subexpression_elimination::*;
+
 mod const_propagation;
 pub use const_propagation::*;
 
@@ -44,11 +47,14 @@ pub use flattening::*;
 mod function_inlining;
 pub use function_inlining::*;
 
+mod loop_unrolling;
+pub use loop_unrolling::*;
+
 mod monomorphization;
 pub use monomorphization::*;
 
-mod loop_unrolling;
-pub use loop_unrolling::*;
+mod option_lowering;
+pub use option_lowering::*;
 
 mod path_resolution;
 pub use path_resolution::*;
@@ -65,11 +71,20 @@ pub use processing_script::*;
 mod static_single_assignment;
 pub use static_single_assignment::*;
 
+mod storage_lowering;
+pub use storage_lowering::*;
+
 mod symbol_table_creation;
 pub use symbol_table_creation::*;
 
 mod type_checking;
 pub use type_checking::*;
 
+mod name_validation;
+pub use name_validation::*;
+
 mod write_transforming;
 pub use write_transforming::*;
+
+#[cfg(test)]
+mod test_passes;

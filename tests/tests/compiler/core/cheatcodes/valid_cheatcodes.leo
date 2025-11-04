@@ -35,5 +35,6 @@ program test.aleo {
         CheatCode::print_mapping(test_dep.aleo/Yo);
         CheatCode::set_block_height(1u32);
         CheatCode::set_block_height(a);
+        CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH");
     }
 }

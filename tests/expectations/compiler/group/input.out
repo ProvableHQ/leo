@@ -5,5 +5,4 @@ function main:
     input r1 as group.private;
     is.eq r0 r1 into r2;
     assert.eq r2 true;
-    is.eq r0 r1 into r3;
-    output r3 as boolean.private;
+    output r2 as boolean.private;

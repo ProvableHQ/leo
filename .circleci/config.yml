@@ -6,7 +6,7 @@ version: 2.1
 # - Incremental builds should be disabled in CI, since they don't provide much benefit.
 # - Enabling `--only_testnet` feature flag to reduce the amount of time spent building leo-lang, since it's not needed for the test suite.
 
-# Rust Version: 1.88.0
+# Rust Version: 1.90.0
 # Ensure that this matches the `rust-version` in `Cargo.toml`.
 # If this is changed, propogate the changes to all places in this file, including the `install-rust` command.
 
@@ -15,10 +15,6 @@ version: 2.1
 #    See swatinem/rust-cache for a sensible approach. Unfortunately, we'd have to build this for CircleCI.
 
 
-environment:
-  CARGO_INCREMENTAL: 0
-  RUSTFLAGS: "-D warnings"
-
 orbs:
   windows: circleci/windows@5.1.0
   codecov: codecov/codecov@1.0.2
@@ -26,13 +22,13 @@ orbs:
 executors:
   macos-executor:
     macos:
-      xcode: "16.0.0"  # Use appropriate Xcode version
-    resource_class: m2pro.large
+      xcode: "26.0.1"  # Use appropriate Xcode version
+    resource_class: m4pro.large
 
   linux-executor:
     docker:
-      - image: "cimg/rust:1.88"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
-    resource_class: xlarge
+      - image: "cimg/rust:1.90"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+    resource_class: 2xlarge
 
 commands:
   install-rust:
@@ -42,12 +38,12 @@ commands:
           name: Install Rust
           command: |
             # If Rust is not installed on the machine, install it
-            # (temporarily install it regardless, as we want 1.88.0, not 1.85.0)
+            # (temporarily install it regardless, as we want 1.90.0, not 1.85.0)
             # if ! command -v rustc &> /dev/null; then
               curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
               source "$HOME/.cargo/env"
-              rustup install 1.88.0
-              rustup override set 1.88.0
+              rustup install 1.90.0
+              rustup override set 1.90.0
               cargo --version --verbose
               rustc --version
             # fi
@@ -69,14 +65,33 @@ commands:
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
             Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
-            rustup install 1.88.0
-            rustup default 1.88.0
+            rustup install 1.90.0
+            rustup default 1.90.0
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
                 cargo generate-lockfile
             }
             cargo install cargo-mtime
+
+  install-snarkos:
+    description: "Install snarkOS (Linux/macOS)"
+    parameters:
+      revision:
+        type: string
+        description: "The git revision of snarkOS to check out"
+    steps:
+      - run:
+          name: Install snarkOS 
+          command: |
+            set -euo pipefail
+            git clone https://github.com/ProvableHQ/snarkOS.git
+            cd snarkOS
+            git checkout << parameters.revision >>
+            cargo install --path . --features test_network --locked --force
+            cd ..
+            rm -rf snarkOS
+            ulimit -n 65535 
 
   build-and-test:
     description: "Build and run tests"
@@ -107,6 +122,8 @@ jobs:
       size: xlarge
     environment:
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUST_MIN_STACK: "16777216"    # 16 MB stack for rustc
+      CARGO_INCREMENTAL: 0
     steps:
       - run:
           name: Force git to use HTTPS
@@ -132,6 +149,8 @@ jobs:
 
   test-macos:
     executor: macos-executor
+    environment:
+      SNARKOS_REV: "8d710d7e211111d339dc9a6292a0e6f87508eb74" # v4.3.0
     steps:
       - checkout
       - restore_cache:
@@ -140,6 +159,12 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
+      - install-snarkos:
+          revision: $SNARKOS_REV
+      - run:
+          name: Verify SnarkOS installation
+          command: |
+            snarkos --version
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
@@ -255,7 +280,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.88
+      - image: cimg/rust:1.90
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -268,7 +293,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.88
+      - image: cimg/rust:1.90
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -281,7 +306,7 @@ jobs:
 
   test-examples:
     docker:
-      - image: cimg/rust:1.88
+      - image: cimg/rust:1.90
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -295,12 +320,25 @@ jobs:
 
 workflows:
   version: 2
-  main-workflow:
+  
+  test-windows:
     jobs:
       - test-windows
+
+  test-macos:
+    jobs:
       - test-macos
+
+  test-linux:
+    jobs:
       - test-linux
+
+  code-quality:
+    jobs:
       - check-style-clippy-docs
+  
+  leo-executable:
+    jobs:
       - leo-executable
       - leo-new:
           requires:

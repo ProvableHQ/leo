@@ -1,0 +1,7 @@
+Error [EAST0372017]: The name `N` is defined multiple times.
+    --> compiler-test:7:13
+     |
+   6 |       inline foo::[N: u32]() -> u32 {
+     |                    ^ previous definition of `N` here
+   7 |           let N: u32 = 10u32;
+     |               ^ `N` redefined here

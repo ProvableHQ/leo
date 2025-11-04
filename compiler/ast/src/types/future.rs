@@ -58,3 +58,9 @@ impl fmt::Display for crate::FutureType {
         write!(f, "Future<Fn({})>", self.inputs.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
     }
 }
+
+impl From<FutureType> for Type {
+    fn from(value: FutureType) -> Self {
+        Type::Future(value)
+    }
+}

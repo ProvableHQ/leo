@@ -2,7 +2,7 @@ Error [ETYC0372045]: Strings are not yet supported.
     --> compiler-test:12:9
      |
   12 |         let b: string = a as string;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `string` was found.
     --> compiler-test:12:25
      |

@@ -1,9 +1,8 @@
-Error [EAST0372006]: function `main` shadowed by
-    --> compiler-test:7:5
+Error [EAST0372017]: The name `main` is defined multiple times.
+    --> compiler-test:7:14
      |
-   7 |     function main(y: bool) -> bool {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |         return y;
-     |         ^^^^^^^^^
-   9 |     }
-     |     ^
+   3 |       function main(y: bool) -> bool {
+     |                ^^^^ previous definition of `main` here
+   ...
+   7 |       function main(y: bool) -> bool {
+     |                ^^^^ `main` redefined here

@@ -1,5 +1,8 @@
-Error [EAST0372007]: struct `Foo` shadowed by
-    --> compiler-test:7:5
+Error [EAST0372017]: The name `Foo` is defined multiple times.
+    --> compiler-test:7:14
      |
-   7 |     function Foo() {}
-     |     ^^^^^^^^^^^^^^^^^
+   3 |       struct Foo {
+     |              ^^^ previous definition of `Foo` here
+   ...
+   7 |       function Foo() {}
+     |                ^^^ `Foo` redefined here

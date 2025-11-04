@@ -24,10 +24,15 @@ use aleo_std::StorageMode;
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
-    ledger::store::helpers::memory::BlockMemory,
+    ledger::{query::Query as SnarkVMQuery, store::helpers::memory::BlockMemory},
     prelude::{
-        ConsensusVersion, Deployment, Program, ProgramID, TestnetV0, VM, deployment_cost,
-        query::Query as SnarkVMQuery,
+        ConsensusVersion,
+        Deployment,
+        Program,
+        ProgramID,
+        TestnetV0,
+        VM,
+        deployment_cost,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
@@ -248,9 +253,13 @@ fn handle_deploy<N: Network>(
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
+    // Remove version suffixes from the endpoint.
+    let re = regex::Regex::new(r"v\d+$").unwrap();
+    let query_endpoint = re.replace(&endpoint, "").to_string();
+
     // Specify the query
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
-        endpoint
+        query_endpoint
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
@@ -415,12 +424,12 @@ fn check_tasks_for_warnings<N: Network>(
                 .push(format!("The program '{id}' already exists on the network. Please use `leo upgrade` instead.",));
         }
         // Check if the program has a valid naming scheme.
-        if consensus_version >= ConsensusVersion::V7 {
-            if let Err(e) = program.check_program_naming_structure() {
-                warnings.push(format!(
-                    "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
-                ));
-            }
+        if consensus_version >= ConsensusVersion::V7
+            && let Err(e) = program.check_program_naming_structure()
+        {
+            warnings.push(format!(
+                "The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
+            ));
         }
 
         // Check if the program contains restricted keywords.

@@ -14,16 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, Pass, VariableSymbol, VariableType};
+use crate::{CompilerState, Pass, SymbolTable, VariableSymbol, VariableType};
 
 use leo_ast::{
-    AstVisitor, Composite, ConstDeclaration, Function, FunctionStub, Location, Mapping, MappingType, Module, Program,
-    ProgramScope, ProgramVisitor, Stub, Type, Variant,
+    AstVisitor,
+    Composite,
+    ConstDeclaration,
+    Function,
+    FunctionStub,
+    Location,
+    Mapping,
+    MappingType,
+    Module,
+    OptionalType,
+    Program,
+    ProgramScope,
+    ProgramVisitor,
+    StorageVariable,
+    Stub,
+    Type,
+    Variant,
 };
-use leo_errors::{AstError, LeoError, Result};
-use leo_span::Symbol;
+use leo_errors::Result;
+use leo_span::{Span, Symbol};
 
-use indexmap::IndexSet;
+use indexmap::IndexMap;
 
 /// A pass to fill the SymbolTable.
 ///
@@ -40,13 +55,13 @@ impl Pass for SymbolTableCreation {
         let ast = std::mem::take(&mut state.ast);
         let mut visitor = SymbolTableCreationVisitor {
             state,
-            structs: IndexSet::new(),
+            structs: IndexMap::new(),
             program_name: Symbol::intern(""),
             module: vec![],
             is_stub: false,
         };
         visitor.visit_program(ast.as_repr());
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())
     }
@@ -62,7 +77,7 @@ struct SymbolTableCreationVisitor<'a> {
     /// Whether or not traversing stub.
     is_stub: bool,
     /// The set of local structs that have been successfully visited.
-    structs: IndexSet<Vec<Symbol>>,
+    structs: IndexMap<Vec<Symbol>, Span>,
 }
 
 impl SymbolTableCreationVisitor<'_> {
@@ -101,10 +116,11 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         self.is_stub = false;
 
         // Visit the program scope
-        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
-        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
-        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.structs.iter().for_each(|(_, c)| self.visit_struct(c));
+        input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
+        input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
         }
@@ -113,9 +129,9 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     fn visit_module(&mut self, input: &Module) {
         self.program_name = input.program_name;
         self.in_module_scope(&input.path.clone(), |slf| {
-            input.structs.iter().for_each(|(_, c)| (slf.visit_struct(c)));
-            input.functions.iter().for_each(|(_, c)| (slf.visit_function(c)));
-            input.consts.iter().for_each(|(_, c)| (slf.visit_const(c)));
+            input.structs.iter().for_each(|(_, c)| slf.visit_struct(c));
+            input.functions.iter().for_each(|(_, c)| slf.visit_function(c));
+            input.consts.iter().for_each(|(_, c)| slf.visit_const(c));
         })
     }
 
@@ -127,9 +143,19 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         // Allow up to one local redefinition for each external struct.
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
 
-        if !input.is_record && !self.structs.insert(full_name.clone()) {
-            return self.state.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
+        if !input.is_record {
+            if let Some(prev_span) = self.structs.get(&full_name) {
+                // The struct already existed
+                return self.state.handler.emit_err(SymbolTable::emit_shadow_error(
+                    input.identifier.name,
+                    input.identifier.span,
+                    *prev_span,
+                ));
+            }
+
+            self.structs.insert(full_name.clone(), input.identifier.span);
         }
+
         if input.is_record {
             // While records are not allowed in submodules, we stll use their full name in the records table.
             // We don't expect the full name to have more than a single Symbol though.
@@ -155,8 +181,25 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
                     program: self.program_name,
                 }),
                 span: input.span,
-                declaration: VariableType::Mut,
+                declaration: VariableType::Storage,
             },
+        ) {
+            self.state.handler.emit_err(err);
+        }
+    }
+
+    fn visit_storage_variable(&mut self, input: &StorageVariable) {
+        // Add the variable associated with the mapping to the symbol table.
+
+        // The type of non-vector storage variables is implicitly wrapped in an optional.
+        let type_ = match input.type_ {
+            Type::Vector(_) => input.type_.clone(),
+            _ => Type::Optional(OptionalType { inner: Box::new(input.type_.clone()) }),
+        };
+
+        if let Err(err) = self.state.symbol_table.insert_global(
+            Location::new(self.program_name, vec![input.identifier.name]),
+            VariableSymbol { type_, span: input.span, declaration: VariableType::Storage },
         ) {
             self.state.handler.emit_err(err);
         }
@@ -174,9 +217,9 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     fn visit_stub(&mut self, input: &Stub) {
         self.is_stub = true;
         self.program_name = input.stub_id.name.name;
-        input.functions.iter().for_each(|(_, c)| (self.visit_function_stub(c)));
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct_stub(c)));
-        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
+        input.functions.iter().for_each(|(_, c)| self.visit_function_stub(c));
+        input.structs.iter().for_each(|(_, c)| self.visit_struct_stub(c));
+        input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {

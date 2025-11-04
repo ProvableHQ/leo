@@ -9,8 +9,9 @@
             "lo": 1,
             "hi": 2
           },
-          "id": 0
+          "id": 2
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 1,
@@ -24,7 +25,7 @@
       "lo": 0,
       "hi": 2
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -40,14 +41,15 @@
               "lo": 4,
               "hi": 5
             },
-            "id": 0
+            "id": 2
           },
+          "is_absolute": false,
           "absolute_path": null,
           "span": {
             "lo": 4,
             "hi": 5
           },
-          "id": 1
+          "id": 3
         },
         "const_arguments": [],
         "arguments": [],
@@ -56,7 +58,7 @@
           "lo": 4,
           "hi": 7
         },
-        "id": 2
+        "id": 1
       }
     },
     "op": "Not",
@@ -64,7 +66,7 @@
       "lo": 3,
       "hi": 7
     },
-    "id": 3
+    "id": 0
   }
 }
 
@@ -81,14 +83,15 @@
                 "lo": 10,
                 "hi": 11
               },
-              "id": 0
+              "id": 3
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 10,
               "hi": 11
             },
-            "id": 1
+            "id": 2
           }
         },
         "op": "Not",
@@ -96,7 +99,7 @@
           "lo": 9,
           "hi": 11
         },
-        "id": 2
+        "id": 1
       }
     },
     "op": "Not",
@@ -104,7 +107,7 @@
       "lo": 8,
       "hi": 11
     },
-    "id": 3
+    "id": 0
   }
 }
 
@@ -123,14 +126,15 @@
                     "lo": 14,
                     "hi": 15
                   },
-                  "id": 0
+                  "id": 5
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 14,
                   "hi": 15
                 },
-                "id": 1
+                "id": 4
               }
             },
             "op": "Not",
@@ -138,7 +142,7 @@
               "lo": 14,
               "hi": 21
             },
-            "id": 3
+            "id": 2
           }
         },
         "op": "Negate",
@@ -146,7 +150,7 @@
           "lo": 13,
           "hi": 21
         },
-        "id": 4
+        "id": 1
       }
     },
     "op": "Not",
@@ -154,7 +158,7 @@
       "lo": 12,
       "hi": 21
     },
-    "id": 5
+    "id": 0
   }
 }
 
@@ -173,14 +177,15 @@
                     "lo": 22,
                     "hi": 23
                   },
-                  "id": 0
+                  "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 22,
                   "hi": 23
                 },
-                "id": 1
+                "id": 6
               }
             },
             "op": "Not",
@@ -188,7 +193,7 @@
               "lo": 22,
               "hi": 29
             },
-            "id": 3
+            "id": 4
           }
         },
         "op": "Not",
@@ -196,7 +201,7 @@
           "lo": 22,
           "hi": 35
         },
-        "id": 5
+        "id": 2
       }
     },
     "op": "Not",
@@ -204,7 +209,7 @@
       "lo": 22,
       "hi": 41
     },
-    "id": 7
+    "id": 0
   }
 }
 
@@ -221,14 +226,15 @@
                 "lo": 43,
                 "hi": 44
               },
-              "id": 0
+              "id": 4
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 43,
               "hi": 44
             },
-            "id": 1
+            "id": 3
           }
         },
         "op": "Not",
@@ -236,7 +242,7 @@
           "lo": 43,
           "hi": 50
         },
-        "id": 3
+        "id": 1
       }
     },
     "op": "Negate",
@@ -244,7 +250,7 @@
       "lo": 42,
       "hi": 50
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -261,14 +267,15 @@
                 "lo": 53,
                 "hi": 54
               },
-              "id": 0
+              "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 53,
               "hi": 54
             },
-            "id": 1
+            "id": 4
           }
         },
         "op": "Negate",
@@ -276,15 +283,15 @@
           "lo": 52,
           "hi": 54
         },
-        "id": 2
+        "id": 3
       }
     },
     "op": "Not",
     "span": {
-      "lo": 52,
+      "lo": 51,
       "hi": 61
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -301,14 +308,15 @@
                 "lo": 64,
                 "hi": 65
               },
-              "id": 0
+              "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 64,
               "hi": 65
             },
-            "id": 1
+            "id": 4
           }
         },
         "op": "Not",
@@ -316,15 +324,15 @@
           "lo": 64,
           "hi": 71
         },
-        "id": 3
+        "id": 2
       }
     },
     "op": "Negate",
     "span": {
       "lo": 62,
-      "hi": 71
+      "hi": 72
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -343,14 +351,15 @@
                     "lo": 75,
                     "hi": 76
                   },
-                  "id": 0
+                  "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 75,
                   "hi": 76
                 },
-                "id": 1
+                "id": 6
               }
             },
             "op": "Not",
@@ -358,7 +367,7 @@
               "lo": 75,
               "hi": 82
             },
-            "id": 3
+            "id": 4
           }
         },
         "op": "Negate",
@@ -366,15 +375,15 @@
           "lo": 74,
           "hi": 82
         },
-        "id": 4
+        "id": 3
       }
     },
     "op": "Not",
     "span": {
-      "lo": 74,
+      "lo": 73,
       "hi": 89
     },
-    "id": 6
+    "id": 0
   }
 }
 
@@ -391,14 +400,15 @@
                 "lo": 91,
                 "hi": 92
               },
-              "id": 0
+              "id": 4
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 91,
               "hi": 92
             },
-            "id": 1
+            "id": 3
           }
         },
         "op": "Not",
@@ -406,7 +416,7 @@
           "lo": 91,
           "hi": 98
         },
-        "id": 3
+        "id": 1
       }
     },
     "op": "Not",
@@ -414,7 +424,7 @@
       "lo": 90,
       "hi": 98
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -431,14 +441,15 @@
                 "lo": 101,
                 "hi": 102
               },
-              "id": 0
+              "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 101,
               "hi": 102
             },
-            "id": 1
+            "id": 4
           }
         },
         "op": "Not",
@@ -446,15 +457,15 @@
           "lo": 100,
           "hi": 102
         },
-        "id": 2
+        "id": 3
       }
     },
     "op": "Not",
     "span": {
-      "lo": 100,
+      "lo": 99,
       "hi": 109
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -471,14 +482,15 @@
                 "lo": 112,
                 "hi": 113
               },
-              "id": 0
+              "id": 5
             },
+            "is_absolute": false,
             "absolute_path": null,
             "span": {
               "lo": 112,
               "hi": 113
             },
-            "id": 1
+            "id": 4
           }
         },
         "op": "Not",
@@ -486,15 +498,15 @@
           "lo": 112,
           "hi": 119
         },
-        "id": 3
+        "id": 2
       }
     },
     "op": "Not",
     "span": {
       "lo": 110,
-      "hi": 119
+      "hi": 120
     },
-    "id": 4
+    "id": 0
   }
 }
 
@@ -513,14 +525,15 @@
                     "lo": 123,
                     "hi": 124
                   },
-                  "id": 0
+                  "id": 7
                 },
+                "is_absolute": false,
                 "absolute_path": null,
                 "span": {
                   "lo": 123,
                   "hi": 124
                 },
-                "id": 1
+                "id": 6
               }
             },
             "op": "Not",
@@ -528,7 +541,7 @@
               "lo": 123,
               "hi": 130
             },
-            "id": 3
+            "id": 4
           }
         },
         "op": "Not",
@@ -536,15 +549,15 @@
           "lo": 122,
           "hi": 130
         },
-        "id": 4
+        "id": 3
       }
     },
     "op": "Not",
     "span": {
-      "lo": 122,
+      "lo": 121,
       "hi": 137
     },
-    "id": 6
+    "id": 0
   }
 }
 

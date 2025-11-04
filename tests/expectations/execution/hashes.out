@@ -1,0 +1,240 @@
+program test_hash_and_commit.aleo;
+
+struct Optional__K4XRQPOk9yX:
+    is_some as boolean;
+    val as field;
+
+struct Optional__8aTicnNTOvk:
+    is_some as boolean;
+    val as group;
+
+struct S:
+    x as Optional__K4XRQPOk9yX;
+    y as Optional__8aTicnNTOvk;
+
+struct Optional__3FgA2LC7NnF:
+    is_some as boolean;
+    val as S;
+
+struct Optional__GCjgE2f9kbt:
+    is_some as boolean;
+    val as [Optional__K4XRQPOk9yX; 3u32];
+
+struct Outer:
+    inner as Optional__3FgA2LC7NnF;
+    arr as Optional__GCjgE2f9kbt;
+
+struct Optional__IsLXQFUQ9Dr:
+    is_some as boolean;
+    val as Outer;
+
+function hash:
+    input r0 as field.private;
+    input r1 as group.private;
+    cast true r0 into r2 as Optional__K4XRQPOk9yX;
+    cast false 0group into r3 as Optional__8aTicnNTOvk;
+    cast r2 r3 into r4 as S;
+    cast true r4 into r5 as Optional__3FgA2LC7NnF;
+    cast true 1field into r6 as Optional__K4XRQPOk9yX;
+    cast false 0field into r7 as Optional__K4XRQPOk9yX;
+    cast true 3field into r8 as Optional__K4XRQPOk9yX;
+    cast r6 r7 r8 into r9 as [Optional__K4XRQPOk9yX; 3u32];
+    cast true r9 into r10 as Optional__GCjgE2f9kbt;
+    cast r5 r10 into r11 as Outer;
+    cast true r11 into r12 as Optional__IsLXQFUQ9Dr;
+    hash.bhp256 r12 into r13 as field;
+    hash.bhp512 r12 into r14 as field;
+    hash.bhp768 r12 into r15 as field;
+    hash.bhp1024 r12 into r16 as field;
+    hash.keccak256 r12 into r17 as field;
+    hash.keccak384 r12 into r18 as field;
+    cast r13 r14 r15 r16 r17 r18 into r19 as [field; 6u32];
+    output r19 as [field; 6u32].public;
+    output 1150511686575711078894586425189063917444782989726258642013897653550157939585group as group.public;
+
+function commit:
+    input r0 as field.private;
+    input r1 as group.private;
+    input r2 as scalar.private;
+    cast false 0field into r3 as Optional__K4XRQPOk9yX;
+    cast true r1 into r4 as Optional__8aTicnNTOvk;
+    cast r3 r4 into r5 as S;
+    cast true r5 into r6 as Optional__3FgA2LC7NnF;
+    cast true 10field into r7 as Optional__K4XRQPOk9yX;
+    cast true 20field into r8 as Optional__K4XRQPOk9yX;
+    cast false 0field into r9 as Optional__K4XRQPOk9yX;
+    cast r7 r8 r9 into r10 as [Optional__K4XRQPOk9yX; 3u32];
+    cast true r10 into r11 as Optional__GCjgE2f9kbt;
+    cast r6 r11 into r12 as Outer;
+    cast true r12 into r13 as Optional__IsLXQFUQ9Dr;
+    commit.bhp256 r13 r2 into r14 as field;
+    commit.bhp256 r13 r2 into r15 as field;
+    commit.bhp256 r13 r2 into r16 as field;
+    commit.bhp256 r13 r2 into r17 as field;
+    commit.bhp256 12u8 r2 into r18 as field;
+    commit.bhp256 12u8 r2 into r19 as field;
+    cast r14 r15 r16 r17 r18 r19 into r20 as [field; 6u32];
+    output r20 as [field; 6u32].public;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1ck3gjhh4wf8xvmw3lnenpw6sjxj8swqzhvllmusgqugmv65e7yxqxm9ll8",
+      "program": "test_hash_and_commit.aleo",
+      "function": "hash",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "1775316360379012129110899480494749200366048149015108172426435959943495104270field",
+          "value": "ciphertext1qgqvvz0uzgelz39d0h9q28gx0dnn3t44fssgwu5gn8tcj4lr36glwzqlly7qgyzlhpl7ghsean8qg54k35tzpnn9kccnpymejc4qttvdpyynm2xu"
+        },
+        {
+          "type": "private",
+          "id": "1949280209988583813375155546414734078907939294411081950050292895228575483906field",
+          "value": "ciphertext1qgqturll5l0zuezzeek02p7v36v2fhpphkmmvhh39fnnx9fzn8cp7rzzqwtwsawuk0r82y6wltke2jcdnu7xkg9jnwumvx6lcz3ytrsxqsqzza53"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "4686632291228028852407904381971890394623055941138247376543860290170875755338field",
+          "value": "[\n  2389033528541317015369294191168082905997398578750323243557863145864901166796field,\n  172644632788497785943688808800949204936067994109484882301800054670053524265field,\n  2935345460655404712415242713194718975328574533267387132400005962185865883341field,\n  5817416973664279054460665977366739932224416429242942751719449180201781184059field,\n  287759063810391575934384180273548695577458018507724744356046584908730543160field,\n  3913727974389014614204978536390891835714340433349594459667742811322222489454field\n]"
+        },
+        {
+          "type": "public",
+          "id": "286837418137396036720897851355635088764041250885709823520698220507405126858field",
+          "value": "1150511686575711078894586425189063917444782989726258642013897653550157939585group"
+        }
+      ],
+      "tpk": "646845558375549784210274777130855824181163268394681480044719393150424514386group",
+      "tcm": "1243628559964918142865270245615125496351442891132677521326723785700962029784field",
+      "scm": "2559927265699398296538975311650968277856962949475786755284838310149958990503field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au19yktu98lpwdm2xtmjm8qwuvkd0e6clf92z43dqnljr4qjwuwtyzstqll5k",
+      "program": "test_hash_and_commit.aleo",
+      "function": "hash",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "3910536423373421271782400054040142637950834170207692536601699286301846017935field",
+          "value": "ciphertext1qgqg5ggcvhseaaqxuge27ce6symjnycqhgfwfhq9ky66ukkuuxq0cqa6e6ta24gdf4s60tqg0czr4rtwc4a7d8j7edzrek43w7n3qyufpgfpwmm9"
+        },
+        {
+          "type": "private",
+          "id": "3629127134308561314830150444220878821626586031885864218181109788783870609396field",
+          "value": "ciphertext1qgqf2z2zfcnmresnpl8cxxaqsaqn9k632zldxgwd6x2etq3jkkcxcqawma20guv9fv32p8a0phm6jktmqtmcyu27a4gcl8nzwusr4l6hqvdmw4j5"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "421949946080783002622893015800425919605278971875064668377417240367980015065field",
+          "value": "[\n  6798576775415172930024795384318601958199326755638942990496387325229766236562field,\n  4658232586824243767278641586542664532562957796225217469667907688947722388616field,\n  7509757352560318781395278165510886076858703556666965559922627566156232816240field,\n  6787929851299748200027290095196989629826553332067904143983285052766229554185field,\n  8226379729174501730566792169755728656333931983456501340185779664235836140061field,\n  2203427332685986822261672436628391935982043288069613336766290705077140103740field\n]"
+        },
+        {
+          "type": "public",
+          "id": "2767400225930810293903338666799033441214636213694901788005048389532051538185field",
+          "value": "1150511686575711078894586425189063917444782989726258642013897653550157939585group"
+        }
+      ],
+      "tpk": "962103680883008835335736280260387705623120452538220142950652433768802059722group",
+      "tcm": "66248129035430163764320814515496266365040031932492383740287051112663064919field",
+      "scm": "7583647726964034586954900732883607037962528482595061159567255046123163966399field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au19gu6r8czgk46dg5q7fvc3r5a4t367rel5xp0dwhhst8avt9na5gqv40hj6",
+      "program": "test_hash_and_commit.aleo",
+      "function": "commit",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7538388949570096507230765961238065709826676043561819069831876617455285877446field",
+          "value": "ciphertext1qgqvfcrnhrwxkkrxwrqdcwsqmlswpsgh4rmjjnl4del876yc8hcyzztlu6pymsxda3zmjzqw567hhuevp23jy8lg8chc4ueay4g0lx2cpunxsex6"
+        },
+        {
+          "type": "private",
+          "id": "2998664264103991135389070662747976712297396146425522099732739908126770247867field",
+          "value": "ciphertext1qgqgertfjvgee22mheatc4ysr3ux9wenmtvn5havxteaz22dzrxx5z8tgx9uhh5vrnglqvurq8q24rh8ndpztja3w3tj0rra8s3zqwq8p5tt5zql"
+        },
+        {
+          "type": "private",
+          "id": "2205080302954901711121764435057609212836821841086505946534052874304494075333field",
+          "value": "ciphertext1qgqfcr2j7e869a663mduxn7lc43xrgepwa62d9z58uuvvmgcyp475qq5xmjugq5s0depwkk5tvgtvla0vw8l9fyv4pkjpjfqalccr6gxpganhnrq"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "6049854816917443220528461134343575129763632688580175612276133289493994289948field",
+          "value": "[\n  795030275469581018113843893465458625686956867721830537891077681856251355681field,\n  795030275469581018113843893465458625686956867721830537891077681856251355681field,\n  795030275469581018113843893465458625686956867721830537891077681856251355681field,\n  795030275469581018113843893465458625686956867721830537891077681856251355681field,\n  177643203264384187118798439782220297144221145585119553422876357107962128695field,\n  177643203264384187118798439782220297144221145585119553422876357107962128695field\n]"
+        }
+      ],
+      "tpk": "995995868750371228575334212585644820502701346440411339595102735780556912933group",
+      "tcm": "98502188267964834629641329710005318921720027127486789210228716353920442997field",
+      "scm": "6699203763479562792518811839980932805323704239192842605819013526234063021035field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1pltkrlngmhdwhkyk967ky430h9gla5amx5yskp4r0zz3hezhsqpqna7lxl",
+      "program": "test_hash_and_commit.aleo",
+      "function": "commit",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2961886037395382549924102835645412985101711993986705604292549592808175464064field",
+          "value": "ciphertext1qgqvzz7066u0kxstx3525e95q5t9dp5xp2cvga83885mx09j90st2pvsncnjzvx8eqjzg40sxm3chj6489s0aqkdvyxc3wwy9pxjf8hjpqxs9l8n"
+        },
+        {
+          "type": "private",
+          "id": "3238578168117419111465362652237371797337677177431929532083133301400697279911field",
+          "value": "ciphertext1qgqvx3nwd93s2t624urls4vfkh4ckzhw478syynl4wxat8rhzszgxrw2g0knedayxhm2malfsfyd3fh7fx8fhp8jxqm4gsqdnxdsjayspgw3zmky"
+        },
+        {
+          "type": "private",
+          "id": "4905567453298935667422484865971716275786331795130663056416697477240699149488field",
+          "value": "ciphertext1qgqpd05y3sxter26v86t83x284mt4c8fekzsutkrxa6uu6765sxg5zger54pk4jd7syxuz9gcenag2vuvajcnavvasceyvwaphmh4l0uqs5z3fha"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "public",
+          "id": "415349273591992323663275265045491810969293078708436346274200596511382866229field",
+          "value": "[\n  795030275469581018113843893465458625686956867721830537891077681856251355681field,\n  795030275469581018113843893465458625686956867721830537891077681856251355681field,\n  795030275469581018113843893465458625686956867721830537891077681856251355681field,\n  795030275469581018113843893465458625686956867721830537891077681856251355681field,\n  177643203264384187118798439782220297144221145585119553422876357107962128695field,\n  177643203264384187118798439782220297144221145585119553422876357107962128695field\n]"
+        }
+      ],
+      "tpk": "3928699411450320327229213535299816623802170334185085473822204226199029043319group",
+      "tcm": "1698307967365270617870771087484615856330321865170946163424137057701382210844field",
+      "scm": "5847427633274024472231358471023443617561005984907498797134234493768174034036field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

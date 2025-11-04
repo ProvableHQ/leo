@@ -152,15 +152,16 @@ impl Package {
             .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
 
         let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
-        std::fs::write(&test_file_path, test_template(name_no_aleo))
-            .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e))?;
+        std::fs::write(&test_file_path, test_template(name_no_aleo)).map_err(|e| {
+            UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
+        })?;
 
         Ok(full_path)
     }
 
     /// Examine the Leo package at `path` to create a `Package`, but don't find dependencies.
     ///
-    /// This may be useful if you just need other information like the manifest or env file.
+    /// This may be useful if you just need other information like the manifest file.
     pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,

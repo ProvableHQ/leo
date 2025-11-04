@@ -24,62 +24,54 @@ function main:
     cast r7 into r8 as Matrix__1cjGkfvo5TZ;
     add r8.values[0u32][0u32] 1u32 into r9;
     cast r9 r4.inner.values[0u32][1u32] r4.inner.values[0u32][2u32] into r10 as [u32; 3u32];
-    cast r4.inner.values[1u32][0u32] r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r11 as [u32; 3u32];
-    cast r10 r11 into r12 as [[u32; 3u32]; 2u32];
-    cast r12 into r13 as Matrix__1cjGkfvo5TZ;
-    add r13.values[0u32][1u32] 1u32 into r14;
-    cast r9 r14 r4.inner.values[0u32][2u32] into r15 as [u32; 3u32];
-    cast r4.inner.values[1u32][0u32] r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r16 as [u32; 3u32];
-    cast r15 r16 into r17 as [[u32; 3u32]; 2u32];
-    cast r17 into r18 as Matrix__1cjGkfvo5TZ;
-    add r18.values[0u32][2u32] 1u32 into r19;
-    cast r9 r14 r19 into r20 as [u32; 3u32];
-    cast r4.inner.values[1u32][0u32] r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r21 as [u32; 3u32];
-    cast r20 r21 into r22 as [[u32; 3u32]; 2u32];
-    cast r22 into r23 as Matrix__1cjGkfvo5TZ;
-    add r23.values[1u32][0u32] 1u32 into r24;
-    cast r9 r14 r19 into r25 as [u32; 3u32];
-    cast r24 r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r26 as [u32; 3u32];
-    cast r25 r26 into r27 as [[u32; 3u32]; 2u32];
+    cast r10 r6 into r11 as [[u32; 3u32]; 2u32];
+    cast r11 into r12 as Matrix__1cjGkfvo5TZ;
+    add r12.values[0u32][1u32] 1u32 into r13;
+    cast r9 r13 r4.inner.values[0u32][2u32] into r14 as [u32; 3u32];
+    cast r14 r6 into r15 as [[u32; 3u32]; 2u32];
+    cast r15 into r16 as Matrix__1cjGkfvo5TZ;
+    add r16.values[0u32][2u32] 1u32 into r17;
+    cast r9 r13 r17 into r18 as [u32; 3u32];
+    cast r18 r6 into r19 as [[u32; 3u32]; 2u32];
+    cast r19 into r20 as Matrix__1cjGkfvo5TZ;
+    add r20.values[1u32][0u32] 1u32 into r21;
+    cast r21 r4.inner.values[1u32][1u32] r4.inner.values[1u32][2u32] into r22 as [u32; 3u32];
+    cast r18 r22 into r23 as [[u32; 3u32]; 2u32];
+    cast r23 into r24 as Matrix__1cjGkfvo5TZ;
+    add r24.values[1u32][1u32] 1u32 into r25;
+    cast r21 r25 r4.inner.values[1u32][2u32] into r26 as [u32; 3u32];
+    cast r18 r26 into r27 as [[u32; 3u32]; 2u32];
     cast r27 into r28 as Matrix__1cjGkfvo5TZ;
-    add r28.values[1u32][1u32] 1u32 into r29;
-    cast r9 r14 r19 into r30 as [u32; 3u32];
-    cast r24 r29 r4.inner.values[1u32][2u32] into r31 as [u32; 3u32];
-    cast r30 r31 into r32 as [[u32; 3u32]; 2u32];
-    cast r32 into r33 as Matrix__1cjGkfvo5TZ;
-    add r33.values[1u32][2u32] 1u32 into r34;
-    cast r9 r14 r19 into r35 as [u32; 3u32];
-    cast r24 r29 r34 into r36 as [u32; 3u32];
-    cast r35 r36 into r37 as [[u32; 3u32]; 2u32];
-    cast r37 into r38 as Matrix__1cjGkfvo5TZ;
-    cast 0u32 10u32 20u32 30u32 into r39 as [u32; 4u32];
-    cast r39 into r40 as InnerGeneric__JgC4Y0wyi7O;
-    add r38.values[0u32][1u32] r40.data[3u32] into r41;
-    output r41 as u32.private;
+    add r28.values[1u32][2u32] 1u32 into r29;
+    cast r21 r25 r29 into r30 as [u32; 3u32];
+    cast r18 r30 into r31 as [[u32; 3u32]; 2u32];
+    cast r31 into r32 as Matrix__1cjGkfvo5TZ;
+    cast 0u32 10u32 20u32 30u32 into r33 as [u32; 4u32];
+    cast r33 into r34 as InnerGeneric__JgC4Y0wyi7O;
+    add r32.values[0u32][1u32] r34.data[3u32] into r35;
+    output r35 as u32.private;
 
 constructor:
     assert.eq edition 0u16;
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1dsn9redlfvsqt9kafwnsxyukn6jw9dn7j80wask4kj2zj9qu7sqqskwry8",
+      "id": "au1dwl4utsxsptk3psk48759e7ectxcx7wk54sgysyc663narukpypstrudq8",
       "program": "test.aleo",
       "function": "main",
       "inputs": [],
       "outputs": [
         {
           "type": "private",
-          "id": "7648859794670185753014266599015723000118129811374194614818845327045659808691field",
-          "value": "ciphertext1qyqdevsuld0lv5phptwr9lspme7uhs7zzdemzfef4l05za7nalhvzqqhv5j52"
+          "id": "2866438666853502146123322811283627010165697435235923077700503931246228941478field",
+          "value": "ciphertext1qyqqe3p9nmkx7eap27qj2ht4ywsljku02y2uhck6cnea384zal3hgysl93gp8"
         }
       ],
-      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
-      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
-      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+      "tpk": "7620047334465816648891373867009187094715983074414026856376035435616644506419group",
+      "tcm": "2478511802095008621015276834365359730432320171771269952219059425809151001950field",
+      "scm": "2706670216255850145436332135370305709954853150833440135126124075813370157058field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

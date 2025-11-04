@@ -15,8 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    Ast, CallExpression, ExpressionStatement, NetworkName, Node as _, NodeBuilder, Path, Statement,
-    interpreter_value::{GlobalId, Value},
+    Ast,
+    CallExpression,
+    ExpressionStatement,
+    Location,
+    NetworkName,
+    Node as _,
+    NodeBuilder,
+    Path,
+    Statement,
+    interpreter_value::Value,
 };
 use leo_errors::{InterpreterHalt, LeoError, Result};
 use leo_span::{Span, Symbol, source_map::FileName, sym, with_session_globals};
@@ -114,11 +122,11 @@ Input history is available - use the up and down arrow keys.
 
 fn parse_breakpoint(s: &str) -> Option<Breakpoint> {
     let strings: Vec<&str> = s.split_whitespace().collect();
-    if strings.len() == 2 {
-        if let Ok(line) = strings[1].parse::<usize>() {
-            let program = strings[0].strip_suffix(".aleo").unwrap_or(strings[0]).to_string();
-            return Some(Breakpoint { program, line });
-        }
+    if strings.len() == 2
+        && let Ok(line) = strings[1].parse::<usize>()
+    {
+        let program = strings[0].strip_suffix(".aleo").unwrap_or(strings[0]).to_string();
+        return Some(Breakpoint { program, line });
     }
     None
 }
@@ -138,12 +146,12 @@ pub struct TestFunction {
 pub fn find_and_run_tests(
     leo_filenames: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
     aleo_filenames: &[PathBuf],
-    signer: Value,
+    private_key: String,
     block_height: u32,
     match_str: &str,
     network: NetworkName,
-) -> Result<(Vec<TestFunction>, IndexMap<GlobalId, Result<()>>)> {
-    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, signer, block_height, network)?;
+) -> Result<(Vec<TestFunction>, IndexMap<Location, Result<()>>)> {
+    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, private_key, block_height, network)?;
 
     let mut native_test_functions = Vec::new();
 
@@ -229,6 +237,9 @@ pub fn find_and_run_tests(
                 result.insert(id, Err(err));
             }
         }
+
+        // Clear the state for the next test.
+        interpreter.cursor.clear();
     }
 
     Ok((native_test_functions, result))
@@ -239,12 +250,12 @@ pub fn find_and_run_tests(
 pub fn interpret(
     leo_filenames: &[(PathBuf, Vec<PathBuf>)], // Leo source files and their modules
     aleo_filenames: &[PathBuf],
-    signer: Value,
+    private_key: String,
     block_height: u32,
     tui: bool,
     network: NetworkName,
 ) -> Result<()> {
-    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, signer, block_height, network)?;
+    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, private_key, block_height, network)?;
 
     let mut user_interface: Box<dyn Ui> =
         if tui { Box::new(ratatui_ui::RatatuiUi::new()) } else { Box::new(dialoguer_input::DialoguerUi::new()) };

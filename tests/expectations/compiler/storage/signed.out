@@ -1,0 +1,248 @@
+program signed.aleo;
+
+struct Optional__ArToIDU52JP:
+    is_some as boolean;
+    val as i8;
+
+struct Optional__1pdH6zSByBB:
+    is_some as boolean;
+    val as i16;
+
+struct Optional__9p9J8sbl23N:
+    is_some as boolean;
+    val as i32;
+
+struct Optional__5sKIb96heV9:
+    is_some as boolean;
+    val as i64;
+
+struct Optional__F9VPlVJMrn6:
+    is_some as boolean;
+    val as i128;
+
+mapping counter_i8__:
+    key as boolean.public;
+    value as i8.public;
+
+mapping counter_i16__:
+    key as boolean.public;
+    value as i16.public;
+
+mapping counter_i32__:
+    key as boolean.public;
+    value as i32.public;
+
+mapping counter_i64__:
+    key as boolean.public;
+    value as i64.public;
+
+mapping counter_i128__:
+    key as boolean.public;
+    value as i128.public;
+
+function initialize:
+    async initialize into r0;
+    output r0 as signed.aleo/initialize.future;
+
+finalize initialize:
+    set -1i8 into counter_i8__[false];
+    set -2i16 into counter_i16__[false];
+    set -3i32 into counter_i32__[false];
+    set -4i64 into counter_i64__[false];
+    set -5i128 into counter_i128__[false];
+
+function to_none:
+    async to_none into r0;
+    output r0 as signed.aleo/to_none.future;
+
+finalize to_none:
+    remove counter_i8__[false];
+    remove counter_i16__[false];
+    remove counter_i32__[false];
+    remove counter_i64__[false];
+    remove counter_i128__[false];
+
+function check1:
+    async check1 into r0;
+    output r0 as signed.aleo/check1.future;
+
+finalize check1:
+    contains counter_i8__[false] into r0;
+    get.or_use counter_i8__[false] 0i8 into r1;
+    cast true r1 into r2 as Optional__ArToIDU52JP;
+    cast false 0i8 into r3 as Optional__ArToIDU52JP;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__ArToIDU52JP;
+    assert.eq r6.is_some true;
+    contains counter_i8__[false] into r7;
+    get.or_use counter_i8__[false] 0i8 into r8;
+    cast true r8 into r9 as Optional__ArToIDU52JP;
+    cast false 0i8 into r10 as Optional__ArToIDU52JP;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__ArToIDU52JP;
+    is.eq r13.val -1i8 into r14;
+    assert.eq r14 true;
+    contains counter_i16__[false] into r15;
+    get.or_use counter_i16__[false] 0i16 into r16;
+    cast true r16 into r17 as Optional__1pdH6zSByBB;
+    cast false 0i16 into r18 as Optional__1pdH6zSByBB;
+    ternary r15 r17.is_some r18.is_some into r19;
+    ternary r15 r17.val r18.val into r20;
+    cast r19 r20 into r21 as Optional__1pdH6zSByBB;
+    assert.eq r21.is_some true;
+    contains counter_i16__[false] into r22;
+    get.or_use counter_i16__[false] 0i16 into r23;
+    cast true r23 into r24 as Optional__1pdH6zSByBB;
+    cast false 0i16 into r25 as Optional__1pdH6zSByBB;
+    ternary r22 r24.is_some r25.is_some into r26;
+    ternary r22 r24.val r25.val into r27;
+    cast r26 r27 into r28 as Optional__1pdH6zSByBB;
+    is.eq r28.val -2i16 into r29;
+    assert.eq r29 true;
+    contains counter_i32__[false] into r30;
+    get.or_use counter_i32__[false] 0i32 into r31;
+    cast true r31 into r32 as Optional__9p9J8sbl23N;
+    cast false 0i32 into r33 as Optional__9p9J8sbl23N;
+    ternary r30 r32.is_some r33.is_some into r34;
+    ternary r30 r32.val r33.val into r35;
+    cast r34 r35 into r36 as Optional__9p9J8sbl23N;
+    assert.eq r36.is_some true;
+    contains counter_i32__[false] into r37;
+    get.or_use counter_i32__[false] 0i32 into r38;
+    cast true r38 into r39 as Optional__9p9J8sbl23N;
+    cast false 0i32 into r40 as Optional__9p9J8sbl23N;
+    ternary r37 r39.is_some r40.is_some into r41;
+    ternary r37 r39.val r40.val into r42;
+    cast r41 r42 into r43 as Optional__9p9J8sbl23N;
+    is.eq r43.val -3i32 into r44;
+    assert.eq r44 true;
+    contains counter_i64__[false] into r45;
+    get.or_use counter_i64__[false] 0i64 into r46;
+    cast true r46 into r47 as Optional__5sKIb96heV9;
+    cast false 0i64 into r48 as Optional__5sKIb96heV9;
+    ternary r45 r47.is_some r48.is_some into r49;
+    ternary r45 r47.val r48.val into r50;
+    cast r49 r50 into r51 as Optional__5sKIb96heV9;
+    assert.eq r51.is_some true;
+    contains counter_i64__[false] into r52;
+    get.or_use counter_i64__[false] 0i64 into r53;
+    cast true r53 into r54 as Optional__5sKIb96heV9;
+    cast false 0i64 into r55 as Optional__5sKIb96heV9;
+    ternary r52 r54.is_some r55.is_some into r56;
+    ternary r52 r54.val r55.val into r57;
+    cast r56 r57 into r58 as Optional__5sKIb96heV9;
+    is.eq r58.val -4i64 into r59;
+    assert.eq r59 true;
+    contains counter_i128__[false] into r60;
+    get.or_use counter_i128__[false] 0i128 into r61;
+    cast true r61 into r62 as Optional__F9VPlVJMrn6;
+    cast false 0i128 into r63 as Optional__F9VPlVJMrn6;
+    ternary r60 r62.is_some r63.is_some into r64;
+    ternary r60 r62.val r63.val into r65;
+    cast r64 r65 into r66 as Optional__F9VPlVJMrn6;
+    assert.eq r66.is_some true;
+    contains counter_i128__[false] into r67;
+    get.or_use counter_i128__[false] 0i128 into r68;
+    cast true r68 into r69 as Optional__F9VPlVJMrn6;
+    cast false 0i128 into r70 as Optional__F9VPlVJMrn6;
+    ternary r67 r69.is_some r70.is_some into r71;
+    ternary r67 r69.val r70.val into r72;
+    cast r71 r72 into r73 as Optional__F9VPlVJMrn6;
+    is.eq r73.val -5i128 into r74;
+    assert.eq r74 true;
+
+function check2:
+    async check2 into r0;
+    output r0 as signed.aleo/check2.future;
+
+finalize check2:
+    contains counter_i8__[false] into r0;
+    get.or_use counter_i8__[false] 0i8 into r1;
+    cast true r1 into r2 as Optional__ArToIDU52JP;
+    cast false 0i8 into r3 as Optional__ArToIDU52JP;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__ArToIDU52JP;
+    contains counter_i8__[false] into r7;
+    get.or_use counter_i8__[false] 0i8 into r8;
+    cast true r8 into r9 as Optional__ArToIDU52JP;
+    cast false 0i8 into r10 as Optional__ArToIDU52JP;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__ArToIDU52JP;
+    ternary r6.is_some r13.val 0i8 into r14;
+    is.eq r14 -1i8 into r15;
+    assert.eq r15 true;
+    contains counter_i16__[false] into r16;
+    get.or_use counter_i16__[false] 0i16 into r17;
+    cast true r17 into r18 as Optional__1pdH6zSByBB;
+    cast false 0i16 into r19 as Optional__1pdH6zSByBB;
+    ternary r16 r18.is_some r19.is_some into r20;
+    ternary r16 r18.val r19.val into r21;
+    cast r20 r21 into r22 as Optional__1pdH6zSByBB;
+    contains counter_i16__[false] into r23;
+    get.or_use counter_i16__[false] 0i16 into r24;
+    cast true r24 into r25 as Optional__1pdH6zSByBB;
+    cast false 0i16 into r26 as Optional__1pdH6zSByBB;
+    ternary r23 r25.is_some r26.is_some into r27;
+    ternary r23 r25.val r26.val into r28;
+    cast r27 r28 into r29 as Optional__1pdH6zSByBB;
+    ternary r22.is_some r29.val 0i16 into r30;
+    is.eq r30 -2i16 into r31;
+    assert.eq r31 true;
+    contains counter_i32__[false] into r32;
+    get.or_use counter_i32__[false] 0i32 into r33;
+    cast true r33 into r34 as Optional__9p9J8sbl23N;
+    cast false 0i32 into r35 as Optional__9p9J8sbl23N;
+    ternary r32 r34.is_some r35.is_some into r36;
+    ternary r32 r34.val r35.val into r37;
+    cast r36 r37 into r38 as Optional__9p9J8sbl23N;
+    contains counter_i32__[false] into r39;
+    get.or_use counter_i32__[false] 0i32 into r40;
+    cast true r40 into r41 as Optional__9p9J8sbl23N;
+    cast false 0i32 into r42 as Optional__9p9J8sbl23N;
+    ternary r39 r41.is_some r42.is_some into r43;
+    ternary r39 r41.val r42.val into r44;
+    cast r43 r44 into r45 as Optional__9p9J8sbl23N;
+    ternary r38.is_some r45.val 0i32 into r46;
+    is.eq r46 -3i32 into r47;
+    assert.eq r47 true;
+    contains counter_i64__[false] into r48;
+    get.or_use counter_i64__[false] 0i64 into r49;
+    cast true r49 into r50 as Optional__5sKIb96heV9;
+    cast false 0i64 into r51 as Optional__5sKIb96heV9;
+    ternary r48 r50.is_some r51.is_some into r52;
+    ternary r48 r50.val r51.val into r53;
+    cast r52 r53 into r54 as Optional__5sKIb96heV9;
+    contains counter_i64__[false] into r55;
+    get.or_use counter_i64__[false] 0i64 into r56;
+    cast true r56 into r57 as Optional__5sKIb96heV9;
+    cast false 0i64 into r58 as Optional__5sKIb96heV9;
+    ternary r55 r57.is_some r58.is_some into r59;
+    ternary r55 r57.val r58.val into r60;
+    cast r59 r60 into r61 as Optional__5sKIb96heV9;
+    ternary r54.is_some r61.val 0i64 into r62;
+    is.eq r62 -4i64 into r63;
+    assert.eq r63 true;
+    contains counter_i128__[false] into r64;
+    get.or_use counter_i128__[false] 0i128 into r65;
+    cast true r65 into r66 as Optional__F9VPlVJMrn6;
+    cast false 0i128 into r67 as Optional__F9VPlVJMrn6;
+    ternary r64 r66.is_some r67.is_some into r68;
+    ternary r64 r66.val r67.val into r69;
+    cast r68 r69 into r70 as Optional__F9VPlVJMrn6;
+    contains counter_i128__[false] into r71;
+    get.or_use counter_i128__[false] 0i128 into r72;
+    cast true r72 into r73 as Optional__F9VPlVJMrn6;
+    cast false 0i128 into r74 as Optional__F9VPlVJMrn6;
+    ternary r71 r73.is_some r74.is_some into r75;
+    ternary r71 r73.val r74.val into r76;
+    cast r75 r76 into r77 as Optional__F9VPlVJMrn6;
+    ternary r70.is_some r77.val 0i128 into r78;
+    is.eq r78 -5i128 into r79;
+    assert.eq r79 true;
+
+constructor:
+    assert.eq edition 0u16;

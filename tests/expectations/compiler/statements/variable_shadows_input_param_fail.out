@@ -1,0 +1,7 @@
+Error [EAST0372017]: The name `x` is defined multiple times.
+    --> compiler-test:3:13
+     |
+   2 |       transition main(x: u32) -> u32 {
+     |                       ^ previous definition of `x` here
+   3 |           let x: u32 = 10u32;
+     |               ^ `x` redefined here

@@ -57,6 +57,9 @@ pub use remove::LeoRemove;
 mod run;
 pub use run::LeoRun;
 
+mod synthesize;
+pub use synthesize::LeoSynthesize;
+
 mod test;
 pub use test::LeoTest;
 

@@ -70,25 +70,23 @@ constructor:
     assert.eq edition 0u16;
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1g2aypnnvcfz538ty43ngjmkll6r6f9tnctv3rrqwc2pt75cv0v8q30kwgw",
+      "id": "au1juv9euq2um6k0f8qvr63wwgqkjxrez9n26ju68pprslzuvl0gg9stwwhmd",
       "program": "test.aleo",
       "function": "main_1",
       "inputs": [],
       "outputs": [
         {
           "type": "private",
-          "id": "260989737434878044295034328964840828068498517144341537076888305759519377686field",
-          "value": "ciphertext1qgq024dx9jn0u29nft8qud7u4jue8g4rthkw2daf0furltgxtlphwzd5k6ntkat2vsahggpx024dkdrvluyfhv8hg8rt8p92t43cg52vpsjh3cen"
+          "id": "1075206877968928681287065800654779830517624340138989859827932674023212083631field",
+          "value": "ciphertext1qgq9r2s0gyy25vrlrdh0jkp5l8q53t0fpekm43z4wvvtwn4hva92zy8gm8y5ydc82dpyeneesagdjard7jdlha3chsp8dpmegdqw0tukqgcql4s7"
         }
       ],
-      "tpk": "1647326534570190869526511692036029835793485304762551878523730212444022003462group",
-      "tcm": "8361131198643110274357598539107535843638807303278926921741138461546277258380field",
-      "scm": "6315535954879828455724059116063075109428767135722148385521563079514769136604field"
+      "tpk": "7123952565308361782425118806567569311947872659430657577089075139960496809044group",
+      "tcm": "3430153062966307368667492658394481071261290275135194011244039535987344183460field",
+      "scm": "7993060580658647071301743353487598175709151124808046335968749125416260434552field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -96,25 +94,23 @@ warnings:
 
 verified: true
 status: accepted
-errors:
-warnings:
 {
   "transitions": [
     {
-      "id": "au1y0pr53qyfvlkqrntswthw4n4rd0v6mtclytruczy2keeng97huzsel2sre",
+      "id": "au12ymvhfqzezzs024sv4n5zx4337e3vget9hkkz5xljv0mcnlx0srqqw6x9p",
       "program": "test.aleo",
       "function": "main_2",
       "inputs": [],
       "outputs": [
         {
           "type": "private",
-          "id": "4911238020028147468650789829371386030547383113992832343302896144988821166245field",
-          "value": "ciphertext1qyqqpv5k9cp2hv9y4ntagj2cq6d4c6qk99ma3s09hzul2d4d5uw6zrc5ycpfn"
+          "id": "5393918566209836923431627363386022505634078863905655670291997089961867669482field",
+          "value": "ciphertext1qyqxzqyp4g4dcy92q3lqjtggan58ve7gvtcxj3xsr7875nn67pdwsqqcs7g8d"
         }
       ],
-      "tpk": "209923920366316979358835823024524595725466082699377569762700210131035917463group",
-      "tcm": "4972663126249935768762313800081143256565302075358692358234187986117099072922field",
-      "scm": "4173904850343490045907797727384617256297345307958493992977439426479269378380field"
+      "tpk": "2893844751435036019515893989441839272575422187686356176127178103379524429041group",
+      "tcm": "6415854228263869359394693519059621568317880982550641905705445655089237162952field",
+      "scm": "3056019767694286721253926706943696508890086732611984380605786846284750606695field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

@@ -21,7 +21,7 @@ use crate::{Interpreter, InterpreterAction};
 use leo_ast::NetworkName;
 use leo_span::create_session_if_not_set_then;
 
-use snarkvm::prelude::{Address, PrivateKey, TestnetV0};
+use snarkvm::prelude::{PrivateKey, TestnetV0};
 
 use serial_test::serial;
 use std::{fs, path::PathBuf, str::FromStr as _};
@@ -30,6 +30,23 @@ pub static TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6y
 
 /// A special token used to separate modules in test input source code.
 const MODULE_SEPARATOR: &str = "// --- Next Module:";
+
+fn run_and_format_output(interpreter: &mut Interpreter) -> String {
+    let action_result = interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into()));
+
+    let futures =
+        interpreter.cursor.futures.iter().map(|f| format!(" async call to {f}")).collect::<Vec<_>>().join("\n");
+
+    let futures_section = if futures.is_empty() { "# Futures".to_string() } else { format!("# Futures\n{futures}") };
+
+    let output_section = match action_result {
+        Err(e) => format!("# Output\n{e}"),
+        Ok(None) => "# Output\nno value received".to_string(),
+        Ok(Some(v)) => format!("# Output\n{v}"),
+    };
+
+    format!("{futures_section}\n\n{output_section}\n")
+}
 
 /// Runs a Leo test case provided as a string, with optional inlined module definitions.
 ///
@@ -62,18 +79,13 @@ fn runner_leo_test(test: &str) -> String {
             // Set up interpreter using testnet private key
             let private_key: PrivateKey<TestnetV0> =
                 PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
-            let address = Address::try_from(&private_key).expect("should create address");
 
             let empty: [&PathBuf; 0] = [];
             let mut interpreter =
-                Interpreter::new(&[(filename, vec![])], empty, address.into(), 0, NetworkName::TestnetV0)
+                Interpreter::new(&[(filename, vec![])], empty, private_key.to_string(), 0, NetworkName::TestnetV0)
                     .expect("creating interpreter");
 
-            match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
-                Err(e) => format!("{e}\n"),
-                Ok(None) => "no value received\n".to_string(),
-                Ok(Some(v)) => format!("{v}\n"),
-            }
+            run_and_format_output(&mut interpreter)
         })
     } else {
         // === Multi-module case ===
@@ -138,19 +150,19 @@ fn runner_leo_test(test: &str) -> String {
             // === Step 3: Run interpreter on main() ===
             let private_key: PrivateKey<TestnetV0> =
                 PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
-            let address = Address::try_from(&private_key).expect("should create address");
 
             let empty: [&PathBuf; 0] = [];
 
-            let mut interpreter =
-                Interpreter::new(&[(main_path, module_paths)], empty, address.into(), 0, NetworkName::TestnetV0)
-                    .expect("creating interpreter");
+            let mut interpreter = Interpreter::new(
+                &[(main_path, module_paths)],
+                empty,
+                private_key.to_string(),
+                0,
+                NetworkName::TestnetV0,
+            )
+            .expect("creating interpreter");
 
-            match interpreter.action(InterpreterAction::LeoInterpretOver("test.aleo/main()".into())) {
-                Err(e) => format!("{e}\n"),
-                Ok(None) => "no value received\n".to_string(),
-                Ok(Some(v)) => format!("{v}\n"),
-            }
+            run_and_format_output(&mut interpreter)
         })
     }
 }

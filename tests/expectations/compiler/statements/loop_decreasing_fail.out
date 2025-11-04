@@ -1,5 +1,0 @@
-Error [ELUN0379000]: The loop range must be increasing.
-    --> compiler-test:6:28
-     |
-   6 |         for i: i8 in 10i8..5i8 {
-     |                            ^^^

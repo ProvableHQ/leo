@@ -24,6 +24,8 @@ use snarkvm::prelude::{
     TEST_CONSENSUS_VERSION_HEIGHTS, TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
 };
 
+pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
+
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug)]
@@ -75,28 +77,33 @@ impl Default for BuildOptions {
 pub struct EnvOptions {
     #[clap(
         long,
-        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production."
+        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production.",
+        global = true
     )]
     pub(crate) private_key: Option<String>,
     #[clap(
         long,
-        help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file."
+        help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file.",
+        global = true
     )]
     pub(crate) network: Option<NetworkName>,
     #[clap(
         long,
-        help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets."
+        help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets.",
+        global = true
     )]
     pub(crate) endpoint: Option<String>,
     #[clap(
         long,
-        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell or `.env` file."
+        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell.",
+        global = true
     )]
     pub(crate) devnet: bool,
     #[clap(
         long,
         help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
-        value_delimiter = ','
+        value_delimiter = ',',
+        global = true
     )]
     pub(crate) consensus_heights: Option<Vec<u32>>,
 }
@@ -224,6 +231,7 @@ pub fn get_consensus_version(
         Some(8) => Ok(ConsensusVersion::V8),
         Some(9) => Ok(ConsensusVersion::V9),
         Some(10) => Ok(ConsensusVersion::V10),
+        Some(11) => Ok(ConsensusVersion::V11),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -242,10 +250,10 @@ pub fn get_consensus_version(
 
     // Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
     // If it returns a result and does not match the given version, print a warning.
-    if let Ok(consensus_version) = result {
-        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-            println!("⚠️ Warning: {e}");
-        }
+    if let Ok(consensus_version) = result
+        && let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network)
+    {
+        println!("⚠️ Warning: {e}");
     }
 
     result
@@ -258,12 +266,12 @@ pub fn check_consensus_version_mismatch(
     network: NetworkName,
 ) -> anyhow::Result<()> {
     // Check the `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
-    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version")) {
-        if let Ok(response) = response.parse::<u8>() {
-            let consensus_version = consensus_version as u8;
-            if response != consensus_version {
-                bail!("Expected consensus version {consensus_version} but found {response} at {endpoint}",);
-            }
+    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version"))
+        && let Ok(response) = response.parse::<u8>()
+    {
+        let consensus_version = consensus_version as u8;
+        if response != consensus_version {
+            bail!("Expected consensus version {consensus_version} but found {response} at {endpoint}",);
         }
     }
     Ok(())
@@ -303,6 +311,7 @@ pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
         8 => ConsensusVersion::V8,
         9 => ConsensusVersion::V9,
         10 => ConsensusVersion::V10,
+        11 => ConsensusVersion::V11,
         _ => panic!("Invalid consensus version: {index}"),
     }
 }
@@ -419,6 +428,6 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V10); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V11); // If this fails, update the test and any code that matches on `ConsensusVersion`.
     }
 }

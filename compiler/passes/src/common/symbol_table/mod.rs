@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Composite, Expression, Function, Location, NodeID, Type};
-use leo_errors::{AstError, Result};
+use leo_ast::{Composite, Expression, Function, Location, NodeBuilder, NodeID, Type};
+use leo_errors::{AstError, Color, Label, LeoError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -78,10 +78,10 @@ struct LocalTableInner {
 impl LocalTable {
     fn new(symbol_table: &mut SymbolTable, id: NodeID, parent: Option<NodeID>) -> Self {
         // If parent exists, register this scope as its child
-        if let Some(parent_id) = parent {
-            if let Some(parent_table) = symbol_table.all_locals.get_mut(&parent_id) {
-                parent_table.inner.borrow_mut().children.push(id);
-            }
+        if let Some(parent_id) = parent
+            && let Some(parent_table) = symbol_table.all_locals.get_mut(&parent_id)
+        {
+            parent_table.inner.borrow_mut().children.push(id);
         }
 
         LocalTable {
@@ -95,26 +95,67 @@ impl LocalTable {
         }
     }
 
-    /// Creates a duplicate of this local scope with a new `NodeID`.
-    ///
-    /// TODO: This currently clones the `children` list, which is incorrect. The new scope may incorrectly
-    /// appear to have descendants that still belong to the original scope. This breaks the structure of
-    /// the scope tree and may cause symbol resolution to behave incorrectly.
-    fn dup(&self, new_id: NodeID) -> Self {
-        let mut inner = self.inner.borrow().clone();
-        inner.id = new_id;
-        LocalTable { inner: Rc::new(RefCell::new(inner)) }
+    fn clear_but_consts(&mut self) {
+        self.inner.borrow_mut().variables.clear();
+    }
+
+    /// Recursively duplicates this table and all children.
+    /// `new_parent` is the NodeID of the parent in the new tree (None for root).
+    pub fn dup(
+        &self,
+        node_builder: &NodeBuilder,
+        all_locals: &mut HashMap<NodeID, LocalTable>,
+        new_parent: Option<NodeID>,
+    ) -> LocalTable {
+        let inner = self.inner.borrow();
+
+        // Generate a new ID for this table
+        let new_id = node_builder.next_id();
+
+        // Recursively duplicate children with new_id as their parent
+        let new_children: Vec<NodeID> = inner
+            .children
+            .iter()
+            .map(|child_id| {
+                let child_table = all_locals.get(child_id).expect("Child must exist").clone();
+                let duped_child = child_table.dup(node_builder, all_locals, Some(new_id));
+                let child_new_id = duped_child.inner.borrow().id;
+                all_locals.insert(child_new_id, duped_child);
+                child_new_id
+            })
+            .collect();
+
+        // Duplicate this table with correct parent
+        let new_table = LocalTable {
+            inner: Rc::new(RefCell::new(LocalTableInner {
+                id: new_id,
+                parent: new_parent,
+                children: new_children,
+                consts: inner.consts.clone(),
+                variables: inner.variables.clone(),
+            })),
+        };
+
+        // Register in all_locals
+        all_locals.insert(new_id, new_table.clone());
+
+        new_table
     }
 }
 
 impl SymbolTable {
-    /// Reset everything except leave global consts that have been evaluated.
+    /// Reset everything except leave consts that have been evaluated.
     pub fn reset_but_consts(&mut self) {
         self.functions.clear();
         self.records.clear();
         self.structs.clear();
         self.globals.clear();
-        self.all_locals.clear();
+
+        // clear all non-const locals
+        for local_table in self.all_locals.values_mut() {
+            local_table.clear_but_consts();
+        }
+
         self.local = None;
     }
 
@@ -209,16 +250,24 @@ impl SymbolTable {
         });
     }
 
-    /// Enter the new scope with id `new_id`, duplicating its local symbol table from the scope at `old_id`.
+    /// Enter a new scope by duplicating the local table at `old_id` recursively.
     ///
-    /// This is useful for a pass like loop unrolling, in which the loop body must be duplicated multiple times.
-    pub fn enter_scope_duped(&mut self, new_id: NodeID, old_id: NodeID) {
-        let old_local_table = self.all_locals.get(&old_id).expect("Must have an old scope to dup from.");
-        let new_local_table = old_local_table.dup(new_id);
-        let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
-        new_local_table.inner.borrow_mut().parent = parent;
-        self.all_locals.insert(new_id, new_local_table.clone());
+    /// Each scope in the subtree receives a fresh NodeID from `node_builder`.
+    /// The new root scope's parent is set to the current scope (if any).
+    /// Returns the NodeID of the new duplicated root scope.
+    pub fn enter_scope_duped(&mut self, old_id: NodeID, node_builder: &NodeBuilder) -> usize {
+        let old_local_table = self.all_locals.get(&old_id).expect("Must have an old scope to dup from.").clone();
+
+        // Recursively duplicate the table and all its children
+        let new_local_table =
+            old_local_table.dup(node_builder, &mut self.all_locals, self.local.as_ref().map(|t| t.inner.borrow().id));
+
+        let new_id = new_local_table.inner.borrow().id;
+
+        // Update current scope
         self.local = Some(new_local_table);
+
+        new_id
     }
 
     /// Enter the parent scope of the current scope (or the global scope if there is no local parent scope).
@@ -313,11 +362,11 @@ impl SymbolTable {
             if eq_struct(&composite, old_composite) {
                 Ok(())
             } else {
-                Err(AstError::redefining_external_struct(path.iter().format("::"), composite.span).into())
+                Err(AstError::redefining_external_struct(path.iter().format("::"), old_composite.span).into())
             }
         } else {
             let location = Location::new(program, path.to_vec());
-            self.check_shadow_global(&location, composite.span)?;
+            self.check_shadow_global(&location, composite.identifier.span)?;
             self.structs.insert(path.to_vec(), composite);
             Ok(())
         }
@@ -325,14 +374,14 @@ impl SymbolTable {
 
     /// Insert a record at this location.
     pub fn insert_record(&mut self, location: Location, composite: Composite) -> Result<()> {
-        self.check_shadow_global(&location, composite.span)?;
+        self.check_shadow_global(&location, composite.identifier.span)?;
         self.records.insert(location, composite);
         Ok(())
     }
 
     /// Insert a function at this location.
     pub fn insert_function(&mut self, location: Location, function: Function) -> Result<()> {
-        self.check_shadow_global(&location, function.span)?;
+        self.check_shadow_global(&location, function.identifier.span)?;
         self.functions.insert(location, FunctionSymbol { function, finalizer: None });
         Ok(())
     }
@@ -349,29 +398,35 @@ impl SymbolTable {
         self.globals.get(location)
     }
 
+    pub fn emit_shadow_error(name: Symbol, span: Span, prev_span: Span) -> LeoError {
+        AstError::name_defined_multiple_times(name, span)
+            .with_labels(vec![
+                Label::new(format!("previous definition of `{name}` here"), prev_span).with_color(Color::Blue),
+                Label::new(format!("`{name}` redefined here"), span),
+            ])
+            .into()
+    }
+
     fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {
-        let display_name = location.path.iter().format("::");
-        if self.functions.contains_key(location) {
-            Err(AstError::shadowed_function(display_name, span).into())
-        } else if self.records.contains_key(location) {
-            Err(AstError::shadowed_record(display_name, span).into())
-        } else if self.structs.contains_key(&location.path) {
-            Err(AstError::shadowed_struct(display_name, span).into())
-        } else if self.globals.contains_key(location) {
-            Err(AstError::shadowed_variable(display_name, span).into())
-        } else {
-            Ok(())
-        }
+        let name = location.path.last().expect("location path must have at least one segment.");
+
+        self.functions
+            .get(location)
+            .map(|f| f.function.identifier.span)
+            .or_else(|| self.records.get(location).map(|r| r.identifier.span))
+            .or_else(|| self.structs.get(&location.path).map(|s| s.identifier.span))
+            .or_else(|| self.globals.get(location).map(|g| g.span))
+            .map_or_else(|| Ok(()), |prev_span| Err(Self::emit_shadow_error(*name, span, prev_span)))
     }
 
     fn check_shadow_variable(&self, program: Symbol, path: &[Symbol], span: Span) -> Result<()> {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
-            if let [name] = &path {
-                if table.inner.borrow().variables.contains_key(name) {
-                    return Err(AstError::shadowed_variable(name, span).into());
-                }
+            if let [name] = &path
+                && let Some(var_symbol) = table.inner.borrow().variables.get(name)
+            {
+                return Err(Self::emit_shadow_error(*name, span, var_symbol.span));
             }
             current = table.inner.borrow().parent.map(|id| self.all_locals.get(&id).expect("Parent should exist."));
         }

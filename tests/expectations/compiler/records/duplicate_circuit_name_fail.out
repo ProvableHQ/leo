@@ -1,9 +1,8 @@
-Error [EAST0372008]: record `Token` shadowed by
-    --> compiler-test:10:5
+Error [EAST0372017]: The name `Token` is defined multiple times.
+    --> compiler-test:10:12
      |
-  10 |     struct Token { // This struct cannot have the same name as the record defined above it.
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |         x: u32,
-     |         ^^^^^^^
-  12 |     }
-     |     ^
+   3 |       record Token {
+     |              ^^^^^ previous definition of `Token` here
+   ...
+  10 |       struct Token { // This struct cannot have the same name as the record defined above it.
+     |              ^^^^^ `Token` redefined here

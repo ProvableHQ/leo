@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::NetworkName;
+use leo_ast::{NetworkName, TEST_PRIVATE_KEY};
 use leo_compiler::run_with_ledger;
 use leo_package::{Package, ProgramData};
 use leo_span::Symbol;
@@ -38,6 +38,8 @@ pub struct LeoTest {
 
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for LeoTest {
@@ -51,7 +53,7 @@ impl Command for LeoTest {
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         let mut options = self.compiler_options.clone();
         options.build_tests = true;
-        (LeoBuild { env_override: Default::default(), options }).execute(context)
+        (LeoBuild { env_override: self.env_override.clone(), options }).execute(context)
     }
 
     fn apply(self, _: Context, input: Self::Input) -> Result<Self::Output> {
@@ -61,8 +63,7 @@ impl Command for LeoTest {
 
 fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     // Get the private key.
-    let private_key = get_private_key::<TestnetV0>(&None)?;
-    let address = Address::try_from(&private_key)?;
+    let private_key = PrivateKey::<TestnetV0>::from_str(TEST_PRIVATE_KEY)?;
 
     let leo_paths = collect_leo_paths(&package);
     let aleo_paths = collect_aleo_paths(&package);
@@ -70,14 +71,13 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     let (native_test_functions, interpreter_result) = leo_interpreter::find_and_run_tests(
         &leo_paths,
         &aleo_paths,
-        address.into(),
+        private_key.to_string(),
         0u32,
         &command.test_name,
         NetworkName::TestnetV0,
     )?;
 
     // Now for native tests.
-
     let program_name = package.manifest.program.strip_suffix(".aleo").unwrap();
     let program_name_symbol = Symbol::intern(program_name);
     let build_directory = package.build_directory();
@@ -111,40 +111,45 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
         .collect();
 
     let should_fails: Vec<bool> = native_test_functions.iter().map(|test_function| test_function.should_fail).collect();
-    let cases: Vec<run_with_ledger::Case> = native_test_functions
+    let cases: Vec<Vec<run_with_ledger::Case>> = native_test_functions
         .into_iter()
-        .map(|test_function| run_with_ledger::Case {
-            program_name: format!("{}.aleo", test_function.program),
-            function: test_function.function,
-            private_key: test_function.private_key,
-            input: Vec::new(),
+        .map(|test_function| {
+            // Note. We wrap each individual test in its own vector, so that they are run in insolation.
+            vec![run_with_ledger::Case {
+                program_name: format!("{}.aleo", test_function.program),
+                function: test_function.function,
+                private_key: test_function.private_key,
+                input: Vec::new(),
+            }]
         })
         .collect();
 
-    let (handler, buf) = Handler::new_with_buf();
+    let outcomes =
+        run_with_ledger::run_with_ledger(&run_with_ledger::Config { seed: 0, start_height: None, programs }, &cases)?
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>();
 
-    let outcomes = run_with_ledger::run_with_ledger(
-        &run_with_ledger::Config { seed: 0, start_height: None, programs },
-        &cases,
-        &handler,
-        &buf,
-    )?;
-
-    let native_results: Vec<Option<String>> = outcomes
+    let native_results: Vec<_> = outcomes
         .into_iter()
         .zip(should_fails)
-        .map(|(outcome, should_fail)| match (&outcome.status, should_fail) {
-            (run_with_ledger::Status::Accepted, false) => None,
-            (run_with_ledger::Status::Accepted, true) => Some("Test succeeded when failure was expected.".to_string()),
-            (_, true) => None,
-            (_, false) => Some(format!("{} -- {}", outcome.status, outcome.errors)),
+        .map(|(outcome, should_fail)| {
+            let message = match (&outcome.status, should_fail) {
+                (run_with_ledger::Status::Accepted, false) => None,
+                (run_with_ledger::Status::Accepted, true) => {
+                    Some("Test succeeded when failure was expected.".to_string())
+                }
+                (_, true) => None,
+                (_, false) => Some(format!("{} -- {}", outcome.status, outcome.output)),
+            };
+            (outcome.program_name, outcome.function, message)
         })
         .collect();
 
     // All tests are run. Report results.
     let total = interpreter_result.iter().count() + native_results.len();
     let total_passed = interpreter_result.iter().filter(|(_, test_result)| matches!(test_result, Ok(()))).count()
-        + native_results.iter().filter(|x| x.is_none()).count();
+        + native_results.iter().filter(|(_, _, x)| x.is_none()).count();
 
     if total == 0 {
         println!("No tests run.");
@@ -163,8 +168,8 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
             }
         }
 
-        for (case, case_result) in cases.iter().zip(native_results) {
-            let str_id = format!("{}/{}", case.program_name, case.function);
+        for (program, function, case_result) in native_results {
+            let str_id = format!("{program}/{function}");
             if let Some(err_str) = case_result {
                 println!("{failed}: {str_id:<30} | {err_str}");
             } else {

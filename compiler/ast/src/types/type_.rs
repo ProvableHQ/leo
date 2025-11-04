@@ -14,13 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, Path, TupleType};
+use crate::{
+    ArrayType,
+    CompositeType,
+    FutureType,
+    Identifier,
+    IntegerType,
+    MappingType,
+    OptionalType,
+    Path,
+    TupleType,
+    VectorType,
+};
 
 use itertools::Itertools;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
-    Network, PlaintextType,
+    LiteralType,
+    Network,
+    PlaintextType,
     PlaintextType::{Array, Literal, Struct},
 };
 use std::fmt;
@@ -48,6 +61,8 @@ pub enum Type {
     Integer(IntegerType),
     /// A mapping type.
     Mapping(MappingType),
+    /// A nullable type.
+    Optional(OptionalType),
     /// The `scalar` type.
     Scalar,
     /// The `signature` type.
@@ -56,6 +71,8 @@ pub enum Type {
     String,
     /// A static tuple of at least one type.
     Tuple(TupleType),
+    /// The vector type.
+    Vector(VectorType),
     /// Numeric type which should be resolved to `Field`, `Group`, `Integer(_)`, or `Scalar`.
     Numeric,
     /// The `unit` type.
@@ -67,6 +84,76 @@ pub enum Type {
 }
 
 impl Type {
+    /// Are the types considered equal as far as the Leo user is concerned?
+    ///
+    /// In particular, any comparison involving an `Err` is `true`, and Futures which aren't explicit compare equal to
+    /// other Futures.
+    ///
+    /// An array with an undetermined length (e.g., one that depends on a `const`) is considered equal to other arrays
+    /// if their element types match. This allows const propagation to potentially resolve the length before type
+    /// checking is performed again.
+    ///
+    /// Composite types are considered equal if their names and resolved program names match. If either side still has
+    /// const generic arguments, they are treated as equal unconditionally since monomorphization and other passes of
+    /// type-checking will handle mismatches later.
+    pub fn eq_user(&self, other: &Type) -> bool {
+        match (self, other) {
+            (Type::Err, _)
+            | (_, Type::Err)
+            | (Type::Address, Type::Address)
+            | (Type::Boolean, Type::Boolean)
+            | (Type::Field, Type::Field)
+            | (Type::Group, Type::Group)
+            | (Type::Scalar, Type::Scalar)
+            | (Type::Signature, Type::Signature)
+            | (Type::String, Type::String)
+            | (Type::Unit, Type::Unit) => true,
+            (Type::Array(left), Type::Array(right)) => {
+                (match (left.length.as_u32(), right.length.as_u32()) {
+                    (Some(l1), Some(l2)) => l1 == l2,
+                    _ => {
+                        // An array with an undetermined length (e.g., one that depends on a `const`) is considered
+                        // equal to other arrays because their lengths _may_ eventually be proven equal.
+                        true
+                    }
+                }) && left.element_type().eq_user(right.element_type())
+            }
+            (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
+            (Type::Integer(left), Type::Integer(right)) => left == right,
+            (Type::Mapping(left), Type::Mapping(right)) => {
+                left.key.eq_user(&right.key) && left.value.eq_user(&right.value)
+            }
+            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_user(&right.inner),
+            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
+                .elements()
+                .iter()
+                .zip_eq(right.elements().iter())
+                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
+            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_user(&right.element_type),
+            (Type::Composite(left), Type::Composite(right)) => {
+                // If either composite still has const generic arguments, treat them as equal.
+                // Type checking will run again after monomorphization.
+                if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
+                    return true;
+                }
+
+                // Two composite types are the same if their programs and their _absolute_ paths match.
+                (left.program == right.program)
+                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
+                        (Some(l), Some(r)) => l == r,
+                        _ => false,
+                    }
+            }
+            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
+            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
+                .inputs()
+                .iter()
+                .zip_eq(right.inputs().iter())
+                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
+            _ => false,
+        }
+    }
+
     /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin.
     ///
     /// In the case of futures, it also makes sure that if both are not explicit, they are equal.
@@ -103,11 +190,13 @@ impl Type {
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat_relaxed(&right.key) && left.value.eq_flat_relaxed(&right.value)
             }
+            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_flat_relaxed(&right.inner),
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
+            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_flat_relaxed(&right.element_type),
             (Type::Composite(left), Type::Composite(right)) => {
                 // If either composite still has const generic arguments, treat them as equal.
                 // Type checking will run again after monomorphization.
@@ -115,14 +204,13 @@ impl Type {
                     return true;
                 }
 
-                // Two composite types are the same if their programs and their _absolute_ paths match.
+                // Two composite types are the same if their _absolute_ paths match.
                 // If the absolute paths are not available, then we really can't compare the two
                 // types and we just return `false` to be conservative.
-                (left.program == right.program)
-                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                        (Some(l), Some(r)) => l == r,
-                        _ => false,
-                    }
+                match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
+                    (Some(l), Some(r)) => l == r,
+                    _ => false,
+                }
             }
             // Don't type check when type hasn't been explicitly defined.
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
@@ -137,25 +225,7 @@ impl Type {
 
     pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Option<Symbol>) -> Self {
         match t {
-            Literal(lit) => match lit {
-                snarkvm::prelude::LiteralType::Address => Type::Address,
-                snarkvm::prelude::LiteralType::Boolean => Type::Boolean,
-                snarkvm::prelude::LiteralType::Field => Type::Field,
-                snarkvm::prelude::LiteralType::Group => Type::Group,
-                snarkvm::prelude::LiteralType::U8 => Type::Integer(IntegerType::U8),
-                snarkvm::prelude::LiteralType::U16 => Type::Integer(IntegerType::U16),
-                snarkvm::prelude::LiteralType::U32 => Type::Integer(IntegerType::U32),
-                snarkvm::prelude::LiteralType::U64 => Type::Integer(IntegerType::U64),
-                snarkvm::prelude::LiteralType::U128 => Type::Integer(IntegerType::U128),
-                snarkvm::prelude::LiteralType::I8 => Type::Integer(IntegerType::I8),
-                snarkvm::prelude::LiteralType::I16 => Type::Integer(IntegerType::I16),
-                snarkvm::prelude::LiteralType::I32 => Type::Integer(IntegerType::I32),
-                snarkvm::prelude::LiteralType::I64 => Type::Integer(IntegerType::I64),
-                snarkvm::prelude::LiteralType::I128 => Type::Integer(IntegerType::I128),
-                snarkvm::prelude::LiteralType::Scalar => Type::Scalar,
-                snarkvm::prelude::LiteralType::Signature => Type::Signature,
-                snarkvm::prelude::LiteralType::String => Type::String,
-            },
+            Literal(lit) => (*lit).into(),
             Struct(s) => Type::Composite(CompositeType {
                 path: {
                     let ident = Identifier::from(s);
@@ -165,6 +235,123 @@ impl Type {
                 program,
             }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
+        }
+    }
+
+    // Attempts to convert `self` to a snarkVM `PlaintextType`.
+    pub fn to_snarkvm<N: Network>(&self) -> anyhow::Result<PlaintextType<N>> {
+        match self {
+            Type::Address => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Address)),
+            Type::Boolean => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Boolean)),
+            Type::Field => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Field)),
+            Type::Group => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Group)),
+            Type::Integer(int_type) => match int_type {
+                IntegerType::U8 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U8)),
+                IntegerType::U16 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U16)),
+                IntegerType::U32 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U32)),
+                IntegerType::U64 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U64)),
+                IntegerType::U128 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U128)),
+                IntegerType::I8 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I8)),
+                IntegerType::I16 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I16)),
+                IntegerType::I32 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I32)),
+                IntegerType::I64 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I64)),
+                IntegerType::I128 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I128)),
+            },
+            Type::Scalar => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Scalar)),
+            Type::Signature => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Signature)),
+            Type::Array(array_type) => Ok(PlaintextType::<N>::Array(array_type.to_snarkvm()?)),
+            _ => anyhow::bail!("Converting from type {self} to snarkVM type is not supported"),
+        }
+    }
+
+    // A helper function to get the size in bits of the input type.
+    pub fn size_in_bits<N: Network, F>(&self, is_raw: bool, get_structs: F) -> anyhow::Result<usize>
+    where
+        F: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+    {
+        match is_raw {
+            false => self.to_snarkvm::<N>()?.size_in_bits(&get_structs),
+            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_structs),
+        }
+    }
+
+    /// Determines whether `self` can be coerced to the `expected` type.
+    ///
+    /// This method checks if the current type can be implicitly coerced to the expected type
+    /// according to specific rules:
+    /// - `Optional<T>` can be coerced to `Optional<T>`.
+    /// - `T` can be coerced to `Optional<T>`.
+    /// - Arrays `[T; N]` can be coerced to `[Optional<T>; N]` if lengths match or are unknown,
+    ///   and element types are coercible.
+    /// - Falls back to an equality check for other types.
+    ///
+    /// # Arguments
+    /// * `expected` - The type to which `self` is being coerced.
+    ///
+    /// # Returns
+    /// `true` if coercion is allowed; `false` otherwise.
+    pub fn can_coerce_to(&self, expected: &Type) -> bool {
+        use Type::*;
+
+        match (self, expected) {
+            // Allow Optional<T> → Optional<T>
+            (Optional(actual_opt), Optional(expected_opt)) => actual_opt.inner.can_coerce_to(&expected_opt.inner),
+
+            // Allow T → Optional<T>
+            (a, Optional(opt)) => a.can_coerce_to(&opt.inner),
+
+            // Allow [T; N] → [Optional<T>; N]
+            (Array(a_arr), Array(e_arr)) => {
+                let lengths_equal = match (a_arr.length.as_u32(), e_arr.length.as_u32()) {
+                    (Some(l1), Some(l2)) => l1 == l2,
+                    _ => true,
+                };
+
+                lengths_equal && a_arr.element_type().can_coerce_to(e_arr.element_type())
+            }
+
+            // Fallback: check for exact match
+            _ => self.eq_user(expected),
+        }
+    }
+
+    pub fn is_optional(&self) -> bool {
+        matches!(self, Self::Optional(_))
+    }
+
+    pub fn is_vector(&self) -> bool {
+        matches!(self, Self::Vector(_))
+    }
+
+    pub fn is_mapping(&self) -> bool {
+        matches!(self, Self::Mapping(_))
+    }
+
+    pub fn to_optional(&self) -> Type {
+        Type::Optional(OptionalType { inner: Box::new(self.clone()) })
+    }
+}
+
+impl From<LiteralType> for Type {
+    fn from(value: LiteralType) -> Self {
+        match value {
+            LiteralType::Address => Type::Address,
+            LiteralType::Boolean => Type::Boolean,
+            LiteralType::Field => Type::Field,
+            LiteralType::Group => Type::Group,
+            LiteralType::U8 => Type::Integer(IntegerType::U8),
+            LiteralType::U16 => Type::Integer(IntegerType::U16),
+            LiteralType::U32 => Type::Integer(IntegerType::U32),
+            LiteralType::U64 => Type::Integer(IntegerType::U64),
+            LiteralType::U128 => Type::Integer(IntegerType::U128),
+            LiteralType::I8 => Type::Integer(IntegerType::I8),
+            LiteralType::I16 => Type::Integer(IntegerType::I16),
+            LiteralType::I32 => Type::Integer(IntegerType::I32),
+            LiteralType::I64 => Type::Integer(IntegerType::I64),
+            LiteralType::I128 => Type::Integer(IntegerType::I128),
+            LiteralType::Scalar => Type::Scalar,
+            LiteralType::Signature => Type::Signature,
+            LiteralType::String => Type::String,
         }
     }
 }
@@ -181,11 +368,13 @@ impl fmt::Display for Type {
             Type::Identifier(ref variable) => write!(f, "{variable}"),
             Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
             Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
+            Type::Optional(ref optional_type) => write!(f, "{optional_type}"),
             Type::Scalar => write!(f, "scalar"),
             Type::Signature => write!(f, "signature"),
             Type::String => write!(f, "string"),
             Type::Composite(ref struct_type) => write!(f, "{struct_type}"),
             Type::Tuple(ref tuple) => write!(f, "{tuple}"),
+            Type::Vector(ref vector_type) => write!(f, "{vector_type}"),
             Type::Numeric => write!(f, "numeric"),
             Type::Unit => write!(f, "()"),
             Type::Err => write!(f, "error"),

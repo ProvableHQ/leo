@@ -10,11 +10,13 @@ Error [ETYC0372118]: Received different types `u32` and `bool` for the arms of a
      |                       ^^^^^^^^^^^^^^
      |
      = Make both branches the same type.
-Error [EAST0372009]: variable `x` shadowed by
+Error [EAST0372017]: The name `x` is defined multiple times.
     --> compiler-test:4:13
      |
-   4 |         let x: bool = true ? x: true;
-     |             ^
+   3 |       function main(x: u32) {
+     |                     ^ previous definition of `x` here
+   4 |           let x: bool = true ? x: true;
+     |               ^ `x` redefined here
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

@@ -1,8 +1,10 @@
-Error [EAST0372009]: variable `x` shadowed by
+Error [EAST0372017]: The name `x` is defined multiple times.
     --> compiler-test:5:12
      |
-   5 |       	let x: bool = true;
-     |            ^
+   4 |       	let x: u8 = 1u8;
+     |            ^ previous definition of `x` here
+   5 |         	let x: bool = true;
+     |              ^ `x` redefined here
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

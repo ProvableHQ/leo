@@ -1,0 +1,21 @@
+Error [ETYC0372162]: The field `data` in this record has type `u8?`, which is or contains an optional type.
+    --> compiler-test:4:9
+     |
+   4 |         data: u8?, // ERROR: optional type directly
+     |         ^^^^^^^^^
+     |
+     = Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record.
+Error [ETYC0372162]: The field `flags` in this record has type `[bool?; 4]`, which is or contains an optional type.
+    --> compiler-test:10:9
+     |
+  10 |         flags: [bool?; 4], // ERROR: contains optional
+     |         ^^^^^^^^^^^^^^^^^
+     |
+     = Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record.
+Error [ETYC0372162]: The field `inner` in this record has type `InnerStruct`, which is or contains an optional type.
+    --> compiler-test:20:9
+     |
+  20 |         inner: InnerStruct, // ERROR: contains optional via nested struct
+     |         ^^^^^^^^^^^^^^^^^^
+     |
+     = Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record.

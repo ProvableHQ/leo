@@ -1,5 +1,7 @@
-Error [EAST0372009]: variable `one` shadowed by
+Error [EAST0372017]: The name `one` is defined multiple times.
     --> compiler-test:5:5
      |
-   5 |     mapping one: field => field;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   4 |       mapping one: field => field;
+     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ previous definition of `one` here
+   5 |       mapping one: field => field;
+     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `one` redefined here

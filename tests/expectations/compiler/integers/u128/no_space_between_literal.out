@@ -1,4 +1,5 @@
-Error [EPAR0370004]: Unexpected white space between terms 1 and u128
-    --> compiler-test:4:18
+Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found 'u128'
+    --> compiler-test:4:19
      |
    4 |         let i = 1 u128;
+     |                   ^^^^

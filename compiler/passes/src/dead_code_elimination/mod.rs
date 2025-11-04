@@ -84,7 +84,7 @@ impl Pass for DeadCodeEliminating {
             statements_after: 0,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(DeadCodeEliminatingOutput {
             statements_before: visitor.statements_before,

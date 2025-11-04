@@ -1,11 +1,8 @@
-Error [EAST0372006]: function `finalize_no_params` shadowed by
-    --> compiler-test:26:5
+Error [EAST0372017]: The name `finalize_no_params` is defined multiple times.
+    --> compiler-test:26:20
      |
-  26 |     async function finalize_no_params() {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  27 |         increment(values, 0u8, 1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  28 |         increment(account, self.caller, 1u64);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  29 |     }
-     |     ^
+  22 |       async transition finalize_no_params() -> Future {
+     |                        ^^^^^^^^^^^^^^^^^^ previous definition of `finalize_no_params` here
+   ...
+  26 |       async function finalize_no_params() {
+     |                      ^^^^^^^^^^^^^^^^^^ `finalize_no_params` redefined here

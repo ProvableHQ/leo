@@ -1,9 +1,8 @@
-Error [EAST0372006]: function `f1` shadowed by
-    --> compiler-test:9:5
+Error [EAST0372017]: The name `f1` is defined multiple times.
+    --> compiler-test:9:14
      |
-   9 |     function f1(a: u8) -> u8 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |         return a * 100u8;
-     |         ^^^^^^^^^^^^^^^^^
-  11 |     }
-     |     ^
+   4 |       function f1(a: u8) -> u8 {
+     |                ^^ previous definition of `f1` here
+   ...
+   9 |       function f1(a: u8) -> u8 {
+     |                ^^ `f1` redefined here

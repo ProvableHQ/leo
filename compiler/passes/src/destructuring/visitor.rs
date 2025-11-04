@@ -40,17 +40,17 @@ impl DestructuringVisitor<'_> {
             self.state.type_table.get(&expression.id()).expect("Expressions should have types.")
         else {
             // It's not a tuple, so there's no more to do.
-            return self.reconstruct_expression(expression);
+            return self.reconstruct_expression(expression, &());
         };
 
-        let (new_expression, mut statements) = self.reconstruct_expression(expression);
+        let (new_expression, mut statements) = self.reconstruct_expression(expression, &());
 
         match new_expression {
             Expression::Path(path) => {
                 // It's a variable name, so just get the member identifiers we've already made.
                 let identifiers = self.tuples.get(&path.identifier().name).expect("Tuples should have been found");
                 let elements: Vec<Expression> =
-                    identifiers.iter().map(|identifier| Path::from(*identifier).into()).collect();
+                    identifiers.iter().map(|identifier| Path::from(*identifier).into_absolute().into()).collect();
 
                 let tuple: Expression =
                     TupleExpression { elements, span: Default::default(), id: self.state.node_builder.next_id() }
@@ -76,7 +76,8 @@ impl DestructuringVisitor<'_> {
                     panic!("`assign_tuple` always creates a definition with `Multiple`");
                 };
 
-                let elements = identifiers.iter().map(|identifier| Path::from(*identifier).into()).collect();
+                let elements =
+                    identifiers.iter().map(|identifier| Path::from(*identifier).into_absolute().into()).collect();
 
                 let expr = Expression::Tuple(TupleExpression {
                     elements,

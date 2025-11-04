@@ -86,9 +86,14 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
 
         // Get any
 
-        // Now reconstruct mappings
+        // Now reconstruct mappings and storage variables
         let mappings =
             input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
+        let storage_variables = input
+            .storage_variables
+            .into_iter()
+            .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
+            .collect();
 
         // Then consts
         let consts = input
@@ -106,7 +111,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Now retain only functions that are either not yet monomorphized or are still referenced by calls.
         self.reconstructed_functions.retain(|f, _| {
             let is_monomorphized = self.monomorphized_functions.contains(f);
-            let is_still_called = self.unresolved_calls.iter().any(|c| c.function.absolute_path() == f);
+            let is_still_called = self.unresolved_calls.iter().any(|c| &c.function.absolute_path() == f);
             !is_monomorphized || is_still_called
         });
 
@@ -130,6 +135,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 })
                 .collect(),
             mappings,
+            storage_variables,
             functions: all_functions
                 .iter()
                 .filter_map(|(path, f)| {

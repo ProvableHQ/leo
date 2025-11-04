@@ -1,0 +1,29 @@
+program test.aleo;
+
+function main:
+    cast 10u8 20u8 30u8 40u8 into r0 as [u8; 4u32];
+    cast 1000u32 2000u32 into r1 as [u32; 2u32];
+    serialize.bits r0 ([u8; 4u32]) into r2 ([boolean; 234u32]);
+    deserialize.bits r2 ([boolean; 234u32]) into r3 ([u8; 4u32]);
+    serialize.bits r1 ([u32; 2u32]) into r4 ([boolean; 182u32]);
+    deserialize.bits r4 ([boolean; 182u32]) into r5 ([u32; 2u32]);
+    serialize.bits.raw r0 ([u8; 4u32]) into r6 ([boolean; 32u32]);
+    deserialize.bits.raw r6 ([boolean; 32u32]) into r7 ([u8; 4u32]);
+    is.eq r3[0u32] r0[0u32] into r8;
+    is.eq r5[0u32] r1[0u32] into r9;
+    is.eq r7[0u32] r0[0u32] into r10;
+    is.eq r7[3u32] r0[3u32] into r11;
+    output r3[0u32] as u8.private;
+    output r3[1u32] as u8.private;
+    output r3[2u32] as u8.private;
+    output r3[3u32] as u8.private;
+    output r5[0u32] as u32.private;
+    output r5[1u32] as u32.private;
+    output r7[0u32] as u8.private;
+    output r7[1u32] as u8.private;
+    output r7[2u32] as u8.private;
+    output r7[3u32] as u8.private;
+    output r8 as boolean.private;
+    output r9 as boolean.private;
+    output r10 as boolean.private;
+    output r11 as boolean.private;

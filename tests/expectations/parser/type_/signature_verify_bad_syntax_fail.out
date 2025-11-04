@@ -1,10 +1,5 @@
-Error [EPAR0370021]: The type of `signature` has no associated function `verify` that takes 3 argument(s).
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'signature'
     --> test:4:23
      |
    4 |         let a: bool = signature.verify(s, a, v);
-     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370005]: expected ) -- found ','
-    --> test:5:17
-     |
-   5 |         assert(a, b);
-     |                 ^
+     |                       ^^^^^^^^^

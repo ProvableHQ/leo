@@ -1,0 +1,8 @@
+Error [EAST0372017]: The name `Point` is defined multiple times.
+    --> compiler-test:7:12
+     |
+   2 |       struct Point {
+     |              ^^^^^ previous definition of `Point` here
+   ...
+   7 |       struct Point {
+     |              ^^^^^ `Point` redefined here

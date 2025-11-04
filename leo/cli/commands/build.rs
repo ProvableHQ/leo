@@ -84,7 +84,13 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     };
 
     // Get the endpoint, if it is provided.
-    let endpoint = get_endpoint(&command.env_override.endpoint).ok();
+    let endpoint = match get_endpoint(&command.env_override.endpoint) {
+        Ok(endpoint) => endpoint,
+        Err(_) => {
+            println!("⚠️ No endpoint specified, defaulting to '{}'.", DEFAULT_ENDPOINT);
+            DEFAULT_ENDPOINT.to_string()
+        }
+    };
 
     let package = if command.options.build_tests {
         Package::from_directory_with_tests(
@@ -93,7 +99,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             command.options.no_cache,
             command.options.no_local,
             Some(network),
-            endpoint.as_deref(),
+            Some(&endpoint),
         )?
     } else {
         Package::from_directory(
@@ -102,7 +108,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             command.options.no_cache,
             command.options.no_local,
             Some(network),
-            endpoint.as_deref(),
+            Some(&endpoint),
         )?
     };
 

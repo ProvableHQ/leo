@@ -1,5 +1,7 @@
-Error [EAST0372009]: variable `a` shadowed by
+Error [EAST0372017]: The name `a` is defined multiple times.
     --> compiler-test:3:29
      |
-   3 |     transition main(a: u32, a: u32) -> u32 {
-     |                             ^
+   3 |       transition main(a: u32, a: u32) -> u32 {
+     |                       ^ previous definition of `a` here
+   3 |       transition main(a: u32, a: u32) -> u32 {
+     |                               ^ `a` redefined here

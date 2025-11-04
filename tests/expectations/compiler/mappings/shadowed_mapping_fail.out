@@ -1,14 +1,15 @@
-Error [EAST0372009]: variable `one` shadowed by
+Error [EAST0372017]: The name `one` is defined multiple times.
     --> compiler-test:5:5
      |
-   5 |     mapping one: field => field;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EAST0372009]: variable `one` shadowed by
-    --> compiler-test:7:5
+   4 |       mapping one: field => field;
+     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ previous definition of `one` here
+   5 |       mapping one: field => field;
+     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `one` redefined here
+Error [EAST0372017]: The name `one` is defined multiple times.
+    --> compiler-test:7:16
      |
-   7 |     transition one() -> u8 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |         return 1u8 + 1u8;
-     |         ^^^^^^^^^^^^^^^^^
-   9 |     }
-     |     ^
+   4 |       mapping one: field => field;
+     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ previous definition of `one` here
+   ...
+   7 |       transition one() -> u8 {
+     |                  ^^^ `one` redefined here

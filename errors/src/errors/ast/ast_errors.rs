@@ -159,4 +159,11 @@ create_messages!(
         msg: format!("function `{func}` not found"),
         help: None,
     }
+
+    @formatted
+    name_defined_multiple_times {
+        args: (name: impl Display),
+        msg: format!("The name `{name}` is defined multiple times."),
+        help: None,
+    }
 );

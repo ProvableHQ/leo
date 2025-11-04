@@ -23,6 +23,7 @@ use crate::*;
 /// A Reconstructor trait for types in the AST.
 pub trait AstReconstructor {
     type AdditionalOutput: Default;
+    type AdditionalInput: Default;
 
     /* Types */
     fn reconstruct_type(&mut self, input: Type) -> (Type, Self::AdditionalOutput) {
@@ -31,7 +32,9 @@ pub trait AstReconstructor {
             Type::Composite(composite_type) => self.reconstruct_composite_type(composite_type),
             Type::Future(future_type) => self.reconstruct_future_type(future_type),
             Type::Mapping(mapping_type) => self.reconstruct_mapping_type(mapping_type),
+            Type::Optional(optional_type) => self.reconstruct_optional_type(optional_type),
             Type::Tuple(tuple_type) => self.reconstruct_tuple_type(tuple_type),
+            Type::Vector(vector_type) => self.reconstruct_vector_type(vector_type),
             Type::Address
             | Type::Boolean
             | Type::Field
@@ -51,7 +54,7 @@ pub trait AstReconstructor {
         (
             Type::Array(ArrayType {
                 element_type: Box::new(self.reconstruct_type(*input.element_type).0),
-                length: Box::new(self.reconstruct_expression(*input.length).0),
+                length: Box::new(self.reconstruct_expression(*input.length, &Default::default()).0),
             }),
             Default::default(),
         )
@@ -63,7 +66,7 @@ pub trait AstReconstructor {
                 const_arguments: input
                     .const_arguments
                     .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
                     .collect(),
                 ..input
             }),
@@ -92,6 +95,10 @@ pub trait AstReconstructor {
         )
     }
 
+    fn reconstruct_optional_type(&mut self, input: OptionalType) -> (Type, Self::AdditionalOutput) {
+        (Type::Optional(OptionalType { inner: Box::new(self.reconstruct_type(*input.inner).0) }), Default::default())
+    }
+
     fn reconstruct_tuple_type(&mut self, input: TupleType) -> (Type, Self::AdditionalOutput) {
         (
             Type::Tuple(TupleType {
@@ -101,37 +108,52 @@ pub trait AstReconstructor {
         )
     }
 
+    fn reconstruct_vector_type(&mut self, input: VectorType) -> (Type, Self::AdditionalOutput) {
+        (
+            Type::Vector(VectorType { element_type: Box::new(self.reconstruct_type(*input.element_type).0) }),
+            Default::default(),
+        )
+    }
+
     /* Expressions */
-    fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_expression(
+        &mut self,
+        input: Expression,
+        additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         match input {
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
-            Expression::Async(async_) => self.reconstruct_async(async_),
-            Expression::Array(array) => self.reconstruct_array(array),
-            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access),
-            Expression::Binary(binary) => self.reconstruct_binary(*binary),
-            Expression::Call(call) => self.reconstruct_call(*call),
-            Expression::Cast(cast) => self.reconstruct_cast(*cast),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
-            Expression::Err(err) => self.reconstruct_err(err),
-            Expression::Path(path) => self.reconstruct_path(path),
-            Expression::Literal(value) => self.reconstruct_literal(value),
-            Expression::Locator(locator) => self.reconstruct_locator(locator),
-            Expression::MemberAccess(access) => self.reconstruct_member_access(*access),
-            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat),
-            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary),
-            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
-            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access),
-            Expression::Unary(unary) => self.reconstruct_unary(*unary),
-            Expression::Unit(unit) => self.reconstruct_unit(unit),
+            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, additional),
+            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, additional),
+            Expression::Async(async_) => self.reconstruct_async(async_, additional),
+            Expression::Array(array) => self.reconstruct_array(array, additional),
+            Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, additional),
+            Expression::Binary(binary) => self.reconstruct_binary(*binary, additional),
+            Expression::Call(call) => self.reconstruct_call(*call, additional),
+            Expression::Cast(cast) => self.reconstruct_cast(*cast, additional),
+            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, additional),
+            Expression::Err(err) => self.reconstruct_err(err, additional),
+            Expression::Path(path) => self.reconstruct_path(path, additional),
+            Expression::Literal(value) => self.reconstruct_literal(value, additional),
+            Expression::Locator(locator) => self.reconstruct_locator(locator, additional),
+            Expression::MemberAccess(access) => self.reconstruct_member_access(*access, additional),
+            Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, additional),
+            Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, additional),
+            Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, additional),
+            Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, additional),
+            Expression::Unary(unary) => self.reconstruct_unary(*unary, additional),
+            Expression::Unit(unit) => self.reconstruct_unit(unit, additional),
         }
     }
 
-    fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_array_access(
+        &mut self,
+        input: ArrayAccess,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
             ArrayAccess {
-                array: self.reconstruct_expression(input.array).0,
-                index: self.reconstruct_expression(input.index).0,
+                array: self.reconstruct_expression(input.array, &Default::default()).0,
+                index: self.reconstruct_expression(input.index, &Default::default()).0,
                 ..input
             }
             .into(),
@@ -142,6 +164,7 @@ pub trait AstReconstructor {
     fn reconstruct_associated_constant(
         &mut self,
         input: AssociatedConstantExpression,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
@@ -149,10 +172,15 @@ pub trait AstReconstructor {
     fn reconstruct_associated_function(
         &mut self,
         input: AssociatedFunctionExpression,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (
             AssociatedFunctionExpression {
-                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
+                    .collect(),
                 ..input
             }
             .into(),
@@ -160,19 +188,34 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_async(&mut self, input: AsyncExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_async(
+        &mut self,
+        input: AsyncExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (AsyncExpression { block: self.reconstruct_block(input.block).0, ..input }.into(), Default::default())
     }
 
-    fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
-        (MemberAccess { inner: self.reconstruct_expression(input.inner).0, ..input }.into(), Default::default())
+    fn reconstruct_member_access(
+        &mut self,
+        input: MemberAccess,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            MemberAccess { inner: self.reconstruct_expression(input.inner, &Default::default()).0, ..input }.into(),
+            Default::default(),
+        )
     }
 
-    fn reconstruct_repeat(&mut self, input: RepeatExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_repeat(
+        &mut self,
+        input: RepeatExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
             RepeatExpression {
-                expr: self.reconstruct_expression(input.expr).0,
-                count: self.reconstruct_expression(input.count).0,
+                expr: self.reconstruct_expression(input.expr, &Default::default()).0,
+                count: self.reconstruct_expression(input.count, &Default::default()).0,
                 ..input
             }
             .into(),
@@ -180,14 +223,29 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
-        (TupleAccess { tuple: self.reconstruct_expression(input.tuple).0, ..input }.into(), Default::default())
+    fn reconstruct_tuple_access(
+        &mut self,
+        input: TupleAccess,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            TupleAccess { tuple: self.reconstruct_expression(input.tuple, &Default::default()).0, ..input }.into(),
+            Default::default(),
+        )
     }
 
-    fn reconstruct_array(&mut self, input: ArrayExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_array(
+        &mut self,
+        input: ArrayExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
             ArrayExpression {
-                elements: input.elements.into_iter().map(|element| self.reconstruct_expression(element).0).collect(),
+                elements: input
+                    .elements
+                    .into_iter()
+                    .map(|element| self.reconstruct_expression(element, &Default::default()).0)
+                    .collect(),
                 ..input
             }
             .into(),
@@ -195,11 +253,15 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_binary(&mut self, input: BinaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_binary(
+        &mut self,
+        input: BinaryExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
             BinaryExpression {
-                left: self.reconstruct_expression(input.left).0,
-                right: self.reconstruct_expression(input.right).0,
+                left: self.reconstruct_expression(input.left, &Default::default()).0,
+                right: self.reconstruct_expression(input.right, &Default::default()).0,
                 ..input
             }
             .into(),
@@ -207,15 +269,23 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_call(
+        &mut self,
+        input: CallExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
             CallExpression {
                 const_arguments: input
                     .const_arguments
                     .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
                     .collect(),
-                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
+                    .collect(),
                 ..input
             }
             .into(),
@@ -223,27 +293,41 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_cast(&mut self, input: CastExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_cast(
+        &mut self,
+        input: CastExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
-            CastExpression { expression: self.reconstruct_expression(input.expression).0, ..input }.into(),
+            CastExpression {
+                expression: self.reconstruct_expression(input.expression, &Default::default()).0,
+                ..input
+            }
+            .into(),
             Default::default(),
         )
     }
 
-    fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_struct_init(
+        &mut self,
+        input: StructExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
             StructExpression {
                 const_arguments: input
                     .const_arguments
                     .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
                     .collect(),
                 members: input
                     .members
                     .into_iter()
                     .map(|member| StructVariableInitializer {
                         identifier: member.identifier,
-                        expression: member.expression.map(|expr| self.reconstruct_expression(expr).0),
+                        expression: member
+                            .expression
+                            .map(|expr| self.reconstruct_expression(expr, &Default::default()).0),
                         span: member.span,
                         id: member.id,
                     })
@@ -255,28 +339,48 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_err(&mut self, _input: ErrExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_err(
+        &mut self,
+        _input: ErrExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_path(&mut self, input: Path) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_path(
+        &mut self,
+        input: Path,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
-    fn reconstruct_literal(&mut self, input: Literal) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_literal(
+        &mut self,
+        input: Literal,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
-    fn reconstruct_locator(&mut self, input: LocatorExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_locator(
+        &mut self,
+        input: LocatorExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
-    fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_ternary(
+        &mut self,
+        input: TernaryExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
             TernaryExpression {
-                condition: self.reconstruct_expression(input.condition).0,
-                if_true: self.reconstruct_expression(input.if_true).0,
-                if_false: self.reconstruct_expression(input.if_false).0,
+                condition: self.reconstruct_expression(input.condition, &Default::default()).0,
+                if_true: self.reconstruct_expression(input.if_true, &Default::default()).0,
+                if_false: self.reconstruct_expression(input.if_false, &Default::default()).0,
                 span: input.span,
                 id: input.id,
             }
@@ -285,10 +389,18 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_tuple(&mut self, input: TupleExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_tuple(
+        &mut self,
+        input: TupleExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
             TupleExpression {
-                elements: input.elements.into_iter().map(|element| self.reconstruct_expression(element).0).collect(),
+                elements: input
+                    .elements
+                    .into_iter()
+                    .map(|element| self.reconstruct_expression(element, &Default::default()).0)
+                    .collect(),
                 ..input
             }
             .into(),
@@ -296,17 +408,27 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_unary(&mut self, input: UnaryExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_unary(
+        &mut self,
+        input: UnaryExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (
-            UnaryExpression { receiver: self.reconstruct_expression(input.receiver).0, ..input }.into(),
+            UnaryExpression { receiver: self.reconstruct_expression(input.receiver, &Default::default()).0, ..input }
+                .into(),
             Default::default(),
         )
     }
 
-    fn reconstruct_unit(&mut self, input: UnitExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_unit(
+        &mut self,
+        input: UnitExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
     }
 
+    /* Statements */
     fn reconstruct_statement(&mut self, input: Statement) -> (Statement, Self::AdditionalOutput) {
         match input {
             Statement::Assert(assert) => self.reconstruct_assert(assert),
@@ -328,14 +450,16 @@ pub trait AstReconstructor {
         (
             AssertStatement {
                 variant: match input.variant {
-                    AssertVariant::Assert(expr) => AssertVariant::Assert(self.reconstruct_expression(expr).0),
+                    AssertVariant::Assert(expr) => {
+                        AssertVariant::Assert(self.reconstruct_expression(expr, &Default::default()).0)
+                    }
                     AssertVariant::AssertEq(left, right) => AssertVariant::AssertEq(
-                        self.reconstruct_expression(left).0,
-                        self.reconstruct_expression(right).0,
+                        self.reconstruct_expression(left, &Default::default()).0,
+                        self.reconstruct_expression(right, &Default::default()).0,
                     ),
                     AssertVariant::AssertNeq(left, right) => AssertVariant::AssertNeq(
-                        self.reconstruct_expression(left).0,
-                        self.reconstruct_expression(right).0,
+                        self.reconstruct_expression(left, &Default::default()).0,
+                        self.reconstruct_expression(right, &Default::default()).0,
                     ),
                 },
                 ..input
@@ -348,8 +472,8 @@ pub trait AstReconstructor {
     fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         (
             AssignStatement {
-                place: self.reconstruct_expression(input.place).0,
-                value: self.reconstruct_expression(input.value).0,
+                place: self.reconstruct_expression(input.place, &Default::default()).0,
+                value: self.reconstruct_expression(input.value, &Default::default()).0,
                 ..input
             }
             .into(),
@@ -371,7 +495,7 @@ pub trait AstReconstructor {
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         (
             ConditionalStatement {
-                condition: self.reconstruct_expression(input.condition).0,
+                condition: self.reconstruct_expression(input.condition, &Default::default()).0,
                 then: self.reconstruct_block(input.then).0,
                 otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n).0)),
                 ..input
@@ -385,7 +509,7 @@ pub trait AstReconstructor {
         (
             ConstDeclaration {
                 type_: self.reconstruct_type(input.type_).0,
-                value: self.reconstruct_expression(input.value).0,
+                value: self.reconstruct_expression(input.value, &Default::default()).0,
                 ..input
             }
             .into(),
@@ -397,7 +521,7 @@ pub trait AstReconstructor {
         (
             DefinitionStatement {
                 type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
-                value: self.reconstruct_expression(input.value).0,
+                value: self.reconstruct_expression(input.value, &Default::default()).0,
                 ..input
             }
             .into(),
@@ -407,7 +531,11 @@ pub trait AstReconstructor {
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
         (
-            ExpressionStatement { expression: self.reconstruct_expression(input.expression).0, ..input }.into(),
+            ExpressionStatement {
+                expression: self.reconstruct_expression(input.expression, &Default::default()).0,
+                ..input
+            }
+            .into(),
             Default::default(),
         )
     }
@@ -416,8 +544,8 @@ pub trait AstReconstructor {
         (
             IterationStatement {
                 type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
-                start: self.reconstruct_expression(input.start).0,
-                stop: self.reconstruct_expression(input.stop).0,
+                start: self.reconstruct_expression(input.start, &Default::default()).0,
+                stop: self.reconstruct_expression(input.stop, &Default::default()).0,
                 block: self.reconstruct_block(input.block).0,
                 ..input
             }
@@ -428,7 +556,11 @@ pub trait AstReconstructor {
 
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
         (
-            ReturnStatement { expression: self.reconstruct_expression(input.expression).0, ..input }.into(),
+            ReturnStatement {
+                expression: self.reconstruct_expression(input.expression, &Default::default()).0,
+                ..input
+            }
+            .into(),
             Default::default(),
         )
     }
@@ -437,6 +569,8 @@ pub trait AstReconstructor {
 /// A Reconstructor trait for the program represented by the AST.
 pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
+        let program_scopes =
+            input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
         Program {
             imports: input
                 .imports
@@ -445,11 +579,7 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
             modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
-            program_scopes: input
-                .program_scopes
-                .into_iter()
-                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
-                .collect(),
+            program_scopes,
         }
     }
 
@@ -478,6 +608,11 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            storage_variables: input
+                .storage_variables
+                .into_iter()
+                .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
+                .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
@@ -567,5 +702,9 @@ pub trait ProgramReconstructor: AstReconstructor {
             value_type: self.reconstruct_type(input.value_type).0,
             ..input
         }
+    }
+
+    fn reconstruct_storage_variable(&mut self, input: StorageVariable) -> StorageVariable {
+        StorageVariable { type_: self.reconstruct_type(input.type_).0, ..input }
     }
 }

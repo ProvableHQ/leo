@@ -1,0 +1,8 @@
+Error [EAST0372017]: The name `foo` is defined multiple times.
+    --> compiler-test:10:14
+     |
+   6 |       function foo() -> u32 {
+     |                ^^^ previous definition of `foo` here
+   ...
+  10 |       function foo() -> u32 {
+     |                ^^^ `foo` redefined here

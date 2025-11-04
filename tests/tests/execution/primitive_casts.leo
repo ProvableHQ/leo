@@ -1,5 +1,5 @@
 /*
-seed = 2334567890
+seed = 1114567890
 
 [case]
 program = "test.aleo"

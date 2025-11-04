@@ -1,0 +1,10 @@
+program test.aleo {
+    transition main(x: u32, y: u32, z: u32) -> u32 {
+        let a: [u32; 3] = [::x, ::y, ::z];
+        let a#0$0 = ::a[0u8];
+        let a#1$1 = ::a[1u8];
+        let a#2$2 = ::a[2u8];
+        ::a#0$0 = 0u32;
+        return ::a#1$1;
+    }
+}

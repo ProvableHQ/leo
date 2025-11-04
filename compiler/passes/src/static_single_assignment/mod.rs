@@ -62,9 +62,10 @@ mod program;
 
 mod statement;
 
-mod visitor;
+pub mod visitor;
 use visitor::*;
 
+#[derive(Clone)]
 pub struct SsaFormingInput {
     pub rename_defs: bool,
 }
@@ -86,7 +87,7 @@ impl Pass for SsaForming {
             rename_defs: input.rename_defs,
         };
         ast.ast = visitor.consume_program(ast.ast);
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())
     }

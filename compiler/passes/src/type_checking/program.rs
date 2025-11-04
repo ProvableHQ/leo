@@ -18,12 +18,12 @@ use super::TypeCheckingVisitor;
 use crate::{VariableSymbol, VariableType};
 
 use leo_ast::{DiGraphError, Type, *};
-use leo_errors::TypeCheckerError;
+use leo_errors::{Label, TypeCheckerError};
 use leo_span::{Symbol, sym};
 
 use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 
 impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
@@ -50,9 +50,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         let program_name = input.program_id.name;
-
-        // Ensure that the program name is legal, i.e., it does not contain the keyword `aleo`
-        check_name(&self.state.handler, program_name, "program");
 
         // Set the current program name.
         self.scope_state.program_name = Some(program_name.name);
@@ -94,6 +91,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         for (_, mapping) in input.mappings.iter() {
             self.visit_mapping(mapping);
             mapping_count += 1;
+        }
+
+        // Typecheck each storage variable definition.
+        for (_, storage_variable) in input.storage_variables.iter() {
+            self.visit_storage_variable(storage_variable);
         }
 
         // Check that the number of mappings does not exceed the maximum.
@@ -224,31 +226,32 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         });
 
         // Check for conflicting struct/record member names.
-        let mut used = HashSet::new();
-        // TODO: Better span to target duplicate member.
-        if !input.members.iter().all(|Member { identifier, type_, span, .. }| {
+        let mut used = HashMap::new();
+        for Member { identifier, type_, span, .. } in &input.members {
             // Check that the member types are defined.
             self.assert_type_is_valid(type_, *span);
-            used.insert(identifier.name)
-        }) {
-            self.emit_err(if input.is_record {
-                TypeCheckerError::duplicate_record_variable(input.name(), input.span())
+
+            if let Some(first_span) = used.get(&identifier.name) {
+                self.emit_err(if input.is_record {
+                    TypeCheckerError::duplicate_record_variable(identifier.name, *span).with_labels(vec![
+                        Label::new(format!("`{}` first declared here", identifier.name), *first_span)
+                            .with_color(leo_errors::Color::Blue),
+                        Label::new("record variable already declared", *span),
+                    ])
+                } else {
+                    TypeCheckerError::duplicate_struct_member(identifier.name, *span).with_labels(vec![
+                        Label::new(format!("`{}` first declared here", identifier.name), *first_span)
+                            .with_color(leo_errors::Color::Blue),
+                        Label::new("struct field already declared", *span),
+                    ])
+                });
             } else {
-                TypeCheckerError::duplicate_struct_member(input.name(), input.span())
-            });
+                used.insert(identifier.name, *span);
+            }
         }
 
         // For records, enforce presence of the `owner: Address` member.
         if input.is_record {
-            // Ensure that the record name is legal, i.e., it does not contain the keyword `aleo`
-            check_name(&self.state.handler, input.identifier, "record");
-
-            // Ensure that the names of the record entries are all legal, i.e., they do not contain the
-            // keyword `aleo`
-            input.members.iter().for_each(|member| {
-                check_name(&self.state.handler, member.identifier, "record entry");
-            });
-
             let check_has_field =
                 |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
                     (identifier.name == need).then_some((identifier, type_))
@@ -262,6 +265,12 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                     }
                 };
             check_has_field(sym::owner, Type::Address);
+
+            for Member { identifier, type_, span, .. } in input.members.iter() {
+                if self.contains_optional_type(type_) {
+                    self.emit_err(TypeCheckerError::record_field_cannot_be_optional(identifier, type_, *span));
+                }
+            }
         }
         // For structs, check that there is at least one member.
         else if input.members.is_empty() {
@@ -327,7 +336,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Composite(struct_type) => {
                 if let Some(comp) = self.lookup_struct(
                     struct_type.program.or(self.scope_state.program_name),
-                    struct_type.path.absolute_path(),
+                    &struct_type.path.absolute_path(),
                 ) {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
@@ -341,6 +350,14 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             _ => {}
         }
 
+        if self.contains_optional_type(&input.key_type) {
+            self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
+                input.key_type.clone(),
+                "key",
+                input.span,
+            ))
+        }
+
         // Check that a mapping's value type is valid.
         self.assert_type_is_valid(&input.value_type, input.span);
         // Check that a mapping's value type is not a future, tuple, record or mapping.
@@ -350,19 +367,39 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Composite(struct_type) => {
                 if let Some(comp) = self.lookup_struct(
                     struct_type.program.or(self.scope_state.program_name),
-                    struct_type.path.absolute_path(),
+                    &struct_type.path.absolute_path(),
                 ) {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::undefined_type(&input.key_type, input.span));
+                    self.emit_err(TypeCheckerError::undefined_type(&input.value_type, input.span));
                 }
             }
             // Note that this is not possible since the parser does not currently accept mapping types.
             Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span)),
             _ => {}
         }
+
+        if self.contains_optional_type(&input.value_type) {
+            self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
+                input.value_type.clone(),
+                "value",
+                input.span,
+            ))
+        }
+    }
+
+    fn visit_storage_variable(&mut self, input: &StorageVariable) {
+        self.visit_type(&input.type_);
+
+        let storage_type = if let Type::Vector(VectorType { element_type }) = &input.type_ {
+            *element_type.clone()
+        } else {
+            input.type_.clone()
+        };
+
+        self.assert_storage_type_is_valid(&storage_type, input.span);
     }
 
     fn visit_function(&mut self, function: &Function) {
@@ -622,11 +659,5 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_struct_stub(&mut self, input: &Composite) {
         self.visit_struct(input);
-    }
-}
-
-fn check_name(handler: &leo_errors::Handler, name: Identifier, item_type: &str) {
-    if name.to_string().contains(&sym::aleo.to_string()) {
-        handler.emit_err(TypeCheckerError::illegal_name(name, item_type, sym::aleo, name.span));
     }
 }

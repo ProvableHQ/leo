@@ -1,0 +1,7 @@
+Error [EAST0372017]: The name `N` is defined multiple times.
+    --> compiler-test:6:26
+     |
+   6 |       inline foo::[N: u32](N: u32) -> u32 {
+     |                    ^ previous definition of `N` here
+   6 |       inline foo::[N: u32](N: u32) -> u32 {
+     |                            ^ `N` redefined here

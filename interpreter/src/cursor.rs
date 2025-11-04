@@ -17,10 +17,30 @@
 use super::*;
 
 use leo_ast::{
-    ArrayType, AssertVariant, AsyncExpression, BinaryOperation, Block, CoreConstant, CoreFunction, DefinitionPlace,
-    Expression, Function, NodeID, Statement, StructVariableInitializer, Type, UnaryOperation, Variant,
+    ArrayType,
+    AssertVariant,
+    AsyncExpression,
+    BinaryOperation,
+    Block,
+    CoreConstant,
+    CoreFunction,
+    DefinitionPlace,
+    Expression,
+    Function,
+    Location,
+    NodeID,
+    Statement,
+    StructVariableInitializer,
+    Type,
+    UnaryOperation,
+    Variant,
     interpreter_value::{
-        AsyncExecution, CoreFunctionHelper, GlobalId, Value, evaluate_binary, evaluate_core_function, evaluate_unary,
+        AsyncExecution,
+        CoreFunctionHelper,
+        Value,
+        evaluate_binary,
+        evaluate_core_function,
+        evaluate_unary,
         literal_to_value,
     },
 };
@@ -28,7 +48,16 @@ use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol, sym};
 
 use snarkvm::prelude::{
-    Closure as SvmClosure, Finalize as SvmFinalize, Function as SvmFunctionParam, ProgramID, TestnetV0,
+    Address,
+    CanaryV0,
+    Closure as SvmClosure,
+    Finalize as SvmFinalize,
+    Function as SvmFunctionParam,
+    MainnetV0,
+    Network,
+    PrivateKey,
+    ProgramID,
+    TestnetV0,
 };
 
 use indexmap::IndexMap;
@@ -174,7 +203,7 @@ pub enum Element {
         instruction_index: usize,
     },
 
-    DelayedCall(GlobalId),
+    DelayedCall(Location),
     DelayedAsyncBlock {
         program: Symbol,
         block: NodeID,
@@ -222,17 +251,17 @@ pub struct Cursor {
     pub values: Vec<Value>,
 
     /// All functions (or transitions or inlines) in any program being interpreted.
-    pub functions: HashMap<GlobalId, FunctionVariant>,
+    pub functions: HashMap<Location, FunctionVariant>,
 
     /// All the async blocks encountered. We identify them by their `NodeID`.
     pub async_blocks: HashMap<NodeID, Block>,
 
     /// Consts are stored here.
-    pub globals: HashMap<GlobalId, Value>,
+    pub globals: HashMap<Location, Value>,
 
     pub user_values: HashMap<Vec<Symbol>, Value>,
 
-    pub mappings: HashMap<GlobalId, HashMap<Value, Value>>,
+    pub mappings: HashMap<Location, HashMap<Value, Value>>,
 
     /// For each struct type, we only need to remember the names of its members, in order.
     pub structs: HashMap<Vec<Symbol>, IndexMap<Symbol, Type>>,
@@ -245,6 +274,7 @@ pub struct Cursor {
 
     pub contexts: ContextStack,
 
+    // The signer's address.
     pub signer: Value,
 
     pub rng: ChaCha20Rng,
@@ -254,6 +284,10 @@ pub struct Cursor {
     pub really_async: bool,
 
     pub program: Option<Symbol>,
+
+    pub network: NetworkName,
+
+    pub private_key: String,
 }
 
 impl CoreFunctionHelper for Cursor {
@@ -263,6 +297,22 @@ impl CoreFunctionHelper for Cursor {
 
     fn set_block_height(&mut self, height: u32) {
         self.block_height = height;
+    }
+
+    fn set_signer(&mut self, private_key: String) -> Result<()> {
+        // Get the address from the private key.
+        let address = match PrivateKey::<TestnetV0>::from_str(&private_key.replace("\"", ""))
+            .and_then(|pk| Address::<TestnetV0>::try_from(&pk))
+        {
+            Ok(address) => address.into(),
+            Err(_) => halt_no_span!("Invalid private key provided for signer."),
+        };
+        // Set the private key
+        self.private_key = private_key;
+        // Set the signer.
+        self.signer = address;
+
+        Ok(())
     }
 
     fn lookup_mapping(&self, program: Option<Symbol>, name: Symbol) -> Option<&HashMap<Value, Value>> {
@@ -280,8 +330,8 @@ impl CoreFunctionHelper for Cursor {
 
 impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
-    pub fn new(really_async: bool, signer: Value, block_height: u32) -> Self {
-        Cursor {
+    pub fn new(really_async: bool, private_key: String, block_height: u32, network: NetworkName) -> Self {
+        let mut cursor = Cursor {
             frames: Default::default(),
             values: Default::default(),
             functions: Default::default(),
@@ -294,11 +344,27 @@ impl Cursor {
             contexts: Default::default(),
             futures: Default::default(),
             rng: ChaCha20Rng::from_entropy(),
-            signer,
+            signer: Default::default(),
             block_height,
             really_async,
             program: None,
-        }
+            network,
+            private_key: Default::default(),
+        };
+
+        // Set the default private key.
+        cursor.set_signer(private_key).expect("The default private key should be valid.");
+
+        cursor
+    }
+
+    // Clears the state of the cursor, but keeps the program definitions.
+    pub fn clear(&mut self) {
+        self.frames.clear();
+        self.values.clear();
+        self.mappings.iter_mut().for_each(|(_, map)| map.clear());
+        self.contexts = Default::default();
+        self.futures.clear();
     }
 
     fn set_place(
@@ -451,10 +517,8 @@ impl Cursor {
 
     fn lookup(&self, name: &[Symbol]) -> Option<Value> {
         if let Some(context) = self.contexts.last() {
-            let option_value = context
-                .names
-                .get(name)
-                .or_else(|| self.globals.get(&GlobalId { program: context.program, path: name.to_vec() }));
+            let option_value =
+                context.names.get(name).or_else(|| self.globals.get(&Location::new(context.program, name.to_vec())));
             if option_value.is_some() {
                 return option_value.cloned();
             }
@@ -468,7 +532,7 @@ impl Cursor {
             panic!("no program for mapping lookup");
         };
         // mappings can only show up in the top level program scope
-        self.mappings.get(&GlobalId { program, path: vec![name] })
+        self.mappings.get(&Location::new(program, vec![name]))
     }
 
     pub fn lookup_mapping_mut(&mut self, program: Option<Symbol>, name: Symbol) -> Option<&mut HashMap<Value, Value>> {
@@ -476,11 +540,11 @@ impl Cursor {
             panic!("no program for mapping lookup");
         };
         // mappings can only show up in the top level program scope
-        self.mappings.get_mut(&GlobalId { program, path: vec![name] })
+        self.mappings.get_mut(&Location::new(program, vec![name]))
     }
 
     fn lookup_function(&self, program: Symbol, name: &[Symbol]) -> Option<FunctionVariant> {
-        self.functions.get(&GlobalId { program, path: name.to_vec() }).cloned()
+        self.functions.get(&Location::new(program, name.to_vec())).cloned()
     }
 
     fn set_variable(&mut self, path: &[Symbol], value: Value) {
@@ -864,7 +928,7 @@ impl Cursor {
                 // The block actually executes when an `await` is called on its future.
                 if let Some(context) = self.contexts.last() {
                     let async_ex = AsyncExecution::AsyncBlock {
-                        containing_function: GlobalId { program: context.program, path: context.path.clone() },
+                        containing_function: Location::new(context.program, context.path.clone()),
                         block: block.id,
                         names: context.names.clone().into_iter().collect(),
                     };
@@ -883,6 +947,31 @@ impl Cursor {
                         } else {
                             Some(self.signer.clone())
                         }
+                    }
+                    sym::address => {
+                        // A helper function to convert a program ID string to an address value.
+                        fn program_to_address<N: Network>(program_id: &str) -> Result<Value> {
+                            let Ok(program_id) = ProgramID::<N>::from_str(&format!("{program_id}.aleo")) else {
+                                halt_no_span!("Failed to parse program ID");
+                            };
+                            let Ok(address) = program_id.to_address() else {
+                                halt_no_span!("Failed to convert program ID to address");
+                            };
+                            let Ok(value) = Value::from_str(&address.to_string()) else {
+                                halt_no_span!("Failed to convert address to value");
+                            };
+                            Ok(value)
+                        }
+                        // Get the current program.
+                        let Some(program) = self.current_program() else {
+                            halt_no_span!("No program context for address");
+                        };
+                        let result = match self.network {
+                            NetworkName::TestnetV0 => program_to_address::<TestnetV0>(&program.to_string())?,
+                            NetworkName::MainnetV0 => program_to_address::<MainnetV0>(&program.to_string())?,
+                            NetworkName::CanaryV0 => program_to_address::<CanaryV0>(&program.to_string())?,
+                        };
+                        Some(result)
                     }
                     _ => halt!(access.span(), "unknown member of self"),
                 },
@@ -961,17 +1050,17 @@ impl Cursor {
                 }
             }
             Expression::AssociatedFunction(function) if step == 0 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
 
                 // We want to push expressions for each of the arguments... except for mappings,
                 // because we don't look them up as Values.
                 match core_function {
-                    CoreFunction::MappingGet | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
+                    CoreFunction::Get | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
                         push!()(&function.arguments[1], &None);
                     }
-                    CoreFunction::MappingGetOrUse | CoreFunction::MappingSet => {
+                    CoreFunction::MappingGetOrUse | CoreFunction::Set => {
                         push!()(&function.arguments[2], &None);
                         push!()(&function.arguments[1], &None);
                     }
@@ -983,7 +1072,7 @@ impl Cursor {
                 None
             }
             Expression::AssociatedFunction(function) if step == 1 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
 
@@ -1028,7 +1117,7 @@ impl Cursor {
                 }
             }
             Expression::AssociatedFunction(function) if step == 2 => {
-                let Some(core_function) = CoreFunction::from_symbols(function.variant.name, function.name.name) else {
+                let Some(core_function) = CoreFunction::try_from(function).ok() else {
                     halt!(function.span(), "Unkown core function {function}");
                 };
                 assert!(core_function == CoreFunction::FutureAwait);
@@ -1292,7 +1381,9 @@ impl Cursor {
                     value.clone()
                 };
 
-                if let Some(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future()) {
+                if let Some(asyncs) = maybe_future.as_ref().and_then(|fut| fut.as_future())
+                    && user_initiated
+                {
                     self.futures.extend(asyncs.iter().cloned());
                 }
 
@@ -1410,7 +1501,7 @@ impl Cursor {
                 if self.really_async && function.variant == Variant::AsyncFunction {
                     // Don't actually run the call now.
                     let async_ex = AsyncExecution::AsyncFunctionCall {
-                        function: GlobalId { path: function_path.to_vec(), program: function_program },
+                        function: Location::new(function_program, function_path.to_vec()),
                         arguments: arguments.collect(),
                     };
                     self.values.push(vec![async_ex].into());

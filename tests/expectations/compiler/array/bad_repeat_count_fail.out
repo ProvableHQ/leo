@@ -8,13 +8,13 @@ Error [ETYC0372008]: The value 111111111111111 is not a valid `u32`
      |
    4 |         let b = [1u32; 111111111111111]; // overflow
      |                        ^^^^^^^^^^^^^^^
-Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 100 elements
+Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
     --> compiler-test:6:17
      |
-   6 |         let d = [1u32; 100u128]; // passes limits
+   6 |         let d = [1u32; 513u128]; // passes limits
      |                 ^^^^^^^^^^^^^^^
-Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 100 elements
+Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
     --> compiler-test:7:17
      |
-   7 |         let e = [1u32; 100]; // passes limits
+   7 |         let e = [1u32; 513]; // passes limits
      |                 ^^^^^^^^^^^

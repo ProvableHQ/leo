@@ -1,7 +1,7 @@
 **/target
 /tmp/
-**.idea/
-*.DS_Store
+**/.idea/
+.DS_Store
 .vscode
 leo.iml
 
@@ -24,3 +24,7 @@ sccache*/
 
 # environment
 .env
+
+# Claude
+.claude
+tests/mismatches/

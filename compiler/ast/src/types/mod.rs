@@ -26,6 +26,9 @@ pub use future::*;
 mod integer_type;
 pub use integer_type::*;
 
+mod optional;
+pub use optional::*;
+
 mod mapping;
 pub use mapping::*;
 
@@ -37,3 +40,6 @@ pub use tuple::*;
 
 mod type_;
 pub use type_::*;
+
+mod vector;
+pub use vector::*;

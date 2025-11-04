@@ -1,0 +1,8 @@
+Error [EAST0372017]: The name `Token` is defined multiple times.
+    --> compiler-test:7:12
+     |
+   2 |       record Token {
+     |              ^^^^^ previous definition of `Token` here
+   ...
+   7 |       record Token {
+     |              ^^^^^ `Token` redefined here

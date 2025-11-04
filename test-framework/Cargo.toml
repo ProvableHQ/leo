@@ -1,6 +1,6 @@
 [package]
 name = "leo-test-framework"
-version = "3.2.0"
+version = "3.3.1"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The testing framework for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -16,10 +16,9 @@ categories = [ "compilers", "cryptography" ]
 include = [ "Cargo.toml", "src", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.88.0"
 
 [dependencies.rayon]
-version = "1.10"
+workspace = true
 
 [dependencies.walkdir]
 workspace = true

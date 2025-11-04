@@ -1,0 +1,30 @@
+program test.aleo;
+
+function main:
+    input r0 as u64.private;
+    hash.keccak256.native r0 into r1 as [boolean; 256u32];
+    hash.keccak384.native r0 into r2 as [boolean; 384u32];
+    hash.keccak512.native r0 into r3 as [boolean; 512u32];
+    hash.sha3_256.native r0 into r4 as [boolean; 256u32];
+    hash.sha3_384.native r0 into r5 as [boolean; 384u32];
+    hash.sha3_512.native r0 into r6 as [boolean; 512u32];
+    hash.keccak256.native.raw r0 into r7 as [boolean; 256u32];
+    hash.sha3_256.native.raw r0 into r8 as [boolean; 256u32];
+    is.neq r1[0u32] r7[0u32] into r9;
+    is.neq r4[0u32] r8[0u32] into r10;
+    output r1[0u32] as boolean.private;
+    output r1[100u32] as boolean.private;
+    output r1[200u32] as boolean.private;
+    output r1[255u32] as boolean.private;
+    output r2[0u32] as boolean.private;
+    output r2[383u32] as boolean.private;
+    output r3[0u32] as boolean.private;
+    output r3[511u32] as boolean.private;
+    output r4[0u32] as boolean.private;
+    output r4[255u32] as boolean.private;
+    output r5[0u32] as boolean.private;
+    output r5[383u32] as boolean.private;
+    output r6[0u32] as boolean.private;
+    output r6[511u32] as boolean.private;
+    output r9 as boolean.private;
+    output r10 as boolean.private;

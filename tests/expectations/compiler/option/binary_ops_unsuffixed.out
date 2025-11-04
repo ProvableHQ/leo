@@ -1,0 +1,65 @@
+program binary_ops_unsuffixed.aleo;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+struct Optional__ehTh6DmpRN:
+    is_some as boolean;
+    val as u16;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+struct Optional__DOnC9eGtnsJ:
+    is_some as boolean;
+    val as u64;
+
+struct Optional__HuqQXGvtQU2:
+    is_some as boolean;
+    val as u128;
+
+struct Optional__K4XRQPOk9yX:
+    is_some as boolean;
+    val as field;
+
+struct Optional__ArToIDU52JP:
+    is_some as boolean;
+    val as i8;
+
+struct Optional__1pdH6zSByBB:
+    is_some as boolean;
+    val as i16;
+
+struct Optional__9p9J8sbl23N:
+    is_some as boolean;
+    val as i32;
+
+struct Optional__5sKIb96heV9:
+    is_some as boolean;
+    val as i64;
+
+function test_arithmetic_unsuffixed:
+    output 42u8 as u8.private;
+
+function test_bitwise_unsuffixed:
+    output 42u8 as u8.private;
+
+function test_wrapped_unsuffixed:
+    output 42u8 as u8.private;
+
+function test_different_int_types:
+    output 42u8 as u8.private;
+
+function test_field_unsuffixed:
+    output 42u8 as u8.private;
+
+function test_mixed_suffixed_unsuffixed:
+    output 42u8 as u8.private;
+
+function test_signed_unsuffixed:
+    output 42u8 as u8.private;
+
+function test_nested_unsuffixed:
+    output 42u8 as u8.private;

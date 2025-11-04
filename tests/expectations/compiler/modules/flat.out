@@ -17,10 +17,9 @@ function main:
     cast r6 into r7 as Data__4KOghWdEoSH;
     add 3u32 4u32 into r8;
     mul r8 2u32 into r9;
-    add 3u32 4u32 into r10;
-    add r10 r1.values[1u32] into r11;
-    add r11 r3.values[2u32] into r12;
-    add r12 r5.values[0u32] into r13;
-    add r13 r7.values[1u32] into r14;
-    add r14 r9 into r15;
-    output r15 as u32.private;
+    add r8 r1.values[1u32] into r10;
+    add r10 r3.values[2u32] into r11;
+    add r11 r5.values[0u32] into r12;
+    add r12 r7.values[1u32] into r13;
+    add r13 r9 into r14;
+    output r14 as u32.private;

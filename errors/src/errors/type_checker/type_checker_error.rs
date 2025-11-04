@@ -176,9 +176,9 @@ create_messages!(
     /// Attempted to define more that one struct member with the same name.
     @formatted
     duplicate_struct_member {
-        args: (struct_: impl Display),
+        args: (member_name: impl Display),
         msg: format!(
-            "Struct {struct_} defined with more than one member with the same name."
+            "Struct field `{member_name}` is already declared."
         ),
         help: None,
     }
@@ -186,9 +186,9 @@ create_messages!(
     /// Attempted to define more that one record variable with the same name.
     @formatted
     duplicate_record_variable {
-        args: (record: impl Display),
+        args: (variable_name: impl Display),
         msg: format!(
-            "Record {record} defined with more than one variable with the same name."
+            "Record variable `{variable_name}` is already declared."
         ),
         help: None,
     }
@@ -1049,6 +1049,7 @@ create_messages!(
         help: Some("External record types and tuples containing them may not be assigned to.".to_string()),
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     illegal_name {
         args: (item_name: impl Display, item_type: impl Display, keyword: impl Display),
@@ -1240,5 +1241,121 @@ create_messages!(
         args: (expression: impl Display),
         msg: format!("Constructors can only return unit, but found `{expression}`."),
         help: None,
+    }
+
+    @formatted
+    none_found_non_optional {
+        args: (expected: impl Display),
+        msg: format!(
+            "Found `none`, but the expected type `{expected}` is not an optional type.",
+        ),
+        help: None,
+    }
+
+    @formatted
+    optional_wrapping_of_records_unsupported {
+        args: (ty: impl Display),
+        msg: format!(
+            "The type `{ty}` cannot be wrapped in an optional because it is a record.",
+        ),
+        help: None,
+    }
+
+    @formatted
+    optional_wrapping_unsupported {
+        args: (ty: impl Display),
+        msg: format!(
+            "The type `{ty}` cannot be wrapped in an optional.",
+        ),
+        help: None,
+    }
+
+    @formatted
+    optional_type_not_allowed_in_mapping {
+        args: (ty: impl Display, kind: impl Display),
+        msg: format!(
+            "The type `{ty}` is or contains an optional type which cannot be used as the {kind} in a mapping",
+        ),
+        help: None,
+    }
+
+    @formatted
+    record_field_cannot_be_optional {
+        args: (name: impl Display, ty: impl Display),
+        msg: format!(
+            "The field `{name}` in this record has type `{ty}`, which is or contains an optional type.",
+        ),
+        help: Some(
+            "Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record.".to_string()
+        ),
+    }
+
+    @formatted
+    const_cannot_be_optional {
+        args: (),
+        msg: format!(
+            "Constants cannot have an optional type or a type that contains an optional",
+        ),
+        help: None,
+    }
+
+    @formatted
+    function_cannot_take_option_as_input {
+        args: (name: impl Display, ty: impl Display),
+        msg: format!(
+            "The input `{name}` has type `{ty}`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.",
+        ),
+        help: Some(
+            "Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.".to_string()
+        ),
+    }
+
+    @formatted
+    function_cannot_return_option_as_output {
+        args: (ty: impl Display),
+        msg: format!(
+            "This function has an output of type `{ty}`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.",
+        ),
+        help: Some(
+            "Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.".to_string()
+        ),
+    }
+
+    @formatted
+    invalid_storage_type {
+        args: (type_: impl Display),
+        msg: format!("{type_} is an invalid storage type"),
+        help: None,
+    }
+
+    @formatted
+    storage_vectors_cannot_be_moved_or_assigned {
+        args: (),
+        msg: format!(
+            "Storage vectors cannot be moved or assigned. You can only access or modify them using methods like `get`, `push`, or `pop`."
+        ),
+        help: None,
+    }
+
+    @formatted
+    function_has_too_many_inputs {
+        args: (variant: impl Display, name: impl Display, limit: usize, actual: usize),
+        msg: format!(
+            "The {variant} `{name}` has {actual} input parameters, which exceeds the allowed limit of {limit}.",
+        ),
+        help: Some(
+            "Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.".to_string()
+        ),
+    }
+
+    @formatted
+    function_has_too_many_outputs {
+        args: (variant: impl Display, name: impl Display, limit: usize, actual: usize),
+        msg: format!(
+            "The {variant} `{name}` has {actual} output parameters, which exceeds the allowed limit of {limit}.",
+        ),
+        help: Some(
+            "Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.".to_string()
+        ),
     }
 );

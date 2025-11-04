@@ -1,0 +1,5 @@
+program test.aleo;
+
+function main:
+    input r0 as u32.private;
+    output true as boolean.private;

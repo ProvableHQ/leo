@@ -9,8 +9,9 @@
             "lo": 7,
             "hi": 11
           },
-          "id": 0
+          "id": 2
         },
+        "is_absolute": false,
         "absolute_path": null,
         "span": {
           "lo": 7,
@@ -23,7 +24,7 @@
       "lo": 0,
       "hi": 12
     },
-    "id": 2
+    "id": 0
   }
 }
 
@@ -35,7 +36,7 @@
           "lo": 20,
           "hi": 23
         },
-        "id": 0,
+        "id": 1,
         "variant": {
           "Integer": [
             "U8",
@@ -48,7 +49,7 @@
       "lo": 13,
       "hi": 24
     },
-    "id": 1
+    "id": 0
   }
 }
 

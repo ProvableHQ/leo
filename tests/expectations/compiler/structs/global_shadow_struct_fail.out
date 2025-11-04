@@ -1,13 +1,8 @@
-Error [EAST0372007]: struct `s1` shadowed by
-    --> compiler-test:8:5
+Error [EAST0372017]: The name `s1` is defined multiple times.
+    --> compiler-test:8:12
      |
-   8 |     struct s1 {
-     |     ^^^^^^^^^^^
-   9 |         f1: u32,
-     |         ^^^^^^^^
-  10 |         f2: u32,
-     |         ^^^^^^^^
-  11 |         f3: u32
-     |         ^^^^^^^
-  12 |     }
-     |     ^
+   4 |       struct s1 {
+     |              ^^ previous definition of `s1` here
+   ...
+   8 |       struct s1 {
+     |              ^^ `s1` redefined here

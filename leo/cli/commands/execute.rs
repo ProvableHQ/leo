@@ -21,11 +21,10 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Authorization, Execution, Itertools, Network, Program, execution_cost};
+use snarkvm::prelude::{Execution, Itertools, Network, Program, execution_cost};
 
 use clap::Parser;
 use colored::*;
-use serde::{Serialize, ser::SerializeStruct};
 use std::{convert::TryFrom, path::PathBuf};
 
 #[cfg(not(feature = "only_testnet"))]
@@ -33,8 +32,11 @@ use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     prelude::{
-        ConsensusVersion, Fee, Identifier, ProgramID, VM,
-        query::{Query as SnarkVMQuery, QueryTrait},
+        ConsensusVersion,
+        Identifier,
+        ProgramID,
+        VM,
+        query::Query as SnarkVMQuery,
         store::{
             ConsensusStore,
             helpers::memory::{BlockMemory, ConsensusMemory},
@@ -56,10 +58,6 @@ pub struct LeoExecute {
         help = "The program inputs e.g. `1u32`, `record1...` (record ciphertext), or `{ owner: ...}` "
     )]
     inputs: Vec<String>,
-    #[clap(long, help = "Generate the authorization only.", conflicts_with = "broadcast")]
-    pub(crate) authorization_only: bool,
-    #[clap(long, help = "Skips proving.")]
-    pub(crate) skip_proving: bool,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
     #[clap(flatten)]
@@ -181,7 +179,7 @@ fn handle_execute<A: Aleo>(
                     "{}.aleo",
                     package.programs.last().expect("There must be at least one program in a Leo package").name
                 ),
-                command.name.clone(),
+                command.name,
             ),
             None => {
                 return Err(CliError::custom(format!(
@@ -267,10 +265,11 @@ fn handle_execute<A: Aleo>(
         }
     }
 
-    let inputs = command.inputs.iter().map(|string| parse_input(string, &private_key)).collect::<Result<Vec<_>>>()?;
+    let inputs =
+        command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
 
     // Get the first fee option.
-    let (base_fee, priority_fee, record) =
+    let (_, priority_fee, record) =
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
@@ -288,9 +287,9 @@ fn handle_execute<A: Aleo>(
         is_local,
         priority_fee.unwrap_or(0),
         record.is_some(),
+        &command.action,
         consensus_version,
         &check_task_for_warnings(&endpoint, network, &programs, consensus_version),
-        &command,
     );
 
     // Prompt the user to confirm the plan.
@@ -305,12 +304,17 @@ fn handle_execute<A: Aleo>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
-    // Specify the query
+    // Remove version suffixes from the endpoint.
+    let re = regex::Regex::new(r"v\d+$").unwrap();
+    let query_endpoint = re.replace(&endpoint, "").to_string();
+
+    // Specify the query.
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
-        endpoint
+        query_endpoint
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
+
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
@@ -338,108 +342,33 @@ fn handle_execute<A: Aleo>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Execute the program and produce a transaction.
-    let (output_name, output, response) = if command.authorization_only {
-        println!("\n🛂 Generating authorization for {program_name}/{function_name}...");
+    println!("\n⚙️ Executing {program_name}/{function_name}...");
+    let (transaction, response) = vm.execute_with_response(
+        &private_key,
+        (&program_name, &function_name),
+        inputs.iter(),
+        record,
+        priority_fee.unwrap_or(0),
+        Some(&query),
+        rng,
+    )?;
 
-        // Get the base fee.
-        let Some(base_fee) = base_fee else {
-            return Err(CliError::custom(
-                "When generating an authorization, a base fee must be provided with `--base-fee`.",
-            )
-            .into());
-        };
-
-        // Generate the authorizations.
-        let execution =
-            vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
-
-        let id = execution.to_execution_id()?;
-        let fee = match record {
-            None => vm.authorize_fee_public(&private_key, base_fee, priority_fee.unwrap_or(0), id, rng)?,
-            Some(record) => {
-                vm.authorize_fee_private(&private_key, record, base_fee, priority_fee.unwrap_or(0), id, rng)?
-            }
-        };
-
-        // Evaluate the authorization to get the response.
-        let response = vm.process().read().evaluate::<A>(execution.clone())?;
-
-        ("authorization", ExecutionOutput::AuthorizationData { execution, fee }, response)
-    } else if command.skip_proving {
-        println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
-
-        // Generate the authorization.
-        let authorization =
-            vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
-
-        // Get the state root.
-        let state_root = query.current_state_root()?;
-
-        // Create an execution without the proof.
-        let execution = Execution::from(authorization.transitions().values().cloned(), state_root, None)?;
-
-        // Calculate the cost.
-        let (cost, _) = execution_cost(&vm.process().read(), &execution, consensus_version)?;
-
-        // Generate the fee authorization.
-        let id = authorization.to_execution_id()?;
-        let fee_authorization = match record {
-            None => {
-                vm.authorize_fee_public(&private_key, base_fee.unwrap_or(cost), priority_fee.unwrap_or(0), id, rng)?
-            }
-            Some(record) => vm.authorize_fee_private(
-                &private_key,
-                record,
-                base_fee.unwrap_or(cost),
-                priority_fee.unwrap_or(0),
-                id,
-                rng,
-            )?,
-        };
-
-        // Create a fee transition without a proof.
-        let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
-
-        // Create the transaction.
-        let transaction = Transaction::from_execution(execution, Some(fee))?;
-
-        // Evaluate the transaction to get the response.
-        let response = vm.process().read().evaluate::<A>(authorization)?;
-
-        ("transaction", ExecutionOutput::Transaction(Box::new(transaction)), response)
-    } else {
-        println!("\n⚙️ Generating transaction for {program_name}/{function_name}...");
-
-        // Generate the transaction and get the response.
-        let (transaction, response) = vm.execute_with_response(
-            &private_key,
-            (&program_name, &function_name),
-            inputs.iter(),
-            record,
-            priority_fee.unwrap_or(0),
-            Some(&query),
-            rng,
-        )?;
-
-        // Print the execution stats.
-        print_execution_stats::<A::Network>(
-            &vm,
-            &program_name,
-            transaction.execution().expect("Expected execution"),
-            priority_fee,
-            consensus_version,
-        )?;
-
-        ("execution", ExecutionOutput::Transaction(Box::new(transaction)), response)
-    };
+    // Print the execution stats.
+    print_execution_stats::<A::Network>(
+        &vm,
+        &program_name,
+        transaction.execution().expect("Expected execution"),
+        priority_fee,
+        consensus_version,
+    )?;
 
     // Print the transaction.
     // If the `print` option is set, print the execution transaction to the console.
     // The transaction is printed in JSON format.
     if command.action.print {
-        let json = serde_json::to_string_pretty(&output)
+        let transaction_json = serde_json::to_string_pretty(&transaction)
             .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
-        println!("🖨️ Printing {output_name} for {program_name}\n{json}");
+        println!("🖨️ Printing execution for {program_name}\n{transaction_json}");
     }
 
     // If the `save` option is set, save the execution transaction to a file in the specified directory.
@@ -450,11 +379,11 @@ fn handle_execute<A: Aleo>(
         std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
         // Save the transaction to a file.
         let file_path = PathBuf::from(path).join(format!("{program_name}.execution.json"));
-        println!("💾 Saving {output_name} for {program_name} at {}", file_path.display());
-        let transaction_json = serde_json::to_string_pretty(&output)
-            .map_err(|e| CliError::custom(format!("Failed to serialize {output_name}: {e}")))?;
+        println!("💾 Saving execution for {program_name} at {}", file_path.display());
+        let transaction_json = serde_json::to_string_pretty(&transaction)
+            .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
         std::fs::write(file_path, transaction_json)
-            .map_err(|e| CliError::custom(format!("Failed to write {output_name} to file: {e}")))?;
+            .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
     }
 
     match response.outputs().len() {
@@ -467,14 +396,9 @@ fn handle_execute<A: Aleo>(
     }
     println!();
 
-    // If the `broadcast` option is set, broadcast each execution to the network.
+    // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
-        println!("📡 Broadcasting {output_name} for {program_name}...");
-        // Get the transaction.
-        let ExecutionOutput::Transaction(transaction) = output else {
-            println!("❌ Cannot broadcast an authorization. Please run without `--authorization-only`.");
-            return Ok(());
-        };
+        println!("📡 Broadcasting execution for {program_name}...");
         // Get and confirm the fee with the user.
         let mut fee_id = None;
         if let Some(fee) = transaction.fee_transition() {
@@ -574,9 +498,9 @@ fn print_execution_plan<N: Network>(
     is_local: bool,
     priority_fee: u64,
     fee_record: bool,
+    action: &TransactionAction,
     consensus_version: ConsensusVersion,
     warnings: &[String],
-    command: &LeoExecute,
 ) {
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
@@ -601,23 +525,17 @@ fn print_execution_plan<N: Network>(
     if !is_local {
         println!("  - Program and its dependencies will be downloaded from the network.");
     }
-    if command.authorization_only {
-        println!("  - Only the authorization will be generated.");
-    }
-    if command.skip_proving {
-        println!("  - A transaction will be generated, WITHOUT a proof.");
-    }
-    if command.action.print {
+    if action.print {
         println!("  - Transaction will be printed to the console.");
     } else {
         println!("  - Transaction will NOT be printed to the console.");
     }
-    if let Some(path) = &command.action.save {
+    if let Some(path) = &action.save {
         println!("  - Transaction will be saved to {}", path.bold());
     } else {
         println!("  - Transaction will NOT be saved to a file.");
     }
-    if command.action.broadcast {
+    if action.broadcast {
         println!("  - Transaction will be broadcast to {}", endpoint.bold());
     } else {
         println!("  - Transaction will NOT be broadcast to the network.");
@@ -667,30 +585,4 @@ fn print_execution_stats<N: Network>(
     // ── Footer rule ───────────────────────────────────────────────────────
     println!("{}", "──────────────────────────────────────────────".dimmed());
     Ok(())
-}
-
-// Possible outputs of an `execute` command.
-enum ExecutionOutput<N: Network> {
-    // Produced if `--authorization-only` is set.
-    AuthorizationData { execution: Authorization<N>, fee: Authorization<N> },
-    // Default output, a transaction.
-    // Note. The transaction may not have a proof if `--skip-proving` is set.
-    Transaction(Box<Transaction<N>>),
-}
-
-impl<N: Network> Serialize for ExecutionOutput<N> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            ExecutionOutput::AuthorizationData { execution, fee } => {
-                let mut state = serializer.serialize_struct("AuthorizationData", 2)?;
-                state.serialize_field("execution", execution)?;
-                state.serialize_field("fee", fee)?;
-                state.end()
-            }
-            ExecutionOutput::Transaction(transaction) => transaction.serialize(serializer),
-        }
-    }
 }

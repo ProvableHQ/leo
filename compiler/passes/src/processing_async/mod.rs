@@ -79,7 +79,7 @@ impl Pass for ProcessingAsync {
             modified: false,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
-        visitor.state.handler.last_err().map_err(|e| *e)?;
+        visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
 
         if visitor.modified {

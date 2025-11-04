@@ -16,24 +16,32 @@
 
 use leo_ast::{Expression::Literal, interpreter_value::literal_to_value, *};
 
-use leo_errors::LoopUnrollerError;
-
 use super::UnrollingVisitor;
 
 impl AstReconstructor for UnrollingVisitor<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /* Expressions */
-    fn reconstruct_repeat(&mut self, input: RepeatExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_repeat(
+        &mut self,
+        input: RepeatExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
         // Because the value of `count` affects the type of a repeat expression, we need to assign a new ID to the
         // reconstructed `RepeatExpression` and update the type table accordingly.
         let new_id = self.state.node_builder.next_id();
-        let new_count = self.reconstruct_expression(input.count).0;
+        let new_count = self.reconstruct_expression(input.count, &()).0;
         let el_ty = self.state.type_table.get(&input.expr.id()).expect("guaranteed by type checking");
         self.state.type_table.insert(new_id, Type::Array(ArrayType::new(el_ty, new_count.clone())));
         (
-            RepeatExpression { expr: self.reconstruct_expression(input.expr).0, count: new_count, id: new_id, ..input }
-                .into(),
+            RepeatExpression {
+                expr: self.reconstruct_expression(input.expr, &()).0,
+                count: new_count,
+                id: new_id,
+                ..input
+            }
+            .into(),
             Default::default(),
         )
     }
@@ -54,7 +62,7 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         (
             DefinitionStatement {
                 type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
-                value: self.reconstruct_expression(input.value).0,
+                value: self.reconstruct_expression(input.value, &()).0,
                 ..input
             }
             .into(),
@@ -79,10 +87,10 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         // Helper to clone and resolve Unsuffixed -> Integer literal based on type table
         let resolve_unsuffixed = |lit: &leo_ast::Literal, expr_id| {
             let mut resolved = lit.clone();
-            if let LiteralVariant::Unsuffixed(s) = &resolved.variant {
-                if let Some(Type::Integer(integer_type)) = self.state.type_table.get(&expr_id) {
-                    resolved.variant = LiteralVariant::Integer(integer_type, s.clone());
-                }
+            if let LiteralVariant::Unsuffixed(s) = &resolved.variant
+                && let Some(Type::Integer(integer_type)) = self.state.type_table.get(&expr_id)
+            {
+                resolved.variant = LiteralVariant::Integer(integer_type, s.clone());
             }
             resolved
         };
@@ -97,14 +105,19 @@ impl AstReconstructor for UnrollingVisitor<'_> {
         let stop_value =
             literal_to_value(&resolved_stop_lit, &None).expect("Parsing and type checking guarantee this works.");
 
-        // Ensure loop bounds are strictly increasing
-        if start_value.gte(&stop_value).expect("Type checking guarantees these are the same type") {
-            self.emit_err(LoopUnrollerError::loop_range_decreasing(input.stop.span()));
-        }
-
         self.loop_unrolled = true;
 
         // Actually unroll.
-        (self.unroll_iteration_statement(input, start_value, stop_value), Default::default())
+        (
+            if start_value.gte(&stop_value).expect("Type checking guarantees these are the same type") {
+                let new_block_id = self.state.node_builder.next_id();
+                self.in_scope(new_block_id, |_| {
+                    Statement::from(Block { span: input.span, statements: vec![], id: new_block_id })
+                })
+            } else {
+                self.unroll_iteration_statement(input, start_value, stop_value)
+            },
+            Default::default(),
+        )
     }
 }

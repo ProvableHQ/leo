@@ -1,0 +1,41 @@
+[package]
+name = "leo-parser-lossless"
+version = "3.3.1"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "Lossless syntax tree parser for the Leo programming language"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+[dependencies.leo-span]
+workspace = true
+
+[dependencies.leo-errors]
+workspace = true
+
+[dependencies.itertools]
+workspace = true
+
+[dependencies.lalrpop-util]
+version = "0.21.0"
+features = [ "unicode" ]
+
+[dependencies.logos]
+version = "0.15.0"
+
+[dependencies.regex]
+workspace = true
+
+[build-dependencies.lalrpop]
+version = "0.22.2"
+default-features = false

@@ -1,4 +1,5 @@
-Error [EPAR0370004]: Unexpected white space between terms 1 and group
-    --> compiler-test:4:23
+Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found 'group'
+    --> compiler-test:4:24
      |
    4 |       let g: group = 1 group;
+     |                        ^^^^^

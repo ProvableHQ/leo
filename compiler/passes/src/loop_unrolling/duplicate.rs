@@ -30,15 +30,16 @@ struct Duplicator<'a> {
 }
 
 impl Duplicator<'_> {
-    fn in_scope_duped<T>(&mut self, new_id: NodeID, old_id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
-        self.symbol_table.enter_scope_duped(new_id, old_id);
-        let result = func(self);
+    fn in_scope_duped<T>(&mut self, old_id: NodeID, func: impl FnOnce(&mut Self, NodeID) -> T) -> T {
+        let new_id = self.symbol_table.enter_scope_duped(old_id, self.node_builder);
+        let result = func(self, new_id);
         self.symbol_table.enter_parent();
         result
     }
 }
 
 impl AstReconstructor for Duplicator<'_> {
+    type AdditionalInput = ();
     type AdditionalOutput = ();
 
     /* Statements */
@@ -55,9 +56,8 @@ impl AstReconstructor for Duplicator<'_> {
     }
 
     fn reconstruct_block(&mut self, mut input: Block) -> (Block, Self::AdditionalOutput) {
-        let next_id = self.node_builder.next_id();
-        self.in_scope_duped(next_id, input.id(), |slf| {
-            input.id = next_id;
+        self.in_scope_duped(input.id(), |slf, new_id| {
+            input.id = new_id;
             input.statements = input.statements.into_iter().map(|stmt| slf.reconstruct_statement(stmt).0).collect();
             (input, Default::default())
         })
@@ -74,9 +74,8 @@ impl AstReconstructor for Duplicator<'_> {
     }
 
     fn reconstruct_iteration(&mut self, mut input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
-        let next_id = self.node_builder.next_id();
-        self.in_scope_duped(next_id, input.id(), |slf| {
-            input.id = next_id;
+        self.in_scope_duped(input.id(), |slf, new_id| {
+            input.id = new_id;
             input.block = slf.reconstruct_block(input.block).0;
             (input.into(), Default::default())
         })

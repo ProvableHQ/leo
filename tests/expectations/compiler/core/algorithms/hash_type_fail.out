@@ -1,0 +1,10 @@
+Error [ETYC0372117]: Expected a type with a size in bits that is a multiple of 8 but type `bool` was found.
+    --> compiler-test:22:58
+     |
+  22 |         let result: field = Keccak256::hash_to_field_raw(true);
+     |                                                          ^^^^
+Error [ETYC0372117]: Expected an integer of less than 128 bits or a bool but type `u128` was found.
+    --> compiler-test:40:56
+     |
+  40 |         let result: field = Pedersen128::hash_to_field(large_val);
+     |                                                        ^^^^^^^^^

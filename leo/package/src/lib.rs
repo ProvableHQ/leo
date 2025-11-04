@@ -52,13 +52,13 @@
 //! use leo_package::Package;
 //! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030")).unwrap();
 //! ```
-//! This will read the manifest and env file and keep their data in `package.manifest` and `package.env`.
+//! This will read the manifest and keep their data in `package.manifest`.
 //! It will also process dependencies and store them in topological order in `package.programs`. This processing
 //! will involve fetching bytecode from the network for network dependencies.
 //! If the `no_cache` option (3rd parameter) is set to `true`, the package will not use the dependency cache.
 //! The endpoint and network are optional and are only needed if the package has network dependencies.
 //!
-//! If you want to simply read the manifest and env file without processing dependencies, use
+//! If you want to simply read the manifest file without processing dependencies, use
 //! `Package::from_directory_no_graph`.
 //!
 //! `Program` generally doesn't need to be created directly, as `Package` will create `Program`s
@@ -103,8 +103,6 @@ pub const TESTS_DIRECTORY: &str = "tests";
 /// Maximum allowed program size in bytes.
 pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
 
-pub const TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
-
 fn symbol(name: &str) -> Result<Symbol> {
     name.strip_suffix(".aleo").map(Symbol::intern).ok_or_else(|| PackageError::invalid_network_name(name).into())
 }
@@ -145,7 +143,34 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
         return false;
     }
 
+    // Check that the name is not a SnarkVM reserved keyword
+    if reserved_keywords().any(|kw| kw == rest) {
+        tracing::error!(
+            "Aleo names cannot be a SnarkVM reserved keyword. Reserved keywords are: {}.",
+            reserved_keywords().collect::<Vec<_>>().join(", ")
+        );
+        return false;
+    }
+
+    // Check that the name does not contain `aleo`
+    if rest.contains("aleo") {
+        tracing::error!("Aleo names cannot contain the keyword `aleo`.",);
+        return false;
+    }
+
     true
+}
+
+/// Get the list of all reserved and restricted keywords from snarkVM.
+/// These keywords cannot be used as program names.
+/// See: https://github.com/ProvableHQ/snarkVM/blob/046a2964f75576b2c4afbab9aa9eabc43ceb6dc3/synthesizer/program/src/lib.rs#L192
+pub fn reserved_keywords() -> impl Iterator<Item = &'static str> {
+    use snarkvm::prelude::{Program, TestnetV0};
+
+    // Flatten RESTRICTED_KEYWORDS by ignoring ConsensusVersion
+    let restricted = Program::<TestnetV0>::RESTRICTED_KEYWORDS.iter().flat_map(|(_, kws)| kws.iter().copied());
+
+    Program::<TestnetV0>::KEYWORDS.iter().copied().chain(restricted)
 }
 
 // Fetch the given endpoint url and return the sanitized response.

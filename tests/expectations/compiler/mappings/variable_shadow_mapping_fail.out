@@ -1,8 +1,11 @@
-Error [EAST0372009]: variable `m` shadowed by
+Error [EAST0372017]: The name `m` is defined multiple times.
     --> compiler-test:6:13
      |
-   6 |         let m: u8 = 1u8;
-     |             ^
+   3 |       mapping m: u8 => u8;
+     |       ^^^^^^^^^^^^^^^^^^^^ previous definition of `m` here
+   ...
+   6 |           let m: u8 = 1u8;
+     |               ^ `m` redefined here
 Error [ETYC0372117]: Expected type `u8` but type `(u8 => u8)` was found.
     --> compiler-test:7:16
      |

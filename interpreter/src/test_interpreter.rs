@@ -22,7 +22,7 @@ use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, Result};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
-use snarkvm::prelude::{Address, PrivateKey, TestnetV0};
+use snarkvm::prelude::{PrivateKey, TestnetV0};
 
 use indexmap::IndexMap;
 use itertools::Itertools as _;
@@ -34,8 +34,6 @@ use std::{
 use walkdir::WalkDir;
 
 use crate::interpreter::{Interpreter, InterpreterAction};
-
-pub static TEST_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 
 const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
 
@@ -105,18 +103,16 @@ fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<Test
         ledger_config.programs.push(run_with_ledger::Program { bytecode, name });
     }
 
-    let (ledger_handler, ledger_buf) = Handler::new_with_buf();
+    // Note. We wrap the cases in a slice to run them on a single ledger instance.
+    // This is just to be consistent with previous semantics.
+    let outcomes = handler
+        .extend_if_error(run_with_ledger::run_with_ledger(&ledger_config, std::slice::from_ref(&cases)))?
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
 
-    let outcomes = handler.extend_if_error(run_with_ledger::run_with_ledger(
-        &ledger_config,
-        &cases,
-        &ledger_handler,
-        &ledger_buf,
-    ))?;
-
-    let private_key =
-        PrivateKey::<CurrentNetwork>::from_str(TEST_PRIVATE_KEY).expect("Should be able to parse private key.");
-    let address = Address::<CurrentNetwork>::try_from(&private_key).expect("Should be able to create address.");
+    let private_key = PrivateKey::<CurrentNetwork>::from_str(leo_ast::TEST_PRIVATE_KEY)
+        .expect("Should be able to parse private key.");
 
     let tempdir = tempfile::tempdir().expect("tempdir");
     assert_eq!(sources.len(), 1, "For now we only support one program.");
@@ -130,7 +126,7 @@ fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<Test
         .collect();
     let empty: [&PathBuf; 0] = [];
     let mut interpreter =
-        Interpreter::new(&[(paths[0].clone(), Vec::new())], empty, address.into(), 0, NetworkName::TestnetV0)
+        Interpreter::new(&[(paths[0].clone(), Vec::new())], empty, private_key.to_string(), 0, NetworkName::TestnetV0)
             .expect("creating interpreter");
     let interpreter_result = handler.extend_if_error(
         cases
