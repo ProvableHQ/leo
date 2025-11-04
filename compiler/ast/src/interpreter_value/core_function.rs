@@ -20,8 +20,7 @@ use rand::Rng as _;
 use rand_chacha::ChaCha20Rng;
 
 use crate::{
-    CoreFunction,
-    Expression,
+    CoreFunction, Expression,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
 };

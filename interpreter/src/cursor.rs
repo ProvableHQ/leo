@@ -17,30 +17,10 @@
 use super::*;
 
 use leo_ast::{
-    ArrayType,
-    AssertVariant,
-    AsyncExpression,
-    BinaryOperation,
-    Block,
-    CoreConstant,
-    CoreFunction,
-    DefinitionPlace,
-    Expression,
-    Function,
-    NodeID,
-    Statement,
-    StructVariableInitializer,
-    Type,
-    UnaryOperation,
-    Variant,
+    ArrayType, AssertVariant, AsyncExpression, BinaryOperation, Block, CoreConstant, CoreFunction, DefinitionPlace,
+    Expression, Function, NodeID, Statement, StructVariableInitializer, Type, UnaryOperation, Variant,
     interpreter_value::{
-        AsyncExecution,
-        CoreFunctionHelper,
-        GlobalId,
-        Value,
-        evaluate_binary,
-        evaluate_core_function,
-        evaluate_unary,
+        AsyncExecution, CoreFunctionHelper, GlobalId, Value, evaluate_binary, evaluate_core_function, evaluate_unary,
         literal_to_value,
     },
 };
@@ -48,11 +28,7 @@ use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol, sym};
 
 use snarkvm::prelude::{
-    Closure as SvmClosure,
-    Finalize as SvmFinalize,
-    Function as SvmFunctionParam,
-    ProgramID,
-    TestnetV0,
+    Closure as SvmClosure, Finalize as SvmFinalize, Function as SvmFunctionParam, ProgramID, TestnetV0,
 };
 
 use indexmap::IndexMap;

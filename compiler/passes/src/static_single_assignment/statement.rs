@@ -18,24 +18,9 @@ use super::SsaFormingVisitor;
 use crate::RenameTable;
 
 use leo_ast::{
-    AssertStatement,
-    AssertVariant,
-    AssignStatement,
-    Block,
-    ConditionalStatement,
-    ConstDeclaration,
-    DefinitionPlace,
-    DefinitionStatement,
-    Expression,
-    ExpressionConsumer,
-    ExpressionStatement,
-    Identifier,
-    IterationStatement,
-    Node,
-    ReturnStatement,
-    Statement,
-    StatementConsumer,
-    TernaryExpression,
+    AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConstDeclaration, DefinitionPlace,
+    DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier, IterationStatement, Node,
+    ReturnStatement, Statement, StatementConsumer, TernaryExpression,
 };
 use leo_span::Symbol;
 

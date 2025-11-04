@@ -1042,12 +1042,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ))
         } else if func.variant == Variant::AsyncTransition {
             // Fully infer future type.
-            let Some(inputs) =
-                self.async_function_input_types.get(&Location::new(callee_program, vec![Symbol::intern(&format!(
-                    "finalize/{}",
-                    input.function.identifier().name
-                ))]))
-            else {
+            let Some(inputs) = self.async_function_input_types.get(&Location::new(
+                callee_program,
+                vec![Symbol::intern(&format!("finalize/{}", input.function.identifier().name))],
+            )) else {
                 self.emit_err(TypeCheckerError::async_function_not_found(input.function.clone(), input.span));
                 return Type::Future(FutureType::new(
                     Vec::new(),

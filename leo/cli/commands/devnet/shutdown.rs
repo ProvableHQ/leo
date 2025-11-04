@@ -50,12 +50,7 @@ mod windows {
     use super::*;
     use once_cell::sync::OnceCell;
     use windows_sys::Win32::System::Console::{
-        CTRL_BREAK_EVENT,
-        CTRL_C_EVENT,
-        CTRL_CLOSE_EVENT,
-        CTRL_LOGOFF_EVENT,
-        CTRL_SHUTDOWN_EVENT,
-        SetConsoleCtrlHandler,
+        CTRL_BREAK_EVENT, CTRL_C_EVENT, CTRL_CLOSE_EVENT, CTRL_LOGOFF_EVENT, CTRL_SHUTDOWN_EVENT, SetConsoleCtrlHandler,
     };
 
     // Lock-free global slot for the sender so the console handler can notify.

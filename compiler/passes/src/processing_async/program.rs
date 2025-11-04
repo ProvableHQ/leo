@@ -16,15 +16,7 @@
 
 use super::ProcessingAsyncVisitor;
 use leo_ast::{
-    AstReconstructor,
-    ConstParameter,
-    Function,
-    Input,
-    Node,
-    Output,
-    ProgramReconstructor,
-    ProgramScope,
-    Statement,
+    AstReconstructor, ConstParameter, Function, Input, Node, Output, ProgramReconstructor, ProgramScope, Statement,
 };
 
 impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {

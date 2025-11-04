@@ -17,22 +17,8 @@
 use crate::CompilerState;
 
 use leo_ast::{
-    ArrayAccess,
-    AssignStatement,
-    AstVisitor,
-    DefinitionPlace,
-    DefinitionStatement,
-    Expression,
-    Identifier,
-    IntegerType,
-    Literal,
-    Location,
-    MemberAccess,
-    Node as _,
-    Path,
-    Program,
-    Statement,
-    Type,
+    ArrayAccess, AssignStatement, AstVisitor, DefinitionPlace, DefinitionStatement, Expression, Identifier,
+    IntegerType, Literal, Location, MemberAccess, Node as _, Path, Program, Statement, Type,
 };
 use leo_span::Symbol;
 

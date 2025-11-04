@@ -15,14 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    Ast,
-    CallExpression,
-    ExpressionStatement,
-    NetworkName,
-    Node as _,
-    NodeBuilder,
-    Path,
-    Statement,
+    Ast, CallExpression, ExpressionStatement, NetworkName, Node as _, NodeBuilder, Path, Statement,
     interpreter_value::{GlobalId, Value},
 };
 use leo_errors::{InterpreterHalt, LeoError, Result};

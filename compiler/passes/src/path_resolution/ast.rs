@@ -16,15 +16,8 @@
 
 use super::PathResolutionVisitor;
 use leo_ast::{
-    AstReconstructor,
-    CallExpression,
-    CompositeType,
-    ErrExpression,
-    Expression,
-    Path,
-    StructExpression,
-    StructVariableInitializer,
-    Type,
+    AstReconstructor, CallExpression, CompositeType, ErrExpression, Expression, Path, StructExpression,
+    StructVariableInitializer, Type,
 };
 
 impl AstReconstructor for PathResolutionVisitor<'_> {

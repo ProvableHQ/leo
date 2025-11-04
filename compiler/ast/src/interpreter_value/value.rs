@@ -24,26 +24,11 @@ use std::{
 use itertools::Itertools as _;
 
 use snarkvm::prelude::{
-    Access,
-    Address as SvmAddress,
-    Argument,
-    Boolean as SvmBoolean,
-    Entry,
-    Field as SvmField,
-    Future as FutureParam,
-    Group as SvmGroup,
-    LiteralType,
-    Owner,
-    ProgramID as ProgramIDParam,
-    Record,
-    Scalar as SvmScalar,
+    Access, Address as SvmAddress, Argument, Boolean as SvmBoolean, Entry, Field as SvmField, Future as FutureParam,
+    Group as SvmGroup, LiteralType, Owner, ProgramID as ProgramIDParam, Record, Scalar as SvmScalar,
 };
 pub(crate) use snarkvm::prelude::{
-    Identifier as SvmIdentifierParam,
-    Literal as SvmLiteralParam,
-    Plaintext,
-    TestnetV0,
-    Value as SvmValueParam,
+    Identifier as SvmIdentifierParam, Literal as SvmLiteralParam, Plaintext, TestnetV0, Value as SvmValueParam,
 };
 
 use leo_errors::Result;

@@ -18,17 +18,8 @@ use super::MonomorphizationVisitor;
 use crate::{ConstPropagationVisitor, Replacer};
 
 use leo_ast::{
-    AstReconstructor,
-    CallExpression,
-    CompositeType,
-    Expression,
-    Identifier,
-    Node as _,
-    ProgramReconstructor,
-    StructExpression,
-    StructVariableInitializer,
-    Type,
-    Variant,
+    AstReconstructor, CallExpression, CompositeType, Expression, Identifier, Node as _, ProgramReconstructor,
+    StructExpression, StructVariableInitializer, Type, Variant,
 };
 
 use indexmap::IndexMap;

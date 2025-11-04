@@ -18,25 +18,8 @@ use super::ProcessingAsyncVisitor;
 use crate::{CompilerState, Replacer};
 use indexmap::{IndexMap, IndexSet};
 use leo_ast::{
-    AstReconstructor,
-    AstVisitor,
-    AsyncExpression,
-    Block,
-    CallExpression,
-    Expression,
-    Function,
-    Identifier,
-    Input,
-    IterationStatement,
-    Location,
-    Node,
-    Path,
-    ProgramVisitor,
-    Statement,
-    TupleAccess,
-    TupleExpression,
-    TupleType,
-    Type,
+    AstReconstructor, AstVisitor, AsyncExpression, Block, CallExpression, Expression, Function, Identifier, Input,
+    IterationStatement, Location, Node, Path, ProgramVisitor, Statement, TupleAccess, TupleExpression, TupleType, Type,
     Variant,
 };
 use leo_span::{Span, Symbol};

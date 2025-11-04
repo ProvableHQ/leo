@@ -33,11 +33,7 @@ use snarkvm::circuit::{AleoCanaryV0, AleoV0};
 use snarkvm::{
     circuit::{Aleo, AleoTestnetV0},
     prelude::{
-        ConsensusVersion,
-        Fee,
-        Identifier,
-        ProgramID,
-        VM,
+        ConsensusVersion, Fee, Identifier, ProgramID, VM,
         query::{Query as SnarkVMQuery, QueryTrait},
         store::{
             ConsensusStore,

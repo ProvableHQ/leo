@@ -17,29 +17,10 @@
 use super::SsaFormingVisitor;
 
 use leo_ast::{
-    ArrayAccess,
-    ArrayExpression,
-    AssociatedFunctionExpression,
-    BinaryExpression,
-    CallExpression,
-    CastExpression,
-    Composite,
-    Expression,
-    ExpressionConsumer,
-    Literal,
-    Location,
-    LocatorExpression,
-    MemberAccess,
-    Path,
-    RepeatExpression,
-    Statement,
-    StructExpression,
-    StructVariableInitializer,
-    TernaryExpression,
-    TupleAccess,
-    TupleExpression,
-    UnaryExpression,
-    UnitExpression,
+    ArrayAccess, ArrayExpression, AssociatedFunctionExpression, BinaryExpression, CallExpression, CastExpression,
+    Composite, Expression, ExpressionConsumer, Literal, Location, LocatorExpression, MemberAccess, Path,
+    RepeatExpression, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess,
+    TupleExpression, UnaryExpression, UnitExpression,
 };
 use leo_span::{Symbol, sym};
 

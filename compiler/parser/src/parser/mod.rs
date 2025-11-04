@@ -24,8 +24,7 @@ use crate::{Token, tokenizer::*};
 use leo_ast::*;
 use leo_errors::{Handler, ParserError, Result};
 use leo_span::{
-    Span,
-    Symbol,
+    Span, Symbol,
     source_map::{FileName, SourceFile},
 };
 

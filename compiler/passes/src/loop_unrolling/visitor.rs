@@ -15,15 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    AstReconstructor,
-    Block,
-    IterationStatement,
-    Literal,
-    Node,
-    NodeID,
-    Statement,
-    Type,
-    interpreter_value::Value,
+    AstReconstructor, Block, IterationStatement, Literal, Node, NodeID, Statement, Type, interpreter_value::Value,
 };
 use leo_errors::LoopUnrollerError;
 use leo_span::{Span, Symbol};
