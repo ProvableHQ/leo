@@ -23,6 +23,7 @@ use anyhow::{Context, anyhow};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::str::FromStr;
+use std::sync::atomic::Ordering;
 
 #[cfg(not(feature = "serial"))]
 use rayon::prelude::*;
@@ -503,6 +504,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
     // ///                          200       422      203       503
     pub(crate) async fn transaction_broadcast(
         State(rest): State<Self>,
+        check_transaction: Query<CheckTransaction>,
         json_result: Result<Json<Transaction<N>>, JsonRejection>,
     ) -> Result<impl axum::response::IntoResponse, RestError> {
         let Json(tx) = match json_result {
@@ -523,58 +525,50 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         }
 
         // // Determine if we need to check the transaction.
-        // let check_transaction = check_transaction.check_transaction.unwrap_or(false);
+        let check_transaction = check_transaction.check_transaction.unwrap_or(false);
 
-        // if check_transaction {
-        //     // Select counter and limit based on transaction type.
-        //     let (counter, limit, err_msg) = if tx.is_execute() {
-        //         (
-        //             &rest.num_verifying_executions,
-        //             VM::<N, C>::MAX_PARALLEL_EXECUTE_VERIFICATIONS,
-        //             "Too many execution verifications in progress",
-        //         )
-        //     } else {
-        //         (
-        //             &rest.num_verifying_deploys,
-        //             VM::<N, C>::MAX_PARALLEL_DEPLOY_VERIFICATIONS,
-        //             "Too many deploy verifications in progress",
-        //         )
-        //     };
+        if check_transaction {
+            // Select counter and limit based on transaction type.
+            let (counter, limit, err_msg) = if tx.is_execute() {
+                (
+                    &rest.num_verifying_executions,
+                    VM::<N, C>::MAX_PARALLEL_EXECUTE_VERIFICATIONS,
+                    "Too many execution verifications in progress",
+                )
+            } else {
+                (
+                    &rest.num_verifying_deploys,
+                    VM::<N, C>::MAX_PARALLEL_DEPLOY_VERIFICATIONS,
+                    "Too many deploy verifications in progress",
+                )
+            };
+        
 
-        //     // Try to acquire a slot.
-        //     if counter
-        //         .fetch_update(
-        //             Ordering::Relaxed,
-        //             Ordering::Relaxed,
-        //             |val| {
-        //                 if val < limit { Some(val + 1) } else { None }
-        //             },
-        //         )
-        //         .is_err()
-        //     {
-        //         return Err(RestError::too_many_requests(anyhow!("{err_msg}")));
-        //     }
+            // Try to acquire a slot.
+            if counter
+                .fetch_update(
+                    Ordering::Relaxed,
+                    Ordering::Relaxed,
+                    |val| {
+                        if val < limit { Some(val + 1) } else { None }
+                    },
+                )
+                .is_err()
+            {
+                return Err(RestError::too_many_requests(anyhow!("{err_msg}")));
+            }
+        
 
-        //     // Perform the check.
-        //     // let res = rest.ledger.check_transaction_basic(&tx, None, &mut rand::thread_rng()).map_err(|err| {
-        //     //     match is_within_sync_leniency {
-        //     //         // The transaction failed to verify.
-        //     //         true => RestError::unprocessable_entity(err.context("Invalid transaction")),
-        //     //         // The node is out of sync and may not be able to properly validate the transaction.
-        //     //         false => {
-        //     //             RestError::service_unavailable(err.context("Unable to validate transaction (node is syncing)"))
-        //     //         }
-        //     //     }
-        //     // });
-        //     let res = rest.ledger.check_transaction_basic(&tx, None, &mut rand::thread_rng()).map_err(|err| {
-        //         RestError::unprocessable_entity(err.context("Invalid transaction"))
-        //     });
+            // Perform the check.
+            let res = rest.ledger.check_transaction_basic(&tx, None, &mut rand::thread_rng()).map_err(|err| {
+                RestError::unprocessable_entity(err.context("Invalid transaction"))
+            });
 
-        //     // Release the slot.
-        //     counter.fetch_sub(1, Ordering::Relaxed);
-        //     // Propagate error if any.
-        //     res?;
-
+            // Release the slot.
+            counter.fetch_sub(1, Ordering::Relaxed);
+            // Propagate error if any.
+            res?;
+        }
         // Create a block with the transaction if the BLOCK_CREATE feauture is not disabled.
         let block_boolean = std::env::var("BLOCK_CREATE").unwrap_or_else(|_| "true".to_string());
         if block_boolean == "true" {
@@ -630,55 +624,16 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         Ok(ErasedJson::pretty(()))
     }
 
-    /// POST /{network}/block/create
-    // pub(crate) async fn create_block(State(rest): State<Self>, Json(req): Json<CreateBlockRequest>) -> Result<ErasedJson, RestError> {
-    //     // Extract the unconfirmed transactions from the buffer.
-    //     let unconfirmed_txs = {
-    //         let mut buffer = rest.buffer.lock();
-    //         let txs = buffer.drain(..).collect::<Vec<_>>();
-    //         txs
-    //     };
-    //     // Parse the private key.
-    //     let private_key = PrivateKey::<N>::from_str(&req.private_key)?;
-
-    //     // Create a block.
-    //     let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
-    //         &private_key,
-    //         vec![],
-    //         vec![],
-    //         unconfirmed_txs,
-    //         &mut rand::thread_rng(),
-    //     )?;
-
-    //     // Advance to the next block.
-    //     rest.ledger.advance_to_next_block(&new_block)?;
-
-    //     if let Some(num_blocks) = req.num_blocks {
-    //         for _ in 1..num_blocks {
-    //             let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
-    //                 &private_key,
-    //                 vec![],
-    //                 vec![],
-    //                 vec![],
-    //                 &mut rand::thread_rng(),
-    //             )?;
-
-    //             // Advance to the next block.
-    //             rest.ledger.advance_to_next_block(&new_block)?;
-    //         }
-    //     }
-
-    //     Ok(ErasedJson::pretty(new_block))
-    // }
-pub(crate) async fn create_block(
-    State(rest): State<Self>, 
-    Json(req): Json<CreateBlockRequest>
-) -> Result<ErasedJson, RestError> {
-    let num_blocks = req.num_blocks.unwrap_or(1);
+    /// POST /{network}/create_block
+    pub(crate) async fn create_block(
+        State(rest): State<Self>, 
+        Json(req): Json<CreateBlockRequest>
+    ) -> Result<ErasedJson, RestError> {
+        let num_blocks = req.num_blocks.unwrap_or(1);
     
-    let last_block = tokio::task::spawn_blocking(move || -> Result<ErasedJson, RestError> {
-        let private_key = PrivateKey::<N>::from_str(&req.private_key)
-            .map_err(|e| RestError::bad_request(anyhow!("Invalid private key: {}", e)))?;
+        let last_block = tokio::task::spawn_blocking(move || -> Result<ErasedJson, RestError> {
+            let private_key = PrivateKey::<N>::from_str(&req.private_key)
+                .map_err(|e| RestError::bad_request(anyhow!("Invalid private key: {}", e)))?;
         
         let mut last_block = None;
         
@@ -700,9 +655,8 @@ pub(crate) async fn create_block(
             last_block = Some(new_block);
         }
         
-        Ok(ErasedJson::pretty(last_block.unwrap()))
-    }).await
-    .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
+        Ok(ErasedJson::pretty(last_block.unwrap()))}).await
+            .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
     
     Ok(last_block)
 }
