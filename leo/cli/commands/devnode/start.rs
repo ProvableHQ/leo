@@ -58,8 +58,9 @@ pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
     let socket_addr: SocketAddr = "127.0.0.1:3030".parse()?;
     let rps = 999999999;
     // Load the genesis block
-    let buffer = std::fs::read("./leo/cli/commands/devnode/rest/victor_genesis.txt")?;
-    let genesis_block: Block<TestnetV0> = Block::from_bytes_le(&buffer)?;
+    // let buffer = std::fs::read("./leo/cli/commands/devnode/rest/victor_genesis.txt")?;
+    const GENESIS_BYTES: &[u8] = include_bytes!("./rest/victor_genesis.txt");
+    let genesis_block: Block<TestnetV0> = Block::from_bytes_le(GENESIS_BYTES)?;
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
     // Initialize the ledger.

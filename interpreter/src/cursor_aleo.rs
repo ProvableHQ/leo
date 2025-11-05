@@ -146,12 +146,13 @@ impl Cursor {
                 } else {
                     self.signer.clone()
                 }
-            }
+            },
             Operand::BlockHeight => self.block_height.into(),
             Operand::NetworkID => todo!(),
             Operand::Checksum(_) => todo!(),
             Operand::Edition(_) => todo!(),
             Operand::ProgramOwner(_) => todo!(),
+            &Operand::BlockTimestamp => todo!(),
         }
     }
 
