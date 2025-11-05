@@ -81,11 +81,6 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_return(&mut self, input: &ReturnStatement) -> String {
-        if let Expression::Unit(..) = input.expression {
-            // Skip empty return statements.
-            return String::new();
-        }
-
         let mut instructions = String::new();
         let mut operands = IndexSet::with_capacity(self.current_function.unwrap().output.len());
 
@@ -139,6 +134,8 @@ impl CodeGeneratingVisitor<'_> {
                     self.current_function.unwrap().identifier,
                 )
                 .unwrap();
+            } else if output.type_.is_empty() {
+                // do nothing
             } else {
                 writeln!(
                     &mut instructions,

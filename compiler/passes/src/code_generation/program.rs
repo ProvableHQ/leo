@@ -159,6 +159,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
+            if var.type_.is_empty() {
+                continue;
+            }
             writeln!(output_string, "    {} as {};", var.identifier, Self::visit_type(&var.type_),).expect(EXPECT_STR);
         }
 
@@ -184,6 +187,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         // Construct and append the record variables.
         for var in members.iter() {
+            if var.type_.is_empty() {
+                continue;
+            }
             let mode = match var.mode {
                 Mode::Constant => "constant",
                 Mode::Public => "public",
@@ -230,6 +236,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         // Construct and append the input declarations of the function.
         for input in function.input.iter() {
+            // skip empty types
+            if input.type_.is_empty() {
+                continue;
+            }
             let register_string = self.next_register();
 
             // Track all internal record inputs.

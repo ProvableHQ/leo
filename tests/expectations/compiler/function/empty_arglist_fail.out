@@ -7,6 +7,15 @@ Error [ETYC0372113]: Cannot define a function with no parameters.
      |         ^^^^^^^^^^^
    5 |     }
      |     ^
+Error [ETYC0372170]: Cannot define a function with only empty parameters.
+    --> compiler-test:6:5
+     |
+   6 |     function y(a: [u8;0]) -> [u8;0] {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   7 |         return a;
+     |         ^^^^^^^^^
+   8 |     }
+     |     ^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

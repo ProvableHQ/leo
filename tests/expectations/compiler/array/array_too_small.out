@@ -1,0 +1,4 @@
+program test.aleo;
+
+function foo:
+    output true as boolean.private;

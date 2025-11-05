@@ -1,0 +1,34 @@
+Error [ETYC0372166]: A zero sized type is an invalid storage type
+    --> compiler-test:3:5
+     |
+   3 |     storage empty_array: [u8;0];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: array is an invalid storage type
+    --> compiler-test:3:5
+     |
+   3 |     storage empty_array: [u8;0];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: A zero sized type is an invalid storage type
+    --> compiler-test:4:5
+     |
+   4 |     storage vector_of_empty_array: [[u8; 0]];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: array is an invalid storage type
+    --> compiler-test:4:5
+     |
+   4 |     storage vector_of_empty_array: [[u8; 0]];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372000]: Invalid assignment target: vector_of_empty_array.
+    --> compiler-test:14:9
+     |
+  14 |         vector_of_empty_array = [];
+     |         ^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
+Error [ETYC0372004]: Could not determine the type of `[]`
+    --> compiler-test:14:33
+     |
+  14 |         vector_of_empty_array = [];
+     |                                 ^^
+     |
+     = Consider using explicit type annotations.

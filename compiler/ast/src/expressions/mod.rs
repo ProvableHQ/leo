@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, Node, NodeBuilder, NodeID, Path, Type};
+use crate::{CoreFunction, Identifier, IntegerType, Node, NodeBuilder, NodeID, Path, Type};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -332,6 +332,51 @@ impl Expression {
 
     pub fn is_none_expr(&self) -> bool {
         matches!(self, Expression::Literal(Literal { variant: LiteralVariant::None, .. }))
+    }
+
+    /// Returns true if we can confidently say evaluating this expression has no side effects, false otherwise
+    pub fn is_pure(&self) -> bool {
+        match self {
+            // Discriminate core functions
+            Expression::AssociatedFunction(ass_fun_expr) => {
+                if let Ok(core_fn) = CoreFunction::try_from(ass_fun_expr) {
+                    core_fn.is_pure()
+                } else {
+                    false
+                }
+            }
+
+            // We may be indirectly referring to an impure item
+            // This analysis could be more granular
+            Expression::Call(..) => false,
+
+            // Always pure
+            Expression::Err(..)
+            // async blocks return a future and have no side effects in the proof context
+            // that evaluates them as an expression
+            | Expression::Async(..)
+            | Expression::Locator(..)
+            | Expression::AssociatedConstant(..)
+            | Expression::Literal(..)
+            | Expression::Path(..)
+            | Expression::Unit(..) => true,
+
+            // Recurse
+            Expression::ArrayAccess(expr) => expr.array.is_pure() && expr.index.is_pure(),
+            Expression::Array(expr) => expr.elements.iter().all(|e| e.is_pure()),
+            Expression::Binary(expr) => expr.left.is_pure() && expr.right.is_pure(),
+            Expression::Cast(expr) => expr.expression.is_pure(),
+            Expression::MemberAccess(expr) => expr.inner.is_pure(),
+            Expression::Repeat(expr) => expr.expr.is_pure() && expr.count.is_pure(),
+            Expression::Struct(expr) => {
+                expr.const_arguments.iter().all(|e| e.is_pure())
+                    && expr.members.iter().all(|init| init.expression.as_ref().is_none_or(|e| e.is_pure()))
+            }
+            Expression::Ternary(expr) => expr.condition.is_pure() && expr.if_true.is_pure() && expr.if_false.is_pure(),
+            Expression::Tuple(expr) => expr.elements.iter().all(|e| e.is_pure()),
+            Expression::TupleAccess(expr) => expr.tuple.is_pure(),
+            Expression::Unary(expr) => expr.receiver.is_pure(),
+        }
     }
 
     /// Returns the *zero value expression* for a given type, if one exists.

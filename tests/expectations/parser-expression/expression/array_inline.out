@@ -1,13 +1,25 @@
-Error [EPAR0370034]: An array expression must have at least one element.
-    --> test_0:1:1
-     |
-   1 | []
-     | ^^
-Error [EPAR0370034]: An array expression must have at least one element.
-    --> test_1:1:1
-     |
-   1 | [,]
-     | ^^^
+{
+  "Array": {
+    "elements": [],
+    "span": {
+      "lo": 0,
+      "hi": 2
+    },
+    "id": 0
+  }
+}
+
+{
+  "Array": {
+    "elements": [],
+    "span": {
+      "lo": 3,
+      "hi": 6
+    },
+    "id": 0
+  }
+}
+
 Error [EPAR0370005]: expected ']' -- found ','
     --> test_2:1:3
      |

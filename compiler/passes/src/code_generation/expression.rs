@@ -60,6 +60,14 @@ use std::{borrow::Borrow, fmt::Write as _};
 /// Implement the necessary methods to visit nodes in the AST.
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_expression(&mut self, input: &Expression) -> (String, String) {
+        let is_empty_type = self.state.type_table.get(&input.id()).map(|ty| ty.is_empty()).unwrap_or(false);
+        let is_pure = input.is_pure();
+
+        if is_empty_type && is_pure {
+            // ignore expresssion
+            return (String::new(), String::new());
+        }
+
         match input {
             Expression::Array(expr) => self.visit_array(expr),
             Expression::ArrayAccess(expr) => self.visit_array_access(expr),
@@ -211,6 +219,7 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_array(&mut self, input: &ArrayExpression) -> (String, String) {
         let mut expression_operands = String::new();
         let mut instructions = String::new();
+
         for (operand, operand_instructions) in input.elements.iter().map(|expr| self.visit_expression(expr)) {
             let space = if expression_operands.is_empty() { "" } else { " " };
             write!(&mut expression_operands, "{space}{operand}").unwrap();
@@ -689,7 +698,7 @@ impl CodeGeneratingVisitor<'_> {
 
         // Create operands for the output registers.
         match func_symbol.function.output_type.clone() {
-            Type::Unit => {} // Do nothing
+            t if t.is_empty() => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => panic!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
@@ -751,6 +760,9 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     pub fn clone_register(&mut self, register: &str, typ: &Type) -> (String, String) {
+        if typ.is_empty() {
+            return (String::new(), String::new());
+        }
         let new_reg = self.next_register();
         match typ {
             Type::Address
