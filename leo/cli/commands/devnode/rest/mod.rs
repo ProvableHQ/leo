@@ -165,7 +165,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             // GET ../program/..
             .route("/program/{id}", get(Self::get_program))
             .route("/program/{id}/latest_edition", get(Self::get_latest_program_edition))
-            // .route("/program/{id}/{edition}", get(Self::get_program_for_edition))
+            .route("/program/{id}/{edition}", get(Self::get_program_for_edition))
             .route("/program/{id}/mappings", get(Self::get_mapping_names))
             .route("/program/{id}/mapping/{name}/{key}", get(Self::get_mapping_value))
 

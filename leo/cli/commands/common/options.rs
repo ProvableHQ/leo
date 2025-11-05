@@ -315,6 +315,7 @@ pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
         9 => ConsensusVersion::V9,
         10 => ConsensusVersion::V10,
         11 => ConsensusVersion::V11,
+        12 => ConsensusVersion::V12,
         _ => panic!("Invalid consensus version: {index}"),
     }
 }

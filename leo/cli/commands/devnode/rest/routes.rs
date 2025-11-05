@@ -248,30 +248,30 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         Ok(ErasedJson::pretty(program))
     }
 
-    // /// GET /<network>/program/{programID}/{edition}
-    // /// GET /<network>/program/{programID}/{edition}?metadata={true}
-    // pub(crate) async fn get_program_for_edition(
-    //     State(rest): State<Self>,
-    //     Path((id, edition)): Path<(ProgramID<N>, u16)>,
-    //     metadata: Query<Metadata>,
-    // ) -> Result<ErasedJson, RestError> {
-    //     // Get the program from the ledger.
-    //     match rest
-    //         .ledger
-    //         .get_program_for_edition(id, edition)
-    //         .with_context(|| format!("Failed get program `{id}` for edition {edition}"))?
-    //     {
-    //         Some(program) => {
-    //             // Check if metadata is requested and return the program with metadata if so.
-    //             if metadata.metadata.unwrap_or(false) {
-    //                 rest.return_program_with_metadata(program, edition)
-    //             } else {
-    //                 Ok(ErasedJson::pretty(program))
-    //             }
-    //         }
-    //         None => Err(RestError::not_found(anyhow!("No program `{id}` exists for edition {edition}"))),
-    //     }
-    // }
+    /// GET /<network>/program/{programID}/{edition}
+    /// GET /<network>/program/{programID}/{edition}?metadata={true}
+    pub(crate) async fn get_program_for_edition(
+        State(rest): State<Self>,
+        Path((id, edition)): Path<(ProgramID<N>, u16)>,
+        metadata: Query<Metadata>,
+    ) -> Result<ErasedJson, RestError> {
+        // Get the program from the ledger.
+        match rest
+            .ledger
+            .try_get_program_for_edition(&id, edition)
+            .with_context(|| format!("Failed get program `{id}` for edition {edition}"))?
+        {
+            Some(program) => {
+                // Check if metadata is requested and return the program with metadata if so.
+                if metadata.metadata.unwrap_or(false) {
+                    rest.return_program_with_metadata(program, edition)
+                } else {
+                    Ok(ErasedJson::pretty(program))
+                }
+            }
+            None => Err(RestError::not_found(anyhow!("No program `{id}` exists for edition {edition}"))),
+        }
+    }
 
     /// A helper function to return the program and its metadata.
     /// This function is used in the `get_program` and `get_program_for_edition` functions.

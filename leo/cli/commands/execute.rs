@@ -345,19 +345,8 @@ fn handle_execute<A: Aleo>(
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
-    // Execute the program and produce a transaction.
-    println!("\n⚙️ Executing {program_name}/{function_name}...");
-    let (transaction, response) = vm.execute_with_response(
-        &private_key,
-        (&program_name, &function_name),
-        inputs.iter(),
-        record.clone(),
-        priority_fee.unwrap_or(0),
-        Some(&query),
-        rng,
-    )?;
 
-     let (output_name, output, response) = if command.skip_proving {
+    let (output_name, output, response) = if command.skip_proving {
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
 
         // Generate the authorization.
@@ -429,9 +418,9 @@ fn handle_execute<A: Aleo>(
     // If the `print` option is set, print the execution transaction to the console.
     // The transaction is printed in JSON format.
     if command.action.print {
-        let transaction_json = serde_json::to_string_pretty(&transaction)
+        let transaction_json = serde_json::to_string_pretty(&output)
             .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
-        println!("🖨️ Printing execution for {program_name}\n{transaction_json}");
+        println!("🖨️ Printing execution for {output_name}\n{transaction_json}");
     }
 
     // If the `save` option is set, save the execution transaction to a file in the specified directory.
@@ -441,9 +430,9 @@ fn handle_execute<A: Aleo>(
         // Create the directory if it doesn't exist.
         std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
         // Save the transaction to a file.
-        let file_path = PathBuf::from(path).join(format!("{program_name}.execution.json"));
-        println!("💾 Saving execution for {program_name} at {}", file_path.display());
-        let transaction_json = serde_json::to_string_pretty(&transaction)
+        let file_path = PathBuf::from(path).join(format!("{output_name}.execution.json"));
+        println!("💾 Saving execution for {output_name} at {}", file_path.display());
+        let transaction_json = serde_json::to_string_pretty(&output)
             .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
         std::fs::write(file_path, transaction_json)
             .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
@@ -462,6 +451,7 @@ fn handle_execute<A: Aleo>(
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
         println!("📡 Broadcasting execution for {program_name}...");
+        let transaction = output;
         // Get and confirm the fee with the user.
         let mut fee_id = None;
         if let Some(fee) = transaction.fee_transition() {
