@@ -21,7 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Execution, Itertools, Network, Program, execution_cost};
+use snarkvm::prelude::{Execution, Fee, Itertools, Network, Program, execution_cost};
 
 use clap::Parser;
 use colored::*;
@@ -37,6 +37,7 @@ use snarkvm::{
         ProgramID,
         VM,
         query::Query as SnarkVMQuery,
+        query::QueryTrait,
         store::{
             ConsensusStore,
             helpers::memory::{BlockMemory, ConsensusMemory},
@@ -58,6 +59,8 @@ pub struct LeoExecute {
         help = "The program inputs e.g. `1u32`, `record1...` (record ciphertext), or `{ owner: ...}` "
     )]
     inputs: Vec<String>,
+    #[clap(long, help = "Skips proving.")]
+    pub(crate) skip_proving: bool,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
     #[clap(flatten)]
@@ -269,7 +272,7 @@ fn handle_execute<A: Aleo>(
         command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
 
     // Get the first fee option.
-    let (_, priority_fee, record) =
+    let (base_fee, priority_fee, record) =
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
@@ -290,6 +293,7 @@ fn handle_execute<A: Aleo>(
         &command.action,
         consensus_version,
         &check_task_for_warnings(&endpoint, network, &programs, consensus_version),
+        command.skip_proving,
     );
 
     // Prompt the user to confirm the plan.
@@ -347,20 +351,79 @@ fn handle_execute<A: Aleo>(
         &private_key,
         (&program_name, &function_name),
         inputs.iter(),
-        record,
+        record.clone(),
         priority_fee.unwrap_or(0),
         Some(&query),
         rng,
     )?;
 
-    // Print the execution stats.
-    print_execution_stats::<A::Network>(
-        &vm,
-        &program_name,
-        transaction.execution().expect("Expected execution"),
-        priority_fee,
-        consensus_version,
-    )?;
+     let (output_name, output, response) = if command.skip_proving {
+        println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
+
+        // Generate the authorization.
+        let authorization =
+            vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
+
+        // Get the state root.
+        let state_root = query.current_state_root()?;
+
+        // Create an execution without the proof.
+        let execution = Execution::from(authorization.transitions().values().cloned(), state_root, None)?;
+
+        // Calculate the cost.
+        let (cost, _) = execution_cost(&vm.process().read(), &execution, consensus_version)?;
+
+        // Generate the fee authorization.
+        let id = authorization.to_execution_id()?;
+        let fee_authorization = match record {
+            None => {
+                vm.authorize_fee_public(&private_key, base_fee.unwrap_or(cost), priority_fee.unwrap_or(0), id, rng)?
+            }
+            Some(record) => vm.authorize_fee_private(
+                &private_key,
+                record,
+                base_fee.unwrap_or(cost),
+                priority_fee.unwrap_or(0),
+                id,
+                rng,
+            )?,
+        };
+
+        // Create a fee transition without a proof.
+        let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
+
+        // Create the transaction.
+        let transaction = Transaction::from_execution(execution, Some(fee))?;
+
+        // Evaluate the transaction to get the response.
+        let response = vm.process().read().evaluate::<A>(authorization)?;
+
+        ("transaction", Box::new(transaction), response)
+    } else {
+        println!("\n⚙️ Generating transaction for {program_name}/{function_name}...");
+
+        // Generate the transaction and get the response.
+        let (transaction, response) = vm.execute_with_response(
+            &private_key,
+            (&program_name, &function_name),
+            inputs.iter(),
+            record,
+            priority_fee.unwrap_or(0),
+            Some(&query),
+            rng,
+        )?;
+
+        // Print the execution stats.
+        print_execution_stats::<A::Network>(
+            &vm,
+            &program_name,
+            transaction.execution().expect("Expected execution"),
+            priority_fee,
+            consensus_version,
+        )?;
+
+        ("execution", Box::new(transaction), response)
+    };
 
     // Print the transaction.
     // If the `print` option is set, print the execution transaction to the console.
@@ -501,6 +564,7 @@ fn print_execution_plan<N: Network>(
     action: &TransactionAction,
     consensus_version: ConsensusVersion,
     warnings: &[String],
+    skip_proving: bool,
 ) {
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
@@ -524,6 +588,9 @@ fn print_execution_plan<N: Network>(
     println!("\n{}", "⚙️ Actions:".bold());
     if !is_local {
         println!("  - Program and its dependencies will be downloaded from the network.");
+    }
+    if skip_proving {
+        println!("  - A transaction will be generated, WITHOUT a proof.");
     }
     if action.print {
         println!("  - Transaction will be printed to the console.");

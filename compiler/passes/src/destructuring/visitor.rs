@@ -17,8 +17,16 @@
 use crate::CompilerState;
 
 use leo_ast::{
-    AstReconstructor, DefinitionPlace, DefinitionStatement, Expression, Identifier, Node as _, Path, Statement,
-    TupleExpression, Type,
+    AstReconstructor,
+    DefinitionPlace,
+    DefinitionStatement,
+    Expression,
+    Identifier,
+    Node as _,
+    Path,
+    Statement,
+    TupleExpression,
+    Type,
 };
 use leo_span::Symbol;
 

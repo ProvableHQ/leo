@@ -17,7 +17,14 @@
 use super::{FlatteningVisitor, ReturnGuard};
 
 use leo_ast::{
-    AstReconstructor, Constructor, Expression, Function, ProgramReconstructor, ProgramScope, ReturnStatement, Statement,
+    AstReconstructor,
+    Constructor,
+    Expression,
+    Function,
+    ProgramReconstructor,
+    ProgramScope,
+    ReturnStatement,
+    Statement,
 };
 
 impl ProgramReconstructor for FlatteningVisitor<'_> {

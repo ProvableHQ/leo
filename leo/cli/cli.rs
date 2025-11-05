@@ -158,13 +158,10 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     if !cli.quiet && !is_devnode {
         // Init logger with optional debug flag.
-        logger::init_logger(
-            "leo",
-            match cli.debug {
-                false => 1,
-                true => 2,
-            },
-        )?;
+        logger::init_logger("leo", match cli.debug {
+            false => 1,
+            true => 2,
+        })?;
     }
 
     //  Check for updates. If not forced, it checks once per day.

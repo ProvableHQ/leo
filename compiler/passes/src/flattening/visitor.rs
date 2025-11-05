@@ -17,10 +17,34 @@
 use crate::CompilerState;
 
 use leo_ast::{
-    ArrayAccess, ArrayExpression, ArrayType, AstReconstructor, BinaryExpression, BinaryOperation, Block, Composite,
-    CompositeType, Expression, Identifier, IntegerType, Literal, Member, MemberAccess, Node, NonNegativeNumber, Path,
-    ReturnStatement, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess,
-    TupleExpression, TupleType, Type, UnitExpression,
+    ArrayAccess,
+    ArrayExpression,
+    ArrayType,
+    AstReconstructor,
+    BinaryExpression,
+    BinaryOperation,
+    Block,
+    Composite,
+    CompositeType,
+    Expression,
+    Identifier,
+    IntegerType,
+    Literal,
+    Member,
+    MemberAccess,
+    Node,
+    NonNegativeNumber,
+    Path,
+    ReturnStatement,
+    Statement,
+    StructExpression,
+    StructVariableInitializer,
+    TernaryExpression,
+    TupleAccess,
+    TupleExpression,
+    TupleType,
+    Type,
+    UnitExpression,
 };
 use leo_span::Symbol;
 

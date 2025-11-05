@@ -26,8 +26,19 @@ use itertools::Itertools as _;
 use crate::Location;
 
 use snarkvm::prelude::{
-    Access, Address as SvmAddress, Argument, Boolean as SvmBoolean, Entry, Field as SvmField, Future as FutureParam,
-    Group as SvmGroup, LiteralType, Owner, ProgramID as ProgramIDParam, Record, Scalar as SvmScalar,
+    Access,
+    Address as SvmAddress,
+    Argument,
+    Boolean as SvmBoolean,
+    Entry,
+    Field as SvmField,
+    Future as FutureParam,
+    Group as SvmGroup,
+    LiteralType,
+    Owner,
+    ProgramID as ProgramIDParam,
+    Record,
+    Scalar as SvmScalar,
 };
 pub(crate) use snarkvm::prelude::{
     Identifier as SvmIdentifierParam,

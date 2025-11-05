@@ -21,7 +21,8 @@ mod start;
 
 use super::*;
 use crate::cli::{
-    Command, EnvOptions,
+    Command,
+    EnvOptions,
     commands::{Context, Span},
 };
 use clap::Parser;

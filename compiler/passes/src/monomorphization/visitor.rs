@@ -18,7 +18,14 @@ use crate::{CompilerState, Replacer};
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use leo_ast::{
-    CallExpression, Composite, CompositeType, Expression, Function, Identifier, Path, ProgramReconstructor,
+    CallExpression,
+    Composite,
+    CompositeType,
+    Expression,
+    Function,
+    Identifier,
+    Path,
+    ProgramReconstructor,
     StructExpression,
 };
 use leo_span::Symbol;

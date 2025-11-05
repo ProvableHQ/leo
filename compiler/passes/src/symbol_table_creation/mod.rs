@@ -99,11 +99,11 @@ impl AstVisitor for SymbolTableCreationVisitor<'_> {
         // Just add the const to the symbol table without validating it; that will happen later
         // in type checking.
         let const_path: Vec<Symbol> = self.module.iter().cloned().chain(std::iter::once(input.place.name)).collect();
-        if let Err(err) = self.state.symbol_table.insert_variable(
-            self.program_name,
-            &const_path,
-            VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
-        ) {
+        if let Err(err) = self.state.symbol_table.insert_variable(self.program_name, &const_path, VariableSymbol {
+            type_: input.type_.clone(),
+            span: input.place.span,
+            declaration: VariableType::Const,
+        }) {
             self.state.handler.emit_err(err);
         }
     }

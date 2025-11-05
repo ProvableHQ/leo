@@ -21,7 +21,15 @@ use aleo_std_storage::StorageMode;
 use anyhow::anyhow;
 use snarkvm::{
     prelude::{
-        Address, Execution, Ledger, PrivateKey, ProgramID, TestnetV0, Transaction, VM, Value as SvmValue,
+        Address,
+        Execution,
+        Ledger,
+        PrivateKey,
+        ProgramID,
+        TestnetV0,
+        Transaction,
+        VM,
+        Value as SvmValue,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::ProgramCore,

@@ -16,8 +16,7 @@
 
 use is_terminal::IsTerminal;
 use std::{io, str::FromStr};
-use tracing_subscriber::EnvFilter;
-use tracing_subscriber::prelude::*;
+use tracing_subscriber::{EnvFilter, prelude::*};
 
 use super::*;
 

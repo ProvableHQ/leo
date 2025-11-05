@@ -56,6 +56,8 @@ pub struct LeoDeploy {
     pub(crate) skip: Vec<String>,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
+    // #[clap(long, help = "Skips proving.")]
+    // pub(crate) skip_proving: bool,
 }
 
 pub struct Task<N: Network> {
@@ -76,7 +78,7 @@ impl Command for LeoDeploy {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        LeoBuild {
+        LeoBuild { 
             env_override: self.env_override.clone(),
             options: {
                 let mut options = self.build_options.clone();
@@ -286,6 +288,9 @@ Once it is deployed, it CANNOT be changed.
                     return Ok(());
                 }
             }
+            // if command.skip_proving {
+            //     println!("⚠️  Skipping proving for program '{}'.", id.to_string().bold());
+            // }
             println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
             // Generate the transaction.
             let transaction =

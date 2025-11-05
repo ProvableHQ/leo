@@ -17,8 +17,22 @@
 use super::*;
 
 use leo_ast::{
-    Composite, Constructor, Function, Location, Mapping, Member, Mode, NetworkName, Program, ProgramScope, Type,
-    UpgradeVariant, Variant, snarkvm_admin_constructor, snarkvm_checksum_constructor, snarkvm_noupgrade_constructor,
+    Composite,
+    Constructor,
+    Function,
+    Location,
+    Mapping,
+    Member,
+    Mode,
+    NetworkName,
+    Program,
+    ProgramScope,
+    Type,
+    UpgradeVariant,
+    Variant,
+    snarkvm_admin_constructor,
+    snarkvm_checksum_constructor,
+    snarkvm_noupgrade_constructor,
 };
 use leo_span::{Symbol, sym};
 

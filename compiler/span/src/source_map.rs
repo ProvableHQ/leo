@@ -28,7 +28,9 @@ use crate::span::Span;
 
 use std::{
     cell::RefCell,
-    fmt, fs, io,
+    fmt,
+    fs,
+    io,
     path::{Path, PathBuf},
     rc::Rc,
 };

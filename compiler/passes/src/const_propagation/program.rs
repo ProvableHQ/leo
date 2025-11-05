@@ -17,8 +17,17 @@
 use super::ConstPropagationVisitor;
 
 use leo_ast::{
-    AstReconstructor as _, ConstParameter, Constructor, Function, Input, Module, Node, Output, ProgramReconstructor,
-    ProgramScope, Statement,
+    AstReconstructor as _,
+    ConstParameter,
+    Constructor,
+    Function,
+    Input,
+    Module,
+    Node,
+    Output,
+    ProgramReconstructor,
+    ProgramScope,
+    Statement,
 };
 
 impl ProgramReconstructor for ConstPropagationVisitor<'_> {

@@ -17,8 +17,22 @@
 use super::SsaFormingVisitor;
 
 use leo_ast::{
-    Block, Composite, Constructor, ConstructorConsumer, Function, FunctionConsumer, Identifier, Member, Module,
-    ModuleConsumer, Node as _, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer, StatementConsumer,
+    Block,
+    Composite,
+    Constructor,
+    ConstructorConsumer,
+    Function,
+    FunctionConsumer,
+    Identifier,
+    Member,
+    Module,
+    ModuleConsumer,
+    Node as _,
+    Program,
+    ProgramConsumer,
+    ProgramScope,
+    ProgramScopeConsumer,
+    StatementConsumer,
     StructConsumer,
 };
 use leo_span::{Symbol, sym};

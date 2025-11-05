@@ -15,7 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CompilerState, ConstPropagation, Monomorphization, Pass, SymbolTableCreation, TypeChecking, TypeCheckingInput,
+    CompilerState,
+    ConstPropagation,
+    Monomorphization,
+    Pass,
+    SymbolTableCreation,
+    TypeChecking,
+    TypeCheckingInput,
     Unrolling,
 };
 

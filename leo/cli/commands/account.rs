@@ -496,8 +496,19 @@ mod tests {
     use super::{decrypt_ciphertext, sign_message, verify_message};
     use snarkvm::{
         prelude::{
-            Address, Identifier, Network, Plaintext, PrivateKey, Process, ProgramID, Record, Scalar, TestRng, U8,
-            Uniform, ViewKey,
+            Address,
+            Identifier,
+            Network,
+            Plaintext,
+            PrivateKey,
+            Process,
+            ProgramID,
+            Record,
+            Scalar,
+            TestRng,
+            U8,
+            Uniform,
+            ViewKey,
         },
         synthesizer::program::StackTrait,
     };

@@ -22,8 +22,7 @@ use axum::{Json, extract::rejection::JsonRejection};
 use anyhow::{Context, anyhow};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::str::FromStr;
-use std::sync::atomic::Ordering;
+use std::{str::FromStr, sync::atomic::Ordering};
 
 #[cfg(not(feature = "serial"))]
 use rayon::prelude::*;
