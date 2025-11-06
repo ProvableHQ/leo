@@ -168,6 +168,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/program/{id}/{edition}", get(Self::get_program_for_edition))
             .route("/program/{id}/mappings", get(Self::get_mapping_names))
             .route("/program/{id}/mapping/{name}/{key}", get(Self::get_mapping_value))
+            // add mapping endpoint for querying all keys/values
 
             // GET misc endpoints.
             // .route("/version", get(Self::get_version))

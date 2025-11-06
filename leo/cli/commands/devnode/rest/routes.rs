@@ -502,7 +502,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         }
 
         // // Determine if we need to check the transaction.
-        let check_transaction = check_transaction.check_transaction.unwrap_or(false);
+        let check_transaction = check_transaction.check_transaction.unwrap_or(true);
 
         if check_transaction {
             // Select counter and limit based on transaction type.

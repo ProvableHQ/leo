@@ -128,9 +128,6 @@ version = "1.0"
 [workspace.dependencies.is-terminal]
 version = "0.4"
 
-# [workspace.dependencies.locktick]
-# version = ""
-
 [workspace.dependencies.parking_lot]
 version = "0.12"
 
