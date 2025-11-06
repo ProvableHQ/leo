@@ -131,11 +131,10 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         );
 
         let routes = axum::Router::new()
-            .route("/program/{id}/mapping/{name}", get(Self::get_mapping_values))
             .route("/db_backup", post(Self::db_backup))
             // .route_layer(middleware::from_fn(auth_middleware))
             // Get ../consensus_version
-            // .route("/consensus_version", get(Self::get_consensus_version))
+            .route("/consensus_version", get(Self::get_consensus_version))
 
             // GET ../block/..
             .route("/block/height/latest", get(Self::get_block_height_latest))
@@ -149,10 +148,10 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/block/create", post(Self::create_block))
 
             // GET and POST ../transaction/..
-            .route("/transaction/{id}", get(Self::get_transaction))
-            // .route("/transaction/confirmed/{id}", get(Self::get_confirmed_transaction))
-            // .route("/transaction/unconfirmed/{id}", get(Self::get_unconfirmed_transaction))
             .route("/transaction/broadcast", post(Self::transaction_broadcast))
+            .route("/transaction/confirmed/{id}", get(Self::get_confirmed_transaction))
+            .route("/transaction/{id}", get(Self::get_transaction))
+            // .route("/transaction/unconfirmed/{id}", get(Self::get_unconfirmed_transaction))
 
             // GET ../find/..
             .route("/find/blockHash/{tx_id}", get(Self::find_block_hash))
@@ -168,7 +167,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/program/{id}/{edition}", get(Self::get_program_for_edition))
             .route("/program/{id}/mappings", get(Self::get_mapping_names))
             .route("/program/{id}/mapping/{name}/{key}", get(Self::get_mapping_value))
-            // add mapping endpoint for querying all keys/values
+            .route("/program/{id}/mapping/{name}", get(Self::get_mapping_values))
 
             // GET misc endpoints.
             // .route("/version", get(Self::get_version))
