@@ -16,12 +16,16 @@
 
 use super::*;
 use serde_json::json;
+use snarkvm::circuit::{Aleo, AleoTestnetV0};
+use snarkvm::prelude::PrivateKey;
 
 // Advance the Devnode ledger by a specified number of blocks.  The default value is 1.
 #[derive(Parser, Debug)]
 pub struct Advance {
     #[clap(help = "The number of blocks to advance the ledger by", default_value = "1")]
     pub num_blocks: u32,
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for Advance {
@@ -37,24 +41,24 @@ impl Command for Advance {
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
-        let private_key = std::env::var("PRIVATE_KEY")
-            .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?;
 
         tokio::runtime::Runtime::new()
             .unwrap()
-            .block_on(async { handle_advance_devnode(&private_key, self.num_blocks).await })
+            .block_on(async { handle_advance_devnode::<AleoTestnetV0>(self).await })
     }
 }
 
-async fn handle_advance_devnode(private_key_str: &str, num_blocks: u32) -> Result<()> {
-    tracing::info!("Advancing the devnode ledger by {} block(s)", num_blocks,);
+async fn handle_advance_devnode<A: Aleo>(command: Advance) -> Result<()> {
+    let private_key: PrivateKey<A::Network> = get_private_key(&command.env_override.private_key)?;
+
+    tracing::info!("Advancing the Devnode ledger by {} block(s)", command.num_blocks,);
 
     // Call the REST API to advance the ledger by one block.
     let client = reqwest::blocking::Client::new();
 
     let payload = json!({
-        "private_key": private_key_str,
-        "num_blocks": num_blocks,
+        "private_key": private_key.to_string(),
+        "num_blocks": command.num_blocks,
     });
 
     let _response = client
