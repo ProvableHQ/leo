@@ -38,7 +38,7 @@ impl StaticAnalyzingVisitor<'_> {
     }
 
     /// Emits a type checker warning
-    pub fn emit_warning(&self, warning: StaticAnalyzerWarning) {
+    pub fn emit_warning(&mut self, warning: StaticAnalyzerWarning) {
         self.state.handler.emit_warning(warning);
     }
 
@@ -79,7 +79,7 @@ impl StaticAnalyzingVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(program, function_path.absolute_path().to_vec()))
+            .lookup_function(self.current_program, &Location::new(program, function_path.absolute_path().to_vec()))
             .expect("Type checking guarantees functions are present.");
 
         // If it is not an async transition, return.
@@ -95,7 +95,7 @@ impl StaticAnalyzingVisitor<'_> {
         let async_function = self
             .state
             .symbol_table
-            .lookup_function(&finalizer.location)
+            .lookup_function(self.current_program, &finalizer.location)
             .expect("Type checking guarantees functions are present.");
 
         // If the async function takes a future as an argument, emit an error.
@@ -140,7 +140,10 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(function_program, input.function.absolute_path().to_vec()))
+            .lookup_function(
+                self.current_program,
+                &Location::new(function_program, input.function.absolute_path().to_vec()),
+            )
             .expect("Type checking guarantees functions exist.");
 
         if func_symbol.function.variant == Variant::Transition {

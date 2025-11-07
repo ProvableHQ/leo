@@ -57,10 +57,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let this_program = self.program_id.unwrap().name.name;
 
         let lookup = |name: &[Symbol]| {
-            self.state
-                .symbol_table
-                .lookup_struct(name)
-                .or_else(|| self.state.symbol_table.lookup_record(&Location::new(this_program, name.to_vec())))
+            self.state.symbol_table.lookup_struct(this_program, &Location::new(this_program, name.to_vec())).or_else(
+                || self.state.symbol_table.lookup_record(this_program, &Location::new(this_program, name.to_vec())),
+            )
         };
 
         // Add each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
@@ -90,10 +89,13 @@ impl<'a> CodeGeneratingVisitor<'a> {
                         let finalize = &self
                             .state
                             .symbol_table
-                            .lookup_function(&Location::new(
-                                self.program_id.unwrap().name.name,
-                                vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
-                            ))
+                            .lookup_function(
+                                this_program,
+                                &Location::new(
+                                    this_program,
+                                    vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
+                                ),
+                            )
                             .unwrap()
                             .clone()
                             .finalizer
@@ -236,12 +238,12 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
                 // Track all internal record inputs.
                 if let Type::Composite(comp) = &input.type_ {
-                    let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
-                    if let Some(record) = self
-                        .state
-                        .symbol_table
-                        .lookup_record(&Location::new(program, comp.path.absolute_path().to_vec()))
-                        && (record.external.is_none() || record.external == self.program_id.map(|id| id.name.name))
+                    let current_program = self.program_id.unwrap().name.name;
+                    let program = comp.program.unwrap_or(current_program);
+
+                    let path = Location::new(program, comp.path.absolute_path().to_vec());
+                    if program == current_program
+                        && self.state.symbol_table.lookup_record(current_program, &path).is_some()
                     {
                         self.internal_record_inputs.insert(AleoExpr::Reg(register_num.clone()));
                     }

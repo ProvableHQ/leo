@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AleoConstructor, AleoExpr, AleoReg, CompilerState};
+use crate::{AleoConstructor, AleoExpr, AleoReg, Bytecode, CompiledPrograms, CompilerState};
 
 use leo_ast::{Function, Program, ProgramId, Variant};
 use leo_span::Symbol;
@@ -71,6 +71,53 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(actual: &AleoConstructor) ->
 }
 
 impl CodeGeneratingVisitor<'_> {
+    pub(crate) fn visit_package(&mut self) -> CompiledPrograms {
+        let primary_bytecode = self.visit_program(self.state.ast.as_repr()).to_string();
+
+        let import_bytecodes = self
+            .state
+            .ast
+            .as_repr()
+            .stubs
+            .values()
+            .filter_map(|stub| {
+                if let leo_ast::Stub::FromLeo { program, .. } = stub {
+                    let program_name = program
+                        .program_scopes
+                        .first()
+                        .expect("programs must have a single program scope at this time.")
+                        .0;
+
+                    // Get transitive imports for this program
+                    let transitive_imports = self
+                        .state
+                        .symbol_table
+                        .get_transitive_imports(program_name)
+                        .into_iter()
+                        .map(|sym| sym.to_string())
+                        .collect::<Vec<_>>();
+
+                    // Generate Aleo imports for those dependencies
+                    let import_section = if transitive_imports.is_empty() {
+                        String::new()
+                    } else {
+                        transitive_imports.iter().map(|name| format!("import {name}.aleo;\n")).collect::<String>()
+                    };
+
+                    // Generate this stub’s Aleo program text
+                    let mut bytecode = self.visit_program(program).to_string();
+                    bytecode = format!("{import_section}{bytecode}");
+
+                    Some(Bytecode { program_name: program_name.to_string(), bytecode })
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        CompiledPrograms { primary_bytecode, import_bytecodes }
+    }
+
     pub(crate) fn next_register(&mut self) -> AleoReg {
         self.next_register += 1;
         AleoReg::R(self.next_register - 1)

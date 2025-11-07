@@ -114,7 +114,12 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
-        if actual != &Type::Err && !actual.can_coerce_to(expected) {
+        let current_program = self.scope_state.program_name.unwrap();
+        if actual != &Type::Err
+            && !actual.can_coerce_to(expected, current_program, &|loc: &Location| {
+                self.state.symbol_table.lookup_record(current_program, loc).is_some()
+            })
+        {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
         }
@@ -136,7 +141,13 @@ impl TypeCheckingVisitor<'_> {
             // if destination is Optional<T> and actual is T (not already Optional), wrap it
             (actual_type, Some(Type::Optional(opt_type))) if !matches!(actual_type, Type::Optional(_)) => {
                 // only wrap if the inner type matches
-                if actual_type.can_coerce_to(&opt_type.inner) {
+                if actual_type.can_coerce_to(
+                    &opt_type.inner,
+                    self.scope_state.program_name.unwrap(),
+                    &|loc: &Location| {
+                        self.state.symbol_table.lookup_record(self.scope_state.program_name.unwrap(), loc).is_some()
+                    },
+                ) {
                     Type::Optional(OptionalType { inner: Box::new(actual_type) })
                 } else {
                     actual_type
@@ -1376,7 +1387,7 @@ impl TypeCheckingVisitor<'_> {
                         .iter()
                         .flat_map(|caller| {
                             let caller = Location::new(caller.program, caller.path.clone());
-                            self.state.symbol_table.lookup_function(&caller)
+                            self.state.symbol_table.lookup_function(self.scope_state.program_name.unwrap(), &caller)
                         })
                         .flat_map(|fn_symbol| fn_symbol.finalizer.clone())
                 })
@@ -1391,7 +1402,7 @@ impl TypeCheckingVisitor<'_> {
                 for finalizer in caller_finalizers {
                     assert_eq!(inferred_inputs.len(), finalizer.inferred_inputs.len());
                     for (t1, t2) in inferred_inputs.iter_mut().zip(finalizer.inferred_inputs.iter()) {
-                        Self::merge_types(t1, t2);
+                        self.merge_types(t1, t2);
                     }
                 }
             } else {
@@ -1605,12 +1616,13 @@ impl TypeCheckingVisitor<'_> {
     /// That is, if `lhs` and `rhs` aren't equal, set `lhs` to Type::Err;
     /// or, if they're both futures, set any member of `lhs` that isn't
     /// equal to the equivalent member of `rhs` to `Type::Err`.
-    fn merge_types(lhs: &mut Type, rhs: &Type) {
+    fn merge_types(&self, lhs: &mut Type, rhs: &Type) {
+        let current_program = self.scope_state.program_name.unwrap();
         if let Type::Future(f1) = lhs {
             if let Type::Future(f2) = rhs {
                 for (i, type_) in f2.inputs.iter().enumerate() {
                     if let Some(lhs_type) = f1.inputs.get_mut(i) {
-                        Self::merge_types(lhs_type, type_);
+                        self.merge_types(lhs_type, type_);
                     } else {
                         f1.inputs.push(Type::Err);
                     }
@@ -1618,16 +1630,24 @@ impl TypeCheckingVisitor<'_> {
             } else {
                 *lhs = Type::Err;
             }
-        } else if !lhs.eq_user(rhs) {
+        } else if !lhs.eq_user(rhs, current_program, &|loc: &Location| {
+            self.state.symbol_table.lookup_record(current_program, loc).is_some()
+        }) {
             *lhs = Type::Err;
         }
     }
 
     /// Wrapper around lookup_struct that additionally records all structs that are used in the program.
     pub fn lookup_struct(&mut self, program: Option<Symbol>, name: &[Symbol]) -> Option<Composite> {
-        let record_comp =
-            program.and_then(|prog| self.state.symbol_table.lookup_record(&Location::new(prog, name.to_vec())));
-        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name));
+        let current_program = self.scope_state.program_name.unwrap();
+        let record_comp = program.and_then(|prog| {
+            self.state.symbol_table.lookup_record(current_program, &Location::new(prog, name.to_vec()))
+        });
+        let comp = record_comp.or_else(|| {
+            program.and_then(|prog| {
+                self.state.symbol_table.lookup_struct(current_program, &Location::new(prog, name.to_vec()))
+            })
+        });
         // Record the usage.
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.
@@ -1701,7 +1721,7 @@ impl TypeCheckingVisitor<'_> {
                 && self
                     .state
                     .symbol_table
-                    .lookup_record(&Location::new(program, typ.path.absolute_path().to_vec()))
+                    .lookup_record(this_program, &Location::new(program, typ.path.absolute_path().to_vec()))
                     .is_some()
         } else {
             false

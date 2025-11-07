@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Composite, FunctionStub, Identifier, Mapping, ProgramId, Stub};
+use leo_ast::{AleoProgram, Composite, FunctionStub, Identifier, Mapping, ProgramId};
 use leo_errors::UtilError;
 use leo_span::Symbol;
 
@@ -25,9 +25,9 @@ use snarkvm::{
 
 use std::{fmt, str::FromStr};
 
-pub fn disassemble<N: Network>(program: ProgramCore<N>) -> Stub {
+pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
     let program_id = ProgramId::from(program.id());
-    Stub {
+    AleoProgram {
         imports: program.imports().into_iter().map(|(id, _)| ProgramId::from(id)).collect(),
         stub_id: program_id,
         consts: Vec::new(),
@@ -84,7 +84,7 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> Stub {
     }
 }
 
-pub fn disassemble_from_str<N: Network>(name: impl fmt::Display, program: &str) -> Result<Stub, UtilError> {
+pub fn disassemble_from_str<N: Network>(name: impl fmt::Display, program: &str) -> Result<AleoProgram, UtilError> {
     match Program::<N>::from_str(program) {
         Ok(p) => Ok(disassemble(p)),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name)),

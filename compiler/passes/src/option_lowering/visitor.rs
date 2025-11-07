@@ -33,7 +33,7 @@ pub struct OptionLoweringVisitor<'a> {
     // structs are to be inserted in the program scope.
     pub new_structs: IndexMap<Symbol, Composite>,
     // The reconstructed structs. These are the new versions of the existing structs in the program.
-    pub reconstructed_structs: IndexMap<Vec<Symbol>, Composite>,
+    pub reconstructed_structs: IndexMap<Location, Composite>,
 }
 
 impl OptionLoweringVisitor<'_> {
@@ -125,12 +125,13 @@ impl OptionLoweringVisitor<'_> {
         // for each type.
 
         // Instead of relying on the symbol table (which does not get updated in this pass), we rely on the set of
-        // reconstructed structs which is produced for all program scopes and all modules before doing anything else.
+        // reconstructed structs (local to this program) which is produced for all program scopes and all modules before
+        // doing anything else.
         let reconstructed_structs = &self.reconstructed_structs;
-        let struct_lookup = |sym: &[Symbol]| {
+        let struct_lookup = |loc: &Location| {
             reconstructed_structs
-                .get(sym) // check the new version of existing structs
-                .or_else(|| self.new_structs.get(sym.last().unwrap())) // check the newly produced structs
+                .get(loc) // check the new version of existing structs
+                .or_else(|| self.new_structs.get(loc.path.last().unwrap())) // check the newly produced structs
                 .expect("must exist by construction")
                 .members
                 .iter()
@@ -138,8 +139,14 @@ impl OptionLoweringVisitor<'_> {
                 .collect()
         };
 
-        let zero_val_expr =
-            Expression::zero(&lowered_inner_type, Span::default(), &self.state.node_builder, &struct_lookup).expect("");
+        let zero_val_expr = Expression::zero(
+            &lowered_inner_type,
+            Span::default(),
+            &self.state.node_builder,
+            self.program,
+            &struct_lookup,
+        )
+        .expect("this must work if type checking was successful");
 
         // Create or get an optional wrapper struct for `lowered_inner_type`
         let struct_name = self.insert_optional_wrapper_struct(&lowered_inner_type);

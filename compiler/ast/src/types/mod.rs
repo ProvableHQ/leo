@@ -17,6 +17,9 @@
 mod array;
 pub use array::*;
 
+mod composite;
+pub use composite::*;
+
 mod core_constant;
 pub use core_constant::*;
 
@@ -31,9 +34,6 @@ pub use optional::*;
 
 mod mapping;
 pub use mapping::*;
-
-mod struct_type;
-pub use struct_type::*;
 
 mod tuple;
 pub use tuple::*;

@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_disassembler::disassemble_from_str;
+use leo_ast::NodeBuilder;
 use leo_errors::{BufferEmitter, Handler, LeoError};
+use leo_passes::Bytecode;
 use leo_span::{Symbol, create_session_if_not_set_then};
 
 use snarkvm::{
@@ -26,41 +27,58 @@ use snarkvm::{
 use indexmap::IndexMap;
 use itertools::Itertools as _;
 use serial_test::serial;
-use std::str::FromStr;
+use std::{rc::Rc, str::FromStr};
 
-fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
-    // Initialize a `Process`. This should always succeed.
+fn run_test(test: &str, handler: &Handler, node_builder: &Rc<NodeBuilder>) -> Result<String, ()> {
     let mut process = Process::<TestnetV0>::load().unwrap();
 
     let mut import_stubs = IndexMap::new();
 
     let mut bytecodes = Vec::<String>::new();
 
-    // Compile each source file separately.
-    for source in test.split(super::test_utils::PROGRAM_DELIMITER) {
-        let (bytecode, program_name) =
-            handler.extend_if_error(super::test_utils::whole_compile(source, handler, import_stubs.clone()))?;
+    let sources: Vec<&str> = test.split(super::test_utils::PROGRAM_DELIMITER).collect();
 
-        // Parse the bytecode as an Aleo program.
-        // Note that this function checks that the bytecode is well-formed.
-        let aleo_program = handler.extend_if_error(ProgramCore::from_str(&bytecode).map_err(LeoError::Anyhow))?;
+    // Helper: parse and register Aleo program into `process`.
+    // Note that this performs an additional validity check on the bytecode.
+    let mut add_aleo_program = |code: &str| -> Result<(), ()> {
+        let program = handler.extend_if_error(ProgramCore::from_str(code).map_err(LeoError::Anyhow))?;
+        handler.extend_if_error(process.add_program(&program).map_err(LeoError::Anyhow))?;
+        Ok(())
+    };
 
-        // Add the program to the process.
-        // Note that this function performs an additional validity check on the bytecode.
-        handler.extend_if_error(process.add_program(&aleo_program).map_err(LeoError::Anyhow))?;
+    let (last, rest) = sources.split_last().expect("non-empty sources");
 
-        // Add the bytecode to the import stubs.
-        let stub = handler
-            .extend_if_error(disassemble_from_str::<TestnetV0>(&program_name, &bytecode).map_err(|err| err.into()))?;
-        import_stubs.insert(Symbol::intern(&program_name), stub);
+    // Parse-only stage for intermediate programs.
+    for source in rest {
+        let (program, program_name) =
+            handler.extend_if_error(super::test_utils::parse(source, handler, node_builder, import_stubs.clone()))?;
 
-        // Only error out if there are errors. Warnings are okay but we still want to print them later.
+        import_stubs.insert(Symbol::intern(&program_name), program.into());
+
         if handler.err_count() != 0 {
             return Err(());
         }
-
-        bytecodes.push(bytecode);
     }
+
+    // Full compile for final program.
+    let (compiled_programs, _program_name) =
+        handler.extend_if_error(super::test_utils::whole_compile(last, handler, node_builder, import_stubs.clone()))?;
+
+    // Only error out if there are errors. Warnings are okay but we still want to print them later.
+    if handler.err_count() != 0 {
+        return Err(());
+    }
+
+    // Add imports.
+    for Bytecode { bytecode, .. } in compiled_programs.import_bytecodes {
+        add_aleo_program(&bytecode)?;
+        bytecodes.push(bytecode.clone());
+    }
+
+    // Add main program.
+    let primary_bytecode = compiled_programs.primary_bytecode.clone();
+    add_aleo_program(&primary_bytecode)?;
+    bytecodes.push(primary_bytecode);
 
     Ok(bytecodes.iter().format(&format!("{}\n", super::test_utils::PROGRAM_DELIMITER)).to_string())
 }
@@ -68,8 +86,9 @@ fn run_test(test: &str, handler: &Handler) -> Result<String, ()> {
 fn runner(source: &str) -> String {
     let buf = BufferEmitter::new();
     let handler = Handler::new(buf.clone());
+    let node_builder = Rc::new(NodeBuilder::default());
 
-    create_session_if_not_set_then(|_| match run_test(source, &handler) {
+    create_session_if_not_set_then(|_| match run_test(source, &handler, &node_builder) {
         Ok(x) => format!("{}{}", buf.extract_warnings(), x),
         Err(()) => format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
     })

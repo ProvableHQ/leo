@@ -29,13 +29,15 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
-            // Check that naming and ordering is consistent.
-            if symbol != &stub.stub_id.name.name {
-                self.emit_err(TypeCheckerError::stub_name_mismatch(
-                    symbol,
-                    stub.stub_id.name,
-                    stub.stub_id.network.span,
-                ));
+            if let Stub::FromAleo { program, .. } = stub {
+                // Check that naming and ordering is consistent.
+                if symbol != &program.stub_id.name.name {
+                    self.emit_err(TypeCheckerError::stub_name_mismatch(
+                        symbol,
+                        program.stub_id.name,
+                        program.stub_id.network.span,
+                    ));
+                }
             }
             self.visit_stub(stub)
         });
@@ -161,7 +163,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.module_name = parent_module;
     }
 
-    fn visit_stub(&mut self, input: &Stub) {
+    fn visit_aleo_program(&mut self, input: &AleoProgram) {
         // Set the scope state.
         self.scope_state.program_name = Some(input.stub_id.name.name);
         self.scope_state.is_stub = true;
@@ -573,7 +575,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         if let UpgradeVariant::Checksum { mapping, key, key_type } = &upgrade_variant {
             // Look up the mapping type.
             let Some(VariableSymbol { type_: Type::Mapping(mapping_type), .. }) =
-                self.state.symbol_table.lookup_global(mapping)
+                self.state.symbol_table.lookup_global(self.scope_state.program_name.unwrap(), mapping)
             else {
                 self.emit_err(TypeCheckerError::custom(
                     format!("The mapping '{mapping}' does not exist. Please ensure that it is imported or defined in your program."),

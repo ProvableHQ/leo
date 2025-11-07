@@ -19,7 +19,7 @@ use crate::{Assigner, SymbolTable, TypeTable};
 use leo_ast::{Ast, CallGraph, NetworkName, NodeBuilder, StructGraph};
 use leo_errors::{Handler, LeoWarning, Result};
 
-use std::collections::HashSet;
+use std::{collections::HashSet, rc::Rc};
 
 /// Contains data shared by many compiler passes.
 #[derive(Default)]
@@ -31,7 +31,7 @@ pub struct CompilerState {
     /// Maps node IDs to types.
     pub type_table: TypeTable,
     /// Creates incrementing node IDs.
-    pub node_builder: NodeBuilder,
+    pub node_builder: Rc<NodeBuilder>,
     /// Creates unique symbols and definitions.
     pub assigner: Assigner,
     /// Contains data about the variables and other entities in the program.
@@ -60,4 +60,16 @@ pub trait Pass {
 
     /// Runs the compiler pass.
     fn do_pass(input: Self::Input, state: &mut CompilerState) -> Result<Self::Output>;
+}
+
+/// Produced set of bytecodes
+pub struct CompiledPrograms {
+    pub primary_bytecode: String,
+    pub import_bytecodes: Vec<Bytecode>,
+}
+
+/// Bytecode for a single program.
+pub struct Bytecode {
+    pub program_name: String,
+    pub bytecode: String,
 }

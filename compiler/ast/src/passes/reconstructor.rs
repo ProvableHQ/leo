@@ -569,22 +569,16 @@ pub trait AstReconstructor {
 /// A Reconstructor trait for the program represented by the AST.
 pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
+        let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
         let program_scopes =
             input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
-        Program {
-            imports: input
-                .imports
-                .into_iter()
-                .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
-                .collect(),
-            stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
-            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
-            program_scopes,
-        }
+        let modules = input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect();
+
+        Program { modules, imports: input.imports, stubs, program_scopes }
     }
 
-    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
-        Stub {
+    fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
+        AleoProgram {
             imports: input.imports,
             stub_id: input.stub_id,
             consts: input.consts,
@@ -592,6 +586,15 @@ pub trait ProgramReconstructor: AstReconstructor {
             mappings: input.mappings,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
             span: input.span,
+        }
+    }
+
+    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
+        match input {
+            Stub::FromLeo { program, parents } => Stub::FromLeo { program: self.reconstruct_program(program), parents },
+            Stub::FromAleo { program, parents } => {
+                Stub::FromAleo { program: self.reconstruct_aleo_program(program), parents }
+            }
         }
     }
 
@@ -690,10 +693,6 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             ..input
         }
-    }
-
-    fn reconstruct_import(&mut self, input: Program) -> Program {
-        self.reconstruct_program(input)
     }
 
     fn reconstruct_mapping(&mut self, input: Mapping) -> Mapping {

@@ -309,12 +309,15 @@ impl WriteTransformingFiller<'_> {
                         .0
                         .state
                         .symbol_table
-                        .lookup_struct(&comp.path.absolute_path())
+                        .lookup_struct(
+                            self.0.program,
+                            &Location::new(comp.program.unwrap_or(self.0.program), comp.path.absolute_path()),
+                        )
                         .or_else(|| {
-                            self.0.state.symbol_table.lookup_record(&Location::new(
-                                comp.program.unwrap_or(self.0.program),
-                                comp.path.absolute_path(),
-                            ))
+                            self.0.state.symbol_table.lookup_record(
+                                self.0.program,
+                                &Location::new(comp.program.unwrap_or(self.0.program), comp.path.absolute_path()),
+                            )
                         })
                         .unwrap();
                     struct_

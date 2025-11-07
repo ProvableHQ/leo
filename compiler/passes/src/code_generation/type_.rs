@@ -81,7 +81,12 @@ impl CodeGeneratingVisitor<'_> {
             let name = composite.path.absolute_path();
             let this_program_name = self.program_id.unwrap().name.name;
             let program_name = composite.program.unwrap_or(this_program_name);
-            if self.state.symbol_table.lookup_record(&Location::new(program_name, name.to_vec())).is_some() {
+            if self
+                .state
+                .symbol_table
+                .lookup_record(this_program_name, &Location::new(program_name, name.to_vec()))
+                .is_some()
+            {
                 let [record_name] = &name[..] else {
                     panic!("Absolute paths to records can only have a single segment at this stage.")
                 };

@@ -199,6 +199,9 @@ workspace = true
 [dependencies.leo-package]
 workspace = true
 
+[dependencies.leo-passes]
+workspace = true
+
 [dependencies.leo-span]
 workspace = true
 

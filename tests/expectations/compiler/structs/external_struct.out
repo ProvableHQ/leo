@@ -87,6 +87,10 @@ import child.aleo;
 import parent.aleo;
 program grandparent.aleo;
 
+struct Woo:
+    a as u32;
+    b as u32;
+
 struct Two:
     val1 as u32;
     val2 as u32;
@@ -102,10 +106,6 @@ struct Bar:
 
 struct Foo:
     bar as [Bar; 1u32];
-
-struct Woo:
-    a as u32;
-    b as u32;
 
 function main:
     input r0 as u32.private;

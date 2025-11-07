@@ -85,6 +85,7 @@ use leo_errors::{BufferEmitter, Handler};
 use leo_parser::parse_ast;
 use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
 use serial_test::serial;
+use std::rc::Rc;
 
 /// Table of all compiler passes and their runner names.
 /// Each entry is a tuple of `(runner_name, pass_struct, input)`
@@ -109,14 +110,13 @@ macro_rules! compiler_passes {
 }
 
 /// Parse a Leo source program into an AST, returning errors via the handler.
-fn parse_program(source: &str, handler: &Handler) -> Result<Ast, ()> {
-    let node_builder = NodeBuilder::default();
+fn parse_program(source: &str, node_builder: &Rc<NodeBuilder>, handler: &Handler) -> Result<Ast, ()> {
     let filename = FileName::Custom("test".into());
 
     // Add the source to the session's source map
     let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
 
-    handler.extend_if_error(parse_ast(handler.clone(), &node_builder, &source_file, &[], NetworkName::TestnetV0))
+    handler.extend_if_error(parse_ast(handler.clone(), node_builder, &source_file, &[], NetworkName::TestnetV0))
 }
 
 /// Macro to generate a single runner function for a compiler pass.
@@ -132,10 +132,16 @@ macro_rules! make_runner {
             let buf = BufferEmitter::new();
             let handler = Handler::new(buf.clone());
 
+            let node_builder = Rc::new(NodeBuilder::default());
             create_session_if_not_set_then(|_| {
                 // Parse program into AST
-                let mut state = match parse_program(source, &handler) {
-                    Ok(ast) => CompilerState { ast, handler: handler.clone(), ..Default::default() },
+                let mut state = match parse_program(source, &node_builder, &handler) {
+                    Ok(ast) => CompilerState {
+                        ast,
+                        handler: handler.clone(),
+                        node_builder: Rc::clone(&node_builder),
+                        ..Default::default()
+                    },
                     Err(()) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
                 };
 

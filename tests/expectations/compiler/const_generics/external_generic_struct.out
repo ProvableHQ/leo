@@ -26,4 +26,7 @@ struct Bar__DI7sPAg0NJ0:
 struct Bar__5Qh5JlRc8cY:
     arr as [u32; 3u32];
 
+struct Bar__IEGwqtYsUsS:
+    arr as [u32; 4u32];
+
 function main:

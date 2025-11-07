@@ -654,7 +654,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
     fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Check if this path corresponds to a global symbol.
-        let Some(var) = self.state.symbol_table.lookup_global(&Location::new(self.program, input.absolute_path()))
+        let Some(var) =
+            self.state.symbol_table.lookup_global(self.program, &Location::new(self.program, input.absolute_path()))
         else {
             // Nothing to do
             return (input.into(), vec![]);
@@ -817,7 +818,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         // Check if `place` is a path
         if let Expression::Path(path) = &place {
             // Check if the path corresponds to a global storage variable
-            if let Some(var) = self.state.symbol_table.lookup_global(&Location::new(self.program, path.absolute_path()))
+            if let Some(var) =
+                self.state.symbol_table.lookup_global(self.program, &Location::new(self.program, path.absolute_path()))
             {
                 // Storage variables that are not optional nor mappings are implicitly wrapped in an optional.
                 assert!(

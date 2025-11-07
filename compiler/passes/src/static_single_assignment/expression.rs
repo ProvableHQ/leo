@@ -175,8 +175,12 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         let struct_definition: &Composite = self
             .state
             .symbol_table
-            .lookup_record(&Location::new(self.program, input.path.absolute_path()))
-            .or_else(|| self.state.symbol_table.lookup_struct(&input.path.absolute_path()))
+            .lookup_record(self.program, &Location::new(self.program, input.path.absolute_path()))
+            .or_else(|| {
+                self.state
+                    .symbol_table
+                    .lookup_struct(self.program, &Location::new(self.program, input.path.absolute_path()))
+            })
             .expect("Type checking guarantees this definition exists.");
 
         // Initialize the list of reordered members.

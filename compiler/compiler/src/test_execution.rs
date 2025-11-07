@@ -16,18 +16,15 @@
 
 use crate::run_with_ledger;
 
-use leo_disassembler::disassemble_from_str;
+use leo_ast::NodeBuilder;
 use leo_errors::{BufferEmitter, Handler, Result};
+use leo_passes::Bytecode;
 use leo_span::{Symbol, create_session_if_not_set_then};
-
-use snarkvm::prelude::TestnetV0;
 
 use indexmap::IndexMap;
 use itertools::Itertools as _;
 use serial_test::serial;
-use std::fmt::Write as _;
-
-type CurrentNetwork = TestnetV0;
+use std::{fmt::Write as _, rc::Rc};
 
 // Execution test configuration.
 #[derive(Debug)]
@@ -43,21 +40,38 @@ impl Default for Config {
     }
 }
 
-fn execution_run_test(config: &Config, cases: &[run_with_ledger::Case], handler: &Handler) -> Result<String> {
+fn execution_run_test(
+    config: &Config,
+    cases: &[run_with_ledger::Case],
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+) -> Result<String> {
     let mut import_stubs = IndexMap::new();
-
     let mut ledger_config =
         run_with_ledger::Config { seed: config.seed, start_height: config.start_height, programs: Vec::new() };
 
-    // Compile each source file.
-    for source in &config.sources {
-        let (bytecode, name) = super::test_utils::whole_compile(source, handler, import_stubs.clone())?;
+    // We assume config.sources is non-empty.
+    let (last, rest) = config.sources.split_last().expect("non-empty sources");
 
-        let stub = disassemble_from_str::<CurrentNetwork>(&name, &bytecode)?;
-        import_stubs.insert(Symbol::intern(&name), stub);
+    // Parse-only for intermediate programs.
+    for source in rest {
+        let (program, program_name) = super::test_utils::parse(source, handler, node_builder, import_stubs.clone())?;
 
-        ledger_config.programs.push(run_with_ledger::Program { bytecode, name });
+        import_stubs.insert(Symbol::intern(&program_name), program.into());
     }
+
+    // Full compile for the final program.
+    let (compiled_programs, program_name) =
+        super::test_utils::whole_compile(last, handler, node_builder, import_stubs.clone())?;
+
+    // Add imports.
+    for Bytecode { program_name, bytecode } in compiled_programs.import_bytecodes {
+        ledger_config.programs.push(run_with_ledger::Program { bytecode, name: program_name });
+    }
+
+    // Add main program.
+    let primary_bytecode = compiled_programs.primary_bytecode.clone();
+    ledger_config.programs.push(run_with_ledger::Program { bytecode: primary_bytecode, name: program_name });
 
     // Note: We wrap cases in a slice to run them all in one ledger instance.
     let outcomes =
@@ -91,6 +105,7 @@ fn execution_run_test(config: &Config, cases: &[run_with_ledger::Case], handler:
 fn execution_runner(source: &str) -> String {
     let buf = BufferEmitter::new();
     let handler = Handler::new(buf.clone());
+    let node_builder = Rc::new(NodeBuilder::default());
 
     let mut config = Config::default();
     let mut cases = Vec::<run_with_ledger::Case>::new();
@@ -120,7 +135,7 @@ fn execution_runner(source: &str) -> String {
     // Split the sources and add them to the config.
     config.sources = source.split(super::test_utils::PROGRAM_DELIMITER).map(|s| s.trim().to_string()).collect();
 
-    create_session_if_not_set_then(|_| match execution_run_test(&config, &cases, &handler) {
+    create_session_if_not_set_then(|_| match execution_run_test(&config, &cases, &handler, &node_builder) {
         Ok(s) => s,
         Err(e) => {
             format!("Error while running execution tests:\n{e}\n\nErrors:\n{}", buf.extract_errs())

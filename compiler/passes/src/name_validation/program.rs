@@ -39,7 +39,7 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
         input.functions.iter().for_each(|(_, function)| self.visit_function(function));
     }
 
-    fn visit_stub(&mut self, input: &Stub) {
+    fn visit_aleo_program(&mut self, input: &AleoProgram) {
         input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
         input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
     }

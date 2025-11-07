@@ -10,9 +10,9 @@ program complex.aleo {
         values: [u32; 3],
         active: bool,
     }
-    mapping point__: bool => Point;
-    mapping points__: bool => [Point; 2];
-    mapping stats__: bool => Stats;
+    mapping point__: bool => complex.aleo/Point;
+    mapping points__: bool => [complex.aleo/Point; 2];
+    mapping stats__: bool => complex.aleo/Stats;
     mapping arr_u32__: bool => [u32; 3];
     mapping arr_bool__: bool => [bool; 2];
     mapping nested__: bool => [[u8; 2]; 2];

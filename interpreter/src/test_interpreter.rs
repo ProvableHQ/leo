@@ -16,10 +16,10 @@
 
 //! These tests compare interpreter runs against ledger runs.
 
-use leo_ast::{NetworkName, Stub, interpreter_value::Value};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub, interpreter_value::Value};
 use leo_compiler::{Compiler, run_with_ledger};
-use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, Result};
+use leo_passes::{Bytecode, CompiledPrograms};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
 use snarkvm::prelude::{PrivateKey, TestnetV0};
@@ -29,6 +29,7 @@ use itertools::Itertools as _;
 use std::{
     fs,
     path::{Path, PathBuf},
+    rc::Rc,
     str::FromStr,
 };
 use walkdir::WalkDir;
@@ -39,11 +40,19 @@ const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
 
 type CurrentNetwork = TestnetV0;
 
-fn whole_compile(source: &str, handler: &Handler, import_stubs: IndexMap<Symbol, Stub>) -> Result<(String, String)> {
+/// Fully compiles a Leo `source` with some stubs
+#[allow(clippy::type_complexity)]
+fn whole_compile(
+    source: &str,
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+    import_stubs: IndexMap<Symbol, Stub>,
+) -> Result<(CompiledPrograms, String)> {
     let mut compiler = Compiler::new(
         None,
         /* is_test (a Leo test) */ false,
         handler.clone(),
+        node_builder.clone(),
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
@@ -52,9 +61,29 @@ fn whole_compile(source: &str, handler: &Handler, import_stubs: IndexMap<Symbol,
 
     let filename = FileName::Custom("execution-test".into());
 
-    let bytecode = compiler.compile(source, filename, &Vec::new())?;
+    let compiled_programs = compiler.compile(source, filename, &Vec::new())?;
 
-    Ok((bytecode, compiler.program_name.unwrap()))
+    Ok((compiled_programs, compiler.program_name.unwrap()))
+}
+
+/// Parse a Leo `source` with some stubs
+fn parse(source: &str, handler: &Handler, node_builder: &Rc<NodeBuilder>) -> Result<(Program, String)> {
+    let mut compiler = Compiler::new(
+        None,
+        /* is_test (a Leo test) */ false,
+        handler.clone(),
+        node_builder.clone(),
+        "/fakedirectory-wont-use".into(),
+        None,
+        IndexMap::new(),
+        NetworkName::TestnetV0,
+    );
+
+    let filename = FileName::Custom("execution-test".into());
+
+    let program = compiler.parse_and_return_ast(source, filename, &[])?;
+
+    Ok((program, compiler.program_name.unwrap()))
 }
 
 fn parse_cases(source: &str) -> (Vec<run_with_ledger::Case>, Vec<String>) {
@@ -88,20 +117,38 @@ pub struct TestResult {
     interpreter_result: Vec<Value>,
 }
 
-fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<TestResult, ()> {
+fn run_test(
+    path: &Path,
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+    _buf: &BufferEmitter,
+) -> Result<TestResult, ()> {
     let source = fs::read_to_string(path).unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", path.display()));
     let (cases, sources) = parse_cases(&source);
     let mut import_stubs = IndexMap::new();
     let mut ledger_config = run_with_ledger::Config { seed: 2, start_height: None, programs: Vec::new() };
-    for source in &sources {
-        let (bytecode, name) = handler.extend_if_error(whole_compile(source, handler, import_stubs.clone()))?;
 
-        let stub = handler
-            .extend_if_error(disassemble_from_str::<CurrentNetwork>(&name, &bytecode).map_err(|err| err.into()))?;
-        import_stubs.insert(Symbol::intern(&name), stub);
+    // Split sources into intermediate and final.
+    let (last, rest) = sources.split_last().expect("sources cannot be empty");
 
-        ledger_config.programs.push(run_with_ledger::Program { bytecode, name });
+    // Parse-only stage for intermediate programs.
+    for source in rest {
+        let (program, program_name) = handler.extend_if_error(parse(source, handler, node_builder))?;
+        import_stubs.insert(Symbol::intern(&program_name), program.into());
     }
+
+    // Full compile stage for the final program.
+    let (compiled_programs, program_name) =
+        handler.extend_if_error(whole_compile(last, handler, node_builder, import_stubs.clone()))?;
+
+    // Add imported programs.
+    for Bytecode { program_name, bytecode } in compiled_programs.import_bytecodes {
+        ledger_config.programs.push(run_with_ledger::Program { bytecode, name: program_name });
+    }
+
+    // Add main program.
+    let primary_bytecode = compiled_programs.primary_bytecode.clone();
+    ledger_config.programs.push(run_with_ledger::Program { bytecode: primary_bytecode, name: program_name });
 
     // Note. We wrap the cases in a slice to run them on a single ledger instance.
     // This is just to be consistent with previous semantics.
@@ -183,7 +230,8 @@ fn test_interpreter() {
             let mut test_result = {
                 let buf = BufferEmitter::new();
                 let handler = Handler::new(buf.clone());
-                match run_test(path, &handler, &buf) {
+                let node_builder = Rc::new(NodeBuilder::default());
+                match run_test(path, &handler, &node_builder, &buf) {
                     Ok(result) => result,
                     Err(..) => {
                         let errs = buf.extract_errs();

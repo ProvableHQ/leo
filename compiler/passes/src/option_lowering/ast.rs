@@ -62,8 +62,8 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         (
             Type::Composite(CompositeType {
                 path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
-                const_arguments: vec![], // this is not a generic struct
-                program: None,           // current program
+                const_arguments: vec![],     // this is not a generic struct
+                program: Some(self.program), // current program
             }),
             Default::default(),
         )
@@ -115,7 +115,9 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     "Type table must contain type for this expression ID; IDs are not modified during lowering",
                 );
 
-            if actual_expr_type.can_coerce_to(inner) {
+            if actual_expr_type.can_coerce_to(inner, self.program, &|loc: &Location| {
+                self.state.symbol_table.lookup_record(self.program, loc).is_some()
+            }) {
                 return (self.wrap_optional_value(expr, *inner.clone()), stmts);
             }
         }
@@ -358,7 +360,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(callee_program, input.function.absolute_path()))
+            .lookup_function(callee_program, &Location::new(callee_program, input.function.absolute_path()))
             .expect("The symbol table creator should already have visited all functions.")
             .clone();
 
@@ -418,8 +420,8 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let struct_def = self
                     .state
                     .symbol_table
-                    .lookup_record(&location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(&composite.path.absolute_path()))
+                    .lookup_record(self.program, &location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(self.program, &location))
                     .or_else(|| self.new_structs.get(&composite.path.identifier().name))
                     .expect("guaranteed by type checking");
 
@@ -698,7 +700,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(self.program, caller_path))
+            .lookup_function(self.program, &Location::new(self.program, caller_path))
             .expect("The symbol table creator should already have visited all functions.");
 
         let return_type = func_symbol.function.output_type.clone();

@@ -89,7 +89,7 @@ impl Pass for TypeChecking {
             .symbol_table
             .iter_records()
             .map(|(loc, _)| loc.path.clone())
-            .chain(state.symbol_table.iter_structs().map(|(name, _)| name.clone()))
+            .chain(state.symbol_table.iter_structs().map(|(loc, _)| loc.path.clone()))
             .collect();
         let function_names = state.symbol_table.iter_functions().map(|(loc, _)| loc.clone()).collect();
 

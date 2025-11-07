@@ -1,7 +1,7 @@
 Error [ETYC0372104]: Not all futures were consumed: result2
-    --> compiler-test:9:27
+    --> compiler-test:9:33
      |
    9 |         return (result.0, async { result.1.await(); });
-     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |                                 ^^^^^^^^^^^^^^^^^^^^^
      |
      = Make sure all futures are consumed exactly once. Consume by passing to an async function call or async block.

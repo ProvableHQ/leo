@@ -20,6 +20,7 @@ use leo_ast::{
     ConstParameter,
     Function,
     Input,
+    Location,
     Module,
     Output,
     Program,
@@ -31,35 +32,35 @@ use leo_span::Symbol;
 
 impl ProgramReconstructor for OptionLoweringVisitor<'_> {
     fn reconstruct_program(&mut self, input: Program) -> Program {
+        self.program =
+            *input.program_scopes.first().expect("a program must have a single program scope at this time.").0;
+
         // Reconstruct all structs first and keep track of them in `self.reconstructed_structs`.
         for (_, scope) in &input.program_scopes {
             for (_, c) in &scope.structs {
                 let new_struct = self.reconstruct_struct(c.clone());
-                self.reconstructed_structs.insert(vec![new_struct.name()], new_struct);
+                self.reconstructed_structs
+                    .insert(Location::new(scope.program_id.name.name, vec![new_struct.name()]), new_struct);
             }
         }
         for (module_path, module) in &input.modules {
             for (_, c) in &module.structs {
                 let full_name = module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
                 let new_struct = self.reconstruct_struct(c.clone());
-                self.reconstructed_structs.insert(full_name, new_struct.clone());
+                self.reconstructed_structs.insert(Location::new(module.program_name, full_name), new_struct.clone());
             }
         }
 
         // Now we're ready to reconstruct everything else.
         Program {
-            imports: input
-                .imports
-                .into_iter()
-                .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
-                .collect(),
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
+            imports: input.imports,
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
             program_scopes: input
                 .program_scopes
                 .into_iter()
                 .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
                 .collect(),
-            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
         }
     }
 
@@ -75,13 +76,19 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+
             structs: self
                 .reconstructed_structs
                 .iter()
-                .filter_map(|(path, s)| {
-                    path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, s.clone()))
+                .filter_map(|(loc, c)| {
+                    // Only consider structs defined at program scope within the same program.
+                    loc.path
+                        .split_last()
+                        .filter(|(_, rest)| rest.is_empty() && loc.program == self.program)
+                        .map(|(last, _)| (*last, c.clone()))
                 })
                 .collect(),
+
             mappings: input.mappings.into_iter().map(|(id, m)| (id, self.reconstruct_mapping(m))).collect(),
             storage_variables: input
                 .storage_variables
@@ -108,13 +115,18 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+
             structs: slf
                 .reconstructed_structs
                 .iter()
-                .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
-                .filter(|&(_, rest, _)| input.path == rest)
-                .map(|(last, _, c)| (*last, c.clone()))
+                .filter_map(|(loc, c)| {
+                    loc.path
+                        .split_last()
+                        .filter(|(_, rest)| *rest == input.path && loc.program == slf.program)
+                        .map(|(last, _)| (*last, c.clone()))
+                })
                 .collect(),
+
             functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
             ..input
         })

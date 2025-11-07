@@ -24,6 +24,7 @@ use leo_ast::{
     Expression,
     Function,
     Identifier,
+    Location,
     Path,
     ProgramReconstructor,
     StructExpression,
@@ -35,19 +36,19 @@ pub struct MonomorphizationVisitor<'a> {
     /// The main program.
     pub program: Symbol,
     /// A map to provide faster lookup of functions.
-    pub function_map: IndexMap<Vec<Symbol>, Function>,
+    pub function_map: IndexMap<Location, Function>,
     /// A map to provide faster lookup of structs.
-    pub struct_map: IndexMap<Vec<Symbol>, Composite>,
+    pub struct_map: IndexMap<Location, Composite>,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_functions: IndexMap<Vec<Symbol>, Function>,
+    pub reconstructed_functions: IndexMap<Location, Function>,
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
     /// the functions not the names of the monomorphized versions.
-    pub monomorphized_functions: IndexSet<Vec<Symbol>>,
+    pub monomorphized_functions: IndexSet<Location>,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_structs: IndexMap<Vec<Symbol>, Composite>,
+    pub reconstructed_structs: IndexMap<Location, Composite>,
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
     /// the functions not the names of the monomorphized versions.
-    pub monomorphized_structs: IndexSet<Vec<Symbol>>,
+    pub monomorphized_structs: IndexSet<Location>,
     /// A vector of all the calls to const generic functions that have not been resolved.
     pub unresolved_calls: Vec<CallExpression>,
     /// A vector of all the struct expressions of const generic structs that have not been resolved.
@@ -71,7 +72,12 @@ impl MonomorphizationVisitor<'_> {
     /// * Returns a `Symbol` for the newly monomorphized struct.
     ///
     /// Note: this functions already assumes that all provided const arguments are literals.
-    pub(crate) fn monomorphize_struct(&mut self, path: &Path, const_arguments: &Vec<Expression>) -> Path {
+    pub(crate) fn monomorphize_struct(
+        &mut self,
+        program: Symbol,
+        path: &Path,
+        const_arguments: &Vec<Expression>,
+    ) -> Path {
         // Generate a unique name for the monomorphized struct based on const arguments.
         //
         // For `struct Foo::[x: u32, y: u32](..)`, the generated name would be `Foo::[1u32, 2u32]` for a struct
@@ -87,12 +93,12 @@ impl MonomorphizationVisitor<'_> {
 
         // Check if the new struct name is not already present in `reconstructed_structs`. This ensures that we do not
         // add a duplicate definition for the same struct.
-        if self.reconstructed_structs.get(&new_struct_path.absolute_path()).is_none() {
+        if self.reconstructed_structs.get(&Location::new(program, new_struct_path.absolute_path())).is_none() {
             let full_name = path.absolute_path();
             // Look up the already reconstructed struct by name.
             let struct_ = self
                 .reconstructed_structs
-                .get(&full_name)
+                .get(&Location::new(program, full_name.clone()))
                 .expect("Struct should already be reconstructed (post-order traversal).");
 
             // Build mapping from const parameters to const argument values.
@@ -123,10 +129,10 @@ impl MonomorphizationVisitor<'_> {
             struct_.id = self.state.node_builder.next_id();
 
             // Keep track of the new struct in case other structs need it.
-            self.reconstructed_structs.insert(new_struct_path.absolute_path(), struct_);
+            self.reconstructed_structs.insert(Location::new(program, new_struct_path.absolute_path()), struct_);
 
             // Now keep track of the struct we just monomorphized
-            self.monomorphized_structs.insert(full_name);
+            self.monomorphized_structs.insert(Location::new(program, full_name));
         }
 
         new_struct_path

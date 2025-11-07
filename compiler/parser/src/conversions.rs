@@ -1281,7 +1281,7 @@ pub fn to_main(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) 
         .filter(|child| matches!(child.kind, SyntaxKind::Import))
         .map(|child| {
             let name = Symbol::intern(child.children[1].text.strip_suffix(".aleo").unwrap());
-            (name, (leo_ast::Program::default(), child.span))
+            (name, child.span)
         })
         .collect::<IndexMap<_, _>>();
 

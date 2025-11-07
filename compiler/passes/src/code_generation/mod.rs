@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::fmt::Display;
-
-use crate::Pass;
+use crate::{CompiledPrograms, Pass};
 
 use itertools::Itertools;
 use leo_ast::{Literal, Mode, ProgramId};
 use leo_errors::Result;
+
+use std::fmt::Display;
 
 mod expression;
 
@@ -41,7 +41,7 @@ pub struct CodeGenerating;
 
 impl Pass for CodeGenerating {
     type Input = ();
-    type Output = AleoProgram;
+    type Output = CompiledPrograms;
 
     const NAME: &str = "CodeGenerating";
 
@@ -61,8 +61,8 @@ impl Pass for CodeGenerating {
             conditional_depth: 0,
             internal_record_inputs: Default::default(),
         };
-        let code = visitor.visit_program(visitor.state.ast.as_repr());
-        Ok(code)
+
+        Ok(visitor.visit_package())
     }
 }
 
