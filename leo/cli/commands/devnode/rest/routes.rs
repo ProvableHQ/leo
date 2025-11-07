@@ -24,7 +24,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::{str::FromStr, sync::atomic::Ordering};
 
-#[cfg(not(feature = "serial"))]
 use rayon::prelude::*;
 
 // use version::VersionInfo;
@@ -152,7 +151,8 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
 
         // Prepare a closure for the blocking work.
         let get_json_blocks = move || -> Result<ErasedJson, RestError> {
-            let blocks = cfg_into_iter!(start_height..end_height)
+            let blocks = (start_height..end_height)
+                .into_par_iter()
                 .map(|height| rest.ledger.get_block(height))
                 .collect::<Result<Vec<_>, _>>()?;
 
@@ -218,16 +218,16 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         })?))
     }
 
-    /// GET /<network>/transaction/unconfirmed/{transactionID}
-    pub(crate) async fn get_unconfirmed_transaction(
-        State(rest): State<Self>,
-        Path(tx_id): Path<N::TransactionID>,
-    ) -> Result<ErasedJson, RestError> {
-        // Ledger returns a generic anyhow::Error, so checking the message is the only way to parse it.
-        Ok(ErasedJson::pretty(rest.ledger.get_unconfirmed_transaction(&tx_id).map_err(|err| {
-            if err.to_string().contains("Missing") { RestError::not_found(err) } else { RestError::from(err) }
-        })?))
-    }
+    // /// GET /<network>/transaction/unconfirmed/{transactionID}
+    // pub(crate) async fn get_unconfirmed_transaction(
+    //     State(rest): State<Self>,
+    //     Path(tx_id): Path<N::TransactionID>,
+    // ) -> Result<ErasedJson, RestError> {
+    //     // Ledger returns a generic anyhow::Error, so checking the message is the only way to parse it.
+    //     Ok(ErasedJson::pretty(rest.ledger.get_unconfirmed_transaction(&tx_id).map_err(|err| {
+    //         if err.to_string().contains("Missing") { RestError::not_found(err) } else { RestError::from(err) }
+    //     })?))
+    // }
 
     /// GET /<network>/program/{programID}
     /// GET /<network>/program/{programID}?metadata={true}
@@ -644,18 +644,18 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         Ok(last_block)
     }
 
-    /// GET /{network}/block/{blockHeight}/history/{mapping}
-    #[cfg(feature = "history")]
-    pub(crate) async fn get_history(
-        State(rest): State<Self>,
-        Path((height, mapping)): Path<(u32, snarkvm::synthesizer::MappingName)>,
-    ) -> Result<impl axum::response::IntoResponse, RestError> {
-        // Retrieve the history for the given block height and variant.
-        let history = snarkvm::synthesizer::History::new(N::ID, rest.ledger.vm().finalize_store().storage_mode());
-        let result = history.load_mapping(height, mapping).map_err(|err| {
-            RestError::not_found(err.context(format!("Could not load mapping '{mapping}' from block '{height}'")))
-        })?;
+    // /// GET /{network}/block/{blockHeight}/history/{mapping}
+    // #[cfg(feature = "history")]
+    // pub(crate) async fn get_history(
+    //     State(rest): State<Self>,
+    //     Path((height, mapping)): Path<(u32, snarkvm::synthesizer::MappingName)>,
+    // ) -> Result<impl axum::response::IntoResponse, RestError> {
+    //     // Retrieve the history for the given block height and variant.
+    //     let history = snarkvm::synthesizer::History::new(N::ID, rest.ledger.vm().finalize_store().storage_mode());
+    //     let result = history.load_mapping(height, mapping).map_err(|err| {
+    //         RestError::not_found(err.context(format!("Could not load mapping '{mapping}' from block '{height}'")))
+    //     })?;
 
-        Ok((StatusCode::OK, [(CONTENT_TYPE, "application/json")], result))
-    }
+    //     Ok((StatusCode::OK, [(CONTENT_TYPE, "application/json")], result))
+    // }
 }

@@ -17,8 +17,7 @@
 #![forbid(unsafe_code)]
 
 mod helpers;
-// Imports custom `Path` type, to be used instead of `axum`'s.
-pub use helpers::*;
+use helpers::*;
 
 mod routes;
 
@@ -26,7 +25,7 @@ mod version;
 
 use snarkvm::{
     console::{program::ProgramID, types::Field},
-    prelude::{Ledger, Network, Transaction, cfg_into_iter, store::ConsensusStorage},
+    prelude::{Ledger, Network, Transaction, store::ConsensusStorage},
 };
 
 use super::*;
