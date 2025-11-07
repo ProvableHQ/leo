@@ -52,23 +52,22 @@ impl Command for Start {
 // The devnode will run in the background and will be accessible via a REST API.
 // The devnode will be configured to use the local network and will be pre-populated with test accounts and data.
 pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
-    // Start the devnode server
+    // Start the devnode server.
     println!("Starting the devnode server...");
     initialize_terminal_logger(2).expect("Failed to initialize logger");
     let socket_addr: SocketAddr = "127.0.0.1:3030".parse()?;
     let rps = 999999999;
-    // Load the genesis block
-    // let buffer = std::fs::read("./leo/cli/commands/devnode/rest/victor_genesis.txt")?;
-    const GENESIS_BYTES: &[u8] = include_bytes!("./rest/victor_genesis.txt");
+    // Load the genesis block.
+    const GENESIS_BYTES: &[u8] = include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin");
     let genesis_block: Block<TestnetV0> = Block::from_bytes_le(GENESIS_BYTES)?;
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
     // Initialize the ledger.
     let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> = Ledger::load(genesis_block, storage_mode)?;
-    // Start the REST API server
+    // Start the REST API server.
     Rest::start(socket_addr, rps, ledger).await.expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
-    // Prevent main from exiting
+    // Prevent main from exiting.
     std::future::pending::<()>().await;
 
     Ok(())
