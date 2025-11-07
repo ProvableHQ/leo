@@ -663,6 +663,42 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
+            CoreFunction::SnarkVerify => {
+                // Check that the first argument is a byte array.
+                let Type::Array(array_type) = &arguments[0].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        "a byte array",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+
+                // Check that the second argument is an array of field elements.
+                let Type::Array(array_type) = &arguments[1].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[1].0,
+                        "an array of field elements",
+                        arguments[1].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(array_type.element_type(), &Type::Field, arguments[1].1.span());
+
+                // Check that the third argument is a byte array.
+                let Type::Array(array_type) = &arguments[2].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "a byte array",
+                        arguments[2].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[2].1.span());
+
+                Type::Boolean
+            }
             CoreFunction::Get => {
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
                     // Check that the operation is invoked in a `finalize` or `async` block.

@@ -191,6 +191,7 @@ symbols! {
     Keccak384,
     Keccak512,
     Mapping,
+    Snark,
     Storage,
     Optional,
     Vector,

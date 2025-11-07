@@ -69,6 +69,8 @@ pub enum CoreFunction {
     // Note. `Deserialize` cannot be instantiated via `from_symbols` as it requires a type argument.
     Deserialize(DeserializeVariant, Type),
 
+    SnarkVerify,
+
     CheatCodePrintMapping,
     CheatCodeSetBlockHeight,
     CheatCodeSetSigner,
@@ -611,6 +613,8 @@ impl CoreFunction {
             (sym::Serialize, sym::to_bits) => Self::Serialize(SerializeVariant::ToBits),
             (sym::Serialize, sym::to_bits_raw) => Self::Serialize(SerializeVariant::ToBitsRaw),
 
+            (sym::Snark, sym::verify) => Self::SnarkVerify,
+
             (sym::CheatCode, sym::print_mapping) => Self::CheatCodePrintMapping,
             (sym::CheatCode, sym::set_block_height) => Self::CheatCodeSetBlockHeight,
             (sym::CheatCode, sym::set_signer) => Self::CheatCodeSetSigner,
@@ -655,6 +659,8 @@ impl CoreFunction {
             Self::Serialize(_) => 1,
             Self::Deserialize(_, _) => 1,
 
+            Self::SnarkVerify => 3,
+
             Self::CheatCodePrintMapping => 1,
             Self::CheatCodeSetBlockHeight => 1,
             Self::CheatCodeSetSigner => 1,
@@ -679,7 +685,8 @@ impl CoreFunction {
             | CoreFunction::VectorLen
             | CoreFunction::VectorClear
             | CoreFunction::VectorPop
-            | CoreFunction::VectorSwapRemove => true,
+            | CoreFunction::VectorSwapRemove
+            | CoreFunction::SnarkVerify => true,
             CoreFunction::Commit(_, _)
             | CoreFunction::Hash(_, _)
             | CoreFunction::OptionalUnwrap

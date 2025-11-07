@@ -19,7 +19,8 @@ use std::collections::HashMap;
 use rand::Rng as _;
 use rand_chacha::ChaCha20Rng;
 use snarkvm::{
-    prelude::{ToBits, ToBitsRaw},
+    algorithms::snark::varuna::VarunaVersion,
+    prelude::{FromBytes, Proof, ToBits, ToBitsRaw, VerifyingKey},
     synthesizer::program::{DeserializeVariant, SerializeVariant},
 };
 
@@ -171,6 +172,34 @@ pub fn evaluate_core_function(
             Ok(value.into())
         };
 
+    let dosnarkverify = |helper: &mut dyn CoreFunctionHelper| -> Result<Value> {
+        // Parse the verifying key.
+        let value: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let verifying_key = match value {
+            SvmValue::Plaintext(plaintext) => VerifyingKey::<TestnetV0>::from_bytes_le(&plaintext.as_byte_array()?)?,
+            _ => crate::halt_no_span2!("expected verifying key for snark verification"),
+        };
+        // Parse the inputs.
+        let value: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let inputs = match value {
+            SvmValue::Plaintext(plaintext) => plaintext.as_field_array()?.into_iter().map(|f| *f).collect::<Vec<_>>(),
+            _ => crate::halt_no_span2!("expected inputs for snark verification"),
+        };
+        let value: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let proof = match value {
+            SvmValue::Plaintext(plaintext) => Proof::from_bytes_le(&plaintext.as_byte_array()?)?,
+            _ => crate::halt_no_span2!("expected proof for snark verification"),
+        };
+        let is_valid = snarkvm::synthesizer::program::evaluate_varuna_proof(
+            &verifying_key,
+            "snark.verify",
+            VarunaVersion::V2,
+            &inputs,
+            &proof,
+        )?;
+        Ok(Boolean::new(is_valid).into())
+    };
+
     macro_rules! random {
         ($ty: ident) => {{
             let Some(rng) = helper.rng() else {
@@ -206,6 +235,7 @@ pub fn evaluate_core_function(
         CoreFunction::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
         CoreFunction::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
         CoreFunction::SignatureVerify => doschnorr(helper)?,
+        CoreFunction::SnarkVerify => dosnarkverify(helper)?,
         CoreFunction::Serialize(variant) => doserialize(helper, variant)?,
         CoreFunction::Deserialize(variant, type_) => dodeserialize(helper, variant, type_)?,
         CoreFunction::GroupToXCoordinate => {
