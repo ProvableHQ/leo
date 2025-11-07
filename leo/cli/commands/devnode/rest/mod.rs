@@ -21,8 +21,6 @@ use helpers::*;
 
 mod routes;
 
-mod version;
-
 use snarkvm::{
     console::{program::ProgramID, types::Field},
     prelude::{Ledger, Network, Transaction, store::ConsensusStorage},
@@ -173,10 +171,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/statePaths", get(Self::get_state_paths_for_commitments))
             .route("/stateRoot/latest", get(Self::get_state_root_latest))
             .route("/stateRoot/{height}", get(Self::get_state_root));
-
-        // If the `history` feature is enabled, enable the additional endpoint.
-        #[cfg(feature = "history")]
-        let routes = routes.route("/block/{blockHeight}/history/{mapping}", get(Self::get_history));
 
         routes
             // Pass in `Rest` to make things convenient.

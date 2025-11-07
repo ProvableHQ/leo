@@ -25,7 +25,7 @@ use snarkvm::{
 
 use crate::cli::commands::devnode::rest::Rest;
 
-// Command for starting the devnode server.
+// Command for starting the Devnode server.
 #[derive(Parser, Debug)]
 pub struct Start;
 
@@ -49,11 +49,11 @@ impl Command for Start {
 }
 
 // This will start a local node that can be used for testing and development purposes.
-// The devnode will run in the background and will be accessible via a REST API.
-// The devnode will be configured to use the local network and will be pre-populated with test accounts and data.
+// The Devnode will run in the background and will be accessible via a REST API.
+// The Devnode will be configured to use the local network and will be pre-populated with test accounts and data.
 pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
-    // Start the devnode server.
-    println!("Starting the devnode server...");
+    // Start the Devnode server.
+    println!("Starting the Devnode server...");
     initialize_terminal_logger(2).expect("Failed to initialize logger");
     let socket_addr: SocketAddr = "127.0.0.1:3030".parse()?;
     let rps = 999999999;

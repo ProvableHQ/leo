@@ -17,7 +17,7 @@
 use super::*;
 use serde_json::json;
 
-// Advance the devnode ledger by a specified number of blocks.  The default value is 1.
+// Advance the Devnode ledger by a specified number of blocks.  The default value is 1.
 #[derive(Parser, Debug)]
 pub struct Advance {
     #[clap(help = "The number of blocks to advance the ledger by", default_value = "1")]

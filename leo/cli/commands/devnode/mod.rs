@@ -41,7 +41,7 @@ pub enum DevnodeCommands {
     },
 }
 
-///  Query live data from the Aleo network.
+/// Command for initializing and creating blocks for a local client node.
 #[derive(Parser, Debug)]
 pub struct LeoDevnode {
     #[clap(flatten)]
@@ -67,11 +67,11 @@ impl Command for LeoDevnode {
     }
 }
 
-// A helper function to handle the devnode command based on the subcommand provided.
+// A helper function to handle the Devnode command based on the subcommand provided.
 fn hanlde_devnode(devnode_command: LeoDevnode, context: Context) -> Result<<LeoDevnode as Command>::Output> {
     match devnode_command.command {
         DevnodeCommands::Start { command } => {
-            tracing::info!("Starting the devnode server...");
+            tracing::info!("Starting the Devnode server...");
             command.apply(context, ())
         }
         DevnodeCommands::Advance { command } => command.apply(context, ()),

@@ -71,11 +71,6 @@ impl RestError {
         Self::TooManyRequests(inner)
     }
 
-    // /// Create a ServiceUnavailable error
-    // pub fn service_unavailable(inner: anyhow::Error) -> Self {
-    //     Self::ServiceUnavailable(inner)
-    // }
-
     /// Create an InternalServerError error
     pub fn internal_server_error(inner: anyhow::Error) -> Self {
         Self::InternalServerError(inner)
