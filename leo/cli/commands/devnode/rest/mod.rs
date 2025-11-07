@@ -130,8 +130,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         );
 
         let routes = axum::Router::new()
-            .route("/db_backup", post(Self::db_backup))
-            // .route_layer(middleware::from_fn(auth_middleware))
             // Get ../consensus_version
             .route("/consensus_version", get(Self::get_consensus_version))
 
@@ -150,7 +148,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/transaction/broadcast", post(Self::transaction_broadcast))
             .route("/transaction/confirmed/{id}", get(Self::get_confirmed_transaction))
             .route("/transaction/{id}", get(Self::get_transaction))
-            // .route("/transaction/unconfirmed/{id}", get(Self::get_unconfirmed_transaction))
 
             // GET ../find/..
             .route("/find/blockHash/{tx_id}", get(Self::find_block_hash))
@@ -178,8 +175,8 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/stateRoot/{height}", get(Self::get_state_root));
 
         // If the `history` feature is enabled, enable the additional endpoint.
-        // #[cfg(feature = "history")]
-        // let routes = routes.route("/block/{blockHeight}/history/{mapping}", get(Self::get_history));
+        #[cfg(feature = "history")]
+        let routes = routes.route("/block/{blockHeight}/history/{mapping}", get(Self::get_history));
 
         routes
             // Pass in `Rest` to make things convenient.
@@ -276,16 +273,6 @@ async fn v1_error_middleware(response: Response) -> Response {
 
     response
 }
-
-/// Formats an ID into a truncated identifier (for logging purposes).
-// pub fn fmt_id(id: impl ToString) -> String {
-//     let id = id.to_string();
-//     let mut formatted_id = id.chars().take(16).collect::<String>();
-//     if id.chars().count() > 16 {
-//         formatted_id.push_str("..");
-//     }
-//     formatted_id
-// }
 
 #[cfg(test)]
 mod tests {
