@@ -1,17 +1,31 @@
 program test_snark_verify.aleo;
 
-function main:
+function snark_verify:
     input r0 as [u8; 2048u32].private;
     input r1 as [field; 2048u32].private;
     input r2 as [u8; 2048u32].private;
-    async main r0 r1 r2 into r3;
-    output r3 as test_snark_verify.aleo/main.future;
+    async snark_verify r0 r1 r2 into r3;
+    output r3 as test_snark_verify.aleo/snark_verify.future;
 
-finalize main:
+finalize snark_verify:
     input r0 as [u8; 2048u32].public;
     input r1 as [field; 2048u32].public;
     input r2 as [u8; 2048u32].public;
     snark.verify r0 r1 r2 into r3;
+    assert.eq r3 true;
+
+function snark_verify_batch:
+    input r0 as [[u8; 2048u32]; 2048u32].private;
+    input r1 as [[[field; 2048u32]; 2048u32]; 2048u32].private;
+    input r2 as [[u8; 2048u32]; 2048u32].private;
+    async snark_verify_batch r0 r1 r2 into r3;
+    output r3 as test_snark_verify.aleo/snark_verify_batch.future;
+
+finalize snark_verify_batch:
+    input r0 as [[u8; 2048u32]; 2048u32].public;
+    input r1 as [[[field; 2048u32]; 2048u32]; 2048u32].public;
+    input r2 as [[u8; 2048u32]; 2048u32].public;
+    snark.verify.batch r0 r1 r2 into r3;
     assert.eq r3 true;
 
 constructor:

@@ -27,7 +27,14 @@ use indexmap::{IndexMap, IndexSet};
 use snarkvm::{
     console::algorithms::ECDSASignature,
     prelude::PrivateKey,
-    synthesizer::program::{CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, SerializeVariant},
+    synthesizer::program::{
+        CommitVariant,
+        DeserializeVariant,
+        ECDSAVerifyVariant,
+        HashVariant,
+        SerializeVariant,
+        SnarkVerifyVariant,
+    },
 };
 use std::{ops::Deref, str::FromStr};
 
@@ -113,7 +120,7 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
+    pub fn assert_type(&self, actual: &Type, expected: &Type, span: Span) {
         if actual != &Type::Err && !actual.can_coerce_to(expected) {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
@@ -663,39 +670,65 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
-            CoreFunction::SnarkVerify => {
-                // Check that the first argument is a byte array.
-                let Type::Array(array_type) = &arguments[0].0 else {
-                    self.emit_err(TypeCheckerError::type_should_be2(
-                        &arguments[0].0,
-                        "a byte array",
-                        arguments[0].1.span(),
-                    ));
-                    return Type::Err;
+            CoreFunction::SnarkVerify(variant) => {
+                // A helper function to check that an argument is an N-D array with a desired base element type.
+                let assert_n_d_array = |type_: &Type, desired_base: &Type, n: usize, span: Span| {
+                    let mut current_type = type_;
+                    // Traverse N levels of array types.
+                    for _ in 0..n {
+                        let Type::Array(array_type) = current_type else {
+                            self.emit_err(TypeCheckerError::type_should_be2(
+                                type_,
+                                format!("a {n}-D array of `{desired_base}`s"),
+                                span,
+                            ));
+                            return;
+                        };
+                        current_type = array_type.element_type();
+                    }
+                    // Check that the base element type matches the desired type.
+                    if current_type != &Type::Err && !current_type.can_coerce_to(desired_base) {
+                        // If `current_type` is Err, we will have already reported an error.
+                        self.emit_err(TypeCheckerError::type_should_be2(
+                            type_,
+                            format!("a {n}-D array of `{desired_base}`s"),
+                            span,
+                        ));
+                    }
                 };
-                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+
+                // Check that the first argument is a byte array.
+                // The `Varuna` variant expects a 1-D byte array, while the `VarunaBatch` variant expects a 2-D byte array.
+                match variant {
+                    SnarkVerifyVariant::Varuna => {
+                        assert_n_d_array(&arguments[0].0, &Type::Integer(IntegerType::U8), 1, arguments[0].1.span());
+                    }
+                    SnarkVerifyVariant::VarunaBatch => {
+                        assert_n_d_array(&arguments[0].0, &Type::Integer(IntegerType::U8), 2, arguments[0].1.span());
+                    }
+                }
 
                 // Check that the second argument is an array of field elements.
-                let Type::Array(array_type) = &arguments[1].0 else {
-                    self.emit_err(TypeCheckerError::type_should_be2(
-                        &arguments[1].0,
-                        "an array of field elements",
-                        arguments[1].1.span(),
-                    ));
-                    return Type::Err;
-                };
-                self.assert_type(array_type.element_type(), &Type::Field, arguments[1].1.span());
+                // The `Varuna` variant expects a 1-D array, while the `VarunaBatch` variant expects a 3-D array.
+                match variant {
+                    SnarkVerifyVariant::Varuna => {
+                        assert_n_d_array(&arguments[1].0, &Type::Field, 1, arguments[1].1.span());
+                    }
+                    SnarkVerifyVariant::VarunaBatch => {
+                        assert_n_d_array(&arguments[1].0, &Type::Field, 3, arguments[1].1.span());
+                    }
+                }
 
                 // Check that the third argument is a byte array.
-                let Type::Array(array_type) = &arguments[2].0 else {
-                    self.emit_err(TypeCheckerError::type_should_be2(
-                        &arguments[2].0,
-                        "a byte array",
-                        arguments[2].1.span(),
-                    ));
-                    return Type::Err;
-                };
-                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[2].1.span());
+                // The `Varuna` variant expects a 1-D byte array, while the `VarunaBatch` variant expects a 2-D byte array.
+                match variant {
+                    SnarkVerifyVariant::Varuna => {
+                        assert_n_d_array(&arguments[2].0, &Type::Integer(IntegerType::U8), 1, arguments[2].1.span());
+                    }
+                    SnarkVerifyVariant::VarunaBatch => {
+                        assert_n_d_array(&arguments[2].0, &Type::Integer(IntegerType::U8), 2, arguments[2].1.span());
+                    }
+                }
 
                 Type::Boolean
             }

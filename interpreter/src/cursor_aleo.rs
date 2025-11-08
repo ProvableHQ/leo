@@ -40,6 +40,7 @@ use snarkvm::{
             HashVariant,
             Operand,
             SerializeVariant,
+            SnarkVerifyVariant,
         },
     },
 };
@@ -269,6 +270,21 @@ impl Cursor {
                 let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $deserialize.destinations()[0].clone())
+            }};
+        }
+
+        macro_rules! snark_verify_function {
+            ($snark_verify: expr, $variant: expr) => {{
+                let core_function = CoreFunction::SnarkVerify($variant);
+                let signature = self.operand_value(&$snark_verify.operands()[0]);
+                let public_key = self.operand_value(&$snark_verify.operands()[1]);
+                let message = self.operand_value(&$snark_verify.operands()[2]);
+                self.values.push(signature);
+                self.values.push(public_key);
+                self.values.push(message);
+                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                self.increment_instruction_index();
+                (value.expect("Evaluation should work"), $snark_verify.destinations()[0].clone())
             }};
         }
 
@@ -553,17 +569,9 @@ impl Cursor {
             Shr(shr) => binary!(shr, Shr),
             ShrWrapped(shr_wrapped) => binary!(shr_wrapped, ShrWrapped),
             SignVerify(schnorr) => schnorr_function!(schnorr, false),
-            SnarkVerify(snark_verify) => {
-                let core_function = CoreFunction::SnarkVerify;
-                let verifying_key = self.operand_value(&snark_verify.operands()[0]);
-                let inputs = self.operand_value(&snark_verify.operands()[1]);
-                let proof = self.operand_value(&snark_verify.operands()[2]);
-                self.values.push(verifying_key);
-                self.values.push(inputs);
-                self.values.push(proof);
-                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
-                self.increment_instruction_index();
-                (value.expect("Evaluation should work"), snark_verify.destinations()[0].clone())
+            SnarkVerify(snark_verify) => snark_verify_function!(snark_verify, SnarkVerifyVariant::Varuna),
+            SnarkVerifyBatch(snarkvm_verify) => {
+                snark_verify_function!(snarkvm_verify, SnarkVerifyVariant::VarunaBatch)
             }
             Square(square) => unary!(square, Square),
             SquareRoot(sqrt) => unary!(sqrt, SquareRoot),

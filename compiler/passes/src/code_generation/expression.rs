@@ -556,8 +556,8 @@ impl CodeGeneratingVisitor<'_> {
                 .expect("failed to write to string");
                 (destination_register, instruction)
             }
-            Some(CoreFunction::SnarkVerify) => {
-                let mut instruction = "    snark.verify".to_string();
+            Some(CoreFunction::SnarkVerify(variant)) => {
+                let mut instruction = format!("    {}", variant.opcode());
                 let destination_register = self.next_register();
                 // Write the arguments and the destination register.
                 writeln!(
