@@ -16,8 +16,7 @@
 
 use super::*;
 use serde_json::json;
-use snarkvm::circuit::{Aleo, AleoTestnetV0};
-use snarkvm::prelude::PrivateKey;
+use snarkvm::prelude::{PrivateKey, TestnetV0};
 
 // Advance the Devnode ledger by a specified number of blocks.  The default value is 1.
 #[derive(Parser, Debug)]
@@ -44,12 +43,12 @@ impl Command for Advance {
 
         tokio::runtime::Runtime::new()
             .unwrap()
-            .block_on(async { handle_advance_devnode::<AleoTestnetV0>(self).await })
+            .block_on(async { handle_advance_devnode::<TestnetV0>(self).await })
     }
 }
 
-async fn handle_advance_devnode<A: Aleo>(command: Advance) -> Result<()> {
-    let private_key: PrivateKey<A::Network> = get_private_key(&command.env_override.private_key)?;
+async fn handle_advance_devnode<N: Network>(command: Advance) -> Result<()> {
+    let private_key: PrivateKey<N> = get_private_key(&command.env_override.private_key)?;
 
     tracing::info!("Advancing the Devnode ledger by {} block(s)", command.num_blocks,);
 
