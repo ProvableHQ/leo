@@ -354,6 +354,7 @@ symbols! {
     stub,
     block,
     height,
+    timestamp,
     network,
     id,
     checksum,

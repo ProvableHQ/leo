@@ -82,7 +82,7 @@ fn runner_leo_test(test: &str) -> String {
 
             let empty: [&PathBuf; 0] = [];
             let mut interpreter =
-                Interpreter::new(&[(filename, vec![])], empty, private_key.to_string(), 0, NetworkName::TestnetV0)
+                Interpreter::new(&[(filename, vec![])], empty, private_key.to_string(), 0, chrono::Utc::now().timestamp(), NetworkName::TestnetV0)
                     .expect("creating interpreter");
 
             run_and_format_output(&mut interpreter)
@@ -158,6 +158,7 @@ fn runner_leo_test(test: &str) -> String {
                 empty,
                 private_key.to_string(),
                 0,
+                chrono::Utc::now().timestamp(),
                 NetworkName::TestnetV0,
             )
             .expect("creating interpreter");

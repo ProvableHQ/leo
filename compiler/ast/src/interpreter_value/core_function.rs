@@ -60,6 +60,8 @@ pub trait CoreFunctionHelper {
 
     fn set_block_height(&mut self, _height: u32) {}
 
+    fn set_block_timestamp(&mut self, _timestamp: i64) {}
+
     fn set_signer(&mut self, _private_key: String) -> Result<()> {
         Ok(())
     }
