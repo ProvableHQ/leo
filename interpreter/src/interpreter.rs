@@ -67,6 +67,7 @@ impl Interpreter {
         aleo_source_files: impl IntoIterator<Item = &'a Q>,
         private_key: String,
         block_height: u32,
+        block_timestamp: i64,
         network: NetworkName,
     ) -> Result<Self> {
         Self::new_impl(
@@ -74,6 +75,7 @@ impl Interpreter {
             &mut aleo_source_files.into_iter().map(|p| p.as_ref()),
             private_key,
             block_height,
+            block_timestamp,
             network,
         )
     }
@@ -121,6 +123,7 @@ impl Interpreter {
         aleo_source_files: &mut dyn Iterator<Item = &std::path::Path>,
         private_key: String,
         block_height: u32,
+        block_timestamp: i64,
         network: NetworkName,
     ) -> Result<Self> {
         let handler = Handler::default();
@@ -129,6 +132,7 @@ impl Interpreter {
             true, // really_async
             private_key,
             block_height,
+            block_timestamp,
             network,
         );
         let mut filename_to_program = HashMap::new();

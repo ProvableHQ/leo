@@ -73,6 +73,7 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
         &aleo_paths,
         private_key.to_string(),
         0u32,
+        chrono::Utc::now().timestamp(),
         &command.test_name,
         NetworkName::TestnetV0,
     )?;

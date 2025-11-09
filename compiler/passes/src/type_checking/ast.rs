@@ -200,6 +200,13 @@ impl TypeCheckingVisitor<'_> {
                         self.maybe_assert_type(&ty, expected, input.span());
                         return ty;
                     }
+                    sym::timestamp => {
+                        // Check that the operation is invoked in a `finalize` block.
+                        self.check_access_allowed("block.timestamp", true, input.name.span());
+                        let ty = Type::Integer(IntegerType::I64);
+                        self.maybe_assert_type(&ty, expected, input.span());
+                        return ty;
+                    }
                     _ => {
                         self.emit_err(TypeCheckerError::invalid_block_access(input.name.span()));
                         return Type::Err;

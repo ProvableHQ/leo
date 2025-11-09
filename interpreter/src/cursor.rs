@@ -281,6 +281,8 @@ pub struct Cursor {
 
     pub block_height: u32,
 
+    pub block_timestamp: i64,
+
     pub really_async: bool,
 
     pub program: Option<Symbol>,
@@ -297,6 +299,10 @@ impl CoreFunctionHelper for Cursor {
 
     fn set_block_height(&mut self, height: u32) {
         self.block_height = height;
+    }
+
+    fn set_block_timestamp(&mut self, timestamp: i64) {
+        self.block_timestamp = timestamp;
     }
 
     fn set_signer(&mut self, private_key: String) -> Result<()> {
@@ -330,7 +336,7 @@ impl CoreFunctionHelper for Cursor {
 
 impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
-    pub fn new(really_async: bool, private_key: String, block_height: u32, network: NetworkName) -> Self {
+    pub fn new(really_async: bool, private_key: String, block_height: u32, block_timestamp: i64, network: NetworkName) -> Self {
         let mut cursor = Cursor {
             frames: Default::default(),
             values: Default::default(),
@@ -346,6 +352,7 @@ impl Cursor {
             rng: ChaCha20Rng::from_entropy(),
             signer: Default::default(),
             block_height,
+            block_timestamp,
             really_async,
             program: None,
             network,
@@ -977,6 +984,7 @@ impl Cursor {
                 },
                 Expression::Path(path) if *path.as_symbols() == vec![sym::block] => match access.name.name {
                     sym::height => Some(self.block_height.into()),
+                    sym::timestamp => Some(self.block_timestamp.into()),
                     _ => halt!(access.span(), "unknown member of block"),
                 },
 

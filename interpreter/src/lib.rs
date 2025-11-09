@@ -148,10 +148,11 @@ pub fn find_and_run_tests(
     aleo_filenames: &[PathBuf],
     private_key: String,
     block_height: u32,
+    block_timestamp: i64,
     match_str: &str,
     network: NetworkName,
 ) -> Result<(Vec<TestFunction>, IndexMap<Location, Result<()>>)> {
-    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, private_key, block_height, network)?;
+    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, private_key, block_height, block_timestamp, network)?;
 
     let mut native_test_functions = Vec::new();
 
@@ -252,10 +253,11 @@ pub fn interpret(
     aleo_filenames: &[PathBuf],
     private_key: String,
     block_height: u32,
+    block_timestamp: i64,
     tui: bool,
     network: NetworkName,
 ) -> Result<()> {
-    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, private_key, block_height, network)?;
+    let mut interpreter = Interpreter::new(leo_filenames, aleo_filenames, private_key, block_height, block_timestamp, network)?;
 
     let mut user_interface: Box<dyn Ui> =
         if tui { Box::new(ratatui_ui::RatatuiUi::new()) } else { Box::new(dialoguer_input::DialoguerUi::new()) };

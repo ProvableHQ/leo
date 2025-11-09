@@ -66,6 +66,9 @@ workspace = true
 [dev-dependencies.leo-test-framework]
 workspace = true
 
+[dev-dependencies.chrono]
+version = "0.4.41"
+
 [dev-dependencies.regex]
 workspace = true
 

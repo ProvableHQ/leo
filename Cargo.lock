@@ -1913,6 +1913,7 @@ dependencies = [
 name = "leo-interpreter"
 version = "3.3.1"
 dependencies = [
+ "chrono",
  "colored 2.2.0",
  "crossterm 0.28.1",
  "dialoguer",
