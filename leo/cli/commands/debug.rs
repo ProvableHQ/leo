@@ -29,6 +29,8 @@ pub struct LeoDebug {
     pub(crate) paths: Vec<String>,
     #[arg(long, help = "The block height, accessible via block.height.", default_value = "0")]
     pub(crate) block_height: u32,
+    #[arg(long, help = "The block timestamp, accessible via block.timestamp.", default_value = "chrono::Utc::now().timestamp()")]
+    pub(crate) block_timestamp: i64,
     #[arg(long, action, help = "Use the text user interface.")]
     pub(crate) tui: bool,
     #[clap(flatten)]
@@ -82,6 +84,7 @@ fn handle_debug(command: &LeoDebug, package: Option<Package>) -> Result<()> {
             &aleo_paths,
             private_key.to_string(),
             command.block_height,
+            command.block_timestamp,
             command.tui,
             network_name,
         )
@@ -107,6 +110,7 @@ fn handle_debug(command: &LeoDebug, package: Option<Package>) -> Result<()> {
             &aleo_paths,
             private_key.to_string(),
             command.block_height,
+            command.block_timestamp,
             command.tui,
             network_name,
         )

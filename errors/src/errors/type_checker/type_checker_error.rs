@@ -557,7 +557,7 @@ create_messages!(
     @formatted
     invalid_block_access {
         args: (),
-        msg: format!("The allowed accesses to `block` are `block.height`."),
+        msg: format!("The allowed accesses to `block` are `block.height` and `block.timestamp`."),
         help: None,
     }
 
