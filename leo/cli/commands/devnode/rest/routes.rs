@@ -208,6 +208,17 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         })?))
     }
 
+    /// GET /<network>/transaction/unconfirmed/{transactionID}
+    pub(crate) async fn get_unconfirmed_transaction(
+        State(rest): State<Self>,
+        Path(tx_id): Path<N::TransactionID>,
+    ) -> Result<ErasedJson, RestError> {
+        // Ledger returns a generic anyhow::Error, so checking the message is the only way to parse it.
+        Ok(ErasedJson::pretty(rest.ledger.get_unconfirmed_transaction(&tx_id).map_err(|err| {
+            if err.to_string().contains("Missing") { RestError::not_found(err) } else { RestError::from(err) }
+        })?))
+    }
+
     /// GET /<network>/program/{programID}
     /// GET /<network>/program/{programID}?metadata={true}
     pub(crate) async fn get_program(
