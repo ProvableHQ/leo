@@ -720,13 +720,13 @@ impl TypeCheckingVisitor<'_> {
                 }
 
                 // Check that the third argument is a byte array.
-                // The `Varuna` variant expects a 1-D byte array, while the `VarunaBatch` variant expects a 2-D byte array.
+                // The `Varuna` and `VarunaBatch` variants both expect a 1-D byte array.
                 match variant {
                     SnarkVerifyVariant::Varuna => {
                         assert_n_d_array(&arguments[2].0, &Type::Integer(IntegerType::U8), 1, arguments[2].1.span());
                     }
                     SnarkVerifyVariant::VarunaBatch => {
-                        assert_n_d_array(&arguments[2].0, &Type::Integer(IntegerType::U8), 2, arguments[2].1.span());
+                        assert_n_d_array(&arguments[2].0, &Type::Integer(IntegerType::U8), 1, arguments[2].1.span());
                     }
                 }
 

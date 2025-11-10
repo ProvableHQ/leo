@@ -24,7 +24,7 @@ function snark_verify_batch:
 finalize snark_verify_batch:
     input r0 as [[u8; 2048u32]; 2048u32].public;
     input r1 as [[[field; 2048u32]; 2048u32]; 2048u32].public;
-    input r2 as [[u8; 2048u32]; 2048u32].public;
+    input r2 as [u8; 2048u32].public;
     snark.verify.batch r0 r1 r2 into r3;
     assert.eq r3 true;
 
