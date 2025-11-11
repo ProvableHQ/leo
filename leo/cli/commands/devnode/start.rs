@@ -25,9 +25,24 @@ use snarkvm::{
 
 use crate::cli::commands::devnode::rest::Rest;
 
+const DEFAULT_GENESIS_PATH: &str = "./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin";
+
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
-pub struct Start;
+pub struct Start{
+    /// Verbosity level for logging (0-2).
+    #[clap(short = 'v', long, help = "devnode verbosity (0-2)", default_value = "2")]
+    pub(crate) verbosity: u8,
+    /// Address to bind the Devnode REST API server to.
+    #[clap(long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
+    pub(crate) listener_addr: String,
+    /// Path to the genesis block file.
+    #[clap(long, help = "path to genesis block file", default_value = DEFAULT_GENESIS_PATH)]
+    pub(crate) genesis_path: String,
+    /// Enable manual block creation mode. 
+    #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
+    pub(crate) manual_block_creation: bool,
+}
 
 impl Command for Start {
     type Input = ();
@@ -43,7 +58,7 @@ impl Command for Start {
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         let rt = tokio::runtime::Runtime::new().unwrap();
-        let _ = rt.block_on(async { start_devnode().await });
+        let _ = rt.block_on(async { start_devnode(self).await });
         Ok(())
     }
 }
@@ -51,11 +66,11 @@ impl Command for Start {
 // This will start a local node that can be used for testing and development purposes.
 // The Devnode will run in the background and will be accessible via a REST API.
 // The Devnode will be configured to use the local network and will be pre-populated with test accounts and data.
-pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
+pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::error::Error>> {
     // Start the Devnode server.
     println!("Starting the Devnode server...");
-    initialize_terminal_logger(2).expect("Failed to initialize logger");
-    let socket_addr: SocketAddr = "127.0.0.1:3030".parse()?;
+    initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
+    let socket_addr: SocketAddr = command.listener_addr.parse()?;
     let rps = 999999999;
     // Load the genesis block.
     const GENESIS_BYTES: &[u8] = include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin");
@@ -65,7 +80,7 @@ pub(crate) async fn start_devnode() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the ledger.
     let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> = Ledger::load(genesis_block, storage_mode)?;
     // Start the REST API server.
-    Rest::start(socket_addr, rps, ledger).await.expect("Failed to start the REST API server");
+    Rest::start(socket_addr, rps, ledger, command.manual_block_creation).await.expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
     // Prevent main from exiting.
     std::future::pending::<()>().await;

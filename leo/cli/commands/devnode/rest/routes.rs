@@ -535,9 +535,8 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             // Propagate error if any.
             res?;
         }
-        // Create a block with the transaction if the BLOCK_CREATE feauture is not disabled.
-        let block_boolean = std::env::var("BLOCK_CREATE").unwrap_or_else(|_| "true".to_string());
-        if block_boolean == "true" {
+        // Create a block with the transaction if the manual block creation feature is not enabled.
+        if !rest.manual_block_creation {
             // Create a block by advancing the ledger using the transaction buffer.
             let tx_copy = tx.clone();
             let tx_id = tx_copy.id();

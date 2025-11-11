@@ -69,11 +69,13 @@ pub struct Rest<N: Network, C: ConsensusStorage<N>> {
     num_verifying_deploys: Arc<AtomicUsize>,
     /// The number of ongoing execute transaction verifications via REST.
     num_verifying_executions: Arc<AtomicUsize>,
+    /// Whether manual block creation is enabled.
+    manual_block_creation: bool,
 }
 
 impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
     /// Initializes a new instance of the server.
-    pub async fn start(rest_ip: SocketAddr, rest_rps: u32, ledger: Ledger<N, C>) -> Result<Self> {
+    pub async fn start(rest_ip: SocketAddr, rest_rps: u32, ledger: Ledger<N, C>, manual_block_creation: bool) -> Result<Self> {
         // Initialize the server.
         let mut server = Self {
             ledger,
@@ -81,6 +83,7 @@ impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
             handles: Default::default(),
             num_verifying_deploys: Default::default(),
             num_verifying_executions: Default::default(),
+            manual_block_creation,
         };
         // Spawn the server.
         server.spawn_server(rest_ip, rest_rps).await?;
