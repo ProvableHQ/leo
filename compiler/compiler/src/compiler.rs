@@ -214,7 +214,7 @@ impl Compiler {
         self.intermediate_passes()?;
         // Run code generation.
         let bytecode = CodeGenerating::do_pass((), &mut self.state)?;
-        Ok(bytecode)
+        Ok(bytecode.to_string())
     }
 
     /// Compiles a program from a source file and its associated module files in the same directory tree.

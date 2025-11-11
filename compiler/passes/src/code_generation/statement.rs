@@ -28,20 +28,19 @@ use leo_ast::{
     ExpressionStatement,
     IterationStatement,
     Mode,
+    Output,
     ReturnStatement,
     Statement,
     Type,
 };
 
-use indexmap::IndexSet;
-use itertools::Itertools as _;
-use std::fmt::Write as _;
+use indexmap::IndexMap;
 
 impl CodeGeneratingVisitor<'_> {
-    fn visit_statement(&mut self, input: &Statement) -> String {
+    fn visit_statement(&mut self, input: &Statement) -> Vec<AleoStmt> {
         match input {
             Statement::Assert(stmt) => self.visit_assert(stmt),
-            Statement::Assign(stmt) => self.visit_assign(stmt),
+            Statement::Assign(stmt) => vec![self.visit_assign(stmt)],
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Const(_) => {
@@ -49,40 +48,52 @@ impl CodeGeneratingVisitor<'_> {
             }
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
-            Statement::Iteration(stmt) => self.visit_iteration(stmt),
+            Statement::Iteration(stmt) => vec![self.visit_iteration(stmt)],
             Statement::Return(stmt) => self.visit_return(stmt),
         }
     }
 
-    fn visit_assert(&mut self, input: &AssertStatement) -> String {
-        let mut generate_assert_instruction = |name: &str, left: &Expression, right: &Expression| {
-            let (left_operand, left_instructions) = self.visit_expression(left);
-            let (right_operand, right_instructions) = self.visit_expression(right);
-            let assert_instruction = format!("    {name} {left_operand} {right_operand};\n");
-
-            // Concatenate the instructions.
-            let mut instructions = left_instructions;
-            instructions.push_str(&right_instructions);
-            instructions.push_str(&assert_instruction);
-
-            instructions
-        };
+    fn visit_assert(&mut self, input: &AssertStatement) -> Vec<AleoStmt> {
         match &input.variant {
             AssertVariant::Assert(expr) => {
                 let (operand, mut instructions) = self.visit_expression(expr);
-                let assert_instruction = format!("    assert.eq {operand} true;\n");
-
-                instructions.push_str(&assert_instruction);
+                let operand = operand.expect("Trying to assert an empty expression.");
+                instructions.push(AleoStmt::AssertEq(operand, AleoExpr::Bool(true)));
                 instructions
             }
-            AssertVariant::AssertEq(left, right) => generate_assert_instruction("assert.eq", left, right),
-            AssertVariant::AssertNeq(left, right) => generate_assert_instruction("assert.neq", left, right),
+            AssertVariant::AssertEq(left, right) => {
+                let (left, left_stmts) = self.visit_expression(left);
+                let (right, right_stmts) = self.visit_expression(right);
+                let left = left.expect("Trying to assert an empty expression.");
+                let right = right.expect("Trying to assert an empty expression.");
+                let assert_instruction = AleoStmt::AssertEq(left, right);
+
+                // Concatenate the instructions.
+                let mut instructions = left_stmts;
+                instructions.extend(right_stmts);
+                instructions.push(assert_instruction);
+                instructions
+            }
+            AssertVariant::AssertNeq(left, right) => {
+                let (left, left_stmts) = self.visit_expression(left);
+                let (right, right_stmts) = self.visit_expression(right);
+                let left = left.expect("Trying to assert an empty expression.");
+                let right = right.expect("Trying to assert an empty expression.");
+                let assert_instruction = AleoStmt::AssertNeq(left, right);
+
+                // Concatenate the instructions.
+                let mut instructions = left_stmts;
+                instructions.extend(right_stmts);
+                instructions.push(assert_instruction);
+                instructions
+            }
         }
     }
 
-    fn visit_return(&mut self, input: &ReturnStatement) -> String {
-        let mut instructions = String::new();
-        let mut operands = IndexSet::with_capacity(self.current_function.unwrap().output.len());
+    fn visit_return(&mut self, input: &ReturnStatement) -> Vec<AleoStmt> {
+        let mut instructions = vec![];
+        let mut operands: IndexMap<AleoExpr, &Output> =
+            IndexMap::with_capacity(self.current_function.unwrap().output.len());
 
         if let Expression::Tuple(tuple) = &input.expression {
             // Now tuples only appear in return position, so let's handle this
@@ -90,78 +101,84 @@ impl CodeGeneratingVisitor<'_> {
             let outputs = &self.current_function.unwrap().output;
             assert_eq!(tuple.elements.len(), outputs.len());
 
-            for (expr, output) in tuple.elements.iter().zip(outputs) {
+            for (expr, output) in tuple.elements.iter().zip_eq(outputs) {
                 let (operand, op_instructions) = self.visit_expression(expr);
-                instructions.push_str(&op_instructions);
-                if self.internal_record_inputs.contains(&operand) || operands.contains(&operand) {
-                    // We can't output an internal record we received as input.
-                    // We also can't output the same value twice.
-                    // Either way, clone it.
-                    let (new_operand, new_instr) = self.clone_register(&operand, &output.type_);
-                    instructions.push_str(&new_instr);
-                    operands.insert(new_operand);
-                } else {
-                    operands.insert(operand);
+                instructions.extend(op_instructions);
+                if let Some(operand) = operand {
+                    if self.internal_record_inputs.contains(&operand) || operands.contains_key(&operand) {
+                        // We can't output an internal record we received as input.
+                        // We also can't output the same value twice.
+                        // Either way, clone it.
+                        let (new_operand, new_instr) = self.clone_register(&operand, &output.type_);
+                        instructions.extend(new_instr);
+                        operands.insert(new_operand, output);
+                    } else {
+                        operands.insert(operand, output);
+                    }
                 }
             }
         } else {
             // Not a tuple - only one output.
             let (operand, op_instructions) = self.visit_expression(&input.expression);
-            if self.internal_record_inputs.contains(&operand) {
-                // We can't output an internal record we received as input.
-                let (new_operand, new_instr) =
-                    self.clone_register(&operand, &self.current_function.unwrap().output_type);
-                instructions.push_str(&new_instr);
-                operands.insert(new_operand);
-            } else {
-                instructions = op_instructions;
-                operands.insert(operand);
+            if let Some(operand) = operand {
+                let output = &self.current_function.unwrap().output[0];
+
+                if self.internal_record_inputs.contains(&operand) {
+                    // We can't output an internal record we received as input.
+                    let (new_operand, new_instr) =
+                        self.clone_register(&operand, &self.current_function.unwrap().output_type);
+                    instructions.extend(new_instr);
+                    operands.insert(new_operand, output);
+                } else {
+                    instructions = op_instructions;
+                    operands.insert(operand, output);
+                }
             }
         }
 
-        for (operand, output) in operands.iter().zip(&self.current_function.unwrap().output) {
+        for (operand, output) in operands.iter() {
             // Transitions outputs with no mode are private.
             let visibility = match (self.variant.unwrap().is_transition(), output.mode) {
-                (true, Mode::None) => Mode::Private,
-                (_, mode) => mode,
+                (true, Mode::None) => Some(AleoVisibility::Private),
+                (_, mode) => AleoVisibility::maybe_from(mode),
             };
             if let Type::Future(_) = output.type_ {
-                writeln!(
-                    &mut instructions,
-                    "    output {} as {}.aleo/{}.future;",
-                    operand,
-                    self.program_id.unwrap().name,
-                    self.current_function.unwrap().identifier,
-                )
-                .unwrap();
+                instructions.push(AleoStmt::Output(
+                    operand.clone(),
+                    AleoType::Future {
+                        name: self.current_function.unwrap().identifier.to_string(),
+                        program: self.program_id.unwrap().name.to_string(),
+                    },
+                    None,
+                ));
             } else if output.type_.is_empty() {
                 // do nothing
             } else {
-                writeln!(
-                    &mut instructions,
-                    "    output {} as {};",
-                    operand,
-                    self.visit_type_with_visibility(&output.type_, visibility)
-                )
-                .unwrap();
+                let (output_type, output_viz) = self.visit_type_with_visibility(&output.type_, visibility);
+                instructions.push(AleoStmt::Output(operand.clone(), output_type, output_viz));
             }
         }
 
         instructions
     }
 
-    fn visit_definition(&mut self, input: &DefinitionStatement) -> String {
+    fn visit_definition(&mut self, input: &DefinitionStatement) -> Vec<AleoStmt> {
         match (&input.place, &input.value) {
             (DefinitionPlace::Single(identifier), _) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
-                self.variable_mapping.insert(identifier.name, operand);
+                if let Some(operand) = operand {
+                    self.variable_mapping.insert(identifier.name, operand);
+                }
                 expression_instructions
             }
             (DefinitionPlace::Multiple(identifiers), Expression::Call(_)) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
+                let Some(AleoExpr::Tuple(elems)) = operand else {
+                    panic!("Definition with multiple identifiers should yield a tuple")
+                };
                 // Add the destinations to the variable mapping.
-                for (identifier, operand) in identifiers.iter().zip_eq(operand.split(' ')) {
-                    self.variable_mapping.insert(identifier.name, operand.to_string());
+                for (identifier, operand) in identifiers.iter().zip_eq(elems.iter()) {
+                    self.variable_mapping.insert(identifier.name, operand.clone());
                 }
                 expression_instructions
             }
@@ -169,15 +186,15 @@ impl CodeGeneratingVisitor<'_> {
         }
     }
 
-    fn visit_expression_statement(&mut self, input: &ExpressionStatement) -> String {
+    fn visit_expression_statement(&mut self, input: &ExpressionStatement) -> Vec<AleoStmt> {
         self.visit_expression(&input.expression).1
     }
 
-    fn visit_assign(&mut self, _input: &AssignStatement) -> String {
+    fn visit_assign(&mut self, _input: &AssignStatement) -> AleoStmt {
         panic!("AssignStatement's should not exist in SSA form.")
     }
 
-    fn visit_conditional(&mut self, _input: &ConditionalStatement) -> String {
+    fn visit_conditional(&mut self, _input: &ConditionalStatement) -> Vec<AleoStmt> {
         // Note that this unwrap is safe because we set the variant before traversing the function.
         if !self.variant.unwrap().is_async_function() {
             panic!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
@@ -204,24 +221,29 @@ impl CodeGeneratingVisitor<'_> {
 
             // Create a `branch` instruction.
             let (condition, mut instructions) = self.visit_expression(&_input.condition);
-            instructions.push_str(&format!("    branch.eq {condition} false to {end_then_label};\n"));
+            let condition = condition.expect("Trying to branch on an empty expression");
+            instructions.push(AleoStmt::BranchEq(condition, AleoExpr::Bool(false), end_then_label.clone()));
 
             // Visit the `then` block.
-            instructions.push_str(&self.visit_block(&_input.then));
+            instructions.extend(self.visit_block(&_input.then));
             // If the `otherwise` block is present, add a branch instruction to jump to the end of the `otherwise` block.
             if has_otherwise {
-                instructions.push_str(&format!("    branch.eq true true to {end_otherwise_label};\n"));
+                instructions.push(AleoStmt::BranchEq(
+                    AleoExpr::Bool(true),
+                    AleoExpr::Bool(true),
+                    end_otherwise_label.clone(),
+                ));
             }
 
             // Add a label for the end of the `then` block.
-            instructions.push_str(&format!("    position {end_then_label};\n"));
+            instructions.push(AleoStmt::Position(end_then_label));
 
             // Visit the `otherwise` block.
             if let Some(else_block) = &_input.otherwise {
                 // Visit the `otherwise` block.
-                instructions.push_str(&self.visit_statement(else_block));
+                instructions.extend(self.visit_statement(else_block));
                 // Add a label for the end of the `otherwise` block.
-                instructions.push_str(&format!("    position {end_otherwise_label};\n"));
+                instructions.push(AleoStmt::Position(end_otherwise_label));
             }
 
             // Decrement the conditional depth.
@@ -231,12 +253,12 @@ impl CodeGeneratingVisitor<'_> {
         }
     }
 
-    fn visit_iteration(&mut self, _input: &IterationStatement) -> String {
+    fn visit_iteration(&mut self, _input: &IterationStatement) -> AleoStmt {
         panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    pub(crate) fn visit_block(&mut self, input: &Block) -> String {
+    pub(crate) fn visit_block(&mut self, input: &Block) -> Vec<AleoStmt> {
         // For each statement in the block, visit it and add its instructions to the list.
-        input.statements.iter().map(|stmt| self.visit_statement(stmt)).join("")
+        input.statements.iter().flat_map(|stmt| self.visit_statement(stmt)).collect()
     }
 }

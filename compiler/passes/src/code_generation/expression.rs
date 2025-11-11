@@ -21,14 +21,13 @@ use leo_ast::{
     ArrayExpression,
     AssociatedConstantExpression,
     AssociatedFunctionExpression,
-    AsyncExpression,
     BinaryExpression,
     BinaryOperation,
     CallExpression,
     CastExpression,
     CoreFunction,
-    ErrExpression,
     Expression,
+    IntegerType,
     Literal,
     LiteralVariant,
     Location,
@@ -45,68 +44,67 @@ use leo_ast::{
     Type,
     UnaryExpression,
     UnaryOperation,
-    UnitExpression,
     Variant,
 };
 use leo_span::sym;
 use snarkvm::{
     prelude::{CanaryV0, MainnetV0, TestnetV0},
-    synthesizer::program::{CommitVariant, DeserializeVariant, SerializeVariant},
+    synthesizer::program::SerializeVariant,
 };
 
 use anyhow::bail;
-use std::{borrow::Borrow, fmt::Write as _};
+use std::borrow::Borrow;
 
 /// Implement the necessary methods to visit nodes in the AST.
 impl CodeGeneratingVisitor<'_> {
-    pub fn visit_expression(&mut self, input: &Expression) -> (String, String) {
+    pub fn visit_expression(&mut self, input: &Expression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
         let is_empty_type = self.state.type_table.get(&input.id()).map(|ty| ty.is_empty()).unwrap_or(false);
         let is_pure = input.is_pure();
 
         if is_empty_type && is_pure {
             // ignore expresssion
-            return (String::new(), String::new());
+            return (None, vec![]);
         }
 
+        let some_expr = |(expr, stmts): (AleoExpr, Vec<AleoStmt>)| (Some(expr), stmts);
+
         match input {
-            Expression::Array(expr) => self.visit_array(expr),
-            Expression::ArrayAccess(expr) => self.visit_array_access(expr),
-            Expression::AssociatedConstant(expr) => self.visit_associated_constant(expr),
+            Expression::ArrayAccess(expr) => (Some(self.visit_array_access(expr)), vec![]),
+            Expression::AssociatedConstant(expr) => (Some(self.visit_associated_constant(expr)), vec![]),
+            Expression::MemberAccess(expr) => (Some(self.visit_member_access(expr)), vec![]),
+            Expression::Path(expr) => (Some(self.visit_path(expr)), vec![]),
+            Expression::Literal(expr) => (Some(self.visit_value(expr)), vec![]),
+            Expression::Locator(expr) => (Some(self.visit_locator(expr)), vec![]),
+
+            Expression::Array(expr) => some_expr(self.visit_array(expr)),
+            Expression::Binary(expr) => some_expr(self.visit_binary(expr)),
+            Expression::Call(expr) => some_expr(self.visit_call(expr)),
+            Expression::Cast(expr) => some_expr(self.visit_cast(expr)),
+            Expression::Struct(expr) => some_expr(self.visit_struct_init(expr)),
+            Expression::Repeat(expr) => some_expr(self.visit_repeat(expr)),
+            Expression::Ternary(expr) => some_expr(self.visit_ternary(expr)),
+            Expression::Tuple(expr) => some_expr(self.visit_tuple(expr)),
+            Expression::Unary(expr) => some_expr(self.visit_unary(expr)),
+
             Expression::AssociatedFunction(expr) => self.visit_associated_function(expr),
-            Expression::Async(expr) => self.visit_async(expr),
-            Expression::Binary(expr) => self.visit_binary(expr),
-            Expression::Call(expr) => self.visit_call(expr),
-            Expression::Cast(expr) => self.visit_cast(expr),
-            Expression::Struct(expr) => self.visit_struct_init(expr),
-            Expression::Err(expr) => self.visit_err(expr),
-            Expression::Path(expr) => self.visit_path(expr),
-            Expression::Literal(expr) => self.visit_value(expr),
-            Expression::Locator(expr) => self.visit_locator(expr),
-            Expression::MemberAccess(expr) => self.visit_member_access(expr),
-            Expression::Repeat(expr) => self.visit_repeat(expr),
-            Expression::Ternary(expr) => self.visit_ternary(expr),
-            Expression::Tuple(expr) => self.visit_tuple(expr),
-            Expression::TupleAccess(_) => panic!("Tuple accesses should not appear in the AST at this point."),
-            Expression::Unary(expr) => self.visit_unary(expr),
-            Expression::Unit(expr) => self.visit_unit(expr),
+
+            Expression::Async(..) => {
+                panic!("`AsyncExpression`s should not be in the AST at this phase of compilation.")
+            }
+            Expression::Err(..) => panic!("`ErrExpression`s should not be in the AST at this phase of compilation."),
+            Expression::TupleAccess(..) => panic!("Tuple accesses should not appear in the AST at this point."),
+            Expression::Unit(..) => panic!("`UnitExpression`s should not be visited during code generation."),
         }
     }
 
-    fn visit_path(&mut self, input: &Path) -> (String, String) {
+    fn visit_path(&mut self, input: &Path) -> AleoExpr {
         // The only relevant paths here are paths to local variable or to mappings, so we really only care about their
         // names since mappings are only allowed in the top level program scope
         let var_name = input.identifier().name;
-        (
-            self.variable_mapping.get(&var_name).or_else(|| self.global_mapping.get(&var_name)).unwrap().clone(),
-            String::new(),
-        )
+        self.variable_mapping.get(&var_name).or_else(|| self.global_mapping.get(&var_name)).unwrap().clone()
     }
 
-    fn visit_err(&mut self, _input: &ErrExpression) -> (String, String) {
-        panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
-    }
-
-    fn visit_value(&mut self, input: &Literal) -> (String, String) {
+    fn visit_value(&mut self, input: &Literal) -> AleoExpr {
         // AVM can only parse decimal numbers.
         let literal = if let LiteralVariant::Unsuffixed(value) = &input.variant {
             // For unsuffixed lierals, consult the `type_table` for their types. The type checker
@@ -139,92 +137,91 @@ impl CodeGeneratingVisitor<'_> {
         } else {
             input.clone()
         };
-        (format!("{}", literal.display_decimal()), String::new())
+        AleoExpr::Literal(literal)
     }
 
-    fn visit_locator(&mut self, input: &LocatorExpression) -> (String, String) {
+    fn visit_locator(&mut self, input: &LocatorExpression) -> AleoExpr {
         if input.program.name.name == self.program_id.expect("Locators only appear within programs.").name.name {
             // This locator refers to the current program, so we only output the name, not the program.
-            (format!("{}", input.name), String::new())
+            AleoExpr::RawName(input.name.to_string())
         } else {
-            (format!("{input}"), String::new())
+            AleoExpr::RawName(input.to_string())
         }
     }
 
-    fn visit_binary(&mut self, input: &BinaryExpression) -> (String, String) {
-        let (left_operand, left_instructions) = self.visit_expression(&input.left);
-        let (right_operand, right_instructions) = self.visit_expression(&input.right);
+    fn visit_binary(&mut self, input: &BinaryExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let (left, left_instructions) = self.visit_expression(&input.left);
+        let (right, right_instructions) = self.visit_expression(&input.right);
+        let left = left.expect("Trying to operate on an empty expression");
+        let right = right.expect("Trying to operate on an empty expression");
 
-        let opcode = match input.op {
-            BinaryOperation::Add => String::from("add"),
-            BinaryOperation::AddWrapped => String::from("add.w"),
-            BinaryOperation::And => String::from("and"),
-            BinaryOperation::BitwiseAnd => String::from("and"),
-            BinaryOperation::Div => String::from("div"),
-            BinaryOperation::DivWrapped => String::from("div.w"),
-            BinaryOperation::Eq => String::from("is.eq"),
-            BinaryOperation::Gte => String::from("gte"),
-            BinaryOperation::Gt => String::from("gt"),
-            BinaryOperation::Lte => String::from("lte"),
-            BinaryOperation::Lt => String::from("lt"),
-            BinaryOperation::Mod => String::from("mod"),
-            BinaryOperation::Mul => String::from("mul"),
-            BinaryOperation::MulWrapped => String::from("mul.w"),
-            BinaryOperation::Nand => String::from("nand"),
-            BinaryOperation::Neq => String::from("is.neq"),
-            BinaryOperation::Nor => String::from("nor"),
-            BinaryOperation::Or => String::from("or"),
-            BinaryOperation::BitwiseOr => String::from("or"),
-            BinaryOperation::Pow => String::from("pow"),
-            BinaryOperation::PowWrapped => String::from("pow.w"),
-            BinaryOperation::Rem => String::from("rem"),
-            BinaryOperation::RemWrapped => String::from("rem.w"),
-            BinaryOperation::Shl => String::from("shl"),
-            BinaryOperation::ShlWrapped => String::from("shl.w"),
-            BinaryOperation::Shr => String::from("shr"),
-            BinaryOperation::ShrWrapped => String::from("shr.w"),
-            BinaryOperation::Sub => String::from("sub"),
-            BinaryOperation::SubWrapped => String::from("sub.w"),
-            BinaryOperation::Xor => String::from("xor"),
+        let dest_reg = self.next_register();
+
+        let binary_instruction = match input.op {
+            BinaryOperation::Add => AleoStmt::Add(left, right, dest_reg.clone()),
+            BinaryOperation::AddWrapped => AleoStmt::AddWrapped(left, right, dest_reg.clone()),
+            BinaryOperation::And | BinaryOperation::BitwiseAnd => AleoStmt::And(left, right, dest_reg.clone()),
+            BinaryOperation::Div => AleoStmt::Div(left, right, dest_reg.clone()),
+            BinaryOperation::DivWrapped => AleoStmt::DivWrapped(left, right, dest_reg.clone()),
+            BinaryOperation::Eq => AleoStmt::Eq(left, right, dest_reg.clone()),
+            BinaryOperation::Gte => AleoStmt::Gte(left, right, dest_reg.clone()),
+            BinaryOperation::Gt => AleoStmt::Gt(left, right, dest_reg.clone()),
+            BinaryOperation::Lte => AleoStmt::Lte(left, right, dest_reg.clone()),
+            BinaryOperation::Lt => AleoStmt::Lt(left, right, dest_reg.clone()),
+            BinaryOperation::Mod => AleoStmt::Mod(left, right, dest_reg.clone()),
+            BinaryOperation::Mul => AleoStmt::Mul(left, right, dest_reg.clone()),
+            BinaryOperation::MulWrapped => AleoStmt::MulWrapped(left, right, dest_reg.clone()),
+            BinaryOperation::Nand => AleoStmt::Nand(left, right, dest_reg.clone()),
+            BinaryOperation::Neq => AleoStmt::Neq(left, right, dest_reg.clone()),
+            BinaryOperation::Nor => AleoStmt::Nor(left, right, dest_reg.clone()),
+            BinaryOperation::Or | BinaryOperation::BitwiseOr => AleoStmt::Or(left, right, dest_reg.clone()),
+            BinaryOperation::Pow => AleoStmt::Pow(left, right, dest_reg.clone()),
+            BinaryOperation::PowWrapped => AleoStmt::PowWrapped(left, right, dest_reg.clone()),
+            BinaryOperation::Rem => AleoStmt::Rem(left, right, dest_reg.clone()),
+            BinaryOperation::RemWrapped => AleoStmt::RemWrapped(left, right, dest_reg.clone()),
+            BinaryOperation::Shl => AleoStmt::Shl(left, right, dest_reg.clone()),
+            BinaryOperation::ShlWrapped => AleoStmt::ShlWrapped(left, right, dest_reg.clone()),
+            BinaryOperation::Shr => AleoStmt::Shr(left, right, dest_reg.clone()),
+            BinaryOperation::ShrWrapped => AleoStmt::ShrWrapped(left, right, dest_reg.clone()),
+            BinaryOperation::Sub => AleoStmt::Sub(left, right, dest_reg.clone()),
+            BinaryOperation::SubWrapped => AleoStmt::SubWrapped(left, right, dest_reg.clone()),
+            BinaryOperation::Xor => AleoStmt::Xor(left, right, dest_reg.clone()),
         };
-
-        let destination_register = self.next_register();
-        let binary_instruction = format!("    {opcode} {left_operand} {right_operand} into {destination_register};\n",);
 
         // Concatenate the instructions.
         let mut instructions = left_instructions;
-        instructions.push_str(&right_instructions);
-        instructions.push_str(&binary_instruction);
+        instructions.extend(right_instructions);
+        instructions.push(binary_instruction);
 
-        (destination_register, instructions)
+        (AleoExpr::Reg(dest_reg), instructions)
     }
 
-    fn visit_cast(&mut self, input: &CastExpression) -> (String, String) {
-        let (expression_operand, mut instructions) = self.visit_expression(&input.expression);
+    fn visit_cast(&mut self, input: &CastExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let (operand, mut instructions) = self.visit_expression(&input.expression);
+        let operand = operand.expect("Trying to cast an empty expression");
 
         // Construct the destination register.
-        let destination_register = self.next_register();
+        let dest_reg = self.next_register();
 
-        let cast_instruction = format!(
-            "    cast {expression_operand} into {destination_register} as {};\n",
-            Self::visit_type(&input.type_)
-        );
+        let cast_instruction = AleoStmt::Cast(operand, dest_reg.clone(), Self::visit_type(&input.type_));
 
         // Concatenate the instructions.
-        instructions.push_str(&cast_instruction);
+        instructions.push(cast_instruction);
 
-        (destination_register, instructions)
+        (AleoExpr::Reg(dest_reg), instructions)
     }
 
-    fn visit_array(&mut self, input: &ArrayExpression) -> (String, String) {
-        let mut expression_operands = String::new();
-        let mut instructions = String::new();
-
-        for (operand, operand_instructions) in input.elements.iter().map(|expr| self.visit_expression(expr)) {
-            let space = if expression_operands.is_empty() { "" } else { " " };
-            write!(&mut expression_operands, "{space}{operand}").unwrap();
-            instructions.push_str(&operand_instructions);
-        }
+    fn visit_array(&mut self, input: &ArrayExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let mut instructions = vec![];
+        let operands = input
+            .elements
+            .iter()
+            .map(|expr| self.visit_expression(expr))
+            .filter_map(|(operand, operand_instructions)| {
+                instructions.extend(operand_instructions);
+                operand
+            })
+            .collect();
 
         // Construct the destination register.
         let destination_register = self.next_register();
@@ -233,117 +230,116 @@ impl CodeGeneratingVisitor<'_> {
         let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
             panic!("All types should be known at this phase of compilation");
         };
-        let array_type: String = Self::visit_type(&array_type);
+        let array_type: AleoType = Self::visit_type(&array_type);
 
-        let array_instruction =
-            format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
+        let array_instruction = AleoStmt::Cast(AleoExpr::Tuple(operands), destination_register.clone(), array_type);
 
         // Concatenate the instructions.
-        instructions.push_str(&array_instruction);
+        instructions.push(array_instruction);
 
-        (destination_register, instructions)
+        (AleoExpr::Reg(destination_register), instructions)
     }
 
-    fn visit_unary(&mut self, input: &UnaryExpression) -> (String, String) {
-        let (expression_operand, expression_instructions) = self.visit_expression(&input.receiver);
+    fn visit_unary(&mut self, input: &UnaryExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let (operand, stmts) = self.visit_expression(&input.receiver);
+        let operand = operand.expect("Trying to operate on an empty value");
+
+        let dest_reg = self.next_register();
 
         // Note that non-empty suffixes must be preceded by a space.
-        let (opcode, suffix) = match input.op {
-            UnaryOperation::Abs => ("abs", ""),
-            UnaryOperation::AbsWrapped => ("abs.w", ""),
-            UnaryOperation::Double => ("double", ""),
-            UnaryOperation::Inverse => ("inv", ""),
-            UnaryOperation::Not => ("not", ""),
-            UnaryOperation::Negate => ("neg", ""),
-            UnaryOperation::Square => ("square", ""),
-            UnaryOperation::SquareRoot => ("sqrt", ""),
-            UnaryOperation::ToXCoordinate => ("cast", " as group.x"),
-            UnaryOperation::ToYCoordinate => ("cast", " as group.y"),
+        let unary_instruction = match input.op {
+            UnaryOperation::Abs => AleoStmt::Abs(operand, dest_reg.clone()),
+            UnaryOperation::AbsWrapped => AleoStmt::AbsW(operand, dest_reg.clone()),
+            UnaryOperation::Double => AleoStmt::Double(operand, dest_reg.clone()),
+            UnaryOperation::Inverse => AleoStmt::Inv(operand, dest_reg.clone()),
+            UnaryOperation::Not => AleoStmt::Not(operand, dest_reg.clone()),
+            UnaryOperation::Negate => AleoStmt::Neg(operand, dest_reg.clone()),
+            UnaryOperation::Square => AleoStmt::Square(operand, dest_reg.clone()),
+            UnaryOperation::SquareRoot => AleoStmt::Sqrt(operand, dest_reg.clone()),
+            UnaryOperation::ToXCoordinate => AleoStmt::Cast(operand, dest_reg.clone(), AleoType::GroupX),
+            UnaryOperation::ToYCoordinate => AleoStmt::Cast(operand, dest_reg.clone(), AleoType::GroupY),
         };
 
-        let destination_register = self.next_register();
-        let unary_instruction = format!("    {opcode} {expression_operand} into {destination_register}{suffix};\n");
-
         // Concatenate the instructions.
-        let mut instructions = expression_instructions;
-        instructions.push_str(&unary_instruction);
+        let mut instructions = stmts;
+        instructions.push(unary_instruction);
 
-        (destination_register, instructions)
+        (AleoExpr::Reg(dest_reg), instructions)
     }
 
-    fn visit_ternary(&mut self, input: &TernaryExpression) -> (String, String) {
-        let (condition_operand, condition_instructions) = self.visit_expression(&input.condition);
-        let (if_true_operand, if_true_instructions) = self.visit_expression(&input.if_true);
-        let (if_false_operand, if_false_instructions) = self.visit_expression(&input.if_false);
+    fn visit_ternary(&mut self, input: &TernaryExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let (cond, cond_stmts) = self.visit_expression(&input.condition);
+        let (if_true, if_true_stmts) = self.visit_expression(&input.if_true);
+        let (if_false, if_false_stmts) = self.visit_expression(&input.if_false);
+        let cond = cond.expect("Trying to build a ternary with an empty expression.");
+        let if_true = if_true.expect("Trying to build a ternary with an empty expression.");
+        let if_false = if_false.expect("Trying to build a ternary with an empty expression.");
 
-        let destination_register = self.next_register();
-        let ternary_instruction = format!(
-            "    ternary {condition_operand} {if_true_operand} {if_false_operand} into {destination_register};\n",
-        );
+        let dest_reg = self.next_register();
+        let ternary_instruction = AleoStmt::Ternary(cond, if_true, if_false, dest_reg.clone());
 
         // Concatenate the instructions.
-        let mut instructions = condition_instructions;
-        instructions.push_str(&if_true_instructions);
-        instructions.push_str(&if_false_instructions);
-        instructions.push_str(&ternary_instruction);
+        let mut stmts = cond_stmts;
+        stmts.extend(if_true_stmts);
+        stmts.extend(if_false_stmts);
+        stmts.push(ternary_instruction);
 
-        (destination_register, instructions)
+        (AleoExpr::Reg(dest_reg), stmts)
     }
 
-    fn visit_struct_init(&mut self, input: &StructExpression) -> (String, String) {
+    fn visit_struct_init(&mut self, input: &StructExpression) -> (AleoExpr, Vec<AleoStmt>) {
         // Lookup struct or record.
-        let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.path.absolute_path()) {
+        let struct_type = if let Some(is_record) = self.composite_mapping.get(&input.path.absolute_path()) {
             if *is_record {
                 // record.private;
                 let [record_name] = &input.path.absolute_path()[..] else {
                     panic!("Absolute paths to records can only have a single segment at this stage.")
                 };
-                format!("{record_name}.{type_}")
+                AleoType::Record { name: record_name.to_string(), program: None }
             } else {
                 // foo; // no visibility for structs
-                Self::legalize_path(&input.path.absolute_path()).expect("path format cannot be legalized at this point")
+                AleoType::Ident {
+                    name: Self::legalize_path(&input.path.absolute_path())
+                        .expect("path format cannot be legalized at this point"),
+                }
             }
         } else {
             panic!("All composite types should be known at this phase of compilation")
         };
 
         // Initialize instruction builder strings.
-        let mut instructions = String::new();
-        let mut struct_init_instruction = String::from("    cast ");
+        let mut instructions = vec![];
 
         // Visit each struct member and accumulate instructions from expressions.
-        for member in input.members.iter() {
-            let operand = if let Some(expr) = member.expression.as_ref() {
-                // Visit variable expression.
-                let (variable_operand, variable_instructions) = self.visit_expression(expr);
-                instructions.push_str(&variable_instructions);
+        let operands: Vec<AleoExpr> = input
+            .members
+            .iter()
+            .filter_map(|member| {
+                if let Some(expr) = member.expression.as_ref() {
+                    // Visit variable expression.
+                    let (variable_operand, variable_instructions) = self.visit_expression(expr);
+                    instructions.extend(variable_instructions);
 
-                variable_operand
-            } else {
-                // Push operand identifier.
-                let (ident_operand, ident_instructions) =
-                    self.visit_path(&Path::from(member.identifier).into_absolute());
-                instructions.push_str(&ident_instructions);
-
-                ident_operand
-            };
-
-            // Push operand name to struct init instruction.
-            write!(struct_init_instruction, "{operand} ").expect("failed to write to string");
-        }
+                    variable_operand
+                } else {
+                    Some(self.visit_path(&Path::from(member.identifier).into_absolute()))
+                }
+            })
+            .collect();
 
         // Push destination register to struct init instruction.
-        let destination_register = self.next_register();
-        writeln!(struct_init_instruction, "into {destination_register} as {name};",)
-            .expect("failed to write to string");
+        let dest_reg = self.next_register();
 
-        instructions.push_str(&struct_init_instruction);
+        let struct_init_instruction = AleoStmt::Cast(AleoExpr::Tuple(operands), dest_reg.clone(), struct_type);
 
-        (destination_register, instructions)
+        instructions.push(struct_init_instruction);
+
+        (AleoExpr::Reg(dest_reg), instructions)
     }
 
-    fn visit_array_access(&mut self, input: &ArrayAccess) -> (String, String) {
+    fn visit_array_access(&mut self, input: &ArrayAccess) -> AleoExpr {
         let (array_operand, _) = self.visit_expression(&input.array);
+        let array_operand = array_operand.expect("Trying to access an element of an empty expression.");
 
         assert!(
             matches!(self.state.type_table.get(&input.index.id()), Some(Type::Integer(_))),
@@ -354,14 +350,14 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Literal(Literal {
                 variant: LiteralVariant::Integer(_, s) | LiteralVariant::Unsuffixed(s),
                 ..
-            }) => format!("{s}u32"),
+            }) => AleoExpr::U32(s.parse().unwrap()),
             _ => panic!("Array indices must be integer literals"),
         };
 
-        (format!("{array_operand}[{index_operand}]"), String::new())
+        AleoExpr::ArrayAccess(Box::new(array_operand), Box::new(index_operand))
     }
 
-    fn visit_member_access(&mut self, input: &MemberAccess) -> (String, String) {
+    fn visit_member_access(&mut self, input: &MemberAccess) -> AleoExpr {
         // Handle `self.address`, `self.caller`, `self.checksum`, `self.edition`, `self.id`, `self.program_owner`, `self.signer`.
         if let Expression::Path(path) = input.inner.borrow()
             && matches!(path.try_absolute_path().as_deref(), Some([sym::SelfLower]))
@@ -372,62 +368,63 @@ impl CodeGeneratingVisitor<'_> {
             match input.name.name {
                 // Return the program ID directly.
                 sym::address | sym::id => {
-                    return (program_id.to_string(), String::new());
+                    return AleoExpr::RawName(program_id.to_string());
                 }
                 // Return the appropriate snarkVM operand.
                 name @ (sym::checksum | sym::edition | sym::program_owner) => {
-                    return (name.to_string(), String::new());
+                    return AleoExpr::RawName(name.to_string());
                 }
                 _ => {} // Do nothing as `self.signer` and `self.caller` are handled below.
             }
         }
 
         let (inner_expr, _) = self.visit_expression(&input.inner);
-        let member_access = format!("{}.{}", inner_expr, input.name);
+        let inner_expr = inner_expr.expect("Trying to access a member of an empty expression.");
 
-        (member_access, String::new())
+        AleoExpr::MemberAccess(Box::new(inner_expr), input.name.to_string())
     }
 
-    fn visit_repeat(&mut self, input: &RepeatExpression) -> (String, String) {
+    fn visit_repeat(&mut self, input: &RepeatExpression) -> (AleoExpr, Vec<AleoStmt>) {
         let (operand, mut operand_instructions) = self.visit_expression(&input.expr);
+        let operand = operand.expect("Trying to repeat an empty expression");
+
         let count = input.count.as_u32().expect("repeat count should be known at this point");
 
-        let expression_operands = std::iter::repeat_n(operand, count as usize).collect::<Vec<_>>().join(" ");
+        let expression_operands = std::iter::repeat_n(operand, count as usize).collect::<Vec<_>>();
 
         // Construct the destination register.
-        let destination_register = self.next_register();
+        let dest_reg = self.next_register();
 
         // Get the array type.
         let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
             panic!("All types should be known at this phase of compilation");
         };
-        let array_type: String = Self::visit_type(&array_type);
+        let array_type = Self::visit_type(&array_type);
 
-        let array_instruction =
-            format!("    cast {expression_operands} into {destination_register} as {array_type};\n");
+        let array_instruction = AleoStmt::Cast(AleoExpr::Tuple(expression_operands), dest_reg.clone(), array_type);
 
         // Concatenate the instructions.
-        operand_instructions.push_str(&array_instruction);
+        operand_instructions.push(array_instruction);
 
-        (destination_register, operand_instructions)
+        (AleoExpr::Reg(dest_reg), operand_instructions)
     }
 
     // group::GEN -> group::GEN
-    fn visit_associated_constant(&mut self, input: &AssociatedConstantExpression) -> (String, String) {
-        (format!("{input}"), String::new())
+    fn visit_associated_constant(&mut self, input: &AssociatedConstantExpression) -> AleoExpr {
+        AleoExpr::RawName(format!("{input}"))
     }
 
     // Pedersen64::hash() -> hash.ped64
-    fn visit_associated_function(&mut self, input: &AssociatedFunctionExpression) -> (String, String) {
-        let mut instructions = String::new();
+    fn visit_associated_function(&mut self, input: &AssociatedFunctionExpression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
+        let mut instructions = vec![];
 
         // Visit each function argument and accumulate instructions from expressions.
         let arguments = input
             .arguments
             .iter()
-            .map(|argument| {
+            .filter_map(|argument| {
                 let (arg_string, arg_instructions) = self.visit_expression(argument);
-                instructions.push_str(&arg_instructions);
+                instructions.extend(arg_instructions);
                 arg_string
             })
             .collect::<Vec<_>>();
@@ -438,145 +435,120 @@ impl CodeGeneratingVisitor<'_> {
             let program_id = ProgramId::from_str_with_network(&program.replace("\"", ""), self.state.network)
                 .expect("Type checking guarantees that the program name is valid");
             // If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
-            let operand = match program_id.to_string()
+            match program_id.to_string()
                 == self.program_id.expect("The program ID is set before traversing the program").to_string()
             {
                 true => name.to_string(),
                 false => format!("{program_id}/{name}"),
-            };
-            (operand, String::new())
+            }
         };
 
         // Construct the instruction.
         let (destination, instruction) = match CoreFunction::try_from(input).ok() {
             Some(CoreFunction::Commit(variant, ref type_)) => {
-                let mut instruction = format!("    {}", CommitVariant::opcode(variant as u8));
-                let destination_register = self.next_register();
-                // Write the arguments and the destination register.
-                writeln!(instruction, " {} {} into {destination_register} as {type_};", arguments[0], arguments[1])
-                    .expect("failed to write to string");
-                (destination_register, instruction)
+                let type_ = AleoType::from(*type_);
+                let dest_reg = self.next_register();
+                let instruction =
+                    AleoStmt::Commit(variant, arguments[0].clone(), arguments[1].clone(), dest_reg.clone(), type_);
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::Hash(variant, ref type_)) => {
-                let mut instruction = format!("    {}", variant.opcode());
-                let destination_register = self.next_register();
+                let dest_reg = self.next_register();
                 let type_ = match self.state.network {
                     NetworkName::TestnetV0 => {
-                        type_.to_snarkvm::<TestnetV0>().expect("TYC guarantees that the type is valid").to_string()
+                        AleoType::from(type_.to_snarkvm::<TestnetV0>().expect("TYC guarantees that the type is valid"))
                     }
                     NetworkName::CanaryV0 => {
-                        type_.to_snarkvm::<CanaryV0>().expect("TYC guarantees that the type is valid").to_string()
+                        AleoType::from(type_.to_snarkvm::<CanaryV0>().expect("TYC guarantees that the type is valid"))
                     }
                     NetworkName::MainnetV0 => {
-                        type_.to_snarkvm::<MainnetV0>().expect("TYC guarantees that the type is valid").to_string()
+                        AleoType::from(type_.to_snarkvm::<MainnetV0>().expect("TYC guarantees that the type is valid"))
                     }
                 };
-                // Write the arguments and the destination register.
-                writeln!(instruction, " {} into {destination_register} as {type_};", arguments[0])
-                    .expect("failed to write to string");
-                (destination_register, instruction)
+                let instruction = AleoStmt::Hash(variant, arguments[0].clone(), dest_reg.clone(), type_);
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::Get) => {
-                let mut instruction = "    get".to_string();
-                let destination_register = self.next_register();
-                // Write the mapping name and the key.
-                writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
-                    .expect("failed to write to string");
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let instruction = AleoStmt::Get(arguments[0].clone(), arguments[1].clone(), dest_reg.clone());
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::MappingGetOrUse) => {
-                let mut instruction = "    get.or_use".to_string();
-                let destination_register = self.next_register();
-                // Write the mapping name, the key, and the default value.
-                writeln!(
-                    instruction,
-                    " {}[{}] {} into {destination_register};",
-                    arguments[0], arguments[1], arguments[2]
-                )
-                .expect("failed to write to string");
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let instruction = AleoStmt::GetOrUse(
+                    arguments[0].clone(),
+                    arguments[1].clone(),
+                    arguments[2].clone(),
+                    dest_reg.clone(),
+                );
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::Set) => {
-                let mut instruction = "    set".to_string();
-                // Write the value, mapping name, and the key.
-                writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
-                    .expect("failed to write to string");
-                (String::new(), instruction)
+                let instruction = AleoStmt::Set(arguments[2].clone(), arguments[0].clone(), arguments[1].clone());
+                (None, vec![instruction])
             }
             Some(CoreFunction::MappingRemove) => {
-                let mut instruction = "    remove".to_string();
-                // Write the mapping name and the key.
-                writeln!(instruction, " {}[{}];", arguments[0], arguments[1]).expect("failed to write to string");
-                (String::new(), instruction)
+                let instruction = AleoStmt::Remove(arguments[0].clone(), arguments[1].clone());
+                (None, vec![instruction])
             }
             Some(CoreFunction::MappingContains) => {
-                let mut instruction = "    contains".to_string();
-                let destination_register = self.next_register();
-                // Write the mapping name and the key.
-                writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
-                    .expect("failed to write to string");
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let instruction = AleoStmt::Contains(arguments[0].clone(), arguments[1].clone(), dest_reg.clone());
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::GroupToXCoordinate) => {
-                let mut instruction = "    cast".to_string();
-                let destination_register = self.next_register();
-                // Write the argument and the destination register.
-                writeln!(instruction, " {} into {destination_register} as group.x;", arguments[0],)
-                    .expect("failed to write to string");
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let instruction = AleoStmt::Cast(arguments[0].clone(), dest_reg.clone(), AleoType::GroupX);
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::GroupToYCoordinate) => {
-                let mut instruction = "    cast".to_string();
-                let destination_register = self.next_register();
-                // Write the argument and the destination register.
-                writeln!(instruction, " {} into {destination_register} as group.y;", arguments[0],)
-                    .expect("failed to write to string");
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let instruction = AleoStmt::Cast(arguments[0].clone(), dest_reg.clone(), AleoType::GroupY);
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::ChaChaRand(type_)) => {
-                // Get the destination register.
-                let destination_register = self.next_register();
-                // Construct the instruction template.
-                let instruction = format!("    rand.chacha into {destination_register} as {type_};\n");
-
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let instruction = AleoStmt::RandChacha(dest_reg.clone(), type_.into());
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::SignatureVerify) => {
-                let mut instruction = "    sign.verify".to_string();
-                let destination_register = self.next_register();
-                // Write the arguments and the destination register.
-                writeln!(
-                    instruction,
-                    " {} {} {} into {destination_register};",
-                    arguments[0], arguments[1], arguments[2]
-                )
-                .expect("failed to write to string");
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let instruction = AleoStmt::SignVerify(
+                    arguments[0].clone(),
+                    arguments[1].clone(),
+                    arguments[2].clone(),
+                    dest_reg.clone(),
+                );
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::ECDSAVerify(variant)) => {
-                let mut instruction = format!("    {}", variant.opcode());
-                let destination_register = self.next_register();
-                // Write the arguments and the destination register.
-                writeln!(
-                    instruction,
-                    " {} {} {} into {destination_register};",
-                    arguments[0], arguments[1], arguments[2]
-                )
-                .expect("failed to write to string");
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let instruction = AleoStmt::EcdsaVerify(
+                    variant,
+                    arguments[0].clone(),
+                    arguments[1].clone(),
+                    arguments[2].clone(),
+                    dest_reg.clone(),
+                );
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::FutureAwait) => {
-                let mut instruction = "    await".to_string();
-                writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
-                (String::new(), instruction)
+                let instruction = AleoStmt::Await(arguments[0].clone());
+                (None, vec![instruction])
             }
-            Some(CoreFunction::ProgramChecksum) => generate_program_core(&arguments[0], "checksum"),
-            Some(CoreFunction::ProgramEdition) => generate_program_core(&arguments[0], "edition"),
-            Some(CoreFunction::ProgramOwner) => generate_program_core(&arguments[0], "program_owner"),
+            Some(CoreFunction::ProgramChecksum) => {
+                (Some(AleoExpr::RawName(generate_program_core(&arguments[0].to_string(), "checksum"))), vec![])
+            }
+            Some(CoreFunction::ProgramEdition) => {
+                (Some(AleoExpr::RawName(generate_program_core(&arguments[0].to_string(), "edition"))), vec![])
+            }
+            Some(CoreFunction::ProgramOwner) => {
+                (Some(AleoExpr::RawName(generate_program_core(&arguments[0].to_string(), "program_owner"))), vec![])
+            }
             Some(CoreFunction::CheatCodePrintMapping)
             | Some(CoreFunction::CheatCodeSetBlockHeight)
             | Some(CoreFunction::CheatCodeSetSigner) => {
-                (String::new(), String::new())
+                (None, vec![])
                 // Do nothing. Cheat codes do not generate instructions.
             }
             Some(CoreFunction::Serialize(variant)) => {
@@ -585,10 +557,7 @@ impl CodeGeneratingVisitor<'_> {
                     panic!("All types should be known at this phase of compilation");
                 };
                 // Get the instruction variant.
-                let (is_raw, variant) = match variant {
-                    SerializeVariant::ToBits => (false, "bits"),
-                    SerializeVariant::ToBitsRaw => (true, "bits.raw"),
-                };
+                let is_raw = matches!(variant, SerializeVariant::ToBitsRaw);
                 // Get the size in bits of the input type.
                 let size_in_bits = match self.state.network {
                     NetworkName::TestnetV0 => {
@@ -603,40 +572,27 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 .expect("TYC guarantees that all types have a valid size in bits");
 
-                // Construct the output array type.
-                let output_array_type = format!("[boolean; {size_in_bits}u32]");
-                // Construct the destination register.
-                let destination_register = self.next_register();
-                // Construct the instruction template.
-                let instruction = format!(
-                    "    serialize.{variant} {} ({}) into {destination_register} ({output_array_type});\n",
-                    arguments[0],
-                    Self::visit_type(&input_type)
-                );
+                let dest_reg = self.next_register();
+                let output_type = AleoType::Array { inner: Box::new(AleoType::Boolean), len: size_in_bits as u32 };
+                let input_type = Self::visit_type(&input_type);
+                let instruction =
+                    AleoStmt::Serialize(variant, arguments[0].clone(), input_type, dest_reg.clone(), output_type);
 
-                (destination_register, instruction)
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::Deserialize(variant, output_type)) => {
-                // Get the instruction variant.
-                let variant = match variant {
-                    DeserializeVariant::FromBits => "bits",
-                    DeserializeVariant::FromBitsRaw => "bits.raw",
-                };
                 // Get the input type.
                 let Some(input_type) = self.state.type_table.get(&input.arguments[0].id()) else {
                     panic!("All types should be known at this phase of compilation");
                 };
-                // Construct the destination register.
-                let destination_register = self.next_register();
-                // Construct the instruction template.
-                let instruction = format!(
-                    "    deserialize.{variant} {} ({}) into {destination_register} ({});\n",
-                    arguments[0],
-                    Self::visit_type(&input_type),
-                    Self::visit_type(&output_type)
-                );
 
-                (destination_register, instruction)
+                let dest_reg = self.next_register();
+                let input_type = Self::visit_type(&input_type);
+                let output_type = Self::visit_type(&output_type);
+                let instruction =
+                    AleoStmt::Deserialize(variant, arguments[0].clone(), input_type, dest_reg.clone(), output_type);
+
+                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
             }
             Some(CoreFunction::OptionalUnwrap) | Some(CoreFunction::OptionalUnwrapOr) => {
                 panic!("`Optional` core functions should have been lowered before code generation")
@@ -653,16 +609,12 @@ impl CodeGeneratingVisitor<'_> {
             }
         };
         // Add the instruction to the list of instructions.
-        instructions.push_str(&instruction);
+        instructions.extend(instruction);
 
         (destination, instructions)
     }
 
-    fn visit_async(&mut self, _input: &AsyncExpression) -> (String, String) {
-        panic!("`AsyncExpression`s should not be in the AST at this phase of compilation.")
-    }
-
-    fn visit_call(&mut self, input: &CallExpression) -> (String, String) {
+    fn visit_call(&mut self, input: &CallExpression) -> (AleoExpr, Vec<AleoStmt>) {
         let caller_program = self.program_id.expect("Calls only appear within programs.").name.name;
         let callee_program = input.program.unwrap_or(caller_program);
         let func_symbol = self
@@ -671,27 +623,17 @@ impl CodeGeneratingVisitor<'_> {
             .lookup_function(&Location::new(callee_program, input.function.absolute_path().to_vec()))
             .expect("Type checking guarantees functions exist");
 
-        // Need to determine the program the function originated from as well as if the function has a finalize block.
-        let mut call_instruction = if caller_program != callee_program {
-            // All external functions must be defined as stubs.
-            assert!(
-                self.program.stubs.get(&callee_program).is_some(),
-                "Type checking guarantees that imported and stub programs are present."
-            );
-            format!("    call {}.aleo/{}", callee_program, input.function)
-        } else if func_symbol.function.variant.is_async() {
-            format!("    async {}", self.current_function.unwrap().identifier)
-        } else {
-            format!("    call {}", input.function)
-        };
+        let mut instructions = vec![];
 
-        let mut instructions = String::new();
-
-        for argument in input.arguments.iter() {
-            let (argument, argument_instructions) = self.visit_expression(argument);
-            write!(call_instruction, " {argument}").expect("failed to write to string");
-            instructions.push_str(&argument_instructions);
-        }
+        let arguments = input
+            .arguments
+            .iter()
+            .filter_map(|argument| {
+                let (argument, argument_instructions) = self.visit_expression(argument);
+                instructions.extend(argument_instructions);
+                argument
+            })
+            .collect();
 
         // Initialize storage for the destination registers.
         let mut destinations = Vec::new();
@@ -717,74 +659,97 @@ impl CodeGeneratingVisitor<'_> {
             destinations.push(self.next_register());
         }
 
-        // Construct the output operands. These are the destination registers **without** the future.
-        let output_operands = destinations.join(" ");
+        // Need to determine the program the function originated from as well as if the function has a finalize block.
+        let call_instruction = if caller_program != callee_program {
+            // All external functions must be defined as stubs.
+            assert!(
+                self.program.stubs.get(&callee_program).is_some(),
+                "Type checking guarantees that imported and stub programs are present."
+            );
 
-        // If destination registers were created, write them to the call instruction.
-        if !destinations.is_empty() {
-            write!(call_instruction, " into").expect("failed to write to string");
-            for destination in &destinations {
-                write!(call_instruction, " {destination}").expect("failed to write to string");
-            }
-        }
-
-        // Write the closing semicolon.
-        writeln!(call_instruction, ";").expect("failed to write to string");
+            AleoStmt::Call(format!("{}.aleo/{}", callee_program, input.function), arguments, destinations.clone())
+        } else if func_symbol.function.variant.is_async() {
+            AleoStmt::Async(self.current_function.unwrap().identifier.to_string(), arguments, destinations.clone())
+        } else {
+            AleoStmt::Call(input.function.to_string(), arguments, destinations.clone())
+        };
 
         // Push the call instruction to the list of instructions.
-        instructions.push_str(&call_instruction);
+        instructions.push(call_instruction);
 
         // Return the output operands and the instructions.
-        (output_operands, instructions)
+        (AleoExpr::Tuple(destinations.into_iter().map(AleoExpr::Reg).collect()), instructions)
     }
 
-    fn visit_tuple(&mut self, input: &TupleExpression) -> (String, String) {
-        // Need to return a single string here so we will join the tuple elements with ' '
-        // and split them after this method is called.
-        let mut tuple_elements = Vec::with_capacity(input.elements.len());
-        let mut instructions = String::new();
+    fn visit_tuple(&mut self, input: &TupleExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let mut instructions = vec![];
 
         // Visit each tuple element and accumulate instructions from expressions.
-        for element in input.elements.iter() {
-            let (element, element_instructions) = self.visit_expression(element);
-            tuple_elements.push(element);
-            instructions.push_str(&element_instructions);
-        }
+        let tuple_elements = input
+            .elements
+            .iter()
+            .filter_map(|element| {
+                let (element, element_instructions) = self.visit_expression(element);
+                instructions.extend(element_instructions);
+                element
+            })
+            .collect();
 
         // CAUTION: does not return the destination_register.
-        (tuple_elements.join(" "), instructions)
+        (AleoExpr::Tuple(tuple_elements), instructions)
     }
 
-    fn visit_unit(&mut self, _input: &UnitExpression) -> (String, String) {
-        panic!("`UnitExpression`s should not be visited during code generation.")
-    }
-
-    pub fn clone_register(&mut self, register: &str, typ: &Type) -> (String, String) {
-        if typ.is_empty() {
-            return (String::new(), String::new());
-        }
+    pub fn clone_register(&mut self, register: &AleoExpr, typ: &Type) -> (AleoExpr, Vec<AleoStmt>) {
         let new_reg = self.next_register();
         match typ {
-            Type::Address
-            | Type::Boolean
-            | Type::Field
-            | Type::Group
-            | Type::Scalar
-            | Type::Signature
-            | Type::Integer(_) => {
-                // These types can be cloned just by casting them to themselves.
-                let instruction = format!("    cast {register} into {new_reg} as {typ};\n");
-                (new_reg, instruction)
+            Type::Address => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Address);
+                ((AleoExpr::Reg(new_reg)), vec![ins])
+            }
+            Type::Boolean => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Boolean);
+                ((AleoExpr::Reg(new_reg)), vec![ins])
+            }
+            Type::Field => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Field);
+                ((AleoExpr::Reg(new_reg)), vec![ins])
+            }
+            Type::Group => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Group);
+                ((AleoExpr::Reg(new_reg)), vec![ins])
+            }
+            Type::Scalar => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Scalar);
+                ((AleoExpr::Reg(new_reg)), vec![ins])
+            }
+            Type::Signature => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Signature);
+                ((AleoExpr::Reg(new_reg)), vec![ins])
+            }
+            Type::Integer(int) => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), match int {
+                    IntegerType::U8 => AleoType::U8,
+                    IntegerType::U16 => AleoType::U16,
+                    IntegerType::U32 => AleoType::U32,
+                    IntegerType::U64 => AleoType::U64,
+                    IntegerType::U128 => AleoType::U128,
+                    IntegerType::I8 => AleoType::I8,
+                    IntegerType::I16 => AleoType::I16,
+                    IntegerType::I32 => AleoType::I32,
+                    IntegerType::I64 => AleoType::I64,
+                    IntegerType::I128 => AleoType::I128,
+                });
+                ((AleoExpr::Reg(new_reg)), vec![ins])
             }
 
             Type::Array(array_type) => {
                 // We need to cast the old array's members into the new array.
-                let mut instruction = "    cast ".to_string();
-                for i in 0..array_type.length.as_u32().expect("length should be known at this point") as usize {
-                    write!(&mut instruction, "{register}[{i}u32] ").unwrap();
-                }
-                writeln!(&mut instruction, "into {new_reg} as {};", Self::visit_type(typ)).unwrap();
-                (new_reg, instruction)
+                let elems = (0..array_type.length.as_u32().expect("length should be known at this point"))
+                    .map(|i| AleoExpr::ArrayAccess(Box::new(register.clone()), Box::new(AleoExpr::U32(i))))
+                    .collect::<Vec<_>>();
+
+                let ins = AleoStmt::Cast(AleoExpr::Tuple(elems), new_reg.clone(), Self::visit_type(typ));
+                ((AleoExpr::Reg(new_reg)), vec![ins])
             }
 
             Type::Composite(comp_ty) => {
@@ -797,18 +762,19 @@ impl CodeGeneratingVisitor<'_> {
                     .lookup_record(&location)
                     .or_else(|| self.state.symbol_table.lookup_struct(&comp_ty.path.absolute_path()))
                     .unwrap();
-                let mut instruction = "    cast ".to_string();
-                for member in &comp.members {
-                    write!(&mut instruction, "{register}.{} ", member.identifier.name).unwrap();
-                }
-                writeln!(
-                    &mut instruction,
-                    "into {new_reg} as {};",
-                    // We call `..with_visibility` just so we get the `.record` appended if it's a record.
-                    self.visit_type_with_visibility(typ, leo_ast::Mode::None)
-                )
-                .unwrap();
-                (new_reg, instruction)
+                let elems = comp
+                    .members
+                    .iter()
+                    .map(|member| {
+                        AleoExpr::MemberAccess(Box::new(register.clone()), member.identifier.name.to_string())
+                    })
+                    .collect();
+                let instruction = AleoStmt::Cast(
+                    AleoExpr::Tuple(elems),
+                    new_reg.clone(),
+                    self.visit_type_with_visibility(typ, None).0,
+                );
+                ((AleoExpr::Reg(new_reg)), vec![instruction])
             }
 
             Type::Optional(_) => panic!("All optional types should have been lowered by now."),

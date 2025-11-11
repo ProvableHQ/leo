@@ -19,7 +19,7 @@ use crate::IntegerType;
 use super::*;
 
 /// A literal.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub struct Literal {
     pub span: Span,
     pub id: NodeID,

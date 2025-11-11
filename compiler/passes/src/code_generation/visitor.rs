@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CompilerState;
+use crate::{AleoConstructor, AleoExpr, AleoReg, CompilerState};
 
 use leo_ast::{Function, Program, ProgramId, Variant};
 use leo_span::Symbol;
@@ -33,15 +33,14 @@ pub struct CodeGeneratingVisitor<'a> {
     pub current_function: Option<&'a Function>,
     /// Mapping of local variables to registers.
     /// Because these are local, we can identify them using only a `Symbol` (i.e. a path is not necessary here).
-    pub variable_mapping: IndexMap<Symbol, String>,
+    pub variable_mapping: IndexMap<Symbol, AleoExpr>,
     /// Mapping of composite names to a tuple containing metadata associated with the name.
     /// The first element of the tuple indicate whether the composite is a record or not.
-    /// The second element of the tuple is a string modifier used for code generation.
-    pub composite_mapping: IndexMap<Vec<Symbol>, (bool, String)>,
+    pub composite_mapping: IndexMap<Vec<Symbol>, bool>,
     /// Mapping of global identifiers to their associated names.
     /// Because we only allow mappings in the top level program scope at this stage, we can identify them using only a
     /// `Symbol` (i.e. a path is not necessary here currently).
-    pub global_mapping: IndexMap<Symbol, String>,
+    pub global_mapping: IndexMap<Symbol, AleoExpr>,
     /// The variant of the function we are currently traversing.
     pub variant: Option<Variant>,
     /// A reference to program. This is needed to look up external programs.
@@ -58,23 +57,23 @@ pub struct CodeGeneratingVisitor<'a> {
     pub conditional_depth: u64,
     /// Internal record input registers of the current function.
     /// This is necessary as if we output them, we need to clone them.
-    pub internal_record_inputs: IndexSet<String>,
+    pub internal_record_inputs: IndexSet<AleoExpr>,
 }
 
 /// This function checks whether the constructor is well-formed.
 /// If an upgrade configuration is provided, it checks that the constructor matches the configuration.
-pub(crate) fn check_snarkvm_constructor<N: Network>(actual: &str) -> snarkvm::prelude::Result<()> {
+pub(crate) fn check_snarkvm_constructor<N: Network>(actual: &AleoConstructor) -> snarkvm::prelude::Result<()> {
     use snarkvm::synthesizer::program::Constructor as SVMConstructor;
     // Parse the constructor as a snarkVM constructor.
-    SVMConstructor::<N>::from_str(actual.trim())?;
+    SVMConstructor::<N>::from_str(actual.to_string().trim())?;
 
     Ok(())
 }
 
 impl CodeGeneratingVisitor<'_> {
-    pub(crate) fn next_register(&mut self) -> String {
+    pub(crate) fn next_register(&mut self) -> AleoReg {
         self.next_register += 1;
-        format!("r{}", self.next_register - 1)
+        AleoReg::R(self.next_register - 1)
     }
 
     /// Converts a path into a legal Aleo identifier, if possible.
