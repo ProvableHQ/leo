@@ -25,7 +25,7 @@ use snarkvm::{
 
 use crate::cli::commands::devnode::rest::Rest;
 
-const DEFAULT_GENESIS_PATH: &str = "./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin";
+const DEFAULT_GENESIS_PATH: &str = "./leo/cli/commands/devnode/rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin";
 
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
@@ -73,7 +73,7 @@ pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::err
     let socket_addr: SocketAddr = command.listener_addr.parse()?;
     let rps = 999999999;
     // Load the genesis block.
-    const GENESIS_BYTES: &[u8] = include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin");
+    let GENESIS_BYTES: &[u8] = &std::fs::read(command.genesis_path)?;
     let genesis_block: Block<TestnetV0> = Block::from_bytes_le(GENESIS_BYTES)?;
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
