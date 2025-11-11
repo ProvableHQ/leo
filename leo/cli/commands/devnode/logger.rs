@@ -54,9 +54,9 @@ fn parse_log_verbosity(verbosity: u8) -> Result<EnvFilter> {
 
 
     let filter = if verbosity >= 3 {
-        filter.add_directive("devnode_tcp=trace".parse().unwrap())
+        filter.add_directive("leo_devnode_tcp=trace".parse().unwrap())
     } else {
-        filter.add_directive("devnode_tcp=off".parse().unwrap())
+        filter.add_directive("leo_devnode_tcp=off".parse().unwrap())
     };
 
     Ok(filter)
