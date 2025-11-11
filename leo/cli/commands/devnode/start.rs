@@ -73,12 +73,14 @@ pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::err
     let socket_addr: SocketAddr = command.listener_addr.parse()?;
     let rps = 999999999;
     // Load the genesis block.
-    let GENESIS_BYTES: &[u8] = &std::fs::read(command.genesis_path)?;
-    let genesis_block: Block<TestnetV0> = Block::from_bytes_le(GENESIS_BYTES)?;
+    let genesis_bytes: &[u8] = &std::fs::read(command.genesis_path)?;
+    let genesis_block: Block<TestnetV0> = Block::from_bytes_le(genesis_bytes)?;
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
-    // Initialize the ledger.
-    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> = Ledger::load(genesis_block, storage_mode)?;
+    // Initialize the ledger - use spawn_blocking for the blocking load operation
+    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> = tokio::task::spawn_blocking(move || {
+        Ledger::load(genesis_block, storage_mode)
+    }).await??;
     // Start the REST API server.
     Rest::start(socket_addr, rps, ledger, command.manual_block_creation).await.expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");

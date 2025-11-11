@@ -545,17 +545,26 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
                 .map_err(|_| RestError::internal_server_error(anyhow!("PRIVATE_KEY environment variable not set")))?;
 
             let private_key = PrivateKey::<N>::from_str(&private_key_str)?;
-            // Create a block.
-            let new_block = rest.ledger.prepare_advance_to_next_beacon_block(
-                &private_key,
-                vec![],
-                vec![],
-                vec![tx_copy],
-                &mut rand::thread_rng(),
-            )?;
+
+            // Clone the ledger for the blocking task
+            let ledger = rest.ledger.clone();
+            // Wrap blocking operations in spawn_blocking
+            let new_block = tokio::task::spawn_blocking(move || {
+                ledger.prepare_advance_to_next_beacon_block(
+                    &private_key,
+                    vec![],
+                    vec![],
+                    vec![tx_copy],
+                    &mut rand::thread_rng(),
+                )
+            })
+            .await
+            .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
 
             // Advance to the next block.
-            rest.ledger.advance_to_next_block(&new_block)?;
+            tokio::task::spawn_blocking(move || rest.ledger.advance_to_next_block(&new_block))
+                .await
+                .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
             return Ok((StatusCode::OK, ErasedJson::pretty(tx_id)));
         }
 
