@@ -145,6 +145,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             // GET and POST ../transaction/..
             .route("/transaction/broadcast", post(Self::transaction_broadcast))
             .route("/transaction/confirmed/{id}", get(Self::get_confirmed_transaction))
+            .route("/transaction/unconfirmed/{id}", get(Self::get_unconfirmed_transaction))
             .route("/transaction/{id}", get(Self::get_transaction))
 
             // GET ../find/..

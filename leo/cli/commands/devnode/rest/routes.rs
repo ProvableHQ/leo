@@ -208,6 +208,17 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         })?))
     }
 
+     /// GET /<network>/transaction/unconfirmed/{transactionID}
+    pub(crate) async fn get_unconfirmed_transaction(
+        State(rest): State<Self>,
+        Path(tx_id): Path<N::TransactionID>,
+    ) -> Result<ErasedJson, RestError> {
+        // Ledger returns a generic anyhow::Error, so checking the message is the only way to parse it.
+        Ok(ErasedJson::pretty(rest.ledger.get_unconfirmed_transaction(&tx_id).map_err(|err| {
+            if err.to_string().contains("Missing") { RestError::not_found(err) } else { RestError::from(err) }
+        })?))
+    }
+
     /// GET /<network>/program/{programID}
     /// GET /<network>/program/{programID}?metadata={true}
     pub(crate) async fn get_program(
@@ -572,29 +583,29 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
 
             let mut last_block = None;
 
-            for i in 0..num_blocks {
-                let unconfirmed_txs = if i == 0 {
-                    let mut buffer = rest.buffer.lock();
-                    buffer.drain(..).collect()
-                } else {
-                    vec![]
-                };
+            let mut unconfirmed_txs = Some({
+                let mut buffer = rest.buffer.lock();
+                 buffer.drain(..).collect()
+}           );
 
+            for _ in 0..num_blocks {
+                let txs = unconfirmed_txs.take().unwrap_or_default();
+                
                 let new_block = rest
                     .ledger
                     .prepare_advance_to_next_beacon_block(
                         &private_key,
                         vec![],
                         vec![],
-                        unconfirmed_txs,
+                        txs,
                         &mut rand::thread_rng(),
                     )
                     .map_err(|e| RestError::internal_server_error(anyhow!("Failed to prepare block: {}", e)))?;
-
+                
                 rest.ledger
                     .advance_to_next_block(&new_block)
                     .map_err(|e| RestError::internal_server_error(anyhow!("Failed to advance block: {}", e)))?;
-
+                
                 last_block = Some(new_block);
             }
 

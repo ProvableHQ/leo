@@ -52,61 +52,11 @@ fn parse_log_verbosity(verbosity: u8) -> Result<EnvFilter> {
     };
     let filter = EnvFilter::from_str(default_log_str).unwrap();
 
-    // Now, set rules for specific crates.
-    let filter = if verbosity >= 2 {
-        filter.add_directive("snarkos_node_sync=trace".parse().unwrap())
-    } else {
-        filter.add_directive("snarkos_node_sync=debug".parse().unwrap())
-    };
 
     let filter = if verbosity >= 3 {
-        filter
-            .add_directive("snarkos_node_bft=trace".parse().unwrap())
-            .add_directive("snarkos_node_bft::gateway=debug".parse().unwrap())
+        filter.add_directive("devnode_tcp=trace".parse().unwrap())
     } else {
-        filter.add_directive("snarkos_node_bft=debug".parse().unwrap())
-    };
-
-    let filter = if verbosity >= 4 {
-        let filter = filter.add_directive("snarkos_node_bft::gateway=trace".parse().unwrap());
-
-        // At high log levels, also show warnings of third-party crates.
-        filter
-            .add_directive("mio=warn".parse().unwrap())
-            .add_directive("tokio_util=warn".parse().unwrap())
-            .add_directive("hyper=warn".parse().unwrap())
-            .add_directive("reqwest=warn".parse().unwrap())
-            .add_directive("want=warn".parse().unwrap())
-            .add_directive("h2=warn".parse().unwrap())
-            .add_directive("tower=warn".parse().unwrap())
-            .add_directive("axum=warn".parse().unwrap())
-            .add_directive("ureq=warn".parse().unwrap())
-    } else {
-        let filter = filter.add_directive("snarkos_node_bft::gateway=debug".parse().unwrap());
-
-        // Disable logs from third-party crates by default.
-        filter
-            .add_directive("mio=off".parse().unwrap())
-            .add_directive("tokio_util=off".parse().unwrap())
-            .add_directive("hyper=off".parse().unwrap())
-            .add_directive("reqwest=off".parse().unwrap())
-            .add_directive("want=off".parse().unwrap())
-            .add_directive("h2=off".parse().unwrap())
-            .add_directive("tower=off".parse().unwrap())
-            .add_directive("axum=off".parse().unwrap())
-            .add_directive("ureq=off".parse().unwrap())
-    };
-
-    let filter = if verbosity >= 5 {
-        filter.add_directive("snarkos_node_router=trace".parse().unwrap())
-    } else {
-        filter.add_directive("snarkos_node_router=debug".parse().unwrap())
-    };
-
-    let filter = if verbosity >= 6 {
-        filter.add_directive("snarkos_node_tcp=trace".parse().unwrap())
-    } else {
-        filter.add_directive("snarkos_node_tcp=off".parse().unwrap())
+        filter.add_directive("devnode_tcp=off".parse().unwrap())
     };
 
     Ok(filter)
