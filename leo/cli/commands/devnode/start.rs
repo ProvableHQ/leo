@@ -25,7 +25,6 @@ use snarkvm::{
 
 use crate::cli::commands::devnode::rest::Rest;
 
-const DEFAULT_GENESIS_PATH: &str = "./leo/cli/commands/devnode/rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin";
 
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
@@ -37,7 +36,7 @@ pub struct Start{
     #[clap(long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
     pub(crate) listener_addr: String,
     /// Path to the genesis block file.
-    #[clap(long, help = "path to genesis block file", default_value = DEFAULT_GENESIS_PATH)]
+    #[clap(long, help = "path to genesis block file", default_value = "blank")]
     pub(crate) genesis_path: String,
     /// Enable manual block creation mode. 
     #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
@@ -73,8 +72,12 @@ pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::err
     let socket_addr: SocketAddr = command.listener_addr.parse()?;
     let rps = 999999999;
     // Load the genesis block.
-    let genesis_bytes: &[u8] = &std::fs::read(command.genesis_path)?;
-    let genesis_block: Block<TestnetV0> = Block::from_bytes_le(genesis_bytes)?;
+    let genesis_block: Block<TestnetV0>;
+    if command.genesis_path != "blank" {
+        genesis_block = Block::from_bytes_le(&std::fs::read(command.genesis_path.clone())?)?;
+    } else {
+        genesis_block = Block::from_bytes_le(include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?;
+    }
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
     // Initialize the ledger - use spawn_blocking for the blocking load operation
