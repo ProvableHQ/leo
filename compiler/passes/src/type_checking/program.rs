@@ -275,6 +275,8 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // For structs, check that there is at least one member.
         else if input.members.is_empty() {
             self.emit_err(TypeCheckerError::empty_struct(input.span()));
+        } else if input.members.iter().all(|m| m.type_.is_empty()) {
+            self.emit_err(TypeCheckerError::zero_size_struct(input.span()));
         }
 
         if !(input.is_record && self.scope_state.is_stub) {
@@ -350,6 +352,10 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             _ => {}
         }
 
+        if input.key_type.is_empty() {
+            self.emit_err(TypeCheckerError::invalid_mapping_type("key", "zero sized type", input.span));
+        }
+
         if self.contains_optional_type(&input.key_type) {
             self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
                 input.key_type.clone(),
@@ -379,6 +385,10 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             // Note that this is not possible since the parser does not currently accept mapping types.
             Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span)),
             _ => {}
+        }
+
+        if input.value_type.is_empty() {
+            self.emit_err(TypeCheckerError::invalid_mapping_type("value", "zero sized type", input.span));
         }
 
         if self.contains_optional_type(&input.value_type) {
@@ -500,6 +510,8 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
                 if function.variant == Variant::Function && function.input.is_empty() {
                     slf.emit_err(TypeCheckerError::empty_function_arglist(function.span));
+                } else if function.variant == Variant::Function && function.input.iter().all(|i| i.type_.is_empty()) {
+                    slf.emit_err(TypeCheckerError::empty_function_args(function.span));
                 }
 
                 slf.visit_block(&function.block);

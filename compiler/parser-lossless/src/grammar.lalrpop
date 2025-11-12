@@ -322,11 +322,9 @@ Expr0: SyntaxNode<'a> = {
         SyntaxNode::new(ExpressionKind::Array, iter::once(l).chain(exprs).chain([r]))
     },
 
-    // Empty array expression - special cased to give a clear error message.
-    <l:WithTrivia<LeftSquare>> <c:(WithTrivia<Comma>)?> <r:WithTrivia<RightSquare>> => {
-        let node = SyntaxNode::new(ExpressionKind::Array, iter::once(l).chain(c).chain([r]));
-        handler.emit_err(ParserError::array_must_have_at_least_one_element("expression", node.span));
-        node
+    // Empty array expression.
+    <l:WithTrivia<LeftSquare>> (WithTrivia<Comma>)? <r:WithTrivia<RightSquare>> => {
+        SyntaxNode::new(ExpressionKind::Array, iter::once(l).chain([r]))
     },
 
     // Repeat expression.

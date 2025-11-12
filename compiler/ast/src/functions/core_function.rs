@@ -694,6 +694,41 @@ impl CoreFunction {
             | CoreFunction::CheatCodeSetSigner => false,
         }
     }
+
+    /// Returns whether or not this function has side effects
+    pub fn is_pure(&self) -> bool {
+        match self {
+            CoreFunction::FutureAwait
+            | CoreFunction::Set
+            | CoreFunction::MappingRemove
+            | CoreFunction::VectorPush
+            | CoreFunction::VectorClear
+            | CoreFunction::CheatCodePrintMapping
+            | CoreFunction::CheatCodeSetBlockHeight
+            | CoreFunction::CheatCodeSetSigner
+            | CoreFunction::VectorPop
+            | CoreFunction::VectorSwapRemove => false,
+
+            CoreFunction::ChaChaRand(_)
+            | CoreFunction::ECDSAVerify(_)
+            | CoreFunction::Get
+            | CoreFunction::MappingGetOrUse
+            | CoreFunction::MappingContains
+            | CoreFunction::ProgramChecksum
+            | CoreFunction::ProgramEdition
+            | CoreFunction::ProgramOwner
+            | CoreFunction::VectorLen
+            | CoreFunction::Commit(_, _)
+            | CoreFunction::Hash(_, _)
+            | CoreFunction::OptionalUnwrap
+            | CoreFunction::OptionalUnwrapOr
+            | CoreFunction::GroupToXCoordinate
+            | CoreFunction::GroupToYCoordinate
+            | CoreFunction::SignatureVerify
+            | CoreFunction::Serialize(_)
+            | CoreFunction::Deserialize(_, _) => true,
+        }
+    }
 }
 
 impl TryFrom<&AssociatedFunctionExpression> for CoreFunction {

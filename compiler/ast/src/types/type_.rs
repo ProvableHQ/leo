@@ -330,6 +330,20 @@ impl Type {
     pub fn to_optional(&self) -> Type {
         Type::Optional(OptionalType { inner: Box::new(self.clone()) })
     }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Type::Unit => true,
+            Type::Array(array_type) => {
+                if let Some(length) = array_type.length.as_u32() {
+                    length == 0
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
 }
 
 impl From<LiteralType> for Type {

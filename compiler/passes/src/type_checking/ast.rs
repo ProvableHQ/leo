@@ -498,11 +498,6 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_array(&mut self, input: &ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        if input.elements.is_empty() {
-            self.emit_err(TypeCheckerError::array_empty(input.span()));
-            return Type::Err;
-        }
-
         // Grab the element type from the expected type if the expected type is an array or if it's
         // an optional array
         let element_type = match additional {
@@ -514,7 +509,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             _ => None,
         };
 
-        let inferred_type = self.visit_expression_reject_numeric(&input.elements[0], &element_type);
+        let inferred_type = if input.elements.is_empty() {
+            if let Some(ty) = element_type.clone() {
+                ty
+            } else {
+                self.emit_err(TypeCheckerError::could_not_determine_type(input, input.span()));
+                Type::Err
+            }
+        } else {
+            self.visit_expression_reject_numeric(&input.elements[0], &element_type)
+        };
 
         if input.elements.len() > self.limits.max_array_elements {
             self.emit_err(TypeCheckerError::array_too_large(
@@ -524,7 +528,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        for expression in input.elements[1..].iter() {
+        for expression in input.elements.iter().skip(1) {
             let next_type = self.visit_expression_reject_numeric(expression, &element_type);
 
             if next_type == Type::Err {
@@ -577,15 +581,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // If we can already evaluate the repeat count as a `u32`, then make sure it's not 0 or  greater than the array
         // size limit.
-        if let Some(count) = input.count.as_u32() {
-            if count == 0 {
-                self.emit_err(TypeCheckerError::array_empty(input.span()));
-                return Type::Err;
-            }
-
-            if count > self.limits.max_array_elements as u32 {
-                self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
-            }
+        if let Some(count) = input.count.as_u32()
+            && count > self.limits.max_array_elements as u32
+        {
+            self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
         }
 
         let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));

@@ -1,0 +1,10 @@
+Error [ETYC0372031]: A mapping's value cannot be a zero sized type
+    --> compiler-test:3:5
+     |
+   3 |     mapping foo: u64 => [u32; 0];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372031]: A mapping's key cannot be a zero sized type
+    --> compiler-test:4:5
+     |
+   4 |     mapping bar: [u32; 0] => u64;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

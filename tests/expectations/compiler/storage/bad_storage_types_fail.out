@@ -23,6 +23,11 @@ Error [ETYC0372166]: record is an invalid storage type
      |
   11 |     storage record_storage: MyRecord;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: A zero sized type is an invalid storage type
+    --> compiler-test:12:5
+     |
+  12 |     storage unit_storage: ();
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: unit is an invalid storage type
     --> compiler-test:12:5
      |
@@ -53,6 +58,11 @@ Error [ETYC0372166]: record is an invalid storage type
      |
   19 |     storage vec_record: [MyRecord];
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: A zero sized type is an invalid storage type
+    --> compiler-test:20:5
+     |
+  20 |     storage vec_unit: [()];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: unit is an invalid storage type
     --> compiler-test:20:5
      |

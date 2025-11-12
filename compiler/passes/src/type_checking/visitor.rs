@@ -1134,9 +1134,7 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the array length is valid.
 
                 if let Some(length) = array_type.length.as_u32() {
-                    if length == 0 {
-                        self.emit_err(TypeCheckerError::array_empty(span));
-                    } else if length > self.limits.max_array_elements as u32 {
+                    if length > self.limits.max_array_elements as u32 {
                         self.emit_err(TypeCheckerError::array_too_large(length, self.limits.max_array_elements, span));
                     }
                 } else if let Expression::Literal(_) = &*array_type.length {
@@ -1202,6 +1200,9 @@ impl TypeCheckingVisitor<'_> {
     /// Ensures the given type is valid for use in storage.
     /// Emits an error if the type or any of its inner types are invalid.
     pub fn assert_storage_type_is_valid(&mut self, type_: &Type, span: Span) {
+        if type_.is_empty() {
+            self.emit_err(TypeCheckerError::invalid_storage_type("A zero sized type", span));
+        }
         match type_ {
             // Prohibited top-level kinds
             Type::Unit => {
