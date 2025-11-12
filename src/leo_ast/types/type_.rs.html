@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/types/type_.rs`."><title>type_.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.0 (f8297e351 2025-10-28)" data-channel="1.91.0" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_ast/types/</div>type_.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/types/type_.rs`."><title>type_.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_ast/types/</div>type_.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 <a href=#2 id=2 data-nosnippet>2</a>// This file is part of the Leo library.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a>// The Leo library is free software: you can redistribute it and/or modify
@@ -330,54 +330,68 @@
 <a href=#330 id=330 data-nosnippet>330</a>    <span class="kw">pub fn </span>to_optional(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Type {
 <a href=#331 id=331 data-nosnippet>331</a>        Type::Optional(OptionalType { inner: Box::new(<span class="self">self</span>.clone()) })
 <a href=#332 id=332 data-nosnippet>332</a>    }
-<a href=#333 id=333 data-nosnippet>333</a>}
-<a href=#334 id=334 data-nosnippet>334</a>
-<a href=#335 id=335 data-nosnippet>335</a><span class="kw">impl </span>From&lt;LiteralType&gt; <span class="kw">for </span>Type {
-<a href=#336 id=336 data-nosnippet>336</a>    <span class="kw">fn </span>from(value: LiteralType) -&gt; <span class="self">Self </span>{
-<a href=#337 id=337 data-nosnippet>337</a>        <span class="kw">match </span>value {
-<a href=#338 id=338 data-nosnippet>338</a>            LiteralType::Address =&gt; Type::Address,
-<a href=#339 id=339 data-nosnippet>339</a>            LiteralType::Boolean =&gt; Type::Boolean,
-<a href=#340 id=340 data-nosnippet>340</a>            LiteralType::Field =&gt; Type::Field,
-<a href=#341 id=341 data-nosnippet>341</a>            LiteralType::Group =&gt; Type::Group,
-<a href=#342 id=342 data-nosnippet>342</a>            LiteralType::U8 =&gt; Type::Integer(IntegerType::U8),
-<a href=#343 id=343 data-nosnippet>343</a>            LiteralType::U16 =&gt; Type::Integer(IntegerType::U16),
-<a href=#344 id=344 data-nosnippet>344</a>            LiteralType::U32 =&gt; Type::Integer(IntegerType::U32),
-<a href=#345 id=345 data-nosnippet>345</a>            LiteralType::U64 =&gt; Type::Integer(IntegerType::U64),
-<a href=#346 id=346 data-nosnippet>346</a>            LiteralType::U128 =&gt; Type::Integer(IntegerType::U128),
-<a href=#347 id=347 data-nosnippet>347</a>            LiteralType::I8 =&gt; Type::Integer(IntegerType::I8),
-<a href=#348 id=348 data-nosnippet>348</a>            LiteralType::I16 =&gt; Type::Integer(IntegerType::I16),
-<a href=#349 id=349 data-nosnippet>349</a>            LiteralType::I32 =&gt; Type::Integer(IntegerType::I32),
-<a href=#350 id=350 data-nosnippet>350</a>            LiteralType::I64 =&gt; Type::Integer(IntegerType::I64),
-<a href=#351 id=351 data-nosnippet>351</a>            LiteralType::I128 =&gt; Type::Integer(IntegerType::I128),
-<a href=#352 id=352 data-nosnippet>352</a>            LiteralType::Scalar =&gt; Type::Scalar,
-<a href=#353 id=353 data-nosnippet>353</a>            LiteralType::Signature =&gt; Type::Signature,
-<a href=#354 id=354 data-nosnippet>354</a>            LiteralType::String =&gt; Type::String,
-<a href=#355 id=355 data-nosnippet>355</a>        }
-<a href=#356 id=356 data-nosnippet>356</a>    }
-<a href=#357 id=357 data-nosnippet>357</a>}
-<a href=#358 id=358 data-nosnippet>358</a>
-<a href=#359 id=359 data-nosnippet>359</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Type {
-<a href=#360 id=360 data-nosnippet>360</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-<a href=#361 id=361 data-nosnippet>361</a>        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-<a href=#362 id=362 data-nosnippet>362</a>            Type::Address =&gt; <span class="macro">write!</span>(f, <span class="string">"address"</span>),
-<a href=#363 id=363 data-nosnippet>363</a>            Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{array_type}"</span>),
-<a href=#364 id=364 data-nosnippet>364</a>            Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"bool"</span>),
-<a href=#365 id=365 data-nosnippet>365</a>            Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">"field"</span>),
-<a href=#366 id=366 data-nosnippet>366</a>            Type::Future(<span class="kw-2">ref </span>future_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{future_type}"</span>),
-<a href=#367 id=367 data-nosnippet>367</a>            Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">"group"</span>),
-<a href=#368 id=368 data-nosnippet>368</a>            Type::Identifier(<span class="kw-2">ref </span>variable) =&gt; <span class="macro">write!</span>(f, <span class="string">"{variable}"</span>),
-<a href=#369 id=369 data-nosnippet>369</a>            Type::Integer(<span class="kw-2">ref </span>integer_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{integer_type}"</span>),
-<a href=#370 id=370 data-nosnippet>370</a>            Type::Mapping(<span class="kw-2">ref </span>mapping_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{mapping_type}"</span>),
-<a href=#371 id=371 data-nosnippet>371</a>            Type::Optional(<span class="kw-2">ref </span>optional_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{optional_type}"</span>),
-<a href=#372 id=372 data-nosnippet>372</a>            Type::Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">"scalar"</span>),
-<a href=#373 id=373 data-nosnippet>373</a>            Type::Signature =&gt; <span class="macro">write!</span>(f, <span class="string">"signature"</span>),
-<a href=#374 id=374 data-nosnippet>374</a>            Type::String =&gt; <span class="macro">write!</span>(f, <span class="string">"string"</span>),
-<a href=#375 id=375 data-nosnippet>375</a>            Type::Composite(<span class="kw-2">ref </span>struct_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{struct_type}"</span>),
-<a href=#376 id=376 data-nosnippet>376</a>            Type::Tuple(<span class="kw-2">ref </span>tuple) =&gt; <span class="macro">write!</span>(f, <span class="string">"{tuple}"</span>),
-<a href=#377 id=377 data-nosnippet>377</a>            Type::Vector(<span class="kw-2">ref </span>vector_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{vector_type}"</span>),
-<a href=#378 id=378 data-nosnippet>378</a>            Type::Numeric =&gt; <span class="macro">write!</span>(f, <span class="string">"numeric"</span>),
-<a href=#379 id=379 data-nosnippet>379</a>            Type::Unit =&gt; <span class="macro">write!</span>(f, <span class="string">"()"</span>),
-<a href=#380 id=380 data-nosnippet>380</a>            Type::Err =&gt; <span class="macro">write!</span>(f, <span class="string">"error"</span>),
-<a href=#381 id=381 data-nosnippet>381</a>        }
-<a href=#382 id=382 data-nosnippet>382</a>    }
-<a href=#383 id=383 data-nosnippet>383</a>}</code></pre></div></section></main></body></html>
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+<a href=#335 id=335 data-nosnippet>335</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#336 id=336 data-nosnippet>336</a>            Type::Unit =&gt; <span class="bool-val">true</span>,
+<a href=#337 id=337 data-nosnippet>337</a>            Type::Array(array_type) =&gt; {
+<a href=#338 id=338 data-nosnippet>338</a>                <span class="kw">if let </span><span class="prelude-val">Some</span>(length) = array_type.length.as_u32() {
+<a href=#339 id=339 data-nosnippet>339</a>                    length == <span class="number">0
+<a href=#340 id=340 data-nosnippet>340</a>                </span>} <span class="kw">else </span>{
+<a href=#341 id=341 data-nosnippet>341</a>                    <span class="bool-val">false
+<a href=#342 id=342 data-nosnippet>342</a>                </span>}
+<a href=#343 id=343 data-nosnippet>343</a>            }
+<a href=#344 id=344 data-nosnippet>344</a>            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+<a href=#345 id=345 data-nosnippet>345</a>        }
+<a href=#346 id=346 data-nosnippet>346</a>    }
+<a href=#347 id=347 data-nosnippet>347</a>}
+<a href=#348 id=348 data-nosnippet>348</a>
+<a href=#349 id=349 data-nosnippet>349</a><span class="kw">impl </span>From&lt;LiteralType&gt; <span class="kw">for </span>Type {
+<a href=#350 id=350 data-nosnippet>350</a>    <span class="kw">fn </span>from(value: LiteralType) -&gt; <span class="self">Self </span>{
+<a href=#351 id=351 data-nosnippet>351</a>        <span class="kw">match </span>value {
+<a href=#352 id=352 data-nosnippet>352</a>            LiteralType::Address =&gt; Type::Address,
+<a href=#353 id=353 data-nosnippet>353</a>            LiteralType::Boolean =&gt; Type::Boolean,
+<a href=#354 id=354 data-nosnippet>354</a>            LiteralType::Field =&gt; Type::Field,
+<a href=#355 id=355 data-nosnippet>355</a>            LiteralType::Group =&gt; Type::Group,
+<a href=#356 id=356 data-nosnippet>356</a>            LiteralType::U8 =&gt; Type::Integer(IntegerType::U8),
+<a href=#357 id=357 data-nosnippet>357</a>            LiteralType::U16 =&gt; Type::Integer(IntegerType::U16),
+<a href=#358 id=358 data-nosnippet>358</a>            LiteralType::U32 =&gt; Type::Integer(IntegerType::U32),
+<a href=#359 id=359 data-nosnippet>359</a>            LiteralType::U64 =&gt; Type::Integer(IntegerType::U64),
+<a href=#360 id=360 data-nosnippet>360</a>            LiteralType::U128 =&gt; Type::Integer(IntegerType::U128),
+<a href=#361 id=361 data-nosnippet>361</a>            LiteralType::I8 =&gt; Type::Integer(IntegerType::I8),
+<a href=#362 id=362 data-nosnippet>362</a>            LiteralType::I16 =&gt; Type::Integer(IntegerType::I16),
+<a href=#363 id=363 data-nosnippet>363</a>            LiteralType::I32 =&gt; Type::Integer(IntegerType::I32),
+<a href=#364 id=364 data-nosnippet>364</a>            LiteralType::I64 =&gt; Type::Integer(IntegerType::I64),
+<a href=#365 id=365 data-nosnippet>365</a>            LiteralType::I128 =&gt; Type::Integer(IntegerType::I128),
+<a href=#366 id=366 data-nosnippet>366</a>            LiteralType::Scalar =&gt; Type::Scalar,
+<a href=#367 id=367 data-nosnippet>367</a>            LiteralType::Signature =&gt; Type::Signature,
+<a href=#368 id=368 data-nosnippet>368</a>            LiteralType::String =&gt; Type::String,
+<a href=#369 id=369 data-nosnippet>369</a>        }
+<a href=#370 id=370 data-nosnippet>370</a>    }
+<a href=#371 id=371 data-nosnippet>371</a>}
+<a href=#372 id=372 data-nosnippet>372</a>
+<a href=#373 id=373 data-nosnippet>373</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>Type {
+<a href=#374 id=374 data-nosnippet>374</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<a href=#375 id=375 data-nosnippet>375</a>        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+<a href=#376 id=376 data-nosnippet>376</a>            Type::Address =&gt; <span class="macro">write!</span>(f, <span class="string">"address"</span>),
+<a href=#377 id=377 data-nosnippet>377</a>            Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{array_type}"</span>),
+<a href=#378 id=378 data-nosnippet>378</a>            Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"bool"</span>),
+<a href=#379 id=379 data-nosnippet>379</a>            Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">"field"</span>),
+<a href=#380 id=380 data-nosnippet>380</a>            Type::Future(<span class="kw-2">ref </span>future_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{future_type}"</span>),
+<a href=#381 id=381 data-nosnippet>381</a>            Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">"group"</span>),
+<a href=#382 id=382 data-nosnippet>382</a>            Type::Identifier(<span class="kw-2">ref </span>variable) =&gt; <span class="macro">write!</span>(f, <span class="string">"{variable}"</span>),
+<a href=#383 id=383 data-nosnippet>383</a>            Type::Integer(<span class="kw-2">ref </span>integer_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{integer_type}"</span>),
+<a href=#384 id=384 data-nosnippet>384</a>            Type::Mapping(<span class="kw-2">ref </span>mapping_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{mapping_type}"</span>),
+<a href=#385 id=385 data-nosnippet>385</a>            Type::Optional(<span class="kw-2">ref </span>optional_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{optional_type}"</span>),
+<a href=#386 id=386 data-nosnippet>386</a>            Type::Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">"scalar"</span>),
+<a href=#387 id=387 data-nosnippet>387</a>            Type::Signature =&gt; <span class="macro">write!</span>(f, <span class="string">"signature"</span>),
+<a href=#388 id=388 data-nosnippet>388</a>            Type::String =&gt; <span class="macro">write!</span>(f, <span class="string">"string"</span>),
+<a href=#389 id=389 data-nosnippet>389</a>            Type::Composite(<span class="kw-2">ref </span>struct_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{struct_type}"</span>),
+<a href=#390 id=390 data-nosnippet>390</a>            Type::Tuple(<span class="kw-2">ref </span>tuple) =&gt; <span class="macro">write!</span>(f, <span class="string">"{tuple}"</span>),
+<a href=#391 id=391 data-nosnippet>391</a>            Type::Vector(<span class="kw-2">ref </span>vector_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{vector_type}"</span>),
+<a href=#392 id=392 data-nosnippet>392</a>            Type::Numeric =&gt; <span class="macro">write!</span>(f, <span class="string">"numeric"</span>),
+<a href=#393 id=393 data-nosnippet>393</a>            Type::Unit =&gt; <span class="macro">write!</span>(f, <span class="string">"()"</span>),
+<a href=#394 id=394 data-nosnippet>394</a>            Type::Err =&gt; <span class="macro">write!</span>(f, <span class="string">"error"</span>),
+<a href=#395 id=395 data-nosnippet>395</a>        }
+<a href=#396 id=396 data-nosnippet>396</a>    }
+<a href=#397 id=397 data-nosnippet>397</a>}</code></pre></div></section></main></body></html>
