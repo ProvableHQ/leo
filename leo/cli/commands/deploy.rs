@@ -318,10 +318,6 @@ Once it is deployed, it CANNOT be changed.
                     edition.unwrap_or(0), program.clone(), verifying_keys, None, None
                 ).unwrap();
 
-                // Set the program owner.
-                let address = Address::try_from(&private_key)?;
-                println!("Program owner address: {}", &address.to_string());
-
                 deployment.set_program_owner_raw(Some(Address::try_from(&private_key)?));
 
                 // Compute the checksum of the deployment.
