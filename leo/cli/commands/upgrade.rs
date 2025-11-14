@@ -58,6 +58,8 @@ pub struct LeoUpgrade {
     pub(crate) skip: Vec<String>,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
+    #[clap(long, help = "Skips deployment certificate generation.")]
+    pub(crate) skip_deploy_certificate: bool,
 }
 
 impl Command for LeoUpgrade {
@@ -488,6 +490,7 @@ impl From<&LeoUpgrade> for LeoDeploy {
             extra: upgrade.extra.clone(),
             skip: upgrade.skip.clone(),
             build_options: upgrade.build_options.clone(),
+            skip_deploy_certificate: upgrade.skip_deploy_certificate,
         }
     }
 }
