@@ -78,7 +78,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             // Reconstruct functions in post-order.
             if let Some(function) = self.function_map.swap_remove(&function_name.path) {
                 // Reconstruct the function.
-                let reconstructed_function = self.reconstruct_function(function.clone());
+                let reconstructed_function = self.reconstruct_function(function);
                 // Add the reconstructed function to the mapping.
                 self.reconstructed_functions.insert(function_name.path.clone(), reconstructed_function);
             }
