@@ -695,12 +695,34 @@ impl TypeCheckingVisitor<'_> {
                     // Check that the operation is invoked in a `finalize` or `async` block.
                     self.check_access_allowed("Vector::set", true, function_span);
 
-                    Type::Unit
-                } else if let Type::Mapping(_) = &arguments[0].0 {
+                    // argument 0 can only be a `Locator` or a `Path`. No other expression can be a vector
+                    if let Expression::Locator(LocatorExpression { program, .. }) = arguments[0].1
+                        && program.name.name != self.scope_state.program_name.unwrap()
+                    {
+                        self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                            "set",
+                            "vector",
+                            function_span,
+                        ));
+                        Type::Err
+                    } else {
+                        Type::Unit
+                    }
+                } else if let Type::Mapping(mapping_type) = &arguments[0].0 {
                     // Check that the operation is invoked in a `finalize` or `async` block.
                     self.check_access_allowed("Mapping::set", true, function_span);
 
-                    Type::Unit
+                    // Cannot modify external mappings.
+                    if mapping_type.program != self.scope_state.program_name.unwrap() {
+                        self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                            "set",
+                            "mapping",
+                            function_span,
+                        ));
+                        Type::Err
+                    } else {
+                        Type::Unit
+                    }
                 } else {
                     self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
                     Type::Err
@@ -737,9 +759,11 @@ impl TypeCheckingVisitor<'_> {
 
                 // Cannot modify external mappings.
                 if mapping_type.program != self.scope_state.program_name.unwrap() {
-                    self.state
-                        .handler
-                        .emit_err(TypeCheckerError::cannot_modify_external_mapping("remove", function_span));
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "remove",
+                        "mapping",
+                        function_span,
+                    ));
                 }
 
                 // Check that the second argument matches the key type of the mapping.
@@ -793,7 +817,20 @@ impl TypeCheckingVisitor<'_> {
                     Type::Vector(VectorType { element_type }) => {
                         // Ensure that the element type and the type of the value to push are the same
                         self.assert_type(&arguments[1].0, element_type, arguments[1].1.span());
-                        Type::Unit
+
+                        // argument 0 can only be a `Locator` or a `Path`. No other expression can be a vector
+                        if let Expression::Locator(LocatorExpression { program, .. }) = arguments[0].1
+                            && program.name.name != self.scope_state.program_name.unwrap()
+                        {
+                            self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                                "push",
+                                "vector",
+                                function_span,
+                            ));
+                            Type::Err
+                        } else {
+                            Type::Unit
+                        }
                     }
                     _ => {
                         self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
@@ -815,7 +852,19 @@ impl TypeCheckingVisitor<'_> {
                 self.check_access_allowed("Vector::pop", true, function_span);
 
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                    // argument 0 can only be a `Locator` or a `Path`. No other expression can be a vector
+                    if let Expression::Locator(LocatorExpression { program, .. }) = arguments[0].1
+                        && program.name.name != self.scope_state.program_name.unwrap()
+                    {
+                        self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                            "pop",
+                            "vector",
+                            function_span,
+                        ));
+                        Type::Err
+                    } else {
+                        Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                    }
                 } else {
                     self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
                     Type::Err
@@ -825,7 +874,19 @@ impl TypeCheckingVisitor<'_> {
                 self.check_access_allowed("Vector::swap_remove", true, function_span);
 
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    *element_type.clone()
+                    // argument 0 can only be a `Locator` or a `Path`. No other expression can be a vector
+                    if let Expression::Locator(LocatorExpression { program, .. }) = arguments[0].1
+                        && program.name.name != self.scope_state.program_name.unwrap()
+                    {
+                        self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                            "swap_remove",
+                            "vector",
+                            function_span,
+                        ));
+                        Type::Err
+                    } else {
+                        *element_type.clone()
+                    }
                 } else {
                     self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
                     Type::Err
@@ -833,7 +894,19 @@ impl TypeCheckingVisitor<'_> {
             }
             CoreFunction::VectorClear => {
                 if arguments[0].0.is_vector() {
-                    Type::Unit
+                    // argument 0 can only be a `Locator` or a `Path`. No other expression can be a vector
+                    if let Expression::Locator(LocatorExpression { program, .. }) = arguments[0].1
+                        && program.name.name != self.scope_state.program_name.unwrap()
+                    {
+                        self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                            "clear",
+                            "vector",
+                            function_span,
+                        ));
+                        Type::Err
+                    } else {
+                        Type::Unit
+                    }
                 } else {
                     self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
                     Type::Err

@@ -415,14 +415,15 @@ impl SymbolTable {
 
     /// Insert a struct at this location.
     pub fn insert_struct(&mut self, location: Location, composite: Composite, is_external: bool) -> Result<()> {
-        if let Some((old_composite, _)) = self.structs.get(&location)
-            && is_external
+        if let Some((current_composite, current_is_external)) = self.structs.get(&location)
+            && (*current_is_external || is_external)
         {
-            if eq_struct(&composite, old_composite) {
+            if eq_struct(&composite, current_composite) {
                 // Allow redefining external structs, if the definitions match.
                 Ok(())
             } else {
-                Err(AstError::redefining_external_struct(location.path.iter().format("::"), old_composite.span).into())
+                Err(AstError::redefining_external_struct(location.path.iter().format("::"), current_composite.span)
+                    .into())
             }
         } else {
             self.check_shadow_global(&location, composite.identifier.span)?;
