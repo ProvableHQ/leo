@@ -78,7 +78,7 @@
 <a href=#78 id=78 data-nosnippet>78</a>            <span class="comment">// Reconstruct functions in post-order.
 <a href=#79 id=79 data-nosnippet>79</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(function) = <span class="self">self</span>.function_map.swap_remove(<span class="kw-2">&amp;</span>function_name.path) {
 <a href=#80 id=80 data-nosnippet>80</a>                <span class="comment">// Reconstruct the function.
-<a href=#81 id=81 data-nosnippet>81</a>                </span><span class="kw">let </span>reconstructed_function = <span class="self">self</span>.reconstruct_function(function.clone());
+<a href=#81 id=81 data-nosnippet>81</a>                </span><span class="kw">let </span>reconstructed_function = <span class="self">self</span>.reconstruct_function(function);
 <a href=#82 id=82 data-nosnippet>82</a>                <span class="comment">// Add the reconstructed function to the mapping.
 <a href=#83 id=83 data-nosnippet>83</a>                </span><span class="self">self</span>.reconstructed_functions.insert(function_name.path.clone(), reconstructed_function);
 <a href=#84 id=84 data-nosnippet>84</a>            }
