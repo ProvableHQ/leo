@@ -152,6 +152,7 @@ pub enum ExpressionKind {
     AssociatedFunctionCall,
     Async,
     Array,
+    Slice,
     Binary,
     Call,
     Cast,

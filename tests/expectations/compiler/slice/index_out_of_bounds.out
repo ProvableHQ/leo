@@ -1,0 +1,5 @@
+Error [ESAZ0374010]: Array index 2 out of bounds (array length is 2).
+    --> compiler-test:6:26
+     |
+   6 |         assert(arr[1] == arr2[2]);   
+     |                          ^^^^^^^

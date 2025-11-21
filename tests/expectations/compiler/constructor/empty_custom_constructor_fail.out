@@ -1,4 +1,4 @@
-Error [ESAZ0374012]: The `@custom` constructor has no statements after dead code elimination.
+Error [ESAZ0374013]: The `@custom` constructor has no statements after dead code elimination.
     --> compiler-test:5:5
      |
    5 |     @custom

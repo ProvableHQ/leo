@@ -1,0 +1,43 @@
+program test.aleo;
+
+function full:
+    cast 1u8 2u8 3u8 4u8 into r0 as [u8; 4u32];
+    cast r0[0u32] r0[1u32] r0[2u32] r0[3u32] into r1 as [u8; 4u32];
+    is.eq r0[1u32] r1[0u32] into r2;
+    assert.eq r2 true;
+
+function end_exclusive:
+    cast 1u8 2u8 3u8 4u8 into r0 as [u8; 4u32];
+    cast r0[0u32] r0[1u32] into r1 as [u8; 2u32];
+    is.eq r0[1u32] r1[0u32] into r2;
+    assert.eq r2 true;
+
+function end_inclusive:
+    cast 1u8 2u8 3u8 4u8 into r0 as [u8; 4u32];
+    cast r0[0u32] r0[1u32] r0[2u32] into r1 as [u8; 3u32];
+    is.eq 1u8 r1[0u32] into r2;
+    assert.eq r2 true;
+
+function start:
+    cast 1u8 2u8 3u8 4u8 into r0 as [u8; 4u32];
+    cast r0[2u32] r0[3u32] into r1 as [u8; 2u32];
+    is.eq 3u8 r1[0u32] into r2;
+    assert.eq r2 true;
+
+function start_end_exclusive:
+    cast 1u8 2u8 3u8 4u8 into r0 as [u8; 4u32];
+    cast r0[1u32] r0[2u32] into r1 as [u8; 2u32];
+    is.eq 3u8 r1[1u32] into r2;
+    assert.eq r2 true;
+
+function start_end_inclusive:
+    cast 1u8 2u8 3u8 4u8 into r0 as [u8; 4u32];
+    cast r0[1u32] r0[2u32] r0[3u32] into r1 as [u8; 3u32];
+    is.eq 4u8 r1[2u32] into r2;
+    assert.eq r2 true;
+
+function expression_indexing:
+    cast 1u8 2u8 3u8 4u8 into r0 as [u8; 4u32];
+    cast r0[1u32] r0[2u32] into r1 as [u8; 2u32];
+    is.eq 2u8 r1[1u32] into r2;
+    assert.eq r2 true;

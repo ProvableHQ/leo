@@ -109,6 +109,7 @@ pub trait AstVisitor {
         match input {
             Expression::Array(array) => self.visit_array(array, additional),
             Expression::ArrayAccess(access) => self.visit_array_access(access, additional),
+            Expression::Slice(slice) => self.visit_slice(slice, additional),
             Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
             Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
             Expression::Async(async_) => self.visit_async(async_, additional),
@@ -150,6 +151,13 @@ pub trait AstVisitor {
         input.elements.iter().for_each(|expr| {
             self.visit_expression(expr, &Default::default());
         });
+        Default::default()
+    }
+
+    fn visit_slice(&mut self, input: &Slice, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.source_array, additional);
+        input.start.as_ref().map(|start| self.visit_expression(start, additional));
+        input.stop.as_ref().map(|stop| self.visit_expression(stop, additional));
         Default::default()
     }
 

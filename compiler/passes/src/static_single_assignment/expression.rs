@@ -32,6 +32,7 @@ use leo_ast::{
     MemberAccess,
     Path,
     RepeatExpression,
+    Slice,
     Statement,
     StructExpression,
     StructVariableInitializer,
@@ -100,6 +101,11 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .collect();
 
         (ArrayExpression { elements, ..input }.into(), statements)
+    }
+
+    fn consume_slice(&mut self, input: leo_ast::Slice) -> Self::Output {
+        let (source_array, statements) = self.consume_expression_and_define(input.source_array);
+        (Slice { source_array, ..input }.into(), statements)
     }
 
     /// Consumes a binary expression, accumulating any statements that are generated.

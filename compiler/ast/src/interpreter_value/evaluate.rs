@@ -389,6 +389,7 @@ fn resolve_unsuffixed_binary_op_operands(
 }
 
 /// Evaluate a binary operation.
+#[rustfmt::skip]
 pub fn evaluate_binary(
     span: Span,
     op: BinaryOperation,
@@ -404,28 +405,33 @@ pub fn evaluate_binary(
         _ => {}
     }
 
-    let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(lhs, ..))) = &lhs.contents else {
+    let ValueVariants::Svm(SvmValueParam::Plaintext(lhs)) = &lhs.contents else {
         halt2!(span, "Type error");
     };
-    let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(rhs, ..))) = &rhs.contents else {
+    let ValueVariants::Svm(SvmValueParam::Plaintext(rhs)) = &rhs.contents else {
         halt2!(span, "Type error");
     };
     let value = match op {
         BinaryOperation::Add => {
             let Some(value): Option<Value> = (match (lhs, rhs) {
-                (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x).checked_add(**y).map(|z| z.into()),
-                (SvmLiteralParam::Group(x), SvmLiteralParam::Group(y)) => Some((*x + y).into()),
-                (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => Some((*x + y).into()),
-                (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => Some((*x + y).into()),
+                (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (*x).checked_add(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::Group(x), _), Plaintext::Literal(SvmLiteralParam::Group(y), _)) => Some((*x + y).into()),
+                (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) => Some((*x + y).into()),
+                (Plaintext::Literal(SvmLiteralParam::Scalar(x), _), Plaintext::Literal(SvmLiteralParam::Scalar(y), _)) => Some((*x + y).into()),
+                (Plaintext::Array(x, _), Plaintext::Array(y, _)) => {
+                    let mut elements = x.clone();
+                    elements.extend(y.clone());
+                    Some(ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Array(elements, Default::default()))).into())
+                }
                 _ => halt2!(span, "Type error"),
             }) else {
                 halt2!(span, "add overflow");
@@ -433,49 +439,49 @@ pub fn evaluate_binary(
             value
         }
         BinaryOperation::AddWrapped => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x).wrapping_add(**y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (*x).wrapping_add(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (*x).wrapping_add(**y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::And => match (lhs, rhs) {
-            (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x && **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Boolean(x), _), Plaintext::Literal(SvmLiteralParam::Boolean(y), _)) => (**x && **y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::BitwiseAnd => match (lhs, rhs) {
-            (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x & **y).into(),
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (**x & **y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (**x & **y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (**x & **y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (**x & **y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (**x & **y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (**x & **y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (**x & **y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x & **y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x & **y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Boolean(x), _), Plaintext::Literal(SvmLiteralParam::Boolean(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (**x & **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (**x & **y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::Div => {
             let Some(value) = (match (lhs, rhs) {
-                (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x).checked_div(**y).map(|z| z.into()),
-                (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => y.inverse().map(|y| (*x * y).into()).ok(),
+                (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (*x).checked_div(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) => y.inverse().map(|y| (*x * y).into()).ok(),
                 _ => halt2!(span, "Type error"),
             }) else {
                 halt2!(span, "div overflow");
@@ -483,86 +489,86 @@ pub fn evaluate_binary(
             value
         }
         BinaryOperation::DivWrapped => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) if **y != 0 => (*x).wrapping_div(**y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::Eq => unreachable!("This case was handled above"),
         BinaryOperation::Gte => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => (*x >= *y).into(),
-            (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) => (*x >= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Scalar(x), _), Plaintext::Literal(SvmLiteralParam::Scalar(y), _)) => (*x >= *y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::Gt => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x > *y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (*x > *y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (*x > *y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (*x > *y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (*x > *y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (*x > *y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (*x > *y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (*x > *y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x > *y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x > *y).into(),
-            (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => (*x > *y).into(),
-            (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) => (*x > *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Scalar(x), _), Plaintext::Literal(SvmLiteralParam::Scalar(y), _)) => (*x > *y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::Lte => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => (*x <= *y).into(),
-            (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) => (*x <= *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Scalar(x), _), Plaintext::Literal(SvmLiteralParam::Scalar(y), _)) => (*x <= *y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::Lt => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x < *y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (*x < *y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (*x < *y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (*x < *y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (*x < *y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (*x < *y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (*x < *y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (*x < *y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x < *y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x < *y).into(),
-            (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => (*x < *y).into(),
-            (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) => (*x < *y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Scalar(x), _), Plaintext::Literal(SvmLiteralParam::Scalar(y), _)) => (*x < *y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::Mod => {
             let Some(value) = (match (lhs, rhs) {
-                (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => x.checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => x.checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => x.checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => x.checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => x.checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => x.checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => x.checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => x.checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => x.checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => x.checked_rem(**y).map(|z| z.into()),
                 _ => halt2!(span, "Type error"),
             }) else {
                 halt2!(span, "mod overflow");
@@ -571,19 +577,19 @@ pub fn evaluate_binary(
         }
         BinaryOperation::Mul => {
             let Some(value) = (match (lhs, rhs) {
-                (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => x.checked_mul(**y).map(|z| z.into()),
-                (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => Some((*x * y).into()),
-                (SvmLiteralParam::Group(x), SvmLiteralParam::Scalar(y)) => Some((*x * y).into()),
-                (SvmLiteralParam::Scalar(x), SvmLiteralParam::Group(y)) => Some((*x * y).into()),
+                (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => x.checked_mul(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) => Some((*x * y).into()),
+                (Plaintext::Literal(SvmLiteralParam::Group(x), _), Plaintext::Literal(SvmLiteralParam::Scalar(y), _)) => Some((*x * y).into()),
+                (Plaintext::Literal(SvmLiteralParam::Scalar(x), _), Plaintext::Literal(SvmLiteralParam::Group(y), _)) => Some((*x * y).into()),
                 _ => halt2!(span, "Type error"),
             }) else {
                 halt2!(span, "mul overflow");
@@ -591,73 +597,73 @@ pub fn evaluate_binary(
             value
         }
         BinaryOperation::MulWrapped => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => x.wrapping_mul(**y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => x.wrapping_mul(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => x.wrapping_mul(**y).into(),
             _ => halt2!(span, "Type error"),
         },
 
         BinaryOperation::Nand => match (lhs, rhs) {
-            (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (!(**x & **y)).into(),
+            (Plaintext::Literal(SvmLiteralParam::Boolean(x), _), Plaintext::Literal(SvmLiteralParam::Boolean(y), _)) => (!(**x & **y)).into(),
             _ => halt2!(span, "Type error"),
         },
 
         BinaryOperation::Neq => unreachable!("This case was handled above"),
 
         BinaryOperation::Nor => match (lhs, rhs) {
-            (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (!(**x | **y)).into(),
+            (Plaintext::Literal(SvmLiteralParam::Boolean(x), _), Plaintext::Literal(SvmLiteralParam::Boolean(y), _)) => (!(**x | **y)).into(),
             _ => halt2!(span, "Type error"),
         },
 
         BinaryOperation::Or => match (lhs, rhs) {
-            (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Boolean(x), _), Plaintext::Literal(SvmLiteralParam::Boolean(y), _)) => (**x | **y).into(),
             _ => halt2!(span, "Type error"),
         },
 
         BinaryOperation::BitwiseOr => match (lhs, rhs) {
-            (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x | **y).into(),
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (**x | **y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (**x | **y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (**x | **y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (**x | **y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (**x | **y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (**x | **y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (**x | **y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x | **y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x | **y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Boolean(x), _), Plaintext::Literal(SvmLiteralParam::Boolean(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (**x | **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (**x | **y).into(),
             _ => halt2!(span, "Type error"),
         },
 
         BinaryOperation::Pow => {
-            if let (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) = (&lhs, &rhs) {
+            if let (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) = (&lhs, &rhs) {
                 x.pow(y).into()
             } else {
                 let rhs: u32 = match rhs {
-                    SvmLiteralParam::U8(y) => (**y).into(),
-                    SvmLiteralParam::U16(y) => (**y).into(),
-                    SvmLiteralParam::U32(y) => **y,
+                    Plaintext::Literal(SvmLiteralParam::U8(y), _) => (**y).into(),
+                    Plaintext::Literal(SvmLiteralParam::U16(y), _) => (**y).into(),
+                    Plaintext::Literal(SvmLiteralParam::U32(y), _) => **y,
                     _ => tc_fail2!(),
                 };
 
                 let Some(value) = (match lhs {
-                    SvmLiteralParam::U8(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::U16(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::U32(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::U64(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::U128(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::I8(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::I16(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::I32(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::I64(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    SvmLiteralParam::I128(x) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::U8(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::U16(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::U32(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::U64(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::U128(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::I8(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::I16(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::I32(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::I64(x), _) => x.checked_pow(rhs).map(|z| z.into()),
+                    Plaintext::Literal(SvmLiteralParam::I128(x), _) => x.checked_pow(rhs).map(|z| z.into()),
                     _ => halt2!(span, "Type error"),
                 }) else {
                     halt2!(span, "pow overflow");
@@ -667,39 +673,39 @@ pub fn evaluate_binary(
         }
         BinaryOperation::PowWrapped => {
             let rhs: u32 = match rhs {
-                SvmLiteralParam::U8(y) => (**y).into(),
-                SvmLiteralParam::U16(y) => (**y).into(),
-                SvmLiteralParam::U32(y) => **y,
+                Plaintext::Literal(SvmLiteralParam::U8(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(y), _) => **y,
                 _ => halt2!(span, "Type error"),
             };
 
             match lhs {
-                SvmLiteralParam::U8(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::U16(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::U32(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::U64(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::U128(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::I8(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::I16(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::I32(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::I64(x) => x.wrapping_pow(rhs).into(),
-                SvmLiteralParam::I128(x) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U8(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U64(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U128(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I8(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I16(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I32(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I64(x), _) => x.wrapping_pow(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I128(x), _) => x.wrapping_pow(rhs).into(),
                 _ => halt2!(span, "Type error"),
             }
         }
 
         BinaryOperation::Rem => {
             let Some(value) = (match (lhs, rhs) {
-                (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (**x).checked_rem(**y).map(|z| z.into()),
                 _ => halt2!(span, "Type error"),
             }) else {
                 halt2!(span, "rem error");
@@ -708,33 +714,33 @@ pub fn evaluate_binary(
         }
 
         BinaryOperation::RemWrapped => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) if **y != 0 => (*x).wrapping_rem(**y).into(),
             _ => halt2!(span, "Type error"),
         },
 
         BinaryOperation::Shl => {
             let rhs: u32 = match rhs {
-                SvmLiteralParam::U8(y) => (**y).into(),
-                SvmLiteralParam::U16(y) => (**y).into(),
-                SvmLiteralParam::U32(y) => **y,
+                Plaintext::Literal(SvmLiteralParam::U8(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(y), _) => **y,
                 _ => halt2!(span, "Type error"),
             };
             match lhs {
-                SvmLiteralParam::U8(_) | SvmLiteralParam::I8(_) if rhs >= 8 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U16(_) | SvmLiteralParam::I16(_) if rhs >= 16 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U32(_) | SvmLiteralParam::I32(_) if rhs >= 32 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U64(_) | SvmLiteralParam::I64(_) if rhs >= 64 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U128(_) | SvmLiteralParam::I128(_) if rhs >= 128 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U8(x) => {
+                Plaintext::Literal(SvmLiteralParam::U8(_), _) | Plaintext::Literal(SvmLiteralParam::I8(_), _) if rhs >= 8 => halt2!(span, "shl overflow"),
+                Plaintext::Literal(SvmLiteralParam::U16(_), _) | Plaintext::Literal(SvmLiteralParam::I16(_), _) if rhs >= 16 => halt2!(span, "shl overflow"),
+                Plaintext::Literal(SvmLiteralParam::U32(_), _) | Plaintext::Literal(SvmLiteralParam::I32(_), _) if rhs >= 32 => halt2!(span, "shl overflow"),
+                Plaintext::Literal(SvmLiteralParam::U64(_), _) | Plaintext::Literal(SvmLiteralParam::I64(_), _) if rhs >= 64 => halt2!(span, "shl overflow"),
+                Plaintext::Literal(SvmLiteralParam::U128(_), _) | Plaintext::Literal(SvmLiteralParam::I128(_), _) if rhs >= 128 => halt2!(span, "shl overflow"),
+                Plaintext::Literal(SvmLiteralParam::U8(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -743,7 +749,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::U16(x) => {
+                Plaintext::Literal(SvmLiteralParam::U16(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -752,7 +758,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::U32(x) => {
+                Plaintext::Literal(SvmLiteralParam::U32(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -761,7 +767,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::U64(x) => {
+                Plaintext::Literal(SvmLiteralParam::U64(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -770,7 +776,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::U128(x) => {
+                Plaintext::Literal(SvmLiteralParam::U128(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -779,7 +785,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::I8(x) => {
+                Plaintext::Literal(SvmLiteralParam::I8(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -788,7 +794,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::I16(x) => {
+                Plaintext::Literal(SvmLiteralParam::I16(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -797,7 +803,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::I32(x) => {
+                Plaintext::Literal(SvmLiteralParam::I32(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -806,7 +812,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::I64(x) => {
+                Plaintext::Literal(SvmLiteralParam::I64(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -815,7 +821,7 @@ pub fn evaluate_binary(
                     }
                     shifted.into()
                 }
-                SvmLiteralParam::I128(x) => {
+                Plaintext::Literal(SvmLiteralParam::I128(x), _) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
@@ -830,91 +836,91 @@ pub fn evaluate_binary(
 
         BinaryOperation::ShlWrapped => {
             let rhs: u32 = match rhs {
-                SvmLiteralParam::U8(y) => (**y).into(),
-                SvmLiteralParam::U16(y) => (**y).into(),
-                SvmLiteralParam::U32(y) => **y,
+                Plaintext::Literal(SvmLiteralParam::U8(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(y), _) => **y,
                 _ => halt2!(span, "Type error"),
             };
             match lhs {
-                SvmLiteralParam::U8(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::U16(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::U32(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::U64(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::U128(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::I8(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::I16(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::I32(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::I64(x) => x.wrapping_shl(rhs).into(),
-                SvmLiteralParam::I128(x) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U8(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U64(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U128(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I8(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I16(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I32(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I64(x), _) => x.wrapping_shl(rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I128(x), _) => x.wrapping_shl(rhs).into(),
                 _ => halt2!(span, "Type error"),
             }
         }
 
         BinaryOperation::Shr => {
             let rhs: u32 = match rhs {
-                SvmLiteralParam::U8(y) => (**y).into(),
-                SvmLiteralParam::U16(y) => (**y).into(),
-                SvmLiteralParam::U32(y) => **y,
+                Plaintext::Literal(SvmLiteralParam::U8(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(y), _) => **y,
                 _ => halt2!(span, "Type error"),
             };
 
             match lhs {
-                SvmLiteralParam::U8(_) | SvmLiteralParam::I8(_) if rhs >= 8 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U16(_) | SvmLiteralParam::I16(_) if rhs >= 16 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U32(_) | SvmLiteralParam::I32(_) if rhs >= 32 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U64(_) | SvmLiteralParam::I64(_) if rhs >= 64 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U128(_) | SvmLiteralParam::I128(_) if rhs >= 128 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U8(x) => (**x >> rhs).into(),
-                SvmLiteralParam::U16(x) => (**x >> rhs).into(),
-                SvmLiteralParam::U32(x) => (**x >> rhs).into(),
-                SvmLiteralParam::U64(x) => (**x >> rhs).into(),
-                SvmLiteralParam::U128(x) => (**x >> rhs).into(),
-                SvmLiteralParam::I8(x) => (**x >> rhs).into(),
-                SvmLiteralParam::I16(x) => (**x >> rhs).into(),
-                SvmLiteralParam::I32(x) => (**x >> rhs).into(),
-                SvmLiteralParam::I64(x) => (**x >> rhs).into(),
-                SvmLiteralParam::I128(x) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U8(_), _) | Plaintext::Literal(SvmLiteralParam::I8(_), _) if rhs >= 8 => halt2!(span, "shr overflow"),
+                Plaintext::Literal(SvmLiteralParam::U16(_), _) | Plaintext::Literal(SvmLiteralParam::I16(_), _) if rhs >= 16 => halt2!(span, "shr overflow"),
+                Plaintext::Literal(SvmLiteralParam::U32(_), _) | Plaintext::Literal(SvmLiteralParam::I32(_), _) if rhs >= 32 => halt2!(span, "shr overflow"),
+                Plaintext::Literal(SvmLiteralParam::U64(_), _) | Plaintext::Literal(SvmLiteralParam::I64(_), _) if rhs >= 64 => halt2!(span, "shr overflow"),
+                Plaintext::Literal(SvmLiteralParam::U128(_), _) | Plaintext::Literal(SvmLiteralParam::I128(_), _) if rhs >= 128 => halt2!(span, "shr overflow"),
+                Plaintext::Literal(SvmLiteralParam::U8(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U64(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::U128(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I8(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I16(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I32(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I64(x), _) => (**x >> rhs).into(),
+                Plaintext::Literal(SvmLiteralParam::I128(x), _) => (**x >> rhs).into(),
                 _ => tc_fail2!(),
             }
         }
 
         BinaryOperation::ShrWrapped => {
             let rhs: u32 = match rhs {
-                SvmLiteralParam::U8(y) => (**y).into(),
-                SvmLiteralParam::U16(y) => (**y).into(),
-                SvmLiteralParam::U32(y) => **y,
+                Plaintext::Literal(SvmLiteralParam::U8(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(y), _) => (**y).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(y), _) => **y,
                 _ => halt2!(span, "Type error"),
             };
 
             match lhs {
-                SvmLiteralParam::U8(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::U16(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::U32(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::U64(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::U128(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::I8(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::I16(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::I32(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::I64(x) => (x.wrapping_shr(rhs)).into(),
-                SvmLiteralParam::I128(x) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::U8(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::U16(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::U32(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::U64(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::U128(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::I8(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::I16(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::I32(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::I64(x), _) => (x.wrapping_shr(rhs)).into(),
+                Plaintext::Literal(SvmLiteralParam::I128(x), _) => (x.wrapping_shr(rhs)).into(),
                 _ => halt2!(span, "Type error"),
             }
         }
 
         BinaryOperation::Sub => {
             let Some(value) = (match (lhs, rhs) {
-                (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x).checked_sub(**y).map(|z| z.into()),
-                (SvmLiteralParam::Group(x), SvmLiteralParam::Group(y)) => Some((*x - *y).into()),
-                (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => Some((*x - *y).into()),
+                (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (**x).checked_sub(**y).map(|z| z.into()),
+                (Plaintext::Literal(SvmLiteralParam::Group(x), _), Plaintext::Literal(SvmLiteralParam::Group(y), _)) => Some((*x - *y).into()),
+                (Plaintext::Literal(SvmLiteralParam::Field(x), _), Plaintext::Literal(SvmLiteralParam::Field(y), _)) => Some((*x - *y).into()),
                 _ => halt2!(span, "Type error"),
             }) else {
                 halt2!(span, "sub overflow");
@@ -923,30 +929,30 @@ pub fn evaluate_binary(
         }
 
         BinaryOperation::SubWrapped => match (lhs, rhs) {
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x).wrapping_sub(**y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (**x).wrapping_sub(**y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (**x).wrapping_sub(**y).into(),
             _ => halt2!(span, "Type error"),
         },
         BinaryOperation::Xor => match (lhs, rhs) {
-            (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::U16(x), SvmLiteralParam::U16(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::I8(x), SvmLiteralParam::I8(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::I16(x), SvmLiteralParam::I16(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x ^ **y).into(),
-            (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::Boolean(x), _), Plaintext::Literal(SvmLiteralParam::Boolean(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U8(x), _), Plaintext::Literal(SvmLiteralParam::U8(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U16(x), _), Plaintext::Literal(SvmLiteralParam::U16(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U32(x), _), Plaintext::Literal(SvmLiteralParam::U32(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U64(x), _), Plaintext::Literal(SvmLiteralParam::U64(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::U128(x), _), Plaintext::Literal(SvmLiteralParam::U128(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I8(x), _), Plaintext::Literal(SvmLiteralParam::I8(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I16(x), _), Plaintext::Literal(SvmLiteralParam::I16(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I32(x), _), Plaintext::Literal(SvmLiteralParam::I32(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I64(x), _), Plaintext::Literal(SvmLiteralParam::I64(y), _)) => (**x ^ **y).into(),
+            (Plaintext::Literal(SvmLiteralParam::I128(x), _), Plaintext::Literal(SvmLiteralParam::I128(y), _)) => (**x ^ **y).into(),
             _ => halt2!(span, "Type error"),
         },
     };

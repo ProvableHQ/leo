@@ -41,6 +41,7 @@ pub enum Expr {
     ArrayAccess { array: Atom, index: Atom },
     Binary { op: BinaryOperation, left: Atom, right: Atom },
     Repeat { value: Atom, count: Atom },
+    Slice { array: Atom, start: Option<Atom>, stop: Option<Atom> },
     Ternary { condition: Atom, if_true: Atom, if_false: Atom },
     Unary { op: UnaryOperation, receiver: Atom },
 }
@@ -110,6 +111,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::AssociatedFunction(_)
             | Expression::Async(_)
             | Expression::Array(_)
+            | Expression::Slice(_)
             | Expression::Binary(_)
             | Expression::Call(_)
             | Expression::Cast(_)
@@ -150,6 +152,17 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     .map(|elt| self.try_atom(elt))
                     .collect::<Option<Vec<Atom>>>()?;
                 Expr::Array(atoms)
+            }
+            Expression::Slice(slice_expression) => {
+                let array = self.try_atom(&mut slice_expression.source_array)?;
+
+                let start =
+                    if let Some(start) = slice_expression.start.as_mut() { Some(self.try_atom(start)?) } else { None };
+
+                let stop =
+                    if let Some(stop) = slice_expression.stop.as_mut() { Some(self.try_atom(stop)?) } else { None };
+
+                Expr::Slice { array, start, stop }
             }
             Expression::Binary(binary_expression) => {
                 let left = self.try_atom(&mut binary_expression.left)?;

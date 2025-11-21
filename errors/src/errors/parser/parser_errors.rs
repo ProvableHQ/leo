@@ -478,4 +478,11 @@ create_messages!(
         msg: "Identifiers cannot start with an underscore.",
         help: Some("Identifiers must start with a letter.".to_string()),
     }
+
+    @formatted
+    inclusive_range_with_no_end {
+        args: (),
+        msg: "Inclusive ranges must be bounded at the end (`..=b` or `a..=b`)",
+        help: Some("use `..` instead".to_string()),
+    }
 );

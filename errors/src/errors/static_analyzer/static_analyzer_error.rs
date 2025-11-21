@@ -109,6 +109,13 @@ create_messages!(
         help: None,
     }
 
+     @formatted
+    slice_bounds {
+        args: (start: impl Display, stop: impl Display, len: impl Display),
+        msg: format!("Range {start}..{stop} is out of bounds (array length is {len})."),
+        help: None,
+    }
+
     @formatted
     custom_error {
         args: (msg: impl Display, help: Option<impl Display>),

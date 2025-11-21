@@ -91,6 +91,7 @@ impl AstVisitor for FutureChecker<'_> {
         match input {
             Expression::Array(array) => self.visit_array(array, &Position::Misc),
             Expression::ArrayAccess(access) => self.visit_array_access(access, &Position::Misc),
+            Expression::Slice(slice) => self.visit_slice(slice.as_ref(), &Position::Misc),
             Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, &Position::Misc),
             Expression::AssociatedFunction(function) => self.visit_associated_function(function, &Position::Misc),
             Expression::Async(async_) => self.visit_async(async_, &Position::Misc),

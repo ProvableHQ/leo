@@ -1,0 +1,7 @@
+Error [EPAR0370054]: Inclusive ranges must be bounded at the end (`..=b` or `a..=b`)
+    --> compiler-test:5:20
+     |
+   5 |         let arr2 = arr[..=];
+     |                    ^^^^^^^^
+     |
+     = use `..` instead

@@ -35,6 +35,9 @@ pub use async_::*;
 mod array;
 pub use array::*;
 
+mod slice;
+pub use slice::*;
+
 mod binary;
 pub use binary::*;
 
@@ -90,6 +93,8 @@ pub enum Expression {
     Async(AsyncExpression),
     /// An array expression, e.g., `[true, false, true, false]`.
     Array(ArrayExpression),
+    /// A slice expression, e.g., `arr[2..=4]``.
+    Slice(Box<Slice>),
     /// A binary expression, e.g., `42 + 24`.
     Binary(Box<BinaryExpression>),
     /// A call expression, e.g., `my_fun(args)`.
@@ -135,6 +140,7 @@ impl Node for Expression {
         match self {
             ArrayAccess(n) => n.span(),
             Array(n) => n.span(),
+            Slice(n) => n.span(),
             AssociatedConstant(n) => n.span(),
             AssociatedFunction(n) => n.span(),
             Async(n) => n.span(),
@@ -161,6 +167,7 @@ impl Node for Expression {
         match self {
             ArrayAccess(n) => n.set_span(span),
             Array(n) => n.set_span(span),
+            Slice(n) => n.set_span(span),
             AssociatedConstant(n) => n.set_span(span),
             AssociatedFunction(n) => n.set_span(span),
             Async(n) => n.set_span(span),
@@ -187,6 +194,7 @@ impl Node for Expression {
         match self {
             Array(n) => n.id(),
             ArrayAccess(n) => n.id(),
+            Slice(n) => n.id(),
             AssociatedConstant(n) => n.id(),
             AssociatedFunction(n) => n.id(),
             Async(n) => n.id(),
@@ -213,6 +221,7 @@ impl Node for Expression {
         match self {
             Array(n) => n.set_id(id),
             ArrayAccess(n) => n.set_id(id),
+            Slice(n) => n.set_id(id),
             AssociatedConstant(n) => n.set_id(id),
             AssociatedFunction(n) => n.set_id(id),
             Async(n) => n.set_id(id),
@@ -241,6 +250,7 @@ impl fmt::Display for Expression {
         match &self {
             Array(n) => n.fmt(f),
             ArrayAccess(n) => n.fmt(f),
+            Slice(n) => n.fmt(f),
             AssociatedConstant(n) => n.fmt(f),
             AssociatedFunction(n) => n.fmt(f),
             Async(n) => n.fmt(f),
@@ -279,6 +289,7 @@ impl Expression {
             Ternary(_) => 0,
             Array(_)
             | ArrayAccess(_)
+            | Slice(_)
             | AssociatedConstant(_)
             | AssociatedFunction(_)
             | Async(_)
