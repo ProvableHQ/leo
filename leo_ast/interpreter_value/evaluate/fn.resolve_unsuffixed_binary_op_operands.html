@@ -3,7 +3,7 @@
     rhs: &amp;<a class="struct" href="../struct.Value.html" title="struct leo_ast::interpreter_value::Value">Value</a>,
     op: &amp;<a class="enum" href="../../enum.BinaryOperation.html" title="enum leo_ast::BinaryOperation">BinaryOperation</a>,
     expected_ty: &amp;<a class="enum" href="https://doc.rust-lang.org/1.91.1/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../../enum.Type.html" title="enum leo_ast::Type">Type</a>&gt;,
-    span: &amp;<a class="struct" href="../../../leo_span/span/struct.Span.html" title="struct leo_span::span::Span">Span</a>,
+    span: &amp;Span,
 ) -&gt; <a class="type" href="../../../leo_errors/errors/type.Result.html" title="type leo_errors::errors::Result">Result</a>&lt;(<a class="struct" href="../struct.Value.html" title="struct leo_ast::interpreter_value::Value">Value</a>, <a class="struct" href="../struct.Value.html" title="struct leo_ast::interpreter_value::Value">Value</a>)&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Resolves unsuffixed numeric operands for binary operations by inferring types based on the other operand, the
 operation type, and an optional expected type. Handles special cases for multiplication and exponentiation with
 additional logic for <code>Group</code>, <code>Scalar</code>, and <code>Field</code> type inference. Ensures that both operands are resolved to
