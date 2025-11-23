@@ -260,14 +260,12 @@ pub fn interpret(
     let mut user_interface: Box<dyn Ui> =
         if tui { Box::new(ratatui_ui::RatatuiUi::new()) } else { Box::new(dialoguer_input::DialoguerUi::new()) };
 
-    let mut code = String::new();
     let mut futures = Vec::new();
     let mut watchpoints = Vec::new();
     let mut message = INTRO.to_string();
     let mut result = String::new();
 
     loop {
-        code.clear();
         futures.clear();
         watchpoints.clear();
 
