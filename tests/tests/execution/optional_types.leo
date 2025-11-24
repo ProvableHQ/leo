@@ -45,6 +45,11 @@ input = []
 program = "all_types.aleo"
 function = "optional_misc_primitive_types"
 input = [] 
+
+[case]
+program = "all_types.aleo"
+function = "optional_address"
+input = [] 
 */
 
 program all_types.aleo {
@@ -159,6 +164,39 @@ program all_types.aleo {
             fl.unwrap_or(2),
             sc.unwrap(),
         );
+    }
+
+    // --- Section 10: Optionals with Address ---
+    struct AddrStruct { a: address, b: address? }
+    struct InnerAddr { val: address? }
+    struct WrapperAddr { inner: InnerAddr }
+    transition optional_address() -> (address, address, address, address) {
+        // Case 1: Direct optional address
+        let a: address? = none;
+        let b: address? = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
+        let val1 = b.unwrap_or(a.unwrap_or(aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta));
+
+        // Case 2: Struct containing address and optional address
+        let s = AddrStruct { 
+            a: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta, 
+            b: none 
+        };
+        let val2 = s.b.unwrap_or(s.a);
+
+        // Case 3: Optional struct containing address
+        let s_opt: AddrStruct? = AddrStruct { 
+            a: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta, 
+            b: none 
+        };
+        let val3 = s_opt.unwrap().a;
+
+        // Case 4: Nested struct with optional address field
+
+        let wrapper = WrapperAddr { inner: InnerAddr { val: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta } };
+        let val4 = wrapper.inner.val.unwrap();
+
+        // Just return one of the addresses to satisfy return type
+        return (val1, val2, val3, val4);
     }
 
     @noupgrade

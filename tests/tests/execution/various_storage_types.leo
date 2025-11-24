@@ -39,6 +39,7 @@ program mixed_types.aleo {
     storage scalar_val: scalar;
     storage field_val: field;
     storage group_val: group;
+    storage address_val: address;
     storage containers: [Container; 2];
     storage points_array: [Point; 3];
 
@@ -103,11 +104,13 @@ program mixed_types.aleo {
             scalar_val = 2scalar;
             field_val = 21field;
             group_val = 0group;
+            address_val = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
 
             assert(flag.unwrap() == true);
             assert(scalar_val.unwrap() == 2scalar);
             assert(field_val.unwrap() == 21field);
             assert(group_val.unwrap() == 0group);
+            assert(address_val.unwrap() == aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
 
             // Flip and recheck
             flag = !flag.unwrap();
