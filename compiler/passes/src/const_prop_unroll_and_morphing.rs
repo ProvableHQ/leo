@@ -19,6 +19,7 @@ use crate::{
     ConstPropagation,
     Monomorphization,
     Pass,
+    RemoveUnreachable,
     SymbolTableCreation,
     TypeChecking,
     TypeCheckingInput,
@@ -45,6 +46,8 @@ impl Pass for ConstPropUnrollAndMorphing {
 
             let const_prop_output = ConstPropagation::do_pass((), state)?;
 
+            let remove_unreachable_output = RemoveUnreachable::do_pass((), state)?;
+
             let monomorphization_output = Monomorphization::do_pass((), state)?;
 
             // Clear the symbol table and create it again. This is important because after all the passes above run, the
@@ -57,7 +60,11 @@ impl Pass for ConstPropUnrollAndMorphing {
             // may have changed significantly after the passes above.
             TypeChecking::do_pass(input.clone(), state)?;
 
-            if !const_prop_output.changed && !loop_unroll_output.loop_unrolled && !monomorphization_output.changed {
+            if !const_prop_output.changed
+                && !loop_unroll_output.loop_unrolled
+                && !monomorphization_output.changed
+                && !remove_unreachable_output.changed
+            {
                 // We've got a fixed point, so see if we have any errors.
                 if let Some(not_evaluated_span) = const_prop_output.const_not_evaluated {
                     return Err(CompilerError::const_not_evaluated(not_evaluated_span).into());
