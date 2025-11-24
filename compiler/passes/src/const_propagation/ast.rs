@@ -525,6 +525,18 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         &mut self,
         mut conditional: ConditionalStatement,
     ) -> (Statement, Self::AdditionalOutput) {
+        if let Expression::Literal(lit) = &conditional.condition
+            && let LiteralVariant::Boolean(cond_lit) = lit.variant
+        {
+            if cond_lit {
+                return (Statement::Block(self.reconstruct_block(conditional.then).0), None);
+            } else if let Some(otherwise) = conditional.otherwise {
+                return self.reconstruct_statement(*otherwise);
+            } else {
+                return (Statement::dummy(), None);
+            }
+        }
+
         conditional.condition = self.reconstruct_expression(conditional.condition, &()).0;
         conditional.then = self.reconstruct_block(conditional.then).0;
         if let Some(mut otherwise) = conditional.otherwise {

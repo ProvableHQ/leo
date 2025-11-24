@@ -12,12 +12,7 @@ function add_new_token:
     output r0 as test.aleo/add_new_token.future;
 
 finalize add_new_token:
-    branch.eq false false to end_then_0_0;
-    cast 0u64 into r0 as TokenInfo;
-    set r0 into token_name_to_info[0field];
-    branch.eq true true to end_otherwise_0_1;
-    position end_then_0_0;
-    position end_otherwise_0_1;
+    assert.eq true true;
 
 function add_new_token_2:
     async add_new_token_2 into r0;

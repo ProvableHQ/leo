@@ -4,4 +4,14 @@ program test.aleo {
         let b: u32 = 15u32;
         return x + b;
     }
+    transition foo(x: u32) -> u32 {
+        let b: u32 = 15u32;
+        {
+            b = 42u32;
+        }
+        {
+            b = 43u32;
+        }
+        return x + b;
+    }
 }
