@@ -40,10 +40,7 @@ impl Command for Advance {
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
-
-        tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(async { handle_advance_devnode::<TestnetV0>(self).await })
+        tokio::runtime::Runtime::new().unwrap().block_on(async { handle_advance_devnode::<TestnetV0>(self).await })
     }
 }
 

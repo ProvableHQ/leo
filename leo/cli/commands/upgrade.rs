@@ -28,13 +28,13 @@ use snarkvm::{
     prelude::{
         Certificate,
         Deployment,
-        deployment_cost,
         Fee,
         Program,
         ProgramOwner,
         TestnetV0,
-        VerifyingKey,
         VM,
+        VerifyingKey,
+        deployment_cost,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
@@ -324,9 +324,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 }
                 let edition = *vm.process().read().get_stack(id)?.program_edition() + 1;
                 println!("edition for deployed program: {}", edition);
-                let mut deployment = Deployment::new(
-                    edition, program.clone(), verifying_keys, None, None
-                ).unwrap();
+                let mut deployment = Deployment::new(edition, program.clone(), verifying_keys, None, None).unwrap();
 
                 deployment.set_program_owner_raw(Some(Address::try_from(&private_key)?));
 
@@ -340,7 +338,8 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 let owner = ProgramOwner::new(&private_key, deployment_id, rng)?;
 
                 // Construct the fee authorization
-                let (minimum_deployment_cost, _) = deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
+                let (minimum_deployment_cost, _) =
+                    deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
                 // Authorize the fee.
                 let fee_authorization = match record {
                     Some(record) => vm.process().read().authorize_fee_private::<A, _>(
@@ -351,7 +350,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                         deployment_id,
                         rng,
                     )?,
-                    None => vm.process().read().authorize_fee_public::<A ,_>(
+                    None => vm.process().read().authorize_fee_public::<A, _>(
                         &private_key,
                         minimum_deployment_cost,
                         priority_fee.unwrap_or(0),
@@ -370,21 +369,22 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 let transaction = Transaction::from_deployment(owner, deployment, fee)?;
                 // Add the transaction to the transactions vector.
                 transactions.push((id, transaction));
-            } else{
-            println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
-            // Generate the transaction.
-            let transaction =
-                vm.deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
+            } else {
+                println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
+                // Generate the transaction.
+                let transaction = vm
+                    .deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
-            // Get the deployment.
-            let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-            // Print the deployment stats.
-            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
-            // Validate the deployment limits.
-            validate_deployment_limits(deployment, &id, &network)?;
-            // Save the transaction.
-            transactions.push((id, transaction));
-        }}
+                // Get the deployment.
+                let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+                // Print the deployment stats.
+                print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
+                // Validate the deployment limits.
+                validate_deployment_limits(deployment, &id, &network)?;
+                // Save the transaction.
+                transactions.push((id, transaction));
+            }
+        }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
     }

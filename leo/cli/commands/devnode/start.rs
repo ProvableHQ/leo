@@ -26,10 +26,9 @@ use snarkvm::{
 
 use crate::cli::commands::devnode::rest::Rest;
 
-
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
-pub struct Start{
+pub struct Start {
     /// Verbosity level for logging (0-2).
     #[clap(short = 'v', long, help = "devnode verbosity (0-2)", default_value = "2")]
     pub(crate) verbosity: u8,
@@ -39,7 +38,7 @@ pub struct Start{
     /// Path to the genesis block file.
     #[clap(long, help = "path to genesis block file", default_value = "blank")]
     pub(crate) genesis_path: String,
-    /// Enable manual block creation mode. 
+    /// Enable manual block creation mode.
     #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
     pub(crate) manual_block_creation: bool,
     /// Environment override options.
@@ -85,17 +84,18 @@ pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::err
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
     // Initialize the ledger - use spawn_blocking for the blocking load operation
-    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> = tokio::task::spawn_blocking(move || {
-        Ledger::load(genesis_block, storage_mode)
-    }).await??;
+    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
+        tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode)).await??;
     // Start the REST API server.
-    Rest::start(socket_addr, rps, ledger, command.manual_block_creation).await.expect("Failed to start the REST API server");
+    Rest::start(socket_addr, rps, ledger, command.manual_block_creation)
+        .await
+        .expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
-    
+
     // Default setting should fast forward to block 15 to start with Consensus Version 12.
     // Enabling manual block creation will not fast-forward the ledger to block 15.
     if !command.manual_block_creation {
-       println!("Advancing the Devnode to the latest consensus version");
+        println!("Advancing the Devnode to the latest consensus version");
         let private_key: PrivateKey<TestnetV0> = get_private_key(&command.env_override.private_key)?;
         // Call the REST API to advance the ledger by one block.
         let client = reqwest::blocking::Client::new();

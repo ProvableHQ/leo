@@ -36,8 +36,7 @@ use snarkvm::{
         Identifier,
         ProgramID,
         VM,
-        query::Query as SnarkVMQuery,
-        query::QueryTrait,
+        query::{Query as SnarkVMQuery, QueryTrait},
         store::{
             ConsensusStore,
             helpers::memory::{BlockMemory, ConsensusMemory},
@@ -344,7 +343,6 @@ fn handle_execute<A: Aleo>(
         })
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
-
 
     let (output_name, output, response) = if command.skip_execute_proof {
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");

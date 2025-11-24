@@ -208,7 +208,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         })?))
     }
 
-     /// GET /<network>/transaction/unconfirmed/{transactionID}
+    /// GET /<network>/transaction/unconfirmed/{transactionID}
     pub(crate) async fn get_unconfirmed_transaction(
         State(rest): State<Self>,
         Path(tx_id): Path<N::TransactionID>,
@@ -593,27 +593,21 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
 
             let mut unconfirmed_txs = Some({
                 let mut buffer = rest.buffer.lock();
-                 buffer.drain(..).collect()
-}           );
+                buffer.drain(..).collect()
+            });
 
             for _ in 0..num_blocks {
                 let txs = unconfirmed_txs.take().unwrap_or_default();
-                
+
                 let new_block = rest
                     .ledger
-                    .prepare_advance_to_next_beacon_block(
-                        &private_key,
-                        vec![],
-                        vec![],
-                        txs,
-                        &mut rand::thread_rng(),
-                    )
+                    .prepare_advance_to_next_beacon_block(&private_key, vec![], vec![], txs, &mut rand::thread_rng())
                     .map_err(|e| RestError::internal_server_error(anyhow!("Failed to prepare block: {}", e)))?;
-                
+
                 rest.ledger
                     .advance_to_next_block(&new_block)
                     .map_err(|e| RestError::internal_server_error(anyhow!("Failed to advance block: {}", e)))?;
-                
+
                 last_block = Some(new_block);
             }
 

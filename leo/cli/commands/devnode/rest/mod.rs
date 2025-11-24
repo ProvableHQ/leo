@@ -75,7 +75,12 @@ pub struct Rest<N: Network, C: ConsensusStorage<N>> {
 
 impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
     /// Initializes a new instance of the server.
-    pub async fn start(rest_ip: SocketAddr, rest_rps: u32, ledger: Ledger<N, C>, manual_block_creation: bool) -> Result<Self> {
+    pub async fn start(
+        rest_ip: SocketAddr,
+        rest_rps: u32,
+        ledger: Ledger<N, C>,
+        manual_block_creation: bool,
+    ) -> Result<Self> {
         // Initialize the server.
         let mut server = Self {
             ledger,

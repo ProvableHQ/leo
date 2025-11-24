@@ -146,7 +146,7 @@ impl Cursor {
                 } else {
                     self.signer.clone()
                 }
-            },
+            }
             Operand::BlockHeight => self.block_height.into(),
             Operand::NetworkID => todo!(),
             Operand::Checksum(_) => todo!(),

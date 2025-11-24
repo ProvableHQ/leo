@@ -25,20 +25,23 @@ use aleo_std::StorageMode;
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
-    ledger::{query::Query as SnarkVMQuery, query::QueryTrait, store::helpers::memory::BlockMemory},
+    ledger::{
+        query::{Query as SnarkVMQuery, QueryTrait},
+        store::helpers::memory::BlockMemory,
+    },
     prelude::{
         Certificate,
         ConsensusVersion,
         Deployment,
         Fee,
         Program,
-        ProgramOwner,
         ProgramID,
+        ProgramOwner,
         TestnetV0,
         VM,
+        VerifyingKey,
         deployment_cost,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
-        VerifyingKey,
     },
 };
 
@@ -83,7 +86,7 @@ impl Command for LeoDeploy {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        LeoBuild { 
+        LeoBuild {
             env_override: self.env_override.clone(),
             options: {
                 let mut options = self.build_options.clone();
@@ -314,9 +317,8 @@ Once it is deployed, it CANNOT be changed.
                     };
                     verifying_keys.push((*function_name, (verifying_key, certificate)));
                 }
-                let mut deployment = Deployment::new(
-                    edition.unwrap_or(0), program.clone(), verifying_keys, None, None
-                ).unwrap();
+                let mut deployment =
+                    Deployment::new(edition.unwrap_or(0), program.clone(), verifying_keys, None, None).unwrap();
 
                 deployment.set_program_owner_raw(Some(Address::try_from(&private_key)?));
 
@@ -330,7 +332,8 @@ Once it is deployed, it CANNOT be changed.
                 let owner = ProgramOwner::new(&private_key, deployment_id, rng)?;
 
                 // Construct the fee authorization
-                let (minimum_deployment_cost, _) = deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
+                let (minimum_deployment_cost, _) =
+                    deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
                 // Authorize the fee.
                 let fee_authorization = match record {
                     Some(record) => vm.process().read().authorize_fee_private::<A, _>(
@@ -341,7 +344,7 @@ Once it is deployed, it CANNOT be changed.
                         deployment_id,
                         rng,
                     )?,
-                    None => vm.process().read().authorize_fee_public::<A ,_>(
+                    None => vm.process().read().authorize_fee_public::<A, _>(
                         &private_key,
                         minimum_deployment_cost,
                         priority_fee.unwrap_or(0),
@@ -362,9 +365,9 @@ Once it is deployed, it CANNOT be changed.
                 transactions.push((id, transaction));
             } else {
                 // Generate the transaction.
-                let transaction =
-                    vm.deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
-                        .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
+                let transaction = vm
+                    .deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
+                    .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
                 // Get the deployment.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
                 // Print the deployment stats.
@@ -380,9 +383,10 @@ Once it is deployed, it CANNOT be changed.
                     validate_deployment_limits(deployment, program_id, &network)?;
                 }
             }
-        // Add the program to the VM.
-        vm.process().write().add_program(&program)?;
-    }}
+            // Add the program to the VM.
+            vm.process().write().add_program(&program)?;
+        }
+    }
 
     // If the `print` option is set, print the deployment transaction to the console.
     // The transaction is printed in JSON format.
