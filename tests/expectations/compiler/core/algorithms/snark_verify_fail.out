@@ -1,0 +1,15 @@
+Error [ETYC0372117]: Expected a 1-D array of `field`s but type `[u8; 2048]` was found.
+    --> compiler-test:13:49
+     |
+  13 |             assert(Snark::verify(verifying_key, inputs, proof));
+     |                                                 ^^^^^^
+Error [ETYC0372117]: Expected a 1-D array of `field`s but type `[[field; 2048]; 2]` was found.
+    --> compiler-test:23:49
+     |
+  23 |             assert(Snark::verify(verifying_key, inputs, proof));
+     |                                                 ^^^^^^
+Error [ETYC0372117]: Expected a 2-D array of `u8`s but type `[u8; 2048]` was found.
+    --> compiler-test:33:64
+     |
+  33 |             assert(Snark::verify_batch(verifying_keys, inputs, proofs));
+     |                                                                ^^^^^^

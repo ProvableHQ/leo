@@ -565,6 +565,18 @@ impl CodeGeneratingVisitor<'_> {
                 .expect("failed to write to string");
                 (destination_register, instruction)
             }
+            Some(CoreFunction::SnarkVerify(variant)) => {
+                let mut instruction = format!("    {}", variant.opcode());
+                let destination_register = self.next_register();
+                // Write the arguments and the destination register.
+                writeln!(
+                    instruction,
+                    " {} {} {} into {destination_register};",
+                    arguments[0], arguments[1], arguments[2]
+                )
+                .expect("failed to write to string");
+                (destination_register, instruction)
+            }
             Some(CoreFunction::FutureAwait) => {
                 let mut instruction = "    await".to_string();
                 writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");

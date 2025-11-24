@@ -19,8 +19,9 @@ use std::collections::HashMap;
 use rand::Rng as _;
 use rand_chacha::ChaCha20Rng;
 use snarkvm::{
+    algorithms::snark::varuna::VarunaVersion,
     prelude::{ToBits, ToBitsRaw},
-    synthesizer::program::{DeserializeVariant, SerializeVariant},
+    synthesizer::program::{DeserializeVariant, SerializeVariant, SnarkVerifyVariant},
 };
 
 use crate::{
@@ -171,6 +172,24 @@ pub fn evaluate_core_function(
             Ok(value.into())
         };
 
+    let dosnarkverify = |helper: &mut dyn CoreFunctionHelper, variant: SnarkVerifyVariant| -> Result<Value> {
+        // Parse the verifying key.
+        let verifying_key: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        // Parse the inputs.
+        let inputs: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        // Parse the proof.
+        let proof: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let is_valid = snarkvm::synthesizer::program::evaluate_varuna_proof(
+            variant,
+            "snark.verify",
+            VarunaVersion::V2,
+            &verifying_key,
+            &inputs,
+            &proof,
+        )?;
+        Ok(Boolean::new(is_valid).into())
+    };
+
     macro_rules! random {
         ($ty: ident) => {{
             let Some(rng) = helper.rng() else {
@@ -206,6 +225,7 @@ pub fn evaluate_core_function(
         CoreFunction::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
         CoreFunction::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
         CoreFunction::SignatureVerify => doschnorr(helper)?,
+        CoreFunction::SnarkVerify(variant) => dosnarkverify(helper, variant)?,
         CoreFunction::Serialize(variant) => doserialize(helper, variant)?,
         CoreFunction::Deserialize(variant, type_) => dodeserialize(helper, variant, type_)?,
         CoreFunction::GroupToXCoordinate => {
