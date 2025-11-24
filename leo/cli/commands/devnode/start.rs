@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::{logger::initialize_terminal_logger, *};
+use serde_json::json;
 use std::net::SocketAddr;
 
 use aleo_std_storage::StorageMode;
@@ -41,6 +42,9 @@ pub struct Start{
     /// Enable manual block creation mode. 
     #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
     pub(crate) manual_block_creation: bool,
+    /// Environment override options.
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for Start {
@@ -87,6 +91,26 @@ pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::err
     // Start the REST API server.
     Rest::start(socket_addr, rps, ledger, command.manual_block_creation).await.expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
+    
+    // Default setting should fast forward to block 15 to start with Consensus Version 12.
+    // Enabling manual block creation will not fast-forward the ledger to block 15.
+    if !command.manual_block_creation {
+       println!("Advancing the Devnode to the latest consensus version");
+        let private_key: PrivateKey<TestnetV0> = get_private_key(&command.env_override.private_key)?;
+        // Call the REST API to advance the ledger by one block.
+        let client = reqwest::blocking::Client::new();
+
+        let payload = json!({
+            "private_key": private_key.to_string(),
+            "num_blocks": 15,
+        });
+
+        let _response = client
+            .post("http://localhost:3030/testnet/block/create")
+            .header("Content-Type", "application/json")
+            .json(&payload)
+            .send();
+    }
     // Prevent main from exiting.
     std::future::pending::<()>().await;
 

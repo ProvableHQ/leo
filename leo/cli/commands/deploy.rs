@@ -382,7 +382,7 @@ Once it is deployed, it CANNOT be changed.
             }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
-    }
+    }}
 
     // If the `print` option is set, print the deployment transaction to the console.
     // The transaction is printed in JSON format.
@@ -471,7 +471,7 @@ Once it is deployed, it CANNOT be changed.
                 }
             }
         }
-    }}
+    }
 
     Ok(())
 }
