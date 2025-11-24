@@ -436,6 +436,18 @@ impl Expression {
             // Boolean
             Type::Boolean => Some(Literal::boolean(false, span, id).into()),
 
+            // Address: addresses don't have a well defined _zero_ but this value is often used as
+            // the "zero" address in practical applications. It really should never be used directly though.
+            // It should only be used as a placeholder for representating `none` for example.
+            Type::Address => Some(
+                Literal::address(
+                    "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc".to_string(),
+                    span,
+                    id,
+                )
+                .into(),
+            ),
+
             // Field, Group, Scalar
             Type::Field => Some(Literal::field("0".to_string(), span, id).into()),
             Type::Group => Some(Literal::group("0".to_string(), span, id).into()),

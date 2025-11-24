@@ -3,6 +3,8 @@ Error [ETYC0372160]: The type `(u8, u8)` cannot be wrapped in an optional.
      |
    4 |         let a: (u8, u8)? = (1u8, 2u8); // ERROR: Tuples cannot be optional just yet
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Optionals cannot wrap signatures, futures, mappings, tuples, vectors, records, arrays whose elements are optional-unsafe, or structures containing any such types.
 Error [ETYC0372117]: Expected (u8, u8)? but type `(u8, u8)` was found.
     --> compiler-test:4:28
      |
@@ -13,16 +15,15 @@ Error [ETYC0372160]: The type `signature` cannot be wrapped in an optional.
      |
    8 |         let s: signature? = s_;
      |         ^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372160]: The type `address` cannot be wrapped in an optional.
-    --> compiler-test:9:9
      |
-   9 |         let a: address? = a_;
-     |         ^^^^^^^^^^^^^^^^^^^^^
+     = Optionals cannot wrap signatures, futures, mappings, tuples, vectors, records, arrays whose elements are optional-unsafe, or structures containing any such types.
 Error [ETYC0372160]: The type `Future<Fn()>` cannot be wrapped in an optional.
     --> compiler-test:14:9
      |
   14 |         let fut: Future? = finalize(); // ERROR: Future? is not allowed
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Optionals cannot wrap signatures, futures, mappings, tuples, vectors, records, arrays whose elements are optional-unsafe, or structures containing any such types.
 Error [ETYC0372003]: Expected type `Future<Fn()>?` but type `Future<Fn()>` was found
     --> compiler-test:14:28
      |

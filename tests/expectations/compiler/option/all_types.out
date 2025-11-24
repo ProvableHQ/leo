@@ -49,6 +49,20 @@ struct Optional__Iw7fQz4CKJ0:
 struct Top:
     container as Optional__Iw7fQz4CKJ0;
 
+struct Optional__HdJPTit9rcT:
+    is_some as boolean;
+    val as address;
+
+struct AddrStruct:
+    a as address;
+    b as Optional__HdJPTit9rcT;
+
+struct InnerAddr:
+    val as Optional__HdJPTit9rcT;
+
+struct WrapperAddr:
+    inner as InnerAddr;
+
 struct Optional__EsDmm5O6sv6:
     is_some as boolean;
     val as u32;
@@ -76,6 +90,10 @@ struct Optional__K4XRQPOk9yX:
 struct Optional__JYP65FYVVJA:
     is_some as boolean;
     val as scalar;
+
+struct Optional__Jyc4bxRuQrs:
+    is_some as boolean;
+    val as AddrStruct;
 
 function optional_basic_primitives:
     cast true 10u32 into r0 as Optional__EsDmm5O6sv6;
@@ -178,3 +196,24 @@ function optional_misc_primitive_types:
     output r0.val as group.private;
     output r3 as field.private;
     output r2.val as scalar.private;
+
+function optional_address_allowed:
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r0 as Optional__HdJPTit9rcT;
+    cast true aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r1 as Optional__HdJPTit9rcT;
+    ternary r0.is_some r0.val aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r2;
+    ternary r1.is_some r1.val r2 into r3;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r4 as Optional__HdJPTit9rcT;
+    cast aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta r4 into r5 as AddrStruct;
+    ternary r5.b.is_some r5.b.val r5.a into r6;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r7 as Optional__HdJPTit9rcT;
+    cast aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta r7 into r8 as AddrStruct;
+    cast true r8 into r9 as Optional__Jyc4bxRuQrs;
+    assert.eq r9.is_some true;
+    cast true aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r10 as Optional__HdJPTit9rcT;
+    cast r10 into r11 as InnerAddr;
+    cast r11 into r12 as WrapperAddr;
+    assert.eq r12.inner.val.is_some true;
+    output r3 as address.private;
+    output r6 as address.private;
+    output r9.val.a as address.private;
+    output r12.inner.val.val as address.private;
