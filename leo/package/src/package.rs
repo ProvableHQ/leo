@@ -240,7 +240,7 @@ impl Package {
         data.into_iter()
     }
 
-    fn files_with_extension(path: &Path, extension: &'static str) -> impl Iterator<Item = PathBuf> {
+    pub fn files_with_extension(path: &Path, extension: &'static str) -> impl Iterator<Item = PathBuf> {
         path.read_dir()
             .ok()
             .into_iter()

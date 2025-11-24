@@ -92,6 +92,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoDebug,
     },
+    #[clap(about = "Format the leo code present in the current package.")]
+    Fmt {
+        #[clap(flatten)]
+        command: LeoFormat,
+    },
     #[clap(about = "Add a new on-chain or local dependency to the current package.")]
     Add {
         #[clap(flatten)]
@@ -182,6 +187,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Synthesize { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
         Commands::Upgrade { command } => command.try_execute(context),
+        Commands::Fmt { command } => command.try_execute(context),
     }
 }
 

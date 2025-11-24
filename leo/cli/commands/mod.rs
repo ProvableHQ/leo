@@ -42,6 +42,9 @@ pub use devnet::LeoDevnet;
 mod execute;
 pub use execute::LeoExecute;
 
+mod format;
+pub use format::LeoFormat;
+
 pub mod query;
 pub use query::LeoQuery;
 

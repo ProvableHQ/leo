@@ -39,6 +39,7 @@ members = [
   "compiler/span",
   "docs/grammar",
   "errors",
+  "formatter",
   "interpreter",
   "leo/package",
   "test-framework",
@@ -59,6 +60,10 @@ version = "=3.3.1"
 
 [workspace.dependencies.leo-errors]
 path = "./errors"
+version = "=3.3.1"
+
+[workspace.dependencies.leo-fmt]
+path = "./formatter"
 version = "=3.3.1"
 
 [workspace.dependencies.leo-interpreter]
@@ -190,6 +195,9 @@ workspace = true
 workspace = true
 
 [dependencies.leo-errors]
+workspace = true
+
+[dependencies.leo-fmt]
 workspace = true
 
 [dependencies.leo-interpreter]
