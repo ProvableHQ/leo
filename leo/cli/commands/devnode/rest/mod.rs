@@ -45,6 +45,7 @@ use std::{
     sync::{Arc, atomic::AtomicUsize},
 };
 use tokio::{net::TcpListener, task::JoinHandle};
+// use tower::util::ServiceExt;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -276,17 +277,12 @@ mod tests {
         middleware,
         routing::get,
     };
-    use tower::ServiceExt; // for `oneshot`
 
     fn test_app() -> Router {
         let build_routes = || {
             Router::new()
                 .route("/not_found", get(|| async { Err::<(), RestError>(RestError::not_found(anyhow!("missing"))) }))
                 .route("/bad_request", get(|| async { Err::<(), RestError>(RestError::bad_request(anyhow!("bad"))) }))
-                .route(
-                    "/service_unavailable",
-                    get(|| async { Err::<(), RestError>(RestError::service_unavailable(anyhow!("gone"))) }),
-                )
         };
         let router_v1 = build_routes().route_layer(middleware::map_response(v1_error_middleware));
         let router_v2 = Router::new().nest(&format!("/{API_VERSION_V2}"), build_routes());

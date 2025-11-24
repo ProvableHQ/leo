@@ -96,7 +96,6 @@ impl IntoResponse for RestError {
             RestError::NotFound(err) => (StatusCode::NOT_FOUND, "not_found", err),
             RestError::UnprocessableEntity(err) => (StatusCode::UNPROCESSABLE_ENTITY, "unprocessable_entity", err),
             RestError::TooManyRequests(err) => (StatusCode::TOO_MANY_REQUESTS, "too_many_requests", err),
-            // RestError::ServiceUnavailable(err) => (StatusCode::SERVICE_UNAVAILABLE, "service_unavailable", err),
             RestError::InternalServerError(err) => (StatusCode::INTERNAL_SERVER_ERROR, "internal_server_error", err),
         };
 

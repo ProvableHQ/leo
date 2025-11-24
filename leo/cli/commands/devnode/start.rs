@@ -75,12 +75,11 @@ pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::err
     let socket_addr: SocketAddr = command.listener_addr.parse()?;
     let rps = 999999999;
     // Load the genesis block.
-    let genesis_block: Block<TestnetV0>;
-    if command.genesis_path != "blank" {
-        genesis_block = Block::from_bytes_le(&std::fs::read(command.genesis_path.clone())?)?;
+    let genesis_block: Block<TestnetV0> = if command.genesis_path != "blank" {
+        Block::from_bytes_le(&std::fs::read(command.genesis_path.clone())?)?
     } else {
-        genesis_block = Block::from_bytes_le(include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?;
-    }
+        Block::from_bytes_le(include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
+    };
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
     // Initialize the ledger - use spawn_blocking for the blocking load operation
