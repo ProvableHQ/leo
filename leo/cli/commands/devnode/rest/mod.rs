@@ -97,18 +97,6 @@ impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
     }
 }
 
-// impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
-//     /// Returns the ledger.
-//     pub const fn ledger(&self) -> &Ledger<N, C> {
-//         &self.ledger
-//     }
-
-//     /// Returns the handles.
-//     pub const fn handles(&self) -> &Arc<Mutex<Vec<JoinHandle<()>>>> {
-//         &self.handles
-//     }
-// }
-
 impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
     fn build_routes(&self, rest_rps: u32) -> axum::Router {
         let cors = CorsLayer::new()

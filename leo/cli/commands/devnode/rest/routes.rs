@@ -482,6 +482,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             }
             Err(other_rejection) => return Err(other_rejection.into()),
         };
+        let tx_id = tx.id();
 
         // If the transaction exceeds the transaction size limit, return an error.
         // The buffer is initially roughly sized to hold a `transfer_public`,
@@ -537,9 +538,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         }
         // Create a block with the transaction if the manual block creation feature is not enabled.
         if !rest.manual_block_creation {
-            // Create a block by advancing the ledger using the transaction buffer.
-            let tx_copy = tx.clone();
-            let tx_id = tx_copy.id();
             // Parse the private key.
             let private_key_str = std::env::var("PRIVATE_KEY")
                 .map_err(|_| RestError::internal_server_error(anyhow!("PRIVATE_KEY environment variable not set")))?;
@@ -554,7 +552,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
                     &private_key,
                     vec![],
                     vec![],
-                    vec![tx_copy],
+                    vec![tx],
                     &mut rand::thread_rng(),
                 )
             })
@@ -571,11 +569,11 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         // Add the transaction to the Rest buffer.
         {
             let mut buffer = rest.buffer.lock();
-            buffer.push(tx.clone());
+            buffer.push(tx);
         }
         // }
 
-        Ok((StatusCode::OK, ErasedJson::pretty(tx.id())))
+        Ok((StatusCode::OK, ErasedJson::pretty(tx_id)))
     }
 
     /// POST /{network}/create_block
