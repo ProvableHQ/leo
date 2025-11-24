@@ -68,15 +68,19 @@ impl Command for Start {
 // This will start a local node that can be used for testing and development purposes.
 // The Devnode will run in the background and will be accessible via a REST API.
 // The Devnode will be configured to use the local network and will be pre-populated with test accounts and data.
-pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::error::Error>> {
+pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::Output> {
     // Start the Devnode server.
     println!("Starting the Devnode server...");
     initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
-    let socket_addr: SocketAddr = command.listener_addr.parse()?;
+    let socket_addr: SocketAddr = command.listener_addr.parse().map_err(|e| {
+        CliError::custom(format!("Failed to parse listener address '{}': {}", command.listener_addr, e))
+    })?;
     let rps = 999999999;
     // Load the genesis block.
     let genesis_block: Block<TestnetV0> = if command.genesis_path != "blank" {
-        Block::from_bytes_le(&std::fs::read(command.genesis_path.clone())?)?
+        Block::from_bytes_le(&std::fs::read(command.genesis_path.clone()).map_err(|e| {
+            CliError::custom(format!("Failed to read genesis block file '{}': {}", command.genesis_path, e))
+        })?)?
     } else {
         Block::from_bytes_le(include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
@@ -84,7 +88,9 @@ pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::err
     let storage_mode = StorageMode::new_test(None);
     // Initialize the ledger - use spawn_blocking for the blocking load operation
     let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
-        tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode)).await??;
+        tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
+            .await
+            .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
     // Start the REST API server.
     Rest::start(socket_addr, rps, ledger, command.manual_block_creation)
         .await
@@ -95,7 +101,12 @@ pub(crate) async fn start_devnode(command: Start) -> Result<(), Box<dyn std::err
     // Enabling manual block creation will not fast-forward the ledger to block 15.
     if !command.manual_block_creation {
         println!("Advancing the Devnode to the latest consensus version");
-        let private_key: PrivateKey<TestnetV0> = get_private_key(&command.env_override.private_key)?;
+        // Fetch the private key from the environment or command line.
+        let private_key = match command.env_override.private_key {
+            Some(key) => key,
+            None => std::env::var("PRIVATE_KEY")
+                .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?,
+        };
         // Call the REST API to advance the ledger by one block.
         let client = reqwest::blocking::Client::new();
 
