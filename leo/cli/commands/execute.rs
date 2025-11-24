@@ -60,7 +60,7 @@ pub struct LeoExecute {
     )]
     inputs: Vec<String>,
     #[clap(long, help = "Skips proving.")]
-    pub(crate) skip_proving: bool,
+    pub(crate) skip_execute_proof: bool,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
     #[clap(flatten)]
@@ -293,7 +293,7 @@ fn handle_execute<A: Aleo>(
         &command.action,
         consensus_version,
         &check_task_for_warnings(&endpoint, network, &programs, consensus_version),
-        command.skip_proving,
+        command.skip_execute_proof,
     );
 
     // Prompt the user to confirm the plan.
@@ -346,7 +346,7 @@ fn handle_execute<A: Aleo>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
 
-    let (output_name, output, response) = if command.skip_proving {
+    let (output_name, output, response) = if command.skip_execute_proof {
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
 
         // Generate the authorization.
@@ -554,7 +554,7 @@ fn print_execution_plan<N: Network>(
     action: &TransactionAction,
     consensus_version: ConsensusVersion,
     warnings: &[String],
-    skip_proving: bool,
+    skip_execute_proof: bool,
 ) {
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
@@ -579,7 +579,7 @@ fn print_execution_plan<N: Network>(
     if !is_local {
         println!("  - Program and its dependencies will be downloaded from the network.");
     }
-    if skip_proving {
+    if skip_execute_proof {
         println!("  - A transaction will be generated, WITHOUT a proof.");
     }
     if action.print {
