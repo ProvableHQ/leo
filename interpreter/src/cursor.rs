@@ -336,7 +336,13 @@ impl CoreFunctionHelper for Cursor {
 
 impl Cursor {
     /// `really_async` indicates we should really delay execution of async function calls until the user runs them.
-    pub fn new(really_async: bool, private_key: String, block_height: u32, block_timestamp: i64, network: NetworkName) -> Self {
+    pub fn new(
+        really_async: bool,
+        private_key: String,
+        block_height: u32,
+        block_timestamp: i64,
+        network: NetworkName,
+    ) -> Self {
         let mut cursor = Cursor {
             frames: Default::default(),
             values: Default::default(),

@@ -236,6 +236,7 @@ pub fn get_consensus_version(
         Some(9) => Ok(ConsensusVersion::V9),
         Some(10) => Ok(ConsensusVersion::V10),
         Some(11) => Ok(ConsensusVersion::V11),
+        Some(12) => Ok(ConsensusVersion::V12),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -316,6 +317,7 @@ pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
         9 => ConsensusVersion::V9,
         10 => ConsensusVersion::V10,
         11 => ConsensusVersion::V11,
+        12 => ConsensusVersion::V12,
         _ => panic!("Invalid consensus version: {index}"),
     }
 }
@@ -432,6 +434,6 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V11); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V12); // If this fails, update the test and any code that matches on `ConsensusVersion`.
     }
 }

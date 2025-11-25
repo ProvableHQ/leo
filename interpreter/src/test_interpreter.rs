@@ -125,9 +125,15 @@ fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<Test
         })
         .collect();
     let empty: [&PathBuf; 0] = [];
-    let mut interpreter =
-        Interpreter::new(&[(paths[0].clone(), Vec::new())], empty, private_key.to_string(), 0, chrono::Utc::now().timestamp(), NetworkName::TestnetV0)
-            .expect("creating interpreter");
+    let mut interpreter = Interpreter::new(
+        &[(paths[0].clone(), Vec::new())],
+        empty,
+        private_key.to_string(),
+        0,
+        chrono::Utc::now().timestamp(),
+        NetworkName::TestnetV0,
+    )
+    .expect("creating interpreter");
     let interpreter_result = handler.extend_if_error(
         cases
             .iter()
