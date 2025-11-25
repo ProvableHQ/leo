@@ -26,8 +26,6 @@ use std::{str::FromStr, sync::atomic::Ordering};
 
 use rayon::prelude::*;
 
-// use version::VersionInfo;
-
 /// Deserialize a CSV string into a vector of strings.
 fn de_csv<'de, D>(de: D) -> std::result::Result<Vec<String>, D::Error>
 where
@@ -65,6 +63,7 @@ pub(crate) struct Commitments {
     #[serde(deserialize_with = "de_csv")]
     commitments: Vec<String>,
 }
+
 /// The request object for creating a new block.
 #[derive(Clone, Deserialize, Serialize)]
 pub(crate) struct CreateBlockRequest {
@@ -483,14 +482,14 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         let tx_id = tx.id();
 
         // If the transaction exceeds the transaction size limit, return an error.
-        // The buffer is initially roughly sized to hold a `transfer_public`,
-        // most transactions will be smaller and this reduces unnecessary allocations.
+        // The buffer is initially roughly sized to hold a `transfer_public`.
+        // Most transactions will be smaller and this reduces unnecessary allocations.
         let buffer = Vec::with_capacity(3000);
         if tx.write_le(LimitedWriter::new(buffer, N::MAX_TRANSACTION_SIZE)).is_err() {
             return Err(RestError::bad_request(anyhow!("Transaction size exceeds the byte limit")));
         }
 
-        // // Determine if we need to check the transaction.
+        // Determine if we need to check the transaction.
         let check_transaction = check_transaction.check_transaction.unwrap_or(true);
 
         if check_transaction {
@@ -566,7 +565,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             let mut buffer = rest.buffer.lock();
             buffer.push(tx);
         }
-        // }
 
         Ok((StatusCode::OK, ErasedJson::pretty(tx_id)))
     }
@@ -576,14 +574,18 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         State(rest): State<Self>,
         Json(req): Json<CreateBlockRequest>,
     ) -> Result<ErasedJson, RestError> {
+        // Determine the number of blocks to create.
         let num_blocks = req.num_blocks.unwrap_or(1);
 
+        // Iterate and create the specified number of blocks.
+        // Return the last created block.
         let last_block = tokio::task::spawn_blocking(move || -> Result<ErasedJson, RestError> {
             let private_key = PrivateKey::<N>::from_str(&rest.private_key)
                 .map_err(|e| RestError::bad_request(anyhow!("Invalid private key: {}", e)))?;
 
             let mut last_block = None;
 
+            // Take all unconfirmed transactions from the buffer.
             let mut unconfirmed_txs = Some({
                 let mut buffer = rest.buffer.lock();
                 buffer.drain(..).collect()
@@ -592,11 +594,13 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             for _ in 0..num_blocks {
                 let txs = unconfirmed_txs.take().unwrap_or_default();
 
+                // Prepare the new block.
                 let new_block = rest
                     .ledger
                     .prepare_advance_to_next_beacon_block(&private_key, vec![], vec![], txs, &mut rand::thread_rng())
                     .map_err(|e| RestError::internal_server_error(anyhow!("Failed to prepare block: {}", e)))?;
 
+                // Update the ledger to the new block.
                 rest.ledger
                     .advance_to_next_block(&new_block)
                     .map_err(|e| RestError::internal_server_error(anyhow!("Failed to advance block: {}", e)))?;

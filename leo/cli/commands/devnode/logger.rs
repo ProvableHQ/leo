@@ -34,7 +34,6 @@ pub fn initialize_terminal_logger(verbosity: u8) -> Result<()> {
             tracing_subscriber::fmt::Layer::default()
                 .with_ansi(io::stdout().is_terminal())
                 .with_target(show_target)
-                // .event_format(DynamicFormatter::new(Arc::new(AtomicBool::new(false))))
                 .with_filter(stdout_filter),
         )
         .try_init();
@@ -43,7 +42,6 @@ pub fn initialize_terminal_logger(verbosity: u8) -> Result<()> {
 }
 
 fn parse_log_verbosity(verbosity: u8) -> Result<EnvFilter> {
-    // First, set default log verbosity.
     // Note, that this must not be prefixed with `RUST_LOG=`.
     let default_log_str = match verbosity {
         0 => "info",

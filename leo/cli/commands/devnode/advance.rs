@@ -18,7 +18,7 @@ use super::*;
 use serde_json::json;
 use snarkvm::prelude::TestnetV0;
 
-// Advance the Devnode ledger by a specified number of blocks.  The default value is 1.
+// Advance the Devnode ledger by a specified number of blocks.
 #[derive(Parser, Debug)]
 pub struct Advance {
     #[clap(help = "The number of blocks to advance the ledger by", default_value = "1")]
@@ -47,9 +47,8 @@ impl Command for Advance {
 async fn handle_advance_devnode<N: Network>(command: Advance) -> Result<<Advance as Command>::Output> {
     tracing::info!("Advancing the Devnode ledger by {} block(s)", command.num_blocks,);
 
-    // Call the REST API to advance the ledger by one block.
+    // Call the REST API to advance the ledger by the specified number of blocks.
     let client = reqwest::blocking::Client::new();
-
     let payload = json!({
         "num_blocks": command.num_blocks,
     });

@@ -166,7 +166,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/program/{id}/mapping/{name}", get(Self::get_mapping_values))
 
             // GET misc endpoints.
-            // .route("/version", get(Self::get_version))
             .route("/blocks", get(Self::get_blocks))
             .route("/height/{hash}", get(Self::get_height))
             .route("/statePath/{commitment}", get(Self::get_state_path_for_commitment))
@@ -253,7 +252,7 @@ async fn v1_error_middleware(response: Response) -> Response {
         return fallback();
     };
 
-    // Deserialize REST error so we can convert it to a string
+    // Deserialize REST error so we can convert it to a string.
     let Ok(json_err) = serde_json::from_slice::<SerializedRestError>(&bytes) else {
         return fallback();
     };
