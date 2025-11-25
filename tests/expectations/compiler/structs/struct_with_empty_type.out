@@ -8,9 +8,9 @@ mapping baz:
     value as u64.public;
 
 function prepare:
-    async prepare  into r0;
+    async prepare into r0;
     output r0 as scratch.aleo/prepare.future;
 
 finalize prepare:
-    cast 0u32  into r0 as Baz;
+    cast 0u32 into r0 as Baz;
     set 3u64 into baz[r0];

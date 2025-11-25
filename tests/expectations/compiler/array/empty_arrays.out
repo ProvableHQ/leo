@@ -5,5 +5,6 @@ closure foo:
     assert.eq true true;
 
 function main:
-    call foo 0u32 ;
+    call foo 0u32;
     output 0u32 as u32.private;
+    output 0u64 as u64.private;

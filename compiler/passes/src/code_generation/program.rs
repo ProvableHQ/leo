@@ -30,37 +30,25 @@ use leo_ast::{
     Type,
     UpgradeVariant,
     Variant,
-    snarkvm_admin_constructor,
-    snarkvm_checksum_constructor,
-    snarkvm_noupgrade_constructor,
 };
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
-use std::fmt::Write as _;
-
-const EXPECT_STR: &str = "Failed to write code";
 
 impl<'a> CodeGeneratingVisitor<'a> {
-    pub fn visit_program(&mut self, input: &'a Program) -> String {
-        // Accumulate instructions into a program string.
-        let mut program_string = String::new();
+    pub fn visit_program(&mut self, input: &'a Program) -> AleoProgram {
+        // Dependencies of the program. Already arranged in post order by Retriever module.
 
-        // Print out the dependencies of the program. Already arranged in post order by Retriever module.
-        input.stubs.iter().for_each(|(program_name, _)| {
-            writeln!(program_string, "import {program_name}.aleo;").expect(EXPECT_STR);
-        });
+        let imports = input.stubs.iter().map(|(program_name, _)| program_name.to_string()).collect();
 
         // Retrieve the program scope.
         // Note that type checking guarantees that there is exactly one program scope.
         let program_scope: &ProgramScope = input.program_scopes.values().next().unwrap();
 
-        self.program_id = Some(program_scope.program_id);
-
-        // Print the program id.
-        writeln!(program_string, "program {};", program_scope.program_id).expect(EXPECT_STR);
+        let program_id = program_scope.program_id;
+        self.program_id = Some(program_id);
 
         // Get the post-order ordering of the composite data types.
         // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
@@ -75,104 +63,109 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 .or_else(|| self.state.symbol_table.lookup_record(&Location::new(this_program, name.to_vec())))
         };
 
-        // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
-        for name in order.into_iter() {
-            if let Some(struct_) = lookup(&name) {
-                program_string.push_str(&self.visit_struct_or_record(struct_, &name));
-            }
-        }
+        // Add each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
+        let data_types = order
+            .into_iter()
+            .filter_map(|name| lookup(&name).map(|struct_| self.visit_struct_or_record(struct_, &name)))
+            .collect();
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
-        for (_symbol, mapping) in program_scope.mappings.iter() {
-            program_string.push_str(&self.visit_mapping(mapping));
-        }
+        let mappings = program_scope.mappings.iter().map(|(_symbol, mapping)| self.visit_mapping(mapping)).collect();
 
         // Visit each function in the program scope and produce an Aleo function.
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
         // In other words, a callee function precedes its caller function in the program scope.
-        for (_symbol, function) in program_scope.functions.iter() {
-            if function.variant != Variant::AsyncFunction {
-                let mut function_string = self.visit_function(function);
+        let functions = program_scope
+            .functions
+            .iter()
+            .filter_map(|(_symbol, function)| {
+                if function.variant != Variant::AsyncFunction {
+                    let mut aleo_function = self.visit_function(function);
 
-                // Attach the associated finalize to async transitions.
-                if function.variant == Variant::AsyncTransition {
-                    // Set state variables.
-                    self.finalize_caller = Some(function.identifier.name);
-                    // Generate code for the associated finalize function.
-                    let finalize = &self
-                        .state
-                        .symbol_table
-                        .lookup_function(&Location::new(
-                            self.program_id.unwrap().name.name,
-                            vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
-                        ))
-                        .unwrap()
-                        .clone()
-                        .finalizer
-                        .unwrap();
-                    // Write the finalize string.
-                    function_string.push_str(
-                        &self.visit_function_with(
-                            &program_scope
-                                .functions
-                                .iter()
-                                .find(|(name, _f)| vec![*name] == finalize.location.path)
+                    // Attach the associated finalize to async transitions.
+                    if function.variant == Variant::AsyncTransition {
+                        // Set state variables.
+                        self.finalize_caller = Some(function.identifier.name);
+                        // Generate code for the associated finalize function.
+                        let finalize = &self
+                            .state
+                            .symbol_table
+                            .lookup_function(&Location::new(
+                                self.program_id.unwrap().name.name,
+                                vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
+                            ))
+                            .unwrap()
+                            .clone()
+                            .finalizer
+                            .unwrap();
+                        // Write the finalize string.
+                        if let Some(caller) = &mut aleo_function {
+                            caller.as_function_ref_mut().finalize = Some(
+                                self.visit_function_with(
+                                    &program_scope
+                                        .functions
+                                        .iter()
+                                        .find(|(name, _f)| vec![*name] == finalize.location.path)
+                                        .unwrap()
+                                        .1,
+                                    &finalize.future_inputs,
+                                )
                                 .unwrap()
-                                .1,
-                            &finalize.future_inputs,
-                        ),
-                    );
+                                .as_finalize(),
+                            );
+                        }
+                    }
+                    aleo_function
+                } else {
+                    None
                 }
-
-                program_string.push_str(&function_string);
-            }
-        }
+            })
+            .collect();
 
         // If the constructor exists, visit it and produce an Aleo constructor.
-        if let Some(constructor) = program_scope.constructor.as_ref() {
-            // Generate code for the constructor.
-            program_string.push_str(&self.visit_constructor(constructor));
-        }
+        let constructor = program_scope.constructor.as_ref().map(|c| self.visit_constructor(c));
 
-        program_string
+        AleoProgram { imports, program_id, data_types, mappings, functions, constructor }
     }
 
-    fn visit_struct_or_record(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> String {
+    fn visit_struct_or_record(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> AleoDatatype {
         if struct_.is_record {
-            self.visit_record(struct_, absolute_path)
+            AleoDatatype::Record(self.visit_record(struct_, absolute_path))
         } else {
-            self.visit_struct(struct_, absolute_path)
+            AleoDatatype::Struct(self.visit_struct(struct_, absolute_path))
         }
     }
 
-    fn visit_struct(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> String {
+    fn visit_struct(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> AleoStruct {
         // Add private symbol to composite types.
-        self.composite_mapping.insert(absolute_path.to_vec(), (false, String::from("private"))); // todo: private by default here.
+        self.composite_mapping.insert(absolute_path.to_vec(), false); // todo: private by default here.
 
-        let mut output_string = format!(
-            "\nstruct {}:\n",
-            Self::legalize_path(absolute_path).unwrap_or_else(|| panic!(
-                "path format cannot be legalized at this point: {}",
-                absolute_path.iter().join("::")
-            ))
-        ); // todo: check if this is safe from name conflicts.
+        // todo: check if this is safe from name conflicts.
+        let name = Self::legalize_path(absolute_path).unwrap_or_else(|| {
+            panic!("path format cannot be legalized at this point: {}", absolute_path.iter().join("::"))
+        });
 
         // Construct and append the record variables.
-        for var in struct_.members.iter() {
-            if var.type_.is_empty() {
-                continue;
-            }
-            writeln!(output_string, "    {} as {};", var.identifier, Self::visit_type(&var.type_),).expect(EXPECT_STR);
-        }
+        let fields = struct_
+            .members
+            .iter()
+            .filter_map(|var| {
+                if var.type_.is_empty() {
+                    None
+                } else {
+                    Some((var.identifier.to_string(), Self::visit_type(&var.type_)))
+                }
+            })
+            .collect();
 
-        output_string
+        AleoStruct { name, fields }
     }
 
-    fn visit_record(&mut self, record: &'a Composite, absolute_path: &[Symbol]) -> String {
+    fn visit_record(&mut self, record: &'a Composite, absolute_path: &[Symbol]) -> AleoRecord {
         // Add record symbol to composite types.
-        self.composite_mapping.insert(absolute_path.to_vec(), (true, "record".into()));
+        self.composite_mapping.insert(absolute_path.to_vec(), true);
 
-        let mut output_string = format!("\nrecord {}:\n", record.identifier); // todo: check if this is safe from name conflicts.
+        let name = record.identifier.to_string(); // todo: check if this is safe from name conflicts.
 
         let mut members = Vec::with_capacity(record.members.len());
         let mut member_map: IndexMap<Symbol, Member> =
@@ -186,48 +179,45 @@ impl<'a> CodeGeneratingVisitor<'a> {
         members.extend(member_map.into_iter().map(|(_, member)| member));
 
         // Construct and append the record variables.
-        for var in members.iter() {
-            if var.type_.is_empty() {
-                continue;
-            }
-            let mode = match var.mode {
-                Mode::Constant => "constant",
-                Mode::Public => "public",
-                Mode::None | Mode::Private => "private",
-            };
-            writeln!(
-                output_string,
-                "    {} as {}.{mode};", // todo: CAUTION private record variables only.
-                var.identifier,
-                Self::visit_type(&var.type_)
-            )
-            .expect(EXPECT_STR);
-        }
+        let fields = members
+            .iter()
+            .filter_map(|var| {
+                if var.type_.is_empty() {
+                    None
+                } else {
+                    Some((var.identifier.to_string(), Self::visit_type(&var.type_), match var.mode {
+                        Mode::Constant => AleoVisibility::Constant,
+                        Mode::Public => AleoVisibility::Public,
+                        Mode::None | Mode::Private => AleoVisibility::Private,
+                    }))
+                }
+            })
+            .collect();
 
-        output_string
+        AleoRecord { name, fields }
     }
 
-    fn visit_function_with(&mut self, function: &'a Function, futures: &[Location]) -> String {
+    fn visit_function_with(&mut self, function: &'a Function, futures: &[Location]) -> Option<AleoFunctional> {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
         self.variant = Some(function.variant);
         // TODO: Figure out a better way to initialize.
-        self.variable_mapping.insert(sym::SelfLower, "self".to_string());
-        self.variable_mapping.insert(sym::block, "block".to_string());
-        self.variable_mapping.insert(sym::network, "network".to_string());
+        self.variable_mapping.insert(sym::SelfLower, AleoExpr::Reg(AleoReg::Self_));
+        self.variable_mapping.insert(sym::block, AleoExpr::Reg(AleoReg::Block));
+        self.variable_mapping.insert(sym::network, AleoExpr::Reg(AleoReg::Network));
         self.current_function = Some(function);
 
         // Construct the header of the function.
         // If a function is a program function, generate an Aleo `function`,
         // if it is a standard function generate an Aleo `closure`,
         // otherwise, it is an inline function, in which case a function should not be generated.
-        let mut function_string = match function.variant {
-            Variant::Transition | Variant::AsyncTransition => format!("\nfunction {}:\n", function.identifier),
-            Variant::Function => format!("\nclosure {}:\n", function.identifier),
-            Variant::AsyncFunction => format!("\nfinalize {}:\n", self.finalize_caller.unwrap()),
-            Variant::Inline => return String::new(),
+        let function_name = match function.variant {
+            Variant::Inline => return None,
             Variant::Script => panic!("script should not appear in native code"),
+            Variant::Transition | Variant::AsyncTransition => function.identifier.to_string(),
+            Variant::Function => function.identifier.to_string(),
+            Variant::AsyncFunction => self.finalize_caller.unwrap().to_string(),
         };
 
         let mut futures = futures.iter();
@@ -235,77 +225,96 @@ impl<'a> CodeGeneratingVisitor<'a> {
         self.internal_record_inputs.clear();
 
         // Construct and append the input declarations of the function.
-        for input in function.input.iter() {
-            // skip empty types
-            if input.type_.is_empty() {
-                continue;
-            }
-            let register_string = self.next_register();
-
-            // Track all internal record inputs.
-            if let Type::Composite(comp) = &input.type_ {
-                let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
-                if let Some(record) =
-                    self.state.symbol_table.lookup_record(&Location::new(program, comp.path.absolute_path().to_vec()))
-                    && (record.external.is_none() || record.external == self.program_id.map(|id| id.name.name))
-                {
-                    self.internal_record_inputs.insert(register_string.clone());
+        let inputs: Vec<AleoInput> = function
+            .input
+            .iter()
+            .filter_map(|input| {
+                if input.type_.is_empty() {
+                    return None;
                 }
-            }
+                let register_num = self.next_register();
 
-            let type_string = {
-                self.variable_mapping.insert(input.identifier.name, register_string.clone());
-                // Note that this unwrap is safe because we set the variant at the beginning of the function.
-                let visibility = match (self.variant.unwrap(), input.mode) {
-                    (Variant::AsyncTransition, Mode::None) | (Variant::Transition, Mode::None) => Mode::Private,
-                    (Variant::AsyncFunction, Mode::None) => Mode::Public,
-                    _ => input.mode,
-                };
-                // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
-                if matches!(input.type_, Type::Future(_)) {
-                    let location = futures
-                        .next()
-                        .expect("Type checking guarantees we have future locations for each future input");
-                    let [future_name] = location.path.as_slice() else {
-                        panic!("All futures must have a single segment paths since they don't belong to submodules.")
+                // Track all internal record inputs.
+                if let Type::Composite(comp) = &input.type_ {
+                    let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
+                    if let Some(record) = self
+                        .state
+                        .symbol_table
+                        .lookup_record(&Location::new(program, comp.path.absolute_path().to_vec()))
+                        && (record.external.is_none() || record.external == self.program_id.map(|id| id.name.name))
+                    {
+                        self.internal_record_inputs.insert(AleoExpr::Reg(register_num.clone()));
+                    }
+                }
+
+                let (input_type, input_visibility) = {
+                    self.variable_mapping.insert(input.identifier.name, AleoExpr::Reg(register_num.clone()));
+                    // Note that this unwrap is safe because we set the variant at the beginning of the function.
+                    let visibility = match (self.variant.unwrap(), input.mode) {
+                        (Variant::AsyncTransition, Mode::None) | (Variant::Transition, Mode::None) => {
+                            Some(AleoVisibility::Private)
+                        }
+                        (Variant::AsyncFunction, Mode::None) => Some(AleoVisibility::Public),
+                        (_, mode) => AleoVisibility::maybe_from(mode),
                     };
-                    format!("{}.aleo/{}.future", location.program, future_name)
-                } else {
-                    self.visit_type_with_visibility(&input.type_, visibility)
-                }
-            };
+                    // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
+                    if matches!(input.type_, Type::Future(_)) {
+                        let location = futures
+                            .next()
+                            .expect("Type checking guarantees we have future locations for each future input");
+                        let [future_name] = location.path.as_slice() else {
+                            panic!(
+                                "All futures must have a single segment paths since they don't belong to submodules."
+                            )
+                        };
+                        (
+                            AleoType::Future { name: future_name.to_string(), program: location.program.to_string() },
+                            None,
+                        )
+                    } else {
+                        self.visit_type_with_visibility(&input.type_, visibility)
+                    }
+                };
 
-            writeln!(function_string, "    input {register_string} as {type_string};",).expect(EXPECT_STR);
-        }
+                Some(AleoInput { register: register_num, type_: input_type, visibility: input_visibility })
+            })
+            .collect();
 
         //  Construct and append the function body.
-        let block_string = self.visit_block(&function.block);
+        let mut statements = self.visit_block(&function.block);
         if matches!(self.variant.unwrap(), Variant::Function | Variant::AsyncFunction)
-            && block_string.lines().all(|line| line.starts_with("    output "))
+            && statements.iter().all(|stm| matches!(stm, AleoStmt::Output(..)))
         {
             // There are no real instructions, which is invalid in Aleo, so
             // add a dummy instruction.
-            function_string.push_str("    assert.eq true true;\n");
+            statements.insert(0, AleoStmt::AssertEq(AleoExpr::Bool(true), AleoExpr::Bool(true)));
         }
 
-        function_string.push_str(&block_string);
-
-        function_string
+        match function.variant {
+            Variant::Inline | Variant::Script => None,
+            Variant::Transition | Variant::AsyncTransition => {
+                Some(AleoFunctional::Function(AleoFunction { name: function_name, inputs, statements, finalize: None })) // finalize added by caller
+            }
+            Variant::Function => Some(AleoFunctional::Closure(AleoClosure { name: function_name, inputs, statements })),
+            Variant::AsyncFunction => {
+                Some(AleoFunctional::Finalize(AleoFinalize { caller_name: function_name, inputs, statements }))
+            }
+        }
     }
 
-    fn visit_function(&mut self, function: &'a Function) -> String {
+    fn visit_function(&mut self, function: &'a Function) -> Option<AleoFunctional> {
         self.visit_function_with(function, &[])
     }
 
-    fn visit_constructor(&mut self, constructor: &'a Constructor) -> String {
+    fn visit_constructor(&mut self, constructor: &'a Constructor) -> AleoConstructor {
         // Initialize the state of `self` with the appropriate values before visiting `constructor`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
         self.variant = Some(Variant::AsyncFunction);
         // TODO: Figure out a better way to initialize.
-        self.variable_mapping.insert(sym::SelfLower, "self".to_string());
-        self.variable_mapping.insert(sym::block, "block".to_string());
-        self.variable_mapping.insert(sym::network, "network".to_string());
+        self.variable_mapping.insert(sym::SelfLower, AleoExpr::Reg(AleoReg::Self_));
+        self.variable_mapping.insert(sym::block, AleoExpr::Reg(AleoReg::Block));
+        self.variable_mapping.insert(sym::network, AleoExpr::Reg(AleoReg::Network));
 
         // Get the upgrade variant.
         let upgrade_variant = constructor
@@ -315,21 +324,52 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // Construct the constructor.
         // If the constructor is one of the standard constructors, use the hardcoded defaults.
         let constructor = match &upgrade_variant {
-            UpgradeVariant::Admin { address } => snarkvm_admin_constructor(address),
+            // This is the expected snarkVM constructor bytecode for a program that is only upgradable by a fixed admin.
+            UpgradeVariant::Admin { address } => AleoConstructor {
+                is_custom: false,
+                statements: vec![AleoStmt::AssertEq(
+                    AleoExpr::RawName("program_owner".to_string()),
+                    AleoExpr::RawName(address.to_string()),
+                )],
+            },
+
             UpgradeVariant::Checksum { mapping, key, .. } => {
-                if mapping.program
+                let map_name = if mapping.program
                     == self.program_id.expect("Program ID should be set before traversing the program").name.name
                 {
                     let [mapping_name] = &mapping.path[..] else {
                         panic!("Mappings are only allowed in the top level program at this stage");
                     };
-                    snarkvm_checksum_constructor(mapping_name, key)
+                    mapping_name.to_string()
                 } else {
-                    snarkvm_checksum_constructor(mapping, key)
+                    mapping.to_string()
+                };
+                // This is the required snarkVM constructor bytecode for a program that is only upgradable
+                // if the new program's checksum matches the one declared in a pre-determined mapping.
+                AleoConstructor {
+                    is_custom: false,
+                    statements: vec![
+                        AleoStmt::BranchEq(
+                            AleoExpr::RawName("edition".to_string()),
+                            AleoExpr::U16(0),
+                            "end".to_string(),
+                        ),
+                        AleoStmt::Get(AleoExpr::RawName(map_name), AleoExpr::RawName(key.to_string()), AleoReg::R(0)),
+                        AleoStmt::AssertEq(AleoExpr::RawName("checksum".to_string()), AleoExpr::Reg(AleoReg::R(0))),
+                        AleoStmt::Position("end".to_string()),
+                    ],
                 }
             }
-            UpgradeVariant::Custom => format!("\nconstructor:\n{}\n", self.visit_block(&constructor.block)),
-            UpgradeVariant::NoUpgrade => snarkvm_noupgrade_constructor(),
+            UpgradeVariant::Custom => {
+                AleoConstructor { statements: self.visit_block(&constructor.block), is_custom: true }
+            }
+            UpgradeVariant::NoUpgrade => {
+                // This is the expected snarkVM constructor bytecode for a program that is not upgradable.
+                AleoConstructor {
+                    is_custom: false,
+                    statements: vec![AleoStmt::AssertEq(AleoExpr::RawName("edition".to_string()), AleoExpr::U16(0))],
+                }
+            }
         };
 
         // Check that the constructor is well-formed.
@@ -345,15 +385,12 @@ impl<'a> CodeGeneratingVisitor<'a> {
         constructor
     }
 
-    fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {
+    fn visit_mapping(&mut self, mapping: &'a Mapping) -> AleoMapping {
         let legalized_mapping_name = Self::legalize_path(&[mapping.identifier.name]);
         // Create the prefix of the mapping string, e.g. `mapping foo:`.
-        let mut mapping_string = format!(
-            "\nmapping {}:\n",
-            legalized_mapping_name
-                .clone()
-                .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier))
-        );
+        let name = legalized_mapping_name
+            .clone()
+            .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier));
 
         // Helper to construct the string associated with the type.
         let create_type = |type_: &Type| {
@@ -362,27 +399,29 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 Type::Identifier(identifier) => {
                     // Lookup the type in the composite mapping.
                     // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
-                    let (is_record, _) = self.composite_mapping.get(&vec![identifier.name]).unwrap();
+                    let is_record = self.composite_mapping.get(&vec![identifier.name]).unwrap();
                     assert!(!is_record, "Type checking guarantees that mappings cannot contain records.");
-                    self.visit_type_with_visibility(type_, Mode::Public)
+                    self.visit_type_with_visibility(type_, Some(AleoVisibility::Public))
                 }
-                type_ => self.visit_type_with_visibility(type_, Mode::Public),
+                type_ => self.visit_type_with_visibility(type_, Some(AleoVisibility::Public)),
             }
         };
 
         // Create the key string, e.g. `    key as address.public`.
-        writeln!(mapping_string, "    key as {};", create_type(&mapping.key_type)).expect(EXPECT_STR);
+        let (key_type, key_visibility) = create_type(&mapping.key_type);
 
         // Create the value string, e.g. `    value as address.public`.
-        writeln!(mapping_string, "    value as {};", create_type(&mapping.value_type)).expect(EXPECT_STR);
+        let (value_type, value_visibility) = create_type(&mapping.value_type);
 
         // Add the mapping to the variable mapping.
         self.global_mapping.insert(
             mapping.identifier.name,
-            legalized_mapping_name
-                .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier)),
+            AleoExpr::RawName(
+                legalized_mapping_name
+                    .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier)),
+            ),
         );
 
-        mapping_string
+        AleoMapping { name, key_type, value_type, key_visibility, value_visibility }
     }
 }
