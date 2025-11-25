@@ -26,15 +26,17 @@ import test_dep.aleo;
 program test.aleo {
     mapping account: address => u64;
 
-    async transition main(public a: u32) -> Future {
-        return finish(a);
+    async transition main(public a: u32, public b: i64) -> Future {
+        return finish(a, b);
     }
 
-    async function finish(public a: u32) {
+    async function finish(public a: u32, public b: i64) {
         CheatCode::print_mapping(account);
         CheatCode::print_mapping(test_dep.aleo/Yo);
         CheatCode::set_block_height(1u32);
         CheatCode::set_block_height(a);
+        CheatCode::set_block_timestamp(100i64);
+        CheatCode::set_block_timestamp(b);
         CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH");
     }
 }

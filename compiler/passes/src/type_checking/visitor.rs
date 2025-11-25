@@ -1053,6 +1053,10 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1.span());
                 Type::Unit
             }
+            CoreFunction::CheatCodeSetBlockTimestamp => {
+                self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::I64), arguments[0].1.span());
+                Type::Unit
+            }
             CoreFunction::CheatCodeSetSigner => {
                 // Assert that the argument is a string.
                 self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());

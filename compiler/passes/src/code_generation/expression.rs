@@ -547,6 +547,7 @@ impl CodeGeneratingVisitor<'_> {
             }
             Some(CoreFunction::CheatCodePrintMapping)
             | Some(CoreFunction::CheatCodeSetBlockHeight)
+            | Some(CoreFunction::CheatCodeSetBlockTimestamp)
             | Some(CoreFunction::CheatCodeSetSigner) => {
                 (None, vec![])
                 // Do nothing. Cheat codes do not generate instructions.

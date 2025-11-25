@@ -71,6 +71,7 @@ pub enum CoreFunction {
 
     CheatCodePrintMapping,
     CheatCodeSetBlockHeight,
+    CheatCodeSetBlockTimestamp,
     CheatCodeSetSigner,
 }
 
@@ -613,6 +614,7 @@ impl CoreFunction {
 
             (sym::CheatCode, sym::print_mapping) => Self::CheatCodePrintMapping,
             (sym::CheatCode, sym::set_block_height) => Self::CheatCodeSetBlockHeight,
+            (sym::CheatCode, sym::set_block_timestamp) => Self::CheatCodeSetBlockTimestamp,
             (sym::CheatCode, sym::set_signer) => Self::CheatCodeSetSigner,
             _ => return None,
         })
@@ -657,6 +659,7 @@ impl CoreFunction {
 
             Self::CheatCodePrintMapping => 1,
             Self::CheatCodeSetBlockHeight => 1,
+            Self::CheatCodeSetBlockTimestamp => 1,
             Self::CheatCodeSetSigner => 1,
         }
     }
@@ -691,6 +694,7 @@ impl CoreFunction {
             | CoreFunction::Deserialize(_, _)
             | CoreFunction::CheatCodePrintMapping
             | CoreFunction::CheatCodeSetBlockHeight
+            | CoreFunction::CheatCodeSetBlockTimestamp
             | CoreFunction::CheatCodeSetSigner => false,
         }
     }
@@ -705,6 +709,7 @@ impl CoreFunction {
             | CoreFunction::VectorClear
             | CoreFunction::CheatCodePrintMapping
             | CoreFunction::CheatCodeSetBlockHeight
+            | CoreFunction::CheatCodeSetBlockTimestamp
             | CoreFunction::CheatCodeSetSigner
             | CoreFunction::VectorPop
             | CoreFunction::VectorSwapRemove => false,

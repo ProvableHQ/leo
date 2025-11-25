@@ -10,7 +10,7 @@
        Leo     The program checksum is: '[208u8, 46u8, 107u8, 120u8, 67u8, 35u8, 254u8, 232u8, 167u8, 173u8, 0u8, 130u8, 249u8, 123u8, 65u8, 159u8, 169u8, 93u8, 168u8, 232u8, 33u8, 125u8, 49u8, 130u8, 118u8, 142u8, 183u8, 31u8, 60u8, 106u8, 136u8, 65u8]'.
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
 
-📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000
+📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000,12669000
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at https://api.explorer.provable.com/v1...
@@ -22,7 +22,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           https://api.explorer.provable.com/v1
   Network:            testnet
-  Consensus Version:  11
+  Consensus Version:  12
 
 🎯 Execution Target:
   Program:        some_sample_leo_program.aleo
@@ -66,11 +66,11 @@ Attempting to determine the consensus version from the latest block height at ht
        Leo     The program checksum is: '[208u8, 46u8, 107u8, 120u8, 67u8, 35u8, 254u8, 232u8, 167u8, 173u8, 0u8, 130u8, 249u8, 123u8, 65u8, 159u8, 169u8, 93u8, 168u8, 232u8, 33u8, 125u8, 49u8, 130u8, 118u8, 142u8, 183u8, 31u8, 60u8, 106u8, 136u8, 65u8]'.
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
 
-📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000
+📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000,12669000
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 1 but found 11 at http://localhost:3030
+⚠️ Warning: Expected consensus version 1 but found 12 at http://localhost:3030
 
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
@@ -96,7 +96,7 @@ Attempting to determine the consensus version from the latest block height at ht
   - Transaction will NOT be broadcast to the network.
 
 ⚠️ Warnings:
-  • Expected consensus version 1 but found 11 at http://localhost:3030. In some cases, the execution may fail
+  • Expected consensus version 1 but found 12 at http://localhost:3030. In some cases, the execution may fail
 ──────────────────────────────────────────────
 
 
