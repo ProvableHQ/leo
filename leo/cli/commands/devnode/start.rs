@@ -21,7 +21,7 @@ use std::net::SocketAddr;
 use aleo_std_storage::StorageMode;
 use snarkvm::{
     ledger::store::helpers::memory::ConsensusMemory,
-    prelude::{Block, FromBytes, Ledger, TestnetV0},
+    prelude::{Block, FromBytes, Ledger, TestnetV0, TEST_CONSENSUS_VERSION_HEIGHTS},
 };
 
 use crate::cli::commands::devnode::rest::Rest;
@@ -103,15 +103,16 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
         .expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
 
-    // Default setting should fast forward to block 15 to start with Consensus Version 12.
-    // Enabling manual block creation will not fast-forward the ledger to block 15.
+    // Default setting should fast forward to the block corresponding to the latest consensus version.
+    // Enabling manual block creation will initialize the ledger to the genesis block.
     if !command.manual_block_creation {
         println!("Advancing the Devnode to the latest consensus version");
+        let last_height = TEST_CONSENSUS_VERSION_HEIGHTS.last().unwrap().1;
         // Call the REST API to advance the ledger by one block.
         let client = reqwest::blocking::Client::new();
 
         let payload = json!({
-            "num_blocks": 15,
+            "num_blocks": last_height,
         });
 
         let _response = client
