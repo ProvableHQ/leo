@@ -383,9 +383,10 @@ Once it is deployed, it CANNOT be changed.
                     validate_deployment_limits(deployment, program_id, &network)?;
                 }
             }
-            // Add the program to the VM.
-            vm.process().write().add_program(&program)?;
         }
+
+        // Add the program to the VM.
+        vm.process().write().add_program(&program)?;
     }
 
     // If the `print` option is set, print the deployment transaction to the console.
