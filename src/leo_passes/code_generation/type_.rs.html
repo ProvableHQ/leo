@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/type_.rs`."><title>type_.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/code_generation/</div>type_.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/type_.rs`."><title>type_.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../static.files/src-script-813739b1.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_passes/code_generation/</div>type_.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 <a href=#2 id=2 data-nosnippet>2</a>// This file is part of the Leo library.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a>// The Leo library is free software: you can redistribute it and/or modify
@@ -16,74 +16,86 @@
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <a href=#18 id=18 data-nosnippet>18</a>
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{CompositeType, Location, Mode, Type};
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{CompositeType, IntegerType, Location, Type};
 <a href=#20 id=20 data-nosnippet>20</a>
 <a href=#21 id=21 data-nosnippet>21</a><span class="kw">impl </span>CodeGeneratingVisitor&lt;<span class="lifetime">'_</span>&gt; {
-<a href=#22 id=22 data-nosnippet>22</a>    <span class="kw">pub fn </span>visit_type(input: <span class="kw-2">&amp;</span>Type) -&gt; String {
+<a href=#22 id=22 data-nosnippet>22</a>    <span class="kw">pub fn </span>visit_type(input: <span class="kw-2">&amp;</span>Type) -&gt; AleoType {
 <a href=#23 id=23 data-nosnippet>23</a>        <span class="kw">match </span>input {
-<a href=#24 id=24 data-nosnippet>24</a>            Type::Address
-<a href=#25 id=25 data-nosnippet>25</a>            | Type::Field
-<a href=#26 id=26 data-nosnippet>26</a>            | Type::Group
-<a href=#27 id=27 data-nosnippet>27</a>            | Type::Scalar
-<a href=#28 id=28 data-nosnippet>28</a>            | Type::Signature
-<a href=#29 id=29 data-nosnippet>29</a>            | Type::String
-<a href=#30 id=30 data-nosnippet>30</a>            | Type::Future(..)
-<a href=#31 id=31 data-nosnippet>31</a>            | Type::Identifier(..)
-<a href=#32 id=32 data-nosnippet>32</a>            | Type::Integer(..) =&gt; <span class="macro">format!</span>(<span class="string">"{input}"</span>),
-<a href=#33 id=33 data-nosnippet>33</a>            Type::Composite(CompositeType { path, .. }) =&gt; {
-<a href=#34 id=34 data-nosnippet>34</a>                <span class="self">Self</span>::legalize_path(<span class="kw-2">&amp;</span>path.absolute_path()).expect(<span class="string">"path format cannot be legalized at this point"</span>)
-<a href=#35 id=35 data-nosnippet>35</a>            }
-<a href=#36 id=36 data-nosnippet>36</a>            Type::Boolean =&gt; {
-<a href=#37 id=37 data-nosnippet>37</a>                <span class="comment">// Leo calls this just `bool`, which isn't what we need.
-<a href=#38 id=38 data-nosnippet>38</a>                </span><span class="string">"boolean"</span>.into()
-<a href=#39 id=39 data-nosnippet>39</a>            }
-<a href=#40 id=40 data-nosnippet>40</a>            Type::Array(array_type) =&gt; {
-<a href=#41 id=41 data-nosnippet>41</a>                <span class="macro">format!</span>(
-<a href=#42 id=42 data-nosnippet>42</a>                    <span class="string">"[{}; {}u32]"</span>,
-<a href=#43 id=43 data-nosnippet>43</a>                    <span class="self">Self</span>::visit_type(array_type.element_type()),
-<a href=#44 id=44 data-nosnippet>44</a>                    array_type.length.as_u32().expect(<span class="string">"length should be known at this point"</span>)
-<a href=#45 id=45 data-nosnippet>45</a>                )
-<a href=#46 id=46 data-nosnippet>46</a>            }
-<a href=#47 id=47 data-nosnippet>47</a>            Type::Optional(<span class="kw">_</span>) =&gt; {
-<a href=#48 id=48 data-nosnippet>48</a>                <span class="macro">panic!</span>(<span class="string">"Optional types are not supported at this phase of compilation"</span>)
-<a href=#49 id=49 data-nosnippet>49</a>            }
-<a href=#50 id=50 data-nosnippet>50</a>            Type::Mapping(<span class="kw">_</span>) =&gt; {
-<a href=#51 id=51 data-nosnippet>51</a>                <span class="macro">panic!</span>(<span class="string">"Mapping types are not supported at this phase of compilation"</span>)
-<a href=#52 id=52 data-nosnippet>52</a>            }
-<a href=#53 id=53 data-nosnippet>53</a>            Type::Tuple(<span class="kw">_</span>) =&gt; {
-<a href=#54 id=54 data-nosnippet>54</a>                <span class="macro">panic!</span>(<span class="string">"Tuple types should not be visited at this phase of compilation"</span>)
+<a href=#24 id=24 data-nosnippet>24</a>            Type::Address =&gt; AleoType::Address,
+<a href=#25 id=25 data-nosnippet>25</a>            Type::Field =&gt; AleoType::Field,
+<a href=#26 id=26 data-nosnippet>26</a>            Type::Group =&gt; AleoType::Group,
+<a href=#27 id=27 data-nosnippet>27</a>            Type::Scalar =&gt; AleoType::Scalar,
+<a href=#28 id=28 data-nosnippet>28</a>            Type::Signature =&gt; AleoType::Signature,
+<a href=#29 id=29 data-nosnippet>29</a>            Type::String =&gt; AleoType::String,
+<a href=#30 id=30 data-nosnippet>30</a>
+<a href=#31 id=31 data-nosnippet>31</a>            Type::Integer(int) =&gt; <span class="kw">match </span>int {
+<a href=#32 id=32 data-nosnippet>32</a>                IntegerType::U8 =&gt; AleoType::U8,
+<a href=#33 id=33 data-nosnippet>33</a>                IntegerType::U16 =&gt; AleoType::U16,
+<a href=#34 id=34 data-nosnippet>34</a>                IntegerType::U32 =&gt; AleoType::U32,
+<a href=#35 id=35 data-nosnippet>35</a>                IntegerType::U64 =&gt; AleoType::U64,
+<a href=#36 id=36 data-nosnippet>36</a>                IntegerType::U128 =&gt; AleoType::U128,
+<a href=#37 id=37 data-nosnippet>37</a>                IntegerType::I8 =&gt; AleoType::I8,
+<a href=#38 id=38 data-nosnippet>38</a>                IntegerType::I16 =&gt; AleoType::I16,
+<a href=#39 id=39 data-nosnippet>39</a>                IntegerType::I32 =&gt; AleoType::I32,
+<a href=#40 id=40 data-nosnippet>40</a>                IntegerType::I64 =&gt; AleoType::I64,
+<a href=#41 id=41 data-nosnippet>41</a>                IntegerType::I128 =&gt; AleoType::I128,
+<a href=#42 id=42 data-nosnippet>42</a>            },
+<a href=#43 id=43 data-nosnippet>43</a>            Type::Identifier(id) =&gt; AleoType::Ident { name: id.to_string() },
+<a href=#44 id=44 data-nosnippet>44</a>            Type::Composite(CompositeType { path, .. }) =&gt; AleoType::Ident {
+<a href=#45 id=45 data-nosnippet>45</a>                name: <span class="self">Self</span>::legalize_path(<span class="kw-2">&amp;</span>path.absolute_path())
+<a href=#46 id=46 data-nosnippet>46</a>                    .expect(<span class="string">"path format cannot be legalized at this point"</span>),
+<a href=#47 id=47 data-nosnippet>47</a>            },
+<a href=#48 id=48 data-nosnippet>48</a>            Type::Boolean =&gt; AleoType::Boolean,
+<a href=#49 id=49 data-nosnippet>49</a>            Type::Array(array_type) =&gt; AleoType::Array {
+<a href=#50 id=50 data-nosnippet>50</a>                inner: Box::new(<span class="self">Self</span>::visit_type(array_type.element_type())),
+<a href=#51 id=51 data-nosnippet>51</a>                len: array_type.length.as_u32().expect(<span class="string">"length should be known at this point"</span>),
+<a href=#52 id=52 data-nosnippet>52</a>            },
+<a href=#53 id=53 data-nosnippet>53</a>            Type::Future(..) =&gt; {
+<a href=#54 id=54 data-nosnippet>54</a>                <span class="macro">panic!</span>(<span class="string">"Future types should not be visited at this phase of compilation"</span>)
 <a href=#55 id=55 data-nosnippet>55</a>            }
-<a href=#56 id=56 data-nosnippet>56</a>            Type::Vector(<span class="kw">_</span>) =&gt; {
-<a href=#57 id=57 data-nosnippet>57</a>                <span class="macro">panic!</span>(<span class="string">"Vector types should not be visited at this phase of compilation"</span>)
+<a href=#56 id=56 data-nosnippet>56</a>            Type::Optional(<span class="kw">_</span>) =&gt; {
+<a href=#57 id=57 data-nosnippet>57</a>                <span class="macro">panic!</span>(<span class="string">"Optional types are not supported at this phase of compilation"</span>)
 <a href=#58 id=58 data-nosnippet>58</a>            }
-<a href=#59 id=59 data-nosnippet>59</a>            Type::Numeric =&gt; <span class="macro">panic!</span>(<span class="string">"`Numeric` types should not exist at this phase of compilation"</span>),
-<a href=#60 id=60 data-nosnippet>60</a>            Type::Err =&gt; <span class="macro">panic!</span>(<span class="string">"Error types should not exist at this phase of compilation"</span>),
-<a href=#61 id=61 data-nosnippet>61</a>            Type::Unit =&gt; <span class="macro">panic!</span>(<span class="string">"Unit types are not supported at this phase of compilation"</span>),
-<a href=#62 id=62 data-nosnippet>62</a>        }
-<a href=#63 id=63 data-nosnippet>63</a>    }
-<a href=#64 id=64 data-nosnippet>64</a>
-<a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">pub fn </span>visit_type_with_visibility(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type, visibility: Mode) -&gt; String {
-<a href=#66 id=66 data-nosnippet>66</a>        <span class="comment">// If the type is a record, handle it separately.
-<a href=#67 id=67 data-nosnippet>67</a>        </span><span class="kw">if let </span>Type::Composite(composite) = type_ {
-<a href=#68 id=68 data-nosnippet>68</a>            <span class="kw">let </span>name = composite.path.absolute_path();
-<a href=#69 id=69 data-nosnippet>69</a>            <span class="kw">let </span>this_program_name = <span class="self">self</span>.program_id.unwrap().name.name;
-<a href=#70 id=70 data-nosnippet>70</a>            <span class="kw">let </span>program_name = composite.program.unwrap_or(this_program_name);
-<a href=#71 id=71 data-nosnippet>71</a>            <span class="kw">if </span><span class="self">self</span>.state.symbol_table.lookup_record(<span class="kw-2">&amp;</span>Location::new(program_name, name.to_vec())).is_some() {
-<a href=#72 id=72 data-nosnippet>72</a>                <span class="kw">let </span>[record_name] = <span class="kw-2">&amp;</span>name[..] <span class="kw">else </span>{
-<a href=#73 id=73 data-nosnippet>73</a>                    <span class="macro">panic!</span>(<span class="string">"Absolute paths to records can only have a single segment at this stage."</span>)
-<a href=#74 id=74 data-nosnippet>74</a>                };
-<a href=#75 id=75 data-nosnippet>75</a>                <span class="kw">if </span>program_name == this_program_name {
-<a href=#76 id=76 data-nosnippet>76</a>                    <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{record_name}.record"</span>);
-<a href=#77 id=77 data-nosnippet>77</a>                } <span class="kw">else </span>{
-<a href=#78 id=78 data-nosnippet>78</a>                    <span class="kw">return </span><span class="macro">format!</span>(<span class="string">"{program_name}.aleo/{record_name}.record"</span>);
-<a href=#79 id=79 data-nosnippet>79</a>                }
-<a href=#80 id=80 data-nosnippet>80</a>            }
-<a href=#81 id=81 data-nosnippet>81</a>        }
-<a href=#82 id=82 data-nosnippet>82</a>
-<a href=#83 id=83 data-nosnippet>83</a>        <span class="kw">if let </span>Mode::None = visibility {
-<a href=#84 id=84 data-nosnippet>84</a>            <span class="self">Self</span>::visit_type(type_)
-<a href=#85 id=85 data-nosnippet>85</a>        } <span class="kw">else </span>{
-<a href=#86 id=86 data-nosnippet>86</a>            <span class="macro">format!</span>(<span class="string">"{}.{visibility}"</span>, <span class="self">Self</span>::visit_type(type_))
-<a href=#87 id=87 data-nosnippet>87</a>        }
-<a href=#88 id=88 data-nosnippet>88</a>    }
-<a href=#89 id=89 data-nosnippet>89</a>}</code></pre></div></section></main></body></html>
+<a href=#59 id=59 data-nosnippet>59</a>            Type::Mapping(<span class="kw">_</span>) =&gt; {
+<a href=#60 id=60 data-nosnippet>60</a>                <span class="macro">panic!</span>(<span class="string">"Mapping types are not supported at this phase of compilation"</span>)
+<a href=#61 id=61 data-nosnippet>61</a>            }
+<a href=#62 id=62 data-nosnippet>62</a>            Type::Tuple(<span class="kw">_</span>) =&gt; {
+<a href=#63 id=63 data-nosnippet>63</a>                <span class="macro">panic!</span>(<span class="string">"Tuple types should not be visited at this phase of compilation"</span>)
+<a href=#64 id=64 data-nosnippet>64</a>            }
+<a href=#65 id=65 data-nosnippet>65</a>            Type::Vector(<span class="kw">_</span>) =&gt; {
+<a href=#66 id=66 data-nosnippet>66</a>                <span class="macro">panic!</span>(<span class="string">"Vector types should not be visited at this phase of compilation"</span>)
+<a href=#67 id=67 data-nosnippet>67</a>            }
+<a href=#68 id=68 data-nosnippet>68</a>            Type::Numeric =&gt; <span class="macro">panic!</span>(<span class="string">"`Numeric` types should not exist at this phase of compilation"</span>),
+<a href=#69 id=69 data-nosnippet>69</a>            Type::Err =&gt; <span class="macro">panic!</span>(<span class="string">"Error types should not exist at this phase of compilation"</span>),
+<a href=#70 id=70 data-nosnippet>70</a>            Type::Unit =&gt; <span class="macro">panic!</span>(<span class="string">"Unit types are not supported at this phase of compilation"</span>),
+<a href=#71 id=71 data-nosnippet>71</a>        }
+<a href=#72 id=72 data-nosnippet>72</a>    }
+<a href=#73 id=73 data-nosnippet>73</a>
+<a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">pub fn </span>visit_type_with_visibility(
+<a href=#75 id=75 data-nosnippet>75</a>        <span class="kw-2">&amp;</span><span class="self">self</span>,
+<a href=#76 id=76 data-nosnippet>76</a>        type_: <span class="kw-2">&amp;</span>Type,
+<a href=#77 id=77 data-nosnippet>77</a>        visibility: <span class="prelude-ty">Option</span>&lt;AleoVisibility&gt;,
+<a href=#78 id=78 data-nosnippet>78</a>    ) -&gt; (AleoType, <span class="prelude-ty">Option</span>&lt;AleoVisibility&gt;) {
+<a href=#79 id=79 data-nosnippet>79</a>        <span class="comment">// If the type is a record, handle it separately.
+<a href=#80 id=80 data-nosnippet>80</a>        </span><span class="kw">if let </span>Type::Composite(composite) = type_ {
+<a href=#81 id=81 data-nosnippet>81</a>            <span class="kw">let </span>name = composite.path.absolute_path();
+<a href=#82 id=82 data-nosnippet>82</a>            <span class="kw">let </span>this_program_name = <span class="self">self</span>.program_id.unwrap().name.name;
+<a href=#83 id=83 data-nosnippet>83</a>            <span class="kw">let </span>program_name = composite.program.unwrap_or(this_program_name);
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="kw">if </span><span class="self">self</span>.state.symbol_table.lookup_record(<span class="kw-2">&amp;</span>Location::new(program_name, name.to_vec())).is_some() {
+<a href=#85 id=85 data-nosnippet>85</a>                <span class="kw">let </span>[record_name] = <span class="kw-2">&amp;</span>name[..] <span class="kw">else </span>{
+<a href=#86 id=86 data-nosnippet>86</a>                    <span class="macro">panic!</span>(<span class="string">"Absolute paths to records can only have a single segment at this stage."</span>)
+<a href=#87 id=87 data-nosnippet>87</a>                };
+<a href=#88 id=88 data-nosnippet>88</a>                <span class="kw">if </span>program_name == this_program_name {
+<a href=#89 id=89 data-nosnippet>89</a>                    <span class="kw">return </span>(AleoType::Record { name: record_name.to_string(), program: <span class="prelude-val">None </span>}, <span class="prelude-val">None</span>);
+<a href=#90 id=90 data-nosnippet>90</a>                } <span class="kw">else </span>{
+<a href=#91 id=91 data-nosnippet>91</a>                    <span class="kw">return </span>(
+<a href=#92 id=92 data-nosnippet>92</a>                        AleoType::Record { name: record_name.to_string(), program: <span class="prelude-val">Some</span>(program_name.to_string()) },
+<a href=#93 id=93 data-nosnippet>93</a>                        <span class="prelude-val">None</span>,
+<a href=#94 id=94 data-nosnippet>94</a>                    );
+<a href=#95 id=95 data-nosnippet>95</a>                }
+<a href=#96 id=96 data-nosnippet>96</a>            }
+<a href=#97 id=97 data-nosnippet>97</a>        }
+<a href=#98 id=98 data-nosnippet>98</a>
+<a href=#99 id=99 data-nosnippet>99</a>        (<span class="self">Self</span>::visit_type(type_), visibility)
+<a href=#100 id=100 data-nosnippet>100</a>    }
+<a href=#101 id=101 data-nosnippet>101</a>}</code></pre></div></section></main></body></html>

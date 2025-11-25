@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["snarkvm_noupgrade_constructor"]};

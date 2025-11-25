@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["expression","program","statement","type_","visitor"],"struct":["CodeGenerating"]};
+window.SIDEBAR_ITEMS = {"enum":["AleoDatatype","AleoExpr","AleoFunctional","AleoReg","AleoStmt","AleoType","AleoVisibility"],"mod":["expression","program","statement","type_","visitor"],"struct":["AleoClosure","AleoConstructor","AleoFinalize","AleoFunction","AleoInput","AleoMapping","AleoProgram","AleoRecord","AleoStruct","CodeGenerating"]};

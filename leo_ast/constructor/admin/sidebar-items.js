@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["snarkvm_admin_constructor"]};

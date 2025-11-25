@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["EXPECT_STR"]};
+window.SIDEBAR_ITEMS = {};

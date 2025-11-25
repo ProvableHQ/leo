@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["UpgradeVariant"],"fn":["get_type_from_snarkvm_literal","snarkvm_admin_constructor","snarkvm_checksum_constructor","snarkvm_noupgrade_constructor"],"mod":["admin","checksum","noupgrade"],"struct":["Constructor"]};
+window.SIDEBAR_ITEMS = {"enum":["UpgradeVariant"],"fn":["get_type_from_snarkvm_literal"],"struct":["Constructor"]};
