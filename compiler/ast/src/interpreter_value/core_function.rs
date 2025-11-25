@@ -245,6 +245,11 @@ pub fn evaluate_core_function(
             helper.set_block_height(height);
             Value::make_unit()
         }
+        CoreFunction::CheatCodeSetBlockTimestamp => {
+            let timestamp: i64 = helper.pop_value()?.try_into().expect_tc(span)?;
+            helper.set_block_timestamp(timestamp);
+            Value::make_unit()
+        }
         CoreFunction::CheatCodeSetSigner => {
             let private_key: String = helper.pop_value()?.try_into().expect_tc(span)?;
             helper.set_signer(private_key)?;

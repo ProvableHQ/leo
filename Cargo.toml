@@ -146,7 +146,7 @@ version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
 git = "https://github.com/ProvableHQ/snarkVM.git"
-tag = "testnet-v4.4.0"
+tag = "v4.4.0"
 features = [ "test_consensus_heights" ]
 
 [workspace.dependencies.tempfile]

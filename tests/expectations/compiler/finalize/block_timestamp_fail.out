@@ -1,0 +1,5 @@
+Error [ETYC0372034]: `block.timestamp` must be inside an async function or an async block.
+    --> compiler-test:4:36
+     |
+   4 |         assert_eq(timestamp, block.timestamp);
+     |                                    ^^^^^^^^^

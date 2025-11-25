@@ -23,13 +23,23 @@ Error [ETYC0372117]: Expected type `u32` but type `u64` was found.
      |
   16 |         CheatCode::set_block_height(a);
      |                                     ^
-Error [ETYC0372117]: Expected type `string` but type `address` was found.
-    --> compiler-test:17:31
+Error [ETYC0372117]: Expected type `i64` but type `u32` was found.
+    --> compiler-test:17:40
      |
-  17 |         CheatCode::set_signer(b);
-     |                               ^
-Error [ETYC0372156]: `CheatCode::set_signer` must be called with a valid private key
+  17 |         CheatCode::set_block_timestamp(1u32);
+     |                                        ^^^^
+Error [ETYC0372117]: Expected type `i64` but type `address` was found.
+    --> compiler-test:18:40
+     |
+  18 |         CheatCode::set_block_timestamp(b);
+     |                                        ^
+Error [ETYC0372117]: Expected type `string` but type `address` was found.
     --> compiler-test:19:31
      |
-  19 |         CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPW");
+  19 |         CheatCode::set_signer(b);
+     |                               ^
+Error [ETYC0372156]: `CheatCode::set_signer` must be called with a valid private key
+    --> compiler-test:21:31
+     |
+  21 |         CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPW");
      |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

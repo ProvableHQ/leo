@@ -268,6 +268,7 @@ symbols! {
     CheatCode,
     print_mapping,
     set_block_height,
+    set_block_timestamp,
     set_signer,
 
     // types

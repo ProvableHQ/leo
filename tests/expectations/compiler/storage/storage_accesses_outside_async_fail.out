@@ -1,9 +1,9 @@
-Error [ETYC0372034]: `storage write` must be inside an async function block.
+Error [ETYC0372034]: `storage write` must be inside an async function or an async block.
     --> compiler-test:7:9
      |
    7 |         x = 1;
      |         ^
-Error [ETYC0372034]: `storage access` must be inside an async function block.
+Error [ETYC0372034]: `storage access` must be inside an async function or an async block.
     --> compiler-test:8:17
      |
    8 |         let y = x;
@@ -13,7 +13,7 @@ Error [ETYC0372067]: This operation can only be used in an async function, an as
      |
    9 |         vec.push(1);
      |         ^^^^^^^^^^^
-Error [ETYC0372034]: `Vector::push` must be inside an async function block.
+Error [ETYC0372034]: `Vector::push` must be inside an async function or an async block.
     --> compiler-test:9:9
      |
    9 |         vec.push(1);
@@ -23,7 +23,7 @@ Error [ETYC0372067]: This operation can only be used in an async function, an as
      |
   10 |         let p = vec.pop();
      |                 ^^^^^^^^^
-Error [ETYC0372034]: `Vector::pop` must be inside an async function block.
+Error [ETYC0372034]: `Vector::pop` must be inside an async function or an async block.
     --> compiler-test:10:17
      |
   10 |         let p = vec.pop();
@@ -33,7 +33,7 @@ Error [ETYC0372067]: This operation can only be used in an async function, an as
      |
   11 |         let s = vec.swap_remove(0);
      |                 ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Vector::swap_remove` must be inside an async function block.
+Error [ETYC0372034]: `Vector::swap_remove` must be inside an async function or an async block.
     --> compiler-test:11:17
      |
   11 |         let s = vec.swap_remove(0);
@@ -43,7 +43,7 @@ Error [ETYC0372067]: This operation can only be used in an async function, an as
      |
   12 |         let l = vec.len();
      |                 ^^^^^^^^^
-Error [ETYC0372034]: `Vector::len` must be inside an async function block.
+Error [ETYC0372034]: `Vector::len` must be inside an async function or an async block.
     --> compiler-test:12:17
      |
   12 |         let l = vec.len();
@@ -53,7 +53,7 @@ Error [ETYC0372067]: This operation can only be used in an async function, an as
      |
   13 |         let g = vec.get(0);
      |                 ^^^^^^^^^^
-Error [ETYC0372034]: `Vector::get` must be inside an async function block.
+Error [ETYC0372034]: `Vector::get` must be inside an async function or an async block.
     --> compiler-test:13:17
      |
   13 |         let g = vec.get(0);
@@ -63,7 +63,7 @@ Error [ETYC0372067]: This operation can only be used in an async function, an as
      |
   14 |         vec.set(0, 0);
      |         ^^^^^^^^^^^^^
-Error [ETYC0372034]: `Vector::set` must be inside an async function block.
+Error [ETYC0372034]: `Vector::set` must be inside an async function or an async block.
     --> compiler-test:14:9
      |
   14 |         vec.set(0, 0);

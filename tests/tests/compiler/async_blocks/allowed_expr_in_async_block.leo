@@ -3,6 +3,7 @@ program test.aleo {
     async transition t1() -> Future {
         return async {
             let b = block.height;
+            let t = block.timestamp;
             let i = network.id;
             foo.set(0u32, 0u32);
             let s1 = foo.get(0u32);
