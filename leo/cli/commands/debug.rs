@@ -29,7 +29,11 @@ pub struct LeoDebug {
     pub(crate) paths: Vec<String>,
     #[arg(long, help = "The block height, accessible via block.height.", default_value = "0")]
     pub(crate) block_height: u32,
-    #[arg(long, help = "The block timestamp, accessible via block.timestamp.", default_value = "chrono::Utc::now().timestamp()")]
+    #[arg(
+        long,
+        help = "The block timestamp, accessible via block.timestamp.",
+        default_value = "chrono::Utc::now().timestamp()"
+    )]
     pub(crate) block_timestamp: i64,
     #[arg(long, action, help = "Use the text user interface.")]
     pub(crate) tui: bool,

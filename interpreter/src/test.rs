@@ -81,9 +81,15 @@ fn runner_leo_test(test: &str) -> String {
                 PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
 
             let empty: [&PathBuf; 0] = [];
-            let mut interpreter =
-                Interpreter::new(&[(filename, vec![])], empty, private_key.to_string(), 0, chrono::Utc::now().timestamp(), NetworkName::TestnetV0)
-                    .expect("creating interpreter");
+            let mut interpreter = Interpreter::new(
+                &[(filename, vec![])],
+                empty,
+                private_key.to_string(),
+                0,
+                chrono::Utc::now().timestamp(),
+                NetworkName::TestnetV0,
+            )
+            .expect("creating interpreter");
 
             run_and_format_output(&mut interpreter)
         })

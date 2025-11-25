@@ -1,0 +1,10 @@
+program test.aleo;
+
+function matches:
+    input r0 as i64.private;
+    async matches r0 into r1;
+    output r1 as test.aleo/matches.future;
+
+finalize matches:
+    input r0 as i64.public;
+    assert.eq r0 block.timestamp;
