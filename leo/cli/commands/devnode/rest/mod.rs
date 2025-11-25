@@ -72,6 +72,8 @@ pub struct Rest<N: Network, C: ConsensusStorage<N>> {
     num_verifying_executions: Arc<AtomicUsize>,
     /// Whether manual block creation is enabled.
     manual_block_creation: bool,
+    /// The Private Key used for block creation.
+    private_key: String,
 }
 
 impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
@@ -81,6 +83,7 @@ impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
         rest_rps: u32,
         ledger: Ledger<N, C>,
         manual_block_creation: bool,
+        private_key: String,
     ) -> Result<Self> {
         // Initialize the server.
         let mut server = Self {
@@ -90,6 +93,7 @@ impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
             num_verifying_deploys: Default::default(),
             num_verifying_executions: Default::default(),
             manual_block_creation,
+            private_key,
         };
         // Spawn the server.
         server.spawn_server(rest_ip, rest_rps).await?;

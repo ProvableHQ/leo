@@ -68,8 +68,6 @@ pub(crate) struct Commitments {
 /// The request object for creating a new block.
 #[derive(Clone, Deserialize, Serialize)]
 pub(crate) struct CreateBlockRequest {
-    /// Private key that is used for signing the block.
-    pub private_key: String,
     /// number of blocks to create.
     pub num_blocks: Option<u32>,
 }
@@ -539,10 +537,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         // Create a block with the transaction if the manual block creation feature is not enabled.
         if !rest.manual_block_creation {
             // Parse the private key.
-            let private_key_str = std::env::var("PRIVATE_KEY")
-                .map_err(|_| RestError::internal_server_error(anyhow!("PRIVATE_KEY environment variable not set")))?;
-
-            let private_key = PrivateKey::<N>::from_str(&private_key_str)?;
+            let private_key = PrivateKey::<N>::from_str(&rest.private_key)?;
 
             // Clone the ledger for the blocking task
             let ledger = rest.ledger.clone();
@@ -584,7 +579,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         let num_blocks = req.num_blocks.unwrap_or(1);
 
         let last_block = tokio::task::spawn_blocking(move || -> Result<ErasedJson, RestError> {
-            let private_key = PrivateKey::<N>::from_str(&req.private_key)
+            let private_key = PrivateKey::<N>::from_str(&rest.private_key)
                 .map_err(|e| RestError::bad_request(anyhow!("Invalid private key: {}", e)))?;
 
             let mut last_block = None;

@@ -45,19 +45,12 @@ impl Command for Advance {
 }
 
 async fn handle_advance_devnode<N: Network>(command: Advance) -> Result<<Advance as Command>::Output> {
-    let private_key = match command.env_override.private_key {
-        Some(key) => key,
-        None => std::env::var("PRIVATE_KEY")
-            .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?,
-    };
-
     tracing::info!("Advancing the Devnode ledger by {} block(s)", command.num_blocks,);
 
     // Call the REST API to advance the ledger by one block.
     let client = reqwest::blocking::Client::new();
 
     let payload = json!({
-        "private_key": private_key,
         "num_blocks": command.num_blocks,
     });
 

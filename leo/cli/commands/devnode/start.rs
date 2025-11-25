@@ -86,13 +86,19 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     };
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
+    // Fetch the private key from the environment or command line.
+    let private_key = match command.env_override.private_key {
+        Some(key) => key,
+        None => std::env::var("PRIVATE_KEY")
+            .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?,
+    };
     // Initialize the ledger - use spawn_blocking for the blocking load operation
     let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
         tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
             .await
             .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
     // Start the REST API server.
-    Rest::start(socket_addr, rps, ledger, command.manual_block_creation)
+    Rest::start(socket_addr, rps, ledger, command.manual_block_creation, private_key.clone())
         .await
         .expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
@@ -101,17 +107,10 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     // Enabling manual block creation will not fast-forward the ledger to block 15.
     if !command.manual_block_creation {
         println!("Advancing the Devnode to the latest consensus version");
-        // Fetch the private key from the environment or command line.
-        let private_key = match command.env_override.private_key {
-            Some(key) => key,
-            None => std::env::var("PRIVATE_KEY")
-                .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?,
-        };
         // Call the REST API to advance the ledger by one block.
         let client = reqwest::blocking::Client::new();
 
         let payload = json!({
-            "private_key": private_key.to_string(),
             "num_blocks": 15,
         });
 
