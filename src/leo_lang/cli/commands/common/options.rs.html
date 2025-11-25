@@ -236,202 +236,204 @@
 <a href=#236 id=236 data-nosnippet>236</a>        <span class="prelude-val">Some</span>(<span class="number">9</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V9),
 <a href=#237 id=237 data-nosnippet>237</a>        <span class="prelude-val">Some</span>(<span class="number">10</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V10),
 <a href=#238 id=238 data-nosnippet>238</a>        <span class="prelude-val">Some</span>(<span class="number">11</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V11),
-<a href=#239 id=239 data-nosnippet>239</a>        <span class="comment">// If none is provided, then attempt to query the current block height and use it to determine the version.
-<a href=#240 id=240 data-nosnippet>240</a>        </span><span class="prelude-val">None </span>=&gt; {
-<a href=#241 id=241 data-nosnippet>241</a>            <span class="macro">println!</span>(<span class="string">"Attempting to determine the consensus version from the latest block height at {endpoint}..."</span>);
-<a href=#242 id=242 data-nosnippet>242</a>            <span class="comment">// Get the consensus heights for the current network.
-<a href=#243 id=243 data-nosnippet>243</a>            </span>get_latest_block_height(endpoint, network, context)
-<a href=#244 id=244 data-nosnippet>244</a>                .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, heights))
-<a href=#245 id=245 data-nosnippet>245</a>                .map_err(|<span class="kw">_</span>| {
-<a href=#246 id=246 data-nosnippet>246</a>                    CliError::custom(
-<a href=#247 id=247 data-nosnippet>247</a>                        <span class="string">"Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`"</span>,
-<a href=#248 id=248 data-nosnippet>248</a>                    )
-<a href=#249 id=249 data-nosnippet>249</a>                        .into()
-<a href=#250 id=250 data-nosnippet>250</a>                })
-<a href=#251 id=251 data-nosnippet>251</a>        }
-<a href=#252 id=252 data-nosnippet>252</a>        <span class="prelude-val">Some</span>(version) =&gt; <span class="prelude-val">Err</span>(CliError::custom(<span class="macro">format!</span>(<span class="string">"Invalid consensus version: {version}"</span>)).into()),
-<a href=#253 id=253 data-nosnippet>253</a>    };
-<a href=#254 id=254 data-nosnippet>254</a>
-<a href=#255 id=255 data-nosnippet>255</a>    <span class="comment">// Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
-<a href=#256 id=256 data-nosnippet>256</a>    // If it returns a result and does not match the given version, print a warning.
-<a href=#257 id=257 data-nosnippet>257</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(consensus_version) = result
-<a href=#258 id=258 data-nosnippet>258</a>        &amp;&amp; <span class="kw">let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network)
-<a href=#259 id=259 data-nosnippet>259</a>    {
-<a href=#260 id=260 data-nosnippet>260</a>        <span class="macro">println!</span>(<span class="string">"⚠️ Warning: {e}"</span>);
-<a href=#261 id=261 data-nosnippet>261</a>    }
-<a href=#262 id=262 data-nosnippet>262</a>
-<a href=#263 id=263 data-nosnippet>263</a>    result
-<a href=#264 id=264 data-nosnippet>264</a>}
-<a href=#265 id=265 data-nosnippet>265</a>
-<a href=#266 id=266 data-nosnippet>266</a><span class="doccomment">/// A helper function to check for a consensus version mismatch against the network.
-<a href=#267 id=267 data-nosnippet>267</a></span><span class="kw">pub fn </span>check_consensus_version_mismatch(
-<a href=#268 id=268 data-nosnippet>268</a>    consensus_version: ConsensusVersion,
-<a href=#269 id=269 data-nosnippet>269</a>    endpoint: <span class="kw-2">&amp;</span>str,
-<a href=#270 id=270 data-nosnippet>270</a>    network: NetworkName,
-<a href=#271 id=271 data-nosnippet>271</a>) -&gt; anyhow::Result&lt;()&gt; {
-<a href=#272 id=272 data-nosnippet>272</a>    <span class="comment">// Check the `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
-<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(response) = fetch_from_network(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/consensus_version"</span>))
-<a href=#274 id=274 data-nosnippet>274</a>        &amp;&amp; <span class="kw">let </span><span class="prelude-val">Ok</span>(response) = response.parse::&lt;u8&gt;()
-<a href=#275 id=275 data-nosnippet>275</a>    {
-<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">let </span>consensus_version = consensus_version <span class="kw">as </span>u8;
-<a href=#277 id=277 data-nosnippet>277</a>        <span class="kw">if </span>response != consensus_version {
-<a href=#278 id=278 data-nosnippet>278</a>            <span class="macro">bail!</span>(<span class="string">"Expected consensus version {consensus_version} but found {response} at {endpoint}"</span>,);
-<a href=#279 id=279 data-nosnippet>279</a>        }
-<a href=#280 id=280 data-nosnippet>280</a>    }
-<a href=#281 id=281 data-nosnippet>281</a>    <span class="prelude-val">Ok</span>(())
-<a href=#282 id=282 data-nosnippet>282</a>}
-<a href=#283 id=283 data-nosnippet>283</a>
-<a href=#284 id=284 data-nosnippet>284</a><span class="comment">// A helper function to get the consensus version based on the block height.
-<a href=#285 id=285 data-nosnippet>285</a>// Note. This custom implementation is necessary because we use `snarkVM` with the `test_heights` feature enabled, which does not reflect the actual consensus version heights.
-<a href=#286 id=286 data-nosnippet>286</a></span><span class="kw">pub fn </span>get_consensus_version_from_height(seek_height: u32, heights: <span class="kw-2">&amp;</span>[u32]) -&gt; <span class="prelude-ty">Result</span>&lt;ConsensusVersion&gt; {
-<a href=#287 id=287 data-nosnippet>287</a>    <span class="comment">// Find the consensus version based on the block height.
-<a href=#288 id=288 data-nosnippet>288</a>    </span><span class="kw">let </span>index = <span class="kw">match </span>heights.binary_search_by(|height| height.cmp(<span class="kw-2">&amp;</span>seek_height)) {
-<a href=#289 id=289 data-nosnippet>289</a>        <span class="comment">// If a consensus version was found at this height, return it.
-<a href=#290 id=290 data-nosnippet>290</a>        </span><span class="prelude-val">Ok</span>(index) =&gt; index,
-<a href=#291 id=291 data-nosnippet>291</a>        <span class="comment">// If the specified height was not found, determine whether to return an appropriate version.
-<a href=#292 id=292 data-nosnippet>292</a>        </span><span class="prelude-val">Err</span>(index) =&gt; {
-<a href=#293 id=293 data-nosnippet>293</a>            <span class="kw">if </span>index == <span class="number">0 </span>{
-<a href=#294 id=294 data-nosnippet>294</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::custom(<span class="string">"Expected consensus version 1 to exist at height 0."</span>).into());
-<a href=#295 id=295 data-nosnippet>295</a>            } <span class="kw">else </span>{
-<a href=#296 id=296 data-nosnippet>296</a>                <span class="comment">// Return the appropriate version belonging to the height *lower* than the sought height.
-<a href=#297 id=297 data-nosnippet>297</a>                </span>index - <span class="number">1
-<a href=#298 id=298 data-nosnippet>298</a>            </span>}
-<a href=#299 id=299 data-nosnippet>299</a>        }
-<a href=#300 id=300 data-nosnippet>300</a>    };
-<a href=#301 id=301 data-nosnippet>301</a>    <span class="comment">// Convert the index to a consensus version.
-<a href=#302 id=302 data-nosnippet>302</a>    </span><span class="prelude-val">Ok</span>(number_to_consensus_version(index + <span class="number">1</span>))
-<a href=#303 id=303 data-nosnippet>303</a>}
-<a href=#304 id=304 data-nosnippet>304</a>
-<a href=#305 id=305 data-nosnippet>305</a><span class="comment">// A helper to convert an index to a consensus version.
-<a href=#306 id=306 data-nosnippet>306</a></span><span class="kw">pub fn </span>number_to_consensus_version(index: usize) -&gt; ConsensusVersion {
-<a href=#307 id=307 data-nosnippet>307</a>    <span class="kw">match </span>index {
-<a href=#308 id=308 data-nosnippet>308</a>        <span class="number">1 </span>=&gt; ConsensusVersion::V1,
-<a href=#309 id=309 data-nosnippet>309</a>        <span class="number">2 </span>=&gt; ConsensusVersion::V2,
-<a href=#310 id=310 data-nosnippet>310</a>        <span class="number">3 </span>=&gt; ConsensusVersion::V3,
-<a href=#311 id=311 data-nosnippet>311</a>        <span class="number">4 </span>=&gt; ConsensusVersion::V4,
-<a href=#312 id=312 data-nosnippet>312</a>        <span class="number">5 </span>=&gt; ConsensusVersion::V5,
-<a href=#313 id=313 data-nosnippet>313</a>        <span class="number">6 </span>=&gt; ConsensusVersion::V6,
-<a href=#314 id=314 data-nosnippet>314</a>        <span class="number">7 </span>=&gt; ConsensusVersion::V7,
-<a href=#315 id=315 data-nosnippet>315</a>        <span class="number">8 </span>=&gt; ConsensusVersion::V8,
-<a href=#316 id=316 data-nosnippet>316</a>        <span class="number">9 </span>=&gt; ConsensusVersion::V9,
-<a href=#317 id=317 data-nosnippet>317</a>        <span class="number">10 </span>=&gt; ConsensusVersion::V10,
-<a href=#318 id=318 data-nosnippet>318</a>        <span class="number">11 </span>=&gt; ConsensusVersion::V11,
-<a href=#319 id=319 data-nosnippet>319</a>        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Invalid consensus version: {index}"</span>),
-<a href=#320 id=320 data-nosnippet>320</a>    }
-<a href=#321 id=321 data-nosnippet>321</a>}
-<a href=#322 id=322 data-nosnippet>322</a>
-<a href=#323 id=323 data-nosnippet>323</a><span class="doccomment">/// Get the consensus heights for the current network.
-<a href=#324 id=324 data-nosnippet>324</a>/// First check the `CONSENSUS_VERSION_HEIGHTS` environment variable.
-<a href=#325 id=325 data-nosnippet>325</a>/// Otherwise, if `is_devnet` is true, then return the test consensus heights.
-<a href=#326 id=326 data-nosnippet>326</a>/// Otherwise, return the consensus heights for the given network.
-<a href=#327 id=327 data-nosnippet>327</a></span><span class="kw">pub fn </span>get_consensus_heights(network_name: NetworkName, is_devnet: bool) -&gt; Vec&lt;u32&gt; {
-<a href=#328 id=328 data-nosnippet>328</a>    <span class="comment">// Check the `CONSENSUS_VERSION_HEIGHTS` environment variable.
-<a href=#329 id=329 data-nosnippet>329</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(heights) = std::env::var(<span class="string">"CONSENSUS_VERSION_HEIGHTS"</span>) {
-<a href=#330 id=330 data-nosnippet>330</a>        <span class="kw">if let </span><span class="prelude-val">Ok</span>(heights) = heights.split(<span class="string">','</span>).map(|s| s.trim().parse::&lt;u32&gt;()).collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;() {
-<a href=#331 id=331 data-nosnippet>331</a>            <span class="kw">return </span>heights;
-<a href=#332 id=332 data-nosnippet>332</a>        } <span class="kw">else </span>{
-<a href=#333 id=333 data-nosnippet>333</a>            <span class="macro">println!</span>(
-<a href=#334 id=334 data-nosnippet>334</a>                <span class="string">"⚠️ Warning: Failed to parse `CONSENSUS_VERSION_HEIGHTS` environment variable. Falling back to default heights."
-<a href=#335 id=335 data-nosnippet>335</a>            </span>);
-<a href=#336 id=336 data-nosnippet>336</a>        }
-<a href=#337 id=337 data-nosnippet>337</a>    }
-<a href=#338 id=338 data-nosnippet>338</a>    <span class="comment">// If `is_devnet` is true, then return the test consensus heights.
-<a href=#339 id=339 data-nosnippet>339</a>    // Otherwise, return the consensus heights for the given network.
-<a href=#340 id=340 data-nosnippet>340</a>    </span><span class="kw">if </span>is_devnet {
-<a href=#341 id=341 data-nosnippet>341</a>        TEST_CONSENSUS_VERSION_HEIGHTS.into_iter().map(|(<span class="kw">_</span>, v)| v).collect_vec()
-<a href=#342 id=342 data-nosnippet>342</a>    } <span class="kw">else </span>{
-<a href=#343 id=343 data-nosnippet>343</a>        <span class="kw">match </span>network_name {
-<a href=#344 id=344 data-nosnippet>344</a>            NetworkName::CanaryV0 =&gt; CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
-<a href=#345 id=345 data-nosnippet>345</a>            NetworkName::MainnetV0 =&gt; MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
-<a href=#346 id=346 data-nosnippet>346</a>            NetworkName::TestnetV0 =&gt; TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
-<a href=#347 id=347 data-nosnippet>347</a>        }
-<a href=#348 id=348 data-nosnippet>348</a>        .into_iter()
-<a href=#349 id=349 data-nosnippet>349</a>        .map(|(<span class="kw">_</span>, v)| v)
-<a href=#350 id=350 data-nosnippet>350</a>        .collect_vec()
-<a href=#351 id=351 data-nosnippet>351</a>    }
-<a href=#352 id=352 data-nosnippet>352</a>}
-<a href=#353 id=353 data-nosnippet>353</a>
-<a href=#354 id=354 data-nosnippet>354</a><span class="doccomment">/// Validates a vector of heights as consensus heights.
-<a href=#355 id=355 data-nosnippet>355</a></span><span class="kw">pub fn </span>validate_consensus_heights(heights: <span class="kw-2">&amp;</span>[u32]) -&gt; anyhow::Result&lt;()&gt; {
-<a href=#356 id=356 data-nosnippet>356</a>    <span class="comment">// Assert that the genesis height is 0.
-<a href=#357 id=357 data-nosnippet>357</a>    </span><span class="macro">ensure!</span>(heights[<span class="number">0</span>] == <span class="number">0</span>, <span class="string">"Genesis height must be 0."</span>);
-<a href=#358 id=358 data-nosnippet>358</a>    <span class="comment">// Assert that the consensus heights are strictly increasing.
-<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="kw">for </span>window <span class="kw">in </span>heights.windows(<span class="number">2</span>) {
-<a href=#360 id=360 data-nosnippet>360</a>        <span class="kw">if </span>window[<span class="number">0</span>] &gt;= window[<span class="number">1</span>] {
-<a href=#361 id=361 data-nosnippet>361</a>            <span class="macro">bail!</span>(<span class="string">"Heights must be strictly increasing, but found: {window:?}"</span>);
-<a href=#362 id=362 data-nosnippet>362</a>        }
-<a href=#363 id=363 data-nosnippet>363</a>    }
-<a href=#364 id=364 data-nosnippet>364</a>    <span class="prelude-val">Ok</span>(())
-<a href=#365 id=365 data-nosnippet>365</a>}
-<a href=#366 id=366 data-nosnippet>366</a>
-<a href=#367 id=367 data-nosnippet>367</a><span class="doccomment">/// What to do with a transaction produced by the CLI.
-<a href=#368 id=368 data-nosnippet>368</a></span><span class="attr">#[derive(Args, Clone, Debug)]
-<a href=#369 id=369 data-nosnippet>369</a></span><span class="kw">pub struct </span>TransactionAction {
-<a href=#370 id=370 data-nosnippet>370</a>    <span class="attr">#[arg(long, help = <span class="string">"Print the transaction to stdout."</span>)]
-<a href=#371 id=371 data-nosnippet>371</a>    </span><span class="kw">pub </span>print: bool,
-<a href=#372 id=372 data-nosnippet>372</a>    <span class="attr">#[arg(long, help = <span class="string">"Broadcast the transaction to the network."</span>)]
-<a href=#373 id=373 data-nosnippet>373</a>    </span><span class="kw">pub </span>broadcast: bool,
-<a href=#374 id=374 data-nosnippet>374</a>    <span class="attr">#[arg(long, help = <span class="string">"Save the transaction to the provided directory."</span>)]
-<a href=#375 id=375 data-nosnippet>375</a>    </span><span class="kw">pub </span>save: <span class="prelude-ty">Option</span>&lt;String&gt;,
-<a href=#376 id=376 data-nosnippet>376</a>}
-<a href=#377 id=377 data-nosnippet>377</a>
-<a href=#378 id=378 data-nosnippet>378</a><span class="doccomment">/// Returns the endpoint to interact with the network.
-<a href=#379 id=379 data-nosnippet>379</a>/// If the `--endpoint` options is not provided, it will default to the environment variable.
-<a href=#380 id=380 data-nosnippet>380</a></span><span class="kw">pub fn </span>get_endpoint(endpoint: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-<a href=#381 id=381 data-nosnippet>381</a>    <span class="kw">match </span>endpoint {
-<a href=#382 id=382 data-nosnippet>382</a>        <span class="prelude-val">Some</span>(endpoint) =&gt; <span class="prelude-val">Ok</span>(endpoint.clone()),
-<a href=#383 id=383 data-nosnippet>383</a>        <span class="prelude-val">None </span>=&gt; {
-<a href=#384 id=384 data-nosnippet>384</a>            <span class="comment">// Load the endpoint from the environment.
-<a href=#385 id=385 data-nosnippet>385</a>            </span>std::env::var(<span class="string">"ENDPOINT"</span>).map_err(|<span class="kw">_</span>| {
-<a href=#386 id=386 data-nosnippet>386</a>                CliError::custom(<span class="string">"Please provide the `--endpoint` or set the `ENDPOINT` environment variable."</span>).into()
-<a href=#387 id=387 data-nosnippet>387</a>            })
-<a href=#388 id=388 data-nosnippet>388</a>        }
-<a href=#389 id=389 data-nosnippet>389</a>    }
-<a href=#390 id=390 data-nosnippet>390</a>}
-<a href=#391 id=391 data-nosnippet>391</a>
-<a href=#392 id=392 data-nosnippet>392</a><span class="doccomment">/// Returns the network name.
-<a href=#393 id=393 data-nosnippet>393</a>/// If the `--network` options is not provided, it will default to the environment variable.
-<a href=#394 id=394 data-nosnippet>394</a></span><span class="kw">pub fn </span>get_network(network: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;NetworkName&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;NetworkName&gt; {
-<a href=#395 id=395 data-nosnippet>395</a>    <span class="kw">match </span>network {
-<a href=#396 id=396 data-nosnippet>396</a>        <span class="prelude-val">Some</span>(network) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>network),
-<a href=#397 id=397 data-nosnippet>397</a>        <span class="prelude-val">None </span>=&gt; {
-<a href=#398 id=398 data-nosnippet>398</a>            <span class="comment">// Load the network from the environment.
-<a href=#399 id=399 data-nosnippet>399</a>            </span><span class="kw">let </span>network = std::env::var(<span class="string">"NETWORK"</span>).map_err(|<span class="kw">_</span>| {
-<a href=#400 id=400 data-nosnippet>400</a>                CliError::custom(<span class="string">"Please provide the `--network` or set the `NETWORK` environment variable."</span>)
-<a href=#401 id=401 data-nosnippet>401</a>            })<span class="question-mark">?</span>;
-<a href=#402 id=402 data-nosnippet>402</a>            <span class="comment">// Parse the network.
-<a href=#403 id=403 data-nosnippet>403</a>            </span><span class="prelude-val">Ok</span>(NetworkName::from_str(<span class="kw-2">&amp;</span>network)<span class="question-mark">?</span>)
-<a href=#404 id=404 data-nosnippet>404</a>        }
-<a href=#405 id=405 data-nosnippet>405</a>    }
-<a href=#406 id=406 data-nosnippet>406</a>}
-<a href=#407 id=407 data-nosnippet>407</a>
-<a href=#408 id=408 data-nosnippet>408</a><span class="doccomment">/// Returns the private key.
-<a href=#409 id=409 data-nosnippet>409</a>/// If the `--private-key` options is not provided, it will default to the environment variable.
-<a href=#410 id=410 data-nosnippet>410</a></span><span class="kw">pub fn </span>get_private_key&lt;N: Network&gt;(private_key: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;PrivateKey&lt;N&gt;&gt; {
-<a href=#411 id=411 data-nosnippet>411</a>    <span class="kw">match </span>private_key {
-<a href=#412 id=412 data-nosnippet>412</a>        <span class="prelude-val">Some</span>(private_key) =&gt; <span class="prelude-val">Ok</span>(PrivateKey::&lt;N&gt;::from_str(private_key)<span class="question-mark">?</span>),
-<a href=#413 id=413 data-nosnippet>413</a>        <span class="prelude-val">None </span>=&gt; {
-<a href=#414 id=414 data-nosnippet>414</a>            <span class="comment">// Load the private key from the environment.
-<a href=#415 id=415 data-nosnippet>415</a>            </span><span class="kw">let </span>private_key = std::env::var(<span class="string">"PRIVATE_KEY"</span>)
-<a href=#416 id=416 data-nosnippet>416</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to load `PRIVATE_KEY` from the environment: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#417 id=417 data-nosnippet>417</a>            <span class="comment">// Parse the private key.
-<a href=#418 id=418 data-nosnippet>418</a>            </span><span class="prelude-val">Ok</span>(PrivateKey::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>)
-<a href=#419 id=419 data-nosnippet>419</a>        }
-<a href=#420 id=420 data-nosnippet>420</a>    }
-<a href=#421 id=421 data-nosnippet>421</a>}
-<a href=#422 id=422 data-nosnippet>422</a>
-<a href=#423 id=423 data-nosnippet>423</a><span class="doccomment">/// Returns whether the devnet flag is set.
-<a href=#424 id=424 data-nosnippet>424</a>/// If the `--devnet` flag is not set, check if the environment variable is set, otherwise default to `false`.
-<a href=#425 id=425 data-nosnippet>425</a></span><span class="kw">pub fn </span>get_is_devnet(devnet: bool) -&gt; bool {
-<a href=#426 id=426 data-nosnippet>426</a>    <span class="kw">if </span>devnet { <span class="bool-val">true </span>} <span class="kw">else </span>{ std::env::var(<span class="string">"DEVNET"</span>).is_ok() }
-<a href=#427 id=427 data-nosnippet>427</a>}
-<a href=#428 id=428 data-nosnippet>428</a>
-<a href=#429 id=429 data-nosnippet>429</a><span class="attr">#[cfg(test)]
-<a href=#430 id=430 data-nosnippet>430</a></span><span class="kw">mod </span>test {
-<a href=#431 id=431 data-nosnippet>431</a>    <span class="kw">use </span>snarkvm::prelude::ConsensusVersion;
-<a href=#432 id=432 data-nosnippet>432</a>
-<a href=#433 id=433 data-nosnippet>433</a>    <span class="attr">#[test]
-<a href=#434 id=434 data-nosnippet>434</a>    </span><span class="kw">fn </span>test_latest_consensus_version() {
-<a href=#435 id=435 data-nosnippet>435</a>        <span class="macro">assert_eq!</span>(ConsensusVersion::latest(), ConsensusVersion::V11); <span class="comment">// If this fails, update the test and any code that matches on `ConsensusVersion`.
-<a href=#436 id=436 data-nosnippet>436</a>    </span>}
-<a href=#437 id=437 data-nosnippet>437</a>}</code></pre></div></section></main></body></html>
+<a href=#239 id=239 data-nosnippet>239</a>        <span class="prelude-val">Some</span>(<span class="number">12</span>) =&gt; <span class="prelude-val">Ok</span>(ConsensusVersion::V12),
+<a href=#240 id=240 data-nosnippet>240</a>        <span class="comment">// If none is provided, then attempt to query the current block height and use it to determine the version.
+<a href=#241 id=241 data-nosnippet>241</a>        </span><span class="prelude-val">None </span>=&gt; {
+<a href=#242 id=242 data-nosnippet>242</a>            <span class="macro">println!</span>(<span class="string">"Attempting to determine the consensus version from the latest block height at {endpoint}..."</span>);
+<a href=#243 id=243 data-nosnippet>243</a>            <span class="comment">// Get the consensus heights for the current network.
+<a href=#244 id=244 data-nosnippet>244</a>            </span>get_latest_block_height(endpoint, network, context)
+<a href=#245 id=245 data-nosnippet>245</a>                .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, heights))
+<a href=#246 id=246 data-nosnippet>246</a>                .map_err(|<span class="kw">_</span>| {
+<a href=#247 id=247 data-nosnippet>247</a>                    CliError::custom(
+<a href=#248 id=248 data-nosnippet>248</a>                        <span class="string">"Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`"</span>,
+<a href=#249 id=249 data-nosnippet>249</a>                    )
+<a href=#250 id=250 data-nosnippet>250</a>                        .into()
+<a href=#251 id=251 data-nosnippet>251</a>                })
+<a href=#252 id=252 data-nosnippet>252</a>        }
+<a href=#253 id=253 data-nosnippet>253</a>        <span class="prelude-val">Some</span>(version) =&gt; <span class="prelude-val">Err</span>(CliError::custom(<span class="macro">format!</span>(<span class="string">"Invalid consensus version: {version}"</span>)).into()),
+<a href=#254 id=254 data-nosnippet>254</a>    };
+<a href=#255 id=255 data-nosnippet>255</a>
+<a href=#256 id=256 data-nosnippet>256</a>    <span class="comment">// Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
+<a href=#257 id=257 data-nosnippet>257</a>    // If it returns a result and does not match the given version, print a warning.
+<a href=#258 id=258 data-nosnippet>258</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(consensus_version) = result
+<a href=#259 id=259 data-nosnippet>259</a>        &amp;&amp; <span class="kw">let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network)
+<a href=#260 id=260 data-nosnippet>260</a>    {
+<a href=#261 id=261 data-nosnippet>261</a>        <span class="macro">println!</span>(<span class="string">"⚠️ Warning: {e}"</span>);
+<a href=#262 id=262 data-nosnippet>262</a>    }
+<a href=#263 id=263 data-nosnippet>263</a>
+<a href=#264 id=264 data-nosnippet>264</a>    result
+<a href=#265 id=265 data-nosnippet>265</a>}
+<a href=#266 id=266 data-nosnippet>266</a>
+<a href=#267 id=267 data-nosnippet>267</a><span class="doccomment">/// A helper function to check for a consensus version mismatch against the network.
+<a href=#268 id=268 data-nosnippet>268</a></span><span class="kw">pub fn </span>check_consensus_version_mismatch(
+<a href=#269 id=269 data-nosnippet>269</a>    consensus_version: ConsensusVersion,
+<a href=#270 id=270 data-nosnippet>270</a>    endpoint: <span class="kw-2">&amp;</span>str,
+<a href=#271 id=271 data-nosnippet>271</a>    network: NetworkName,
+<a href=#272 id=272 data-nosnippet>272</a>) -&gt; anyhow::Result&lt;()&gt; {
+<a href=#273 id=273 data-nosnippet>273</a>    <span class="comment">// Check the `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
+<a href=#274 id=274 data-nosnippet>274</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(response) = fetch_from_network(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/consensus_version"</span>))
+<a href=#275 id=275 data-nosnippet>275</a>        &amp;&amp; <span class="kw">let </span><span class="prelude-val">Ok</span>(response) = response.parse::&lt;u8&gt;()
+<a href=#276 id=276 data-nosnippet>276</a>    {
+<a href=#277 id=277 data-nosnippet>277</a>        <span class="kw">let </span>consensus_version = consensus_version <span class="kw">as </span>u8;
+<a href=#278 id=278 data-nosnippet>278</a>        <span class="kw">if </span>response != consensus_version {
+<a href=#279 id=279 data-nosnippet>279</a>            <span class="macro">bail!</span>(<span class="string">"Expected consensus version {consensus_version} but found {response} at {endpoint}"</span>,);
+<a href=#280 id=280 data-nosnippet>280</a>        }
+<a href=#281 id=281 data-nosnippet>281</a>    }
+<a href=#282 id=282 data-nosnippet>282</a>    <span class="prelude-val">Ok</span>(())
+<a href=#283 id=283 data-nosnippet>283</a>}
+<a href=#284 id=284 data-nosnippet>284</a>
+<a href=#285 id=285 data-nosnippet>285</a><span class="comment">// A helper function to get the consensus version based on the block height.
+<a href=#286 id=286 data-nosnippet>286</a>// Note. This custom implementation is necessary because we use `snarkVM` with the `test_heights` feature enabled, which does not reflect the actual consensus version heights.
+<a href=#287 id=287 data-nosnippet>287</a></span><span class="kw">pub fn </span>get_consensus_version_from_height(seek_height: u32, heights: <span class="kw-2">&amp;</span>[u32]) -&gt; <span class="prelude-ty">Result</span>&lt;ConsensusVersion&gt; {
+<a href=#288 id=288 data-nosnippet>288</a>    <span class="comment">// Find the consensus version based on the block height.
+<a href=#289 id=289 data-nosnippet>289</a>    </span><span class="kw">let </span>index = <span class="kw">match </span>heights.binary_search_by(|height| height.cmp(<span class="kw-2">&amp;</span>seek_height)) {
+<a href=#290 id=290 data-nosnippet>290</a>        <span class="comment">// If a consensus version was found at this height, return it.
+<a href=#291 id=291 data-nosnippet>291</a>        </span><span class="prelude-val">Ok</span>(index) =&gt; index,
+<a href=#292 id=292 data-nosnippet>292</a>        <span class="comment">// If the specified height was not found, determine whether to return an appropriate version.
+<a href=#293 id=293 data-nosnippet>293</a>        </span><span class="prelude-val">Err</span>(index) =&gt; {
+<a href=#294 id=294 data-nosnippet>294</a>            <span class="kw">if </span>index == <span class="number">0 </span>{
+<a href=#295 id=295 data-nosnippet>295</a>                <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::custom(<span class="string">"Expected consensus version 1 to exist at height 0."</span>).into());
+<a href=#296 id=296 data-nosnippet>296</a>            } <span class="kw">else </span>{
+<a href=#297 id=297 data-nosnippet>297</a>                <span class="comment">// Return the appropriate version belonging to the height *lower* than the sought height.
+<a href=#298 id=298 data-nosnippet>298</a>                </span>index - <span class="number">1
+<a href=#299 id=299 data-nosnippet>299</a>            </span>}
+<a href=#300 id=300 data-nosnippet>300</a>        }
+<a href=#301 id=301 data-nosnippet>301</a>    };
+<a href=#302 id=302 data-nosnippet>302</a>    <span class="comment">// Convert the index to a consensus version.
+<a href=#303 id=303 data-nosnippet>303</a>    </span><span class="prelude-val">Ok</span>(number_to_consensus_version(index + <span class="number">1</span>))
+<a href=#304 id=304 data-nosnippet>304</a>}
+<a href=#305 id=305 data-nosnippet>305</a>
+<a href=#306 id=306 data-nosnippet>306</a><span class="comment">// A helper to convert an index to a consensus version.
+<a href=#307 id=307 data-nosnippet>307</a></span><span class="kw">pub fn </span>number_to_consensus_version(index: usize) -&gt; ConsensusVersion {
+<a href=#308 id=308 data-nosnippet>308</a>    <span class="kw">match </span>index {
+<a href=#309 id=309 data-nosnippet>309</a>        <span class="number">1 </span>=&gt; ConsensusVersion::V1,
+<a href=#310 id=310 data-nosnippet>310</a>        <span class="number">2 </span>=&gt; ConsensusVersion::V2,
+<a href=#311 id=311 data-nosnippet>311</a>        <span class="number">3 </span>=&gt; ConsensusVersion::V3,
+<a href=#312 id=312 data-nosnippet>312</a>        <span class="number">4 </span>=&gt; ConsensusVersion::V4,
+<a href=#313 id=313 data-nosnippet>313</a>        <span class="number">5 </span>=&gt; ConsensusVersion::V5,
+<a href=#314 id=314 data-nosnippet>314</a>        <span class="number">6 </span>=&gt; ConsensusVersion::V6,
+<a href=#315 id=315 data-nosnippet>315</a>        <span class="number">7 </span>=&gt; ConsensusVersion::V7,
+<a href=#316 id=316 data-nosnippet>316</a>        <span class="number">8 </span>=&gt; ConsensusVersion::V8,
+<a href=#317 id=317 data-nosnippet>317</a>        <span class="number">9 </span>=&gt; ConsensusVersion::V9,
+<a href=#318 id=318 data-nosnippet>318</a>        <span class="number">10 </span>=&gt; ConsensusVersion::V10,
+<a href=#319 id=319 data-nosnippet>319</a>        <span class="number">11 </span>=&gt; ConsensusVersion::V11,
+<a href=#320 id=320 data-nosnippet>320</a>        <span class="number">12 </span>=&gt; ConsensusVersion::V12,
+<a href=#321 id=321 data-nosnippet>321</a>        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Invalid consensus version: {index}"</span>),
+<a href=#322 id=322 data-nosnippet>322</a>    }
+<a href=#323 id=323 data-nosnippet>323</a>}
+<a href=#324 id=324 data-nosnippet>324</a>
+<a href=#325 id=325 data-nosnippet>325</a><span class="doccomment">/// Get the consensus heights for the current network.
+<a href=#326 id=326 data-nosnippet>326</a>/// First check the `CONSENSUS_VERSION_HEIGHTS` environment variable.
+<a href=#327 id=327 data-nosnippet>327</a>/// Otherwise, if `is_devnet` is true, then return the test consensus heights.
+<a href=#328 id=328 data-nosnippet>328</a>/// Otherwise, return the consensus heights for the given network.
+<a href=#329 id=329 data-nosnippet>329</a></span><span class="kw">pub fn </span>get_consensus_heights(network_name: NetworkName, is_devnet: bool) -&gt; Vec&lt;u32&gt; {
+<a href=#330 id=330 data-nosnippet>330</a>    <span class="comment">// Check the `CONSENSUS_VERSION_HEIGHTS` environment variable.
+<a href=#331 id=331 data-nosnippet>331</a>    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(heights) = std::env::var(<span class="string">"CONSENSUS_VERSION_HEIGHTS"</span>) {
+<a href=#332 id=332 data-nosnippet>332</a>        <span class="kw">if let </span><span class="prelude-val">Ok</span>(heights) = heights.split(<span class="string">','</span>).map(|s| s.trim().parse::&lt;u32&gt;()).collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;() {
+<a href=#333 id=333 data-nosnippet>333</a>            <span class="kw">return </span>heights;
+<a href=#334 id=334 data-nosnippet>334</a>        } <span class="kw">else </span>{
+<a href=#335 id=335 data-nosnippet>335</a>            <span class="macro">println!</span>(
+<a href=#336 id=336 data-nosnippet>336</a>                <span class="string">"⚠️ Warning: Failed to parse `CONSENSUS_VERSION_HEIGHTS` environment variable. Falling back to default heights."
+<a href=#337 id=337 data-nosnippet>337</a>            </span>);
+<a href=#338 id=338 data-nosnippet>338</a>        }
+<a href=#339 id=339 data-nosnippet>339</a>    }
+<a href=#340 id=340 data-nosnippet>340</a>    <span class="comment">// If `is_devnet` is true, then return the test consensus heights.
+<a href=#341 id=341 data-nosnippet>341</a>    // Otherwise, return the consensus heights for the given network.
+<a href=#342 id=342 data-nosnippet>342</a>    </span><span class="kw">if </span>is_devnet {
+<a href=#343 id=343 data-nosnippet>343</a>        TEST_CONSENSUS_VERSION_HEIGHTS.into_iter().map(|(<span class="kw">_</span>, v)| v).collect_vec()
+<a href=#344 id=344 data-nosnippet>344</a>    } <span class="kw">else </span>{
+<a href=#345 id=345 data-nosnippet>345</a>        <span class="kw">match </span>network_name {
+<a href=#346 id=346 data-nosnippet>346</a>            NetworkName::CanaryV0 =&gt; CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
+<a href=#347 id=347 data-nosnippet>347</a>            NetworkName::MainnetV0 =&gt; MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+<a href=#348 id=348 data-nosnippet>348</a>            NetworkName::TestnetV0 =&gt; TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
+<a href=#349 id=349 data-nosnippet>349</a>        }
+<a href=#350 id=350 data-nosnippet>350</a>        .into_iter()
+<a href=#351 id=351 data-nosnippet>351</a>        .map(|(<span class="kw">_</span>, v)| v)
+<a href=#352 id=352 data-nosnippet>352</a>        .collect_vec()
+<a href=#353 id=353 data-nosnippet>353</a>    }
+<a href=#354 id=354 data-nosnippet>354</a>}
+<a href=#355 id=355 data-nosnippet>355</a>
+<a href=#356 id=356 data-nosnippet>356</a><span class="doccomment">/// Validates a vector of heights as consensus heights.
+<a href=#357 id=357 data-nosnippet>357</a></span><span class="kw">pub fn </span>validate_consensus_heights(heights: <span class="kw-2">&amp;</span>[u32]) -&gt; anyhow::Result&lt;()&gt; {
+<a href=#358 id=358 data-nosnippet>358</a>    <span class="comment">// Assert that the genesis height is 0.
+<a href=#359 id=359 data-nosnippet>359</a>    </span><span class="macro">ensure!</span>(heights[<span class="number">0</span>] == <span class="number">0</span>, <span class="string">"Genesis height must be 0."</span>);
+<a href=#360 id=360 data-nosnippet>360</a>    <span class="comment">// Assert that the consensus heights are strictly increasing.
+<a href=#361 id=361 data-nosnippet>361</a>    </span><span class="kw">for </span>window <span class="kw">in </span>heights.windows(<span class="number">2</span>) {
+<a href=#362 id=362 data-nosnippet>362</a>        <span class="kw">if </span>window[<span class="number">0</span>] &gt;= window[<span class="number">1</span>] {
+<a href=#363 id=363 data-nosnippet>363</a>            <span class="macro">bail!</span>(<span class="string">"Heights must be strictly increasing, but found: {window:?}"</span>);
+<a href=#364 id=364 data-nosnippet>364</a>        }
+<a href=#365 id=365 data-nosnippet>365</a>    }
+<a href=#366 id=366 data-nosnippet>366</a>    <span class="prelude-val">Ok</span>(())
+<a href=#367 id=367 data-nosnippet>367</a>}
+<a href=#368 id=368 data-nosnippet>368</a>
+<a href=#369 id=369 data-nosnippet>369</a><span class="doccomment">/// What to do with a transaction produced by the CLI.
+<a href=#370 id=370 data-nosnippet>370</a></span><span class="attr">#[derive(Args, Clone, Debug)]
+<a href=#371 id=371 data-nosnippet>371</a></span><span class="kw">pub struct </span>TransactionAction {
+<a href=#372 id=372 data-nosnippet>372</a>    <span class="attr">#[arg(long, help = <span class="string">"Print the transaction to stdout."</span>)]
+<a href=#373 id=373 data-nosnippet>373</a>    </span><span class="kw">pub </span>print: bool,
+<a href=#374 id=374 data-nosnippet>374</a>    <span class="attr">#[arg(long, help = <span class="string">"Broadcast the transaction to the network."</span>)]
+<a href=#375 id=375 data-nosnippet>375</a>    </span><span class="kw">pub </span>broadcast: bool,
+<a href=#376 id=376 data-nosnippet>376</a>    <span class="attr">#[arg(long, help = <span class="string">"Save the transaction to the provided directory."</span>)]
+<a href=#377 id=377 data-nosnippet>377</a>    </span><span class="kw">pub </span>save: <span class="prelude-ty">Option</span>&lt;String&gt;,
+<a href=#378 id=378 data-nosnippet>378</a>}
+<a href=#379 id=379 data-nosnippet>379</a>
+<a href=#380 id=380 data-nosnippet>380</a><span class="doccomment">/// Returns the endpoint to interact with the network.
+<a href=#381 id=381 data-nosnippet>381</a>/// If the `--endpoint` options is not provided, it will default to the environment variable.
+<a href=#382 id=382 data-nosnippet>382</a></span><span class="kw">pub fn </span>get_endpoint(endpoint: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+<a href=#383 id=383 data-nosnippet>383</a>    <span class="kw">match </span>endpoint {
+<a href=#384 id=384 data-nosnippet>384</a>        <span class="prelude-val">Some</span>(endpoint) =&gt; <span class="prelude-val">Ok</span>(endpoint.clone()),
+<a href=#385 id=385 data-nosnippet>385</a>        <span class="prelude-val">None </span>=&gt; {
+<a href=#386 id=386 data-nosnippet>386</a>            <span class="comment">// Load the endpoint from the environment.
+<a href=#387 id=387 data-nosnippet>387</a>            </span>std::env::var(<span class="string">"ENDPOINT"</span>).map_err(|<span class="kw">_</span>| {
+<a href=#388 id=388 data-nosnippet>388</a>                CliError::custom(<span class="string">"Please provide the `--endpoint` or set the `ENDPOINT` environment variable."</span>).into()
+<a href=#389 id=389 data-nosnippet>389</a>            })
+<a href=#390 id=390 data-nosnippet>390</a>        }
+<a href=#391 id=391 data-nosnippet>391</a>    }
+<a href=#392 id=392 data-nosnippet>392</a>}
+<a href=#393 id=393 data-nosnippet>393</a>
+<a href=#394 id=394 data-nosnippet>394</a><span class="doccomment">/// Returns the network name.
+<a href=#395 id=395 data-nosnippet>395</a>/// If the `--network` options is not provided, it will default to the environment variable.
+<a href=#396 id=396 data-nosnippet>396</a></span><span class="kw">pub fn </span>get_network(network: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;NetworkName&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;NetworkName&gt; {
+<a href=#397 id=397 data-nosnippet>397</a>    <span class="kw">match </span>network {
+<a href=#398 id=398 data-nosnippet>398</a>        <span class="prelude-val">Some</span>(network) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>network),
+<a href=#399 id=399 data-nosnippet>399</a>        <span class="prelude-val">None </span>=&gt; {
+<a href=#400 id=400 data-nosnippet>400</a>            <span class="comment">// Load the network from the environment.
+<a href=#401 id=401 data-nosnippet>401</a>            </span><span class="kw">let </span>network = std::env::var(<span class="string">"NETWORK"</span>).map_err(|<span class="kw">_</span>| {
+<a href=#402 id=402 data-nosnippet>402</a>                CliError::custom(<span class="string">"Please provide the `--network` or set the `NETWORK` environment variable."</span>)
+<a href=#403 id=403 data-nosnippet>403</a>            })<span class="question-mark">?</span>;
+<a href=#404 id=404 data-nosnippet>404</a>            <span class="comment">// Parse the network.
+<a href=#405 id=405 data-nosnippet>405</a>            </span><span class="prelude-val">Ok</span>(NetworkName::from_str(<span class="kw-2">&amp;</span>network)<span class="question-mark">?</span>)
+<a href=#406 id=406 data-nosnippet>406</a>        }
+<a href=#407 id=407 data-nosnippet>407</a>    }
+<a href=#408 id=408 data-nosnippet>408</a>}
+<a href=#409 id=409 data-nosnippet>409</a>
+<a href=#410 id=410 data-nosnippet>410</a><span class="doccomment">/// Returns the private key.
+<a href=#411 id=411 data-nosnippet>411</a>/// If the `--private-key` options is not provided, it will default to the environment variable.
+<a href=#412 id=412 data-nosnippet>412</a></span><span class="kw">pub fn </span>get_private_key&lt;N: Network&gt;(private_key: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;PrivateKey&lt;N&gt;&gt; {
+<a href=#413 id=413 data-nosnippet>413</a>    <span class="kw">match </span>private_key {
+<a href=#414 id=414 data-nosnippet>414</a>        <span class="prelude-val">Some</span>(private_key) =&gt; <span class="prelude-val">Ok</span>(PrivateKey::&lt;N&gt;::from_str(private_key)<span class="question-mark">?</span>),
+<a href=#415 id=415 data-nosnippet>415</a>        <span class="prelude-val">None </span>=&gt; {
+<a href=#416 id=416 data-nosnippet>416</a>            <span class="comment">// Load the private key from the environment.
+<a href=#417 id=417 data-nosnippet>417</a>            </span><span class="kw">let </span>private_key = std::env::var(<span class="string">"PRIVATE_KEY"</span>)
+<a href=#418 id=418 data-nosnippet>418</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to load `PRIVATE_KEY` from the environment: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#419 id=419 data-nosnippet>419</a>            <span class="comment">// Parse the private key.
+<a href=#420 id=420 data-nosnippet>420</a>            </span><span class="prelude-val">Ok</span>(PrivateKey::&lt;N&gt;::from_str(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>)
+<a href=#421 id=421 data-nosnippet>421</a>        }
+<a href=#422 id=422 data-nosnippet>422</a>    }
+<a href=#423 id=423 data-nosnippet>423</a>}
+<a href=#424 id=424 data-nosnippet>424</a>
+<a href=#425 id=425 data-nosnippet>425</a><span class="doccomment">/// Returns whether the devnet flag is set.
+<a href=#426 id=426 data-nosnippet>426</a>/// If the `--devnet` flag is not set, check if the environment variable is set, otherwise default to `false`.
+<a href=#427 id=427 data-nosnippet>427</a></span><span class="kw">pub fn </span>get_is_devnet(devnet: bool) -&gt; bool {
+<a href=#428 id=428 data-nosnippet>428</a>    <span class="kw">if </span>devnet { <span class="bool-val">true </span>} <span class="kw">else </span>{ std::env::var(<span class="string">"DEVNET"</span>).is_ok() }
+<a href=#429 id=429 data-nosnippet>429</a>}
+<a href=#430 id=430 data-nosnippet>430</a>
+<a href=#431 id=431 data-nosnippet>431</a><span class="attr">#[cfg(test)]
+<a href=#432 id=432 data-nosnippet>432</a></span><span class="kw">mod </span>test {
+<a href=#433 id=433 data-nosnippet>433</a>    <span class="kw">use </span>snarkvm::prelude::ConsensusVersion;
+<a href=#434 id=434 data-nosnippet>434</a>
+<a href=#435 id=435 data-nosnippet>435</a>    <span class="attr">#[test]
+<a href=#436 id=436 data-nosnippet>436</a>    </span><span class="kw">fn </span>test_latest_consensus_version() {
+<a href=#437 id=437 data-nosnippet>437</a>        <span class="macro">assert_eq!</span>(ConsensusVersion::latest(), ConsensusVersion::V12); <span class="comment">// If this fails, update the test and any code that matches on `ConsensusVersion`.
+<a href=#438 id=438 data-nosnippet>438</a>    </span>}
+<a href=#439 id=439 data-nosnippet>439</a>}</code></pre></div></section></main></body></html>
