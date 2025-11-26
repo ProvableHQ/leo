@@ -43,7 +43,12 @@ impl ProgramReconstructor for StorageLoweringVisitor<'_> {
         // Reconstruct old mappings and then append the new mappings to the final list.
         let mut mappings =
             input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect::<Vec<_>>();
-        mappings.extend(self.new_mappings.clone().into_iter().collect::<Vec<_>>());
+        mappings.extend(
+            self.new_mappings
+                .iter()
+                .filter(|((program, _), _)| *program == self.program)
+                .map(|((program, _), mapping)| (*program, mapping.clone())),
+        );
 
         ProgramScope {
             program_id: input.program_id,
@@ -94,7 +99,7 @@ impl ProgramReconstructor for StorageLoweringVisitor<'_> {
                 //   2. `<name>__len__`:  bool → length
 
                 // Mapping for the vector’s contents
-                self.new_mappings.insert(mapping_name, Mapping {
+                self.new_mappings.insert((self.program, mapping_name), Mapping {
                     identifier: Identifier::new(mapping_name, id()),
                     key_type: Type::Integer(IntegerType::U32),
                     value_type: *element_type.clone(),
@@ -104,7 +109,7 @@ impl ProgramReconstructor for StorageLoweringVisitor<'_> {
 
                 // Mapping for the vector’s length
                 let len_name = Symbol::intern(&(name + "__len__"));
-                self.new_mappings.insert(len_name, Mapping {
+                self.new_mappings.insert((self.program, len_name), Mapping {
                     identifier: Identifier::new(len_name, id()),
                     key_type: Type::Boolean,
                     value_type: Type::Integer(IntegerType::U32),
@@ -121,7 +126,7 @@ impl ProgramReconstructor for StorageLoweringVisitor<'_> {
                 //
                 // The `bool` key acts as a presence indicator (typically `false`).
 
-                self.new_mappings.insert(mapping_name, Mapping {
+                self.new_mappings.insert((self.program, mapping_name), Mapping {
                     identifier: Identifier::new(mapping_name, id()),
                     key_type: Type::Boolean,
                     value_type: input.type_.clone(),

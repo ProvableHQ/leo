@@ -44,14 +44,14 @@ pub struct Program {
 
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (_, stub) in self.stubs.iter() {
+            writeln!(f, "{stub}")?;
+        }
         for (_, module) in self.modules.iter() {
             writeln!(f, "{module}")?;
         }
         for (id, _import) in self.imports.iter() {
             writeln!(f, "import {id}.aleo;")?;
-        }
-        for (_, stub) in self.stubs.iter() {
-            writeln!(f, "{stub}")?;
         }
         for (_, program_scope) in self.program_scopes.iter() {
             writeln!(f, "{program_scope}")?;
