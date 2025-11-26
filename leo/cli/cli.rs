@@ -77,6 +77,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoDevnet,
     },
+    #[clap(about = "Run a local devnode")]
+    Devnode {
+        #[clap(flatten)]
+        command: LeoDevnode,
+    },
     #[clap(about = "Query live data from the Aleo network")]
     Query {
         #[clap(flatten)]
@@ -148,7 +153,10 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     // Initialize the `.env` file.
     dotenvy::dotenv().ok();
 
-    if !cli.quiet {
+    // Skip logger initialization for devnode -- it uses it's own logger.
+    let is_devnode = matches!(&cli.command, Commands::Devnode { .. });
+
+    if !cli.quiet && !is_devnode {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match cli.debug {
             false => 1,
@@ -175,6 +183,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
         Commands::Devnet { command } => command.try_execute(context),
+        Commands::Devnode { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Test { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),

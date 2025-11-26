@@ -90,17 +90,30 @@ path = "./test-framework"
 version = "=3.3.1"
 
 [workspace.dependencies.aleo-std]
-version = "1.0.1"
+version = "1.0.3"
+
+[workspace.dependencies.aleo-std-storage]
+version = "1.0.3"
 default-features = false
 
 [workspace.dependencies.anyhow]
 version = "1.0"
+
+[workspace.dependencies.axum]
+version = "0.8.0"
+
+[workspace.dependencies.axum-extra]
+version = "0.10"
+features = ["erased-json", "typed-header"]
 
 [workspace.dependencies.base62]
 version = "2.2.1"
 
 [workspace.dependencies.colored]
 version = "2.0"
+
+[workspace.dependencies.http]
+version = "1"
 
 [workspace.dependencies.indexmap]
 version = "2.6"
@@ -112,6 +125,12 @@ version = "0.13.0"
 [workspace.dependencies.paste]
 version = "1.0"
 
+[workspace.dependencies.is-terminal]
+version = "0.4"
+
+[workspace.dependencies.parking_lot]
+version = "0.12"
+
 [workspace.dependencies.rand]
 version = "0.8"
 default-features = false
@@ -121,10 +140,13 @@ version = "0.3.0"
 default-features = false
 
 [workspace.dependencies.rayon]
-version = "1.11.0"
+version = "0.8"
 
 [workspace.dependencies.regex]
 version = "1.11.1"
+
+[workspace.dependencies.reqwest]
+version = "0.12.23"
 
 [workspace.dependencies.self_update]
 version = "0.41.0"
@@ -145,15 +167,28 @@ version = "3.1.1"
 version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
-git = "https://github.com/ProvableHQ/snarkVM.git"
-tag = "v4.4.0"
-features = [ "test_consensus_heights" ]
+version = "4.4.0"
+features = ["dev_skip_checks", "test_consensus_heights", "test_targets"]
 
 [workspace.dependencies.tempfile]
 version = "3.13"
 
+[workspace.dependencies.tokio]
+version = "1"
+features = ["full"]
+
+[workspace.dependencies.tower-http]
+version = "0.6.0"
+
+[workspace.dependencies.tower_governor]
+version = "0.7"
+
 [workspace.dependencies.tracing]
 version = "0.1"
+
+[workspace.dependencies.tracing-subscriber] 
+version = "0.3" 
+features = ["env-filter", "fmt"]
 
 [workspace.dependencies.ureq]
 version = "3.0.12"
@@ -208,6 +243,15 @@ workspace = true
 [dependencies.aleo-std]
 workspace = true
 
+[dependencies.aleo-std-storage]
+workspace = true
+
+[dependencies.axum]
+workspace = true
+
+[dependencies.axum-extra]
+workspace = true
+
 [dependencies.backtrace]
 version = "0.3.74"
 
@@ -242,6 +286,9 @@ version = "1.0.5"
 [dependencies.indexmap]
 workspace = true
 
+[dependencies.is-terminal]
+version = "0.4"
+
 [dependencies.itertools]
 workspace = true
 
@@ -266,6 +313,9 @@ workspace = true
 [dependencies.regex]
 workspace = true
 
+[dependencies.reqwest]
+workspace = true
+
 [dependencies.rpassword]
 version = "7.4.0"
 
@@ -286,7 +336,7 @@ workspace = true
 
 [dependencies.snarkvm]
 workspace = true
-features = [ "circuit", "console" ]
+features = ["circuit", "console"]
 
 [dependencies.sys-info]
 version = "0.9.1"
@@ -294,12 +344,23 @@ version = "0.9.1"
 [dependencies.tempfile]
 version = "3.20.0"
 
+[dependencies.tokio]
+workspace = true
+features = ["full", "rt-multi-thread", "macros"]
+
+[dependencies.tower-http]
+workspace = true
+features = ["cors", "trace"]
+
+[dependencies.tower_governor]
+workspace = true
+
 [dependencies.tracing]
 workspace = true
 
 [dependencies.tracing-subscriber]
-version = "0.3.18"
-features = [ "fmt" ]
+version = "0.3.0"
+features = ["env-filter","fmt"]
 
 [dependencies.ureq]
 workspace = true
