@@ -26,6 +26,11 @@ use snarkvm::{
 
 use crate::cli::commands::devnode::rest::Rest;
 
+/// Default path to the genesis block file with test accounts.
+/// Genesis block is stored in $TMPDIR when running `snarkos start --dev 0 --dev-num-validators N`
+const DEFAULT_GENESIS_PATH: &str =
+    "./leo/cli/commands/devnode/rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin";
+
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
 pub struct Start {
@@ -77,11 +82,13 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     let rps = 999999999;
     // Load the genesis block.
     let genesis_block: Block<TestnetV0> = if command.genesis_path != "blank" {
-        Block::from_bytes_le(&std::fs::read(command.genesis_path.clone()).map_err(|e| {
+        Block::from_bytes_le(&std::fs::read(&command.genesis_path).map_err(|e| {
             CliError::custom(format!("Failed to read genesis block file '{}': {}", command.genesis_path, e))
         })?)?
     } else {
-        Block::from_bytes_le(include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
+        Block::from_bytes_le(&std::fs::read(DEFAULT_GENESIS_PATH).map_err(|e| {
+            CliError::custom(format!("Failed to read default genesis block '{}': {}", DEFAULT_GENESIS_PATH, e))
+        })?)?
     };
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
@@ -97,7 +104,7 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
             .await
             .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
     // Start the REST API server.
-    Rest::start(socket_addr, rps, ledger, command.manual_block_creation, private_key.clone())
+    Rest::start(socket_addr, rps, ledger, command.manual_block_creation, private_key)
         .await
         .expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
