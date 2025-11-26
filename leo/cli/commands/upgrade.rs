@@ -23,7 +23,7 @@ use leo_package::{Package, ProgramData, fetch_program_from_network};
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
-    circuit::{Aleo, AleoCanaryV0, AleoTestnetV0, AleoV0},
+    circuit::{Aleo, AleoTestnetV0},
     ledger::query::{Query as SnarkVMQuery, QueryTrait},
     prelude::{
         Certificate,
@@ -99,13 +99,13 @@ impl Command for LeoUpgrade {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_upgrade::<MainnetV0, AleoV0>(&self, context, network, input)
+                handle_upgrade::<MainnetV0, snarkvm::circuit::AleoV0>(&self, context, network, input)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_upgrade::<CanaryV0, AleoCanaryV0>(&self, context, network, input)
+                handle_upgrade::<CanaryV0, snarkvm::circuit::AleoCanaryV0>(&self, context, network, input)
             }
         }
     }
