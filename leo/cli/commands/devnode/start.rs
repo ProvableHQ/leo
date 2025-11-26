@@ -26,10 +26,6 @@ use snarkvm::{
 
 use crate::cli::commands::devnode::rest::Rest;
 
-/// Default path to the genesis block file with test accounts.
-/// Genesis block is stored in $TMPDIR when running `snarkos start --dev 0 --dev-num-validators N`
-const DEFAULT_GENESIS_PATH: &str = "./leo/cli/commands/devnode/rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin";
-
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
 pub struct Start {
@@ -85,9 +81,7 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
             CliError::custom(format!("Failed to read genesis block file '{}': {}", command.genesis_path, e))
         })?)?
     } else {
-        Block::from_bytes_le(&std::fs::read(DEFAULT_GENESIS_PATH).map_err(|e| {
-            CliError::custom(format!("Failed to read default genesis block '{}': {}", DEFAULT_GENESIS_PATH, e))
-        })?)?
+        Block::from_bytes_le(include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
