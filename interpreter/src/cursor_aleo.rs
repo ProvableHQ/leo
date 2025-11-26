@@ -148,6 +148,7 @@ impl Cursor {
                 }
             }
             Operand::BlockHeight => self.block_height.into(),
+            Operand::BlockTimestamp => self.block_timestamp.into(),
             Operand::NetworkID => todo!(),
             Operand::Checksum(_) => todo!(),
             Operand::Edition(_) => todo!(),
