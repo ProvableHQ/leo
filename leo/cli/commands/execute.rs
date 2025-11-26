@@ -388,7 +388,7 @@ fn handle_execute<A: Aleo>(
 
         ("transaction", Box::new(transaction), response)
     } else {
-        println!("\n⚙️ Generating transaction for {program_name}/{function_name}...");
+        println!("\n⚙️ Executing {program_name}/{function_name}...");
 
         // Generate the transaction and get the response.
         let (transaction, response) = vm.execute_with_response(
