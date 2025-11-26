@@ -16,7 +16,6 @@
 
 use super::*;
 use serde_json::json;
-use snarkvm::prelude::TestnetV0;
 
 // Advance the Devnode ledger by a specified number of blocks.
 #[derive(Parser, Debug)]
@@ -40,11 +39,11 @@ impl Command for Advance {
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
-        tokio::runtime::Runtime::new().unwrap().block_on(async { handle_advance_devnode::<TestnetV0>(self).await })
+        tokio::runtime::Runtime::new().unwrap().block_on(async { handle_advance_devnode(self).await })
     }
 }
 
-async fn handle_advance_devnode<N: Network>(command: Advance) -> Result<<Advance as Command>::Output> {
+async fn handle_advance_devnode(command: Advance) -> Result<<Advance as Command>::Output> {
     tracing::info!("Advancing the Devnode ledger by {} block(s)", command.num_blocks,);
 
     // Call the REST API to advance the ledger by the specified number of blocks.
