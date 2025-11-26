@@ -81,6 +81,7 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
             CliError::custom(format!("Failed to read genesis block file '{}': {}", command.genesis_path, e))
         })?)?
     } else {
+        // This genesis block is stored in $TMPDIR when running snarkos start --dev 0 --dev-num-validators N
         Block::from_bytes_le(include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
     // Initialize the storage mode.
