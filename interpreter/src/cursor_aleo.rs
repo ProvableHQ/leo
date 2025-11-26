@@ -152,7 +152,6 @@ impl Cursor {
             Operand::Checksum(_) => todo!(),
             Operand::Edition(_) => todo!(),
             Operand::ProgramOwner(_) => todo!(),
-            &Operand::BlockTimestamp => todo!(),
         }
     }
 
