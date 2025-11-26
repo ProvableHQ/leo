@@ -28,8 +28,7 @@ use crate::cli::commands::devnode::rest::Rest;
 
 /// Default path to the genesis block file with test accounts.
 /// Genesis block is stored in $TMPDIR when running `snarkos start --dev 0 --dev-num-validators N`
-const DEFAULT_GENESIS_PATH: &str =
-    "./leo/cli/commands/devnode/rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin";
+const DEFAULT_GENESIS_PATH: &str = "./leo/cli/commands/devnode/rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin";
 
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
