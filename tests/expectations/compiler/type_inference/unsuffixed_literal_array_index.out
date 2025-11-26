@@ -1,7 +1,4 @@
 program test.aleo;
 
 function main:
-    cast 1u32 2u32 3u32 into r0 as [u32; 3u32];
-    add r0[0u32] r0[1u32] into r1;
-    add r1 r0[2u32] into r2;
-    output r2 as u32.private;
+    output 6u32 as u32.private;

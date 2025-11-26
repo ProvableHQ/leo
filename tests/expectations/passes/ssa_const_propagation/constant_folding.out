@@ -1,0 +1,21 @@
+program test.aleo {
+    transition main() -> u32 {
+        let $var$0 = 5u32;
+        let $var$1 = 3u32;
+        let x$#2 = 8u32;
+        let $var$3 = 2u32;
+        let y$#4 = 16u32;
+        return 16u32;
+    }
+    transition foo() -> u32 {
+        let $var$5 = 5u32;
+        let $var$6 = 3u32;
+        let x$#7 = 8u32;
+        let $var$8 = 2u32;
+        let y$#9 = 16u32;
+        let z$#10 = (8u32, 16u32);
+        let (a$#11, b$#12) = (8u32, 16u32);
+        let $var$13 = 24u32;
+        return 24u32;
+    }
+}

@@ -1,5 +1,4 @@
 program const_generics.aleo;
 
 function main:
-    add 0field 1field into r0;
-    output r0 as field.private;
+    output 1field as field.private;

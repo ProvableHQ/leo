@@ -187,9 +187,16 @@ macro_rules! compiler_passes {
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (WriteTransforming, ())
             ]),
-            (remove_unreachable, [
+            (remove_unreachable_runner, [
                 (RemoveUnreachable, ())
-            ])
+            ]),
+            (ssa_const_propagation_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (SsaForming, (SsaFormingInput { rename_defs: true })),
+                (SsaConstPropagation, ()),
+            ]),
         }
     };
 }

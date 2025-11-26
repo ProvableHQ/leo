@@ -9,10 +9,10 @@ function main:
     deserialize.bits r4 ([boolean; 182u32]) into r5 ([u32; 2u32]);
     serialize.bits.raw r0 ([u8; 4u32]) into r6 ([boolean; 32u32]);
     deserialize.bits.raw r6 ([boolean; 32u32]) into r7 ([u8; 4u32]);
-    is.eq r3[0u32] r0[0u32] into r8;
-    is.eq r5[0u32] r1[0u32] into r9;
-    is.eq r7[0u32] r0[0u32] into r10;
-    is.eq r7[3u32] r0[3u32] into r11;
+    is.eq r3[0u32] 10u8 into r8;
+    is.eq r5[0u32] 1000u32 into r9;
+    is.eq r7[0u32] 10u8 into r10;
+    is.eq r7[3u32] 40u8 into r11;
     output r3[0u32] as u8.private;
     output r3[1u32] as u8.private;
     output r3[2u32] as u8.private;

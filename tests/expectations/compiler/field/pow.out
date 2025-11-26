@@ -2,6 +2,4 @@ program test.aleo;
 
 function main:
     input r0 as field.private;
-    pow -1field 2field into r1;
-    is.eq r1 1field into r2;
-    output r2 as boolean.private;
+    output true as boolean.private;

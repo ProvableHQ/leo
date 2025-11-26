@@ -9,9 +9,8 @@ function foo:
     input r1 as u8.private;
     cast 1u8 1u8 1u8 into r2 as [u8; 3u32];
     async foo 1u32 true 5u32 1u32 2u8 r2 3u16 r0 r1 6u32 8u8 into r3;
-    gte 5u32 0u32 into r4;
-    assert.eq r4 true;
-    assert.eq r4 true;
+    assert.eq true true;
+    assert.eq true true;
     output r3 as test.aleo/foo.future;
 
 finalize foo:

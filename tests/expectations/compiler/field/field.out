@@ -2,6 +2,6 @@ program test.aleo;
 
 function main:
     input r0 as field.private;
-    add -1field r0 into r1;
+    add 8444461749428370424248824938781546531375899335154063827935233455917409239040field r0 into r1;
     is.eq r1 0field into r2;
     output r2 as boolean.private;

@@ -19,7 +19,7 @@ use std::fmt::Display;
 use crate::Pass;
 
 use itertools::Itertools;
-use leo_ast::{Literal, Mode, ProgramId};
+use leo_ast::{Mode, ProgramId};
 use leo_errors::Result;
 
 mod expression;
@@ -319,28 +319,53 @@ impl Display for AleoConstructor {
 
 #[derive(Hash, Eq, PartialEq, Clone, Debug)]
 pub enum AleoExpr {
-    Bool(bool),
     Reg(AleoReg),
     Tuple(Vec<AleoExpr>),
     ArrayAccess(Box<AleoExpr>, Box<AleoExpr>),
-    U32(u32),
-    U16(u16),
-    Literal(Literal),
     MemberAccess(Box<AleoExpr>, String),
     RawName(String),
+    // Literals
+    Address(String),
+    Bool(bool),
+    Field(String),
+    Group(String),
+    Scalar(String),
+    String(String),
+    U8(u8),
+    U16(u16),
+    U32(u32),
+    U64(u64),
+    U128(u128),
+    I8(i8),
+    I16(i16),
+    I32(i32),
+    I64(i64),
+    I128(i128),
 }
 impl Display for AleoExpr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Bool(boolean) => write!(f, "{boolean}"),
             Self::Reg(reg) => write!(f, "{reg}"),
             Self::Tuple(regs) => write!(f, "{}", regs.iter().map(|reg| reg.to_string()).join(" ")),
-            Self::U32(val) => write!(f, "{val}u32"),
-            Self::U16(val) => write!(f, "{val}u16"),
             Self::ArrayAccess(array, index) => write!(f, "{array}[{index}]"),
             Self::MemberAccess(comp, member) => write!(f, "{comp}.{member}"),
             Self::RawName(n) => write!(f, "{n}"),
-            Self::Literal(l) => write!(f, "{}", l.display_decimal()),
+            Self::Address(val) => write!(f, "{val}"),
+            Self::Bool(val) => write!(f, "{val}"),
+            Self::Field(val) => write!(f, "{val}field"),
+            Self::Group(val) => write!(f, "{val}group"),
+            Self::Scalar(val) => write!(f, "{val}scalar"),
+            Self::String(val) => write!(f, "\"{val}\""),
+            Self::U8(val) => write!(f, "{val}u8"),
+            Self::U16(val) => write!(f, "{val}u16"),
+            Self::U32(val) => write!(f, "{val}u32"),
+            Self::U64(val) => write!(f, "{val}u64"),
+            Self::U128(val) => write!(f, "{val}u128"),
+            Self::I8(val) => write!(f, "{val}i8"),
+            Self::I16(val) => write!(f, "{val}i16"),
+            Self::I32(val) => write!(f, "{val}i32"),
+            Self::I64(val) => write!(f, "{val}i64"),
+            Self::I128(val) => write!(f, "{val}i128"),
         }
     }
 }

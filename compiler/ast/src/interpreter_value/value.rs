@@ -864,7 +864,7 @@ impl Value {
                 SvmValueParam::Future(..) => return None,
             },
             ValueVariants::Future(..) => return None,
-            ValueVariants::String(..) => return None,
+            ValueVariants::String(value) => Literal::string(value.clone(), span, id).into(),
         };
 
         Some(expression)
