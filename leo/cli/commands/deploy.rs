@@ -320,7 +320,7 @@ Once it is deployed, it CANNOT be changed.
                 // Create the deployment.
                 let mut deployment =
                     Deployment::new(edition.unwrap_or(0), program.clone(), verifying_keys, None, None).unwrap();
-                
+
                 // Set the program owner.
                 deployment.set_program_owner_raw(Some(Address::try_from(&private_key)?));
 
