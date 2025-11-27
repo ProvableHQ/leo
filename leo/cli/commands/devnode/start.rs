@@ -104,7 +104,7 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     println!("Server running on http://{socket_addr}");
 
     // Default setting should fast forward to the block corresponding to the latest consensus version.
-    // Enabling manual block creation will initialize the ledger to the genesis block.
+    // Enabling manual block creation initializes the ledger to the genesis block.
     if !command.manual_block_creation {
         println!("Advancing the Devnode to the latest consensus version");
         let last_height = TEST_CONSENSUS_VERSION_HEIGHTS.last().unwrap().1;
