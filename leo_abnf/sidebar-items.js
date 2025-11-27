@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Scope"],"fn":["main","parse_abnf_node"],"struct":["Processor"]};
