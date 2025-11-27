@@ -5,10 +5,18 @@
 <h1 align="center">The Leo Programming Language</h1>
 
 <p align="center">
-    <a href="https://circleci.com/gh/ProvableHQ/leo"><img src="https://circleci.com/gh/ProvableHQ/leo.svg?style=svg&circle-token=00960191919c40be0774e00ce8f7fa1fcaa20c00"></a>
-    <a href="https://discord.gg/aleo"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
-    <a href="https://github.com/ProvableHQ/leo-contributors/blob/master/CONTRIBUTORS.md"><img src="https://img.shields.io/badge/contributors-393-ee8449"/></a>
-     <a href="https://twitter.com/ProvableHQ"><img src="https://img.shields.io/twitter/follow/ProvableHQ?style=social"/></a>
+    <a href="https://crates.io/crates/leo-lang">
+        <img src="https://img.shields.io/crates/v/leo-lang?style=flat-square"/>
+    </a>
+    <a href="https://circleci.com/gh/ProvableHQ/leo">
+        <img src="https://circleci.com/gh/ProvableHQ/leo.svg?style=svg&circle-token=00960191919c40be0774e00ce8f7fa1fcaa20c00">
+    </a>
+    <a href="https://discord.gg/aleo">
+        <img src="https://img.shields.io/discord/700454073459015690?logo=discord"/>
+    </a>
+    <a href="https://twitter.com/ProvableHQ">
+        <img src="https://img.shields.io/twitter/follow/ProvableHQ?style=social"/>
+    </a>
 </p>
 <div id="top"></div>
 Leo is an imperative, statically-typed programming language built for writing private applications.
@@ -25,7 +33,6 @@ Leo is an imperative, statically-typed programming language built for writing pr
 * [🧰 Troubleshooting](#-troubleshooting)
 * [📖 Documentation](#-documentation)
 * [🤝 Contributing](#-contributing)
-* [❤️ Contributors](#-contributors)
 * [🛡️ License](#-license)
 
 
@@ -136,12 +143,6 @@ If the issue still persists, please [open an issue](https://github.com/ProvableH
 ## 🤝 Contributing
  
 Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
-
-
-## ❤️ Contributors
-
-The list of contributors has been moved to a separate repository.
-View all Leo contributors [here](https://github.com/ProvableHQ/leo-contributors/blob/master/CONTRIBUTORS.md).
 
 ## 🛡️ License
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
