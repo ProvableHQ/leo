@@ -1252,125 +1252,127 @@
 <a href=#1252 id=1252 data-nosnippet>1252</a>        help: <span class="prelude-val">None</span>,
 <a href=#1253 id=1253 data-nosnippet>1253</a>    }
 <a href=#1254 id=1254 data-nosnippet>1254</a>
-<a href=#1255 id=1255 data-nosnippet>1255</a>    @formatted
-<a href=#1256 id=1256 data-nosnippet>1256</a>    optional_wrapping_of_records_unsupported {
-<a href=#1257 id=1257 data-nosnippet>1257</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1258 id=1258 data-nosnippet>1258</a>        msg: <span class="macro">format!</span>(
-<a href=#1259 id=1259 data-nosnippet>1259</a>            <span class="string">"The type `{ty}` cannot be wrapped in an optional because it is a record."</span>,
-<a href=#1260 id=1260 data-nosnippet>1260</a>        ),
-<a href=#1261 id=1261 data-nosnippet>1261</a>        help: <span class="prelude-val">None</span>,
-<a href=#1262 id=1262 data-nosnippet>1262</a>    }
-<a href=#1263 id=1263 data-nosnippet>1263</a>
-<a href=#1264 id=1264 data-nosnippet>1264</a>    @formatted
-<a href=#1265 id=1265 data-nosnippet>1265</a>    optional_wrapping_unsupported {
-<a href=#1266 id=1266 data-nosnippet>1266</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1267 id=1267 data-nosnippet>1267</a>        msg: <span class="macro">format!</span>(
-<a href=#1268 id=1268 data-nosnippet>1268</a>            <span class="string">"The type `{ty}` cannot be wrapped in an optional."</span>,
-<a href=#1269 id=1269 data-nosnippet>1269</a>        ),
-<a href=#1270 id=1270 data-nosnippet>1270</a>        help: <span class="prelude-val">None</span>,
-<a href=#1271 id=1271 data-nosnippet>1271</a>    }
-<a href=#1272 id=1272 data-nosnippet>1272</a>
-<a href=#1273 id=1273 data-nosnippet>1273</a>    @formatted
-<a href=#1274 id=1274 data-nosnippet>1274</a>    optional_type_not_allowed_in_mapping {
-<a href=#1275 id=1275 data-nosnippet>1275</a>        args: (ty: <span class="kw">impl </span>Display, kind: <span class="kw">impl </span>Display),
-<a href=#1276 id=1276 data-nosnippet>1276</a>        msg: <span class="macro">format!</span>(
-<a href=#1277 id=1277 data-nosnippet>1277</a>            <span class="string">"The type `{ty}` is or contains an optional type which cannot be used as the {kind} in a mapping"</span>,
-<a href=#1278 id=1278 data-nosnippet>1278</a>        ),
-<a href=#1279 id=1279 data-nosnippet>1279</a>        help: <span class="prelude-val">None</span>,
-<a href=#1280 id=1280 data-nosnippet>1280</a>    }
-<a href=#1281 id=1281 data-nosnippet>1281</a>
-<a href=#1282 id=1282 data-nosnippet>1282</a>    @formatted
-<a href=#1283 id=1283 data-nosnippet>1283</a>    record_field_cannot_be_optional {
-<a href=#1284 id=1284 data-nosnippet>1284</a>        args: (name: <span class="kw">impl </span>Display, ty: <span class="kw">impl </span>Display),
-<a href=#1285 id=1285 data-nosnippet>1285</a>        msg: <span class="macro">format!</span>(
-<a href=#1286 id=1286 data-nosnippet>1286</a>            <span class="string">"The field `{name}` in this record has type `{ty}`, which is or contains an optional type."</span>,
-<a href=#1287 id=1287 data-nosnippet>1287</a>        ),
-<a href=#1288 id=1288 data-nosnippet>1288</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1289 id=1289 data-nosnippet>1289</a>            <span class="string">"Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record."</span>.to_string()
-<a href=#1290 id=1290 data-nosnippet>1290</a>        ),
-<a href=#1291 id=1291 data-nosnippet>1291</a>    }
-<a href=#1292 id=1292 data-nosnippet>1292</a>
-<a href=#1293 id=1293 data-nosnippet>1293</a>    @formatted
-<a href=#1294 id=1294 data-nosnippet>1294</a>    const_cannot_be_optional {
-<a href=#1295 id=1295 data-nosnippet>1295</a>        args: (),
-<a href=#1296 id=1296 data-nosnippet>1296</a>        msg: <span class="macro">format!</span>(
-<a href=#1297 id=1297 data-nosnippet>1297</a>            <span class="string">"Constants cannot have an optional type or a type that contains an optional"</span>,
-<a href=#1298 id=1298 data-nosnippet>1298</a>        ),
-<a href=#1299 id=1299 data-nosnippet>1299</a>        help: <span class="prelude-val">None</span>,
-<a href=#1300 id=1300 data-nosnippet>1300</a>    }
-<a href=#1301 id=1301 data-nosnippet>1301</a>
-<a href=#1302 id=1302 data-nosnippet>1302</a>    @formatted
-<a href=#1303 id=1303 data-nosnippet>1303</a>    function_cannot_take_option_as_input {
-<a href=#1304 id=1304 data-nosnippet>1304</a>        args: (name: <span class="kw">impl </span>Display, ty: <span class="kw">impl </span>Display),
-<a href=#1305 id=1305 data-nosnippet>1305</a>        msg: <span class="macro">format!</span>(
-<a href=#1306 id=1306 data-nosnippet>1306</a>            <span class="string">"The input `{name}` has type `{ty}`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`."</span>,
-<a href=#1307 id=1307 data-nosnippet>1307</a>        ),
-<a href=#1308 id=1308 data-nosnippet>1308</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1309 id=1309 data-nosnippet>1309</a>            <span class="string">"Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site."</span>.to_string()
-<a href=#1310 id=1310 data-nosnippet>1310</a>        ),
-<a href=#1311 id=1311 data-nosnippet>1311</a>    }
-<a href=#1312 id=1312 data-nosnippet>1312</a>
-<a href=#1313 id=1313 data-nosnippet>1313</a>    @formatted
-<a href=#1314 id=1314 data-nosnippet>1314</a>    function_cannot_return_option_as_output {
-<a href=#1315 id=1315 data-nosnippet>1315</a>        args: (ty: <span class="kw">impl </span>Display),
-<a href=#1316 id=1316 data-nosnippet>1316</a>        msg: <span class="macro">format!</span>(
-<a href=#1317 id=1317 data-nosnippet>1317</a>            <span class="string">"This function has an output of type `{ty}`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`."</span>,
-<a href=#1318 id=1318 data-nosnippet>1318</a>        ),
-<a href=#1319 id=1319 data-nosnippet>1319</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1320 id=1320 data-nosnippet>1320</a>            <span class="string">"Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call."</span>.to_string()
-<a href=#1321 id=1321 data-nosnippet>1321</a>        ),
-<a href=#1322 id=1322 data-nosnippet>1322</a>    }
-<a href=#1323 id=1323 data-nosnippet>1323</a>
-<a href=#1324 id=1324 data-nosnippet>1324</a>    @formatted
-<a href=#1325 id=1325 data-nosnippet>1325</a>    invalid_storage_type {
-<a href=#1326 id=1326 data-nosnippet>1326</a>        args: (type_: <span class="kw">impl </span>Display),
-<a href=#1327 id=1327 data-nosnippet>1327</a>        msg: <span class="macro">format!</span>(<span class="string">"{type_} is an invalid storage type"</span>),
-<a href=#1328 id=1328 data-nosnippet>1328</a>        help: <span class="prelude-val">None</span>,
-<a href=#1329 id=1329 data-nosnippet>1329</a>    }
-<a href=#1330 id=1330 data-nosnippet>1330</a>
-<a href=#1331 id=1331 data-nosnippet>1331</a>    @formatted
-<a href=#1332 id=1332 data-nosnippet>1332</a>    storage_vectors_cannot_be_moved_or_assigned {
-<a href=#1333 id=1333 data-nosnippet>1333</a>        args: (),
-<a href=#1334 id=1334 data-nosnippet>1334</a>        msg: <span class="macro">format!</span>(
-<a href=#1335 id=1335 data-nosnippet>1335</a>            <span class="string">"Storage vectors cannot be moved or assigned. You can only access or modify them using methods like `get`, `push`, or `pop`."
-<a href=#1336 id=1336 data-nosnippet>1336</a>        </span>),
-<a href=#1337 id=1337 data-nosnippet>1337</a>        help: <span class="prelude-val">None</span>,
-<a href=#1338 id=1338 data-nosnippet>1338</a>    }
-<a href=#1339 id=1339 data-nosnippet>1339</a>
-<a href=#1340 id=1340 data-nosnippet>1340</a>    @formatted
-<a href=#1341 id=1341 data-nosnippet>1341</a>    function_has_too_many_inputs {
-<a href=#1342 id=1342 data-nosnippet>1342</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
-<a href=#1343 id=1343 data-nosnippet>1343</a>        msg: <span class="macro">format!</span>(
-<a href=#1344 id=1344 data-nosnippet>1344</a>            <span class="string">"The {variant} `{name}` has {actual} input parameters, which exceeds the allowed limit of {limit}."</span>,
-<a href=#1345 id=1345 data-nosnippet>1345</a>        ),
-<a href=#1346 id=1346 data-nosnippet>1346</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1347 id=1347 data-nosnippet>1347</a>            <span class="string">"Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
-<a href=#1348 id=1348 data-nosnippet>1348</a>        ),
-<a href=#1349 id=1349 data-nosnippet>1349</a>    }
-<a href=#1350 id=1350 data-nosnippet>1350</a>
-<a href=#1351 id=1351 data-nosnippet>1351</a>    @formatted
-<a href=#1352 id=1352 data-nosnippet>1352</a>    function_has_too_many_outputs {
-<a href=#1353 id=1353 data-nosnippet>1353</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
-<a href=#1354 id=1354 data-nosnippet>1354</a>        msg: <span class="macro">format!</span>(
-<a href=#1355 id=1355 data-nosnippet>1355</a>            <span class="string">"The {variant} `{name}` has {actual} output parameters, which exceeds the allowed limit of {limit}."</span>,
-<a href=#1356 id=1356 data-nosnippet>1356</a>        ),
-<a href=#1357 id=1357 data-nosnippet>1357</a>        help: <span class="prelude-val">Some</span>(
-<a href=#1358 id=1358 data-nosnippet>1358</a>            <span class="string">"Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
-<a href=#1359 id=1359 data-nosnippet>1359</a>        ),
-<a href=#1360 id=1360 data-nosnippet>1360</a>    }
-<a href=#1361 id=1361 data-nosnippet>1361</a>
-<a href=#1362 id=1362 data-nosnippet>1362</a>    @formatted
-<a href=#1363 id=1363 data-nosnippet>1363</a>    empty_function_args {
-<a href=#1364 id=1364 data-nosnippet>1364</a>        args: (),
-<a href=#1365 id=1365 data-nosnippet>1365</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot define a function with only empty parameters."</span>),
-<a href=#1366 id=1366 data-nosnippet>1366</a>        help: <span class="prelude-val">None</span>,
-<a href=#1367 id=1367 data-nosnippet>1367</a>    }
-<a href=#1368 id=1368 data-nosnippet>1368</a>
-<a href=#1369 id=1369 data-nosnippet>1369</a>    @formatted
-<a href=#1370 id=1370 data-nosnippet>1370</a>    zero_size_struct {
-<a href=#1371 id=1371 data-nosnippet>1371</a>        args: (),
-<a href=#1372 id=1372 data-nosnippet>1372</a>        msg: <span class="string">"A struct must have at least one member of non-zero size."</span>.to_string(),
-<a href=#1373 id=1373 data-nosnippet>1373</a>        help: <span class="prelude-val">None</span>,
-<a href=#1374 id=1374 data-nosnippet>1374</a>    }
-<a href=#1375 id=1375 data-nosnippet>1375</a>
-<a href=#1376 id=1376 data-nosnippet>1376</a>);</code></pre></div></section></main></body></html>
+<a href=#1255 id=1255 data-nosnippet>1255</a>    <span class="comment">// TODO This error is unused. Remove it in a future version.
+<a href=#1256 id=1256 data-nosnippet>1256</a>    </span>@formatted
+<a href=#1257 id=1257 data-nosnippet>1257</a>    optional_wrapping_of_records_unsupported {
+<a href=#1258 id=1258 data-nosnippet>1258</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1259 id=1259 data-nosnippet>1259</a>        msg: <span class="macro">format!</span>(
+<a href=#1260 id=1260 data-nosnippet>1260</a>            <span class="string">"The type `{ty}` cannot be wrapped in an optional because it is a record."</span>,
+<a href=#1261 id=1261 data-nosnippet>1261</a>        ),
+<a href=#1262 id=1262 data-nosnippet>1262</a>        help: <span class="prelude-val">None</span>,
+<a href=#1263 id=1263 data-nosnippet>1263</a>    }
+<a href=#1264 id=1264 data-nosnippet>1264</a>
+<a href=#1265 id=1265 data-nosnippet>1265</a>    @formatted
+<a href=#1266 id=1266 data-nosnippet>1266</a>    optional_wrapping_unsupported {
+<a href=#1267 id=1267 data-nosnippet>1267</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1268 id=1268 data-nosnippet>1268</a>        msg: <span class="macro">format!</span>(
+<a href=#1269 id=1269 data-nosnippet>1269</a>            <span class="string">"The type `{ty}` cannot be wrapped in an optional."</span>,
+<a href=#1270 id=1270 data-nosnippet>1270</a>        ),
+<a href=#1271 id=1271 data-nosnippet>1271</a>        help: <span class="prelude-val">Some</span>(<span class="string">"Optionals cannot wrap signatures, futures, mappings, tuples, vectors, records, arrays whose \
+<a href=#1272 id=1272 data-nosnippet>1272</a>                    elements are optional-unsafe, or structures containing any such types."</span>.to_string()),
+<a href=#1273 id=1273 data-nosnippet>1273</a>    }
+<a href=#1274 id=1274 data-nosnippet>1274</a>
+<a href=#1275 id=1275 data-nosnippet>1275</a>    @formatted
+<a href=#1276 id=1276 data-nosnippet>1276</a>    optional_type_not_allowed_in_mapping {
+<a href=#1277 id=1277 data-nosnippet>1277</a>        args: (ty: <span class="kw">impl </span>Display, kind: <span class="kw">impl </span>Display),
+<a href=#1278 id=1278 data-nosnippet>1278</a>        msg: <span class="macro">format!</span>(
+<a href=#1279 id=1279 data-nosnippet>1279</a>            <span class="string">"The type `{ty}` is or contains an optional type which cannot be used as the {kind} in a mapping"</span>,
+<a href=#1280 id=1280 data-nosnippet>1280</a>        ),
+<a href=#1281 id=1281 data-nosnippet>1281</a>        help: <span class="prelude-val">None</span>,
+<a href=#1282 id=1282 data-nosnippet>1282</a>    }
+<a href=#1283 id=1283 data-nosnippet>1283</a>
+<a href=#1284 id=1284 data-nosnippet>1284</a>    @formatted
+<a href=#1285 id=1285 data-nosnippet>1285</a>    record_field_cannot_be_optional {
+<a href=#1286 id=1286 data-nosnippet>1286</a>        args: (name: <span class="kw">impl </span>Display, ty: <span class="kw">impl </span>Display),
+<a href=#1287 id=1287 data-nosnippet>1287</a>        msg: <span class="macro">format!</span>(
+<a href=#1288 id=1288 data-nosnippet>1288</a>            <span class="string">"The field `{name}` in this record has type `{ty}`, which is or contains an optional type."</span>,
+<a href=#1289 id=1289 data-nosnippet>1289</a>        ),
+<a href=#1290 id=1290 data-nosnippet>1290</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1291 id=1291 data-nosnippet>1291</a>            <span class="string">"Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record."</span>.to_string()
+<a href=#1292 id=1292 data-nosnippet>1292</a>        ),
+<a href=#1293 id=1293 data-nosnippet>1293</a>    }
+<a href=#1294 id=1294 data-nosnippet>1294</a>
+<a href=#1295 id=1295 data-nosnippet>1295</a>    @formatted
+<a href=#1296 id=1296 data-nosnippet>1296</a>    const_cannot_be_optional {
+<a href=#1297 id=1297 data-nosnippet>1297</a>        args: (),
+<a href=#1298 id=1298 data-nosnippet>1298</a>        msg: <span class="macro">format!</span>(
+<a href=#1299 id=1299 data-nosnippet>1299</a>            <span class="string">"Constants cannot have an optional type or a type that contains an optional"</span>,
+<a href=#1300 id=1300 data-nosnippet>1300</a>        ),
+<a href=#1301 id=1301 data-nosnippet>1301</a>        help: <span class="prelude-val">None</span>,
+<a href=#1302 id=1302 data-nosnippet>1302</a>    }
+<a href=#1303 id=1303 data-nosnippet>1303</a>
+<a href=#1304 id=1304 data-nosnippet>1304</a>    @formatted
+<a href=#1305 id=1305 data-nosnippet>1305</a>    function_cannot_take_option_as_input {
+<a href=#1306 id=1306 data-nosnippet>1306</a>        args: (name: <span class="kw">impl </span>Display, ty: <span class="kw">impl </span>Display),
+<a href=#1307 id=1307 data-nosnippet>1307</a>        msg: <span class="macro">format!</span>(
+<a href=#1308 id=1308 data-nosnippet>1308</a>            <span class="string">"The input `{name}` has type `{ty}`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`."</span>,
+<a href=#1309 id=1309 data-nosnippet>1309</a>        ),
+<a href=#1310 id=1310 data-nosnippet>1310</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1311 id=1311 data-nosnippet>1311</a>            <span class="string">"Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site."</span>.to_string()
+<a href=#1312 id=1312 data-nosnippet>1312</a>        ),
+<a href=#1313 id=1313 data-nosnippet>1313</a>    }
+<a href=#1314 id=1314 data-nosnippet>1314</a>
+<a href=#1315 id=1315 data-nosnippet>1315</a>    @formatted
+<a href=#1316 id=1316 data-nosnippet>1316</a>    function_cannot_return_option_as_output {
+<a href=#1317 id=1317 data-nosnippet>1317</a>        args: (ty: <span class="kw">impl </span>Display),
+<a href=#1318 id=1318 data-nosnippet>1318</a>        msg: <span class="macro">format!</span>(
+<a href=#1319 id=1319 data-nosnippet>1319</a>            <span class="string">"This function has an output of type `{ty}`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`."</span>,
+<a href=#1320 id=1320 data-nosnippet>1320</a>        ),
+<a href=#1321 id=1321 data-nosnippet>1321</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1322 id=1322 data-nosnippet>1322</a>            <span class="string">"Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call."</span>.to_string()
+<a href=#1323 id=1323 data-nosnippet>1323</a>        ),
+<a href=#1324 id=1324 data-nosnippet>1324</a>    }
+<a href=#1325 id=1325 data-nosnippet>1325</a>
+<a href=#1326 id=1326 data-nosnippet>1326</a>    @formatted
+<a href=#1327 id=1327 data-nosnippet>1327</a>    invalid_storage_type {
+<a href=#1328 id=1328 data-nosnippet>1328</a>        args: (type_: <span class="kw">impl </span>Display),
+<a href=#1329 id=1329 data-nosnippet>1329</a>        msg: <span class="macro">format!</span>(<span class="string">"{type_} is an invalid storage type"</span>),
+<a href=#1330 id=1330 data-nosnippet>1330</a>        help: <span class="prelude-val">None</span>,
+<a href=#1331 id=1331 data-nosnippet>1331</a>    }
+<a href=#1332 id=1332 data-nosnippet>1332</a>
+<a href=#1333 id=1333 data-nosnippet>1333</a>    @formatted
+<a href=#1334 id=1334 data-nosnippet>1334</a>    storage_vectors_cannot_be_moved_or_assigned {
+<a href=#1335 id=1335 data-nosnippet>1335</a>        args: (),
+<a href=#1336 id=1336 data-nosnippet>1336</a>        msg: <span class="macro">format!</span>(
+<a href=#1337 id=1337 data-nosnippet>1337</a>            <span class="string">"Storage vectors cannot be moved or assigned. You can only access or modify them using methods like `get`, `push`, or `pop`."
+<a href=#1338 id=1338 data-nosnippet>1338</a>        </span>),
+<a href=#1339 id=1339 data-nosnippet>1339</a>        help: <span class="prelude-val">None</span>,
+<a href=#1340 id=1340 data-nosnippet>1340</a>    }
+<a href=#1341 id=1341 data-nosnippet>1341</a>
+<a href=#1342 id=1342 data-nosnippet>1342</a>    @formatted
+<a href=#1343 id=1343 data-nosnippet>1343</a>    function_has_too_many_inputs {
+<a href=#1344 id=1344 data-nosnippet>1344</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
+<a href=#1345 id=1345 data-nosnippet>1345</a>        msg: <span class="macro">format!</span>(
+<a href=#1346 id=1346 data-nosnippet>1346</a>            <span class="string">"The {variant} `{name}` has {actual} input parameters, which exceeds the allowed limit of {limit}."</span>,
+<a href=#1347 id=1347 data-nosnippet>1347</a>        ),
+<a href=#1348 id=1348 data-nosnippet>1348</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1349 id=1349 data-nosnippet>1349</a>            <span class="string">"Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
+<a href=#1350 id=1350 data-nosnippet>1350</a>        ),
+<a href=#1351 id=1351 data-nosnippet>1351</a>    }
+<a href=#1352 id=1352 data-nosnippet>1352</a>
+<a href=#1353 id=1353 data-nosnippet>1353</a>    @formatted
+<a href=#1354 id=1354 data-nosnippet>1354</a>    function_has_too_many_outputs {
+<a href=#1355 id=1355 data-nosnippet>1355</a>        args: (variant: <span class="kw">impl </span>Display, name: <span class="kw">impl </span>Display, limit: usize, actual: usize),
+<a href=#1356 id=1356 data-nosnippet>1356</a>        msg: <span class="macro">format!</span>(
+<a href=#1357 id=1357 data-nosnippet>1357</a>            <span class="string">"The {variant} `{name}` has {actual} output parameters, which exceeds the allowed limit of {limit}."</span>,
+<a href=#1358 id=1358 data-nosnippet>1358</a>        ),
+<a href=#1359 id=1359 data-nosnippet>1359</a>        help: <span class="prelude-val">Some</span>(
+<a href=#1360 id=1360 data-nosnippet>1360</a>            <span class="string">"Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature."</span>.to_string()
+<a href=#1361 id=1361 data-nosnippet>1361</a>        ),
+<a href=#1362 id=1362 data-nosnippet>1362</a>    }
+<a href=#1363 id=1363 data-nosnippet>1363</a>
+<a href=#1364 id=1364 data-nosnippet>1364</a>    @formatted
+<a href=#1365 id=1365 data-nosnippet>1365</a>    empty_function_args {
+<a href=#1366 id=1366 data-nosnippet>1366</a>        args: (),
+<a href=#1367 id=1367 data-nosnippet>1367</a>        msg: <span class="macro">format!</span>(<span class="string">"Cannot define a function with only empty parameters."</span>),
+<a href=#1368 id=1368 data-nosnippet>1368</a>        help: <span class="prelude-val">None</span>,
+<a href=#1369 id=1369 data-nosnippet>1369</a>    }
+<a href=#1370 id=1370 data-nosnippet>1370</a>
+<a href=#1371 id=1371 data-nosnippet>1371</a>    @formatted
+<a href=#1372 id=1372 data-nosnippet>1372</a>    zero_size_struct {
+<a href=#1373 id=1373 data-nosnippet>1373</a>        args: (),
+<a href=#1374 id=1374 data-nosnippet>1374</a>        msg: <span class="string">"A struct must have at least one member of non-zero size."</span>.to_string(),
+<a href=#1375 id=1375 data-nosnippet>1375</a>        help: <span class="prelude-val">None</span>,
+<a href=#1376 id=1376 data-nosnippet>1376</a>    }
+<a href=#1377 id=1377 data-nosnippet>1377</a>
+<a href=#1378 id=1378 data-nosnippet>1378</a>);</code></pre></div></section></main></body></html>
