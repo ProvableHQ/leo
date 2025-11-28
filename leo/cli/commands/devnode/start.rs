@@ -116,7 +116,7 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
         });
 
         let _response = client
-            .post("http://localhost:3030/testnet/block/create")
+            .post(format!("http://{}/testnet/block/create", command.listener_addr))
             .header("Content-Type", "application/json")
             .json(&payload)
             .send();

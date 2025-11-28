@@ -22,6 +22,8 @@ use serde_json::json;
 pub struct Advance {
     #[clap(help = "The number of blocks to advance the ledger by", default_value = "1")]
     pub num_blocks: u32,
+    #[clap(long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
+    pub(crate) listener_addr: String,
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
 }
@@ -53,7 +55,7 @@ async fn handle_advance_devnode(command: Advance) -> Result<<Advance as Command>
     });
 
     let _response = client
-        .post("http://localhost:3030/testnet/block/create")
+        .post(format!("http://{}/testnet/block/create", command.listener_addr))
         .header("Content-Type", "application/json")
         .json(&payload)
         .send();
