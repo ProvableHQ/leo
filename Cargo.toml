@@ -37,7 +37,6 @@ members = [
   "compiler/parser",
   "compiler/passes",
   "compiler/span",
-  "docs/grammar",
   "errors",
   "interpreter",
   "leo/package",
