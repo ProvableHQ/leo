@@ -34,7 +34,7 @@ pub struct Start {
     pub(crate) verbosity: u8,
     /// Address to bind the Devnode REST API server to.
     #[clap(long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
-    pub(crate) listener_addr: String,
+    pub(crate) socket_addr: String,
     /// Path to the genesis block file.
     #[clap(long, help = "path to genesis block file", default_value = "blank")]
     pub(crate) genesis_path: String,
@@ -71,8 +71,8 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     println!("Starting the Devnode server...");
     initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
     // Parse the listener address.
-    let socket_addr: SocketAddr = command.listener_addr.parse().map_err(|e| {
-        CliError::custom(format!("Failed to parse listener address '{}': {}", command.listener_addr, e))
+    let socket_addr: SocketAddr = command.socket_addr.parse().map_err(|e| {
+        CliError::custom(format!("Failed to parse listener address '{}': {}", command.socket_addr, e))
     })?;
     let rps = 999999999;
     // Load the genesis block.
@@ -116,7 +116,7 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
         });
 
         let _response = client
-            .post(format!("http://{}/testnet/block/create", command.listener_addr))
+            .post(format!("http://{}/testnet/block/create", command.socket_addr))
             .header("Content-Type", "application/json")
             .json(&payload)
             .send();
