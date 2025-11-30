@@ -121,11 +121,20 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
         }
     };
 
-    #[cfg(feature = "no_parallel")]
-    let results: Vec<TestResult> = paths.iter().map(run_test).collect();
+//    #[cfg(feature = "no_parallel")]
+//    let results: Vec<TestResult> = paths.iter().map(run_test).collect();
 
-    #[cfg(not(feature = "no_parallel"))]
-    let results: Vec<TestResult> = paths.par_iter().map(run_test).collect();
+//    #[cfg(not(feature = "no_parallel"))]
+//    let results: Vec<TestResult> = paths.par_iter().map(run_test).collect();
+    let results: Vec<TestResult> = paths
+        .iter()
+        .map(|path| {
+            println!("▶️  starting {}", path.display());
+            let result = run_test(path);
+            println!("✅ finished {}", path.display());
+            result
+        })
+        .collect();
 
     println!("Ran {} tests.", results.len());
 
