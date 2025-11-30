@@ -769,7 +769,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let result_t = assert_same_type(self, &t1, &t2);
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                self.wrap_if_optional(result_t, destination)
+                result_t
             }
             BinaryOperation::Add => {
                 let operand_expected = self.unwrap_optional_type(destination);
@@ -799,7 +799,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                self.wrap_if_optional(result_t, destination)
+                result_t
             }
             BinaryOperation::Sub => {
                 let operand_expected = self.unwrap_optional_type(destination);
@@ -819,7 +819,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                self.wrap_if_optional(result_t, destination)
+                result_t
             }
             BinaryOperation::Mul => {
                 let unwrapped_dest = self.unwrap_optional_type(destination);
@@ -860,7 +860,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                self.wrap_if_optional(result_t, destination)
+                result_t
             }
             BinaryOperation::Div => {
                 let operand_expected = self.unwrap_optional_type(destination);
@@ -880,7 +880,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                self.wrap_if_optional(result_t, destination)
+                result_t
             }
             BinaryOperation::Rem | BinaryOperation::RemWrapped => {
                 let operand_expected = self.unwrap_optional_type(destination);
@@ -900,7 +900,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                self.wrap_if_optional(result_t, destination)
+                result_t
             }
             BinaryOperation::Mod => {
                 let operand_expected = self.unwrap_optional_type(destination);
@@ -920,7 +920,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                self.wrap_if_optional(result_t, destination)
+                result_t
             }
             BinaryOperation::Pow => {
                 let operand_expected = self.unwrap_optional_type(destination);
@@ -967,7 +967,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&ty, destination, input.span());
 
-                self.wrap_if_optional(ty, destination)
+                ty
             }
             BinaryOperation::Eq | BinaryOperation::Neq => {
                 // Handle type inference for `None` as a special case.
@@ -1045,7 +1045,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 self.maybe_assert_type(&result_t, destination, input.span());
 
-                self.wrap_if_optional(result_t, destination)
+                result_t
             }
             BinaryOperation::Shl
             | BinaryOperation::ShlWrapped
@@ -1072,7 +1072,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     self.emit_err(TypeCheckerError::shift_type_magnitude(input.op, t2, input.right.span()));
                 }
 
-                self.wrap_if_optional(t1, destination)
+                t1
             }
         }
     }
@@ -1542,7 +1542,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     match &**inner {
                         Type::Integer(_) | Type::Field | Type::Group | Type::Scalar => {
                             self.check_numeric_literal(input, inner);
-                            Type::Optional(OptionalType { inner: Box::new(*inner.clone()) })
+                            *inner.clone()
                         }
                         _ => {
                             self.emit_err(TypeCheckerError::unexpected_unsuffixed_numeral(
@@ -1841,7 +1841,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         self.maybe_assert_type(&ty, destination, input.span());
 
-        self.wrap_if_optional(ty, destination)
+        ty
     }
 
     fn visit_unit(&mut self, _input: &UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {

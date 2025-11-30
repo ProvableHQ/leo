@@ -18,6 +18,8 @@ use crate::CompilerState;
 
 use leo_ast::{
     AstReconstructor,
+    BinaryExpression,
+    BinaryOperation,
     DefinitionPlace,
     DefinitionStatement,
     Expression,
@@ -102,6 +104,50 @@ impl DestructuringVisitor<'_> {
 
             _ => panic!("Tuples may only be identifiers, tuple literals, or calls."),
         }
+    }
+
+    /// Folds a list of boolean expressions into a left-associated chain of
+    /// `&&` operations (e.g. `[a, b, c]` → `(a && b) && c`).  
+    /// Panics if the list is empty. Inserts boolean types for all generated nodes.
+    pub fn fold_with_and(&mut self, pieces: Vec<Expression>) -> Expression {
+        pieces
+            .into_iter()
+            .reduce(|left, right| {
+                let expr: Expression = BinaryExpression {
+                    op: BinaryOperation::And,
+                    left,
+                    right,
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                }
+                .into();
+
+                self.state.type_table.insert(expr.id(), Type::Boolean);
+                expr
+            })
+            .expect("fold_with_and called with empty vec")
+    }
+
+    /// Folds a list of boolean expressions into a left-associated chain of
+    /// `||` operations (e.g. `[a, b, c]` → `(a || b) || c`).  
+    /// Panics if the list is empty. Inserts boolean types for all generated nodes.
+    pub fn fold_with_or(&mut self, pieces: Vec<Expression>) -> Expression {
+        pieces
+            .into_iter()
+            .reduce(|left, right| {
+                let expr: Expression = BinaryExpression {
+                    op: BinaryOperation::Or,
+                    left,
+                    right,
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                }
+                .into();
+
+                self.state.type_table.insert(expr.id(), Type::Boolean);
+                expr
+            })
+            .expect("fold_with_or called with empty vec")
     }
 
     // Given the `expression` of tuple type, make a definition assigning variable to its members.
