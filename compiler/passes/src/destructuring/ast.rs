@@ -69,13 +69,13 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 .collect();
 
             // Fold appropriately
-            let combined = match input.op {
-                Eq => self.fold_with_and(pieces),
-                Neq => self.fold_with_or(pieces),
+            let op = match input.op {
+                Eq => BinaryOperation::And,
+                Neq => BinaryOperation::Or,
                 _ => unreachable!(),
             };
 
-            return (combined, statements);
+            return (self.fold_with_op(op, pieces.into_iter()), statements);
         }
 
         // Fallback

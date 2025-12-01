@@ -106,15 +106,21 @@ impl DestructuringVisitor<'_> {
         }
     }
 
-    /// Folds a list of boolean expressions into a left-associated chain of
-    /// `&&` operations (e.g. `[a, b, c]` → `(a && b) && c`).  
-    /// Panics if the list is empty. Inserts boolean types for all generated nodes.
-    pub fn fold_with_and(&mut self, pieces: Vec<Expression>) -> Expression {
+    /// Folds an iterator of expressions into a left-associated chain using `op`.
+    ///
+    /// Given expressions `[e1, e2, e3]`, this produces `((e1 op e2) op e3)`.
+    /// Each intermediate node is assigned a fresh ID and recorded as `Boolean`
+    /// in the type table.
+    ///
+    /// Panics if the iterator is empty.
+    pub fn fold_with_op<I>(&mut self, op: BinaryOperation, pieces: I) -> Expression
+    where
+        I: Iterator<Item = Expression>,
+    {
         pieces
-            .into_iter()
             .reduce(|left, right| {
                 let expr: Expression = BinaryExpression {
-                    op: BinaryOperation::And,
+                    op,
                     left,
                     right,
                     span: Default::default(),
@@ -125,29 +131,7 @@ impl DestructuringVisitor<'_> {
                 self.state.type_table.insert(expr.id(), Type::Boolean);
                 expr
             })
-            .expect("fold_with_and called with empty vec")
-    }
-
-    /// Folds a list of boolean expressions into a left-associated chain of
-    /// `||` operations (e.g. `[a, b, c]` → `(a || b) || c`).  
-    /// Panics if the list is empty. Inserts boolean types for all generated nodes.
-    pub fn fold_with_or(&mut self, pieces: Vec<Expression>) -> Expression {
-        pieces
-            .into_iter()
-            .reduce(|left, right| {
-                let expr: Expression = BinaryExpression {
-                    op: BinaryOperation::Or,
-                    left,
-                    right,
-                    span: Default::default(),
-                    id: self.state.node_builder.next_id(),
-                }
-                .into();
-
-                self.state.type_table.insert(expr.id(), Type::Boolean);
-                expr
-            })
-            .expect("fold_with_or called with empty vec")
+            .expect("fold_with_op called with empty iterator")
     }
 
     // Given the `expression` of tuple type, make a definition assigning variable to its members.

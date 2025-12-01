@@ -173,7 +173,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
-                self.state.type_table.insert(dbg!(is_some_access.id()), Type::Boolean);
+                self.state.type_table.insert(is_some_access.id(), Type::Boolean);
 
                 // Create assertion: ensure `is_some` is `true`.
                 let assert_stmt = AssertStatement {
