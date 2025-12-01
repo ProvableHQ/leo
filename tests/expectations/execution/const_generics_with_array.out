@@ -6,27 +6,5 @@ function main:
 
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1lw22zwtdeusenzvzckv9whp7wav9gru2gur022wquzw8czksvqpsyuydnu",
-      "program": "test.aleo",
-      "function": "main",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "2886208886696425924836451731677122198675982174267919615764691268896343789518field",
-          "value": "ciphertext1qyqqe3p99tkx7eap27qj2ht4ywsljku02y2uhck6cnea384zal3hgys74c7dm"
-        }
-      ],
-      "tpk": "7620047334465816648891373867009187094715983074414026856376035435616644506419group",
-      "tcm": "2478511802095008621015276834365359730432320171771269952219059425809151001950field",
-      "scm": "2706670216255850145436332135370305709954853150833440135126124075813370157058field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+status: success
+output: 3u32

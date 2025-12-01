@@ -12,20 +12,12 @@ struct Optional__8hhrPm4c3KB:
     val as u8;
 
 function unwrap_none:
-    async unwrap_none into r0;
-    output r0 as unwrap_none_test.aleo/unwrap_none.future;
-
-finalize unwrap_none:
     cast false 0u8 into r0 as Optional__8hhrPm4c3KB;
     assert.eq r0.is_some true;
     gt r0.val 0u8 into r1;
     assert.eq r1 true;
 
 function unwrap_struct_field_none:
-    async unwrap_struct_field_none into r0;
-    output r0 as unwrap_none_test.aleo/unwrap_struct_field_none.future;
-
-finalize unwrap_struct_field_none:
     cast false 0u64 into r0 as Optional__DOnC9eGtnsJ;
     cast r0 into r1 as MaybeValue;
     assert.eq r1.val.is_some true;
@@ -34,51 +26,7 @@ finalize unwrap_struct_field_none:
 
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: rejected
-{
-  "transitions": [
-    {
-      "id": "au1wz54uy8ttf2upuvz9q5l0e4fvwdj4yhhp9hk87ujcuk5jxt7vg9qckcwft",
-      "program": "unwrap_none_test.aleo",
-      "function": "unwrap_none",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "future",
-          "id": "6344021062615212194622365059902666618213162260514613750772429907142554141910field",
-          "value": "{\n  program_id: unwrap_none_test.aleo,\n  function_name: unwrap_none,\n  arguments: []\n}"
-        }
-      ],
-      "tpk": "5866750136584722133604663336682692237103046411683744092138945649129038106556group",
-      "tcm": "6450366671625401994317861095570783155486300360236005490534857242757019551337field",
-      "scm": "5946394361260428465261193713804410699153951285905537610748756507642505849523field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: rejected
-{
-  "transitions": [
-    {
-      "id": "au1nvxdgxk9dprewt3n2h8glq22ylfwew4zfn9ujx6ssxan4jtcsgyqxsn4zw",
-      "program": "unwrap_none_test.aleo",
-      "function": "unwrap_struct_field_none",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "future",
-          "id": "3493386058864818059134559588675171151315794129097024382640013468187206518166field",
-          "value": "{\n  program_id: unwrap_none_test.aleo,\n  function_name: unwrap_struct_field_none,\n  arguments: []\n}"
-        }
-      ],
-      "tpk": "6155911484600833708348796870079933492568616046184315313595427188199578619991group",
-      "tcm": "5130543908931465109899926604020688401027349282078582631706682113012679617493field",
-      "scm": "843142616379387264150780500055571583031606936932881280651613568277956081676field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+status: failed: Any { .. }
+output: ()
+status: failed: Any { .. }
+output: ()

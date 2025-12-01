@@ -68,51 +68,16 @@ function main_2:
 
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1ph5xana2trf7sdf05dya9q46drpdpmzl055fc68zrfr4whfcgvpqu8sm2v",
-      "program": "test.aleo",
-      "function": "main_1",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "3002133443212835961600501437122742702532199039594945253345363433836101654505field",
-          "value": "ciphertext1qgqytet4rxdxtrrfqxflwaaa3kdr0gda0lgw0uc4stzqkz4gmpcq5yxjlna2ygsgr2yc8gsdxtk06awqxy4dur5k45t56wghxzcq7lztpcgw9hwq"
-        }
-      ],
-      "tpk": "4670688212372421114631005565732846657467809811527081882544500748171909345434group",
-      "tcm": "2264511877573072721701510206089090905852314419083634559581009308380035313588field",
-      "scm": "8087598493058591837040900202386618059099736669761157410046806408949699151796field"
-    }
+status: success
+output: {data: [
+  [
+    58i32,
+    64i32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1hgflkw9g9swxwttujwnjll3ntgdhe3mxnf4znwap0gfk57878ygsp5nkgm",
-      "program": "test.aleo",
-      "function": "main_2",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "6334238040969408764312660650980637392922746808068982215573350257723400687665field",
-          "value": "ciphertext1qyq8r4ldnvmhws2qrlccv2lgem0pyqgqkewwgjnkj7yle3x5akc2wyg22cxl6"
-        }
-      ],
-      "tpk": "2345953610746378938052008990921864974717076947323576313389403421252842237628group",
-      "tcm": "5389216677562131392997105245083739430639077748062767605387782628957666239565field",
-      "scm": "8246420734301820518315294952812306322508782015515680163110314895408816901908field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+  [
+    139i32,
+    154i32
+  ]
+]}
+status: success
+output: true

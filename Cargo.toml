@@ -368,5 +368,9 @@ debug-assertions = true
 
 [profile.ci]
 inherits = "test"
+opt-level = 1     # 0 or 1 for fastest compile-times
+lto = "off"       # ensure LTO is definitely disabled
 incremental = false
 debug = false
+debug-assertions = false
+codegen-units = 32 # HIGH codegen parallelism speeds compile (default is usually 16)

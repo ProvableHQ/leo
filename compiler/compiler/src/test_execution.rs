@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::run_with_ledger;
+use crate::run;
 
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, Result};
@@ -43,49 +43,53 @@ impl Default for Config {
     }
 }
 
-fn execution_run_test(config: &Config, cases: &[run_with_ledger::Case], handler: &Handler) -> Result<String> {
+fn execution_run_test(config: &Config, cases: &[run::Case], handler: &Handler) -> Result<String> {
     let mut import_stubs = IndexMap::new();
 
-    let mut ledger_config =
-        run_with_ledger::Config { seed: config.seed, start_height: config.start_height, programs: Vec::new() };
+    let mut ledger_config = run::Config { seed: config.seed, start_height: config.start_height, programs: Vec::new() };
+
+    let mut requires_ledger = false;
 
     // Compile each source file.
     for source in &config.sources {
         let (bytecode, name) = super::test_utils::whole_compile(source, handler, import_stubs.clone())?;
+        requires_ledger = bytecode.contains("async");
 
         let stub = disassemble_from_str::<CurrentNetwork>(&name, &bytecode)?;
         import_stubs.insert(Symbol::intern(&name), stub);
 
-        ledger_config.programs.push(run_with_ledger::Program { bytecode, name });
+        ledger_config.programs.push(run::Program { bytecode, name });
     }
 
-    // Note: We wrap cases in a slice to run them all in one ledger instance.
-    let outcomes =
-        run_with_ledger::run_with_ledger(&ledger_config, &[cases.to_vec()])?.into_iter().flatten().collect::<Vec<_>>();
-
-    assert_eq!(outcomes.len(), cases.len());
-
-    // Output bytecode.
-    let mut output = ledger_config
+    let mut result = ledger_config
         .programs
+        .clone()
         .into_iter()
         .map(|program| program.bytecode)
         .format(&format!("{}\n", super::test_utils::PROGRAM_DELIMITER))
         .to_string();
 
-    // Output each case outcome.
-    for outcome in outcomes {
-        write!(
-            output,
-            "verified: {verified}\nstatus: {status}\n",
-            verified = outcome.verified,
-            status = outcome.status,
-        )
-        .unwrap();
-        writeln!(output, "{}\n", outcome.execution).unwrap();
+    if requires_ledger {
+        // Note: We wrap cases in a slice to run them all in one ledger instance.
+        let outcomes =
+            run::run_with_ledger(&ledger_config, &[cases.to_vec()])?.into_iter().flatten().collect::<Vec<_>>();
+
+        assert_eq!(outcomes.len(), cases.len());
+
+        for outcome in outcomes {
+            write!(result, "verified: {}\nstatus: {}\n", outcome.verified, outcome.status).unwrap();
+            writeln!(result, "{}\n", outcome.execution).unwrap();
+        }
+    } else {
+        let outcomes = run::run_without_ledger(&ledger_config, cases)?;
+        assert_eq!(outcomes.len(), cases.len());
+
+        for outcome in outcomes {
+            write!(result, "status: {}\noutput: {}\n", outcome.status, outcome.outcome.output).unwrap();
+        }
     }
 
-    Ok(output)
+    Ok(result)
 }
 
 fn execution_runner(source: &str) -> String {
@@ -93,7 +97,7 @@ fn execution_runner(source: &str) -> String {
     let handler = Handler::new(buf.clone());
 
     let mut config = Config::default();
-    let mut cases = Vec::<run_with_ledger::Case>::new();
+    let mut cases = Vec::<run::Case>::new();
 
     // Captures quote-delimited strings.
     let re_input = regex::Regex::new(r#""([^"]+)""#).unwrap();

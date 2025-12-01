@@ -13,77 +13,19 @@ function mint:
 
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au18rau9m9t3rn3uyyv4t4pugwf5np7q0rtzs42xk63ufru9xx30ugs5mazv4",
-      "program": "test.aleo",
-      "function": "mint",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "8238641251750981576384552986295046479837208912264209727828490980201741096622field",
-          "value": "ciphertext1qgqw4ap4ft5w2999zm392w04k9m23lq5342k5xwmn82hdpr99mcyxr7curdgevnd5f6ylsm90ag08t4p9cwkj3yla2alkg95pd5q3n34qu40087x"
-        },
-        {
-          "type": "private",
-          "id": "7282973169393643234129930206935038011710906272512322014967164936172331423066field",
-          "value": "ciphertext1qyqt6de5c50hkh3us87m67mvfp3dlxz4klprxddvkzfgv724sm5ysygh4rpv4"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "record",
-          "id": "1282446702040180079585179431795604798886074672696405853419413605468621672675field",
-          "checksum": "3695797403724998916721914148585863620313456129010858975310021723302771133110field",
-          "value": "record1qvqsp98rd3qrl99q0ztgenne8jqspx7mxs7sr6cfd9m8vzy4vermwxs9qgrxzmt0w4h8ggcqqgqsp86vceq7v4mnnsfyfdar4v0033e5qv8fqj5dz2ddq6n8jhhycdqzq3nxcct8q5qqqqqpqqqs5uc0ucwa426955zl5vtq767ud82tl7x40dftftj0a7wk6mtnjqccj9w4v",
-          "sender_ciphertext": "5793755242232057903294223359790315689852632235333956696055930647484455492520field"
-        }
-      ],
-      "tpk": "46018422513061751665070269569094341736403749082197360847877546801502035842group",
-      "tcm": "4488798580887761911570985727386590608164642982799209201081545946042009259158field",
-      "scm": "6369673747780629527342193102210003913535199907559545881615276184933009117515field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+status: success
+output: {
+  owner: aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs.private,
+  amount: 0u64.private,
+  flag: true.constant,
+  _nonce: 410004207761698656064567022505358277927889478090929783260492957958732416185group.public,
+  _version: 1u8.public
 }
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1ts4gsvfe8lchyqu49klw5vepw2z6yylxcr86f9px6thr2ejfav8qdc8y6u",
-      "program": "test.aleo",
-      "function": "mint",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "6912682823077708792630832236470176824044868283702237965411169765124666532757field",
-          "value": "ciphertext1qgqztf45atp3qln4rc2nhspakfyn440khtn4wwsp54qvudjlylyqwqqhqz3qgjwqt9h9partxn2p3fza0w6wm0r862zk5w5pya03zy6eq5q392zw"
-        },
-        {
-          "type": "private",
-          "id": "7070957568551644295881004802477584474923067924419069892564301031961370870771field",
-          "value": "ciphertext1qyq9x0nywyf5s2398emz75t2pvmeaxzljz8zz9x4wsqyhjlq7zen5ysm6qw2g"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "record",
-          "id": "1129879964025831653697540334202161333848101299267883526167938153343653395601field",
-          "checksum": "2549915394227831358179544002456356003628601664112577217402428058629507797499field",
-          "value": "record1qvqsp3w7jp02s6e2x2j3wc5pahs45ejwuughk26ts77cu9efju6p6ws0qgrxzmt0w4h8ggcqqgqspztg89xcl4vchjrrzweltjr4daf04k959lc7mse49gpfgtpasps8q3nxcct8q5qqqqqpqqqkqd9ewxc6eygulr9l2mqsnelpcm5s82gqc03tnr360wjvr5pjqyq23sjdk",
-          "sender_ciphertext": "1894007057488888100414138424096308809160239640183073331671861299951242168260field"
-        }
-      ],
-      "tpk": "5100339381701210788454673575031827184629315318214841368027407135648417064754group",
-      "tcm": "5963634778490276887658554575906956586210537553931759555354884425129377691643field",
-      "scm": "2438832326190266382783422112101082225026655772737674434876109818229988273757field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+status: success
+output: {
+  owner: aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q.private,
+  amount: 1u64.private,
+  flag: true.constant,
+  _nonce: 410004207761698656064567022505358277927889478090929783260492957958732416185group.public,
+  _version: 1u8.public
 }
-

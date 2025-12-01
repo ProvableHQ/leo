@@ -1,0 +1,149 @@
+program test.aleo;
+
+function test_async_u32_rt:
+    input r0 as u32.private;
+    async test_async_u32_rt self.caller r0 into r1;
+    output r1 as test.aleo/test_async_u32_rt.future;
+
+finalize test_async_u32_rt:
+    input r0 as address.public;
+    input r1 as u32.public;
+    serialize.bits r1 (u32) into r2 ([boolean; 58u32]);
+    deserialize.bits r2 ([boolean; 58u32]) into r3 (u32);
+    is.eq r1 r3 into r4;
+    serialize.bits.raw r1 (u32) into r5 ([boolean; 32u32]);
+    deserialize.bits.raw r5 ([boolean; 32u32]) into r6 (u32);
+    is.eq r1 r6 into r7;
+    and r4 r7 into r8;
+    assert.eq r8 true;
+
+function test_async_field_rt:
+    input r0 as field.private;
+    async test_async_field_rt self.caller r0 into r1;
+    output r1 as test.aleo/test_async_field_rt.future;
+
+finalize test_async_field_rt:
+    input r0 as address.public;
+    input r1 as field.public;
+    serialize.bits r1 (field) into r2 ([boolean; 279u32]);
+    deserialize.bits r2 ([boolean; 279u32]) into r3 (field);
+    is.eq r1 r3 into r4;
+    serialize.bits.raw r1 (field) into r5 ([boolean; 253u32]);
+    deserialize.bits.raw r5 ([boolean; 253u32]) into r6 (field);
+    is.eq r1 r6 into r7;
+    and r4 r7 into r8;
+    assert.eq r8 true;
+
+function test_async_array_rt:
+    input r0 as [u8; 2u32].private;
+    async test_async_array_rt self.caller r0 into r1;
+    output r1 as test.aleo/test_async_array_rt.future;
+
+finalize test_async_array_rt:
+    input r0 as address.public;
+    input r1 as [u8; 2u32].public;
+    serialize.bits r1 ([u8; 2u32]) into r2 ([boolean; 134u32]);
+    deserialize.bits r2 ([boolean; 134u32]) into r3 ([u8; 2u32]);
+    is.eq r1[0u32] r3[0u32] into r4;
+    is.eq r1[1u32] r3[1u32] into r5;
+    and r4 r5 into r6;
+    serialize.bits.raw r1 ([u8; 2u32]) into r7 ([boolean; 16u32]);
+    deserialize.bits.raw r7 ([boolean; 16u32]) into r8 ([u8; 2u32]);
+    is.eq r1[0u32] r8[0u32] into r9;
+    is.eq r1[1u32] r8[1u32] into r10;
+    and r9 r10 into r11;
+    and r6 r11 into r12;
+    assert.eq r12 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1shadxrl25q2nz2sexafw3etvw5m69aufewgensju759jyua6xvrs5nm3f8",
+      "program": "test.aleo",
+      "function": "test_async_u32_rt",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2868378881388724611406574820556945088383795096179732713204207005453275371086field",
+          "value": "ciphertext1qyq9tavdlnwrg7gf4uwa8u3g55nd62s86aevzkprqgdyjhdym559grc3nsn88"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3192120973334120765325780919114439804589613852380345951867872474894602539367field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: test_async_u32_rt,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq,\n    99999u32\n  ]\n}"
+        }
+      ],
+      "tpk": "5660398565090144723436677793436897092228950367852469398575650801378609384422group",
+      "tcm": "2738244710947030237832595256365557251325966127181449046413737318721535610545field",
+      "scm": "7582363085240556321928187664577258728215206353830965880405066011935578134118field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1zqh5rvs808w88mzeg552waqruyq0mxtvrex26fky7nx60ws8p5yq4kh88q",
+      "program": "test.aleo",
+      "function": "test_async_field_rt",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "2754965250772267279366359846788189449148903991770961285845655667698669603770field",
+          "value": "ciphertext1qgqzuqj0yvm23fdkvyazqjr9ktgt2f436rhlvpnkvkhqle7hr2na5pqx9ayav4qp9uamkdxfrrv7esf4yz6j0qe3azcn4d65zvs9sj35pgsxxr27"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6548694937029041869532281043204160112986800628271778497596626815077998521018field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: test_async_field_rt,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq,\n    999999field\n  ]\n}"
+        }
+      ],
+      "tpk": "1038226886578584672742226305561309883052984123828222392342035160065569671124group",
+      "tcm": "7294664264527221268877682662740949695329034861352048163725286751297874591102field",
+      "scm": "4292356555445778388690748455863032266886149286419748150691317631828734598194field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au15d08k00tldvsu5fqzwfmvdywnuntssh7d4rr75huvvfz3c275qrqcxnm7y",
+      "program": "test.aleo",
+      "function": "test_async_array_rt",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6093950017082810363728534158936559023873587345837592907652770931764453094704field",
+          "value": "ciphertext1qyqxmwy2easq90umxdf4msle5gq8ewnulj30pyq56ff773lsu7ut5yqlhand3"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "660935881442049201012033979395573923449139988248876478291908179535957938238field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: test_async_array_rt,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq,\n    [\n  100u8,\n  200u8\n]\n  ]\n}"
+        }
+      ],
+      "tpk": "3075139660232334913543363379665037087953145520234241393097183682318809189089group",
+      "tcm": "5233941980130452935171934847427463952994927531250035042817220464841513448228field",
+      "scm": "379438492354527206433964474615967510798819561162008236805270467280222610291field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
