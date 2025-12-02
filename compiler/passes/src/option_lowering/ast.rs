@@ -161,6 +161,11 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
+                let Some(Type::Optional(OptionalType { inner })) = self.state.type_table.get(&optional_expr.id())
+                else {
+                    panic!("guaranteed by type checking");
+                };
+                self.state.type_table.insert(val_access.id(), *inner);
 
                 let is_some_access = MemberAccess {
                     inner: reconstructed_optional_expr.clone(),
@@ -168,6 +173,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
+                self.state.type_table.insert(is_some_access.id(), Type::Boolean);
 
                 // Create assertion: ensure `is_some` is `true`.
                 let assert_stmt = AssertStatement {
@@ -206,6 +212,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
+                self.state.type_table.insert(val_access.id(), *expected_inner_type.clone());
 
                 let is_some_access = MemberAccess {
                     inner: reconstructed_optional_expr,
@@ -213,6 +220,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
+                self.state.type_table.insert(is_some_access.id(), Type::Boolean);
 
                 // s.is_some ? s.val : fallback
                 let ternary_expr = TernaryExpression {
@@ -222,6 +230,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
+                self.state.type_table.insert(ternary_expr.id(), *expected_inner_type);
 
                 stmts1.extend(stmts2);
                 (ternary_expr.into(), stmts1)
@@ -504,25 +513,28 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         mut input: TupleExpression,
         additional: &Option<Type>,
     ) -> (Expression, Self::AdditionalOutput) {
-        let mut all_stmts = Vec::new();
-        let mut new_elements = Vec::with_capacity(input.elements.len());
-
-        // Extract tuple element types if additional type info is Some(Type::Tuple).
+        // Determine the expected tuple element types
         let expected_types = additional
-            .as_ref()
-            .and_then(|ty| {
-                let mut ty = ty.clone();
-
-                // Unwrap Optional if any.
+            .clone()
+            .or_else(|| self.state.type_table.get(&input.id))
+            .and_then(|mut ty| {
+                // Unwrap Optional if any
                 if let Type::Optional(inner) = ty {
                     ty = *inner.inner;
                 }
-                // Expect Tuple type.
-                if let Type::Tuple(tuple_ty) = ty { Some(tuple_ty.elements.clone()) } else { None }
+
+                // Expect Tuple type
+                match ty {
+                    Type::Tuple(tuple_ty) => Some(tuple_ty.elements.clone()),
+                    _ => None,
+                }
             })
             .expect("guaranteed by type checking");
 
-        // Zip elements with expected types and reconstruct with expected type.
+        let mut all_stmts = Vec::new();
+        let mut new_elements = Vec::with_capacity(input.elements.len());
+
+        // Zip elements with expected types and reconstruct with expected type
         for (element, expected_ty) in input.elements.into_iter().zip(expected_types) {
             let (expr, mut stmts) = self.reconstruct_expression(element, &Some(expected_ty));
             all_stmts.append(&mut stmts);

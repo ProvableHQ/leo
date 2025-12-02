@@ -1,0 +1,18 @@
+program test.aleo {
+    struct "u32?" {
+        is_some: bool,
+        val: u32,
+    }
+    transition assign_optional_from_unwrap() -> u32 {
+        let a: ::"u32?" = ::"u32?" { is_some: true, val: 5u32 };
+        assert(a.is_some);
+        let b: ::"u32?" = ::"u32?" { is_some: true, val: a.val };
+        assert(a.is_some);
+        let c: ::"u32?" = ::"u32?" { is_some: true, val: a.val + 7u32 };
+        let d: ::"u32?" = ::"u32?" { is_some: true, val: a.is_some ? a.val : 0 };
+        assert(b.is_some);
+        assert(c.is_some);
+        assert(d.is_some);
+        return b.val + c.val + d.val;
+    }
+}

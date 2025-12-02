@@ -18,6 +18,8 @@ use crate::CompilerState;
 
 use leo_ast::{
     AstReconstructor,
+    BinaryExpression,
+    BinaryOperation,
     DefinitionPlace,
     DefinitionStatement,
     Expression,
@@ -102,6 +104,34 @@ impl DestructuringVisitor<'_> {
 
             _ => panic!("Tuples may only be identifiers, tuple literals, or calls."),
         }
+    }
+
+    /// Folds an iterator of expressions into a left-associated chain using `op`.
+    ///
+    /// Given expressions `[e1, e2, e3]`, this produces `((e1 op e2) op e3)`.
+    /// Each intermediate node is assigned a fresh ID and recorded as `Boolean`
+    /// in the type table.
+    ///
+    /// Panics if the iterator is empty.
+    pub fn fold_with_op<I>(&mut self, op: BinaryOperation, pieces: I) -> Expression
+    where
+        I: Iterator<Item = Expression>,
+    {
+        pieces
+            .reduce(|left, right| {
+                let expr: Expression = BinaryExpression {
+                    op,
+                    left,
+                    right,
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                }
+                .into();
+
+                self.state.type_table.insert(expr.id(), Type::Boolean);
+                expr
+            })
+            .expect("fold_with_op called with empty iterator")
     }
 
     // Given the `expression` of tuple type, make a definition assigning variable to its members.

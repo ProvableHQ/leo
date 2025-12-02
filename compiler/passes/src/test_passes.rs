@@ -81,7 +81,7 @@ This structure ensures that **adding a new compiler pass test is minimal**:
 */
 
 use crate::*;
-use leo_ast::{Ast, NetworkName, NodeBuilder};
+use leo_ast::NetworkName;
 use leo_errors::{BufferEmitter, Handler};
 use leo_parser::parse_ast;
 use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
@@ -110,21 +110,11 @@ macro_rules! compiler_passes {
     };
 }
 
-/// Parse a Leo source program into an AST, returning errors via the handler.
-fn parse_program(source: &str, handler: &Handler) -> Result<Ast, ()> {
-    let node_builder = NodeBuilder::default();
-    let filename = FileName::Custom("test".into());
-
-    // Add the source to the session's source map
-    let source_file = with_session_globals(|s| s.source_map.new_source(source, filename));
-
-    handler.extend_if_error(parse_ast(handler.clone(), &node_builder, &source_file, &[], NetworkName::TestnetV0))
-}
-
 /// Macro to generate a single runner function for a compiler pass.
 ///
 /// Each runner:
 /// - Sets up a BufferEmitter and Handler for error/warning reporting.
+/// - Parse the test into an AST.
 /// - Runs the first three fixed passes: PathResolution, SymbolTableCreation, TypeChecking.
 /// - Runs the specified compiler pass.
 /// - Returns the resulting AST or formatted errors/warnings.
@@ -135,9 +125,16 @@ macro_rules! make_runner {
             let handler = Handler::new(buf.clone());
 
             create_session_if_not_set_then(|_| {
-                // Parse program into AST
-                let mut state = match parse_program(source, &handler) {
-                    Ok(ast) => CompilerState { ast, handler: handler.clone(), ..Default::default() },
+                let mut state = CompilerState { handler: handler.clone(), ..Default::default() };
+
+                state.ast = match handler.extend_if_error(parse_ast(
+                    handler.clone(),
+                    &state.node_builder,
+                    &with_session_globals(|s| s.source_map.new_source(source, FileName::Custom("test".into()))),
+                    &[],
+                    NetworkName::TestnetV0,
+                )) {
+                    Ok(ast) => ast,
                     Err(()) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
                 };
 
