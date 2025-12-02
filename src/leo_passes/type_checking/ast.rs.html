@@ -769,7 +769,7 @@
 <a href=#769 id=769 data-nosnippet>769</a>                <span class="kw">let </span>result_t = assert_same_type(<span class="self">self</span>, <span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2);
 <a href=#770 id=770 data-nosnippet>770</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>result_t, destination, input.span());
 <a href=#771 id=771 data-nosnippet>771</a>
-<a href=#772 id=772 data-nosnippet>772</a>                <span class="self">self</span>.wrap_if_optional(result_t, destination)
+<a href=#772 id=772 data-nosnippet>772</a>                result_t
 <a href=#773 id=773 data-nosnippet>773</a>            }
 <a href=#774 id=774 data-nosnippet>774</a>            BinaryOperation::Add =&gt; {
 <a href=#775 id=775 data-nosnippet>775</a>                <span class="kw">let </span>operand_expected = <span class="self">self</span>.unwrap_optional_type(destination);
@@ -799,7 +799,7 @@
 <a href=#799 id=799 data-nosnippet>799</a>
 <a href=#800 id=800 data-nosnippet>800</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>result_t, destination, input.span());
 <a href=#801 id=801 data-nosnippet>801</a>
-<a href=#802 id=802 data-nosnippet>802</a>                <span class="self">self</span>.wrap_if_optional(result_t, destination)
+<a href=#802 id=802 data-nosnippet>802</a>                result_t
 <a href=#803 id=803 data-nosnippet>803</a>            }
 <a href=#804 id=804 data-nosnippet>804</a>            BinaryOperation::Sub =&gt; {
 <a href=#805 id=805 data-nosnippet>805</a>                <span class="kw">let </span>operand_expected = <span class="self">self</span>.unwrap_optional_type(destination);
@@ -819,7 +819,7 @@
 <a href=#819 id=819 data-nosnippet>819</a>
 <a href=#820 id=820 data-nosnippet>820</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>result_t, destination, input.span());
 <a href=#821 id=821 data-nosnippet>821</a>
-<a href=#822 id=822 data-nosnippet>822</a>                <span class="self">self</span>.wrap_if_optional(result_t, destination)
+<a href=#822 id=822 data-nosnippet>822</a>                result_t
 <a href=#823 id=823 data-nosnippet>823</a>            }
 <a href=#824 id=824 data-nosnippet>824</a>            BinaryOperation::Mul =&gt; {
 <a href=#825 id=825 data-nosnippet>825</a>                <span class="kw">let </span>unwrapped_dest = <span class="self">self</span>.unwrap_optional_type(destination);
@@ -860,7 +860,7 @@
 <a href=#860 id=860 data-nosnippet>860</a>
 <a href=#861 id=861 data-nosnippet>861</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>result_t, destination, input.span());
 <a href=#862 id=862 data-nosnippet>862</a>
-<a href=#863 id=863 data-nosnippet>863</a>                <span class="self">self</span>.wrap_if_optional(result_t, destination)
+<a href=#863 id=863 data-nosnippet>863</a>                result_t
 <a href=#864 id=864 data-nosnippet>864</a>            }
 <a href=#865 id=865 data-nosnippet>865</a>            BinaryOperation::Div =&gt; {
 <a href=#866 id=866 data-nosnippet>866</a>                <span class="kw">let </span>operand_expected = <span class="self">self</span>.unwrap_optional_type(destination);
@@ -880,7 +880,7 @@
 <a href=#880 id=880 data-nosnippet>880</a>
 <a href=#881 id=881 data-nosnippet>881</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>result_t, destination, input.span());
 <a href=#882 id=882 data-nosnippet>882</a>
-<a href=#883 id=883 data-nosnippet>883</a>                <span class="self">self</span>.wrap_if_optional(result_t, destination)
+<a href=#883 id=883 data-nosnippet>883</a>                result_t
 <a href=#884 id=884 data-nosnippet>884</a>            }
 <a href=#885 id=885 data-nosnippet>885</a>            BinaryOperation::Rem | BinaryOperation::RemWrapped =&gt; {
 <a href=#886 id=886 data-nosnippet>886</a>                <span class="kw">let </span>operand_expected = <span class="self">self</span>.unwrap_optional_type(destination);
@@ -900,7 +900,7 @@
 <a href=#900 id=900 data-nosnippet>900</a>
 <a href=#901 id=901 data-nosnippet>901</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>result_t, destination, input.span());
 <a href=#902 id=902 data-nosnippet>902</a>
-<a href=#903 id=903 data-nosnippet>903</a>                <span class="self">self</span>.wrap_if_optional(result_t, destination)
+<a href=#903 id=903 data-nosnippet>903</a>                result_t
 <a href=#904 id=904 data-nosnippet>904</a>            }
 <a href=#905 id=905 data-nosnippet>905</a>            BinaryOperation::Mod =&gt; {
 <a href=#906 id=906 data-nosnippet>906</a>                <span class="kw">let </span>operand_expected = <span class="self">self</span>.unwrap_optional_type(destination);
@@ -920,7 +920,7 @@
 <a href=#920 id=920 data-nosnippet>920</a>
 <a href=#921 id=921 data-nosnippet>921</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>result_t, destination, input.span());
 <a href=#922 id=922 data-nosnippet>922</a>
-<a href=#923 id=923 data-nosnippet>923</a>                <span class="self">self</span>.wrap_if_optional(result_t, destination)
+<a href=#923 id=923 data-nosnippet>923</a>                result_t
 <a href=#924 id=924 data-nosnippet>924</a>            }
 <a href=#925 id=925 data-nosnippet>925</a>            BinaryOperation::Pow =&gt; {
 <a href=#926 id=926 data-nosnippet>926</a>                <span class="kw">let </span>operand_expected = <span class="self">self</span>.unwrap_optional_type(destination);
@@ -967,7 +967,7 @@
 <a href=#967 id=967 data-nosnippet>967</a>
 <a href=#968 id=968 data-nosnippet>968</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>ty, destination, input.span());
 <a href=#969 id=969 data-nosnippet>969</a>
-<a href=#970 id=970 data-nosnippet>970</a>                <span class="self">self</span>.wrap_if_optional(ty, destination)
+<a href=#970 id=970 data-nosnippet>970</a>                ty
 <a href=#971 id=971 data-nosnippet>971</a>            }
 <a href=#972 id=972 data-nosnippet>972</a>            BinaryOperation::Eq | BinaryOperation::Neq =&gt; {
 <a href=#973 id=973 data-nosnippet>973</a>                <span class="comment">// Handle type inference for `None` as a special case.
@@ -1045,7 +1045,7 @@
 <a href=#1045 id=1045 data-nosnippet>1045</a>
 <a href=#1046 id=1046 data-nosnippet>1046</a>                <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>result_t, destination, input.span());
 <a href=#1047 id=1047 data-nosnippet>1047</a>
-<a href=#1048 id=1048 data-nosnippet>1048</a>                <span class="self">self</span>.wrap_if_optional(result_t, destination)
+<a href=#1048 id=1048 data-nosnippet>1048</a>                result_t
 <a href=#1049 id=1049 data-nosnippet>1049</a>            }
 <a href=#1050 id=1050 data-nosnippet>1050</a>            BinaryOperation::Shl
 <a href=#1051 id=1051 data-nosnippet>1051</a>            | BinaryOperation::ShlWrapped
@@ -1072,7 +1072,7 @@
 <a href=#1072 id=1072 data-nosnippet>1072</a>                    <span class="self">self</span>.emit_err(TypeCheckerError::shift_type_magnitude(input.op, t2, input.right.span()));
 <a href=#1073 id=1073 data-nosnippet>1073</a>                }
 <a href=#1074 id=1074 data-nosnippet>1074</a>
-<a href=#1075 id=1075 data-nosnippet>1075</a>                <span class="self">self</span>.wrap_if_optional(t1, destination)
+<a href=#1075 id=1075 data-nosnippet>1075</a>                t1
 <a href=#1076 id=1076 data-nosnippet>1076</a>            }
 <a href=#1077 id=1077 data-nosnippet>1077</a>        }
 <a href=#1078 id=1078 data-nosnippet>1078</a>    }
@@ -1542,7 +1542,7 @@
 <a href=#1542 id=1542 data-nosnippet>1542</a>                    <span class="kw">match </span><span class="kw-2">&amp;**</span>inner {
 <a href=#1543 id=1543 data-nosnippet>1543</a>                        Type::Integer(<span class="kw">_</span>) | Type::Field | Type::Group | Type::Scalar =&gt; {
 <a href=#1544 id=1544 data-nosnippet>1544</a>                            <span class="self">self</span>.check_numeric_literal(input, inner);
-<a href=#1545 id=1545 data-nosnippet>1545</a>                            Type::Optional(OptionalType { inner: Box::new(<span class="kw-2">*</span>inner.clone()) })
+<a href=#1545 id=1545 data-nosnippet>1545</a>                            <span class="kw-2">*</span>inner.clone()
 <a href=#1546 id=1546 data-nosnippet>1546</a>                        }
 <a href=#1547 id=1547 data-nosnippet>1547</a>                        <span class="kw">_ </span>=&gt; {
 <a href=#1548 id=1548 data-nosnippet>1548</a>                            <span class="self">self</span>.emit_err(TypeCheckerError::unexpected_unsuffixed_numeral(
@@ -1841,7 +1841,7 @@
 <a href=#1841 id=1841 data-nosnippet>1841</a>
 <a href=#1842 id=1842 data-nosnippet>1842</a>        <span class="self">self</span>.maybe_assert_type(<span class="kw-2">&amp;</span>ty, destination, input.span());
 <a href=#1843 id=1843 data-nosnippet>1843</a>
-<a href=#1844 id=1844 data-nosnippet>1844</a>        <span class="self">self</span>.wrap_if_optional(ty, destination)
+<a href=#1844 id=1844 data-nosnippet>1844</a>        ty
 <a href=#1845 id=1845 data-nosnippet>1845</a>    }
 <a href=#1846 id=1846 data-nosnippet>1846</a>
 <a href=#1847 id=1847 data-nosnippet>1847</a>    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
