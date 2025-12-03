@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+${LEO_BIN} b
+${LEO_BIN} r main 1u32 2u32

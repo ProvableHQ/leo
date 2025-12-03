@@ -52,12 +52,12 @@ enum Commands {
         #[clap(flatten)]
         command: LeoNew,
     },
-    #[clap(about = "Run a program with input variables")]
+    #[clap(about = "Run a program with input variables", visible_alias = "r")]
     Run {
         #[clap(flatten)]
         command: LeoRun,
     },
-    #[clap(about = "Test a Leo program")]
+    #[clap(about = "Test a Leo program", visible_alias = "t")]
     Test {
         #[clap(flatten)]
         command: LeoTest,
@@ -82,7 +82,7 @@ enum Commands {
         #[clap(flatten)]
         command: LeoQuery,
     },
-    #[clap(about = "Compile the current package as a program")]
+    #[clap(about = "Compile the current package as a program", visible_alias = "b")]
     Build {
         #[clap(flatten)]
         command: LeoBuild,
