@@ -334,4 +334,11 @@ create_messages!(
         msg: format!("{msg}"),
         help: None,
     }
+
+    @backtraced
+    tests_failed {
+        args: (failed: impl Display, total: impl Display),
+        msg: format!("{failed} out of {total} tests failed"),
+        help: None,
+    }
 );
