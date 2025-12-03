@@ -14,41 +14,41 @@ program test.aleo {
         bool, bool,               // SHA3-512 native samples
         bool, bool                // Comparison flags
     ) {
-        // Keccak256 hash_native - returns [bool; 256]
-        let keccak256_bits: [bool; 256] = Keccak256::hash_native(input);
+        // Keccak256 hash_to_bits - returns [bool; 256]
+        let keccak256_bits: [bool; 256] = Keccak256::hash_to_bits(input);
         let keccak256_0: bool = keccak256_bits[0u8];
         let keccak256_100: bool = keccak256_bits[100u8];
         let keccak256_200: bool = keccak256_bits[200u8];
         let keccak256_255: bool = keccak256_bits[255u8];
 
-        // Keccak384 hash_native - returns [bool; 384]
-        let keccak384_bits: [bool; 384] = Keccak384::hash_native(input);
+        // Keccak384 hash_to_bits - returns [bool; 384]
+        let keccak384_bits: [bool; 384] = Keccak384::hash_to_bits(input);
         let keccak384_0: bool = keccak384_bits[0u16];
         let keccak384_383: bool = keccak384_bits[383u16];
 
-        // Keccak512 hash_native - returns [bool; 512]
-        let keccak512_bits: [bool; 512] = Keccak512::hash_native(input);
+        // Keccak512 hash_to_bits - returns [bool; 512]
+        let keccak512_bits: [bool; 512] = Keccak512::hash_to_bits(input);
         let keccak512_0: bool = keccak512_bits[0u16];
         let keccak512_511: bool = keccak512_bits[511u16];
 
-        // SHA3-256 hash_native - returns [bool; 256]
-        let sha3_256_bits: [bool; 256] = SHA3_256::hash_native(input);
+        // SHA3-256 hash_to_bits - returns [bool; 256]
+        let sha3_256_bits: [bool; 256] = SHA3_256::hash_to_bits(input);
         let sha3_256_0: bool = sha3_256_bits[0u8];
         let sha3_256_255: bool = sha3_256_bits[255u8];
 
-        // SHA3-384 hash_native - returns [bool; 384]
-        let sha3_384_bits: [bool; 384] = SHA3_384::hash_native(input);
+        // SHA3-384 hash_to_bits - returns [bool; 384]
+        let sha3_384_bits: [bool; 384] = SHA3_384::hash_to_bits(input);
         let sha3_384_0: bool = sha3_384_bits[0u16];
         let sha3_384_383: bool = sha3_384_bits[383u16];
 
-        // SHA3-512 hash_native - returns [bool; 512]
-        let sha3_512_bits: [bool; 512] = SHA3_512::hash_native(input);
+        // SHA3-512 hash_to_bits - returns [bool; 512]
+        let sha3_512_bits: [bool; 512] = SHA3_512::hash_to_bits(input);
         let sha3_512_0: bool = sha3_512_bits[0u16];
         let sha3_512_511: bool = sha3_512_bits[511u16];
 
         // Test that native and native_raw produce different results
-        let keccak256_bits_raw: [bool; 256] = Keccak256::hash_native_raw(input);
-        let sha3_256_bits_raw: [bool; 256] = SHA3_256::hash_native_raw(input);
+        let keccak256_bits_raw: [bool; 256] = Keccak256::hash_to_bits_raw(input);
+        let sha3_256_bits_raw: [bool; 256] = SHA3_256::hash_to_bits_raw(input);
 
         return (
             keccak256_0, keccak256_100, keccak256_200, keccak256_255,

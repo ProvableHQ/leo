@@ -24,11 +24,11 @@ program test.aleo {
         return result;
     }
 
-    transition test_hash_native_wrong_type() -> [bool; 256] {
+    transition test_hash_to_bits_wrong_type() -> [bool; 256] {
         let msg: Message = Message { data: 42u32 };
 
-        // Fail: hash_native doesn't accept struct types
-        let result: [bool; 256] = Keccak256::hash_native(msg);
+        // Fail: hash_to_bits doesn't accept struct types
+        let result: [bool; 256] = Keccak256::hash_to_bits(msg);
 
         return result;
     }
