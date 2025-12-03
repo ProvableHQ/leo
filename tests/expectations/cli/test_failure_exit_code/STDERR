@@ -1,0 +1,136 @@
+thread `main` panicked at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-circuit-environment-4.4.0/src/testnet_circuit.rs:152:29:
+assertion `left == right` failed: Constant constraint failed: (0 * 1) =?= 1
+  left: 0
+ right: 1
+stack backtrace: 
+   0: leo::set_panic_hook::{closure#0}
+             at /home/mindtree/repo/provable/leo/leo/cli/main.rs:26:50
+   1: <alloc::boxed::Box<dyn for<'a, 'b> core::ops::function::Fn<(&'a std::panic::PanicHookInfo<'b>,), Output = ()> + core::marker::Send + core::marker::Sync> as core::ops::function::Fn<(&std::panic::PanicHookInfo,)>>::call
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/alloc/src/boxed.rs:2220:9
+      std::panicking::panic_with_hook
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:833:13
+   2: std::panicking::panic_handler::{closure#0}
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:698:13
+   3: std::sys::backtrace::__rust_end_short_backtrace::<std::panicking::panic_handler::{closure#0}, !>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/sys/backtrace.rs:176:18
+   4: __rustc::rust_begin_unwind
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:689:5
+   5: core::panicking::panic_fmt
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/core/src/panicking.rs:80:14
+   6: core::panicking::assert_failed_inner
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/core/src/panicking.rs:434:23
+   7: core::panicking::assert_failed::<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>, snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/core/src/panicking.rs:394:5
+   8: <snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce::<<snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>::{closure#0}, snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>::{closure#0}::{closure#0}
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-circuit-environment-4.4.0/src/testnet_circuit.rs:152:29
+      <std::thread::local::LocalKey<core::cell::RefCell<snarkvm_circuit_environment::helpers::r1cs::R1CS<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>>>::try_with::<<snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce<<snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>::{closure#0}, snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>::{closure#0}::{closure#0}, ()>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/thread/local.rs:513:12
+      <std::thread::local::LocalKey<core::cell::RefCell<snarkvm_circuit_environment::helpers::r1cs::R1CS<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>>>::with::<<snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce<<snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>::{closure#0}, snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>::{closure#0}::{closure#0}, ()>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/thread/local.rs:477:20
+      <snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce::<<snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>::{closure#0}, snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>::{closure#0}
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-circuit-environment-4.4.0/src/testnet_circuit.rs:135:33
+      <std::thread::local::LocalKey<core::cell::Cell<bool>>>::try_with::<<snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce<<snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>::{closure#0}, snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>::{closure#0}, ()>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/thread/local.rs:513:12
+      <std::thread::local::LocalKey<core::cell::Cell<bool>>>::with::<<snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce<<snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>::{closure#0}, snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>::{closure#0}, ()>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/thread/local.rs:477:20
+   9: <snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce::<<snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>::{closure#0}, snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-circuit-environment-4.4.0/src/testnet_circuit.rs:132:20
+      <snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::enforce::<<snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>::{closure#0}, snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>, snarkvm_circuit_environment::helpers::linear_combination::LinearCombination<snarkvm_fields::fp_256::Fp256<snarkvm_curves::bls12_377::fr::FrParameters>>>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-circuit-network-4.4.0/src/testnet_v0.rs:433:9
+      <snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::assert::<snarkvm_circuit_types_boolean::Boolean<snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-circuit-environment-4.4.0/src/environment.rs:74:9
+  10: <snarkvm_synthesizer_program::logic::instruction::operation::assert::AssertInstruction<snarkvm_console_network::testnet_v0::TestnetV0, 0>>::execute::<snarkvm_circuit_network::testnet_v0::AleoTestnetV0, snarkvm_synthesizer_process::stack::Stack<snarkvm_console_network::testnet_v0::TestnetV0>, snarkvm_synthesizer_process::stack::registers::Registers<snarkvm_console_network::testnet_v0::TestnetV0, snarkvm_circuit_network::testnet_v0::AleoTestnetV0>>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-synthesizer-program-4.4.0/src/logic/instruction/operation/assert.rs:121:18
+  11: <snarkvm_synthesizer_process::stack::Stack<snarkvm_console_network::testnet_v0::TestnetV0>>::execute_function::<snarkvm_circuit_network::testnet_v0::AleoTestnetV0, rand_chacha::chacha::ChaCha20Rng>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-synthesizer-process-4.4.0/src/stack/execute.rs:325:34
+  12: <snarkvm_synthesizer_process::stack::Stack<snarkvm_console_network::testnet_v0::TestnetV0>>::synthesize_key::<snarkvm_circuit_network::testnet_v0::AleoTestnetV0, rand_chacha::chacha::ChaCha20Rng>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-synthesizer-process-4.4.0/src/stack/helpers/synthesize.rs:82:30
+      <snarkvm_synthesizer_process::stack::Stack<snarkvm_console_network::testnet_v0::TestnetV0>>::deploy::<snarkvm_circuit_network::testnet_v0::AleoTestnetV0, rand_chacha::chacha::ChaCha20Rng>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-synthesizer-process-4.4.0/src/stack/deploy.rs:34:18
+      <snarkvm_synthesizer_process::Process<snarkvm_console_network::testnet_v0::TestnetV0>>::deploy::<snarkvm_circuit_network::testnet_v0::AleoTestnetV0, rand_chacha::chacha::ChaCha20Rng>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-synthesizer-process-4.4.0/src/deploy.rs:33:32
+      <snarkvm_synthesizer::vm::VM<snarkvm_console_network::testnet_v0::TestnetV0, snarkvm_ledger_store::helpers::memory::consensus::ConsensusMemory<snarkvm_console_network::testnet_v0::TestnetV0>>>::deploy_raw::<rand_chacha::chacha::ChaCha20Rng>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-synthesizer-4.4.0/src/vm/deploy.rs:94:43
+      <snarkvm_synthesizer::vm::VM<snarkvm_console_network::testnet_v0::TestnetV0, snarkvm_ledger_store::helpers::memory::consensus::ConsensusMemory<snarkvm_console_network::testnet_v0::TestnetV0>>>::deploy::<rand_chacha::chacha::ChaCha20Rng>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/snarkvm-synthesizer-4.4.0/src/vm/deploy.rs:35:35
+  13: leo_compiler::run::run_with_ledger::{closure#3}::{closure#0}
+             at /home/mindtree/repo/provable/leo/compiler/compiler/src/run.rs:323:29
+      <leo_compiler::run::run_with_ledger::{closure#3}::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/core/src/ops/function.rs:250:5
+      <core::panic::unwind_safe::AssertUnwindSafe<leo_compiler::run::run_with_ledger::{closure#3}::{closure#0}> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/core/src/panic/unwind_safe.rs:274:9
+      std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<leo_compiler::run::run_with_ledger::{closure#3}::{closure#0}>, core::result::Result<snarkvm_ledger_block::transaction::Transaction<snarkvm_console_network::testnet_v0::TestnetV0>, anyhow::Error>>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:581:40
+      std::panicking::catch_unwind::<core::result::Result<snarkvm_ledger_block::transaction::Transaction<snarkvm_console_network::testnet_v0::TestnetV0>, anyhow::Error>, core::panic::unwind_safe::AssertUnwindSafe<leo_compiler::run::run_with_ledger::{closure#3}::{closure#0}>>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:544:19
+      std::panic::catch_unwind::<core::panic::unwind_safe::AssertUnwindSafe<leo_compiler::run::run_with_ledger::{closure#3}::{closure#0}>, core::result::Result<snarkvm_ledger_block::transaction::Transaction<snarkvm_console_network::testnet_v0::TestnetV0>, anyhow::Error>>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panic.rs:359:14
+      leo_compiler::run::run_with_ledger::{closure#3}
+             at /home/mindtree/repo/provable/leo/compiler/compiler/src/run.rs:322:36
+  14: leo_compiler::run::run_with_ledger
+             at /home/mindtree/repo/provable/leo/compiler/compiler/src/run.rs:348:9
+  15: leo_lang::cli::commands::test::handle_test
+             at /home/mindtree/repo/provable/leo/leo/cli/commands/test.rs:128:20
+      <leo_lang::cli::commands::test::LeoTest as leo_lang::cli::commands::Command>::apply
+             at /home/mindtree/repo/provable/leo/leo/cli/commands/test.rs:60:9
+  16: <leo_lang::cli::commands::test::LeoTest as leo_lang::cli::commands::Command>::execute
+             at /home/mindtree/repo/provable/leo/leo/cli/commands/mod.rs:129:24
+      <leo_lang::cli::commands::test::LeoTest as leo_lang::cli::commands::Command>::try_execute
+             at /home/mindtree/repo/provable/leo/leo/cli/commands/mod.rs:143:14
+  17: leo_lang::cli::cli::run_with_args
+             at /home/mindtree/repo/provable/leo/leo/cli/cli.rs:179:47
+  18: leo::main::{closure#0}
+             at /home/mindtree/repo/provable/leo/leo/cli/main.rs:47:53
+      <scoped_tls::ScopedKey<leo_span::symbol::SessionGlobals>>::with::<leo::main::{closure#0}, ()>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/scoped-tls-1.0.1/src/lib.rs:171:13
+  19: leo_span::symbol::create_session_if_not_set_then::<(), leo::main::{closure#0}>::{closure#0}
+             at /home/mindtree/repo/provable/leo/compiler/span/src/symbol.rs:450:53
+      <scoped_tls::ScopedKey<leo_span::symbol::SessionGlobals>>::set::<leo_span::symbol::create_session_if_not_set_then<(), leo::main::{closure#0}>::{closure#0}, ()>
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/scoped-tls-1.0.1/src/lib.rs:137:9
+  20: leo_span::symbol::create_session_if_not_set_then::<(), leo::main::{closure#0}>
+             at /home/mindtree/repo/provable/leo/compiler/span/src/symbol.rs:450:25
+      leo::main
+             at /home/mindtree/repo/provable/leo/leo/cli/main.rs:47:5
+  21: <fn() as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/core/src/ops/function.rs:250:5
+      std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/sys/backtrace.rs:160:18
+  22: std::rt::lang_start::<()>::{closure#0}
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/rt.rs:206:18
+  23: <&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/core/src/ops/function.rs:287:21
+      std::panicking::catch_unwind::do_call::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:581:40
+      std::panicking::catch_unwind::<i32, &dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:544:19
+      std::panic::catch_unwind::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panic.rs:359:14
+      std::rt::lang_start_internal::{closure#0}
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/rt.rs:175:24
+      std::panicking::catch_unwind::do_call::<std::rt::lang_start_internal::{closure#0}, isize>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:581:40
+      std::panicking::catch_unwind::<isize, std::rt::lang_start_internal::{closure#0}>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panicking.rs:544:19
+      std::panic::catch_unwind::<std::rt::lang_start_internal::{closure#0}, isize>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/panic.rs:359:14
+      std::rt::lang_start_internal
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/rt.rs:171:5
+  24: std::rt::lang_start::<()>
+             at /rustc/1d60f9e070c1039b263e0f035c0f03dfcc610d0f/library/std/src/rt.rs:205:5
+  25: __libc_start_call_main
+  26: __libc_start_main_alias_1
+  27: _start
+
+error: internal compiler error: unexpected panic
+
+note: the compiler unexpectedly panicked. this is a bug.
+
+note: we would appreciate a bug report: https://github.com/ProvableHQ/leo/issues/new?labels=bug,panic&template=bug.md&title=[Bug]
+
+note: leo-lang 3.4.0 running on Linux 6.12.58
+
+note: compiler args: /home/mindtree/repo/provable/leo/target/debug/leo test
+
+note: compiler flags: CLI { debug: false, quiet: false, command: Test { command: LeoTest { test_name: "", compiler_options: BuildOptions { offline: false, enable_ast_spans: false, enable_dce: true, conditional_block_max_depth: 10, disable_conditional_branch_type_checking: false, enable_initial_ast_snapshot: false, enable_all_ast_snapshots: false, ast_snapshots: [], build_tests: false, no_cache: false, no_local: false }, env_override: EnvOptions { private_key: None, network: None, endpoint: None, devnet: false, consensus_heights: None } } }, path: None, home: None }
+
+Panic during deployment of program test_failure: Any { .. }
