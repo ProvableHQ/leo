@@ -14,16 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! Utilities for running Leo programs in test environments.
+//!
+//! Currently this is used by:
+//! - the test runner in `test_execution.rs`,
+//! - the interpreter tests in `interpreter/src/test_interpreter.rs`, and
+//! - the `leo test` command in `cli/commands/test.rs`.
+//!
+//! `leo-compiler` is not necessarily the perfect place for it, but
+//! it's the easiest place for now to make it accessible to all of these.
+//!
+//! Provides functions for:
+//! - Running programs without a ledger (`run_without_ledger`). To be used for evaluating non-async code.
+//! - Running programs with a full ledger (`run_with_ledger`), including setup of VM, blocks, and execution tracking.
+//!   To be used for executing async code.
+//!
+//! Also defines types for program configuration, test cases, and outcomes.
+
 use leo_ast::{TEST_PRIVATE_KEY, interpreter_value::Value};
 use leo_errors::Result;
 
 use aleo_std_storage::StorageMode;
 use anyhow::anyhow;
+use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
+use rayon::prelude::*;
+use serde_json;
 use snarkvm::{
+    circuit::AleoTestnetV0,
     prelude::{
         Address,
+        ConsensusVersion,
         Execution,
+        Identifier,
         Ledger,
+        Network,
         PrivateKey,
         ProgramID,
         TestnetV0,
@@ -34,12 +58,11 @@ use snarkvm::{
     },
     synthesizer::program::ProgramCore,
 };
-
-use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
-use rayon::prelude::*;
-use serde_json;
-use snarkvm::prelude::{ConsensusVersion, Network};
-use std::{fmt, str::FromStr as _};
+use std::{
+    fmt,
+    panic::{AssertUnwindSafe, catch_unwind},
+    str::FromStr as _,
+};
 
 type CurrentNetwork = TestnetV0;
 
@@ -70,7 +93,7 @@ pub struct Case {
 
 /// The status of a case that was run.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Status {
+pub enum ExecutionStatus {
     None,
     Aborted,
     Accepted,
@@ -78,35 +101,177 @@ pub enum Status {
     Halted(String),
 }
 
-impl fmt::Display for Status {
+impl fmt::Display for ExecutionStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Status::Halted(s) => write!(f, "halted ({s})"),
-            Status::None => "none".fmt(f),
-            Status::Aborted => "aborted".fmt(f),
-            Status::Accepted => "accepted".fmt(f),
-            Status::Rejected => "rejected".fmt(f),
+            Self::Halted(s) => write!(f, "halted ({s})"),
+            Self::None => write!(f, "none"),
+            Self::Aborted => write!(f, "aborted"),
+            Self::Accepted => write!(f, "accepted"),
+            Self::Rejected => write!(f, "rejected"),
         }
     }
 }
 
-/// All details about the result of a case that was run.
 #[derive(Debug, Clone)]
-pub struct CaseOutcome {
+pub enum EvaluationStatus {
+    Success,
+    Failed(String),
+}
+
+impl fmt::Display for EvaluationStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Success => write!(f, "success"),
+            Self::Failed(e) => write!(f, "failed: {e}"),
+        }
+    }
+}
+
+/// Shared fields for all outcome types.
+#[derive(Debug, Clone)]
+pub struct Outcome {
     pub program_name: String,
     pub function: String,
-    pub status: Status,
-    pub verified: bool,
-    pub execution: String,
     pub output: Value,
 }
 
+impl Outcome {
+    pub fn output(&self) -> Value {
+        self.output.clone()
+    }
+}
+
+/// Outcome of an evaluation-only run (no execution trace, no verification).
+#[derive(Debug, Clone)]
+pub struct EvaluationOutcome {
+    pub outcome: Outcome,
+    pub status: EvaluationStatus,
+}
+
+impl EvaluationOutcome {
+    pub fn output(&self) -> Value {
+        self.outcome.output()
+    }
+}
+
+/// Outcome that includes execution and verification details.
+#[derive(Debug, Clone)]
+pub struct ExecutionOutcome {
+    pub outcome: Outcome,
+    pub verified: bool,
+    pub execution: String,
+    pub status: ExecutionStatus,
+}
+
+impl ExecutionOutcome {
+    pub fn output(&self) -> Value {
+        self.outcome.output()
+    }
+}
+
+/// Evaluates a set of cases against some programs without using a ledger.
+///
+/// Each case is run in isolation, producing an `EvaluationOutcome` for its
+/// output and success/failure status. Panics and errors in authorization or
+/// evaluation are caught and reported as failures.
+pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<EvaluationOutcome>> {
+    // Nothing to do
+    if cases.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let programs_and_editions: Vec<(snarkvm::prelude::Program<CurrentNetwork>, u16)> = config
+        .programs
+        .iter()
+        .map(|Program { bytecode, name }| {
+            let program = snarkvm::prelude::Program::<CurrentNetwork>::from_str(bytecode)
+                .map_err(|e| anyhow!("Failed to parse bytecode of program {name}: {e}"))?;
+            // Assume edition 1. We can consider parametrizing this in the future.
+            let edition: u16 = 1;
+            Ok((program, edition))
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    let outcomes: Vec<EvaluationOutcome> = cases
+        .par_iter()
+        .map(|case| {
+            let rng = &mut ChaCha20Rng::seed_from_u64(config.seed);
+
+            // Helper to produce an EvaluationOutcome with `Failed` status
+            let failed_outcome = |e: String| EvaluationOutcome {
+                outcome: Outcome {
+                    program_name: case.program_name.clone(),
+                    function: case.function.clone(),
+                    output: Value::make_unit(),
+                },
+                status: EvaluationStatus::Failed(e),
+            };
+
+            let vm = match ConsensusStore::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::open(
+                StorageMode::Production,
+            ) {
+                Ok(store) => match VM::from(store) {
+                    Ok(vm) => vm,
+                    Err(e) => return failed_outcome(format!("VM init error: {e}")),
+                },
+                Err(e) => return failed_outcome(format!("Consensus store open error: {e}")),
+            };
+
+            if let Err(e) = vm.process().write().add_programs_with_editions(&programs_and_editions) {
+                return failed_outcome(format!("Failed to add programs: {e}"));
+            }
+
+            let private_key = match PrivateKey::from_str(leo_ast::TEST_PRIVATE_KEY) {
+                Ok(pk) => pk,
+                Err(e) => return failed_outcome(format!("Private key parse error: {e}")),
+            };
+            let program_id = match ProgramID::<CurrentNetwork>::from_str(&case.program_name) {
+                Ok(pid) => pid,
+                Err(e) => return failed_outcome(format!("ProgramID parse error: {e}")),
+            };
+            let function_id = match Identifier::<CurrentNetwork>::from_str(&case.function) {
+                Ok(fid) => fid,
+                Err(e) => return failed_outcome(format!("FunctionID parse error: {e}")),
+            };
+            let inputs = case.input.iter();
+
+            // --- catch panics from authorize ---
+            let authorization = match catch_unwind(AssertUnwindSafe(|| {
+                vm.authorize(&private_key, program_id, function_id, inputs, rng)
+            })) {
+                Ok(Ok(auth)) => auth,
+                Ok(Err(e)) => return failed_outcome(format!("{e}")),
+                Err(e) => return failed_outcome(format!("{e:?}")),
+            };
+
+            // --- catch panics from evaluate ---
+            let response =
+                match catch_unwind(AssertUnwindSafe(|| vm.process().read().evaluate::<AleoTestnetV0>(authorization))) {
+                    Ok(Ok(resp)) => resp,
+                    Ok(Err(e)) => return failed_outcome(format!("{e}")),
+                    Err(e) => return failed_outcome(format!("{e:?}")),
+                };
+
+            let outputs = response.outputs();
+            let output = match outputs.len() {
+                0 => Value::make_unit(),
+                1 => outputs[0].clone().into(),
+                _ => Value::make_tuple(outputs.iter().map(|x| x.clone().into())),
+            };
+
+            EvaluationOutcome {
+                outcome: Outcome { program_name: case.program_name.clone(), function: case.function.clone(), output },
+                status: EvaluationStatus::Success,
+            }
+        })
+        .collect();
+
+    Ok(outcomes)
+}
+
 /// Run the functions indicated by `cases` from the programs in `config`.
-// Currently this is used both by the test runner in `test_execution.rs`
-// as well as the Leo test in `cli/commands/test.rs`.
-// `leo-compiler` is not necessarily the perfect place for it, but
-// it's the easiest place for now to make it accessible to both of those.
-pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<Vec<CaseOutcome>>> {
+pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<Vec<ExecutionOutcome>>> {
     if case_sets.is_empty() {
         return Ok(Vec::new());
     }
@@ -271,7 +436,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
 
                 let mut execution = None;
                 let mut verified = false;
-                let mut status = Status::None;
+                let mut status = ExecutionStatus::None;
 
                 // Halts are handled by panics, so we need to catch them.
                 // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
@@ -293,14 +458,17 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                     let s2 = payload.downcast_ref::<String>().cloned();
                     let s = s1.or(s2).unwrap_or_else(|| "Unknown panic payload".to_string());
 
-                    case_outcomes.push(CaseOutcome {
-                        program_name: case.program_name.clone(),
-                        function: case.function.clone(),
-                        status: Status::Halted(s),
+                    case_outcomes.push(ExecutionOutcome {
+                        outcome: Outcome {
+                            program_name: case.program_name.clone(),
+                            function: case.function.clone(),
+                            output: Value::make_unit(),
+                        },
+                        status: ExecutionStatus::Halted(s),
                         verified: false,
                         execution: "".to_string(),
-                        output: Value::make_unit(),
                     });
+
                     continue;
                 }
 
@@ -316,9 +484,9 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                     )?;
                     status =
                         match (block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == 1) {
-                            (false, _) => Status::Aborted,
-                            (true, true) => Status::Accepted,
-                            (true, false) => Status::Rejected,
+                            (false, _) => ExecutionStatus::Aborted,
+                            (true, true) => ExecutionStatus::Accepted,
+                            (true, false) => ExecutionStatus::Rejected,
                         };
                     ledger.advance_to_next_block(&block)?;
                     Ok(response)
@@ -344,13 +512,15 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                     None
                 };
 
-                case_outcomes.push(CaseOutcome {
-                    program_name: case.program_name.clone(),
-                    function: case.function.clone(),
+                case_outcomes.push(ExecutionOutcome {
+                    outcome: Outcome {
+                        program_name: case.program_name.clone(),
+                        function: case.function.clone(),
+                        output,
+                    },
                     status,
                     verified,
                     execution: serde_json::to_string_pretty(&execution).expect("Serialization failure"),
-                    output,
                 });
             }
 
@@ -359,7 +529,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         .collect::<Result<Vec<_>>>()?;
 
     // Reorder results to match input order.
-    let mut ordered_results: Vec<Vec<CaseOutcome>> = vec![Default::default(); case_sets.len()];
+    let mut ordered_results: Vec<Vec<ExecutionOutcome>> = vec![Default::default(); case_sets.len()];
     for (index, outcomes) in results.into_iter() {
         ordered_results[index] = outcomes;
     }

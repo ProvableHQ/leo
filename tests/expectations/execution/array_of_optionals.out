@@ -41,24 +41,11 @@ function main:
     add r31 r32 into r33;
     is.eq r33 14u64 into r34;
     assert.eq r34 true;
+    cast r33 into r35 as u64;
+    output r33 as u64.private;
+    output r35 as u64.private;
 
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1a08fe9x3m8lp75awsakndatacrrre4umk4ulqevtvnv4rys3jygqhgpy9p",
-      "program": "test.aleo",
-      "function": "main",
-      "inputs": [],
-      "outputs": [],
-      "tpk": "7620047334465816648891373867009187094715983074414026856376035435616644506419group",
-      "tcm": "2478511802095008621015276834365359730432320171771269952219059425809151001950field",
-      "scm": "2706670216255850145436332135370305709954853150833440135126124075813370157058field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+status: success
+output: (14u64, 14u64)

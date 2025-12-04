@@ -9,81 +9,11 @@ function main:
 
 constructor:
     assert.eq edition 0u16;
-verified: false
-status: none
-null
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1xxx5eyeh2wt5etfud0m9xxwk95tpapm49sck8rs7vu069pshucqseqmnc8",
-      "program": "test.aleo",
-      "function": "main",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "1642813527134686705672070280406607446432819052628399670903153242086637409619field",
-          "value": "ciphertext1qyqty56hd4sjawzf6fmz8awatg87eaqgw42hf0zwjg0qphya7x8nxqc8klf9c"
-        },
-        {
-          "type": "private",
-          "id": "4043973058391680941793645400124685646497975635359390217326560993644799776762field",
-          "value": "ciphertext1qyqg6ldwvzrw32qkqtus2p58px0d2a427d4f7u20e2ev84uukhr2kygy2g4pl"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "3106709701079157715977902975137382519149800889722979215909178833494965768667field",
-          "value": "ciphertext1qyq02zqgudv6uekh9xpltrcu00g5jdzzyf96c6wqcfywsaefge0jcpqd9kp5c"
-        }
-      ],
-      "tpk": "6373718224838073536803860829638049194561989564755401205658301015696191366090group",
-      "tcm": "5664822226403379628159757940447744056069986517068960076928226892917348704296field",
-      "scm": "5676325233121699107048557908033121840844329323401950925709080348351425973728field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: false
-status: none
-null
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1s4xepyly05mpaa6qs23v087twzqcj8rggk8p4w0crwxksusq3sps8uvwyt",
-      "program": "test.aleo",
-      "function": "main",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "4542843952717379765026584736880784814303453821667173875790572184443243296049field",
-          "value": "ciphertext1qyq8d5d0xhfvgactt4gju485plcqejn3t8qnkzsy6jnyyytr820xzpgk9euc9"
-        },
-        {
-          "type": "private",
-          "id": "1888555685965520838311434532528424851754286429760577403994654564487387990164field",
-          "value": "ciphertext1qyqpt2mx8y95vd6seyldqyunmerp5ndqj5qry83gcjk4tl4h9xm9kpqsy4xg6"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "4295348545721785246620748522961086631969358326202406724670548588166242869650field",
-          "value": "ciphertext1qyq2u745h5esm3e45wxxdzs4mjcjvlw0knm43xtt99vd2ezzdsxmxygwlrpcg"
-        }
-      ],
-      "tpk": "7447856092333335722197567336932763532146271247928721874046364714921805365370group",
-      "tcm": "6667718657901249793003217929903572381355910633671096449805180537989497283034field",
-      "scm": "1027674287776529103783018768157775209832261275927998778421370002277573955461field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+status: failed: Failed to evaluate instruction (assert.eq r0 r1;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)
+output: ()
+status: success
+output: true
+status: failed: Failed to evaluate instruction (assert.eq r0 r1;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)
+output: ()
+status: success
+output: true

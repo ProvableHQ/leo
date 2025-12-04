@@ -10,7 +10,7 @@ input = []
 program test.aleo {
 
     // Treat any 0-value as none for testing purposes
-    transition main() {
+    transition main() -> (u64, u64) {
         let raw: [u64; 4] = [1, 0, 3, 0];
         // Convert to optionals: 0u64 → none, otherwise Some(value)
         let arr: [u64?; 4] = [
@@ -26,6 +26,8 @@ program test.aleo {
         }
 
         assert(sum == 14u64);
+
+        return (sum, sum);
     }
 
     @noupgrade

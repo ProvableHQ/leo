@@ -17,63 +17,7 @@ function sum_with_loop:
 
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1cfwjpm0jmvw5lsjwel4uh22fusm5kmgmy569s7kzyz27vwk5zqgq5cz9yq",
-      "program": "test.aleo",
-      "function": "sum_manually",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "1444294171692384979744169304996384841723976341262954049507337510295670161016field",
-          "value": "ciphertext1qgqqtksmuz8jh4809z5fwf9ntafs3us9vg7yqm3hdn502er88sd66pxyxdlh73hdhf66nyva93xd33xl9z27jwtp372c72ps80mcz8jdqqjw8qsd"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "5375523467482134747862126743408650835724576083208042839925200128874638637118field",
-          "value": "ciphertext1qyqgdqfn7dpsafuvwy0rsj2knssux0fuyyemtsav857du3vk69l6yzg2jgxkz"
-        }
-      ],
-      "tpk": "4670688212372421114631005565732846657467809811527081882544500748171909345434group",
-      "tcm": "2264511877573072721701510206089090905852314419083634559581009308380035313588field",
-      "scm": "8087598493058591837040900202386618059099736669761157410046806408949699151796field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1fxa9kqkrfmter30tnjzythpccdvmwwrl2ngh5lt50vc4ehptrcyqq9km7k",
-      "program": "test.aleo",
-      "function": "sum_with_loop",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "4615117846129912422841921914968960504103741433265381101177478367928657849403field",
-          "value": "ciphertext1qgqr5ft6uruh2h7nw9xc4wprjpcckumygw8267jlj9jqpc30mznavpam83fyxzrvhjxwe0fwq6cjy7z9e9puusn0qh9p47tfjxg60mtfzg52dv48"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "7505966964869956208987909512688140966189640656633799357658297832612449377492field",
-          "value": "ciphertext1qyqvtkcv7a59ugy09kdd070p7j4sz2f53p8dqxu5xngge8l9f35ysqshc5ydx"
-        }
-      ],
-      "tpk": "2345953610746378938052008990921864974717076947323576313389403421252842237628group",
-      "tcm": "5389216677562131392997105245083739430639077748062767605387782628957666239565field",
-      "scm": "8246420734301820518315294952812306322508782015515680163110314895408816901908field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+status: success
+output: 10u64
+status: success
+output: 10u64

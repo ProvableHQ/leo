@@ -17,7 +17,7 @@
 //! These tests compare interpreter runs against ledger runs.
 
 use leo_ast::{NetworkName, Stub, interpreter_value::Value};
-use leo_compiler::{Compiler, run_with_ledger};
+use leo_compiler::{Compiler, run};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, Result};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
@@ -57,8 +57,8 @@ fn whole_compile(source: &str, handler: &Handler, import_stubs: IndexMap<Symbol,
     Ok((bytecode, compiler.program_name.unwrap()))
 }
 
-fn parse_cases(source: &str) -> (Vec<run_with_ledger::Case>, Vec<String>) {
-    let mut cases: Vec<run_with_ledger::Case> = Vec::new();
+fn parse_cases(source: &str) -> (Vec<run::Case>, Vec<String>) {
+    let mut cases: Vec<run::Case> = Vec::new();
 
     // Captures quote-delimited strings.
     let re_input = regex::Regex::new(r#""([^"]+)""#).unwrap();
@@ -92,24 +92,37 @@ fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<Test
     let source = fs::read_to_string(path).unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", path.display()));
     let (cases, sources) = parse_cases(&source);
     let mut import_stubs = IndexMap::new();
-    let mut ledger_config = run_with_ledger::Config { seed: 2, start_height: None, programs: Vec::new() };
+    let mut ledger_config = run::Config { seed: 2, start_height: None, programs: Vec::new() };
+
+    let mut requires_ledger = false;
     for source in &sources {
         let (bytecode, name) = handler.extend_if_error(whole_compile(source, handler, import_stubs.clone()))?;
+        requires_ledger = bytecode.contains("async");
 
         let stub = handler
             .extend_if_error(disassemble_from_str::<CurrentNetwork>(&name, &bytecode).map_err(|err| err.into()))?;
         import_stubs.insert(Symbol::intern(&name), stub);
 
-        ledger_config.programs.push(run_with_ledger::Program { bytecode, name });
+        ledger_config.programs.push(run::Program { bytecode, name });
     }
 
-    // Note. We wrap the cases in a slice to run them on a single ledger instance.
-    // This is just to be consistent with previous semantics.
-    let outcomes = handler
-        .extend_if_error(run_with_ledger::run_with_ledger(&ledger_config, std::slice::from_ref(&cases)))?
+    // Extract only the outputs, ignoring status, execution, etc.
+    let outputs: Vec<Value> = if requires_ledger {
+        // Note. We wrap the cases in a slice to run them on a single ledger instance.
+        // This is just to be consistent with previous semantics.
+        handler
+        .extend_if_error(run::run_with_ledger(&ledger_config, std::slice::from_ref(&cases)))?
         .into_iter()
         .flatten()
-        .collect::<Vec<_>>();
+        .map(|exec| exec.outcome.output) // only extract the inner output
+        .collect()
+    } else {
+        handler
+        .extend_if_error(run::run_without_ledger(&ledger_config, &cases))?
+        .into_iter()
+        .map(|eval| eval.outcome.output) // only extract the inner output
+        .collect()
+    };
 
     let private_key = PrivateKey::<CurrentNetwork>::from_str(leo_ast::TEST_PRIVATE_KEY)
         .expect("Should be able to parse private key.");
@@ -149,7 +162,7 @@ fn run_test(path: &Path, handler: &Handler, _buf: &BufferEmitter) -> Result<Test
             })
             .collect::<Result<Vec<_>>>(),
     )?;
-    Ok(TestResult { ledger_result: outcomes.into_iter().map(|outcome| outcome.output).collect(), interpreter_result })
+    Ok(TestResult { ledger_result: outputs, interpreter_result })
 }
 
 #[test]

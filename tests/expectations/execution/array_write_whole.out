@@ -21,323 +21,91 @@ function some_assignments:
 
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au185flq4qhhy23dwhlysadkug6zw33k50zj69xqydw24jhmq554ggscxjmfs",
-      "program": "test.aleo",
-      "function": "some_assignments",
-      "inputs": [
-        {
-          "type": "public",
-          "id": "8361652263045409163206091082075347635055393016983670270405635212747750321804field",
-          "value": "false"
-        },
-        {
-          "type": "public",
-          "id": "2032187193743744309181288098195457141373851163370087138318643805417758324227field",
-          "value": "false"
-        },
-        {
-          "type": "public",
-          "id": "7137869417321933615300582368095486671653341077756454481923129806650230125321field",
-          "value": "false"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "2792136762473880973304538361421773779613696850383131540983572076392928997909field",
-          "value": "[\n  [\n    1u32,\n    2u32\n  ],\n  [\n    30u32,\n    4u32\n  ]\n]"
-        }
-      ],
-      "tpk": "1444645341092403476487494476002418697100335155885101952479391639946017180651group",
-      "tcm": "4022403563861184297614023962235527543582740910367521074490491735545033214384field",
-      "scm": "3417975694024015777881958321467766515389598186664770604065996729417176359954field"
-    }
+status: success
+output: [
+  [
+    1u32,
+    2u32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1apy0ku8k3mp4aegd5uwwfnqkekmn5tjs0pukct6cn9mdmjplyqxsqs6xsz",
-      "program": "test.aleo",
-      "function": "some_assignments",
-      "inputs": [
-        {
-          "type": "public",
-          "id": "4215876530583236807215293466903625707620939142154840869349279325420766696534field",
-          "value": "false"
-        },
-        {
-          "type": "public",
-          "id": "7447982968864192034917722618221302298124406345803750020744987404507721029256field",
-          "value": "false"
-        },
-        {
-          "type": "public",
-          "id": "1726600202360153796660971934184648175471231273272147732388961318524930158076field",
-          "value": "true"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "7598985719569381945231873507624519363107815909345534192540655479599767447898field",
-          "value": "[\n  [\n    1000u32,\n    2000u32\n  ],\n  [\n    30u32,\n    4u32\n  ]\n]"
-        }
-      ],
-      "tpk": "5333996352322146947609062922893642432056594457975279765685920652310422077308group",
-      "tcm": "4639420844342330386630890936993927208667106243743130530231485948406898973335field",
-      "scm": "3562489181758646425845613846994348992699577722070603000753748987500261885813field"
-    }
+  [
+    30u32,
+    4u32
+  ]
+]
+status: success
+output: [
+  [
+    1000u32,
+    2000u32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1rt47v5ajmr4kuhykqn9tjsqxl4w85gcnrjg5rk0u5knzuzqrxcqqf5juc4",
-      "program": "test.aleo",
-      "function": "some_assignments",
-      "inputs": [
-        {
-          "type": "public",
-          "id": "4363900892515554178255609699170281391653528149915827818170129606662452887413field",
-          "value": "false"
-        },
-        {
-          "type": "public",
-          "id": "3513964380082976232148928730556186520505533871317656714869508174134765291643field",
-          "value": "true"
-        },
-        {
-          "type": "public",
-          "id": "721439268188300987529864171329133058454826636443212675247937902072354182079field",
-          "value": "false"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "2378230673636411988517729953389541679021281840800058016118232476281173135359field",
-          "value": "[\n  [\n    100u32,\n    200u32\n  ],\n  [\n    30u32,\n    4u32\n  ]\n]"
-        }
-      ],
-      "tpk": "5623939375370113176807847970868338423051619619079701989793351608702871663308group",
-      "tcm": "3115626148467644753336031260345426670116043779960205533822326463953447681522field",
-      "scm": "5859547987553762207530814930390101454273119791045956140104619458660487650506field"
-    }
+  [
+    30u32,
+    4u32
+  ]
+]
+status: success
+output: [
+  [
+    100u32,
+    200u32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1zgvnetwd5f558xymcxy534arl5gx9ws4xmf25ymey9gxuq8tygysvea7jz",
-      "program": "test.aleo",
-      "function": "some_assignments",
-      "inputs": [
-        {
-          "type": "public",
-          "id": "4465628760706922183965896207493416795624879614095261470668277461015716776536field",
-          "value": "false"
-        },
-        {
-          "type": "public",
-          "id": "4779992911580912631459772844148200679003025166762643702206934040837589147197field",
-          "value": "true"
-        },
-        {
-          "type": "public",
-          "id": "4561878271990569154741192257757013627468414053152498475079680239135411693741field",
-          "value": "true"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "7230503484210159666736383949151089294655399402190035629323057902544808977424field",
-          "value": "[\n  [\n    1000u32,\n    2000u32\n  ],\n  [\n    30u32,\n    4u32\n  ]\n]"
-        }
-      ],
-      "tpk": "2399350775127619831397517118734669769479845424186759247320096068183651816028group",
-      "tcm": "1841380421675802420701838335279103326601962499045906596462404490845634029079field",
-      "scm": "5646956497666210871578743704848828393871415951943649196760229190799864794210field"
-    }
+  [
+    30u32,
+    4u32
+  ]
+]
+status: success
+output: [
+  [
+    1000u32,
+    2000u32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au174h8p998rdp9avqalxw4g3gpjeaturpqrlwjg90yq889z50zjurqzpgkx6",
-      "program": "test.aleo",
-      "function": "some_assignments",
-      "inputs": [
-        {
-          "type": "public",
-          "id": "258020517412893860227615234676838585538414292741187626675541550456288172419field",
-          "value": "true"
-        },
-        {
-          "type": "public",
-          "id": "423617797003930806817003693884141054524188032883188818872632659336140482094field",
-          "value": "false"
-        },
-        {
-          "type": "public",
-          "id": "6960807189855135587026159759190569009739767311882251410734950517458794884963field",
-          "value": "false"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "6218042744451953243430260285154372305541757661989161137004736132961777067844field",
-          "value": "[\n  [\n    10u32,\n    20u32\n  ],\n  [\n    3u32,\n    4u32\n  ]\n]"
-        }
-      ],
-      "tpk": "1769274742896137267571004278525352753310762690607922979730819942338435507835group",
-      "tcm": "207073012986729280172918569396102442991615784463588126317644918434240613910field",
-      "scm": "2852030470152824448310544511831520777626024401429504678063849946308725932732field"
-    }
+  [
+    30u32,
+    4u32
+  ]
+]
+status: success
+output: [
+  [
+    10u32,
+    20u32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1yxa0d7h6p35x59tnfpcafnw7tn7uqxmw22ynt5mpxtcskx26uuyq34endn",
-      "program": "test.aleo",
-      "function": "some_assignments",
-      "inputs": [
-        {
-          "type": "public",
-          "id": "4093831132297994005551404843565265116607154160408597617248900999133145888526field",
-          "value": "true"
-        },
-        {
-          "type": "public",
-          "id": "250452035427811186725739472593662107376535266342739937839982464075284307976field",
-          "value": "false"
-        },
-        {
-          "type": "public",
-          "id": "5458529577683597311044514787189309610146131196661713356896842638791172415331field",
-          "value": "true"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "2098886337767348611590241635159403695936107094173664857694819730027224120367field",
-          "value": "[\n  [\n    1000u32,\n    2000u32\n  ],\n  [\n    3u32,\n    4u32\n  ]\n]"
-        }
-      ],
-      "tpk": "4428832376029484677458422638529265364555033392464158010037592613997048594785group",
-      "tcm": "3839981416883692024933366700091788175935038922958513451592286330892323167119field",
-      "scm": "7110913210277651137145031067021119377913627097615178310397467563102424886429field"
-    }
+  [
+    3u32,
+    4u32
+  ]
+]
+status: success
+output: [
+  [
+    1000u32,
+    2000u32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au15z9grtser3mncw2wndwwrs9sk2d5z6d7afhks6mhvntkrduregrq07upy3",
-      "program": "test.aleo",
-      "function": "some_assignments",
-      "inputs": [
-        {
-          "type": "public",
-          "id": "4774221215714485792315908402161153732287431448954925784533550141720081112701field",
-          "value": "true"
-        },
-        {
-          "type": "public",
-          "id": "2838908314704222600169555563065722804041429066782232009576463267402795611742field",
-          "value": "true"
-        },
-        {
-          "type": "public",
-          "id": "6224434291813208323666331344751164411634391858776711475129109004383160250553field",
-          "value": "false"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "4201175303516505505789044390242533650646902153336284829089379600709899969018field",
-          "value": "[\n  [\n    100u32,\n    200u32\n  ],\n  [\n    3u32,\n    4u32\n  ]\n]"
-        }
-      ],
-      "tpk": "6500701291929613230900501221005510080883296515470406711839887252459568663219group",
-      "tcm": "4237195108459171697175449976451481794756101037740117019522448344501482613852field",
-      "scm": "7812855884461074905515770741418667209977087343016961019982765082576903037149field"
-    }
+  [
+    3u32,
+    4u32
+  ]
+]
+status: success
+output: [
+  [
+    100u32,
+    200u32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1sqffh9ax458dmwvzzec3yuh8szcgwdfhld2kywhfdknfttvf9sxq0d9qus",
-      "program": "test.aleo",
-      "function": "some_assignments",
-      "inputs": [
-        {
-          "type": "public",
-          "id": "7607870879378016077185396927556353841353219433553853194786528655489195297272field",
-          "value": "true"
-        },
-        {
-          "type": "public",
-          "id": "2553408565354380475395484123698919556036785968024683617738330837558272848563field",
-          "value": "true"
-        },
-        {
-          "type": "public",
-          "id": "2578819607251839491462158130233920999029111457777657733276556628167071352982field",
-          "value": "true"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "5946192939365730534407709700529772651586052189962684489146307553630420057630field",
-          "value": "[\n  [\n    1000u32,\n    2000u32\n  ],\n  [\n    3u32,\n    4u32\n  ]\n]"
-        }
-      ],
-      "tpk": "6384998517657856816135706617416110181613237479866589759798606279202814675391group",
-      "tcm": "7570918518484612268586660608919959650277567994217457431047826925816710066417field",
-      "scm": "5274833559831723094977975090235917021391304552555806890524314227451347594464field"
-    }
+  [
+    3u32,
+    4u32
+  ]
+]
+status: success
+output: [
+  [
+    1000u32,
+    2000u32
   ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+  [
+    3u32,
+    4u32
+  ]
+]
