@@ -33,18 +33,37 @@ To add a new compiler pass, you need to update this file and create the test dir
 1. Add a new entry to the `compiler_passes!` table:
 
 ```rust
-(runner_name, PassStruct, (input), run_type_checking)
+(runner_name, [(PassStruct, input), ...])
 ```
 
 - `runner_name` – the function name for this pass runner (snake_case).
-- `PassStruct` – the compiler pass struct you are testing.
-- `input` – the argument to the pass (`()` if none, or a struct literal like `(SsaFormingInput { rename_defs: true })`).
-- `run_prelude` - whether to run setup passes such as type checking before this pass, you most likely want this to be true
+- `[(PassStruct, input), ...]` – a list of passes to run sequentially. Each entry is a tuple of `(pass_struct, input)`.
+- `input` – the argument to the pass. Can be `()` if none, or a struct literal like `(SsaFormingInput { rename_defs: true })`.
 
-Example:
+Examples:
 
 ```rust
-(new_pass_runner, NewPass, (NewPassInput { option: true }), true),
+// Single pass with typical prelude
+(new_pass_runner, [
+    (PathResolution, ()),
+    (SymbolTableCreation, ()),
+    (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+    (NewPass, (NewPassInput { option: true }))
+]),
+
+// Multiple passes run sequentially
+(multi_pass_runner, [
+    (PathResolution, ()),
+    (SymbolTableCreation, ()),
+    (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+    (FirstPass, ()),
+    (SecondPass, (SecondPassInput { value: NetworkName::TestnetV0 }))
+]),
+
+// Pass without prelude (if prelude not needed)
+(no_prelude_runner, [
+    (SomePass, ())
+]),
 ```
 
 2. No other code needs to change — macros automatically generate:
@@ -88,38 +107,102 @@ use leo_span::{create_session_if_not_set_then, source_map::FileName, with_sessio
 use serial_test::serial;
 
 /// Table of all compiler passes and their runner names.
-/// Each entry is a tuple of `(runner_name, pass_struct, input)`
-/// - `input` is the argument to the pass, can be `()` or a struct literal.
+/// Each entry is a tuple of `(runner_name, [(pass_struct, input), ...])`
+/// - `runner_name` – the function name for this pass runner (snake_case).
+/// - `[(pass_struct, input), ...]` – a list of passes to run sequentially. Each entry is a tuple of `(pass_struct, input)`.
+///   Include the prelude passes (PathResolution, SymbolTableCreation, TypeChecking) at the beginning if needed.
+/// - `input` – the argument to the pass. Can be `()` if none, or a struct literal like `(SsaFormingInput { rename_defs: true })`.
 macro_rules! compiler_passes {
     ($macro:ident) => {
         $macro! {
-            (common_subexpression_elimination_runner, CommonSubexpressionEliminating, (), true),
-            (const_prop_unroll_and_morphing_runner, ConstPropUnrollAndMorphing, (TypeCheckingInput::new(NetworkName::TestnetV0)), true),
-            (destructuring_runner, Destructuring, (), true),
-            (dead_code_elimination_runner, DeadCodeEliminating, (), true),
-            (flattening_runner, Flattening, (), true),
-            (function_inlining_runner, FunctionInlining, (), true),
-            (option_lowering_runner, OptionLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)), true),
-            (processing_async_runner, ProcessingAsync, (TypeCheckingInput::new(NetworkName::TestnetV0)), true),
-            (processing_script_runner, ProcessingScript, (), true),
-            (ssa_forming_runner, SsaForming, (SsaFormingInput { rename_defs: true }), true),
-            (storage_lowering_runner, StorageLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)), true),
-            (write_transforming_runner, WriteTransforming, (), true),
-            (remove_unreachable, RemoveUnreachable, (), false)
+            (common_subexpression_elimination_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (CommonSubexpressionEliminating, ())
+            ]),
+            (const_prop_unroll_and_morphing_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (ConstPropUnrollAndMorphing, (TypeCheckingInput::new(NetworkName::TestnetV0)))
+            ]),
+            (destructuring_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (Destructuring, ())
+            ]),
+            (dead_code_elimination_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (DeadCodeEliminating, ())
+            ]),
+            (flattening_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (Flattening, ())
+            ]),
+            (function_inlining_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (FunctionInlining, ())
+            ]),
+            (option_lowering_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (OptionLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)))
+            ]),
+            (processing_async_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (ProcessingAsync, (TypeCheckingInput::new(NetworkName::TestnetV0)))
+            ]),
+            (processing_script_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (ProcessingScript, ())
+            ]),
+            (ssa_forming_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (SsaForming, (SsaFormingInput { rename_defs: true }))
+            ]),
+            (storage_lowering_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (StorageLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)))
+            ]),
+            (write_transforming_runner, [
+                (PathResolution, ()),
+                (SymbolTableCreation, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (WriteTransforming, ())
+            ]),
+            (remove_unreachable, [
+                (RemoveUnreachable, ())
+            ])
         }
     };
 }
 
-/// Macro to generate a single runner function for a compiler pass.
+/// Macro to generate a single runner function for compiler passes.
 ///
 /// Each runner:
 /// - Sets up a BufferEmitter and Handler for error/warning reporting.
 /// - Parse the test into an AST.
-/// - Runs the first three fixed passes: PathResolution, SymbolTableCreation, TypeChecking.
-/// - Runs the specified compiler pass.
+/// - Runs the specified list of compiler passes sequentially.
 /// - Returns the resulting AST or formatted errors/warnings.
 macro_rules! make_runner {
-    ($runner_name:ident, $pass:ident, $input:expr, $run_prelude:expr) => {
+    ($runner_name:ident, [$(($pass:ident, $input:expr)),* $(,)?]) => {
         fn $runner_name(source: &str) -> String {
             let buf = BufferEmitter::new();
             let handler = Handler::new(buf.clone());
@@ -138,28 +221,12 @@ macro_rules! make_runner {
                     Err(()) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
                 };
 
-                // Run these three passes before the tested pass; they populate symbol & type tables,
-                // which are required for the following compiler pass to function correctly.
-                // Type checking may be disabled by argument
-                if $run_prelude {
-                    if handler.extend_if_error(PathResolution::do_pass((), &mut state)).is_err() {
+                // Run the specified passes sequentially
+                $(
+                    if handler.extend_if_error($pass::do_pass($input, &mut state)).is_err() {
                         return format!("{}{}", buf.extract_errs(), buf.extract_warnings());
                     }
-                    if handler.extend_if_error(SymbolTableCreation::do_pass((), &mut state)).is_err() {
-                        return format!("{}{}", buf.extract_errs(), buf.extract_warnings());
-                    }
-                    if handler
-                        .extend_if_error(TypeChecking::do_pass(TypeCheckingInput::new(state.network), &mut state))
-                        .is_err()
-                    {
-                        return format!("{}{}", buf.extract_errs(), buf.extract_warnings());
-                    }
-                }
-
-                // Run the specific pass
-                if handler.extend_if_error($pass::do_pass($input, &mut state)).is_err() {
-                    return format!("{}{}", buf.extract_errs(), buf.extract_warnings());
-                }
+                )*
 
                 // Success: return AST with any warnings
                 format!("{}{}", buf.extract_warnings(), state.ast.ast)
@@ -170,9 +237,9 @@ macro_rules! make_runner {
 
 /// Macro to generate all runners from the compiler_passes table.
 macro_rules! make_all_runners {
-    ($(($runner:ident, $pass:ident, $input:tt, $run_prelude:tt)),* $(,)?) => {
+    ($(($runner:ident, $passes:tt)),* $(,)?) => {
         $(
-            make_runner!($runner, $pass, $input, $run_prelude);
+            make_runner!($runner, $passes);
         )*
     };
 }
@@ -182,23 +249,37 @@ compiler_passes!(make_all_runners);
 ///
 /// Each test function:
 /// - Uses the runner function generated above.
-/// - Uses `leo_test_framework::run_tests` with a path derived from the pass struct name.
+/// - Uses `leo_test_framework::run_tests` with a path derived from the last pass struct name (the actual pass being tested).
 /// - Uses `paste::paste!` to safely concatenate identifiers.
 macro_rules! make_all_tests {
-    ($(($runner:ident, $pass:ident, $input:tt, $run_prelude:tt)),* $(,)?) => {
+    ($(($runner:ident, [$(($pass:ident, $input:tt)),* $(,)?])),* $(,)?) => {
         $(
             paste::paste! {
                 #[test]
                 #[serial]
                 fn [<$runner _test>]() {
-                    // Automatically derive the snake_case directory name from the pass name
-                    leo_test_framework::run_tests(
-                        concat!("passes/", stringify!([<$pass:snake>])),
-                        $runner,
-                    );
+                    // Automatically derive the snake_case directory name from the last pass name (the actual pass being tested)
+                    // We need to extract the last pass from the list
+                    make_all_tests_inner!($runner, [$(($pass, $input)),*]);
                 }
             }
         )*
     };
 }
+
+/// Helper macro to extract the last pass name from the list.
+macro_rules! make_all_tests_inner {
+    ($runner:ident, [($pass:ident, $input:tt)]) => {
+        paste::paste! {
+            leo_test_framework::run_tests(
+                concat!("passes/", stringify!([<$pass:snake>])),
+                $runner,
+            );
+        }
+    };
+    ($runner:ident, [($pass:ident, $input:tt), $(($rest_pass:ident, $rest_input:tt)),+ $(,)?]) => {
+        make_all_tests_inner!($runner, [$(($rest_pass, $rest_input)),+]);
+    };
+}
+
 compiler_passes!(make_all_tests);
