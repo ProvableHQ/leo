@@ -29,6 +29,9 @@ pub struct CLI {
     #[clap(short, global = true, help = "Suppress CLI output")]
     quiet: bool,
 
+    #[clap(long, global = true, help = "Disable Leo's daily check for version updates")]
+    disable_update_check: bool,
+
     #[clap(subcommand)]
     command: Commands,
 
@@ -157,7 +160,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     }
 
     //  Check for updates. If not forced, it checks once per day.
-    if let Ok(true) = updater::Updater::check_for_updates(false) {
+    if !cli.disable_update_check
+        && let Ok(true) = updater::Updater::check_for_updates(false)
+    {
         let _ = updater::Updater::print_cli();
     }
 
@@ -218,6 +223,7 @@ mod tests {
         let run = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "example".to_string(),
@@ -260,6 +266,7 @@ mod tests {
         let run = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "double_wrapper_mint".to_string(),
@@ -303,6 +310,7 @@ mod tests {
         let run = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "inner_1_main".to_string(),
@@ -340,6 +348,7 @@ mod tests {
         let run = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "main".to_string(),
@@ -380,6 +389,7 @@ mod test_helpers {
         let new = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: name.to_string(),
@@ -453,6 +463,7 @@ function external_nested_function:
         let add = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "nested_example_layer_0".to_string(),
@@ -499,6 +510,7 @@ function external_nested_function:
         let create_grandparent_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "grandparent".to_string(),
@@ -513,6 +525,7 @@ function external_nested_function:
         let create_parent_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "parent".to_string(),
@@ -527,6 +540,7 @@ function external_nested_function:
         let create_child_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "child".to_string(),
@@ -583,6 +597,7 @@ program child.aleo {
         let add_grandparent_dependency_1 = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "parent".to_string(),
@@ -598,6 +613,7 @@ program child.aleo {
         let add_grandparent_dependency_2 = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
@@ -613,6 +629,7 @@ program child.aleo {
         let add_parent_dependency = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
@@ -657,6 +674,7 @@ program child.aleo {
         let create_outer_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "outer".to_string(),
@@ -671,6 +689,7 @@ program child.aleo {
         let create_inner_1_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "inner_1".to_string(),
@@ -685,6 +704,7 @@ program child.aleo {
         let create_inner_2_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "inner_2".to_string(),
@@ -764,6 +784,7 @@ program outer.aleo {
         let add_outer_dependency_1 = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
@@ -779,6 +800,7 @@ program outer.aleo {
         let add_outer_dependency_2 = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
@@ -822,6 +844,7 @@ program outer.aleo {
         let create_outer_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "outer_2".to_string(),
@@ -836,6 +859,7 @@ program outer.aleo {
         let create_inner_1_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "inner_1".to_string(),
@@ -850,6 +874,7 @@ program outer.aleo {
         let create_inner_2_project = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
                     name: "inner_2".to_string(),
@@ -919,7 +944,7 @@ program outer_2.aleo {
     }
 
     @noupgrade
-    async constructor() {}   
+    async constructor() {}
 }";
         let inner_2_program = "program inner_2.aleo {
     struct Foo {
@@ -960,6 +985,7 @@ program outer_2.aleo {
         let add_outer_dependency_1 = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
@@ -975,6 +1001,7 @@ program outer_2.aleo {
         let add_outer_dependency_2 = CLI {
             debug: false,
             quiet: false,
+            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
