@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AstSnapshots"],"mod":["compiler","options","run_with_ledger"],"struct":["Ast","Compiler","CompilerOptions"]};
+window.SIDEBAR_ITEMS = {"enum":["AstSnapshots"],"mod":["compiler","options","run"],"struct":["Ast","Compiler","CompilerOptions"]};

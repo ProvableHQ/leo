@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Status"],"fn":["run_with_ledger"],"struct":["Case","CaseOutcome","Config","Program"],"type":["CurrentNetwork"]};
