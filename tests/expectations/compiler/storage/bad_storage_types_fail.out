@@ -1,70 +1,135 @@
-Error [ETYC0372166]: tuple is an invalid storage type
+Error [ETYC0372166]: A zero sized type is an invalid storage type
+    --> compiler-test:3:5
+     |
+   3 |     storage unit_storage: ();
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: unit is an invalid storage type
+    --> compiler-test:3:5
+     |
+   3 |     storage unit_storage: ();
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: string is an invalid storage type
+    --> compiler-test:4:5
+     |
+   4 |     storage string_storage: string;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: signature is an invalid storage type
+    --> compiler-test:5:5
+     |
+   5 |     storage signature_storage: signature;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: future is an invalid storage type
+    --> compiler-test:6:5
+     |
+   6 |     storage future_storage: Future;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: optional is an invalid storage type
     --> compiler-test:7:5
      |
-   7 |     storage tuple_storage: (u32, u32);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: future is an invalid storage type
+   7 |     storage optional_storage: u32?;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: tuple is an invalid storage type
     --> compiler-test:8:5
      |
-   8 |     storage future_storage: Future;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: address is an invalid storage type
-    --> compiler-test:9:5
-     |
-   9 |     storage address_storage: address;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: signature is an invalid storage type
-    --> compiler-test:10:5
-     |
-  10 |     storage signature_storage: signature;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 |     storage tuple_storage: (u32, u32);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: record is an invalid storage type
-    --> compiler-test:11:5
+    --> compiler-test:14:5
      |
-  11 |     storage record_storage: MyRecord;
+  14 |     storage record_storage: MyRecord;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: A zero sized type is an invalid storage type
-    --> compiler-test:12:5
-     |
-  12 |     storage unit_storage: ();
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: unit is an invalid storage type
-    --> compiler-test:12:5
-     |
-  12 |     storage unit_storage: ();
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: tuple is an invalid storage type
-    --> compiler-test:15:5
-     |
-  15 |     storage vec_tuple: [(u32, u32)];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: future is an invalid storage type
-    --> compiler-test:16:5
-     |
-  16 |     storage vec_future: [Future];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: address is an invalid storage type
     --> compiler-test:17:5
      |
-  17 |     storage vec_address: [address];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: signature is an invalid storage type
+  17 |     storage array_unit: [(); 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: unit is an invalid storage type
+    --> compiler-test:17:5
+     |
+  17 |     storage array_unit: [(); 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: string is an invalid storage type
     --> compiler-test:18:5
      |
-  18 |     storage vec_signature: [signature];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: record is an invalid storage type
+  18 |     storage array_string: [string; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: signature is an invalid storage type
     --> compiler-test:19:5
      |
-  19 |     storage vec_record: [MyRecord];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372166]: A zero sized type is an invalid storage type
+  19 |     storage array_signature: [signature; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: future is an invalid storage type
     --> compiler-test:20:5
      |
-  20 |     storage vec_unit: [()];
+  20 |     storage array_future: [Future; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: future is an invalid storage type
+    --> compiler-test:20:5
+     |
+  20 |     storage array_future: [Future; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: optional is an invalid storage type
+    --> compiler-test:21:5
+     |
+  21 |     storage array_optional: [u32?; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: optional is an invalid storage type
+    --> compiler-test:21:5
+     |
+  21 |     storage array_optional: [u32?; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: tuple is an invalid storage type
+    --> compiler-test:22:5
+     |
+  22 |     storage array_tuple: [(u32, u32); 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: tuple is an invalid storage type
+    --> compiler-test:22:5
+     |
+  22 |     storage array_tuple: [(u32, u32); 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: record is an invalid storage type
+    --> compiler-test:23:5
+     |
+  23 |     storage array_record: [MyRecord; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: A zero sized type is an invalid storage type
+    --> compiler-test:26:5
+     |
+  26 |     storage vec_unit: [()];
      |     ^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: unit is an invalid storage type
-    --> compiler-test:20:5
+    --> compiler-test:26:5
      |
-  20 |     storage vec_unit: [()];
+  26 |     storage vec_unit: [()];
      |     ^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: string is an invalid storage type
+    --> compiler-test:27:5
+     |
+  27 |     storage vec_string: [string];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: signature is an invalid storage type
+    --> compiler-test:28:5
+     |
+  28 |     storage vec_signature: [signature];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: future is an invalid storage type
+    --> compiler-test:29:5
+     |
+  29 |     storage vec_future: [Future];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: optional is an invalid storage type
+    --> compiler-test:30:5
+     |
+  30 |     storage vec_optional: [u32?];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: tuple is an invalid storage type
+    --> compiler-test:31:5
+     |
+  31 |     storage vec_tuple: [(u32, u32)];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372166]: record is an invalid storage type
+    --> compiler-test:32:5
+     |
+  32 |     storage vec_record: [MyRecord];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

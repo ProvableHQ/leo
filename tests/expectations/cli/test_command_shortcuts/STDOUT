@@ -1,0 +1,21 @@
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[243u8, 135u8, 116u8, 66u8, 246u8, 27u8, 131u8, 192u8, 145u8, 195u8, 150u8, 1u8, 217u8, 146u8, 63u8, 42u8, 159u8, 224u8, 25u8, 105u8, 240u8, 197u8, 236u8, 236u8, 115u8, 219u8, 254u8, 62u8, 5u8, 44u8, 74u8, 93u8]'.
+       Leo ✅ Compiled 'test_shortcuts.aleo' into Aleo instructions.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[243u8, 135u8, 116u8, 66u8, 246u8, 27u8, 131u8, 192u8, 145u8, 195u8, 150u8, 1u8, 217u8, 146u8, 63u8, 42u8, 159u8, 224u8, 25u8, 105u8, 240u8, 197u8, 236u8, 236u8, 115u8, 219u8, 254u8, 62u8, 5u8, 44u8, 74u8, 93u8]'.
+       Leo ✅ Compiled 'test_shortcuts.aleo' into Aleo instructions.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+
+➕Adding programs to the VM in the following order:
+  - test_shortcuts.aleo (edition: 1)
+
+➡️  Output
+
+ • 3u32

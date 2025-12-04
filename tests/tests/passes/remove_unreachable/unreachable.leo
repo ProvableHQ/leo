@@ -1,0 +1,35 @@
+program test.aleo {
+    transition main(cond: bool, a: u32, b: u32) -> u32 {
+        if cond {
+            return a;
+            return b;
+        } else {
+            return a;
+        }
+        return b;
+    } 
+    transition foo(cond: bool, a: u32, b: u32) -> u32 {
+        return a;
+        return b;
+    } 
+    transition bar(cond: bool, a: u32, b: u32) -> u32 {
+        if true {
+            return a;
+        }
+        return b;
+    } 
+    transition baz(cond: bool, a: u32, b: u32) -> u32 {
+        if false {
+            return a;
+        }
+        return b;
+    } 
+    transition foobar(cond: bool, a: u32, b: u32) -> u32 {
+        if false {
+            a = a + 42;
+            { return a; }
+            a = a + 50;
+        }
+        return b;
+    } 
+}

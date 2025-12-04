@@ -1,23 +1,35 @@
 program negative_storage_tests.aleo {
+    // --- Top-level illegal types ---
+    storage unit_storage: ();
+    storage string_storage: string;
+    storage signature_storage: signature;
+    storage future_storage: Future;
+    storage optional_storage: u32?;
+    storage tuple_storage: (u32, u32);
+
+    // --- Record (disallowed composite) ---
     record MyRecord {
         owner: address
     }
-
-    // 1. Illegal storage types
-    storage tuple_storage: (u32, u32);
-    storage future_storage: Future;
-    storage address_storage: address;
-    storage signature_storage: signature;
     storage record_storage: MyRecord;
-    storage unit_storage: ();
 
-    // 2. Storage vectors containing illegal types
-    storage vec_tuple: [(u32, u32)];
-    storage vec_future: [Future];
-    storage vec_address: [address];
-    storage vec_signature: [signature];
-    storage vec_record: [MyRecord];
+    // --- Arrays of illegal types ---
+    storage array_unit: [(); 2];
+    storage array_string: [string; 2];
+    storage array_signature: [signature; 2];
+    storage array_future: [Future; 2];
+    storage array_optional: [u32?; 2];
+    storage array_tuple: [(u32, u32); 2];
+    storage array_record: [MyRecord; 2];
+
+    // --- Vectors of illegal types ---
     storage vec_unit: [()];
+    storage vec_string: [string];
+    storage vec_signature: [signature];
+    storage vec_future: [Future];
+    storage vec_optional: [u32?];
+    storage vec_tuple: [(u32, u32)];
+    storage vec_record: [MyRecord];
 
     transition foo() {}
 }

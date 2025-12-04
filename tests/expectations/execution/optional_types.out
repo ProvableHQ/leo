@@ -49,6 +49,20 @@ struct Optional__Iw7fQz4CKJ0:
 struct Top:
     container as Optional__Iw7fQz4CKJ0;
 
+struct Optional__HdJPTit9rcT:
+    is_some as boolean;
+    val as address;
+
+struct AddrStruct:
+    a as address;
+    b as Optional__HdJPTit9rcT;
+
+struct InnerAddr:
+    val as Optional__HdJPTit9rcT;
+
+struct WrapperAddr:
+    inner as InnerAddr;
+
 struct Optional__EsDmm5O6sv6:
     is_some as boolean;
     val as u32;
@@ -84,6 +98,10 @@ struct Optional__K4XRQPOk9yX:
 struct Optional__JYP65FYVVJA:
     is_some as boolean;
     val as scalar;
+
+struct Optional__Jyc4bxRuQrs:
+    is_some as boolean;
+    val as AddrStruct;
 
 function optional_basic_primitives:
     cast true 10u32 into r0 as Optional__EsDmm5O6sv6;
@@ -199,231 +217,46 @@ function optional_misc_primitive_types:
     output r3 as field.private;
     output r2.val as scalar.private;
 
+function optional_address:
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r0 as Optional__HdJPTit9rcT;
+    cast true aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r1 as Optional__HdJPTit9rcT;
+    ternary r0.is_some r0.val aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r2;
+    ternary r1.is_some r1.val r2 into r3;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r4 as Optional__HdJPTit9rcT;
+    cast aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta r4 into r5 as AddrStruct;
+    ternary r5.b.is_some r5.b.val r5.a into r6;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r7 as Optional__HdJPTit9rcT;
+    cast aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta r7 into r8 as AddrStruct;
+    cast true r8 into r9 as Optional__Jyc4bxRuQrs;
+    assert.eq r9.is_some true;
+    cast true aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r10 as Optional__HdJPTit9rcT;
+    cast r10 into r11 as InnerAddr;
+    cast r11 into r12 as WrapperAddr;
+    assert.eq r12.inner.val.is_some true;
+    output r3 as address.private;
+    output r6 as address.private;
+    output r9.val.a as address.private;
+    output r12.inner.val.val as address.private;
+
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au136tagfvaf3sxgvak2q3n84jmta2yy5clr6lefnnrvrlsxgzvkv9sahams0",
-      "program": "all_types.aleo",
-      "function": "optional_basic_primitives",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "2601215692614856085038855928040848032597789677409541904645117423664448650813field",
-          "value": "ciphertext1qyqv7ga5trjcswm5v9w8cp2r3j350tz8a0ahnhpgjznzesxw829k7rgmq2hl9"
-        }
-      ],
-      "tpk": "6436250505729030327561312370514985398391203870244299067437496960585219711134group",
-      "tcm": "5598012722759062928202960694337682154750003852737662174753247311981057631334field",
-      "scm": "2802007035778210620307543289028508671504868802455176135001652758235595148912field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1gd69kk86puwtg4f5zvxa6r6ua9uf3xwrygl3ktcraufmjvwafspq36lu3k",
-      "program": "all_types.aleo",
-      "function": "array_of_optionals",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "2149749916105601420044831516907384125447683208206161391261938759239920428969field",
-          "value": "ciphertext1qyq8vje8yr3n37xpx6lv8sffaja73h6egynsm2sc07upgqrmg4nkvzgh4cvfs"
-        }
-      ],
-      "tpk": "6786135613619843748146614580089562483895036696711585156953209952956860676041group",
-      "tcm": "6407685360286932042211028631660080432142764188188039268613005835108370846188field",
-      "scm": "4868417000827980165156721392525551216603527886799024241341899532694170066746field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1s4us7djxtnsxvw66vzzpnqd63txpyafs9y5sjrmccpgwesed0v8srm824f",
-      "program": "all_types.aleo",
-      "function": "optional_array",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "3455666462057586983405955319399191419770843186268746811266971239437723998307field",
-          "value": "ciphertext1qyqfgwmn0wz0s766sfq5wskhhhvq2srsy2jexaxpd3vjc5hksqv5syguc3u0c"
-        }
-      ],
-      "tpk": "8191546365494449229401516388481043144655589173963588590944159348037087855025group",
-      "tcm": "8046240212188331625358725707776239735269026822733856529176775015360561937656field",
-      "scm": "2014050716866634138966875710420931753046444864710769839418540621410826778576field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1r9x833emkej8yrk0tjznyl5a96h6td7058s8r5k3q6e9q6u6k5yq7r8x2p",
-      "program": "all_types.aleo",
-      "function": "optional_struct_field",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "4105569341380744293624662384686652516879508864911300079638996613685027165392field",
-          "value": "ciphertext1qyqxa99k8jjrsxtn6l6sxlpsqx4xpwnv3tjnepge662a0mx6lrukuqgdwjnap"
-        }
-      ],
-      "tpk": "4877838345181325883827558671281373550857926792444056396585216165970432239467group",
-      "tcm": "8439925514848762466688326976376142902739786938622236636633231609901594560196field",
-      "scm": "8028448733154396976620603174671657708725815500189185292785432988058042146848field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au173fjrr4ajq4rqfs5pnnkydxqmxl4f45kjp8fjadye0k03dedmgpqr655wt",
-      "program": "all_types.aleo",
-      "function": "optional_struct",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "6082260092756690594855284232256480839051989258380292649706677058450111159891field",
-          "value": "ciphertext1qyqzu297ga8lqhwdt4ag353ftj29e7ectje8ncwup2y39let9kp7yrcs8wpeq"
-        }
-      ],
-      "tpk": "4135025974138612617261046774461402712019420122105546996744996614359607664247group",
-      "tcm": "3705469511728816695989358826219302358361849544077628566493049642336732299283field",
-      "scm": "5836476873390401550928241349458644496695772233774092343017116844891757847513field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1xk289xfmps4x7dxc0qkhw6jk85jzlqel5km66x0yakycpgfvdgqqc5r0un",
-      "program": "all_types.aleo",
-      "function": "array_of_optional_structs",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "324463623834985510916849806973830314502313967395121675708492650314655147992field",
-          "value": "ciphertext1qyqxjaxjcxd2sfje3rlkc5x80p63ws99pap0ea6wcsr8ztqkfq3czqg9t2utn"
-        }
-      ],
-      "tpk": "6496535265321109031029060098856298027858333263459100343007460696876835767432group",
-      "tcm": "926098341429471817322625708353250205134422914426293724514836796053988667216field",
-      "scm": "4114269927895187194633538980108352893441497499085254434006322953148750415149field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1ngvzgfq3zv96z0ug5zzshuju247f7u5k5365076lfmryj0x3pcqqz79ear",
-      "program": "all_types.aleo",
-      "function": "nested_optional_structs",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "2656007234008086588979994848998536846442386140512433002575439243471208011437field",
-          "value": "ciphertext1qyqzg9rlte672xczdh5m9yjpp5q3fs439f4twckjc3akr49ygues7qcvgzh97"
-        }
-      ],
-      "tpk": "2261227453945003598263461379146391274177136306629169660358771596122812570996group",
-      "tcm": "5554256120492743867151681764642827853054452209759420357299484427620560265058field",
-      "scm": "209964094582281996778484636175196610356142815072943500240824064949375117104field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au146g8fz294752ufmwsq2syrww0r54m28m9hy45yg85hgl4w0pfgqqahm0m5",
-      "program": "all_types.aleo",
-      "function": "tuples_with_optional_elements",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "3141309502009903367933533388700325646690320877694298508353471724458088313133field",
-          "value": "ciphertext1qyqvltca2skjs2c8r6j7ra7pu0gghg86e4fanhwanfsjuexqt5kz7qckn4n03"
-        }
-      ],
-      "tpk": "2227698038741924746581939728715608003629119259813872257725277359168031465910group",
-      "tcm": "5831426835574479832155682599727483960612566430794219073650056826402038447803field",
-      "scm": "1261648328259358643240919449648989366412674394411414795744504155107411138175field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1c8uas7yunq6w27n0ecqvjq9y78zvxhs9ums29fthdwmh38qtcuzs95smw3",
-      "program": "all_types.aleo",
-      "function": "optional_misc_primitive_types",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "private",
-          "id": "1180262416597255810781168434758483212171796561909263419941341581272999447098field",
-          "value": "ciphertext1qgqraz6gmfe3qum54739vcvefne7rfv7v6ty4v9gfxe7r0r0gr4sspdrh7gc6y4w9swdyhy9h9mgjqd44h3z5g6epfletsxkm0f35dr4zqwms8um"
-        },
-        {
-          "type": "private",
-          "id": "5702072204372985714389352165913600463585086340357384315087144256555092744122field",
-          "value": "ciphertext1qgq83fpcglthfunkspv97rxj9ky3ts7u0994wd7xnfvpy6krkjdf7p6u6hraf93revrgzswzg8lrmgzhy73e9n9ayyd4757zrugsxu03q5tvjctd"
-        },
-        {
-          "type": "private",
-          "id": "1103754568956441981627442156423690578333910745004291245888793774653343621317field",
-          "value": "ciphertext1qgqf676hq0zey79j4vex9j8r7dxlu36fmdjgez6vakqf95y7eg7azrv7r7yhhqn4f2s7puhln05vawzqcwr7st2cmzh8aeg7jxy8j474qvt9s6e7"
-        }
-      ],
-      "tpk": "6838050402083592367515869547007272624111061174708028339432350957519822426237group",
-      "tcm": "6735950385326710153657245501969490508447021559566631158535358666175457439895field",
-      "scm": "2238511267097530226753579814091738303828962831320733810559296347804455866839field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+status: success
+output: 52u32
+status: success
+output: 24u8
+status: success
+output: 1095u128
+status: success
+output: 123u16
+status: success
+output: 5u8
+status: success
+output: 10u8
+status: success
+output: 10u8
+status: success
+output: 650u32
+status: success
+output: (0group, 1field, 2scalar)
+status: success
+output: (aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta, aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta, aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta, aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta)

@@ -91,93 +91,36 @@ function sort:
 
 constructor:
     assert.eq edition 0u16;
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au103tet5ua2zkdsr050j9pc80z7pdhcyan9jte95qjp093fpw8hqyqy6up5x",
-      "program": "bubble_sort.aleo",
-      "function": "sort",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "7587472251507444745323758607403816116091051233399049810002464935142883373595field",
-          "value": "ciphertext1qvqw50ggcthwg6fyduqwm43hvrmvxe05pd9e8k0k7glaqu4etk295ykcyu5dh38nkspsc0u5jv5s2f0873jc9hfn6d2ttnqnysmdxs40q448kcrkp2veenr3wrxemdma8m2sqdl3ss53ddupap5yk3y7wp8qcv92epd"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "1150924143585479551874544812631570824254241937580895328321341557008647100988field",
-          "value": "[\n  0u32,\n  0u32,\n  2u32,\n  5u32,\n  10u32,\n  100u32,\n  200u32,\n  300u32\n]"
-        }
-      ],
-      "tpk": "7123952565308361782425118806567569311947872659430657577089075139960496809044group",
-      "tcm": "3430153062966307368667492658394481071261290275135194011244039535987344183460field",
-      "scm": "7993060580658647071301743353487598175709151124808046335968749125416260434552field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1rvh3dhxs6lv6s2fl8aekg0ataw6zk2ut7s6rrpksk3x2x9wnrg9qevvsru",
-      "program": "bubble_sort.aleo",
-      "function": "sort",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "3896076945776684519496345414659818815502923912766257347880321913219023987731field",
-          "value": "ciphertext1qvqxljp7amrzqd3jp2a2xdx6gwv7n03jx3mj8fwc0e8p5r50tmrcgyfuepnj83n728ucps3h2wuuxf6xl5sulpzx9x25swxqw5nwc3shpge29wl23yk2k4wc0seg62xlh6kghty3u0gw4xs5lpny27n0yh8sux4049w"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "1300542883899380291184435010338905590649998989009513070929959318174859793981field",
-          "value": "[\n  1u32,\n  2u32,\n  3u32,\n  4u32,\n  5u32,\n  6u32,\n  7u32,\n  8u32\n]"
-        }
-      ],
-      "tpk": "2893844751435036019515893989441839272575422187686356176127178103379524429041group",
-      "tcm": "6415854228263869359394693519059621568317880982550641905705445655089237162952field",
-      "scm": "3056019767694286721253926706943696508890086732611984380605786846284750606695field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1eptwznhsslm7cm8fvsj6a2g2q6sfdryc88ne52entmqy56esugxqnhk2rf",
-      "program": "bubble_sort.aleo",
-      "function": "sort",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "4064419032031939452125887582996242579729033640129627249058390597687190251150field",
-          "value": "ciphertext1qvq0nfywuce79u8es6tjsrzlxxgxaslu3sf8n7mf6rf5ct5t7vn57rrd6ykrglzav9zajkg082na9sxsregxht8wg284tgx3fxp9m4zvqhw7n8p07hu0xc2dv50al5sqy0e82ulxaygd6vkqgndga7ca8lfs5h0ywme"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "public",
-          "id": "7697524184807011317668495082693821252808957532918458361194996238239836016607field",
-          "value": "[\n  1u32,\n  2u32,\n  3u32,\n  4u32,\n  5u32,\n  6u32,\n  7u32,\n  8u32\n]"
-        }
-      ],
-      "tpk": "1360584484795297131092137577881923631914598890059781868080904344226004853008group",
-      "tcm": "3983500824201282727868271975759055642970819622238085227718868367775401048636field",
-      "scm": "2681027750479115696700982229454449016817905952824874769349165550024483718375field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
+status: success
+output: [
+  0u32,
+  0u32,
+  2u32,
+  5u32,
+  10u32,
+  100u32,
+  200u32,
+  300u32
+]
+status: success
+output: [
+  1u32,
+  2u32,
+  3u32,
+  4u32,
+  5u32,
+  6u32,
+  7u32,
+  8u32
+]
+status: success
+output: [
+  1u32,
+  2u32,
+  3u32,
+  4u32,
+  5u32,
+  6u32,
+  7u32,
+  8u32
+]

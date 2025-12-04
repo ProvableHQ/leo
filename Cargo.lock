@@ -1997,7 +1997,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leo-ast"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -2013,7 +2013,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -2039,7 +2039,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "leo-ast",
  "leo-errors",
@@ -2049,7 +2049,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -2064,7 +2064,7 @@ dependencies = [
 
 [[package]]
 name = "leo-interpreter"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "chrono",
  "colored 2.2.0",
@@ -2091,7 +2091,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -2153,7 +2153,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "indexmap",
  "leo-ast",
@@ -2168,7 +2168,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "indexmap",
  "itertools 0.13.0",
@@ -2185,7 +2185,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser-lossless"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "itertools 0.13.0",
  "lalrpop",
@@ -2198,7 +2198,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "anyhow",
  "base62",
@@ -2222,7 +2222,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "fxhash",
  "indexmap",
@@ -2232,7 +2232,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "3.3.1"
+version = "3.4.0"
 dependencies = [
  "rayon 0.8.2",
  "walkdir",

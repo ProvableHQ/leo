@@ -1252,6 +1252,7 @@ create_messages!(
         help: None,
     }
 
+    // TODO This error is unused. Remove it in a future version.
     @formatted
     optional_wrapping_of_records_unsupported {
         args: (ty: impl Display),
@@ -1267,7 +1268,8 @@ create_messages!(
         msg: format!(
             "The type `{ty}` cannot be wrapped in an optional.",
         ),
-        help: None,
+        help: Some("Optionals cannot wrap signatures, futures, mappings, tuples, vectors, records, arrays whose \
+                    elements are optional-unsafe, or structures containing any such types.".to_string()),
     }
 
     @formatted

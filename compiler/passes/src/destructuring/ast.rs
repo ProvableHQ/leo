@@ -24,6 +24,64 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
+    /// Reconstructs a binary expression, expanding equality and inequality over
+    /// tuples into elementwise comparisons. When both sides are tuples and the
+    /// operator is `==` or `!=`, it generates per-element comparisons and folds
+    /// them with AND/OR; otherwise the expression is rebuilt normally.
+    ///
+    /// Example: `(a, b) == (c, d)` → `(a == c) && (b == d)`
+    /// Example: `(a, b, c) != (x, y, z)` → `(a != x) || (b != y) || (c != z)`
+    fn reconstruct_binary(
+        &mut self,
+        input: BinaryExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        let (left, mut statements) = self.reconstruct_expression_tuple(input.left);
+        let (right, statements2) = self.reconstruct_expression_tuple(input.right);
+        statements.extend(statements2);
+
+        use BinaryOperation::*;
+
+        // Tuple equality / inequality expansion
+        if let (Expression::Tuple(tuple_left), Expression::Tuple(tuple_right)) = (&left, &right)
+            && matches!(input.op, Eq | Neq)
+        {
+            assert_eq!(tuple_left.elements.len(), tuple_right.elements.len());
+
+            // Directly build elementwise (l OP r)
+            let pieces: Vec<Expression> = tuple_left
+                .elements
+                .iter()
+                .zip(&tuple_right.elements)
+                .map(|(l, r)| {
+                    let expr: Expression = BinaryExpression {
+                        op: input.op,
+                        left: l.clone(),
+                        right: r.clone(),
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    }
+                    .into();
+
+                    self.state.type_table.insert(expr.id(), Type::Boolean);
+                    expr
+                })
+                .collect();
+
+            // Fold appropriately
+            let op = match input.op {
+                Eq => BinaryOperation::And,
+                Neq => BinaryOperation::Or,
+                _ => unreachable!(),
+            };
+
+            return (self.fold_with_op(op, pieces.into_iter()), statements);
+        }
+
+        // Fallback
+        (BinaryExpression { op: input.op, left, right, ..input }.into(), Default::default())
+    }
+
     /// Replaces a tuple access expression with the appropriate expression.
     fn reconstruct_tuple_access(
         &mut self,
@@ -66,9 +124,12 @@ impl AstReconstructor for DestructuringVisitor<'_> {
         mut input: TernaryExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        let (if_true, mut statements) = self.reconstruct_expression_tuple(std::mem::take(&mut input.if_true));
-        let (if_false, statements2) = self.reconstruct_expression_tuple(std::mem::take(&mut input.if_false));
+        let (condition, mut statements) =
+            self.reconstruct_expression(std::mem::take(&mut input.condition), &Default::default());
+        let (if_true, statements2) = self.reconstruct_expression_tuple(std::mem::take(&mut input.if_true));
         statements.extend(statements2);
+        let (if_false, statements3) = self.reconstruct_expression_tuple(std::mem::take(&mut input.if_false));
+        statements.extend(statements3);
 
         match (if_true, if_false) {
             (Expression::Tuple(tuple_true), Expression::Tuple(tuple_false)) => {
@@ -77,20 +138,17 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     panic!("Should have tuple type");
                 };
 
-                // We'll be reusing `input.condition`, so assign it to a variable.
-                let cond = if let Expression::Path(..) = input.condition {
-                    input.condition
+                // We'll be reusing `condition`, so assign it to a variable.
+                let cond = if let Expression::Path(..) = condition {
+                    condition
                 } else {
                     let place = Identifier::new(
                         self.state.assigner.unique_symbol("cond", "$$"),
                         self.state.node_builder.next_id(),
                     );
 
-                    let definition = self.state.assigner.simple_definition(
-                        place,
-                        input.condition,
-                        self.state.node_builder.next_id(),
-                    );
+                    let definition =
+                        self.state.assigner.simple_definition(place, condition, self.state.node_builder.next_id());
 
                     statements.push(definition);
 
@@ -144,12 +202,59 @@ impl AstReconstructor for DestructuringVisitor<'_> {
             }
             (if_true, if_false) => {
                 // This isn't a tuple. Just rebuild it and otherwise leave it alone.
-                (TernaryExpression { if_true, if_false, ..input }.into(), statements)
+                (TernaryExpression { condition, if_true, if_false, ..input }.into(), statements)
             }
         }
     }
 
     /* Statements */
+    /// `assert_eq` and `assert_neq` comparing tuples should be expanded to as many asserts as
+    /// the length of each tuple.
+    fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
+        match input.variant {
+            AssertVariant::Assert(expr) => {
+                // Simple assert, just reconstruct the expression.
+                let (expr, _) = self.reconstruct_expression(expr, &Default::default());
+                (AssertStatement { variant: AssertVariant::Assert(expr), ..input }.into(), Default::default())
+            }
+            AssertVariant::AssertEq(ref left, ref right) | AssertVariant::AssertNeq(ref left, ref right) => {
+                let (left, mut statements) = self.reconstruct_expression_tuple(left.clone());
+                let (right, statements2) = self.reconstruct_expression_tuple(right.clone());
+                statements.extend(statements2);
+
+                match (&left, &right) {
+                    (Expression::Tuple(tuple_left), Expression::Tuple(tuple_right)) => {
+                        // Ensure the tuple lengths match
+                        assert_eq!(tuple_left.elements.len(), tuple_right.elements.len());
+
+                        for (l, r) in tuple_left.elements.iter().zip(&tuple_right.elements) {
+                            let assert_variant = match input.variant {
+                                AssertVariant::AssertEq(_, _) => AssertVariant::AssertEq(l.clone(), r.clone()),
+                                AssertVariant::AssertNeq(_, _) => AssertVariant::AssertNeq(l.clone(), r.clone()),
+                                _ => unreachable!(),
+                            };
+
+                            let stmt = AssertStatement { variant: assert_variant, ..input.clone() }.into();
+                            statements.push(stmt);
+                        }
+
+                        // We don't need the original statement, just the ones we've created.
+                        (Statement::dummy(), statements)
+                    }
+                    _ => {
+                        // Not tuples, just keep the original assert
+                        let variant = match input.variant {
+                            AssertVariant::AssertEq(_, _) => AssertVariant::AssertEq(left, right),
+                            AssertVariant::AssertNeq(_, _) => AssertVariant::AssertNeq(left, right),
+                            _ => unreachable!(),
+                        };
+                        (AssertStatement { variant, ..input }.into(), Default::default())
+                    }
+                }
+            }
+        }
+    }
+
     /// Modify assignments to tuples to become assignments to the corresponding variables.
     ///
     /// There are two cases we handle:

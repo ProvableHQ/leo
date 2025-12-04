@@ -129,23 +129,6 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    /// Wraps a type in Optional if the destination type is Optional.
-    /// If destination is `T?` and actual is `T`, returns `T?`. Otherwise returns actual as-is.
-    pub fn wrap_if_optional(&self, actual: Type, destination: &Option<Type>) -> Type {
-        match (actual, destination) {
-            // if destination is Optional<T> and actual is T (not already Optional), wrap it
-            (actual_type, Some(Type::Optional(opt_type))) if !matches!(actual_type, Type::Optional(_)) => {
-                // only wrap if the inner type matches
-                if actual_type.can_coerce_to(&opt_type.inner) {
-                    Type::Optional(OptionalType { inner: Box::new(actual_type) })
-                } else {
-                    actual_type
-                }
-            }
-            (actual_type, _) => actual_type,
-        }
-    }
-
     pub fn assert_int_type(&self, type_: &Type, span: Span) {
         if !matches!(type_, Type::Err | Type::Integer(_)) {
             self.emit_err(TypeCheckerError::type_should_be2(type_, "an integer", span));
@@ -1170,34 +1153,87 @@ impl TypeCheckingVisitor<'_> {
                 }
                 self.assert_type_is_valid(array_type.element_type(), span);
             }
+
             Type::Optional(OptionalType { inner }) => {
-                match &**inner {
-                    Type::Composite(struct_type) => {
-                        // Look up the type.
-                        if let Some(struct_) = self.lookup_struct(
-                            struct_type.program.or(self.scope_state.program_name),
-                            &struct_type.path.absolute_path(),
-                        ) {
-                            // Check that the type is not a record.
-                            if struct_.is_record {
-                                self.emit_err(TypeCheckerError::optional_wrapping_of_records_unsupported(inner, span));
-                            }
+                // Some types cannot be wrapped in an optional
+                if self.disallowed_inside_optional(inner) {
+                    self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span));
+                }
+
+                // Validate inner type normally
+                self.assert_type_is_valid(inner, span);
+            }
+
+            Type::Address
+            | Type::Boolean
+            | Type::Composite(_)
+            | Type::Field
+            | Type::Future(_)
+            | Type::Group
+            | Type::Identifier(_)
+            | Type::Integer(_)
+            | Type::Scalar
+            | Type::Signature
+            | Type::Vector(_)
+            | Type::Numeric
+            | Type::Err => {} // Do nothing.
+        }
+    }
+
+    /// Can type `ty` be used inside an optional?
+    fn disallowed_inside_optional(&mut self, ty: &Type) -> bool {
+        match ty {
+            Type::Unit
+            | Type::Err
+            | Type::Future(_)
+            | Type::Identifier(_)
+            | Type::Mapping(_)
+            | Type::Optional(_)
+            | Type::String
+            | Type::Signature
+            | Type::Tuple(_)
+            | Type::Vector(_) => true,
+
+            Type::Composite(struct_type) => {
+                if let Some(struct_) = self.lookup_struct(
+                    struct_type.program.or(self.scope_state.program_name),
+                    &struct_type.path.absolute_path(),
+                ) {
+                    if struct_.is_record {
+                        return true;
+                    }
+
+                    // recursively check all fields
+                    for field in &struct_.members {
+                        let field_ty = &field.type_;
+                        // unwrap optional fields for the check
+                        let ty_to_check = match field_ty {
+                            Type::Optional(OptionalType { inner }) => inner,
+                            _ => field_ty,
+                        };
+                        if self.disallowed_inside_optional(ty_to_check) {
+                            return true;
                         }
                     }
-                    Type::Future(_)
-                    | Type::Identifier(_)
-                    | Type::Mapping(_)
-                    | Type::Optional(_)
-                    | Type::String
-                    | Type::Address
-                    | Type::Signature
-                    | Type::Tuple(_) => {
-                        self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span));
-                    }
-                    _ => self.assert_type_is_valid(inner, span),
                 }
+                false
             }
-            _ => {} // Do nothing.
+
+            Type::Array(array_type) => {
+                let elem_type = match array_type.element_type() {
+                    Type::Optional(OptionalType { inner }) => inner,
+                    other => other,
+                };
+                self.disallowed_inside_optional(elem_type)
+            }
+
+            Type::Address
+            | Type::Boolean
+            | Type::Field
+            | Type::Group
+            | Type::Integer(_)
+            | Type::Numeric
+            | Type::Scalar => false,
         }
     }
 
@@ -1214,9 +1250,6 @@ impl TypeCheckingVisitor<'_> {
             }
             Type::String => {
                 self.emit_err(TypeCheckerError::invalid_storage_type("string", span));
-            }
-            Type::Address => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("address", span));
             }
             Type::Signature => {
                 self.emit_err(TypeCheckerError::invalid_storage_type("signature", span));
@@ -1274,7 +1307,16 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Everything else (integers, bool, group, etc.)
-            _ => {} // valid
+            Type::Address
+            | Type::Boolean
+            | Type::Field
+            | Type::Group
+            | Type::Identifier(_)
+            | Type::Integer(_)
+            | Type::Scalar
+            | Type::Numeric
+            | Type::Err
+            | Type::Vector(_) => {} // valid
         }
     }
 

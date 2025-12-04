@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_ast::{NetworkName, TEST_PRIVATE_KEY};
-use leo_compiler::run_with_ledger;
+use leo_compiler::run;
 use leo_package::{Package, ProgramData};
 use leo_span::Symbol;
 
@@ -86,7 +86,7 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     let credits = Symbol::intern("credits");
 
     // Get bytecode and name for all programs, either directly or from the filesystem if they were compiled.
-    let programs: Vec<run_with_ledger::Program> = package
+    let programs: Vec<run::Program> = package
         .programs
         .iter()
         .filter_map(|program| {
@@ -107,16 +107,16 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
                         .unwrap_or_else(|e| panic!("Failed to read Aleo file at {}: {}", aleo_path.display(), e))
                 }
             };
-            Some(run_with_ledger::Program { bytecode, name: program.name.to_string() })
+            Some(run::Program { bytecode, name: program.name.to_string() })
         })
         .collect();
 
     let should_fails: Vec<bool> = native_test_functions.iter().map(|test_function| test_function.should_fail).collect();
-    let cases: Vec<Vec<run_with_ledger::Case>> = native_test_functions
+    let cases: Vec<Vec<run::Case>> = native_test_functions
         .into_iter()
         .map(|test_function| {
             // Note. We wrap each individual test in its own vector, so that they are run in insolation.
-            vec![run_with_ledger::Case {
+            vec![run::Case {
                 program_name: format!("{}.aleo", test_function.program),
                 function: test_function.function,
                 private_key: test_function.private_key,
@@ -125,27 +125,27 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
         })
         .collect();
 
-    let outcomes =
-        run_with_ledger::run_with_ledger(&run_with_ledger::Config { seed: 0, start_height: None, programs }, &cases)?
-            .into_iter()
-            .flatten()
-            .collect::<Vec<_>>();
+    let outcomes = run::run_with_ledger(&run::Config { seed: 0, start_height: None, programs }, &cases)?
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
 
     let native_results: Vec<_> = outcomes
         .into_iter()
         .zip(should_fails)
         .map(|(outcome, should_fail)| {
-            let message = match (&outcome.status, should_fail) {
-                (run_with_ledger::Status::Accepted, false) => None,
-                (run_with_ledger::Status::Accepted, true) => {
-                    Some("Test succeeded when failure was expected.".to_string())
-                }
+            let run::ExecutionOutcome { outcome: inner, status, .. } = outcome;
+
+            let message = match (&status, should_fail) {
+                (run::ExecutionStatus::Accepted, false) => None,
+                (run::ExecutionStatus::Accepted, true) => Some("Test succeeded when failure was expected.".to_string()),
                 (_, true) => None,
-                (_, false) => Some(format!("{} -- {}", outcome.status, outcome.output)),
+                (_, false) => Some(format!("{} -- {}", status, inner.output)),
             };
-            (outcome.program_name, outcome.function, message)
+
+            (inner.program_name, inner.function, message)
         })
-        .collect();
+        .collect::<Vec<_>>();
 
     // All tests are run. Report results.
     let total = interpreter_result.iter().count() + native_results.len();

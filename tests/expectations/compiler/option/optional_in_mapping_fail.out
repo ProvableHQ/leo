@@ -1,8 +1,3 @@
-Error [ETYC0372160]: The type `address` cannot be wrapped in an optional.
-    --> compiler-test:6:5
-     |
-   6 |     mapping optional_balances: address? => Foo;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372161]: The type `address?` is or contains an optional type which cannot be used as the key in a mapping
     --> compiler-test:6:5
      |

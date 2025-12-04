@@ -68,6 +68,9 @@ pub use processing_async::*;
 mod processing_script;
 pub use processing_script::*;
 
+mod remove_unreachable;
+pub use remove_unreachable::*;
+
 mod static_single_assignment;
 pub use static_single_assignment::*;
 

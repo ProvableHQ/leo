@@ -1,0 +1,120 @@
+program good_storage_tests.aleo;
+
+struct MyStruct:
+    a as u32;
+    b as boolean;
+    c as address;
+
+mapping bool_storage__:
+    key as boolean.public;
+    value as boolean.public;
+
+mapping scalar_storage__:
+    key as boolean.public;
+    value as scalar.public;
+
+mapping field_storage__:
+    key as boolean.public;
+    value as field.public;
+
+mapping group_storage__:
+    key as boolean.public;
+    value as group.public;
+
+mapping address_storage__:
+    key as boolean.public;
+    value as address.public;
+
+mapping u32_storage__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping i8_storage__:
+    key as boolean.public;
+    value as i8.public;
+
+mapping struct_storage__:
+    key as boolean.public;
+    value as MyStruct.public;
+
+mapping array_u32__:
+    key as boolean.public;
+    value as [u32; 3u32].public;
+
+mapping array_bool__:
+    key as boolean.public;
+    value as [boolean; 2u32].public;
+
+mapping array_address__:
+    key as boolean.public;
+    value as [address; 2u32].public;
+
+mapping array_struct__:
+    key as boolean.public;
+    value as [MyStruct; 2u32].public;
+
+mapping vec_bool__:
+    key as u32.public;
+    value as boolean.public;
+
+mapping vec_bool__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping vec_scalar__:
+    key as u32.public;
+    value as scalar.public;
+
+mapping vec_scalar__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping vec_field__:
+    key as u32.public;
+    value as field.public;
+
+mapping vec_field__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping vec_group__:
+    key as u32.public;
+    value as group.public;
+
+mapping vec_group__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping vec_address__:
+    key as u32.public;
+    value as address.public;
+
+mapping vec_address__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping vec_u32__:
+    key as u32.public;
+    value as u32.public;
+
+mapping vec_u32__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping vec_i8__:
+    key as u32.public;
+    value as i8.public;
+
+mapping vec_i8__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping vec_struct__:
+    key as u32.public;
+    value as MyStruct.public;
+
+mapping vec_struct__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function foo:

@@ -32,6 +32,10 @@ struct Optional__8aTicnNTOvk:
     is_some as boolean;
     val as group;
 
+struct Optional__HdJPTit9rcT:
+    is_some as boolean;
+    val as address;
+
 struct Optional__Db820DkWf1z:
     is_some as boolean;
     val as [Container; 2u32];
@@ -63,6 +67,10 @@ mapping field_val__:
 mapping group_val__:
     key as boolean.public;
     value as group.public;
+
+mapping address_val__:
+    key as boolean.public;
+    value as address.public;
 
 mapping containers__:
     key as boolean.public;
@@ -231,6 +239,7 @@ finalize primitive_types:
     set 2scalar into scalar_val__[false];
     set 21field into field_val__[false];
     set 0group into group_val__[false];
+    set aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into address_val__[false];
     contains flag__[false] into r0;
     get.or_use flag__[false] false into r1;
     cast true r1 into r2 as Optional__DbbQYuLaHdi;
@@ -299,23 +308,23 @@ finalize primitive_types:
     cast r56 r57 into r58 as Optional__8aTicnNTOvk;
     is.eq r58.val 0group into r59;
     assert.eq r59 true;
-    contains flag__[false] into r60;
-    get.or_use flag__[false] false into r61;
-    cast true r61 into r62 as Optional__DbbQYuLaHdi;
-    cast false false into r63 as Optional__DbbQYuLaHdi;
+    contains address_val__[false] into r60;
+    get.or_use address_val__[false] aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r61;
+    cast true r61 into r62 as Optional__HdJPTit9rcT;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r63 as Optional__HdJPTit9rcT;
     ternary r60 r62.is_some r63.is_some into r64;
     ternary r60 r62.val r63.val into r65;
-    cast r64 r65 into r66 as Optional__DbbQYuLaHdi;
+    cast r64 r65 into r66 as Optional__HdJPTit9rcT;
     assert.eq r66.is_some true;
-    contains flag__[false] into r67;
-    get.or_use flag__[false] false into r68;
-    cast true r68 into r69 as Optional__DbbQYuLaHdi;
-    cast false false into r70 as Optional__DbbQYuLaHdi;
+    contains address_val__[false] into r67;
+    get.or_use address_val__[false] aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r68;
+    cast true r68 into r69 as Optional__HdJPTit9rcT;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r70 as Optional__HdJPTit9rcT;
     ternary r67 r69.is_some r70.is_some into r71;
     ternary r67 r69.val r70.val into r72;
-    cast r71 r72 into r73 as Optional__DbbQYuLaHdi;
-    not r73.val into r74;
-    set r74 into flag__[false];
+    cast r71 r72 into r73 as Optional__HdJPTit9rcT;
+    is.eq r73.val aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r74;
+    assert.eq r74 true;
     contains flag__[false] into r75;
     get.or_use flag__[false] false into r76;
     cast true r76 into r77 as Optional__DbbQYuLaHdi;
@@ -331,8 +340,8 @@ finalize primitive_types:
     ternary r82 r84.is_some r85.is_some into r86;
     ternary r82 r84.val r85.val into r87;
     cast r86 r87 into r88 as Optional__DbbQYuLaHdi;
-    is.eq r88.val false into r89;
-    assert.eq r89 true;
+    not r88.val into r89;
+    set r89 into flag__[false];
     contains flag__[false] into r90;
     get.or_use flag__[false] false into r91;
     cast true r91 into r92 as Optional__DbbQYuLaHdi;
@@ -340,6 +349,7 @@ finalize primitive_types:
     ternary r90 r92.is_some r93.is_some into r94;
     ternary r90 r92.val r93.val into r95;
     cast r94 r95 into r96 as Optional__DbbQYuLaHdi;
+    assert.eq r96.is_some true;
     contains flag__[false] into r97;
     get.or_use flag__[false] false into r98;
     cast true r98 into r99 as Optional__DbbQYuLaHdi;
@@ -347,26 +357,42 @@ finalize primitive_types:
     ternary r97 r99.is_some r100.is_some into r101;
     ternary r97 r99.val r100.val into r102;
     cast r101 r102 into r103 as Optional__DbbQYuLaHdi;
-    ternary r96.is_some r103.val true into r104;
-    is.eq r104 false into r105;
-    assert.eq r105 true;
-    contains field_val__[false] into r106;
-    get.or_use field_val__[false] 0field into r107;
-    cast true r107 into r108 as Optional__K4XRQPOk9yX;
-    cast false 0field into r109 as Optional__K4XRQPOk9yX;
-    ternary r106 r108.is_some r109.is_some into r110;
-    ternary r106 r108.val r109.val into r111;
-    cast r110 r111 into r112 as Optional__K4XRQPOk9yX;
-    contains field_val__[false] into r113;
-    get.or_use field_val__[false] 0field into r114;
-    cast true r114 into r115 as Optional__K4XRQPOk9yX;
-    cast false 0field into r116 as Optional__K4XRQPOk9yX;
-    ternary r113 r115.is_some r116.is_some into r117;
-    ternary r113 r115.val r116.val into r118;
-    cast r117 r118 into r119 as Optional__K4XRQPOk9yX;
-    ternary r112.is_some r119.val 0field into r120;
-    is.eq r120 21field into r121;
-    assert.eq r121 true;
+    is.eq r103.val false into r104;
+    assert.eq r104 true;
+    contains flag__[false] into r105;
+    get.or_use flag__[false] false into r106;
+    cast true r106 into r107 as Optional__DbbQYuLaHdi;
+    cast false false into r108 as Optional__DbbQYuLaHdi;
+    ternary r105 r107.is_some r108.is_some into r109;
+    ternary r105 r107.val r108.val into r110;
+    cast r109 r110 into r111 as Optional__DbbQYuLaHdi;
+    contains flag__[false] into r112;
+    get.or_use flag__[false] false into r113;
+    cast true r113 into r114 as Optional__DbbQYuLaHdi;
+    cast false false into r115 as Optional__DbbQYuLaHdi;
+    ternary r112 r114.is_some r115.is_some into r116;
+    ternary r112 r114.val r115.val into r117;
+    cast r116 r117 into r118 as Optional__DbbQYuLaHdi;
+    ternary r111.is_some r118.val true into r119;
+    is.eq r119 false into r120;
+    assert.eq r120 true;
+    contains field_val__[false] into r121;
+    get.or_use field_val__[false] 0field into r122;
+    cast true r122 into r123 as Optional__K4XRQPOk9yX;
+    cast false 0field into r124 as Optional__K4XRQPOk9yX;
+    ternary r121 r123.is_some r124.is_some into r125;
+    ternary r121 r123.val r124.val into r126;
+    cast r125 r126 into r127 as Optional__K4XRQPOk9yX;
+    contains field_val__[false] into r128;
+    get.or_use field_val__[false] 0field into r129;
+    cast true r129 into r130 as Optional__K4XRQPOk9yX;
+    cast false 0field into r131 as Optional__K4XRQPOk9yX;
+    ternary r128 r130.is_some r131.is_some into r132;
+    ternary r128 r130.val r131.val into r133;
+    cast r132 r133 into r134 as Optional__K4XRQPOk9yX;
+    ternary r127.is_some r134.val 0field into r135;
+    is.eq r135 21field into r136;
+    assert.eq r136 true;
 
 function structs_and_arrays:
     async structs_and_arrays into r0;

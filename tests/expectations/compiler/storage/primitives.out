@@ -16,6 +16,10 @@ struct Optional__8aTicnNTOvk:
     is_some as boolean;
     val as group;
 
+struct Optional__HdJPTit9rcT:
+    is_some as boolean;
+    val as address;
+
 mapping flag__:
     key as boolean.public;
     value as boolean.public;
@@ -32,6 +36,10 @@ mapping group_val__:
     key as boolean.public;
     value as group.public;
 
+mapping addr_val__:
+    key as boolean.public;
+    value as address.public;
+
 function initialize:
     async initialize into r0;
     output r0 as primitives.aleo/initialize.future;
@@ -41,6 +49,7 @@ finalize initialize:
     set 1scalar into scalar_val__[false];
     set 42field into field_val__[false];
     set 0group into group_val__[false];
+    set aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into addr_val__[false];
 
 function to_none:
     async to_none into r0;
@@ -51,6 +60,7 @@ finalize to_none:
     remove scalar_val__[false];
     remove field_val__[false];
     remove group_val__[false];
+    remove addr_val__[false];
 
 function check1:
     async check1 into r0;
@@ -125,6 +135,23 @@ finalize check1:
     cast r56 r57 into r58 as Optional__8aTicnNTOvk;
     is.eq r58.val 0group into r59;
     assert.eq r59 true;
+    contains addr_val__[false] into r60;
+    get.or_use addr_val__[false] aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r61;
+    cast true r61 into r62 as Optional__HdJPTit9rcT;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r63 as Optional__HdJPTit9rcT;
+    ternary r60 r62.is_some r63.is_some into r64;
+    ternary r60 r62.val r63.val into r65;
+    cast r64 r65 into r66 as Optional__HdJPTit9rcT;
+    assert.eq r66.is_some true;
+    contains addr_val__[false] into r67;
+    get.or_use addr_val__[false] aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r68;
+    cast true r68 into r69 as Optional__HdJPTit9rcT;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r70 as Optional__HdJPTit9rcT;
+    ternary r67 r69.is_some r70.is_some into r71;
+    ternary r67 r69.val r70.val into r72;
+    cast r71 r72 into r73 as Optional__HdJPTit9rcT;
+    is.eq r73.val aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r74;
+    assert.eq r74 true;
 
 function check2:
     async check2 into r0;
@@ -199,6 +226,23 @@ finalize check2:
     ternary r54.is_some r61.val 0group into r62;
     is.eq r62 0group into r63;
     assert.eq r63 true;
+    contains addr_val__[false] into r64;
+    get.or_use addr_val__[false] aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r65;
+    cast true r65 into r66 as Optional__HdJPTit9rcT;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r67 as Optional__HdJPTit9rcT;
+    ternary r64 r66.is_some r67.is_some into r68;
+    ternary r64 r66.val r67.val into r69;
+    cast r68 r69 into r70 as Optional__HdJPTit9rcT;
+    contains addr_val__[false] into r71;
+    get.or_use addr_val__[false] aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r72;
+    cast true r72 into r73 as Optional__HdJPTit9rcT;
+    cast false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r74 as Optional__HdJPTit9rcT;
+    ternary r71 r73.is_some r74.is_some into r75;
+    ternary r71 r73.val r74.val into r76;
+    cast r75 r76 into r77 as Optional__HdJPTit9rcT;
+    ternary r70.is_some r77.val aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r78;
+    is.eq r78 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r79;
+    assert.eq r79 true;
 
 constructor:
     assert.eq edition 0u16;
