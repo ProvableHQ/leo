@@ -1,0 +1,7 @@
+Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
+    --> SOURCE_DIRECTORY/main.leo:2:5
+     |
+   2 |     @test
+     |     ^^^^^
+
+
