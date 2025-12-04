@@ -178,10 +178,6 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
             }
         }
 
-        if total_passed < total {
-            Err(CliError::tests_failed(total - total_passed, total).into())
-        } else {
-            Ok(())
-        }
+        if total_passed < total { Err(CliError::tests_failed(total - total_passed, total).into()) } else { Ok(()) }
     }
 }
