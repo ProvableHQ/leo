@@ -1,6 +1,7 @@
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
        Leo     The program checksum is: '[95u8, 99u8, 136u8, 243u8, 82u8, 169u8, 200u8, 72u8, 133u8, 227u8, 122u8, 161u8, 195u8, 178u8, 69u8, 37u8, 167u8, 114u8, 104u8, 192u8, 161u8, 175u8, 195u8, 180u8, 120u8, 4u8, 192u8, 16u8, 86u8, 199u8, 76u8, 235u8]'.
+       Leo     Program size: 0.20 KB / 97.66 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11
@@ -39,6 +40,7 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for some_sample_leo_program.aleo
 ──────────────────────────────────────────────
+  Program Size:         0.20 KB / 97.66 KB
   Total Variables:      17,516
   Total Constraints:    12,927
   Max Variables:        XXXXXX
