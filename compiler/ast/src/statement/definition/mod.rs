@@ -22,7 +22,7 @@ use itertools::Itertools as _;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A `let` or `const` declaration statement.
+/// A `let` declaration statement.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct DefinitionStatement {
     /// The bindings / variable names to declare.
