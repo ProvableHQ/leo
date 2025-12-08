@@ -65,6 +65,7 @@ pub struct Task<N: Network> {
     pub is_local: bool,
     pub priority_fee: Option<u64>,
     pub record: Option<Record<N, Plaintext<N>>>,
+    pub bytecode_size: usize,
 }
 
 impl Command for LeoDeploy {
@@ -189,14 +190,17 @@ fn handle_deploy<N: Network>(
             let id_str = format!("{}.aleo", program.name);
             let id =
                 id_str.parse().map_err(|e| CliError::custom(format!("Failed to parse program ID {id_str}: {e}")))?;
-            let bytecode = bytecode.parse().map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+            let bytecode_size = bytecode.len();
+            let parsed_program =
+                bytecode.parse().map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
             Ok(Task {
                 id,
-                program: bytecode,
+                program: parsed_program,
                 edition: program.edition,
                 is_local: program.is_local,
                 priority_fee,
                 record,
+                bytecode_size,
             })
         })
         .collect::<Result<_>>()?;
@@ -266,7 +270,7 @@ fn handle_deploy<N: Network>(
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for Task { id, program, priority_fee, record, .. } in local {
+    for Task { id, program, priority_fee, record, bytecode_size, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if !skipped.contains(&id) {
             // If the program contains an upgrade config, confirm with the user that they want to proceed.
@@ -294,7 +298,7 @@ Once it is deployed, it CANNOT be changed.
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
             // Print the deployment stats.
-            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
+            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)?;
             // Save the transaction.
             transactions.push((id, transaction));
         }
@@ -406,6 +410,7 @@ Once it is deployed, it CANNOT be changed.
 ///     - The program does not exist on the network.
 ///     - If the consensus version is less than V9, the program does not use V9 features.
 ///     - If the consensus version is V9 or greater, the program contains a constructor.
+///     - The program size is approaching the limit.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
@@ -414,7 +419,7 @@ fn check_tasks_for_warnings<N: Network>(
     command: &LeoDeploy,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for Task { id, is_local, program, .. } in tasks {
+    for Task { id, is_local, program, bytecode_size, .. } in tasks {
         if !is_local || !command.action.broadcast {
             continue;
         }
@@ -447,6 +452,10 @@ fn check_tasks_for_warnings<N: Network>(
         if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
+        }
+        // Check if the program size is approaching the limit.
+        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::MAX_PROGRAM_SIZE) {
+            warnings.push(format!("The program '{id}' is {msg}."));
         }
     }
     // Check for a consensus version mismatch.
@@ -587,6 +596,7 @@ pub(crate) fn print_deployment_stats<N: Network>(
     deployment: &Deployment<N>,
     priority_fee: Option<u64>,
     consensus_version: ConsensusVersion,
+    bytecode_size: usize,
 ) -> Result<()> {
     use colored::*;
     use num_format::{Locale, ToFormattedString};
@@ -606,6 +616,11 @@ pub(crate) fn print_deployment_stats<N: Network>(
     println!("{}", "──────────────────────────────────────────────".dimmed());
 
     // ── High‑level metrics ────────────────────────────────────────────────
+    let (size_kb, max_kb, warning) = format_program_size(bytecode_size, N::MAX_PROGRAM_SIZE);
+    println!("  {:22}{size_kb:.2} KB / {max_kb:.2} KB", "Program Size:".cyan());
+    if let Some(msg) = warning {
+        println!("  {} Program is {msg}.", "⚠️ ".bold().yellow());
+    }
     println!("  {:22}{}", "Total Variables:".cyan(), variables.to_formatted_string(&Locale::en).yellow());
     println!("  {:22}{}", "Total Constraints:".cyan(), constraints.to_formatted_string(&Locale::en).yellow());
     println!(
