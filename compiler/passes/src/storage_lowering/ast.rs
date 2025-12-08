@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::StorageLoweringVisitor;
+use crate::VariableType;
 
 use leo_ast::*;
 use leo_span::{Span, Symbol, sym};
@@ -654,10 +655,12 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
     fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Check if this path corresponds to a global symbol.
-        let Some(var) = self.state.symbol_table.lookup_global(&Location::new(self.program, input.absolute_path()))
-        else {
-            // Nothing to do
-            return (input.into(), vec![]);
+        let var = match self.state.symbol_table.lookup_global(&Location::new(self.program, input.absolute_path())) {
+            Some(var) if var.declaration == VariableType::Storage => var,
+            _ => {
+                // Nothing to do
+                return (input.into(), vec![]);
+            }
         };
 
         match &var.type_ {

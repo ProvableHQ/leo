@@ -57,14 +57,21 @@
 //! After this pass, no `T?` types remain in the program: all optional values are represented explicitly
 //! as structs with `is_some` and `val` fields.
 
-use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use crate::{
+    ConstPropagation,
+    Pass,
+    PathResolution,
+    SymbolTable,
+    SymbolTableCreation,
+    TypeChecking,
+    TypeCheckingInput,
+};
 
-use leo_ast::{ArrayType, CompositeType, ProgramReconstructor as _, Type};
+use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
-use itertools::Itertools;
 
 mod ast;
 
@@ -101,44 +108,9 @@ impl Pass for OptionLowering {
         PathResolution::do_pass((), state)?;
         SymbolTableCreation::do_pass((), state)?;
         TypeChecking::do_pass(input.clone(), state)?;
+        // Now there are no more optionals, we can now evaluate the core unwrap functions of const optionals in the interpreter.
+        ConstPropagation::do_pass((), state)?;
 
         Ok(())
     }
-}
-
-pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
-    // Step 1: Extract a usable type name
-    fn display_type(ty: &Type) -> String {
-        match ty {
-            Type::Address
-            | Type::Field
-            | Type::Group
-            | Type::Scalar
-            | Type::Signature
-            | Type::Boolean
-            | Type::Integer(..) => format!("{ty}"),
-            Type::Array(ArrayType { element_type, length }) => {
-                format!("[{}; {length}]", display_type(element_type))
-            }
-            Type::Composite(CompositeType { path, .. }) => {
-                format!("::{}", path.absolute_path().iter().format("::"))
-            }
-
-            Type::Tuple(_)
-            | Type::Optional(_)
-            | Type::Mapping(_)
-            | Type::Numeric
-            | Type::Identifier(_)
-            | Type::Future(_)
-            | Type::Vector(_)
-            | Type::String
-            | Type::Err
-            | Type::Unit => {
-                panic!("unexpected inner type in optional struct name")
-            }
-        }
-    }
-
-    // Step 3: Build symbol that ends with `?`.
-    Symbol::intern(&format!("\"{}?\"", display_type(ty)))
 }

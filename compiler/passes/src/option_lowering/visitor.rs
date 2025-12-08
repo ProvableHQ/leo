@@ -177,7 +177,7 @@ impl OptionLoweringVisitor<'_> {
     /// If the struct for this type already exists, it’s reused; otherwise, a new one is created.
     /// Returns the `Symbol` for the struct name.
     pub fn insert_optional_wrapper_struct(&mut self, ty: &Type) -> Symbol {
-        let struct_name = crate::make_optional_struct_symbol(ty);
+        let struct_name = make_optional_struct_symbol(ty);
 
         self.new_structs.entry(struct_name).or_insert_with(|| Composite {
             identifier: Identifier::new(struct_name, self.state.node_builder.next_id()),
