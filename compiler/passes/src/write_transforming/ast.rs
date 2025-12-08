@@ -156,10 +156,10 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
     // The rest of the methods below don't do anything but traverse - we only modify their default implementations
     // to combine the `Vec<Statement>` outputs.
 
-    fn reconstruct_associated_function(
+    fn reconstruct_intrinsic(
         &mut self,
-        mut input: AssociatedFunctionExpression,
-        _addiional: &(),
+        mut input: IntrinsicExpression,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         for arg in input.arguments.iter_mut() {

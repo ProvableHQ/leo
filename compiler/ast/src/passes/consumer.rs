@@ -27,8 +27,6 @@ pub trait ExpressionConsumer {
         match input {
             Expression::Array(array) => self.consume_array(array),
             Expression::ArrayAccess(access) => self.consume_array_access(*access),
-            Expression::AssociatedConstant(constant) => self.consume_associated_constant(constant),
-            Expression::AssociatedFunction(function) => self.consume_associated_function(function),
             Expression::Async(async_) => self.consume_async(async_),
             Expression::Binary(binary) => self.consume_binary(*binary),
             Expression::Call(call) => self.consume_call(*call),
@@ -45,6 +43,7 @@ pub trait ExpressionConsumer {
             Expression::TupleAccess(access) => self.consume_tuple_access(*access),
             Expression::Unary(unary) => self.consume_unary(*unary),
             Expression::Unit(unit) => self.consume_unit(unit),
+            Expression::Intrinsic(intrinsic) => self.consume_intrinsic(*intrinsic),
         }
     }
 
@@ -53,10 +52,6 @@ pub trait ExpressionConsumer {
     fn consume_member_access(&mut self, _input: MemberAccess) -> Self::Output;
 
     fn consume_tuple_access(&mut self, _input: TupleAccess) -> Self::Output;
-
-    fn consume_associated_constant(&mut self, _input: AssociatedConstantExpression) -> Self::Output;
-
-    fn consume_associated_function(&mut self, _input: AssociatedFunctionExpression) -> Self::Output;
 
     fn consume_async(&mut self, _input: AsyncExpression) -> Self::Output;
 
@@ -81,6 +76,8 @@ pub trait ExpressionConsumer {
     fn consume_locator(&mut self, _input: LocatorExpression) -> Self::Output;
 
     fn consume_repeat(&mut self, _input: RepeatExpression) -> Self::Output;
+
+    fn consume_intrinsic(&mut self, _input: IntrinsicExpression) -> Self::Output;
 
     fn consume_ternary(&mut self, _input: TernaryExpression) -> Self::Output;
 

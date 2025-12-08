@@ -109,8 +109,6 @@ pub trait AstVisitor {
         match input {
             Expression::Array(array) => self.visit_array(array, additional),
             Expression::ArrayAccess(access) => self.visit_array_access(access, additional),
-            Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
-            Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
             Expression::Async(async_) => self.visit_async(async_, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
@@ -127,6 +125,7 @@ pub trait AstVisitor {
             Expression::TupleAccess(access) => self.visit_tuple_access(access, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
             Expression::Unit(unit) => self.visit_unit(unit, additional),
+            Expression::Intrinsic(intr) => self.visit_intrinsic(intr, additional),
         }
     }
 
@@ -153,25 +152,6 @@ pub trait AstVisitor {
         Default::default()
     }
 
-    fn visit_associated_constant(
-        &mut self,
-        _input: &AssociatedConstantExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
-        Default::default()
-    }
-
-    fn visit_associated_function(
-        &mut self,
-        input: &AssociatedFunctionExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
-        input.arguments.iter().for_each(|arg| {
-            self.visit_expression(arg, &Default::default());
-        });
-        Default::default()
-    }
-
     fn visit_async(&mut self, input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_block(&input.block);
         Default::default()
@@ -189,6 +169,13 @@ pub trait AstVisitor {
         });
         input.arguments.iter().for_each(|expr| {
             self.visit_expression(expr, &Default::default());
+        });
+        Default::default()
+    }
+
+    fn visit_intrinsic(&mut self, input: &IntrinsicExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        input.arguments.iter().for_each(|arg| {
+            self.visit_expression(arg, &Default::default());
         });
         Default::default()
     }

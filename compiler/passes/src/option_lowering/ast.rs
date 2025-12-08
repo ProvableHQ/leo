@@ -86,8 +86,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
         // Reconstruct the expression based on its variant
         let (expr, stmts) = match input {
-            Expression::AssociatedConstant(e) => self.reconstruct_associated_constant(e, additional),
-            Expression::AssociatedFunction(e) => self.reconstruct_associated_function(e, additional),
+            Expression::Intrinsic(e) => self.reconstruct_intrinsic(*e, additional),
             Expression::Async(e) => self.reconstruct_async(e, additional),
             Expression::Array(e) => self.reconstruct_array(e, additional),
             Expression::ArrayAccess(e) => self.reconstruct_array_access(*e, additional),
@@ -140,13 +139,13 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         (input.into(), stmts_array)
     }
 
-    fn reconstruct_associated_function(
+    fn reconstruct_intrinsic(
         &mut self,
-        mut input: AssociatedFunctionExpression,
+        mut input: IntrinsicExpression,
         _additional: &Option<Type>,
     ) -> (Expression, Self::AdditionalOutput) {
-        match CoreFunction::from_symbols(input.variant.name, input.name.name) {
-            Some(CoreFunction::OptionalUnwrap) => {
+        match Intrinsic::from_symbol(input.name, &input.type_parameters) {
+            Some(Intrinsic::OptionalUnwrap) => {
                 let [optional_expr] = &input.arguments[..] else {
                     panic!("guaranteed by type checking");
                 };
@@ -187,7 +186,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
                 (val_access.into(), stmts)
             }
-            Some(CoreFunction::OptionalUnwrapOr) => {
+            Some(Intrinsic::OptionalUnwrapOr) => {
                 let [optional_expr, default_expr] = &input.arguments[..] else {
                     panic!("unwrap_or must have 2 arguments: optional and default");
                 };

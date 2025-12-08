@@ -20,6 +20,7 @@ use leo_ast::{BinaryOperation, Expression, Node as _, Type, UnaryOperation};
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexSet;
+use snarkvm::synthesizer::program::HashVariant;
 
 pub struct DeadCodeEliminatingVisitor<'a> {
     pub state: &'a mut CompilerState,
@@ -49,14 +50,31 @@ impl DeadCodeEliminatingVisitor<'_> {
             Repeat(repeat) => sef(&repeat.expr) && sef(&repeat.count),
             TupleAccess(tuple) => sef(&tuple.tuple),
             Array(array) => array.elements.iter().all(sef),
-            AssociatedConstant(_) => true,
-            AssociatedFunction(func) => {
-                // CheatCode, Mapping, and Future operations obviously have side effects.
-                // Pedersen64 and Pedersen128 operations can fail for large inputs.
-                func.arguments.iter().all(sef)
-                    && !matches!(
-                        func.variant.name,
-                        sym::CheatCode | sym::Mapping | sym::Future | sym::Pedersen64 | sym::Pedersen128
+            Intrinsic(intr) => {
+                let intrinsic = leo_ast::Intrinsic::from_symbol(intr.name, &intr.type_parameters)
+                    .expect("Guaranteed by type checking");
+                intrinsic.is_pure() &&
+                    // FIXME: maybe this is unnecessary
+                    // Mapping operations have side effects
+                    !matches!(
+                        intr.name,
+                        sym::_mapping_id |
+                        sym::_mapping_get |
+                        sym::_mapping_set |
+                        sym::_mapping_get_or_use |
+                        sym::_mapping_remove |
+                        sym::_mapping_contains
+                    ) &&
+                    // Pedersen64 and Pedersen128 operations can fail for large inputs.
+                    !matches!(
+                        intrinsic,
+                        leo_ast::Intrinsic::Hash(
+                            HashVariant::HashPED64
+                                | HashVariant::HashPED64Raw
+                                | HashVariant::HashPED128
+                                | HashVariant::HashPED128Raw,
+                            _
+                        )
                     )
             }
             Async(_) => false,

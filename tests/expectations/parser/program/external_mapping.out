@@ -150,23 +150,8 @@
                 {
                   "Expression": {
                     "expression": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "Mapping",
-                          "span": {
-                            "lo": 160,
-                            "hi": 167
-                          },
-                          "id": 11
-                        },
-                        "name": {
-                          "name": "set",
-                          "span": {
-                            "lo": 169,
-                            "hi": 172
-                          },
-                          "id": 12
-                        },
+                      "Intrinsic": {
+                        "name": "__unresolved_set",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -280,23 +265,8 @@
                 {
                   "Expression": {
                     "expression": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "Mapping",
-                          "span": {
-                            "lo": 230,
-                            "hi": 237
-                          },
-                          "id": 24
-                        },
-                        "name": {
-                          "name": "remove",
-                          "span": {
-                            "lo": 239,
-                            "hi": 245
-                          },
-                          "id": 25
-                        },
+                      "Intrinsic": {
+                        "name": "_mapping_remove",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -378,23 +348,8 @@
                       "Integer": "U32"
                     },
                     "value": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "Mapping",
-                          "span": {
-                            "lo": 289,
-                            "hi": 296
-                          },
-                          "id": 34
-                        },
-                        "name": {
-                          "name": "get",
-                          "span": {
-                            "lo": 298,
-                            "hi": 301
-                          },
-                          "id": 35
-                        },
+                      "Intrinsic": {
+                        "name": "__unresolved_get",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -476,23 +431,8 @@
                       "Integer": "U32"
                     },
                     "value": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "Mapping",
-                          "span": {
-                            "lo": 345,
-                            "hi": 352
-                          },
-                          "id": 44
-                        },
-                        "name": {
-                          "name": "get_or_use",
-                          "span": {
-                            "lo": 354,
-                            "hi": 364
-                          },
-                          "id": 45
-                        },
+                      "Intrinsic": {
+                        "name": "_mapping_get_or_use",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -589,23 +529,8 @@
                       "Integer": "U32"
                     },
                     "value": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "Mapping",
-                          "span": {
-                            "lo": 414,
-                            "hi": 421
-                          },
-                          "id": 55
-                        },
-                        "name": {
-                          "name": "contains",
-                          "span": {
-                            "lo": 423,
-                            "hi": 431
-                          },
-                          "id": 56
-                        },
+                      "Intrinsic": {
+                        "name": "_mapping_contains",
                         "type_parameters": [],
                         "arguments": [
                           {

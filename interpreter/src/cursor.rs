@@ -22,11 +22,10 @@ use leo_ast::{
     AsyncExpression,
     BinaryOperation,
     Block,
-    CoreConstant,
-    CoreFunction,
     DefinitionPlace,
     Expression,
     Function,
+    Intrinsic,
     Location,
     NodeID,
     Statement,
@@ -36,16 +35,16 @@ use leo_ast::{
     Variant,
     interpreter_value::{
         AsyncExecution,
-        CoreFunctionHelper,
+        IntrinsicHelper,
         Value,
         evaluate_binary,
-        evaluate_core_function,
+        evaluate_intrinsic,
         evaluate_unary,
         literal_to_value,
     },
 };
 use leo_errors::{InterpreterHalt, Result};
-use leo_span::{Span, Symbol, sym};
+use leo_span::{Span, Symbol};
 
 use snarkvm::prelude::{
     Address,
@@ -292,7 +291,7 @@ pub struct Cursor {
     pub private_key: String,
 }
 
-impl CoreFunctionHelper for Cursor {
+impl IntrinsicHelper for Cursor {
     fn pop_value_impl(&mut self) -> Option<Value> {
         self.values.pop()
     }
@@ -438,12 +437,11 @@ impl Cursor {
                     path = path_;
                     break;
                 }
-                place @ (Expression::AssociatedConstant(..)
-                | Expression::AssociatedFunction(..)
-                | Expression::Async(..)
+                place @ (Expression::Async(..)
                 | Expression::Array(..)
                 | Expression::Binary(..)
                 | Expression::Call(..)
+                | Expression::Intrinsic(..)
                 | Expression::Cast(..)
                 | Expression::Err(..)
                 | Expression::Literal(..)
@@ -952,48 +950,6 @@ impl Cursor {
             Expression::Async(_) if step == 2 => Some(self.pop_value()?),
 
             Expression::MemberAccess(access) => match &access.inner {
-                Expression::Path(path) if *path.as_symbols() == vec![sym::SelfLower] => match access.name.name {
-                    sym::signer => Some(self.signer.clone()),
-                    sym::caller => {
-                        if let Some(function_context) = self.contexts.last() {
-                            Some(function_context.caller.clone())
-                        } else {
-                            Some(self.signer.clone())
-                        }
-                    }
-                    sym::address => {
-                        // A helper function to convert a program ID string to an address value.
-                        fn program_to_address<N: Network>(program_id: &str) -> Result<Value> {
-                            let Ok(program_id) = ProgramID::<N>::from_str(&format!("{program_id}.aleo")) else {
-                                halt_no_span!("Failed to parse program ID");
-                            };
-                            let Ok(address) = program_id.to_address() else {
-                                halt_no_span!("Failed to convert program ID to address");
-                            };
-                            let Ok(value) = Value::from_str(&address.to_string()) else {
-                                halt_no_span!("Failed to convert address to value");
-                            };
-                            Ok(value)
-                        }
-                        // Get the current program.
-                        let Some(program) = self.current_program() else {
-                            halt_no_span!("No program context for address");
-                        };
-                        let result = match self.network {
-                            NetworkName::TestnetV0 => program_to_address::<TestnetV0>(&program.to_string())?,
-                            NetworkName::MainnetV0 => program_to_address::<MainnetV0>(&program.to_string())?,
-                            NetworkName::CanaryV0 => program_to_address::<CanaryV0>(&program.to_string())?,
-                        };
-                        Some(result)
-                    }
-                    _ => halt!(access.span(), "unknown member of self"),
-                },
-                Expression::Path(path) if *path.as_symbols() == vec![sym::block] => match access.name.name {
-                    sym::height => Some(self.block_height.into()),
-                    sym::timestamp => Some(self.block_timestamp.into()),
-                    _ => halt!(access.span(), "unknown member of block"),
-                },
-
                 // Otherwise, we just have a normal struct member access.
                 _ if step == 0 => {
                     push!()(&access.inner, &None);
@@ -1052,47 +1008,77 @@ impl Cursor {
                     count_resolved.as_u32().expect_tc(repeat.span())? as usize,
                 )))
             }
-            Expression::AssociatedConstant(constant) if step == 0 => {
-                let Type::Identifier(type_ident) = constant.ty else {
-                    tc_fail!();
-                };
-                let Some(core_constant) = CoreConstant::from_symbols(type_ident.name, constant.name.name) else {
-                    halt!(constant.span(), "Unknown constant {constant}");
-                };
-                match core_constant {
-                    CoreConstant::GroupGenerator => Some(Value::generator()),
-                }
-            }
-            Expression::AssociatedFunction(function) if step == 0 => {
-                let Some(core_function) = CoreFunction::try_from(function).ok() else {
-                    halt!(function.span(), "Unkown core function {function}");
+            Expression::Intrinsic(intr) if step == 0 => {
+                let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) else {
+                    halt!(intr.span(), "Unkown intrinsic {}", intr.name);
                 };
 
                 // We want to push expressions for each of the arguments... except for mappings,
                 // because we don't look them up as Values.
-                match core_function {
-                    CoreFunction::Get | CoreFunction::MappingRemove | CoreFunction::MappingContains => {
-                        push!()(&function.arguments[1], &None);
+                match intrinsic {
+                    Intrinsic::Get | Intrinsic::MappingRemove | Intrinsic::MappingContains => {
+                        push!()(&intr.arguments[1], &None);
+                        None
                     }
-                    CoreFunction::MappingGetOrUse | CoreFunction::Set => {
-                        push!()(&function.arguments[2], &None);
-                        push!()(&function.arguments[1], &None);
+                    Intrinsic::MappingGetOrUse | Intrinsic::Set => {
+                        push!()(&intr.arguments[2], &None);
+                        push!()(&intr.arguments[1], &None);
+                        None
                     }
-                    CoreFunction::CheatCodePrintMapping => {
+                    Intrinsic::GroupGen => Some(Value::generator()),
+                    Intrinsic::SelfSigner => Some(self.signer.clone()),
+                    Intrinsic::SelfCaller => {
+                        if let Some(function_context) = self.contexts.last() {
+                            Some(function_context.caller.clone())
+                        } else {
+                            Some(self.signer.clone())
+                        }
+                    }
+                    Intrinsic::SelfAddress => {
+                        // A helper function to convert a program ID string to an address value.
+                        fn program_to_address<N: Network>(program_id: &str) -> Result<Value> {
+                            let Ok(program_id) = ProgramID::<N>::from_str(&format!("{program_id}.aleo")) else {
+                                halt_no_span!("Failed to parse program ID");
+                            };
+                            let Ok(address) = program_id.to_address() else {
+                                halt_no_span!("Failed to convert program ID to address");
+                            };
+                            let Ok(value) = Value::from_str(&address.to_string()) else {
+                                halt_no_span!("Failed to convert address to value");
+                            };
+                            Ok(value)
+                        }
+                        // Get the current program.
+                        let Some(program) = self.current_program() else {
+                            halt_no_span!("No program context for address");
+                        };
+                        let result = match self.network {
+                            NetworkName::TestnetV0 => program_to_address::<TestnetV0>(&program.to_string())?,
+                            NetworkName::MainnetV0 => program_to_address::<MainnetV0>(&program.to_string())?,
+                            NetworkName::CanaryV0 => program_to_address::<CanaryV0>(&program.to_string())?,
+                        };
+                        Some(result)
+                    }
+                    Intrinsic::BlockHeight => Some(self.block_height.into()),
+                    Intrinsic::BlockTimestamp => Some(self.block_timestamp.into()),
+                    Intrinsic::CheatCodePrintMapping => {
                         // Do nothing, as we don't need to evaluate the mapping.
+                        None
                     }
-                    _ => function.arguments.iter().rev().for_each(|arg| push!()(arg, &None)),
+                    _ => {
+                        intr.arguments.iter().rev().for_each(|arg| push!()(arg, &None));
+                        None
+                    }
                 }
-                None
             }
-            Expression::AssociatedFunction(function) if step == 1 => {
-                let Some(core_function) = CoreFunction::try_from(function).ok() else {
-                    halt!(function.span(), "Unkown core function {function}");
+            Expression::Intrinsic(intr) if step == 1 => {
+                let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) else {
+                    halt!(intr.span(), "Unkown intrinsic {}", intr.name);
                 };
 
-                let span = function.span();
+                let span = intr.span();
 
-                if let CoreFunction::FutureAwait = core_function {
+                if let Intrinsic::FutureAwait = intrinsic {
                     let value = self.pop_value()?;
                     let Some(asyncs) = value.as_future() else {
                         halt!(span, "Invalid value for await: {value}");
@@ -1125,18 +1111,19 @@ impl Cursor {
                     // For an await, we have one extra step - first we must evaluate the delayed call.
                     None
                 } else {
-                    let value = evaluate_core_function(self, core_function.clone(), &function.arguments, span)?;
+                    let value = evaluate_intrinsic(self, intrinsic.clone(), &intr.arguments, span)?;
                     assert!(value.is_some());
                     value
                 }
             }
-            Expression::AssociatedFunction(function) if step == 2 => {
-                let Some(core_function) = CoreFunction::try_from(function).ok() else {
-                    halt!(function.span(), "Unkown core function {function}");
+            Expression::Intrinsic(intr) if step == 2 => {
+                let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) else {
+                    halt!(intr.span(), "Unkown intrinsic {}", intr.name);
                 };
-                assert!(core_function == CoreFunction::FutureAwait);
+                assert!(intrinsic == Intrinsic::FutureAwait);
                 Some(Value::make_unit())
             }
+
             Expression::Binary(binary) if step == 0 => {
                 use BinaryOperation::*;
 

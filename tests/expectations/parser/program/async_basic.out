@@ -306,23 +306,8 @@
                 {
                   "Expression": {
                     "expression": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "Mapping",
-                          "span": {
-                            "lo": 233,
-                            "hi": 240
-                          },
-                          "id": 21
-                        },
-                        "name": {
-                          "name": "set",
-                          "span": {
-                            "lo": 242,
-                            "hi": 245
-                          },
-                          "id": 22
-                        },
+                      "Intrinsic": {
+                        "name": "__unresolved_set",
                         "type_parameters": [],
                         "arguments": [
                           {

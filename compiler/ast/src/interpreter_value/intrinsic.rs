@@ -25,8 +25,8 @@ use snarkvm::{
 
 use crate::{
     ArrayType,
-    CoreFunction,
     Expression,
+    Intrinsic,
     Type,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
@@ -36,7 +36,7 @@ use leo_span::{Span, Symbol};
 
 use super::*;
 
-/// A context in which we can evaluate core functions.
+/// A context in which we can evaluate intrinsics.
 ///
 /// This is intended to be implemented by `Cursor`, which will be used during
 /// execution of the interpreter, and by `Vec<Value>`, which will be used
@@ -45,7 +45,7 @@ use super::*;
 /// The default implementations for `rng`, `set_block_height`, and mapping lookup
 /// do nothing, as those features will not be available during compile time
 /// evaluation.
-pub trait CoreFunctionHelper {
+pub trait IntrinsicHelper {
     fn pop_value_impl(&mut self) -> Option<Value>;
 
     fn pop_value(&mut self) -> Result<Value> {
@@ -95,15 +95,15 @@ pub trait CoreFunctionHelper {
     }
 }
 
-impl CoreFunctionHelper for Vec<Value> {
+impl IntrinsicHelper for Vec<Value> {
     fn pop_value_impl(&mut self) -> Option<Value> {
         self.pop()
     }
 }
 
-pub fn evaluate_core_function(
-    helper: &mut dyn CoreFunctionHelper,
-    core_function: CoreFunction,
+pub fn evaluate_intrinsic(
+    helper: &mut dyn IntrinsicHelper,
+    intrinsic: Intrinsic,
     arguments: &[Expression],
     span: Span,
 ) -> Result<Option<Value>> {
@@ -112,20 +112,20 @@ pub fn evaluate_core_function(
         synthesizer::program::{CommitVariant, ECDSAVerifyVariant, HashVariant},
     };
 
-    let dohash = |helper: &mut dyn CoreFunctionHelper, variant: HashVariant, typ: Type| -> Result<Value> {
+    let dohash = |helper: &mut dyn IntrinsicHelper, variant: HashVariant, typ: Type| -> Result<Value> {
         let input = helper.pop_value()?.try_into().expect_tc(span)?;
         let value = snarkvm::synthesizer::program::evaluate_hash(variant, &input, &typ.to_snarkvm()?)?;
         Ok(value.into())
     };
 
-    let docommit = |helper: &mut dyn CoreFunctionHelper, variant: CommitVariant, typ: LiteralType| -> Result<Value> {
+    let docommit = |helper: &mut dyn IntrinsicHelper, variant: CommitVariant, typ: LiteralType| -> Result<Value> {
         let randomizer: Scalar = helper.pop_value()?.try_into().expect_tc(span)?;
         let input: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
         let value = snarkvm::synthesizer::program::evaluate_commit(variant, &input, &randomizer, typ)?;
         Ok(value.into())
     };
 
-    let doschnorr = |helper: &mut dyn CoreFunctionHelper| -> Result<Value> {
+    let doschnorr = |helper: &mut dyn IntrinsicHelper| -> Result<Value> {
         let signature: Signature = helper.pop_value()?.try_into().expect_tc(span)?;
         let address: Address = helper.pop_value()?.try_into().expect_tc(span)?;
         let message: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
@@ -133,7 +133,7 @@ pub fn evaluate_core_function(
         Ok(Boolean::new(is_valid).into())
     };
 
-    let doecdsa = |helper: &mut dyn CoreFunctionHelper, variant: ECDSAVerifyVariant| -> Result<Value> {
+    let doecdsa = |helper: &mut dyn IntrinsicHelper, variant: ECDSAVerifyVariant| -> Result<Value> {
         let signature: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
         let public_key: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
         let message: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
@@ -142,7 +142,7 @@ pub fn evaluate_core_function(
         Ok(Boolean::new(is_valid).into())
     };
 
-    let doserialize = |helper: &mut dyn CoreFunctionHelper, variant: SerializeVariant| -> Result<Value> {
+    let doserialize = |helper: &mut dyn IntrinsicHelper, variant: SerializeVariant| -> Result<Value> {
         let input: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
         let num_bits = match variant {
             SerializeVariant::ToBits => input.to_bits_le().len(),
@@ -156,22 +156,21 @@ pub fn evaluate_core_function(
         Ok(value.into())
     };
 
-    let dodeserialize =
-        |helper: &mut dyn CoreFunctionHelper, variant: DeserializeVariant, type_: Type| -> Result<Value> {
-            let value: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
-            let bits = match value {
-                SvmValue::Plaintext(plaintext) => plaintext.as_bit_array()?,
-                _ => crate::halt_no_span2!("expected array for deserialization"),
-            };
-            let get_struct_fail = |_: &SvmIdentifier| anyhow::bail!("structs are not supported");
-            let value = snarkvm::synthesizer::program::evaluate_deserialize(
-                variant,
-                &bits,
-                &type_.to_snarkvm()?,
-                &get_struct_fail,
-            )?;
-            Ok(value.into())
+    let dodeserialize = |helper: &mut dyn IntrinsicHelper, variant: DeserializeVariant, type_: Type| -> Result<Value> {
+        let value: SvmValue = helper.pop_value()?.try_into().expect_tc(span)?;
+        let bits = match value {
+            SvmValue::Plaintext(plaintext) => plaintext.as_bit_array()?,
+            _ => crate::halt_no_span2!("expected array for deserialization"),
         };
+        let get_struct_fail = |_: &SvmIdentifier| anyhow::bail!("structs are not supported");
+        let value = snarkvm::synthesizer::program::evaluate_deserialize(
+            variant,
+            &bits,
+            &type_.to_snarkvm()?,
+            &get_struct_fail,
+        )?;
+        Ok(value.into())
+    };
 
     macro_rules! random {
         ($ty: ident) => {{
@@ -183,8 +182,8 @@ pub fn evaluate_core_function(
         }};
     }
 
-    let value = match core_function {
-        CoreFunction::ChaChaRand(type_) => match type_ {
+    let value = match intrinsic {
+        Intrinsic::ChaChaRand(type_) => match type_ {
             LiteralType::Address => random!(Address),
             LiteralType::Boolean => random!(bool),
             LiteralType::Field => random!(Field),
@@ -204,21 +203,21 @@ pub fn evaluate_core_function(
                 crate::halt_no_span2!("cannot generate random value of type `{type_}`")
             }
         },
-        CoreFunction::Commit(commit_variant, type_) => docommit(helper, commit_variant, type_)?,
-        CoreFunction::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
-        CoreFunction::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
-        CoreFunction::SignatureVerify => doschnorr(helper)?,
-        CoreFunction::Serialize(variant) => doserialize(helper, variant)?,
-        CoreFunction::Deserialize(variant, type_) => dodeserialize(helper, variant, type_)?,
-        CoreFunction::GroupToXCoordinate => {
+        Intrinsic::Commit(commit_variant, type_) => docommit(helper, commit_variant, type_)?,
+        Intrinsic::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
+        Intrinsic::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
+        Intrinsic::SignatureVerify => doschnorr(helper)?,
+        Intrinsic::Serialize(variant) => doserialize(helper, variant)?,
+        Intrinsic::Deserialize(variant, type_) => dodeserialize(helper, variant, type_)?,
+        Intrinsic::GroupToXCoordinate => {
             let g: Group = helper.pop_value()?.try_into().expect_tc(span)?;
             g.to_x_coordinate().into()
         }
-        CoreFunction::GroupToYCoordinate => {
+        Intrinsic::GroupToYCoordinate => {
             let g: Group = helper.pop_value()?.try_into().expect_tc(span)?;
             g.to_y_coordinate().into()
         }
-        CoreFunction::CheatCodePrintMapping => {
+        Intrinsic::CheatCodePrintMapping => {
             let (program, name) = match &arguments[0] {
                 Expression::Path(id) => (None, id.identifier().name),
                 Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
@@ -240,22 +239,22 @@ pub fn evaluate_core_function(
             }
             Value::make_unit()
         }
-        CoreFunction::CheatCodeSetBlockHeight => {
+        Intrinsic::CheatCodeSetBlockHeight => {
             let height: u32 = helper.pop_value()?.try_into().expect_tc(span)?;
             helper.set_block_height(height);
             Value::make_unit()
         }
-        CoreFunction::CheatCodeSetBlockTimestamp => {
+        Intrinsic::CheatCodeSetBlockTimestamp => {
             let timestamp: i64 = helper.pop_value()?.try_into().expect_tc(span)?;
             helper.set_block_timestamp(timestamp);
             Value::make_unit()
         }
-        CoreFunction::CheatCodeSetSigner => {
+        Intrinsic::CheatCodeSetSigner => {
             let private_key: String = helper.pop_value()?.try_into().expect_tc(span)?;
             helper.set_signer(private_key)?;
             Value::make_unit()
         }
-        CoreFunction::Get => {
+        Intrinsic::Get => {
             // TODO handle vector get
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
@@ -265,7 +264,7 @@ pub fn evaluate_core_function(
             };
             helper.mapping_get(program, name, &key).expect_tc(span)?.clone()
         }
-        CoreFunction::Set => {
+        Intrinsic::Set => {
             // TODO handle vector set
             let value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
@@ -277,7 +276,7 @@ pub fn evaluate_core_function(
             helper.mapping_set(program, name, key, value).expect_tc(span)?;
             Value::make_unit()
         }
-        CoreFunction::MappingGetOrUse => {
+        Intrinsic::MappingGetOrUse => {
             let use_value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
@@ -287,7 +286,7 @@ pub fn evaluate_core_function(
             };
             helper.mapping_get(program, name, &key).unwrap_or(use_value)
         }
-        CoreFunction::MappingRemove => {
+        Intrinsic::MappingRemove => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
@@ -297,7 +296,7 @@ pub fn evaluate_core_function(
             helper.mapping_remove(program, name, &key).expect_tc(span)?;
             Value::make_unit()
         }
-        CoreFunction::MappingContains => {
+        Intrinsic::MappingContains => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
@@ -306,33 +305,43 @@ pub fn evaluate_core_function(
             };
             helper.mapping_get(program, name, &key).is_some().into()
         }
-        CoreFunction::OptionalUnwrap => {
+        Intrinsic::GroupGen => Value::generator(),
+        Intrinsic::OptionalUnwrap => {
             // TODO
             return Ok(None);
         }
-        CoreFunction::OptionalUnwrapOr => {
+        Intrinsic::OptionalUnwrapOr => {
             // TODO
             return Ok(None);
         }
-        CoreFunction::VectorPush
-        | CoreFunction::VectorLen
-        | CoreFunction::VectorClear
-        | CoreFunction::VectorPop
-        | CoreFunction::VectorSwapRemove => {
+        Intrinsic::VectorPush
+        | Intrinsic::VectorLen
+        | Intrinsic::VectorClear
+        | Intrinsic::VectorPop
+        | Intrinsic::VectorSwapRemove
+        | Intrinsic::SelfAddress
+        | Intrinsic::SelfCaller
+        | Intrinsic::SelfChecksum
+        | Intrinsic::SelfEdition
+        | Intrinsic::SelfId
+        | Intrinsic::SelfProgramOwner
+        | Intrinsic::SelfSigner
+        | Intrinsic::BlockHeight
+        | Intrinsic::BlockTimestamp
+        | Intrinsic::NetworkId => {
             // TODO
             return Ok(None);
         }
-        CoreFunction::FutureAwait => panic!("await must be handled elsewhere"),
-
-        CoreFunction::ProgramChecksum => {
+        Intrinsic::FutureAwait => panic!("await must be handled elsewhere"),
+        Intrinsic::ProgramChecksum => {
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its checksum.
             return Ok(None);
         }
-        CoreFunction::ProgramEdition => {
+        Intrinsic::ProgramEdition => {
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its edition.
             return Ok(None);
         }
-        CoreFunction::ProgramOwner => {
+        Intrinsic::ProgramOwner => {
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its owner.
             return Ok(None);
         }

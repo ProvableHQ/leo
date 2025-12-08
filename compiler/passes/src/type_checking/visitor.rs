@@ -195,86 +195,63 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    /// Type checks the inputs to an associated constant and returns the expected output type.
-    pub fn get_core_constant(&self, type_: &Type, constant: &Identifier) -> Option<CoreConstant> {
-        if let Type::Identifier(ident) = type_ {
-            // Lookup core constant
-            match CoreConstant::from_symbols(ident.name, constant.name) {
-                None => {
-                    // Not a core constant.
-                    self.emit_err(TypeCheckerError::invalid_core_constant(ident.name, constant.name, ident.span()));
-                }
-                Some(core_constant) => return Some(core_constant),
-            }
-        }
-        None
-    }
-
-    /// Emits an error if the `struct` is not a core library struct.
-    /// Emits an error if the `function` is not supported by the struct.
-    pub fn get_core_function_call(&self, associated_function: &AssociatedFunctionExpression) -> Option<CoreFunction> {
+    /// Emits an error if the intrinsic invocation is not valid.
+    pub fn get_intrinsic(&self, intrinsic_expr: &IntrinsicExpression) -> Option<Intrinsic> {
         // Lookup core struct
-        match CoreFunction::try_from(associated_function).ok() {
+        match Intrinsic::from_symbol(intrinsic_expr.name, &intrinsic_expr.type_parameters) {
             None => {
                 // Not a core library struct.
-                self.emit_err(TypeCheckerError::invalid_core_function(
-                    associated_function.variant.name,
-                    associated_function.name.name,
-                    associated_function.variant.span(),
-                ));
+                self.emit_err(TypeCheckerError::invalid_intrinsic(intrinsic_expr.name, intrinsic_expr.span()));
                 None
             }
-            core_function @ Some(CoreFunction::Deserialize(_, _)) => core_function,
-            Some(core_instruction) => {
+            intrinsic @ Some(Intrinsic::Deserialize(_, _)) => intrinsic,
+            Some(intrinsic) => {
                 // Check that the number of type parameters is 0.
-                if !associated_function.type_parameters.is_empty() {
+                if !intrinsic_expr.type_parameters.is_empty() {
                     self.emit_err(TypeCheckerError::custom(
-                        format!(
-                            "The core function `{}::{}` cannot have type parameters.",
-                            associated_function.variant, associated_function.name
-                        ),
-                        associated_function.name.span(),
+                        format!("The intrinsic `{}` cannot have type parameters.", intrinsic_expr.name),
+                        intrinsic_expr.span(),
                     ));
                     return None;
                 };
 
-                Some(core_instruction)
+                Some(intrinsic)
             }
         }
     }
 
-    /// Type checks the inputs to a core function call and returns the expected output type.
+    /// Type checks the inputs to an intrinsic call and returns the expected output type.
     /// Emits an error if the correct number of arguments are not provided.
     /// Emits an error if the arguments are not of the correct type.
-    pub fn check_core_function_call(
+    pub fn check_intrinsic(
         &mut self,
-        core_function: CoreFunction,
+        intrinsic: Intrinsic,
         arguments: &[Expression],
         expected: &Option<Type>,
         function_span: Span,
     ) -> Type {
         // Check that the number of arguments is correct.
-        if arguments.len() != core_function.num_args() {
+        if arguments.len() != intrinsic.num_args() {
             self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                core_function.num_args(),
+                intrinsic.num_args(),
                 arguments.len(),
                 function_span,
             ));
             return Type::Err;
         }
 
-        // Type check and reconstructs the arguments for a given core function call.
+        // Type check and reconstructs the arguments for a given intrinsic call.
         //
-        // Depending on the `core_function`, this handles:
+        // Depending on the intrinsic, this handles:
         // - Optional operations (`unwrap`, `unwrap_or`) with proper type inference
         // - Container access (`Get`, `Set`) for vectors and mappings
         // - Vector-specific operations (`push`, `swap_remove`)
-        // - Default handling for other core functions
+        // - Default handling for other intrinsics
         //
         // Returns a `Vec<(Type, &Expression)>` pairing each argument with its inferred type, or `Type::Err` if
         // type-checking fails. Argument counts are assumed to be already validated
-        let arguments = match core_function {
-            CoreFunction::OptionalUnwrap => {
+        let arguments = match intrinsic {
+            Intrinsic::OptionalUnwrap => {
                 // Expect exactly one argument
                 let [opt] = arguments else { panic!("number of arguments is already checked") };
 
@@ -291,7 +268,7 @@ impl TypeCheckingVisitor<'_> {
                 vec![(opt_ty, opt)]
             }
 
-            CoreFunction::OptionalUnwrapOr => {
+            Intrinsic::OptionalUnwrapOr => {
                 // Expect exactly two arguments: the optional and the fallback value
                 let [opt, fallback] = arguments else { panic!("number of arguments is already checked") };
 
@@ -316,7 +293,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Get an element from a container (vector or mapping)
-            CoreFunction::Get => {
+            Intrinsic::Get => {
                 let [container, key_or_index] = arguments else { panic!("number of arguments is already checked") };
 
                 let container_ty = self.visit_expression(container, &None);
@@ -334,7 +311,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Set an element in a container (vector or mapping)
-            CoreFunction::Set => {
+            Intrinsic::Set => {
                 let [container, key_or_index, val] = arguments else {
                     panic!("number of arguments is already checked")
                 };
@@ -360,7 +337,7 @@ impl TypeCheckingVisitor<'_> {
                 vec![(container_ty, container), (key_or_index_ty, key_or_index), (val_ty, val)]
             }
 
-            CoreFunction::VectorPush => {
+            Intrinsic::VectorPush => {
                 let [vec, val] = arguments else { panic!("number of arguments is already checked") };
 
                 // Check vector type
@@ -376,7 +353,7 @@ impl TypeCheckingVisitor<'_> {
                 vec![(vec_ty, vec), (val_ty, val)]
             }
 
-            CoreFunction::VectorSwapRemove => {
+            Intrinsic::VectorSwapRemove => {
                 let [vec, index] = arguments else { panic!("number of arguments is already checked") };
 
                 let vec_ty = self.visit_expression(vec, &None);
@@ -387,7 +364,7 @@ impl TypeCheckingVisitor<'_> {
                 vec![(vec_ty, vec), (index_ty, index)]
             }
 
-            // Default case for other core functions
+            // Default case for other intrinsics
             _ => {
                 arguments.iter().map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg)).collect::<Vec<_>>()
             }
@@ -454,8 +431,8 @@ impl TypeCheckingVisitor<'_> {
         let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
 
         // Check that the arguments are of the correct type.
-        match core_function {
-            CoreFunction::Commit(variant, type_) => {
+        match intrinsic {
+            Intrinsic::Commit(variant, type_) => {
                 match variant {
                     CommitVariant::CommitPED64 => {
                         assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
@@ -470,7 +447,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 type_.into()
             }
-            CoreFunction::Hash(variant, type_) => {
+            Intrinsic::Hash(variant, type_) => {
                 // If the hash variant must be byte aligned, check that the number bits of the input is a multiple of 8.
                 if variant.requires_byte_alignment() {
                     // Get the input type.
@@ -509,7 +486,7 @@ impl TypeCheckingVisitor<'_> {
                 }
                 type_
             }
-            CoreFunction::ECDSAVerify(variant) => {
+            Intrinsic::ECDSAVerify(variant) => {
                 // Get the expected signature size.
                 let signature_size = ECDSASignature::SIGNATURE_SIZE_IN_BYTES;
                 // Check that the first input is a 65-byte array.
@@ -533,7 +510,7 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
 
-                // Determine whether the core function is Ethereum-specifc.
+                // Determine whether the intrinsic is Ethereum-specifc.
                 let is_eth = match variant {
                     ECDSAVerifyVariant::Digest => false,
                     ECDSAVerifyVariant::DigestEth => true,
@@ -646,7 +623,7 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
-            CoreFunction::Get => {
+            Intrinsic::Get => {
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
                     // Check that the operation is invoked in a `finalize` or `async` block.
                     self.check_access_allowed("Vector::get", true, function_span);
@@ -662,7 +639,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::Set => {
+            Intrinsic::Set => {
                 if arguments[0].0.is_vector() {
                     // Check that the operation is invoked in a `finalize` or `async` block.
                     self.check_access_allowed("Vector::set", true, function_span);
@@ -678,7 +655,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::MappingGetOrUse => {
+            Intrinsic::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::get_or_use", true, function_span);
                 // Check that the first argument is a mapping.
@@ -696,7 +673,7 @@ impl TypeCheckingVisitor<'_> {
 
                 mapping_type.value.deref().clone()
             }
-            CoreFunction::MappingRemove => {
+            Intrinsic::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::remove", true, function_span);
                 // Check that the first argument is a mapping.
@@ -719,7 +696,7 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Unit
             }
-            CoreFunction::MappingContains => {
+            Intrinsic::MappingContains => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::contains", true, function_span);
                 // Check that the first argument is a mapping.
@@ -735,7 +712,7 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
-            CoreFunction::OptionalUnwrap => {
+            Intrinsic::OptionalUnwrap => {
                 // Check that the first argument is an optional.
                 self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
 
@@ -744,7 +721,7 @@ impl TypeCheckingVisitor<'_> {
                     _ => Type::Err,
                 }
             }
-            CoreFunction::OptionalUnwrapOr => {
+            Intrinsic::OptionalUnwrapOr => {
                 // Check that the first argument is an optional.
                 self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
 
@@ -757,7 +734,7 @@ impl TypeCheckingVisitor<'_> {
                     _ => Type::Err,
                 }
             }
-            CoreFunction::VectorPush => {
+            Intrinsic::VectorPush => {
                 self.check_access_allowed("Vector::push", true, function_span);
 
                 // Check that the first argument is a vector
@@ -773,7 +750,7 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
             }
-            CoreFunction::VectorLen => {
+            Intrinsic::VectorLen => {
                 self.check_access_allowed("Vector::len", true, function_span);
 
                 if arguments[0].0.is_vector() {
@@ -783,7 +760,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::VectorPop => {
+            Intrinsic::VectorPop => {
                 self.check_access_allowed("Vector::pop", true, function_span);
 
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
@@ -793,7 +770,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::VectorSwapRemove => {
+            Intrinsic::VectorSwapRemove => {
                 self.check_access_allowed("Vector::swap_remove", true, function_span);
 
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
@@ -803,7 +780,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::VectorClear => {
+            Intrinsic::VectorClear => {
                 if arguments[0].0.is_vector() {
                     Type::Unit
                 } else {
@@ -811,13 +788,13 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate => {
+            Intrinsic::GroupToXCoordinate | Intrinsic::GroupToYCoordinate => {
                 // Check that the first argument is a group.
                 self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1.span());
                 Type::Field
             }
-            CoreFunction::ChaChaRand(type_) => type_.into(),
-            CoreFunction::SignatureVerify => {
+            Intrinsic::ChaChaRand(type_) => type_.into(),
+            Intrinsic::SignatureVerify => {
                 // Check that the third argument is not a mapping nor a tuple. We have to do this
                 // before the other checks below to appease the borrow checker
                 assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1.span());
@@ -828,8 +805,9 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[1].0, &Type::Address, arguments[1].1.span());
                 Type::Boolean
             }
-            CoreFunction::FutureAwait => Type::Unit,
-            CoreFunction::ProgramChecksum => {
+            Intrinsic::FutureAwait => Type::Unit,
+            Intrinsic::GroupGen => Type::Group,
+            Intrinsic::ProgramChecksum => {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
@@ -857,7 +835,7 @@ impl TypeCheckingVisitor<'_> {
                     )),
                 ))
             }
-            CoreFunction::ProgramEdition => {
+            Intrinsic::ProgramEdition => {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
@@ -877,7 +855,7 @@ impl TypeCheckingVisitor<'_> {
                 // Return the type.
                 Type::Integer(IntegerType::U16)
             }
-            CoreFunction::ProgramOwner => {
+            Intrinsic::ProgramOwner => {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
@@ -897,7 +875,7 @@ impl TypeCheckingVisitor<'_> {
                 // Return the type.
                 Type::Address
             }
-            CoreFunction::Serialize(variant) => {
+            Intrinsic::Serialize(variant) => {
                 // Determine the variant.
                 let is_raw = match variant {
                     SerializeVariant::ToBits => false,
@@ -974,7 +952,7 @@ impl TypeCheckingVisitor<'_> {
                 // Could not resolve the size in bits at this time.
                 Type::Err
             }
-            CoreFunction::Deserialize(variant, type_) => {
+            Intrinsic::Deserialize(variant, type_) => {
                 // Determine the variant.
                 let is_raw = match variant {
                     DeserializeVariant::FromBits => false,
@@ -1028,19 +1006,19 @@ impl TypeCheckingVisitor<'_> {
 
                 type_.clone()
             }
-            CoreFunction::CheatCodePrintMapping => {
+            Intrinsic::CheatCodePrintMapping => {
                 self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
                 Type::Unit
             }
-            CoreFunction::CheatCodeSetBlockHeight => {
+            Intrinsic::CheatCodeSetBlockHeight => {
                 self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1.span());
                 Type::Unit
             }
-            CoreFunction::CheatCodeSetBlockTimestamp => {
+            Intrinsic::CheatCodeSetBlockTimestamp => {
                 self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::I64), arguments[0].1.span());
                 Type::Unit
             }
-            CoreFunction::CheatCodeSetSigner => {
+            Intrinsic::CheatCodeSetSigner => {
                 // Assert that the argument is a string.
                 self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());
                 // Validate that the argument is a valid private key.
@@ -1059,6 +1037,48 @@ impl TypeCheckingVisitor<'_> {
                     }
                 };
                 Type::Unit
+            }
+            Intrinsic::SelfAddress => Type::Address,
+            Intrinsic::SelfCaller => {
+                // Check that the operation is not invoked in a `finalize` block.
+                self.check_access_allowed("self.caller", false, function_span);
+                Type::Address
+            }
+            Intrinsic::SelfChecksum => Type::Array(ArrayType::new(
+                Type::Integer(IntegerType::U8),
+                Expression::Literal(Literal::integer(
+                    IntegerType::U8,
+                    "32".to_string(),
+                    Default::default(),
+                    Default::default(),
+                )),
+            )),
+            Intrinsic::SelfEdition => Type::Integer(IntegerType::U16),
+            Intrinsic::SelfId => Type::Address,
+            Intrinsic::SelfProgramOwner => {
+                // Check that the operation is only invoked in a `finalize` block.
+                self.check_access_allowed("program_owner", true, function_span);
+                Type::Address
+            }
+            Intrinsic::SelfSigner => {
+                // Check that operation is not invoked in a `finalize` block.
+                self.check_access_allowed("self.signer", false, function_span);
+                Type::Address
+            }
+            Intrinsic::BlockHeight => {
+                // Check that the operation is invoked in a `finalize` block.
+                self.check_access_allowed("block.height", true, function_span);
+                Type::Integer(IntegerType::U32)
+            }
+            Intrinsic::BlockTimestamp => {
+                // Check that the operation is invoked in a `finalize` block.
+                self.check_access_allowed("block.timestamp", true, function_span);
+                Type::Integer(IntegerType::I64)
+            }
+            Intrinsic::NetworkId => {
+                // Check that the operation is not invoked outside a `finalize` block.
+                self.check_access_allowed("network.id", true, function_span);
+                Type::Integer(IntegerType::U16)
             }
         }
     }

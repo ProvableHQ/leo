@@ -18,8 +18,8 @@ use super::*;
 
 use leo_ast::{
     BinaryOperation,
-    CoreFunction,
     IntegerType,
+    Intrinsic,
     Location,
     Type,
     UnaryOperation,
@@ -193,12 +193,12 @@ impl Cursor {
 
         macro_rules! commit_function {
             ($commit: expr, $variant: expr) => {{
-                let core_function = CoreFunction::Commit($variant, $commit.destination_type());
+                let intrinsic = Intrinsic::Commit($variant, $commit.destination_type());
                 let randomizer_value = self.operand_value(&$commit.operands()[0]);
                 let operand_value = self.operand_value(&$commit.operands()[1]);
                 self.values.push(randomizer_value);
                 self.values.push(operand_value);
-                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                let value = interpreter_value::evaluate_intrinsic(self, intrinsic, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $commit.destinations()[0].clone())
             }};
@@ -207,11 +207,11 @@ impl Cursor {
         macro_rules! hash_function {
             ($hash: expr, $variant: expr) => {{
                 // Note. The only supported output types of a `hash` function are literals or bit arrays.
-                let core_function =
-                    CoreFunction::Hash($variant, Type::from_snarkvm::<TestnetV0>($hash.destination_type(), None));
+                let intrinsic =
+                    Intrinsic::Hash($variant, Type::from_snarkvm::<TestnetV0>($hash.destination_type(), None));
                 let operand_value = self.operand_value(&$hash.operands()[0]);
                 self.values.push(operand_value);
-                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                let value = interpreter_value::evaluate_intrinsic(self, intrinsic, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $hash.destinations()[0].clone())
             }};
@@ -219,14 +219,14 @@ impl Cursor {
 
         macro_rules! ecdsa_function {
             ($ecdsa: expr, $variant: expr) => {{
-                let core_function = CoreFunction::ECDSAVerify($variant);
+                let intrinsic = Intrinsic::ECDSAVerify($variant);
                 let signature = self.operand_value(&$ecdsa.operands()[0]);
                 let public_key = self.operand_value(&$ecdsa.operands()[1]);
                 let message = self.operand_value(&$ecdsa.operands()[2]);
                 self.values.push(signature);
                 self.values.push(public_key);
                 self.values.push(message);
-                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                let value = interpreter_value::evaluate_intrinsic(self, intrinsic, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $ecdsa.destinations()[0].clone())
             }};
@@ -234,14 +234,14 @@ impl Cursor {
 
         macro_rules! schnorr_function {
             ($schnorr: expr, $variant: expr) => {{
-                let core_function = CoreFunction::SignatureVerify;
+                let intrinsic = Intrinsic::SignatureVerify;
                 let signature = self.operand_value(&$schnorr.operands()[0]);
                 let public_key = self.operand_value(&$schnorr.operands()[1]);
                 let message = self.operand_value(&$schnorr.operands()[2]);
                 self.values.push(signature);
                 self.values.push(public_key);
                 self.values.push(message);
-                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                let value = interpreter_value::evaluate_intrinsic(self, intrinsic, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $schnorr.destinations()[0].clone())
             }};
@@ -249,10 +249,10 @@ impl Cursor {
 
         macro_rules! serialize_function {
             ($serialize: expr, $variant: expr) => {{
-                let core_function = CoreFunction::Serialize($variant);
+                let intrinsic = Intrinsic::Serialize($variant);
                 let operand_value = self.operand_value(&$serialize.operands()[0]);
                 self.values.push(operand_value);
-                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                let value = interpreter_value::evaluate_intrinsic(self, intrinsic, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $serialize.destinations()[0].clone())
             }};
@@ -260,13 +260,13 @@ impl Cursor {
 
         macro_rules! deserialize_function {
             ($deserialize: expr, $variant: expr) => {{
-                let core_function = CoreFunction::Deserialize(
+                let intrinsic = Intrinsic::Deserialize(
                     $variant,
                     Type::from_snarkvm::<TestnetV0>($deserialize.destination_type(), None),
                 );
                 let operand_value = self.operand_value(&$deserialize.operands()[0]);
                 self.values.push(operand_value);
-                let value = interpreter_value::evaluate_core_function(self, core_function, &[], Span::default())?;
+                let value = interpreter_value::evaluate_intrinsic(self, intrinsic, &[], Span::default())?;
                 self.increment_instruction_index();
                 (value.expect("Evaluation should work"), $deserialize.destinations()[0].clone())
             }};
@@ -374,9 +374,9 @@ impl Cursor {
                     CastType::GroupXCoordinate => {
                         let value = self.operand_value(&cast.operands()[0]);
                         let mut values = vec![value];
-                        let Some(result_value) = interpreter_value::evaluate_core_function(
+                        let Some(result_value) = interpreter_value::evaluate_intrinsic(
                             &mut values,
-                            CoreFunction::GroupToXCoordinate,
+                            Intrinsic::GroupToXCoordinate,
                             &[],
                             Default::default(),
                         )?
@@ -388,9 +388,9 @@ impl Cursor {
                     CastType::GroupYCoordinate => {
                         let value = self.operand_value(&cast.operands()[0]);
                         let mut values = vec![value];
-                        let Some(result_value) = interpreter_value::evaluate_core_function(
+                        let Some(result_value) = interpreter_value::evaluate_intrinsic(
                             &mut values,
-                            CoreFunction::GroupToYCoordinate,
+                            Intrinsic::GroupToYCoordinate,
                             &[],
                             Default::default(),
                         )?
@@ -682,10 +682,9 @@ impl Cursor {
             }
             RandChaCha(rand) => {
                 // TODO - this is not using the other operands which are supposed to seed the RNG.
-                use CoreFunction::*;
+                use Intrinsic::*;
                 let function = ChaChaRand(rand.destination_type());
-                let value =
-                    interpreter_value::evaluate_core_function(self, function, &[], Default::default())?.unwrap();
+                let value = interpreter_value::evaluate_intrinsic(self, function, &[], Default::default())?.unwrap();
                 self.increment_instruction_index();
                 (value, rand.destination().clone())
             }

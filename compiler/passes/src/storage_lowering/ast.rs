@@ -69,13 +69,13 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         (input.into(), stmts_array)
     }
 
-    fn reconstruct_associated_function(
+    fn reconstruct_intrinsic(
         &mut self,
-        mut input: AssociatedFunctionExpression,
-        _additional: &(),
+        mut input: IntrinsicExpression,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
-        match CoreFunction::from_symbols(input.variant.name, input.name.name) {
-            Some(CoreFunction::VectorPush) => {
+        match Intrinsic::from_symbol(input.name, &input.type_parameters) {
+            Some(Intrinsic::VectorPush) => {
                 // Input:
                 //   Vector::push(v, 42u32)
                 //
@@ -130,7 +130,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 (set_vec_stmt_expr, [stmts, vec![len_stmt, set_len_stmt]].concat())
             }
 
-            Some(CoreFunction::VectorLen) => {
+            Some(Intrinsic::VectorLen) => {
                 // Input:
                 //   Vector::len(v)
                 //
@@ -153,7 +153,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 (get_len_expr, vec![])
             }
 
-            Some(CoreFunction::VectorPop) => {
+            Some(Intrinsic::VectorPop) => {
                 // Input:
                 //   Vector::pop(v)
                 //
@@ -229,7 +229,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 (ternary_expr, vec![len_stmt, set_len_stmt])
             }
 
-            Some(CoreFunction::Get) => {
+            Some(Intrinsic::Get) => {
                 // Unpack arguments (container, index/key)
                 let [container_expr, key_expr] = &mut input.arguments[..] else {
                     panic!("Get should have 2 arguments");
@@ -297,7 +297,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                         // Update the `key` argument of the `Get` as well as the variant name from
                         // `__unresolved` to `Mapping`.
                         input.arguments[1] = reconstructed_key_expr;
-                        input.variant.name = sym::Mapping;
+                        input.name = sym::_mapping_get;
                         (input.into(), key_stmts)
                     }
 
@@ -307,7 +307,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 }
             }
 
-            Some(CoreFunction::Set) => {
+            Some(Intrinsic::Set) => {
                 // Unpack arguments (container, index/key, value)
                 let [container_expr, index_expr, value_expr] = &mut input.arguments[..] else {
                     panic!("Set should have 3 arguments");
@@ -377,7 +377,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                         // `__unresolved` to `Mapping`.
                         input.arguments[1] = reconstructed_key_expr;
                         input.arguments[2] = reconstructed_value_expr;
-                        input.variant.name = sym::Mapping;
+                        input.name = sym::_mapping_set;
                         (input.into(), [key_stmts, value_stmts].concat())
                     }
 
@@ -387,7 +387,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 }
             }
 
-            Some(CoreFunction::VectorClear) => {
+            Some(Intrinsic::VectorClear) => {
                 // Input:
                 //   Vector::clear(v)
                 //
@@ -417,7 +417,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 (set_len_stmt_expr, vec![])
             }
 
-            Some(CoreFunction::VectorSwapRemove) => {
+            Some(Intrinsic::VectorSwapRemove) => {
                 // Input:
                 //   Vector::swap_remove(v, index)
                 //
@@ -690,9 +690,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let false_literal: Expression = Literal::boolean(false, Span::default(), id()).into();
 
                 // `<var_name>__.contains(false)`
-                let contains_expr: Expression = AssociatedFunctionExpression {
-                    variant: Identifier::new(sym::Mapping, id()),
-                    name: Identifier::new(Symbol::intern("contains"), id()),
+                let contains_expr: Expression = IntrinsicExpression {
+                    name: sym::_mapping_contains,
                     type_parameters: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal.clone()],
                     span: Span::default(),
@@ -704,9 +703,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let zero = self.zero(inner);
 
                 // `<var_name>__.get_or_use(false, zero_value)`
-                let get_or_use_expr: Expression = AssociatedFunctionExpression {
-                    variant: Identifier::new(sym::Mapping, id()),
-                    name: Identifier::new(Symbol::intern("get_or_use"), id()),
+                let get_or_use_expr: Expression = IntrinsicExpression {
+                    name: sym::_mapping_get_or_use,
                     type_parameters: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal, zero],
                     span: Span::default(),
@@ -847,10 +845,9 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     // Lowered reconstruction:
                     //   mapping x__: bool => field;
                     //   ...
-                    //   Mapping::remove(x__, false);
-                    let remove_expr: Expression = AssociatedFunctionExpression {
-                        variant: Identifier::new(sym::Mapping, id()),
-                        name: Identifier::new(Symbol::intern("remove"), id()),
+                    //   _mapping_remove(x__, false);
+                    let remove_expr: Expression = IntrinsicExpression {
+                        name: sym::_mapping_remove,
                         type_parameters: vec![],
                         arguments: vec![mapping_expr, false_literal],
                         span,
@@ -867,10 +864,9 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     // Lowered reconstruction:
                     //   mapping x__: bool => field;
                     //   ...
-                    //   Mapping::set(x__, false, 5field);
-                    let set_expr: Expression = AssociatedFunctionExpression {
-                        variant: Identifier::new(sym::Mapping, id()),
-                        name: Identifier::new(Symbol::intern("set"), id()),
+                    //   _mapping_set(x__, false, 5field);
+                    let set_expr: Expression = IntrinsicExpression {
+                        name: sym::_mapping_set,
                         type_parameters: vec![],
                         arguments: vec![mapping_expr, false_literal, new_value],
                         span,
@@ -941,7 +937,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
         let (reconstructed_expression, statements) = self.reconstruct_expression(input.expression, &Default::default());
-        if !matches!(reconstructed_expression, Expression::Call(_) | Expression::AssociatedFunction(_)) {
+        if !matches!(reconstructed_expression, Expression::Call(_) | Expression::Intrinsic(_)) {
             (
                 ExpressionStatement {
                     expression: Expression::Unit(UnitExpression {

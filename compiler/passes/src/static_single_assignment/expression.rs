@@ -19,13 +19,13 @@ use super::SsaFormingVisitor;
 use leo_ast::{
     ArrayAccess,
     ArrayExpression,
-    AssociatedFunctionExpression,
     BinaryExpression,
     CallExpression,
     CastExpression,
     Composite,
     Expression,
     ExpressionConsumer,
+    IntrinsicExpression,
     Literal,
     Location,
     LocatorExpression,
@@ -282,13 +282,9 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         (input.into(), Default::default())
     }
 
-    fn consume_associated_constant(&mut self, input: leo_ast::AssociatedConstantExpression) -> Self::Output {
-        (input.into(), Default::default())
-    }
-
-    fn consume_associated_function(&mut self, input: leo_ast::AssociatedFunctionExpression) -> Self::Output {
+    fn consume_intrinsic(&mut self, input: leo_ast::IntrinsicExpression) -> Self::Output {
         let mut statements = Vec::new();
-        let expr = AssociatedFunctionExpression {
+        let expr = IntrinsicExpression {
             arguments: input
                 .arguments
                 .into_iter()

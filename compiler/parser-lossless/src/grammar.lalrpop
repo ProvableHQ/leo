@@ -170,6 +170,7 @@ CommaInitializersMaybe = CommaMaybe<StructMemberInitializer>;
 FunctionIdentifier: SyntaxNode<'a> = {
     WithTrivia<Path>,
     WithTrivia<Locator>,
+    WithTrivia<Intrinsic>,
 }
 
 WithTrivia<T>: SyntaxNode<'a> = {
@@ -291,6 +292,8 @@ Expr0: SyntaxNode<'a> = {
             )
         ) {
             ExpressionKind::AssociatedFunctionCall
+        } else if name.text.starts_with("_") {
+            ExpressionKind::Intrinsic
         } else {
             ExpressionKind::Call
         };
@@ -849,6 +852,7 @@ extern {
         CommentBlock => LalrToken { token: Token::CommentBlock, .. },
 
         Identifier => LalrToken { token: Token::IdVariants(IdVariants::Identifier), .. },
+        Intrinsic => LalrToken { token: Token::IdVariants(IdVariants::Intrinsic), .. },
         ProgramId => LalrToken { token: Token::IdVariants(IdVariants::ProgramId), .. },
         Locator => LalrToken { token: Token::IdVariants(IdVariants::Locator), .. },
         RealPath => LalrToken { token: Token::IdVariants(IdVariants::Path), .. },

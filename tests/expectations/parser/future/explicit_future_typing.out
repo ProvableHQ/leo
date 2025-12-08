@@ -11,7 +11,7 @@
             "lo": 8,
             "hi": 12
           },
-          "id": 58
+          "id": 56
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 13,
             "hi": 17
           },
-          "id": 59
+          "id": 57
         }
       },
       "consts": [],
@@ -610,23 +610,8 @@
                 {
                   "Expression": {
                     "expression": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "Future",
-                          "span": {
-                            "lo": 0,
-                            "hi": 0
-                          },
-                          "id": 42
-                        },
-                        "name": {
-                          "name": "await",
-                          "span": {
-                            "lo": 529,
-                            "hi": 534
-                          },
-                          "id": 39
-                        },
+                      "Intrinsic": {
+                        "name": "_future_await",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -654,7 +639,7 @@
                           "lo": 526,
                           "hi": 536
                         },
-                        "id": 43
+                        "id": 42
                       }
                     },
                     "span": {
@@ -667,23 +652,8 @@
                 {
                   "Expression": {
                     "expression": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "Future",
-                          "span": {
-                            "lo": 0,
-                            "hi": 0
-                          },
-                          "id": 49
-                        },
-                        "name": {
-                          "name": "await",
-                          "span": {
-                            "lo": 549,
-                            "hi": 554
-                          },
-                          "id": 46
-                        },
+                      "Intrinsic": {
+                        "name": "_future_await",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -695,7 +665,7 @@
                                   "lo": 546,
                                   "hi": 548
                                 },
-                                "id": 48
+                                "id": 47
                               },
                               "is_absolute": false,
                               "absolute_path": null,
@@ -703,7 +673,7 @@
                                 "lo": 546,
                                 "hi": 548
                               },
-                              "id": 47
+                              "id": 46
                             }
                           }
                         ],
@@ -711,14 +681,14 @@
                           "lo": 546,
                           "hi": 556
                         },
-                        "id": 50
+                        "id": 48
                       }
                     },
                     "span": {
                       "lo": 546,
                       "hi": 557
                     },
-                    "id": 44
+                    "id": 43
                   }
                 },
                 {
@@ -734,7 +704,7 @@
                                 "lo": 576,
                                 "hi": 577
                               },
-                              "id": 53
+                              "id": 51
                             },
                             "is_absolute": false,
                             "absolute_path": null,
@@ -742,7 +712,7 @@
                               "lo": 576,
                               "hi": 577
                             },
-                            "id": 52
+                            "id": 50
                           }
                         },
                         {
@@ -754,7 +724,7 @@
                                 "lo": 578,
                                 "hi": 579
                               },
-                              "id": 55
+                              "id": 53
                             },
                             "is_absolute": false,
                             "absolute_path": null,
@@ -762,7 +732,7 @@
                               "lo": 578,
                               "hi": 579
                             },
-                            "id": 54
+                            "id": 52
                           }
                         }
                       ]
@@ -771,7 +741,7 @@
                       "lo": 566,
                       "hi": 581
                     },
-                    "id": 51
+                    "id": 49
                   }
                 }
               ],
@@ -779,13 +749,13 @@
                 "lo": 516,
                 "hi": 587
               },
-              "id": 56
+              "id": 54
             },
             "span": {
               "lo": 410,
               "hi": 587
             },
-            "id": 57
+            "id": 55
           }
         ]
       ],

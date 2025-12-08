@@ -1375,4 +1375,14 @@ create_messages!(
         help: None,
     }
 
+    /// For when an invalid intrinsic is used.
+    @formatted
+    invalid_intrinsic {
+        args: (intr: impl Display),
+        msg: format!(
+            "{intr} is not a valid intrinsic.",
+        ),
+        help: None,
+    }
+
 );
