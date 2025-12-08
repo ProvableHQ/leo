@@ -30,6 +30,9 @@ executors:
       - image: "cimg/rust:1.90"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
     resource_class: 2xlarge
 
+test-env: &test-env
+  SNARKOS_REV: "10759d44a02942b72faa5f6e3bf56ed58a8f3204" # v4.4.0
+
 commands:
   install-rust:
     description: "Install Rust (Linux/macOS)"
@@ -51,8 +54,8 @@ commands:
               cargo generate-lockfile
             fi
             cargo install cargo-mtime
-            
-            
+
+
 
   install-rust-windows:
     description: "Install Rust (Windows)"
@@ -82,7 +85,7 @@ commands:
         description: "The git revision of snarkOS to check out"
     steps:
       - run:
-          name: Install snarkOS 
+          name: Install snarkOS
           command: |
             set -euo pipefail
             git clone https://github.com/ProvableHQ/snarkOS.git
@@ -91,7 +94,7 @@ commands:
             cargo install --path . --features test_network --locked --force
             cd ..
             rm -rf snarkOS
-            ulimit -n 65535 
+            ulimit -n 65535
 
   build-and-test:
     description: "Build and run tests"
@@ -150,7 +153,7 @@ jobs:
   test-macos:
     executor: macos-executor
     environment:
-      SNARKOS_REV: "10759d44a02942b72faa5f6e3bf56ed58a8f3204" # v4.4.0
+      <<: *test-env
     steps:
       - checkout
       - restore_cache:
@@ -177,6 +180,8 @@ jobs:
 
   test-linux:
     executor: linux-executor
+    environment:
+      <<: *test-env
     steps:
       - checkout
       - restore_cache:
@@ -185,6 +190,23 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
+      - run:
+          name: Install snarkos dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              build-essential \
+              clang \
+              libssl-dev \
+              llvm \
+              lld \
+              pkg-config
+      - install-snarkos:
+          revision: $SNARKOS_REV
+      - run:
+          name: Verify SnarkOS installation
+          command: |
+            snarkos --version
       - run:
             name: Update Submodules
             command: git submodule update --init --recursive
@@ -320,7 +342,7 @@ jobs:
 
 workflows:
   version: 2
-  
+
   test-windows:
     jobs:
       - test-windows
@@ -336,7 +358,7 @@ workflows:
   code-quality:
     jobs:
       - check-style-clippy-docs
-  
+
   leo-executable:
     jobs:
       - leo-executable
