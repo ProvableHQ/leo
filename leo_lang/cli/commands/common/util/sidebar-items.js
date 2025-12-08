@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["collect_aleo_paths","collect_leo_paths"]};
+window.SIDEBAR_ITEMS = {"constant":["PROGRAM_SIZE_WARNING_THRESHOLD"],"fn":["collect_aleo_paths","collect_leo_paths","format_program_size"]};

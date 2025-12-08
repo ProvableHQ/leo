@@ -248,6 +248,12 @@
 <a href=#248 id=248 data-nosnippet>248</a>    <span class="macro">tracing::info!</span>(<span class="string">"    {} statements after dead code elimination."</span>, compiler.statements_after_dce);
 <a href=#249 id=249 data-nosnippet>249</a>    <span class="macro">tracing::info!</span>(<span class="string">"    The program checksum is: '[{checksum}]'."</span>);
 <a href=#250 id=250 data-nosnippet>250</a>
-<a href=#251 id=251 data-nosnippet>251</a>    <span class="macro">tracing::info!</span>(<span class="string">"✅ Compiled '{program_name}.aleo' into Aleo instructions."</span>);
-<a href=#252 id=252 data-nosnippet>252</a>    <span class="prelude-val">Ok</span>(bytecode)
-<a href=#253 id=253 data-nosnippet>253</a>}</code></pre></div></section></main></body></html>
+<a href=#251 id=251 data-nosnippet>251</a>    <span class="kw">let </span>(size_kb, max_kb, warning) = format_program_size(program_size, MAX_PROGRAM_SIZE);
+<a href=#252 id=252 data-nosnippet>252</a>    <span class="macro">tracing::info!</span>(<span class="string">"    Program size: {size_kb:.2} KB / {max_kb:.2} KB"</span>);
+<a href=#253 id=253 data-nosnippet>253</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = warning {
+<a href=#254 id=254 data-nosnippet>254</a>        <span class="macro">tracing::warn!</span>(<span class="string">"⚠️  Program '{program_name}' is {msg}."</span>);
+<a href=#255 id=255 data-nosnippet>255</a>    }
+<a href=#256 id=256 data-nosnippet>256</a>
+<a href=#257 id=257 data-nosnippet>257</a>    <span class="macro">tracing::info!</span>(<span class="string">"✅ Compiled '{program_name}.aleo' into Aleo instructions."</span>);
+<a href=#258 id=258 data-nosnippet>258</a>    <span class="prelude-val">Ok</span>(bytecode)
+<a href=#259 id=259 data-nosnippet>259</a>}</code></pre></div></section></main></body></html>
