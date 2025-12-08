@@ -183,8 +183,8 @@ const BINARY_PATH: &str = env!("CARGO_BIN_EXE_leo");
 
 #[test]
 fn integration_tests() {
-    if !cfg!(target_os = "macos") {
-        println!("Skipping CLI integration tests (they only run on macos).");
+    if !cfg!(target_family = "unix") {
+        println!("Skipping CLI integration tests (they only run on unix systems).");
         return;
     }
 
@@ -362,7 +362,7 @@ fn run_leo_devnet(num_validators: usize) -> io::Result<Child> {
         (0..ConsensusVersion::latest() as usize).map(|n| n.to_string()).collect::<Vec<_>>().join(",");
 
     // Configure the Leo devnet command with all necessary arguments
-    leo_devnet_cmd.arg("devnet")        
+    leo_devnet_cmd.arg("devnet")
         .arg("-y")
         .arg("--snarkos")
         .arg(&snarkos_path)
@@ -372,7 +372,7 @@ fn run_leo_devnet(num_validators: usize) -> io::Result<Child> {
         .arg(num_validators.to_string())
         .arg("--consensus-heights")             // Define consensus heights for testing
         .arg(&consensus_heights)
-        .arg("--clear-storage")                 
+        .arg("--clear-storage")
         .stdout(Stdio::null())
         .stderr(Stdio::null());
 
