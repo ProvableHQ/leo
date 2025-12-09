@@ -74,152 +74,104 @@
 <a href=#74 id=74 data-nosnippet>74</a>
 <a href=#75 id=75 data-nosnippet>75</a><span class="macro">crate::simple_node_impl!</span>(Literal);
 <a href=#76 id=76 data-nosnippet>76</a>
-<a href=#77 id=77 data-nosnippet>77</a><span class="kw">struct </span>DisplayDecimal&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Literal);
-<a href=#78 id=78 data-nosnippet>78</a>
-<a href=#79 id=79 data-nosnippet>79</a><span class="kw">impl </span>Literal {
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="kw">pub fn </span>string(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#81 id=81 data-nosnippet>81</a>        Literal { variant: LiteralVariant::String(s), span, id }
-<a href=#82 id=82 data-nosnippet>82</a>    }
-<a href=#83 id=83 data-nosnippet>83</a>
-<a href=#84 id=84 data-nosnippet>84</a>    <span class="kw">pub fn </span>field(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#85 id=85 data-nosnippet>85</a>        Literal { variant: LiteralVariant::Field(s), span, id }
-<a href=#86 id=86 data-nosnippet>86</a>    }
-<a href=#87 id=87 data-nosnippet>87</a>
-<a href=#88 id=88 data-nosnippet>88</a>    <span class="kw">pub fn </span>group(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#89 id=89 data-nosnippet>89</a>        Literal { variant: LiteralVariant::Group(s), span, id }
-<a href=#90 id=90 data-nosnippet>90</a>    }
-<a href=#91 id=91 data-nosnippet>91</a>
-<a href=#92 id=92 data-nosnippet>92</a>    <span class="kw">pub fn </span>address(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#93 id=93 data-nosnippet>93</a>        Literal { variant: LiteralVariant::Address(s), span, id }
-<a href=#94 id=94 data-nosnippet>94</a>    }
-<a href=#95 id=95 data-nosnippet>95</a>
-<a href=#96 id=96 data-nosnippet>96</a>    <span class="kw">pub fn </span>scalar(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#97 id=97 data-nosnippet>97</a>        Literal { variant: LiteralVariant::Scalar(s), span, id }
-<a href=#98 id=98 data-nosnippet>98</a>    }
-<a href=#99 id=99 data-nosnippet>99</a>
-<a href=#100 id=100 data-nosnippet>100</a>    <span class="kw">pub fn </span>boolean(s: bool, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#101 id=101 data-nosnippet>101</a>        Literal { variant: LiteralVariant::Boolean(s), span, id }
-<a href=#102 id=102 data-nosnippet>102</a>    }
-<a href=#103 id=103 data-nosnippet>103</a>
-<a href=#104 id=104 data-nosnippet>104</a>    <span class="kw">pub fn </span>integer(integer_type: IntegerType, s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#105 id=105 data-nosnippet>105</a>        Literal { variant: LiteralVariant::Integer(integer_type, s), span, id }
-<a href=#106 id=106 data-nosnippet>106</a>    }
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">pub fn </span>unsuffixed(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#109 id=109 data-nosnippet>109</a>        Literal { variant: LiteralVariant::Unsuffixed(s), span, id }
-<a href=#110 id=110 data-nosnippet>110</a>    }
-<a href=#111 id=111 data-nosnippet>111</a>
-<a href=#112 id=112 data-nosnippet>112</a>    <span class="kw">pub fn </span>none(span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
-<a href=#113 id=113 data-nosnippet>113</a>        Literal { variant: LiteralVariant::None, span, id }
-<a href=#114 id=114 data-nosnippet>114</a>    }
-<a href=#115 id=115 data-nosnippet>115</a>
-<a href=#116 id=116 data-nosnippet>116</a>    <span class="doccomment">/// For displaying a literal as decimal, regardless of the radix in which it was parsed.
-<a href=#117 id=117 data-nosnippet>117</a>    ///
-<a href=#118 id=118 data-nosnippet>118</a>    /// In particular this is useful for outputting .aleo files.
-<a href=#119 id=119 data-nosnippet>119</a>    </span><span class="kw">pub fn </span>display_decimal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span><span class="lifetime">'_ </span>+ fmt::Display {
-<a href=#120 id=120 data-nosnippet>120</a>        DisplayDecimal(<span class="self">self</span>)
+<a href=#77 id=77 data-nosnippet>77</a><span class="kw">impl </span>Literal {
+<a href=#78 id=78 data-nosnippet>78</a>    <span class="kw">pub fn </span>string(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#79 id=79 data-nosnippet>79</a>        Literal { variant: LiteralVariant::String(s), span, id }
+<a href=#80 id=80 data-nosnippet>80</a>    }
+<a href=#81 id=81 data-nosnippet>81</a>
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">pub fn </span>field(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#83 id=83 data-nosnippet>83</a>        Literal { variant: LiteralVariant::Field(s), span, id }
+<a href=#84 id=84 data-nosnippet>84</a>    }
+<a href=#85 id=85 data-nosnippet>85</a>
+<a href=#86 id=86 data-nosnippet>86</a>    <span class="kw">pub fn </span>group(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#87 id=87 data-nosnippet>87</a>        Literal { variant: LiteralVariant::Group(s), span, id }
+<a href=#88 id=88 data-nosnippet>88</a>    }
+<a href=#89 id=89 data-nosnippet>89</a>
+<a href=#90 id=90 data-nosnippet>90</a>    <span class="kw">pub fn </span>address(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#91 id=91 data-nosnippet>91</a>        Literal { variant: LiteralVariant::Address(s), span, id }
+<a href=#92 id=92 data-nosnippet>92</a>    }
+<a href=#93 id=93 data-nosnippet>93</a>
+<a href=#94 id=94 data-nosnippet>94</a>    <span class="kw">pub fn </span>scalar(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#95 id=95 data-nosnippet>95</a>        Literal { variant: LiteralVariant::Scalar(s), span, id }
+<a href=#96 id=96 data-nosnippet>96</a>    }
+<a href=#97 id=97 data-nosnippet>97</a>
+<a href=#98 id=98 data-nosnippet>98</a>    <span class="kw">pub fn </span>boolean(s: bool, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#99 id=99 data-nosnippet>99</a>        Literal { variant: LiteralVariant::Boolean(s), span, id }
+<a href=#100 id=100 data-nosnippet>100</a>    }
+<a href=#101 id=101 data-nosnippet>101</a>
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="kw">pub fn </span>integer(integer_type: IntegerType, s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#103 id=103 data-nosnippet>103</a>        Literal { variant: LiteralVariant::Integer(integer_type, s), span, id }
+<a href=#104 id=104 data-nosnippet>104</a>    }
+<a href=#105 id=105 data-nosnippet>105</a>
+<a href=#106 id=106 data-nosnippet>106</a>    <span class="kw">pub fn </span>unsuffixed(s: String, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#107 id=107 data-nosnippet>107</a>        Literal { variant: LiteralVariant::Unsuffixed(s), span, id }
+<a href=#108 id=108 data-nosnippet>108</a>    }
+<a href=#109 id=109 data-nosnippet>109</a>
+<a href=#110 id=110 data-nosnippet>110</a>    <span class="kw">pub fn </span>none(span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+<a href=#111 id=111 data-nosnippet>111</a>        Literal { variant: LiteralVariant::None, span, id }
+<a href=#112 id=112 data-nosnippet>112</a>    }
+<a href=#113 id=113 data-nosnippet>113</a>
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="doccomment">/// For an integer literal, parse it and cast it to a u32.
+<a href=#115 id=115 data-nosnippet>115</a>    </span><span class="kw">pub fn </span>as_u32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
+<a href=#116 id=116 data-nosnippet>116</a>        <span class="kw">if let </span>LiteralVariant::Integer(<span class="kw">_</span>, s) = <span class="kw-2">&amp;</span><span class="self">self</span>.variant {
+<a href=#117 id=117 data-nosnippet>117</a>            u32::from_str_by_radix(<span class="kw-2">&amp;</span>s.replace(<span class="string">"_"</span>, <span class="string">""</span>)).ok()
+<a href=#118 id=118 data-nosnippet>118</a>        } <span class="kw">else </span>{
+<a href=#119 id=119 data-nosnippet>119</a>            <span class="prelude-val">None
+<a href=#120 id=120 data-nosnippet>120</a>        </span>}
 <a href=#121 id=121 data-nosnippet>121</a>    }
-<a href=#122 id=122 data-nosnippet>122</a>
-<a href=#123 id=123 data-nosnippet>123</a>    <span class="doccomment">/// For an integer literal, parse it and cast it to a u32.
-<a href=#124 id=124 data-nosnippet>124</a>    </span><span class="kw">pub fn </span>as_u32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt; {
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="kw">if let </span>LiteralVariant::Integer(<span class="kw">_</span>, s) = <span class="kw-2">&amp;</span><span class="self">self</span>.variant {
-<a href=#126 id=126 data-nosnippet>126</a>            u32::from_str_by_radix(<span class="kw-2">&amp;</span>s.replace(<span class="string">"_"</span>, <span class="string">""</span>)).ok()
-<a href=#127 id=127 data-nosnippet>127</a>        } <span class="kw">else </span>{
-<a href=#128 id=128 data-nosnippet>128</a>            <span class="prelude-val">None
-<a href=#129 id=129 data-nosnippet>129</a>        </span>}
-<a href=#130 id=130 data-nosnippet>130</a>    }
-<a href=#131 id=131 data-nosnippet>131</a>}
-<a href=#132 id=132 data-nosnippet>132</a>
-<a href=#133 id=133 data-nosnippet>133</a><span class="kw">impl </span>fmt::Display <span class="kw">for </span>DisplayDecimal&lt;<span class="lifetime">'_</span>&gt; {
-<a href=#134 id=134 data-nosnippet>134</a>    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="comment">// This function is duplicated in `interpreter/src/cursor.rs`,
-<a href=#136 id=136 data-nosnippet>136</a>        // but there's not really a great place to put a common implementation
-<a href=#137 id=137 data-nosnippet>137</a>        // right now.
-<a href=#138 id=138 data-nosnippet>138</a>        </span><span class="kw">fn </span>prepare_snarkvm_string(s: <span class="kw-2">&amp;</span>str, suffix: <span class="kw-2">&amp;</span>str) -&gt; String {
-<a href=#139 id=139 data-nosnippet>139</a>            <span class="comment">// If there's a `-`, separate it from the rest of the string.
-<a href=#140 id=140 data-nosnippet>140</a>            </span><span class="kw">let </span>(neg, rest) = s.strip_prefix(<span class="string">"-"</span>).map(|rest| (<span class="string">"-"</span>, rest)).unwrap_or((<span class="string">""</span>, s));
-<a href=#141 id=141 data-nosnippet>141</a>            <span class="comment">// Remove leading zeros.
-<a href=#142 id=142 data-nosnippet>142</a>            </span><span class="kw">let </span><span class="kw-2">mut </span>rest = rest.trim_start_matches(<span class="string">'0'</span>);
-<a href=#143 id=143 data-nosnippet>143</a>            <span class="kw">if </span>rest.is_empty() {
-<a href=#144 id=144 data-nosnippet>144</a>                rest = <span class="string">"0"</span>;
-<a href=#145 id=145 data-nosnippet>145</a>            }
-<a href=#146 id=146 data-nosnippet>146</a>            <span class="macro">format!</span>(<span class="string">"{neg}{rest}{suffix}"</span>)
-<a href=#147 id=147 data-nosnippet>147</a>        }
-<a href=#148 id=148 data-nosnippet>148</a>
-<a href=#149 id=149 data-nosnippet>149</a>        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.variant {
-<a href=#150 id=150 data-nosnippet>150</a>            LiteralVariant::Address(address) =&gt; <span class="macro">write!</span>(f, <span class="string">"{address}"</span>),
-<a href=#151 id=151 data-nosnippet>151</a>            LiteralVariant::Boolean(boolean) =&gt; <span class="macro">write!</span>(f, <span class="string">"{boolean}"</span>),
-<a href=#152 id=152 data-nosnippet>152</a>            LiteralVariant::Field(field) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, prepare_snarkvm_string(field, <span class="string">"field"</span>)),
-<a href=#153 id=153 data-nosnippet>153</a>            LiteralVariant::Group(group) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, prepare_snarkvm_string(group, <span class="string">"group"</span>)),
-<a href=#154 id=154 data-nosnippet>154</a>            LiteralVariant::Integer(type_, value) =&gt; {
-<a href=#155 id=155 data-nosnippet>155</a>                <span class="kw">let </span>string = value.replace(<span class="string">'_'</span>, <span class="string">""</span>);
-<a href=#156 id=156 data-nosnippet>156</a>                <span class="kw">if </span>value.starts_with(<span class="string">'-'</span>) {
-<a href=#157 id=157 data-nosnippet>157</a>                    <span class="kw">let </span>v = i128::from_str_by_radix(<span class="kw-2">&amp;</span>string).expect(<span class="string">"Failed to parse integer?"</span>);
-<a href=#158 id=158 data-nosnippet>158</a>                    <span class="macro">write!</span>(f, <span class="string">"{v}{type_}"</span>)
-<a href=#159 id=159 data-nosnippet>159</a>                } <span class="kw">else </span>{
-<a href=#160 id=160 data-nosnippet>160</a>                    <span class="kw">let </span>v = u128::from_str_by_radix(<span class="kw-2">&amp;</span>string).expect(<span class="string">"Failed to parse integer?"</span>);
-<a href=#161 id=161 data-nosnippet>161</a>                    <span class="macro">write!</span>(f, <span class="string">"{v}{type_}"</span>)
-<a href=#162 id=162 data-nosnippet>162</a>                }
-<a href=#163 id=163 data-nosnippet>163</a>            }
-<a href=#164 id=164 data-nosnippet>164</a>            LiteralVariant::None =&gt; <span class="macro">write!</span>(f, <span class="string">"none"</span>),
-<a href=#165 id=165 data-nosnippet>165</a>            LiteralVariant::Scalar(scalar) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, prepare_snarkvm_string(scalar, <span class="string">"scalar"</span>)),
-<a href=#166 id=166 data-nosnippet>166</a>            LiteralVariant::Unsuffixed(value) =&gt; <span class="macro">write!</span>(f, <span class="string">"{value}"</span>),
-<a href=#167 id=167 data-nosnippet>167</a>            LiteralVariant::String(string) =&gt; <span class="macro">write!</span>(f, <span class="string">"\"{string}\""</span>),
-<a href=#168 id=168 data-nosnippet>168</a>        }
-<a href=#169 id=169 data-nosnippet>169</a>    }
-<a href=#170 id=170 data-nosnippet>170</a>}
-<a href=#171 id=171 data-nosnippet>171</a>
-<a href=#172 id=172 data-nosnippet>172</a><span class="kw">impl </span>From&lt;Literal&gt; <span class="kw">for </span>Expression {
-<a href=#173 id=173 data-nosnippet>173</a>    <span class="kw">fn </span>from(value: Literal) -&gt; <span class="self">Self </span>{
-<a href=#174 id=174 data-nosnippet>174</a>        Expression::Literal(value)
-<a href=#175 id=175 data-nosnippet>175</a>    }
-<a href=#176 id=176 data-nosnippet>176</a>}
-<a href=#177 id=177 data-nosnippet>177</a>
-<a href=#178 id=178 data-nosnippet>178</a><span class="doccomment">/// This trait allows to parse integer literals of any type generically.
-<a href=#179 id=179 data-nosnippet>179</a>///
-<a href=#180 id=180 data-nosnippet>180</a>/// The literal may optionally start with a `-` and/or `0x` or `0o` or 0b`.
-<a href=#181 id=181 data-nosnippet>181</a></span><span class="kw">pub trait </span>FromStrRadix: Sized {
-<a href=#182 id=182 data-nosnippet>182</a>    <span class="kw">fn </span>from_str_by_radix(src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, std::num::ParseIntError&gt;;
-<a href=#183 id=183 data-nosnippet>183</a>}
-<a href=#184 id=184 data-nosnippet>184</a>
-<a href=#185 id=185 data-nosnippet>185</a><span class="macro">macro_rules!</span> implement_from_str_radix {
-<a href=#186 id=186 data-nosnippet>186</a>    ($(<span class="macro-nonterminal">$ty</span>:ident)<span class="kw-2">*</span>) =&gt; {
-<a href=#187 id=187 data-nosnippet>187</a>        $(
-<a href=#188 id=188 data-nosnippet>188</a>            <span class="kw">impl </span>FromStrRadix <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
-<a href=#189 id=189 data-nosnippet>189</a>                <span class="kw">fn </span>from_str_by_radix(src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, std::num::ParseIntError&gt; {
-<a href=#190 id=190 data-nosnippet>190</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"0x"</span>) {
-<a href=#191 id=191 data-nosnippet>191</a>                        <span class="self">Self</span>::from_str_radix(stripped, <span class="number">16</span>)
-<a href=#192 id=192 data-nosnippet>192</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"0o"</span>) {
-<a href=#193 id=193 data-nosnippet>193</a>                        <span class="self">Self</span>::from_str_radix(stripped, <span class="number">8</span>)
-<a href=#194 id=194 data-nosnippet>194</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"0b"</span>) {
-<a href=#195 id=195 data-nosnippet>195</a>                        <span class="self">Self</span>::from_str_radix(stripped, <span class="number">2</span>)
-<a href=#196 id=196 data-nosnippet>196</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"-0x"</span>) {
-<a href=#197 id=197 data-nosnippet>197</a>                        <span class="comment">// We have to remove the 0x prefix and put back in a - to use
-<a href=#198 id=198 data-nosnippet>198</a>                        // std's parsing. Alternatively we could jump through
-<a href=#199 id=199 data-nosnippet>199</a>                        // a few hoops to avoid allocating.
-<a href=#200 id=200 data-nosnippet>200</a>                        </span><span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-<a href=#201 id=201 data-nosnippet>201</a>                        s.push(<span class="string">'-'</span>);
-<a href=#202 id=202 data-nosnippet>202</a>                        s.push_str(stripped);
-<a href=#203 id=203 data-nosnippet>203</a>                        <span class="self">Self</span>::from_str_radix(<span class="kw-2">&amp;</span>s, <span class="number">16</span>)
-<a href=#204 id=204 data-nosnippet>204</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"-0o"</span>) {
-<a href=#205 id=205 data-nosnippet>205</a>                        <span class="comment">// Ditto.
-<a href=#206 id=206 data-nosnippet>206</a>                        </span><span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-<a href=#207 id=207 data-nosnippet>207</a>                        s.push(<span class="string">'-'</span>);
-<a href=#208 id=208 data-nosnippet>208</a>                        s.push_str(stripped);
-<a href=#209 id=209 data-nosnippet>209</a>                        <span class="self">Self</span>::from_str_radix(<span class="kw-2">&amp;</span>s, <span class="number">8</span>)
-<a href=#210 id=210 data-nosnippet>210</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"-0b"</span>) {
-<a href=#211 id=211 data-nosnippet>211</a>                        <span class="comment">// Ditto.
-<a href=#212 id=212 data-nosnippet>212</a>                        </span><span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-<a href=#213 id=213 data-nosnippet>213</a>                        s.push(<span class="string">'-'</span>);
-<a href=#214 id=214 data-nosnippet>214</a>                        s.push_str(stripped);
-<a href=#215 id=215 data-nosnippet>215</a>                        <span class="self">Self</span>::from_str_radix(<span class="kw-2">&amp;</span>s, <span class="number">2</span>)
-<a href=#216 id=216 data-nosnippet>216</a>                    } <span class="kw">else </span>{
-<a href=#217 id=217 data-nosnippet>217</a>                        <span class="self">Self</span>::from_str_radix(src, <span class="number">10</span>)
-<a href=#218 id=218 data-nosnippet>218</a>                    }
-<a href=#219 id=219 data-nosnippet>219</a>                }
-<a href=#220 id=220 data-nosnippet>220</a>            }
-<a href=#221 id=221 data-nosnippet>221</a>        )*
-<a href=#222 id=222 data-nosnippet>222</a>    };
-<a href=#223 id=223 data-nosnippet>223</a>}
-<a href=#224 id=224 data-nosnippet>224</a>
-<a href=#225 id=225 data-nosnippet>225</a><span class="macro">implement_from_str_radix!</span> { u8 u16 u32 u64 u128 i8 i16 i32 i64 i128 }</code></pre></div></section></main></body></html>
+<a href=#122 id=122 data-nosnippet>122</a>}
+<a href=#123 id=123 data-nosnippet>123</a>
+<a href=#124 id=124 data-nosnippet>124</a><span class="kw">impl </span>From&lt;Literal&gt; <span class="kw">for </span>Expression {
+<a href=#125 id=125 data-nosnippet>125</a>    <span class="kw">fn </span>from(value: Literal) -&gt; <span class="self">Self </span>{
+<a href=#126 id=126 data-nosnippet>126</a>        Expression::Literal(value)
+<a href=#127 id=127 data-nosnippet>127</a>    }
+<a href=#128 id=128 data-nosnippet>128</a>}
+<a href=#129 id=129 data-nosnippet>129</a>
+<a href=#130 id=130 data-nosnippet>130</a><span class="doccomment">/// This trait allows to parse integer literals of any type generically.
+<a href=#131 id=131 data-nosnippet>131</a>///
+<a href=#132 id=132 data-nosnippet>132</a>/// The literal may optionally start with a `-` and/or `0x` or `0o` or 0b`.
+<a href=#133 id=133 data-nosnippet>133</a></span><span class="kw">pub trait </span>FromStrRadix: Sized {
+<a href=#134 id=134 data-nosnippet>134</a>    <span class="kw">fn </span>from_str_by_radix(src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, std::num::ParseIntError&gt;;
+<a href=#135 id=135 data-nosnippet>135</a>}
+<a href=#136 id=136 data-nosnippet>136</a>
+<a href=#137 id=137 data-nosnippet>137</a><span class="macro">macro_rules!</span> implement_from_str_radix {
+<a href=#138 id=138 data-nosnippet>138</a>    ($(<span class="macro-nonterminal">$ty</span>:ident)<span class="kw-2">*</span>) =&gt; {
+<a href=#139 id=139 data-nosnippet>139</a>        $(
+<a href=#140 id=140 data-nosnippet>140</a>            <span class="kw">impl </span>FromStrRadix <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
+<a href=#141 id=141 data-nosnippet>141</a>                <span class="kw">fn </span>from_str_by_radix(src: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, std::num::ParseIntError&gt; {
+<a href=#142 id=142 data-nosnippet>142</a>                    <span class="kw">if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"0x"</span>) {
+<a href=#143 id=143 data-nosnippet>143</a>                        <span class="self">Self</span>::from_str_radix(stripped, <span class="number">16</span>)
+<a href=#144 id=144 data-nosnippet>144</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"0o"</span>) {
+<a href=#145 id=145 data-nosnippet>145</a>                        <span class="self">Self</span>::from_str_radix(stripped, <span class="number">8</span>)
+<a href=#146 id=146 data-nosnippet>146</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"0b"</span>) {
+<a href=#147 id=147 data-nosnippet>147</a>                        <span class="self">Self</span>::from_str_radix(stripped, <span class="number">2</span>)
+<a href=#148 id=148 data-nosnippet>148</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"-0x"</span>) {
+<a href=#149 id=149 data-nosnippet>149</a>                        <span class="comment">// We have to remove the 0x prefix and put back in a - to use
+<a href=#150 id=150 data-nosnippet>150</a>                        // std's parsing. Alternatively we could jump through
+<a href=#151 id=151 data-nosnippet>151</a>                        // a few hoops to avoid allocating.
+<a href=#152 id=152 data-nosnippet>152</a>                        </span><span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
+<a href=#153 id=153 data-nosnippet>153</a>                        s.push(<span class="string">'-'</span>);
+<a href=#154 id=154 data-nosnippet>154</a>                        s.push_str(stripped);
+<a href=#155 id=155 data-nosnippet>155</a>                        <span class="self">Self</span>::from_str_radix(<span class="kw-2">&amp;</span>s, <span class="number">16</span>)
+<a href=#156 id=156 data-nosnippet>156</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"-0o"</span>) {
+<a href=#157 id=157 data-nosnippet>157</a>                        <span class="comment">// Ditto.
+<a href=#158 id=158 data-nosnippet>158</a>                        </span><span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
+<a href=#159 id=159 data-nosnippet>159</a>                        s.push(<span class="string">'-'</span>);
+<a href=#160 id=160 data-nosnippet>160</a>                        s.push_str(stripped);
+<a href=#161 id=161 data-nosnippet>161</a>                        <span class="self">Self</span>::from_str_radix(<span class="kw-2">&amp;</span>s, <span class="number">8</span>)
+<a href=#162 id=162 data-nosnippet>162</a>                    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(stripped) = src.strip_prefix(<span class="string">"-0b"</span>) {
+<a href=#163 id=163 data-nosnippet>163</a>                        <span class="comment">// Ditto.
+<a href=#164 id=164 data-nosnippet>164</a>                        </span><span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
+<a href=#165 id=165 data-nosnippet>165</a>                        s.push(<span class="string">'-'</span>);
+<a href=#166 id=166 data-nosnippet>166</a>                        s.push_str(stripped);
+<a href=#167 id=167 data-nosnippet>167</a>                        <span class="self">Self</span>::from_str_radix(<span class="kw-2">&amp;</span>s, <span class="number">2</span>)
+<a href=#168 id=168 data-nosnippet>168</a>                    } <span class="kw">else </span>{
+<a href=#169 id=169 data-nosnippet>169</a>                        <span class="self">Self</span>::from_str_radix(src, <span class="number">10</span>)
+<a href=#170 id=170 data-nosnippet>170</a>                    }
+<a href=#171 id=171 data-nosnippet>171</a>                }
+<a href=#172 id=172 data-nosnippet>172</a>            }
+<a href=#173 id=173 data-nosnippet>173</a>        )*
+<a href=#174 id=174 data-nosnippet>174</a>    };
+<a href=#175 id=175 data-nosnippet>175</a>}
+<a href=#176 id=176 data-nosnippet>176</a>
+<a href=#177 id=177 data-nosnippet>177</a><span class="macro">implement_from_str_radix!</span> { u8 u16 u32 u64 u128 i8 i16 i32 i64 i128 }</code></pre></div></section></main></body></html>
