@@ -17,9 +17,8 @@ finalize dubble:
     add r3 1u64 into r4;
     set r4 into counter[r0];
     get counter[r0] into r5;
-    add r3 1u64 into r6;
-    is.eq r5 r6 into r7;
-    assert.eq r7 true;
+    is.eq r5 r4 into r6;
+    assert.eq r6 true;
 
 function unsafe_increment:
     async unsafe_increment self.caller into r0;

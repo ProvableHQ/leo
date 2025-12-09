@@ -1,28 +1,4 @@
 program test.aleo;
 
 function main:
-    add 0u32 0u32 into r0;
-    add 0u32 r0 into r1;
-    add 1u32 1u32 into r2;
-    add r1 r2 into r3;
-    add r1 r3 into r4;
-    add 0u32 r4 into r5;
-    add 2u32 2u32 into r6;
-    add r3 r6 into r7;
-    add r3 r7 into r8;
-    add r5 r8 into r9;
-    add 3u32 3u32 into r10;
-    add r7 r10 into r11;
-    add r7 r11 into r12;
-    add r9 r12 into r13;
-    add 4u32 4u32 into r14;
-    add r11 r14 into r15;
-    add r11 r15 into r16;
-    add r13 r16 into r17;
-    add 5u32 5u32 into r18;
-    add r15 r18 into r19;
-    add r15 r19 into r20;
-    add r17 r20 into r21;
-    add r21 r19 into r22;
-    add r22 5u32 into r23;
-    output r23 as u32.private;
+    output 145u32 as u32.private;

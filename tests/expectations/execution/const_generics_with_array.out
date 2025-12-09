@@ -1,8 +1,7 @@
 program test.aleo;
 
 function main:
-    cast 1u32 2u32 3u32 into r0 as [u32; 3u32];
-    output r0[2u32] as u32.private;
+    output 3u32 as u32.private;
 
 constructor:
     assert.eq edition 0u16;

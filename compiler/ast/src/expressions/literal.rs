@@ -74,8 +74,6 @@ impl fmt::Display for Literal {
 
 crate::simple_node_impl!(Literal);
 
-struct DisplayDecimal<'a>(&'a Literal);
-
 impl Literal {
     pub fn string(s: String, span: Span, id: NodeID) -> Self {
         Literal { variant: LiteralVariant::String(s), span, id }
@@ -113,58 +111,12 @@ impl Literal {
         Literal { variant: LiteralVariant::None, span, id }
     }
 
-    /// For displaying a literal as decimal, regardless of the radix in which it was parsed.
-    ///
-    /// In particular this is useful for outputting .aleo files.
-    pub fn display_decimal(&self) -> impl '_ + fmt::Display {
-        DisplayDecimal(self)
-    }
-
     /// For an integer literal, parse it and cast it to a u32.
     pub fn as_u32(&self) -> Option<u32> {
         if let LiteralVariant::Integer(_, s) = &self.variant {
             u32::from_str_by_radix(&s.replace("_", "")).ok()
         } else {
             None
-        }
-    }
-}
-
-impl fmt::Display for DisplayDecimal<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // This function is duplicated in `interpreter/src/cursor.rs`,
-        // but there's not really a great place to put a common implementation
-        // right now.
-        fn prepare_snarkvm_string(s: &str, suffix: &str) -> String {
-            // If there's a `-`, separate it from the rest of the string.
-            let (neg, rest) = s.strip_prefix("-").map(|rest| ("-", rest)).unwrap_or(("", s));
-            // Remove leading zeros.
-            let mut rest = rest.trim_start_matches('0');
-            if rest.is_empty() {
-                rest = "0";
-            }
-            format!("{neg}{rest}{suffix}")
-        }
-
-        match &self.0.variant {
-            LiteralVariant::Address(address) => write!(f, "{address}"),
-            LiteralVariant::Boolean(boolean) => write!(f, "{boolean}"),
-            LiteralVariant::Field(field) => write!(f, "{}", prepare_snarkvm_string(field, "field")),
-            LiteralVariant::Group(group) => write!(f, "{}", prepare_snarkvm_string(group, "group")),
-            LiteralVariant::Integer(type_, value) => {
-                let string = value.replace('_', "");
-                if value.starts_with('-') {
-                    let v = i128::from_str_by_radix(&string).expect("Failed to parse integer?");
-                    write!(f, "{v}{type_}")
-                } else {
-                    let v = u128::from_str_by_radix(&string).expect("Failed to parse integer?");
-                    write!(f, "{v}{type_}")
-                }
-            }
-            LiteralVariant::None => write!(f, "none"),
-            LiteralVariant::Scalar(scalar) => write!(f, "{}", prepare_snarkvm_string(scalar, "scalar")),
-            LiteralVariant::Unsuffixed(value) => write!(f, "{value}"),
-            LiteralVariant::String(string) => write!(f, "\"{string}\""),
         }
     }
 }

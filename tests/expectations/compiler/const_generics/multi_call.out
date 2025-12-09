@@ -1,9 +1,4 @@
 program test.aleo;
 
 function main:
-    add 6u32 1000u32 into r0;
-    add r0 10u32 into r1;
-    add 8u32 1000u32 into r2;
-    add r2 10u32 into r3;
-    add r1 r3 into r4;
-    output r4 as u32.private;
+    output 2034u32 as u32.private;

@@ -182,6 +182,10 @@ impl Compiler {
         // Flattening may produce ternary expressions not in SSA form.
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
+        self.do_pass::<SsaConstPropagation>(())?;
+
+        self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
+
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 
         let output = self.do_pass::<DeadCodeEliminating>(())?;

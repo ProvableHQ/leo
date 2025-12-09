@@ -1,68 +1,115 @@
-program test.aleo;
-
-function defs_and_unary_ops:
-    add 0u8 1u8 into r0;
-    add 0u16 1u16 into r1;
-    add 1u32 0u32 into r2;
-    add 1u64 0u64 into r3;
-    add 0u128 1u128 into r4;
-    add 0i8 1i8 into r5;
-    add 1i16 0i16 into r6;
-    add 1i32 0i32 into r7;
-    mul 0u8 1u8 into r8;
-    mul 0u16 1u16 into r9;
-    mul 1u32 0u32 into r10;
-    mul 1u64 0u64 into r11;
-    mul 0u128 1u128 into r12;
-    mul 0i8 1i8 into r13;
-    mul 1i16 0i16 into r14;
-    mul 1i32 0i32 into r15;
-    div 0u8 1u8 into r16;
-    div 0u16 1u16 into r17;
-    div 1u32 0u32 into r18;
-    div 1u64 0u64 into r19;
-    div 0u128 1u128 into r20;
-    div 0i8 1i8 into r21;
-    div 1i16 0i16 into r22;
-    div 1i32 0i32 into r23;
-    div 0field 1field into r24;
-    rem 0u8 1u8 into r25;
-    rem 0u16 1u16 into r26;
-    rem 1u32 0u32 into r27;
-    rem 1u64 0u64 into r28;
-    rem 0u128 1u128 into r29;
-    rem 0i8 1i8 into r30;
-    rem 1i16 0i16 into r31;
-    rem 1i32 0i32 into r32;
-    mod 0u8 1u8 into r33;
-    mod 0u16 1u16 into r34;
-    mod 1u32 0u32 into r35;
-    mod 1u64 0u64 into r36;
-    mod 0u128 1u128 into r37;
-    mod 1u16 0u16 into r38;
-    pow 0u8 1u8 into r39;
-    pow 0u16 1u16 into r40;
-    pow 1u8 0u32 into r41;
-    pow 1u64 0u32 into r42;
-    pow 0u128 1u32 into r43;
-    pow 0i8 1u8 into r44;
-    pow 1i16 0u16 into r45;
-    pow 1i32 0u32 into r46;
-    shl 0u8 1u8 into r47;
-    shl 0u16 1u16 into r48;
-    shl 1u8 0u32 into r49;
-    shl 1u64 0u32 into r50;
-    shl 0u128 1u32 into r51;
-    shl 0i8 1u8 into r52;
-    shl 1i16 0u16 into r53;
-    shl 1i32 0u32 into r54;
-    shr 0u8 1u8 into r55;
-    shr 0u16 1u16 into r56;
-    shr 1u8 0u32 into r57;
-    shr 1u64 0u32 into r58;
-    shr 0u128 1u32 into r59;
-    shr 0i8 1u8 into r60;
-    shr 1i16 0u16 into r61;
-    shr 1i32 0u32 into r62;
-
-function unary_ops:
+Error [ESAZ0374007]: Binary operation `0u8 - 1u8` failed at compile time: sub overflow.
+    --> compiler-test:73:18
+     |
+  73 |         let f0 = a0 - 1;
+     |                  ^^^^^^
+Error [ESAZ0374007]: Binary operation `0u16 - 1u16` failed at compile time: sub overflow.
+    --> compiler-test:74:18
+     |
+  74 |         let f1 = a1 - 1u16;
+     |                  ^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `0u128 - 1u128` failed at compile time: sub overflow.
+    --> compiler-test:77:24
+     |
+  77 |         let f4: u128 = a4 - 1;
+     |                        ^^^^^^
+Error [ESAZ0374007]: Binary operation `1u32 / 0u32` failed at compile time: div overflow.
+    --> compiler-test:106:18
+     |
+ 106 |         let h2 = 1 / a2;
+     |                  ^^^^^^
+Error [ESAZ0374007]: Binary operation `1u64 / 0u64` failed at compile time: div overflow.
+    --> compiler-test:107:18
+     |
+ 107 |         let h3 = 1u64 / a3;
+     |                  ^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1i16 / 0i16` failed at compile time: div overflow.
+    --> compiler-test:110:23
+     |
+ 110 |         let h6: i16 = 1 / a6;
+     |                       ^^^^^^
+Error [ESAZ0374007]: Binary operation `1i32 / 0i32` failed at compile time: div overflow.
+    --> compiler-test:111:23
+     |
+ 111 |         let h7: i32 = 1i32 / a7;
+     |                       ^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u32 % 0u32` failed at compile time: rem error.
+    --> compiler-test:119:18
+     |
+ 119 |         let i2 = 1 % a2;
+     |                  ^^^^^^
+Error [ESAZ0374007]: Binary operation `1u64 % 0u64` failed at compile time: rem error.
+    --> compiler-test:120:18
+     |
+ 120 |         let i3 = 1u64 % a3;
+     |                  ^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1i16 % 0i16` failed at compile time: rem error.
+    --> compiler-test:123:23
+     |
+ 123 |         let i6: i16 = 1 % a6;
+     |                       ^^^^^^
+Error [ESAZ0374007]: Binary operation `1i32 % 0i32` failed at compile time: rem error.
+    --> compiler-test:124:23
+     |
+ 124 |         let i7: i32 = 1i32 % a7;
+     |                       ^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u32 rem_wrapped 0u32` failed at compile time: Type error.
+    --> compiler-test:131:18
+     |
+ 131 |         let j2 = 1.rem_wrapped(a2);
+     |                  ^^^^^^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u64 rem_wrapped 0u64` failed at compile time: Type error.
+    --> compiler-test:132:18
+     |
+ 132 |         let j3 = 1u64.rem_wrapped(a3);
+     |                  ^^^^^^^^^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1i16 rem_wrapped 0i16` failed at compile time: Type error.
+    --> compiler-test:135:23
+     |
+ 135 |         let j6: i16 = 1.rem_wrapped(a6);
+     |                       ^^^^^^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1i32 rem_wrapped 0i32` failed at compile time: Type error.
+    --> compiler-test:136:23
+     |
+ 136 |         let j7: i32 = 1i32.rem_wrapped(a7);
+     |                       ^^^^^^^^^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u32 mod 0u32` failed at compile time: mod overflow.
+    --> compiler-test:143:18
+     |
+ 143 |         let k2 = 1.mod(a2);
+     |                  ^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u64 mod 0u64` failed at compile time: mod overflow.
+    --> compiler-test:144:18
+     |
+ 144 |         let k3 = 1u64.mod(a3);
+     |                  ^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u16 mod 0u16` failed at compile time: mod overflow.
+    --> compiler-test:147:23
+     |
+ 147 |         let k6: u16 = 1.mod(a1);
+     |                       ^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u32 mod 0u32` failed at compile time: mod overflow.
+    --> compiler-test:148:23
+     |
+ 148 |         let k7: u32 = 1u32.mod(a2);
+     |                       ^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u32 div_wrapped 0u32` failed at compile time: Type error.
+    --> compiler-test:247:18
+     |
+ 247 |         let s2 = 1.div_wrapped(a2);
+     |                  ^^^^^^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1u64 div_wrapped 0u64` failed at compile time: Type error.
+    --> compiler-test:248:18
+     |
+ 248 |         let s3 = 1u64.div_wrapped(a3);
+     |                  ^^^^^^^^^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1i16 div_wrapped 0i16` failed at compile time: Type error.
+    --> compiler-test:251:23
+     |
+ 251 |         let s6: i16 = 1.div_wrapped(a6);
+     |                       ^^^^^^^^^^^^^^^^^
+Error [ESAZ0374007]: Binary operation `1i32 div_wrapped 0i32` failed at compile time: Type error.
+    --> compiler-test:252:23
+     |
+ 252 |         let s7: i32 = 1i32.div_wrapped(a7);
+     |                       ^^^^^^^^^^^^^^^^^^^^

@@ -74,6 +74,9 @@ pub use remove_unreachable::*;
 mod static_single_assignment;
 pub use static_single_assignment::*;
 
+mod ssa_const_propagation;
+pub use ssa_const_propagation::*;
+
 mod storage_lowering;
 pub use storage_lowering::*;
 

@@ -79,8 +79,7 @@ function test_operator_precedence:
     output 42u8 as u8.private;
 
 function test_comparison_operators:
-    gt 5u8 3u8 into r0;
-    output r0 as boolean.private;
+    output true as boolean.private;
 
 function test_logical_operators:
     output false as boolean.private;
