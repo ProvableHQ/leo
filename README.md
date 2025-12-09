@@ -26,6 +26,7 @@ Leo is an imperative, statically-typed programming language built for writing pr
 * [🍎 Overview](#-overview)
 * [⚙️️ Build Guide](#-build-guide)
     * [🦀 Install Rust](#-install-rust)
+    * [❄️ Build with Nix](#-build-with-nix)
     * [🐙 Build from Source Code](#-build-from-source-code)
     * [🦁 Update from Leo](#-update-from-leo)
     * [📦 Download using Cargo](#-download-using-cargo)
@@ -67,6 +68,14 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
 - Windows (32-bit):  
   
   Download the [Windows 32-bit executable](https://win.rustup.rs/i686) and follow the on-screen instructions.
+
+### ❄️ Build with Nix
+
+If you have [Nix](https://nixos.org/) installed, you can use the provided flake to build and run Leo:
+
+```bash
+nix run github:ProvableHQ/leo
+```
 
 ### 🐙 Simple build
 
