@@ -58,7 +58,7 @@ use anyhow::bail;
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_expression(&mut self, input: &Expression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
         let is_empty_type = self.state.type_table.get(&input.id()).map(|ty| ty.is_empty()).unwrap_or(false);
-        let is_pure = input.is_pure();
+        let is_pure = input.is_pure(&|id| self.state.type_table.get(&id).expect("Types should be resolved by now."));
 
         if is_empty_type && is_pure {
             // ignore expresssion

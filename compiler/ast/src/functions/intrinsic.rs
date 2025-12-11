@@ -90,7 +90,6 @@ pub enum Intrinsic {
 impl Intrinsic {
     /// Returns a `Intrinsic` from a single symbol.
     // TODO: turn into From implementation when old syntax is deprecated
-    // TODO: handle _deserialize
     #[rustfmt::skip]
     pub fn from_symbol(name: Symbol, type_parameters: &[(Type, Span)]) -> Option<Self> {
         Some(match name {
@@ -1303,7 +1302,6 @@ impl Intrinsic {
         match self {
             Intrinsic::FutureAwait
             | Intrinsic::Set
-            | Intrinsic::MappingRemove
             | Intrinsic::VectorPush
             | Intrinsic::VectorClear
             | Intrinsic::CheatCodePrintMapping
@@ -1311,13 +1309,23 @@ impl Intrinsic {
             | Intrinsic::CheatCodeSetBlockTimestamp
             | Intrinsic::CheatCodeSetSigner
             | Intrinsic::VectorPop
+            // Pedersen64 and Pedersen128 operations can fail for large inputs.
+            | Intrinsic::Hash(
+                HashVariant::HashPED64
+                | HashVariant::HashPED64Raw
+                | HashVariant::HashPED128
+                | HashVariant::HashPED128Raw,
+                _,
+            )
+            // Mapping operations have side effects
+            | Intrinsic::MappingRemove
+            | Intrinsic::Get // _mapping_get, not _vector_get; but we're conservative
+            | Intrinsic::MappingGetOrUse
+            | Intrinsic::MappingContains
             | Intrinsic::VectorSwapRemove => false,
 
             Intrinsic::ChaChaRand(_)
             | Intrinsic::ECDSAVerify(_)
-            | Intrinsic::Get
-            | Intrinsic::MappingGetOrUse
-            | Intrinsic::MappingContains
             | Intrinsic::ProgramChecksum
             | Intrinsic::ProgramEdition
             | Intrinsic::ProgramOwner

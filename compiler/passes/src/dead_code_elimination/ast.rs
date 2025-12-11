@@ -86,7 +86,7 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
             }
         };
 
-        if !lhs_is_used && self.side_effect_free(&input.value) {
+        if !lhs_is_used && self.is_pure(&input.value) {
             // We can eliminate this statement.
             (Statement::dummy(), Default::default())
         } else {
@@ -102,7 +102,7 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
     }
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
-        if self.side_effect_free(&input.expression) {
+        if self.is_pure(&input.expression) {
             (Statement::dummy(), Default::default())
         } else {
             (

@@ -631,7 +631,6 @@ symbols! {
     _ecdsa_verify_sha3_512,
     _ecdsa_verify_sha3_512_raw,
     _ecdsa_verify_sha3_512_eth,
-    _mapping_id,
     _mapping_get,
     _mapping_set,
     _mapping_get_or_use,

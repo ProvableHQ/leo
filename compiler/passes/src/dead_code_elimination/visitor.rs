@@ -16,11 +16,10 @@
 
 use crate::CompilerState;
 
-use leo_ast::{BinaryOperation, Expression, Node as _, Type, UnaryOperation};
-use leo_span::{Symbol, sym};
+use leo_ast::Expression;
+use leo_span::Symbol;
 
 use indexmap::IndexSet;
-use snarkvm::synthesizer::program::HashVariant;
 
 pub struct DeadCodeEliminatingVisitor<'a> {
     pub state: &'a mut CompilerState,
@@ -39,91 +38,7 @@ pub struct DeadCodeEliminatingVisitor<'a> {
 }
 
 impl DeadCodeEliminatingVisitor<'_> {
-    pub fn side_effect_free(&self, expr: &Expression) -> bool {
-        use Expression::*;
-
-        let sef = |expr| self.side_effect_free(expr);
-
-        match expr {
-            ArrayAccess(array) => sef(&array.array) && sef(&array.index),
-            MemberAccess(mem) => sef(&mem.inner),
-            Repeat(repeat) => sef(&repeat.expr) && sef(&repeat.count),
-            TupleAccess(tuple) => sef(&tuple.tuple),
-            Array(array) => array.elements.iter().all(sef),
-            Intrinsic(intr) => {
-                let intrinsic = leo_ast::Intrinsic::from_symbol(intr.name, &intr.type_parameters)
-                    .expect("Guaranteed by type checking");
-                intrinsic.is_pure() &&
-                    // FIXME: maybe this is unnecessary
-                    // Mapping operations have side effects
-                    !matches!(
-                        intr.name,
-                        sym::_mapping_id |
-                        sym::_mapping_get |
-                        sym::_mapping_set |
-                        sym::_mapping_get_or_use |
-                        sym::_mapping_remove |
-                        sym::_mapping_contains
-                    ) &&
-                    // Pedersen64 and Pedersen128 operations can fail for large inputs.
-                    !matches!(
-                        intrinsic,
-                        leo_ast::Intrinsic::Hash(
-                            HashVariant::HashPED64
-                                | HashVariant::HashPED64Raw
-                                | HashVariant::HashPED128
-                                | HashVariant::HashPED128Raw,
-                            _
-                        )
-                    )
-            }
-            Async(_) => false,
-            Binary(bin) => {
-                use BinaryOperation::*;
-                let halting_op = match bin.op {
-                    // These can halt for any of their operand types.
-                    Div | Mod | Rem | Shl | Shr => true,
-                    // These can only halt for integers.
-                    Add | Mul | Pow => {
-                        matches!(
-                            self.state.type_table.get(&expr.id()).expect("Types should be assigned."),
-                            Type::Integer(..)
-                        )
-                    }
-                    _ => false,
-                };
-                !halting_op && sef(&bin.left) && sef(&bin.right)
-            }
-            Call(..) => {
-                // Since calls may halt, be conservative and don't consider any call side effect free.
-                false
-            }
-            Cast(..) => {
-                // At least for now, be conservative and don't consider any cast side effect free.
-                // Of course for some combinations of types, casts will never halt.
-                false
-            }
-            Struct(struct_) => struct_.members.iter().all(|mem| mem.expression.as_ref().is_none_or(sef)),
-            Ternary(tern) => [&tern.condition, &tern.if_true, &tern.if_false].into_iter().all(sef),
-            Tuple(tuple) => tuple.elements.iter().all(sef),
-            Unary(un) => {
-                use UnaryOperation::*;
-                let halting_op = match un.op {
-                    // These can halt for any of their operand types.
-                    Abs | Inverse | SquareRoot => true,
-                    // Negate can only halt for integers.
-                    Negate => {
-                        matches!(
-                            self.state.type_table.get(&expr.id()).expect("Type should be assigned."),
-                            Type::Integer(..)
-                        )
-                    }
-                    _ => false,
-                };
-                !halting_op && sef(&un.receiver)
-            }
-            Err(_) => false,
-            Path(_) | Literal(_) | Locator(_) | Unit(_) => true,
-        }
+    pub fn is_pure(&self, expr: &Expression) -> bool {
+        expr.is_pure(&|id| self.state.type_table.get(&id).expect("Types should be assigned."))
     }
 }
