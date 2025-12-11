@@ -248,6 +248,12 @@ fn compile_leo_source_directory(
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
     tracing::info!("    The program checksum is: '[{checksum}]'.");
 
+    let (size_kb, max_kb, warning) = format_program_size(program_size, MAX_PROGRAM_SIZE);
+    tracing::info!("    Program size: {size_kb:.2} KB / {max_kb:.2} KB");
+    if let Some(msg) = warning {
+        tracing::warn!("⚠️  Program '{program_name}' is {msg}.");
+    }
+
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions.");
     Ok(bytecode)
 }

@@ -4,20 +4,17 @@ function some_assignments:
     input r0 as boolean.public;
     input r1 as boolean.public;
     input r2 as boolean.public;
-    cast 1u32 2u32 into r3 as [u32; 2u32];
-    cast 3u32 4u32 into r4 as [u32; 2u32];
-    cast r3 r4 into r5 as [[u32; 2u32]; 2u32];
-    ternary r0 10u32 r5[0u32][0u32] into r6;
-    ternary r0 20u32 r5[0u32][1u32] into r7;
-    ternary r0 r5[1u32][0u32] 30u32 into r8;
-    ternary r1 100u32 r6 into r9;
-    ternary r1 200u32 r7 into r10;
-    ternary r2 1000u32 r9 into r11;
-    ternary r2 2000u32 r10 into r12;
-    cast r11 r12 into r13 as [u32; 2u32];
-    cast r8 r5[1u32][1u32] into r14 as [u32; 2u32];
-    cast r13 r14 into r15 as [[u32; 2u32]; 2u32];
-    output r15 as [[u32; 2u32]; 2u32].public;
+    ternary r0 10u32 1u32 into r3;
+    ternary r0 20u32 2u32 into r4;
+    ternary r0 3u32 30u32 into r5;
+    ternary r1 100u32 r3 into r6;
+    ternary r1 200u32 r4 into r7;
+    ternary r2 1000u32 r6 into r8;
+    ternary r2 2000u32 r7 into r9;
+    cast r8 r9 into r10 as [u32; 2u32];
+    cast r5 4u32 into r11 as [u32; 2u32];
+    cast r10 r11 into r12 as [[u32; 2u32]; 2u32];
+    output r12 as [[u32; 2u32]; 2u32].public;
 
 constructor:
     assert.eq edition 0u16;

@@ -21,6 +21,27 @@ use indexmap::IndexSet;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
+/// Threshold percentage for program size warnings.
+const PROGRAM_SIZE_WARNING_THRESHOLD: usize = 90;
+
+/// Formats program size as KB and returns a warning message if approaching the limit.
+///
+/// Both `size` and `max_size` are expected in bytes.
+/// Returns `(size_kb, max_kb, warning)` where `warning` is `Some` if size exceeds 90% of max.
+pub fn format_program_size(size: usize, max_size: usize) -> (f64, f64, Option<String>) {
+    let size_kb = size as f64 / 1024.0;
+    let max_kb = max_size as f64 / 1024.0;
+    let percentage = (size as f64 / max_size as f64) * 100.0;
+
+    let warning = if size > max_size * PROGRAM_SIZE_WARNING_THRESHOLD / 100 {
+        Some(format!("approaching the size limit ({percentage:.1}% of {max_kb:.2} KB)"))
+    } else {
+        None
+    };
+
+    (size_kb, max_kb, warning)
+}
+
 /// Collects paths to Leo source files for each program in the package.
 ///
 /// For each non-test program, it searches the `src` directory for `.leo` files.

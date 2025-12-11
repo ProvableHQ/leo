@@ -191,14 +191,17 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
             let id_str = format!("{}.aleo", program.name);
             let id =
                 id_str.parse().map_err(|e| CliError::custom(format!("Failed to parse program ID {id_str}: {e}")))?;
-            let bytecode = bytecode.parse().map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+            let bytecode_size = bytecode.len();
+            let parsed_program =
+                bytecode.parse().map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
             Ok(Task {
                 id,
-                program: bytecode,
+                program: parsed_program,
                 edition: program.edition,
                 is_local: program.is_local,
                 priority_fee,
                 record,
+                bytecode_size,
             })
         })
         .collect::<Result<_>>()?;
@@ -299,7 +302,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for Task { id, program, priority_fee, record, .. } in local {
+    for Task { id, program, priority_fee, record, bytecode_size, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if !skipped.contains(&id) {
             if command.skip_deploy_certificate {
@@ -377,10 +380,18 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 let transaction = vm
                     .deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
+            // Get the deployment.
+            let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+            // Print the deployment stats.
+            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)?;
+            // Validate the deployment limits.
+            validate_deployment_limits(deployment, &id, &network)?;
+            // Save the transaction.
+            transactions.push((id, transaction));
                 // Get the deployment.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
                 // Print the deployment stats.
-                print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
+                print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)?;
                 // Validate the deployment limits.
                 validate_deployment_limits(deployment, &id, &network)?;
                 // Save the transaction.

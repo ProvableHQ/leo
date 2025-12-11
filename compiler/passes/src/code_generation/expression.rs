@@ -27,6 +27,7 @@ use leo_ast::{
     CastExpression,
     CoreFunction,
     Expression,
+    FromStrRadix,
     IntegerType,
     Literal,
     LiteralVariant,
@@ -137,7 +138,48 @@ impl CodeGeneratingVisitor<'_> {
         } else {
             input.clone()
         };
-        AleoExpr::Literal(literal)
+
+        // This function is duplicated in `interpreter/src/cursor.rs`,
+        // but there's not really a great place to put a common implementation
+        // right now.
+        fn prepare_literal(s: &str) -> String {
+            // If there's a `-`, separate it from the rest of the string.
+            let (neg, rest) = s.strip_prefix("-").map(|rest| ("-", rest)).unwrap_or(("", s));
+            // Remove leading zeros.
+            let mut rest = rest.trim_start_matches('0');
+            if rest.is_empty() {
+                rest = "0";
+            }
+            format!("{neg}{rest}")
+        }
+
+        match literal.variant.clone() {
+            LiteralVariant::None | LiteralVariant::Unsuffixed(..) => {
+                panic!("This literal variant should no longer exist at code generation")
+            }
+            LiteralVariant::Address(val) => AleoExpr::Address(prepare_literal(&val)),
+            LiteralVariant::Boolean(val) => AleoExpr::Bool(val),
+            LiteralVariant::Field(val) => AleoExpr::Field(prepare_literal(&val)),
+            LiteralVariant::Group(val) => AleoExpr::Group(prepare_literal(&val)),
+            LiteralVariant::Scalar(val) => AleoExpr::Scalar(prepare_literal(&val)),
+            LiteralVariant::String(val) => AleoExpr::String(val),
+            LiteralVariant::Integer(itype, val) => {
+                let val = val.replace('_', "");
+
+                match itype {
+                    IntegerType::U8 => AleoExpr::U8(u8::from_str_by_radix(&val).unwrap()),
+                    IntegerType::U16 => AleoExpr::U16(u16::from_str_by_radix(&val).unwrap()),
+                    IntegerType::U32 => AleoExpr::U32(u32::from_str_by_radix(&val).unwrap()),
+                    IntegerType::U64 => AleoExpr::U64(u64::from_str_by_radix(&val).unwrap()),
+                    IntegerType::U128 => AleoExpr::U128(u128::from_str_by_radix(&val).unwrap()),
+                    IntegerType::I8 => AleoExpr::I8(i8::from_str_by_radix(&val).unwrap()),
+                    IntegerType::I16 => AleoExpr::I16(i16::from_str_by_radix(&val).unwrap()),
+                    IntegerType::I32 => AleoExpr::I32(i32::from_str_by_radix(&val).unwrap()),
+                    IntegerType::I64 => AleoExpr::I64(i64::from_str_by_radix(&val).unwrap()),
+                    IntegerType::I128 => AleoExpr::I128(i128::from_str_by_radix(&val).unwrap()),
+                }
+            }
+        }
     }
 
     fn visit_locator(&mut self, input: &LocatorExpression) -> AleoExpr {

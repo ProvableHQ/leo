@@ -1,5 +1,10 @@
 version: 2.1
 
+parameters:
+  snarkos-rev:
+    type: string
+    default: "v4.4.0"
+
 # Notes
 # - `sccache` was removed because it doesn't actually provide much benefit in CI. Lots of cache misses.
 # - https://github.com/Swatinem/rust-cache?tab=readme-ov-file#cache-details provides guidance on which directories to cache.
@@ -51,8 +56,8 @@ commands:
               cargo generate-lockfile
             fi
             cargo install cargo-mtime
-            
-            
+
+
 
   install-rust-windows:
     description: "Install Rust (Windows)"
@@ -76,22 +81,31 @@ commands:
 
   install-snarkos:
     description: "Install snarkOS (Linux/macOS)"
-    parameters:
-      revision:
-        type: string
-        description: "The git revision of snarkOS to check out"
     steps:
+      - restore_cache:
+          keys:
+            - snarkos-bin-v1-{{ arch }}-<< pipeline.parameters.snarkos-rev >>
       - run:
-          name: Install snarkOS 
+          name: Install snarkOS
           command: |
             set -euo pipefail
+            # Skip build if binary already exists from cache
+            if command -v snarkos &> /dev/null; then
+              echo "snarkOS found in cache, skipping build"
+              snarkos --version
+              exit 0
+            fi
             git clone https://github.com/ProvableHQ/snarkOS.git
             cd snarkOS
-            git checkout << parameters.revision >>
+            git checkout << pipeline.parameters.snarkos-rev >>
             cargo install --path . --features test_network --locked --force
             cd ..
             rm -rf snarkOS
-            ulimit -n 65535 
+            ulimit -n 65535
+      - save_cache:
+          key: snarkos-bin-v1-{{ arch }}-<< pipeline.parameters.snarkos-rev >>
+          paths:
+            - ~/.cargo/bin/snarkos
 
   build-and-test:
     description: "Build and run tests"
@@ -149,8 +163,6 @@ jobs:
 
   test-macos:
     executor: macos-executor
-    environment:
-      SNARKOS_REV: "10759d44a02942b72faa5f6e3bf56ed58a8f3204" # v4.4.0
     steps:
       - checkout
       - restore_cache:
@@ -159,8 +171,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
-      - install-snarkos:
-          revision: $SNARKOS_REV
+      - install-snarkos
       - run:
           name: Verify SnarkOS installation
           command: |
@@ -185,6 +196,22 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
+      - run:
+          name: Install snarkos dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              build-essential \
+              clang \
+              libssl-dev \
+              llvm \
+              lld \
+              pkg-config
+      - install-snarkos
+      - run:
+          name: Verify SnarkOS installation
+          command: |
+            snarkos --version
       - run:
             name: Update Submodules
             command: git submodule update --init --recursive
@@ -320,7 +347,7 @@ jobs:
 
 workflows:
   version: 2
-  
+
   test-windows:
     jobs:
       - test-windows
@@ -336,7 +363,7 @@ workflows:
   code-quality:
     jobs:
       - check-style-clippy-docs
-  
+
   leo-executable:
     jobs:
       - leo-executable

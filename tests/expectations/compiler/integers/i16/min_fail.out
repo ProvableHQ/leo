@@ -1,6 +1,5 @@
-program test.aleo;
-
-function main:
-    input r0 as boolean.private;
-    sub -32767i16 2i16 into r1;
-    output r1 as i16.private;
+Error [ESAZ0374007]: Binary operation `-32767i16 - 2i16` failed at compile time: sub overflow.
+    --> compiler-test:8:16
+     |
+   8 |         return a - 2i16; // This line attempts to return -32769i16 however, the smallest i16 value is -32768i16.
+     |                ^^^^^^^^
