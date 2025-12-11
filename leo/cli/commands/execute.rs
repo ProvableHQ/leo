@@ -327,15 +327,8 @@ fn handle_execute<A: Aleo>(
     let programs_and_editions = programs
         .into_iter()
         .map(|(program, edition)| {
-            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            let edition = edition.unwrap_or(1);
-            // Get the program ID.
-            let id = program.id().to_string();
-            // Print the program ID and edition.
-            match id == "credits.aleo" {
-                true => println!("  - {id} (already included)"),
-                false => println!("  - {id} (edition: {edition})"),
-            }
+            print_program_source(&program.id().to_string(), edition);
+            let edition = edition.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION);
             (program, edition)
         })
         .collect::<Vec<_>>();

@@ -262,10 +262,15 @@ fn handle_upgrade<N: Network>(
             let bytecode = Program::<N>::from_str(&bytecode)
                 .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
             // Return the bytecode and edition.
-            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            Ok((bytecode, program.edition.unwrap_or(1)))
+            // Program::fetch should always set the edition after a successful fetch.
+            let edition = program.edition.expect("Edition should be set after successful fetch");
+            Ok((bytecode, edition))
         })
         .collect::<Result<Vec<_>>>()?;
+
+    // Check for programs that violate edition/constructor requirements.
+    check_edition_constructor_requirements(&programs_and_editions, consensus_version, "upgrade")?;
+
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Print the programs and their editions in the VM.
