@@ -1141,7 +1141,7 @@ fn to_function(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Handler) 
             .children
             .iter()
             .filter(|child| matches!(child.kind, SyntaxKind::FunctionOutput))
-            .map(|child| to_output(child))
+            .map(to_output)
             .collect::<Result<Vec<_>>>()?,
         _ => Vec::new(),
     };
