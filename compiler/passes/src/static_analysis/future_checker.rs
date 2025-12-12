@@ -16,7 +16,7 @@
 
 use crate::TypeTable;
 
-use leo_ast::{AstVisitor, CoreFunction, Expression, Function, Node, Type};
+use leo_ast::{AstVisitor, Expression, Function, Intrinsic, Node, Type};
 use leo_errors::{Handler, StaticAnalyzerError};
 
 /// Error if futures are used improperly.
@@ -91,8 +91,7 @@ impl AstVisitor for FutureChecker<'_> {
         match input {
             Expression::Array(array) => self.visit_array(array, &Position::Misc),
             Expression::ArrayAccess(access) => self.visit_array_access(access, &Position::Misc),
-            Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, &Position::Misc),
-            Expression::AssociatedFunction(function) => self.visit_associated_function(function, &Position::Misc),
+            Expression::Intrinsic(intr) => self.visit_intrinsic(intr, &Position::Misc),
             Expression::Async(async_) => self.visit_async(async_, &Position::Misc),
             Expression::Binary(binary) => self.visit_binary(binary, &Position::Misc),
             Expression::Call(call) => self.visit_call(call, &Position::Misc),
@@ -137,12 +136,13 @@ impl AstVisitor for FutureChecker<'_> {
         self.visit_expression(&input.tuple, &Position::TupleAccess);
     }
 
-    fn visit_associated_function(
+    fn visit_intrinsic(
         &mut self,
-        input: &leo_ast::AssociatedFunctionExpression,
+        input: &leo_ast::IntrinsicExpression,
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        let position = if let Ok(CoreFunction::FutureAwait) = CoreFunction::try_from(input) {
+        let position = if let Some(Intrinsic::FutureAwait) = Intrinsic::from_symbol(input.name, &input.type_parameters)
+        {
             Position::Await
         } else {
             Position::Misc

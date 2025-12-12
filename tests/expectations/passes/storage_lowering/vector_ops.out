@@ -4,47 +4,47 @@ program singleton_storage.aleo {
     mapping vec__len__: bool => u32;
     async transition push() -> Future<Fn()> {
         return async {
-            let $len_var$0 = Mapping::get_or_use(::vec__len__, false, 0u32);
-            Mapping::set(::vec__len__, false, $len_var$0 + 1u32);
-            Mapping::set(::vec__, $len_var$0, 42u8);
+            let $len_var$0 = _mapping_get_or_use(::vec__len__, false, 0u32);
+            _mapping_set(::vec__len__, false, $len_var$0 + 1u32);
+            _mapping_set(::vec__, $len_var$0, 42u8);
         };
     }
     async transition pop() -> Future<Fn()> {
         return async {
-            let $len_var$1 = Mapping::get_or_use(::vec__len__, false, 0u32);
-            Mapping::set(::vec__len__, false, $len_var$1 > 0u32 ? $len_var$1.sub_wrapped(1u32) : $len_var$1);
-            let x = $len_var$1 > 0u32 ? Mapping::get_or_use(::vec__, $len_var$1.sub_wrapped(1u32), 0u8) : none;
+            let $len_var$1 = _mapping_get_or_use(::vec__len__, false, 0u32);
+            _mapping_set(::vec__len__, false, $len_var$1 > 0u32 ? $len_var$1.sub_wrapped(1u32) : $len_var$1);
+            let x = $len_var$1 > 0u32 ? _mapping_get_or_use(::vec__, $len_var$1.sub_wrapped(1u32), 0u8) : none;
             assert(x != none);
         };
     }
     async transition get() -> Future<Fn()> {
         return async {
-            let $len_var$2 = Mapping::get_or_use(::vec__len__, false, 0u32);
-            let x = 3u32 < $len_var$2 ? Mapping::get_or_use(::vec__, 3u32, 0u8) : none;
+            let $len_var$2 = _mapping_get_or_use(::vec__len__, false, 0u32);
+            let x = 3u32 < $len_var$2 ? _mapping_get_or_use(::vec__, 3u32, 0u8) : none;
             assert(x != none);
         };
     }
     async transition clear() -> Future<Fn()> {
         return async {
-            Mapping::set(::vec__len__, false, 0u32);
+            _mapping_set(::vec__len__, false, 0u32);
         };
     }
     async transition swap_remove() -> Future<Fn()> {
         return async {
-            let $len_var$3 = Mapping::get_or_use(::vec__len__, false, 0u32);
+            let $len_var$3 = _mapping_get_or_use(::vec__len__, false, 0u32);
             assert(3u32 < $len_var$3);
-            let $removed$4 = Mapping::get(::vec__, 3u32);
-            Mapping::set(::vec__, 3u32, Mapping::get(::vec__, $len_var$3 - 1u32));
-            Mapping::set(::vec__len__, false, $len_var$3 - 1u32);
+            let $removed$4 = _mapping_get(::vec__, 3u32);
+            _mapping_set(::vec__, 3u32, _mapping_get(::vec__, $len_var$3 - 1u32));
+            _mapping_set(::vec__len__, false, $len_var$3 - 1u32);
             let x = $removed$4;
             assert(x >= 0);
         };
     }
     async transition set() -> Future<Fn()> {
         return async {
-            let $len_var$5 = Mapping::get_or_use(::vec__len__, false, 0u32);
+            let $len_var$5 = _mapping_get_or_use(::vec__len__, false, 0u32);
             assert(3u32 < $len_var$5);
-            Mapping::set(::vec__, 3u32, 42u8);
+            _mapping_set(::vec__, 3u32, 42u8);
         };
     }
 }

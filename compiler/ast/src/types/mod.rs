@@ -17,9 +17,6 @@
 mod array;
 pub use array::*;
 
-mod core_constant;
-pub use core_constant::*;
-
 mod future;
 pub use future::*;
 

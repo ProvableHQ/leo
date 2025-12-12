@@ -4,6 +4,6 @@ program test.aleo {
         return ::main$0(::x, ::y);
     }
     async function main$0(x: u32, y: u32) {
-        __unresolved::set(foo, ::x, ::y);
+        __unresolved_set(foo, ::x, ::y);
     }
 }

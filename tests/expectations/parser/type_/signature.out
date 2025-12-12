@@ -11,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 80
+          "id": 52
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 81
+          "id": 53
         }
       },
       "consts": [],
@@ -135,23 +135,8 @@
                     },
                     "type_": "Boolean",
                     "value": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "signature",
-                          "span": {
-                            "lo": 100,
-                            "hi": 109
-                          },
-                          "id": 12
-                        },
-                        "name": {
-                          "name": "verify",
-                          "span": {
-                            "lo": 111,
-                            "hi": 117
-                          },
-                          "id": 13
-                        },
+                      "Intrinsic": {
+                        "name": "_signature_verify",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -243,23 +228,8 @@
                     },
                     "type_": "Boolean",
                     "value": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "signature",
-                          "span": {
-                            "lo": 0,
-                            "hi": 0
-                          },
-                          "id": 30
-                        },
-                        "name": {
-                          "name": "verify",
-                          "span": {
-                            "lo": 152,
-                            "hi": 158
-                          },
-                          "id": 23
-                        },
+                      "Intrinsic": {
+                        "name": "_signature_verify",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -350,7 +320,7 @@
                                 "lo": 184,
                                 "hi": 185
                               },
-                              "id": 33
+                              "id": 32
                             },
                             "is_absolute": false,
                             "absolute_path": null,
@@ -358,7 +328,7 @@
                               "lo": 184,
                               "hi": 185
                             },
-                            "id": 32
+                            "id": 31
                           }
                         },
                         {
@@ -370,7 +340,7 @@
                                 "lo": 187,
                                 "hi": 188
                               },
-                              "id": 35
+                              "id": 34
                             },
                             "is_absolute": false,
                             "absolute_path": null,
@@ -378,7 +348,7 @@
                               "lo": 187,
                               "hi": 188
                             },
-                            "id": 34
+                            "id": 33
                           }
                         }
                       ]
@@ -387,7 +357,7 @@
                       "lo": 174,
                       "hi": 190
                     },
-                    "id": 31
+                    "id": 30
                   }
                 }
               ],
@@ -395,13 +365,13 @@
                 "lo": 76,
                 "hi": 196
               },
-              "id": 36
+              "id": 35
             },
             "span": {
               "lo": 25,
               "hi": 196
             },
-            "id": 37
+            "id": 36
           }
         ],
         [
@@ -415,7 +385,7 @@
                 "lo": 213,
                 "hi": 216
               },
-              "id": 38
+              "id": 37
             },
             "const_parameters": [],
             "input": [
@@ -426,7 +396,7 @@
                     "lo": 217,
                     "hi": 218
                   },
-                  "id": 39
+                  "id": 38
                 },
                 "mode": "None",
                 "type_": {
@@ -436,7 +406,7 @@
                   "lo": 217,
                   "hi": 222
                 },
-                "id": 40
+                "id": 39
               }
             ],
             "output": [
@@ -449,7 +419,7 @@
                   "lo": 227,
                   "hi": 229
                 },
-                "id": 51
+                "id": 50
               }
             ],
             "output_type": {
@@ -466,7 +436,7 @@
                           "lo": 244,
                           "hi": 254
                         },
-                        "id": 42
+                        "id": 41
                       }
                     },
                     "type_": {
@@ -480,7 +450,7 @@
                               "lo": 261,
                               "hi": 264
                             },
-                            "id": 44,
+                            "id": 43,
                             "variant": {
                               "Integer": [
                                 "U8",
@@ -498,7 +468,7 @@
                                 "lo": 267,
                                 "hi": 268
                               },
-                              "id": 46
+                              "id": 45
                             },
                             "is_absolute": false,
                             "absolute_path": null,
@@ -506,7 +476,7 @@
                               "lo": 267,
                               "hi": 268
                             },
-                            "id": 45
+                            "id": 44
                           }
                         },
                         "op": "Add",
@@ -514,14 +484,14 @@
                           "lo": 261,
                           "hi": 268
                         },
-                        "id": 43
+                        "id": 42
                       }
                     },
                     "span": {
                       "lo": 240,
                       "hi": 269
                     },
-                    "id": 41
+                    "id": 40
                   }
                 },
                 {
@@ -535,7 +505,7 @@
                             "lo": 285,
                             "hi": 295
                           },
-                          "id": 49
+                          "id": 48
                         },
                         "is_absolute": false,
                         "absolute_path": null,
@@ -543,14 +513,14 @@
                           "lo": 285,
                           "hi": 295
                         },
-                        "id": 48
+                        "id": 47
                       }
                     },
                     "span": {
                       "lo": 278,
                       "hi": 296
                     },
-                    "id": 47
+                    "id": 46
                   }
                 }
               ],
@@ -558,289 +528,20 @@
                 "lo": 230,
                 "hi": 302
               },
-              "id": 50
+              "id": 49
             },
             "span": {
               "lo": 202,
               "hi": 302
             },
-            "id": 52
-          }
-        ],
-        [
-          "bax",
-          {
-            "annotations": [],
-            "variant": "Transition",
-            "identifier": {
-              "name": "bax",
-              "span": {
-                "lo": 318,
-                "hi": 321
-              },
-              "id": 53
-            },
-            "const_parameters": [],
-            "input": [
-              {
-                "identifier": {
-                  "name": "s",
-                  "span": {
-                    "lo": 322,
-                    "hi": 323
-                  },
-                  "id": 54
-                },
-                "mode": "None",
-                "type_": "Signature",
-                "span": {
-                  "lo": 322,
-                  "hi": 334
-                },
-                "id": 55
-              },
-              {
-                "identifier": {
-                  "name": "a",
-                  "span": {
-                    "lo": 336,
-                    "hi": 337
-                  },
-                  "id": 56
-                },
-                "mode": "None",
-                "type_": "Address",
-                "span": {
-                  "lo": 336,
-                  "hi": 346
-                },
-                "id": 57
-              },
-              {
-                "identifier": {
-                  "name": "v",
-                  "span": {
-                    "lo": 348,
-                    "hi": 349
-                  },
-                  "id": 58
-                },
-                "mode": "None",
-                "type_": {
-                  "Composite": {
-                    "path": {
-                      "qualifier": [],
-                      "identifier": {
-                        "name": "value",
-                        "span": {
-                          "lo": 351,
-                          "hi": 356
-                        },
-                        "id": 59
-                      },
-                      "is_absolute": false,
-                      "absolute_path": null,
-                      "span": {
-                        "lo": 351,
-                        "hi": 356
-                      },
-                      "id": 60
-                    },
-                    "const_arguments": [],
-                    "program": null
-                  }
-                },
-                "span": {
-                  "lo": 348,
-                  "hi": 356
-                },
-                "id": 61
-              }
-            ],
-            "output": [],
-            "output_type": "Unit",
-            "block": {
-              "statements": [
-                {
-                  "Definition": {
-                    "place": {
-                      "Single": {
-                        "name": "a",
-                        "span": {
-                          "lo": 371,
-                          "hi": 372
-                        },
-                        "id": 63
-                      }
-                    },
-                    "type_": "Boolean",
-                    "value": {
-                      "AssociatedFunction": {
-                        "variant": {
-                          "name": "signature",
-                          "span": {
-                            "lo": 381,
-                            "hi": 390
-                          },
-                          "id": 65
-                        },
-                        "name": {
-                          "name": "sign",
-                          "span": {
-                            "lo": 392,
-                            "hi": 396
-                          },
-                          "id": 66
-                        },
-                        "type_parameters": [],
-                        "arguments": [
-                          {
-                            "Path": {
-                              "qualifier": [],
-                              "identifier": {
-                                "name": "s",
-                                "span": {
-                                  "lo": 397,
-                                  "hi": 398
-                                },
-                                "id": 68
-                              },
-                              "is_absolute": false,
-                              "absolute_path": null,
-                              "span": {
-                                "lo": 397,
-                                "hi": 398
-                              },
-                              "id": 67
-                            }
-                          },
-                          {
-                            "Path": {
-                              "qualifier": [],
-                              "identifier": {
-                                "name": "a",
-                                "span": {
-                                  "lo": 400,
-                                  "hi": 401
-                                },
-                                "id": 70
-                              },
-                              "is_absolute": false,
-                              "absolute_path": null,
-                              "span": {
-                                "lo": 400,
-                                "hi": 401
-                              },
-                              "id": 69
-                            }
-                          },
-                          {
-                            "Path": {
-                              "qualifier": [],
-                              "identifier": {
-                                "name": "v",
-                                "span": {
-                                  "lo": 403,
-                                  "hi": 404
-                                },
-                                "id": 72
-                              },
-                              "is_absolute": false,
-                              "absolute_path": null,
-                              "span": {
-                                "lo": 403,
-                                "hi": 404
-                              },
-                              "id": 71
-                            }
-                          }
-                        ],
-                        "span": {
-                          "lo": 381,
-                          "hi": 405
-                        },
-                        "id": 64
-                      }
-                    },
-                    "span": {
-                      "lo": 367,
-                      "hi": 406
-                    },
-                    "id": 62
-                  }
-                },
-                {
-                  "Assert": {
-                    "variant": {
-                      "AssertEq": [
-                        {
-                          "Path": {
-                            "qualifier": [],
-                            "identifier": {
-                              "name": "a",
-                              "span": {
-                                "lo": 424,
-                                "hi": 425
-                              },
-                              "id": 75
-                            },
-                            "is_absolute": false,
-                            "absolute_path": null,
-                            "span": {
-                              "lo": 424,
-                              "hi": 425
-                            },
-                            "id": 74
-                          }
-                        },
-                        {
-                          "Path": {
-                            "qualifier": [],
-                            "identifier": {
-                              "name": "b",
-                              "span": {
-                                "lo": 427,
-                                "hi": 428
-                              },
-                              "id": 77
-                            },
-                            "is_absolute": false,
-                            "absolute_path": null,
-                            "span": {
-                              "lo": 427,
-                              "hi": 428
-                            },
-                            "id": 76
-                          }
-                        }
-                      ]
-                    },
-                    "span": {
-                      "lo": 414,
-                      "hi": 430
-                    },
-                    "id": 73
-                  }
-                }
-              ],
-              "span": {
-                "lo": 358,
-                "hi": 435
-              },
-              "id": 78
-            },
-            "span": {
-              "lo": 307,
-              "hi": 435
-            },
-            "id": 79
+            "id": 51
           }
         ]
       ],
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 437
+        "hi": 304
       }
     }
   }

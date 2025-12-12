@@ -18,7 +18,7 @@ use indexmap::IndexMap;
 
 use snarkvm::prelude::{Address, TestnetV0};
 
-use leo_ast::{Expression, NodeBuilder};
+use leo_ast::{Expression, Intrinsic, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result, TypeCheckerError};
 use leo_parser_lossless::{
     ExpressionKind,
@@ -30,7 +30,11 @@ use leo_parser_lossless::{
     SyntaxNode,
     TypeKind,
 };
-use leo_span::{Span, Symbol, sym};
+use leo_span::{
+    Span,
+    Symbol,
+    sym::{self},
+};
 
 fn to_identifier(node: &SyntaxNode<'_>, builder: &NodeBuilder) -> leo_ast::Identifier {
     let name = Symbol::intern(node.text);
@@ -419,16 +423,51 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
 
             leo_ast::ArrayAccess { array, index, span, id }.into()
         }
+
+        ExpressionKind::Intrinsic => {
+            let name = Symbol::intern(node.children[0].text);
+
+            let mut type_parameters = Vec::new();
+            if let Some(parameter_list) =
+                node.children.iter().find(|child| matches!(child.kind, SyntaxKind::ConstArgumentList))
+            {
+                type_parameters = parameter_list
+                    .children
+                    .iter()
+                    .filter(|child| match child.kind {
+                        SyntaxKind::Type(..) => true,
+                        SyntaxKind::Expression(..) => {
+                            handler.emit_err(ParserError::custom(
+                                "Intrinsics may only have type parameters as generic arguments",
+                                child.span,
+                            ));
+                            false
+                        }
+                        _ => false,
+                    })
+                    .map(|child| Ok((to_type(child, builder, handler)?, child.span)))
+                    .collect::<Result<Vec<_>>>()?;
+            }
+            let arguments = node
+                .children
+                .iter()
+                .filter(|child| matches!(child.kind, SyntaxKind::Expression(..)))
+                .map(|child| to_expression(child, builder, handler))
+                .collect::<Result<Vec<_>>>()?;
+
+            leo_ast::IntrinsicExpression { name, type_parameters, arguments, span, id }.into()
+        }
+
         ExpressionKind::AssociatedConstant => {
-            let mut components = path_to_parts(&node.children[0], builder);
-            let name = components.pop().unwrap();
-            let variant = components.pop().unwrap();
-            leo_ast::AssociatedConstantExpression { ty: leo_ast::Type::Identifier(variant), name, span, id }.into()
+            // This is the only associated constant parsed.
+            leo_ast::IntrinsicExpression { name: sym::_group_gen, type_parameters: vec![], arguments: vec![], span, id }
+                .into()
         }
         ExpressionKind::AssociatedFunctionCall => {
             let mut components = path_to_parts(&node.children[0], builder);
             let name = components.pop().unwrap();
             let variant = components.pop().unwrap();
+
             let mut type_parameters = Vec::new();
             if let Some(parameter_list) =
                 node.children.iter().find(|child| matches!(child.kind, SyntaxKind::ConstArgumentList))
@@ -457,7 +496,15 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 .map(|child| to_expression(child, builder, handler))
                 .collect::<Result<Vec<_>>>()?;
 
-            leo_ast::AssociatedFunctionExpression { variant, name, type_parameters, arguments, span, id }.into()
+            if let Some(converted_name) = Intrinsic::convert_path_symbols(variant.name, name.name) {
+                leo_ast::IntrinsicExpression { name: converted_name, type_parameters, arguments, span, id }.into()
+            } else {
+                handler.emit_err(ParserError::custom(
+                    format!("Unknown associated function: {}::{}", variant, name,),
+                    span,
+                ));
+                leo_ast::ErrExpression { span, id }.into()
+            }
         }
         ExpressionKind::Async => {
             let [_a, block] = &node.children[..] else {
@@ -675,11 +722,10 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
             } else if let (1, Some(op)) = (args.len(), leo_ast::BinaryOperation::from_symbol(name.name)) {
                 // Found a binary operator and the argument list contains a single argument.
                 leo_ast::BinaryExpression { span, op, left: receiver, right: args.pop().unwrap(), id }.into()
-            } else if let (2, Some(leo_ast::CoreFunction::SignatureVerify)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::signature, name.name))
+            } else if let (2, Some(name @ sym::_signature_verify)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::signature, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::signature, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
@@ -687,11 +733,10 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id,
                 }
                 .into()
-            } else if let (0, Some(leo_ast::CoreFunction::FutureAwait)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Future, name.name))
+            } else if let (0, Some(name @ sym::_future_await)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Future, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::Future, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: vec![receiver],
@@ -699,11 +744,10 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id: builder.next_id(),
                 }
                 .into()
-            } else if let (0, Some(leo_ast::CoreFunction::OptionalUnwrap)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Optional, name.name))
+            } else if let (0, Some(name @ sym::_optional_unwrap)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Optional, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::Optional, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: vec![receiver],
@@ -711,11 +755,10 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id: builder.next_id(),
                 }
                 .into()
-            } else if let (1, Some(leo_ast::CoreFunction::OptionalUnwrapOr)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Optional, name.name))
+            } else if let (1, Some(name @ sym::_optional_unwrap_or)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Optional, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::Optional, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
@@ -723,39 +766,28 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id: builder.next_id(),
                 }
                 .into()
-            } else if let (1, Some(leo_ast::CoreFunction::Get)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(Symbol::intern("__unresolved"), name.name))
-            {
-                // We use `__unresolved` here because a `Get` might refer to `Vector::get` or
-                // `Mapping::get`. No way to know just yet.
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(Symbol::intern("__unresolved"), builder.next_id()),
-                    name,
+            } else if let (1, sym::get) = (args.len(), name.name) {
+                leo_ast::IntrinsicExpression {
+                    name: Symbol::intern("__unresolved_get"),
                     type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
                     id: builder.next_id(),
                 }
                 .into()
-            } else if let (2, Some(leo_ast::CoreFunction::Set)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(Symbol::intern("__unresolved"), name.name))
-            {
-                // We use `__unresolved` here because a `Set` might refer to `Vector::set` or
-                // `Mapping::set`. No way to know just yet.
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(Symbol::intern("__unresolved"), builder.next_id()),
-                    name,
+            } else if let (2, sym::set) = (args.len(), name.name) {
+                leo_ast::IntrinsicExpression {
+                    name: Symbol::intern("__unresolved_set"),
                     type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
                     span,
                     id,
                 }
                 .into()
-            } else if let (1, Some(leo_ast::CoreFunction::VectorPush)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Vector, name.name))
+            } else if let (1, Some(name @ sym::_vector_push)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Vector, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
@@ -763,11 +795,10 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id: builder.next_id(),
                 }
                 .into()
-            } else if let (0, Some(leo_ast::CoreFunction::VectorLen)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Vector, name.name))
+            } else if let (0, Some(name @ sym::_vector_len)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Vector, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: vec![receiver],
@@ -775,11 +806,10 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id: builder.next_id(),
                 }
                 .into()
-            } else if let (0, Some(leo_ast::CoreFunction::VectorPop)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Vector, name.name))
+            } else if let (0, Some(name @ sym::_vector_pop)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Vector, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: vec![receiver],
@@ -787,11 +817,10 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id: builder.next_id(),
                 }
                 .into()
-            } else if let (0, Some(leo_ast::CoreFunction::VectorClear)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Vector, name.name))
+            } else if let (0, Some(name @ sym::_vector_clear)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Vector, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: vec![receiver],
@@ -799,11 +828,10 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                     id: builder.next_id(),
                 }
                 .into()
-            } else if let (1, Some(leo_ast::CoreFunction::VectorSwapRemove)) =
-                (args.len(), leo_ast::CoreFunction::from_symbols(sym::Vector, name.name))
+            } else if let (1, Some(name @ sym::_vector_swap_remove)) =
+                (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Vector, name.name))
             {
-                leo_ast::AssociatedFunctionExpression {
-                    variant: leo_ast::Identifier::new(sym::Vector, builder.next_id()),
+                leo_ast::IntrinsicExpression {
                     name,
                     type_parameters: Vec::new(),
                     arguments: std::iter::once(receiver).chain(args).collect(),
@@ -813,13 +841,12 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 .into()
             } else {
                 // Attempt to parse the method call as a mapping operation.
-                match (args.len(), leo_ast::CoreFunction::from_symbols(sym::Mapping, name.name)) {
-                    (2, Some(leo_ast::CoreFunction::MappingGetOrUse))
-                    | (1, Some(leo_ast::CoreFunction::MappingRemove))
-                    | (1, Some(leo_ast::CoreFunction::MappingContains)) => {
+                match (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Mapping, name.name)) {
+                    (2, Some(name @ sym::_mapping_get_or_use))
+                    | (1, Some(name @ sym::_mapping_remove))
+                    | (1, Some(name @ sym::_mapping_contains)) => {
                         // Found an instance of `<mapping>.get`, `<mapping>.get_or_use`, `<mapping>.set`, `<mapping>.remove`, or `<mapping>.contains`.
-                        leo_ast::AssociatedFunctionExpression {
-                            variant: leo_ast::Identifier::new(sym::Mapping, builder.next_id()),
+                        leo_ast::IntrinsicExpression {
                             name,
                             type_parameters: Vec::new(),
                             arguments: std::iter::once(receiver).chain(args).collect(),
@@ -855,11 +882,30 @@ pub fn to_expression(node: &SyntaxNode<'_>, builder: &NodeBuilder, handler: &Han
                 panic!("Can't happen");
             };
 
-            let inner = to_identifier(qualifier, builder).into();
-            let name = to_identifier(name, builder);
+            let name = match (qualifier.text, name.text) {
+                ("self", "address") => Some(sym::_self_address),
+                ("self", "caller") => Some(sym::_self_caller),
+                ("self", "checksum") => Some(sym::_self_checksum),
+                ("self", "edition") => Some(sym::_self_edition),
+                ("self", "id") => Some(sym::_self_id),
+                ("self", "program_owner") => Some(sym::_self_program_owner),
+                ("self", "signer") => Some(sym::_self_signer),
+                ("block", "height") => Some(sym::_block_height),
+                ("block", "timestamp") => Some(sym::_block_timestamp),
+                ("network", "id") => Some(sym::_network_id),
+                _ => {
+                    handler.emit_err(ParserError::custom("Unsupported special access", node.span));
+                    None
+                }
+            };
 
-            leo_ast::MemberAccess { inner, name, span, id }.into()
+            if let Some(name) = name {
+                leo_ast::IntrinsicExpression { name, type_parameters: vec![], arguments: vec![], span, id }.into()
+            } else {
+                leo_ast::ErrExpression { span, id: builder.next_id() }.into()
+            }
         }
+
         ExpressionKind::Struct => {
             let name = &node.children[0];
             let mut members = Vec::new();

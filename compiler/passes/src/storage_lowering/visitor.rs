@@ -60,11 +60,10 @@ impl StorageLoweringVisitor<'_> {
         Literal::integer(IntegerType::U32, "1".to_string(), Span::default(), self.state.node_builder.next_id()).into()
     }
 
-    /// Generates `Mapping::get_or_use(len_path_expr, false, 0u32)`
+    /// Generates `_mapping_get_or_use(len_path_expr, false, 0u32)`
     pub fn get_vector_len_expr(&mut self, len_path_expr: Expression, span: Span) -> Expression {
-        AssociatedFunctionExpression {
-            variant: Identifier::new(sym::Mapping, self.state.node_builder.next_id()),
-            name: Identifier::new(Symbol::intern("get_or_use"), self.state.node_builder.next_id()),
+        IntrinsicExpression {
+            name: sym::_mapping_get_or_use,
             type_parameters: vec![],
             arguments: vec![len_path_expr, self.literal_false(), self.literal_zero_u32()],
             span,
@@ -73,7 +72,7 @@ impl StorageLoweringVisitor<'_> {
         .into()
     }
 
-    /// Generates `Mapping::set(path_expr, key_expr, value_expr)`
+    /// Generates `_mapping_set(path_expr, key_expr, value_expr)`
     pub fn set_mapping_expr(
         &mut self,
         path_expr: Expression,
@@ -81,9 +80,8 @@ impl StorageLoweringVisitor<'_> {
         value_expr: Expression,
         span: Span,
     ) -> Expression {
-        AssociatedFunctionExpression {
-            variant: Identifier::new(sym::Mapping, self.state.node_builder.next_id()),
-            name: Identifier::new(Symbol::intern("set"), self.state.node_builder.next_id()),
+        IntrinsicExpression {
+            name: sym::_mapping_set,
             type_parameters: vec![],
             arguments: vec![path_expr, key_expr, value_expr],
             span,
@@ -92,11 +90,10 @@ impl StorageLoweringVisitor<'_> {
         .into()
     }
 
-    /// Generates `Mapping::get(path_expr, key_expr)`
+    /// Generates `_mapping_get(path_expr, key_expr)`
     pub fn get_mapping_expr(&mut self, path_expr: Expression, key_expr: Expression, span: Span) -> Expression {
-        AssociatedFunctionExpression {
-            variant: Identifier::new(sym::Mapping, self.state.node_builder.next_id()),
-            name: Identifier::new(Symbol::intern("get"), self.state.node_builder.next_id()),
+        IntrinsicExpression {
+            name: sym::_mapping_get,
             type_parameters: vec![],
             arguments: vec![path_expr, key_expr],
             span,
@@ -105,7 +102,7 @@ impl StorageLoweringVisitor<'_> {
         .into()
     }
 
-    /// Generates `Mapping::get_or_use(path_expr, key_expr, default_expr)`
+    /// Generates `_mapping_get_or_use(path_expr, key_expr, default_expr)`
     pub fn get_or_use_mapping_expr(
         &mut self,
         path_expr: Expression,
@@ -113,9 +110,8 @@ impl StorageLoweringVisitor<'_> {
         default_expr: Expression,
         span: Span,
     ) -> Expression {
-        AssociatedFunctionExpression {
-            variant: Identifier::new(sym::Mapping, self.state.node_builder.next_id()),
-            name: Identifier::new(Symbol::intern("get_or_use"), self.state.node_builder.next_id()),
+        IntrinsicExpression {
+            name: sym::_mapping_get_or_use,
             type_parameters: vec![],
             arguments: vec![path_expr, key_expr, default_expr],
             span,

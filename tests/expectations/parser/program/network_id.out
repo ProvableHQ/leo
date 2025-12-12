@@ -11,7 +11,7 @@
             "lo": 8,
             "hi": 12
           },
-          "id": 13
+          "id": 11
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 13,
             "hi": 17
           },
-          "id": 14
+          "id": 12
         }
       },
       "consts": [],
@@ -69,35 +69,10 @@
                     "variant": {
                       "AssertEq": [
                         {
-                          "MemberAccess": {
-                            "inner": {
-                              "Path": {
-                                "qualifier": [],
-                                "identifier": {
-                                  "name": "network",
-                                  "span": {
-                                    "lo": 70,
-                                    "hi": 77
-                                  },
-                                  "id": 5
-                                },
-                                "is_absolute": false,
-                                "absolute_path": null,
-                                "span": {
-                                  "lo": 70,
-                                  "hi": 77
-                                },
-                                "id": 5
-                              }
-                            },
-                            "name": {
-                              "name": "id",
-                              "span": {
-                                "lo": 78,
-                                "hi": 80
-                              },
-                              "id": 6
-                            },
+                          "Intrinsic": {
+                            "name": "_network_id",
+                            "type_parameters": [],
+                            "arguments": [],
                             "span": {
                               "lo": 70,
                               "hi": 80
@@ -111,7 +86,7 @@
                               "lo": 82,
                               "hi": 86
                             },
-                            "id": 7,
+                            "id": 5,
                             "variant": {
                               "Integer": [
                                 "U32",
@@ -140,7 +115,7 @@
                             "lo": 104,
                             "hi": 105
                           },
-                          "id": 10
+                          "id": 8
                         },
                         "is_absolute": false,
                         "absolute_path": null,
@@ -148,14 +123,14 @@
                           "lo": 104,
                           "hi": 105
                         },
-                        "id": 9
+                        "id": 7
                       }
                     },
                     "span": {
                       "lo": 97,
                       "hi": 106
                     },
-                    "id": 8
+                    "id": 6
                   }
                 }
               ],
@@ -163,13 +138,13 @@
                 "lo": 50,
                 "hi": 112
               },
-              "id": 11
+              "id": 9
             },
             "span": {
               "lo": 24,
               "hi": 112
             },
-            "id": 12
+            "id": 10
           }
         ]
       ],

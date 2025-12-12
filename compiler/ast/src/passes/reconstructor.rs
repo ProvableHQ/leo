@@ -122,8 +122,6 @@ pub trait AstReconstructor {
         additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         match input {
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, additional),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, additional),
             Expression::Async(async_) => self.reconstruct_async(async_, additional),
             Expression::Array(array) => self.reconstruct_array(array, additional),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, additional),
@@ -142,6 +140,7 @@ pub trait AstReconstructor {
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, additional),
             Expression::Unary(unary) => self.reconstruct_unary(*unary, additional),
             Expression::Unit(unit) => self.reconstruct_unit(unit, additional),
+            Expression::Intrinsic(intr) => self.reconstruct_intrinsic(*intr, additional),
         }
     }
 
@@ -154,33 +153,6 @@ pub trait AstReconstructor {
             ArrayAccess {
                 array: self.reconstruct_expression(input.array, &Default::default()).0,
                 index: self.reconstruct_expression(input.index, &Default::default()).0,
-                ..input
-            }
-            .into(),
-            Default::default(),
-        )
-    }
-
-    fn reconstruct_associated_constant(
-        &mut self,
-        input: AssociatedConstantExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> (Expression, Self::AdditionalOutput) {
-        (input.into(), Default::default())
-    }
-
-    fn reconstruct_associated_function(
-        &mut self,
-        input: AssociatedFunctionExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> (Expression, Self::AdditionalOutput) {
-        (
-            AssociatedFunctionExpression {
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
-                    .collect(),
                 ..input
             }
             .into(),
@@ -216,6 +188,25 @@ pub trait AstReconstructor {
             RepeatExpression {
                 expr: self.reconstruct_expression(input.expr, &Default::default()).0,
                 count: self.reconstruct_expression(input.count, &Default::default()).0,
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_intrinsic(
+        &mut self,
+        input: IntrinsicExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            IntrinsicExpression {
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
+                    .collect(),
                 ..input
             }
             .into(),

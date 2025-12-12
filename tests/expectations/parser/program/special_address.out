@@ -11,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 25
+          "id": 21
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 26
+          "id": 22
         }
       },
       "consts": [],
@@ -34,7 +34,7 @@
                 "lo": 33,
                 "hi": 35
               },
-              "id": 23
+              "id": 19
             },
             "key_type": "Address",
             "value_type": {
@@ -44,7 +44,7 @@
               "lo": 25,
               "hi": 52
             },
-            "id": 24
+            "id": 20
           }
         ]
       ],
@@ -112,35 +112,10 @@
                           }
                         },
                         {
-                          "MemberAccess": {
-                            "inner": {
-                              "Path": {
-                                "qualifier": [],
-                                "identifier": {
-                                  "name": "self",
-                                  "span": {
-                                    "lo": 109,
-                                    "hi": 113
-                                  },
-                                  "id": 7
-                                },
-                                "is_absolute": false,
-                                "absolute_path": null,
-                                "span": {
-                                  "lo": 109,
-                                  "hi": 113
-                                },
-                                "id": 7
-                              }
-                            },
-                            "name": {
-                              "name": "caller",
-                              "span": {
-                                "lo": 114,
-                                "hi": 120
-                              },
-                              "id": 8
-                            },
+                          "Intrinsic": {
+                            "name": "_self_caller",
+                            "type_parameters": [],
+                            "arguments": [],
                             "span": {
                               "lo": 109,
                               "hi": 120
@@ -170,7 +145,7 @@
                                 "lo": 141,
                                 "hi": 142
                               },
-                              "id": 11
+                              "id": 9
                             },
                             "is_absolute": false,
                             "absolute_path": null,
@@ -178,44 +153,19 @@
                               "lo": 141,
                               "hi": 142
                             },
-                            "id": 10
+                            "id": 8
                           }
                         },
                         {
-                          "MemberAccess": {
-                            "inner": {
-                              "Path": {
-                                "qualifier": [],
-                                "identifier": {
-                                  "name": "self",
-                                  "span": {
-                                    "lo": 144,
-                                    "hi": 148
-                                  },
-                                  "id": 13
-                                },
-                                "is_absolute": false,
-                                "absolute_path": null,
-                                "span": {
-                                  "lo": 144,
-                                  "hi": 148
-                                },
-                                "id": 13
-                              }
-                            },
-                            "name": {
-                              "name": "address",
-                              "span": {
-                                "lo": 149,
-                                "hi": 156
-                              },
-                              "id": 14
-                            },
+                          "Intrinsic": {
+                            "name": "_self_address",
+                            "type_parameters": [],
+                            "arguments": [],
                             "span": {
                               "lo": 144,
                               "hi": 156
                             },
-                            "id": 12
+                            "id": 10
                           }
                         }
                       ]
@@ -224,7 +174,7 @@
                       "lo": 131,
                       "hi": 158
                     },
-                    "id": 9
+                    "id": 7
                   }
                 },
                 {
@@ -240,7 +190,7 @@
                                 "lo": 177,
                                 "hi": 178
                               },
-                              "id": 17
+                              "id": 13
                             },
                             "is_absolute": false,
                             "absolute_path": null,
@@ -248,7 +198,7 @@
                               "lo": 177,
                               "hi": 178
                             },
-                            "id": 16
+                            "id": 12
                           }
                         },
                         {
@@ -257,7 +207,7 @@
                               "lo": 180,
                               "hi": 190
                             },
-                            "id": 18,
+                            "id": 14,
                             "variant": {
                               "Address": "hello.aleo"
                             }
@@ -269,7 +219,7 @@
                       "lo": 167,
                       "hi": 192
                     },
-                    "id": 15
+                    "id": 11
                   }
                 },
                 {
@@ -280,7 +230,7 @@
                           "lo": 208,
                           "hi": 216
                         },
-                        "id": 20,
+                        "id": 16,
                         "variant": {
                           "Address": "foo.aleo"
                         }
@@ -290,7 +240,7 @@
                       "lo": 201,
                       "hi": 217
                     },
-                    "id": 19
+                    "id": 15
                   }
                 }
               ],
@@ -298,13 +248,13 @@
                 "lo": 86,
                 "hi": 223
               },
-              "id": 21
+              "id": 17
             },
             "span": {
               "lo": 58,
               "hi": 223
             },
-            "id": 22
+            "id": 18
           }
         ]
       ],

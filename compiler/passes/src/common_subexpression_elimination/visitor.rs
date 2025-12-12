@@ -106,8 +106,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             }
 
             Expression::ArrayAccess(_)
-            | Expression::AssociatedConstant(_)
-            | Expression::AssociatedFunction(_)
+            | Expression::Intrinsic(_)
             | Expression::Async(_)
             | Expression::Array(_)
             | Expression::Binary(_)
@@ -192,8 +191,8 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                 Expr::Unary { op: unary.op, receiver }
             }
 
-            Expression::AssociatedFunction(associated_function_expression) => {
-                for arg in &mut associated_function_expression.arguments {
+            Expression::Intrinsic(intrinsic) => {
+                for arg in &mut intrinsic.arguments {
                     if !matches!(arg, Expression::Locator(_)) {
                         self.try_atom(arg)?;
                     }
@@ -241,11 +240,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
 
             Expression::TupleAccess(_) => panic!("Tuple access expressions should not exist in this pass."),
 
-            Expression::Locator(_)
-            | Expression::Async(_)
-            | Expression::AssociatedConstant(_)
-            | Expression::Err(_)
-            | Expression::Unit(_) => {
+            Expression::Locator(_) | Expression::Async(_) | Expression::Err(_) | Expression::Unit(_) => {
                 return Some((expression, false));
             }
         };

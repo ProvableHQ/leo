@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CoreFunction, Identifier, IntegerType, Node, NodeBuilder, NodeID, Path, Type};
+use crate::{Identifier, IntegerType, Intrinsic, Node, NodeBuilder, NodeID, Path, Type};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -22,12 +22,6 @@ use std::fmt;
 
 mod array_access;
 pub use array_access::*;
-
-mod associated_constant;
-pub use associated_constant::*;
-
-mod associated_function;
-pub use associated_function::*;
 
 mod async_;
 pub use async_::*;
@@ -49,6 +43,9 @@ pub use err::*;
 
 mod member_access;
 pub use member_access::*;
+
+mod intrinsic;
+pub use intrinsic::*;
 
 mod repeat;
 pub use repeat::*;
@@ -82,16 +79,14 @@ pub use locator::*;
 pub enum Expression {
     /// An array access, e.g. `arr[i]`.
     ArrayAccess(Box<ArrayAccess>),
-    /// An associated constant; e.g., `group::GEN`.
-    AssociatedConstant(AssociatedConstantExpression),
-    /// An associated function; e.g., `BHP256::hash_to_field`.
-    AssociatedFunction(AssociatedFunctionExpression),
     /// An `async` block: e.g. `async { my_mapping.set(1, 2); }`.
     Async(AsyncExpression),
     /// An array expression, e.g., `[true, false, true, false]`.
     Array(ArrayExpression),
     /// A binary expression, e.g., `42 + 24`.
     Binary(Box<BinaryExpression>),
+    /// An intrinsic expression, e.g., `_my_intrinsic(args)`.
+    Intrinsic(Box<IntrinsicExpression>),
     /// A call expression, e.g., `my_fun(args)`.
     Call(Box<CallExpression>),
     /// A cast expression, e.g., `42u32 as u8`.
@@ -135,13 +130,12 @@ impl Node for Expression {
         match self {
             ArrayAccess(n) => n.span(),
             Array(n) => n.span(),
-            AssociatedConstant(n) => n.span(),
-            AssociatedFunction(n) => n.span(),
             Async(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
             Err(n) => n.span(),
+            Intrinsic(n) => n.span(),
             Path(n) => n.span(),
             Literal(n) => n.span(),
             Locator(n) => n.span(),
@@ -161,13 +155,12 @@ impl Node for Expression {
         match self {
             ArrayAccess(n) => n.set_span(span),
             Array(n) => n.set_span(span),
-            AssociatedConstant(n) => n.set_span(span),
-            AssociatedFunction(n) => n.set_span(span),
             Async(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
             Err(n) => n.set_span(span),
+            Intrinsic(n) => n.set_span(span),
             Path(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
             Locator(n) => n.set_span(span),
@@ -187,8 +180,6 @@ impl Node for Expression {
         match self {
             Array(n) => n.id(),
             ArrayAccess(n) => n.id(),
-            AssociatedConstant(n) => n.id(),
-            AssociatedFunction(n) => n.id(),
             Async(n) => n.id(),
             Binary(n) => n.id(),
             Call(n) => n.id(),
@@ -199,6 +190,7 @@ impl Node for Expression {
             MemberAccess(n) => n.id(),
             Repeat(n) => n.id(),
             Err(n) => n.id(),
+            Intrinsic(n) => n.id(),
             Struct(n) => n.id(),
             Ternary(n) => n.id(),
             Tuple(n) => n.id(),
@@ -213,8 +205,6 @@ impl Node for Expression {
         match self {
             Array(n) => n.set_id(id),
             ArrayAccess(n) => n.set_id(id),
-            AssociatedConstant(n) => n.set_id(id),
-            AssociatedFunction(n) => n.set_id(id),
             Async(n) => n.set_id(id),
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
@@ -225,6 +215,7 @@ impl Node for Expression {
             MemberAccess(n) => n.set_id(id),
             Repeat(n) => n.set_id(id),
             Err(n) => n.set_id(id),
+            Intrinsic(n) => n.set_id(id),
             Struct(n) => n.set_id(id),
             Ternary(n) => n.set_id(id),
             Tuple(n) => n.set_id(id),
@@ -241,13 +232,12 @@ impl fmt::Display for Expression {
         match &self {
             Array(n) => n.fmt(f),
             ArrayAccess(n) => n.fmt(f),
-            AssociatedConstant(n) => n.fmt(f),
-            AssociatedFunction(n) => n.fmt(f),
             Async(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
             Err(n) => n.fmt(f),
+            Intrinsic(n) => n.fmt(f),
             Path(n) => n.fmt(f),
             Literal(n) => n.fmt(f),
             Locator(n) => n.fmt(f),
@@ -277,23 +267,10 @@ impl Expression {
             Binary(e) => e.precedence(),
             Cast(_) => 12,
             Ternary(_) => 0,
-            Array(_)
-            | ArrayAccess(_)
-            | AssociatedConstant(_)
-            | AssociatedFunction(_)
-            | Async(_)
-            | Call(_)
-            | Err(_)
-            | Path(_)
-            | Literal(_)
-            | Locator(_)
-            | MemberAccess(_)
-            | Repeat(_)
-            | Struct(_)
-            | Tuple(_)
-            | TupleAccess(_)
-            | Unary(_)
-            | Unit(_) => 20,
+            Array(_) | ArrayAccess(_) | Async(_) | Call(_) | Err(_) | Intrinsic(_) | Path(_) | Literal(_)
+            | Locator(_) | MemberAccess(_) | Repeat(_) | Struct(_) | Tuple(_) | TupleAccess(_) | Unary(_) | Unit(_) => {
+                20
+            }
         }
     }
 
@@ -335,12 +312,12 @@ impl Expression {
     }
 
     /// Returns true if we can confidently say evaluating this expression has no side effects, false otherwise
-    pub fn is_pure(&self) -> bool {
+    pub fn is_pure(&self, get_type: &impl Fn(NodeID) -> Type) -> bool {
         match self {
-            // Discriminate core functions
-            Expression::AssociatedFunction(ass_fun_expr) => {
-                if let Ok(core_fn) = CoreFunction::try_from(ass_fun_expr) {
-                    core_fn.is_pure()
+            // Discriminate intrinsics
+            Expression::Intrinsic(intr) => {
+                if let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) {
+                    intrinsic.is_pure()
                 } else {
                     false
                 }
@@ -348,34 +325,46 @@ impl Expression {
 
             // We may be indirectly referring to an impure item
             // This analysis could be more granular
-            Expression::Call(..) => false,
+            Expression::Call(..) | Expression::Err(..) | Expression::Async(..) | Expression::Cast(..) => false,
+
+            Expression::Binary(expr) => {
+                use BinaryOperation::*;
+                match expr.op {
+                    // These can halt for any of their operand types.
+                    Div | Mod | Rem | Shl | Shr => false,
+                    // These can only halt for integers.
+                    Add | Mul | Pow => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    _ => expr.left.is_pure(get_type) && expr.right.is_pure(get_type),
+                }
+            }
+            Expression::Unary(expr) => {
+                use UnaryOperation::*;
+                match expr.op {
+                    // These can halt for any of their operand types.
+                    Abs | Inverse | SquareRoot => false,
+                    // Negate can only halt for integers.
+                    Negate => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    _ => expr.receiver.is_pure(get_type),
+                }
+            }
 
             // Always pure
-            Expression::Err(..)
-            // async blocks return a future and have no side effects in the proof context
-            // that evaluates them as an expression
-            | Expression::Async(..)
-            | Expression::Locator(..)
-            | Expression::AssociatedConstant(..)
-            | Expression::Literal(..)
-            | Expression::Path(..)
-            | Expression::Unit(..) => true,
+            Expression::Locator(..) | Expression::Literal(..) | Expression::Path(..) | Expression::Unit(..) => true,
 
             // Recurse
-            Expression::ArrayAccess(expr) => expr.array.is_pure() && expr.index.is_pure(),
-            Expression::Array(expr) => expr.elements.iter().all(|e| e.is_pure()),
-            Expression::Binary(expr) => expr.left.is_pure() && expr.right.is_pure(),
-            Expression::Cast(expr) => expr.expression.is_pure(),
-            Expression::MemberAccess(expr) => expr.inner.is_pure(),
-            Expression::Repeat(expr) => expr.expr.is_pure() && expr.count.is_pure(),
+            Expression::ArrayAccess(expr) => expr.array.is_pure(get_type) && expr.index.is_pure(get_type),
+            Expression::MemberAccess(expr) => expr.inner.is_pure(get_type),
+            Expression::Repeat(expr) => expr.expr.is_pure(get_type) && expr.count.is_pure(get_type),
+            Expression::TupleAccess(expr) => expr.tuple.is_pure(get_type),
+            Expression::Array(expr) => expr.elements.iter().all(|e| e.is_pure(get_type)),
             Expression::Struct(expr) => {
-                expr.const_arguments.iter().all(|e| e.is_pure())
-                    && expr.members.iter().all(|init| init.expression.as_ref().is_none_or(|e| e.is_pure()))
+                expr.const_arguments.iter().all(|e| e.is_pure(get_type))
+                    && expr.members.iter().all(|init| init.expression.as_ref().is_none_or(|e| e.is_pure(get_type)))
             }
-            Expression::Ternary(expr) => expr.condition.is_pure() && expr.if_true.is_pure() && expr.if_false.is_pure(),
-            Expression::Tuple(expr) => expr.elements.iter().all(|e| e.is_pure()),
-            Expression::TupleAccess(expr) => expr.tuple.is_pure(),
-            Expression::Unary(expr) => expr.receiver.is_pure(),
+            Expression::Ternary(expr) => {
+                expr.condition.is_pure(get_type) && expr.if_true.is_pure(get_type) && expr.if_false.is_pure(get_type)
+            }
+            Expression::Tuple(expr) => expr.elements.iter().all(|e| e.is_pure(get_type)),
         }
     }
 

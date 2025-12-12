@@ -162,8 +162,8 @@ pub enum ExpressionKind {
     MethodCall,
     Parenthesized,
     Repeat,
-    // program.id, block.height, etc
-    SpecialAccess,
+    Intrinsic,
+    SpecialAccess, // TODO: fold into Intrinsic
     Struct,
     Ternary,
     Tuple,

@@ -89,9 +89,9 @@ create_messages!(
     }
 
     @formatted
-    compile_core_function {
+    compile_intrinsic {
         args: (err: impl Display),
-        msg: format!("Error during compile time evaluation of this core function: {err}."),
+        msg: format!("Error during compile time evaluation of this intrinsic: {err}."),
         help: None,
     }
 

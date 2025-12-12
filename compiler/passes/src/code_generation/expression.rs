@@ -19,16 +19,15 @@ use super::*;
 use leo_ast::{
     ArrayAccess,
     ArrayExpression,
-    AssociatedConstantExpression,
-    AssociatedFunctionExpression,
     BinaryExpression,
     BinaryOperation,
     CallExpression,
     CastExpression,
-    CoreFunction,
     Expression,
     FromStrRadix,
     IntegerType,
+    Intrinsic,
+    IntrinsicExpression,
     Literal,
     LiteralVariant,
     Location,
@@ -36,6 +35,7 @@ use leo_ast::{
     MemberAccess,
     NetworkName,
     Node,
+    NodeID,
     Path,
     ProgramId,
     RepeatExpression,
@@ -47,20 +47,18 @@ use leo_ast::{
     UnaryOperation,
     Variant,
 };
-use leo_span::sym;
 use snarkvm::{
     prelude::{CanaryV0, MainnetV0, TestnetV0},
     synthesizer::program::SerializeVariant,
 };
 
 use anyhow::bail;
-use std::borrow::Borrow;
 
 /// Implement the necessary methods to visit nodes in the AST.
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_expression(&mut self, input: &Expression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
         let is_empty_type = self.state.type_table.get(&input.id()).map(|ty| ty.is_empty()).unwrap_or(false);
-        let is_pure = input.is_pure();
+        let is_pure = input.is_pure(&|id| self.state.type_table.get(&id).expect("Types should be resolved by now."));
 
         if is_empty_type && is_pure {
             // ignore expresssion
@@ -71,7 +69,6 @@ impl CodeGeneratingVisitor<'_> {
 
         match input {
             Expression::ArrayAccess(expr) => (Some(self.visit_array_access(expr)), vec![]),
-            Expression::AssociatedConstant(expr) => (Some(self.visit_associated_constant(expr)), vec![]),
             Expression::MemberAccess(expr) => (Some(self.visit_member_access(expr)), vec![]),
             Expression::Path(expr) => (Some(self.visit_path(expr)), vec![]),
             Expression::Literal(expr) => (Some(self.visit_value(expr)), vec![]),
@@ -87,7 +84,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Tuple(expr) => some_expr(self.visit_tuple(expr)),
             Expression::Unary(expr) => some_expr(self.visit_unary(expr)),
 
-            Expression::AssociatedFunction(expr) => self.visit_associated_function(expr),
+            Expression::Intrinsic(expr) => self.visit_intrinsic(expr),
 
             Expression::Async(..) => {
                 panic!("`AsyncExpression`s should not be in the AST at this phase of compilation.")
@@ -400,26 +397,6 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_member_access(&mut self, input: &MemberAccess) -> AleoExpr {
-        // Handle `self.address`, `self.caller`, `self.checksum`, `self.edition`, `self.id`, `self.program_owner`, `self.signer`.
-        if let Expression::Path(path) = input.inner.borrow()
-            && matches!(path.try_absolute_path().as_deref(), Some([sym::SelfLower]))
-        {
-            // Get the current program ID.
-            let program_id = self.program_id.expect("Program ID should be set before traversing the program");
-
-            match input.name.name {
-                // Return the program ID directly.
-                sym::address | sym::id => {
-                    return AleoExpr::RawName(program_id.to_string());
-                }
-                // Return the appropriate snarkVM operand.
-                name @ (sym::checksum | sym::edition | sym::program_owner) => {
-                    return AleoExpr::RawName(name.to_string());
-                }
-                _ => {} // Do nothing as `self.signer` and `self.caller` are handled below.
-            }
-        }
-
         let (inner_expr, _) = self.visit_expression(&input.inner);
         let inner_expr = inner_expr.expect("Trying to access a member of an empty expression.");
 
@@ -451,14 +428,8 @@ impl CodeGeneratingVisitor<'_> {
         (AleoExpr::Reg(dest_reg), operand_instructions)
     }
 
-    // group::GEN -> group::GEN
-    fn visit_associated_constant(&mut self, input: &AssociatedConstantExpression) -> AleoExpr {
-        AleoExpr::RawName(format!("{input}"))
-    }
-
-    // Pedersen64::hash() -> hash.ped64
-    fn visit_associated_function(&mut self, input: &AssociatedFunctionExpression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
-        let mut instructions = vec![];
+    fn visit_intrinsic(&mut self, input: &IntrinsicExpression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
+        let mut stmts = vec![];
 
         // Visit each function argument and accumulate instructions from expressions.
         let arguments = input
@@ -466,195 +437,18 @@ impl CodeGeneratingVisitor<'_> {
             .iter()
             .filter_map(|argument| {
                 let (arg_string, arg_instructions) = self.visit_expression(argument);
-                instructions.extend(arg_instructions);
-                arg_string
+                stmts.extend(arg_instructions);
+                arg_string.map(|arg| (arg, argument.id()))
             })
             .collect::<Vec<_>>();
 
-        // A helper function to help with `Program::checksum`, `Program::edition`, and `Program::program_owner`.
-        let generate_program_core = |program: &str, name: &str| {
-            // Get the program ID from the first argument.
-            let program_id = ProgramId::from_str_with_network(&program.replace("\"", ""), self.state.network)
-                .expect("Type checking guarantees that the program name is valid");
-            // If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
-            match program_id.to_string()
-                == self.program_id.expect("The program ID is set before traversing the program").to_string()
-            {
-                true => name.to_string(),
-                false => format!("{program_id}/{name}"),
-            }
-        };
+        let (intr_dest, intr_stmts) =
+            self.generate_intrinsic(Intrinsic::from_symbol(input.name, &input.type_parameters), &arguments);
 
-        // Construct the instruction.
-        let (destination, instruction) = match CoreFunction::try_from(input).ok() {
-            Some(CoreFunction::Commit(variant, ref type_)) => {
-                let type_ = AleoType::from(*type_);
-                let dest_reg = self.next_register();
-                let instruction =
-                    AleoStmt::Commit(variant, arguments[0].clone(), arguments[1].clone(), dest_reg.clone(), type_);
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::Hash(variant, ref type_)) => {
-                let dest_reg = self.next_register();
-                let type_ = match self.state.network {
-                    NetworkName::TestnetV0 => {
-                        AleoType::from(type_.to_snarkvm::<TestnetV0>().expect("TYC guarantees that the type is valid"))
-                    }
-                    NetworkName::CanaryV0 => {
-                        AleoType::from(type_.to_snarkvm::<CanaryV0>().expect("TYC guarantees that the type is valid"))
-                    }
-                    NetworkName::MainnetV0 => {
-                        AleoType::from(type_.to_snarkvm::<MainnetV0>().expect("TYC guarantees that the type is valid"))
-                    }
-                };
-                let instruction = AleoStmt::Hash(variant, arguments[0].clone(), dest_reg.clone(), type_);
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::Get) => {
-                let dest_reg = self.next_register();
-                let instruction = AleoStmt::Get(arguments[0].clone(), arguments[1].clone(), dest_reg.clone());
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::MappingGetOrUse) => {
-                let dest_reg = self.next_register();
-                let instruction = AleoStmt::GetOrUse(
-                    arguments[0].clone(),
-                    arguments[1].clone(),
-                    arguments[2].clone(),
-                    dest_reg.clone(),
-                );
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::Set) => {
-                let instruction = AleoStmt::Set(arguments[2].clone(), arguments[0].clone(), arguments[1].clone());
-                (None, vec![instruction])
-            }
-            Some(CoreFunction::MappingRemove) => {
-                let instruction = AleoStmt::Remove(arguments[0].clone(), arguments[1].clone());
-                (None, vec![instruction])
-            }
-            Some(CoreFunction::MappingContains) => {
-                let dest_reg = self.next_register();
-                let instruction = AleoStmt::Contains(arguments[0].clone(), arguments[1].clone(), dest_reg.clone());
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::GroupToXCoordinate) => {
-                let dest_reg = self.next_register();
-                let instruction = AleoStmt::Cast(arguments[0].clone(), dest_reg.clone(), AleoType::GroupX);
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::GroupToYCoordinate) => {
-                let dest_reg = self.next_register();
-                let instruction = AleoStmt::Cast(arguments[0].clone(), dest_reg.clone(), AleoType::GroupY);
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::ChaChaRand(type_)) => {
-                let dest_reg = self.next_register();
-                let instruction = AleoStmt::RandChacha(dest_reg.clone(), type_.into());
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::SignatureVerify) => {
-                let dest_reg = self.next_register();
-                let instruction = AleoStmt::SignVerify(
-                    arguments[0].clone(),
-                    arguments[1].clone(),
-                    arguments[2].clone(),
-                    dest_reg.clone(),
-                );
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::ECDSAVerify(variant)) => {
-                let dest_reg = self.next_register();
-                let instruction = AleoStmt::EcdsaVerify(
-                    variant,
-                    arguments[0].clone(),
-                    arguments[1].clone(),
-                    arguments[2].clone(),
-                    dest_reg.clone(),
-                );
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::FutureAwait) => {
-                let instruction = AleoStmt::Await(arguments[0].clone());
-                (None, vec![instruction])
-            }
-            Some(CoreFunction::ProgramChecksum) => {
-                (Some(AleoExpr::RawName(generate_program_core(&arguments[0].to_string(), "checksum"))), vec![])
-            }
-            Some(CoreFunction::ProgramEdition) => {
-                (Some(AleoExpr::RawName(generate_program_core(&arguments[0].to_string(), "edition"))), vec![])
-            }
-            Some(CoreFunction::ProgramOwner) => {
-                (Some(AleoExpr::RawName(generate_program_core(&arguments[0].to_string(), "program_owner"))), vec![])
-            }
-            Some(CoreFunction::CheatCodePrintMapping)
-            | Some(CoreFunction::CheatCodeSetBlockHeight)
-            | Some(CoreFunction::CheatCodeSetBlockTimestamp)
-            | Some(CoreFunction::CheatCodeSetSigner) => {
-                (None, vec![])
-                // Do nothing. Cheat codes do not generate instructions.
-            }
-            Some(CoreFunction::Serialize(variant)) => {
-                // Get the input type.
-                let Some(input_type) = self.state.type_table.get(&input.arguments[0].id()) else {
-                    panic!("All types should be known at this phase of compilation");
-                };
-                // Get the instruction variant.
-                let is_raw = matches!(variant, SerializeVariant::ToBitsRaw);
-                // Get the size in bits of the input type.
-                let size_in_bits = match self.state.network {
-                    NetworkName::TestnetV0 => {
-                        input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::MainnetV0 => {
-                        input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::CanaryV0 => {
-                        input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                }
-                .expect("TYC guarantees that all types have a valid size in bits");
-
-                let dest_reg = self.next_register();
-                let output_type = AleoType::Array { inner: Box::new(AleoType::Boolean), len: size_in_bits as u32 };
-                let input_type = Self::visit_type(&input_type);
-                let instruction =
-                    AleoStmt::Serialize(variant, arguments[0].clone(), input_type, dest_reg.clone(), output_type);
-
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::Deserialize(variant, output_type)) => {
-                // Get the input type.
-                let Some(input_type) = self.state.type_table.get(&input.arguments[0].id()) else {
-                    panic!("All types should be known at this phase of compilation");
-                };
-
-                let dest_reg = self.next_register();
-                let input_type = Self::visit_type(&input_type);
-                let output_type = Self::visit_type(&output_type);
-                let instruction =
-                    AleoStmt::Deserialize(variant, arguments[0].clone(), input_type, dest_reg.clone(), output_type);
-
-                (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
-            }
-            Some(CoreFunction::OptionalUnwrap) | Some(CoreFunction::OptionalUnwrapOr) => {
-                panic!("`Optional` core functions should have been lowered before code generation")
-            }
-            Some(CoreFunction::VectorPush)
-            | Some(CoreFunction::VectorPop)
-            | Some(CoreFunction::VectorLen)
-            | Some(CoreFunction::VectorClear)
-            | Some(CoreFunction::VectorSwapRemove) => {
-                panic!("`Vector` core functions should have been lowered before code generation")
-            }
-            None => {
-                panic!("All core functions should be known at this phase of compilation")
-            }
-        };
         // Add the instruction to the list of instructions.
-        instructions.extend(instruction);
+        stmts.extend(intr_stmts);
 
-        (destination, instructions)
+        (intr_dest, stmts)
     }
 
     fn visit_call(&mut self, input: &CallExpression) -> (AleoExpr, Vec<AleoStmt>) {
@@ -740,6 +534,210 @@ impl CodeGeneratingVisitor<'_> {
 
         // CAUTION: does not return the destination_register.
         (AleoExpr::Tuple(tuple_elements), instructions)
+    }
+
+    fn generate_intrinsic(
+        &mut self,
+        intrinsic: Option<Intrinsic>,
+        arguments: &[(AleoExpr, NodeID)],
+    ) -> (Option<AleoExpr>, Vec<AleoStmt>) {
+        {
+            let args = arguments.iter().map(|(arg, _)| arg).collect_vec();
+
+            let mut instructions = vec![];
+
+            // A helper function to help with `Program::checksum`, `Program::edition`, and `Program::program_owner`.
+            let generate_program_core = |program: &str, name: &str| {
+                // Get the program ID from the first argument.
+                let program_id = ProgramId::from_str_with_network(&program.replace("\"", ""), self.state.network)
+                    .expect("Type checking guarantees that the program name is valid");
+                // If the program name matches the current program ID, then use the operand directly, otherwise fully qualify the operand.
+                match program_id.to_string()
+                    == self.program_id.expect("The program ID is set before traversing the program").to_string()
+                {
+                    true => name.to_string(),
+                    false => format!("{program_id}/{name}"),
+                }
+            };
+
+            // Construct the instruction.
+            let (destination, instruction) = match intrinsic {
+                Some(Intrinsic::SelfId) | Some(Intrinsic::SelfAddress) => (
+                    Some(AleoExpr::RawName(
+                        self.program_id.expect("The program ID is set before traversing the program").to_string(),
+                    )),
+                    vec![],
+                ),
+                Some(Intrinsic::SelfChecksum) => (Some(AleoExpr::RawName("checksum".into())), vec![]),
+                Some(Intrinsic::SelfEdition) => (Some(AleoExpr::RawName("edition".into())), vec![]),
+                Some(Intrinsic::SelfProgramOwner) => (Some(AleoExpr::RawName("program_owner".into())), vec![]),
+                Some(Intrinsic::SelfCaller) => (Some(AleoExpr::RawName("self.caller".into())), vec![]),
+                Some(Intrinsic::SelfSigner) => (Some(AleoExpr::RawName("self.signer".into())), vec![]),
+                Some(Intrinsic::BlockHeight) => (Some(AleoExpr::RawName("block.height".into())), vec![]),
+                Some(Intrinsic::BlockTimestamp) => (Some(AleoExpr::RawName("block.timestamp".into())), vec![]),
+                Some(Intrinsic::NetworkId) => (Some(AleoExpr::RawName("network.id".into())), vec![]),
+                Some(Intrinsic::Commit(variant, ref type_)) => {
+                    let type_ = AleoType::from(*type_);
+                    let dest_reg = self.next_register();
+                    let instruction =
+                        AleoStmt::Commit(variant, args[0].clone(), args[1].clone(), dest_reg.clone(), type_);
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::Hash(variant, ref type_)) => {
+                    let dest_reg = self.next_register();
+                    let type_ = match self.state.network {
+                        NetworkName::TestnetV0 => AleoType::from(
+                            type_.to_snarkvm::<TestnetV0>().expect("TYC guarantees that the type is valid"),
+                        ),
+                        NetworkName::CanaryV0 => AleoType::from(
+                            type_.to_snarkvm::<CanaryV0>().expect("TYC guarantees that the type is valid"),
+                        ),
+                        NetworkName::MainnetV0 => AleoType::from(
+                            type_.to_snarkvm::<MainnetV0>().expect("TYC guarantees that the type is valid"),
+                        ),
+                    };
+                    let instruction = AleoStmt::Hash(variant, args[0].clone(), dest_reg.clone(), type_);
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::Get) => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::Get(args[0].clone(), args[1].clone(), dest_reg.clone());
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::MappingGetOrUse) => {
+                    let dest_reg = self.next_register();
+                    let instruction =
+                        AleoStmt::GetOrUse(args[0].clone(), args[1].clone(), args[2].clone(), dest_reg.clone());
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::Set) => {
+                    let instruction = AleoStmt::Set(args[2].clone(), args[0].clone(), args[1].clone());
+                    (None, vec![instruction])
+                }
+                Some(Intrinsic::MappingRemove) => {
+                    let instruction = AleoStmt::Remove(args[0].clone(), args[1].clone());
+                    (None, vec![instruction])
+                }
+                Some(Intrinsic::MappingContains) => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::Contains(args[0].clone(), args[1].clone(), dest_reg.clone());
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::GroupToXCoordinate) => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::Cast(args[0].clone(), dest_reg.clone(), AleoType::GroupX);
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::GroupToYCoordinate) => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::Cast(args[0].clone(), dest_reg.clone(), AleoType::GroupY);
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::GroupGen) => (Some(AleoExpr::RawName("group::GEN".into())), vec![]),
+                Some(Intrinsic::ChaChaRand(type_)) => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::RandChacha(dest_reg.clone(), type_.into());
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::SignatureVerify) => {
+                    let dest_reg = self.next_register();
+                    let instruction =
+                        AleoStmt::SignVerify(args[0].clone(), args[1].clone(), args[2].clone(), dest_reg.clone());
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::ECDSAVerify(variant)) => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::EcdsaVerify(
+                        variant,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::FutureAwait) => {
+                    let instruction = AleoStmt::Await(args[0].clone());
+                    (None, vec![instruction])
+                }
+                Some(Intrinsic::ProgramChecksum) => {
+                    (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), "checksum"))), vec![])
+                }
+                Some(Intrinsic::ProgramEdition) => {
+                    (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), "edition"))), vec![])
+                }
+                Some(Intrinsic::ProgramOwner) => {
+                    (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), "program_owner"))), vec![])
+                }
+                Some(Intrinsic::CheatCodePrintMapping)
+                | Some(Intrinsic::CheatCodeSetBlockHeight)
+                | Some(Intrinsic::CheatCodeSetBlockTimestamp)
+                | Some(Intrinsic::CheatCodeSetSigner) => {
+                    (None, vec![])
+                    // Do nothing. Cheat codes do not generate instructions.
+                }
+                Some(Intrinsic::Serialize(variant)) => {
+                    // Get the input type.
+                    let Some(input_type) = self.state.type_table.get(&arguments[0].1) else {
+                        panic!("All types should be known at this phase of compilation");
+                    };
+                    // Get the instruction variant.
+                    let is_raw = matches!(variant, SerializeVariant::ToBitsRaw);
+                    // Get the size in bits of the input type.
+                    let size_in_bits = match self.state.network {
+                        NetworkName::TestnetV0 => {
+                            input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        }
+                        NetworkName::MainnetV0 => {
+                            input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        }
+                        NetworkName::CanaryV0 => {
+                            input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        }
+                    }
+                    .expect("TYC guarantees that all types have a valid size in bits");
+
+                    let dest_reg = self.next_register();
+                    let output_type = AleoType::Array { inner: Box::new(AleoType::Boolean), len: size_in_bits as u32 };
+                    let input_type = Self::visit_type(&input_type);
+                    let instruction =
+                        AleoStmt::Serialize(variant, args[0].clone(), input_type, dest_reg.clone(), output_type);
+
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::Deserialize(variant, output_type)) => {
+                    // Get the input type.
+                    let Some(input_type) = self.state.type_table.get(&arguments[0].1) else {
+                        panic!("All types should be known at this phase of compilation");
+                    };
+
+                    let dest_reg = self.next_register();
+                    let input_type = Self::visit_type(&input_type);
+                    let output_type = Self::visit_type(&output_type);
+                    let instruction =
+                        AleoStmt::Deserialize(variant, args[0].clone(), input_type, dest_reg.clone(), output_type);
+
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Some(Intrinsic::OptionalUnwrap) | Some(Intrinsic::OptionalUnwrapOr) => {
+                    panic!("`Optional` core functions should have been lowered before code generation")
+                }
+                Some(Intrinsic::VectorPush)
+                | Some(Intrinsic::VectorPop)
+                | Some(Intrinsic::VectorLen)
+                | Some(Intrinsic::VectorClear)
+                | Some(Intrinsic::VectorSwapRemove) => {
+                    panic!("`Vector` core functions should have been lowered before code generation")
+                }
+                None => {
+                    panic!("All core functions should be known at this phase of compilation")
+                }
+            };
+            // Add the instruction to the list of instructions.
+            instructions.extend(instruction);
+
+            (destination, instructions)
+        }
     }
 
     pub fn clone_register(&mut self, register: &AleoExpr, typ: &Type) -> (AleoExpr, Vec<AleoStmt>) {

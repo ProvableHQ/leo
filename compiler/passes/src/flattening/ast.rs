@@ -430,7 +430,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
         let return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
 
         let is_tuple_ids = matches!(&input.expression, Tuple(tuple_expr) if tuple_expr .elements.iter() .all(|expr| matches!(expr, Expression::Path(_))));
-        if !matches!(&input.expression, Unit(_) | Expression::Path(_) | AssociatedConstant(_)) && !is_tuple_ids {
+        if !matches!(&input.expression, Unit(_) | Expression::Path(_)) && !is_tuple_ids {
             panic!("SSA guarantees that the expression is always a Path, unit expression, or tuple literal.")
         }
 
