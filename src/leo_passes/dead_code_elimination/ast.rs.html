@@ -86,7 +86,7 @@
 <a href=#86 id=86 data-nosnippet>86</a>            }
 <a href=#87 id=87 data-nosnippet>87</a>        };
 <a href=#88 id=88 data-nosnippet>88</a>
-<a href=#89 id=89 data-nosnippet>89</a>        <span class="kw">if </span>!lhs_is_used &amp;&amp; <span class="self">self</span>.side_effect_free(<span class="kw-2">&amp;</span>input.value) {
+<a href=#89 id=89 data-nosnippet>89</a>        <span class="kw">if </span>!lhs_is_used &amp;&amp; <span class="self">self</span>.is_pure(<span class="kw-2">&amp;</span>input.value) {
 <a href=#90 id=90 data-nosnippet>90</a>            <span class="comment">// We can eliminate this statement.
 <a href=#91 id=91 data-nosnippet>91</a>            </span>(Statement::dummy(), Default::default())
 <a href=#92 id=92 data-nosnippet>92</a>        } <span class="kw">else </span>{
@@ -102,7 +102,7 @@
 <a href=#102 id=102 data-nosnippet>102</a>    }
 <a href=#103 id=103 data-nosnippet>103</a>
 <a href=#104 id=104 data-nosnippet>104</a>    <span class="kw">fn </span>reconstruct_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#105 id=105 data-nosnippet>105</a>        <span class="kw">if </span><span class="self">self</span>.side_effect_free(<span class="kw-2">&amp;</span>input.expression) {
+<a href=#105 id=105 data-nosnippet>105</a>        <span class="kw">if </span><span class="self">self</span>.is_pure(<span class="kw-2">&amp;</span>input.expression) {
 <a href=#106 id=106 data-nosnippet>106</a>            (Statement::dummy(), Default::default())
 <a href=#107 id=107 data-nosnippet>107</a>        } <span class="kw">else </span>{
 <a href=#108 id=108 data-nosnippet>108</a>            (

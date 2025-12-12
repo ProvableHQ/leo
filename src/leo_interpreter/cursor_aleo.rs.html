@@ -18,8 +18,8 @@
 <a href=#18 id=18 data-nosnippet>18</a>
 <a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{
 <a href=#20 id=20 data-nosnippet>20</a>    BinaryOperation,
-<a href=#21 id=21 data-nosnippet>21</a>    CoreFunction,
-<a href=#22 id=22 data-nosnippet>22</a>    IntegerType,
+<a href=#21 id=21 data-nosnippet>21</a>    IntegerType,
+<a href=#22 id=22 data-nosnippet>22</a>    Intrinsic,
 <a href=#23 id=23 data-nosnippet>23</a>    Location,
 <a href=#24 id=24 data-nosnippet>24</a>    Type,
 <a href=#25 id=25 data-nosnippet>25</a>    UnaryOperation,
@@ -193,12 +193,12 @@
 <a href=#193 id=193 data-nosnippet>193</a>
 <a href=#194 id=194 data-nosnippet>194</a>        <span class="macro">macro_rules!</span> commit_function {
 <a href=#195 id=195 data-nosnippet>195</a>            (<span class="macro-nonterminal">$commit</span>: expr, <span class="macro-nonterminal">$variant</span>: expr) =&gt; {{
-<a href=#196 id=196 data-nosnippet>196</a>                <span class="kw">let </span>core_function = CoreFunction::Commit(<span class="macro-nonterminal">$variant</span>, <span class="macro-nonterminal">$commit</span>.destination_type());
+<a href=#196 id=196 data-nosnippet>196</a>                <span class="kw">let </span>intrinsic = Intrinsic::Commit(<span class="macro-nonterminal">$variant</span>, <span class="macro-nonterminal">$commit</span>.destination_type());
 <a href=#197 id=197 data-nosnippet>197</a>                <span class="kw">let </span>randomizer_value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$commit</span>.operands()[<span class="number">0</span>]);
 <a href=#198 id=198 data-nosnippet>198</a>                <span class="kw">let </span>operand_value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$commit</span>.operands()[<span class="number">1</span>]);
 <a href=#199 id=199 data-nosnippet>199</a>                <span class="self">self</span>.values.push(randomizer_value);
 <a href=#200 id=200 data-nosnippet>200</a>                <span class="self">self</span>.values.push(operand_value);
-<a href=#201 id=201 data-nosnippet>201</a>                <span class="kw">let </span>value = interpreter_value::evaluate_core_function(<span class="self">self</span>, core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
+<a href=#201 id=201 data-nosnippet>201</a>                <span class="kw">let </span>value = interpreter_value::evaluate_intrinsic(<span class="self">self</span>, intrinsic, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
 <a href=#202 id=202 data-nosnippet>202</a>                <span class="self">self</span>.increment_instruction_index();
 <a href=#203 id=203 data-nosnippet>203</a>                (value.expect(<span class="string">"Evaluation should work"</span>), <span class="macro-nonterminal">$commit</span>.destinations()[<span class="number">0</span>].clone())
 <a href=#204 id=204 data-nosnippet>204</a>            }};
@@ -207,11 +207,11 @@
 <a href=#207 id=207 data-nosnippet>207</a>        <span class="macro">macro_rules!</span> hash_function {
 <a href=#208 id=208 data-nosnippet>208</a>            (<span class="macro-nonterminal">$hash</span>: expr, <span class="macro-nonterminal">$variant</span>: expr) =&gt; {{
 <a href=#209 id=209 data-nosnippet>209</a>                <span class="comment">// Note. The only supported output types of a `hash` function are literals or bit arrays.
-<a href=#210 id=210 data-nosnippet>210</a>                </span><span class="kw">let </span>core_function =
-<a href=#211 id=211 data-nosnippet>211</a>                    CoreFunction::Hash(<span class="macro-nonterminal">$variant</span>, Type::from_snarkvm::&lt;TestnetV0&gt;(<span class="macro-nonterminal">$hash</span>.destination_type(), <span class="prelude-val">None</span>));
+<a href=#210 id=210 data-nosnippet>210</a>                </span><span class="kw">let </span>intrinsic =
+<a href=#211 id=211 data-nosnippet>211</a>                    Intrinsic::Hash(<span class="macro-nonterminal">$variant</span>, Type::from_snarkvm::&lt;TestnetV0&gt;(<span class="macro-nonterminal">$hash</span>.destination_type(), <span class="prelude-val">None</span>));
 <a href=#212 id=212 data-nosnippet>212</a>                <span class="kw">let </span>operand_value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$hash</span>.operands()[<span class="number">0</span>]);
 <a href=#213 id=213 data-nosnippet>213</a>                <span class="self">self</span>.values.push(operand_value);
-<a href=#214 id=214 data-nosnippet>214</a>                <span class="kw">let </span>value = interpreter_value::evaluate_core_function(<span class="self">self</span>, core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
+<a href=#214 id=214 data-nosnippet>214</a>                <span class="kw">let </span>value = interpreter_value::evaluate_intrinsic(<span class="self">self</span>, intrinsic, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
 <a href=#215 id=215 data-nosnippet>215</a>                <span class="self">self</span>.increment_instruction_index();
 <a href=#216 id=216 data-nosnippet>216</a>                (value.expect(<span class="string">"Evaluation should work"</span>), <span class="macro-nonterminal">$hash</span>.destinations()[<span class="number">0</span>].clone())
 <a href=#217 id=217 data-nosnippet>217</a>            }};
@@ -219,14 +219,14 @@
 <a href=#219 id=219 data-nosnippet>219</a>
 <a href=#220 id=220 data-nosnippet>220</a>        <span class="macro">macro_rules!</span> ecdsa_function {
 <a href=#221 id=221 data-nosnippet>221</a>            (<span class="macro-nonterminal">$ecdsa</span>: expr, <span class="macro-nonterminal">$variant</span>: expr) =&gt; {{
-<a href=#222 id=222 data-nosnippet>222</a>                <span class="kw">let </span>core_function = CoreFunction::ECDSAVerify(<span class="macro-nonterminal">$variant</span>);
+<a href=#222 id=222 data-nosnippet>222</a>                <span class="kw">let </span>intrinsic = Intrinsic::ECDSAVerify(<span class="macro-nonterminal">$variant</span>);
 <a href=#223 id=223 data-nosnippet>223</a>                <span class="kw">let </span>signature = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$ecdsa</span>.operands()[<span class="number">0</span>]);
 <a href=#224 id=224 data-nosnippet>224</a>                <span class="kw">let </span>public_key = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$ecdsa</span>.operands()[<span class="number">1</span>]);
 <a href=#225 id=225 data-nosnippet>225</a>                <span class="kw">let </span>message = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$ecdsa</span>.operands()[<span class="number">2</span>]);
 <a href=#226 id=226 data-nosnippet>226</a>                <span class="self">self</span>.values.push(signature);
 <a href=#227 id=227 data-nosnippet>227</a>                <span class="self">self</span>.values.push(public_key);
 <a href=#228 id=228 data-nosnippet>228</a>                <span class="self">self</span>.values.push(message);
-<a href=#229 id=229 data-nosnippet>229</a>                <span class="kw">let </span>value = interpreter_value::evaluate_core_function(<span class="self">self</span>, core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
+<a href=#229 id=229 data-nosnippet>229</a>                <span class="kw">let </span>value = interpreter_value::evaluate_intrinsic(<span class="self">self</span>, intrinsic, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
 <a href=#230 id=230 data-nosnippet>230</a>                <span class="self">self</span>.increment_instruction_index();
 <a href=#231 id=231 data-nosnippet>231</a>                (value.expect(<span class="string">"Evaluation should work"</span>), <span class="macro-nonterminal">$ecdsa</span>.destinations()[<span class="number">0</span>].clone())
 <a href=#232 id=232 data-nosnippet>232</a>            }};
@@ -234,14 +234,14 @@
 <a href=#234 id=234 data-nosnippet>234</a>
 <a href=#235 id=235 data-nosnippet>235</a>        <span class="macro">macro_rules!</span> schnorr_function {
 <a href=#236 id=236 data-nosnippet>236</a>            (<span class="macro-nonterminal">$schnorr</span>: expr, <span class="macro-nonterminal">$variant</span>: expr) =&gt; {{
-<a href=#237 id=237 data-nosnippet>237</a>                <span class="kw">let </span>core_function = CoreFunction::SignatureVerify;
+<a href=#237 id=237 data-nosnippet>237</a>                <span class="kw">let </span>intrinsic = Intrinsic::SignatureVerify;
 <a href=#238 id=238 data-nosnippet>238</a>                <span class="kw">let </span>signature = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$schnorr</span>.operands()[<span class="number">0</span>]);
 <a href=#239 id=239 data-nosnippet>239</a>                <span class="kw">let </span>public_key = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$schnorr</span>.operands()[<span class="number">1</span>]);
 <a href=#240 id=240 data-nosnippet>240</a>                <span class="kw">let </span>message = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$schnorr</span>.operands()[<span class="number">2</span>]);
 <a href=#241 id=241 data-nosnippet>241</a>                <span class="self">self</span>.values.push(signature);
 <a href=#242 id=242 data-nosnippet>242</a>                <span class="self">self</span>.values.push(public_key);
 <a href=#243 id=243 data-nosnippet>243</a>                <span class="self">self</span>.values.push(message);
-<a href=#244 id=244 data-nosnippet>244</a>                <span class="kw">let </span>value = interpreter_value::evaluate_core_function(<span class="self">self</span>, core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
+<a href=#244 id=244 data-nosnippet>244</a>                <span class="kw">let </span>value = interpreter_value::evaluate_intrinsic(<span class="self">self</span>, intrinsic, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
 <a href=#245 id=245 data-nosnippet>245</a>                <span class="self">self</span>.increment_instruction_index();
 <a href=#246 id=246 data-nosnippet>246</a>                (value.expect(<span class="string">"Evaluation should work"</span>), <span class="macro-nonterminal">$schnorr</span>.destinations()[<span class="number">0</span>].clone())
 <a href=#247 id=247 data-nosnippet>247</a>            }};
@@ -249,10 +249,10 @@
 <a href=#249 id=249 data-nosnippet>249</a>
 <a href=#250 id=250 data-nosnippet>250</a>        <span class="macro">macro_rules!</span> serialize_function {
 <a href=#251 id=251 data-nosnippet>251</a>            (<span class="macro-nonterminal">$serialize</span>: expr, <span class="macro-nonterminal">$variant</span>: expr) =&gt; {{
-<a href=#252 id=252 data-nosnippet>252</a>                <span class="kw">let </span>core_function = CoreFunction::Serialize(<span class="macro-nonterminal">$variant</span>);
+<a href=#252 id=252 data-nosnippet>252</a>                <span class="kw">let </span>intrinsic = Intrinsic::Serialize(<span class="macro-nonterminal">$variant</span>);
 <a href=#253 id=253 data-nosnippet>253</a>                <span class="kw">let </span>operand_value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$serialize</span>.operands()[<span class="number">0</span>]);
 <a href=#254 id=254 data-nosnippet>254</a>                <span class="self">self</span>.values.push(operand_value);
-<a href=#255 id=255 data-nosnippet>255</a>                <span class="kw">let </span>value = interpreter_value::evaluate_core_function(<span class="self">self</span>, core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
+<a href=#255 id=255 data-nosnippet>255</a>                <span class="kw">let </span>value = interpreter_value::evaluate_intrinsic(<span class="self">self</span>, intrinsic, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
 <a href=#256 id=256 data-nosnippet>256</a>                <span class="self">self</span>.increment_instruction_index();
 <a href=#257 id=257 data-nosnippet>257</a>                (value.expect(<span class="string">"Evaluation should work"</span>), <span class="macro-nonterminal">$serialize</span>.destinations()[<span class="number">0</span>].clone())
 <a href=#258 id=258 data-nosnippet>258</a>            }};
@@ -260,13 +260,13 @@
 <a href=#260 id=260 data-nosnippet>260</a>
 <a href=#261 id=261 data-nosnippet>261</a>        <span class="macro">macro_rules!</span> deserialize_function {
 <a href=#262 id=262 data-nosnippet>262</a>            (<span class="macro-nonterminal">$deserialize</span>: expr, <span class="macro-nonterminal">$variant</span>: expr) =&gt; {{
-<a href=#263 id=263 data-nosnippet>263</a>                <span class="kw">let </span>core_function = CoreFunction::Deserialize(
+<a href=#263 id=263 data-nosnippet>263</a>                <span class="kw">let </span>intrinsic = Intrinsic::Deserialize(
 <a href=#264 id=264 data-nosnippet>264</a>                    <span class="macro-nonterminal">$variant</span>,
 <a href=#265 id=265 data-nosnippet>265</a>                    Type::from_snarkvm::&lt;TestnetV0&gt;(<span class="macro-nonterminal">$deserialize</span>.destination_type(), <span class="prelude-val">None</span>),
 <a href=#266 id=266 data-nosnippet>266</a>                );
 <a href=#267 id=267 data-nosnippet>267</a>                <span class="kw">let </span>operand_value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$deserialize</span>.operands()[<span class="number">0</span>]);
 <a href=#268 id=268 data-nosnippet>268</a>                <span class="self">self</span>.values.push(operand_value);
-<a href=#269 id=269 data-nosnippet>269</a>                <span class="kw">let </span>value = interpreter_value::evaluate_core_function(<span class="self">self</span>, core_function, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
+<a href=#269 id=269 data-nosnippet>269</a>                <span class="kw">let </span>value = interpreter_value::evaluate_intrinsic(<span class="self">self</span>, intrinsic, <span class="kw-2">&amp;</span>[], Span::default())<span class="question-mark">?</span>;
 <a href=#270 id=270 data-nosnippet>270</a>                <span class="self">self</span>.increment_instruction_index();
 <a href=#271 id=271 data-nosnippet>271</a>                (value.expect(<span class="string">"Evaluation should work"</span>), <span class="macro-nonterminal">$deserialize</span>.destinations()[<span class="number">0</span>].clone())
 <a href=#272 id=272 data-nosnippet>272</a>            }};
@@ -374,9 +374,9 @@
 <a href=#374 id=374 data-nosnippet>374</a>                    CastType::GroupXCoordinate =&gt; {
 <a href=#375 id=375 data-nosnippet>375</a>                        <span class="kw">let </span>value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span>cast.operands()[<span class="number">0</span>]);
 <a href=#376 id=376 data-nosnippet>376</a>                        <span class="kw">let </span><span class="kw-2">mut </span>values = <span class="macro">vec!</span>[value];
-<a href=#377 id=377 data-nosnippet>377</a>                        <span class="kw">let </span><span class="prelude-val">Some</span>(result_value) = interpreter_value::evaluate_core_function(
+<a href=#377 id=377 data-nosnippet>377</a>                        <span class="kw">let </span><span class="prelude-val">Some</span>(result_value) = interpreter_value::evaluate_intrinsic(
 <a href=#378 id=378 data-nosnippet>378</a>                            <span class="kw-2">&amp;mut </span>values,
-<a href=#379 id=379 data-nosnippet>379</a>                            CoreFunction::GroupToXCoordinate,
+<a href=#379 id=379 data-nosnippet>379</a>                            Intrinsic::GroupToXCoordinate,
 <a href=#380 id=380 data-nosnippet>380</a>                            <span class="kw-2">&amp;</span>[],
 <a href=#381 id=381 data-nosnippet>381</a>                            Default::default(),
 <a href=#382 id=382 data-nosnippet>382</a>                        )<span class="question-mark">?
@@ -388,9 +388,9 @@
 <a href=#388 id=388 data-nosnippet>388</a>                    CastType::GroupYCoordinate =&gt; {
 <a href=#389 id=389 data-nosnippet>389</a>                        <span class="kw">let </span>value = <span class="self">self</span>.operand_value(<span class="kw-2">&amp;</span>cast.operands()[<span class="number">0</span>]);
 <a href=#390 id=390 data-nosnippet>390</a>                        <span class="kw">let </span><span class="kw-2">mut </span>values = <span class="macro">vec!</span>[value];
-<a href=#391 id=391 data-nosnippet>391</a>                        <span class="kw">let </span><span class="prelude-val">Some</span>(result_value) = interpreter_value::evaluate_core_function(
+<a href=#391 id=391 data-nosnippet>391</a>                        <span class="kw">let </span><span class="prelude-val">Some</span>(result_value) = interpreter_value::evaluate_intrinsic(
 <a href=#392 id=392 data-nosnippet>392</a>                            <span class="kw-2">&amp;mut </span>values,
-<a href=#393 id=393 data-nosnippet>393</a>                            CoreFunction::GroupToYCoordinate,
+<a href=#393 id=393 data-nosnippet>393</a>                            Intrinsic::GroupToYCoordinate,
 <a href=#394 id=394 data-nosnippet>394</a>                            <span class="kw-2">&amp;</span>[],
 <a href=#395 id=395 data-nosnippet>395</a>                            Default::default(),
 <a href=#396 id=396 data-nosnippet>396</a>                        )<span class="question-mark">?
@@ -682,105 +682,104 @@
 <a href=#682 id=682 data-nosnippet>682</a>            }
 <a href=#683 id=683 data-nosnippet>683</a>            RandChaCha(rand) =&gt; {
 <a href=#684 id=684 data-nosnippet>684</a>                <span class="comment">// TODO - this is not using the other operands which are supposed to seed the RNG.
-<a href=#685 id=685 data-nosnippet>685</a>                </span><span class="kw">use </span>CoreFunction::<span class="kw-2">*</span>;
+<a href=#685 id=685 data-nosnippet>685</a>                </span><span class="kw">use </span>Intrinsic::<span class="kw-2">*</span>;
 <a href=#686 id=686 data-nosnippet>686</a>                <span class="kw">let </span>function = ChaChaRand(rand.destination_type());
-<a href=#687 id=687 data-nosnippet>687</a>                <span class="kw">let </span>value =
-<a href=#688 id=688 data-nosnippet>688</a>                    interpreter_value::evaluate_core_function(<span class="self">self</span>, function, <span class="kw-2">&amp;</span>[], Default::default())<span class="question-mark">?</span>.unwrap();
-<a href=#689 id=689 data-nosnippet>689</a>                <span class="self">self</span>.increment_instruction_index();
-<a href=#690 id=690 data-nosnippet>690</a>                (value, rand.destination().clone())
-<a href=#691 id=691 data-nosnippet>691</a>            }
-<a href=#692 id=692 data-nosnippet>692</a>            BranchEq(branch_eq) =&gt; {
-<a href=#693 id=693 data-nosnippet>693</a>                <span class="kw">let </span>first = <span class="self">self</span>.operand_value(branch_eq.first());
-<a href=#694 id=694 data-nosnippet>694</a>                <span class="kw">let </span>second = <span class="self">self</span>.operand_value(branch_eq.second());
-<a href=#695 id=695 data-nosnippet>695</a>                <span class="kw">if </span>first.eq(<span class="kw-2">&amp;</span>second)<span class="question-mark">? </span>{
-<a href=#696 id=696 data-nosnippet>696</a>                    <span class="self">self</span>.branch(branch_eq.position());
-<a href=#697 id=697 data-nosnippet>697</a>                } <span class="kw">else </span>{
-<a href=#698 id=698 data-nosnippet>698</a>                    <span class="self">self</span>.increment_instruction_index();
-<a href=#699 id=699 data-nosnippet>699</a>                }
-<a href=#700 id=700 data-nosnippet>700</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#701 id=701 data-nosnippet>701</a>            }
-<a href=#702 id=702 data-nosnippet>702</a>            BranchNeq(branch_neq) =&gt; {
-<a href=#703 id=703 data-nosnippet>703</a>                <span class="kw">let </span>first = <span class="self">self</span>.operand_value(branch_neq.first());
-<a href=#704 id=704 data-nosnippet>704</a>                <span class="kw">let </span>second = <span class="self">self</span>.operand_value(branch_neq.second());
-<a href=#705 id=705 data-nosnippet>705</a>                <span class="kw">if </span>!first.eq(<span class="kw-2">&amp;</span>second)<span class="question-mark">? </span>{
-<a href=#706 id=706 data-nosnippet>706</a>                    <span class="self">self</span>.branch(branch_neq.position());
-<a href=#707 id=707 data-nosnippet>707</a>                } <span class="kw">else </span>{
-<a href=#708 id=708 data-nosnippet>708</a>                    <span class="self">self</span>.increment_instruction_index();
-<a href=#709 id=709 data-nosnippet>709</a>                }
-<a href=#710 id=710 data-nosnippet>710</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#711 id=711 data-nosnippet>711</a>            }
-<a href=#712 id=712 data-nosnippet>712</a>            Position(<span class="kw">_</span>) =&gt; {
-<a href=#713 id=713 data-nosnippet>713</a>                <span class="self">self</span>.increment_instruction_index();
-<a href=#714 id=714 data-nosnippet>714</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#715 id=715 data-nosnippet>715</a>            }
-<a href=#716 id=716 data-nosnippet>716</a>        };
-<a href=#717 id=717 data-nosnippet>717</a>
-<a href=#718 id=718 data-nosnippet>718</a>        <span class="self">self</span>.set_register(destination, value);
-<a href=#719 id=719 data-nosnippet>719</a>
-<a href=#720 id=720 data-nosnippet>720</a>        <span class="prelude-val">Ok</span>(())
-<a href=#721 id=721 data-nosnippet>721</a>    }
-<a href=#722 id=722 data-nosnippet>722</a>
-<a href=#723 id=723 data-nosnippet>723</a>    <span class="kw">fn </span>branch(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>Identifier&lt;TestnetV0&gt;) {
-<a href=#724 id=724 data-nosnippet>724</a>        <span class="kw">let </span><span class="prelude-val">Some</span>(Frame { element: Element::AleoExecution { instruction_index, context, .. }, .. }) =
-<a href=#725 id=725 data-nosnippet>725</a>            <span class="self">self</span>.frames.last_mut()
-<a href=#726 id=726 data-nosnippet>726</a>        <span class="kw">else </span>{
-<a href=#727 id=727 data-nosnippet>727</a>            <span class="macro">panic!</span>();
-<a href=#728 id=728 data-nosnippet>728</a>        };
-<a href=#729 id=729 data-nosnippet>729</a>        <span class="kw">let </span>AleoContext::Finalize(finalize) = <span class="kw-2">&amp;mut **</span>context <span class="kw">else </span>{
-<a href=#730 id=730 data-nosnippet>730</a>            <span class="macro">panic!</span>();
-<a href=#731 id=731 data-nosnippet>731</a>        };
-<a href=#732 id=732 data-nosnippet>732</a>        <span class="kw">for </span>(i, cmd) <span class="kw">in </span>finalize.commands().iter().enumerate() {
-<a href=#733 id=733 data-nosnippet>733</a>            <span class="kw">if let </span>Command::Position(position) = cmd
-<a href=#734 id=734 data-nosnippet>734</a>                &amp;&amp; position.name() == label
-<a href=#735 id=735 data-nosnippet>735</a>            {
-<a href=#736 id=736 data-nosnippet>736</a>                <span class="kw-2">*</span>instruction_index = i;
-<a href=#737 id=737 data-nosnippet>737</a>                <span class="kw">return</span>;
-<a href=#738 id=738 data-nosnippet>738</a>            }
-<a href=#739 id=739 data-nosnippet>739</a>        }
-<a href=#740 id=740 data-nosnippet>740</a>        <span class="macro">panic!</span>(<span class="string">"branch to nonexistent label {label}"</span>);
-<a href=#741 id=741 data-nosnippet>741</a>    }
-<a href=#742 id=742 data-nosnippet>742</a>
-<a href=#743 id=743 data-nosnippet>743</a>    <span class="kw">pub fn </span>step_aleo(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#744 id=744 data-nosnippet>744</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(command) = <span class="self">self</span>.next_command().cloned() {
-<a href=#745 id=745 data-nosnippet>745</a>            <span class="self">self</span>.step_aleo_command(command)<span class="question-mark">?</span>;
-<a href=#746 id=746 data-nosnippet>746</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(instruction) = <span class="self">self</span>.next_instruction().cloned() {
-<a href=#747 id=747 data-nosnippet>747</a>            <span class="self">self</span>.step_aleo_instruction(instruction)<span class="question-mark">?</span>;
-<a href=#748 id=748 data-nosnippet>748</a>        }
-<a href=#749 id=749 data-nosnippet>749</a>
-<a href=#750 id=750 data-nosnippet>750</a>        <span class="kw">if </span><span class="self">self</span>.execution_complete() {
-<a href=#751 id=751 data-nosnippet>751</a>            <span class="kw">let </span><span class="kw-2">mut </span>outputs = <span class="self">self</span>.outputs();
-<a href=#752 id=752 data-nosnippet>752</a>            <span class="self">self</span>.frames.pop();
-<a href=#753 id=753 data-nosnippet>753</a>            <span class="self">self</span>.contexts.pop();
-<a href=#754 id=754 data-nosnippet>754</a>            <span class="kw">if </span>outputs.len() &gt; <span class="number">1 </span>{
-<a href=#755 id=755 data-nosnippet>755</a>                <span class="self">self</span>.values.push(Value::make_tuple(outputs));
-<a href=#756 id=756 data-nosnippet>756</a>            } <span class="kw">else </span>{
-<a href=#757 id=757 data-nosnippet>757</a>                <span class="self">self</span>.values.push(mem::take(<span class="kw-2">&amp;mut </span>outputs[<span class="number">0</span>]));
-<a href=#758 id=758 data-nosnippet>758</a>            }
-<a href=#759 id=759 data-nosnippet>759</a>        }
-<a href=#760 id=760 data-nosnippet>760</a>
-<a href=#761 id=761 data-nosnippet>761</a>        <span class="prelude-val">Ok</span>(())
-<a href=#762 id=762 data-nosnippet>762</a>    }
-<a href=#763 id=763 data-nosnippet>763</a>}
-<a href=#764 id=764 data-nosnippet>764</a>
-<a href=#765 id=765 data-nosnippet>765</a><span class="kw">fn </span>snarkvm_literal_type_to_type(snarkvm_type: LiteralType) -&gt; Type {
-<a href=#766 id=766 data-nosnippet>766</a>    <span class="kw">use </span>Type::<span class="kw-2">*</span>;
-<a href=#767 id=767 data-nosnippet>767</a>    <span class="kw">match </span>snarkvm_type {
-<a href=#768 id=768 data-nosnippet>768</a>        LiteralType::Address =&gt; Address,
-<a href=#769 id=769 data-nosnippet>769</a>        LiteralType::Boolean =&gt; Boolean,
-<a href=#770 id=770 data-nosnippet>770</a>        LiteralType::Field =&gt; Field,
-<a href=#771 id=771 data-nosnippet>771</a>        LiteralType::Group =&gt; Group,
-<a href=#772 id=772 data-nosnippet>772</a>        LiteralType::I8 =&gt; Integer(IntegerType::I8),
-<a href=#773 id=773 data-nosnippet>773</a>        LiteralType::I16 =&gt; Integer(IntegerType::I16),
-<a href=#774 id=774 data-nosnippet>774</a>        LiteralType::I32 =&gt; Integer(IntegerType::I32),
-<a href=#775 id=775 data-nosnippet>775</a>        LiteralType::I64 =&gt; Integer(IntegerType::I64),
-<a href=#776 id=776 data-nosnippet>776</a>        LiteralType::I128 =&gt; Integer(IntegerType::I128),
-<a href=#777 id=777 data-nosnippet>777</a>        LiteralType::U8 =&gt; Integer(IntegerType::U8),
-<a href=#778 id=778 data-nosnippet>778</a>        LiteralType::U16 =&gt; Integer(IntegerType::U16),
-<a href=#779 id=779 data-nosnippet>779</a>        LiteralType::U32 =&gt; Integer(IntegerType::U32),
-<a href=#780 id=780 data-nosnippet>780</a>        LiteralType::U64 =&gt; Integer(IntegerType::U64),
-<a href=#781 id=781 data-nosnippet>781</a>        LiteralType::U128 =&gt; Integer(IntegerType::U128),
-<a href=#782 id=782 data-nosnippet>782</a>        LiteralType::Scalar =&gt; Scalar,
-<a href=#783 id=783 data-nosnippet>783</a>        LiteralType::Signature =&gt; <span class="macro">todo!</span>(),
-<a href=#784 id=784 data-nosnippet>784</a>        LiteralType::String =&gt; <span class="macro">todo!</span>(),
-<a href=#785 id=785 data-nosnippet>785</a>    }
-<a href=#786 id=786 data-nosnippet>786</a>}</code></pre></div></section></main></body></html>
+<a href=#687 id=687 data-nosnippet>687</a>                <span class="kw">let </span>value = interpreter_value::evaluate_intrinsic(<span class="self">self</span>, function, <span class="kw-2">&amp;</span>[], Default::default())<span class="question-mark">?</span>.unwrap();
+<a href=#688 id=688 data-nosnippet>688</a>                <span class="self">self</span>.increment_instruction_index();
+<a href=#689 id=689 data-nosnippet>689</a>                (value, rand.destination().clone())
+<a href=#690 id=690 data-nosnippet>690</a>            }
+<a href=#691 id=691 data-nosnippet>691</a>            BranchEq(branch_eq) =&gt; {
+<a href=#692 id=692 data-nosnippet>692</a>                <span class="kw">let </span>first = <span class="self">self</span>.operand_value(branch_eq.first());
+<a href=#693 id=693 data-nosnippet>693</a>                <span class="kw">let </span>second = <span class="self">self</span>.operand_value(branch_eq.second());
+<a href=#694 id=694 data-nosnippet>694</a>                <span class="kw">if </span>first.eq(<span class="kw-2">&amp;</span>second)<span class="question-mark">? </span>{
+<a href=#695 id=695 data-nosnippet>695</a>                    <span class="self">self</span>.branch(branch_eq.position());
+<a href=#696 id=696 data-nosnippet>696</a>                } <span class="kw">else </span>{
+<a href=#697 id=697 data-nosnippet>697</a>                    <span class="self">self</span>.increment_instruction_index();
+<a href=#698 id=698 data-nosnippet>698</a>                }
+<a href=#699 id=699 data-nosnippet>699</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#700 id=700 data-nosnippet>700</a>            }
+<a href=#701 id=701 data-nosnippet>701</a>            BranchNeq(branch_neq) =&gt; {
+<a href=#702 id=702 data-nosnippet>702</a>                <span class="kw">let </span>first = <span class="self">self</span>.operand_value(branch_neq.first());
+<a href=#703 id=703 data-nosnippet>703</a>                <span class="kw">let </span>second = <span class="self">self</span>.operand_value(branch_neq.second());
+<a href=#704 id=704 data-nosnippet>704</a>                <span class="kw">if </span>!first.eq(<span class="kw-2">&amp;</span>second)<span class="question-mark">? </span>{
+<a href=#705 id=705 data-nosnippet>705</a>                    <span class="self">self</span>.branch(branch_neq.position());
+<a href=#706 id=706 data-nosnippet>706</a>                } <span class="kw">else </span>{
+<a href=#707 id=707 data-nosnippet>707</a>                    <span class="self">self</span>.increment_instruction_index();
+<a href=#708 id=708 data-nosnippet>708</a>                }
+<a href=#709 id=709 data-nosnippet>709</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#710 id=710 data-nosnippet>710</a>            }
+<a href=#711 id=711 data-nosnippet>711</a>            Position(<span class="kw">_</span>) =&gt; {
+<a href=#712 id=712 data-nosnippet>712</a>                <span class="self">self</span>.increment_instruction_index();
+<a href=#713 id=713 data-nosnippet>713</a>                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#714 id=714 data-nosnippet>714</a>            }
+<a href=#715 id=715 data-nosnippet>715</a>        };
+<a href=#716 id=716 data-nosnippet>716</a>
+<a href=#717 id=717 data-nosnippet>717</a>        <span class="self">self</span>.set_register(destination, value);
+<a href=#718 id=718 data-nosnippet>718</a>
+<a href=#719 id=719 data-nosnippet>719</a>        <span class="prelude-val">Ok</span>(())
+<a href=#720 id=720 data-nosnippet>720</a>    }
+<a href=#721 id=721 data-nosnippet>721</a>
+<a href=#722 id=722 data-nosnippet>722</a>    <span class="kw">fn </span>branch(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: <span class="kw-2">&amp;</span>Identifier&lt;TestnetV0&gt;) {
+<a href=#723 id=723 data-nosnippet>723</a>        <span class="kw">let </span><span class="prelude-val">Some</span>(Frame { element: Element::AleoExecution { instruction_index, context, .. }, .. }) =
+<a href=#724 id=724 data-nosnippet>724</a>            <span class="self">self</span>.frames.last_mut()
+<a href=#725 id=725 data-nosnippet>725</a>        <span class="kw">else </span>{
+<a href=#726 id=726 data-nosnippet>726</a>            <span class="macro">panic!</span>();
+<a href=#727 id=727 data-nosnippet>727</a>        };
+<a href=#728 id=728 data-nosnippet>728</a>        <span class="kw">let </span>AleoContext::Finalize(finalize) = <span class="kw-2">&amp;mut **</span>context <span class="kw">else </span>{
+<a href=#729 id=729 data-nosnippet>729</a>            <span class="macro">panic!</span>();
+<a href=#730 id=730 data-nosnippet>730</a>        };
+<a href=#731 id=731 data-nosnippet>731</a>        <span class="kw">for </span>(i, cmd) <span class="kw">in </span>finalize.commands().iter().enumerate() {
+<a href=#732 id=732 data-nosnippet>732</a>            <span class="kw">if let </span>Command::Position(position) = cmd
+<a href=#733 id=733 data-nosnippet>733</a>                &amp;&amp; position.name() == label
+<a href=#734 id=734 data-nosnippet>734</a>            {
+<a href=#735 id=735 data-nosnippet>735</a>                <span class="kw-2">*</span>instruction_index = i;
+<a href=#736 id=736 data-nosnippet>736</a>                <span class="kw">return</span>;
+<a href=#737 id=737 data-nosnippet>737</a>            }
+<a href=#738 id=738 data-nosnippet>738</a>        }
+<a href=#739 id=739 data-nosnippet>739</a>        <span class="macro">panic!</span>(<span class="string">"branch to nonexistent label {label}"</span>);
+<a href=#740 id=740 data-nosnippet>740</a>    }
+<a href=#741 id=741 data-nosnippet>741</a>
+<a href=#742 id=742 data-nosnippet>742</a>    <span class="kw">pub fn </span>step_aleo(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#743 id=743 data-nosnippet>743</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>(command) = <span class="self">self</span>.next_command().cloned() {
+<a href=#744 id=744 data-nosnippet>744</a>            <span class="self">self</span>.step_aleo_command(command)<span class="question-mark">?</span>;
+<a href=#745 id=745 data-nosnippet>745</a>        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(instruction) = <span class="self">self</span>.next_instruction().cloned() {
+<a href=#746 id=746 data-nosnippet>746</a>            <span class="self">self</span>.step_aleo_instruction(instruction)<span class="question-mark">?</span>;
+<a href=#747 id=747 data-nosnippet>747</a>        }
+<a href=#748 id=748 data-nosnippet>748</a>
+<a href=#749 id=749 data-nosnippet>749</a>        <span class="kw">if </span><span class="self">self</span>.execution_complete() {
+<a href=#750 id=750 data-nosnippet>750</a>            <span class="kw">let </span><span class="kw-2">mut </span>outputs = <span class="self">self</span>.outputs();
+<a href=#751 id=751 data-nosnippet>751</a>            <span class="self">self</span>.frames.pop();
+<a href=#752 id=752 data-nosnippet>752</a>            <span class="self">self</span>.contexts.pop();
+<a href=#753 id=753 data-nosnippet>753</a>            <span class="kw">if </span>outputs.len() &gt; <span class="number">1 </span>{
+<a href=#754 id=754 data-nosnippet>754</a>                <span class="self">self</span>.values.push(Value::make_tuple(outputs));
+<a href=#755 id=755 data-nosnippet>755</a>            } <span class="kw">else </span>{
+<a href=#756 id=756 data-nosnippet>756</a>                <span class="self">self</span>.values.push(mem::take(<span class="kw-2">&amp;mut </span>outputs[<span class="number">0</span>]));
+<a href=#757 id=757 data-nosnippet>757</a>            }
+<a href=#758 id=758 data-nosnippet>758</a>        }
+<a href=#759 id=759 data-nosnippet>759</a>
+<a href=#760 id=760 data-nosnippet>760</a>        <span class="prelude-val">Ok</span>(())
+<a href=#761 id=761 data-nosnippet>761</a>    }
+<a href=#762 id=762 data-nosnippet>762</a>}
+<a href=#763 id=763 data-nosnippet>763</a>
+<a href=#764 id=764 data-nosnippet>764</a><span class="kw">fn </span>snarkvm_literal_type_to_type(snarkvm_type: LiteralType) -&gt; Type {
+<a href=#765 id=765 data-nosnippet>765</a>    <span class="kw">use </span>Type::<span class="kw-2">*</span>;
+<a href=#766 id=766 data-nosnippet>766</a>    <span class="kw">match </span>snarkvm_type {
+<a href=#767 id=767 data-nosnippet>767</a>        LiteralType::Address =&gt; Address,
+<a href=#768 id=768 data-nosnippet>768</a>        LiteralType::Boolean =&gt; Boolean,
+<a href=#769 id=769 data-nosnippet>769</a>        LiteralType::Field =&gt; Field,
+<a href=#770 id=770 data-nosnippet>770</a>        LiteralType::Group =&gt; Group,
+<a href=#771 id=771 data-nosnippet>771</a>        LiteralType::I8 =&gt; Integer(IntegerType::I8),
+<a href=#772 id=772 data-nosnippet>772</a>        LiteralType::I16 =&gt; Integer(IntegerType::I16),
+<a href=#773 id=773 data-nosnippet>773</a>        LiteralType::I32 =&gt; Integer(IntegerType::I32),
+<a href=#774 id=774 data-nosnippet>774</a>        LiteralType::I64 =&gt; Integer(IntegerType::I64),
+<a href=#775 id=775 data-nosnippet>775</a>        LiteralType::I128 =&gt; Integer(IntegerType::I128),
+<a href=#776 id=776 data-nosnippet>776</a>        LiteralType::U8 =&gt; Integer(IntegerType::U8),
+<a href=#777 id=777 data-nosnippet>777</a>        LiteralType::U16 =&gt; Integer(IntegerType::U16),
+<a href=#778 id=778 data-nosnippet>778</a>        LiteralType::U32 =&gt; Integer(IntegerType::U32),
+<a href=#779 id=779 data-nosnippet>779</a>        LiteralType::U64 =&gt; Integer(IntegerType::U64),
+<a href=#780 id=780 data-nosnippet>780</a>        LiteralType::U128 =&gt; Integer(IntegerType::U128),
+<a href=#781 id=781 data-nosnippet>781</a>        LiteralType::Scalar =&gt; Scalar,
+<a href=#782 id=782 data-nosnippet>782</a>        LiteralType::Signature =&gt; <span class="macro">todo!</span>(),
+<a href=#783 id=783 data-nosnippet>783</a>        LiteralType::String =&gt; <span class="macro">todo!</span>(),
+<a href=#784 id=784 data-nosnippet>784</a>    }
+<a href=#785 id=785 data-nosnippet>785</a>}</code></pre></div></section></main></body></html>

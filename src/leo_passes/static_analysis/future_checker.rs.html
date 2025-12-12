@@ -16,7 +16,7 @@
 <a href=#16 id=16 data-nosnippet>16</a>
 <a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">use </span><span class="kw">crate</span>::TypeTable;
 <a href=#18 id=18 data-nosnippet>18</a>
-<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{AstVisitor, CoreFunction, Expression, Function, Node, Type};
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">use </span>leo_ast::{AstVisitor, Expression, Function, Intrinsic, Node, Type};
 <a href=#20 id=20 data-nosnippet>20</a><span class="kw">use </span>leo_errors::{Handler, StaticAnalyzerError};
 <a href=#21 id=21 data-nosnippet>21</a>
 <a href=#22 id=22 data-nosnippet>22</a><span class="doccomment">/// Error if futures are used improperly.
@@ -91,58 +91,58 @@
 <a href=#91 id=91 data-nosnippet>91</a>        <span class="kw">match </span>input {
 <a href=#92 id=92 data-nosnippet>92</a>            Expression::Array(array) =&gt; <span class="self">self</span>.visit_array(array, <span class="kw-2">&amp;</span>Position::Misc),
 <a href=#93 id=93 data-nosnippet>93</a>            Expression::ArrayAccess(access) =&gt; <span class="self">self</span>.visit_array_access(access, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#94 id=94 data-nosnippet>94</a>            Expression::AssociatedConstant(constant) =&gt; <span class="self">self</span>.visit_associated_constant(constant, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#95 id=95 data-nosnippet>95</a>            Expression::AssociatedFunction(function) =&gt; <span class="self">self</span>.visit_associated_function(function, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#96 id=96 data-nosnippet>96</a>            Expression::Async(async_) =&gt; <span class="self">self</span>.visit_async(async_, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#97 id=97 data-nosnippet>97</a>            Expression::Binary(binary) =&gt; <span class="self">self</span>.visit_binary(binary, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#98 id=98 data-nosnippet>98</a>            Expression::Call(call) =&gt; <span class="self">self</span>.visit_call(call, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#99 id=99 data-nosnippet>99</a>            Expression::Cast(cast) =&gt; <span class="self">self</span>.visit_cast(cast, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#100 id=100 data-nosnippet>100</a>            Expression::Struct(struct_) =&gt; <span class="self">self</span>.visit_struct_init(struct_, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#101 id=101 data-nosnippet>101</a>            Expression::Err(err) =&gt; <span class="self">self</span>.visit_err(err, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#102 id=102 data-nosnippet>102</a>            Expression::Path(path) =&gt; <span class="self">self</span>.visit_path(path, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#103 id=103 data-nosnippet>103</a>            Expression::Literal(literal) =&gt; <span class="self">self</span>.visit_literal(literal, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#104 id=104 data-nosnippet>104</a>            Expression::Locator(locator) =&gt; <span class="self">self</span>.visit_locator(locator, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#105 id=105 data-nosnippet>105</a>            Expression::MemberAccess(access) =&gt; <span class="self">self</span>.visit_member_access(access, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#106 id=106 data-nosnippet>106</a>            Expression::Repeat(repeat) =&gt; <span class="self">self</span>.visit_repeat(repeat, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#107 id=107 data-nosnippet>107</a>            Expression::Ternary(ternary) =&gt; <span class="self">self</span>.visit_ternary(ternary, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#108 id=108 data-nosnippet>108</a>            Expression::Tuple(tuple) =&gt; <span class="self">self</span>.visit_tuple(tuple, additional),
-<a href=#109 id=109 data-nosnippet>109</a>            Expression::TupleAccess(access) =&gt; <span class="self">self</span>.visit_tuple_access(access, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#110 id=110 data-nosnippet>110</a>            Expression::Unary(unary) =&gt; <span class="self">self</span>.visit_unary(unary, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#111 id=111 data-nosnippet>111</a>            Expression::Unit(unit) =&gt; <span class="self">self</span>.visit_unit(unit, <span class="kw-2">&amp;</span>Position::Misc),
-<a href=#112 id=112 data-nosnippet>112</a>        }
-<a href=#113 id=113 data-nosnippet>113</a>    }
-<a href=#114 id=114 data-nosnippet>114</a>
-<a href=#115 id=115 data-nosnippet>115</a>    <span class="kw">fn </span>visit_array_access(
-<a href=#116 id=116 data-nosnippet>116</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#117 id=117 data-nosnippet>117</a>        input: <span class="kw-2">&amp;</span>leo_ast::ArrayAccess,
-<a href=#118 id=118 data-nosnippet>118</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
-<a href=#119 id=119 data-nosnippet>119</a>    ) -&gt; <span class="self">Self</span>::Output {
-<a href=#120 id=120 data-nosnippet>120</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.array, <span class="kw-2">&amp;</span>Position::Misc);
-<a href=#121 id=121 data-nosnippet>121</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span>Position::Misc);
-<a href=#122 id=122 data-nosnippet>122</a>    }
-<a href=#123 id=123 data-nosnippet>123</a>
-<a href=#124 id=124 data-nosnippet>124</a>    <span class="kw">fn </span>visit_member_access(
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#126 id=126 data-nosnippet>126</a>        input: <span class="kw-2">&amp;</span>leo_ast::MemberAccess,
-<a href=#127 id=127 data-nosnippet>127</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
-<a href=#128 id=128 data-nosnippet>128</a>    ) -&gt; <span class="self">Self</span>::Output {
-<a href=#129 id=129 data-nosnippet>129</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.inner, <span class="kw-2">&amp;</span>Position::Misc);
-<a href=#130 id=130 data-nosnippet>130</a>    }
-<a href=#131 id=131 data-nosnippet>131</a>
-<a href=#132 id=132 data-nosnippet>132</a>    <span class="kw">fn </span>visit_tuple_access(
-<a href=#133 id=133 data-nosnippet>133</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#134 id=134 data-nosnippet>134</a>        input: <span class="kw-2">&amp;</span>leo_ast::TupleAccess,
-<a href=#135 id=135 data-nosnippet>135</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
-<a href=#136 id=136 data-nosnippet>136</a>    ) -&gt; <span class="self">Self</span>::Output {
-<a href=#137 id=137 data-nosnippet>137</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.tuple, <span class="kw-2">&amp;</span>Position::TupleAccess);
-<a href=#138 id=138 data-nosnippet>138</a>    }
-<a href=#139 id=139 data-nosnippet>139</a>
-<a href=#140 id=140 data-nosnippet>140</a>    <span class="kw">fn </span>visit_associated_function(
-<a href=#141 id=141 data-nosnippet>141</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-<a href=#142 id=142 data-nosnippet>142</a>        input: <span class="kw-2">&amp;</span>leo_ast::AssociatedFunctionExpression,
-<a href=#143 id=143 data-nosnippet>143</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
-<a href=#144 id=144 data-nosnippet>144</a>    ) -&gt; <span class="self">Self</span>::Output {
-<a href=#145 id=145 data-nosnippet>145</a>        <span class="kw">let </span>position = <span class="kw">if let </span><span class="prelude-val">Ok</span>(CoreFunction::FutureAwait) = CoreFunction::try_from(input) {
+<a href=#94 id=94 data-nosnippet>94</a>            Expression::Intrinsic(intr) =&gt; <span class="self">self</span>.visit_intrinsic(intr, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#95 id=95 data-nosnippet>95</a>            Expression::Async(async_) =&gt; <span class="self">self</span>.visit_async(async_, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#96 id=96 data-nosnippet>96</a>            Expression::Binary(binary) =&gt; <span class="self">self</span>.visit_binary(binary, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#97 id=97 data-nosnippet>97</a>            Expression::Call(call) =&gt; <span class="self">self</span>.visit_call(call, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#98 id=98 data-nosnippet>98</a>            Expression::Cast(cast) =&gt; <span class="self">self</span>.visit_cast(cast, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#99 id=99 data-nosnippet>99</a>            Expression::Struct(struct_) =&gt; <span class="self">self</span>.visit_struct_init(struct_, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#100 id=100 data-nosnippet>100</a>            Expression::Err(err) =&gt; <span class="self">self</span>.visit_err(err, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#101 id=101 data-nosnippet>101</a>            Expression::Path(path) =&gt; <span class="self">self</span>.visit_path(path, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#102 id=102 data-nosnippet>102</a>            Expression::Literal(literal) =&gt; <span class="self">self</span>.visit_literal(literal, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#103 id=103 data-nosnippet>103</a>            Expression::Locator(locator) =&gt; <span class="self">self</span>.visit_locator(locator, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#104 id=104 data-nosnippet>104</a>            Expression::MemberAccess(access) =&gt; <span class="self">self</span>.visit_member_access(access, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#105 id=105 data-nosnippet>105</a>            Expression::Repeat(repeat) =&gt; <span class="self">self</span>.visit_repeat(repeat, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#106 id=106 data-nosnippet>106</a>            Expression::Ternary(ternary) =&gt; <span class="self">self</span>.visit_ternary(ternary, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#107 id=107 data-nosnippet>107</a>            Expression::Tuple(tuple) =&gt; <span class="self">self</span>.visit_tuple(tuple, additional),
+<a href=#108 id=108 data-nosnippet>108</a>            Expression::TupleAccess(access) =&gt; <span class="self">self</span>.visit_tuple_access(access, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#109 id=109 data-nosnippet>109</a>            Expression::Unary(unary) =&gt; <span class="self">self</span>.visit_unary(unary, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#110 id=110 data-nosnippet>110</a>            Expression::Unit(unit) =&gt; <span class="self">self</span>.visit_unit(unit, <span class="kw-2">&amp;</span>Position::Misc),
+<a href=#111 id=111 data-nosnippet>111</a>        }
+<a href=#112 id=112 data-nosnippet>112</a>    }
+<a href=#113 id=113 data-nosnippet>113</a>
+<a href=#114 id=114 data-nosnippet>114</a>    <span class="kw">fn </span>visit_array_access(
+<a href=#115 id=115 data-nosnippet>115</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#116 id=116 data-nosnippet>116</a>        input: <span class="kw-2">&amp;</span>leo_ast::ArrayAccess,
+<a href=#117 id=117 data-nosnippet>117</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+<a href=#118 id=118 data-nosnippet>118</a>    ) -&gt; <span class="self">Self</span>::Output {
+<a href=#119 id=119 data-nosnippet>119</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.array, <span class="kw-2">&amp;</span>Position::Misc);
+<a href=#120 id=120 data-nosnippet>120</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span>Position::Misc);
+<a href=#121 id=121 data-nosnippet>121</a>    }
+<a href=#122 id=122 data-nosnippet>122</a>
+<a href=#123 id=123 data-nosnippet>123</a>    <span class="kw">fn </span>visit_member_access(
+<a href=#124 id=124 data-nosnippet>124</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#125 id=125 data-nosnippet>125</a>        input: <span class="kw-2">&amp;</span>leo_ast::MemberAccess,
+<a href=#126 id=126 data-nosnippet>126</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+<a href=#127 id=127 data-nosnippet>127</a>    ) -&gt; <span class="self">Self</span>::Output {
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.inner, <span class="kw-2">&amp;</span>Position::Misc);
+<a href=#129 id=129 data-nosnippet>129</a>    }
+<a href=#130 id=130 data-nosnippet>130</a>
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="kw">fn </span>visit_tuple_access(
+<a href=#132 id=132 data-nosnippet>132</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#133 id=133 data-nosnippet>133</a>        input: <span class="kw-2">&amp;</span>leo_ast::TupleAccess,
+<a href=#134 id=134 data-nosnippet>134</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+<a href=#135 id=135 data-nosnippet>135</a>    ) -&gt; <span class="self">Self</span>::Output {
+<a href=#136 id=136 data-nosnippet>136</a>        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.tuple, <span class="kw-2">&amp;</span>Position::TupleAccess);
+<a href=#137 id=137 data-nosnippet>137</a>    }
+<a href=#138 id=138 data-nosnippet>138</a>
+<a href=#139 id=139 data-nosnippet>139</a>    <span class="kw">fn </span>visit_intrinsic(
+<a href=#140 id=140 data-nosnippet>140</a>        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+<a href=#141 id=141 data-nosnippet>141</a>        input: <span class="kw-2">&amp;</span>leo_ast::IntrinsicExpression,
+<a href=#142 id=142 data-nosnippet>142</a>        _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput,
+<a href=#143 id=143 data-nosnippet>143</a>    ) -&gt; <span class="self">Self</span>::Output {
+<a href=#144 id=144 data-nosnippet>144</a>        <span class="kw">let </span>position = <span class="kw">if let </span><span class="prelude-val">Some</span>(Intrinsic::FutureAwait) = Intrinsic::from_symbol(input.name, <span class="kw-2">&amp;</span>input.type_parameters)
+<a href=#145 id=145 data-nosnippet>145</a>        {
 <a href=#146 id=146 data-nosnippet>146</a>            Position::Await
 <a href=#147 id=147 data-nosnippet>147</a>        } <span class="kw">else </span>{
 <a href=#148 id=148 data-nosnippet>148</a>            Position::Misc

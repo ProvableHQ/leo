@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Associativity","Expression"],"mod":["array","array_access","associated_constant","associated_function","async_","binary","call","cast","err","literal","locator","member_access","repeat","struct_init","ternary","tuple","tuple_access","unary","unit"]};
+window.SIDEBAR_ITEMS = {"enum":["Associativity","Expression"],"mod":["array","array_access","async_","binary","call","cast","err","intrinsic","literal","locator","member_access","repeat","struct_init","ternary","tuple","tuple_access","unary","unit"]};

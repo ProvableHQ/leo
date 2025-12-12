@@ -67,69 +67,68 @@
 <a href=#67 id=67 data-nosnippet>67</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>new_expr, additional) = <span class="kw">if </span>replaced_expr.id() == input.id() {
 <a href=#68 id=68 data-nosnippet>68</a>            <span class="comment">// Replacement didn't happen, so just use the default implementation.
 <a href=#69 id=69 data-nosnippet>69</a>            </span><span class="kw">match </span>input {
-<a href=#70 id=70 data-nosnippet>70</a>                Expression::AssociatedConstant(constant) =&gt; <span class="self">self</span>.reconstruct_associated_constant(constant, <span class="kw-2">&amp;</span>()),
-<a href=#71 id=71 data-nosnippet>71</a>                Expression::AssociatedFunction(function) =&gt; <span class="self">self</span>.reconstruct_associated_function(function, <span class="kw-2">&amp;</span>()),
-<a href=#72 id=72 data-nosnippet>72</a>                Expression::Async(async_) =&gt; <span class="self">self</span>.reconstruct_async(async_, <span class="kw-2">&amp;</span>()),
-<a href=#73 id=73 data-nosnippet>73</a>                Expression::Array(array) =&gt; <span class="self">self</span>.reconstruct_array(array, <span class="kw-2">&amp;</span>()),
-<a href=#74 id=74 data-nosnippet>74</a>                Expression::ArrayAccess(access) =&gt; <span class="self">self</span>.reconstruct_array_access(<span class="kw-2">*</span>access, <span class="kw-2">&amp;</span>()),
-<a href=#75 id=75 data-nosnippet>75</a>                Expression::Binary(binary) =&gt; <span class="self">self</span>.reconstruct_binary(<span class="kw-2">*</span>binary, <span class="kw-2">&amp;</span>()),
-<a href=#76 id=76 data-nosnippet>76</a>                Expression::Call(call) =&gt; <span class="self">self</span>.reconstruct_call(<span class="kw-2">*</span>call, <span class="kw-2">&amp;</span>()),
-<a href=#77 id=77 data-nosnippet>77</a>                Expression::Cast(cast) =&gt; <span class="self">self</span>.reconstruct_cast(<span class="kw-2">*</span>cast, <span class="kw-2">&amp;</span>()),
-<a href=#78 id=78 data-nosnippet>78</a>                Expression::Struct(struct_) =&gt; <span class="self">self</span>.reconstruct_struct_init(struct_, <span class="kw-2">&amp;</span>()),
-<a href=#79 id=79 data-nosnippet>79</a>                Expression::Err(err) =&gt; <span class="self">self</span>.reconstruct_err(err, <span class="kw-2">&amp;</span>()),
-<a href=#80 id=80 data-nosnippet>80</a>                Expression::Path(path) =&gt; <span class="self">self</span>.reconstruct_path(path, <span class="kw-2">&amp;</span>()),
-<a href=#81 id=81 data-nosnippet>81</a>                Expression::Literal(value) =&gt; <span class="self">self</span>.reconstruct_literal(value, <span class="kw-2">&amp;</span>()),
-<a href=#82 id=82 data-nosnippet>82</a>                Expression::Locator(locator) =&gt; <span class="self">self</span>.reconstruct_locator(locator, <span class="kw-2">&amp;</span>()),
-<a href=#83 id=83 data-nosnippet>83</a>                Expression::MemberAccess(access) =&gt; <span class="self">self</span>.reconstruct_member_access(<span class="kw-2">*</span>access, <span class="kw-2">&amp;</span>()),
-<a href=#84 id=84 data-nosnippet>84</a>                Expression::Repeat(repeat) =&gt; <span class="self">self</span>.reconstruct_repeat(<span class="kw-2">*</span>repeat, <span class="kw-2">&amp;</span>()),
-<a href=#85 id=85 data-nosnippet>85</a>                Expression::Ternary(ternary) =&gt; <span class="self">self</span>.reconstruct_ternary(<span class="kw-2">*</span>ternary, <span class="kw-2">&amp;</span>()),
-<a href=#86 id=86 data-nosnippet>86</a>                Expression::Tuple(tuple) =&gt; <span class="self">self</span>.reconstruct_tuple(tuple, <span class="kw-2">&amp;</span>()),
-<a href=#87 id=87 data-nosnippet>87</a>                Expression::TupleAccess(access) =&gt; <span class="self">self</span>.reconstruct_tuple_access(<span class="kw-2">*</span>access, <span class="kw-2">&amp;</span>()),
-<a href=#88 id=88 data-nosnippet>88</a>                Expression::Unary(unary) =&gt; <span class="self">self</span>.reconstruct_unary(<span class="kw-2">*</span>unary, <span class="kw-2">&amp;</span>()),
-<a href=#89 id=89 data-nosnippet>89</a>                Expression::Unit(unit) =&gt; <span class="self">self</span>.reconstruct_unit(unit, <span class="kw-2">&amp;</span>()),
-<a href=#90 id=90 data-nosnippet>90</a>            }
-<a href=#91 id=91 data-nosnippet>91</a>        } <span class="kw">else </span>{
-<a href=#92 id=92 data-nosnippet>92</a>            (replaced_expr, Default::default())
-<a href=#93 id=93 data-nosnippet>93</a>        };
-<a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a>        <span class="comment">// Refresh IDs if required
-<a href=#96 id=96 data-nosnippet>96</a>        </span><span class="kw">if </span><span class="self">self</span>.refresh_expr_ids {
-<a href=#97 id=97 data-nosnippet>97</a>            new_expr.set_id(<span class="self">self</span>.state.node_builder.next_id());
-<a href=#98 id=98 data-nosnippet>98</a>        }
-<a href=#99 id=99 data-nosnippet>99</a>
-<a href=#100 id=100 data-nosnippet>100</a>        <span class="comment">// If the expression was in the type table before, make an entry for the new expression.
-<a href=#101 id=101 data-nosnippet>101</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(old_type) = opt_old_type {
-<a href=#102 id=102 data-nosnippet>102</a>            <span class="self">self</span>.state.type_table.insert(new_expr.id(), old_type);
-<a href=#103 id=103 data-nosnippet>103</a>        }
-<a href=#104 id=104 data-nosnippet>104</a>
-<a href=#105 id=105 data-nosnippet>105</a>        (new_expr, additional)
-<a href=#106 id=106 data-nosnippet>106</a>    }
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#109 id=109 data-nosnippet>109</a>        (
-<a href=#110 id=110 data-nosnippet>110</a>            Block {
-<a href=#111 id=111 data-nosnippet>111</a>                statements: input.statements.into_iter().map(|s| <span class="self">self</span>.reconstruct_statement(s).<span class="number">0</span>).collect(),
-<a href=#112 id=112 data-nosnippet>112</a>                span: input.span,
-<a href=#113 id=113 data-nosnippet>113</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
-<a href=#114 id=114 data-nosnippet>114</a>            },
-<a href=#115 id=115 data-nosnippet>115</a>            Default::default(),
-<a href=#116 id=116 data-nosnippet>116</a>        )
-<a href=#117 id=117 data-nosnippet>117</a>    }
-<a href=#118 id=118 data-nosnippet>118</a>
-<a href=#119 id=119 data-nosnippet>119</a>    <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-<a href=#120 id=120 data-nosnippet>120</a>        (
-<a href=#121 id=121 data-nosnippet>121</a>            IterationStatement {
-<a href=#122 id=122 data-nosnippet>122</a>                type_: input.type_.map(|ty| <span class="self">self</span>.reconstruct_type(ty).<span class="number">0</span>),
-<a href=#123 id=123 data-nosnippet>123</a>                start: <span class="self">self</span>.reconstruct_expression(input.start, <span class="kw-2">&amp;</span>()).<span class="number">0</span>,
-<a href=#124 id=124 data-nosnippet>124</a>                stop: <span class="self">self</span>.reconstruct_expression(input.stop, <span class="kw-2">&amp;</span>()).<span class="number">0</span>,
-<a href=#125 id=125 data-nosnippet>125</a>                block: <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>,
-<a href=#126 id=126 data-nosnippet>126</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
-<a href=#127 id=127 data-nosnippet>127</a>                ..input
-<a href=#128 id=128 data-nosnippet>128</a>            }
-<a href=#129 id=129 data-nosnippet>129</a>            .into(),
-<a href=#130 id=130 data-nosnippet>130</a>            Default::default(),
-<a href=#131 id=131 data-nosnippet>131</a>        )
-<a href=#132 id=132 data-nosnippet>132</a>    }
-<a href=#133 id=133 data-nosnippet>133</a>}
-<a href=#134 id=134 data-nosnippet>134</a>
-<a href=#135 id=135 data-nosnippet>135</a><span class="kw">impl</span>&lt;F&gt; ProgramReconstructor <span class="kw">for </span>Replacer&lt;<span class="lifetime">'_</span>, F&gt; <span class="kw">where </span>F: Fn(<span class="kw-2">&amp;</span>Expression) -&gt; Expression {}</code></pre></div></section></main></body></html>
+<a href=#70 id=70 data-nosnippet>70</a>                Expression::Intrinsic(intr) =&gt; <span class="self">self</span>.reconstruct_intrinsic(<span class="kw-2">*</span>intr, <span class="kw-2">&amp;</span>()),
+<a href=#71 id=71 data-nosnippet>71</a>                Expression::Async(async_) =&gt; <span class="self">self</span>.reconstruct_async(async_, <span class="kw-2">&amp;</span>()),
+<a href=#72 id=72 data-nosnippet>72</a>                Expression::Array(array) =&gt; <span class="self">self</span>.reconstruct_array(array, <span class="kw-2">&amp;</span>()),
+<a href=#73 id=73 data-nosnippet>73</a>                Expression::ArrayAccess(access) =&gt; <span class="self">self</span>.reconstruct_array_access(<span class="kw-2">*</span>access, <span class="kw-2">&amp;</span>()),
+<a href=#74 id=74 data-nosnippet>74</a>                Expression::Binary(binary) =&gt; <span class="self">self</span>.reconstruct_binary(<span class="kw-2">*</span>binary, <span class="kw-2">&amp;</span>()),
+<a href=#75 id=75 data-nosnippet>75</a>                Expression::Call(call) =&gt; <span class="self">self</span>.reconstruct_call(<span class="kw-2">*</span>call, <span class="kw-2">&amp;</span>()),
+<a href=#76 id=76 data-nosnippet>76</a>                Expression::Cast(cast) =&gt; <span class="self">self</span>.reconstruct_cast(<span class="kw-2">*</span>cast, <span class="kw-2">&amp;</span>()),
+<a href=#77 id=77 data-nosnippet>77</a>                Expression::Struct(struct_) =&gt; <span class="self">self</span>.reconstruct_struct_init(struct_, <span class="kw-2">&amp;</span>()),
+<a href=#78 id=78 data-nosnippet>78</a>                Expression::Err(err) =&gt; <span class="self">self</span>.reconstruct_err(err, <span class="kw-2">&amp;</span>()),
+<a href=#79 id=79 data-nosnippet>79</a>                Expression::Path(path) =&gt; <span class="self">self</span>.reconstruct_path(path, <span class="kw-2">&amp;</span>()),
+<a href=#80 id=80 data-nosnippet>80</a>                Expression::Literal(value) =&gt; <span class="self">self</span>.reconstruct_literal(value, <span class="kw-2">&amp;</span>()),
+<a href=#81 id=81 data-nosnippet>81</a>                Expression::Locator(locator) =&gt; <span class="self">self</span>.reconstruct_locator(locator, <span class="kw-2">&amp;</span>()),
+<a href=#82 id=82 data-nosnippet>82</a>                Expression::MemberAccess(access) =&gt; <span class="self">self</span>.reconstruct_member_access(<span class="kw-2">*</span>access, <span class="kw-2">&amp;</span>()),
+<a href=#83 id=83 data-nosnippet>83</a>                Expression::Repeat(repeat) =&gt; <span class="self">self</span>.reconstruct_repeat(<span class="kw-2">*</span>repeat, <span class="kw-2">&amp;</span>()),
+<a href=#84 id=84 data-nosnippet>84</a>                Expression::Ternary(ternary) =&gt; <span class="self">self</span>.reconstruct_ternary(<span class="kw-2">*</span>ternary, <span class="kw-2">&amp;</span>()),
+<a href=#85 id=85 data-nosnippet>85</a>                Expression::Tuple(tuple) =&gt; <span class="self">self</span>.reconstruct_tuple(tuple, <span class="kw-2">&amp;</span>()),
+<a href=#86 id=86 data-nosnippet>86</a>                Expression::TupleAccess(access) =&gt; <span class="self">self</span>.reconstruct_tuple_access(<span class="kw-2">*</span>access, <span class="kw-2">&amp;</span>()),
+<a href=#87 id=87 data-nosnippet>87</a>                Expression::Unary(unary) =&gt; <span class="self">self</span>.reconstruct_unary(<span class="kw-2">*</span>unary, <span class="kw-2">&amp;</span>()),
+<a href=#88 id=88 data-nosnippet>88</a>                Expression::Unit(unit) =&gt; <span class="self">self</span>.reconstruct_unit(unit, <span class="kw-2">&amp;</span>()),
+<a href=#89 id=89 data-nosnippet>89</a>            }
+<a href=#90 id=90 data-nosnippet>90</a>        } <span class="kw">else </span>{
+<a href=#91 id=91 data-nosnippet>91</a>            (replaced_expr, Default::default())
+<a href=#92 id=92 data-nosnippet>92</a>        };
+<a href=#93 id=93 data-nosnippet>93</a>
+<a href=#94 id=94 data-nosnippet>94</a>        <span class="comment">// Refresh IDs if required
+<a href=#95 id=95 data-nosnippet>95</a>        </span><span class="kw">if </span><span class="self">self</span>.refresh_expr_ids {
+<a href=#96 id=96 data-nosnippet>96</a>            new_expr.set_id(<span class="self">self</span>.state.node_builder.next_id());
+<a href=#97 id=97 data-nosnippet>97</a>        }
+<a href=#98 id=98 data-nosnippet>98</a>
+<a href=#99 id=99 data-nosnippet>99</a>        <span class="comment">// If the expression was in the type table before, make an entry for the new expression.
+<a href=#100 id=100 data-nosnippet>100</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(old_type) = opt_old_type {
+<a href=#101 id=101 data-nosnippet>101</a>            <span class="self">self</span>.state.type_table.insert(new_expr.id(), old_type);
+<a href=#102 id=102 data-nosnippet>102</a>        }
+<a href=#103 id=103 data-nosnippet>103</a>
+<a href=#104 id=104 data-nosnippet>104</a>        (new_expr, additional)
+<a href=#105 id=105 data-nosnippet>105</a>    }
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#108 id=108 data-nosnippet>108</a>        (
+<a href=#109 id=109 data-nosnippet>109</a>            Block {
+<a href=#110 id=110 data-nosnippet>110</a>                statements: input.statements.into_iter().map(|s| <span class="self">self</span>.reconstruct_statement(s).<span class="number">0</span>).collect(),
+<a href=#111 id=111 data-nosnippet>111</a>                span: input.span,
+<a href=#112 id=112 data-nosnippet>112</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
+<a href=#113 id=113 data-nosnippet>113</a>            },
+<a href=#114 id=114 data-nosnippet>114</a>            Default::default(),
+<a href=#115 id=115 data-nosnippet>115</a>        )
+<a href=#116 id=116 data-nosnippet>116</a>    }
+<a href=#117 id=117 data-nosnippet>117</a>
+<a href=#118 id=118 data-nosnippet>118</a>    <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+<a href=#119 id=119 data-nosnippet>119</a>        (
+<a href=#120 id=120 data-nosnippet>120</a>            IterationStatement {
+<a href=#121 id=121 data-nosnippet>121</a>                type_: input.type_.map(|ty| <span class="self">self</span>.reconstruct_type(ty).<span class="number">0</span>),
+<a href=#122 id=122 data-nosnippet>122</a>                start: <span class="self">self</span>.reconstruct_expression(input.start, <span class="kw-2">&amp;</span>()).<span class="number">0</span>,
+<a href=#123 id=123 data-nosnippet>123</a>                stop: <span class="self">self</span>.reconstruct_expression(input.stop, <span class="kw-2">&amp;</span>()).<span class="number">0</span>,
+<a href=#124 id=124 data-nosnippet>124</a>                block: <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>,
+<a href=#125 id=125 data-nosnippet>125</a>                id: <span class="self">self</span>.state.node_builder.next_id(),
+<a href=#126 id=126 data-nosnippet>126</a>                ..input
+<a href=#127 id=127 data-nosnippet>127</a>            }
+<a href=#128 id=128 data-nosnippet>128</a>            .into(),
+<a href=#129 id=129 data-nosnippet>129</a>            Default::default(),
+<a href=#130 id=130 data-nosnippet>130</a>        )
+<a href=#131 id=131 data-nosnippet>131</a>    }
+<a href=#132 id=132 data-nosnippet>132</a>}
+<a href=#133 id=133 data-nosnippet>133</a>
+<a href=#134 id=134 data-nosnippet>134</a><span class="kw">impl</span>&lt;F&gt; ProgramReconstructor <span class="kw">for </span>Replacer&lt;<span class="lifetime">'_</span>, F&gt; <span class="kw">where </span>F: Fn(<span class="kw-2">&amp;</span>Expression) -&gt; Expression {}</code></pre></div></section></main></body></html>

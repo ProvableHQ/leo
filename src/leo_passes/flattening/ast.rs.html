@@ -430,7 +430,7 @@
 <a href=#430 id=430 data-nosnippet>430</a>        <span class="kw">let </span>return_guard = guard_identifier.map_or(ReturnGuard::None, ReturnGuard::Unconstructed);
 <a href=#431 id=431 data-nosnippet>431</a>
 <a href=#432 id=432 data-nosnippet>432</a>        <span class="kw">let </span>is_tuple_ids = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.expression, Tuple(tuple_expr) <span class="kw">if </span>tuple_expr .elements.iter() .all(|expr| <span class="macro">matches!</span>(expr, Expression::Path(<span class="kw">_</span>))));
-<a href=#433 id=433 data-nosnippet>433</a>        <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.expression, Unit(<span class="kw">_</span>) | Expression::Path(<span class="kw">_</span>) | AssociatedConstant(<span class="kw">_</span>)) &amp;&amp; !is_tuple_ids {
+<a href=#433 id=433 data-nosnippet>433</a>        <span class="kw">if </span>!<span class="macro">matches!</span>(<span class="kw-2">&amp;</span>input.expression, Unit(<span class="kw">_</span>) | Expression::Path(<span class="kw">_</span>)) &amp;&amp; !is_tuple_ids {
 <a href=#434 id=434 data-nosnippet>434</a>            <span class="macro">panic!</span>(<span class="string">"SSA guarantees that the expression is always a Path, unit expression, or tuple literal."</span>)
 <a href=#435 id=435 data-nosnippet>435</a>        }
 <a href=#436 id=436 data-nosnippet>436</a>

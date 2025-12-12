@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["array","core_constant","future","integer_type","mapping","optional","struct_type","tuple","type_","vector"]};
+window.SIDEBAR_ITEMS = {"mod":["array","future","integer_type","mapping","optional","struct_type","tuple","type_","vector"]};
