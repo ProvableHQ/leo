@@ -10,8 +10,8 @@ program child.aleo {
 
 import child.aleo;
 program parent.aleo {
-    transition main(c: Bar::[4]) {
-        let b = Bar::[3] {
+    transition main(c: child.aleo/Bar::[4]) {
+        let b = child.aleo/Bar::[3] {
             x: 0,
         };
     }

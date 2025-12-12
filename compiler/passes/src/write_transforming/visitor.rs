@@ -310,8 +310,8 @@ impl WriteTransformingFiller<'_> {
                         .0
                         .state
                         .symbol_table
-                        .lookup_struct(&composite_location.path)
-                        .or_else(|| self.0.state.symbol_table.lookup_record(composite_location))
+                        .lookup_struct(self.0.program, composite_location)
+                        .or_else(|| self.0.state.symbol_table.lookup_record(self.0.program, composite_location))
                         .unwrap();
                     composite
                         .members

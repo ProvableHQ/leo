@@ -17,6 +17,7 @@
 use super::PathResolutionVisitor;
 use crate::{VariableSymbol, VariableType};
 use leo_ast::{
+    AleoProgram,
     AstReconstructor,
     Composite,
     ConstParameter,
@@ -30,12 +31,11 @@ use leo_ast::{
     ProgramReconstructor,
     ProgramScope,
     Statement,
-    Stub,
 };
 
 impl ProgramReconstructor for PathResolutionVisitor<'_> {
-    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
-        Stub {
+    fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
+        AleoProgram {
             imports: input.imports,
             stub_id: input.stub_id,
             consts: input.consts,

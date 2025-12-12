@@ -17,8 +17,8 @@
 mod array;
 pub use array::*;
 
-mod composite_type;
-pub use composite_type::*;
+mod composite;
+pub use composite::*;
 
 mod future;
 pub use future::*;

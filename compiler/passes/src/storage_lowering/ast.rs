@@ -622,7 +622,11 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         let Some(global_location) = input.try_global_location() else {
             return (input.into(), vec![]);
         };
-        let var = self.state.symbol_table.lookup_global(global_location).expect("A global path must point to a global");
+        let var = self
+            .state
+            .symbol_table
+            .lookup_global(self.program, global_location)
+            .expect("A global path must point to a global");
 
         match var.type_.as_ref().expect("must be known by now") {
             Type::Mapping(_) => {
@@ -784,7 +788,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let var = self
                     .state
                     .symbol_table
-                    .lookup_global(global_location)
+                    .lookup_global(self.program, global_location)
                     .expect("A global path must point to a global");
 
                 // Storage variables that are not optional nor mappings are implicitly wrapped in an optional.

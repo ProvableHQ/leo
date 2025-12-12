@@ -107,8 +107,8 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                 let if_true_type = self
                     .state
                     .symbol_table
-                    .lookup_struct(&composite_location.path)
-                    .or_else(|| self.state.symbol_table.lookup_record(composite_location))
+                    .lookup_struct(self.program, composite_location)
+                    .or_else(|| self.state.symbol_table.lookup_record(self.program, composite_location))
                     .expect("This definition should exist")
                     .clone();
 

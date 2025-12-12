@@ -194,10 +194,6 @@ StructMemberInitializer: SyntaxNode<'a> = {
 ExprStruct: SyntaxNode<'a> = {
     // Struct initializer.
     <name:FunctionIdentifier> <c:(ConstArgumentList)?> <l:WithTrivia<LeftCurly>> <inits:CommaInitializersMaybe> <r:WithTrivia<RightCurly>> => {
-        // For now the initializer name can't be external.
-        if name.text.contains(".aleo") {
-            handler.emit_err(ParserError::cannot_define_external_record(name.span));
-        }
         SyntaxNode::new(ExpressionKind::Struct, iter::once(name).chain(c).chain([l]).chain(inits).chain([r]))
     },
 }

@@ -40,7 +40,7 @@ pub struct TypeCheckingVisitor<'a> {
     /// Mapping from async function name to the names of async transition callers.
     pub async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
-    pub used_composites: IndexSet<Vec<Symbol>>,
+    pub used_composites: IndexSet<Location>,
     /// So we can check if we exceed limits on array size, number of mappings, or number of functions.
     pub limits: TypeCheckingInput,
     /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
@@ -87,9 +87,7 @@ impl TypeCheckingVisitor<'_> {
     /// Emits an error if the two given types are not equal.
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !t1.eq_flat_relaxed(t2) => {
-                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
-            }
+            (Some(t1), Some(t2)) if !t1.eq_user(t2) => self.emit_err(TypeCheckerError::type_should_be(t1, t2, span)),
             (Some(type_), None) | (None, Some(type_)) => {
                 self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
             }
@@ -114,8 +112,7 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
-        let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
-        if actual != &Type::Err && !actual.can_coerce_to(expected, &is_record) {
+        if actual != &Type::Err && !actual.can_coerce_to(expected) {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
         }
@@ -471,6 +468,10 @@ impl TypeCheckingVisitor<'_> {
         // Define a regex to match valid program IDs.
         let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
 
+        fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
+            bail!("structs are not supported")
+        }
+
         // Check that the arguments are of the correct type.
         match intrinsic {
             Intrinsic::Commit(variant, type_) => {
@@ -497,18 +498,18 @@ impl TypeCheckingVisitor<'_> {
                     let size_in_bits = match self.state.network {
                         NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
                             variant.is_raw(),
-                            |_| bail!("structs are not supported"),
-                            |_| bail!("structs are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                         NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
                             variant.is_raw(),
-                            |_| bail!("structs are not supported"),
-                            |_| bail!("structs are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                         NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
                             variant.is_raw(),
-                            |_| bail!("structs are not supported"),
-                            |_| bail!("structs are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                     };
                     if let Ok(size_in_bits) = size_in_bits {
@@ -653,18 +654,18 @@ impl TypeCheckingVisitor<'_> {
                     let size_in_bits = match self.state.network {
                         NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
                             variant.is_raw(),
-                            |_| bail!("structs are not supported"),
-                            |_| bail!("structs are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                         NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
                             variant.is_raw(),
-                            |_| bail!("structs are not supported"),
-                            |_| bail!("structs are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                         NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
                             variant.is_raw(),
-                            |_| bail!("structs are not supported"),
-                            |_| bail!("structs are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                     };
                     if let Ok(size_in_bits) = size_in_bits {
@@ -987,21 +988,15 @@ impl TypeCheckingVisitor<'_> {
 
                 // Get the size in bits.
                 let size_in_bits = match self.state.network {
-                    NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
-                        is_raw,
-                        |_| bail!("structs are not supported"),
-                        |_| bail!("structs are not supported"),
-                    ),
-                    NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
-                        is_raw,
-                        |_| bail!("structs are not supported"),
-                        |_| bail!("structs are not supported"),
-                    ),
-                    NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
-                        is_raw,
-                        |_| bail!("structs are not supported"),
-                        |_| bail!("structs are not supported"),
-                    ),
+                    NetworkName::TestnetV0 => {
+                        input_type.size_in_bits::<TestnetV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
+                    }
+                    NetworkName::MainnetV0 => {
+                        input_type.size_in_bits::<MainnetV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
+                    }
+                    NetworkName::CanaryV0 => {
+                        input_type.size_in_bits::<CanaryV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
+                    }
                 };
 
                 if let Ok(size_in_bits) = size_in_bits {
@@ -1040,21 +1035,15 @@ impl TypeCheckingVisitor<'_> {
 
                 // Get the size in bits.
                 let size_in_bits = match self.state.network {
-                    NetworkName::TestnetV0 => type_.size_in_bits::<TestnetV0, _, _>(
-                        is_raw,
-                        |_| bail!("structs are not supported"),
-                        |_| bail!("structs are not supported"),
-                    ),
-                    NetworkName::MainnetV0 => type_.size_in_bits::<MainnetV0, _, _>(
-                        is_raw,
-                        |_| bail!("structs are not supported"),
-                        |_| bail!("structs are not supported"),
-                    ),
-                    NetworkName::CanaryV0 => type_.size_in_bits::<CanaryV0, _, _>(
-                        is_raw,
-                        |_| bail!("structs are not supported"),
-                        |_| bail!("structs are not supported"),
-                    ),
+                    NetworkName::TestnetV0 => {
+                        type_.size_in_bits::<TestnetV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
+                    }
+                    NetworkName::MainnetV0 => {
+                        type_.size_in_bits::<MainnetV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
+                    }
+                    NetworkName::CanaryV0 => {
+                        type_.size_in_bits::<CanaryV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
+                    }
                 };
 
                 if let Ok(size_in_bits) = size_in_bits {
@@ -1509,7 +1498,7 @@ impl TypeCheckingVisitor<'_> {
                         .iter()
                         .flat_map(|caller| {
                             let caller = Location::new(caller.program, caller.path.clone());
-                            self.state.symbol_table.lookup_function(&caller)
+                            self.state.symbol_table.lookup_function(self.scope_state.program_name.unwrap(), &caller)
                         })
                         .flat_map(|fn_symbol| fn_symbol.finalizer.clone())
                 })
@@ -1716,7 +1705,6 @@ impl TypeCheckingVisitor<'_> {
     /// or, if they're both futures, set any member of `lhs` that isn't
     /// equal to the equivalent member of `rhs` to `Type::Err`.
     fn merge_types(&self, lhs: &mut Type, rhs: &Type) {
-        let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
         if let Type::Future(f1) = lhs {
             if let Type::Future(f2) = rhs {
                 for (i, type_) in f2.inputs.iter().enumerate() {
@@ -1729,7 +1717,7 @@ impl TypeCheckingVisitor<'_> {
             } else {
                 *lhs = Type::Err;
             }
-        } else if !lhs.eq_user(rhs, &is_record) {
+        } else if !lhs.eq_user(rhs) {
             *lhs = Type::Err;
         }
     }
@@ -1737,13 +1725,14 @@ impl TypeCheckingVisitor<'_> {
     /// Wrapper around lookup_struct and lookup_record that additionally records all structs and records that are
     /// used in the program.
     pub fn lookup_composite(&mut self, loc: &Location) -> Option<Composite> {
-        let record_comp = self.state.symbol_table.lookup_record(loc);
-        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(&loc.path));
+        let current_program = self.scope_state.program_name.unwrap();
+        let record_comp = self.state.symbol_table.lookup_record(current_program, loc);
+        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(current_program, loc));
         // Record the usage.
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.
             if !s.is_record || Some(loc.program) == self.scope_state.program_name {
-                self.used_composites.insert(loc.path.clone());
+                self.used_composites.insert(loc.clone());
             }
         }
         comp.cloned()
@@ -1802,7 +1791,7 @@ impl TypeCheckingVisitor<'_> {
             let this_program = self.scope_state.program_name.unwrap();
             let composite_location = typ.path.expect_global_location();
             composite_location.program != this_program
-                && self.state.symbol_table.lookup_record(composite_location).is_some()
+                && self.state.symbol_table.lookup_record(this_program, composite_location).is_some()
         } else {
             false
         }

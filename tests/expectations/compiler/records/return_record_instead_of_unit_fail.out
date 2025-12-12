@@ -1,4 +1,4 @@
-Error [ETYC0372117]: Expected type `()` but type `test_credits` was found.
+Error [ETYC0372117]: Expected type `()` but type `test.aleo/test_credits` was found.
     --> compiler-test:9:16
      |
    9 |         return test_credits {

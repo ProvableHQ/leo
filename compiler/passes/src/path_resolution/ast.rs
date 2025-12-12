@@ -126,7 +126,12 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         } else {
             let potentially_global = input.clone().resolve_as_global_in_module(self.program, self.module.clone());
 
-            if self.state.symbol_table.lookup_global(potentially_global.expect_global_location()).is_some() {
+            if self
+                .state
+                .symbol_table
+                .lookup_global(self.program, potentially_global.expect_global_location())
+                .is_some()
+            {
                 // If already inserted as a global variable in the symbol table, just resolve it to global.
                 input = potentially_global;
             } else if self.state.symbol_table.lookup_local(input.identifier().name).is_some() {

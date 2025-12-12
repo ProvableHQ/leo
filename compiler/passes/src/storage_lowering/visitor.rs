@@ -143,9 +143,9 @@ impl StorageLoweringVisitor<'_> {
     pub fn zero(&self, ty: &Type) -> Expression {
         // zero value for element type (used as default in get_or_use)
         let symbol_table = &self.state.symbol_table;
-        let struct_lookup = |sym: &[Symbol]| {
+        let struct_lookup = |loc: &Location| {
             symbol_table
-                .lookup_struct(sym)
+                .lookup_struct(self.program, loc)
                 .unwrap()
                 .members
                 .iter()

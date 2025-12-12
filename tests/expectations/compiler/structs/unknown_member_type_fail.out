@@ -1,4 +1,4 @@
-Error [ETYC0372017]: The type `Bar` is not found in the current scope.
+Error [ETYC0372017]: The type `test.aleo/Bar` is not found in the current scope.
     --> compiler-test:5:9
      |
    5 |         bar: Bar,

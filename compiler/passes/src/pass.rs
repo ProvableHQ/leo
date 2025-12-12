@@ -19,7 +19,7 @@ use crate::{Assigner, SymbolTable, TypeTable};
 use leo_ast::{Ast, CallGraph, CompositeGraph, NetworkName, NodeBuilder};
 use leo_errors::{Handler, LeoWarning, Result};
 
-use std::collections::HashSet;
+use std::{collections::HashSet, rc::Rc};
 
 /// Contains data shared by many compiler passes.
 #[derive(Default)]
@@ -31,7 +31,7 @@ pub struct CompilerState {
     /// Maps node IDs to types.
     pub type_table: TypeTable,
     /// Creates incrementing node IDs.
-    pub node_builder: NodeBuilder,
+    pub node_builder: Rc<NodeBuilder>,
     /// Creates unique symbols and definitions.
     pub assigner: Assigner,
     /// Contains data about the variables and other entities in the program.

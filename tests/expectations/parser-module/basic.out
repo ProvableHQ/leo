@@ -97,7 +97,6 @@
             "id": 3
           }
         ],
-        "external": null,
         "is_record": false,
         "span": {
           "lo": 38,
@@ -308,7 +307,6 @@
             "id": 9
           }
         ],
-        "external": null,
         "is_record": false,
         "span": {
           "lo": 123,
@@ -369,7 +367,6 @@
             "id": 15
           }
         ],
-        "external": null,
         "is_record": false,
         "span": {
           "lo": 170,

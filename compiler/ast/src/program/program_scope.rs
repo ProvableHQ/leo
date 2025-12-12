@@ -16,7 +16,7 @@
 
 //! A Leo program scope consists of const, composite, function, and mapping definitions.
 
-use crate::{Composite, ConstDeclaration, Constructor, Function, Indent, Mapping, ProgramId, StorageVariable, Stub};
+use crate::{Composite, ConstDeclaration, Constructor, Function, Indent, Mapping, ProgramId, StorageVariable};
 
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -41,26 +41,6 @@ pub struct ProgramScope {
     pub constructor: Option<Constructor>,
     /// The span associated with the program scope.
     pub span: Span,
-}
-
-impl From<Stub> for ProgramScope {
-    fn from(stub: Stub) -> Self {
-        Self {
-            program_id: stub.stub_id,
-            consts: stub.consts,
-            composites: stub.composites,
-            mappings: stub.mappings,
-            storage_variables: Vec::new(), // stubs don't have storage variables
-            functions: stub
-                .functions
-                .into_iter()
-                .map(|(symbol, function)| (symbol, Function::from(function)))
-                .collect(),
-            // A program scope constructed from a stub does not need a constructor, since they are not externally callable.
-            constructor: None,
-            span: stub.span,
-        }
-    }
 }
 
 impl fmt::Display for ProgramScope {

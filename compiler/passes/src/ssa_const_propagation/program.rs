@@ -16,9 +16,35 @@
 
 use super::SsaConstPropagationVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor};
+use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor, ProgramScope, Statement};
 
 impl ProgramReconstructor for SsaConstPropagationVisitor<'_> {
+    fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
+        self.program = input.program_id.name.name;
+
+        ProgramScope {
+            program_id: input.program_id,
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+            composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
+            mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            storage_variables: input
+                .storage_variables
+                .into_iter()
+                .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
+                .collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
+            span: input.span,
+        }
+    }
+
     fn reconstruct_function(&mut self, mut input: Function) -> Function {
         // Reset the constants map for each function.
         // In SSA form, each function has its own scope, so we can clear the map.

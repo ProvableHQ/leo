@@ -988,11 +988,34 @@ impl<'a> ConversionContext<'a> {
                     }
                 }
 
-                let mut identifiers = self.path_to_parts(name);
-                let identifier = identifiers.pop().unwrap();
-                let path = leo_ast::Path::new(None, identifiers, identifier, name.span, self.builder.next_id());
+                // Allow external structs
+                if let Some((program_str, name_str)) = name.text.split_once(".aleo/") {
+                    // This is a locator.
+                    let program_id = leo_ast::Identifier {
+                        name: Symbol::intern(program_str),
+                        span: leo_span::Span { lo: name.span.lo, hi: name.span.lo + program_str.len() as u32 },
+                        id: self.builder.next_id(),
+                    };
 
-                leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
+                    let name_id = leo_ast::Identifier {
+                        name: Symbol::intern(name_str),
+                        span: leo_span::Span {
+                            lo: name.span.lo + program_str.len() as u32 + 5,
+                            hi: name.span.lo + name.text.len() as u32,
+                        },
+                        id: self.builder.next_id(),
+                    };
+
+                    let path =
+                        leo_ast::Path::new(Some(program_id), Vec::new(), name_id, name_id.span, self.builder.next_id());
+                    leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
+                } else {
+                    let mut identifiers = self.path_to_parts(name);
+                    let identifier = identifiers.pop().unwrap();
+                    let path = leo_ast::Path::new(None, identifiers, identifier, name.span, self.builder.next_id());
+
+                    leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
+                }
             }
             ExpressionKind::Ternary => {
                 let [cond, _q, if_, _c, then] = &node.children[..] else {
@@ -1238,7 +1261,6 @@ impl<'a> ConversionContext<'a> {
             identifier: self.to_identifier(i),
             const_parameters,
             members,
-            external: None,
             is_record: struct_or_record.text == "record",
             span: node.span,
             id: self.builder.next_id(),

@@ -29,13 +29,15 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
-            // Check that naming and ordering is consistent.
-            if symbol != &stub.stub_id.name.name {
-                self.emit_err(TypeCheckerError::stub_name_mismatch(
-                    symbol,
-                    stub.stub_id.name,
-                    stub.stub_id.network.span,
-                ));
+            if let Stub::FromAleo { program, .. } = stub {
+                // Check that naming and ordering is consistent.
+                if symbol != &program.stub_id.name.name {
+                    self.emit_err(TypeCheckerError::stub_name_mismatch(
+                        symbol,
+                        program.stub_id.name,
+                        program.stub_id.network.span,
+                    ));
+                }
             }
             self.visit_stub(stub)
         });
@@ -82,7 +84,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // Check that the composite dependency graph does not have any cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.state.composite_graph.post_order() {
             self.emit_err(TypeCheckerError::cyclic_composite_dependency(
-                path.iter().map(|p| p.iter().format("::")).collect(),
+                path.iter().map(|loc| loc.to_string()).collect(),
             ));
         }
 
@@ -161,7 +163,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.module_name = parent_module;
     }
 
-    fn visit_stub(&mut self, input: &Stub) {
+    fn visit_aleo_program(&mut self, input: &AleoProgram) {
         // Set the scope state.
         self.scope_state.program_name = Some(input.stub_id.name.name);
         self.scope_state.is_stub = true;
@@ -295,12 +297,14 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                     .cloned()
                     .chain(std::iter::once(input.identifier.name))
                     .collect::<Vec<Symbol>>();
+                let this_program = self.scope_state.program_name.unwrap();
+                let composite_location = Location::new(this_program, composite_path);
                 if let Type::Composite(composite_member_type) = type_ {
                     // Note that since there are no cycles in the program dependency graph, there are no cycles in the
                     // composite dependency graph caused by external composites.
                     self.state
                         .composite_graph
-                        .add_edge(composite_path, composite_member_type.path.expect_global_location().path.clone());
+                        .add_edge(composite_location, composite_member_type.path.expect_global_location().clone());
                 } else if let Type::Array(array_type) = type_ {
                     // Get the base element type.
                     let base_element_type = array_type.base_element_type();
@@ -308,7 +312,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                     if let Type::Composite(member_type) = base_element_type {
                         self.state
                             .composite_graph
-                            .add_edge(composite_path, member_type.path.expect_global_location().path.clone().to_vec());
+                            .add_edge(composite_location, member_type.path.expect_global_location().clone());
                     }
                 }
 
@@ -562,7 +566,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         if let UpgradeVariant::Checksum { mapping, key, key_type } = &upgrade_variant {
             // Look up the mapping type.
             let Some(VariableSymbol { type_: Some(Type::Mapping(mapping_type)), .. }) =
-                self.state.symbol_table.lookup_global(mapping)
+                self.state.symbol_table.lookup_global(self.scope_state.program_name.unwrap(), mapping)
             else {
                 self.emit_err(TypeCheckerError::custom(
                     format!("The mapping '{mapping}' does not exist. Please ensure that it is imported or defined in your program."),

@@ -26,7 +26,8 @@ impl AstReconstructor for ProcessingScriptVisitor<'_> {
     /* Expressions */
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         if !matches!(self.current_variant, Variant::Script) {
-            let Some(func_symbol) = self.state.symbol_table.lookup_function(input.function.expect_global_location())
+            let Some(func_symbol) =
+                self.state.symbol_table.lookup_function(self.program_name, input.function.expect_global_location())
             else {
                 panic!("Type checking should have prevented this.");
             };

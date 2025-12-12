@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::VariableType;
+use crate::{BlockToFunctionRewriter, VariableType};
 
 use leo_ast::{
     Type::{Future, Tuple},
@@ -236,8 +236,9 @@ impl TypeCheckingVisitor<'_> {
     // Returns the type of the RHS of an assign statement if it's a `Path`.
     // Also returns whether the RHS is a storage location.
     pub fn visit_path_assign(&mut self, input: &Path) -> (Type, bool) {
+        let current_program = self.scope_state.program_name.unwrap();
         // Lookup the variable in the symbol table and retrieve its type.
-        let Some(var) = self.state.symbol_table.lookup_path(input) else {
+        let Some(var) = self.state.symbol_table.lookup_path(current_program, input) else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span));
             return (Type::Err, false);
         };
@@ -352,6 +353,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 self.visit_expression(argument, &Some(expected.type_().clone()));
             }
         } else if !input.const_arguments.is_empty() {
+            // This handles erroring out on all non-structs
             self.emit_err(TypeCheckerError::unexpected_const_args(input, input.path.span));
         }
     }
@@ -545,6 +547,23 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // This scope now already has an async block
         self.scope_state.already_contains_an_async_block = true;
 
+        // Here we convert the async block to an async function using the helper
+        // `BlockToFunctionRewriter`. We do not actually replace anything in the original AST. We
+        // just inspect how the async block would look like as an async function in order to
+        // populate the map `async_function_input_types`.
+        let mut block_to_function_rewriter =
+            BlockToFunctionRewriter::new(self.state, self.scope_state.program_name.unwrap());
+        let (new_function, _) =
+            block_to_function_rewriter.rewrite_block(&input.block, Symbol::intern("unused"), Variant::AsyncFunction);
+        let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
+        self.async_function_input_types.insert(
+            Location::new(self.scope_state.program_name.unwrap(), vec![Symbol::intern(&format!(
+                "finalize/{}",
+                self.scope_state.function.unwrap(),
+            ))]),
+            input_types,
+        );
+
         // Step out of the async block
         self.async_block_id = None;
 
@@ -555,10 +574,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_binary(&mut self, input: &BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         let assert_same_type = |slf: &Self, t1: &Type, t2: &Type| -> Type {
-            let is_record = |loc: &Location| slf.state.symbol_table.lookup_record(loc).is_some();
             if t1 == &Type::Err || t2 == &Type::Err {
                 Type::Err
-            } else if !t1.eq_user(t2, &is_record) {
+            } else if !t1.eq_user(t2) {
+                dbg!(&t1);
+                dbg!(&t2);
                 slf.emit_err(TypeCheckerError::operation_types_mismatch(input.op, t1, t2, input.span()));
                 Type::Err
             } else {
@@ -951,11 +971,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        let current_program = self.scope_state.program_name.unwrap();
         let callee_location = input.function.expect_global_location();
         let callee_program = callee_location.program;
         let callee_path = callee_location.path.clone();
 
-        let Some(func_symbol) = self.state.symbol_table.lookup_function(callee_location) else {
+        let Some(func_symbol) = self.state.symbol_table.lookup_function(current_program, callee_location) else {
             self.emit_err(TypeCheckerError::unknown_sym("function", input.function.clone(), input.function.span()));
             return Type::Err;
         };
@@ -1164,7 +1185,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.state
                 .symbol_table
                 .attach_finalizer(
-                    Location::new(callee_program, caller_path),
+                    Location::new(callee_program, caller_path.clone()),
                     Location::new(callee_program, callee_path.clone()),
                     input_futures,
                     inferred_finalize_inputs.clone(),
@@ -1181,10 +1202,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
             // Update ret to reflect fully inferred future type.
             ret = Type::Future(FutureType::new(
-                inferred_finalize_inputs,
+                inferred_finalize_inputs.clone(),
                 Some(Location::new(callee_program, callee_path.clone())),
                 true,
             ));
+
+            self.async_function_input_types.insert(
+                Location::new(callee_program, vec![Symbol::intern(&format!(
+                    "finalize/{}",
+                    caller_path.last().unwrap()
+                ))]),
+                inferred_finalize_inputs.clone(),
+            );
 
             // Type check in case the expected type is known.
             self.assert_and_return_type(ret.clone(), expected, input.span());
@@ -1226,7 +1255,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         input: &CompositeExpression,
         additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        let composite = self.lookup_composite(input.path.expect_global_location()).clone();
+        let composite_location = input.path.expect_global_location();
+        let composite = self.lookup_composite(composite_location).clone();
         let Some(composite) = composite else {
             self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.path.clone(), input.path.span()));
             return Type::Err;
@@ -1247,8 +1277,6 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.visit_expression(argument, &Some(expected.type_().clone()));
         }
 
-        // Note that it is sufficient for the `program` to be `None` as composite types can only be initialized
-        // in the program in which they are defined.
         let type_ =
             Type::Composite(CompositeType { path: input.path.clone(), const_arguments: input.const_arguments.clone() });
         self.maybe_assert_type(&type_, additional, input.path.span());
@@ -1268,12 +1296,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     None => {
                         // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`.
                         // Therefore, lookup a local or a global in the symbol table with the member name.
+                        let current_program = self.scope_state.program_name.unwrap();
                         let var = self.state.symbol_table.lookup_local(actual.identifier.name).or_else(|| {
                             self.state
                                 .symbol_table
-                                .lookup_global(&Location::new(self.scope_state.program_name.unwrap(), vec![
-                                    actual.identifier.name,
-                                ]))
+                                .lookup_global(
+                                    current_program,
+                                    &Location::new(current_program, vec![actual.identifier.name]),
+                                )
                                 .cloned()
                         });
 
@@ -1305,6 +1335,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         if composite.is_record {
+            // Ensure that we're not instantating an external record
+            if composite_location.program != self.scope_state.program_name.unwrap() {
+                self.state
+                    .handler
+                    .emit_err(TypeCheckerError::cannot_instantiate_external_record(composite_location, input.span()));
+            }
+
             // First, ensure that the current scope is not an async function. Records should not be instantiated in
             // async functions
             if self.scope_state.variant == Some(Variant::AsyncFunction) {
@@ -1341,7 +1378,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_path(&mut self, input: &Path, expected: &Self::AdditionalInput) -> Self::Output {
-        let var = self.state.symbol_table.lookup_path(input);
+        let current_program = self.scope_state.program_name.unwrap();
+        let var = self.state.symbol_table.lookup_path(current_program, input);
 
         if let Some(var) = var {
             let ty = var.type_.expect("must be known at this point");
@@ -1443,8 +1481,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_locator(&mut self, input: &LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        let maybe_var =
-            self.state.symbol_table.lookup_global(&Location::new(input.program.name.name, vec![input.name])).cloned();
+        let maybe_var = self
+            .state
+            .symbol_table
+            .lookup_global(
+                self.scope_state.program_name.unwrap(),
+                &Location::new(input.program.name.name, vec![input.name]),
+            )
+            .cloned();
         if let Some(var) = maybe_var {
             let ty = var.type_.expect("must be known at this point");
             self.maybe_assert_type(&ty, expected, input.span());
@@ -1497,16 +1541,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             )
         };
 
-        let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
-
         let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
-        } else if !t1.can_coerce_to(&t2, &is_record) && !t2.can_coerce_to(&t1, &is_record) {
+        } else if !t1.can_coerce_to(&t2) && !t2.can_coerce_to(&t1) {
             self.emit_err(TypeCheckerError::ternary_branch_mismatch(t1, t2, input.span()));
             Type::Err
         } else if let Some(expected) = expected {
             expected.clone()
-        } else if t1.can_coerce_to(&t2, &is_record) {
+        } else if t1.can_coerce_to(&t2) {
             t2
         } else {
             t1
@@ -1746,11 +1788,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let t1 = self.visit_expression_reject_numeric(left, &None);
                 let t2 = self.visit_expression_reject_numeric(right, &None);
 
-                let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
-                if t1 != Type::Err && t2 != Type::Err && !t1.eq_user(&t2, &is_record) {
+                if t1 != Type::Err && t2 != Type::Err && !t1.eq_user(&t2) {
                     let op =
                         if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
-                    self.emit_err(TypeCheckerError::operation_types_mismatch(op, t1, t2, input.span()));
+                    self.emit_err(TypeCheckerError::operation_types_mismatch(op, &t1, &t2, input.span()));
                 }
             }
         }
@@ -2042,10 +2083,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let caller_path =
             self.scope_state.module_name.iter().cloned().chain(std::iter::once(caller_name)).collect::<Vec<Symbol>>();
 
+        let current_program = self.scope_state.program_name.unwrap();
+
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(self.scope_state.program_name.unwrap(), caller_path.clone()))
+            .lookup_function(current_program, &Location::new(current_program, caller_path.clone()))
             .expect("The symbol table creator should already have visited all functions.");
 
         let mut return_type = func_symbol.function.output_type.clone();
@@ -2053,7 +2096,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = Future(FutureType::new(
                 if let Some(finalizer) = &func_symbol.finalizer { finalizer.inferred_inputs.clone() } else { vec![] },
-                Some(Location::new(self.scope_state.program_name.unwrap(), caller_path)),
+                Some(Location::new(current_program, caller_path)),
                 true,
             ));
 

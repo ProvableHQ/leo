@@ -809,14 +809,10 @@ program child.aleo {
         };
 
         // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
-        let outer_program = "import inner_1.aleo;
+        let outer_program = "
+import inner_1.aleo;
 import inner_2.aleo;
 program outer.aleo {
-
-    struct ex_struct {
-        arg1: u32,
-        arg2: u32,
-    }
 
     record inner_1_record {
         owner: address,
@@ -825,17 +821,19 @@ program outer.aleo {
         arg3: u32,
     }
 
-    transition inner_1_main(public a: u32, b: u32) -> (inner_1.aleo/inner_1_record, inner_2.aleo/inner_1_record, inner_1_record) {
-        let c: ex_struct = ex_struct {arg1: 1u32, arg2: 1u32};
+    transition inner_1_main(public a: u32, b: u32) -> (inner_1.aleo/inner_1_record, inner_2.aleo/inner_2_record, inner_1_record) {
+        let c: inner_1.aleo/ex_struct = inner_1.aleo/ex_struct {arg1: 1u32, arg2: 1u32};
         let rec_1:inner_1.aleo/inner_1_record = inner_1.aleo/inner_1_main(1u32,1u32, c);
-        let rec_2:inner_2.aleo/inner_1_record = inner_2.aleo/inner_1_main(1u32,1u32);
+        let rec_2:inner_2.aleo/inner_2_record = inner_2.aleo/inner_2_main(1u32,1u32);
         return (rec_1, rec_2, inner_1_record {owner: aleo14tnetva3xfvemqyg5ujzvr0qfcaxdanmgjx2wsuh2xrpvc03uc9s623ps7, arg1: 1u32, arg2: 1u32, arg3: 1u32});
     }
 
     @noupgrade
     async constructor() {}
-}";
-        let inner_1_program = "program inner_1.aleo {
+}
+            ";
+        let inner_1_program = "
+program inner_1.aleo {
     mapping inner_1_mapping: u32 => u32;
     record inner_1_record {
         owner: address,
@@ -854,16 +852,18 @@ program outer.aleo {
 
     @noupgrade
     async constructor() {}
-}";
-        let inner_2_program = "program inner_2.aleo {
+}
+";
+        let inner_2_program = "
+program inner_2.aleo {
     mapping inner_2_mapping: u32 => u32;
-    record inner_1_record {
+    record inner_2_record {
         owner: address,
         val: u32,
     }
-    transition inner_1_main(public a: u32, b: u32) -> inner_1_record {
+    transition inner_2_main(public a: u32, b: u32) -> inner_2_record {
         let c: u32 = a + b;
-        return inner_1_record {
+        return inner_2_record {
             owner: self.caller,
             val: a,
         };
@@ -871,7 +871,8 @@ program outer.aleo {
 
     @noupgrade
     async constructor() {}
-}";
+}
+        ";
         // Add dependencies `outer/program.json`
         let add_outer_dependency_1 = CLI {
             debug: false,
@@ -1006,14 +1007,15 @@ program outer_2.aleo {
         owner: address,
         a: u32,
     }
+    
     transition main(public a: u32, b: u32) -> (inner_2.aleo/Yoo, Hello) {
-        let d: Foo = inner_1.aleo/main(1u32,1u32);
-        let e: u32 = inner_1.aleo/main_2(Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}});
+        let d: inner_1.aleo/Foo = inner_1.aleo/main(1u32,1u32);
+        let e: u32 = inner_1.aleo/main_2(inner_1.aleo/Foo {a: a, b: b, c: inner_1.aleo/Boo {a:1u32, b:1u32}});
         let f: Boo = Boo {a:1u32, b:1u32};
-        let g: Foo = inner_2.aleo/main(1u32, 1u32);
+        let g: inner_2.aleo/Foo = inner_2.aleo/main(1u32, 1u32);
         inner_2.aleo/Yo_Consumer(inner_2.aleo/Yo());
         let h: inner_2.aleo/Yoo = inner_2.aleo/Yo();
-        let i: Goo = inner_2.aleo/Goo_creator();
+        let i: inner_2.aleo/Goo = inner_2.aleo/Goo_creator();
         let j: Hello = Hello {owner: self.signer, a:1u32};
 
         return (h, j);

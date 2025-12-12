@@ -1,25 +1,25 @@
-Error [ETYC0372017]: The type `Board` is not found in the current scope.
+Error [ETYC0372017]: The type `test.aleo/Board` is not found in the current scope.
     --> compiler-test:3:35
      |
    3 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {
      |                                   ^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
-Error [ETYC0372017]: The type `Board` is not found in the current scope.
+Error [ETYC0372017]: The type `test.aleo/Board` is not found in the current scope.
     --> compiler-test:3:35
      |
    3 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {
      |                                   ^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
-Error [ETYC0372017]: The type `u128bool` is not found in the current scope.
+Error [ETYC0372017]: The type `test.aleo/u128bool` is not found in the current scope.
     --> compiler-test:3:55
      |
    3 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {
      |                                                       ^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
-Error [ETYC0372139]: Expected type `u128bool` but an unsuffixed numeral was found.
+Error [ETYC0372139]: Expected type `test.aleo/u128bool` but an unsuffixed numeral was found.
     --> compiler-test:4:16
      |
    4 |         return 0;

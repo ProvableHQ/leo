@@ -114,8 +114,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     "Type table must contain type for this expression ID; IDs are not modified during lowering",
                 );
 
-            let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
-            if actual_expr_type.can_coerce_to(inner, &is_record) {
+            if actual_expr_type.can_coerce_to(inner) {
                 return (self.wrap_optional_value(expr, *inner.clone()), stmts);
             }
         }
@@ -362,10 +361,11 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         mut input: CallExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
+        let callee_location = input.function.expect_global_location();
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(input.function.expect_global_location())
+            .lookup_function(self.program, callee_location)
             .expect("The symbol table creator should already have visited all functions.")
             .clone();
 
@@ -424,9 +424,9 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let composite_def = self
                     .state
                     .symbol_table
-                    .lookup_record(composite_location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(&composite_location.path))
-                    .or_else(|| self.new_structs.get(&composite.path.identifier().name))
+                    .lookup_record(self.program, composite_location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(self.program, composite_location))
+                    .or_else(|| self.new_structs.get(composite_location))
                     .expect("guaranteed by type checking");
 
                 let const_parameters = composite_def.const_parameters.iter().map(|param| param.type_.clone()).collect();
@@ -706,7 +706,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(self.program, caller_path))
+            .lookup_function(self.program, &Location::new(self.program, caller_path))
             .expect("The symbol table creator should already have visited all functions.");
 
         let return_type = func_symbol.function.output_type.clone();

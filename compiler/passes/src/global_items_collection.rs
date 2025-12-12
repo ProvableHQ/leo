@@ -32,9 +32,10 @@
 //! to contain all globally defined items, enabling subsequent passes to
 //! perform type checking and validation without mutating symbol structure.
 
-use crate::{CompilerState, Pass, SymbolTable};
+use crate::{CompilerState, Pass};
 
 use leo_ast::{
+    AleoProgram,
     AstVisitor,
     Composite,
     ConstDeclaration,
@@ -45,7 +46,6 @@ use leo_ast::{
     MappingType,
     Module,
     OptionalType,
-    Program,
     ProgramScope,
     ProgramVisitor,
     StorageVariable,
@@ -54,9 +54,9 @@ use leo_ast::{
     Variant,
 };
 use leo_errors::Result;
-use leo_span::{Span, Symbol};
+use leo_span::Symbol;
 
-use indexmap::IndexMap;
+use indexmap::IndexSet;
 
 /// A pass to fill the SymbolTable.
 ///
@@ -73,10 +73,9 @@ impl Pass for GlobalItemsCollection {
         let ast = std::mem::take(&mut state.ast);
         let mut visitor = GlobalItemsCollectionVisitor {
             state,
-            structs: IndexMap::new(),
             program_name: Symbol::intern(""),
+            parents: IndexSet::new(),
             module: vec![],
-            is_stub: false,
         };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err()?;
@@ -92,10 +91,8 @@ struct GlobalItemsCollectionVisitor<'a> {
     program_name: Symbol,
     /// The current module name.
     module: Vec<Symbol>,
-    /// Whether or not traversing stub.
-    is_stub: bool,
-    /// The set of local structs that have been successfully visited.
-    structs: IndexMap<Vec<Symbol>, Span>,
+    /// The set of programs that import the program we're visiting.
+    parents: IndexSet<Symbol>,
 }
 
 impl GlobalItemsCollectionVisitor<'_> {
@@ -124,7 +121,9 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set current program name
         self.program_name = input.program_id.name.name;
-        self.is_stub = false;
+
+        // Update the `imports` map in the symbol table.
+        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
 
         // Visit the program scope
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
@@ -146,37 +145,20 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
         })
     }
 
-    fn visit_import(&mut self, input: &Program) {
-        self.visit_program(input)
-    }
-
     fn visit_composite(&mut self, input: &Composite) {
-        // Allow up to one local redefinition for each external composite.
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
-
-        if !input.is_record {
-            if let Some(prev_span) = self.structs.get(&full_name) {
-                // The struct already existed
-                return self.state.handler.emit_err(SymbolTable::emit_shadow_error(
-                    input.identifier.name,
-                    input.identifier.span,
-                    *prev_span,
-                ));
-            }
-
-            self.structs.insert(full_name.clone(), input.identifier.span);
-        }
 
         if input.is_record {
             // While records are not allowed in submodules, we stll use their full name in the records table.
             // We don't expect the full name to have more than a single Symbol though.
-            let program_name = input.external.unwrap_or(self.program_name);
             if let Err(err) =
-                self.state.symbol_table.insert_record(Location::new(program_name, full_name), input.clone())
+                self.state.symbol_table.insert_record(Location::new(self.program_name, full_name), input.clone())
             {
                 self.state.handler.emit_err(err);
             }
-        } else if let Err(err) = self.state.symbol_table.insert_struct(self.program_name, &full_name, input.clone()) {
+        } else if let Err(err) =
+            self.state.symbol_table.insert_struct(Location::new(self.program_name, full_name.clone()), input.clone())
+        {
             self.state.handler.emit_err(err);
         }
     }
@@ -215,8 +197,24 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     }
 
     fn visit_stub(&mut self, input: &Stub) {
-        self.is_stub = true;
+        match input {
+            Stub::FromLeo { program, parents } => {
+                self.parents = parents.clone();
+                self.visit_program(program);
+            }
+            Stub::FromAleo { program, parents } => {
+                self.parents = parents.clone();
+                self.visit_aleo_program(program);
+            }
+        }
+    }
+
+    fn visit_aleo_program(&mut self, input: &AleoProgram) {
         self.program_name = input.stub_id.name.name;
+
+        // Update the `imports` map in the symbol table.
+        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
+
         input.functions.iter().for_each(|(_, c)| self.visit_function_stub(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite_stub(c));
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
@@ -249,19 +247,16 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     }
 
     fn visit_composite_stub(&mut self, input: &Composite) {
-        if let Some(program) = input.external {
-            assert_eq!(program, self.program_name);
-        }
-
         if input.is_record {
-            let program_name = input.external.unwrap_or(self.program_name);
-            if let Err(err) =
-                self.state.symbol_table.insert_record(Location::new(program_name, vec![input.name()]), input.clone())
+            if let Err(err) = self
+                .state
+                .symbol_table
+                .insert_record(Location::new(self.program_name, vec![input.name()]), input.clone())
             {
                 self.state.handler.emit_err(err);
             }
         } else if let Err(err) =
-            self.state.symbol_table.insert_struct(self.program_name, &[input.name()], input.clone())
+            self.state.symbol_table.insert_struct(Location::new(self.program_name, vec![input.name()]), input.clone())
         {
             self.state.handler.emit_err(err);
         }

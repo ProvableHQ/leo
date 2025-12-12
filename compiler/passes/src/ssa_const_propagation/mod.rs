@@ -24,6 +24,7 @@ use crate::Pass;
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
+use leo_span::Symbol;
 
 mod ast;
 
@@ -44,7 +45,12 @@ impl Pass for SsaConstPropagation {
         // Run the pass in a loop until no changes are made.
         for _ in 0..1024 {
             let mut ast = std::mem::take(&mut state.ast);
-            let mut visitor = SsaConstPropagationVisitor { state, constants: Default::default(), changed: false };
+            let mut visitor = SsaConstPropagationVisitor {
+                state,
+                program: Symbol::intern(""),
+                constants: Default::default(),
+                changed: false,
+            };
             ast.ast = visitor.reconstruct_program(ast.ast);
             visitor.state.handler.last_err()?;
             visitor.state.ast = ast;

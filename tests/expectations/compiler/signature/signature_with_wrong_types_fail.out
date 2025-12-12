@@ -18,12 +18,12 @@ Error [ETYC0372117]: Expected type `signature` but type `address` was found.
      |
   16 |         let first: bool = signature::verify(a, v, s);
      |                                             ^
-Error [ETYC0372117]: Expected type `address` but type `foo` was found.
+Error [ETYC0372117]: Expected type `address` but type `test.aleo/foo` was found.
     --> compiler-test:16:48
      |
   16 |         let first: bool = signature::verify(a, v, s);
      |                                                ^
-Error [ETYC0372117]: Expected type `address` but type `foo` was found.
+Error [ETYC0372117]: Expected type `address` but type `test.aleo/foo` was found.
     --> compiler-test:17:37
      |
   17 |         let second: bool = s.verify(v, a);

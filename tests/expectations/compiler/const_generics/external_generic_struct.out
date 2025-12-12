@@ -20,10 +20,4 @@ function main:
 import child.aleo;
 program parent.aleo;
 
-struct Bar__DI7sPAg0NJ0:
-    arr as [u32; 5u32];
-
-struct Bar__5Qh5JlRc8cY:
-    arr as [u32; 3u32];
-
 function main:
