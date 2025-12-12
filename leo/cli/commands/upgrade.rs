@@ -380,14 +380,6 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 let transaction = vm
                     .deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
-            // Get the deployment.
-            let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-            // Print the deployment stats.
-            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)?;
-            // Validate the deployment limits.
-            validate_deployment_limits(deployment, &id, &network)?;
-            // Save the transaction.
-            transactions.push((id, transaction));
                 // Get the deployment.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
                 // Print the deployment stats.

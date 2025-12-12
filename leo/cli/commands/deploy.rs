@@ -280,7 +280,7 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
-    for Task { id, program, edition, priority_fee, record, bytecode_size.. } in local {
+    for Task { id, program, edition, priority_fee, record, bytecode_size, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if !skipped.contains(&id) {
             // If the program contains an upgrade config, confirm with the user that they want to proceed.
@@ -377,7 +377,7 @@ Once it is deployed, it CANNOT be changed.
                 // Get the deployment.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
                 // Print the deployment stats.
-                print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version)?;
+                print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)?;
                 // Save the transaction.
                 transactions.push((id, transaction));
             }
