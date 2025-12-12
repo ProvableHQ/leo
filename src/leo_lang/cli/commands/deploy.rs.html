@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/deploy.rs`."><title>deploy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_lang/cli/commands/</div>deploy.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/deploy.rs`."><title>deploy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_lang/cli/commands/</div>deploy.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 <a href=#2 id=2 data-nosnippet>2</a>// This file is part of the Leo library.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a>// The Leo library is free software: you can redistribute it and/or modify
@@ -251,404 +251,412 @@
 <a href=#251 id=251 data-nosnippet>251</a>    </span><span class="kw">let </span>programs_and_editions = remote
 <a href=#252 id=252 data-nosnippet>252</a>        .into_iter()
 <a href=#253 id=253 data-nosnippet>253</a>        .map(|task| {
-<a href=#254 id=254 data-nosnippet>254</a>            <span class="comment">// Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-<a href=#255 id=255 data-nosnippet>255</a>            </span>(task.program, task.edition.unwrap_or(<span class="number">1</span>))
-<a href=#256 id=256 data-nosnippet>256</a>        })
-<a href=#257 id=257 data-nosnippet>257</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-<a href=#258 id=258 data-nosnippet>258</a>    vm.process().write().add_programs_with_editions(<span class="kw-2">&amp;</span>programs_and_editions)<span class="question-mark">?</span>;
-<a href=#259 id=259 data-nosnippet>259</a>
-<a href=#260 id=260 data-nosnippet>260</a>    <span class="comment">// Remove version suffixes from the endpoint.
-<a href=#261 id=261 data-nosnippet>261</a>    </span><span class="kw">let </span>re = regex::Regex::new(<span class="string">r"v\d+$"</span>).unwrap();
-<a href=#262 id=262 data-nosnippet>262</a>    <span class="kw">let </span>query_endpoint = re.replace(<span class="kw-2">&amp;</span>endpoint, <span class="string">""</span>).to_string();
-<a href=#263 id=263 data-nosnippet>263</a>
-<a href=#264 id=264 data-nosnippet>264</a>    <span class="comment">// Specify the query
-<a href=#265 id=265 data-nosnippet>265</a>    </span><span class="kw">let </span>query = SnarkVMQuery::&lt;N, BlockMemory&lt;N&gt;&gt;::from(
-<a href=#266 id=266 data-nosnippet>266</a>        query_endpoint
-<a href=#267 id=267 data-nosnippet>267</a>            .parse::&lt;Uri&gt;()
-<a href=#268 id=268 data-nosnippet>268</a>            .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse endpoint URI '{endpoint}': {e}"</span>)))<span class="question-mark">?</span>,
-<a href=#269 id=269 data-nosnippet>269</a>    );
-<a href=#270 id=270 data-nosnippet>270</a>
-<a href=#271 id=271 data-nosnippet>271</a>    <span class="comment">// For each of the programs, generate a deployment transaction.
-<a href=#272 id=272 data-nosnippet>272</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>transactions = Vec::new();
-<a href=#273 id=273 data-nosnippet>273</a>    <span class="kw">for </span>Task { id, program, priority_fee, record, bytecode_size, .. } <span class="kw">in </span>local {
-<a href=#274 id=274 data-nosnippet>274</a>        <span class="comment">// If the program is a local dependency that is not skipped, generate a deployment transaction.
-<a href=#275 id=275 data-nosnippet>275</a>        </span><span class="kw">if </span>!skipped.contains(<span class="kw-2">&amp;</span>id) {
-<a href=#276 id=276 data-nosnippet>276</a>            <span class="comment">// If the program contains an upgrade config, confirm with the user that they want to proceed.
-<a href=#277 id=277 data-nosnippet>277</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(constructor) = program.constructor() {
-<a href=#278 id=278 data-nosnippet>278</a>                <span class="macro">println!</span>(
-<a href=#279 id=279 data-nosnippet>279</a>                    <span class="string">r"
-<a href=#280 id=280 data-nosnippet>280</a>🔧 Your program '{}' has the following constructor.
-<a href=#281 id=281 data-nosnippet>281</a>──────────────────────────────────────────────
-<a href=#282 id=282 data-nosnippet>282</a>{constructor}
-<a href=#283 id=283 data-nosnippet>283</a>──────────────────────────────────────────────
-<a href=#284 id=284 data-nosnippet>284</a>Once it is deployed, it CANNOT be changed.
-<a href=#285 id=285 data-nosnippet>285</a>"</span>,
-<a href=#286 id=286 data-nosnippet>286</a>                    id.to_string().bold()
-<a href=#287 id=287 data-nosnippet>287</a>                );
-<a href=#288 id=288 data-nosnippet>288</a>                <span class="kw">if </span>!confirm(<span class="string">"Would you like to proceed?"</span>, command.extra.yes)<span class="question-mark">? </span>{
-<a href=#289 id=289 data-nosnippet>289</a>                    <span class="macro">println!</span>(<span class="string">"❌ Deployment aborted."</span>);
-<a href=#290 id=290 data-nosnippet>290</a>                    <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#291 id=291 data-nosnippet>291</a>                }
-<a href=#292 id=292 data-nosnippet>292</a>            }
-<a href=#293 id=293 data-nosnippet>293</a>            <span class="macro">println!</span>(<span class="string">"📦 Creating deployment transaction for '{}'...\n"</span>, id.to_string().bold());
-<a href=#294 id=294 data-nosnippet>294</a>            <span class="comment">// Generate the transaction.
-<a href=#295 id=295 data-nosnippet>295</a>            </span><span class="kw">let </span>transaction =
-<a href=#296 id=296 data-nosnippet>296</a>                vm.deploy(<span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>program, record, priority_fee.unwrap_or(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>query), rng)
-<a href=#297 id=297 data-nosnippet>297</a>                    .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to generate deployment transaction: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#298 id=298 data-nosnippet>298</a>            <span class="comment">// Get the deployment.
-<a href=#299 id=299 data-nosnippet>299</a>            </span><span class="kw">let </span>deployment = transaction.deployment().expect(<span class="string">"Expected a deployment in the transaction"</span>);
-<a href=#300 id=300 data-nosnippet>300</a>            <span class="comment">// Print the deployment stats.
-<a href=#301 id=301 data-nosnippet>301</a>            </span>print_deployment_stats(<span class="kw-2">&amp;</span>vm, <span class="kw-2">&amp;</span>id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)<span class="question-mark">?</span>;
-<a href=#302 id=302 data-nosnippet>302</a>            <span class="comment">// Save the transaction.
-<a href=#303 id=303 data-nosnippet>303</a>            </span>transactions.push((id, transaction));
-<a href=#304 id=304 data-nosnippet>304</a>        }
-<a href=#305 id=305 data-nosnippet>305</a>        <span class="comment">// Add the program to the VM.
-<a href=#306 id=306 data-nosnippet>306</a>        </span>vm.process().write().add_program(<span class="kw-2">&amp;</span>program)<span class="question-mark">?</span>;
-<a href=#307 id=307 data-nosnippet>307</a>    }
-<a href=#308 id=308 data-nosnippet>308</a>
-<a href=#309 id=309 data-nosnippet>309</a>    <span class="kw">for </span>(program_id, transaction) <span class="kw">in </span>transactions.iter() {
-<a href=#310 id=310 data-nosnippet>310</a>        <span class="comment">// Validate the deployment limits.
-<a href=#311 id=311 data-nosnippet>311</a>        </span><span class="kw">let </span>deployment = transaction.deployment().expect(<span class="string">"Expected a deployment in the transaction"</span>);
-<a href=#312 id=312 data-nosnippet>312</a>        validate_deployment_limits(deployment, program_id, <span class="kw-2">&amp;</span>network)<span class="question-mark">?</span>;
-<a href=#313 id=313 data-nosnippet>313</a>    }
-<a href=#314 id=314 data-nosnippet>314</a>
-<a href=#315 id=315 data-nosnippet>315</a>    <span class="comment">// If the `print` option is set, print the deployment transaction to the console.
-<a href=#316 id=316 data-nosnippet>316</a>    // The transaction is printed in JSON format.
-<a href=#317 id=317 data-nosnippet>317</a>    </span><span class="kw">if </span>command.action.print {
-<a href=#318 id=318 data-nosnippet>318</a>        <span class="kw">for </span>(program_name, transaction) <span class="kw">in </span>transactions.iter() {
-<a href=#319 id=319 data-nosnippet>319</a>            <span class="comment">// Pretty-print the transaction.
-<a href=#320 id=320 data-nosnippet>320</a>            </span><span class="kw">let </span>transaction_json = serde_json::to_string_pretty(transaction)
-<a href=#321 id=321 data-nosnippet>321</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize transaction: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#322 id=322 data-nosnippet>322</a>            <span class="macro">println!</span>(<span class="string">"🖨️ Printing deployment for {program_name}\n{transaction_json}"</span>)
-<a href=#323 id=323 data-nosnippet>323</a>        }
-<a href=#324 id=324 data-nosnippet>324</a>    }
-<a href=#325 id=325 data-nosnippet>325</a>
-<a href=#326 id=326 data-nosnippet>326</a>    <span class="comment">// If the `save` option is set, save each deployment transaction to a file in the specified directory.
-<a href=#327 id=327 data-nosnippet>327</a>    // The file format is `program_name.deployment.json`.
-<a href=#328 id=328 data-nosnippet>328</a>    // The directory is created if it doesn't exist.
-<a href=#329 id=329 data-nosnippet>329</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>command.action.save {
-<a href=#330 id=330 data-nosnippet>330</a>        <span class="comment">// Create the directory if it doesn't exist.
-<a href=#331 id=331 data-nosnippet>331</a>        </span>std::fs::create_dir_all(path).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to create directory: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#332 id=332 data-nosnippet>332</a>        <span class="kw">for </span>(program_name, transaction) <span class="kw">in </span>transactions.iter() {
-<a href=#333 id=333 data-nosnippet>333</a>            <span class="comment">// Save the transaction to a file.
-<a href=#334 id=334 data-nosnippet>334</a>            </span><span class="kw">let </span>file_path = PathBuf::from(path).join(<span class="macro">format!</span>(<span class="string">"{program_name}.deployment.json"</span>));
-<a href=#335 id=335 data-nosnippet>335</a>            <span class="macro">println!</span>(<span class="string">"💾 Saving deployment for {program_name} at {}"</span>, file_path.display());
-<a href=#336 id=336 data-nosnippet>336</a>            <span class="kw">let </span>transaction_json = serde_json::to_string_pretty(transaction)
-<a href=#337 id=337 data-nosnippet>337</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize transaction: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#338 id=338 data-nosnippet>338</a>            std::fs::write(file_path, transaction_json)
-<a href=#339 id=339 data-nosnippet>339</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to write transaction to file: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#340 id=340 data-nosnippet>340</a>        }
-<a href=#341 id=341 data-nosnippet>341</a>    }
-<a href=#342 id=342 data-nosnippet>342</a>
-<a href=#343 id=343 data-nosnippet>343</a>    <span class="comment">// If the `broadcast` option is set, broadcast each deployment transaction to the network.
-<a href=#344 id=344 data-nosnippet>344</a>    </span><span class="kw">if </span>command.action.broadcast {
-<a href=#345 id=345 data-nosnippet>345</a>        <span class="kw">for </span>(i, (program_id, transaction)) <span class="kw">in </span>transactions.iter().enumerate() {
-<a href=#346 id=346 data-nosnippet>346</a>            <span class="macro">println!</span>(<span class="string">"\n📡 Broadcasting deployment for {}..."</span>, program_id.to_string().bold());
-<a href=#347 id=347 data-nosnippet>347</a>            <span class="comment">// Get and confirm the fee with the user.
-<a href=#348 id=348 data-nosnippet>348</a>            </span><span class="kw">let </span>fee = transaction.fee_transition().expect(<span class="string">"Expected a fee in the transaction"</span>);
-<a href=#349 id=349 data-nosnippet>349</a>            <span class="kw">if </span>!confirm_fee(<span class="kw-2">&amp;</span>fee, <span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>context, command.extra.yes)<span class="question-mark">? </span>{
-<a href=#350 id=350 data-nosnippet>350</a>                <span class="macro">println!</span>(<span class="string">"⏩ Deployment skipped."</span>);
-<a href=#351 id=351 data-nosnippet>351</a>                <span class="kw">continue</span>;
-<a href=#352 id=352 data-nosnippet>352</a>            }
-<a href=#353 id=353 data-nosnippet>353</a>            <span class="kw">let </span>fee_id = fee.id().to_string();
-<a href=#354 id=354 data-nosnippet>354</a>            <span class="kw">let </span>id = transaction.id().to_string();
-<a href=#355 id=355 data-nosnippet>355</a>            <span class="kw">let </span>height_before = check_transaction::current_height(<span class="kw-2">&amp;</span>endpoint, network)<span class="question-mark">?</span>;
-<a href=#356 id=356 data-nosnippet>356</a>            <span class="comment">// Broadcast the transaction to the network.
-<a href=#357 id=357 data-nosnippet>357</a>            </span><span class="kw">let </span>(message, status) = handle_broadcast(
-<a href=#358 id=358 data-nosnippet>358</a>                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/transaction/broadcast"</span>),
-<a href=#359 id=359 data-nosnippet>359</a>                transaction,
-<a href=#360 id=360 data-nosnippet>360</a>                <span class="kw-2">&amp;</span>program_id.to_string(),
-<a href=#361 id=361 data-nosnippet>361</a>            )<span class="question-mark">?</span>;
-<a href=#362 id=362 data-nosnippet>362</a>
-<a href=#363 id=363 data-nosnippet>363</a>            <span class="kw">let </span>fail_and_prompt = |msg| {
-<a href=#364 id=364 data-nosnippet>364</a>                <span class="macro">println!</span>(<span class="string">"❌ Failed to deploy program {program_id}: {msg}."</span>);
-<a href=#365 id=365 data-nosnippet>365</a>                <span class="kw">let </span>count = transactions.len() - i - <span class="number">1</span>;
-<a href=#366 id=366 data-nosnippet>366</a>                <span class="comment">// Check if the user wants to continue with the next deployment.
-<a href=#367 id=367 data-nosnippet>367</a>                </span><span class="kw">if </span>count &gt; <span class="number">0 </span>{
-<a href=#368 id=368 data-nosnippet>368</a>                    confirm(<span class="string">"Do you want to continue with the next deployment?"</span>, command.extra.yes)
-<a href=#369 id=369 data-nosnippet>369</a>                } <span class="kw">else </span>{
-<a href=#370 id=370 data-nosnippet>370</a>                    <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
-<a href=#371 id=371 data-nosnippet>371</a>                }
-<a href=#372 id=372 data-nosnippet>372</a>            };
-<a href=#373 id=373 data-nosnippet>373</a>
-<a href=#374 id=374 data-nosnippet>374</a>            <span class="kw">match </span>status {
-<a href=#375 id=375 data-nosnippet>375</a>                <span class="number">200</span>..=<span class="number">299 </span>=&gt; {
-<a href=#376 id=376 data-nosnippet>376</a>                    <span class="kw">let </span>status = check_transaction::check_transaction_with_message(
-<a href=#377 id=377 data-nosnippet>377</a>                        <span class="kw-2">&amp;</span>id,
-<a href=#378 id=378 data-nosnippet>378</a>                        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>fee_id),
-<a href=#379 id=379 data-nosnippet>379</a>                        <span class="kw-2">&amp;</span>endpoint,
-<a href=#380 id=380 data-nosnippet>380</a>                        network,
-<a href=#381 id=381 data-nosnippet>381</a>                        height_before + <span class="number">1</span>,
-<a href=#382 id=382 data-nosnippet>382</a>                        command.extra.max_wait,
-<a href=#383 id=383 data-nosnippet>383</a>                        command.extra.blocks_to_check,
-<a href=#384 id=384 data-nosnippet>384</a>                    )<span class="question-mark">?</span>;
-<a href=#385 id=385 data-nosnippet>385</a>                    <span class="kw">if </span>status == <span class="prelude-val">Some</span>(TransactionStatus::Accepted) {
-<a href=#386 id=386 data-nosnippet>386</a>                        <span class="macro">println!</span>(<span class="string">"✅ Deployment confirmed!"</span>);
-<a href=#387 id=387 data-nosnippet>387</a>                    } <span class="kw">else if </span>fail_and_prompt(<span class="string">"could not find the transaction on the network"</span>)<span class="question-mark">? </span>{
-<a href=#388 id=388 data-nosnippet>388</a>                        <span class="kw">continue</span>;
-<a href=#389 id=389 data-nosnippet>389</a>                    } <span class="kw">else </span>{
-<a href=#390 id=390 data-nosnippet>390</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#391 id=391 data-nosnippet>391</a>                    }
-<a href=#392 id=392 data-nosnippet>392</a>                }
-<a href=#393 id=393 data-nosnippet>393</a>                <span class="kw">_ </span>=&gt; {
-<a href=#394 id=394 data-nosnippet>394</a>                    <span class="kw">if </span>fail_and_prompt(<span class="kw-2">&amp;</span>message)<span class="question-mark">? </span>{
-<a href=#395 id=395 data-nosnippet>395</a>                        <span class="kw">continue</span>;
-<a href=#396 id=396 data-nosnippet>396</a>                    } <span class="kw">else </span>{
-<a href=#397 id=397 data-nosnippet>397</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-<a href=#398 id=398 data-nosnippet>398</a>                    }
-<a href=#399 id=399 data-nosnippet>399</a>                }
-<a href=#400 id=400 data-nosnippet>400</a>            }
-<a href=#401 id=401 data-nosnippet>401</a>        }
-<a href=#402 id=402 data-nosnippet>402</a>    }
-<a href=#403 id=403 data-nosnippet>403</a>
-<a href=#404 id=404 data-nosnippet>404</a>    <span class="prelude-val">Ok</span>(())
-<a href=#405 id=405 data-nosnippet>405</a>}
-<a href=#406 id=406 data-nosnippet>406</a>
-<a href=#407 id=407 data-nosnippet>407</a><span class="doccomment">/// Check the tasks to warn the user about any potential issues.
-<a href=#408 id=408 data-nosnippet>408</a>/// The following properties are checked:
-<a href=#409 id=409 data-nosnippet>409</a>/// - If the transaction is to be broadcast:
-<a href=#410 id=410 data-nosnippet>410</a>///     - The program does not exist on the network.
-<a href=#411 id=411 data-nosnippet>411</a>///     - If the consensus version is less than V9, the program does not use V9 features.
-<a href=#412 id=412 data-nosnippet>412</a>///     - If the consensus version is V9 or greater, the program contains a constructor.
-<a href=#413 id=413 data-nosnippet>413</a>///     - The program size is approaching the limit.
-<a href=#414 id=414 data-nosnippet>414</a></span><span class="kw">fn </span>check_tasks_for_warnings&lt;N: Network&gt;(
-<a href=#415 id=415 data-nosnippet>415</a>    endpoint: <span class="kw-2">&amp;</span>str,
-<a href=#416 id=416 data-nosnippet>416</a>    network: NetworkName,
-<a href=#417 id=417 data-nosnippet>417</a>    tasks: <span class="kw-2">&amp;</span>[Task&lt;N&gt;],
-<a href=#418 id=418 data-nosnippet>418</a>    consensus_version: ConsensusVersion,
-<a href=#419 id=419 data-nosnippet>419</a>    command: <span class="kw-2">&amp;</span>LeoDeploy,
-<a href=#420 id=420 data-nosnippet>420</a>) -&gt; Vec&lt;String&gt; {
-<a href=#421 id=421 data-nosnippet>421</a>    <span class="kw">let </span><span class="kw-2">mut </span>warnings = Vec::new();
-<a href=#422 id=422 data-nosnippet>422</a>    <span class="kw">for </span>Task { id, is_local, program, bytecode_size, .. } <span class="kw">in </span>tasks {
-<a href=#423 id=423 data-nosnippet>423</a>        <span class="kw">if </span>!is_local || !command.action.broadcast {
-<a href=#424 id=424 data-nosnippet>424</a>            <span class="kw">continue</span>;
-<a href=#425 id=425 data-nosnippet>425</a>        }
-<a href=#426 id=426 data-nosnippet>426</a>        <span class="comment">// Check if the program exists on the network.
-<a href=#427 id=427 data-nosnippet>427</a>        </span><span class="kw">if </span>fetch_program_from_network(<span class="kw-2">&amp;</span>id.to_string(), endpoint, network).is_ok() {
-<a href=#428 id=428 data-nosnippet>428</a>            warnings
-<a href=#429 id=429 data-nosnippet>429</a>                .push(<span class="macro">format!</span>(<span class="string">"The program '{id}' already exists on the network. Please use `leo upgrade` instead."</span>,));
-<a href=#430 id=430 data-nosnippet>430</a>        }
-<a href=#431 id=431 data-nosnippet>431</a>        <span class="comment">// Check if the program has a valid naming scheme.
-<a href=#432 id=432 data-nosnippet>432</a>        </span><span class="kw">if </span>consensus_version &gt;= ConsensusVersion::V7
-<a href=#433 id=433 data-nosnippet>433</a>            &amp;&amp; <span class="kw">let </span><span class="prelude-val">Err</span>(e) = program.check_program_naming_structure()
-<a href=#434 id=434 data-nosnippet>434</a>        {
-<a href=#435 id=435 data-nosnippet>435</a>            warnings.push(<span class="macro">format!</span>(
-<a href=#436 id=436 data-nosnippet>436</a>                <span class="string">"The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
-<a href=#437 id=437 data-nosnippet>437</a>            </span>));
+<a href=#254 id=254 data-nosnippet>254</a>            <span class="comment">// Get the actual edition from the network if not specified.
+<a href=#255 id=255 data-nosnippet>255</a>            </span><span class="kw">let </span>edition = <span class="kw">match </span>task.edition {
+<a href=#256 id=256 data-nosnippet>256</a>                <span class="prelude-val">Some</span>(e) =&gt; e,
+<a href=#257 id=257 data-nosnippet>257</a>                <span class="prelude-val">None </span>=&gt; leo_package::fetch_latest_edition(<span class="kw-2">&amp;</span>task.id.to_string(), <span class="kw-2">&amp;</span>endpoint, network)<span class="question-mark">?</span>,
+<a href=#258 id=258 data-nosnippet>258</a>            };
+<a href=#259 id=259 data-nosnippet>259</a>            <span class="prelude-val">Ok</span>((task.program, edition))
+<a href=#260 id=260 data-nosnippet>260</a>        })
+<a href=#261 id=261 data-nosnippet>261</a>        .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
+<a href=#262 id=262 data-nosnippet>262</a>
+<a href=#263 id=263 data-nosnippet>263</a>    <span class="comment">// Check for programs that violate edition/constructor requirements.
+<a href=#264 id=264 data-nosnippet>264</a>    </span>check_edition_constructor_requirements(<span class="kw-2">&amp;</span>programs_and_editions, consensus_version, <span class="string">"deploy"</span>)<span class="question-mark">?</span>;
+<a href=#265 id=265 data-nosnippet>265</a>
+<a href=#266 id=266 data-nosnippet>266</a>    vm.process().write().add_programs_with_editions(<span class="kw-2">&amp;</span>programs_and_editions)<span class="question-mark">?</span>;
+<a href=#267 id=267 data-nosnippet>267</a>
+<a href=#268 id=268 data-nosnippet>268</a>    <span class="comment">// Remove version suffixes from the endpoint.
+<a href=#269 id=269 data-nosnippet>269</a>    </span><span class="kw">let </span>re = regex::Regex::new(<span class="string">r"v\d+$"</span>).unwrap();
+<a href=#270 id=270 data-nosnippet>270</a>    <span class="kw">let </span>query_endpoint = re.replace(<span class="kw-2">&amp;</span>endpoint, <span class="string">""</span>).to_string();
+<a href=#271 id=271 data-nosnippet>271</a>
+<a href=#272 id=272 data-nosnippet>272</a>    <span class="comment">// Specify the query
+<a href=#273 id=273 data-nosnippet>273</a>    </span><span class="kw">let </span>query = SnarkVMQuery::&lt;N, BlockMemory&lt;N&gt;&gt;::from(
+<a href=#274 id=274 data-nosnippet>274</a>        query_endpoint
+<a href=#275 id=275 data-nosnippet>275</a>            .parse::&lt;Uri&gt;()
+<a href=#276 id=276 data-nosnippet>276</a>            .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to parse endpoint URI '{endpoint}': {e}"</span>)))<span class="question-mark">?</span>,
+<a href=#277 id=277 data-nosnippet>277</a>    );
+<a href=#278 id=278 data-nosnippet>278</a>
+<a href=#279 id=279 data-nosnippet>279</a>    <span class="comment">// For each of the programs, generate a deployment transaction.
+<a href=#280 id=280 data-nosnippet>280</a>    </span><span class="kw">let </span><span class="kw-2">mut </span>transactions = Vec::new();
+<a href=#281 id=281 data-nosnippet>281</a>    <span class="kw">for </span>Task { id, program, priority_fee, record, bytecode_size, .. } <span class="kw">in </span>local {
+<a href=#282 id=282 data-nosnippet>282</a>        <span class="comment">// If the program is a local dependency that is not skipped, generate a deployment transaction.
+<a href=#283 id=283 data-nosnippet>283</a>        </span><span class="kw">if </span>!skipped.contains(<span class="kw-2">&amp;</span>id) {
+<a href=#284 id=284 data-nosnippet>284</a>            <span class="comment">// If the program contains an upgrade config, confirm with the user that they want to proceed.
+<a href=#285 id=285 data-nosnippet>285</a>            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(constructor) = program.constructor() {
+<a href=#286 id=286 data-nosnippet>286</a>                <span class="macro">println!</span>(
+<a href=#287 id=287 data-nosnippet>287</a>                    <span class="string">r"
+<a href=#288 id=288 data-nosnippet>288</a>🔧 Your program '{}' has the following constructor.
+<a href=#289 id=289 data-nosnippet>289</a>──────────────────────────────────────────────
+<a href=#290 id=290 data-nosnippet>290</a>{constructor}
+<a href=#291 id=291 data-nosnippet>291</a>──────────────────────────────────────────────
+<a href=#292 id=292 data-nosnippet>292</a>Once it is deployed, it CANNOT be changed.
+<a href=#293 id=293 data-nosnippet>293</a>"</span>,
+<a href=#294 id=294 data-nosnippet>294</a>                    id.to_string().bold()
+<a href=#295 id=295 data-nosnippet>295</a>                );
+<a href=#296 id=296 data-nosnippet>296</a>                <span class="kw">if </span>!confirm(<span class="string">"Would you like to proceed?"</span>, command.extra.yes)<span class="question-mark">? </span>{
+<a href=#297 id=297 data-nosnippet>297</a>                    <span class="macro">println!</span>(<span class="string">"❌ Deployment aborted."</span>);
+<a href=#298 id=298 data-nosnippet>298</a>                    <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#299 id=299 data-nosnippet>299</a>                }
+<a href=#300 id=300 data-nosnippet>300</a>            }
+<a href=#301 id=301 data-nosnippet>301</a>            <span class="macro">println!</span>(<span class="string">"📦 Creating deployment transaction for '{}'...\n"</span>, id.to_string().bold());
+<a href=#302 id=302 data-nosnippet>302</a>            <span class="comment">// Generate the transaction.
+<a href=#303 id=303 data-nosnippet>303</a>            </span><span class="kw">let </span>transaction =
+<a href=#304 id=304 data-nosnippet>304</a>                vm.deploy(<span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>program, record, priority_fee.unwrap_or(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>query), rng)
+<a href=#305 id=305 data-nosnippet>305</a>                    .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to generate deployment transaction: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#306 id=306 data-nosnippet>306</a>            <span class="comment">// Get the deployment.
+<a href=#307 id=307 data-nosnippet>307</a>            </span><span class="kw">let </span>deployment = transaction.deployment().expect(<span class="string">"Expected a deployment in the transaction"</span>);
+<a href=#308 id=308 data-nosnippet>308</a>            <span class="comment">// Print the deployment stats.
+<a href=#309 id=309 data-nosnippet>309</a>            </span>print_deployment_stats(<span class="kw-2">&amp;</span>vm, <span class="kw-2">&amp;</span>id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)<span class="question-mark">?</span>;
+<a href=#310 id=310 data-nosnippet>310</a>            <span class="comment">// Save the transaction.
+<a href=#311 id=311 data-nosnippet>311</a>            </span>transactions.push((id, transaction));
+<a href=#312 id=312 data-nosnippet>312</a>        }
+<a href=#313 id=313 data-nosnippet>313</a>        <span class="comment">// Add the program to the VM.
+<a href=#314 id=314 data-nosnippet>314</a>        </span>vm.process().write().add_program(<span class="kw-2">&amp;</span>program)<span class="question-mark">?</span>;
+<a href=#315 id=315 data-nosnippet>315</a>    }
+<a href=#316 id=316 data-nosnippet>316</a>
+<a href=#317 id=317 data-nosnippet>317</a>    <span class="kw">for </span>(program_id, transaction) <span class="kw">in </span>transactions.iter() {
+<a href=#318 id=318 data-nosnippet>318</a>        <span class="comment">// Validate the deployment limits.
+<a href=#319 id=319 data-nosnippet>319</a>        </span><span class="kw">let </span>deployment = transaction.deployment().expect(<span class="string">"Expected a deployment in the transaction"</span>);
+<a href=#320 id=320 data-nosnippet>320</a>        validate_deployment_limits(deployment, program_id, <span class="kw-2">&amp;</span>network)<span class="question-mark">?</span>;
+<a href=#321 id=321 data-nosnippet>321</a>    }
+<a href=#322 id=322 data-nosnippet>322</a>
+<a href=#323 id=323 data-nosnippet>323</a>    <span class="comment">// If the `print` option is set, print the deployment transaction to the console.
+<a href=#324 id=324 data-nosnippet>324</a>    // The transaction is printed in JSON format.
+<a href=#325 id=325 data-nosnippet>325</a>    </span><span class="kw">if </span>command.action.print {
+<a href=#326 id=326 data-nosnippet>326</a>        <span class="kw">for </span>(program_name, transaction) <span class="kw">in </span>transactions.iter() {
+<a href=#327 id=327 data-nosnippet>327</a>            <span class="comment">// Pretty-print the transaction.
+<a href=#328 id=328 data-nosnippet>328</a>            </span><span class="kw">let </span>transaction_json = serde_json::to_string_pretty(transaction)
+<a href=#329 id=329 data-nosnippet>329</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize transaction: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#330 id=330 data-nosnippet>330</a>            <span class="macro">println!</span>(<span class="string">"🖨️ Printing deployment for {program_name}\n{transaction_json}"</span>)
+<a href=#331 id=331 data-nosnippet>331</a>        }
+<a href=#332 id=332 data-nosnippet>332</a>    }
+<a href=#333 id=333 data-nosnippet>333</a>
+<a href=#334 id=334 data-nosnippet>334</a>    <span class="comment">// If the `save` option is set, save each deployment transaction to a file in the specified directory.
+<a href=#335 id=335 data-nosnippet>335</a>    // The file format is `program_name.deployment.json`.
+<a href=#336 id=336 data-nosnippet>336</a>    // The directory is created if it doesn't exist.
+<a href=#337 id=337 data-nosnippet>337</a>    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>command.action.save {
+<a href=#338 id=338 data-nosnippet>338</a>        <span class="comment">// Create the directory if it doesn't exist.
+<a href=#339 id=339 data-nosnippet>339</a>        </span>std::fs::create_dir_all(path).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to create directory: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#340 id=340 data-nosnippet>340</a>        <span class="kw">for </span>(program_name, transaction) <span class="kw">in </span>transactions.iter() {
+<a href=#341 id=341 data-nosnippet>341</a>            <span class="comment">// Save the transaction to a file.
+<a href=#342 id=342 data-nosnippet>342</a>            </span><span class="kw">let </span>file_path = PathBuf::from(path).join(<span class="macro">format!</span>(<span class="string">"{program_name}.deployment.json"</span>));
+<a href=#343 id=343 data-nosnippet>343</a>            <span class="macro">println!</span>(<span class="string">"💾 Saving deployment for {program_name} at {}"</span>, file_path.display());
+<a href=#344 id=344 data-nosnippet>344</a>            <span class="kw">let </span>transaction_json = serde_json::to_string_pretty(transaction)
+<a href=#345 id=345 data-nosnippet>345</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize transaction: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#346 id=346 data-nosnippet>346</a>            std::fs::write(file_path, transaction_json)
+<a href=#347 id=347 data-nosnippet>347</a>                .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to write transaction to file: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#348 id=348 data-nosnippet>348</a>        }
+<a href=#349 id=349 data-nosnippet>349</a>    }
+<a href=#350 id=350 data-nosnippet>350</a>
+<a href=#351 id=351 data-nosnippet>351</a>    <span class="comment">// If the `broadcast` option is set, broadcast each deployment transaction to the network.
+<a href=#352 id=352 data-nosnippet>352</a>    </span><span class="kw">if </span>command.action.broadcast {
+<a href=#353 id=353 data-nosnippet>353</a>        <span class="kw">for </span>(i, (program_id, transaction)) <span class="kw">in </span>transactions.iter().enumerate() {
+<a href=#354 id=354 data-nosnippet>354</a>            <span class="macro">println!</span>(<span class="string">"\n📡 Broadcasting deployment for {}..."</span>, program_id.to_string().bold());
+<a href=#355 id=355 data-nosnippet>355</a>            <span class="comment">// Get and confirm the fee with the user.
+<a href=#356 id=356 data-nosnippet>356</a>            </span><span class="kw">let </span>fee = transaction.fee_transition().expect(<span class="string">"Expected a fee in the transaction"</span>);
+<a href=#357 id=357 data-nosnippet>357</a>            <span class="kw">if </span>!confirm_fee(<span class="kw-2">&amp;</span>fee, <span class="kw-2">&amp;</span>private_key, <span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>endpoint, network, <span class="kw-2">&amp;</span>context, command.extra.yes)<span class="question-mark">? </span>{
+<a href=#358 id=358 data-nosnippet>358</a>                <span class="macro">println!</span>(<span class="string">"⏩ Deployment skipped."</span>);
+<a href=#359 id=359 data-nosnippet>359</a>                <span class="kw">continue</span>;
+<a href=#360 id=360 data-nosnippet>360</a>            }
+<a href=#361 id=361 data-nosnippet>361</a>            <span class="kw">let </span>fee_id = fee.id().to_string();
+<a href=#362 id=362 data-nosnippet>362</a>            <span class="kw">let </span>id = transaction.id().to_string();
+<a href=#363 id=363 data-nosnippet>363</a>            <span class="kw">let </span>height_before = check_transaction::current_height(<span class="kw-2">&amp;</span>endpoint, network)<span class="question-mark">?</span>;
+<a href=#364 id=364 data-nosnippet>364</a>            <span class="comment">// Broadcast the transaction to the network.
+<a href=#365 id=365 data-nosnippet>365</a>            </span><span class="kw">let </span>(message, status) = handle_broadcast(
+<a href=#366 id=366 data-nosnippet>366</a>                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{endpoint}/{network}/transaction/broadcast"</span>),
+<a href=#367 id=367 data-nosnippet>367</a>                transaction,
+<a href=#368 id=368 data-nosnippet>368</a>                <span class="kw-2">&amp;</span>program_id.to_string(),
+<a href=#369 id=369 data-nosnippet>369</a>            )<span class="question-mark">?</span>;
+<a href=#370 id=370 data-nosnippet>370</a>
+<a href=#371 id=371 data-nosnippet>371</a>            <span class="kw">let </span>fail_and_prompt = |msg| {
+<a href=#372 id=372 data-nosnippet>372</a>                <span class="macro">println!</span>(<span class="string">"❌ Failed to deploy program {program_id}: {msg}."</span>);
+<a href=#373 id=373 data-nosnippet>373</a>                <span class="kw">let </span>count = transactions.len() - i - <span class="number">1</span>;
+<a href=#374 id=374 data-nosnippet>374</a>                <span class="comment">// Check if the user wants to continue with the next deployment.
+<a href=#375 id=375 data-nosnippet>375</a>                </span><span class="kw">if </span>count &gt; <span class="number">0 </span>{
+<a href=#376 id=376 data-nosnippet>376</a>                    confirm(<span class="string">"Do you want to continue with the next deployment?"</span>, command.extra.yes)
+<a href=#377 id=377 data-nosnippet>377</a>                } <span class="kw">else </span>{
+<a href=#378 id=378 data-nosnippet>378</a>                    <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
+<a href=#379 id=379 data-nosnippet>379</a>                }
+<a href=#380 id=380 data-nosnippet>380</a>            };
+<a href=#381 id=381 data-nosnippet>381</a>
+<a href=#382 id=382 data-nosnippet>382</a>            <span class="kw">match </span>status {
+<a href=#383 id=383 data-nosnippet>383</a>                <span class="number">200</span>..=<span class="number">299 </span>=&gt; {
+<a href=#384 id=384 data-nosnippet>384</a>                    <span class="kw">let </span>status = check_transaction::check_transaction_with_message(
+<a href=#385 id=385 data-nosnippet>385</a>                        <span class="kw-2">&amp;</span>id,
+<a href=#386 id=386 data-nosnippet>386</a>                        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>fee_id),
+<a href=#387 id=387 data-nosnippet>387</a>                        <span class="kw-2">&amp;</span>endpoint,
+<a href=#388 id=388 data-nosnippet>388</a>                        network,
+<a href=#389 id=389 data-nosnippet>389</a>                        height_before + <span class="number">1</span>,
+<a href=#390 id=390 data-nosnippet>390</a>                        command.extra.max_wait,
+<a href=#391 id=391 data-nosnippet>391</a>                        command.extra.blocks_to_check,
+<a href=#392 id=392 data-nosnippet>392</a>                    )<span class="question-mark">?</span>;
+<a href=#393 id=393 data-nosnippet>393</a>                    <span class="kw">if </span>status == <span class="prelude-val">Some</span>(TransactionStatus::Accepted) {
+<a href=#394 id=394 data-nosnippet>394</a>                        <span class="macro">println!</span>(<span class="string">"✅ Deployment confirmed!"</span>);
+<a href=#395 id=395 data-nosnippet>395</a>                    } <span class="kw">else if </span>fail_and_prompt(<span class="string">"could not find the transaction on the network"</span>)<span class="question-mark">? </span>{
+<a href=#396 id=396 data-nosnippet>396</a>                        <span class="kw">continue</span>;
+<a href=#397 id=397 data-nosnippet>397</a>                    } <span class="kw">else </span>{
+<a href=#398 id=398 data-nosnippet>398</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#399 id=399 data-nosnippet>399</a>                    }
+<a href=#400 id=400 data-nosnippet>400</a>                }
+<a href=#401 id=401 data-nosnippet>401</a>                <span class="kw">_ </span>=&gt; {
+<a href=#402 id=402 data-nosnippet>402</a>                    <span class="kw">if </span>fail_and_prompt(<span class="kw-2">&amp;</span>message)<span class="question-mark">? </span>{
+<a href=#403 id=403 data-nosnippet>403</a>                        <span class="kw">continue</span>;
+<a href=#404 id=404 data-nosnippet>404</a>                    } <span class="kw">else </span>{
+<a href=#405 id=405 data-nosnippet>405</a>                        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+<a href=#406 id=406 data-nosnippet>406</a>                    }
+<a href=#407 id=407 data-nosnippet>407</a>                }
+<a href=#408 id=408 data-nosnippet>408</a>            }
+<a href=#409 id=409 data-nosnippet>409</a>        }
+<a href=#410 id=410 data-nosnippet>410</a>    }
+<a href=#411 id=411 data-nosnippet>411</a>
+<a href=#412 id=412 data-nosnippet>412</a>    <span class="prelude-val">Ok</span>(())
+<a href=#413 id=413 data-nosnippet>413</a>}
+<a href=#414 id=414 data-nosnippet>414</a>
+<a href=#415 id=415 data-nosnippet>415</a><span class="doccomment">/// Check the tasks to warn the user about any potential issues.
+<a href=#416 id=416 data-nosnippet>416</a>/// The following properties are checked:
+<a href=#417 id=417 data-nosnippet>417</a>/// - If the transaction is to be broadcast:
+<a href=#418 id=418 data-nosnippet>418</a>///     - The program does not exist on the network.
+<a href=#419 id=419 data-nosnippet>419</a>///     - If the consensus version is less than V9, the program does not use V9 features.
+<a href=#420 id=420 data-nosnippet>420</a>///     - If the consensus version is V9 or greater, the program contains a constructor.
+<a href=#421 id=421 data-nosnippet>421</a>///     - The program size is approaching the limit.
+<a href=#422 id=422 data-nosnippet>422</a></span><span class="kw">fn </span>check_tasks_for_warnings&lt;N: Network&gt;(
+<a href=#423 id=423 data-nosnippet>423</a>    endpoint: <span class="kw-2">&amp;</span>str,
+<a href=#424 id=424 data-nosnippet>424</a>    network: NetworkName,
+<a href=#425 id=425 data-nosnippet>425</a>    tasks: <span class="kw-2">&amp;</span>[Task&lt;N&gt;],
+<a href=#426 id=426 data-nosnippet>426</a>    consensus_version: ConsensusVersion,
+<a href=#427 id=427 data-nosnippet>427</a>    command: <span class="kw-2">&amp;</span>LeoDeploy,
+<a href=#428 id=428 data-nosnippet>428</a>) -&gt; Vec&lt;String&gt; {
+<a href=#429 id=429 data-nosnippet>429</a>    <span class="kw">let </span><span class="kw-2">mut </span>warnings = Vec::new();
+<a href=#430 id=430 data-nosnippet>430</a>    <span class="kw">for </span>Task { id, is_local, program, bytecode_size, .. } <span class="kw">in </span>tasks {
+<a href=#431 id=431 data-nosnippet>431</a>        <span class="kw">if </span>!is_local || !command.action.broadcast {
+<a href=#432 id=432 data-nosnippet>432</a>            <span class="kw">continue</span>;
+<a href=#433 id=433 data-nosnippet>433</a>        }
+<a href=#434 id=434 data-nosnippet>434</a>        <span class="comment">// Check if the program exists on the network.
+<a href=#435 id=435 data-nosnippet>435</a>        </span><span class="kw">if </span>fetch_program_from_network(<span class="kw-2">&amp;</span>id.to_string(), endpoint, network).is_ok() {
+<a href=#436 id=436 data-nosnippet>436</a>            warnings
+<a href=#437 id=437 data-nosnippet>437</a>                .push(<span class="macro">format!</span>(<span class="string">"The program '{id}' already exists on the network. Please use `leo upgrade` instead."</span>,));
 <a href=#438 id=438 data-nosnippet>438</a>        }
-<a href=#439 id=439 data-nosnippet>439</a>
-<a href=#440 id=440 data-nosnippet>440</a>        <span class="comment">// Check if the program contains restricted keywords.
-<a href=#441 id=441 data-nosnippet>441</a>        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = program.check_restricted_keywords_for_consensus_version(consensus_version) {
-<a href=#442 id=442 data-nosnippet>442</a>            warnings.push(<span class="macro">format!</span>(
-<a href=#443 id=443 data-nosnippet>443</a>                <span class="string">"The program '{id}' contains restricted keywords for consensus version {}: {e}. The deployment will likely fail."</span>,
-<a href=#444 id=444 data-nosnippet>444</a>                consensus_version <span class="kw">as </span>u8
-<a href=#445 id=445 data-nosnippet>445</a>            ));
+<a href=#439 id=439 data-nosnippet>439</a>        <span class="comment">// Check if the program has a valid naming scheme.
+<a href=#440 id=440 data-nosnippet>440</a>        </span><span class="kw">if </span>consensus_version &gt;= ConsensusVersion::V7
+<a href=#441 id=441 data-nosnippet>441</a>            &amp;&amp; <span class="kw">let </span><span class="prelude-val">Err</span>(e) = program.check_program_naming_structure()
+<a href=#442 id=442 data-nosnippet>442</a>        {
+<a href=#443 id=443 data-nosnippet>443</a>            warnings.push(<span class="macro">format!</span>(
+<a href=#444 id=444 data-nosnippet>444</a>                <span class="string">"The program '{id}' has an invalid naming scheme: {e}. The deployment will likely fail."
+<a href=#445 id=445 data-nosnippet>445</a>            </span>));
 <a href=#446 id=446 data-nosnippet>446</a>        }
-<a href=#447 id=447 data-nosnippet>447</a>        <span class="comment">// Check if the program uses V9 features.
-<a href=#448 id=448 data-nosnippet>448</a>        </span><span class="kw">if </span>consensus_version &lt; ConsensusVersion::V9 &amp;&amp; program.contains_v9_syntax() {
-<a href=#449 id=449 data-nosnippet>449</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' uses V9 features but the consensus version is less than V9. The deployment will likely fail"</span>));
-<a href=#450 id=450 data-nosnippet>450</a>        }
-<a href=#451 id=451 data-nosnippet>451</a>        <span class="comment">// Check if the program contains a constructor.
-<a href=#452 id=452 data-nosnippet>452</a>        </span><span class="kw">if </span>consensus_version &gt;= ConsensusVersion::V9 &amp;&amp; !program.contains_constructor() {
-<a href=#453 id=453 data-nosnippet>453</a>            warnings
-<a href=#454 id=454 data-nosnippet>454</a>                .push(<span class="macro">format!</span>(<span class="string">"The program '{id}' does not contain a constructor. The deployment will likely fail"</span>,));
-<a href=#455 id=455 data-nosnippet>455</a>        }
-<a href=#456 id=456 data-nosnippet>456</a>        <span class="comment">// Check if the program size is approaching the limit.
-<a href=#457 id=457 data-nosnippet>457</a>        </span><span class="kw">if let </span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="prelude-val">Some</span>(msg)) = format_program_size(<span class="kw-2">*</span>bytecode_size, N::MAX_PROGRAM_SIZE) {
-<a href=#458 id=458 data-nosnippet>458</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' is {msg}."</span>));
-<a href=#459 id=459 data-nosnippet>459</a>        }
-<a href=#460 id=460 data-nosnippet>460</a>    }
-<a href=#461 id=461 data-nosnippet>461</a>    <span class="comment">// Check for a consensus version mismatch.
-<a href=#462 id=462 data-nosnippet>462</a>    </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
-<a href=#463 id=463 data-nosnippet>463</a>        warnings.push(<span class="macro">format!</span>(<span class="string">"{e}. In some cases, the deployment may fail"</span>));
-<a href=#464 id=464 data-nosnippet>464</a>    }
-<a href=#465 id=465 data-nosnippet>465</a>    warnings
-<a href=#466 id=466 data-nosnippet>466</a>}
-<a href=#467 id=467 data-nosnippet>467</a>
-<a href=#468 id=468 data-nosnippet>468</a><span class="doccomment">/// Check if the number of variables and constraints are within the limits.
-<a href=#469 id=469 data-nosnippet>469</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>validate_deployment_limits&lt;N: Network&gt;(
-<a href=#470 id=470 data-nosnippet>470</a>    deployment: <span class="kw-2">&amp;</span>Deployment&lt;N&gt;,
-<a href=#471 id=471 data-nosnippet>471</a>    program_id: <span class="kw-2">&amp;</span>ProgramID&lt;N&gt;,
-<a href=#472 id=472 data-nosnippet>472</a>    network: <span class="kw-2">&amp;</span>NetworkName,
-<a href=#473 id=473 data-nosnippet>473</a>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#474 id=474 data-nosnippet>474</a>    <span class="comment">// Check if the number of variables is within the limits.
-<a href=#475 id=475 data-nosnippet>475</a>    </span><span class="kw">let </span>combined_variables = deployment.num_combined_variables()<span class="question-mark">?</span>;
-<a href=#476 id=476 data-nosnippet>476</a>    <span class="kw">if </span>combined_variables &gt; N::MAX_DEPLOYMENT_VARIABLES {
-<a href=#477 id=477 data-nosnippet>477</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::variable_limit_exceeded(
-<a href=#478 id=478 data-nosnippet>478</a>            program_id,
-<a href=#479 id=479 data-nosnippet>479</a>            combined_variables,
-<a href=#480 id=480 data-nosnippet>480</a>            N::MAX_DEPLOYMENT_VARIABLES,
-<a href=#481 id=481 data-nosnippet>481</a>            network,
-<a href=#482 id=482 data-nosnippet>482</a>        )
-<a href=#483 id=483 data-nosnippet>483</a>        .into());
-<a href=#484 id=484 data-nosnippet>484</a>    }
-<a href=#485 id=485 data-nosnippet>485</a>
-<a href=#486 id=486 data-nosnippet>486</a>    <span class="comment">// Check if the number of constraints is within the limits.
-<a href=#487 id=487 data-nosnippet>487</a>    </span><span class="kw">let </span>constraints = deployment.num_combined_constraints()<span class="question-mark">?</span>;
-<a href=#488 id=488 data-nosnippet>488</a>    <span class="kw">if </span>constraints &gt; N::MAX_DEPLOYMENT_CONSTRAINTS {
-<a href=#489 id=489 data-nosnippet>489</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::constraint_limit_exceeded(
-<a href=#490 id=490 data-nosnippet>490</a>            program_id,
-<a href=#491 id=491 data-nosnippet>491</a>            constraints,
-<a href=#492 id=492 data-nosnippet>492</a>            N::MAX_DEPLOYMENT_CONSTRAINTS,
-<a href=#493 id=493 data-nosnippet>493</a>            network,
-<a href=#494 id=494 data-nosnippet>494</a>        )
-<a href=#495 id=495 data-nosnippet>495</a>        .into());
-<a href=#496 id=496 data-nosnippet>496</a>    }
-<a href=#497 id=497 data-nosnippet>497</a>
-<a href=#498 id=498 data-nosnippet>498</a>    <span class="prelude-val">Ok</span>(())
-<a href=#499 id=499 data-nosnippet>499</a>}
-<a href=#500 id=500 data-nosnippet>500</a>
-<a href=#501 id=501 data-nosnippet>501</a><span class="doccomment">/// Pretty‑print the deployment plan without using a table.
-<a href=#502 id=502 data-nosnippet>502</a></span><span class="attr">#[allow(clippy::too_many_arguments)]
-<a href=#503 id=503 data-nosnippet>503</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>print_deployment_plan&lt;N: Network&gt;(
-<a href=#504 id=504 data-nosnippet>504</a>    private_key: <span class="kw-2">&amp;</span>PrivateKey&lt;N&gt;,
-<a href=#505 id=505 data-nosnippet>505</a>    address: <span class="kw-2">&amp;</span>Address&lt;N&gt;,
-<a href=#506 id=506 data-nosnippet>506</a>    endpoint: <span class="kw-2">&amp;</span>str,
-<a href=#507 id=507 data-nosnippet>507</a>    network: <span class="kw-2">&amp;</span>NetworkName,
-<a href=#508 id=508 data-nosnippet>508</a>    local: <span class="kw-2">&amp;</span>[Task&lt;N&gt;],
-<a href=#509 id=509 data-nosnippet>509</a>    skipped: <span class="kw-2">&amp;</span>HashSet&lt;ProgramID&lt;N&gt;&gt;,
-<a href=#510 id=510 data-nosnippet>510</a>    remote: <span class="kw-2">&amp;</span>[Task&lt;N&gt;],
-<a href=#511 id=511 data-nosnippet>511</a>    warnings: <span class="kw-2">&amp;</span>[String],
-<a href=#512 id=512 data-nosnippet>512</a>    consensus_version: ConsensusVersion,
-<a href=#513 id=513 data-nosnippet>513</a>    command: <span class="kw-2">&amp;</span>LeoDeploy,
-<a href=#514 id=514 data-nosnippet>514</a>) {
-<a href=#515 id=515 data-nosnippet>515</a>    <span class="kw">use </span>colored::<span class="kw-2">*</span>;
-<a href=#516 id=516 data-nosnippet>516</a>
-<a href=#517 id=517 data-nosnippet>517</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🛠️  Deployment Plan Summary"</span>.bold());
-<a href=#518 id=518 data-nosnippet>518</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
-<a href=#519 id=519 data-nosnippet>519</a>
-<a href=#520 id=520 data-nosnippet>520</a>    <span class="comment">// ── Configuration ────────────────────────────────────────────────────
-<a href=#521 id=521 data-nosnippet>521</a>    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"🔧 Configuration:"</span>.bold());
-<a href=#522 id=522 data-nosnippet>522</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Private Key:"</span>.cyan(), <span class="macro">format!</span>(<span class="string">"{}..."</span>, <span class="kw-2">&amp;</span>private_key.to_string()[..<span class="number">24</span>]).yellow());
-<a href=#523 id=523 data-nosnippet>523</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Address:"</span>.cyan(), <span class="macro">format!</span>(<span class="string">"{}..."</span>, <span class="kw-2">&amp;</span>address.to_string()[..<span class="number">24</span>]).yellow());
-<a href=#524 id=524 data-nosnippet>524</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Endpoint:"</span>.cyan(), endpoint.yellow());
-<a href=#525 id=525 data-nosnippet>525</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Network:"</span>.cyan(), network.to_string().yellow());
-<a href=#526 id=526 data-nosnippet>526</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Consensus Version:"</span>.cyan(), (consensus_version <span class="kw">as </span>u8).to_string().yellow());
+<a href=#447 id=447 data-nosnippet>447</a>
+<a href=#448 id=448 data-nosnippet>448</a>        <span class="comment">// Check if the program contains restricted keywords.
+<a href=#449 id=449 data-nosnippet>449</a>        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = program.check_restricted_keywords_for_consensus_version(consensus_version) {
+<a href=#450 id=450 data-nosnippet>450</a>            warnings.push(<span class="macro">format!</span>(
+<a href=#451 id=451 data-nosnippet>451</a>                <span class="string">"The program '{id}' contains restricted keywords for consensus version {}: {e}. The deployment will likely fail."</span>,
+<a href=#452 id=452 data-nosnippet>452</a>                consensus_version <span class="kw">as </span>u8
+<a href=#453 id=453 data-nosnippet>453</a>            ));
+<a href=#454 id=454 data-nosnippet>454</a>        }
+<a href=#455 id=455 data-nosnippet>455</a>        <span class="comment">// Check if the program uses V9 features.
+<a href=#456 id=456 data-nosnippet>456</a>        </span><span class="kw">if </span>consensus_version &lt; ConsensusVersion::V9 &amp;&amp; program.contains_v9_syntax() {
+<a href=#457 id=457 data-nosnippet>457</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' uses V9 features but the consensus version is less than V9. The deployment will likely fail"</span>));
+<a href=#458 id=458 data-nosnippet>458</a>        }
+<a href=#459 id=459 data-nosnippet>459</a>        <span class="comment">// Check if the program contains a constructor.
+<a href=#460 id=460 data-nosnippet>460</a>        </span><span class="kw">if </span>consensus_version &gt;= ConsensusVersion::V9 &amp;&amp; !program.contains_constructor() {
+<a href=#461 id=461 data-nosnippet>461</a>            warnings
+<a href=#462 id=462 data-nosnippet>462</a>                .push(<span class="macro">format!</span>(<span class="string">"The program '{id}' does not contain a constructor. The deployment will likely fail"</span>,));
+<a href=#463 id=463 data-nosnippet>463</a>        }
+<a href=#464 id=464 data-nosnippet>464</a>        <span class="comment">// Check if the program size is approaching the limit.
+<a href=#465 id=465 data-nosnippet>465</a>        </span><span class="kw">if let </span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="prelude-val">Some</span>(msg)) = format_program_size(<span class="kw-2">*</span>bytecode_size, N::MAX_PROGRAM_SIZE) {
+<a href=#466 id=466 data-nosnippet>466</a>            warnings.push(<span class="macro">format!</span>(<span class="string">"The program '{id}' is {msg}."</span>));
+<a href=#467 id=467 data-nosnippet>467</a>        }
+<a href=#468 id=468 data-nosnippet>468</a>    }
+<a href=#469 id=469 data-nosnippet>469</a>    <span class="comment">// Check for a consensus version mismatch.
+<a href=#470 id=470 data-nosnippet>470</a>    </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+<a href=#471 id=471 data-nosnippet>471</a>        warnings.push(<span class="macro">format!</span>(<span class="string">"{e}. In some cases, the deployment may fail"</span>));
+<a href=#472 id=472 data-nosnippet>472</a>    }
+<a href=#473 id=473 data-nosnippet>473</a>    warnings
+<a href=#474 id=474 data-nosnippet>474</a>}
+<a href=#475 id=475 data-nosnippet>475</a>
+<a href=#476 id=476 data-nosnippet>476</a><span class="doccomment">/// Check if the number of variables and constraints are within the limits.
+<a href=#477 id=477 data-nosnippet>477</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>validate_deployment_limits&lt;N: Network&gt;(
+<a href=#478 id=478 data-nosnippet>478</a>    deployment: <span class="kw-2">&amp;</span>Deployment&lt;N&gt;,
+<a href=#479 id=479 data-nosnippet>479</a>    program_id: <span class="kw-2">&amp;</span>ProgramID&lt;N&gt;,
+<a href=#480 id=480 data-nosnippet>480</a>    network: <span class="kw-2">&amp;</span>NetworkName,
+<a href=#481 id=481 data-nosnippet>481</a>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#482 id=482 data-nosnippet>482</a>    <span class="comment">// Check if the number of variables is within the limits.
+<a href=#483 id=483 data-nosnippet>483</a>    </span><span class="kw">let </span>combined_variables = deployment.num_combined_variables()<span class="question-mark">?</span>;
+<a href=#484 id=484 data-nosnippet>484</a>    <span class="kw">if </span>combined_variables &gt; N::MAX_DEPLOYMENT_VARIABLES {
+<a href=#485 id=485 data-nosnippet>485</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::variable_limit_exceeded(
+<a href=#486 id=486 data-nosnippet>486</a>            program_id,
+<a href=#487 id=487 data-nosnippet>487</a>            combined_variables,
+<a href=#488 id=488 data-nosnippet>488</a>            N::MAX_DEPLOYMENT_VARIABLES,
+<a href=#489 id=489 data-nosnippet>489</a>            network,
+<a href=#490 id=490 data-nosnippet>490</a>        )
+<a href=#491 id=491 data-nosnippet>491</a>        .into());
+<a href=#492 id=492 data-nosnippet>492</a>    }
+<a href=#493 id=493 data-nosnippet>493</a>
+<a href=#494 id=494 data-nosnippet>494</a>    <span class="comment">// Check if the number of constraints is within the limits.
+<a href=#495 id=495 data-nosnippet>495</a>    </span><span class="kw">let </span>constraints = deployment.num_combined_constraints()<span class="question-mark">?</span>;
+<a href=#496 id=496 data-nosnippet>496</a>    <span class="kw">if </span>constraints &gt; N::MAX_DEPLOYMENT_CONSTRAINTS {
+<a href=#497 id=497 data-nosnippet>497</a>        <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::constraint_limit_exceeded(
+<a href=#498 id=498 data-nosnippet>498</a>            program_id,
+<a href=#499 id=499 data-nosnippet>499</a>            constraints,
+<a href=#500 id=500 data-nosnippet>500</a>            N::MAX_DEPLOYMENT_CONSTRAINTS,
+<a href=#501 id=501 data-nosnippet>501</a>            network,
+<a href=#502 id=502 data-nosnippet>502</a>        )
+<a href=#503 id=503 data-nosnippet>503</a>        .into());
+<a href=#504 id=504 data-nosnippet>504</a>    }
+<a href=#505 id=505 data-nosnippet>505</a>
+<a href=#506 id=506 data-nosnippet>506</a>    <span class="prelude-val">Ok</span>(())
+<a href=#507 id=507 data-nosnippet>507</a>}
+<a href=#508 id=508 data-nosnippet>508</a>
+<a href=#509 id=509 data-nosnippet>509</a><span class="doccomment">/// Pretty‑print the deployment plan without using a table.
+<a href=#510 id=510 data-nosnippet>510</a></span><span class="attr">#[allow(clippy::too_many_arguments)]
+<a href=#511 id=511 data-nosnippet>511</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>print_deployment_plan&lt;N: Network&gt;(
+<a href=#512 id=512 data-nosnippet>512</a>    private_key: <span class="kw-2">&amp;</span>PrivateKey&lt;N&gt;,
+<a href=#513 id=513 data-nosnippet>513</a>    address: <span class="kw-2">&amp;</span>Address&lt;N&gt;,
+<a href=#514 id=514 data-nosnippet>514</a>    endpoint: <span class="kw-2">&amp;</span>str,
+<a href=#515 id=515 data-nosnippet>515</a>    network: <span class="kw-2">&amp;</span>NetworkName,
+<a href=#516 id=516 data-nosnippet>516</a>    local: <span class="kw-2">&amp;</span>[Task&lt;N&gt;],
+<a href=#517 id=517 data-nosnippet>517</a>    skipped: <span class="kw-2">&amp;</span>HashSet&lt;ProgramID&lt;N&gt;&gt;,
+<a href=#518 id=518 data-nosnippet>518</a>    remote: <span class="kw-2">&amp;</span>[Task&lt;N&gt;],
+<a href=#519 id=519 data-nosnippet>519</a>    warnings: <span class="kw-2">&amp;</span>[String],
+<a href=#520 id=520 data-nosnippet>520</a>    consensus_version: ConsensusVersion,
+<a href=#521 id=521 data-nosnippet>521</a>    command: <span class="kw-2">&amp;</span>LeoDeploy,
+<a href=#522 id=522 data-nosnippet>522</a>) {
+<a href=#523 id=523 data-nosnippet>523</a>    <span class="kw">use </span>colored::<span class="kw-2">*</span>;
+<a href=#524 id=524 data-nosnippet>524</a>
+<a href=#525 id=525 data-nosnippet>525</a>    <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🛠️  Deployment Plan Summary"</span>.bold());
+<a href=#526 id=526 data-nosnippet>526</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
 <a href=#527 id=527 data-nosnippet>527</a>
-<a href=#528 id=528 data-nosnippet>528</a>    <span class="comment">// ── Deployment tasks (bullet list) ───────────────────────────────────
-<a href=#529 id=529 data-nosnippet>529</a>    </span><span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"📦 Deployment Tasks:"</span>.bold());
-<a href=#530 id=530 data-nosnippet>530</a>    <span class="kw">if </span>local.is_empty() {
-<a href=#531 id=531 data-nosnippet>531</a>        <span class="macro">println!</span>(<span class="string">"  (none)"</span>);
-<a href=#532 id=532 data-nosnippet>532</a>    } <span class="kw">else </span>{
-<a href=#533 id=533 data-nosnippet>533</a>        <span class="kw">for </span>Task { id, priority_fee, record, .. } <span class="kw">in </span>local.iter().filter(|task| !skipped.contains(<span class="kw-2">&amp;</span>task.id)) {
-<a href=#534 id=534 data-nosnippet>534</a>            <span class="kw">let </span>priority_fee_str = priority_fee.map_or(<span class="string">"0"</span>.into(), |v| v.to_string());
-<a href=#535 id=535 data-nosnippet>535</a>            <span class="kw">let </span>record_str = <span class="kw">if </span>record.is_some() { <span class="string">"yes" </span>} <span class="kw">else </span>{ <span class="string">"no (public fee)" </span>};
-<a href=#536 id=536 data-nosnippet>536</a>            <span class="macro">println!</span>(
-<a href=#537 id=537 data-nosnippet>537</a>                <span class="string">"  • {}  │ priority fee: {}  │ fee record: {}"</span>,
-<a href=#538 id=538 data-nosnippet>538</a>                id.to_string().cyan(),
-<a href=#539 id=539 data-nosnippet>539</a>                priority_fee_str,
-<a href=#540 id=540 data-nosnippet>540</a>                record_str
-<a href=#541 id=541 data-nosnippet>541</a>            );
-<a href=#542 id=542 data-nosnippet>542</a>        }
-<a href=#543 id=543 data-nosnippet>543</a>    }
-<a href=#544 id=544 data-nosnippet>544</a>
-<a href=#545 id=545 data-nosnippet>545</a>    <span class="comment">// ── Skipped programs ─────────────────────────────────────────────────
-<a href=#546 id=546 data-nosnippet>546</a>    </span><span class="kw">if </span>!skipped.is_empty() {
-<a href=#547 id=547 data-nosnippet>547</a>        <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🚫 Skipped Programs:"</span>.bold().red());
-<a href=#548 id=548 data-nosnippet>548</a>        <span class="kw">for </span>symbol <span class="kw">in </span>skipped {
-<a href=#549 id=549 data-nosnippet>549</a>            <span class="macro">println!</span>(<span class="string">"  • {}"</span>, symbol.to_string().dimmed());
+<a href=#528 id=528 data-nosnippet>528</a>    <span class="comment">// ── Configuration ────────────────────────────────────────────────────
+<a href=#529 id=529 data-nosnippet>529</a>    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"🔧 Configuration:"</span>.bold());
+<a href=#530 id=530 data-nosnippet>530</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Private Key:"</span>.cyan(), <span class="macro">format!</span>(<span class="string">"{}..."</span>, <span class="kw-2">&amp;</span>private_key.to_string()[..<span class="number">24</span>]).yellow());
+<a href=#531 id=531 data-nosnippet>531</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Address:"</span>.cyan(), <span class="macro">format!</span>(<span class="string">"{}..."</span>, <span class="kw-2">&amp;</span>address.to_string()[..<span class="number">24</span>]).yellow());
+<a href=#532 id=532 data-nosnippet>532</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Endpoint:"</span>.cyan(), endpoint.yellow());
+<a href=#533 id=533 data-nosnippet>533</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Network:"</span>.cyan(), network.to_string().yellow());
+<a href=#534 id=534 data-nosnippet>534</a>    <span class="macro">println!</span>(<span class="string">"  {:20}{}"</span>, <span class="string">"Consensus Version:"</span>.cyan(), (consensus_version <span class="kw">as </span>u8).to_string().yellow());
+<a href=#535 id=535 data-nosnippet>535</a>
+<a href=#536 id=536 data-nosnippet>536</a>    <span class="comment">// ── Deployment tasks (bullet list) ───────────────────────────────────
+<a href=#537 id=537 data-nosnippet>537</a>    </span><span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"📦 Deployment Tasks:"</span>.bold());
+<a href=#538 id=538 data-nosnippet>538</a>    <span class="kw">if </span>local.is_empty() {
+<a href=#539 id=539 data-nosnippet>539</a>        <span class="macro">println!</span>(<span class="string">"  (none)"</span>);
+<a href=#540 id=540 data-nosnippet>540</a>    } <span class="kw">else </span>{
+<a href=#541 id=541 data-nosnippet>541</a>        <span class="kw">for </span>Task { id, priority_fee, record, .. } <span class="kw">in </span>local.iter().filter(|task| !skipped.contains(<span class="kw-2">&amp;</span>task.id)) {
+<a href=#542 id=542 data-nosnippet>542</a>            <span class="kw">let </span>priority_fee_str = priority_fee.map_or(<span class="string">"0"</span>.into(), |v| v.to_string());
+<a href=#543 id=543 data-nosnippet>543</a>            <span class="kw">let </span>record_str = <span class="kw">if </span>record.is_some() { <span class="string">"yes" </span>} <span class="kw">else </span>{ <span class="string">"no (public fee)" </span>};
+<a href=#544 id=544 data-nosnippet>544</a>            <span class="macro">println!</span>(
+<a href=#545 id=545 data-nosnippet>545</a>                <span class="string">"  • {}  │ priority fee: {}  │ fee record: {}"</span>,
+<a href=#546 id=546 data-nosnippet>546</a>                id.to_string().cyan(),
+<a href=#547 id=547 data-nosnippet>547</a>                priority_fee_str,
+<a href=#548 id=548 data-nosnippet>548</a>                record_str
+<a href=#549 id=549 data-nosnippet>549</a>            );
 <a href=#550 id=550 data-nosnippet>550</a>        }
 <a href=#551 id=551 data-nosnippet>551</a>    }
 <a href=#552 id=552 data-nosnippet>552</a>
-<a href=#553 id=553 data-nosnippet>553</a>    <span class="comment">// ── Remote dependencies ──────────────────────────────────────────────
-<a href=#554 id=554 data-nosnippet>554</a>    </span><span class="kw">if </span>!remote.is_empty() {
-<a href=#555 id=555 data-nosnippet>555</a>        <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🌐 Remote Dependencies:"</span>.bold().red());
-<a href=#556 id=556 data-nosnippet>556</a>        <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"(Leo will not generate transactions for these programs)"</span>.bold().red());
-<a href=#557 id=557 data-nosnippet>557</a>        <span class="kw">for </span>Task { id, .. } <span class="kw">in </span>remote {
-<a href=#558 id=558 data-nosnippet>558</a>            <span class="macro">println!</span>(<span class="string">"  • {}"</span>, id.to_string().dimmed());
-<a href=#559 id=559 data-nosnippet>559</a>        }
-<a href=#560 id=560 data-nosnippet>560</a>    }
-<a href=#561 id=561 data-nosnippet>561</a>
-<a href=#562 id=562 data-nosnippet>562</a>    <span class="comment">// ── Actions ──────────────────────────────────────────────────────────
-<a href=#563 id=563 data-nosnippet>563</a>    </span><span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"⚙️ Actions:"</span>.bold());
-<a href=#564 id=564 data-nosnippet>564</a>    <span class="kw">if </span>command.action.print {
-<a href=#565 id=565 data-nosnippet>565</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will be printed to the console."</span>);
-<a href=#566 id=566 data-nosnippet>566</a>    } <span class="kw">else </span>{
-<a href=#567 id=567 data-nosnippet>567</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will NOT be printed to the console."</span>);
+<a href=#553 id=553 data-nosnippet>553</a>    <span class="comment">// ── Skipped programs ─────────────────────────────────────────────────
+<a href=#554 id=554 data-nosnippet>554</a>    </span><span class="kw">if </span>!skipped.is_empty() {
+<a href=#555 id=555 data-nosnippet>555</a>        <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🚫 Skipped Programs:"</span>.bold().red());
+<a href=#556 id=556 data-nosnippet>556</a>        <span class="kw">for </span>symbol <span class="kw">in </span>skipped {
+<a href=#557 id=557 data-nosnippet>557</a>            <span class="macro">println!</span>(<span class="string">"  • {}"</span>, symbol.to_string().dimmed());
+<a href=#558 id=558 data-nosnippet>558</a>        }
+<a href=#559 id=559 data-nosnippet>559</a>    }
+<a href=#560 id=560 data-nosnippet>560</a>
+<a href=#561 id=561 data-nosnippet>561</a>    <span class="comment">// ── Remote dependencies ──────────────────────────────────────────────
+<a href=#562 id=562 data-nosnippet>562</a>    </span><span class="kw">if </span>!remote.is_empty() {
+<a href=#563 id=563 data-nosnippet>563</a>        <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"🌐 Remote Dependencies:"</span>.bold().red());
+<a href=#564 id=564 data-nosnippet>564</a>        <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"(Leo will not generate transactions for these programs)"</span>.bold().red());
+<a href=#565 id=565 data-nosnippet>565</a>        <span class="kw">for </span>Task { id, .. } <span class="kw">in </span>remote {
+<a href=#566 id=566 data-nosnippet>566</a>            <span class="macro">println!</span>(<span class="string">"  • {}"</span>, id.to_string().dimmed());
+<a href=#567 id=567 data-nosnippet>567</a>        }
 <a href=#568 id=568 data-nosnippet>568</a>    }
-<a href=#569 id=569 data-nosnippet>569</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>command.action.save {
-<a href=#570 id=570 data-nosnippet>570</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will be saved to {}"</span>, path.bold());
-<a href=#571 id=571 data-nosnippet>571</a>    } <span class="kw">else </span>{
-<a href=#572 id=572 data-nosnippet>572</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will NOT be saved to a file."</span>);
-<a href=#573 id=573 data-nosnippet>573</a>    }
-<a href=#574 id=574 data-nosnippet>574</a>    <span class="kw">if </span>command.action.broadcast {
-<a href=#575 id=575 data-nosnippet>575</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will be broadcast to {}"</span>, endpoint.bold());
-<a href=#576 id=576 data-nosnippet>576</a>    } <span class="kw">else </span>{
-<a href=#577 id=577 data-nosnippet>577</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will NOT be broadcast to the network."</span>);
-<a href=#578 id=578 data-nosnippet>578</a>    }
-<a href=#579 id=579 data-nosnippet>579</a>
-<a href=#580 id=580 data-nosnippet>580</a>    <span class="comment">// ── Warnings ─────────────────────────────────────────────────────────
-<a href=#581 id=581 data-nosnippet>581</a>    </span><span class="kw">if </span>!warnings.is_empty() {
-<a href=#582 id=582 data-nosnippet>582</a>        <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"⚠️ Warnings:"</span>.bold().red());
-<a href=#583 id=583 data-nosnippet>583</a>        <span class="kw">for </span>warning <span class="kw">in </span>warnings {
-<a href=#584 id=584 data-nosnippet>584</a>            <span class="macro">println!</span>(<span class="string">"  • {}"</span>, warning.dimmed());
-<a href=#585 id=585 data-nosnippet>585</a>        }
+<a href=#569 id=569 data-nosnippet>569</a>
+<a href=#570 id=570 data-nosnippet>570</a>    <span class="comment">// ── Actions ──────────────────────────────────────────────────────────
+<a href=#571 id=571 data-nosnippet>571</a>    </span><span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"⚙️ Actions:"</span>.bold());
+<a href=#572 id=572 data-nosnippet>572</a>    <span class="kw">if </span>command.action.print {
+<a href=#573 id=573 data-nosnippet>573</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will be printed to the console."</span>);
+<a href=#574 id=574 data-nosnippet>574</a>    } <span class="kw">else </span>{
+<a href=#575 id=575 data-nosnippet>575</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will NOT be printed to the console."</span>);
+<a href=#576 id=576 data-nosnippet>576</a>    }
+<a href=#577 id=577 data-nosnippet>577</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>command.action.save {
+<a href=#578 id=578 data-nosnippet>578</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will be saved to {}"</span>, path.bold());
+<a href=#579 id=579 data-nosnippet>579</a>    } <span class="kw">else </span>{
+<a href=#580 id=580 data-nosnippet>580</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will NOT be saved to a file."</span>);
+<a href=#581 id=581 data-nosnippet>581</a>    }
+<a href=#582 id=582 data-nosnippet>582</a>    <span class="kw">if </span>command.action.broadcast {
+<a href=#583 id=583 data-nosnippet>583</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will be broadcast to {}"</span>, endpoint.bold());
+<a href=#584 id=584 data-nosnippet>584</a>    } <span class="kw">else </span>{
+<a href=#585 id=585 data-nosnippet>585</a>        <span class="macro">println!</span>(<span class="string">"  • Transaction(s) will NOT be broadcast to the network."</span>);
 <a href=#586 id=586 data-nosnippet>586</a>    }
 <a href=#587 id=587 data-nosnippet>587</a>
-<a href=#588 id=588 data-nosnippet>588</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────\n"</span>.dimmed());
-<a href=#589 id=589 data-nosnippet>589</a>}
-<a href=#590 id=590 data-nosnippet>590</a>
-<a href=#591 id=591 data-nosnippet>591</a><span class="doccomment">/// Pretty‑print deployment statistics without a table, using the same UI
-<a href=#592 id=592 data-nosnippet>592</a>/// conventions as `print_deployment_plan`.
-<a href=#593 id=593 data-nosnippet>593</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>print_deployment_stats&lt;N: Network&gt;(
-<a href=#594 id=594 data-nosnippet>594</a>    vm: <span class="kw-2">&amp;</span>VM&lt;N, ConsensusMemory&lt;N&gt;&gt;,
-<a href=#595 id=595 data-nosnippet>595</a>    program_id: <span class="kw-2">&amp;</span>str,
-<a href=#596 id=596 data-nosnippet>596</a>    deployment: <span class="kw-2">&amp;</span>Deployment&lt;N&gt;,
-<a href=#597 id=597 data-nosnippet>597</a>    priority_fee: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-<a href=#598 id=598 data-nosnippet>598</a>    consensus_version: ConsensusVersion,
-<a href=#599 id=599 data-nosnippet>599</a>    bytecode_size: usize,
-<a href=#600 id=600 data-nosnippet>600</a>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#601 id=601 data-nosnippet>601</a>    <span class="kw">use </span>colored::<span class="kw-2">*</span>;
-<a href=#602 id=602 data-nosnippet>602</a>    <span class="kw">use </span>num_format::{Locale, ToFormattedString};
-<a href=#603 id=603 data-nosnippet>603</a>
-<a href=#604 id=604 data-nosnippet>604</a>    <span class="comment">// ── Collect statistics ────────────────────────────────────────────────
-<a href=#605 id=605 data-nosnippet>605</a>    </span><span class="kw">let </span>variables = deployment.num_combined_variables()<span class="question-mark">?</span>;
-<a href=#606 id=606 data-nosnippet>606</a>    <span class="kw">let </span>constraints = deployment.num_combined_constraints()<span class="question-mark">?</span>;
-<a href=#607 id=607 data-nosnippet>607</a>    <span class="kw">let </span>(base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
-<a href=#608 id=608 data-nosnippet>608</a>        deployment_cost(<span class="kw-2">&amp;</span>vm.process().read(), deployment, consensus_version)<span class="question-mark">?</span>;
-<a href=#609 id=609 data-nosnippet>609</a>
-<a href=#610 id=610 data-nosnippet>610</a>    <span class="kw">let </span>base_fee_cr = base_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>;
-<a href=#611 id=611 data-nosnippet>611</a>    <span class="kw">let </span>prio_fee_cr = priority_fee.unwrap_or(<span class="number">0</span>) <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>;
-<a href=#612 id=612 data-nosnippet>612</a>    <span class="kw">let </span>total_fee_cr = base_fee_cr + prio_fee_cr;
-<a href=#613 id=613 data-nosnippet>613</a>
-<a href=#614 id=614 data-nosnippet>614</a>    <span class="comment">// ── Header ────────────────────────────────────────────────────────────
-<a href=#615 id=615 data-nosnippet>615</a>    </span><span class="macro">println!</span>(<span class="string">"\n{} {}"</span>, <span class="string">"📊 Deployment Summary for"</span>.bold(), program_id.bold());
-<a href=#616 id=616 data-nosnippet>616</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
+<a href=#588 id=588 data-nosnippet>588</a>    <span class="comment">// ── Warnings ─────────────────────────────────────────────────────────
+<a href=#589 id=589 data-nosnippet>589</a>    </span><span class="kw">if </span>!warnings.is_empty() {
+<a href=#590 id=590 data-nosnippet>590</a>        <span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"⚠️ Warnings:"</span>.bold().red());
+<a href=#591 id=591 data-nosnippet>591</a>        <span class="kw">for </span>warning <span class="kw">in </span>warnings {
+<a href=#592 id=592 data-nosnippet>592</a>            <span class="macro">println!</span>(<span class="string">"  • {}"</span>, warning.dimmed());
+<a href=#593 id=593 data-nosnippet>593</a>        }
+<a href=#594 id=594 data-nosnippet>594</a>    }
+<a href=#595 id=595 data-nosnippet>595</a>
+<a href=#596 id=596 data-nosnippet>596</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────\n"</span>.dimmed());
+<a href=#597 id=597 data-nosnippet>597</a>}
+<a href=#598 id=598 data-nosnippet>598</a>
+<a href=#599 id=599 data-nosnippet>599</a><span class="doccomment">/// Pretty‑print deployment statistics without a table, using the same UI
+<a href=#600 id=600 data-nosnippet>600</a>/// conventions as `print_deployment_plan`.
+<a href=#601 id=601 data-nosnippet>601</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>print_deployment_stats&lt;N: Network&gt;(
+<a href=#602 id=602 data-nosnippet>602</a>    vm: <span class="kw-2">&amp;</span>VM&lt;N, ConsensusMemory&lt;N&gt;&gt;,
+<a href=#603 id=603 data-nosnippet>603</a>    program_id: <span class="kw-2">&amp;</span>str,
+<a href=#604 id=604 data-nosnippet>604</a>    deployment: <span class="kw-2">&amp;</span>Deployment&lt;N&gt;,
+<a href=#605 id=605 data-nosnippet>605</a>    priority_fee: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+<a href=#606 id=606 data-nosnippet>606</a>    consensus_version: ConsensusVersion,
+<a href=#607 id=607 data-nosnippet>607</a>    bytecode_size: usize,
+<a href=#608 id=608 data-nosnippet>608</a>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#609 id=609 data-nosnippet>609</a>    <span class="kw">use </span>colored::<span class="kw-2">*</span>;
+<a href=#610 id=610 data-nosnippet>610</a>    <span class="kw">use </span>num_format::{Locale, ToFormattedString};
+<a href=#611 id=611 data-nosnippet>611</a>
+<a href=#612 id=612 data-nosnippet>612</a>    <span class="comment">// ── Collect statistics ────────────────────────────────────────────────
+<a href=#613 id=613 data-nosnippet>613</a>    </span><span class="kw">let </span>variables = deployment.num_combined_variables()<span class="question-mark">?</span>;
+<a href=#614 id=614 data-nosnippet>614</a>    <span class="kw">let </span>constraints = deployment.num_combined_constraints()<span class="question-mark">?</span>;
+<a href=#615 id=615 data-nosnippet>615</a>    <span class="kw">let </span>(base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
+<a href=#616 id=616 data-nosnippet>616</a>        deployment_cost(<span class="kw-2">&amp;</span>vm.process().read(), deployment, consensus_version)<span class="question-mark">?</span>;
 <a href=#617 id=617 data-nosnippet>617</a>
-<a href=#618 id=618 data-nosnippet>618</a>    <span class="comment">// ── High‑level metrics ────────────────────────────────────────────────
-<a href=#619 id=619 data-nosnippet>619</a>    </span><span class="kw">let </span>(size_kb, max_kb, warning) = format_program_size(bytecode_size, N::MAX_PROGRAM_SIZE);
-<a href=#620 id=620 data-nosnippet>620</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{size_kb:.2} KB / {max_kb:.2} KB"</span>, <span class="string">"Program Size:"</span>.cyan());
-<a href=#621 id=621 data-nosnippet>621</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = warning {
-<a href=#622 id=622 data-nosnippet>622</a>        <span class="macro">println!</span>(<span class="string">"  {} Program is {msg}."</span>, <span class="string">"⚠️ "</span>.bold().yellow());
-<a href=#623 id=623 data-nosnippet>623</a>    }
-<a href=#624 id=624 data-nosnippet>624</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}"</span>, <span class="string">"Total Variables:"</span>.cyan(), variables.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en).yellow());
-<a href=#625 id=625 data-nosnippet>625</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}"</span>, <span class="string">"Total Constraints:"</span>.cyan(), constraints.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en).yellow());
-<a href=#626 id=626 data-nosnippet>626</a>    <span class="macro">println!</span>(
-<a href=#627 id=627 data-nosnippet>627</a>        <span class="string">"  {:22}{}"</span>,
-<a href=#628 id=628 data-nosnippet>628</a>        <span class="string">"Max Variables:"</span>.cyan(),
-<a href=#629 id=629 data-nosnippet>629</a>        N::MAX_DEPLOYMENT_VARIABLES.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en).green()
-<a href=#630 id=630 data-nosnippet>630</a>    );
-<a href=#631 id=631 data-nosnippet>631</a>    <span class="macro">println!</span>(
-<a href=#632 id=632 data-nosnippet>632</a>        <span class="string">"  {:22}{}"</span>,
-<a href=#633 id=633 data-nosnippet>633</a>        <span class="string">"Max Constraints:"</span>.cyan(),
-<a href=#634 id=634 data-nosnippet>634</a>        N::MAX_DEPLOYMENT_CONSTRAINTS.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en).green()
-<a href=#635 id=635 data-nosnippet>635</a>    );
-<a href=#636 id=636 data-nosnippet>636</a>
-<a href=#637 id=637 data-nosnippet>637</a>    <span class="comment">// ── Cost breakdown ────────────────────────────────────────────────────
-<a href=#638 id=638 data-nosnippet>638</a>    </span><span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"💰 Cost Breakdown (credits)"</span>.bold());
+<a href=#618 id=618 data-nosnippet>618</a>    <span class="kw">let </span>base_fee_cr = base_fee <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>;
+<a href=#619 id=619 data-nosnippet>619</a>    <span class="kw">let </span>prio_fee_cr = priority_fee.unwrap_or(<span class="number">0</span>) <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>;
+<a href=#620 id=620 data-nosnippet>620</a>    <span class="kw">let </span>total_fee_cr = base_fee_cr + prio_fee_cr;
+<a href=#621 id=621 data-nosnippet>621</a>
+<a href=#622 id=622 data-nosnippet>622</a>    <span class="comment">// ── Header ────────────────────────────────────────────────────────────
+<a href=#623 id=623 data-nosnippet>623</a>    </span><span class="macro">println!</span>(<span class="string">"\n{} {}"</span>, <span class="string">"📊 Deployment Summary for"</span>.bold(), program_id.bold());
+<a href=#624 id=624 data-nosnippet>624</a>    <span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
+<a href=#625 id=625 data-nosnippet>625</a>
+<a href=#626 id=626 data-nosnippet>626</a>    <span class="comment">// ── High‑level metrics ────────────────────────────────────────────────
+<a href=#627 id=627 data-nosnippet>627</a>    </span><span class="kw">let </span>(size_kb, max_kb, warning) = format_program_size(bytecode_size, N::MAX_PROGRAM_SIZE);
+<a href=#628 id=628 data-nosnippet>628</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{size_kb:.2} KB / {max_kb:.2} KB"</span>, <span class="string">"Program Size:"</span>.cyan());
+<a href=#629 id=629 data-nosnippet>629</a>    <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = warning {
+<a href=#630 id=630 data-nosnippet>630</a>        <span class="macro">println!</span>(<span class="string">"  {} Program is {msg}."</span>, <span class="string">"⚠️ "</span>.bold().yellow());
+<a href=#631 id=631 data-nosnippet>631</a>    }
+<a href=#632 id=632 data-nosnippet>632</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}"</span>, <span class="string">"Total Variables:"</span>.cyan(), variables.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en).yellow());
+<a href=#633 id=633 data-nosnippet>633</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}"</span>, <span class="string">"Total Constraints:"</span>.cyan(), constraints.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en).yellow());
+<a href=#634 id=634 data-nosnippet>634</a>    <span class="macro">println!</span>(
+<a href=#635 id=635 data-nosnippet>635</a>        <span class="string">"  {:22}{}"</span>,
+<a href=#636 id=636 data-nosnippet>636</a>        <span class="string">"Max Variables:"</span>.cyan(),
+<a href=#637 id=637 data-nosnippet>637</a>        N::MAX_DEPLOYMENT_VARIABLES.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en).green()
+<a href=#638 id=638 data-nosnippet>638</a>    );
 <a href=#639 id=639 data-nosnippet>639</a>    <span class="macro">println!</span>(
-<a href=#640 id=640 data-nosnippet>640</a>        <span class="string">"  {:22}{}{:.6}"</span>,
-<a href=#641 id=641 data-nosnippet>641</a>        <span class="string">"Transaction Storage:"</span>.cyan(),
-<a href=#642 id=642 data-nosnippet>642</a>        <span class="string">""</span>.yellow(), <span class="comment">// spacer for alignment
-<a href=#643 id=643 data-nosnippet>643</a>        </span>storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0
-<a href=#644 id=644 data-nosnippet>644</a>    </span>);
-<a href=#645 id=645 data-nosnippet>645</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Program Synthesis:"</span>.cyan(), <span class="string">""</span>.yellow(), synthesis_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
-<a href=#646 id=646 data-nosnippet>646</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Namespace:"</span>.cyan(), <span class="string">""</span>.yellow(), namespace_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
-<a href=#647 id=647 data-nosnippet>647</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Constructor:"</span>.cyan(), <span class="string">""</span>.yellow(), constructor_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
-<a href=#648 id=648 data-nosnippet>648</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Priority Fee:"</span>.cyan(), <span class="string">""</span>.yellow(), prio_fee_cr);
-<a href=#649 id=649 data-nosnippet>649</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Total Fee:"</span>.cyan(), <span class="string">""</span>.yellow(), total_fee_cr);
-<a href=#650 id=650 data-nosnippet>650</a>
-<a href=#651 id=651 data-nosnippet>651</a>    <span class="comment">// ── Footer rule ───────────────────────────────────────────────────────
-<a href=#652 id=652 data-nosnippet>652</a>    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
-<a href=#653 id=653 data-nosnippet>653</a>    <span class="prelude-val">Ok</span>(())
-<a href=#654 id=654 data-nosnippet>654</a>}</code></pre></div></section></main></body></html>
+<a href=#640 id=640 data-nosnippet>640</a>        <span class="string">"  {:22}{}"</span>,
+<a href=#641 id=641 data-nosnippet>641</a>        <span class="string">"Max Constraints:"</span>.cyan(),
+<a href=#642 id=642 data-nosnippet>642</a>        N::MAX_DEPLOYMENT_CONSTRAINTS.to_formatted_string(<span class="kw-2">&amp;</span>Locale::en).green()
+<a href=#643 id=643 data-nosnippet>643</a>    );
+<a href=#644 id=644 data-nosnippet>644</a>
+<a href=#645 id=645 data-nosnippet>645</a>    <span class="comment">// ── Cost breakdown ────────────────────────────────────────────────────
+<a href=#646 id=646 data-nosnippet>646</a>    </span><span class="macro">println!</span>(<span class="string">"\n{}"</span>, <span class="string">"💰 Cost Breakdown (credits)"</span>.bold());
+<a href=#647 id=647 data-nosnippet>647</a>    <span class="macro">println!</span>(
+<a href=#648 id=648 data-nosnippet>648</a>        <span class="string">"  {:22}{}{:.6}"</span>,
+<a href=#649 id=649 data-nosnippet>649</a>        <span class="string">"Transaction Storage:"</span>.cyan(),
+<a href=#650 id=650 data-nosnippet>650</a>        <span class="string">""</span>.yellow(), <span class="comment">// spacer for alignment
+<a href=#651 id=651 data-nosnippet>651</a>        </span>storage_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0
+<a href=#652 id=652 data-nosnippet>652</a>    </span>);
+<a href=#653 id=653 data-nosnippet>653</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Program Synthesis:"</span>.cyan(), <span class="string">""</span>.yellow(), synthesis_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
+<a href=#654 id=654 data-nosnippet>654</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Namespace:"</span>.cyan(), <span class="string">""</span>.yellow(), namespace_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
+<a href=#655 id=655 data-nosnippet>655</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Constructor:"</span>.cyan(), <span class="string">""</span>.yellow(), constructor_cost <span class="kw">as </span>f64 / <span class="number">1_000_000.0</span>);
+<a href=#656 id=656 data-nosnippet>656</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Priority Fee:"</span>.cyan(), <span class="string">""</span>.yellow(), prio_fee_cr);
+<a href=#657 id=657 data-nosnippet>657</a>    <span class="macro">println!</span>(<span class="string">"  {:22}{}{:.6}"</span>, <span class="string">"Total Fee:"</span>.cyan(), <span class="string">""</span>.yellow(), total_fee_cr);
+<a href=#658 id=658 data-nosnippet>658</a>
+<a href=#659 id=659 data-nosnippet>659</a>    <span class="comment">// ── Footer rule ───────────────────────────────────────────────────────
+<a href=#660 id=660 data-nosnippet>660</a>    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, <span class="string">"──────────────────────────────────────────────"</span>.dimmed());
+<a href=#661 id=661 data-nosnippet>661</a>    <span class="prelude-val">Ok</span>(())
+<a href=#662 id=662 data-nosnippet>662</a>}</code></pre></div></section></main></body></html>

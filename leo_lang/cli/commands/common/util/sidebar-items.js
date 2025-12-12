@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["PROGRAM_SIZE_WARNING_THRESHOLD"],"fn":["collect_aleo_paths","collect_leo_paths","format_program_size"]};
+window.SIDEBAR_ITEMS = {"constant":["LOCAL_PROGRAM_DEFAULT_EDITION","PROGRAM_SIZE_WARNING_THRESHOLD"],"fn":["check_edition_constructor_requirements","collect_aleo_paths","collect_leo_paths","format_program_size","print_program_source"]};

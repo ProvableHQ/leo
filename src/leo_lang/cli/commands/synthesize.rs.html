@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/synthesize.rs`."><title>synthesize.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_lang/cli/commands/</div>synthesize.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/synthesize.rs`."><title>synthesize.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ca0dd0c4.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.92.0 (ded5c06cf 2025-12-08)" data-channel="1.92.0" data-search-js="search-d69d8955.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../../../../static.files/src-script-813739b1.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-ce535bd0.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">leo_lang/cli/commands/</div>synthesize.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="comment">// Copyright (C) 2019-2025 Provable Inc.
 <a href=#2 id=2 data-nosnippet>2</a>// This file is part of the Leo library.
 <a href=#3 id=3 data-nosnippet>3</a>
 <a href=#4 id=4 data-nosnippet>4</a>// The Leo library is free software: you can redistribute it and/or modify
@@ -211,114 +211,103 @@
 <a href=#211 id=211 data-nosnippet>211</a>    <span class="kw">let </span>programs_and_editions = programs
 <a href=#212 id=212 data-nosnippet>212</a>        .into_iter()
 <a href=#213 id=213 data-nosnippet>213</a>        .map(|(program, edition)| {
-<a href=#214 id=214 data-nosnippet>214</a>            <span class="comment">// Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-<a href=#215 id=215 data-nosnippet>215</a>            </span><span class="kw">let </span>is_default = edition.is_none();
-<a href=#216 id=216 data-nosnippet>216</a>            <span class="kw">let </span>edition = edition.unwrap_or(<span class="number">1</span>);
-<a href=#217 id=217 data-nosnippet>217</a>            <span class="comment">// Get the program ID.
-<a href=#218 id=218 data-nosnippet>218</a>            </span><span class="kw">let </span>id = program.id().to_string();
-<a href=#219 id=219 data-nosnippet>219</a>            <span class="comment">// Print the program ID and edition.
-<a href=#220 id=220 data-nosnippet>220</a>            </span><span class="kw">match </span>id == <span class="string">"credits.aleo" </span>{
-<a href=#221 id=221 data-nosnippet>221</a>                <span class="bool-val">true </span>=&gt; <span class="macro">println!</span>(<span class="string">"  - {id} (already included)"</span>),
-<a href=#222 id=222 data-nosnippet>222</a>                <span class="bool-val">false </span>=&gt; <span class="kw">match </span>is_default {
-<a href=#223 id=223 data-nosnippet>223</a>                    <span class="bool-val">true </span>=&gt; <span class="macro">println!</span>(<span class="string">" - {id} (defaulting to edition {edition})"</span>),
-<a href=#224 id=224 data-nosnippet>224</a>                    <span class="bool-val">false </span>=&gt; <span class="macro">println!</span>(<span class="string">"  - {id} (edition: {edition})"</span>),
-<a href=#225 id=225 data-nosnippet>225</a>                },
-<a href=#226 id=226 data-nosnippet>226</a>            }
-<a href=#227 id=227 data-nosnippet>227</a>            (program, edition)
-<a href=#228 id=228 data-nosnippet>228</a>        })
+<a href=#214 id=214 data-nosnippet>214</a>            print_program_source(<span class="kw-2">&amp;</span>program.id().to_string(), edition);
+<a href=#215 id=215 data-nosnippet>215</a>            <span class="kw">let </span>edition = edition.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION);
+<a href=#216 id=216 data-nosnippet>216</a>            (program, edition)
+<a href=#217 id=217 data-nosnippet>217</a>        })
+<a href=#218 id=218 data-nosnippet>218</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+<a href=#219 id=219 data-nosnippet>219</a>    vm.process().write().add_programs_with_editions(<span class="kw-2">&amp;</span>programs_and_editions)<span class="question-mark">?</span>;
+<a href=#220 id=220 data-nosnippet>220</a>
+<a href=#221 id=221 data-nosnippet>221</a>    <span class="comment">// Get the edition and function IDs from the program.
+<a href=#222 id=222 data-nosnippet>222</a>    </span><span class="kw">let </span>stack = vm.process().read().get_stack(program_id)<span class="question-mark">?</span>;
+<a href=#223 id=223 data-nosnippet>223</a>    <span class="kw">let </span>edition = <span class="kw-2">*</span>stack.program_edition();
+<a href=#224 id=224 data-nosnippet>224</a>    <span class="kw">let </span>function_ids = stack
+<a href=#225 id=225 data-nosnippet>225</a>        .program()
+<a href=#226 id=226 data-nosnippet>226</a>        .functions()
+<a href=#227 id=227 data-nosnippet>227</a>        .keys()
+<a href=#228 id=228 data-nosnippet>228</a>        .filter(|id| !command.skip.iter().any(|substring| id.to_string().contains(substring)))
 <a href=#229 id=229 data-nosnippet>229</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-<a href=#230 id=230 data-nosnippet>230</a>    vm.process().write().add_programs_with_editions(<span class="kw-2">&amp;</span>programs_and_editions)<span class="question-mark">?</span>;
-<a href=#231 id=231 data-nosnippet>231</a>
-<a href=#232 id=232 data-nosnippet>232</a>    <span class="comment">// Get the edition and function IDs from the program.
-<a href=#233 id=233 data-nosnippet>233</a>    </span><span class="kw">let </span>stack = vm.process().read().get_stack(program_id)<span class="question-mark">?</span>;
-<a href=#234 id=234 data-nosnippet>234</a>    <span class="kw">let </span>edition = <span class="kw-2">*</span>stack.program_edition();
-<a href=#235 id=235 data-nosnippet>235</a>    <span class="kw">let </span>function_ids = stack
-<a href=#236 id=236 data-nosnippet>236</a>        .program()
-<a href=#237 id=237 data-nosnippet>237</a>        .functions()
-<a href=#238 id=238 data-nosnippet>238</a>        .keys()
-<a href=#239 id=239 data-nosnippet>239</a>        .filter(|id| !command.skip.iter().any(|substring| id.to_string().contains(substring)))
-<a href=#240 id=240 data-nosnippet>240</a>        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-<a href=#241 id=241 data-nosnippet>241</a>
-<a href=#242 id=242 data-nosnippet>242</a>    <span class="comment">// A helper function to hash the keys.
-<a href=#243 id=243 data-nosnippet>243</a>    </span><span class="kw">let </span>hash = |bytes: <span class="kw-2">&amp;</span>[u8]| -&gt; anyhow::Result&lt;String&gt; {
-<a href=#244 id=244 data-nosnippet>244</a>        <span class="kw">let </span>digest = sha256(bytes);
-<a href=#245 id=245 data-nosnippet>245</a>        <span class="kw">let </span><span class="kw-2">mut </span>hex = String::new();
-<a href=#246 id=246 data-nosnippet>246</a>        <span class="kw">for </span>byte <span class="kw">in </span>digest {
-<a href=#247 id=247 data-nosnippet>247</a>            <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>hex, <span class="string">"{byte:02x}"</span>)<span class="question-mark">?</span>;
-<a href=#248 id=248 data-nosnippet>248</a>        }
-<a href=#249 id=249 data-nosnippet>249</a>        <span class="prelude-val">Ok</span>(hex)
-<a href=#250 id=250 data-nosnippet>250</a>    };
-<a href=#251 id=251 data-nosnippet>251</a>
-<a href=#252 id=252 data-nosnippet>252</a>    <span class="macro">println!</span>(<span class="string">"\n🌱 Synthesizing the following keys in {program_id}:"</span>);
-<a href=#253 id=253 data-nosnippet>253</a>    <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span>function_ids {
-<a href=#254 id=254 data-nosnippet>254</a>        <span class="macro">println!</span>(<span class="string">"    - {id}"</span>);
-<a href=#255 id=255 data-nosnippet>255</a>    }
-<a href=#256 id=256 data-nosnippet>256</a>
-<a href=#257 id=257 data-nosnippet>257</a>    <span class="kw">for </span>function_id <span class="kw">in </span>function_ids {
-<a href=#258 id=258 data-nosnippet>258</a>        stack.synthesize_key::&lt;A, <span class="kw">_</span>&gt;(function_id, rng)<span class="question-mark">?</span>;
-<a href=#259 id=259 data-nosnippet>259</a>        <span class="kw">let </span>proving_key = stack.get_proving_key(function_id)<span class="question-mark">?</span>;
-<a href=#260 id=260 data-nosnippet>260</a>        <span class="kw">let </span>verifying_key = stack.get_verifying_key(function_id)<span class="question-mark">?</span>;
-<a href=#261 id=261 data-nosnippet>261</a>
-<a href=#262 id=262 data-nosnippet>262</a>        <span class="macro">println!</span>(<span class="string">"\n🔑 Synthesized keys for {program_id}/{function_id} (edition {edition})"</span>);
-<a href=#263 id=263 data-nosnippet>263</a>        <span class="macro">println!</span>(<span class="string">"ℹ️ Circuit Information:"</span>);
-<a href=#264 id=264 data-nosnippet>264</a>        <span class="macro">println!</span>(<span class="string">"    - Public Inputs: {}"</span>, verifying_key.circuit_info.num_public_inputs);
-<a href=#265 id=265 data-nosnippet>265</a>        <span class="macro">println!</span>(<span class="string">"    - Variables: {}"</span>, verifying_key.circuit_info.num_public_and_private_variables);
-<a href=#266 id=266 data-nosnippet>266</a>        <span class="macro">println!</span>(<span class="string">"    - Constraints: {}"</span>, verifying_key.circuit_info.num_constraints);
-<a href=#267 id=267 data-nosnippet>267</a>        <span class="macro">println!</span>(<span class="string">"    - Non-Zero Entries in A: {}"</span>, verifying_key.circuit_info.num_non_zero_a);
-<a href=#268 id=268 data-nosnippet>268</a>        <span class="macro">println!</span>(<span class="string">"    - Non-Zero Entries in B: {}"</span>, verifying_key.circuit_info.num_non_zero_b);
-<a href=#269 id=269 data-nosnippet>269</a>        <span class="macro">println!</span>(<span class="string">"    - Non-Zero Entries in C: {}"</span>, verifying_key.circuit_info.num_non_zero_c);
-<a href=#270 id=270 data-nosnippet>270</a>        <span class="macro">println!</span>(<span class="string">"    - Circuit ID: {}"</span>, verifying_key.id);
-<a href=#271 id=271 data-nosnippet>271</a>
-<a href=#272 id=272 data-nosnippet>272</a>        <span class="comment">// Get the checksums of the keys.
-<a href=#273 id=273 data-nosnippet>273</a>        </span><span class="kw">let </span>prover_bytes = proving_key.to_bytes_le()<span class="question-mark">?</span>;
-<a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">let </span>verifier_bytes = verifying_key.to_bytes_le()<span class="question-mark">?</span>;
-<a href=#275 id=275 data-nosnippet>275</a>        <span class="kw">let </span>prover_checksum = hash(<span class="kw-2">&amp;</span>prover_bytes)<span class="question-mark">?</span>;
-<a href=#276 id=276 data-nosnippet>276</a>        <span class="kw">let </span>verifier_checksum = hash(<span class="kw-2">&amp;</span>verifier_bytes)<span class="question-mark">?</span>;
-<a href=#277 id=277 data-nosnippet>277</a>
-<a href=#278 id=278 data-nosnippet>278</a>        <span class="comment">// Construct the metadata.
-<a href=#279 id=279 data-nosnippet>279</a>        </span><span class="kw">let </span>metadata = Metadata {
-<a href=#280 id=280 data-nosnippet>280</a>            prover_checksum,
-<a href=#281 id=281 data-nosnippet>281</a>            prover_size: prover_bytes.len(),
-<a href=#282 id=282 data-nosnippet>282</a>            verifier_checksum,
-<a href=#283 id=283 data-nosnippet>283</a>            verifier_size: verifier_bytes.len(),
-<a href=#284 id=284 data-nosnippet>284</a>        };
-<a href=#285 id=285 data-nosnippet>285</a>        <span class="kw">let </span>metadata_pretty = serde_json::to_string_pretty(<span class="kw-2">&amp;</span>metadata)
-<a href=#286 id=286 data-nosnippet>286</a>            .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize metadata: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#287 id=287 data-nosnippet>287</a>
-<a href=#288 id=288 data-nosnippet>288</a>        <span class="comment">// A helper to write to a file.
-<a href=#289 id=289 data-nosnippet>289</a>        </span><span class="kw">let </span>write_to_file = |path: PathBuf, data: <span class="kw-2">&amp;</span>[u8]| -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-<a href=#290 id=290 data-nosnippet>290</a>            std::fs::write(path, data).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to write to file: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#291 id=291 data-nosnippet>291</a>            <span class="prelude-val">Ok</span>(())
-<a href=#292 id=292 data-nosnippet>292</a>        };
-<a href=#293 id=293 data-nosnippet>293</a>
-<a href=#294 id=294 data-nosnippet>294</a>        <span class="comment">// If the `save` option is set, save the proving and verifying keys to a file in the specified directory.
-<a href=#295 id=295 data-nosnippet>295</a>        // The file format is `program_id.function_id.edition_or_local.type.timestamp`.
-<a href=#296 id=296 data-nosnippet>296</a>        // The directory is created if it doesn't exist.
-<a href=#297 id=297 data-nosnippet>297</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>command.action.save {
-<a href=#298 id=298 data-nosnippet>298</a>            <span class="comment">// Create the directory if it doesn't exist.
-<a href=#299 id=299 data-nosnippet>299</a>            </span>std::fs::create_dir_all(path).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to create directory: {e}"</span>)))<span class="question-mark">?</span>;
-<a href=#300 id=300 data-nosnippet>300</a>            <span class="comment">// Get the current timestamp.
-<a href=#301 id=301 data-nosnippet>301</a>            </span><span class="kw">let </span>timestamp = chrono::Utc::now().timestamp();
-<a href=#302 id=302 data-nosnippet>302</a>            <span class="comment">// The edition.
-<a href=#303 id=303 data-nosnippet>303</a>            </span><span class="kw">let </span>edition = <span class="kw">if </span>command.local { <span class="string">"local"</span>.to_string() } <span class="kw">else </span>{ edition.to_string() };
-<a href=#304 id=304 data-nosnippet>304</a>            <span class="comment">// The prefix for the file names.
-<a href=#305 id=305 data-nosnippet>305</a>            </span><span class="kw">let </span>prefix = <span class="macro">format!</span>(<span class="string">"{network}.{program_id}.{function_id}.{edition}"</span>);
-<a href=#306 id=306 data-nosnippet>306</a>            <span class="comment">// Get the file paths.
-<a href=#307 id=307 data-nosnippet>307</a>            </span><span class="kw">let </span>prover_file_path = PathBuf::from(path).join(<span class="macro">format!</span>(<span class="string">"{prefix}.prover.{timestamp}"</span>));
-<a href=#308 id=308 data-nosnippet>308</a>            <span class="kw">let </span>verifier_file_path = PathBuf::from(path).join(<span class="macro">format!</span>(<span class="string">"{prefix}.verifier.{timestamp}"</span>));
-<a href=#309 id=309 data-nosnippet>309</a>            <span class="kw">let </span>metadata_file_path = PathBuf::from(path)
-<a href=#310 id=310 data-nosnippet>310</a>                .join(<span class="macro">format!</span>(<span class="string">"{network}.{program_id}.{function_id}.{edition}.metadata.{timestamp}"</span>));
-<a href=#311 id=311 data-nosnippet>311</a>            <span class="comment">// Print the save location.
-<a href=#312 id=312 data-nosnippet>312</a>            </span><span class="macro">println!</span>(
-<a href=#313 id=313 data-nosnippet>313</a>                <span class="string">"💾 Saving proving key, verifying key, and metadata to: {}/{network}.{program_id}.{function_id}.{edition}.prover|verifier|metadata.{timestamp}"</span>,
-<a href=#314 id=314 data-nosnippet>314</a>                metadata_file_path.parent().unwrap().display()
-<a href=#315 id=315 data-nosnippet>315</a>            );
-<a href=#316 id=316 data-nosnippet>316</a>            <span class="comment">// Save the keys.
-<a href=#317 id=317 data-nosnippet>317</a>            </span>write_to_file(prover_file_path, <span class="kw-2">&amp;</span>prover_bytes)<span class="question-mark">?</span>;
-<a href=#318 id=318 data-nosnippet>318</a>            write_to_file(verifier_file_path, <span class="kw-2">&amp;</span>verifier_bytes)<span class="question-mark">?</span>;
-<a href=#319 id=319 data-nosnippet>319</a>            write_to_file(metadata_file_path, metadata_pretty.as_bytes())<span class="question-mark">?</span>;
-<a href=#320 id=320 data-nosnippet>320</a>        }
-<a href=#321 id=321 data-nosnippet>321</a>    }
-<a href=#322 id=322 data-nosnippet>322</a>
-<a href=#323 id=323 data-nosnippet>323</a>    <span class="prelude-val">Ok</span>(())
-<a href=#324 id=324 data-nosnippet>324</a>}</code></pre></div></section></main></body></html>
+<a href=#230 id=230 data-nosnippet>230</a>
+<a href=#231 id=231 data-nosnippet>231</a>    <span class="comment">// A helper function to hash the keys.
+<a href=#232 id=232 data-nosnippet>232</a>    </span><span class="kw">let </span>hash = |bytes: <span class="kw-2">&amp;</span>[u8]| -&gt; anyhow::Result&lt;String&gt; {
+<a href=#233 id=233 data-nosnippet>233</a>        <span class="kw">let </span>digest = sha256(bytes);
+<a href=#234 id=234 data-nosnippet>234</a>        <span class="kw">let </span><span class="kw-2">mut </span>hex = String::new();
+<a href=#235 id=235 data-nosnippet>235</a>        <span class="kw">for </span>byte <span class="kw">in </span>digest {
+<a href=#236 id=236 data-nosnippet>236</a>            <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>hex, <span class="string">"{byte:02x}"</span>)<span class="question-mark">?</span>;
+<a href=#237 id=237 data-nosnippet>237</a>        }
+<a href=#238 id=238 data-nosnippet>238</a>        <span class="prelude-val">Ok</span>(hex)
+<a href=#239 id=239 data-nosnippet>239</a>    };
+<a href=#240 id=240 data-nosnippet>240</a>
+<a href=#241 id=241 data-nosnippet>241</a>    <span class="macro">println!</span>(<span class="string">"\n🌱 Synthesizing the following keys in {program_id}:"</span>);
+<a href=#242 id=242 data-nosnippet>242</a>    <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span>function_ids {
+<a href=#243 id=243 data-nosnippet>243</a>        <span class="macro">println!</span>(<span class="string">"    - {id}"</span>);
+<a href=#244 id=244 data-nosnippet>244</a>    }
+<a href=#245 id=245 data-nosnippet>245</a>
+<a href=#246 id=246 data-nosnippet>246</a>    <span class="kw">for </span>function_id <span class="kw">in </span>function_ids {
+<a href=#247 id=247 data-nosnippet>247</a>        stack.synthesize_key::&lt;A, <span class="kw">_</span>&gt;(function_id, rng)<span class="question-mark">?</span>;
+<a href=#248 id=248 data-nosnippet>248</a>        <span class="kw">let </span>proving_key = stack.get_proving_key(function_id)<span class="question-mark">?</span>;
+<a href=#249 id=249 data-nosnippet>249</a>        <span class="kw">let </span>verifying_key = stack.get_verifying_key(function_id)<span class="question-mark">?</span>;
+<a href=#250 id=250 data-nosnippet>250</a>
+<a href=#251 id=251 data-nosnippet>251</a>        <span class="macro">println!</span>(<span class="string">"\n🔑 Synthesized keys for {program_id}/{function_id} (edition {edition})"</span>);
+<a href=#252 id=252 data-nosnippet>252</a>        <span class="macro">println!</span>(<span class="string">"ℹ️ Circuit Information:"</span>);
+<a href=#253 id=253 data-nosnippet>253</a>        <span class="macro">println!</span>(<span class="string">"    - Public Inputs: {}"</span>, verifying_key.circuit_info.num_public_inputs);
+<a href=#254 id=254 data-nosnippet>254</a>        <span class="macro">println!</span>(<span class="string">"    - Variables: {}"</span>, verifying_key.circuit_info.num_public_and_private_variables);
+<a href=#255 id=255 data-nosnippet>255</a>        <span class="macro">println!</span>(<span class="string">"    - Constraints: {}"</span>, verifying_key.circuit_info.num_constraints);
+<a href=#256 id=256 data-nosnippet>256</a>        <span class="macro">println!</span>(<span class="string">"    - Non-Zero Entries in A: {}"</span>, verifying_key.circuit_info.num_non_zero_a);
+<a href=#257 id=257 data-nosnippet>257</a>        <span class="macro">println!</span>(<span class="string">"    - Non-Zero Entries in B: {}"</span>, verifying_key.circuit_info.num_non_zero_b);
+<a href=#258 id=258 data-nosnippet>258</a>        <span class="macro">println!</span>(<span class="string">"    - Non-Zero Entries in C: {}"</span>, verifying_key.circuit_info.num_non_zero_c);
+<a href=#259 id=259 data-nosnippet>259</a>        <span class="macro">println!</span>(<span class="string">"    - Circuit ID: {}"</span>, verifying_key.id);
+<a href=#260 id=260 data-nosnippet>260</a>
+<a href=#261 id=261 data-nosnippet>261</a>        <span class="comment">// Get the checksums of the keys.
+<a href=#262 id=262 data-nosnippet>262</a>        </span><span class="kw">let </span>prover_bytes = proving_key.to_bytes_le()<span class="question-mark">?</span>;
+<a href=#263 id=263 data-nosnippet>263</a>        <span class="kw">let </span>verifier_bytes = verifying_key.to_bytes_le()<span class="question-mark">?</span>;
+<a href=#264 id=264 data-nosnippet>264</a>        <span class="kw">let </span>prover_checksum = hash(<span class="kw-2">&amp;</span>prover_bytes)<span class="question-mark">?</span>;
+<a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">let </span>verifier_checksum = hash(<span class="kw-2">&amp;</span>verifier_bytes)<span class="question-mark">?</span>;
+<a href=#266 id=266 data-nosnippet>266</a>
+<a href=#267 id=267 data-nosnippet>267</a>        <span class="comment">// Construct the metadata.
+<a href=#268 id=268 data-nosnippet>268</a>        </span><span class="kw">let </span>metadata = Metadata {
+<a href=#269 id=269 data-nosnippet>269</a>            prover_checksum,
+<a href=#270 id=270 data-nosnippet>270</a>            prover_size: prover_bytes.len(),
+<a href=#271 id=271 data-nosnippet>271</a>            verifier_checksum,
+<a href=#272 id=272 data-nosnippet>272</a>            verifier_size: verifier_bytes.len(),
+<a href=#273 id=273 data-nosnippet>273</a>        };
+<a href=#274 id=274 data-nosnippet>274</a>        <span class="kw">let </span>metadata_pretty = serde_json::to_string_pretty(<span class="kw-2">&amp;</span>metadata)
+<a href=#275 id=275 data-nosnippet>275</a>            .map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to serialize metadata: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#276 id=276 data-nosnippet>276</a>
+<a href=#277 id=277 data-nosnippet>277</a>        <span class="comment">// A helper to write to a file.
+<a href=#278 id=278 data-nosnippet>278</a>        </span><span class="kw">let </span>write_to_file = |path: PathBuf, data: <span class="kw-2">&amp;</span>[u8]| -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+<a href=#279 id=279 data-nosnippet>279</a>            std::fs::write(path, data).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to write to file: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#280 id=280 data-nosnippet>280</a>            <span class="prelude-val">Ok</span>(())
+<a href=#281 id=281 data-nosnippet>281</a>        };
+<a href=#282 id=282 data-nosnippet>282</a>
+<a href=#283 id=283 data-nosnippet>283</a>        <span class="comment">// If the `save` option is set, save the proving and verifying keys to a file in the specified directory.
+<a href=#284 id=284 data-nosnippet>284</a>        // The file format is `program_id.function_id.edition_or_local.type.timestamp`.
+<a href=#285 id=285 data-nosnippet>285</a>        // The directory is created if it doesn't exist.
+<a href=#286 id=286 data-nosnippet>286</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>command.action.save {
+<a href=#287 id=287 data-nosnippet>287</a>            <span class="comment">// Create the directory if it doesn't exist.
+<a href=#288 id=288 data-nosnippet>288</a>            </span>std::fs::create_dir_all(path).map_err(|e| CliError::custom(<span class="macro">format!</span>(<span class="string">"Failed to create directory: {e}"</span>)))<span class="question-mark">?</span>;
+<a href=#289 id=289 data-nosnippet>289</a>            <span class="comment">// Get the current timestamp.
+<a href=#290 id=290 data-nosnippet>290</a>            </span><span class="kw">let </span>timestamp = chrono::Utc::now().timestamp();
+<a href=#291 id=291 data-nosnippet>291</a>            <span class="comment">// The edition.
+<a href=#292 id=292 data-nosnippet>292</a>            </span><span class="kw">let </span>edition = <span class="kw">if </span>command.local { <span class="string">"local"</span>.to_string() } <span class="kw">else </span>{ edition.to_string() };
+<a href=#293 id=293 data-nosnippet>293</a>            <span class="comment">// The prefix for the file names.
+<a href=#294 id=294 data-nosnippet>294</a>            </span><span class="kw">let </span>prefix = <span class="macro">format!</span>(<span class="string">"{network}.{program_id}.{function_id}.{edition}"</span>);
+<a href=#295 id=295 data-nosnippet>295</a>            <span class="comment">// Get the file paths.
+<a href=#296 id=296 data-nosnippet>296</a>            </span><span class="kw">let </span>prover_file_path = PathBuf::from(path).join(<span class="macro">format!</span>(<span class="string">"{prefix}.prover.{timestamp}"</span>));
+<a href=#297 id=297 data-nosnippet>297</a>            <span class="kw">let </span>verifier_file_path = PathBuf::from(path).join(<span class="macro">format!</span>(<span class="string">"{prefix}.verifier.{timestamp}"</span>));
+<a href=#298 id=298 data-nosnippet>298</a>            <span class="kw">let </span>metadata_file_path = PathBuf::from(path)
+<a href=#299 id=299 data-nosnippet>299</a>                .join(<span class="macro">format!</span>(<span class="string">"{network}.{program_id}.{function_id}.{edition}.metadata.{timestamp}"</span>));
+<a href=#300 id=300 data-nosnippet>300</a>            <span class="comment">// Print the save location.
+<a href=#301 id=301 data-nosnippet>301</a>            </span><span class="macro">println!</span>(
+<a href=#302 id=302 data-nosnippet>302</a>                <span class="string">"💾 Saving proving key, verifying key, and metadata to: {}/{network}.{program_id}.{function_id}.{edition}.prover|verifier|metadata.{timestamp}"</span>,
+<a href=#303 id=303 data-nosnippet>303</a>                metadata_file_path.parent().unwrap().display()
+<a href=#304 id=304 data-nosnippet>304</a>            );
+<a href=#305 id=305 data-nosnippet>305</a>            <span class="comment">// Save the keys.
+<a href=#306 id=306 data-nosnippet>306</a>            </span>write_to_file(prover_file_path, <span class="kw-2">&amp;</span>prover_bytes)<span class="question-mark">?</span>;
+<a href=#307 id=307 data-nosnippet>307</a>            write_to_file(verifier_file_path, <span class="kw-2">&amp;</span>verifier_bytes)<span class="question-mark">?</span>;
+<a href=#308 id=308 data-nosnippet>308</a>            write_to_file(metadata_file_path, metadata_pretty.as_bytes())<span class="question-mark">?</span>;
+<a href=#309 id=309 data-nosnippet>309</a>        }
+<a href=#310 id=310 data-nosnippet>310</a>    }
+<a href=#311 id=311 data-nosnippet>311</a>
+<a href=#312 id=312 data-nosnippet>312</a>    <span class="prelude-val">Ok</span>(())
+<a href=#313 id=313 data-nosnippet>313</a>}</code></pre></div></section></main></body></html>

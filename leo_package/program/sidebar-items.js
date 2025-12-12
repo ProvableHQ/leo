@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["canonicalize_dependency_path_relative_to","parse_dependencies_from_aleo"],"struct":["Program"]};
+window.SIDEBAR_ITEMS = {"fn":["canonicalize_dependency_path_relative_to","find_cached_edition","parse_dependencies_from_aleo"],"struct":["Program"]};
