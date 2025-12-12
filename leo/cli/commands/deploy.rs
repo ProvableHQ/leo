@@ -251,10 +251,18 @@ fn handle_deploy<N: Network>(
     let programs_and_editions = remote
         .into_iter()
         .map(|task| {
-            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            (task.program, task.edition.unwrap_or(1))
+            // Get the actual edition from the network if not specified.
+            let edition = match task.edition {
+                Some(e) => e,
+                None => leo_package::fetch_latest_edition(&task.id.to_string(), &endpoint, network)?,
+            };
+            Ok((task.program, edition))
         })
-        .collect::<Vec<_>>();
+        .collect::<Result<Vec<_>>>()?;
+
+    // Check for programs that violate edition/constructor requirements.
+    check_edition_constructor_requirements(&programs_and_editions, consensus_version, "deploy")?;
+
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Remove version suffixes from the endpoint.

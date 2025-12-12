@@ -46,7 +46,7 @@ Attempting to determine the consensus version from the latest block height at ht
 
 ➕Adding programs to the VM in the following order:
   - credits.aleo (already included)
-  - some_sample_leo_program.aleo (edition: 1)
+  - some_sample_leo_program.aleo (local)
 
 ⚙️ Executing some_sample_leo_program.aleo/main...
 
@@ -105,7 +105,7 @@ Attempting to determine the consensus version from the latest block height at ht
 
 ➕Adding programs to the VM in the following order:
   - credits.aleo (already included)
-  - some_sample_leo_program.aleo (edition: 1)
+  - some_sample_leo_program.aleo (local)
 
 ⚙️ Executing some_sample_leo_program.aleo/main...
 
