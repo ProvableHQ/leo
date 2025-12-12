@@ -19,10 +19,10 @@ use leo_ast::*;
 use super::UnrollingVisitor;
 
 impl ProgramReconstructor for UnrollingVisitor<'_> {
-    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
+    fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
         // Set the current program.
         self.program = input.stub_id.name.name;
-        Stub {
+        AleoProgram {
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
             ..input
         }

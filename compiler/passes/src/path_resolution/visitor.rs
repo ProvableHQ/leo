@@ -20,6 +20,8 @@ use leo_span::Symbol;
 
 pub struct PathResolutionVisitor<'a> {
     pub state: &'a mut CompilerState,
+    /// The current program.
+    pub program: Symbol,
     /// The current module.
     pub module: Vec<Symbol>,
 }

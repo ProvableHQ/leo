@@ -1,0 +1,22 @@
+{
+  "program": "parent.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.4.0",
+  "dependencies": [
+    {
+      "name": "child1.aleo",
+      "location": "local",
+      "path": "../child1",
+      "edition": null
+    },
+    {
+      "name": "child2.aleo",
+      "location": "local",
+      "path": "../child2",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}

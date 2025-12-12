@@ -473,6 +473,7 @@ impl FlatteningVisitor<'_> {
         &mut self,
         composite_path: &Path,
         composite: &Composite,
+        program: Option<Symbol>,
         condition: &Expression,
         first: &Identifier,
         second: &Identifier,
@@ -516,6 +517,7 @@ impl FlatteningVisitor<'_> {
                 path: composite_path.clone(),
                 const_arguments: Vec::new(), // All const arguments should have been resolved by now
                 members,
+                program,
                 span: Default::default(),
                 id: {
                     // Create a new node ID for the comopsite expression.

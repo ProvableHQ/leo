@@ -104,8 +104,8 @@ finalize main:
     add r0[0u32] r1[0u32] into r5;
     set r5 into ayo[1u32];
 // --- Next Program --- //
-import test_dep.aleo;
 import test.aleo;
+import test_dep.aleo;
 program wrapper.aleo;
 
 function main:

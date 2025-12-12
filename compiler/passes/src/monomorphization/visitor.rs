@@ -25,6 +25,7 @@ use leo_ast::{
     Expression,
     Function,
     Identifier,
+    Location,
     Path,
     ProgramReconstructor,
 };
@@ -35,19 +36,19 @@ pub struct MonomorphizationVisitor<'a> {
     /// The main program.
     pub program: Symbol,
     /// A map to provide faster lookup of functions.
-    pub function_map: IndexMap<Vec<Symbol>, Function>,
+    pub function_map: IndexMap<Location, Function>,
     /// A map to provide faster lookup of composites.
-    pub composite_map: IndexMap<Vec<Symbol>, Composite>,
+    pub composite_map: IndexMap<Location, Composite>,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_functions: IndexMap<Vec<Symbol>, Function>,
+    pub reconstructed_functions: IndexMap<Location, Function>,
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
     /// the functions not the names of the monomorphized versions.
-    pub monomorphized_functions: IndexSet<Vec<Symbol>>,
+    pub monomorphized_functions: IndexSet<Location>,
     /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_composites: IndexMap<Vec<Symbol>, Composite>,
+    pub reconstructed_composites: IndexMap<Location, Composite>,
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
     /// the functions not the names of the monomorphized versions.
-    pub monomorphized_composites: IndexSet<Vec<Symbol>>,
+    pub monomorphized_composites: IndexSet<Location>,
     /// A vector of all the calls to const generic functions that have not been resolved.
     pub unresolved_calls: Vec<CallExpression>,
     /// A vector of all the composite expressions of const generic composites that have not been resolved.
@@ -71,7 +72,12 @@ impl MonomorphizationVisitor<'_> {
     /// * Returns a `Symbol` for the newly monomorphized composite.
     ///
     /// Note: this functions already assumes that all provided const arguments are literals.
-    pub(crate) fn monomorphize_composite(&mut self, path: &Path, const_arguments: &Vec<Expression>) -> Path {
+    pub(crate) fn monomorphize_composite(
+        &mut self,
+        program: Symbol,
+        path: &Path,
+        const_arguments: &Vec<Expression>,
+    ) -> Path {
         // Generate a unique name for the monomorphized composite based on const arguments.
         //
         // For `struct Foo::[x: u32, y: u32](..)`, the generated name would be `Foo::[1u32, 2u32]` for a composite
@@ -87,12 +93,12 @@ impl MonomorphizationVisitor<'_> {
 
         // Check if the new composite name is not already present in `reconstructed_composites`. This ensures that we do not
         // add a duplicate definition for the same composite.
-        if self.reconstructed_composites.get(&new_composite_path.absolute_path()).is_none() {
+        if self.reconstructed_composites.get(&Location::new(program, new_composite_path.absolute_path())).is_none() {
             let full_name = path.absolute_path();
             // Look up the already reconstructed composite by name.
             let composite = self
                 .reconstructed_composites
-                .get(&full_name)
+                .get(&Location::new(program, full_name.clone()))
                 .expect("Composite should already be reconstructed (post-order traversal).");
 
             // Build mapping from const parameters to const argument values.
@@ -128,10 +134,10 @@ impl MonomorphizationVisitor<'_> {
             composite.id = self.state.node_builder.next_id();
 
             // Keep track of the new composite in case other composites need it.
-            self.reconstructed_composites.insert(new_composite_path.absolute_path(), composite);
+            self.reconstructed_composites.insert(Location::new(program, new_composite_path.absolute_path()), composite);
 
             // Now keep track of the composite we just monomorphized
-            self.monomorphized_composites.insert(full_name);
+            self.monomorphized_composites.insert(Location::new(program, full_name));
         }
 
         new_composite_path

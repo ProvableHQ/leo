@@ -17,11 +17,17 @@
 mod assigner;
 pub use assigner::*;
 
+mod block_to_function_rewriter;
+pub use block_to_function_rewriter::*;
+
 mod rename_table;
 pub use rename_table::*;
 
 mod replacer;
 pub use replacer::*;
+
+mod symbol_access_collector;
+pub use symbol_access_collector::*;
 
 mod symbol_table;
 pub use symbol_table::*;

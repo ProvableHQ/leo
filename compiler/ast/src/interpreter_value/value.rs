@@ -43,6 +43,7 @@ use snarkvm::prelude::{
 pub(crate) use snarkvm::prelude::{
     Identifier as SvmIdentifierParam,
     Literal as SvmLiteralParam,
+    Locator as SvmLocatorParam,
     Plaintext,
     Signature as SvmSignature,
     TestnetV0,
@@ -61,6 +62,7 @@ pub(crate) type ProgramID = ProgramIDParam<CurrentNetwork>;
 pub(crate) type SvmPlaintext = Plaintext<CurrentNetwork>;
 pub(crate) type SvmLiteral = SvmLiteralParam<CurrentNetwork>;
 pub(crate) type SvmIdentifier = SvmIdentifierParam<CurrentNetwork>;
+pub(crate) type SvmLocator = SvmLocatorParam<CurrentNetwork>;
 pub(crate) type Group = SvmGroup<CurrentNetwork>;
 pub(crate) type Field = SvmField<CurrentNetwork>;
 pub(crate) type Scalar = SvmScalar<CurrentNetwork>;
@@ -827,8 +829,9 @@ impl Value {
         &self,
         span: Span,
         node_builder: &NodeBuilder,
+        current_program: Symbol,
         ty: &Type,
-        struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+        struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
     ) -> Option<Expression> {
         use crate::{Literal, TupleExpression, UnitExpression};
 
@@ -850,7 +853,7 @@ impl Value {
                     elements: vec
                         .iter()
                         .zip(tuple_type.elements())
-                        .map(|(val, ty)| val.to_expression(span, node_builder, ty, struct_lookup))
+                        .map(|(val, ty)| val.to_expression(span, node_builder, current_program, ty, struct_lookup))
                         .collect::<Option<Vec<_>>>()?,
                 }
                 .into()
@@ -858,7 +861,7 @@ impl Value {
             ValueVariants::Unsuffixed(s) => Literal::unsuffixed(s.clone(), span, id).into(),
             ValueVariants::Svm(value) => match value {
                 SvmValueParam::Plaintext(plaintext) => {
-                    plaintext_to_expression(plaintext, span, node_builder, ty, &struct_lookup)?
+                    plaintext_to_expression(plaintext, span, node_builder, current_program, ty, &struct_lookup)?
                 }
                 SvmValueParam::Record(..) => return None,
                 SvmValueParam::Future(..) => return None,
@@ -876,8 +879,9 @@ fn plaintext_to_expression(
     plaintext: &SvmPlaintext,
     span: Span,
     node_builder: &NodeBuilder,
+    current_program: Symbol,
     ty: &Type,
-    struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+    struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
 ) -> Option<Expression> {
     use crate::{ArrayExpression, CompositeExpression, CompositeFieldInitializer, Identifier, IntegerType, Literal};
 
@@ -925,7 +929,8 @@ fn plaintext_to_expression(
                 return None;
             };
             let symbols = composite_type.path.as_symbols();
-            let iter_members = struct_lookup(&symbols);
+            let iter_members =
+                struct_lookup(&Location::new(composite_type.program.unwrap_or(current_program), symbols));
             CompositeExpression {
                 span,
                 id,
@@ -933,6 +938,7 @@ fn plaintext_to_expression(
                 // If we were able to construct a Value, the const arguments must have already been resolved
                 // and inserted appropriately.
                 const_arguments: Vec::new(),
+                program: None, // not an external struct.
                 members: iter_members
                     .into_iter()
                     .map(|(sym, ty)| {
@@ -946,6 +952,7 @@ fn plaintext_to_expression(
                                 index_map.get(&svm_identifier)?,
                                 span,
                                 node_builder,
+                                current_program,
                                 &ty,
                                 &struct_lookup,
                             )?),
@@ -964,7 +971,16 @@ fn plaintext_to_expression(
                 id,
                 elements: vec
                     .iter()
-                    .map(|pt| plaintext_to_expression(pt, span, node_builder, &array_ty.element_type, &struct_lookup))
+                    .map(|pt| {
+                        plaintext_to_expression(
+                            pt,
+                            span,
+                            node_builder,
+                            current_program,
+                            &array_ty.element_type,
+                            &struct_lookup,
+                        )
+                    })
                     .collect::<Option<Vec<_>>>()?,
             }
             .into()

@@ -156,6 +156,18 @@ impl AsRef<Program> for Ast {
     }
 }
 
+/// Produced set of bytecodes
+pub struct CompiledPrograms {
+    pub primary_bytecode: String,
+    pub import_bytecodes: Vec<Bytecode>,
+}
+
+/// Bytecode for a single program.
+pub struct Bytecode {
+    pub program_name: String,
+    pub bytecode: String,
+}
+
 /// Helper function to recursively filter keys from AST JSON
 pub fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
     match value {

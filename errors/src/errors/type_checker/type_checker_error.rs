@@ -1384,4 +1384,12 @@ create_messages!(
         help: None,
     }
 
+    @formatted
+    cannot_instantiate_external_record  {
+        args: (loc: impl Display),
+        msg: format!(
+            "Cannot create external record `{loc}`. Records can only be created in the program that they are defined in",
+        ),
+        help: None,
+    }
 );

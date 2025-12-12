@@ -985,11 +985,36 @@ impl<'a> ConversionContext<'a> {
                     }
                 }
 
-                let mut identifiers = self.path_to_parts(name);
-                let identifier = identifiers.pop().unwrap();
-                let path = leo_ast::Path::new(identifiers, identifier, false, None, name.span, self.builder.next_id());
+                if let Some((program, name_str)) = name.text.split_once(".aleo/") {
+                    // This is a locator.
+                    let name_id = leo_ast::Identifier {
+                        name: Symbol::intern(name_str),
+                        span: leo_span::Span {
+                            lo: name.span.lo + program.len() as u32 + 5,
+                            hi: name.span.lo + name.text.len() as u32,
+                        },
+                        id: self.builder.next_id(),
+                    };
 
-                leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
+                    let path =
+                        leo_ast::Path::new(Vec::new(), name_id, false, None, name_id.span, self.builder.next_id());
+                    leo_ast::CompositeExpression {
+                        path,
+                        const_arguments,
+                        members,
+                        program: Some(Symbol::intern(program)),
+                        span,
+                        id,
+                    }
+                    .into()
+                } else {
+                    let mut identifiers = self.path_to_parts(name);
+                    let identifier = identifiers.pop().unwrap();
+                    let path =
+                        leo_ast::Path::new(identifiers, identifier, false, None, name.span, self.builder.next_id());
+
+                    leo_ast::CompositeExpression { path, const_arguments, members, program: None, span, id }.into()
+                }
             }
             ExpressionKind::Ternary => {
                 let [cond, _q, if_, _c, then] = &node.children[..] else {

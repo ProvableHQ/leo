@@ -58,6 +58,8 @@ pub struct CompositeExpression {
     /// N.B. Any functions or member constants in the composite definition
     /// are excluded from this list.
     pub members: Vec<CompositeFieldInitializer>,
+    /// The external program that this composite is defined in.
+    pub program: Option<Symbol>,
     /// A span from `name` to `}`.
     pub span: Span,
     /// The ID of the node.
@@ -66,7 +68,12 @@ pub struct CompositeExpression {
 
 impl fmt::Display for CompositeExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.path)?;
+        if let Some(program) = self.program.as_ref() {
+            write!(f, "{}.aleo/{}", program, self.path)?;
+        } else {
+            write!(f, "{}", self.path)?;
+        }
+
         if !self.const_arguments.is_empty() {
             write!(f, "::[{}]", self.const_arguments.iter().format(", "))?;
         }
