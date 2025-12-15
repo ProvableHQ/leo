@@ -1,0 +1,46 @@
+Warning [WLINT03711001]: Attempt to divide by zero.
+    --> linter-test:4:22
+     |
+   4 |         let a: u32 = 5u32 / 0u32;
+     |                      ^^^^^^^^^^^
+Warning [WLINT03711000]: This operation has no effect.
+    --> linter-test:9:22
+     |
+   9 |         let a: u32 = 5u32 * 1u32;
+     |                      ^^^^^^^^^^^
+     |
+     = Consider reducing it to: `5u32`.
+Warning [WLINT03711000]: This operation has no effect.
+    --> linter-test:14:22
+     |
+  14 |         let a: u32 = 5u32 + 0u32;
+     |                      ^^^^^^^^^^^
+     |
+     = Consider reducing it to: `5u32`.
+Warning [WLINT03711000]: This operation has no effect.
+    --> linter-test:19:22
+     |
+  19 |         let a: u32 = 5u32 / 1u32;
+     |                      ^^^^^^^^^^^
+     |
+     = Consider reducing it to: `5u32`.
+Warning [WLINT03711002]: Irrefutable comparison: this expression will always yield true.
+    --> linter-test:24:23
+     |
+  24 |         let a: bool = true == true;
+     |                       ^^^^^^^^^^^^
+Warning [WLINT03711002]: Irrefutable comparison: this expression will always yield true.
+    --> linter-test:25:23
+     |
+  25 |         let b: bool = true != false;
+     |                       ^^^^^^^^^^^^^
+Warning [WLINT03711002]: Irrefutable comparison: this expression will always yield true.
+    --> linter-test:26:23
+     |
+  26 |         let c: bool = 4u64 == 4u64;
+     |                       ^^^^^^^^^^^^
+Warning [WLINT03711002]: Irrefutable comparison: this expression will always yield true.
+    --> linter-test:27:23
+     |
+  27 |         let d: bool = 4u32 != 3u32;
+     |                       ^^^^^^^^^^^^

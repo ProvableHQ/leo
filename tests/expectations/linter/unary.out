@@ -1,0 +1,15 @@
+Warning [WLINT03711003]: nonminimal_boolean: this expression can be simplified.
+    --> linter-test:4:17
+     |
+   4 |         let a = !true;
+     |                 ^^^^^
+Warning [WLINT03711003]: double_negation: this expression can be simplified.
+    --> linter-test:5:17
+     |
+   5 |         let b = !!false;
+     |                 ^^^^^^^
+Warning [WLINT03711003]: nonminimal_boolean: this expression can be simplified.
+    --> linter-test:5:18
+     |
+   5 |         let b = !!false;
+     |                  ^^^^^^

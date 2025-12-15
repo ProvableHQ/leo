@@ -1,0 +1,7 @@
+Warning [WLINT03711004]: Unnecessary parentheses around the expression.
+    --> dep.leo:2:17
+     |
+   2 | const x: u32 = (4u32);
+     |                 ^^^^
+     |
+     = Consider replacing the expression with '4'.

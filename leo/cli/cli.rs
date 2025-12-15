@@ -105,6 +105,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoRemove,
     },
+    #[clap(about = "Check leo programs and modules for common errors.")]
+    Check {
+        #[clap(flatten)]
+        command: LeoCheck,
+    },
     #[clap(about = "Clean the output directory")]
     Clean {
         #[clap(flatten)]
@@ -187,6 +192,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Synthesize { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
         Commands::Upgrade { command } => command.try_execute(context),
+        Commands::Check { command } => command.try_execute(context),
     }
 }
 

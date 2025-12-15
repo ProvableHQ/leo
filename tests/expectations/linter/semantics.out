@@ -1,0 +1,35 @@
+Warning [WLINT03711008]: value assigned to `c` is never read.
+    --> linter-test:7:9
+     |
+   7 |         c = 5u32;
+     |         ^
+     |
+     = maybe it is overwritten before being read?.
+Warning [WLINT03711008]: value assigned to `c` is never read.
+    --> linter-test:6:13
+     |
+   6 |         let c = 4u32;
+     |             ^
+     |
+     = maybe it is overwritten before being read?.
+Warning [WLINT03711008]: value assigned to `b` is never read.
+    --> linter-test:5:13
+     |
+   5 |         let b = 4u32;
+     |             ^
+     |
+     = maybe it is overwritten before being read?.
+Warning [WLINT03711008]: value assigned to `a` is never read.
+    --> linter-test:4:13
+     |
+   4 |         let a = 4u32;
+     |             ^
+     |
+     = maybe it is overwritten before being read?.
+Warning [WLINT03711007]: unused variable `b`
+    --> linter-test:5:13
+     |
+   5 |         let b = 4u32;
+     |             ^
+     |
+     = if this is intentional, consider prefixing it with an underscore: `_b`.
