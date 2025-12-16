@@ -109,9 +109,9 @@
 <a href=#109 id=109 data-nosnippet>109</a>    </span><span class="attr">#[regex(<span class="string">r"_[a-zA-Z][a-zA-Z0-9_]*"</span>, |<span class="kw">_</span>| IdVariants::Intrinsic)]
 <a href=#110 id=110 data-nosnippet>110</a>    #[regex(<span class="string">r"[a-zA-Z][a-zA-Z0-9_]*"</span>, id_variant)]
 <a href=#111 id=111 data-nosnippet>111</a>    </span><span class="comment">// We need to special case `group::abc` and `signature::abc` as otherwise these are keywords.
-<a href=#112 id=112 data-nosnippet>112</a>    </span><span class="attr">#[token(<span class="string">r"group::[a-zA-Z][a-zA-Z0-9_]*"</span>, |<span class="kw">_</span>| IdVariants::Path)]
-<a href=#113 id=113 data-nosnippet>113</a>    #[token(<span class="string">r"signature::[a-zA-Z][a-zA-Z0-9_]*"</span>, |<span class="kw">_</span>| IdVariants::Path)]
-<a href=#114 id=114 data-nosnippet>114</a>    #[token(<span class="string">r"Future::[a-zA-Z][a-zA-Z0-9_]*"</span>, |<span class="kw">_</span>| IdVariants::Path)]
+<a href=#112 id=112 data-nosnippet>112</a>    </span><span class="attr">#[regex(<span class="string">r"group::[a-zA-Z][a-zA-Z0-9_]*"</span>, |<span class="kw">_</span>| IdVariants::Path)]
+<a href=#113 id=113 data-nosnippet>113</a>    #[regex(<span class="string">r"signature::[a-zA-Z][a-zA-Z0-9_]*"</span>, |<span class="kw">_</span>| IdVariants::Path)]
+<a href=#114 id=114 data-nosnippet>114</a>    #[regex(<span class="string">r"Future::[a-zA-Z][a-zA-Z0-9_]*"</span>, |<span class="kw">_</span>| IdVariants::Path)]
 <a href=#115 id=115 data-nosnippet>115</a>    </span>IdVariants(IdVariants),
 <a href=#116 id=116 data-nosnippet>116</a>
 <a href=#117 id=117 data-nosnippet>117</a>    <span class="comment">// Address literals should have exactly 58 characters, but we lex other lengths
