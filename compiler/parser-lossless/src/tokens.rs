@@ -109,9 +109,9 @@ pub enum Token {
     #[regex(r"_[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Intrinsic)]
     #[regex(r"[a-zA-Z][a-zA-Z0-9_]*", id_variant)]
     // We need to special case `group::abc` and `signature::abc` as otherwise these are keywords.
-    #[token(r"group::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
-    #[token(r"signature::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
-    #[token(r"Future::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
+    #[regex(r"group::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
+    #[regex(r"signature::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
+    #[regex(r"Future::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
     IdVariants(IdVariants),
 
     // Address literals should have exactly 58 characters, but we lex other lengths
