@@ -326,7 +326,7 @@ impl Compiler {
                 return Err(CompilerError::imported_program_not_found(
                     self.program_name.as_ref().unwrap(),
                     import,
-                    self.state.ast.ast.imports[&import].1,
+                    self.state.ast.ast.imports[&import],
                 )
                 .into());
             }

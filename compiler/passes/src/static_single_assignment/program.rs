@@ -145,11 +145,7 @@ impl ProgramConsumer for SsaFormingVisitor<'_> {
     fn consume_program(&mut self, input: Program) -> Self::Output {
         Program {
             modules: input.modules.into_iter().map(|(path, module)| (path, self.consume_module(module))).collect(),
-            imports: input
-                .imports
-                .into_iter()
-                .map(|(name, (import, span))| (name, (self.consume_program(import), span)))
-                .collect(),
+            imports: input.imports,
             stubs: input.stubs,
             program_scopes: input
                 .program_scopes

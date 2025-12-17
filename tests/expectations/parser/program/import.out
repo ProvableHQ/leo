@@ -1,18 +1,10 @@
 {
   "modules": {},
   "imports": {
-    "hello": [
-      {
-        "modules": {},
-        "imports": {},
-        "stubs": {},
-        "program_scopes": {}
-      },
-      {
-        "lo": 0,
-        "hi": 18
-      }
-    ]
+    "hello": {
+      "lo": 0,
+      "hi": 18
+    }
   },
   "stubs": {},
   "program_scopes": {
