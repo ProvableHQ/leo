@@ -66,12 +66,25 @@ commands:
           name: Install Rust (Windows)
           command: |
             $ProgressPreference = "SilentlyContinue"
-            choco uninstall rust
-            Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
-            Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
-            $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
-            rustup install 1.92.0
-            rustup default 1.92.0
+            $cargoPath = "$Env:USERPROFILE\.cargo"
+            $rustupPath = "$Env:USERPROFILE\.rustup"
+
+            # Ensure cargo bin is in PATH
+            $Env:Path += ";$cargoPath\bin"
+
+            # Check rust version
+            $rustVersion = & "$cargoPath\bin\rustc.exe" --version 2>$null
+            if ($rustVersion -notmatch "1\.92\.0") {
+                Write-Output "Installing Rust 1.92.0..."
+                choco uninstall rust -y
+                Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
+                Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
+                rustup install 1.92.0
+                rustup override set 1.92.0
+            } else {
+                Write-Output "Rust 1.92.0 already installed, skipping installation"
+            }
+
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
@@ -133,7 +146,7 @@ jobs:
   test-windows:
     executor:
       name: windows/default
-      size: xlarge
+      size: 2xlarge
     environment:
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
       RUST_MIN_STACK: "16777216"    # 16 MB stack for rustc
