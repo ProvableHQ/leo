@@ -442,8 +442,11 @@ impl CodeGeneratingVisitor<'_> {
             })
             .collect::<Vec<_>>();
 
-        let (intr_dest, intr_stmts) =
-            self.generate_intrinsic(Intrinsic::from_symbol(input.name, &input.type_parameters), &arguments);
+        let (intr_dest, intr_stmts) = self.generate_intrinsic(
+            Intrinsic::from_symbol(input.name, &input.type_parameters)
+                .expect("All core functions should be known at this phase of compilation"),
+            &arguments,
+        );
 
         // Add the instruction to the list of instructions.
         stmts.extend(intr_stmts);
@@ -538,7 +541,7 @@ impl CodeGeneratingVisitor<'_> {
 
     fn generate_intrinsic(
         &mut self,
-        intrinsic: Option<Intrinsic>,
+        intrinsic: Intrinsic,
         arguments: &[(AleoExpr, NodeID)],
     ) -> (Option<AleoExpr>, Vec<AleoStmt>) {
         {
@@ -562,28 +565,28 @@ impl CodeGeneratingVisitor<'_> {
 
             // Construct the instruction.
             let (destination, instruction) = match intrinsic {
-                Some(Intrinsic::SelfId) | Some(Intrinsic::SelfAddress) => (
+                Intrinsic::SelfId | Intrinsic::SelfAddress => (
                     Some(AleoExpr::RawName(
                         self.program_id.expect("The program ID is set before traversing the program").to_string(),
                     )),
                     vec![],
                 ),
-                Some(Intrinsic::SelfChecksum) => (Some(AleoExpr::RawName("checksum".into())), vec![]),
-                Some(Intrinsic::SelfEdition) => (Some(AleoExpr::RawName("edition".into())), vec![]),
-                Some(Intrinsic::SelfProgramOwner) => (Some(AleoExpr::RawName("program_owner".into())), vec![]),
-                Some(Intrinsic::SelfCaller) => (Some(AleoExpr::RawName("self.caller".into())), vec![]),
-                Some(Intrinsic::SelfSigner) => (Some(AleoExpr::RawName("self.signer".into())), vec![]),
-                Some(Intrinsic::BlockHeight) => (Some(AleoExpr::RawName("block.height".into())), vec![]),
-                Some(Intrinsic::BlockTimestamp) => (Some(AleoExpr::RawName("block.timestamp".into())), vec![]),
-                Some(Intrinsic::NetworkId) => (Some(AleoExpr::RawName("network.id".into())), vec![]),
-                Some(Intrinsic::Commit(variant, ref type_)) => {
+                Intrinsic::SelfChecksum => (Some(AleoExpr::RawName("checksum".into())), vec![]),
+                Intrinsic::SelfEdition => (Some(AleoExpr::RawName("edition".into())), vec![]),
+                Intrinsic::SelfProgramOwner => (Some(AleoExpr::RawName("program_owner".into())), vec![]),
+                Intrinsic::SelfCaller => (Some(AleoExpr::RawName("self.caller".into())), vec![]),
+                Intrinsic::SelfSigner => (Some(AleoExpr::RawName("self.signer".into())), vec![]),
+                Intrinsic::BlockHeight => (Some(AleoExpr::RawName("block.height".into())), vec![]),
+                Intrinsic::BlockTimestamp => (Some(AleoExpr::RawName("block.timestamp".into())), vec![]),
+                Intrinsic::NetworkId => (Some(AleoExpr::RawName("network.id".into())), vec![]),
+                Intrinsic::Commit(variant, ref type_) => {
                     let type_ = AleoType::from(*type_);
                     let dest_reg = self.next_register();
                     let instruction =
                         AleoStmt::Commit(variant, args[0].clone(), args[1].clone(), dest_reg.clone(), type_);
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::Hash(variant, ref type_)) => {
+                Intrinsic::Hash(variant, ref type_) => {
                     let dest_reg = self.next_register();
                     let type_ = match self.state.network {
                         NetworkName::TestnetV0 => AleoType::from(
@@ -599,53 +602,53 @@ impl CodeGeneratingVisitor<'_> {
                     let instruction = AleoStmt::Hash(variant, args[0].clone(), dest_reg.clone(), type_);
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::Get) => {
+                Intrinsic::MappingGet => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::Get(args[0].clone(), args[1].clone(), dest_reg.clone());
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::MappingGetOrUse) => {
+                Intrinsic::MappingGetOrUse => {
                     let dest_reg = self.next_register();
                     let instruction =
                         AleoStmt::GetOrUse(args[0].clone(), args[1].clone(), args[2].clone(), dest_reg.clone());
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::Set) => {
+                Intrinsic::MappingSet => {
                     let instruction = AleoStmt::Set(args[2].clone(), args[0].clone(), args[1].clone());
                     (None, vec![instruction])
                 }
-                Some(Intrinsic::MappingRemove) => {
+                Intrinsic::MappingRemove => {
                     let instruction = AleoStmt::Remove(args[0].clone(), args[1].clone());
                     (None, vec![instruction])
                 }
-                Some(Intrinsic::MappingContains) => {
+                Intrinsic::MappingContains => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::Contains(args[0].clone(), args[1].clone(), dest_reg.clone());
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::GroupToXCoordinate) => {
+                Intrinsic::GroupToXCoordinate => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::Cast(args[0].clone(), dest_reg.clone(), AleoType::GroupX);
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::GroupToYCoordinate) => {
+                Intrinsic::GroupToYCoordinate => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::Cast(args[0].clone(), dest_reg.clone(), AleoType::GroupY);
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::GroupGen) => (Some(AleoExpr::RawName("group::GEN".into())), vec![]),
-                Some(Intrinsic::ChaChaRand(type_)) => {
+                Intrinsic::GroupGen => (Some(AleoExpr::RawName("group::GEN".into())), vec![]),
+                Intrinsic::ChaChaRand(type_) => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::RandChacha(dest_reg.clone(), type_.into());
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::SignatureVerify) => {
+                Intrinsic::SignatureVerify => {
                     let dest_reg = self.next_register();
                     let instruction =
                         AleoStmt::SignVerify(args[0].clone(), args[1].clone(), args[2].clone(), dest_reg.clone());
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::ECDSAVerify(variant)) => {
+                Intrinsic::ECDSAVerify(variant) => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::EcdsaVerify(
                         variant,
@@ -656,27 +659,27 @@ impl CodeGeneratingVisitor<'_> {
                     );
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::FutureAwait) => {
+                Intrinsic::FutureAwait => {
                     let instruction = AleoStmt::Await(args[0].clone());
                     (None, vec![instruction])
                 }
-                Some(Intrinsic::ProgramChecksum) => {
+                Intrinsic::ProgramChecksum => {
                     (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), "checksum"))), vec![])
                 }
-                Some(Intrinsic::ProgramEdition) => {
+                Intrinsic::ProgramEdition => {
                     (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), "edition"))), vec![])
                 }
-                Some(Intrinsic::ProgramOwner) => {
+                Intrinsic::ProgramOwner => {
                     (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), "program_owner"))), vec![])
                 }
-                Some(Intrinsic::CheatCodePrintMapping)
-                | Some(Intrinsic::CheatCodeSetBlockHeight)
-                | Some(Intrinsic::CheatCodeSetBlockTimestamp)
-                | Some(Intrinsic::CheatCodeSetSigner) => {
+                Intrinsic::CheatCodePrintMapping
+                | Intrinsic::CheatCodeSetBlockHeight
+                | Intrinsic::CheatCodeSetBlockTimestamp
+                | Intrinsic::CheatCodeSetSigner => {
                     (None, vec![])
                     // Do nothing. Cheat codes do not generate instructions.
                 }
-                Some(Intrinsic::Serialize(variant)) => {
+                Intrinsic::Serialize(variant) => {
                     // Get the input type.
                     let Some(input_type) = self.state.type_table.get(&arguments[0].1) else {
                         panic!("All types should be known at this phase of compilation");
@@ -703,7 +706,7 @@ impl CodeGeneratingVisitor<'_> {
 
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::Deserialize(variant, output_type)) => {
+                Intrinsic::Deserialize(variant, output_type) => {
                     // Get the input type.
                     let Some(input_type) = self.state.type_table.get(&arguments[0].1) else {
                         panic!("All types should be known at this phase of compilation");
@@ -717,18 +720,17 @@ impl CodeGeneratingVisitor<'_> {
 
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Some(Intrinsic::OptionalUnwrap) | Some(Intrinsic::OptionalUnwrapOr) => {
-                    panic!("`Optional` core functions should have been lowered before code generation")
+                Intrinsic::OptionalUnwrap | Intrinsic::OptionalUnwrapOr => {
+                    panic!("`Optional` intrinsics should have been lowered before code generation")
                 }
-                Some(Intrinsic::VectorPush)
-                | Some(Intrinsic::VectorPop)
-                | Some(Intrinsic::VectorLen)
-                | Some(Intrinsic::VectorClear)
-                | Some(Intrinsic::VectorSwapRemove) => {
-                    panic!("`Vector` core functions should have been lowered before code generation")
-                }
-                None => {
-                    panic!("All core functions should be known at this phase of compilation")
+                Intrinsic::VectorPush
+                | Intrinsic::VectorPop
+                | Intrinsic::VectorGet
+                | Intrinsic::VectorSet
+                | Intrinsic::VectorLen
+                | Intrinsic::VectorClear
+                | Intrinsic::VectorSwapRemove => {
+                    panic!("`Vector` intrinsics should have been lowered before code generation")
                 }
             };
             // Add the instruction to the list of instructions.

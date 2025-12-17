@@ -35,17 +35,17 @@ pub enum Intrinsic {
     // Hash function with variant (HashVariant) returning value of type (LiteralType).
     Hash(HashVariant, Type),
 
-    // These are used for both mappings and vectors
-    Get,
-    Set,
-
+    MappingGet,
     MappingGetOrUse,
+    MappingSet,
     MappingRemove,
     MappingContains,
 
     OptionalUnwrap,
     OptionalUnwrapOr,
 
+    VectorGet,
+    VectorSet,
     VectorPush,
     VectorLen,
     VectorClear,
@@ -93,8 +93,6 @@ impl Intrinsic {
     #[rustfmt::skip]
     pub fn from_symbol(name: Symbol, type_parameters: &[(Type, Span)]) -> Option<Self> {
         Some(match name {
-            s if s == Symbol::intern("__unresolved_get") => Self::Get,
-            s if s == Symbol::intern("__unresolved_set") => Self::Set,
             sym::_self_address => Self::SelfAddress,
             sym::_self_caller => Self::SelfCaller,
             sym::_self_checksum => Self::SelfChecksum,
@@ -609,8 +607,8 @@ impl Intrinsic {
             sym::_ecdsa_verify_sha3_512_raw    => Self::ECDSAVerify(ECDSAVerifyVariant::HashSha3_512Raw),
             sym::_ecdsa_verify_sha3_512_eth    => Self::ECDSAVerify(ECDSAVerifyVariant::HashSha3_512Eth),
 
-            sym::_mapping_get => Self::Get,
-            sym::_mapping_set => Self::Set,
+            sym::_mapping_get => Self::MappingGet,
+            sym::_mapping_set => Self::MappingSet,
             sym::_mapping_get_or_use => Self::MappingGetOrUse,
             sym::_mapping_remove => Self::MappingRemove,
             sym::_mapping_contains => Self::MappingContains,
@@ -618,8 +616,8 @@ impl Intrinsic {
             sym::_optional_unwrap => Self::OptionalUnwrap,
             sym::_optional_unwrap_or => Self::OptionalUnwrapOr,
 
-            sym::_vector_get => Self::Get,
-            sym::_vector_set => Self::Set,
+            sym::_vector_get => Self::VectorGet,
+            sym::_vector_set => Self::VectorSet,
             sym::_vector_push => Self::VectorPush,
             sym::_vector_len => Self::VectorLen,
             sym::_vector_clear => Self::VectorClear,
@@ -1158,12 +1156,12 @@ impl Intrinsic {
             (sym::ECDSA, sym::verify_sha3_512_raw)    => sym::_ecdsa_verify_sha3_512_raw,
             (sym::ECDSA, sym::verify_sha3_512_eth)    => sym::_ecdsa_verify_sha3_512_eth,
 
-            (_, sym::get) => Symbol::intern("__unresolved_get"),
-            (_, sym::set) => Symbol::intern("__unresolved_set"),
 
             (sym::Mapping, sym::get_or_use) => sym::_mapping_get_or_use,
             (sym::Mapping, sym::remove) => sym::_mapping_remove,
             (sym::Mapping, sym::contains) => sym::_mapping_contains,
+            (sym::Mapping, sym::get) => sym::_mapping_get,
+            (sym::Mapping, sym::set) => sym::_mapping_set,
 
             (sym::Optional, sym::unwrap) => sym::_optional_unwrap,
             (sym::Optional, sym::unwrap_or) => sym::_optional_unwrap_or,
@@ -1173,6 +1171,8 @@ impl Intrinsic {
             (sym::Vector, sym::clear) => sym::_vector_clear,
             (sym::Vector, sym::pop) => sym::_vector_pop,
             (sym::Vector, sym::swap_remove) => sym::_vector_swap_remove,
+            (sym::Vector, sym::get) => sym::_mapping_get,
+            (sym::Vector, sym::set) => sym::_mapping_set,
 
             (sym::group, sym::to_x_coordinate) => sym::_group_to_x_coordinate,
             (sym::group, sym::to_y_coordinate) => sym::_group_to_y_coordinate,
@@ -1215,9 +1215,8 @@ impl Intrinsic {
             Self::Hash(_, _) => 1,
             Self::ECDSAVerify(_) => 3,
 
-            Self::Get => 2,
-            Self::Set => 3,
-
+            Self::MappingGet => 2,
+            Self::MappingSet => 3,
             Self::MappingGetOrUse => 3,
             Self::MappingRemove => 2,
             Self::MappingContains => 2,
@@ -1225,6 +1224,8 @@ impl Intrinsic {
             Self::OptionalUnwrap => 1,
             Self::OptionalUnwrapOr => 2,
 
+            Self::VectorGet => 2,
+            Self::VectorSet => 3,
             Self::VectorPush => 2,
             Self::VectorLen => 1,
             Self::VectorClear => 1,
@@ -1257,9 +1258,11 @@ impl Intrinsic {
             Intrinsic::FutureAwait
             | Intrinsic::ChaChaRand(_)
             | Intrinsic::ECDSAVerify(_)
-            | Intrinsic::Get
+            | Intrinsic::MappingGet
+            | Intrinsic::MappingSet
             | Intrinsic::MappingGetOrUse
-            | Intrinsic::Set
+            | Intrinsic::VectorGet
+            | Intrinsic::VectorSet
             | Intrinsic::MappingRemove
             | Intrinsic::MappingContains
             | Intrinsic::ProgramChecksum
@@ -1301,7 +1304,7 @@ impl Intrinsic {
     pub fn is_pure(&self) -> bool {
         match self {
             Intrinsic::FutureAwait
-            | Intrinsic::Set
+            | Intrinsic::VectorSet
             | Intrinsic::VectorPush
             | Intrinsic::VectorClear
             | Intrinsic::CheatCodePrintMapping
@@ -1319,7 +1322,8 @@ impl Intrinsic {
             )
             // Mapping operations have side effects
             | Intrinsic::MappingRemove
-            | Intrinsic::Get // _mapping_get, not _vector_get; but we're conservative
+            | Intrinsic::MappingGet
+            | Intrinsic::MappingSet
             | Intrinsic::MappingGetOrUse
             | Intrinsic::MappingContains
             | Intrinsic::VectorSwapRemove => false,
@@ -1330,6 +1334,7 @@ impl Intrinsic {
             | Intrinsic::ProgramEdition
             | Intrinsic::ProgramOwner
             | Intrinsic::VectorLen
+            | Intrinsic::VectorGet
             | Intrinsic::Commit(_, _)
             | Intrinsic::Hash(_, _)
             | Intrinsic::OptionalUnwrap

@@ -499,25 +499,24 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Check core struct name and function.
-        let Some(core_instruction) = self.get_intrinsic(input) else {
-            self.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
+        let Some(intrinsic) = self.get_intrinsic(input) else {
             return Type::Err;
         };
         // Check that operation is not restricted to finalize blocks.
         if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
             && self.async_block_id.is_none()
-            && core_instruction.is_finalize_command()
+            && intrinsic.is_finalize_command()
         {
             self.emit_err(TypeCheckerError::operation_must_be_in_async_block_or_function(input.span()));
         }
 
-        let return_type = self.check_intrinsic(core_instruction.clone(), &input.arguments, expected, input.span());
+        let return_type = self.check_intrinsic(intrinsic.clone(), &input.arguments, expected, input.span());
 
         // Check return type if the expected type is known.
         self.maybe_assert_type(&return_type, expected, input.span());
 
         // Await futures here so that can use the argument variable names to lookup.
-        if core_instruction == Intrinsic::FutureAwait && input.arguments.len() != 1 {
+        if intrinsic == Intrinsic::FutureAwait && input.arguments.len() != 1 {
             self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(input.span));
         }
 
