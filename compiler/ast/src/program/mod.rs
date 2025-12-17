@@ -35,7 +35,7 @@ pub struct Program {
     /// A map from module paths to module definitions.
     pub modules: IndexMap<Vec<Symbol>, Module>,
     /// A map from import names to import definitions.
-    pub imports: IndexMap<Symbol, (Program, Span)>,
+    pub imports: IndexMap<Symbol, Span>,
     /// A map from program stub names to program stub scopes.
     pub stubs: IndexMap<Symbol, Stub>,
     /// A map from program names to program scopes.
