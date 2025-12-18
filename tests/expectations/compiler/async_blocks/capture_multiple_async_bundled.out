@@ -1,0 +1,91 @@
+program test.aleo;
+
+struct first_0_bundle1:
+    field_0 as u32;
+    field_1 as u32;
+
+struct second_3_bundle4:
+    field_0 as u32;
+    field_1 as u32;
+    field_2 as u32;
+
+function first:
+    cast 15u32 16u32 into r0 as first_0_bundle1;
+    async first 0u32 1u32 2u32 3u32 4u32 5u32 6u32 7u32 8u32 9u32 10u32 11u32 12u32 13u32 14u32 r0 into r1;
+    output r1 as test.aleo/first.future;
+
+finalize first:
+    input r0 as u32.public;
+    input r1 as u32.public;
+    input r2 as u32.public;
+    input r3 as u32.public;
+    input r4 as u32.public;
+    input r5 as u32.public;
+    input r6 as u32.public;
+    input r7 as u32.public;
+    input r8 as u32.public;
+    input r9 as u32.public;
+    input r10 as u32.public;
+    input r11 as u32.public;
+    input r12 as u32.public;
+    input r13 as u32.public;
+    input r14 as u32.public;
+    input r15 as first_0_bundle1.public;
+    add r0 r1 into r16;
+    add r16 r2 into r17;
+    add r17 r3 into r18;
+    add r18 r4 into r19;
+    add r19 r5 into r20;
+    add r20 r6 into r21;
+    add r21 r7 into r22;
+    add r22 r8 into r23;
+    add r23 r9 into r24;
+    add r24 r10 into r25;
+    add r25 r11 into r26;
+    add r26 r12 into r27;
+    add r27 r13 into r28;
+    add r28 r14 into r29;
+    add r29 r15.field_0 into r30;
+    add r30 r15.field_1 into r31;
+    assert.eq r31 136u32;
+
+function second:
+    cast 35u32 36u32 37u32 into r0 as second_3_bundle4;
+    async second 20u32 21u32 22u32 23u32 24u32 25u32 26u32 27u32 28u32 29u32 30u32 31u32 32u32 33u32 34u32 r0 into r1;
+    output r1 as test.aleo/second.future;
+
+finalize second:
+    input r0 as u32.public;
+    input r1 as u32.public;
+    input r2 as u32.public;
+    input r3 as u32.public;
+    input r4 as u32.public;
+    input r5 as u32.public;
+    input r6 as u32.public;
+    input r7 as u32.public;
+    input r8 as u32.public;
+    input r9 as u32.public;
+    input r10 as u32.public;
+    input r11 as u32.public;
+    input r12 as u32.public;
+    input r13 as u32.public;
+    input r14 as u32.public;
+    input r15 as second_3_bundle4.public;
+    add r0 r1 into r16;
+    add r16 r2 into r17;
+    add r17 r3 into r18;
+    add r18 r4 into r19;
+    add r19 r5 into r20;
+    add r20 r6 into r21;
+    add r21 r7 into r22;
+    add r22 r8 into r23;
+    add r23 r9 into r24;
+    add r24 r10 into r25;
+    add r25 r11 into r26;
+    add r26 r12 into r27;
+    add r27 r13 into r28;
+    add r28 r14 into r29;
+    add r29 r15.field_0 into r30;
+    add r30 r15.field_1 into r31;
+    add r31 r15.field_2 into r32;
+    assert.eq r32 513u32;

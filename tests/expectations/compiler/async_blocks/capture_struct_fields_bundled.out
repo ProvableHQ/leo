@@ -1,0 +1,88 @@
+program test.aleo;
+
+struct Data:
+    amount as u32;
+    count as u32;
+    flag as boolean;
+
+struct main_0_bundle1:
+    field_0 as u32;
+    field_1 as u32;
+
+function main:
+    cast 1u32 10u32 true into r0 as Data;
+    cast 2u32 20u32 false into r1 as Data;
+    cast 3u32 30u32 true into r2 as Data;
+    cast 4u32 40u32 false into r3 as Data;
+    cast 5u32 50u32 true into r4 as Data;
+    cast 6u32 60u32 false into r5 as Data;
+    cast 7u32 70u32 true into r6 as Data;
+    cast 8u32 80u32 false into r7 as Data;
+    cast 9u32 90u32 true into r8 as Data;
+    cast 10u32 100u32 false into r9 as Data;
+    cast 11u32 110u32 true into r10 as Data;
+    cast 4u32 5u32 into r11 as main_0_bundle1;
+    async main r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 0u32 1u32 2u32 3u32 r11 into r12;
+    output r12 as test.aleo/main.future;
+
+finalize main:
+    input r0 as Data.public;
+    input r1 as Data.public;
+    input r2 as Data.public;
+    input r3 as Data.public;
+    input r4 as Data.public;
+    input r5 as Data.public;
+    input r6 as Data.public;
+    input r7 as Data.public;
+    input r8 as Data.public;
+    input r9 as Data.public;
+    input r10 as Data.public;
+    input r11 as u32.public;
+    input r12 as u32.public;
+    input r13 as u32.public;
+    input r14 as u32.public;
+    input r15 as main_0_bundle1.public;
+    add r0.amount r1.amount into r16;
+    add r16 r2.amount into r17;
+    add r17 r3.amount into r18;
+    add r18 r4.amount into r19;
+    add r19 r5.amount into r20;
+    add r20 r6.amount into r21;
+    add r21 r7.amount into r22;
+    add r22 r8.amount into r23;
+    add r23 r9.amount into r24;
+    add r24 r10.amount into r25;
+    add r0.count r1.count into r26;
+    add r26 r2.count into r27;
+    add r27 r3.count into r28;
+    add r28 r4.count into r29;
+    add r29 r5.count into r30;
+    add r30 r6.count into r31;
+    add r31 r7.count into r32;
+    add r32 r8.count into r33;
+    add r33 r9.count into r34;
+    add r34 r10.count into r35;
+    not r1.flag into r36;
+    and r0.flag r36 into r37;
+    and r37 r2.flag into r38;
+    not r3.flag into r39;
+    and r38 r39 into r40;
+    and r40 r4.flag into r41;
+    not r5.flag into r42;
+    and r41 r42 into r43;
+    and r43 r6.flag into r44;
+    not r7.flag into r45;
+    and r44 r45 into r46;
+    and r46 r8.flag into r47;
+    not r9.flag into r48;
+    and r47 r48 into r49;
+    and r49 r10.flag into r50;
+    add r11 r12 into r51;
+    add r51 r13 into r52;
+    add r52 r14 into r53;
+    add r53 r15.field_0 into r54;
+    add r54 r15.field_1 into r55;
+    assert.eq r25 66u32;
+    assert.eq r35 660u32;
+    assert.eq r50 true;
+    assert.eq r55 15u32;
