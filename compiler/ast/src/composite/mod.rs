@@ -33,9 +33,8 @@ use snarkvm::{
 };
 
 /// A composite type definition, e.g., `struct Foo { my_field: Bar }` and `record Token { owner: address, amount: u64}`.
-/// In some languages these are called `struct`s.
 ///
-/// Type identity is decided by the full path including `struct_name`,
+/// Type identity is decided by the full path including `identifier`,
 /// as the record is nominal, not structural.
 /// The fields are named so `struct Foo(u8, u16)` is not allowed.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -44,9 +43,9 @@ pub struct Composite {
     pub identifier: Identifier,
     /// The composite's const parameters.
     pub const_parameters: Vec<ConstParameter>,
-    /// The fields, constant variables, and functions of this structure.
+    /// The fields, constant variables, and functions of this composite.
     pub members: Vec<Member>,
-    /// The external program the struct is defined in.
+    /// The external program the composite is defined in.
     pub external: Option<Symbol>,
     /// Was this a `record Foo { ... }`?
     /// If so, it wasn't a composite.

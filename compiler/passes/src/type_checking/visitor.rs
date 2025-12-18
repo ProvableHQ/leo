@@ -40,7 +40,7 @@ pub struct TypeCheckingVisitor<'a> {
     /// Mapping from async function name to the names of async transition callers.
     pub async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
-    pub used_structs: IndexSet<Vec<Symbol>>,
+    pub used_composites: IndexSet<Vec<Symbol>>,
     /// So we can check if we exceed limits on array size, number of mappings, or number of functions.
     pub limits: TypeCheckingInput,
     /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
@@ -378,7 +378,7 @@ impl TypeCheckingVisitor<'_> {
 
         // Make sure the input is no bigger than 64 bits.
         // Due to overhead in the bitwise representations of types in SnarkVM, 64 bit integers
-        // input more than 64 bits to a hash function, as do all structs and arrays.
+        // input more than 64 bits to a hash function, as do all composites and arrays.
         let assert_pedersen_64_bit_input = |type_: &Type, span: Span| {
             if !matches!(
                 type_,
@@ -402,7 +402,7 @@ impl TypeCheckingVisitor<'_> {
         // Make sure the input is no bigger than 128 bits.
         //
         // Due to overhead in the bitwise representations of types in SnarkVM, 128 bit integers
-        // input more than 128 bits to a hash function, as do most structs and arrays. We could
+        // input more than 128 bits to a hash function, as do most composites and arrays. We could
         // actually allow arrays with a single element of type smaller than 64 bits, but it
         // seems most understandable to the user to simply disallow composite types entirely.
         let assert_pedersen_128_bit_input = |type_: &Type, span: Span| {
@@ -1083,17 +1083,20 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    /// Emits an error if the struct member is a record type.
+    /// Emits an error if the composite member is a record type.
     pub fn assert_member_is_not_record(&mut self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
-            Type::Composite(struct_)
+            Type::Composite(composite)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                    .is_some_and(|struct_| struct_.is_record) =>
+                    .lookup_composite(
+                        composite.program.or(self.scope_state.program_name),
+                        &composite.path.absolute_path(),
+                    )
+                    .is_some_and(|composite| composite.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
                     parent,
-                    struct_.path.clone(),
+                    composite.path.clone(),
                     span,
                 ))
             }
@@ -1118,12 +1121,15 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that named composite type has been defined.
-            Type::Composite(struct_)
+            Type::Composite(composite)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
+                    .lookup_composite(
+                        composite.program.or(self.scope_state.program_name),
+                        &composite.path.absolute_path(),
+                    )
                     .is_none() =>
             {
-                self.emit_err(TypeCheckerError::undefined_type(struct_.path.clone(), span));
+                self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), span));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
@@ -1157,14 +1163,14 @@ impl TypeCheckingVisitor<'_> {
                     // Array elements cannot be tuples.
                     Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
                     // Array elements cannot be records.
-                    Type::Composite(struct_type) => {
+                    Type::Composite(composite_type) => {
                         // Look up the type.
-                        if let Some(struct_) = self.lookup_struct(
-                            struct_type.program.or(self.scope_state.program_name),
-                            &struct_type.path.absolute_path(),
+                        if let Some(composite) = self.lookup_composite(
+                            composite_type.program.or(self.scope_state.program_name),
+                            &composite_type.path.absolute_path(),
                         ) {
                             // Check that the type is not a record.
-                            if struct_.is_record {
+                            if composite.is_record {
                                 self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
                             }
                         }
@@ -1214,17 +1220,17 @@ impl TypeCheckingVisitor<'_> {
             | Type::Tuple(_)
             | Type::Vector(_) => true,
 
-            Type::Composite(struct_type) => {
-                if let Some(struct_) = self.lookup_struct(
-                    struct_type.program.or(self.scope_state.program_name),
-                    &struct_type.path.absolute_path(),
+            Type::Composite(composite_type) => {
+                if let Some(composite) = self.lookup_composite(
+                    composite_type.program.or(self.scope_state.program_name),
+                    &composite_type.path.absolute_path(),
                 ) {
-                    if struct_.is_record {
+                    if composite.is_record {
                         return true;
                     }
 
                     // recursively check all fields
-                    for field in &struct_.members {
+                    for field in &composite.members {
                         let field_ty = &field.type_;
                         // unwrap optional fields for the check
                         let ty_to_check = match field_ty {
@@ -1287,23 +1293,23 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span));
             }
 
-            // Structs (composites)
-            Type::Composite(struct_type) => {
-                if let Some(struct_) = self.lookup_struct(
-                    struct_type.program.or(self.scope_state.program_name),
-                    &struct_type.path.absolute_path(),
+            // Composites
+            Type::Composite(composite_type) => {
+                if let Some(composite) = self.lookup_composite(
+                    composite_type.program.or(self.scope_state.program_name),
+                    &composite_type.path.absolute_path(),
                 ) {
-                    if struct_.is_record {
+                    if composite.is_record {
                         self.emit_err(TypeCheckerError::invalid_storage_type("record", span));
                         return;
                     }
 
                     // Recursively check fields.
-                    for field in &struct_.members {
+                    for field in &composite.members {
                         self.assert_storage_type_is_valid(&field.type_, span);
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::invalid_storage_type("undefined struct", span));
+                    self.emit_err(TypeCheckerError::invalid_storage_type("undefined composite", span));
                 }
             }
 
@@ -1381,15 +1387,17 @@ impl TypeCheckingVisitor<'_> {
 
             Type::Array(array) => self.contains_optional_type_inner(&array.element_type, visited_paths),
 
-            Type::Composite(struct_type) => {
-                let path = struct_type.path.absolute_path();
+            Type::Composite(composite_type) => {
+                let path = composite_type.path.absolute_path();
 
                 // Prevent revisiting the same type
                 if !visited_paths.insert(path.clone()) {
                     return false;
                 }
 
-                if let Some(comp) = self.lookup_struct(struct_type.program.or(self.scope_state.program_name), &path) {
+                if let Some(comp) =
+                    self.lookup_composite(composite_type.program.or(self.scope_state.program_name), &path)
+                {
                     comp.members
                         .iter()
                         .any(|Member { type_, .. }| self.contains_optional_type_inner(type_, visited_paths))
@@ -1536,17 +1544,18 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Make sure only transitions can take a record as an input.
-            if let Type::Composite(struct_) = table_type {
+            if let Type::Composite(composite) = table_type {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
-                    if let Some(elem) = self
-                        .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                    {
+                    if let Some(elem) = self.lookup_composite(
+                        composite.program.or(self.scope_state.program_name),
+                        &composite.path.absolute_path(),
+                    ) {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
                         }
                     } else {
-                        self.emit_err(TypeCheckerError::undefined_type(struct_.path.clone(), input.span()));
+                        self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), input.span()));
                     }
                 }
             }
@@ -1612,9 +1621,11 @@ impl TypeCheckingVisitor<'_> {
 
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
-            if let Type::Composite(struct_) = function_output.type_.clone()
-                && let Some(val) =
-                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
+            if let Type::Composite(composite) = function_output.type_.clone()
+                && let Some(val) = self.lookup_composite(
+                    composite.program.or(self.scope_state.program_name),
+                    &composite.path.absolute_path(),
+                )
                 && val.is_record
                 && !function.variant.is_transition()
             {
@@ -1685,8 +1696,9 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    /// Wrapper around lookup_struct that additionally records all structs that are used in the program.
-    pub fn lookup_struct(&mut self, program: Option<Symbol>, name: &[Symbol]) -> Option<Composite> {
+    /// Wrapper around lookup_struct and lookup_record that additionally records all structs and records that are
+    /// used in the program.
+    pub fn lookup_composite(&mut self, program: Option<Symbol>, name: &[Symbol]) -> Option<Composite> {
         let record_comp =
             program.and_then(|prog| self.state.symbol_table.lookup_record(&Location::new(prog, name.to_vec())));
         let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name));
@@ -1694,7 +1706,7 @@ impl TypeCheckingVisitor<'_> {
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.
             if !s.is_record || program == self.scope_state.program_name {
-                self.used_structs.insert(name.to_vec());
+                self.used_composites.insert(name.to_vec());
             }
         }
         comp.cloned()

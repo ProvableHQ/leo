@@ -74,7 +74,7 @@ where
                 Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
                 Expression::Call(call) => self.reconstruct_call(*call, &()),
                 Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
-                Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &()),
+                Expression::Composite(composite) => self.reconstruct_composite_init(composite, &()),
                 Expression::Err(err) => self.reconstruct_err(err, &()),
                 Expression::Path(path) => self.reconstruct_path(path, &()),
                 Expression::Literal(value) => self.reconstruct_literal(value, &()),

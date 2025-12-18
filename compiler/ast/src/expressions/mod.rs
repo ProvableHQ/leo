@@ -38,6 +38,9 @@ pub use call::*;
 mod cast;
 pub use cast::*;
 
+mod composite_init;
+pub use composite_init::*;
+
 mod err;
 pub use err::*;
 
@@ -49,9 +52,6 @@ pub use intrinsic::*;
 
 mod repeat;
 pub use repeat::*;
-
-mod struct_init;
-pub use struct_init::*;
 
 mod ternary;
 pub use ternary::*;
@@ -93,6 +93,8 @@ pub enum Expression {
     Cast(Box<CastExpression>),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
+    /// An expression constructing a composite like `Foo { bar: 42, baz }`.
+    Composite(CompositeExpression),
     Err(ErrExpression),
     /// A path to some item, e.g., `foo::bar::x`.
     Path(Path),
@@ -100,12 +102,10 @@ pub enum Expression {
     Literal(Literal),
     /// A locator expression, e.g., `hello.aleo/foo`.
     Locator(LocatorExpression),
-    /// An access of a struct member, e.g. `struc.member`.
+    /// An access of a composite member, e.g. `composite.member`.
     MemberAccess(Box<MemberAccess>),
     /// An array expression constructed from one repeated element, e.g., `[1u32; 5]`.
     Repeat(Box<RepeatExpression>),
-    /// An expression constructing a struct like `Foo { bar: 42, baz }`.
-    Struct(StructExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(Box<TernaryExpression>),
     /// A tuple expression e.g., `(foo, 42, true)`.
@@ -134,6 +134,7 @@ impl Node for Expression {
             Binary(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
+            Composite(n) => n.span(),
             Err(n) => n.span(),
             Intrinsic(n) => n.span(),
             Path(n) => n.span(),
@@ -141,7 +142,6 @@ impl Node for Expression {
             Locator(n) => n.span(),
             MemberAccess(n) => n.span(),
             Repeat(n) => n.span(),
-            Struct(n) => n.span(),
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
             TupleAccess(n) => n.span(),
@@ -159,6 +159,7 @@ impl Node for Expression {
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
+            Composite(n) => n.set_span(span),
             Err(n) => n.set_span(span),
             Intrinsic(n) => n.set_span(span),
             Path(n) => n.set_span(span),
@@ -166,7 +167,6 @@ impl Node for Expression {
             Locator(n) => n.set_span(span),
             MemberAccess(n) => n.set_span(span),
             Repeat(n) => n.set_span(span),
-            Struct(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
             TupleAccess(n) => n.set_span(span),
@@ -184,6 +184,7 @@ impl Node for Expression {
             Binary(n) => n.id(),
             Call(n) => n.id(),
             Cast(n) => n.id(),
+            Composite(n) => n.id(),
             Path(n) => n.id(),
             Literal(n) => n.id(),
             Locator(n) => n.id(),
@@ -191,7 +192,6 @@ impl Node for Expression {
             Repeat(n) => n.id(),
             Err(n) => n.id(),
             Intrinsic(n) => n.id(),
-            Struct(n) => n.id(),
             Ternary(n) => n.id(),
             Tuple(n) => n.id(),
             TupleAccess(n) => n.id(),
@@ -209,6 +209,7 @@ impl Node for Expression {
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
             Cast(n) => n.set_id(id),
+            Composite(n) => n.set_id(id),
             Path(n) => n.set_id(id),
             Literal(n) => n.set_id(id),
             Locator(n) => n.set_id(id),
@@ -216,7 +217,6 @@ impl Node for Expression {
             Repeat(n) => n.set_id(id),
             Err(n) => n.set_id(id),
             Intrinsic(n) => n.set_id(id),
-            Struct(n) => n.set_id(id),
             Ternary(n) => n.set_id(id),
             Tuple(n) => n.set_id(id),
             TupleAccess(n) => n.set_id(id),
@@ -236,6 +236,7 @@ impl fmt::Display for Expression {
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
+            Composite(n) => n.fmt(f),
             Err(n) => n.fmt(f),
             Intrinsic(n) => n.fmt(f),
             Path(n) => n.fmt(f),
@@ -243,7 +244,6 @@ impl fmt::Display for Expression {
             Locator(n) => n.fmt(f),
             MemberAccess(n) => n.fmt(f),
             Repeat(n) => n.fmt(f),
-            Struct(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
             TupleAccess(n) => n.fmt(f),
@@ -267,10 +267,9 @@ impl Expression {
             Binary(e) => e.precedence(),
             Cast(_) => 12,
             Ternary(_) => 0,
-            Array(_) | ArrayAccess(_) | Async(_) | Call(_) | Err(_) | Intrinsic(_) | Path(_) | Literal(_)
-            | Locator(_) | MemberAccess(_) | Repeat(_) | Struct(_) | Tuple(_) | TupleAccess(_) | Unary(_) | Unit(_) => {
-                20
-            }
+            Array(_) | ArrayAccess(_) | Async(_) | Call(_) | Composite(_) | Err(_) | Intrinsic(_) | Path(_)
+            | Literal(_) | Locator(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_)
+            | Unit(_) => 20,
         }
     }
 
@@ -357,7 +356,7 @@ impl Expression {
             Expression::Repeat(expr) => expr.expr.is_pure(get_type) && expr.count.is_pure(get_type),
             Expression::TupleAccess(expr) => expr.tuple.is_pure(get_type),
             Expression::Array(expr) => expr.elements.iter().all(|e| e.is_pure(get_type)),
-            Expression::Struct(expr) => {
+            Expression::Composite(expr) => {
                 expr.const_arguments.iter().all(|e| e.is_pure(get_type))
                     && expr.members.iter().all(|init| init.expression.as_ref().is_none_or(|e| e.is_pure(get_type)))
             }
@@ -371,25 +370,25 @@ impl Expression {
     /// Returns the *zero value expression* for a given type, if one exists.
     ///
     /// This is used during lowering and reconstruction to provide default or
-    /// placeholder values (e.g., for `get_or_use` calls or struct initialization).
+    /// placeholder values (e.g., for `get_or_use` calls or composite initialization).
     ///
     /// Supported types:
     /// - **Integers** (`i8`–`i128`, `u8`–`u128`): literal `0`
     /// - **Boolean**: literal `false`
     /// - **Field**, **Group**, **Scalar**: zero literals `"0"`
-    /// - **Structs**: recursively constructs a struct with all members zeroed
+    /// - **Composites**: recursively constructs a composite with all members zeroed
     /// - **Arrays**: repeats a zero element for the array length
     ///
     /// Returns `None` if the type has no well-defined zero representation
     /// (e.g. mapping, Future).
     ///
-    /// The `struct_lookup` callback provides member definitions for composite types.
+    /// The `composite_lookup` callback provides member definitions for composite types.
     #[allow(clippy::type_complexity)]
     pub fn zero(
         ty: &Type,
         span: Span,
         node_builder: &NodeBuilder,
-        struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+        composite_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
     ) -> Option<Self> {
         let id = node_builder.next_id();
 
@@ -442,18 +441,18 @@ impl Expression {
             Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
             Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
 
-            // Structs (composite types)
+            // Composite types
             Type::Composite(composite_type) => {
                 let path = &composite_type.path;
-                let members = struct_lookup(&path.absolute_path());
+                let members = composite_lookup(&path.absolute_path());
 
-                let struct_members = members
+                let composite_members = members
                     .into_iter()
                     .map(|(symbol, member_type)| {
                         let member_id = node_builder.next_id();
-                        let zero_expr = Self::zero(&member_type, span, node_builder, struct_lookup)?;
+                        let zero_expr = Self::zero(&member_type, span, node_builder, composite_lookup)?;
 
-                        Some(StructVariableInitializer {
+                        Some(CompositeFieldInitializer {
                             span,
                             id: member_id,
                             identifier: Identifier::new(symbol, node_builder.next_id()),
@@ -462,12 +461,12 @@ impl Expression {
                     })
                     .collect::<Option<Vec<_>>>()?;
 
-                Some(Expression::Struct(StructExpression {
+                Some(Expression::Composite(CompositeExpression {
                     span,
                     id,
                     path: path.clone(),
                     const_arguments: composite_type.const_arguments.clone(),
-                    members: struct_members,
+                    members: composite_members,
                 }))
             }
 
@@ -475,7 +474,7 @@ impl Expression {
             Type::Array(array_type) => {
                 let element_ty = &array_type.element_type;
 
-                let element_expr = Self::zero(element_ty, span, node_builder, struct_lookup)?;
+                let element_expr = Self::zero(element_ty, span, node_builder, composite_lookup)?;
 
                 Some(Expression::Repeat(
                     RepeatExpression { span, id, expr: element_expr, count: *array_type.length.clone() }.into(),

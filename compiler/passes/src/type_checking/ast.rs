@@ -138,30 +138,31 @@ impl TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::assignment_to_external_record_member(&ty, input.span));
         }
 
-        // Check that the type of `inner` in `inner.name` is a struct.
+        // Check that the type of `inner` in `inner.name` is a composite.
         match ty {
             Type::Err => Type::Err,
-            Type::Composite(ref struct_) => {
-                // Retrieve the struct definition associated with `identifier`.
-                let Some(struct_) = self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                else {
+            Type::Composite(ref composite) => {
+                // Retrieve the composite definition associated with `identifier`.
+                let Some(composite) = self.lookup_composite(
+                    composite.program.or(self.scope_state.program_name),
+                    &composite.path.absolute_path(),
+                ) else {
                     self.emit_err(TypeCheckerError::undefined_type(ty, input.inner.span()));
                     return Type::Err;
                 };
-                // Check that `input.name` is a member of the struct.
-                match struct_.members.iter().find(|member| member.name() == input.name.name) {
-                    // Case where `input.name` is a member of the struct.
+                // Check that `input.name` is a member of the composite.
+                match composite.members.iter().find(|member| member.name() == input.name.name) {
+                    // Case where `input.name` is a member of the composite.
                     Some(Member { type_, .. }) => {
                         // Check that the type of `input.name` is the same as `expected`.
                         self.maybe_assert_type(type_, expected, input.span());
                         type_.clone()
                     }
-                    // Case where `input.name` is not a member of the struct.
+                    // Case where `input.name` is not a member of the composite.
                     None => {
-                        self.emit_err(TypeCheckerError::invalid_struct_variable(
+                        self.emit_err(TypeCheckerError::invalid_composite_variable(
                             input.name,
-                            &struct_,
+                            &composite,
                             input.name.span(),
                         ));
                         Type::Err
@@ -337,21 +338,21 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_composite_type(&mut self, input: &CompositeType) {
-        let struct_ = self.lookup_struct(self.scope_state.program_name, &input.path.absolute_path()).clone();
+        let composite = self.lookup_composite(self.scope_state.program_name, &input.path.absolute_path()).clone();
 
-        if let Some(struct_) = struct_ {
-            // Check the number of const arguments against the number of the struct's const parameters
-            if struct_.const_parameters.len() != input.const_arguments.len() {
+        if let Some(composite) = composite {
+            // Check the number of const arguments against the number of the composite's const parameters
+            if composite.const_parameters.len() != input.const_arguments.len() {
                 self.emit_err(TypeCheckerError::incorrect_num_const_args(
-                    "Struct type",
-                    struct_.const_parameters.len(),
+                    "Composite type",
+                    composite.const_parameters.len(),
                     input.const_arguments.len(),
                     input.path.span,
                 ));
             }
 
-            // Check the types of const arguments against the types of the struct's const parameters
-            for (expected, argument) in struct_.const_parameters.iter().zip(input.const_arguments.iter()) {
+            // Check the types of const arguments against the types of the composite's const parameters
+            for (expected, argument) in composite.const_parameters.iter().zip(input.const_arguments.iter()) {
                 self.visit_expression(argument, &Some(expected.type_().clone()));
             }
         } else if !input.const_arguments.is_empty() {
@@ -369,7 +370,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
-            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
+            Expression::Composite(composite) => self.visit_composite_init(composite, additional),
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
@@ -1240,25 +1241,29 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         input.type_.clone()
     }
 
-    fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.lookup_struct(self.scope_state.program_name, &input.path.absolute_path()).clone();
-        let Some(struct_) = struct_ else {
+    fn visit_composite_init(
+        &mut self,
+        input: &CompositeExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        let composite = self.lookup_composite(self.scope_state.program_name, &input.path.absolute_path()).clone();
+        let Some(composite) = composite else {
             self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.path.clone(), input.path.span()));
             return Type::Err;
         };
 
-        // Check the number of const arguments against the number of the struct's const parameters
-        if struct_.const_parameters.len() != input.const_arguments.len() {
+        // Check the number of const arguments against the number of the composite's const parameters
+        if composite.const_parameters.len() != input.const_arguments.len() {
             self.emit_err(TypeCheckerError::incorrect_num_const_args(
-                "Struct expression",
-                struct_.const_parameters.len(),
+                "Composite expression",
+                composite.const_parameters.len(),
                 input.const_arguments.len(),
                 input.span(),
             ));
         }
 
-        // Check the types of const arguments against the types of the struct's const parameters
-        for (expected, argument) in struct_.const_parameters.iter().zip(input.const_arguments.iter()) {
+        // Check the types of const arguments against the types of the composite's const parameters
+        for (expected, argument) in composite.const_parameters.iter().zip(input.const_arguments.iter()) {
             self.visit_expression(argument, &Some(expected.type_().clone()));
         }
 
@@ -1271,16 +1276,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         });
         self.maybe_assert_type(&type_, additional, input.path.span());
 
-        // Check number of struct members.
-        if struct_.members.len() != input.members.len() {
-            self.emit_err(TypeCheckerError::incorrect_num_struct_members(
-                struct_.members.len(),
+        // Check number of composite members.
+        if composite.members.len() != input.members.len() {
+            self.emit_err(TypeCheckerError::incorrect_num_composite_members(
+                composite.members.len(),
                 input.members.len(),
                 input.span(),
             ));
         }
 
-        for Member { identifier, type_, .. } in struct_.members.iter() {
+        for Member { identifier, type_, .. } in composite.members.iter() {
             if let Some(actual) = input.members.iter().find(|member| member.identifier.name == identifier.name) {
                 match &actual.expression {
                     None => {
@@ -1307,11 +1312,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     }
                 };
             } else {
-                self.emit_err(TypeCheckerError::missing_struct_member(struct_.identifier, identifier, input.span()));
+                self.emit_err(TypeCheckerError::missing_composite_member(
+                    composite.identifier,
+                    identifier,
+                    input.span(),
+                ));
             };
         }
 
-        if struct_.is_record {
+        if composite.is_record {
             // First, ensure that the current scope is not an async function. Records should not be instantiated in
             // async functions
             if self.scope_state.variant == Some(Variant::AsyncFunction) {

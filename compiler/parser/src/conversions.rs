@@ -733,10 +733,10 @@ impl<'a> ConversionContext<'a> {
                 }
             }
             ExpressionKind::MemberAccess => {
-                let [struct_, _dot, name] = &node.children[..] else {
+                let [composite, _dot, name] = &node.children[..] else {
                     panic!("Can't happen.");
                 };
-                let inner = self.to_expression(struct_)?;
+                let inner = self.to_expression(composite)?;
                 let name = self.to_identifier(name);
 
                 leo_ast::MemberAccess { inner, name, span, id }.into()
@@ -957,7 +957,7 @@ impl<'a> ConversionContext<'a> {
                     };
                     let init_name = self.to_identifier(init_name);
 
-                    members.push(leo_ast::StructVariableInitializer {
+                    members.push(leo_ast::CompositeFieldInitializer {
                         identifier: init_name,
                         expression,
                         span: initializer.span,
@@ -972,7 +972,7 @@ impl<'a> ConversionContext<'a> {
                         match argument.kind {
                             SyntaxKind::Type(..) => {
                                 self.handler.emit_err(ParserError::custom(
-                                    "Struct expressions may only have constant expressions as generic arguments",
+                                    "Composite expressions may only have constant expressions as generic arguments",
                                     argument.span,
                                 ));
                             }
@@ -989,7 +989,7 @@ impl<'a> ConversionContext<'a> {
                 let identifier = identifiers.pop().unwrap();
                 let path = leo_ast::Path::new(identifiers, identifier, false, None, name.span, self.builder.next_id());
 
-                leo_ast::StructExpression { path, const_arguments, members, span, id }.into()
+                leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
             }
             ExpressionKind::Ternary => {
                 let [cond, _q, if_, _c, then] = &node.children[..] else {
@@ -1318,7 +1318,7 @@ impl<'a> ConversionContext<'a> {
         // Irrelevant for modules at the moment.
         functions.sort_by_key(|func| if func.1.variant.is_transition() { 0u8 } else { 1u8 });
 
-        let structs = node
+        let composites = node
             .children
             .iter()
             .filter(|child| matches!(child.kind, SyntaxKind::StructDeclaration))
@@ -1338,7 +1338,7 @@ impl<'a> ConversionContext<'a> {
             })
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::Module { program_name, path, consts, structs, functions })
+        Ok(leo_ast::Module { program_name, path, consts, composites, functions })
     }
 
     pub fn to_main(&self, node: &SyntaxNode<'_>) -> Result<leo_ast::Program> {
@@ -1368,7 +1368,7 @@ impl<'a> ConversionContext<'a> {
         // Passes like type checking expect transitions to come first.
         functions.sort_by_key(|func| if func.1.variant.is_transition() { 0u8 } else { 1u8 });
 
-        let structs = program_node
+        let composites = program_node
             .children
             .iter()
             .filter(|child| matches!(child.kind, SyntaxKind::StructDeclaration))
@@ -1441,7 +1441,7 @@ impl<'a> ConversionContext<'a> {
         let program_scope = leo_ast::ProgramScope {
             program_id,
             consts,
-            structs,
+            composites,
             mappings,
             storage_variables,
             functions,

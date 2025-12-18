@@ -627,9 +627,9 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         (CastExpression { expression, ..input }.into(), statements)
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: StructExpression,
+        mut input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();

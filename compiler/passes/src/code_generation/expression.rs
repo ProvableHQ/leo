@@ -23,6 +23,7 @@ use leo_ast::{
     BinaryOperation,
     CallExpression,
     CastExpression,
+    CompositeExpression,
     Expression,
     FromStrRadix,
     IntegerType,
@@ -39,7 +40,6 @@ use leo_ast::{
     Path,
     ProgramId,
     RepeatExpression,
-    StructExpression,
     TernaryExpression,
     TupleExpression,
     Type,
@@ -78,7 +78,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Binary(expr) => some_expr(self.visit_binary(expr)),
             Expression::Call(expr) => some_expr(self.visit_call(expr)),
             Expression::Cast(expr) => some_expr(self.visit_cast(expr)),
-            Expression::Struct(expr) => some_expr(self.visit_struct_init(expr)),
+            Expression::Composite(expr) => some_expr(self.visit_composite_init(expr)),
             Expression::Repeat(expr) => some_expr(self.visit_repeat(expr)),
             Expression::Ternary(expr) => some_expr(self.visit_ternary(expr)),
             Expression::Tuple(expr) => some_expr(self.visit_tuple(expr)),
@@ -326,9 +326,9 @@ impl CodeGeneratingVisitor<'_> {
         (AleoExpr::Reg(dest_reg), stmts)
     }
 
-    fn visit_struct_init(&mut self, input: &StructExpression) -> (AleoExpr, Vec<AleoStmt>) {
+    fn visit_composite_init(&mut self, input: &CompositeExpression) -> (AleoExpr, Vec<AleoStmt>) {
         // Lookup struct or record.
-        let struct_type = if let Some(is_record) = self.composite_mapping.get(&input.path.absolute_path()) {
+        let composite_type = if let Some(is_record) = self.composite_mapping.get(&input.path.absolute_path()) {
             if *is_record {
                 // record.private;
                 let [record_name] = &input.path.absolute_path()[..] else {
@@ -349,7 +349,7 @@ impl CodeGeneratingVisitor<'_> {
         // Initialize instruction builder strings.
         let mut instructions = vec![];
 
-        // Visit each struct member and accumulate instructions from expressions.
+        // Visit each composite member and accumulate instructions from expressions.
         let operands: Vec<AleoExpr> = input
             .members
             .iter()
@@ -366,12 +366,12 @@ impl CodeGeneratingVisitor<'_> {
             })
             .collect();
 
-        // Push destination register to struct init instruction.
+        // Push destination register to composite init instruction.
         let dest_reg = self.next_register();
 
-        let struct_init_instruction = AleoStmt::Cast(AleoExpr::Tuple(operands), dest_reg.clone(), struct_type);
+        let composite_init_instruction = AleoStmt::Cast(AleoExpr::Tuple(operands), dest_reg.clone(), composite_type);
 
-        instructions.push(struct_init_instruction);
+        instructions.push(composite_init_instruction);
 
         (AleoExpr::Reg(dest_reg), instructions)
     }
@@ -684,18 +684,16 @@ impl CodeGeneratingVisitor<'_> {
                     // Get the instruction variant.
                     let is_raw = matches!(variant, SerializeVariant::ToBitsRaw);
                     // Get the size in bits of the input type.
-                    let size_in_bits = match self.state.network {
-                        NetworkName::TestnetV0 => {
-                            input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                    let size_in_bits =
+                        match self.state.network {
+                            NetworkName::TestnetV0 => input_type
+                                .size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("composites are not supported")),
+                            NetworkName::MainnetV0 => input_type
+                                .size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("composites are not supported")),
+                            NetworkName::CanaryV0 => input_type
+                                .size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("composites are not supported")),
                         }
-                        NetworkName::MainnetV0 => {
-                            input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                        }
-                        NetworkName::CanaryV0 => {
-                            input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
-                        }
-                    }
-                    .expect("TYC guarantees that all types have a valid size in bits");
+                        .expect("TYC guarantees that all types have a valid size in bits");
 
                     let dest_reg = self.next_register();
                     let output_type = AleoType::Array { inner: Box::new(AleoType::Boolean), len: size_in_bits as u32 };

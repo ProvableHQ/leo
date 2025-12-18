@@ -412,7 +412,7 @@ impl Cursor {
                     }
                     CastType::Plaintext(PlaintextType::Struct(struct_name)) => {
                         let name = Symbol::intern(&struct_name.to_string());
-                        let struct_type = self.structs.get([name].as_slice()).expect("struct type should exist");
+                        let struct_type = self.composites.get([name].as_slice()).expect("struct type should exist");
                         let operands = cast.operands().iter().map(|op| self.operand_value(op));
                         let value = Value::make_struct(
                             struct_type.keys().cloned().zip(operands),

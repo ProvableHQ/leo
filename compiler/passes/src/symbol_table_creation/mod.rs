@@ -117,7 +117,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
 
         // Visit the program scope
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
-        input.structs.iter().for_each(|(_, c)| self.visit_struct(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
@@ -129,7 +129,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     fn visit_module(&mut self, input: &Module) {
         self.program_name = input.program_name;
         self.in_module_scope(&input.path.clone(), |slf| {
-            input.structs.iter().for_each(|(_, c)| slf.visit_struct(c));
+            input.composites.iter().for_each(|(_, c)| slf.visit_composite(c));
             input.functions.iter().for_each(|(_, c)| slf.visit_function(c));
             input.consts.iter().for_each(|(_, c)| slf.visit_const(c));
         })
@@ -139,8 +139,8 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         self.visit_program(input)
     }
 
-    fn visit_struct(&mut self, input: &Composite) {
-        // Allow up to one local redefinition for each external struct.
+    fn visit_composite(&mut self, input: &Composite) {
+        // Allow up to one local redefinition for each external composite.
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
 
         if !input.is_record {
@@ -218,7 +218,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         self.is_stub = true;
         self.program_name = input.stub_id.name.name;
         input.functions.iter().for_each(|(_, c)| self.visit_function_stub(c));
-        input.structs.iter().for_each(|(_, c)| self.visit_struct_stub(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite_stub(c));
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
     }
 
@@ -248,7 +248,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
         }
     }
 
-    fn visit_struct_stub(&mut self, input: &Composite) {
+    fn visit_composite_stub(&mut self, input: &Composite) {
         if let Some(program) = input.external {
             assert_eq!(program, self.program_name);
         }

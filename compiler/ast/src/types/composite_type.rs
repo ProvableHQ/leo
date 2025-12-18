@@ -25,7 +25,7 @@ use std::fmt;
 pub struct CompositeType {
     /// The path to the composite definition.
     pub path: Path,
-    /// Expressions for the const arguments passed to the struct's const parameters.
+    /// Expressions for the const arguments passed to the composite's const parameters.
     pub const_arguments: Vec<Expression>,
     /// The external program that this composite is defined in.
     pub program: Option<Symbol>,

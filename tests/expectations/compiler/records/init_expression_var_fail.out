@@ -3,7 +3,7 @@ Error [ETYC0372057]: Only `transition` functions can have a record as input or o
      |
   10 |     function mint(r0: address, r1: u64) -> Token {
      |                                            ^^^^^
-Error [ETYC0372013]: Struct initialization expression for `Token` is missing member `owner`.
+Error [ETYC0372013]: Composite initialization expression for `Token` is missing member `owner`.
     --> compiler-test:11:16
      |
   11 |         return Token {

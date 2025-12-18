@@ -62,7 +62,7 @@
 {
   "Cast": {
     "expression": {
-      "Struct": {
+      "Composite": {
         "path": {
           "qualifier": [],
           "identifier": {

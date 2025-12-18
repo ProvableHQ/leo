@@ -22,6 +22,7 @@ use leo_ast::{
     AsyncExpression,
     BinaryOperation,
     Block,
+    CompositeFieldInitializer,
     DefinitionPlace,
     Expression,
     Function,
@@ -29,7 +30,6 @@ use leo_ast::{
     Location,
     NodeID,
     Statement,
-    StructVariableInitializer,
     Type,
     UnaryOperation,
     Variant,
@@ -263,7 +263,7 @@ pub struct Cursor {
     pub mappings: HashMap<Location, HashMap<Value, Value>>,
 
     /// For each struct type, we only need to remember the names of its members, in order.
-    pub structs: HashMap<Vec<Symbol>, IndexMap<Symbol, Type>>,
+    pub composites: HashMap<Vec<Symbol>, IndexMap<Symbol, Type>>,
 
     /// For each record type, we index by program name and path, and remember its members
     /// except `owner`.
@@ -350,7 +350,7 @@ impl Cursor {
             globals: Default::default(),
             user_values: Default::default(),
             mappings: Default::default(),
-            structs: Default::default(),
+            composites: Default::default(),
             records: Default::default(),
             contexts: Default::default(),
             futures: Default::default(),
@@ -447,7 +447,7 @@ impl Cursor {
                 | Expression::Literal(..)
                 | Expression::Locator(..)
                 | Expression::Repeat(..)
-                | Expression::Struct(..)
+                | Expression::Composite(..)
                 | Expression::Ternary(..)
                 | Expression::Tuple(..)
                 | Expression::Unary(..)
@@ -950,14 +950,14 @@ impl Cursor {
             Expression::Async(_) if step == 2 => Some(self.pop_value()?),
 
             Expression::MemberAccess(access) => match &access.inner {
-                // Otherwise, we just have a normal struct member access.
+                // Otherwise, we just have a normal composite member access.
                 _ if step == 0 => {
                     push!()(&access.inner, &None);
                     None
                 }
                 _ if step == 1 => {
-                    let struct_ = self.values.pop().expect_tc(access.span())?;
-                    let value = struct_.member_access(access.name.name).expect_tc(access.span())?;
+                    let composite = self.values.pop().expect_tc(access.span())?;
+                    let value = composite.member_access(access.name.name).expect_tc(access.span())?;
                     Some(value)
                 }
                 _ => unreachable!("we've actually covered all possible patterns above"),
@@ -1257,10 +1257,13 @@ impl Cursor {
             }
             Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
             Expression::Locator(_locator) => todo!(),
-            Expression::Struct(struct_) if step == 0 => {
-                let members =
-                    self.structs.get(&self.to_absolute_path(&struct_.path.as_symbols())).expect_tc(struct_.span())?;
-                for StructVariableInitializer { identifier: field_init_name, expression: init, .. } in &struct_.members
+            Expression::Composite(composite) if step == 0 => {
+                let members = self
+                    .composites
+                    .get(&self.to_absolute_path(&composite.path.as_symbols()))
+                    .expect_tc(composite.span())?;
+                for CompositeFieldInitializer { identifier: field_init_name, expression: init, .. } in
+                    &composite.members
                 {
                     let Some(type_) = members.get(&field_init_name.name) else { tc_fail!() };
                     push!()(
@@ -1271,25 +1274,27 @@ impl Cursor {
 
                 None
             }
-            Expression::Struct(struct_) if step == 1 => {
+            Expression::Composite(composite) if step == 1 => {
                 // Collect all the key/value pairs into a HashMap.
-                let mut contents_tmp = HashMap::with_capacity(struct_.members.len());
-                for initializer in struct_.members.iter() {
+                let mut contents_tmp = HashMap::with_capacity(composite.members.len());
+                for initializer in composite.members.iter() {
                     let name = initializer.identifier.name;
                     let value = self.pop_value()?;
                     contents_tmp.insert(name, value);
                 }
 
                 // And now put them into an IndexMap in the correct order.
-                let members =
-                    self.structs.get(&self.to_absolute_path(&struct_.path.as_symbols())).expect_tc(struct_.span())?;
+                let members = self
+                    .composites
+                    .get(&self.to_absolute_path(&composite.path.as_symbols()))
+                    .expect_tc(composite.span())?;
                 let contents = members.iter().map(|(identifier, _)| {
                     (*identifier, contents_tmp.remove(identifier).expect("we just inserted this"))
                 });
 
-                // TODO: this only works for structs defined in the top level module.. must figure
+                // TODO: this only works for composites defined in the top level module.. must figure
                 // something out for structs defined in modules
-                Some(Value::make_struct(contents, self.current_program().unwrap(), struct_.path.as_symbols()))
+                Some(Value::make_struct(contents, self.current_program().unwrap(), composite.path.as_symbols()))
             }
             Expression::Ternary(ternary) if step == 0 => {
                 push!()(&ternary.condition, &None);

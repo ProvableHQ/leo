@@ -142,22 +142,22 @@ create_messages!(
         help: None,
     }
 
-    /// For when the user tries initialize a struct with the incorrect number of args.
+    /// For when the user tries initialize a composite with the incorrect number of args.
     @formatted
-    incorrect_num_struct_members {
+    incorrect_num_composite_members {
         args: (expected: impl Display, received: impl Display),
         msg: format!(
-            "Struct expected `{expected}` members, but got `{received}`",
+            "Composite expected `{expected}` members, but got `{received}`",
         ),
         help: None,
     }
 
-    /// For when the user is missing a struct member during initialization.
+    /// For when the user is missing a composite member during initialization.
     @formatted
-    missing_struct_member {
-        args: (struct_: impl Display, member: impl Display),
+    missing_composite_member {
+        args: (composite: impl Display, member: impl Display),
         msg: format!(
-            "Struct initialization expression for `{struct_}` is missing member `{member}`.",
+            "Composite initialization expression for `{composite}` is missing member `{member}`.",
         ),
         help: None,
     }
@@ -202,12 +202,12 @@ create_messages!(
         help: Some("If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`".to_string()),
     }
 
-    /// Attempted to access an invalid struct variable.
+    /// Attempted to access an invalid composite variable.
     @formatted
-    invalid_struct_variable {
-        args: (variable: impl Display, struct_: impl Display),
+    invalid_composite_variable {
+        args: (variable: impl Display, composite: impl Display),
         msg: format!(
-            "Variable {variable} is not a member of {struct_}."
+            "Variable {variable} is not a member of {composite}."
         ),
         help: None,
     }
@@ -492,11 +492,11 @@ create_messages!(
     }
 
     @backtraced
-    cyclic_struct_dependency {
+    cyclic_composite_dependency {
         args: (path: Vec<impl Display>),
         msg: {
             let path_string = path.into_iter().map(|name| format!("`{name}`")).collect::<Vec<String>>().join(" --> ");
-            format!("Cyclic dependency between structs: {path_string}")
+            format!("Cyclic dependency between composites: {path_string}")
         },
         help: None,
     }

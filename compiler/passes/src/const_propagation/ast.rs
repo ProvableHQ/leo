@@ -58,7 +58,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
             Expression::Call(call) => self.reconstruct_call(*call, &()),
             Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &()),
+            Expression::Composite(composite) => self.reconstruct_composite_init(composite, &()),
             Expression::Err(err) => self.reconstruct_err(err, &()),
             Expression::Path(path) => self.reconstruct_path(path, &()),
             Expression::Literal(value) => self.reconstruct_literal(value, &()),
@@ -80,9 +80,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (new_expr, opt_value)
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: StructExpression,
+        mut input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
@@ -235,8 +235,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let id = input.id();
         let (inner, value_opt) = self.reconstruct_expression(input.inner, &());
         let member_name = input.name.name;
-        if let Some(struct_) = value_opt {
-            let value_result = struct_.member_access(member_name).expect("Type checking guarantees the member exists.");
+        if let Some(composite) = value_opt {
+            let value_result =
+                composite.member_access(member_name).expect("Type checking guarantees the member exists.");
 
             (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
         } else {

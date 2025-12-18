@@ -25,10 +25,10 @@ impl AstReconstructor for FlatteningVisitor<'_> {
     type AdditionalOutput = Vec<Statement>;
 
     /* Expressions */
-    /// Reconstructs a struct init expression, flattening any tuples in the expression.
-    fn reconstruct_struct_init(
+    /// Reconstructs a composite init expression, flattening any tuples in the expression.
+    fn reconstruct_composite_init(
         &mut self,
-        input: StructExpression,
+        input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
@@ -36,12 +36,12 @@ impl AstReconstructor for FlatteningVisitor<'_> {
 
         // Reconstruct and flatten the argument expressions.
         for member in input.members.into_iter() {
-            // Note that this unwrap is safe since SSA guarantees that all struct variable initializers are of the form `<name>: <expr>`.
+            // Note that this unwrap is safe since SSA guarantees that all composite field initializers are of the form `<name>: <expr>`.
             let (expr, stmts) = self.reconstruct_expression(member.expression.unwrap(), &());
             // Accumulate any statements produced.
             statements.extend(stmts);
-            // Accumulate the struct members.
-            members.push(StructVariableInitializer {
+            // Accumulate the composite members.
+            members.push(CompositeFieldInitializer {
                 identifier: member.identifier,
                 expression: Some(expr),
                 span: member.span,
@@ -49,10 +49,10 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             });
         }
 
-        (StructExpression { members, ..input }.into(), statements)
+        (CompositeExpression { members, ..input }.into(), statements)
     }
 
-    /// Reconstructs ternary expressions over arrays, structs, and tuples, accumulating any statements that are generated.
+    /// Reconstructs ternary expressions over arrays, composites, and tuples, accumulating any statements that are generated.
     /// This is necessary because Aleo instructions does not support ternary expressions over composite data types.
     /// For example, the ternary expression `cond ? (a, b) : (c, d)` is flattened into the following:
     /// ```leo
@@ -60,7 +60,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
     /// let var$1 = cond ? b : d;
     /// (var$0, var$1)
     /// ```
-    /// For structs, the ternary expression `cond ? a : b`, where `a` and `b` are both structs `Foo { bar: u8, baz: u8 }`, is flattened into the following:
+    /// For composites, the ternary expression `cond ? a : b`, where `a` and `b` are both composites `Foo { bar: u8, baz: u8 }`, is flattened into the following:
     /// ```leo
     /// let var$0 = cond ? a.bar : b.bar;
     /// let var$1 = cond ? a.baz : b.baz;
@@ -101,7 +101,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                 &as_identifier(input.if_false),
             ),
             Type::Composite(if_true_type) => {
-                // Get the struct definitions.
+                // Get the composite definitions.
                 let program = if_true_type.program.unwrap_or(self.program);
                 let composite_path = if_true_type.path.clone();
                 let if_true_type = self
@@ -114,7 +114,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                     .expect("This definition should exist")
                     .clone();
 
-                self.ternary_struct(
+                self.ternary_composite(
                     &composite_path,
                     &if_true_type,
                     &input.condition,
@@ -377,8 +377,8 @@ impl AstReconstructor for FlatteningVisitor<'_> {
     }
 
     /// Flattens a definition, if necessary.
-    /// Marks variables as structs as necessary.
-    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
+    /// Marks variables as composites as necessary.
+    /// Note that new statements are only produced if the right hand side is a ternary expression over composites.
     /// Otherwise, the statement is returned as is.
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Flatten the rhs of the assignment.

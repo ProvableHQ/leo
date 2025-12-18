@@ -19,12 +19,12 @@
 //! The main goal is to fully qualify all paths by prepending the current module's path segments
 //! before semantic analysis is performed. Since semantic information (e.g., symbol resolution)
 //! is not yet available at this stage, this pass conservatively prefixes all paths to ensure
-//! that references to items (functions, types, constants, structs) are correctly scoped.
+//! that references to items (functions, types, constants, composites) are correctly scoped.
 //!
 //! # Key behaviors:
 //! - Composite types have their `resolved_path` set to the concatenation of the current module path and the type's path.
 //! - Function call expressions have their function path fully qualified similarly.
-//! - Struct initializers have their paths prefixed, and their member expressions recursively reconstructed.
+//! - Composite initializers have their paths prefixed, and their member expressions recursively reconstructed.
 //! - Standalone paths are prefixed as well, accounting for possible global constants.
 //!
 //! # Note:

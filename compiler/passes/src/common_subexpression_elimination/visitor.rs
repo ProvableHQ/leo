@@ -116,7 +116,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::Locator(_)
             | Expression::MemberAccess(_)
             | Expression::Repeat(_)
-            | Expression::Struct(_)
+            | Expression::Composite(_)
             | Expression::Ternary(_)
             | Expression::Tuple(_)
             | Expression::TupleAccess(_)
@@ -218,8 +218,8 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                 return Some((expression, false));
             }
 
-            Expression::Struct(struct_expression) => {
-                for initializer in &mut struct_expression.members {
+            Expression::Composite(composite_expression) => {
+                for initializer in &mut composite_expression.members {
                     if let Some(expr) = initializer.expression.as_mut() {
                         self.try_atom(expr)?;
                     }

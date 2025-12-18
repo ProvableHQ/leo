@@ -16,7 +16,7 @@
 
 use crate::{Assigner, SymbolTable, TypeTable};
 
-use leo_ast::{Ast, CallGraph, NetworkName, NodeBuilder, StructGraph};
+use leo_ast::{Ast, CallGraph, CompositeGraph, NetworkName, NodeBuilder};
 use leo_errors::{Handler, LeoWarning, Result};
 
 use std::collections::HashSet;
@@ -36,8 +36,8 @@ pub struct CompilerState {
     pub assigner: Assigner,
     /// Contains data about the variables and other entities in the program.
     pub symbol_table: SymbolTable,
-    /// A graph of which structs refer to each other.
-    pub struct_graph: StructGraph,
+    /// A graph of which composite refer to each other.
+    pub composite_graph: CompositeGraph,
     /// A graph of which functions call each other.
     pub call_graph: CallGraph,
     /// A set of the warnings collected. This is used to make sure we don't emit the same exact warning twice.

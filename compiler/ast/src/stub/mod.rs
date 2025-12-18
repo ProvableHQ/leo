@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! A stub contains function templates as well as definitions for mappings, structs, records, and constants.
+//! A stub contains function templates as well as definitions for mappings, composites, records, and constants.
 
 pub mod function_stub;
 pub use function_stub::*;
@@ -33,8 +33,8 @@ pub struct Stub {
     pub stub_id: ProgramId,
     /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
-    /// A vector of struct definitions.
-    pub structs: Vec<(Symbol, Composite)>,
+    /// A vector of composite definitions.
+    pub composites: Vec<(Symbol, Composite)>,
     /// A vector of mapping definitions.
     pub mappings: Vec<(Symbol, Mapping)>,
     /// A vector of function stub definitions.
@@ -53,7 +53,7 @@ impl Default for Stub {
                 network: Identifier::new(Symbol::intern(""), NodeID::default()),
             },
             consts: Vec::new(),
-            structs: Vec::new(),
+            composites: Vec::new(),
             mappings: Vec::new(),
             functions: Vec::new(),
             span: Span::default(),
@@ -70,8 +70,8 @@ impl fmt::Display for Stub {
         for (_, mapping) in self.mappings.iter() {
             writeln!(f, "{};", Indent(mapping))?;
         }
-        for (_, struct_) in self.structs.iter() {
-            writeln!(f, "{}", Indent(struct_))?;
+        for (_, composite) in self.composites.iter() {
+            writeln!(f, "{}", Indent(composite))?;
         }
         for (_, function) in self.functions.iter() {
             writeln!(f, "{}", Indent(function))?;
