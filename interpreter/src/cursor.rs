@@ -1009,18 +1009,24 @@ impl Cursor {
                 )))
             }
             Expression::Intrinsic(intr) if step == 0 => {
-                let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) else {
-                    halt!(intr.span(), "Unkown intrinsic {}", intr.name);
+                let intrinsic = if intr.name == Symbol::intern("__unresolved_get") {
+                    Intrinsic::MappingGet
+                } else if intr.name == Symbol::intern("__unresolved_set") {
+                    Intrinsic::MappingSet
+                } else if let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) {
+                    intrinsic
+                } else {
+                    halt!(intr.span(), "Unknown intrinsic {}", intr.name);
                 };
 
                 // We want to push expressions for each of the arguments... except for mappings,
                 // because we don't look them up as Values.
                 match intrinsic {
-                    Intrinsic::Get | Intrinsic::MappingRemove | Intrinsic::MappingContains => {
+                    Intrinsic::MappingGet | Intrinsic::MappingRemove | Intrinsic::MappingContains => {
                         push!()(&intr.arguments[1], &None);
                         None
                     }
-                    Intrinsic::MappingGetOrUse | Intrinsic::Set => {
+                    Intrinsic::MappingGetOrUse | Intrinsic::MappingSet => {
                         push!()(&intr.arguments[2], &None);
                         push!()(&intr.arguments[1], &None);
                         None
@@ -1072,8 +1078,14 @@ impl Cursor {
                 }
             }
             Expression::Intrinsic(intr) if step == 1 => {
-                let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) else {
-                    halt!(intr.span(), "Unkown intrinsic {}", intr.name);
+                let intrinsic = if intr.name == Symbol::intern("__unresolved_get") {
+                    Intrinsic::MappingGet
+                } else if intr.name == Symbol::intern("__unresolved_set") {
+                    Intrinsic::MappingSet
+                } else if let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) {
+                    intrinsic
+                } else {
+                    halt!(intr.span(), "Unknown intrinsic {}", intr.name);
                 };
 
                 let span = intr.span();
@@ -1117,8 +1129,14 @@ impl Cursor {
                 }
             }
             Expression::Intrinsic(intr) if step == 2 => {
-                let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) else {
-                    halt!(intr.span(), "Unkown intrinsic {}", intr.name);
+                let intrinsic = if intr.name == Symbol::intern("__unresolved_get") {
+                    Intrinsic::MappingGet
+                } else if intr.name == Symbol::intern("__unresolved_set") {
+                    Intrinsic::MappingSet
+                } else if let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) {
+                    intrinsic
+                } else {
+                    halt!(intr.span(), "Unknown intrinsic {}", intr.name);
                 };
                 assert!(intrinsic == Intrinsic::FutureAwait);
                 Some(Value::make_unit())

@@ -196,9 +196,27 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Emits an error if the intrinsic invocation is not valid.
-    pub fn get_intrinsic(&self, intrinsic_expr: &IntrinsicExpression) -> Option<Intrinsic> {
+    pub fn get_intrinsic(&mut self, intrinsic_expr: &IntrinsicExpression) -> Option<Intrinsic> {
         // Lookup core struct
         match Intrinsic::from_symbol(intrinsic_expr.name, &intrinsic_expr.type_parameters) {
+            None if intrinsic_expr.name == Symbol::intern("__unresolved_get") => {
+                let ty = self.visit_expression(&intrinsic_expr.arguments[0], &None);
+                self.assert_vector_or_mapping_type(&ty, intrinsic_expr.arguments[0].span());
+                match ty {
+                    Type::Vector(_) => Some(Intrinsic::VectorGet),
+                    Type::Mapping(_) => Some(Intrinsic::MappingGet),
+                    _ => None,
+                }
+            }
+            None if intrinsic_expr.name == Symbol::intern("__unresolved_set") => {
+                let ty = self.visit_expression(&intrinsic_expr.arguments[0], &None);
+                self.assert_vector_or_mapping_type(&ty, intrinsic_expr.arguments[0].span());
+                match ty {
+                    Type::Vector(_) => Some(Intrinsic::VectorSet),
+                    Type::Mapping(_) => Some(Intrinsic::MappingSet),
+                    _ => None,
+                }
+            }
             None => {
                 // Not a core library struct.
                 self.emit_err(TypeCheckerError::invalid_intrinsic(intrinsic_expr.name, intrinsic_expr.span()));
@@ -292,26 +310,33 @@ impl TypeCheckingVisitor<'_> {
                 }
             }
 
-            // Get an element from a container (vector or mapping)
-            Intrinsic::Get => {
+            Intrinsic::MappingGet => {
                 let [container, key_or_index] = arguments else { panic!("number of arguments is already checked") };
 
                 let container_ty = self.visit_expression(container, &None);
 
                 // Key type depends on container type
-                let key_or_index_ty = match container_ty {
-                    Type::Vector(_) => self.visit_expression_infer_default_u32(key_or_index),
-                    Type::Mapping(MappingType { ref key, .. }) => {
-                        self.visit_expression(key_or_index, &Some(*key.clone()))
-                    }
-                    _ => self.visit_expression(key_or_index, &None),
+                let key_or_index_ty = if let Type::Mapping(MappingType { ref key, .. }) = container_ty {
+                    self.visit_expression(key_or_index, &Some(*key.clone()))
+                } else {
+                    self.visit_expression(key_or_index, &None)
                 };
 
                 vec![(container_ty, container), (key_or_index_ty, key_or_index)]
             }
 
-            // Set an element in a container (vector or mapping)
-            Intrinsic::Set => {
+            Intrinsic::VectorGet => {
+                let [container, key_or_index] = arguments else { panic!("number of arguments is already checked") };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                // Key type depends on container type
+                let key_or_index_ty = self.visit_expression_infer_default_u32(key_or_index);
+
+                vec![(container_ty, container), (key_or_index_ty, key_or_index)]
+            }
+
+            Intrinsic::MappingSet => {
                 let [container, key_or_index, val] = arguments else {
                     panic!("number of arguments is already checked")
                 };
@@ -326,12 +351,27 @@ impl TypeCheckingVisitor<'_> {
                     _ => self.visit_expression(key_or_index, &None),
                 };
 
-                let val_ty = match container_ty {
-                    Type::Vector(VectorType { ref element_type }) => {
-                        self.visit_expression(val, &Some(*element_type.clone()))
-                    }
-                    Type::Mapping(MappingType { ref value, .. }) => self.visit_expression(val, &Some(*value.clone())),
-                    _ => self.visit_expression(val, &None),
+                let val_ty = if let Type::Mapping(MappingType { ref value, .. }) = container_ty {
+                    self.visit_expression(val, &Some(*value.clone()))
+                } else {
+                    self.visit_expression(val, &None)
+                };
+
+                vec![(container_ty, container), (key_or_index_ty, key_or_index), (val_ty, val)]
+            }
+            Intrinsic::VectorSet => {
+                let [container, key_or_index, val] = arguments else {
+                    panic!("number of arguments is already checked")
+                };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                let key_or_index_ty = self.visit_expression_infer_default_u32(key_or_index);
+
+                let val_ty = if let Type::Vector(VectorType { ref element_type }) = container_ty {
+                    self.visit_expression(val, &Some(*element_type.clone()))
+                } else {
+                    self.visit_expression(val, &None)
                 };
 
                 vec![(container_ty, container), (key_or_index_ty, key_or_index), (val_ty, val)]
@@ -623,13 +663,8 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
-            Intrinsic::Get => {
-                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Vector::get", true, function_span);
-
-                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
-                } else if let Type::Mapping(MappingType { value, .. }) = &arguments[0].0 {
+            Intrinsic::MappingGet => {
+                if let Type::Mapping(MappingType { value, .. }) = &arguments[0].0 {
                     // Check that the operation is invoked in a `finalize` or `async` block.
                     self.check_access_allowed("Mapping::get", true, function_span);
 
@@ -639,15 +674,32 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            Intrinsic::Set => {
+            Intrinsic::VectorGet => {
+                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
+                    // Check that the operation is invoked in a `finalize` or `async` block.
+                    self.check_access_allowed("Vector::get", true, function_span);
+
+                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                } else {
+                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
+            }
+            Intrinsic::MappingSet => {
+                if let Type::Mapping(_) = &arguments[0].0 {
+                    // Check that the operation is invoked in a `finalize` or `async` block.
+                    self.check_access_allowed("Mapping::set", true, function_span);
+
+                    Type::Unit
+                } else {
+                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
+            }
+            Intrinsic::VectorSet => {
                 if arguments[0].0.is_vector() {
                     // Check that the operation is invoked in a `finalize` or `async` block.
                     self.check_access_allowed("Vector::set", true, function_span);
-
-                    Type::Unit
-                } else if let Type::Mapping(_) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Mapping::set", true, function_span);
 
                     Type::Unit
                 } else {

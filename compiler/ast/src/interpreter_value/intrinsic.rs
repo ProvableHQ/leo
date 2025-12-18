@@ -254,8 +254,7 @@ pub fn evaluate_intrinsic(
             helper.set_signer(private_key)?;
             Value::make_unit()
         }
-        Intrinsic::Get => {
-            // TODO handle vector get
+        Intrinsic::MappingGet => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
                 Expression::Path(path) => (None, path.identifier().name),
@@ -264,8 +263,7 @@ pub fn evaluate_intrinsic(
             };
             helper.mapping_get(program, name, &key).expect_tc(span)?.clone()
         }
-        Intrinsic::Set => {
-            // TODO handle vector set
+        Intrinsic::MappingSet => {
             let value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
@@ -318,6 +316,8 @@ pub fn evaluate_intrinsic(
         | Intrinsic::VectorLen
         | Intrinsic::VectorClear
         | Intrinsic::VectorPop
+        | Intrinsic::VectorGet
+        | Intrinsic::VectorSet
         | Intrinsic::VectorSwapRemove
         | Intrinsic::SelfAddress
         | Intrinsic::SelfCaller
