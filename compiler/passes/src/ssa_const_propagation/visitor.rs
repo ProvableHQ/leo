@@ -81,15 +81,17 @@ impl SsaConstPropagationVisitor<'_> {
                     self.copy_types_recursively(element, elem_ty);
                 }
             }
-            (Expression::Struct(struct_expr), Type::Composite(composite_ty)) => {
+            (Expression::Composite(composite_expr), Type::Composite(composite_ty)) => {
                 let symbols = composite_ty.path.as_symbols();
+                // We only look for structs here (not records) because `copy_types_recursively` is
+                // only called from `value_to_expression`, which never produces record expressions.
                 let member_types: Vec<leo_ast::Type> = self
                     .state
                     .symbol_table
                     .lookup_struct(&symbols)
                     .map(|struct_def| struct_def.members.iter().map(|m| m.type_.clone()).collect())
                     .unwrap_or_default();
-                for (member, member_ty) in struct_expr.members.iter().zip(member_types.iter()) {
+                for (member, member_ty) in composite_expr.members.iter().zip(member_types.iter()) {
                     if let Some(expr) = &member.expression {
                         self.copy_types_recursively(expr, member_ty);
                     }

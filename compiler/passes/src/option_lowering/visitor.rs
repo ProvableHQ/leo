@@ -32,8 +32,8 @@ pub struct OptionLoweringVisitor<'a> {
     // The newly created structs. Each struct correspond to a converted optional type. All these
     // structs are to be inserted in the program scope.
     pub new_structs: IndexMap<Symbol, Composite>,
-    // The reconstructed structs. These are the new versions of the existing structs in the program.
-    pub reconstructed_structs: IndexMap<Vec<Symbol>, Composite>,
+    // The reconstructed composites. These are the new versions of the existing composites in the program.
+    pub reconstructed_composites: IndexMap<Vec<Symbol>, Composite>,
 }
 
 impl OptionLoweringVisitor<'_> {
@@ -72,17 +72,17 @@ impl OptionLoweringVisitor<'_> {
         // Create or get an optional wrapper struct for `lowered_inner_type`
         let struct_name = self.insert_optional_wrapper_struct(&lowered_inner_type);
 
-        let struct_expr = StructExpression {
+        let struct_expr = CompositeExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
             const_arguments: vec![],
             members: vec![
-                StructVariableInitializer {
+                CompositeFieldInitializer {
                     identifier: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
                     expression: Some(is_some_expr),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 },
-                StructVariableInitializer {
+                CompositeFieldInitializer {
                     identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
                     expression: Some(expr),
                     span: Span::default(),
@@ -116,7 +116,7 @@ impl OptionLoweringVisitor<'_> {
             variant: LiteralVariant::Boolean(false),
         });
 
-        // Fully lower the type before proceeding. This also ensures that all required structs
+        // Fully lower the type before proceeding. This also ensures that all required composites
         // are actually registered in `self.new_structs`.
         let lowered_inner_type = self.reconstruct_type(inner_ty.clone()).0;
 
@@ -125,11 +125,11 @@ impl OptionLoweringVisitor<'_> {
         // for each type.
 
         // Instead of relying on the symbol table (which does not get updated in this pass), we rely on the set of
-        // reconstructed structs which is produced for all program scopes and all modules before doing anything else.
-        let reconstructed_structs = &self.reconstructed_structs;
+        // reconstructed composites which is produced for all program scopes and all modules before doing anything else.
+        let reconstructed_composites = &self.reconstructed_composites;
         let struct_lookup = |sym: &[Symbol]| {
-            reconstructed_structs
-                .get(sym) // check the new version of existing structs
+            reconstructed_composites
+                .get(sym) // check the new version of existing composites 
                 .or_else(|| self.new_structs.get(sym.last().unwrap())) // check the newly produced structs
                 .expect("must exist by construction")
                 .members
@@ -144,17 +144,17 @@ impl OptionLoweringVisitor<'_> {
         // Create or get an optional wrapper struct for `lowered_inner_type`
         let struct_name = self.insert_optional_wrapper_struct(&lowered_inner_type);
 
-        let struct_expr = StructExpression {
+        let struct_expr = CompositeExpression {
             path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
             const_arguments: vec![],
             members: vec![
-                StructVariableInitializer {
+                CompositeFieldInitializer {
                     identifier: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
                     expression: Some(is_some_expr.clone()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 },
-                StructVariableInitializer {
+                CompositeFieldInitializer {
                     identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
                     expression: Some(zero_val_expr.clone()),
                     span: Span::default(),

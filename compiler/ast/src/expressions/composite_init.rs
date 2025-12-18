@@ -19,10 +19,10 @@ use crate::Identifier;
 
 use itertools::Itertools as _;
 
-/// An initializer for a single field / variable of a struct initializer expression.
+/// An initializer for a single field / variable of a composite initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StructVariableInitializer {
+pub struct CompositeFieldInitializer {
     /// The name of the field / variable to be initialized.
     pub identifier: Identifier,
     /// The expression to initialize the field with.
@@ -34,9 +34,9 @@ pub struct StructVariableInitializer {
     pub id: NodeID,
 }
 
-crate::simple_node_impl!(StructVariableInitializer);
+crate::simple_node_impl!(CompositeFieldInitializer);
 
-impl fmt::Display for StructVariableInitializer {
+impl fmt::Display for CompositeFieldInitializer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(expr) = &self.expression {
             write!(f, "{}: {expr}", self.identifier)
@@ -46,25 +46,25 @@ impl fmt::Display for StructVariableInitializer {
     }
 }
 
-/// A struct initialization expression, e.g., `Foo { bar: 42, baz }`.
+/// A composite initialization expression, e.g., `Foo { bar: 42, baz }`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StructExpression {
-    /// A path to a structure type to initialize.
+pub struct CompositeExpression {
+    /// A path to a composite type to initialize.
     pub path: Path,
-    /// Expressions for the const arguments passed to the struct's const parameters.
+    /// Expressions for the const arguments passed to the composite's const parameters.
     pub const_arguments: Vec<Expression>,
-    /// Initializer expressions for each of the fields in the struct.
+    /// Initializer expressions for each of the fields in the composite.
     ///
-    /// N.B. Any functions or member constants in the struct definition
+    /// N.B. Any functions or member constants in the composite definition
     /// are excluded from this list.
-    pub members: Vec<StructVariableInitializer>,
+    pub members: Vec<CompositeFieldInitializer>,
     /// A span from `name` to `}`.
     pub span: Span,
     /// The ID of the node.
     pub id: NodeID,
 }
 
-impl fmt::Display for StructExpression {
+impl fmt::Display for CompositeExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.path)?;
         if !self.const_arguments.is_empty() {
@@ -83,10 +83,10 @@ impl fmt::Display for StructExpression {
     }
 }
 
-impl From<StructExpression> for Expression {
-    fn from(value: StructExpression) -> Self {
-        Expression::Struct(value)
+impl From<CompositeExpression> for Expression {
+    fn from(value: CompositeExpression) -> Self {
+        Expression::Composite(value)
     }
 }
 
-crate::simple_node_impl!(StructExpression);
+crate::simple_node_impl!(CompositeExpression);

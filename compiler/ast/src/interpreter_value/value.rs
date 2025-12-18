@@ -70,7 +70,7 @@ pub(crate) type Future = FutureParam<CurrentNetwork>;
 pub(crate) type Signature = SvmSignature<CurrentNetwork>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct StructContents {
+pub struct CompositeContents {
     pub path: Vec<Symbol>,
 }
 
@@ -879,7 +879,7 @@ fn plaintext_to_expression(
     ty: &Type,
     struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
 ) -> Option<Expression> {
-    use crate::{ArrayExpression, Identifier, IntegerType, Literal, StructExpression, StructVariableInitializer};
+    use crate::{ArrayExpression, CompositeExpression, CompositeFieldInitializer, Identifier, IntegerType, Literal};
 
     let id = node_builder.next_id();
 
@@ -926,7 +926,7 @@ fn plaintext_to_expression(
             };
             let symbols = composite_type.path.as_symbols();
             let iter_members = struct_lookup(&symbols);
-            StructExpression {
+            CompositeExpression {
                 span,
                 id,
                 path: composite_type.path.clone(),
@@ -938,7 +938,7 @@ fn plaintext_to_expression(
                     .map(|(sym, ty)| {
                         let svm_identifier: snarkvm::prelude::Identifier<CurrentNetwork> =
                             sym.to_string().parse().ok()?;
-                        Some(StructVariableInitializer {
+                        Some(CompositeFieldInitializer {
                             span,
                             id: node_builder.next_id(),
                             identifier: Identifier::new(sym, node_builder.next_id()),

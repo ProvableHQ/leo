@@ -33,9 +33,9 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
 
     // We need to make sure we hit identifiers, so do our own traversal
     // rather than relying on the default.
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: leo_ast::StructExpression,
+        mut input: leo_ast::CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         for member in input.members.iter_mut() {

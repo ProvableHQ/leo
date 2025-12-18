@@ -67,7 +67,7 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
 
         ProgramScope {
             program_id: input.program_id,
-            structs: input.structs,
+            composites: input.composites,
             mappings: input.mappings,
             storage_variables: input.storage_variables,
             constructor,

@@ -30,26 +30,26 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
         self.does_not_contain_aleo(program_name, "program");
         self.is_not_keyword(program_name, "program", &[]);
 
-        input.structs.iter().for_each(|(_, function)| self.visit_struct(function));
+        input.composites.iter().for_each(|(_, function)| self.visit_composite(function));
         input.functions.iter().for_each(|(_, function)| self.visit_function(function));
     }
 
     fn visit_module(&mut self, input: &Module) {
-        input.structs.iter().for_each(|(_, function)| self.visit_struct(function));
+        input.composites.iter().for_each(|(_, function)| self.visit_composite(function));
         input.functions.iter().for_each(|(_, function)| self.visit_function(function));
     }
 
     fn visit_stub(&mut self, input: &Stub) {
-        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
+        input.composites.iter().for_each(|(_, function)| self.visit_composite_stub(function));
         input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
     }
 
-    fn visit_struct(&mut self, input: &Composite) {
-        let struct_name = input.identifier;
+    fn visit_composite(&mut self, input: &Composite) {
+        let composite_name = input.identifier;
         let item_type = if input.is_record { "record" } else { "struct" };
-        self.is_not_keyword(struct_name, item_type, &[]);
+        self.is_not_keyword(composite_name, item_type, &[]);
         if input.is_record {
-            self.does_not_contain_aleo(struct_name, item_type);
+            self.does_not_contain_aleo(composite_name, item_type);
         }
 
         for Member { identifier: member_name, .. } in &input.members {
@@ -80,7 +80,7 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
         }
     }
 
-    fn visit_struct_stub(&mut self, input: &Composite) {
-        self.visit_struct(input);
+    fn visit_composite_stub(&mut self, input: &Composite) {
+        self.visit_composite(input);
     }
 }

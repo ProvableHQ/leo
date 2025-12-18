@@ -95,26 +95,26 @@ impl Pass for ConstPropUnrollAndMorphing {
                     }
                 }
 
-                // Emit errors for all problematic struct expressions
-                for expr in &monomorphization_output.unresolved_struct_exprs {
+                // Emit errors for all problematic composite expressions
+                for expr in &monomorphization_output.unresolved_composite_exprs {
                     if let Some(arg) =
                         expr.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
-                            "struct expression",
+                            "composite expression",
                             expr.path.clone(),
                             arg.span(),
                         ));
                     }
                 }
 
-                // Emit errors for all problematic struct type instantiations
-                for ty in &monomorphization_output.unresolved_struct_types {
+                // Emit errors for all problematic composite type instantiations
+                for ty in &monomorphization_output.unresolved_composite_types {
                     if let Some(arg) =
                         ty.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
                     {
                         state.handler.emit_err(CompilerError::const_generic_not_resolved(
-                            "struct type",
+                            "composite type",
                             ty.path.clone(),
                             arg.span(),
                         ));

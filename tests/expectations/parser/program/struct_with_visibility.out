@@ -23,7 +23,7 @@
         }
       },
       "consts": [],
-      "structs": [
+      "composites": [
         [
           "foo",
           {

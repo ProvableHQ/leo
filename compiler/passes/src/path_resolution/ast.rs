@@ -18,12 +18,12 @@ use super::PathResolutionVisitor;
 use leo_ast::{
     AstReconstructor,
     CallExpression,
+    CompositeExpression,
+    CompositeFieldInitializer,
     CompositeType,
     ErrExpression,
     Expression,
     Path,
-    StructExpression,
-    StructVariableInitializer,
     Type,
 };
 
@@ -77,16 +77,16 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         )
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: StructExpression,
+        mut input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         if input.path.try_absolute_path().is_none() {
             input.path = input.path.with_module_prefix(&self.module)
         }
         (
-            StructExpression {
+            CompositeExpression {
                 path: input.path,
                 const_arguments: input
                     .const_arguments
@@ -96,7 +96,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                 members: input
                     .members
                     .into_iter()
-                    .map(|member| StructVariableInitializer {
+                    .map(|member| CompositeFieldInitializer {
                         identifier: member.identifier,
                         expression: member.expression.map(|expr| self.reconstruct_expression(expr, &()).0),
                         span: member.span,

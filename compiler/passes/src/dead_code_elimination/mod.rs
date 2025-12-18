@@ -45,7 +45,7 @@
 //! }
 //! ```
 //! Note this pass relies on the following invariants:
-//! - No shadowing for all variables, struct names, function names, etc.
+//! - No shadowing for all variables, composite names, function names, etc.
 //! - Unique variable names (provided by SSA)
 //! - Flattened code (provided by the flattening pass)
 

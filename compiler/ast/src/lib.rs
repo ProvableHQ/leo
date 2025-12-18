@@ -22,8 +22,8 @@
 
 #![allow(ambiguous_glob_reexports)]
 
-mod r#struct;
-pub use self::r#struct::*;
+mod composite;
+pub use self::composite::*;
 
 pub mod common;
 pub use self::common::*;

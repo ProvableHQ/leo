@@ -25,6 +25,8 @@ use leo_ast::{
     BinaryOperation,
     Block,
     Composite,
+    CompositeExpression,
+    CompositeFieldInitializer,
     CompositeType,
     Expression,
     Identifier,
@@ -37,8 +39,6 @@ use leo_ast::{
     Path,
     ReturnStatement,
     Statement,
-    StructExpression,
-    StructVariableInitializer,
     TernaryExpression,
     TupleAccess,
     TupleExpression,
@@ -303,7 +303,7 @@ impl FlatteningVisitor<'_> {
         }
     }
 
-    /// A wrapper around `assigner.unique_simple_definition` that updates `self.structs`.
+    /// A wrapper around `assigner.unique_simple_definition` that updates `self.composites`.
     pub fn unique_simple_definition(&mut self, expr: Expression) -> (Identifier, Statement) {
         // Create a new variable for the expression.
         let name = self.state.assigner.unique_symbol("$var", "$");
@@ -451,8 +451,8 @@ impl FlatteningVisitor<'_> {
         (Path::from(identifier).into_absolute().into(), statements)
     }
 
-    // For use in `ternary_struct`.
-    fn make_struct_access_definition(
+    // For use in `ternary_composite`.
+    fn make_composite_access_definition(
         &mut self,
         inner: Identifier,
         name: Identifier,
@@ -469,24 +469,24 @@ impl FlatteningVisitor<'_> {
         self.unique_simple_definition(expr)
     }
 
-    pub fn ternary_struct(
+    pub fn ternary_composite(
         &mut self,
-        struct_path: &Path,
-        struct_: &Composite,
+        composite_path: &Path,
+        composite: &Composite,
         condition: &Expression,
         first: &Identifier,
         second: &Identifier,
     ) -> (Expression, Vec<Statement>) {
         // Initialize a vector to accumulate any statements generated.
         let mut statements = Vec::new();
-        // For each struct member, construct a new ternary expression.
-        let members = struct_
+        // For each composite member, construct a new ternary expression.
+        let members = composite
             .members
             .iter()
             .map(|Member { identifier, type_, .. }| {
-                let (first, stmt) = self.make_struct_access_definition(*first, *identifier, type_.clone());
+                let (first, stmt) = self.make_composite_access_definition(*first, *identifier, type_.clone());
                 statements.push(stmt);
-                let (second, stmt) = self.make_struct_access_definition(*second, *identifier, type_.clone());
+                let (second, stmt) = self.make_composite_access_definition(*second, *identifier, type_.clone());
                 statements.push(stmt);
                 // Recursively reconstruct the ternary expression.
                 let ternary = TernaryExpression {
@@ -502,7 +502,7 @@ impl FlatteningVisitor<'_> {
                 // Accumulate any statements generated.
                 statements.extend(stmts);
 
-                StructVariableInitializer {
+                CompositeFieldInitializer {
                     identifier: *identifier,
                     expression: Some(expression),
                     span: Default::default(),
@@ -511,22 +511,22 @@ impl FlatteningVisitor<'_> {
             })
             .collect();
 
-        let (expr, stmts) = self.reconstruct_struct_init(
-            StructExpression {
-                path: struct_path.clone(),
+        let (expr, stmts) = self.reconstruct_composite_init(
+            CompositeExpression {
+                path: composite_path.clone(),
                 const_arguments: Vec::new(), // All const arguments should have been resolved by now
                 members,
                 span: Default::default(),
                 id: {
-                    // Create a new node ID for the struct expression.
+                    // Create a new node ID for the comopsite expression.
                     let id = self.state.node_builder.next_id();
                     // Set the type of the node ID.
                     self.state.type_table.insert(
                         id,
                         Type::Composite(CompositeType {
-                            path: struct_path.clone(),
+                            path: composite_path.clone(),
                             const_arguments: Vec::new(), // all const generics should have been resolved by now
-                            program: struct_.external,
+                            program: composite.external,
                         }),
                     );
                     id
@@ -538,7 +538,7 @@ impl FlatteningVisitor<'_> {
         // Accumulate any statements generated.
         statements.extend(stmts);
 
-        // Create a new assignment statement for the struct expression.
+        // Create a new assignment statement for the composite expression.
         let (identifier, statement) = self.unique_simple_definition(expr);
 
         statements.push(statement);

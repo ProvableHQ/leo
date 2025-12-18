@@ -31,7 +31,7 @@ pub trait ExpressionConsumer {
             Expression::Binary(binary) => self.consume_binary(*binary),
             Expression::Call(call) => self.consume_call(*call),
             Expression::Cast(cast) => self.consume_cast(*cast),
-            Expression::Struct(struct_) => self.consume_struct_init(struct_),
+            Expression::Composite(composite_) => self.consume_composite_init(composite_),
             Expression::Err(err) => self.consume_err(err),
             Expression::Path(path) => self.consume_path(path),
             Expression::Literal(value) => self.consume_literal(value),
@@ -63,7 +63,7 @@ pub trait ExpressionConsumer {
 
     fn consume_cast(&mut self, _input: CastExpression) -> Self::Output;
 
-    fn consume_struct_init(&mut self, _input: StructExpression) -> Self::Output;
+    fn consume_composite_init(&mut self, _input: CompositeExpression) -> Self::Output;
 
     fn consume_err(&mut self, _input: ErrExpression) -> Self::Output {
         panic!("`ErrExpression`s should not be in the AST at this phase of compilation.")
@@ -139,11 +139,11 @@ pub trait ConstructorConsumer {
     fn consume_constructor(&mut self, input: Constructor) -> Self::Output;
 }
 
-/// A Consumer trait for structs in the AST.
-pub trait StructConsumer {
+/// A Consumer trait for composites in the AST.
+pub trait CompositeConsumer {
     type Output;
 
-    fn consume_struct(&mut self, input: Composite) -> Self::Output;
+    fn consume_composite(&mut self, input: Composite) -> Self::Output;
 }
 
 /// A Consumer trait for imported programs in the AST.

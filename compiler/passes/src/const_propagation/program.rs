@@ -49,7 +49,7 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
             *c = self.reconstruct_constructor(std::mem::take(c));
         }
 
-        input.structs = input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect();
+        input.composites = input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect();
         input.mappings =
             input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
         input.storage_variables =
@@ -73,7 +73,7 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
                     .collect(),
                 program_name: input.program_name,
                 path: input.path,
-                structs: input.structs.into_iter().map(|(i, c)| (i, slf.reconstruct_struct(c))).collect(),
+                composites: input.composites.into_iter().map(|(i, c)| (i, slf.reconstruct_composite(c))).collect(),
                 functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
             }
         })

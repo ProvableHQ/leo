@@ -51,8 +51,8 @@ impl<'a> CodeGeneratingVisitor<'a> {
         self.program_id = Some(program_id);
 
         // Get the post-order ordering of the composite data types.
-        // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
-        let order = self.state.struct_graph.post_order().unwrap();
+        // Note that the unwrap is safe since type checking guarantees that the composite dependency graph is acyclic.
+        let order = self.state.composite_graph.post_order().unwrap();
 
         let this_program = self.program_id.unwrap().name.name;
 
@@ -63,10 +63,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 .or_else(|| self.state.symbol_table.lookup_record(&Location::new(this_program, name.to_vec())))
         };
 
-        // Add each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
+        // Add each `struct` or `record` in the post-ordering and produce an Aleo struct or record.
         let data_types = order
             .into_iter()
-            .filter_map(|name| lookup(&name).map(|struct_| self.visit_struct_or_record(struct_, &name)))
+            .filter_map(|name| lookup(&name).map(|composite| self.visit_struct_or_record(composite, &name)))
             .collect();
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
@@ -128,11 +128,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
         AleoProgram { imports, program_id, data_types, mappings, functions, constructor }
     }
 
-    fn visit_struct_or_record(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> AleoDatatype {
-        if struct_.is_record {
-            AleoDatatype::Record(self.visit_record(struct_, absolute_path))
+    fn visit_struct_or_record(&mut self, composite: &'a Composite, absolute_path: &[Symbol]) -> AleoDatatype {
+        if composite.is_record {
+            AleoDatatype::Record(self.visit_record(composite, absolute_path))
         } else {
-            AleoDatatype::Struct(self.visit_struct(struct_, absolute_path))
+            AleoDatatype::Struct(self.visit_struct(composite, absolute_path))
         }
     }
 
@@ -398,7 +398,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 Type::Mapping(_) | Type::Tuple(_) => panic!("Mappings cannot contain mappings or tuples."),
                 Type::Identifier(identifier) => {
                     // Lookup the type in the composite mapping.
-                    // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
+                    // Note that this unwrap is safe since all structs and records have been added to the composite mapping.
                     let is_record = self.composite_mapping.get(&vec![identifier.name]).unwrap();
                     assert!(!is_record, "Type checking guarantees that mappings cannot contain records.");
                     self.visit_type_with_visibility(type_, Some(AleoVisibility::Public))

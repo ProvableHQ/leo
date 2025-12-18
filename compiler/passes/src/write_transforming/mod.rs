@@ -27,11 +27,11 @@ mod program;
 mod visitor;
 use visitor::*;
 
-/// A pass to rewrite assignments to array accesses and struct accesses.
+/// A pass to rewrite assignments to array accesses and composite accesses.
 ///
-/// This pass makes variables for members of arrays and structs that are written to,
+/// This pass makes variables for members of arrays and composites that are written to,
 /// changes assignments to those members into assignments to those variables, and,
-/// whenever the arrays or structs are accessed, reconstructs them from the variables.
+/// whenever the arrays or composites are accessed, reconstructs them from the variables.
 /// So code like this:
 ///
 /// let s = S { a: 1u8, b: [2u8, 3u8] };
@@ -52,7 +52,7 @@ use visitor::*;
 /// Since the pass will create new assignments, `SsaForming` must be run again afterwards.
 ///
 /// A note on the semantics of the language as implemented by this pass:
-/// assignments and definitions in essence copy structs and arrays. Thus if we do
+/// assignments and definitions in essence copy composites and arrays. Thus if we do
 /// ```leo
 /// let x = [0u8, 1u8];
 /// let y = x;

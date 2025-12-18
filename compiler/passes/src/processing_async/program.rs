@@ -31,7 +31,7 @@ impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
     /// Reconstructs a `ProgramScope` by rewriting all contained elements:
     /// - Updates the current program context.
     /// - Reconstructs all functions using `reconstruct_function`.
-    /// - Reconstructs structs, mappings, and constants.
+    /// - Reconstructs composites, mappings, and constants.
     /// - Inserts reconstructed functions, including any newly created async functions,
     ///   placing transitions before other functions.
     ///
@@ -51,7 +51,7 @@ impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
 
         ProgramScope {
             program_id: input.program_id,
-            structs: input.structs.into_iter().map(|(id, def)| (id, self.reconstruct_struct(def))).collect(),
+            composites: input.composites.into_iter().map(|(id, def)| (id, self.reconstruct_composite(def))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
             storage_variables: input
                 .storage_variables

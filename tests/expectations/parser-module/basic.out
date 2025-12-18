@@ -36,7 +36,7 @@
       }
     ]
   ],
-  "structs": [],
+  "composites": [],
   "functions": []
 }
 
@@ -44,7 +44,7 @@
   "program_name": "module_test",
   "path": [],
   "consts": [],
-  "structs": [
+  "composites": [
     [
       "Foo",
       {
@@ -114,7 +114,7 @@
   "program_name": "module_test",
   "path": [],
   "consts": [],
-  "structs": [],
+  "composites": [],
   "functions": [
     [
       "foo",
@@ -255,7 +255,7 @@
       }
     ]
   ],
-  "structs": [
+  "composites": [
     [
       "Foo",
       {

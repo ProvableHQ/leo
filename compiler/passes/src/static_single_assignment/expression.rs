@@ -23,6 +23,8 @@ use leo_ast::{
     CallExpression,
     CastExpression,
     Composite,
+    CompositeExpression,
+    CompositeFieldInitializer,
     Expression,
     ExpressionConsumer,
     IntrinsicExpression,
@@ -33,8 +35,6 @@ use leo_ast::{
     Path,
     RepeatExpression,
     Statement,
-    StructExpression,
-    StructVariableInitializer,
     TernaryExpression,
     TupleAccess,
     TupleExpression,
@@ -147,12 +147,12 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         (CastExpression { expression, ..input }.into(), statements)
     }
 
-    /// Consumes a struct initialization expression with renamed variables, accumulating any statements that are generated.
-    fn consume_struct_init(&mut self, input: StructExpression) -> Self::Output {
+    /// Consumes a composite initialization expression with renamed variables, accumulating any statements that are generated.
+    fn consume_composite_init(&mut self, input: CompositeExpression) -> Self::Output {
         let mut statements = Vec::new();
 
         // Process the members, accumulating any statements produced.
-        let members: Vec<StructVariableInitializer> = input
+        let members: Vec<CompositeFieldInitializer> = input
             .members
             .into_iter()
             .map(|arg| {
@@ -165,14 +165,14 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
                 statements.append(&mut stmts);
 
                 // Return the new member.
-                StructVariableInitializer { expression: Some(expression), ..arg }
+                CompositeFieldInitializer { expression: Some(expression), ..arg }
             })
             .collect();
 
-        // Reorder the members to match that of the struct definition.
+        // Reorder the members to match that of the composite definition.
 
-        // Lookup the struct definition.
-        let struct_definition: &Composite = self
+        // Lookup the composite definition.
+        let composite_definition: &Composite = self
             .state
             .symbol_table
             .lookup_record(&Location::new(self.program, input.path.absolute_path()))
@@ -183,28 +183,28 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         let mut reordered_members = Vec::with_capacity(members.len());
 
         // Collect the members of the init expression into a map.
-        let mut member_map: IndexMap<Symbol, StructVariableInitializer> =
+        let mut member_map: IndexMap<Symbol, CompositeFieldInitializer> =
             members.into_iter().map(|member| (member.identifier.name, member)).collect();
 
         // If we are initializing a record, add the `owner` first.
         // Note that type checking guarantees that the above fields exist.
-        if struct_definition.is_record {
+        if composite_definition.is_record {
             // Add the `owner` field.
             // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
             reordered_members.push(member_map.shift_remove(&sym::owner).unwrap());
         }
 
-        // For each member of the struct definition, push the corresponding member of the init expression.
-        for member in &struct_definition.members {
+        // For each member of the composite definition, push the corresponding member of the init expression.
+        for member in &composite_definition.members {
             // If the member is part of a record and it is `owner` then we have already added it.
-            if !(struct_definition.is_record && matches!(member.identifier.name, sym::owner)) {
+            if !(composite_definition.is_record && matches!(member.identifier.name, sym::owner)) {
                 // Lookup and push the member of the init expression.
                 // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
                 reordered_members.push(member_map.shift_remove(&member.identifier.name).unwrap());
             }
         }
 
-        (StructExpression { members: reordered_members, ..input }.into(), statements)
+        (CompositeExpression { members: reordered_members, ..input }.into(), statements)
     }
 
     /// Retrieve the new name for this `Identifier`.

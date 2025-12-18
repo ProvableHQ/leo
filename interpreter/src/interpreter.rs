@@ -147,8 +147,8 @@ impl Interpreter {
                         .insert(Location::new(program, vec![*name]), FunctionVariant::Leo(function.clone()));
                 }
 
-                for (name, composite) in scope.structs.iter() {
-                    cursor.structs.insert(
+                for (name, composite) in scope.composites.iter() {
+                    cursor.composites.insert(
                         vec![*name],
                         composite
                             .members
@@ -191,8 +191,8 @@ impl Interpreter {
                     );
                 }
 
-                for (name, composite) in module.structs.iter() {
-                    cursor.structs.insert(
+                for (name, composite) in module.composites.iter() {
+                    cursor.composites.insert(
                         to_absolute_path(*name),
                         composite
                             .members
@@ -224,7 +224,7 @@ impl Interpreter {
             filename_to_program.insert(path.to_path_buf(), program.to_string());
 
             for (name, struct_type) in aleo_program.structs().iter() {
-                cursor.structs.insert(
+                cursor.composites.insert(
                     vec![snarkvm_identifier_to_symbol(name)],
                     struct_type
                         .members()
@@ -238,7 +238,7 @@ impl Interpreter {
 
             for (name, record_type) in aleo_program.records().iter() {
                 use snarkvm::prelude::EntryType;
-                cursor.structs.insert(
+                cursor.composites.insert(
                     vec![snarkvm_identifier_to_symbol(name)],
                     record_type
                         .entries()

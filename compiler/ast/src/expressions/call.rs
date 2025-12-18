@@ -22,7 +22,7 @@ use itertools::Itertools as _;
 /// A function call expression, e.g.`foo(args)` or `Foo::bar(args)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CallExpression {
-    /// A path to a callable function, either a member of a structure or a free function.
+    /// A path to a callable function, either a member of a composite or a free function.
     pub function: Path,
     /// Expressions for the const arguments passed to the function's const parameters.
     pub const_arguments: Vec<Expression>,
