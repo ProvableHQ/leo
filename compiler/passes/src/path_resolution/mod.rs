@@ -51,6 +51,7 @@ use crate::Pass;
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
+use leo_span::Symbol;
 
 mod ast;
 
@@ -69,7 +70,7 @@ impl Pass for PathResolution {
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let mut ast = std::mem::take(&mut state.ast);
-        let mut visitor = PathResolutionVisitor { state, module: Vec::new() };
+        let mut visitor = PathResolutionVisitor { state, program: Symbol::intern(""), module: Vec::new() };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;

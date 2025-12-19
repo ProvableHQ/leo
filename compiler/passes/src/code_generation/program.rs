@@ -56,17 +56,21 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         let this_program = self.program_id.unwrap().name.name;
 
-        let lookup = |name: &[Symbol]| {
-            self.state
-                .symbol_table
-                .lookup_struct(name)
-                .or_else(|| self.state.symbol_table.lookup_record(&Location::new(this_program, name.to_vec())))
+        let lookup = |loc: &Location| {
+            if loc.program == this_program {
+                self.state
+                    .symbol_table
+                    .lookup_struct(this_program, loc)
+                    .or_else(|| self.state.symbol_table.lookup_record(this_program, loc))
+            } else {
+                None
+            }
         };
 
         // Add each `struct` or `record` in the post-ordering and produce an Aleo struct or record.
         let data_types = order
             .into_iter()
-            .filter_map(|name| lookup(&name).map(|composite| self.visit_struct_or_record(composite, &name)))
+            .filter_map(|loc| lookup(&loc).map(|composite| self.visit_struct_or_record(composite, &loc.path)))
             .collect();
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
@@ -90,10 +94,13 @@ impl<'a> CodeGeneratingVisitor<'a> {
                         let finalize = &self
                             .state
                             .symbol_table
-                            .lookup_function(&Location::new(
-                                self.program_id.unwrap().name.name,
-                                vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
-                            ))
+                            .lookup_function(
+                                this_program,
+                                &Location::new(
+                                    this_program,
+                                    vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
+                                ),
+                            )
                             .unwrap()
                             .clone()
                             .finalizer
@@ -138,7 +145,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
     fn visit_struct(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> AleoStruct {
         // Add private symbol to composite types.
-        self.composite_mapping.insert(absolute_path.to_vec(), false); // todo: private by default here.
+        self.composite_mapping.insert((self.program_id.unwrap().name.name, absolute_path.to_vec()), false); // todo: private by default here.
 
         // todo: check if this is safe from name conflicts.
         let name = Self::legalize_path(absolute_path).unwrap_or_else(|| {
@@ -153,7 +160,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if var.type_.is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), Self::visit_type(&var.type_)))
+                    Some((var.identifier.to_string(), self.visit_type(&var.type_)))
                 }
             })
             .collect();
@@ -163,7 +170,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
     fn visit_record(&mut self, record: &'a Composite, absolute_path: &[Symbol]) -> AleoRecord {
         // Add record symbol to composite types.
-        self.composite_mapping.insert(absolute_path.to_vec(), true);
+        self.composite_mapping.insert((self.program_id.unwrap().name.name, absolute_path.to_vec()), true);
 
         let name = record.identifier.to_string(); // todo: check if this is safe from name conflicts.
 
@@ -185,7 +192,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if var.type_.is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), Self::visit_type(&var.type_), match var.mode {
+                    Some((var.identifier.to_string(), self.visit_type(&var.type_), match var.mode {
                         Mode::Constant => AleoVisibility::Constant,
                         Mode::Public => AleoVisibility::Public,
                         Mode::None | Mode::Private => AleoVisibility::Private,
@@ -236,12 +243,12 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
                 // Track all internal record inputs.
                 if let Type::Composite(comp) = &input.type_ {
-                    let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
-                    if let Some(record) = self
-                        .state
-                        .symbol_table
-                        .lookup_record(&Location::new(program, comp.path.absolute_path().to_vec()))
-                        && (record.external.is_none() || record.external == self.program_id.map(|id| id.name.name))
+                    let current_program = self.program_id.unwrap().name.name;
+                    let program = comp.program.unwrap_or(current_program);
+
+                    let path = Location::new(program, comp.path.absolute_path().to_vec());
+                    if program == current_program
+                        && self.state.symbol_table.lookup_record(current_program, &path).is_some()
                     {
                         self.internal_record_inputs.insert(AleoExpr::Reg(register_num.clone()));
                     }
@@ -398,8 +405,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 Type::Mapping(_) | Type::Tuple(_) => panic!("Mappings cannot contain mappings or tuples."),
                 Type::Identifier(identifier) => {
                     // Lookup the type in the composite mapping.
-                    // Note that this unwrap is safe since all structs and records have been added to the composite mapping.
-                    let is_record = self.composite_mapping.get(&vec![identifier.name]).unwrap();
+                    // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
+                    let is_record = self
+                        .composite_mapping
+                        .get(&(self.program_id.unwrap().name.name, vec![identifier.name]))
+                        .unwrap();
                     assert!(!is_record, "Type checking guarantees that mappings cannot contain records.");
                     self.visit_type_with_visibility(type_, Some(AleoVisibility::Public))
                 }

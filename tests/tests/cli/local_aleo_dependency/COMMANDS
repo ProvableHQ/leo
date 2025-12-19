@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+${LEO_BIN} build

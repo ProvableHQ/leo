@@ -1,0 +1,81 @@
+program child1.aleo;
+
+struct Foo:
+    x as u32;
+    y as u32;
+    z as u32;
+
+function main1:
+    input r0 as Foo.private;
+
+function main2:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    cast r0 r1 r2 into r3 as Foo;
+    output r3 as Foo.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+program child2.aleo;
+
+struct Foo:
+    x as u32;
+    y as u32;
+    z as u32;
+    w as u32;
+
+function main1:
+    input r0 as Foo.private;
+
+function main2:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    input r3 as u32.private;
+    cast r0 r1 r2 r3 into r4 as Foo;
+    output r4 as Foo.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child1.aleo;
+import child2.aleo;
+program external_structs.aleo;
+
+struct Foo:
+    x as u32;
+    y as u32;
+
+function main1:
+    input r0 as Foo.private;
+    input r1 as child1.aleo/Foo.private;
+    input r2 as child2.aleo/Foo.private;
+    add r0.x r0.y into r3;
+    add r3 r1.x into r4;
+    add r4 r1.y into r5;
+    add r5 r1.z into r6;
+    add r6 r2.x into r7;
+    add r7 r2.y into r8;
+    add r8 r2.z into r9;
+    add r9 r2.w into r10;
+    assert.eq r10 495u32;
+
+function main2:
+    call child1.aleo/main2 1u32 2u32 3u32 into r0;
+    call child2.aleo/main2 1u32 2u32 3u32 4u32 into r1;
+    add r0.x r0.y into r2;
+    add r2 r0.z into r3;
+    add r3 r1.x into r4;
+    add r4 r1.y into r5;
+    add r5 r1.z into r6;
+    add r6 r1.w into r7;
+    output r7 as u32.public;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: ()
+status: success
+output: 16u32

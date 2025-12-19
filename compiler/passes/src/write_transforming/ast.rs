@@ -91,6 +91,7 @@ impl WriteTransformingVisitor<'_> {
                         }
                     })
                     .collect(),
+                program: None,
                 path: comp_type.path,
                 span: Default::default(),
                 id,

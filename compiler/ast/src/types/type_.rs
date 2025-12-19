@@ -34,7 +34,7 @@ use snarkvm::prelude::{
     LiteralType,
     Network,
     PlaintextType,
-    PlaintextType::{Array, Literal, Struct},
+    PlaintextType::{Array, ExternalStruct, Literal, Struct},
 };
 use std::fmt;
 
@@ -93,10 +93,13 @@ impl Type {
     /// if their element types match. This allows const propagation to potentially resolve the length before type
     /// checking is performed again.
     ///
-    /// Composite types are considered equal if their names and resolved program names match. If either side still has
-    /// const generic arguments, they are treated as equal unconditionally since monomorphization and other passes of
-    /// type-checking will handle mismatches later.
-    pub fn eq_user(&self, other: &Type) -> bool {
+    /// Composite types are considered equal if
+    /// - They are records and their absolute paths and resolved program names match.
+    /// - They are structs and their absolute paths match (program names are ignored for now).
+    ///
+    /// If either side still has const generic arguments, they are treated as equal unconditionally since
+    /// monomorphization and other passes of type-checking will handle mismatches later.
+    pub fn eq_user(&self, other: &Type, current_program: Symbol) -> bool {
         match (self, other) {
             (Type::Err, _)
             | (_, Type::Err)
@@ -116,40 +119,50 @@ impl Type {
                         // equal to other arrays because their lengths _may_ eventually be proven equal.
                         true
                     }
-                }) && left.element_type().eq_user(right.element_type())
+                }) && left.element_type().eq_user(right.element_type(), current_program)
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
             (Type::Integer(left), Type::Integer(right)) => left == right,
             (Type::Mapping(left), Type::Mapping(right)) => {
-                left.key.eq_user(&right.key) && left.value.eq_user(&right.value)
+                left.key.eq_user(&right.key, current_program) && left.value.eq_user(&right.value, current_program)
             }
-            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_user(&right.inner),
+            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_user(&right.inner, current_program),
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
-            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_user(&right.element_type),
+                .all(|(left_type, right_type)| left_type.eq_user(right_type, current_program)),
+            (Type::Vector(left), Type::Vector(right)) => {
+                left.element_type.eq_user(&right.element_type, current_program)
+            }
+
             (Type::Composite(left), Type::Composite(right)) => {
                 // If either composite still has const generic arguments, treat them as equal.
-                // Type checking will run again after monomorphization.
                 if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
                     return true;
                 }
 
-                // Two composite types are the same if their programs and their _absolute_ paths match.
-                (left.program == right.program)
-                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                        (Some(l), Some(r)) => l == r,
-                        _ => false,
-                    }
+                // Get absolute paths, return false immediately if any is None.
+                let Some(left_path) = left.path.try_absolute_path() else {
+                    return false;
+                };
+                let Some(right_path) = right.path.try_absolute_path() else {
+                    return false;
+                };
+
+                // Use current_program if program is `None`.
+                let left_program = left.program.unwrap_or(current_program);
+                let right_program = right.program.unwrap_or(current_program);
+
+                left_program == right_program && left_path == right_path
             }
+
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
                 .inputs()
                 .iter()
                 .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
+                .all(|(left_type, right_type)| left_type.eq_user(right_type, current_program)),
             _ => false,
         }
     }
@@ -234,6 +247,14 @@ impl Type {
                 const_arguments: Vec::new(),
                 program,
             }),
+            ExternalStruct(l) => Type::Composite(CompositeType {
+                path: {
+                    let ident = Identifier::from(l.name());
+                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                },
+                const_arguments: Vec::new(),
+                program: Some(Identifier::from(l.program_id().name()).name),
+            }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }
@@ -265,13 +286,19 @@ impl Type {
     }
 
     // A helper function to get the size in bits of the input type.
-    pub fn size_in_bits<N: Network, F>(&self, is_raw: bool, get_composite: F) -> anyhow::Result<usize>
+    pub fn size_in_bits<N: Network, F0, F1>(
+        &self,
+        is_raw: bool,
+        get_structs: F0,
+        get_external_structs: F1,
+    ) -> anyhow::Result<usize>
     where
-        F: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+        F0: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+        F1: Fn(&snarkvm::prelude::Locator<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
     {
         match is_raw {
-            false => self.to_snarkvm::<N>()?.size_in_bits(&get_composite),
-            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_composite),
+            false => self.to_snarkvm::<N>()?.size_in_bits(&get_structs, &get_external_structs),
+            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_structs, &get_external_structs),
         }
     }
 
@@ -290,15 +317,17 @@ impl Type {
     ///
     /// # Returns
     /// `true` if coercion is allowed; `false` otherwise.
-    pub fn can_coerce_to(&self, expected: &Type) -> bool {
+    pub fn can_coerce_to(&self, expected: &Type, current_program: Symbol) -> bool {
         use Type::*;
 
         match (self, expected) {
             // Allow Optional<T> → Optional<T>
-            (Optional(actual_opt), Optional(expected_opt)) => actual_opt.inner.can_coerce_to(&expected_opt.inner),
+            (Optional(actual_opt), Optional(expected_opt)) => {
+                actual_opt.inner.can_coerce_to(&expected_opt.inner, current_program)
+            }
 
             // Allow T → Optional<T>
-            (a, Optional(opt)) => a.can_coerce_to(&opt.inner),
+            (a, Optional(opt)) => a.can_coerce_to(&opt.inner, current_program),
 
             // Allow [T; N] → [Optional<T>; N]
             (Array(a_arr), Array(e_arr)) => {
@@ -307,11 +336,11 @@ impl Type {
                     _ => true,
                 };
 
-                lengths_equal && a_arr.element_type().can_coerce_to(e_arr.element_type())
+                lengths_equal && a_arr.element_type().can_coerce_to(e_arr.element_type(), current_program)
             }
 
             // Fallback: check for exact match
-            _ => self.eq_user(expected),
+            _ => self.eq_user(expected, current_program),
         }
     }
 

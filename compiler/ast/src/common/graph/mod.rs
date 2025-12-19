@@ -20,9 +20,8 @@ use leo_span::Symbol;
 use indexmap::{IndexMap, IndexSet};
 use std::{fmt::Debug, hash::Hash, rc::Rc};
 
-/// A composite dependency graph.
-/// The `Vec<Symbol>` is to the absolute path to each composite
-pub type CompositeGraph = DiGraph<Vec<Symbol>>;
+/// A struct dependency graph.
+pub type CompositeGraph = DiGraph<Location>;
 
 /// A call graph.
 pub type CallGraph = DiGraph<Location>;

@@ -1,4 +1,4 @@
-Error [ETYC0372119]: Received different types `R` and `child.aleo/R` for the operation `==`.
+Error [ETYC0372119]: Received different types `parent.aleo/R` and `child.aleo/R` for the operation `==`.
     --> compiler-test:16:16
      |
   16 |         return r1 == child.aleo/create();

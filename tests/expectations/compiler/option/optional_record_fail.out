@@ -1,4 +1,4 @@
-Error [ETYC0372160]: The type `Foo` cannot be wrapped in an optional.
+Error [ETYC0372160]: The type `optional_record_test.aleo/Foo` cannot be wrapped in an optional.
     --> compiler-test:10:9
      |
   10 |         let f: Foo? = Foo {

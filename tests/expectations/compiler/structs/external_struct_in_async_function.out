@@ -16,9 +16,5 @@ finalize init:
 import parent.aleo;
 program child.aleo;
 
-struct TestStruct:
-    data0 as u128;
-    data1 as u128;
-
 function main:
     output 1u32 as u32.private;

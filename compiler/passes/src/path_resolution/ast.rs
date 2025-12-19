@@ -43,7 +43,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                     .into_iter()
                     .map(|arg| self.reconstruct_expression(arg, &()).0)
                     .collect(),
-                ..input
+                program: Some(input.program.unwrap_or(self.program)),
             }),
             Default::default(),
         )
@@ -103,6 +103,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                         id: member.id,
                     })
                     .collect(),
+                program: Some(input.program.unwrap_or(self.program)),
                 ..input
             }
             .into(),

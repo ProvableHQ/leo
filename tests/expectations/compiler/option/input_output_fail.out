@@ -12,7 +12,7 @@ Error [ETYC0372164]: The input `y` has type `[u8?; 3]`, which is or contains an 
      |                            ^^^^^^^^^^^
      |
      = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372164]: The input `f` has type `Foo`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
+Error [ETYC0372164]: The input `f` has type `test.aleo/Foo`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
     --> compiler-test:5:41
      |
    5 |     transition foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
@@ -33,7 +33,7 @@ Error [ETYC0372165]: This function has an output of type `u8?`, which is or cont
      |                                                          ^^^
      |
      = Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372165]: This function has an output of type `Foo`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.
+Error [ETYC0372165]: This function has an output of type `test.aleo/Foo`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.
     --> compiler-test:5:63
      |
    5 |     transition foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
@@ -47,7 +47,7 @@ Error [ETYC0372164]: The input `x` has type `u8?`, which is or contains an optio
      |                          ^^^^^^
      |
      = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372164]: The input `f` has type `Foo`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
+Error [ETYC0372164]: The input `f` has type `test.aleo/Foo`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
     --> compiler-test:9:34
      |
    9 |     async transition bar(x: u8?, f: Foo) {

@@ -25,6 +25,7 @@ use leo_ast::{
     CompositeType,
     Expression,
     Identifier,
+    Location,
     Node as _,
     ProgramReconstructor,
     Type,
@@ -77,7 +78,11 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         self.changed = true;
         (
             Type::Composite(CompositeType {
-                path: self.monomorphize_composite(&input.path, &evaluated_const_args),
+                path: self.monomorphize_composite(
+                    input.program.unwrap_or(self.program),
+                    &input.path,
+                    &evaluated_const_args,
+                ),
                 const_arguments: vec![], // remove const arguments
                 program: input.program,
             }),
@@ -123,6 +128,8 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         input_call: CallExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
+        let callee_program = input_call.program.unwrap_or(self.program);
+
         // Skip calls to functions from other programs.
         if input_call.program.is_some_and(|prog| prog != self.program) {
             return (input_call.into(), Default::default());
@@ -145,7 +152,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // Look up the already reconstructed function by name.
         let callee_fn = self
             .reconstructed_functions
-            .get(&input_call.function.absolute_path())
+            .get(&Location::new(callee_program, input_call.function.absolute_path()))
             .expect("Callee should already be reconstructed (post-order traversal).");
 
         // Proceed only if the function variant is `inline`.
@@ -166,7 +173,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
 
         // Check if the new callee name is not already present in `reconstructed_functions`. This ensures that we do not
         // add a duplicate definition for the same function.
-        if self.reconstructed_functions.get(&new_callee_path.absolute_path()).is_none() {
+        if self.reconstructed_functions.get(&Location::new(callee_program, new_callee_path.absolute_path())).is_none() {
             // Build mapping from const parameters to const argument values.
             let const_param_map: IndexMap<_, _> = callee_fn
                 .const_parameters
@@ -202,10 +209,11 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             function.id = self.state.node_builder.next_id();
 
             // Keep track of the new function in case other functions need it.
-            self.reconstructed_functions.insert(new_callee_path.absolute_path(), function);
+            self.reconstructed_functions
+                .insert(Location::new(callee_program, new_callee_path.absolute_path()), function);
 
             // Now keep track of the function we just monomorphized
-            self.monomorphized_functions.insert(input_call.function.absolute_path());
+            self.monomorphized_functions.insert(Location::new(callee_program, input_call.function.absolute_path()));
         }
 
         // At this stage, we know that we're going to modify the program
@@ -266,10 +274,11 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // Finally, construct the updated composite expression that points to a monomorphized version and return it.
         (
             CompositeExpression {
-                path: self.monomorphize_composite(&input.path, &evaluated_const_args),
+                path: self.monomorphize_composite(self.program, &input.path, &evaluated_const_args),
                 members,
                 const_arguments: vec![], // remove const arguments
-                span: input.span,        // Keep pointing to the original composite expression
+                program: Some(self.program),
+                span: input.span, // Keep pointing to the original composite expression
                 id: input.id,
             }
             .into(),

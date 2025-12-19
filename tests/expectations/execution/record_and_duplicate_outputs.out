@@ -56,10 +56,6 @@ import test0.aleo;
 import test1.aleo;
 program test2.aleo;
 
-struct S:
-    x as field;
-    y as field;
-
 function test_pass_through:
     call test0.aleo/make into r0;
     call test1.aleo/pass_through r0 into r1;
