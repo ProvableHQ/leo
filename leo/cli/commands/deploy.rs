@@ -70,7 +70,7 @@ pub struct Task<N: Network> {
 
 impl Command for LeoDeploy {
     type Input = Package;
-    type Output = ();
+    type Output = DeployOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -238,7 +238,7 @@ fn handle_deploy<N: Network>(
     // Prompt the user to confirm the plan.
     if !confirm("Do you want to proceed with deployment?", command.extra.yes)? {
         println!("❌ Deployment aborted.");
-        return Ok(());
+        return Ok(DeployOutput::default());
     }
 
     // Initialize an RNG.
@@ -295,7 +295,7 @@ Once it is deployed, it CANNOT be changed.
                 );
                 if !confirm("Would you like to proceed?", command.extra.yes)? {
                     println!("❌ Deployment aborted.");
-                    return Ok(());
+                    return Ok(DeployOutput::default());
                 }
             }
             println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
@@ -395,21 +395,21 @@ Once it is deployed, it CANNOT be changed.
                     } else if fail_and_prompt("could not find the transaction on the network")? {
                         continue;
                     } else {
-                        return Ok(());
+                        return Ok(build_deploy_output(&transactions));
                     }
                 }
                 _ => {
                     if fail_and_prompt(&message)? {
                         continue;
                     } else {
-                        return Ok(());
+                        return Ok(build_deploy_output(&transactions));
                     }
                 }
             }
         }
     }
 
-    Ok(())
+    Ok(build_deploy_output(&transactions))
 }
 
 /// Check the tasks to warn the user about any potential issues.

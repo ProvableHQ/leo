@@ -1,0 +1,78 @@
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+
+➕Adding programs to the VM in the following order:
+  - test_json_program.aleo (local)
+
+➡️  Output
+
+ • 3u32
+{"program":"test_json_program.aleo","function":"main","outputs":["3u32"]}
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp2RWGDcde3...
+  Address:            aleo1s3ws5tra87fjycnjrws...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  12
+
+📦 Deployment Tasks:
+  • test_json_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+🔧 Your program 'test_json_program.aleo' has the following constructor.
+──────────────────────────────────────────────
+constructor:
+    assert.eq edition 0u16;
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+
+📦 Creating deployment transaction for 'test_json_program.aleo'...
+
+
+📊 Deployment Summary for test_json_program.aleo
+──────────────────────────────────────────────
+  Program Size:         0.20 KB / 97.66 KB
+  Total Variables:      17,276
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.886000
+  Program Synthesis:    0.030203
+  Namespace:            1.000000
+  Constructor:          0.002000
+  Priority Fee:         0.000000
+  Total Fee:            1.918203
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for test_json_program.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+{"deployments":[{"program_id":"test_json_program.aleo","transaction_id":"XXXXXX"}]}

@@ -72,7 +72,7 @@ pub struct LeoExecute {
 
 impl Command for LeoExecute {
     type Input = Option<Package>;
-    type Output = ();
+    type Output = ExecuteOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -295,7 +295,7 @@ fn handle_execute<A: Aleo>(
     // Prompt the user to confirm the plan.
     if !confirm("Do you want to proceed with execution?", command.extra.yes)? {
         println!("❌ Execution aborted.");
-        return Ok(());
+        return Ok(ExecuteOutput::default());
     }
 
     // Initialize an RNG.
@@ -379,13 +379,20 @@ fn handle_execute<A: Aleo>(
             .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
     }
 
-    match response.outputs().len() {
+    let output = ExecuteOutput {
+        program: program_name.clone(),
+        function: function_name.clone(),
+        outputs: stringify_outputs(response.outputs()),
+        transaction_id: transaction.id().to_string(),
+    };
+
+    match output.outputs.len() {
         0 => (),
         1 => println!("\n➡️  Output\n"),
         _ => println!("\n➡️  Outputs\n"),
     };
-    for output in response.outputs() {
-        println!(" • {output}");
+    for o in &output.outputs {
+        println!(" • {o}");
     }
     println!();
 
@@ -398,7 +405,7 @@ fn handle_execute<A: Aleo>(
             // Most transactions will have fees, but some, like credits.aleo/upgrade executions, may not.
             if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
                 println!("❌ Execution aborted.");
-                return Ok(());
+                return Ok(output);
             }
             fee_id = Some(fee.id().to_string());
         }
@@ -407,11 +414,6 @@ fn handle_execute<A: Aleo>(
         // Broadcast the transaction to the network.
         let (message, status) =
             handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast"), &transaction, &program_name)?;
-
-        let fail = |msg| {
-            println!("❌ Failed to broadcast execution: {msg}.");
-            Ok(())
-        };
 
         match status {
             200..=299 => {
@@ -429,12 +431,12 @@ fn handle_execute<A: Aleo>(
                 }
             }
             _ => {
-                return fail(&message);
+                println!("❌ Failed to broadcast execution: {message}.");
             }
         }
     }
 
-    Ok(())
+    Ok(output)
 }
 
 /// Check the execution task for warnings.
