@@ -136,6 +136,7 @@ fn filter_stdout(data: &str) -> String {
         (Regex::new(" - transaction ID: '[a-zA-Z0-9]*'").unwrap(), " - transaction ID: 'XXXXXX'"),
         (Regex::new(" - fee ID: '[a-zA-Z0-9]*'").unwrap(), " - fee ID: 'XXXXXX'"),
         (Regex::new(" - fee transaction ID: '[a-zA-Z0-9]*'").unwrap(), " - fee transaction ID: 'XXXXXX'"),
+        (Regex::new(r#""transaction_id":"[a-zA-Z0-9]*""#).unwrap(), r#""transaction_id":"XXXXXX""#),
         (
             Regex::new("💰Your current public balance is [0-9.]* credits.").unwrap(),
             "💰Your current public balance is XXXXXX credits.",

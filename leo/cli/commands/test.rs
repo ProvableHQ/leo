@@ -44,7 +44,7 @@ pub struct LeoTest {
 
 impl Command for LeoTest {
     type Input = <LeoBuild as Command>::Output;
-    type Output = ();
+    type Output = TestOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -61,7 +61,7 @@ impl Command for LeoTest {
     }
 }
 
-fn handle_test(command: LeoTest, package: Package) -> Result<()> {
+fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
     // Get the private key.
     let private_key = PrivateKey::<TestnetV0>::from_str(TEST_PRIVATE_KEY)?;
 
@@ -152,32 +152,39 @@ fn handle_test(command: LeoTest, package: Package) -> Result<()> {
     let total_passed = interpreter_result.iter().filter(|(_, test_result)| matches!(test_result, Ok(()))).count()
         + native_results.iter().filter(|(_, _, x)| x.is_none()).count();
 
+    // Build structured output and print results.
+    let mut tests = Vec::new();
+
     if total == 0 {
         println!("No tests run.");
-        Ok(())
     } else {
         println!("{total_passed} / {total} tests passed.");
         let failed = "FAILED".bold().red();
         let passed = "PASSED".bold().green();
+
         for (id, id_result) in interpreter_result.iter() {
             // Wasteful to make this, but fill will work.
             let str_id = format!("{id}");
             if let Err(err) = id_result {
                 println!("{failed}: {str_id:<30} | {err}");
+                tests.push(TestResult { name: str_id, passed: false, error: Some(err.to_string()) });
             } else {
                 println!("{passed}: {str_id}");
+                tests.push(TestResult { name: str_id, passed: true, error: None });
             }
         }
 
-        for (program, function, case_result) in native_results {
+        for (program, function, case_result) in &native_results {
             let str_id = format!("{program}/{function}");
             if let Some(err_str) = case_result {
                 println!("{failed}: {str_id:<30} | {err_str}");
+                tests.push(TestResult { name: str_id, passed: false, error: Some(err_str.clone()) });
             } else {
                 println!("{passed}: {str_id}");
+                tests.push(TestResult { name: str_id, passed: true, error: None });
             }
         }
-
-        Ok(())
     }
+
+    Ok(TestOutput { passed: total_passed, failed: total - total_passed, tests })
 }
