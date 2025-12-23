@@ -1,45 +1,40 @@
 Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:9:16
+    --> compiler-test:10:16
      |
-   9 |         return finish(a);
+  10 |         return finish(a);
      |                ^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `Yo`
-    --> compiler-test:13:34
-     |
-  13 |         CheatCode::print_mapping(Yo);
-     |                                  ^^
 Error [ETYC0372005]: Unknown variable `account`
-    --> compiler-test:14:34
+    --> compiler-test:15:34
      |
-  14 |         CheatCode::print_mapping(test_dep.aleo/account);
+  15 |         CheatCode::print_mapping(test_dep.aleo/account);
      |                                  ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `u32` but type `u64` was found.
-    --> compiler-test:15:37
-     |
-  15 |         CheatCode::set_block_height(1u64);
-     |                                     ^^^^
 Error [ETYC0372117]: Expected type `u32` but type `u64` was found.
     --> compiler-test:16:37
      |
-  16 |         CheatCode::set_block_height(a);
+  16 |         CheatCode::set_block_height(1u64);
+     |                                     ^^^^
+Error [ETYC0372117]: Expected type `u32` but type `u64` was found.
+    --> compiler-test:17:37
+     |
+  17 |         CheatCode::set_block_height(a);
      |                                     ^
 Error [ETYC0372117]: Expected type `i64` but type `u32` was found.
-    --> compiler-test:17:40
-     |
-  17 |         CheatCode::set_block_timestamp(1u32);
-     |                                        ^^^^
-Error [ETYC0372117]: Expected type `i64` but type `address` was found.
     --> compiler-test:18:40
      |
-  18 |         CheatCode::set_block_timestamp(b);
+  18 |         CheatCode::set_block_timestamp(1u32);
+     |                                        ^^^^
+Error [ETYC0372117]: Expected type `i64` but type `address` was found.
+    --> compiler-test:19:40
+     |
+  19 |         CheatCode::set_block_timestamp(b);
      |                                        ^
 Error [ETYC0372117]: Expected type `string` but type `address` was found.
-    --> compiler-test:19:31
+    --> compiler-test:20:31
      |
-  19 |         CheatCode::set_signer(b);
+  20 |         CheatCode::set_signer(b);
      |                               ^
 Error [ETYC0372156]: `CheatCode::set_signer` must be called with a valid private key
-    --> compiler-test:21:31
+    --> compiler-test:22:31
      |
-  21 |         CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPW");
+  22 |         CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPW");
      |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

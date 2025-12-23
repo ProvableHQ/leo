@@ -17,6 +17,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -26,8 +27,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 12,
               "hi": 13
@@ -37,6 +37,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -46,8 +47,7 @@
               },
               "id": 6
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 17,
               "hi": 18
@@ -90,6 +90,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -99,8 +100,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 32,
               "hi": 33
@@ -110,6 +110,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -119,8 +120,7 @@
               },
               "id": 6
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 37,
               "hi": 38
@@ -163,6 +163,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -172,8 +173,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 52,
               "hi": 53
@@ -183,6 +183,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -192,8 +193,7 @@
               },
               "id": 6
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 56,
               "hi": 57
@@ -236,6 +236,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -245,8 +246,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 71,
               "hi": 72
@@ -256,6 +256,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -265,8 +266,7 @@
               },
               "id": 6
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 76,
               "hi": 77
@@ -309,6 +309,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -318,8 +319,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 91,
               "hi": 92
@@ -329,6 +329,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -338,8 +339,7 @@
               },
               "id": 6
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 95,
               "hi": 96
@@ -382,6 +382,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -391,8 +392,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 110,
               "hi": 111
@@ -402,6 +402,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -411,8 +412,7 @@
               },
               "id": 6
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 115,
               "hi": 116
@@ -455,6 +455,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -464,8 +465,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 130,
               "hi": 131
@@ -475,6 +475,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -484,8 +485,7 @@
               },
               "id": 6
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 134,
               "hi": 135
@@ -513,6 +513,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x_",
@@ -522,8 +523,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 137,
           "hi": 139
@@ -533,6 +533,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -542,8 +543,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 140,
           "hi": 141
@@ -563,6 +563,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xconsole",
@@ -572,8 +573,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 143,
           "hi": 151
@@ -583,6 +583,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -592,8 +593,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 152,
           "hi": 153
@@ -613,6 +613,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xconst",
@@ -622,8 +623,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 155,
           "hi": 161
@@ -633,6 +633,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -642,8 +643,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 162,
           "hi": 163
@@ -663,6 +663,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xlet",
@@ -672,8 +673,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 165,
           "hi": 169
@@ -683,6 +683,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -692,8 +693,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 170,
           "hi": 171
@@ -713,6 +713,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xfor",
@@ -722,8 +723,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 173,
           "hi": 177
@@ -733,6 +733,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -742,8 +743,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 178,
           "hi": 179
@@ -763,6 +763,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xif",
@@ -772,8 +773,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 181,
           "hi": 184
@@ -783,6 +783,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -792,8 +793,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 185,
           "hi": 186
@@ -813,6 +813,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xelse",
@@ -822,8 +823,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 188,
           "hi": 193
@@ -833,6 +833,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -842,8 +843,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 194,
           "hi": 195
@@ -863,6 +863,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xi8",
@@ -872,8 +873,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 197,
           "hi": 200
@@ -883,6 +883,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -892,8 +893,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 201,
           "hi": 202
@@ -913,6 +913,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xi16",
@@ -922,8 +923,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 204,
           "hi": 208
@@ -933,6 +933,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -942,8 +943,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 209,
           "hi": 210
@@ -963,6 +963,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xi32",
@@ -972,8 +973,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 212,
           "hi": 216
@@ -983,6 +983,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -992,8 +993,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 217,
           "hi": 218
@@ -1013,6 +1013,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xi64",
@@ -1022,8 +1023,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 220,
           "hi": 224
@@ -1033,6 +1033,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1042,8 +1043,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 225,
           "hi": 226
@@ -1063,6 +1063,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xi128",
@@ -1072,8 +1073,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 228,
           "hi": 233
@@ -1083,6 +1083,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1092,8 +1093,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 234,
           "hi": 235
@@ -1113,6 +1113,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xu8",
@@ -1122,8 +1123,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 237,
           "hi": 240
@@ -1133,6 +1133,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1142,8 +1143,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 241,
           "hi": 242
@@ -1163,6 +1163,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xu16",
@@ -1172,8 +1173,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 244,
           "hi": 248
@@ -1183,6 +1183,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1192,8 +1193,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 249,
           "hi": 250
@@ -1213,6 +1213,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xu32",
@@ -1222,8 +1223,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 252,
           "hi": 256
@@ -1233,6 +1233,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1242,8 +1243,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 257,
           "hi": 258
@@ -1263,6 +1263,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xu64",
@@ -1272,8 +1273,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 260,
           "hi": 264
@@ -1283,6 +1283,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1292,8 +1293,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 265,
           "hi": 266
@@ -1313,6 +1313,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xu128",
@@ -1322,8 +1323,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 268,
           "hi": 273
@@ -1333,6 +1333,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1342,8 +1343,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 274,
           "hi": 275
@@ -1363,6 +1363,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xreturn",
@@ -1372,8 +1373,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 277,
           "hi": 284
@@ -1383,6 +1383,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1392,8 +1393,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 285,
           "hi": 286
@@ -1413,6 +1413,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xtrue",
@@ -1422,8 +1423,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 288,
           "hi": 293
@@ -1433,6 +1433,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1442,8 +1443,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 294,
           "hi": 295
@@ -1463,6 +1463,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "xfalse",
@@ -1472,8 +1473,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 297,
           "hi": 303
@@ -1483,6 +1483,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1492,8 +1493,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 304,
           "hi": 305
@@ -1513,6 +1513,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x0",
@@ -1522,8 +1523,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 307,
           "hi": 309
@@ -1533,6 +1533,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "b",
@@ -1542,8 +1543,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 310,
           "hi": 311

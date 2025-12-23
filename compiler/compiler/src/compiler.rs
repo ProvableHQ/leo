@@ -147,9 +147,11 @@ impl Compiler {
 
         self.do_pass::<NameValidation>(())?;
 
+        self.do_pass::<GlobalVarsCollection>(())?;
+
         self.do_pass::<PathResolution>(())?;
 
-        self.do_pass::<SymbolTableCreation>(())?;
+        self.do_pass::<GlobalItemsCollection>(())?;
 
         self.do_pass::<TypeChecking>(type_checking_config.clone())?;
 

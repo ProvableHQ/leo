@@ -20,6 +20,7 @@ use crate::{
     FutureType,
     Identifier,
     IntegerType,
+    Location,
     MappingType,
     OptionalType,
     Path,
@@ -96,7 +97,12 @@ impl Type {
     /// Composite types are considered equal if their names and resolved program names match. If either side still has
     /// const generic arguments, they are treated as equal unconditionally since monomorphization and other passes of
     /// type-checking will handle mismatches later.
-    pub fn eq_user(&self, other: &Type) -> bool {
+    ///
+    /// Note: `is_record` won't be necessary when we support external structs.
+    pub fn eq_user<F>(&self, other: &Type, is_record: &F) -> bool
+    where
+        F: Fn(&Location) -> bool,
+    {
         match (self, other) {
             (Type::Err, _)
             | (_, Type::Err)
@@ -116,20 +122,20 @@ impl Type {
                         // equal to other arrays because their lengths _may_ eventually be proven equal.
                         true
                     }
-                }) && left.element_type().eq_user(right.element_type())
+                }) && left.element_type().eq_user(right.element_type(), is_record)
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
             (Type::Integer(left), Type::Integer(right)) => left == right,
             (Type::Mapping(left), Type::Mapping(right)) => {
-                left.key.eq_user(&right.key) && left.value.eq_user(&right.value)
+                left.key.eq_user(&right.key, is_record) && left.value.eq_user(&right.value, is_record)
             }
-            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_user(&right.inner),
+            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_user(&right.inner, is_record),
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
-            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_user(&right.element_type),
+                .all(|(left_type, right_type)| left_type.eq_user(right_type, is_record)),
+            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_user(&right.element_type, is_record),
             (Type::Composite(left), Type::Composite(right)) => {
                 // If either composite still has const generic arguments, treat them as equal.
                 // Type checking will run again after monomorphization.
@@ -138,18 +144,28 @@ impl Type {
                 }
 
                 // Two composite types are the same if their programs and their _absolute_ paths match.
-                (left.program == right.program)
-                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                        (Some(l), Some(r)) => l == r,
-                        _ => false,
+                match (&left.path.try_global_location(), &right.path.try_global_location()) {
+                    (Some(l), Some(r)) => {
+                        // If both a records, compare full locations.
+                        // If neither are records (i.e. they are structs), only compare the paths.
+                        // This will soon change when we support external structs.
+                        if is_record(l) && is_record(r) {
+                            l == r
+                        } else if !is_record(l) && !is_record(r) {
+                            l.path == r.path
+                        } else {
+                            false
+                        }
                     }
+                    _ => false,
+                }
             }
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
                 .inputs()
                 .iter()
                 .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
+                .all(|(left_type, right_type)| left_type.eq_user(right_type, is_record)),
             _ => false,
         }
     }
@@ -207,8 +223,8 @@ impl Type {
                 // Two composite types are the same if their _absolute_ paths match.
                 // If the absolute paths are not available, then we really can't compare the two
                 // types and we just return `false` to be conservative.
-                match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                    (Some(l), Some(r)) => l == r,
+                match (&left.path.try_global_location(), &right.path.try_global_location()) {
+                    (Some(l), Some(r)) => l.path == r.path,
                     _ => false,
                 }
             }
@@ -223,16 +239,15 @@ impl Type {
         }
     }
 
-    pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Option<Symbol>) -> Self {
+    pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Symbol) -> Self {
         match t {
             Literal(lit) => (*lit).into(),
             Struct(s) => Type::Composite(CompositeType {
                 path: {
                     let ident = Identifier::from(s);
-                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                    Path::from(ident).to_global(Location::new(program, vec![ident.name]))
                 },
                 const_arguments: Vec::new(),
-                program,
             }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
         }
@@ -287,18 +302,26 @@ impl Type {
     ///
     /// # Arguments
     /// * `expected` - The type to which `self` is being coerced.
+    /// * `is_record` - Determines whether a given `Location` refers to a record or not.
     ///
     /// # Returns
     /// `true` if coercion is allowed; `false` otherwise.
-    pub fn can_coerce_to(&self, expected: &Type) -> bool {
+    ///
+    /// # Note: `is_record` won't be necessary when we support external structs.
+    pub fn can_coerce_to<F>(&self, expected: &Type, is_record: &F) -> bool
+    where
+        F: Fn(&Location) -> bool,
+    {
         use Type::*;
 
         match (self, expected) {
             // Allow Optional<T> → Optional<T>
-            (Optional(actual_opt), Optional(expected_opt)) => actual_opt.inner.can_coerce_to(&expected_opt.inner),
+            (Optional(actual_opt), Optional(expected_opt)) => {
+                actual_opt.inner.can_coerce_to(&expected_opt.inner, is_record)
+            }
 
             // Allow T → Optional<T>
-            (a, Optional(opt)) => a.can_coerce_to(&opt.inner),
+            (a, Optional(opt)) => a.can_coerce_to(&opt.inner, is_record),
 
             // Allow [T; N] → [Optional<T>; N]
             (Array(a_arr), Array(e_arr)) => {
@@ -307,11 +330,11 @@ impl Type {
                     _ => true,
                 };
 
-                lengths_equal && a_arr.element_type().can_coerce_to(e_arr.element_type())
+                lengths_equal && a_arr.element_type().can_coerce_to(e_arr.element_type(), is_record)
             }
 
             // Fallback: check for exact match
-            _ => self.eq_user(expected),
+            _ => self.eq_user(expected, &is_record),
         }
     }
 

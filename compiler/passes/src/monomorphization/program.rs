@@ -111,7 +111,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Now retain only functions that are either not yet monomorphized or are still referenced by calls.
         self.reconstructed_functions.retain(|f, _| {
             let is_monomorphized = self.monomorphized_functions.contains(f);
-            let is_still_called = self.unresolved_calls.iter().any(|c| &c.function.absolute_path() == f);
+            let is_still_called = self.unresolved_calls.iter().any(|c| &c.function.expect_global_location().path == f);
             !is_monomorphized || is_still_called
         });
 

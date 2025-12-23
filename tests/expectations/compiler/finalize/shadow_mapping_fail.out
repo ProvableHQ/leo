@@ -1,16 +1,16 @@
 Error [EAST0372017]: The name `bar` is defined multiple times.
-    --> compiler-test:4:5
+    --> compiler-test:10:20
      |
    4 |       mapping bar: u8 => u8;
-     |       ^^^^^^^^^^^^^^^^^^^^^^ `bar` redefined here
+     |       ^^^^^^^^^^^^^^^^^^^^^^ previous definition of `bar` here
    ...
-  19 |       struct bar {
-     |              ^^^ previous definition of `bar` here
+  10 |       transition foo(bar: u8) -> u8 {
+     |                      ^^^ `bar` redefined here
 Error [EAST0372017]: The name `bar` is defined multiple times.
-    --> compiler-test:6:16
+    --> compiler-test:15:13
      |
-   6 |       transition bar(a: u8) -> u8 {
-     |                  ^^^ `bar` redefined here
+   4 |       mapping bar: u8 => u8;
+     |       ^^^^^^^^^^^^^^^^^^^^^^ previous definition of `bar` here
    ...
-  19 |       struct bar {
-     |              ^^^ previous definition of `bar` here
+  15 |           let bar: u8 = a + 1u8;
+     |               ^^^ `bar` redefined here

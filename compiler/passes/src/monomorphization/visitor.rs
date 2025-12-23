@@ -87,12 +87,12 @@ impl MonomorphizationVisitor<'_> {
 
         // Check if the new composite name is not already present in `reconstructed_composites`. This ensures that we do not
         // add a duplicate definition for the same composite.
-        if self.reconstructed_composites.get(&new_composite_path.absolute_path()).is_none() {
-            let full_name = path.absolute_path();
+        if self.reconstructed_composites.get(&new_composite_path.expect_global_location().path).is_none() {
+            let full_name = &path.expect_global_location().path;
             // Look up the already reconstructed composite by name.
             let composite = self
                 .reconstructed_composites
-                .get(&full_name)
+                .get(full_name)
                 .expect("Composite should already be reconstructed (post-order traversal).");
 
             // Build mapping from const parameters to const argument values.
@@ -128,10 +128,10 @@ impl MonomorphizationVisitor<'_> {
             composite.id = self.state.node_builder.next_id();
 
             // Keep track of the new composite in case other composites need it.
-            self.reconstructed_composites.insert(new_composite_path.absolute_path(), composite);
+            self.reconstructed_composites.insert(new_composite_path.expect_global_location().path.clone(), composite);
 
             // Now keep track of the composite we just monomorphized
-            self.monomorphized_composites.insert(full_name);
+            self.monomorphized_composites.insert(full_name.clone());
         }
 
         new_composite_path

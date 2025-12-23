@@ -4,7 +4,7 @@ program test.aleo {
         let $var$1 = 5u32;
         let b$#2 = a + 5u32;
         let $var$3 = x$$0 + b$#2;
-        return ::$var$3;
+        return $var$3;
     }
     transition foo(x$$4: u32) -> u32 {
         let $var$5 = 5u32;
@@ -29,6 +29,6 @@ program test.aleo {
         }
         let b$18 = 43u32;
         let $var$19 = x$$4 + 43u32;
-        return ::$var$19;
+        return $var$19;
     }
 }

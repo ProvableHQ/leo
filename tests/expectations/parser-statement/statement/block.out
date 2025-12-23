@@ -121,6 +121,7 @@
         "Conditional": {
           "condition": {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "x",
@@ -130,8 +131,7 @@
                 },
                 "id": 3
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 73,
                 "hi": 74

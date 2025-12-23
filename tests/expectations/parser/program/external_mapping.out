@@ -176,6 +176,7 @@
                           },
                           {
                             "Path": {
+                              "user_program": null,
                               "qualifier": [],
                               "identifier": {
                                 "name": "addr",
@@ -185,8 +186,7 @@
                                 },
                                 "id": 17
                               },
-                              "is_absolute": false,
-                              "absolute_path": null,
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 193,
                                 "hi": 197
@@ -198,6 +198,7 @@
                             "Binary": {
                               "left": {
                                 "Path": {
+                                  "user_program": null,
                                   "qualifier": [],
                                   "identifier": {
                                     "name": "current_value",
@@ -207,8 +208,7 @@
                                     },
                                     "id": 20
                                   },
-                                  "is_absolute": false,
-                                  "absolute_path": null,
+                                  "target": "Unresolved",
                                   "span": {
                                     "lo": 199,
                                     "hi": 212
@@ -291,6 +291,7 @@
                           },
                           {
                             "Path": {
+                              "user_program": null,
                               "qualifier": [],
                               "identifier": {
                                 "name": "addr",
@@ -300,8 +301,7 @@
                                 },
                                 "id": 30
                               },
-                              "is_absolute": false,
-                              "absolute_path": null,
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 262,
                                 "hi": 266
@@ -374,6 +374,7 @@
                           },
                           {
                             "Path": {
+                              "user_program": null,
                               "qualifier": [],
                               "identifier": {
                                 "name": "addr",
@@ -383,8 +384,7 @@
                                 },
                                 "id": 40
                               },
-                              "is_absolute": false,
-                              "absolute_path": null,
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 318,
                                 "hi": 322
@@ -457,6 +457,7 @@
                           },
                           {
                             "Path": {
+                              "user_program": null,
                               "qualifier": [],
                               "identifier": {
                                 "name": "addr",
@@ -466,8 +467,7 @@
                                 },
                                 "id": 50
                               },
-                              "is_absolute": false,
-                              "absolute_path": null,
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 381,
                                 "hi": 385
@@ -555,6 +555,7 @@
                           },
                           {
                             "Path": {
+                              "user_program": null,
                               "qualifier": [],
                               "identifier": {
                                 "name": "addr",
@@ -564,8 +565,7 @@
                                 },
                                 "id": 61
                               },
-                              "is_absolute": false,
-                              "absolute_path": null,
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 448,
                                 "hi": 452

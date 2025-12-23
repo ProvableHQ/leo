@@ -4,7 +4,7 @@ program test.aleo {
     }
     transition main(x: u32, y: u32) -> u32 {
         let $var$0 = x + y;
-        let result: u32 = ::$var$0;
+        let result: u32 = $var$0;
         return result;
     }
 }

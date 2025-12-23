@@ -5,8 +5,3 @@ Error [EAST0372017]: The name `x` is defined multiple times.
      |            ^ previous definition of `x` here
    5 |         	let x: bool = true;
      |              ^ `x` redefined here
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^

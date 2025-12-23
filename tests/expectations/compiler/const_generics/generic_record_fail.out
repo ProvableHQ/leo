@@ -9,11 +9,6 @@ Error [ETYC0372145]: Records cannot be declared with generic const parameters.
      |         ^^^^^^^^^^^^^
    5 |     }
      |     ^
-Error [ETYC0372005]: Unknown variable `N`
-    --> compiler-test:4:19
-     |
-   4 |         arr: [u8; N],
-     |                   ^
 Error [ETYC0372145]: Records cannot be declared with generic const parameters.
     --> compiler-test:7:5
      |

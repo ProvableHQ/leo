@@ -1,9 +1,9 @@
 program test.aleo {
     mapping foo: u32 => u32;
     async transition main(x: u32, y: u32) -> Future<Fn()> {
-        return ::main$0(::x, ::y);
+        return main$0(x, y);
     }
     async function main$0(x: u32, y: u32) {
-        _mapping_set(foo, ::x, ::y);
+        _mapping_set(foo, x, y);
     }
 }

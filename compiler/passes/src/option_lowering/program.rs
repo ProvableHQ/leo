@@ -33,12 +33,14 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         // Reconstruct all composites first and keep track of them in `self.reconstructed_composites`.
         for (_, scope) in &input.program_scopes {
+            self.program = scope.program_id.name.name;
             for (_, c) in &scope.composites {
                 let new_composite = self.reconstruct_composite(c.clone());
                 self.reconstructed_composites.insert(vec![new_composite.name()], new_composite);
             }
         }
         for (module_path, module) in &input.modules {
+            self.program = module.program_name;
             for (_, c) in &module.composites {
                 let full_name = module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
                 let new_composite = self.reconstruct_composite(c.clone());
