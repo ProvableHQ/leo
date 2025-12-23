@@ -147,6 +147,8 @@ impl Compiler {
 
         self.do_pass::<NameValidation>(())?;
 
+        self.do_pass::<GlobalVarCollection>(())?;
+
         self.do_pass::<PathResolution>(())?;
 
         self.do_pass::<SymbolTableCreation>(())?;

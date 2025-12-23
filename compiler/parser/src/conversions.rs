@@ -92,27 +92,31 @@ impl<'a> ConversionContext<'a> {
             TypeKind::Boolean => leo_ast::Type::Boolean,
             TypeKind::Composite => {
                 let name = &node.children[0];
-                if let Some((program, name_str)) = name.text.split_once(".aleo/") {
+                if let Some((program_str, name_str)) = name.text.split_once(".aleo/") {
                     // This is a locator.
+                    let program = leo_ast::Identifier {
+                        name: Symbol::intern(program_str),
+                        span: leo_span::Span { lo: name.span.lo, hi: name.span.lo + program_str.len() as u32 },
+                        id: self.builder.next_id(),
+                    };
                     let name_id = leo_ast::Identifier {
                         name: Symbol::intern(name_str),
                         span: leo_span::Span {
-                            lo: name.span.lo + program.len() as u32 + 5,
+                            lo: name.span.lo + program_str.len() as u32 + 5,
                             hi: name.span.lo + name.text.len() as u32,
                         },
                         id: self.builder.next_id(),
                     };
                     leo_ast::CompositeType {
                         path: leo_ast::Path::new(
+                            Some(program),
                             Vec::new(),
                             name_id,
-                            false,
-                            None,
                             name_id.span,
                             self.builder.next_id(),
                         ),
                         const_arguments: Vec::new(),
-                        program: Some(Symbol::intern(program)),
+                        program: Some(program.name),
                     }
                     .into()
                 } else {
@@ -128,8 +132,7 @@ impl<'a> ConversionContext<'a> {
                             .collect::<Result<Vec<_>>>()?;
                     }
                     let identifier = path_components.pop().unwrap();
-                    let path =
-                        leo_ast::Path::new(path_components, identifier, false, None, name.span, self.builder.next_id());
+                    let path = leo_ast::Path::new(None, path_components, identifier, name.span, self.builder.next_id());
                     leo_ast::CompositeType { path, const_arguments, program: None }.into()
                 }
             }
@@ -601,17 +604,21 @@ impl<'a> ConversionContext<'a> {
                     let symbol = Symbol::intern(second);
                     let lo = node.span.lo + first.len() as u32 + ".aleo/".len() as u32;
                     let second_span = Span { lo, hi: lo + second.len() as u32 };
+                    let program = leo_ast::Identifier {
+                        name: Symbol::intern(first),
+                        span: leo_span::Span { lo: name.span.lo, hi: name.span.lo + first.len() as u32 },
+                        id: self.builder.next_id(),
+                    };
                     let identifier =
                         leo_ast::Identifier { name: symbol, span: second_span, id: self.builder.next_id() };
                     let function =
-                        leo_ast::Path::new(Vec::new(), identifier, false, None, span, self.builder.next_id());
+                        leo_ast::Path::new(Some(program), Vec::new(), identifier, span, self.builder.next_id());
                     (function, Some(Symbol::intern(first)))
                 } else {
                     // It's a path.
                     let mut components = self.path_to_parts(name);
                     let identifier = components.pop().unwrap();
-                    let function =
-                        leo_ast::Path::new(components, identifier, false, None, name.span, self.builder.next_id());
+                    let function = leo_ast::Path::new(None, components, identifier, name.span, self.builder.next_id());
                     (function, None)
                 };
 
@@ -654,7 +661,7 @@ impl<'a> ConversionContext<'a> {
                 // lossless tree just has the span of the entire path.
                 let mut identifiers = self.path_to_parts(&node.children[0]);
                 let identifier = identifiers.pop().unwrap();
-                leo_ast::Path::new(identifiers, identifier, false, None, span, id).into()
+                leo_ast::Path::new(None, identifiers, identifier, span, id).into()
             }
             ExpressionKind::Literal(literal_kind) => match literal_kind {
                 LiteralKind::Address => {
@@ -987,7 +994,7 @@ impl<'a> ConversionContext<'a> {
 
                 let mut identifiers = self.path_to_parts(name);
                 let identifier = identifiers.pop().unwrap();
-                let path = leo_ast::Path::new(identifiers, identifier, false, None, name.span, self.builder.next_id());
+                let path = leo_ast::Path::new(None, identifiers, identifier, name.span, self.builder.next_id());
 
                 leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
             }

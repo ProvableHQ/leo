@@ -157,7 +157,7 @@ impl FunctionStub {
                     type_: Type::Composite(CompositeType {
                         path: {
                             let ident = Identifier::from(id);
-                            Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                            Path::from(ident).with_global(Location::new(program, vec![ident.name]))
                         },
                         const_arguments: Vec::new(),
                         program: Some(program),
@@ -173,7 +173,7 @@ impl FunctionStub {
                         type_: Type::Composite(CompositeType {
                             path: {
                                 let ident = Identifier::from(loc.resource());
-                                Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                                Path::from(ident).with_global(Location::new(program, vec![ident.name]))
                             },
                             const_arguments: Vec::new(),
                             program: Some(ProgramId::from(loc.program_id()).name.name),
@@ -241,7 +241,7 @@ impl FunctionStub {
                             type_: Type::Composite(CompositeType {
                                 path: {
                                     let ident = Identifier::from(id);
-                                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                                    Path::from(ident).with_global(Location::new(program, vec![ident.name]))
                                 },
                                 const_arguments: Vec::new(),
                                 program: Some(program),
@@ -257,7 +257,7 @@ impl FunctionStub {
                             type_: Type::Composite(CompositeType {
                                 path: {
                                     let ident = Identifier::from(loc.resource());
-                                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                                    Path::from(ident).with_global(Location::new(program, vec![ident.name]))
                                 },
                                 const_arguments: Vec::new(),
                                 program: Some(ProgramId::from(loc.program_id()).name.name),

@@ -101,6 +101,6 @@ impl From<Identifier> for Expression {
 // It's up to the caller of this method to figure out what to do with `absolute_path`.
 impl From<Identifier> for Path {
     fn from(value: Identifier) -> Self {
-        Path::new(vec![], value, false, None, value.span, value.id)
+        Path::new(None, vec![], value, value.span, value.id)
     }
 }

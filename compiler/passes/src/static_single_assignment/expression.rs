@@ -54,7 +54,7 @@ impl SsaFormingVisitor<'_> {
         } else {
             let (place, statement) = self.unique_simple_definition(expr);
             statements.push(statement);
-            (Path::from(place).into_absolute().into(), statements)
+            (Path::from(place).with_local(place.name).into(), statements)
         }
     }
 }
@@ -159,7 +159,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
                 let (expression, mut stmts) = if let Some(expr) = arg.expression {
                     self.consume_expression_and_define(expr)
                 } else {
-                    self.consume_path(Path::from(arg.identifier).into_absolute())
+                    self.consume_path(Path::from(arg.identifier).with_local(arg.identifier.name))
                 };
                 // Accumulate any statements produced.
                 statements.append(&mut stmts);

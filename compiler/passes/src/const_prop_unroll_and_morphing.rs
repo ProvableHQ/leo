@@ -17,6 +17,7 @@
 use crate::{
     CompilerState,
     ConstPropagation,
+    GlobalVarCollection,
     Monomorphization,
     Pass,
     RemoveUnreachable,
@@ -54,6 +55,7 @@ impl Pass for ConstPropUnrollAndMorphing {
             // program may have changed significantly (new functions may have been added, some functions may have been
             // deleted, etc.) We do want to retain evaluated consts, so that const propagation can tell when it has evaluated a new one.
             state.symbol_table.reset_but_consts();
+            GlobalVarCollection::do_pass((), state)?;
             SymbolTableCreation::do_pass((), state)?;
 
             // Now run the type checker again to validate and infer types. Again, this is important because the program

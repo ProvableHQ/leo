@@ -155,12 +155,13 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                             id: slf.state.node_builder.next_id(),
                         };
 
-                        replacements.insert((symbol, Some(index)), Path::from(identifier).into_absolute().into());
+                        replacements
+                            .insert((symbol, Some(index)), Path::from(identifier).with_local(synthetic_symbol).into());
 
                         vec![(
                             input,
                             TupleAccess {
-                                tuple: Path::from(make_identifier(slf, symbol)).into_absolute().into(),
+                                tuple: Path::from(make_identifier(slf, symbol)).with_local(symbol).into(),
                                 index: index.into(),
                                 span: Span::default(),
                                 id: slf.state.node_builder.next_id(),
@@ -196,14 +197,14 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                     id: slf.state.node_builder.next_id(),
                                 };
 
-                                let expr: Expression = Path::from(identifier).into_absolute().into();
+                                let expr: Expression = Path::from(identifier).with_local(synthetic_symbol).into();
 
                                 replacements.insert(key, expr.clone());
                                 tuple_elements.push(expr.clone());
                                 inputs_and_arguments.push((
                                     input,
                                     TupleAccess {
-                                        tuple: Path::from(make_identifier(slf, symbol)).into_absolute().into(),
+                                        tuple: Path::from(make_identifier(slf, symbol)).with_local(symbol).into(),
                                         index: i.into(),
                                         span: Span::default(),
                                         id: slf.state.node_builder.next_id(),
@@ -235,9 +236,9 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                 id: slf.state.node_builder.next_id(),
                             };
 
-                            replacements.insert((symbol, None), Path::from(identifier).into_absolute().into());
+                            replacements.insert((symbol, None), Path::from(identifier).with_local(symbol).into());
 
-                            let argument = Path::from(make_identifier(slf, symbol)).into_absolute().into();
+                            let argument = Path::from(make_identifier(slf, symbol)).with_local(symbol).into();
                             vec![(input, argument)]
                         }
                     },
@@ -265,7 +266,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
 
                 // All other variables become parameters to the async function being built.
                 let var = self.state.symbol_table.lookup_local(local_var_name)?;
-                Some(make_inputs_and_arguments(self, local_var_name, &var.type_, *index))
+                Some(make_inputs_and_arguments(self, local_var_name, &var.type_.expect("must be known by now"), *index))
             })
             .flatten()
             .unzip();
@@ -324,14 +325,8 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
 
         // Step 7: Create the call expression to invoke the async function
         let call_to_finalize = CallExpression {
-            function: Path::new(
-                vec![],
-                make_identifier(self, finalize_fn_name),
-                true,
-                Some(vec![finalize_fn_name]), // the finalize function lives in the top level program scope
-                Span::default(),
-                self.state.node_builder.next_id(),
-            ),
+            function: Path::from(make_identifier(self, finalize_fn_name))
+                .with_global(Location::new(self.current_program, vec![finalize_fn_name])),
             const_arguments: vec![],
             arguments,
             program: Some(self.current_program),

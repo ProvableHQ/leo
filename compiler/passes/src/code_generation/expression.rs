@@ -361,7 +361,7 @@ impl CodeGeneratingVisitor<'_> {
 
                     variable_operand
                 } else {
-                    Some(self.visit_path(&Path::from(member.identifier).into_absolute()))
+                    Some(self.visit_path(&Path::from(member.identifier).with_local(member.identifier.name)))
                 }
             })
             .collect();

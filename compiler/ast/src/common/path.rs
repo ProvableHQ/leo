@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node, NodeID, simple_node_impl};
+use crate::{Expression, Identifier, Location, Node, NodeID, simple_node_impl};
 
 use leo_span::{Span, Symbol};
 
@@ -23,8 +23,11 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, hash::Hash};
 
 /// A Path in a program.
-#[derive(Clone, Default, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Path {
+    /// The program this path belongs to, if set by the user
+    program: Option<Identifier>,
+
     /// The qualifying namespace segments written by the user, excluding the item itself.
     /// e.g., in `foo::bar::baz`, this would be `[foo, bar]`.
     qualifier: Vec<Identifier>,
@@ -32,13 +35,8 @@ pub struct Path {
     /// The final item in the path, e.g., `baz` in `foo::bar::baz`.
     identifier: Identifier,
 
-    /// Is this path an absolute path? e.g. `::foo::bar::baz`.
-    is_absolute: bool,
-
-    /// The fully resolved path. We may not know this until the pass PathResolution pass runs.
-    /// For path that refer to global items (composites, consts, functions), `absolute_path` is
-    /// guaranteed to be set after the pass `PathResolution`.
-    absolute_path: Option<Vec<Symbol>>,
+    /// The target type (i.e. local v.s. global) of this path.
+    target: PathTarget,
 
     /// A span locating where the path occurred in the source.
     pub span: Span,
@@ -47,140 +45,245 @@ pub struct Path {
     pub id: NodeID,
 }
 
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub enum PathTarget {
+    Unresolved,
+    Local(Symbol),
+    Global(Location),
+}
+
 simple_node_impl!(Path);
 
 impl Path {
-    /// Creates a new `Path` from the given components.
-    ///
-    /// - `qualifier`: The namespace segments (e.g., `foo::bar` in `foo::bar::baz`).
-    /// - `identifier`: The final item in the path (e.g., `baz`).
-    /// - `is_absolute`: Whether the path is absolute (starts with `::`).
-    /// - `absolute_path`: Optionally, the fully resolved symbolic path.
-    /// - `span`: The source code span for this path.
-    /// - `id`: The node ID.
+    /// Creates a new unresolved `Path` from the given components.
     pub fn new(
+        program: Option<Identifier>,
         qualifier: Vec<Identifier>,
         identifier: Identifier,
-        is_absolute: bool,
-        absolute_path: Option<Vec<Symbol>>,
         span: Span,
         id: NodeID,
     ) -> Self {
-        Self { qualifier, identifier, is_absolute, absolute_path, span, id }
+        Self { program, qualifier, identifier, target: PathTarget::Unresolved, span, id }
     }
 
+    // ----------------------------
+    // Accessors
+    // ----------------------------
+
     /// Returns the final identifier of the path (e.g., `baz` in `foo::bar::baz`).
-    pub fn identifier(&self) -> Identifier {
-        self.identifier
+    pub fn identifier(&self) -> &Identifier {
+        &self.identifier
     }
 
     /// Returns a slice of the qualifier segments (e.g., `[foo, bar]` in `foo::bar::baz`).
     pub fn qualifier(&self) -> &[Identifier] {
-        self.qualifier.as_slice()
+        &self.qualifier
     }
 
-    /// Returns `true` if the path is absolute (i.e., starts with `::`).
-    pub fn is_absolute(&self) -> bool {
-        self.is_absolute
+    /// Returns an iterator over all segments as `Symbol`s (qualifiers + identifier).
+    pub fn segments(&self) -> impl Iterator<Item = Symbol> + '_ {
+        self.qualifier.iter().map(|id| id.name).chain(std::iter::once(self.identifier.name))
     }
 
-    /// Returns a `Vec<Symbol>` representing the full symbolic path:
-    /// the qualifier segments followed by the final identifier.
-    ///
-    /// Note: this refers to the user path which is not necessarily the absolute path.
+    /// Returns a `Vec<Symbol>` of the segments.
     pub fn as_symbols(&self) -> Vec<Symbol> {
-        self.qualifier.iter().map(|segment| segment.name).chain(std::iter::once(self.identifier.name)).collect()
+        self.segments().collect()
     }
 
-    /// Returns an optional vector of `Symbol`s representing the resolved absolute path,
-    /// or `None` if resolution has not yet occurred.
-    pub fn try_absolute_path(&self) -> Option<Vec<Symbol>> {
-        if self.is_absolute { Some(self.as_symbols()) } else { self.absolute_path.clone() }
+    /// Returns the optional program identifier.
+    pub fn program(&self) -> Option<&Identifier> {
+        self.program.as_ref()
     }
 
-    /// Returns a vector of `Symbol`s representing the resolved absolute path.
-    ///
-    /// If the path is not an absolute path, this method panics if the absolute path has not been resolved yet.
-    /// For relative paths, this is expected to be called only after path resolution has occurred.
+    pub fn span(&self) -> Span {
+        self.span
+    }
+
+    pub fn id(&self) -> NodeID {
+        self.id
+    }
+
+    // ----------------------------
+    // Resolution helpers
+    // ----------------------------
+
+    pub fn is_resolved(&self) -> bool {
+        !matches!(self.target, PathTarget::Unresolved)
+    }
+
+    pub fn is_local(&self) -> bool {
+        matches!(self.target, PathTarget::Local(_))
+    }
+
+    pub fn is_global(&self) -> bool {
+        matches!(self.target, PathTarget::Global(_))
+    }
+
+    pub fn local_symbol(&self) -> Option<Symbol> {
+        match self.target {
+            PathTarget::Local(sym) => Some(sym),
+            _ => None,
+        }
+    }
+
+    pub fn global_location(&self) -> Option<&Location> {
+        match &self.target {
+            PathTarget::Global(loc) => Some(loc),
+            _ => None,
+        }
+    }
+
+    /// Returns the `Symbol` if local, panics if not.
+    pub fn expect_local(&self) -> Symbol {
+        match self.target {
+            PathTarget::Local(sym) => sym,
+            _ => panic!("Expected a local path, found {:?}", self.target),
+        }
+    }
+
+    /// Returns the `Location` if global, panics if not.
+    pub fn expect_global(&self) -> &Location {
+        match &self.target {
+            PathTarget::Global(loc) => loc,
+            _ => panic!("Expected a global path, found {:?}", self.target),
+        }
+    }
+
     pub fn absolute_path(&self) -> Vec<Symbol> {
-        if self.is_absolute {
-            self.as_symbols()
-        } else {
-            self.absolute_path.as_ref().expect("absolute path must be known at this stage").to_vec()
+        match &self.target {
+            PathTarget::Local(sym) => vec![*sym],
+            PathTarget::Global(loc) => loc.path.clone(),
+            PathTarget::Unresolved => panic!("Cannot get absolute path of unresolved path"),
         }
     }
 
-    /// Converts this `Path` into an absolute path by setting its `is_absolute` flag to `true`.
+    // ----------------------------
+    // Resolution setters (used by resolver)
+    // ----------------------------
+
+    /// Resolves this path to a local symbol.
+    #[must_use]
+    pub fn with_local(self, symbol: Symbol) -> Self {
+        debug_assert!(matches!(self.target, PathTarget::Unresolved), "attempted to resolve an already-resolved path");
+
+        Self { target: PathTarget::Local(symbol), ..self }
+    }
+
+    /// Resolves this path to a global location.
+    #[must_use]
+    pub fn with_global(self, location: Location) -> Self {
+        debug_assert!(matches!(self.target, PathTarget::Unresolved), "attempted to resolve an already-resolved path");
+
+        Self { target: PathTarget::Global(location), ..self }
+    }
+
+    /// Marks this path as unresolved again.
+    #[must_use]
+    pub fn unresolved(self) -> Self {
+        Self { target: PathTarget::Unresolved, ..self }
+    }
+
+    /// Returns a new `Path` with the final identifier replaced by `new_symbol`.
     ///
-    /// This does not alter the qualifier or identifier, nor does it compute or modify
-    /// the resolved `absolute_path`.
-    pub fn into_absolute(mut self) -> Self {
-        self.is_absolute = true;
-        self
+    /// This updates:
+    /// - `identifier.name`
+    /// - `target`:
+    ///   - `Local(_)` → `Local(new_symbol)`
+    ///   - `Global(Location)` → same location, but with the final path segment replaced
+    ///   - `Unresolved` → unchanged
+    #[must_use]
+    pub fn with_updated_last_symbol(self, new_symbol: Symbol) -> Self {
+        let Path { mut identifier, target, program, qualifier, span, id } = self;
+
+        // Update user-visible identifier
+        identifier.name = new_symbol;
+
+        let target = match target {
+            PathTarget::Unresolved => PathTarget::Unresolved,
+
+            PathTarget::Local(_) => PathTarget::Local(new_symbol),
+
+            PathTarget::Global(location) => {
+                let Location { program, mut path } = location;
+
+                debug_assert!(!path.is_empty(), "global location must have at least one path segment");
+
+                *path.last_mut().unwrap() = new_symbol;
+
+                PathTarget::Global(Location { program, path })
+            }
+        };
+
+        Self { program, qualifier, identifier, target, span, id }
     }
 
-    /// Returns a new `Path` instance with the last segment's `Symbol` and the last symbol
-    /// in the `absolute_path` (if present) replaced with `new_symbol`.
+    /// Resolves an unresolved path into a global path using the current module.
     ///
-    /// Other fields remain unchanged.
-    pub fn with_updated_last_symbol(mut self, new_symbol: Symbol) -> Self {
-        // Update identifier
-        self.identifier.name = new_symbol;
+    /// The resulting global location is:
+    /// `[ current_module..., qualifier..., identifier ]`
+    ///
+    /// This only mutates the `target` field.
+    ///
+    /// # Debug invariants
+    /// - The path must currently be `Unresolved`
+    #[must_use]
+    pub fn with_module_prefix<I>(self, program: Symbol, current_module: I) -> Self
+    where
+        I: IntoIterator<Item = Symbol>,
+    {
+        let Path { program: user_program, qualifier, identifier, target, span, id } = self;
 
-        // Update absolute_path's last symbol if present
-        if let Some(ref mut abs_path) = self.absolute_path
-            && let Some(last) = abs_path.last_mut()
-        {
-            *last = new_symbol;
-        }
+        debug_assert!(
+            matches!(target, PathTarget::Unresolved),
+            "with_module_prefix may only be called on unresolved paths"
+        );
 
-        self
-    }
+        let mut path: Vec<Symbol> = Vec::new();
 
-    /// Sets `self.absolute_path` to `absolute_path`
-    pub fn with_absolute_path(mut self, absolute_path: Option<Vec<Symbol>>) -> Self {
-        self.absolute_path = absolute_path;
-        self
-    }
+        // 1. Current module
+        path.extend(current_module);
 
-    /// Sets the `absolute_path` by prepending the given `module_prefix` to the path's
-    /// own qualifier and identifier. Returns the updated `Path`.
-    pub fn with_module_prefix(mut self, module_prefix: &[Symbol]) -> Self {
-        let full_path = module_prefix
-            .iter()
-            .cloned()
-            .chain(self.qualifier.iter().map(|id| id.name))
-            .chain(std::iter::once(self.identifier.name))
-            .collect();
+        // 2. User-written qualifier
+        path.extend(qualifier.iter().map(|id| id.name));
 
-        self.absolute_path = Some(full_path);
-        self
+        // 3. Final identifier
+        path.push(identifier.name);
+
+        let target = PathTarget::Global(Location { program, path });
+
+        Self { program: user_program, qualifier, identifier, target, span, id }
     }
 }
 
 impl fmt::Display for Path {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.is_absolute {
-            write!(f, "::")?;
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Optional program prefix
+        /*if let Some(program) = &self.program {
+            write!(f, "{}::", program.name)?;
+        }*/
+
+        // Qualifiers
+        if !self.qualifier.is_empty() {
+            write!(f, "{}::", self.qualifier.iter().map(|id| &id.name).format("::"))?;
         }
-        if self.qualifier.is_empty() {
-            write!(f, "{}", self.identifier)
-        } else {
-            write!(f, "{}::{}", self.qualifier.iter().format("::"), self.identifier)
-        }
+
+        // Final identifier
+        write!(f, "{}", self.identifier.name)
     }
 }
 
 impl fmt::Debug for Path {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Print user path (Display impl)
-        write!(f, "{self}")?;
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // First, display the user-written path
+        write!(f, "{}", self)?;
 
-        // Print resolved absolute path if available
-        if let Some(abs_path) = &self.absolute_path {
-            write!(f, "(::{})", abs_path.iter().format("::"))
-        } else {
-            write!(f, "()")
+        // Append resolved info if available
+        match &self.target {
+            PathTarget::Local(sym) => write!(f, " [local: {}]", sym),
+            PathTarget::Global(loc) => {
+                write!(f, " [global: {}]", loc.path.iter().map(|s| s.to_string()).format("::"))
+            }
+            PathTarget::Unresolved => write!(f, " [unresolved]"),
         }
     }
 }

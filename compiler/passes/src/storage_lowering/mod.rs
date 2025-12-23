@@ -95,7 +95,15 @@
 //! Mapping::set(counter__, false, old + 1u32)
 //! ```
 
-use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use crate::{
+    GlobalVarCollection,
+    Pass,
+    PathResolution,
+    SymbolTable,
+    SymbolTableCreation,
+    TypeChecking,
+    TypeCheckingInput,
+};
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
@@ -128,6 +136,7 @@ impl Pass for StorageLowering {
         // We need to recreate the symbol table and run type checking again because this pass may introduce new mappings
         // and new statements and expressions.
         visitor.state.symbol_table = SymbolTable::default();
+        GlobalVarCollection::do_pass((), state)?;
         PathResolution::do_pass((), state)?;
         SymbolTableCreation::do_pass((), state)?;
         TypeChecking::do_pass(input.clone(), state)?;

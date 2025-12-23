@@ -32,8 +32,8 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     type AdditionalOutput = ();
 
     fn reconstruct_composite_type(&mut self, mut input: CompositeType) -> (Type, Self::AdditionalOutput) {
-        if input.path.try_absolute_path().is_none() {
-            input.path = input.path.with_module_prefix(&self.module);
+        if !input.path.is_resolved() {
+            input.path = input.path.with_module_prefix(self.program, self.module.clone());
         }
         (
             Type::Composite(CompositeType {
@@ -58,8 +58,8 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         mut input: CallExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        if input.function.try_absolute_path().is_none() {
-            input.function = input.function.with_module_prefix(&self.module);
+        if !input.function.is_resolved() {
+            input.function = input.function.with_module_prefix(self.program, self.module.clone());
         }
         (
             CallExpression {
@@ -82,8 +82,8 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         mut input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        if input.path.try_absolute_path().is_none() {
-            input.path = input.path.with_module_prefix(&self.module)
+        if !input.path.is_resolved() {
+            input.path = input.path.with_module_prefix(self.program, self.module.clone());
         }
         (
             CompositeExpression {
@@ -111,11 +111,30 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_path(&mut self, mut input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
-        // Because some paths may be paths to global consts, we have to prefix all paths at this
-        // stage because we don't have semantic information just yet.
-        if input.try_absolute_path().is_none() {
-            input = input.with_module_prefix(&self.module);
+        debug_assert!(!input.is_resolved(), "reconstruct_path expects an unresolved Path");
+
+        let has_qualifier = !input.qualifier().is_empty();
+
+        // Case 1: Cannot be local → must be global
+        if has_qualifier {
+            input = input.with_module_prefix(self.program, self.module.clone());
         }
+        // Case 2: Could be local → check globals first
+        else {
+            // Build a tentative global location in the current module
+            let potentially_global = input.clone().with_module_prefix(self.program, self.module.clone());
+
+            if let Some(_) = self.state.symbol_table.lookup_global(potentially_global.expect_global()) {
+                // It exists as a global → resolve as global
+                dbg!("resolved global:", &potentially_global);
+                input = potentially_global;
+            } else {
+                // Not a global → resolve as local
+                let name = input.identifier().name;
+                input = input.with_local(name);
+            }
+        }
+
         (input.into(), Default::default())
     }
 }

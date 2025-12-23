@@ -208,7 +208,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                             slf.scope_state.program_name.unwrap(),
                             &[const_param.identifier().name],
                             VariableSymbol {
-                                type_: const_param.type_().clone(),
+                                type_: Some(const_param.type_().clone()),
                                 span: const_param.identifier.span(),
                                 declaration: VariableType::ConstParameter,
                             },
@@ -575,7 +575,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // For the checksum variant, check that the mapping exists and that the type matches.
         if let UpgradeVariant::Checksum { mapping, key, key_type } = &upgrade_variant {
             // Look up the mapping type.
-            let Some(VariableSymbol { type_: Type::Mapping(mapping_type), .. }) =
+            let Some(VariableSymbol { type_: Some(Type::Mapping(mapping_type)), .. }) =
                 self.state.symbol_table.lookup_global(mapping)
             else {
                 self.emit_err(TypeCheckerError::custom(

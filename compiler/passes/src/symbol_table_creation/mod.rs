@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, Pass, SymbolTable, VariableSymbol, VariableType};
+use crate::{CompilerState, Pass, SymbolTable};
 
 use leo_ast::{
     AstVisitor,
@@ -99,13 +99,7 @@ impl AstVisitor for SymbolTableCreationVisitor<'_> {
         // Just add the const to the symbol table without validating it; that will happen later
         // in type checking.
         let const_path: Vec<Symbol> = self.module.iter().cloned().chain(std::iter::once(input.place.name)).collect();
-        if let Err(err) = self.state.symbol_table.insert_variable(self.program_name, &const_path, VariableSymbol {
-            type_: input.type_.clone(),
-            span: input.place.span,
-            declaration: VariableType::Const,
-        }) {
-            self.state.handler.emit_err(err);
-        }
+        self.state.symbol_table.set_global_type(&Location::new(self.program_name, const_path), input.type_.clone());
     }
 }
 
@@ -172,20 +166,14 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
 
     fn visit_mapping(&mut self, input: &Mapping) {
         // Add the variable associated with the mapping to the symbol table.
-        if let Err(err) = self.state.symbol_table.insert_global(
-            Location::new(self.program_name, vec![input.identifier.name]),
-            VariableSymbol {
-                type_: Type::Mapping(MappingType {
-                    key: Box::new(input.key_type.clone()),
-                    value: Box::new(input.value_type.clone()),
-                    program: self.program_name,
-                }),
-                span: input.span,
-                declaration: VariableType::Storage,
-            },
-        ) {
-            self.state.handler.emit_err(err);
-        }
+        self.state.symbol_table.set_global_type(
+            &Location::new(self.program_name, vec![input.identifier.name]),
+            Type::Mapping(MappingType {
+                key: Box::new(input.key_type.clone()),
+                value: Box::new(input.value_type.clone()),
+                program: self.program_name,
+            }),
+        );
     }
 
     fn visit_storage_variable(&mut self, input: &StorageVariable) {
@@ -197,12 +185,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
             _ => Type::Optional(OptionalType { inner: Box::new(input.type_.clone()) }),
         };
 
-        if let Err(err) = self.state.symbol_table.insert_global(
-            Location::new(self.program_name, vec![input.identifier.name]),
-            VariableSymbol { type_, span: input.span, declaration: VariableType::Storage },
-        ) {
-            self.state.handler.emit_err(err);
-        }
+        self.state.symbol_table.set_global_type(&Location::new(self.program_name, vec![input.identifier.name]), type_);
     }
 
     fn visit_function(&mut self, input: &Function) {

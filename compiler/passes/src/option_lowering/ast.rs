@@ -61,7 +61,8 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
         (
             Type::Composite(CompositeType {
-                path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
+                path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id()))
+                    .with_global(Location::new(self.program, vec![struct_name])),
                 const_arguments: vec![], // this is not a generic struct
                 program: None,           // current program
             }),
@@ -457,8 +458,9 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let expected_type =
                     member_types.get(&member.identifier.name).expect("guaranteed by type checking").clone();
 
-                let expression =
-                    member.expression.unwrap_or_else(|| Path::from(member.identifier).into_absolute().into());
+                let expression = member
+                    .expression
+                    .unwrap_or_else(|| Path::from(member.identifier).with_local(member.identifier.name).into());
 
                 let (new_expr, stmts) = self.reconstruct_expression(expression, &Some(expected_type));
 

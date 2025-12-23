@@ -20,6 +20,7 @@ use crate::{
     FutureType,
     Identifier,
     IntegerType,
+    Location,
     MappingType,
     OptionalType,
     Path,
@@ -139,8 +140,8 @@ impl Type {
 
                 // Two composite types are the same if their programs and their _absolute_ paths match.
                 (left.program == right.program)
-                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                        (Some(l), Some(r)) => l == r,
+                    && match (&left.path.global_location(), &right.path.global_location()) {
+                        (Some(l), Some(r)) => l.path == r.path,
                         _ => false,
                     }
             }
@@ -207,8 +208,8 @@ impl Type {
                 // Two composite types are the same if their _absolute_ paths match.
                 // If the absolute paths are not available, then we really can't compare the two
                 // types and we just return `false` to be conservative.
-                match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                    (Some(l), Some(r)) => l == r,
+                match (&left.path.global_location(), &right.path.global_location()) {
+                    (Some(l), Some(r)) => l.path == r.path,
                     _ => false,
                 }
             }
@@ -229,7 +230,8 @@ impl Type {
             Struct(s) => Type::Composite(CompositeType {
                 path: {
                     let ident = Identifier::from(s);
-                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                    Path::from(ident)
+                        .with_global(Location::new(program.unwrap_or(Symbol::intern("")), vec![ident.name]))
                 },
                 const_arguments: Vec::new(),
                 program,

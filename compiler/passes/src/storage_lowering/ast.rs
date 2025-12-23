@@ -625,7 +625,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
             return (input.into(), vec![]);
         };
 
-        match &var.type_ {
+        match &var.type_.clone().expect("must be known by now") {
             Type::Mapping(_) => {
                 // No transformation needed for mappings.
                 (input.into(), vec![])
@@ -651,7 +651,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let mapping_ident = Identifier::new(mapping_symbol, id());
 
                 // === Build expressions ===
-                let mapping_expr: Expression = Path::from(mapping_ident).into_absolute().into();
+                let mapping_expr: Expression =
+                    Path::from(mapping_ident).with_global(Location::new(self.program, vec![mapping_symbol])).into();
                 let false_literal: Expression = Literal::boolean(false, Span::default(), id()).into();
 
                 // `<var_name>__.contains(false)`
@@ -784,7 +785,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
             {
                 // Storage variables that are not optional nor mappings are implicitly wrapped in an optional.
                 assert!(
-                    var.type_.is_optional(),
+                    var.type_.clone().expect("must be known by now").is_optional(),
                     "Only storage variables that are not vectors or mappings are expected here."
                 );
 
@@ -798,7 +799,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 // Path to the mapping backing the storage variable: `<var_name>__`
                 let mapping_symbol = Symbol::intern(&format!("{var_name}__"));
                 let mapping_ident = Identifier::new(mapping_symbol, id());
-                let mapping_expr: Expression = Path::from(mapping_ident).into_absolute().into();
+                let mapping_expr: Expression =
+                    Path::from(mapping_ident).with_global(Location::new(self.program, vec![mapping_symbol])).into();
                 let false_literal: Expression = Literal::boolean(false, Span::default(), id()).into();
 
                 let stmt = if matches!(new_value, Expression::Literal(Literal { variant: LiteralVariant::None, .. })) {

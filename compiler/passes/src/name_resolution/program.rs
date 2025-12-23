@@ -14,25 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CompilerState;
+use super::NameResolutionVisitor;
+use leo_ast::{AstReconstructor, Module, ProgramReconstructor, ProgramScope, Statement};
 
-use leo_span::Symbol;
-
-pub struct PathResolutionVisitor<'a> {
-    pub state: &'a mut CompilerState,
-    /// The current program.
-    pub program: Symbol,
-    /// The current module.
-    pub module: Vec<Symbol>,
-}
-
-impl PathResolutionVisitor<'_> {
-    /// Enter module scope with path `module`, execute `func`, and then return to the parent module.
-    pub fn in_module_scope<T>(&mut self, module: &[Symbol], func: impl FnOnce(&mut Self) -> T) -> T {
-        let parent_module = self.module.clone();
-        self.module = module.to_vec();
-        let result = func(self);
-        self.module = parent_module;
-        result
-    }
-}
+impl ProgramReconstructor for NameResolutionVisitor<'_> {}

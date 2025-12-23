@@ -247,8 +247,9 @@ impl TypeCheckingVisitor<'_> {
             return (Type::Err, false);
         };
 
+        let ty = var.type_.expect("must be known by now").clone();
         // Cannot assign to storage vectors
-        if var.type_.is_vector() {
+        if ty.is_vector() {
             self.emit_err(TypeCheckerError::invalid_assignment_target(input, input.span()));
             return (Type::Err, false);
         }
@@ -262,7 +263,7 @@ impl TypeCheckingVisitor<'_> {
             VariableType::Input(Mode::Constant) => {
                 self.emit_err(TypeCheckerError::cannot_assign_to_const_input(input, var.span))
             }
-            VariableType::Storage => return (var.type_.clone(), true),
+            VariableType::Storage => return (ty.clone(), true),
             VariableType::Mut | VariableType::Input(_) => {}
         }
 
@@ -290,7 +291,7 @@ impl TypeCheckingVisitor<'_> {
             ));
         }
 
-        (var.type_.clone(), false)
+        (ty.clone(), false)
     }
 
     /// Infers the type of an expression, but returns Type::Err and emits an error if the result is Type::Numeric.
@@ -1288,22 +1289,23 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             if let Some(actual) = input.members.iter().find(|member| member.identifier.name == identifier.name) {
                 match &actual.expression {
                     None => {
-                        // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
-                        // We visit it as an expression rather than just calling `visit_path` so it will get
-                        // put into the type table.
-                        self.visit_expression(
-                            &Path::from(actual.identifier)
-                                .with_absolute_path(Some(
-                                    self.scope_state
-                                        .module_name
-                                        .iter()
-                                        .cloned()
-                                        .chain(std::iter::once(actual.identifier.name))
-                                        .collect::<Vec<Symbol>>(),
-                                ))
-                                .into(),
-                            &Some(type_.clone()),
-                        );
+                        let var = self
+                            .state
+                            .symbol_table
+                            .lookup_path(self.scope_state.program_name.unwrap(), &[actual.identifier.name]);
+
+                        if let Some(var) = var {
+                            let ty = var.type_.expect("must be known by now");
+                            if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
+                                self.check_access_allowed("storage access", true, input.span());
+                            }
+
+                            self.maybe_assert_type(&ty, &Some(type_.clone()), input.span());
+                            ty.clone()
+                        } else {
+                            self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span()));
+                            Type::Err
+                        };
                     }
                     Some(expr) => {
                         // Otherwise, visit the associated expression.
@@ -1359,12 +1361,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let var = self.state.symbol_table.lookup_path(self.scope_state.program_name.unwrap(), &input.absolute_path());
 
         if let Some(var) = var {
-            if var.declaration == VariableType::Storage && !var.type_.is_vector() && !var.type_.is_mapping() {
+            let ty = var.type_.expect("must be known at this point");
+            if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
                 self.check_access_allowed("storage access", true, input.span());
             }
 
-            self.maybe_assert_type(&var.type_, expected, input.span());
-            var.type_.clone()
+            self.maybe_assert_type(&ty, expected, input.span());
+            ty.clone()
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span()));
             Type::Err
@@ -1460,8 +1463,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let maybe_var =
             self.state.symbol_table.lookup_global(&Location::new(input.program.name.name, vec![input.name])).cloned();
         if let Some(var) = maybe_var {
-            self.maybe_assert_type(&var.type_, expected, input.span());
-            var.type_
+            let ty = var.type_.expect("must be known at this point");
+            self.maybe_assert_type(&ty, expected, input.span());
+            ty
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
             Type::Err
@@ -1891,7 +1895,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             if let Err(err) = self.state.symbol_table.insert_variable(
                 self.scope_state.program_name.unwrap(),
                 &[input.place.name],
-                VariableSymbol { type_: input.type_.clone(), span: input.place.span, declaration: VariableType::Const },
+                VariableSymbol {
+                    type_: Some(input.type_.clone()),
+                    span: input.place.span,
+                    declaration: VariableType::Const,
+                },
             ) {
                 self.state.handler.emit_err(err);
             }
@@ -2023,7 +2031,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             if let Err(err) = slf.state.symbol_table.insert_variable(
                 slf.scope_state.program_name.unwrap(),
                 &[input.variable.name],
-                VariableSymbol { type_: iterator_ty.clone(), span: input.span(), declaration: VariableType::Const },
+                VariableSymbol {
+                    type_: Some(iterator_ty.clone()),
+                    span: input.span(),
+                    declaration: VariableType::Const,
+                },
             ) {
                 slf.state.handler.emit_err(err);
             }

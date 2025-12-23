@@ -90,9 +90,10 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             *arg = self.reconstruct_expression(std::mem::take(arg), &()).0;
         });
         for member in input.members.iter_mut() {
-            let expression = member.expression.take().unwrap_or_else(|| {
-                Path::from(member.identifier).with_absolute_path(Some(vec![member.identifier.name])).into()
-            });
+            let expression = member
+                .expression
+                .take()
+                .unwrap_or_else(|| Path::from(member.identifier).with_local(member.identifier.name).into());
             let (new_expr, value_opt) = self.reconstruct_expression(expression, &());
             member.expression = Some(new_expr);
             if let Some(value) = value_opt {

@@ -50,11 +50,17 @@ pub use flattening::*;
 mod function_inlining;
 pub use function_inlining::*;
 
+mod global_var_collection;
+pub use global_var_collection::*;
+
 mod loop_unrolling;
 pub use loop_unrolling::*;
 
 mod monomorphization;
 pub use monomorphization::*;
+
+mod name_resolution;
+pub use name_resolution::*;
 
 mod option_lowering;
 pub use option_lowering::*;

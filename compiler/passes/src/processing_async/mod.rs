@@ -47,7 +47,15 @@
 //! }
 //! ```
 
-use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use crate::{
+    GlobalVarCollection,
+    Pass,
+    PathResolution,
+    SymbolTable,
+    SymbolTableCreation,
+    TypeChecking,
+    TypeCheckingInput,
+};
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
@@ -86,6 +94,7 @@ impl Pass for ProcessingAsync {
             // If we actually changed anything in the program, then we need to recreate the symbol table and run type
             // checking again. That's because this pass introduces new `async function`s to the program.
             visitor.state.symbol_table = SymbolTable::default();
+            GlobalVarCollection::do_pass((), state)?;
             PathResolution::do_pass((), state)?;
             SymbolTableCreation::do_pass((), state)?;
             TypeChecking::do_pass(input.clone(), state)?;

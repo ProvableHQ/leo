@@ -1546,7 +1546,7 @@ impl TypeCheckingVisitor<'_> {
                 self.scope_state.program_name.unwrap(),
                 &[const_param.identifier().name],
                 VariableSymbol {
-                    type_: const_param.type_().clone(),
+                    type_: Some(const_param.type_().clone()),
                     span: const_param.identifier.span(),
                     declaration: VariableType::ConstParameter,
                 },
@@ -1642,7 +1642,7 @@ impl TypeCheckingVisitor<'_> {
                     self.scope_state.program_name.unwrap(),
                     &[input.identifier().name],
                     VariableSymbol {
-                        type_: table_type.clone(),
+                        type_: Some(table_type.clone()),
                         span: input.identifier.span(),
                         declaration: VariableType::Input(input.mode()),
                     },
@@ -1792,7 +1792,7 @@ impl TypeCheckingVisitor<'_> {
         if let Err(err) = self.state.symbol_table.insert_variable(
             self.scope_state.program_name.unwrap(),
             &[name.name],
-            VariableSymbol { type_: ty.clone(), span, declaration: VariableType::Mut },
+            VariableSymbol { type_: Some(ty.clone()), span, declaration: VariableType::Mut },
         ) {
             self.state.handler.emit_err(err);
         }

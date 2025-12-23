@@ -15,24 +15,21 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::CompilerState;
+use leo_ast::NodeID;
 
 use leo_span::Symbol;
 
-pub struct PathResolutionVisitor<'a> {
+pub struct NameResolutionVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// The current program.
     pub program: Symbol,
-    /// The current module.
-    pub module: Vec<Symbol>,
 }
 
-impl PathResolutionVisitor<'_> {
-    /// Enter module scope with path `module`, execute `func`, and then return to the parent module.
-    pub fn in_module_scope<T>(&mut self, module: &[Symbol], func: impl FnOnce(&mut Self) -> T) -> T {
-        let parent_module = self.module.clone();
-        self.module = module.to_vec();
+impl NameResolutionVisitor<'_> {
+    pub fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
+        self.state.symbol_table.enter_scope(Some(id));
         let result = func(self);
-        self.module = parent_module;
+        self.state.symbol_table.enter_parent();
         result
     }
 }

@@ -398,6 +398,14 @@ impl SymbolTable {
         self.globals.get(location)
     }
 
+    pub fn set_global_type(&mut self, location: &Location, ty: Type) -> bool {
+        if let Some(sym) = self.globals.get_mut(location) {
+            sym.type_ = Some(ty);
+            return true;
+        }
+        false
+    }
+
     pub fn emit_shadow_error(name: Symbol, span: Span, prev_span: Span) -> LeoError {
         AstError::name_defined_multiple_times(name, span)
             .with_labels(vec![
