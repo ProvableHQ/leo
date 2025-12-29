@@ -14,56 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use indexmap::IndexSet;
+mod assigner;
+pub use assigner::*;
 
-use leo_span::Symbol;
-use std::{fmt::Debug, hash::Hash};
+mod rename_table;
+pub use rename_table::*;
 
-///  A binary search tree to store all paths through nested conditional blocks.
-pub type ConditionalTreeNode = TreeNode<Symbol>;
+mod replacer;
+pub use replacer::*;
 
-/// A node in a graph.
-pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
+mod symbol_table;
+pub use symbol_table::*;
 
-impl Node for Symbol {}
+mod tree_node;
+pub use tree_node::ConditionalTreeNode;
 
-/// A node in a tree.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TreeNode<N: Node> {
-    /// The current depth.
-    pub depth: usize,
-    /// The current node.
-    pub elements: IndexSet<N>, // TODO: Can optimize with bitmap if performance is bad.
-    /// A counter.
-    pub counter: usize,
-}
-
-impl<N: Node> TreeNode<N> {
-    /// Initializes a new `TreeNode` from a vector of starting elements.
-    pub fn new(elements: IndexSet<N>) -> Self {
-        Self { depth: 0, elements, counter: 0 }
-    }
-
-    /// Adds a child to the current node.
-    pub fn create_child(&self) -> TreeNode<N> {
-        Self { depth: self.depth + 1, elements: self.elements.clone(), counter: self.counter }
-    }
-
-    /// Removes an element from the current node.
-    /// If the element does not exist, increment an internal counter which later used to generate an error that the user attempted to await a future twice.
-    /// Returns `true` if the element was removed but not the first one in the node.
-    pub fn remove_element(&mut self, element: &N) -> bool {
-        // Check if the element is the first one in the node.
-        let is_not_first = match self.elements.first() {
-            Some(first) => first != element,
-            None => false,
-        };
-        // Remove the element from the node.
-        if !self.elements.shift_remove(element) {
-            self.counter += 1;
-            false
-        } else {
-            is_not_first
-        }
-    }
-}
+mod type_table;
+pub use type_table::*;
