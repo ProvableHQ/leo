@@ -1,0 +1,181 @@
+================================================================================
+Integer literals
+================================================================================
+
+program test.aleo {
+    transition test() -> u32 {
+        let a: u32 = 42u32;
+        let b: u64 = 0xFFu64;
+        let c: u8 = 0b1010u8;
+        let d: i32 = 0o777i32;
+        return a;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (primitive_type))
+      (block
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))
+        (return_statement
+          (identifier))))))
+
+================================================================================
+Field and group literals
+================================================================================
+
+program test.aleo {
+    function test() -> field {
+        let f: field = 123field;
+        let g: group = 456group;
+        let s: scalar = 789scalar;
+        return f;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (primitive_type))
+      (block
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))
+        (return_statement
+          (identifier))))))
+
+================================================================================
+Boolean and string literals
+================================================================================
+
+program test.aleo {
+    function test() -> bool {
+        let t: bool = true;
+        let f: bool = false;
+        let s: string = "hello world";
+        return t;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (primitive_type))
+      (block
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (boolean_literal)))
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (boolean_literal)))
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (string_literal)))
+        (return_statement
+          (identifier))))))
+
+================================================================================
+Address literal
+================================================================================
+
+program test.aleo {
+    function test() -> address {
+        let addr: address = aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc;
+        return addr;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+; Note: Address literals starting with 'aleo1' are parsed as identifiers
+; because they share the same lexical pattern. Semantic analysis can distinguish them.
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (primitive_type))
+      (block
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (identifier))
+        (return_statement
+          (identifier))))))

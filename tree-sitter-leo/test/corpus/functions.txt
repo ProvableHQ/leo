@@ -1,0 +1,153 @@
+================================================================================
+Basic function
+================================================================================
+
+program test.aleo {
+    function add(a: u32, b: u32) -> u32 {
+        return a + b;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type))
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (function_output
+        (primitive_type))
+      (block
+        (return_statement
+          (binary_expression
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Transition function
+================================================================================
+
+program test.aleo {
+    transition transfer(receiver: address, amount: u64) -> u64 {
+        return amount;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type))
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (function_output
+        (primitive_type))
+      (block
+        (return_statement
+          (identifier))))))
+
+================================================================================
+Async transition with Future
+================================================================================
+
+program test.aleo {
+    async transition mint(public receiver: address) -> Future {
+        return finalize_mint(receiver);
+    }
+
+    async function finalize_mint(public receiver: address) {
+        assert(true);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (visibility_modifier)
+          (identifier)
+          (primitive_type)))
+      (function_output
+        (future_type))
+      (block
+        (return_statement
+          (call_expression
+            (identifier)
+            (argument_list
+              (identifier))))))
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (visibility_modifier)
+          (identifier)
+          (primitive_type)))
+      (block
+        (assert_statement
+          (literal
+            (boolean_literal)))))))
+
+================================================================================
+Function with visibility modifiers
+================================================================================
+
+program test.aleo {
+    transition test(public a: u32, private b: u32, constant c: u32) -> public u32 {
+        return a + b + c;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (visibility_modifier)
+          (identifier)
+          (primitive_type))
+        (parameter
+          (visibility_modifier)
+          (identifier)
+          (primitive_type))
+        (parameter
+          (visibility_modifier)
+          (identifier)
+          (primitive_type)))
+      (function_output
+        (visibility_modifier)
+        (primitive_type))
+      (block
+        (return_statement
+          (binary_expression
+            (binary_expression
+              (identifier)
+              (identifier))
+            (identifier)))))))

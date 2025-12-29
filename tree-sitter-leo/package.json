@@ -1,0 +1,59 @@
+{
+  "name": "tree-sitter-leo",
+  "version": "0.1.0",
+  "description": "Tree-sitter grammar for the Leo programming language",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ProvableLabs/leo"
+  },
+  "keywords": [
+    "tree-sitter",
+    "parser",
+    "leo",
+    "aleo",
+    "blockchain",
+    "zk-snark"
+  ],
+  "main": "bindings/node",
+  "types": "bindings/node",
+  "files": [
+    "grammar.js",
+    "binding.gyp",
+    "prebuilds/**",
+    "bindings/node/*",
+    "queries/*",
+    "src/**"
+  ],
+  "scripts": {
+    "build": "tree-sitter generate && node-gyp build",
+    "generate": "tree-sitter generate",
+    "test": "tree-sitter test",
+    "parse": "tree-sitter parse"
+  },
+  "dependencies": {
+    "node-addon-api": "^7.1.0",
+    "node-gyp-build": "^4.8.0"
+  },
+  "peerDependencies": {
+    "tree-sitter": "^0.21.0"
+  },
+  "peerDependenciesMeta": {
+    "tree-sitter": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.22.0"
+  },
+  "tree-sitter": [
+    {
+      "scope": "source.leo",
+      "file-types": [
+        "leo"
+      ],
+      "injection-regex": "leo",
+      "highlights": "queries/highlights.scm"
+    }
+  ]
+}

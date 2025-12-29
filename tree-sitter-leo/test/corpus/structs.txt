@@ -1,0 +1,104 @@
+================================================================================
+Struct declaration
+================================================================================
+
+program test.aleo {
+    struct Point {
+        x: u32,
+        y: u32,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (struct_declaration
+      (identifier)
+      (struct_members
+        (struct_member
+          (identifier)
+          (primitive_type))
+        (struct_member
+          (identifier)
+          (primitive_type))))))
+
+================================================================================
+Struct expression
+================================================================================
+
+program test.aleo {
+    struct Point {
+        x: u32,
+        y: u32,
+    }
+    
+    function make_point() -> Point {
+        return Point { x: 1u32, y: 2u32 };
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (struct_declaration
+      (identifier)
+      (struct_members
+        (struct_member
+          (identifier)
+          (primitive_type))
+        (struct_member
+          (identifier)
+          (primitive_type))))
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (identifier))
+      (block
+        (return_statement
+          (struct_expression
+            (identifier)
+            (struct_member_initializers
+              (struct_member_initializer
+                (identifier)
+                (literal
+                  (typed_literal
+                    (integer_literal)
+                    (type_suffix))))
+              (struct_member_initializer
+                (identifier)
+                (literal
+                  (typed_literal
+                    (integer_literal)
+                    (type_suffix)))))))))))
+
+================================================================================
+Record declaration
+================================================================================
+
+program test.aleo {
+    record Token {
+        owner: address,
+        amount: u64,
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (record_declaration
+      (identifier)
+      (struct_members
+        (struct_member
+          (identifier)
+          (primitive_type))
+        (struct_member
+          (identifier)
+          (primitive_type))))))

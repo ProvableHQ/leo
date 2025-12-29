@@ -1,0 +1,188 @@
+================================================================================
+If statement
+================================================================================
+
+program test.aleo {
+    function test(x: u32) -> u32 {
+        if x > 10u32 {
+            return 1u32;
+        } else {
+            return 0u32;
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (function_output
+        (primitive_type))
+      (block
+        (conditional_statement
+          (binary_expression
+            (identifier)
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix))))
+          (block
+            (return_statement
+              (literal
+                (typed_literal
+                  (integer_literal)
+                  (type_suffix)))))
+          (block
+            (return_statement
+              (literal
+                (typed_literal
+                  (integer_literal)
+                  (type_suffix))))))))))
+
+================================================================================
+For loop
+================================================================================
+
+program test.aleo {
+    function sum() -> u32 {
+        let total: u32 = 0u32;
+        for i: u32 in 0u32..10u32 {
+            total += i;
+        }
+        return total;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (primitive_type))
+      (block
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))
+        (for_statement
+          (identifier)
+          (primitive_type)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix)))
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix)))
+          (block
+            (assignment_statement
+              (identifier)
+              (assignment_operator)
+              (identifier))))
+        (return_statement
+          (identifier))))))
+
+================================================================================
+Assertion statements
+================================================================================
+
+program test.aleo {
+    function test(a: u32, b: u32) {
+        assert(a > 0u32);
+        assert_eq(a, b);
+        assert_neq(a, 0u32);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type))
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (block
+        (assert_statement
+          (binary_expression
+            (identifier)
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix)))))
+        (assert_eq_statement
+          (identifier)
+          (identifier))
+        (assert_neq_statement
+          (identifier)
+          (literal
+            (typed_literal
+              (integer_literal)
+              (type_suffix))))))))
+
+================================================================================
+Tuple destructuring
+================================================================================
+
+program test.aleo {
+    function test() -> u32 {
+        let (a, b): (u32, u32) = (1u32, 2u32);
+        return a + b;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (primitive_type))
+      (block
+        (definition_statement
+          (identifier)
+          (identifier)
+          (tuple_type
+            (primitive_type)
+            (primitive_type))
+          (tuple_expression
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix)))
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix)))))
+        (return_statement
+          (binary_expression
+            (identifier)
+            (identifier)))))))

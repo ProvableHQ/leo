@@ -1,0 +1,75 @@
+================================================================================
+Mapping declaration
+================================================================================
+
+program test.aleo {
+    mapping balances: address => u64;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (mapping_declaration
+      (identifier)
+      (primitive_type)
+      (primitive_type))))
+
+================================================================================
+Import declaration
+================================================================================
+
+import credits.aleo;
+
+program test.aleo {
+    function test() {
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (import_declaration
+    (program_id))
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (block))))
+
+================================================================================
+Global constant
+================================================================================
+
+program test.aleo {
+    const MAX_VALUE: u32 = 100u32;
+    
+    function test() -> u32 {
+        return MAX_VALUE;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (global_const
+      (identifier)
+      (primitive_type)
+      (literal
+        (typed_literal
+          (integer_literal)
+          (type_suffix))))
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (primitive_type))
+      (block
+        (return_statement
+          (identifier))))))

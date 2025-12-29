@@ -1,0 +1,306 @@
+================================================================================
+Binary expressions
+================================================================================
+
+program test.aleo {
+    function test(a: u32, b: u32) -> u32 {
+        return a + b * 2u32 - a / b;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type))
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (function_output
+        (primitive_type))
+      (block
+        (return_statement
+          (binary_expression
+            (binary_expression
+              (identifier)
+              (binary_expression
+                (identifier)
+                (literal
+                  (typed_literal
+                    (integer_literal)
+                    (type_suffix)))))
+            (binary_expression
+              (identifier)
+              (identifier))))))))
+
+================================================================================
+Ternary expression
+================================================================================
+
+program test.aleo {
+    function max(a: u32, b: u32) -> u32 {
+        return a > b ? a : b;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type))
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (function_output
+        (primitive_type))
+      (block
+        (return_statement
+          (ternary_expression
+            (binary_expression
+              (identifier)
+              (identifier))
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Member access
+================================================================================
+
+program test.aleo {
+    struct Point {
+        x: u32,
+        y: u32,
+    }
+    
+    function get_x(p: Point) -> u32 {
+        return p.x;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (struct_declaration
+      (identifier)
+      (struct_members
+        (struct_member
+          (identifier)
+          (primitive_type))
+        (struct_member
+          (identifier)
+          (primitive_type))))
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (identifier)))
+      (function_output
+        (primitive_type))
+      (block
+        (return_statement
+          (member_access
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Array expressions
+================================================================================
+
+program test.aleo {
+    function test() -> [u32; 3] {
+        let arr: [u32; 3] = [1u32, 2u32, 3u32];
+        let first: u32 = arr[0u32];
+        return arr;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (array_type
+          (primitive_type)
+          (literal
+            (integer_literal))))
+      (block
+        (definition_statement
+          (identifier)
+          (array_type
+            (primitive_type)
+            (literal
+              (integer_literal)))
+          (array_expression
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix)))
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix)))
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix)))))
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (array_access
+            (identifier)
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix)))))
+        (return_statement
+          (identifier))))))
+
+================================================================================
+Cast expression
+================================================================================
+
+program test.aleo {
+    function test(a: u32) -> u64 {
+        return a as u64;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (function_output
+        (primitive_type))
+      (block
+        (return_statement
+          (cast_expression
+            (identifier)
+            (primitive_type)))))))
+
+================================================================================
+Associated function call
+================================================================================
+
+program test.aleo {
+    mapping account: address => u64;
+    
+    async function test(receiver: address) {
+        let amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
+        Mapping::set(account, receiver, amount);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (mapping_declaration
+      (identifier)
+      (primitive_type)
+      (primitive_type))
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (block
+        (definition_statement
+          (identifier)
+          (primitive_type)
+          (associated_function_call
+            (path
+              (identifier)
+              (identifier))
+            (argument_list
+              (identifier)
+              (identifier)
+              (literal
+                (typed_literal
+                  (integer_literal)
+                  (type_suffix))))))
+        (expression_statement
+          (associated_function_call
+            (path
+              (identifier)
+              (identifier))
+            (argument_list
+              (identifier)
+              (identifier)
+              (identifier))))))))
+
+================================================================================
+Special access (self, block)
+================================================================================
+
+program test.aleo {
+    transition test() -> address {
+        return self.caller;
+    }
+    
+    async function finalize() {
+        assert(block.height <= 1000u32);
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id)
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (function_output
+        (primitive_type))
+      (block
+        (return_statement
+          (special_access
+            (identifier)))))
+    (function_declaration
+      (function_kind)
+      (identifier)
+      (parameter_list)
+      (block
+        (assert_statement
+          (binary_expression
+            (special_access
+              (identifier))
+            (literal
+              (typed_literal
+                (integer_literal)
+                (type_suffix)))))))))
