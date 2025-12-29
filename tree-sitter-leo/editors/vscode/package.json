@@ -1,0 +1,51 @@
+{
+  "name": "leo-language",
+  "displayName": "Leo Language Support",
+  "description": "Syntax highlighting for the Leo programming language",
+  "version": "0.1.0",
+  "publisher": "provable",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ProvableLabs/leo"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "leo",
+    "aleo",
+    "blockchain",
+    "zk-snark",
+    "zero-knowledge"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "leo",
+        "aliases": [
+          "Leo",
+          "leo"
+        ],
+        "extensions": [
+          ".leo"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/leo-light.png",
+          "dark": "./icons/leo-dark.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "leo",
+        "scopeName": "source.leo",
+        "path": "./syntaxes/leo.tmLanguage.json"
+      }
+    ]
+  }
+}

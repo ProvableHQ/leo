@@ -10,10 +10,16 @@ Leo is a functional, statically-typed programming language built for writing pri
 - Syntax highlighting queries for editors
 - Tags queries for code navigation
 - Locals queries for scope analysis
+- Editor configurations for Neovim, Helix, and VS Code
 
 ## Installation
 
-### npm
+### Prerequisites
+
+- Node.js 16+ or tree-sitter CLI
+- A C compiler (for building the parser)
+
+### From npm
 
 ```bash
 npm install tree-sitter-leo
@@ -27,6 +33,68 @@ cd leo/tree-sitter-leo
 npm install
 npm run generate
 ```
+
+## Editor Setup
+
+### Neovim
+
+See [editors/neovim/README.md](editors/neovim/README.md) for detailed instructions.
+
+Quick setup with nvim-treesitter:
+
+```lua
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+parser_config.leo = {
+  install_info = {
+    url = "https://github.com/ProvableLabs/leo",
+    files = { "tree-sitter-leo/src/parser.c" },
+    location = "tree-sitter-leo",
+  },
+  filetype = "leo",
+}
+
+vim.filetype.add({ extension = { leo = "leo" } })
+```
+
+Then run `:TSInstall leo`
+
+### Helix
+
+See [editors/helix/README.md](editors/helix/README.md) for detailed instructions.
+
+Add to `~/.config/helix/languages.toml`:
+
+```toml
+[[language]]
+name = "leo"
+scope = "source.leo"
+file-types = ["leo"]
+roots = ["program.json"]
+comment-token = "//"
+
+[[grammar]]
+name = "leo"
+source = { git = "https://github.com/ProvableLabs/leo", subpath = "tree-sitter-leo" }
+```
+
+Copy queries:
+
+```bash
+mkdir -p ~/.config/helix/runtime/queries/leo
+cp queries/*.scm ~/.config/helix/runtime/queries/leo/
+```
+
+Build the grammar:
+
+```bash
+hx --grammar fetch && hx --grammar build
+```
+
+### VS Code
+
+See [editors/vscode/README.md](editors/vscode/README.md) for detailed instructions.
+
+A TextMate grammar is provided for VS Code since it doesn't natively support tree-sitter.
 
 ## Usage
 
@@ -52,45 +120,49 @@ const tree = parser.parse(sourceCode);
 console.log(tree.rootNode.toString());
 ```
 
-### Neovim
-
-Add to your tree-sitter configuration:
-
-```lua
-require('nvim-treesitter.parsers').get_parser_configs().leo = {
-  install_info = {
-    url = "https://github.com/ProvableLabs/leo",
-    files = { "tree-sitter-leo/src/parser.c" },
-    location = "tree-sitter-leo",
-  },
-  filetype = "leo",
-}
-```
-
-### Helix
-
-Copy the queries to your Helix runtime directory:
+### CLI
 
 ```bash
-mkdir -p ~/.config/helix/runtime/queries/leo
-cp queries/*.scm ~/.config/helix/runtime/queries/leo/
+# Parse a file
+tree-sitter parse path/to/file.leo
+
+# Run tests
+tree-sitter test
+
+# Highlight a file (requires queries)
+tree-sitter highlight path/to/file.leo
 ```
 
-Add to `languages.toml`:
+## Highlighting Captures
 
-```toml
-[[language]]
-name = "leo"
-scope = "source.leo"
-injection-regex = "leo"
-file-types = ["leo"]
-roots = ["program.json"]
-comment-token = "//"
+The highlighting queries use the following capture groups:
 
-[[grammar]]
-name = "leo"
-source = { git = "https://github.com/ProvableLabs/leo", subpath = "tree-sitter-leo" }
-```
+| Capture | Description |
+|---------|-------------|
+| `@keyword` | Language keywords |
+| `@keyword.function` | Function-related keywords |
+| `@keyword.control` | Control flow keywords |
+| `@keyword.modifier` | Visibility modifiers |
+| `@type` | Type names |
+| `@type.builtin` | Built-in types |
+| `@function` | Function definitions |
+| `@function.call` | Function calls |
+| `@function.method` | Method calls |
+| `@variable` | Variables |
+| `@variable.parameter` | Function parameters |
+| `@variable.builtin` | Built-in variables (self, block, network) |
+| `@constant` | Constants |
+| `@property` | Struct fields |
+| `@string` | String literals |
+| `@string.special` | Address literals |
+| `@number` | Numeric literals |
+| `@boolean` | Boolean literals |
+| `@operator` | Operators |
+| `@punctuation.bracket` | Brackets |
+| `@punctuation.delimiter` | Delimiters |
+| `@comment` | Comments |
+| `@namespace` | Program IDs and locators |
+| `@attribute` | Annotations |
 
 ## Language Overview
 
@@ -150,13 +222,29 @@ npm run generate
 
 ```bash
 npm test
+# or
+tree-sitter test
+```
+
+### Test highlighting
+
+```bash
+tree-sitter highlight --scope source.leo path/to/file.leo
 ```
 
 ### Parse a file
 
 ```bash
-npx tree-sitter parse path/to/file.leo
+tree-sitter parse path/to/file.leo
 ```
+
+## Contributing
+
+Contributions are welcome! Please ensure:
+
+1. All tests pass (`npm test`)
+2. New language features have corresponding test cases
+3. Highlighting queries cover new syntax
 
 ## License
 

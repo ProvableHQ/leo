@@ -1,0 +1,28 @@
+# Helix language configuration for Leo
+# Copy this to ~/.config/helix/languages.toml or merge with existing config
+
+[[language]]
+name = "leo"
+scope = "source.leo"
+injection-regex = "leo"
+file-types = ["leo"]
+roots = ["program.json", "Leo.toml"]
+comment-token = "//"
+block-comment-tokens = { start = "/*", end = "*/" }
+indent = { tab-width = 4, unit = "    " }
+auto-format = false
+
+[language.auto-pairs]
+'(' = ')'
+'{' = '}'
+'[' = ']'
+'"' = '"'
+
+# Uncomment if Leo LSP is available
+# [language-server.leo-lsp]
+# command = "leo"
+# args = ["lsp"]
+
+[[grammar]]
+name = "leo"
+source = { git = "https://github.com/ProvableLabs/leo", subpath = "tree-sitter-leo", rev = "master" }
