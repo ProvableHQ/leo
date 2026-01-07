@@ -67,7 +67,7 @@ impl AwaitChecker {
             // Extend all paths by one node to represent the upcoming `then` branch.
             for node in self.to_await.iter() {
                 // Extend current path.
-                current_nodes.push(node.clone().create_child());
+                current_nodes.push(node.create_child());
             }
             // Update the set of nodes to be current set.
             self.to_await = current_nodes.clone();
