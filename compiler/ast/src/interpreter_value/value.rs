@@ -305,6 +305,13 @@ impl_from_literal! {
     Field; Group; Scalar; Address;
 }
 
+impl From<snarkvm::prelude::Signature<CurrentNetwork>> for Value {
+    fn from(s: snarkvm::prelude::Signature<CurrentNetwork>) -> Self {
+        let literal: SvmLiteral = s.into();
+        ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(literal, Default::default()))).into()
+    }
+}
+
 impl TryFrom<Value> for snarkvm::prelude::Signature<CurrentNetwork> {
     type Error = ();
 
@@ -903,12 +910,6 @@ fn plaintext_to_expression(
                 s.truncate(s.len() - 5);
                 Literal::group(s, span, id).into()
             }
-            SvmLiteralParam::Scalar(scalar) => {
-                let mut s = scalar.to_string();
-                // Strip off the `scalar` suffix.
-                s.truncate(s.len() - 6);
-                Literal::scalar(s, span, id).into()
-            }
             SvmLiteralParam::I8(int) => Literal::integer(IntegerType::I8, (**int).to_string(), span, id).into(),
             SvmLiteralParam::I16(int) => Literal::integer(IntegerType::I16, (**int).to_string(), span, id).into(),
             SvmLiteralParam::I32(int) => Literal::integer(IntegerType::I32, (**int).to_string(), span, id).into(),
@@ -919,7 +920,15 @@ fn plaintext_to_expression(
             SvmLiteralParam::U32(int) => Literal::integer(IntegerType::U32, (**int).to_string(), span, id).into(),
             SvmLiteralParam::U64(int) => Literal::integer(IntegerType::U64, (**int).to_string(), span, id).into(),
             SvmLiteralParam::U128(int) => Literal::integer(IntegerType::U128, (**int).to_string(), span, id).into(),
-            SvmLiteralParam::Signature(..) => todo!(),
+            SvmLiteralParam::Scalar(scalar) => {
+                let mut s = scalar.to_string();
+                // Strip off the `scalar` suffix.
+                s.truncate(s.len() - 6);
+                Literal::scalar(s, span, id).into()
+            }
+            SvmLiteralParam::Signature(signature) => {
+                Literal::address(signature.to_string(), span, node_builder.next_id()).into()
+            }
             SvmLiteralParam::String(..) => return None,
         },
         Plaintext::Struct(index_map, ..) => {

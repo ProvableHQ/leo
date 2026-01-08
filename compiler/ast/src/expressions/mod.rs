@@ -71,9 +71,6 @@ pub use unit::*;
 mod literal;
 pub use literal::*;
 
-pub mod locator;
-pub use locator::*;
-
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
@@ -100,8 +97,6 @@ pub enum Expression {
     Path(Path),
     /// A literal expression.
     Literal(Literal),
-    /// A locator expression, e.g., `hello.aleo/foo`.
-    Locator(LocatorExpression),
     /// An access of a composite member, e.g. `composite.member`.
     MemberAccess(Box<MemberAccess>),
     /// An array expression constructed from one repeated element, e.g., `[1u32; 5]`.
@@ -139,7 +134,6 @@ impl Node for Expression {
             Intrinsic(n) => n.span(),
             Path(n) => n.span(),
             Literal(n) => n.span(),
-            Locator(n) => n.span(),
             MemberAccess(n) => n.span(),
             Repeat(n) => n.span(),
             Ternary(n) => n.span(),
@@ -164,7 +158,6 @@ impl Node for Expression {
             Intrinsic(n) => n.set_span(span),
             Path(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
-            Locator(n) => n.set_span(span),
             MemberAccess(n) => n.set_span(span),
             Repeat(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
@@ -187,7 +180,6 @@ impl Node for Expression {
             Composite(n) => n.id(),
             Path(n) => n.id(),
             Literal(n) => n.id(),
-            Locator(n) => n.id(),
             MemberAccess(n) => n.id(),
             Repeat(n) => n.id(),
             Err(n) => n.id(),
@@ -212,7 +204,6 @@ impl Node for Expression {
             Composite(n) => n.set_id(id),
             Path(n) => n.set_id(id),
             Literal(n) => n.set_id(id),
-            Locator(n) => n.set_id(id),
             MemberAccess(n) => n.set_id(id),
             Repeat(n) => n.set_id(id),
             Err(n) => n.set_id(id),
@@ -241,7 +232,6 @@ impl fmt::Display for Expression {
             Intrinsic(n) => n.fmt(f),
             Path(n) => n.fmt(f),
             Literal(n) => n.fmt(f),
-            Locator(n) => n.fmt(f),
             MemberAccess(n) => n.fmt(f),
             Repeat(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
@@ -268,8 +258,7 @@ impl Expression {
             Cast(_) => 12,
             Ternary(_) => 0,
             Array(_) | ArrayAccess(_) | Async(_) | Call(_) | Composite(_) | Err(_) | Intrinsic(_) | Path(_)
-            | Literal(_) | Locator(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_)
-            | Unit(_) => 20,
+            | Literal(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_) | Unit(_) => 20,
         }
     }
 
@@ -348,7 +337,7 @@ impl Expression {
             }
 
             // Always pure
-            Expression::Locator(..) | Expression::Literal(..) | Expression::Path(..) | Expression::Unit(..) => true,
+            Expression::Literal(..) | Expression::Path(..) | Expression::Unit(..) => true,
 
             // Recurse
             Expression::ArrayAccess(expr) => expr.array.is_pure(get_type) && expr.index.is_pure(get_type),
@@ -440,6 +429,18 @@ impl Expression {
             Type::Field => Some(Literal::field("0".to_string(), span, id).into()),
             Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
             Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
+
+            // Signature: signatures don't have a well defined _zero_. The value chosen here is arbitrary.
+            // That being said, this value should really never be used directly. It should only be used as a 
+            // placeholder for representing `none` for example.
+            Type::Signature => Some(
+                Literal::signature(
+                    "sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj".to_string(),
+                    span,
+                    id,
+                )
+                .into(),
+            ),
 
             // Composite types
             Type::Composite(composite_type) => {

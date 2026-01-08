@@ -34,3 +34,9 @@ selfX
 SelfX
 
 inputX
+
+sig
+
+signer
+
+sign

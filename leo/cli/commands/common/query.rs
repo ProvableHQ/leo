@@ -18,7 +18,7 @@ use super::*;
 use crate::cli::query::{LeoBlock, LeoProgram};
 
 use leo_ast::NetworkName;
-use leo_package::ProgramData;
+use leo_package::{ProgramData, create_http_agent};
 use leo_span::Symbol;
 use snarkvm::prelude::{Program, ProgramID};
 
@@ -86,10 +86,7 @@ pub fn handle_broadcast<N: Network>(
     operation: &str,
 ) -> Result<(String, u16)> {
     // Send the deployment request to the endpoint.
-    let mut response = ureq::Agent::config_builder()
-        .max_redirects(0)
-        .build()
-        .new_agent()
+    let mut response = create_http_agent()
         .post(endpoint)
         .query("check_transaction", "true")
         .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
@@ -118,27 +115,17 @@ pub fn handle_broadcast<N: Network>(
         }
         _ => {
             let code = response.status();
-            let error_message = match response.body_mut().read_to_string() {
-                Ok(response) => format!("(status code {code}: {response:?})"),
-                Err(err) => format!("({err})"),
+            let response_body = response.body_mut().read_to_string().unwrap_or_default();
+
+            let action = match transaction {
+                Transaction::Deploy(..) => format!("deploy '{}'", operation.bold()),
+                Transaction::Execute(..) => format!("broadcast execution '{}'", operation.bold()),
+                Transaction::Fee(..) => format!("broadcast fee '{}'", operation.bold()),
             };
 
-            let msg = match transaction {
-                Transaction::Deploy(..) => {
-                    format!("❌ Failed to deploy '{}' to {}: {}", operation.bold(), &endpoint, error_message)
-                }
-                Transaction::Execute(..) => {
-                    format!(
-                        "❌ Failed to broadcast execution '{}' to {}: {}",
-                        operation.bold(),
-                        &endpoint,
-                        error_message
-                    )
-                }
-                Transaction::Fee(..) => {
-                    format!("❌ Failed to broadcast fee '{}' to {}: {}", operation.bold(), &endpoint, error_message)
-                }
-            };
+            let msg = format!(
+                "   Failed to {action}\n   Endpoint: {endpoint}\n   Status:   {code}\n   Response: {response_body}"
+            );
 
             Err(CliError::broadcast_error(msg).into())
         }

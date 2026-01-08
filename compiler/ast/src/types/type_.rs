@@ -235,9 +235,11 @@ impl Type {
             }),
             ExternalStruct(l) => Type::Composite(CompositeType {
                 path: {
-                    let external_program = Identifier::from(l.program_id().name()).name;
-                    let ident = Identifier::from(l.name());
-                    Path::from(ident).to_global(Location::new(external_program, vec![ident.name]))
+                    let external_program = Identifier::from(l.program_id().name());
+                    let name = Identifier::from(l.resource());
+                    Path::from(name)
+                        .with_user_program(external_program)
+                        .to_global(Location::new(external_program.name, vec![name.name]))
                 },
                 const_arguments: Vec::new(),
             }),

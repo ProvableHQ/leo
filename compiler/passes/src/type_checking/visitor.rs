@@ -472,6 +472,13 @@ impl TypeCheckingVisitor<'_> {
             bail!("structs are not supported")
         }
 
+        let current_program = self.scope_state.program_name.unwrap();
+        // Returns true if the given expression is a local path in the current program.
+        let is_local_path = |expr: &Expression| -> bool {
+            matches!(expr, Expression::Path(path)
+        if path.program().is_none() || path.program() == Some(current_program))
+        };
+
         // Check that the arguments are of the correct type.
         match intrinsic {
             Intrinsic::Commit(variant, type_) => {
@@ -684,103 +691,108 @@ impl TypeCheckingVisitor<'_> {
                 Type::Boolean
             }
             Intrinsic::MappingGet => {
-                if let Type::Mapping(MappingType { value, .. }) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Mapping::get", true, function_span);
+                let (map_ty, map_expr) = &arguments[0];
 
-                    *value.clone()
-                } else {
-                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
-                }
-            }
-            Intrinsic::VectorGet => {
-                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Vector::get", true, function_span);
+                let Type::Mapping(MappingType { value, .. }) = map_ty else {
+                    self.assert_vector_or_mapping_type(map_ty, map_expr.span());
+                    return Type::Err;
+                };
 
-                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
-                } else {
-                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
-                }
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Mapping::get", true, function_span);
+
+                *value.clone()
             }
             Intrinsic::MappingSet => {
-                if let Type::Mapping(_) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Mapping::set", true, function_span);
+                let (map_ty, map_expr) = &arguments[0];
 
-                    Type::Unit
-                } else {
-                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
-                }
-            }
-            Intrinsic::VectorSet => {
-                if arguments[0].0.is_vector() {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Vector::set", true, function_span);
+                let Type::Mapping(_) = map_ty else {
+                    self.assert_vector_or_mapping_type(map_ty, map_expr.span());
+                    return Type::Err;
+                };
 
-                    Type::Unit
-                } else {
-                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Mapping::set", true, function_span);
+
+                // Argument 0 must be a local path (cannot modify external mappings).
+                if !is_local_path(map_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "set",
+                        "mapping",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
+
+                Type::Unit
             }
             Intrinsic::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::get_or_use", true, function_span);
-                // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
-                let Type::Mapping(mapping_type) = &arguments[0].0 else {
-                    // We will have already handled the error in the assertion.
+                let (map_ty, map_expr) = &arguments[0];
+
+                // Check that the first argument is a mapping.
+                self.assert_mapping_type(map_ty, map_expr.span());
+
+                let Type::Mapping(MappingType { key, value, .. }) = map_ty else {
+                    // We already handled the error in the assertion.
                     return Type::Err;
                 };
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
-                // Check that the third argument matches the value type of the mapping.
-                self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1.span());
+                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
 
-                mapping_type.value.deref().clone()
+                // Check that the third argument matches the value type of the mapping.
+                self.assert_type(&arguments[2].0, value, arguments[2].1.span());
+
+                value.deref().clone()
             }
             Intrinsic::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::remove", true, function_span);
-                // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
-                let Type::Mapping(mapping_type) = &arguments[0].0 else {
-                    // We will have already handled the error in the assertion.
+                let (map_ty, map_expr) = &arguments[0];
+
+                // Check that the first argument is a mapping.
+                self.assert_mapping_type(map_ty, map_expr.span());
+
+                let Type::Mapping(MappingType { key, .. }) = map_ty else {
+                    // We already handled the error in the assertion.
                     return Type::Err;
                 };
 
-                // Cannot modify external mappings.
-                if mapping_type.program != self.scope_state.program_name.unwrap() {
-                    self.state
-                        .handler
-                        .emit_err(TypeCheckerError::cannot_modify_external_mapping("remove", function_span));
+                // Argument 0 must be a local path (cannot modify external mappings).
+                if !is_local_path(map_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "remove",
+                        "mapping",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
+                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
 
                 Type::Unit
             }
             Intrinsic::MappingContains => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::contains", true, function_span);
-                // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
-                let Type::Mapping(mapping_type) = &arguments[0].0 else {
-                    // We will have already handled the error in the assertion.
+                let (map_ty, map_expr) = &arguments[0];
+
+                // Check that the first argument is a mapping.
+                self.assert_mapping_type(map_ty, map_expr.span());
+
+                let Type::Mapping(MappingType { key, .. }) = map_ty else {
+                    // We already handled the error in the assertion.
                     return Type::Err;
                 };
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
+                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
 
                 Type::Boolean
             }
@@ -806,59 +818,148 @@ impl TypeCheckingVisitor<'_> {
                     _ => Type::Err,
                 }
             }
+            Intrinsic::VectorGet => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                    self.assert_vector_or_mapping_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                };
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Vector::get", true, function_span);
+
+                Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+            }
+            Intrinsic::VectorSet => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                if !vec_ty.is_vector() {
+                    self.assert_vector_or_mapping_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                }
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Vector::set", true, function_span);
+
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "set",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
+                }
+
+                Type::Unit
+            }
             Intrinsic::VectorPush => {
+                let (vec_ty, vec_expr) = &arguments[0];
+                let (val_ty, val_expr) = &arguments[1];
+
+                // First argument must be a vector.
+                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                    self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                };
+
+                // Value being pushed must match element type.
+                self.assert_type(val_ty, element_type, val_expr.span());
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::push", true, function_span);
 
-                // Check that the first argument is a vector
-                match &arguments[0].0 {
-                    Type::Vector(VectorType { element_type }) => {
-                        // Ensure that the element type and the type of the value to push are the same
-                        self.assert_type(&arguments[1].0, element_type, arguments[1].1.span());
-                        Type::Unit
-                    }
-                    _ => {
-                        self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
-                        Type::Err
-                    }
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "push",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
+
+                Type::Unit
             }
             Intrinsic::VectorLen => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::len", true, function_span);
 
-                if arguments[0].0.is_vector() {
+                if vec_ty.is_vector() {
                     Type::Integer(IntegerType::U32)
                 } else {
-                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
+                    self.assert_vector_type(vec_ty, vec_expr.span());
                     Type::Err
                 }
             }
             Intrinsic::VectorPop => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::pop", true, function_span);
 
-                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
-                } else {
-                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
+                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                    self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                };
+
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "pop",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
+
+                Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
             }
             Intrinsic::VectorSwapRemove => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::swap_remove", true, function_span);
 
-                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    *element_type.clone()
-                } else {
-                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
+                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                    self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                };
+
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "swap_remove",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
+
+                *element_type.clone()
             }
             Intrinsic::VectorClear => {
-                if arguments[0].0.is_vector() {
-                    Type::Unit
-                } else {
-                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                if !vec_ty.is_vector() {
+                    self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
                 }
+
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "clear",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
+                }
+
+                Type::Unit
             }
             Intrinsic::GroupToXCoordinate | Intrinsic::GroupToYCoordinate => {
                 // Check that the first argument is a group.
@@ -1275,7 +1376,6 @@ impl TypeCheckingVisitor<'_> {
             | Type::Mapping(_)
             | Type::Optional(_)
             | Type::String
-            | Type::Signature
             | Type::Tuple(_)
             | Type::Vector(_) => true,
 
@@ -1315,7 +1415,8 @@ impl TypeCheckingVisitor<'_> {
             | Type::Group
             | Type::Integer(_)
             | Type::Numeric
-            | Type::Scalar => false,
+            | Type::Scalar
+            | Type::Signature => false,
         }
     }
 

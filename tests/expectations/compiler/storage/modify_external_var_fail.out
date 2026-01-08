@@ -1,0 +1,15 @@
+Error [ETYC0372174]: Assignment to storage variables of another program is not allowed. You can only modify storage declared in the current program.
+    --> compiler-test:8:13
+     |
+   8 |             provider.aleo/x = 0;         // ❌ illegal external mutation
+     |             ^^^^^^^^^^^^^^^^^^^^
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372005]: Unknown variable `provider.aleo/x`
+    --> compiler-test:8:13
+     |
+   8 |             provider.aleo/x = 0;         // ❌ illegal external mutation
+     |             ^^^^^^^^^^^^^^^

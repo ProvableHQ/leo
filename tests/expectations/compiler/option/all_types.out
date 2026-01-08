@@ -63,6 +63,20 @@ struct InnerAddr:
 struct WrapperAddr:
     inner as InnerAddr;
 
+struct Optional__2dEUs48MODL:
+    is_some as boolean;
+    val as signature;
+
+struct SigStruct:
+    a as signature;
+    b as Optional__2dEUs48MODL;
+
+struct InnerSig:
+    val as Optional__2dEUs48MODL;
+
+struct WrapperSig:
+    inner as InnerSig;
+
 struct Optional__EsDmm5O6sv6:
     is_some as boolean;
     val as u32;
@@ -94,6 +108,10 @@ struct Optional__JYP65FYVVJA:
 struct Optional__Jyc4bxRuQrs:
     is_some as boolean;
     val as AddrStruct;
+
+struct Optional__1iFLrtrem6Z:
+    is_some as boolean;
+    val as SigStruct;
 
 function optional_basic_primitives:
     cast true 10u32 into r0 as Optional__EsDmm5O6sv6;
@@ -217,3 +235,24 @@ function optional_address_allowed:
     output r6 as address.private;
     output r9.val.a as address.private;
     output r12.inner.val.val as address.private;
+
+function optional_signature:
+    cast false sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj into r0 as Optional__2dEUs48MODL;
+    cast true sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj into r1 as Optional__2dEUs48MODL;
+    ternary r0.is_some r0.val sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj into r2;
+    ternary r1.is_some r1.val r2 into r3;
+    cast false sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj into r4 as Optional__2dEUs48MODL;
+    cast sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj r4 into r5 as SigStruct;
+    ternary r5.b.is_some r5.b.val r5.a into r6;
+    cast false sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj into r7 as Optional__2dEUs48MODL;
+    cast sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj r7 into r8 as SigStruct;
+    cast true r8 into r9 as Optional__1iFLrtrem6Z;
+    assert.eq r9.is_some true;
+    cast true sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj into r10 as Optional__2dEUs48MODL;
+    cast r10 into r11 as InnerSig;
+    cast r11 into r12 as WrapperSig;
+    assert.eq r12.inner.val.is_some true;
+    output r3 as signature.private;
+    output r6 as signature.private;
+    output r9.val.a as signature.private;
+    output r12.inner.val.val as signature.private;

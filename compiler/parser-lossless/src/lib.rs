@@ -39,7 +39,7 @@ pub enum SyntaxKind {
     CommentBlock,
 
     Expression(ExpressionKind),
-    StructMemberInitializer,
+    CompositeMemberInitializer,
 
     Statement(StatementKind),
     Type(TypeKind),
@@ -60,9 +60,9 @@ pub enum SyntaxKind {
     ConstParameterList,
     ConstArgumentList,
 
-    StructDeclaration,
-    StructMemberDeclaration,
-    StructMemberDeclarationList,
+    CompositeDeclaration,
+    CompositeMemberDeclaration,
+    CompositeMemberDeclarationList,
 
     Mapping,
     Storage,
@@ -157,14 +157,13 @@ pub enum ExpressionKind {
     Cast,
     Path,
     Literal(LiteralKind),
-    Locator,
     MemberAccess,
     MethodCall,
     Parenthesized,
     Repeat,
     Intrinsic,
     SpecialAccess, // TODO: fold into Intrinsic
-    Struct,
+    Composite,
     Ternary,
     Tuple,
     TupleAccess,

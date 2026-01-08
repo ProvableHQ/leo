@@ -16,8 +16,8 @@
 
 //! These tests compare interpreter runs against ledger runs.
 
-use leo_ast::{Bytecode, CompiledPrograms, NetworkName, NodeBuilder, Program, Stub, interpreter_value::Value};
-use leo_compiler::{Compiler, run};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub, interpreter_value::Value};
+use leo_compiler::{Compiled, Compiler, run};
 use leo_errors::{BufferEmitter, Handler, Result};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
@@ -44,7 +44,7 @@ fn whole_compile(
     handler: &Handler,
     node_builder: &Rc<NodeBuilder>,
     import_stubs: IndexMap<Symbol, Stub>,
-) -> Result<(CompiledPrograms, String)> {
+) -> Result<(Compiled, String)> {
     let mut compiler = Compiler::new(
         None,
         /* is_test (a Leo test) */ false,
@@ -58,9 +58,9 @@ fn whole_compile(
 
     let filename = FileName::Custom("execution-test".into());
 
-    let bytecode = compiler.compile(source, filename, &Vec::new())?;
+    let compiled = compiler.compile(source, filename, &Vec::new())?;
 
-    Ok((bytecode, compiler.program_name.unwrap()))
+    Ok((compiled, compiler.program_name.unwrap()))
 }
 
 /// Parse a Leo `source` with some stubs
@@ -135,18 +135,18 @@ fn run_test(
     }
 
     // Full compile stage for the final program.
-    let (compiled_programs, program_name) =
+    let (compiled, program_name) =
         handler.extend_if_error(whole_compile(last, handler, node_builder, import_stubs.clone()))?;
 
     // Add imported programs.
     let mut requires_ledger = false;
-    for Bytecode { program_name, bytecode } in compiled_programs.import_bytecodes {
-        requires_ledger |= bytecode.contains("async");
-        ledger_config.programs.push(run::Program { bytecode, name: program_name });
+    for import in &compiled.imports {
+        requires_ledger |= import.bytecode.contains("async");
+        ledger_config.programs.push(run::Program { bytecode: import.bytecode.clone(), name: import.name.clone() });
     }
 
     // Add main program.
-    let primary_bytecode = compiled_programs.primary_bytecode.clone();
+    let primary_bytecode = compiled.primary.bytecode.clone();
     requires_ledger |= primary_bytecode.contains("async");
     ledger_config.programs.push(run::Program { bytecode: primary_bytecode, name: program_name });
 

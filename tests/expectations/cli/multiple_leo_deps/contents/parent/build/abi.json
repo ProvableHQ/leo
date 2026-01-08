@@ -1,0 +1,38 @@
+{
+  "program": "parent.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "transitions": [
+    {
+      "name": "main",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "b",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

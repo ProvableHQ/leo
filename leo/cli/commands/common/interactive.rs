@@ -35,6 +35,28 @@ pub fn confirm(prompt: &str, skip_confirmation: bool) -> Result<bool> {
     result
 }
 
+/// Logs a warning and asks the user to confirm an action, with an optional `--yes` override.
+/// Unlike `confirm`, this function always logs the warning message regardless of `skip_confirmation`.
+pub fn warn_and_confirm(warning: &str, skip_confirmation: bool) -> Result<bool> {
+    // Always log the warning so users are informed of issues even in non-interactive mode.
+    tracing::warn!("{warning}");
+
+    if skip_confirmation {
+        return Ok(true);
+    }
+
+    let result = Confirm::with_theme(&ColorfulTheme::default())
+        .with_prompt("Do you want to continue?")
+        .default(false)
+        .interact()
+        .map_err(|e| CliError::custom(format!("Failed to prompt user: {e}")).into());
+
+    // Print a newline for better formatting.
+    println!();
+
+    result
+}
+
 /// Asks the user to confirm a fee.
 pub fn confirm_fee<N: Network>(
     fee: &snarkvm::prelude::Fee<N>,

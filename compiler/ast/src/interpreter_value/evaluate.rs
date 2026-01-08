@@ -138,7 +138,22 @@ impl Value {
 
 pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result<Value> {
     Ok(match &literal.variant {
+        LiteralVariant::Address(s) => {
+            if s.ends_with(".aleo") {
+                let program_id: ProgramID<CurrentNetwork> = s.parse()?;
+                program_id.to_address()?.into()
+            } else {
+                let address: Address = s.parse().expect_tc(literal.span)?;
+                address.into()
+            }
+        }
         LiteralVariant::Boolean(b) => (*b).into(),
+        LiteralVariant::Field(s) => {
+            SvmLiteralParam::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(literal.span)?).into()
+        }
+        LiteralVariant::Group(s) => {
+            SvmLiteralParam::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span)?).into()
+        }
         LiteralVariant::Integer(IntegerType::U8, s, ..) => {
             let s = s.replace("_", "");
             u8::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
@@ -179,31 +194,19 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
             let s = s.replace("_", "");
             i128::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
         }
-        LiteralVariant::Field(s) => {
-            SvmLiteralParam::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(literal.span)?).into()
-        }
-        LiteralVariant::Group(s) => {
-            SvmLiteralParam::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span)?).into()
-        }
-
-        LiteralVariant::Address(s) => {
-            if s.ends_with(".aleo") {
-                let program_id: ProgramID<CurrentNetwork> = s.parse()?;
-                program_id.to_address()?.into()
-            } else {
-                let address: Address = s.parse().expect_tc(literal.span)?;
-                address.into()
-            }
-        }
+        LiteralVariant::None => halt_no_span2!(""),
         LiteralVariant::Scalar(s) => {
             SvmLiteralParam::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span)?).into()
         }
+        LiteralVariant::Signature(s) => {
+            let signature: Signature = s.parse().expect_tc(literal.span)?;
+            signature.into()
+        }
+        LiteralVariant::String(s) => Value::make_string(s.clone()),
         LiteralVariant::Unsuffixed(s) => {
             let unsuffixed = Value { id: None, contents: ValueVariants::Unsuffixed(s.clone()) };
             unsuffixed.resolve_if_unsuffixed(expected_ty, literal.span)?
         }
-        LiteralVariant::None => halt_no_span2!(""),
-        LiteralVariant::String(s) => Value::make_string(s.clone()),
     })
 }
 

@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use std::{
-    fs::File,
+    env,
+    fs::{self, File},
     io::{BufRead, BufReader},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use walkdir::WalkDir;
@@ -91,8 +92,57 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
     println!("cargo:rerun-if-changed=Cargo.lock");
 }
 
-// The build script; it currently only checks the licenses.
+/// Generates one Rust `#[test]` per CLI integration test directory.
+///
+/// Scans `tests/tests/cli` and emits corresponding test functions that invoke
+/// `run_single_cli_test` for each case. The generated tests are written to
+/// `$OUT_DIR/cli_tests.rs` and included at compile time via `include!`.
+///
+/// This enables fine-grained test filtering, clearer failure reporting, and
+/// per-test execution for CLI integration tests.
+fn generate_cli_tests() {
+    println!("cargo::rerun-if-changed=tests/tests/cli");
+
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let tests_dir = manifest_dir.join("tests/tests/cli");
+
+    let mut out = String::new();
+
+    for entry in fs::read_dir(&tests_dir).unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        if !path.is_dir() {
+            continue;
+        }
+
+        let name = path.file_name().unwrap().to_string_lossy();
+        let fn_name = format!("cli_{}", name.replace('-', "_"));
+
+        out.push_str(&format!(
+            r#"
+#[test]
+fn {fn_name}() {{
+    crate::run_single_cli_test(
+        std::path::Path::new(r"{path}")
+    );
+}}
+"#,
+            fn_name = fn_name,
+            path = path.display(),
+        ));
+    }
+
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    fs::write(out_dir.join("cli_tests.rs"), out).unwrap();
+}
+
+// The build script; it currently:
+// 1. Auto-generate e2e CLI tests as individual Rust unit tests (i.e. `[test]`).
+// 2. Checks the licenses.
 fn main() {
+    generate_cli_tests();
+
     // Check licenses in the current folder.
     check_file_licenses(".");
 }

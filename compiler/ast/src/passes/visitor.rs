@@ -117,7 +117,6 @@ pub trait AstVisitor {
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
-            Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access(access, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
@@ -210,10 +209,6 @@ pub trait AstVisitor {
     }
 
     fn visit_literal(&mut self, _input: &Literal, _additional: &Self::AdditionalInput) -> Self::Output {
-        Default::default()
-    }
-
-    fn visit_locator(&mut self, _input: &LocatorExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 

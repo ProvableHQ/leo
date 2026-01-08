@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+mod abi;
+pub use abi::LeoAbi;
+
 mod add;
 pub use add::{DependencySource, LeoAdd};
 
@@ -39,8 +42,14 @@ use deploy::{Task, print_deployment_plan, print_deployment_stats};
 mod devnet;
 pub use devnet::LeoDevnet;
 
+mod devnode;
+pub use devnode::LeoDevnode;
+
 mod execute;
 pub use execute::LeoExecute;
+
+mod format;
+pub use format::LeoFormat;
 
 pub mod query;
 pub use query::LeoQuery;

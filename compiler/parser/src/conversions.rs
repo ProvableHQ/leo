@@ -16,7 +16,7 @@
 
 use indexmap::IndexMap;
 
-use snarkvm::prelude::{Address, TestnetV0};
+use snarkvm::prelude::{Address, Signature, TestnetV0};
 
 use leo_ast::{Expression, Intrinsic, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result, TypeCheckerError};
@@ -51,18 +51,64 @@ impl<'a> ConversionContext<'a> {
         leo_ast::Identifier { name, span: node.span, id: self.builder.next_id() }
     }
 
-    fn path_to_parts(&self, node: &SyntaxNode<'_>) -> Vec<leo_ast::Identifier> {
+    /// Splits a syntax node representing a path into its constituent parts.
+    ///
+    /// This parses an optional `<program>.aleo/` prefix followed by `::`-separated
+    /// identifiers. The final identifier is separated from the leading segments,
+    /// and a full-path span is computed from the start of the program (if present)
+    /// or first identifier through the end of the last identifier.
+    ///
+    /// Returns the optional program identifier, intermediate identifiers,
+    /// final identifier, and the combined span of the entire path.
+    fn path_to_parts(
+        &self,
+        node: &SyntaxNode<'_>,
+    ) -> (Option<leo_ast::Identifier>, Vec<leo_ast::Identifier>, leo_ast::Identifier, leo_span::Span) {
+        let mut program = None;
         let mut identifiers = Vec::new();
+
         let mut i = node.span.lo;
-        for text in node.text.split("::") {
+        let mut remainder = node.text;
+
+        // Extract optional `<program>.aleo/`
+        if let Some((prog, rest)) = remainder.split_once(".aleo/") {
+            let end = i + prog.len() as u32;
+            let span = leo_span::Span { lo: i, hi: end };
+            let name = Symbol::intern(prog);
+
+            program = Some(leo_ast::Identifier { name, span, id: self.builder.next_id() });
+
+            let consumed = prog.len() + ".aleo/".len();
+            i += consumed as u32;
+            remainder = rest;
+        }
+
+        // Split on ::
+        for text in remainder.split("::") {
             let end = i + text.len() as u32;
             let span = leo_span::Span { lo: i, hi: end };
             let name = Symbol::intern(text);
+
             identifiers.push(leo_ast::Identifier { name, span, id: self.builder.next_id() });
-            // Account for the "::".
+
+            // Account for "::"
             i = end + 2;
         }
-        identifiers
+
+        // Final identifier
+        let identifier = identifiers.pop().unwrap();
+
+        // Full path span (program -> last identifier)
+        let path_span = leo_span::Span {
+            lo: program
+                .as_ref()
+                .map(|p| p.span.lo)
+                .or_else(|| identifiers.first().map(|i| i.span.lo))
+                .unwrap_or(identifier.span.lo),
+            hi: identifier.span.hi,
+        };
+
+        (program, identifiers, identifier, path_span)
     }
 
     fn to_mode(node: &SyntaxNode<'_>) -> leo_ast::Mode {
@@ -91,49 +137,18 @@ impl<'a> ConversionContext<'a> {
             }
             TypeKind::Boolean => leo_ast::Type::Boolean,
             TypeKind::Composite => {
-                let name = &node.children[0];
-                if let Some((program_str, name_str)) = name.text.split_once(".aleo/") {
-                    // This is a locator.
-                    let program = leo_ast::Identifier {
-                        name: Symbol::intern(program_str),
-                        span: leo_span::Span { lo: name.span.lo, hi: name.span.lo + program_str.len() as u32 },
-                        id: self.builder.next_id(),
-                    };
-                    let name_id = leo_ast::Identifier {
-                        name: Symbol::intern(name_str),
-                        span: leo_span::Span {
-                            lo: name.span.lo + program_str.len() as u32 + 5,
-                            hi: name.span.lo + name.text.len() as u32,
-                        },
-                        id: self.builder.next_id(),
-                    };
-                    leo_ast::CompositeType {
-                        path: leo_ast::Path::new(
-                            Some(program),
-                            Vec::new(),
-                            name_id,
-                            name_id.span,
-                            self.builder.next_id(),
-                        ),
-                        const_arguments: Vec::new(),
-                    }
-                    .into()
-                } else {
-                    // It's a path.
-                    let mut path_components = self.path_to_parts(name);
-                    let mut const_arguments = Vec::new();
-                    if let Some(arg_list) = node.children.get(1) {
-                        const_arguments = arg_list
-                            .children
-                            .iter()
-                            .filter(|child| matches!(child.kind, SyntaxKind::Expression(..)))
-                            .map(|child| self.to_expression(child))
-                            .collect::<Result<Vec<_>>>()?;
-                    }
-                    let identifier = path_components.pop().unwrap();
-                    let path = leo_ast::Path::new(None, path_components, identifier, name.span, self.builder.next_id());
-                    leo_ast::CompositeType { path, const_arguments }.into()
+                let (program, qualifier, name, path_span) = self.path_to_parts(&node.children[0]);
+                let mut const_arguments = Vec::new();
+                if let Some(arg_list) = node.children.get(1) {
+                    const_arguments = arg_list
+                        .children
+                        .iter()
+                        .filter(|child| matches!(child.kind, SyntaxKind::Expression(..)))
+                        .map(|child| self.to_expression(child))
+                        .collect::<Result<Vec<_>>>()?;
                 }
+                let path = leo_ast::Path::new(program, qualifier, name, path_span, self.builder.next_id());
+                leo_ast::CompositeType { path, const_arguments }.into()
             }
             TypeKind::Field => leo_ast::Type::Field,
             TypeKind::Future => {
@@ -496,9 +511,11 @@ impl<'a> ConversionContext<'a> {
                 .into()
             }
             ExpressionKind::AssociatedFunctionCall => {
-                let mut components = self.path_to_parts(&node.children[0]);
-                let name = components.pop().unwrap();
-                let variant = components.pop().unwrap();
+                let (program, qualifier, name, _) = self.path_to_parts(&node.children[0]);
+                assert!(program.is_none(), "guaranteed by grammar");
+                let [variant] = &qualifier[..] else {
+                    panic!("guaranteed by grammar");
+                };
 
                 let mut type_parameters = Vec::new();
                 if let Some(parameter_list) =
@@ -589,8 +606,6 @@ impl<'a> ConversionContext<'a> {
                 leo_ast::BinaryExpression { left, right, op, span, id }.into()
             }
             ExpressionKind::Call => {
-                let name = &node.children[0];
-
                 let arguments = node
                     .children
                     .iter()
@@ -598,25 +613,8 @@ impl<'a> ConversionContext<'a> {
                     .map(|child| self.to_expression(child))
                     .collect::<Result<Vec<_>>>()?;
 
-                let function = if let Some((first, second)) = name.text.split_once(".aleo/") {
-                    // This is a locator.
-                    let symbol = Symbol::intern(second);
-                    let lo = node.span.lo + first.len() as u32 + ".aleo/".len() as u32;
-                    let second_span = Span { lo, hi: lo + second.len() as u32 };
-                    let program = leo_ast::Identifier {
-                        name: Symbol::intern(first),
-                        span: leo_span::Span { lo: name.span.lo, hi: name.span.lo + first.len() as u32 },
-                        id: self.builder.next_id(),
-                    };
-                    let identifier =
-                        leo_ast::Identifier { name: symbol, span: second_span, id: self.builder.next_id() };
-                    leo_ast::Path::new(Some(program), Vec::new(), identifier, span, self.builder.next_id())
-                } else {
-                    // It's a path.
-                    let mut components = self.path_to_parts(name);
-                    let identifier = components.pop().unwrap();
-                    leo_ast::Path::new(None, components, identifier, name.span, self.builder.next_id())
-                };
+                let (program, qualifier, name, path_span) = self.path_to_parts(&node.children[0]);
+                let function = leo_ast::Path::new(program, qualifier, name, path_span, id);
 
                 let mut const_arguments = Vec::new();
                 if let Some(argument_list) =
@@ -653,11 +651,21 @@ impl<'a> ConversionContext<'a> {
                 leo_ast::CastExpression { expression, type_, span, id }.into()
             }
             ExpressionKind::Path => {
-                // We need to find the spans of the individual path components, since the
-                // lossless tree just has the span of the entire path.
-                let mut identifiers = self.path_to_parts(&node.children[0]);
-                let identifier = identifiers.pop().unwrap();
-                leo_ast::Path::new(None, identifiers, identifier, span, id).into()
+                let (program, qualifier, name, _) = self.path_to_parts(&node.children[0]);
+
+                // This is a bit weird but I don't see a way around it right now. Maybe things will
+                // change with the new parser. Basically, we want to parse identifiers that start
+                // with `sign` and are valid signature into `Literal::Signature`s. If instead we capture
+                // these in the grammar file, we would then have to disallow all identifiers that
+                // start with `sign` which isn't very ergonomic.
+                if program.is_none()
+                    && qualifier.is_empty()
+                    && name.name.to_string().parse::<Signature<TestnetV0>>().is_ok()
+                {
+                    leo_ast::Literal::signature(name.name.to_string(), span, id).into()
+                } else {
+                    leo_ast::Path::new(program, qualifier, name, span, id).into()
+                }
             }
             ExpressionKind::Literal(literal_kind) => match literal_kind {
                 LiteralKind::Address => {
@@ -696,45 +704,6 @@ impl<'a> ConversionContext<'a> {
                 LiteralKind::Unsuffixed => leo_ast::Literal::unsuffixed(text(), span, id).into(),
                 LiteralKind::String => leo_ast::Literal::string(text(), span, id).into(),
             },
-            ExpressionKind::Locator => {
-                let text = node.children[0].text;
-
-                // Parse the locator string in format "some_program.aleo/some_name"
-                if let Some((program_part, name_part)) = text.split_once(".aleo/") {
-                    // Create the program identifier
-                    let program_name_symbol = Symbol::intern(program_part);
-                    let program_name_span = Span { lo: node.span.lo, hi: node.span.lo + program_part.len() as u32 };
-                    let program_name = leo_ast::Identifier {
-                        name: program_name_symbol,
-                        span: program_name_span,
-                        id: self.builder.next_id(),
-                    };
-
-                    // Create the network identifier (always "aleo")
-                    let network_start = node.span.lo + program_part.len() as u32 + 1; // +1 for the dot
-                    let network_span = Span {
-                        lo: network_start,
-                        hi: network_start + 4, // "aleo" is 4 characters
-                    };
-                    let network = leo_ast::Identifier {
-                        name: Symbol::intern("aleo"),
-                        span: network_span,
-                        id: self.builder.next_id(),
-                    };
-
-                    // Create the program ID
-                    let program_id = leo_ast::ProgramId { name: program_name, network };
-
-                    // Create the resource name
-                    let name_symbol = Symbol::intern(name_part);
-
-                    leo_ast::LocatorExpression { program: program_id, name: name_symbol, span, id }.into()
-                } else {
-                    // Invalid locator format - this should have been caught by the parser
-                    self.handler.emit_err(ParserError::custom("Invalid locator format", span));
-                    leo_ast::ErrExpression { span, id }.into()
-                }
-            }
             ExpressionKind::MemberAccess => {
                 let [composite, _dot, name] = &node.children[..] else {
                     panic!("Can't happen.");
@@ -948,10 +917,11 @@ impl<'a> ConversionContext<'a> {
                 }
             }
 
-            ExpressionKind::Struct => {
+            ExpressionKind::Composite => {
                 let name = &node.children[0];
                 let mut members = Vec::new();
-                for initializer in node.children.iter().filter(|node| node.kind == SyntaxKind::StructMemberInitializer)
+                for initializer in
+                    node.children.iter().filter(|node| node.kind == SyntaxKind::CompositeMemberInitializer)
                 {
                     let (init_name, expression) = match &initializer.children[..] {
                         [init_name] => (init_name, None),
@@ -988,34 +958,9 @@ impl<'a> ConversionContext<'a> {
                     }
                 }
 
-                // Allow external structs
-                if let Some((program_str, name_str)) = name.text.split_once(".aleo/") {
-                    // This is a locator.
-                    let program_id = leo_ast::Identifier {
-                        name: Symbol::intern(program_str),
-                        span: leo_span::Span { lo: name.span.lo, hi: name.span.lo + program_str.len() as u32 },
-                        id: self.builder.next_id(),
-                    };
-
-                    let name_id = leo_ast::Identifier {
-                        name: Symbol::intern(name_str),
-                        span: leo_span::Span {
-                            lo: name.span.lo + program_str.len() as u32 + 5,
-                            hi: name.span.lo + name.text.len() as u32,
-                        },
-                        id: self.builder.next_id(),
-                    };
-
-                    let path =
-                        leo_ast::Path::new(Some(program_id), Vec::new(), name_id, name_id.span, self.builder.next_id());
-                    leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
-                } else {
-                    let mut identifiers = self.path_to_parts(name);
-                    let identifier = identifiers.pop().unwrap();
-                    let path = leo_ast::Path::new(None, identifiers, identifier, name.span, self.builder.next_id());
-
-                    leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
-                }
+                let (program, qualifier, name, path_span) = self.path_to_parts(name);
+                let path = leo_ast::Path::new(program, qualifier, name, path_span, self.builder.next_id());
+                leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into()
             }
             ExpressionKind::Ternary => {
                 let [cond, _q, if_, _c, then] = &node.children[..] else {
@@ -1223,7 +1168,7 @@ impl<'a> ConversionContext<'a> {
     }
 
     fn to_composite(&self, node: &SyntaxNode<'_>) -> Result<leo_ast::Composite> {
-        assert_eq!(node.kind, SyntaxKind::StructDeclaration);
+        assert_eq!(node.kind, SyntaxKind::CompositeDeclaration);
 
         let [struct_or_record, i, .., members] = &node.children[..] else {
             panic!("Can't happen");
@@ -1232,7 +1177,7 @@ impl<'a> ConversionContext<'a> {
         let members = members
             .children
             .iter()
-            .filter(|child| matches!(child.kind, SyntaxKind::StructMemberDeclaration))
+            .filter(|child| matches!(child.kind, SyntaxKind::CompositeMemberDeclaration))
             .map(|child| {
                 let (mode, ident, type_) = match &child.children[..] {
                     [ident, _c, type_] => (leo_ast::Mode::None, ident, type_),
@@ -1346,7 +1291,7 @@ impl<'a> ConversionContext<'a> {
         let composites = node
             .children
             .iter()
-            .filter(|child| matches!(child.kind, SyntaxKind::StructDeclaration))
+            .filter(|child| matches!(child.kind, SyntaxKind::CompositeDeclaration))
             .map(|child| {
                 let composite = self.to_composite(child)?;
                 Ok((composite.identifier.name, composite))
@@ -1396,7 +1341,7 @@ impl<'a> ConversionContext<'a> {
         let composites = program_node
             .children
             .iter()
-            .filter(|child| matches!(child.kind, SyntaxKind::StructDeclaration))
+            .filter(|child| matches!(child.kind, SyntaxKind::CompositeDeclaration))
             .map(|child| {
                 let composite = self.to_composite(child)?;
                 Ok((composite.identifier.name, composite))

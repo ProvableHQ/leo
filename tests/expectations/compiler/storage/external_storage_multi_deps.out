@@ -1,0 +1,339 @@
+program base.aleo;
+
+mapping val_u32__:
+    key as boolean.public;
+    value as u32.public;
+
+function init:
+    async init into r0;
+    output r0 as base.aleo/init.future;
+
+finalize init:
+    set 99u32 into val_u32__[false];
+
+function wipe:
+    async wipe into r0;
+    output r0 as base.aleo/wipe.future;
+
+finalize wipe:
+    remove val_u32__[false];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import base.aleo;
+program mid1.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping flag__:
+    key as boolean.public;
+    value as boolean.public;
+
+function init:
+    async init into r0;
+    output r0 as mid1.aleo/init.future;
+
+finalize init:
+    set true into flag__[false];
+    contains base.aleo/val_u32__[false] into r0;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r1;
+    cast true r1 into r2 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    assert.eq r6.is_some true;
+    contains base.aleo/val_u32__[false] into r7;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r8;
+    cast true r8 into r9 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r10 as Optional__EsDmm5O6sv6;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__EsDmm5O6sv6;
+    is.eq r13.val 99u32 into r14;
+    assert.eq r14 true;
+
+function wipe:
+    async wipe into r0;
+    output r0 as mid1.aleo/wipe.future;
+
+finalize wipe:
+    remove flag__[false];
+    contains base.aleo/val_u32__[false] into r0;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r1;
+    cast true r1 into r2 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r7 as Optional__EsDmm5O6sv6;
+    is.eq r6 r7 into r8;
+    assert.eq r8 true;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import base.aleo;
+import mid1.aleo;
+program mid2.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+struct Optional__DbbQYuLaHdi:
+    is_some as boolean;
+    val as boolean;
+
+mapping counter__:
+    key as boolean.public;
+    value as u8.public;
+
+function init:
+    async init into r0;
+    output r0 as mid2.aleo/init.future;
+
+finalize init:
+    set 7u8 into counter__[false];
+    contains base.aleo/val_u32__[false] into r0;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r1;
+    cast true r1 into r2 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    assert.eq r6.is_some true;
+    contains base.aleo/val_u32__[false] into r7;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r8;
+    cast true r8 into r9 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r10 as Optional__EsDmm5O6sv6;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__EsDmm5O6sv6;
+    is.eq r13.val 99u32 into r14;
+    assert.eq r14 true;
+    contains mid1.aleo/flag__[false] into r15;
+    get.or_use mid1.aleo/flag__[false] false into r16;
+    cast true r16 into r17 as Optional__DbbQYuLaHdi;
+    cast false false into r18 as Optional__DbbQYuLaHdi;
+    ternary r15 r17.is_some r18.is_some into r19;
+    ternary r15 r17.val r18.val into r20;
+    cast r19 r20 into r21 as Optional__DbbQYuLaHdi;
+    assert.eq r21.is_some true;
+    contains mid1.aleo/flag__[false] into r22;
+    get.or_use mid1.aleo/flag__[false] false into r23;
+    cast true r23 into r24 as Optional__DbbQYuLaHdi;
+    cast false false into r25 as Optional__DbbQYuLaHdi;
+    ternary r22 r24.is_some r25.is_some into r26;
+    ternary r22 r24.val r25.val into r27;
+    cast r26 r27 into r28 as Optional__DbbQYuLaHdi;
+    is.eq r28.val true into r29;
+    assert.eq r29 true;
+
+function wipe:
+    async wipe into r0;
+    output r0 as mid2.aleo/wipe.future;
+
+finalize wipe:
+    remove counter__[false];
+    contains mid1.aleo/flag__[false] into r0;
+    get.or_use mid1.aleo/flag__[false] false into r1;
+    cast true r1 into r2 as Optional__DbbQYuLaHdi;
+    cast false false into r3 as Optional__DbbQYuLaHdi;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__DbbQYuLaHdi;
+    cast false false into r7 as Optional__DbbQYuLaHdi;
+    is.eq r6 r7 into r8;
+    assert.eq r8 true;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import base.aleo;
+import mid1.aleo;
+import mid2.aleo;
+program top.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+struct Optional__DbbQYuLaHdi:
+    is_some as boolean;
+    val as boolean;
+
+struct Optional__8hhrPm4c3KB:
+    is_some as boolean;
+    val as u8;
+
+function test_initialized:
+    async test_initialized into r0;
+    output r0 as top.aleo/test_initialized.future;
+
+finalize test_initialized:
+    contains base.aleo/val_u32__[false] into r0;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r1;
+    cast true r1 into r2 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    assert.eq r6.is_some true;
+    contains base.aleo/val_u32__[false] into r7;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r8;
+    cast true r8 into r9 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r10 as Optional__EsDmm5O6sv6;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__EsDmm5O6sv6;
+    is.eq r13.val 99u32 into r14;
+    assert.eq r14 true;
+    contains mid1.aleo/flag__[false] into r15;
+    get.or_use mid1.aleo/flag__[false] false into r16;
+    cast true r16 into r17 as Optional__DbbQYuLaHdi;
+    cast false false into r18 as Optional__DbbQYuLaHdi;
+    ternary r15 r17.is_some r18.is_some into r19;
+    ternary r15 r17.val r18.val into r20;
+    cast r19 r20 into r21 as Optional__DbbQYuLaHdi;
+    assert.eq r21.is_some true;
+    contains mid1.aleo/flag__[false] into r22;
+    get.or_use mid1.aleo/flag__[false] false into r23;
+    cast true r23 into r24 as Optional__DbbQYuLaHdi;
+    cast false false into r25 as Optional__DbbQYuLaHdi;
+    ternary r22 r24.is_some r25.is_some into r26;
+    ternary r22 r24.val r25.val into r27;
+    cast r26 r27 into r28 as Optional__DbbQYuLaHdi;
+    is.eq r28.val true into r29;
+    assert.eq r29 true;
+    contains mid2.aleo/counter__[false] into r30;
+    get.or_use mid2.aleo/counter__[false] 0u8 into r31;
+    cast true r31 into r32 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r33 as Optional__8hhrPm4c3KB;
+    ternary r30 r32.is_some r33.is_some into r34;
+    ternary r30 r32.val r33.val into r35;
+    cast r34 r35 into r36 as Optional__8hhrPm4c3KB;
+    assert.eq r36.is_some true;
+    contains mid2.aleo/counter__[false] into r37;
+    get.or_use mid2.aleo/counter__[false] 0u8 into r38;
+    cast true r38 into r39 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r40 as Optional__8hhrPm4c3KB;
+    ternary r37 r39.is_some r40.is_some into r41;
+    ternary r37 r39.val r40.val into r42;
+    cast r41 r42 into r43 as Optional__8hhrPm4c3KB;
+    is.eq r43.val 7u8 into r44;
+    assert.eq r44 true;
+
+function test_fallback:
+    async test_fallback into r0;
+    output r0 as top.aleo/test_fallback.future;
+
+finalize test_fallback:
+    contains base.aleo/val_u32__[false] into r0;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r1;
+    cast true r1 into r2 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    contains base.aleo/val_u32__[false] into r7;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r8;
+    cast true r8 into r9 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r10 as Optional__EsDmm5O6sv6;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__EsDmm5O6sv6;
+    ternary r6.is_some r13.val 0u32 into r14;
+    is.eq r14 0u32 into r15;
+    assert.eq r15 true;
+    contains mid1.aleo/flag__[false] into r16;
+    get.or_use mid1.aleo/flag__[false] false into r17;
+    cast true r17 into r18 as Optional__DbbQYuLaHdi;
+    cast false false into r19 as Optional__DbbQYuLaHdi;
+    ternary r16 r18.is_some r19.is_some into r20;
+    ternary r16 r18.val r19.val into r21;
+    cast r20 r21 into r22 as Optional__DbbQYuLaHdi;
+    contains mid1.aleo/flag__[false] into r23;
+    get.or_use mid1.aleo/flag__[false] false into r24;
+    cast true r24 into r25 as Optional__DbbQYuLaHdi;
+    cast false false into r26 as Optional__DbbQYuLaHdi;
+    ternary r23 r25.is_some r26.is_some into r27;
+    ternary r23 r25.val r26.val into r28;
+    cast r27 r28 into r29 as Optional__DbbQYuLaHdi;
+    ternary r22.is_some r29.val false into r30;
+    is.eq r30 false into r31;
+    assert.eq r31 true;
+    contains mid2.aleo/counter__[false] into r32;
+    get.or_use mid2.aleo/counter__[false] 0u8 into r33;
+    cast true r33 into r34 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r35 as Optional__8hhrPm4c3KB;
+    ternary r32 r34.is_some r35.is_some into r36;
+    ternary r32 r34.val r35.val into r37;
+    cast r36 r37 into r38 as Optional__8hhrPm4c3KB;
+    contains mid2.aleo/counter__[false] into r39;
+    get.or_use mid2.aleo/counter__[false] 0u8 into r40;
+    cast true r40 into r41 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r42 as Optional__8hhrPm4c3KB;
+    ternary r39 r41.is_some r42.is_some into r43;
+    ternary r39 r41.val r42.val into r44;
+    cast r43 r44 into r45 as Optional__8hhrPm4c3KB;
+    ternary r38.is_some r45.val 11u8 into r46;
+    is.eq r46 11u8 into r47;
+    assert.eq r47 true;
+
+function test_none:
+    async test_none into r0;
+    output r0 as top.aleo/test_none.future;
+
+finalize test_none:
+    contains base.aleo/val_u32__[false] into r0;
+    get.or_use base.aleo/val_u32__[false] 0u32 into r1;
+    cast true r1 into r2 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r7 as Optional__EsDmm5O6sv6;
+    is.eq r6 r7 into r8;
+    assert.eq r8 true;
+    contains mid1.aleo/flag__[false] into r9;
+    get.or_use mid1.aleo/flag__[false] false into r10;
+    cast true r10 into r11 as Optional__DbbQYuLaHdi;
+    cast false false into r12 as Optional__DbbQYuLaHdi;
+    ternary r9 r11.is_some r12.is_some into r13;
+    ternary r9 r11.val r12.val into r14;
+    cast r13 r14 into r15 as Optional__DbbQYuLaHdi;
+    cast false false into r16 as Optional__DbbQYuLaHdi;
+    is.eq r15 r16 into r17;
+    assert.eq r17 true;
+    contains mid2.aleo/counter__[false] into r18;
+    get.or_use mid2.aleo/counter__[false] 0u8 into r19;
+    cast true r19 into r20 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r21 as Optional__8hhrPm4c3KB;
+    ternary r18 r20.is_some r21.is_some into r22;
+    ternary r18 r20.val r21.val into r23;
+    cast r22 r23 into r24 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r25 as Optional__8hhrPm4c3KB;
+    is.eq r24 r25 into r26;
+    assert.eq r26 true;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372005]: Unknown variable `base.aleo/val_u32`
+    --> compiler-test:11:20
+     |
+  11 |             assert(base.aleo/val_u32.unwrap() == 99u32);
+     |                    ^^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown variable `base.aleo/val_u32`
+    --> compiler-test:18:20
+     |
+  18 |             assert(base.aleo/val_u32 == none);
+     |                    ^^^^^^^^^^^^^^^^^

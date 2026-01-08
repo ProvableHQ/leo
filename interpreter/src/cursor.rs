@@ -445,7 +445,6 @@ impl Cursor {
                 | Expression::Cast(..)
                 | Expression::Err(..)
                 | Expression::Literal(..)
-                | Expression::Locator(..)
                 | Expression::Repeat(..)
                 | Expression::Composite(..)
                 | Expression::Ternary(..)
@@ -1276,7 +1275,6 @@ impl Cursor {
                 Some(self.lookup(&self.to_absolute_path(&path.segments())).expect_tc(path.span())?)
             }
             Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
-            Expression::Locator(_locator) => todo!(),
             Expression::Composite(composite) if step == 0 => {
                 let members = self
                     .composites
