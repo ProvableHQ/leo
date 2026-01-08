@@ -25,7 +25,9 @@ use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     ledger::query::Query as SnarkVMQuery,
     prelude::{
-        Program, TestnetV0, VM,
+        Program,
+        TestnetV0,
+        VM,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
