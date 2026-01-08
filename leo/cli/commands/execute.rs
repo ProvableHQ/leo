@@ -72,7 +72,7 @@ pub struct LeoExecute {
 
 impl Command for LeoExecute {
     type Input = Option<Package>;
-    type Output = ();
+    type Output = ExecuteOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -276,6 +276,14 @@ fn handle_execute<A: Aleo>(
     let consensus_version =
         get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
 
+    // Build the config for JSON output.
+    let config = Some(Config {
+        address: address.to_string(),
+        network: network.to_string(),
+        endpoint: Some(endpoint.clone()),
+        consensus_version: Some(consensus_version as u8),
+    });
+
     // Print the execution plan.
     print_execution_plan::<A::Network>(
         &private_key,
@@ -295,7 +303,7 @@ fn handle_execute<A: Aleo>(
     // Prompt the user to confirm the plan.
     if !confirm("Do you want to proceed with execution?", command.extra.yes)? {
         println!("❌ Execution aborted.");
-        return Ok(());
+        return Ok(ExecuteOutput::default());
     }
 
     // Initialize an RNG.
@@ -346,8 +354,8 @@ fn handle_execute<A: Aleo>(
         rng,
     )?;
 
-    // Print the execution stats.
-    print_execution_stats::<A::Network>(
+    // Compute and print the execution stats.
+    let stats = print_execution_stats::<A::Network>(
         &vm,
         &program_name,
         transaction.execution().expect("Expected execution"),
@@ -379,13 +387,18 @@ fn handle_execute<A: Aleo>(
             .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
     }
 
-    match response.outputs().len() {
+    let mut broadcast_stats = None;
+
+    // Collect outputs.
+    let outputs: Vec<String> = response.outputs().iter().map(|o| o.to_string()).collect();
+
+    match outputs.len() {
         0 => (),
         1 => println!("\n➡️  Output\n"),
         _ => println!("\n➡️  Outputs\n"),
     };
-    for output in response.outputs() {
-        println!(" • {output}");
+    for o in &outputs {
+        println!(" • {o}");
     }
     println!();
 
@@ -394,13 +407,23 @@ fn handle_execute<A: Aleo>(
         println!("📡 Broadcasting execution for {program_name}...");
         // Get and confirm the fee with the user.
         let mut fee_id = None;
+        let mut fee_transaction_id = None;
         if let Some(fee) = transaction.fee_transition() {
             // Most transactions will have fees, but some, like credits.aleo/upgrade executions, may not.
             if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
                 println!("❌ Execution aborted.");
-                return Ok(());
+                return Ok(ExecuteOutput {
+                    config: config.clone(),
+                    program: program_name.clone(),
+                    function: function_name.clone(),
+                    outputs,
+                    transaction_id: transaction.id().to_string(),
+                    stats: Some(stats),
+                    broadcast: None,
+                });
             }
             fee_id = Some(fee.id().to_string());
+            fee_transaction_id = Some(Transaction::from_fee(fee.clone())?.id().to_string());
         }
         let id = transaction.id().to_string();
         let height_before = check_transaction::current_height(&endpoint, network)?;
@@ -408,14 +431,9 @@ fn handle_execute<A: Aleo>(
         let (message, status) =
             handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast"), &transaction, &program_name)?;
 
-        let fail = |msg| {
-            println!("❌ Failed to broadcast execution: {msg}.");
-            Ok(())
-        };
-
         match status {
             200..=299 => {
-                let status = check_transaction::check_transaction_with_message(
+                let tx_status = check_transaction::check_transaction_with_message(
                     &id,
                     fee_id.as_deref(),
                     &endpoint,
@@ -424,17 +442,31 @@ fn handle_execute<A: Aleo>(
                     command.extra.max_wait,
                     command.extra.blocks_to_check,
                 )?;
-                if status == Some(TransactionStatus::Accepted) {
+                let confirmed = tx_status == Some(TransactionStatus::Accepted);
+                if confirmed {
                     println!("✅ Execution confirmed!");
                 }
+                broadcast_stats = Some(BroadcastStats {
+                    fee_id: fee_id.unwrap_or_default(),
+                    fee_transaction_id: fee_transaction_id.unwrap_or_default(),
+                    confirmed,
+                });
             }
             _ => {
-                return fail(&message);
+                println!("❌ Failed to broadcast execution: {message}.");
             }
         }
     }
 
-    Ok(())
+    Ok(ExecuteOutput {
+        config,
+        program: program_name.clone(),
+        function: function_name.clone(),
+        outputs,
+        transaction_id: transaction.id().to_string(),
+        stats: Some(stats),
+        broadcast: broadcast_stats,
+    })
 }
 
 /// Check the execution task for warnings.
@@ -545,37 +577,34 @@ fn print_execution_plan<N: Network>(
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
 
-/// Pretty‑print execution statistics without a table, using the same UI
-/// conventions as `print_deployment_plan`.
+/// Compute execution statistics.
+fn compute_execution_stats<N: Network>(
+    vm: &VM<N, ConsensusMemory<N>>,
+    execution: &Execution<N>,
+    priority_fee: Option<u64>,
+    consensus_version: ConsensusVersion,
+) -> Result<ExecutionStats> {
+    let (_, (storage_cost, exec_cost)) = execution_cost(&vm.process().read(), execution, consensus_version)?;
+
+    Ok(ExecutionStats { cost: CostBreakdown::for_execution(storage_cost, exec_cost, priority_fee.unwrap_or(0)) })
+}
+
+/// Pretty-print execution statistics.
 fn print_execution_stats<N: Network>(
     vm: &VM<N, ConsensusMemory<N>>,
     program_name: &str,
     execution: &Execution<N>,
     priority_fee: Option<u64>,
     consensus_version: ConsensusVersion,
-) -> Result<()> {
+) -> Result<ExecutionStats> {
     use colored::*;
 
-    // ── Gather cost components ────────────────────────────────────────────
-    let (base_fee, (storage_cost, execution_cost)) =
-        execution_cost(&vm.process().read(), execution, consensus_version)?;
+    let stats = compute_execution_stats(vm, execution, priority_fee, consensus_version)?;
 
-    let base_cr = base_fee as f64 / 1_000_000.0;
-    let prio_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
-    let total_cr = base_cr + prio_cr;
-
-    // ── Header ────────────────────────────────────────────────────────────
     println!("\n{} {}", "📊 Execution Summary for".bold(), program_name.bold());
     println!("{}", "──────────────────────────────────────────────".dimmed());
-
-    // ── Cost breakdown ────────────────────────────────────────────────────
-    println!("{}", "💰 Cost Breakdown (credits)".bold());
-    println!("  {:22}{}{:.6}", "Transaction Storage:".cyan(), "".yellow(), storage_cost as f64 / 1_000_000.0);
-    println!("  {:22}{}{:.6}", "On‑chain Execution:".cyan(), "".yellow(), execution_cost as f64 / 1_000_000.0);
-    println!("  {:22}{}{:.6}", "Priority Fee:".cyan(), "".yellow(), prio_cr);
-    println!("  {:22}{}{:.6}", "Total Fee:".cyan(), "".yellow(), total_cr);
-
-    // ── Footer rule ───────────────────────────────────────────────────────
+    print!("{stats}");
     println!("{}", "──────────────────────────────────────────────".dimmed());
-    Ok(())
+
+    Ok(stats)
 }
