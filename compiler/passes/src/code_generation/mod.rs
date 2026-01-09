@@ -613,6 +613,7 @@ impl<N: Network> From<PlaintextType<N>> for AleoType {
         match value {
             PlaintextType::Literal(lit) => lit.into(),
             PlaintextType::Struct(id) => Self::Ident { name: id.to_string() },
+            PlaintextType::ExternalStruct(locator) => Self::Ident { name: locator.to_string() },
             PlaintextType::Array(arr) => arr.into(),
         }
     }

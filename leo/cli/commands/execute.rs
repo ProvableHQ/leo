@@ -344,15 +344,17 @@ fn handle_execute<A: Aleo>(
 
     // Execute the program and produce a transaction.
     println!("\n⚙️ Executing {program_name}/{function_name}...");
-    let (transaction, response) = vm.execute_with_response(
-        &private_key,
-        (&program_name, &function_name),
-        inputs.iter(),
-        record,
-        priority_fee.unwrap_or(0),
-        Some(&query),
-        rng,
-    )?;
+    let (transaction, response) = vm
+        .execute_with_response(
+            &private_key,
+            (&program_name, &function_name),
+            inputs.iter(),
+            record,
+            priority_fee.unwrap_or(0),
+            Some(&query),
+            rng,
+        )
+        .map_err(|e| CliError::custom(format!("Failed to execute program: {e}")))?;
 
     // Compute and print the execution stats.
     let stats = print_execution_stats::<A::Network>(

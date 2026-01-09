@@ -34,7 +34,7 @@ use snarkvm::prelude::{
     LiteralType,
     Network,
     PlaintextType,
-    PlaintextType::{Array, Literal, Struct},
+    PlaintextType::{Array, ExternalStruct, Literal, Struct},
 };
 use std::fmt;
 
@@ -235,6 +235,7 @@ impl Type {
                 program,
             }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
+            ExternalStruct(_) => unimplemented!("External structs are not yet supported"),
         }
     }
 
@@ -265,13 +266,19 @@ impl Type {
     }
 
     // A helper function to get the size in bits of the input type.
-    pub fn size_in_bits<N: Network, F>(&self, is_raw: bool, get_composite: F) -> anyhow::Result<usize>
+    pub fn size_in_bits<N: Network, F0, F1>(
+        &self,
+        is_raw: bool,
+        get_composite: F0,
+        get_external_composite: F1,
+    ) -> anyhow::Result<usize>
     where
-        F: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+        F0: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
+        F1: Fn(&snarkvm::prelude::Locator<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
     {
         match is_raw {
-            false => self.to_snarkvm::<N>()?.size_in_bits(&get_composite),
-            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_composite),
+            false => self.to_snarkvm::<N>()?.size_in_bits(&get_composite, &get_external_composite),
+            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_composite, &get_external_composite),
         }
     }
 

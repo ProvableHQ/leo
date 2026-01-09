@@ -43,6 +43,7 @@ use snarkvm::prelude::{
 pub(crate) use snarkvm::prelude::{
     Identifier as SvmIdentifierParam,
     Literal as SvmLiteralParam,
+    Locator as SvmLocatorParam,
     Plaintext,
     Signature as SvmSignature,
     TestnetV0,
@@ -61,6 +62,7 @@ pub(crate) type ProgramID = ProgramIDParam<CurrentNetwork>;
 pub(crate) type SvmPlaintext = Plaintext<CurrentNetwork>;
 pub(crate) type SvmLiteral = SvmLiteralParam<CurrentNetwork>;
 pub(crate) type SvmIdentifier = SvmIdentifierParam<CurrentNetwork>;
+pub(crate) type SvmLocator = SvmLocatorParam<CurrentNetwork>;
 pub(crate) type Group = SvmGroup<CurrentNetwork>;
 pub(crate) type Field = SvmField<CurrentNetwork>;
 pub(crate) type Scalar = SvmScalar<CurrentNetwork>;

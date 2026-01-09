@@ -494,12 +494,21 @@ impl TypeCheckingVisitor<'_> {
                     let input_type = &arguments[0].0;
                     // Get the size in bits.
                     let size_in_bits = match self.state.network {
-                        NetworkName::TestnetV0 => input_type
-                            .size_in_bits::<TestnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
-                        NetworkName::MainnetV0 => input_type
-                            .size_in_bits::<MainnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
-                        NetworkName::CanaryV0 => input_type
-                            .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
+                            variant.is_raw(),
+                            |_| bail!("structs are not supported"),
+                            |_| bail!("external structs are not supported"),
+                        ),
+                        NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
+                            variant.is_raw(),
+                            |_| bail!("structs are not supported"),
+                            |_| bail!("external structs are not supported"),
+                        ),
+                        NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
+                            variant.is_raw(),
+                            |_| bail!("structs are not supported"),
+                            |_| bail!("external structs are not supported"),
+                        ),
                     };
                     if let Ok(size_in_bits) = size_in_bits {
                         // Check that the size in bits is a multiple of 8.
@@ -641,12 +650,21 @@ impl TypeCheckingVisitor<'_> {
                     let input_type = &arguments[2].0;
                     // Get the size in bits.
                     let size_in_bits = match self.state.network {
-                        NetworkName::TestnetV0 => input_type
-                            .size_in_bits::<TestnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
-                        NetworkName::MainnetV0 => input_type
-                            .size_in_bits::<MainnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
-                        NetworkName::CanaryV0 => input_type
-                            .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
+                            variant.is_raw(),
+                            |_| bail!("structs are not supported"),
+                            |_| bail!("external structs are not supported"),
+                        ),
+                        NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
+                            variant.is_raw(),
+                            |_| bail!("structs are not supported"),
+                            |_| bail!("external structs are not supported"),
+                        ),
+                        NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
+                            variant.is_raw(),
+                            |_| bail!("structs are not supported"),
+                            |_| bail!("external structs are not supported"),
+                        ),
                     };
                     if let Ok(size_in_bits) = size_in_bits {
                         // Check that the size in bits is a multiple of 8.
@@ -968,15 +986,21 @@ impl TypeCheckingVisitor<'_> {
 
                 // Get the size in bits.
                 let size_in_bits = match self.state.network {
-                    NetworkName::TestnetV0 => {
-                        input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::MainnetV0 => {
-                        input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::CanaryV0 => {
-                        input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
+                    NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
+                        is_raw,
+                        |_| bail!("structs are not supported"),
+                        |_| bail!("external structs are not supported"),
+                    ),
+                    NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
+                        is_raw,
+                        |_| bail!("structs are not supported"),
+                        |_| bail!("external structs are not supported"),
+                    ),
+                    NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
+                        is_raw,
+                        |_| bail!("structs are not supported"),
+                        |_| bail!("external structs are not supported"),
+                    ),
                 };
 
                 if let Ok(size_in_bits) = size_in_bits {
@@ -1015,15 +1039,21 @@ impl TypeCheckingVisitor<'_> {
 
                 // Get the size in bits.
                 let size_in_bits = match self.state.network {
-                    NetworkName::TestnetV0 => {
-                        type_.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::MainnetV0 => {
-                        type_.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
-                    NetworkName::CanaryV0 => {
-                        type_.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
-                    }
+                    NetworkName::TestnetV0 => type_.size_in_bits::<TestnetV0, _, _>(
+                        is_raw,
+                        |_| bail!("structs are not supported"),
+                        |_| bail!("external structs are not supported"),
+                    ),
+                    NetworkName::MainnetV0 => type_.size_in_bits::<MainnetV0, _, _>(
+                        is_raw,
+                        |_| bail!("structs are not supported"),
+                        |_| bail!("external structs are not supported"),
+                    ),
+                    NetworkName::CanaryV0 => type_.size_in_bits::<CanaryV0, _, _>(
+                        is_raw,
+                        |_| bail!("structs are not supported"),
+                        |_| bail!("external structs are not supported"),
+                    ),
                 };
 
                 if let Ok(size_in_bits) = size_in_bits {

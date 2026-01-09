@@ -426,7 +426,7 @@ fn run_leo_devnet(num_validators: usize) -> io::Result<Child> {
         .arg("test_network") // Use test network configuration
         .arg("--num-validators")
         .arg(num_validators.to_string())
-        .arg("--consensus-heights")             // Define consensus heights for testing
+        .arg("--consensus-heights") // Define consensus heights for testing
         .arg(&consensus_heights)
         .arg("--clear-storage")
         .stdout(Stdio::null())

@@ -421,6 +421,9 @@ impl Cursor {
                         );
                         (value, destination)
                     }
+                    CastType::Plaintext(PlaintextType::ExternalStruct(_)) => {
+                        unimplemented!("External struct casts are not yet supported")
+                    }
                     CastType::Record(record_name) => {
                         let program = self.current_program().unwrap();
                         let name = Symbol::intern(&record_name.to_string());
