@@ -24,6 +24,26 @@ use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
 use indexmap::{IndexMap, IndexSet};
 use std::path::Path;
 
+/// Find the latest cached edition for a program in the local registry.
+/// Returns None if no cached version exists.
+fn find_cached_edition(cache_directory: &Path, name: &str) -> Option<u16> {
+    let program_cache = cache_directory.join(name);
+    if !program_cache.exists() {
+        return None;
+    }
+
+    // List edition directories and find the highest one
+    std::fs::read_dir(&program_cache)
+        .ok()?
+        .filter_map(|entry| entry.ok())
+        .filter_map(|entry| {
+            let file_name = entry.file_name();
+            let name = file_name.to_str()?;
+            name.parse::<u16>().ok()
+        })
+        .max()
+}
+
 /// Information about an Aleo program.
 #[derive(Clone, Debug)]
 pub struct Program {
@@ -163,33 +183,22 @@ impl Program {
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
 
-        // If the edition is not specified, then query the network for the latest edition.
+        // If the edition is not specified, try to find a cached version first,
+        // then fall back to querying the network for the latest edition.
         let edition = match edition {
-            _ if name == Symbol::intern("credits") => Ok(0), // Credits program always has edition 0.
-            Some(edition) => Ok(edition),
-            None => {
-                if name == Symbol::intern("credits") {
-                    // credits.aleo is always edition 0 and fetching from the network won't work.
-                    Ok(0)
-                } else {
-                    let url = format!("{endpoint}/{network}/program/{name}.aleo/latest_edition");
-                    fetch_from_network(&url).and_then(|contents| {
-                        contents.parse::<u16>().map_err(|e| {
-                            UtilError::failed_to_retrieve_from_endpoint(
-                                url,
-                                format!("Failed to parse edition as u16: {e}"),
-                            )
-                        })
-                    })
+            // Credits program always has edition 0.
+            _ if name == Symbol::intern("credits") => 0,
+            Some(edition) => edition,
+            None if !no_cache => {
+                // Check if we have a cached version - avoid network call if possible.
+                match find_cached_edition(&cache_directory, &name.to_string()) {
+                    Some(cached_edition) => cached_edition,
+                    None => crate::fetch_latest_edition(&name.to_string(), endpoint, network)?,
                 }
             }
+            // no_cache is set - user wants fresh data from network.
+            None => crate::fetch_latest_edition(&name.to_string(), endpoint, network)?,
         };
-
-        // If we failed to get the edition, default to 0.
-        let edition = edition.unwrap_or_else(|err| {
-            println!("Warning: Could not fetch edition for program `{name}`: {err}. Defaulting to edition 0.");
-            0
-        });
 
         // Define the full cache path for the program.
         let cache_directory = cache_directory.join(format!("{name}/{edition}"));

@@ -18,61 +18,61 @@ program complex.aleo {
     mapping nested__: bool => [[u8; 2]; 2];
     async transition initialize() -> Future<Fn()> {
         return async {
-            Mapping::set(::point__, false, Point { x: 1field, y: 2field });
-            Mapping::set(::points__, false, [Point { x: 10field, y: 20field }, Point { x: 30field, y: 40field }]);
-            Mapping::set(::stats__, false, Stats { values: [5u32, 10u32, 15u32], active: true });
-            Mapping::set(::arr_u32__, false, [7u32, 8u32, 9u32]);
-            Mapping::set(::arr_bool__, false, [true, false]);
-            Mapping::set(::nested__, false, [[1u8, 2u8], [3u8, 4u8]]);
+            _mapping_set(::point__, false, Point { x: 1field, y: 2field });
+            _mapping_set(::points__, false, [Point { x: 10field, y: 20field }, Point { x: 30field, y: 40field }]);
+            _mapping_set(::stats__, false, Stats { values: [5u32, 10u32, 15u32], active: true });
+            _mapping_set(::arr_u32__, false, [7u32, 8u32, 9u32]);
+            _mapping_set(::arr_bool__, false, [true, false]);
+            _mapping_set(::nested__, false, [[1u8, 2u8], [3u8, 4u8]]);
         };
     }
     async transition to_none() -> Future<Fn()> {
         return async {
-            Mapping::remove(::point__, false);
-            Mapping::remove(::points__, false);
-            Mapping::remove(::stats__, false);
-            Mapping::remove(::arr_u32__, false);
-            Mapping::remove(::arr_bool__, false);
-            Mapping::remove(::nested__, false);
+            _mapping_remove(::point__, false);
+            _mapping_remove(::points__, false);
+            _mapping_remove(::stats__, false);
+            _mapping_remove(::arr_u32__, false);
+            _mapping_remove(::arr_bool__, false);
+            _mapping_remove(::nested__, false);
         };
     }
     async transition check1() -> Future<Fn()> {
         return async {
-            let p = Optional::unwrap(Mapping::contains(::point__, false) ? Mapping::get_or_use(::point__, false, Point { x: 0field, y: 0field }) : none);
+            let p = _optional_unwrap(_mapping_contains(::point__, false) ? _mapping_get_or_use(::point__, false, Point { x: 0field, y: 0field }) : none);
             assert(p.x == 1field);
             assert(p.y == 2field);
-            let ps = Optional::unwrap(Mapping::contains(::points__, false) ? Mapping::get_or_use(::points__, false, [Point { x: 0field, y: 0field }; 2]) : none);
+            let ps = _optional_unwrap(_mapping_contains(::points__, false) ? _mapping_get_or_use(::points__, false, [Point { x: 0field, y: 0field }; 2]) : none);
             assert(ps[0].x == 10field);
             assert(ps[1].y == 40field);
-            let s = Optional::unwrap(Mapping::contains(::stats__, false) ? Mapping::get_or_use(::stats__, false, Stats { values: [0u32; 3], active: false }) : none);
+            let s = _optional_unwrap(_mapping_contains(::stats__, false) ? _mapping_get_or_use(::stats__, false, Stats { values: [0u32; 3], active: false }) : none);
             assert(s.values[1] == 10u32);
             assert(s.active == true);
-            let a = Optional::unwrap(Mapping::contains(::arr_u32__, false) ? Mapping::get_or_use(::arr_u32__, false, [0u32; 3]) : none);
+            let a = _optional_unwrap(_mapping_contains(::arr_u32__, false) ? _mapping_get_or_use(::arr_u32__, false, [0u32; 3]) : none);
             assert(a[2] == 9u32);
-            let b = Optional::unwrap(Mapping::contains(::arr_bool__, false) ? Mapping::get_or_use(::arr_bool__, false, [false; 2]) : none);
+            let b = _optional_unwrap(_mapping_contains(::arr_bool__, false) ? _mapping_get_or_use(::arr_bool__, false, [false; 2]) : none);
             assert(b[0] == true);
             assert(b[1] == false);
-            let n = Optional::unwrap(Mapping::contains(::nested__, false) ? Mapping::get_or_use(::nested__, false, [[0u8; 2]; 2]) : none);
+            let n = _optional_unwrap(_mapping_contains(::nested__, false) ? _mapping_get_or_use(::nested__, false, [[0u8; 2]; 2]) : none);
             assert(n[0][1] == 2u8);
             assert(n[1][0] == 3u8);
         };
     }
     async transition check2() -> Future<Fn()> {
         return async {
-            let p = Optional::unwrap_or(Mapping::contains(::point__, false) ? Mapping::get_or_use(::point__, false, Point { x: 0field, y: 0field }) : none, Point { x: 0field, y: 0field });
+            let p = _optional_unwrap_or(_mapping_contains(::point__, false) ? _mapping_get_or_use(::point__, false, Point { x: 0field, y: 0field }) : none, Point { x: 0field, y: 0field });
             assert(p.x == 1field);
             assert(p.y == 2field);
-            let ps = Optional::unwrap_or(Mapping::contains(::points__, false) ? Mapping::get_or_use(::points__, false, [Point { x: 0field, y: 0field }; 2]) : none, [Point { x: 0field, y: 0field }, Point { x: 0field, y: 0field }]);
+            let ps = _optional_unwrap_or(_mapping_contains(::points__, false) ? _mapping_get_or_use(::points__, false, [Point { x: 0field, y: 0field }; 2]) : none, [Point { x: 0field, y: 0field }, Point { x: 0field, y: 0field }]);
             assert(ps[0].x == 10field);
             assert(ps[1].y == 40field);
-            let s = Optional::unwrap_or(Mapping::contains(::stats__, false) ? Mapping::get_or_use(::stats__, false, Stats { values: [0u32; 3], active: false }) : none, Stats { values: [0u32, 0u32, 0u32], active: false });
+            let s = _optional_unwrap_or(_mapping_contains(::stats__, false) ? _mapping_get_or_use(::stats__, false, Stats { values: [0u32; 3], active: false }) : none, Stats { values: [0u32, 0u32, 0u32], active: false });
             assert(s.values[2] == 15u32);
             assert(s.active == true);
-            let a = Optional::unwrap_or(Mapping::contains(::arr_u32__, false) ? Mapping::get_or_use(::arr_u32__, false, [0u32; 3]) : none, [0u32, 0u32, 0u32]);
+            let a = _optional_unwrap_or(_mapping_contains(::arr_u32__, false) ? _mapping_get_or_use(::arr_u32__, false, [0u32; 3]) : none, [0u32, 0u32, 0u32]);
             assert(a[1] == 8u32);
-            let b = Optional::unwrap_or(Mapping::contains(::arr_bool__, false) ? Mapping::get_or_use(::arr_bool__, false, [false; 2]) : none, [false, false]);
+            let b = _optional_unwrap_or(_mapping_contains(::arr_bool__, false) ? _mapping_get_or_use(::arr_bool__, false, [false; 2]) : none, [false, false]);
             assert(b[0] == true);
-            let n = Optional::unwrap_or(Mapping::contains(::nested__, false) ? Mapping::get_or_use(::nested__, false, [[0u8; 2]; 2]) : none, [[0u8, 0u8], [0u8, 0u8]]);
+            let n = _optional_unwrap_or(_mapping_contains(::nested__, false) ? _mapping_get_or_use(::nested__, false, [[0u8; 2]; 2]) : none, [[0u8, 0u8], [0u8, 0u8]]);
             assert(n[1][1] == 4u8);
         };
     }

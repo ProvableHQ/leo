@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CoreFunction, Identifier, IntegerType, Node, NodeBuilder, NodeID, Path, Type};
+use crate::{Identifier, IntegerType, Intrinsic, Node, NodeBuilder, NodeID, Path, Type};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -22,12 +22,6 @@ use std::fmt;
 
 mod array_access;
 pub use array_access::*;
-
-mod associated_constant;
-pub use associated_constant::*;
-
-mod associated_function;
-pub use associated_function::*;
 
 mod async_;
 pub use async_::*;
@@ -44,17 +38,20 @@ pub use call::*;
 mod cast;
 pub use cast::*;
 
+mod composite_init;
+pub use composite_init::*;
+
 mod err;
 pub use err::*;
 
 mod member_access;
 pub use member_access::*;
 
+mod intrinsic;
+pub use intrinsic::*;
+
 mod repeat;
 pub use repeat::*;
-
-mod struct_init;
-pub use struct_init::*;
 
 mod ternary;
 pub use ternary::*;
@@ -82,22 +79,22 @@ pub use locator::*;
 pub enum Expression {
     /// An array access, e.g. `arr[i]`.
     ArrayAccess(Box<ArrayAccess>),
-    /// An associated constant; e.g., `group::GEN`.
-    AssociatedConstant(AssociatedConstantExpression),
-    /// An associated function; e.g., `BHP256::hash_to_field`.
-    AssociatedFunction(AssociatedFunctionExpression),
     /// An `async` block: e.g. `async { my_mapping.set(1, 2); }`.
     Async(AsyncExpression),
     /// An array expression, e.g., `[true, false, true, false]`.
     Array(ArrayExpression),
     /// A binary expression, e.g., `42 + 24`.
     Binary(Box<BinaryExpression>),
+    /// An intrinsic expression, e.g., `_my_intrinsic(args)`.
+    Intrinsic(Box<IntrinsicExpression>),
     /// A call expression, e.g., `my_fun(args)`.
     Call(Box<CallExpression>),
     /// A cast expression, e.g., `42u32 as u8`.
     Cast(Box<CastExpression>),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
+    /// An expression constructing a composite like `Foo { bar: 42, baz }`.
+    Composite(CompositeExpression),
     Err(ErrExpression),
     /// A path to some item, e.g., `foo::bar::x`.
     Path(Path),
@@ -105,12 +102,10 @@ pub enum Expression {
     Literal(Literal),
     /// A locator expression, e.g., `hello.aleo/foo`.
     Locator(LocatorExpression),
-    /// An access of a struct member, e.g. `struc.member`.
+    /// An access of a composite member, e.g. `composite.member`.
     MemberAccess(Box<MemberAccess>),
     /// An array expression constructed from one repeated element, e.g., `[1u32; 5]`.
     Repeat(Box<RepeatExpression>),
-    /// An expression constructing a struct like `Foo { bar: 42, baz }`.
-    Struct(StructExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(Box<TernaryExpression>),
     /// A tuple expression e.g., `(foo, 42, true)`.
@@ -135,19 +130,18 @@ impl Node for Expression {
         match self {
             ArrayAccess(n) => n.span(),
             Array(n) => n.span(),
-            AssociatedConstant(n) => n.span(),
-            AssociatedFunction(n) => n.span(),
             Async(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
+            Composite(n) => n.span(),
             Err(n) => n.span(),
+            Intrinsic(n) => n.span(),
             Path(n) => n.span(),
             Literal(n) => n.span(),
             Locator(n) => n.span(),
             MemberAccess(n) => n.span(),
             Repeat(n) => n.span(),
-            Struct(n) => n.span(),
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
             TupleAccess(n) => n.span(),
@@ -161,19 +155,18 @@ impl Node for Expression {
         match self {
             ArrayAccess(n) => n.set_span(span),
             Array(n) => n.set_span(span),
-            AssociatedConstant(n) => n.set_span(span),
-            AssociatedFunction(n) => n.set_span(span),
             Async(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
+            Composite(n) => n.set_span(span),
             Err(n) => n.set_span(span),
+            Intrinsic(n) => n.set_span(span),
             Path(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
             Locator(n) => n.set_span(span),
             MemberAccess(n) => n.set_span(span),
             Repeat(n) => n.set_span(span),
-            Struct(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
             TupleAccess(n) => n.set_span(span),
@@ -187,19 +180,18 @@ impl Node for Expression {
         match self {
             Array(n) => n.id(),
             ArrayAccess(n) => n.id(),
-            AssociatedConstant(n) => n.id(),
-            AssociatedFunction(n) => n.id(),
             Async(n) => n.id(),
             Binary(n) => n.id(),
             Call(n) => n.id(),
             Cast(n) => n.id(),
+            Composite(n) => n.id(),
             Path(n) => n.id(),
             Literal(n) => n.id(),
             Locator(n) => n.id(),
             MemberAccess(n) => n.id(),
             Repeat(n) => n.id(),
             Err(n) => n.id(),
-            Struct(n) => n.id(),
+            Intrinsic(n) => n.id(),
             Ternary(n) => n.id(),
             Tuple(n) => n.id(),
             TupleAccess(n) => n.id(),
@@ -213,19 +205,18 @@ impl Node for Expression {
         match self {
             Array(n) => n.set_id(id),
             ArrayAccess(n) => n.set_id(id),
-            AssociatedConstant(n) => n.set_id(id),
-            AssociatedFunction(n) => n.set_id(id),
             Async(n) => n.set_id(id),
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
             Cast(n) => n.set_id(id),
+            Composite(n) => n.set_id(id),
             Path(n) => n.set_id(id),
             Literal(n) => n.set_id(id),
             Locator(n) => n.set_id(id),
             MemberAccess(n) => n.set_id(id),
             Repeat(n) => n.set_id(id),
             Err(n) => n.set_id(id),
-            Struct(n) => n.set_id(id),
+            Intrinsic(n) => n.set_id(id),
             Ternary(n) => n.set_id(id),
             Tuple(n) => n.set_id(id),
             TupleAccess(n) => n.set_id(id),
@@ -241,19 +232,18 @@ impl fmt::Display for Expression {
         match &self {
             Array(n) => n.fmt(f),
             ArrayAccess(n) => n.fmt(f),
-            AssociatedConstant(n) => n.fmt(f),
-            AssociatedFunction(n) => n.fmt(f),
             Async(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
+            Composite(n) => n.fmt(f),
             Err(n) => n.fmt(f),
+            Intrinsic(n) => n.fmt(f),
             Path(n) => n.fmt(f),
             Literal(n) => n.fmt(f),
             Locator(n) => n.fmt(f),
             MemberAccess(n) => n.fmt(f),
             Repeat(n) => n.fmt(f),
-            Struct(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
             TupleAccess(n) => n.fmt(f),
@@ -277,22 +267,8 @@ impl Expression {
             Binary(e) => e.precedence(),
             Cast(_) => 12,
             Ternary(_) => 0,
-            Array(_)
-            | ArrayAccess(_)
-            | AssociatedConstant(_)
-            | AssociatedFunction(_)
-            | Async(_)
-            | Call(_)
-            | Err(_)
-            | Path(_)
-            | Literal(_)
-            | Locator(_)
-            | MemberAccess(_)
-            | Repeat(_)
-            | Struct(_)
-            | Tuple(_)
-            | TupleAccess(_)
-            | Unary(_)
+            Array(_) | ArrayAccess(_) | Async(_) | Call(_) | Composite(_) | Err(_) | Intrinsic(_) | Path(_)
+            | Literal(_) | Locator(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_)
             | Unit(_) => 20,
         }
     }
@@ -335,12 +311,12 @@ impl Expression {
     }
 
     /// Returns true if we can confidently say evaluating this expression has no side effects, false otherwise
-    pub fn is_pure(&self) -> bool {
+    pub fn is_pure(&self, get_type: &impl Fn(NodeID) -> Type) -> bool {
         match self {
-            // Discriminate core functions
-            Expression::AssociatedFunction(ass_fun_expr) => {
-                if let Ok(core_fn) = CoreFunction::try_from(ass_fun_expr) {
-                    core_fn.is_pure()
+            // Discriminate intrinsics
+            Expression::Intrinsic(intr) => {
+                if let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) {
+                    intrinsic.is_pure()
                 } else {
                     false
                 }
@@ -348,59 +324,71 @@ impl Expression {
 
             // We may be indirectly referring to an impure item
             // This analysis could be more granular
-            Expression::Call(..) => false,
+            Expression::Call(..) | Expression::Err(..) | Expression::Async(..) | Expression::Cast(..) => false,
+
+            Expression::Binary(expr) => {
+                use BinaryOperation::*;
+                match expr.op {
+                    // These can halt for any of their operand types.
+                    Div | Mod | Rem | Shl | Shr => false,
+                    // These can only halt for integers.
+                    Add | Mul | Pow => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    _ => expr.left.is_pure(get_type) && expr.right.is_pure(get_type),
+                }
+            }
+            Expression::Unary(expr) => {
+                use UnaryOperation::*;
+                match expr.op {
+                    // These can halt for any of their operand types.
+                    Abs | Inverse | SquareRoot => false,
+                    // Negate can only halt for integers.
+                    Negate => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    _ => expr.receiver.is_pure(get_type),
+                }
+            }
 
             // Always pure
-            Expression::Err(..)
-            // async blocks return a future and have no side effects in the proof context
-            // that evaluates them as an expression
-            | Expression::Async(..)
-            | Expression::Locator(..)
-            | Expression::AssociatedConstant(..)
-            | Expression::Literal(..)
-            | Expression::Path(..)
-            | Expression::Unit(..) => true,
+            Expression::Locator(..) | Expression::Literal(..) | Expression::Path(..) | Expression::Unit(..) => true,
 
             // Recurse
-            Expression::ArrayAccess(expr) => expr.array.is_pure() && expr.index.is_pure(),
-            Expression::Array(expr) => expr.elements.iter().all(|e| e.is_pure()),
-            Expression::Binary(expr) => expr.left.is_pure() && expr.right.is_pure(),
-            Expression::Cast(expr) => expr.expression.is_pure(),
-            Expression::MemberAccess(expr) => expr.inner.is_pure(),
-            Expression::Repeat(expr) => expr.expr.is_pure() && expr.count.is_pure(),
-            Expression::Struct(expr) => {
-                expr.const_arguments.iter().all(|e| e.is_pure())
-                    && expr.members.iter().all(|init| init.expression.as_ref().is_none_or(|e| e.is_pure()))
+            Expression::ArrayAccess(expr) => expr.array.is_pure(get_type) && expr.index.is_pure(get_type),
+            Expression::MemberAccess(expr) => expr.inner.is_pure(get_type),
+            Expression::Repeat(expr) => expr.expr.is_pure(get_type) && expr.count.is_pure(get_type),
+            Expression::TupleAccess(expr) => expr.tuple.is_pure(get_type),
+            Expression::Array(expr) => expr.elements.iter().all(|e| e.is_pure(get_type)),
+            Expression::Composite(expr) => {
+                expr.const_arguments.iter().all(|e| e.is_pure(get_type))
+                    && expr.members.iter().all(|init| init.expression.as_ref().is_none_or(|e| e.is_pure(get_type)))
             }
-            Expression::Ternary(expr) => expr.condition.is_pure() && expr.if_true.is_pure() && expr.if_false.is_pure(),
-            Expression::Tuple(expr) => expr.elements.iter().all(|e| e.is_pure()),
-            Expression::TupleAccess(expr) => expr.tuple.is_pure(),
-            Expression::Unary(expr) => expr.receiver.is_pure(),
+            Expression::Ternary(expr) => {
+                expr.condition.is_pure(get_type) && expr.if_true.is_pure(get_type) && expr.if_false.is_pure(get_type)
+            }
+            Expression::Tuple(expr) => expr.elements.iter().all(|e| e.is_pure(get_type)),
         }
     }
 
     /// Returns the *zero value expression* for a given type, if one exists.
     ///
     /// This is used during lowering and reconstruction to provide default or
-    /// placeholder values (e.g., for `get_or_use` calls or struct initialization).
+    /// placeholder values (e.g., for `get_or_use` calls or composite initialization).
     ///
     /// Supported types:
     /// - **Integers** (`i8`–`i128`, `u8`–`u128`): literal `0`
     /// - **Boolean**: literal `false`
     /// - **Field**, **Group**, **Scalar**: zero literals `"0"`
-    /// - **Structs**: recursively constructs a struct with all members zeroed
+    /// - **Composites**: recursively constructs a composite with all members zeroed
     /// - **Arrays**: repeats a zero element for the array length
     ///
     /// Returns `None` if the type has no well-defined zero representation
     /// (e.g. mapping, Future).
     ///
-    /// The `struct_lookup` callback provides member definitions for composite types.
+    /// The `composite_lookup` callback provides member definitions for composite types.
     #[allow(clippy::type_complexity)]
     pub fn zero(
         ty: &Type,
         span: Span,
         node_builder: &NodeBuilder,
-        struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+        composite_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
     ) -> Option<Self> {
         let id = node_builder.next_id();
 
@@ -453,18 +441,18 @@ impl Expression {
             Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
             Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
 
-            // Structs (composite types)
+            // Composite types
             Type::Composite(composite_type) => {
                 let path = &composite_type.path;
-                let members = struct_lookup(&path.absolute_path());
+                let members = composite_lookup(&path.absolute_path());
 
-                let struct_members = members
+                let composite_members = members
                     .into_iter()
                     .map(|(symbol, member_type)| {
                         let member_id = node_builder.next_id();
-                        let zero_expr = Self::zero(&member_type, span, node_builder, struct_lookup)?;
+                        let zero_expr = Self::zero(&member_type, span, node_builder, composite_lookup)?;
 
-                        Some(StructVariableInitializer {
+                        Some(CompositeFieldInitializer {
                             span,
                             id: member_id,
                             identifier: Identifier::new(symbol, node_builder.next_id()),
@@ -473,12 +461,12 @@ impl Expression {
                     })
                     .collect::<Option<Vec<_>>>()?;
 
-                Some(Expression::Struct(StructExpression {
+                Some(Expression::Composite(CompositeExpression {
                     span,
                     id,
                     path: path.clone(),
                     const_arguments: composite_type.const_arguments.clone(),
-                    members: struct_members,
+                    members: composite_members,
                 }))
             }
 
@@ -486,7 +474,7 @@ impl Expression {
             Type::Array(array_type) => {
                 let element_ty = &array_type.element_type;
 
-                let element_expr = Self::zero(element_ty, span, node_builder, struct_lookup)?;
+                let element_expr = Self::zero(element_ty, span, node_builder, composite_lookup)?;
 
                 Some(Expression::Repeat(
                     RepeatExpression { span, id, expr: element_expr, count: *array_type.length.clone() }.into(),

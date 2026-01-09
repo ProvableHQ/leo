@@ -47,7 +47,8 @@ pub fn parse_expression(
     _network: NetworkName,
 ) -> Result<leo_ast::Expression> {
     let node = leo_parser_lossless::parse_expression(handler.clone(), source, start_pos)?;
-    conversions::to_expression(&node, node_builder, &handler)
+    let conversion_context = conversions::ConversionContext::new(&handler, node_builder);
+    conversion_context.to_expression(&node)
 }
 
 pub fn parse_statement(
@@ -58,7 +59,8 @@ pub fn parse_statement(
     _network: NetworkName,
 ) -> Result<leo_ast::Statement> {
     let node = leo_parser_lossless::parse_statement(handler.clone(), source, start_pos)?;
-    conversions::to_statement(&node, node_builder, &handler)
+    let conversion_context = conversions::ConversionContext::new(&handler, node_builder);
+    conversion_context.to_statement(&node)
 }
 
 pub fn parse_module(
@@ -71,7 +73,8 @@ pub fn parse_module(
     _network: NetworkName,
 ) -> Result<leo_ast::Module> {
     let node_module = leo_parser_lossless::parse_module(handler.clone(), source, start_pos)?;
-    conversions::to_module(&node_module, node_builder, program_name, path, &handler)
+    let conversion_context = conversions::ConversionContext::new(&handler, node_builder);
+    conversion_context.to_module(&node_module, program_name, path)
 }
 
 pub fn parse(
@@ -81,8 +84,10 @@ pub fn parse(
     modules: &[std::rc::Rc<SourceFile>],
     _network: NetworkName,
 ) -> Result<leo_ast::Program> {
+    let conversion_context = conversions::ConversionContext::new(&handler, node_builder);
+
     let program_node = leo_parser_lossless::parse_main(handler.clone(), &source.src, source.absolute_start)?;
-    let mut program = conversions::to_main(&program_node, node_builder, &handler)?;
+    let mut program = conversion_context.to_main(&program_node)?;
     let program_name = *program.program_scopes.first().unwrap().0;
 
     // Determine the root directory of the main file (for module resolution)
@@ -101,7 +106,7 @@ pub fn parse(
                 }
             }
 
-            let module_ast = conversions::to_module(&node_module, node_builder, program_name, key.clone(), &handler)?;
+            let module_ast = conversion_context.to_module(&node_module, program_name, key.clone())?;
             program.modules.insert(key, module_ast);
         }
     }

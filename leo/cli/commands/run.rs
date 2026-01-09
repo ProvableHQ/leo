@@ -57,7 +57,7 @@ pub struct LeoRun {
 
 impl Command for LeoRun {
     type Input = Option<Package>;
-    type Output = ();
+    type Output = RunOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -251,15 +251,8 @@ fn handle_run<A: Aleo>(
     let programs_and_editions = programs
         .into_iter()
         .map(|(program, edition)| {
-            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            let edition = edition.unwrap_or(1);
-            // Get the program ID.
-            let id = program.id().to_string();
-            // Print the program ID and edition.
-            match id == "credits.aleo" {
-                true => println!("  - {id} (already included)"),
-                false => println!("  - {id} (edition: {edition})"),
-            }
+            print_program_source(&program.id().to_string(), edition);
+            let edition = edition.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION);
             (program, edition)
         })
         .collect::<Vec<_>>();
@@ -269,15 +262,18 @@ fn handle_run<A: Aleo>(
     let authorization = vm.authorize(&private_key, program_id, function_id, inputs.iter(), rng)?;
     let response = vm.process().read().evaluate::<A>(authorization)?;
 
+    // Collect outputs.
+    let outputs: Vec<String> = response.outputs().iter().map(|o| o.to_string()).collect();
+
     // Print the response.
-    match response.outputs().len() {
+    match outputs.len() {
         0 => (),
         1 => println!("\n➡️  Output\n"),
         _ => println!("\n➡️  Outputs\n"),
     };
-    for output in response.outputs() {
+    for output in &outputs {
         println!(" • {output}");
     }
 
-    Ok(())
+    Ok(RunOutput { program: program_id.to_string(), function: function_id.to_string(), outputs })
 }

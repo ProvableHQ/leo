@@ -329,7 +329,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 }
 
                 Expression::MemberAccess(access) => {
-                    // We need to investigate the struct, as maybe it's inside a tuple access, like `tupl.0.mem`.
+                    // We need to investigate the composite, as maybe it's inside a tuple access, like `tupl.0.mem`.
                     place = &mut access.inner;
                 }
 

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! A Leo program scope consists of struct, function, and mapping definitions.
+//! A Leo program scope consists of const, composite, function, and mapping definitions.
 
 use crate::{Composite, ConstDeclaration, Constructor, Function, Indent, Mapping, ProgramId, StorageVariable, Stub};
 
@@ -29,8 +29,8 @@ pub struct ProgramScope {
     pub program_id: ProgramId,
     /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
-    /// A vector of struct definitions.
-    pub structs: Vec<(Symbol, Composite)>,
+    /// A vector of composite definitions.
+    pub composites: Vec<(Symbol, Composite)>,
     /// A vector of mapping definitions.
     pub mappings: Vec<(Symbol, Mapping)>,
     /// A vector of storage variable definitions.
@@ -48,7 +48,7 @@ impl From<Stub> for ProgramScope {
         Self {
             program_id: stub.stub_id,
             consts: stub.consts,
-            structs: stub.structs,
+            composites: stub.composites,
             mappings: stub.mappings,
             storage_variables: Vec::new(), // stubs don't have storage variables
             functions: stub
@@ -72,8 +72,8 @@ impl fmt::Display for ProgramScope {
         if let Some(constructor) = &self.constructor {
             writeln!(f, "{}", Indent(constructor))?;
         }
-        for (_, struct_) in self.structs.iter() {
-            writeln!(f, "{}", Indent(struct_))?;
+        for (_, composite_) in self.composites.iter() {
+            writeln!(f, "{}", Indent(composite_))?;
         }
         for (_, mapping) in self.mappings.iter() {
             writeln!(f, "{};", Indent(mapping))?;

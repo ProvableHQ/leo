@@ -20,13 +20,13 @@ use crate::{ConstPropagationVisitor, Replacer};
 use leo_ast::{
     AstReconstructor,
     CallExpression,
+    CompositeExpression,
+    CompositeFieldInitializer,
     CompositeType,
     Expression,
     Identifier,
     Node as _,
     ProgramReconstructor,
-    StructExpression,
-    StructVariableInitializer,
     Type,
     Variant,
 };
@@ -64,12 +64,12 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             return (Type::Composite(input), Default::default());
         }
 
-        // Ensure all const arguments can be evaluated to literals; if not, we skip this struct type instantiation for
+        // Ensure all const arguments can be evaluated to literals; if not, we skip this composite type instantiation for
         // now and mark it as unresolved.
         //
         // The types of the const arguments are already checked in the type checking pass.
         let Some(evaluated_const_args) = self.try_evaluate_const_args(&input.const_arguments) else {
-            self.unresolved_struct_types.push(input.clone());
+            self.unresolved_composite_types.push(input.clone());
             return (Type::Composite(input), Default::default());
         };
 
@@ -77,7 +77,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         self.changed = true;
         (
             Type::Composite(CompositeType {
-                path: self.monomorphize_struct(&input.path, &evaluated_const_args),
+                path: self.monomorphize_composite(&input.path, &evaluated_const_args),
                 const_arguments: vec![], // remove const arguments
                 program: input.program,
             }),
@@ -91,13 +91,12 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array, &()),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, &()),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, &()),
+            Expression::Intrinsic(intr) => self.reconstruct_intrinsic(*intr, &()),
             Expression::Async(async_) => self.reconstruct_async(async_, &()),
             Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
             Expression::Call(call) => self.reconstruct_call(*call, &()),
             Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &()),
+            Expression::Composite(composite) => self.reconstruct_composite_init(composite, &()),
             Expression::Err(err) => self.reconstruct_err(err, &()),
             Expression::Path(path) => self.reconstruct_path(path, &()),
             Expression::Literal(value) => self.reconstruct_literal(value, &()),
@@ -227,17 +226,17 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         )
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: StructExpression,
+        mut input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        // Handle all the struct members first
+        // Handle all the composite members first
         let members = input
             .members
             .clone()
             .into_iter()
-            .map(|member| StructVariableInitializer {
+            .map(|member| CompositeFieldInitializer {
                 identifier: member.identifier,
                 expression: member.expression.map(|expr| self.reconstruct_expression(expr, &()).0),
                 span: member.span,
@@ -251,12 +250,12 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             return (input.into(), Default::default());
         }
 
-        // Ensure all const arguments can be evaluated to literals; if not, we skip this struct expression for now and
+        // Ensure all const arguments can be evaluated to literals; if not, we skip this composite expression for now and
         // mark it as unresolved.
         //
         // The types of the const arguments are already checked in the type checking pass.
         let Some(evaluated_const_args) = self.try_evaluate_const_args(&input.const_arguments) else {
-            self.unresolved_struct_exprs.push(input.clone());
+            self.unresolved_composite_exprs.push(input.clone());
             input.members = members;
             return (input.into(), Default::default());
         };
@@ -264,13 +263,13 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // At this stage, we know that we're going to modify the program
         self.changed = true;
 
-        // Finally, construct the updated struct expression that points to a monomorphized version and return it.
+        // Finally, construct the updated composite expression that points to a monomorphized version and return it.
         (
-            StructExpression {
-                path: self.monomorphize_struct(&input.path, &evaluated_const_args),
+            CompositeExpression {
+                path: self.monomorphize_composite(&input.path, &evaluated_const_args),
                 members,
                 const_arguments: vec![], // remove const arguments
-                span: input.span,        // Keep pointing to the original struct expression
+                span: input.span,        // Keep pointing to the original composite expression
                 id: input.id,
             }
             .into(),

@@ -36,16 +36,7 @@ use snarkvm::{
 };
 
 use clap::Parser;
-use serde::Serialize;
 use std::{fmt::Write, path::PathBuf};
-
-#[derive(Serialize)]
-pub struct Metadata {
-    pub prover_checksum: String,
-    pub prover_size: usize,
-    pub verifier_checksum: String,
-    pub verifier_size: usize,
-}
 
 /// Synthesize proving and verifying keys for a given function.
 #[derive(Parser, Debug)]
@@ -66,7 +57,7 @@ pub struct LeoSynthesize {
 
 impl Command for LeoSynthesize {
     type Input = Option<Package>;
-    type Output = ();
+    type Output = SynthesizeOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -97,12 +88,12 @@ impl Command for LeoSynthesize {
             println!(
                 "❌ `--broadcast` is not a valid option for `leo synthesize`. Please use `--save` and specify a valid directory."
             );
-            return Ok(());
+            return Ok(SynthesizeOutput::default());
         } else if self.action.print {
             println!(
                 "❌ `--print` is not a valid option for `leo synthesize`. Please use `--save` and specify a valid directory."
             );
-            return Ok(());
+            return Ok(SynthesizeOutput::default());
         }
 
         // Get the network, accounting for overrides.
@@ -211,19 +202,8 @@ fn handle_synthesize<A: Aleo>(
     let programs_and_editions = programs
         .into_iter()
         .map(|(program, edition)| {
-            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            let is_default = edition.is_none();
-            let edition = edition.unwrap_or(1);
-            // Get the program ID.
-            let id = program.id().to_string();
-            // Print the program ID and edition.
-            match id == "credits.aleo" {
-                true => println!("  - {id} (already included)"),
-                false => match is_default {
-                    true => println!(" - {id} (defaulting to edition {edition})"),
-                    false => println!("  - {id} (edition: {edition})"),
-                },
-            }
+            print_program_source(&program.id().to_string(), edition);
+            let edition = edition.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION);
             (program, edition)
         })
         .collect::<Vec<_>>();
@@ -253,6 +233,8 @@ fn handle_synthesize<A: Aleo>(
     for id in &function_ids {
         println!("    - {id}");
     }
+
+    let mut synthesized_functions = Vec::new();
 
     for function_id in function_ids {
         stack.synthesize_key::<A, _>(function_id, rng)?;
@@ -284,6 +266,22 @@ fn handle_synthesize<A: Aleo>(
         };
         let metadata_pretty = serde_json::to_string_pretty(&metadata)
             .map_err(|e| CliError::custom(format!("Failed to serialize metadata: {e}")))?;
+
+        let circuit_info = CircuitInfo {
+            num_public_inputs: verifying_key.circuit_info.num_public_inputs as u64,
+            num_variables: verifying_key.circuit_info.num_public_and_private_variables as u64,
+            num_constraints: verifying_key.circuit_info.num_constraints as u64,
+            num_non_zero_a: verifying_key.circuit_info.num_non_zero_a as u64,
+            num_non_zero_b: verifying_key.circuit_info.num_non_zero_b as u64,
+            num_non_zero_c: verifying_key.circuit_info.num_non_zero_c as u64,
+            circuit_id: verifying_key.id.to_string(),
+        };
+
+        synthesized_functions.push(SynthesizedFunction {
+            name: function_id.to_string(),
+            circuit_info,
+            metadata: metadata.clone(),
+        });
 
         // A helper to write to a file.
         let write_to_file = |path: PathBuf, data: &[u8]| -> Result<()> {
@@ -320,5 +318,5 @@ fn handle_synthesize<A: Aleo>(
         }
     }
 
-    Ok(())
+    Ok(SynthesizeOutput { program: program_id.to_string(), functions: synthesized_functions })
 }

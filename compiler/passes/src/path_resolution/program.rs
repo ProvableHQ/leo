@@ -22,7 +22,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
         self.in_module_scope(&input.path.clone(), |slf| Module {
             program_name: input.program_name,
             path: input.path,
-            structs: input.structs.into_iter().map(|(i, c)| (i, slf.reconstruct_struct(c))).collect(),
+            composites: input.composites.into_iter().map(|(i, c)| (i, slf.reconstruct_composite(c))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
             consts: input
                 .consts

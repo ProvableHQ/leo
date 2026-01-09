@@ -21,7 +21,7 @@ use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A member of a structured data type, e.g `foobar: u8` or `private baz: bool` .
+/// A member of a composite data type, e.g `foobar: u8` or `private baz: bool` .
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Member {
     /// The mode of the member.
@@ -37,7 +37,7 @@ pub struct Member {
 }
 
 impl Member {
-    /// Returns the name of the struct member without span.
+    /// Returns the name of the composite member without span.
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }

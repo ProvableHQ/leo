@@ -41,6 +41,9 @@ pub use dead_code_elimination::*;
 mod destructuring;
 pub use destructuring::*;
 
+mod disambiguate;
+pub use disambiguate::*;
+
 mod flattening;
 pub use flattening::*;
 

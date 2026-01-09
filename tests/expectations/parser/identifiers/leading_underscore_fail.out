@@ -1,7 +1,5 @@
-Error [EPAR0370053]: Identifiers cannot start with an underscore.
+Error [EPAR0370005]: expected an identifier, '(' -- found '_c'
     --> test:4:13
      |
    4 |         let _c: u32 = a + b;
      |             ^^
-     |
-     = Identifiers must start with a letter.

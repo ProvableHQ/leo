@@ -109,13 +109,11 @@ pub trait AstVisitor {
         match input {
             Expression::Array(array) => self.visit_array(array, additional),
             Expression::ArrayAccess(access) => self.visit_array_access(access, additional),
-            Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
-            Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
             Expression::Async(async_) => self.visit_async(async_, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
-            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
+            Expression::Composite(composite_) => self.visit_composite_init(composite_, additional),
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
@@ -127,6 +125,7 @@ pub trait AstVisitor {
             Expression::TupleAccess(access) => self.visit_tuple_access(access, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
             Expression::Unit(unit) => self.visit_unit(unit, additional),
+            Expression::Intrinsic(intr) => self.visit_intrinsic(intr, additional),
         }
     }
 
@@ -153,25 +152,6 @@ pub trait AstVisitor {
         Default::default()
     }
 
-    fn visit_associated_constant(
-        &mut self,
-        _input: &AssociatedConstantExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
-        Default::default()
-    }
-
-    fn visit_associated_function(
-        &mut self,
-        input: &AssociatedFunctionExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
-        input.arguments.iter().for_each(|arg| {
-            self.visit_expression(arg, &Default::default());
-        });
-        Default::default()
-    }
-
     fn visit_async(&mut self, input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_block(&input.block);
         Default::default()
@@ -193,16 +173,27 @@ pub trait AstVisitor {
         Default::default()
     }
 
+    fn visit_intrinsic(&mut self, input: &IntrinsicExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        input.arguments.iter().for_each(|arg| {
+            self.visit_expression(arg, &Default::default());
+        });
+        Default::default()
+    }
+
     fn visit_cast(&mut self, input: &CastExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.expression, &Default::default());
         Default::default()
     }
 
-    fn visit_struct_init(&mut self, input: &StructExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_composite_init(
+        &mut self,
+        input: &CompositeExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
         input.const_arguments.iter().for_each(|expr| {
             self.visit_expression(expr, &Default::default());
         });
-        for StructVariableInitializer { expression, .. } in input.members.iter() {
+        for CompositeFieldInitializer { expression, .. } in input.members.iter() {
             if let Some(expression) = expression {
                 self.visit_expression(expression, &Default::default());
             }
@@ -332,13 +323,12 @@ pub trait ProgramVisitor: AstVisitor {
     fn visit_program(&mut self, input: &Program) {
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
         input.modules.values().for_each(|module| self.visit_module(module));
-        input.imports.values().for_each(|import| self.visit_import(&import.0));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
-        input.structs.iter().for_each(|(_, c)| self.visit_struct(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
@@ -349,7 +339,7 @@ pub trait ProgramVisitor: AstVisitor {
 
     fn visit_module(&mut self, input: &Module) {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
-        input.structs.iter().for_each(|(_, c)| self.visit_struct(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
     }
 
@@ -359,7 +349,7 @@ pub trait ProgramVisitor: AstVisitor {
         self.visit_program(input)
     }
 
-    fn visit_struct(&mut self, input: &Composite) {
+    fn visit_composite(&mut self, input: &Composite) {
         input.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
         input.members.iter().for_each(|member| self.visit_type(&member.type_));
     }
@@ -387,5 +377,5 @@ pub trait ProgramVisitor: AstVisitor {
 
     fn visit_function_stub(&mut self, _input: &FunctionStub) {}
 
-    fn visit_struct_stub(&mut self, _input: &Composite) {}
+    fn visit_composite_stub(&mut self, _input: &Composite) {}
 }

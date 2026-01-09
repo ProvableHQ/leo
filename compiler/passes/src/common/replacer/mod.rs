@@ -67,15 +67,14 @@ where
         let (mut new_expr, additional) = if replaced_expr.id() == input.id() {
             // Replacement didn't happen, so just use the default implementation.
             match input {
-                Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, &()),
-                Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, &()),
+                Expression::Intrinsic(intr) => self.reconstruct_intrinsic(*intr, &()),
                 Expression::Async(async_) => self.reconstruct_async(async_, &()),
                 Expression::Array(array) => self.reconstruct_array(array, &()),
                 Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
                 Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
                 Expression::Call(call) => self.reconstruct_call(*call, &()),
                 Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
-                Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &()),
+                Expression::Composite(composite) => self.reconstruct_composite_init(composite, &()),
                 Expression::Err(err) => self.reconstruct_err(err, &()),
                 Expression::Path(path) => self.reconstruct_path(path, &()),
                 Expression::Literal(value) => self.reconstruct_literal(value, &()),

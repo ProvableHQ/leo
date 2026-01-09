@@ -89,7 +89,7 @@ impl Pass for OptionLowering {
             module: vec![],
             function: None,
             new_structs: IndexMap::new(),
-            reconstructed_structs: IndexMap::new(),
+            reconstructed_composites: IndexMap::new(),
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err()?;

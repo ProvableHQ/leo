@@ -47,7 +47,7 @@ pub enum Type {
     Array(ArrayType),
     /// The `bool` type.
     Boolean,
-    /// The `struct` type.
+    /// The composite type.
     Composite(CompositeType),
     /// The `field` type.
     Field,
@@ -265,13 +265,13 @@ impl Type {
     }
 
     // A helper function to get the size in bits of the input type.
-    pub fn size_in_bits<N: Network, F>(&self, is_raw: bool, get_structs: F) -> anyhow::Result<usize>
+    pub fn size_in_bits<N: Network, F>(&self, is_raw: bool, get_composite: F) -> anyhow::Result<usize>
     where
         F: Fn(&snarkvm::prelude::Identifier<N>) -> anyhow::Result<snarkvm::prelude::StructType<N>>,
     {
         match is_raw {
-            false => self.to_snarkvm::<N>()?.size_in_bits(&get_structs),
-            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_structs),
+            false => self.to_snarkvm::<N>()?.size_in_bits(&get_composite),
+            true => self.to_snarkvm::<N>()?.size_in_bits_raw(&get_composite),
         }
     }
 
@@ -386,7 +386,7 @@ impl fmt::Display for Type {
             Type::Scalar => write!(f, "scalar"),
             Type::Signature => write!(f, "signature"),
             Type::String => write!(f, "string"),
-            Type::Composite(ref struct_type) => write!(f, "{struct_type}"),
+            Type::Composite(ref composite_type) => write!(f, "{composite_type}"),
             Type::Tuple(ref tuple) => write!(f, "{tuple}"),
             Type::Vector(ref vector_type) => write!(f, "{vector_type}"),
             Type::Numeric => write!(f, "numeric"),

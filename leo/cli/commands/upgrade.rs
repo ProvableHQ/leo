@@ -71,7 +71,7 @@ pub struct LeoUpgrade {
 
 impl Command for LeoUpgrade {
     type Input = Package;
-    type Output = ();
+    type Output = DeployOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -225,6 +225,14 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let consensus_version =
         get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
 
+    // Build the config for JSON output.
+    let config = Some(Config {
+        address: address.to_string(),
+        network: network.to_string(),
+        endpoint: Some(endpoint.clone()),
+        consensus_version: Some(consensus_version as u8),
+    });
+
     // Print a summary of the deployment plan.
     print_deployment_plan(
         &private_key,
@@ -242,7 +250,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     // Prompt the user to confirm the plan.
     if !confirm("Do you want to proceed with upgrade?", command.extra.yes)? {
         println!("❌ Upgrade aborted.");
-        return Ok(());
+        return Ok(DeployOutput::default());
     }
 
     // Initialize an RNG.
@@ -271,10 +279,15 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
             let bytecode = Program::<N>::from_str(&bytecode)
                 .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
             // Return the bytecode and edition.
-            // Note: We default to edition 1 since snarkVM execute may produce spurious errors if the program does not have a constructor but uses edition 0.
-            Ok((bytecode, program.edition.unwrap_or(1)))
+            // Program::fetch should always set the edition after a successful fetch.
+            let edition = program.edition.expect("Edition should be set after successful fetch");
+            Ok((bytecode, edition))
         })
         .collect::<Result<Vec<_>>>()?;
+
+    // Check for programs that violate edition/constructor requirements.
+    check_edition_constructor_requirements(&programs_and_editions, consensus_version, "upgrade")?;
+
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Print the programs and their editions in the VM.
@@ -302,6 +315,8 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
+    let mut all_stats = Vec::new();
+    let mut all_broadcasts = Vec::new();
     for Task { id, program, priority_fee, record, bytecode_size, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if !skipped.contains(&id) {
@@ -380,15 +395,22 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 let transaction = vm
                     .deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
-                // Get the deployment.
-                let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-                // Print the deployment stats.
-                print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)?;
-                // Validate the deployment limits.
-                validate_deployment_limits(deployment, &id, &network)?;
-                // Save the transaction.
-                transactions.push((id, transaction));
-            }
+            // Get the deployment.
+            let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+            // Compute and print the deployment stats.
+            let stats = print_deployment_stats(
+                &vm,
+                &id.to_string(),
+                deployment,
+                priority_fee,
+                consensus_version,
+                bytecode_size,
+            )?;
+            // Validate the deployment limits.
+            validate_deployment_limits(deployment, &id, &network)?;
+            // Save the transaction and stats.
+            transactions.push((id, transaction));
+            all_stats.push(stats);
         }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
@@ -433,6 +455,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 continue;
             }
             let fee_id = fee.id().to_string();
+            let fee_transaction_id = Transaction::from_fee(fee.clone())?.id().to_string();
             let id = transaction.id().to_string();
             let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
@@ -455,7 +478,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
 
             match status {
                 200..=299 => {
-                    let status = check_transaction::check_transaction_with_message(
+                    let tx_status = check_transaction::check_transaction_with_message(
                         &id,
                         Some(&fee_id),
                         &endpoint,
@@ -464,26 +487,32 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                         command.extra.max_wait,
                         command.extra.blocks_to_check,
                     )?;
-                    if status == Some(TransactionStatus::Accepted) {
+                    let confirmed = tx_status == Some(TransactionStatus::Accepted);
+                    if confirmed {
                         println!("✅ Upgrade confirmed!");
                     } else if fail_and_prompt("could not find the transaction on the network")? {
                         continue;
                     } else {
-                        return Ok(());
+                        return Ok(build_deploy_output(config.clone(), &transactions, &all_stats, &all_broadcasts));
                     }
+                    all_broadcasts.push(BroadcastStats {
+                        fee_id: fee_id.clone(),
+                        fee_transaction_id: fee_transaction_id.clone(),
+                        confirmed,
+                    });
                 }
                 _ => {
                     if fail_and_prompt(&message)? {
                         continue;
                     } else {
-                        return Ok(());
+                        return Ok(build_deploy_output(config.clone(), &transactions, &all_stats, &all_broadcasts));
                     }
                 }
             }
         }
     }
 
-    Ok(())
+    Ok(build_deploy_output(config, &transactions, &all_stats, &all_broadcasts))
 }
 
 /// Check the tasks to warn the user about any potential issues.

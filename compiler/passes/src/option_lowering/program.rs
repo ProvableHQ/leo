@@ -31,28 +31,24 @@ use leo_span::Symbol;
 
 impl ProgramReconstructor for OptionLoweringVisitor<'_> {
     fn reconstruct_program(&mut self, input: Program) -> Program {
-        // Reconstruct all structs first and keep track of them in `self.reconstructed_structs`.
+        // Reconstruct all composites first and keep track of them in `self.reconstructed_composites`.
         for (_, scope) in &input.program_scopes {
-            for (_, c) in &scope.structs {
-                let new_struct = self.reconstruct_struct(c.clone());
-                self.reconstructed_structs.insert(vec![new_struct.name()], new_struct);
+            for (_, c) in &scope.composites {
+                let new_composite = self.reconstruct_composite(c.clone());
+                self.reconstructed_composites.insert(vec![new_composite.name()], new_composite);
             }
         }
         for (module_path, module) in &input.modules {
-            for (_, c) in &module.structs {
+            for (_, c) in &module.composites {
                 let full_name = module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
-                let new_struct = self.reconstruct_struct(c.clone());
-                self.reconstructed_structs.insert(full_name, new_struct.clone());
+                let new_composite = self.reconstruct_composite(c.clone());
+                self.reconstructed_composites.insert(full_name, new_composite.clone());
             }
         }
 
         // Now we're ready to reconstruct everything else.
         Program {
-            imports: input
-                .imports
-                .into_iter()
-                .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
-                .collect(),
+            imports: input.imports,
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
             program_scopes: input
                 .program_scopes
@@ -75,8 +71,8 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            structs: self
-                .reconstructed_structs
+            composites: self
+                .reconstructed_composites
                 .iter()
                 .filter_map(|(path, s)| {
                     path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, s.clone()))
@@ -93,7 +89,7 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
             ..input
         };
 
-        program.structs.extend(self.new_structs.drain(..));
+        program.composites.extend(self.new_structs.drain(..));
         program
     }
 
@@ -108,8 +104,8 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            structs: slf
-                .reconstructed_structs
+            composites: slf
+                .reconstructed_composites
                 .iter()
                 .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
                 .filter(|&(_, rest, _)| input.path == rest)

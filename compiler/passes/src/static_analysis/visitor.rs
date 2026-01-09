@@ -110,13 +110,9 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
     type AdditionalInput = ();
     type Output = ();
 
-    fn visit_associated_function(
-        &mut self,
-        input: &AssociatedFunctionExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_intrinsic(&mut self, input: &IntrinsicExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // Check `Future::await` core functions.
-        if let Ok(CoreFunction::FutureAwait) = CoreFunction::try_from(input) {
+        if let Some(Intrinsic::FutureAwait) = Intrinsic::from_symbol(input.name, &input.type_parameters) {
             self.assert_future_await(&input.arguments.first(), input.span());
         }
     }

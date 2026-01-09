@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![forbid(unsafe_code)]
-#![recursion_limit = "256"]
+#![recursion_limit = "1024"]
 
 mod symbol;
 pub use symbol::{Symbol, create_session_if_not_set_then, sym, with_session_globals};

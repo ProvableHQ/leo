@@ -38,16 +38,16 @@ use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
-/// This visitor associates a variable for each member of a struct or array that is
-/// written to. Whenever a member of the struct or array is written to, we change the
-/// assignment to access the variable instead. Whenever the struct or array itself
-/// is accessed, we first rebuild the struct or array from its variables.
+/// This visitor associates a variable for each member of a composite or array that is
+/// written to. Whenever a member of the composite or array is written to, we change the
+/// assignment to access the variable instead. Whenever the composite or array itself
+/// is accessed, we first rebuild the composite or array from its variables.
 pub struct WriteTransformingVisitor<'a> {
     pub state: &'a mut CompilerState,
 
-    /// For any struct whose members are written to, a map of its field names to variables
+    /// For any composite whose members are written to, a map of its field names to variables
     /// corresponding to the members.
-    pub struct_members: IndexMap<Symbol, IndexMap<Symbol, Identifier>>,
+    pub composite_members: IndexMap<Symbol, IndexMap<Symbol, Identifier>>,
 
     /// For any array whose members are written to, a vec containing the variables for each index.
     pub array_members: IndexMap<Symbol, Vec<Identifier>>,
@@ -59,18 +59,18 @@ impl<'a> WriteTransformingVisitor<'a> {
     pub fn new(state: &'a mut CompilerState, program: &Program) -> Self {
         let visitor = WriteTransformingVisitor {
             state,
-            struct_members: Default::default(),
+            composite_members: Default::default(),
             array_members: Default::default(),
             program: Symbol::intern(""),
         };
 
-        // We need to do an initial pass through the AST to identify all arrays and structs that are written to.
+        // We need to do an initial pass through the AST to identify all arrays and composites that are written to.
         let mut wtf = WriteTransformingFiller(visitor);
         wtf.fill(program);
         wtf.0
     }
 
-    /// If `name` is a struct or array whose members are written to, make
+    /// If `name` is a composite or array whose members are written to, make
     /// `DefinitionStatement`s for each of its variables that will correspond to
     /// the members. Note that we create them for all members; unnecessary ones
     /// will be removed by DCE.
@@ -105,7 +105,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 // And recurse - maybe its members are also written to.
                 self.define_variable_members(member, accumulate);
             }
-        } else if let Some(members) = self.struct_members.get(&name.name) {
+        } else if let Some(members) = self.composite_members.get(&name.name) {
             for (&field_name, &member) in members.clone().iter() {
                 // Create a definition for each field.
                 let access = MemberAccess {
@@ -129,7 +129,7 @@ impl<'a> WriteTransformingVisitor<'a> {
         }
     }
 
-    /// If we're assigning to a struct or array member, find the variable name we're actually writing to,
+    /// If we're assigning to a composite or array member, find the variable name we're actually writing to,
     /// recursively if necessary.
     /// That is, if we have
     /// `arr[0u32][1u32] = ...`,
@@ -144,15 +144,15 @@ impl<'a> WriteTransformingVisitor<'a> {
             Path(path) => leo_ast::Identifier { name: path.identifier().name, span: path.span, id: path.id },
             MemberAccess(member_access) => {
                 let identifier = self.reconstruct_assign_place(member_access.inner);
-                self.get_struct_member(identifier.name, member_access.name.name)
-                    .expect("We have visited all struct writes.")
+                self.get_composite_member(identifier.name, member_access.name.name)
+                    .expect("We have visited all composites writes.")
             }
             TupleAccess(_) => panic!("TupleAccess writes should have been removed by Destructuring"),
             _ => panic!("Type checking should have ensured there are no other places for assignments"),
         }
     }
 
-    /// If we're assigning to a struct or array, create assignments to the individual members, if applicable.
+    /// If we're assigning to a composite or array, create assignments to the individual members, if applicable.
     pub fn reconstruct_assign_recurse(&self, place: Identifier, value: Expression, accumulate: &mut Vec<Statement>) {
         if let Some(array_members) = self.array_members.get(&place.name) {
             if let Expression::Array(value_array) = value {
@@ -192,14 +192,15 @@ impl<'a> WriteTransformingVisitor<'a> {
                     self.reconstruct_assign_recurse(member, access.into(), accumulate);
                 }
             }
-        } else if let Some(struct_members) = self.struct_members.get(&place.name) {
-            if let Expression::Struct(value_struct) = value {
+        } else if let Some(composite_members) = self.composite_members.get(&place.name) {
+            if let Expression::Composite(value_composite) = value {
                 // This was an assignment like
                 // `struc = S { field0: a, field1: b };`
                 // Change it to this:
                 // `struc_field0 = a; struc_field1 = b;`
-                for initializer in value_struct.members.into_iter() {
-                    let member_name = struct_members.get(&initializer.identifier.name).expect("Member should exist.");
+                for initializer in value_composite.members.into_iter() {
+                    let member_name =
+                        composite_members.get(&initializer.identifier.name).expect("Member should exist.");
                     let rhs_expression =
                         initializer.expression.expect("This should have been normalized to have a value.");
                     self.reconstruct_assign_recurse(*member_name, rhs_expression, accumulate);
@@ -217,7 +218,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                 }
                 .into();
                 accumulate.push(one_assign);
-                for (field, member_name) in struct_members.iter() {
+                for (field, member_name) in composite_members.iter() {
                     let access = MemberAccess {
                         inner: Path::from(place).into_absolute().into(),
                         name: Identifier::new(*field, self.state.node_builder.next_id()),
@@ -271,7 +272,7 @@ impl WriteTransformingFiller<'_> {
         }
     }
 
-    /// Find assignments to arrays and structs and populate `array_members` and `struct_members` with new
+    /// Find assignments to arrays and composites and populate `array_members` and `composite_members` with new
     /// variables names.
     fn access_recurse(&mut self, place: &Expression) -> Identifier {
         match place {
@@ -299,13 +300,13 @@ impl WriteTransformingFiller<'_> {
                     as usize]
             }
             Expression::MemberAccess(member_access) => {
-                let struct_name = self.access_recurse(&member_access.inner);
-                let members = self.0.struct_members.entry(struct_name.name).or_insert_with(|| {
+                let composite_name = self.access_recurse(&member_access.inner);
+                let members = self.0.composite_members.entry(composite_name.name).or_insert_with(|| {
                     let ty = self.0.state.type_table.get(&member_access.inner.id()).unwrap();
                     let Type::Composite(comp) = ty else {
                         panic!("Type checking should have prevented this.");
                     };
-                    let struct_ = self
+                    let composite = self
                         .0
                         .state
                         .symbol_table
@@ -317,13 +318,14 @@ impl WriteTransformingFiller<'_> {
                             ))
                         })
                         .unwrap();
-                    struct_
+                    composite
                         .members
                         .iter()
                         .map(|member| {
                             let name = member.name();
                             let id = self.0.state.node_builder.next_id();
-                            let symbol = self.0.state.assigner.unique_symbol(format_args!("{struct_name}#{name}"), "$");
+                            let symbol =
+                                self.0.state.assigner.unique_symbol(format_args!("{composite_name}#{name}"), "$");
                             self.0.state.type_table.insert(id, member.type_.clone());
                             (member.name(), Identifier::new(symbol, id))
                         })

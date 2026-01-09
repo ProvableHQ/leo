@@ -20,6 +20,9 @@ pub use interactive::*;
 mod options;
 pub use options::*;
 
+mod output;
+pub use output::*;
+
 mod query;
 pub use query::*;
 

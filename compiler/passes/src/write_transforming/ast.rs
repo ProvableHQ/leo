@@ -31,8 +31,8 @@ impl WriteTransformingVisitor<'_> {
         Some(members[index])
     }
 
-    pub fn get_struct_member(&self, struct_name: Symbol, field_name: Symbol) -> Option<Identifier> {
-        let members = self.struct_members.get(&struct_name)?;
+    pub fn get_composite_member(&self, composite_name: Symbol, field_name: Symbol) -> Option<Identifier> {
+        let members = self.composite_members.get(&composite_name)?;
         members.get(&field_name).cloned()
     }
 }
@@ -67,23 +67,23 @@ impl WriteTransformingVisitor<'_> {
             };
             statements.push(statement.into());
             (Path::from(input).into_absolute().into(), statements)
-        } else if let Some(struct_members) = self.struct_members.get(&input.name) {
-            // Build the struct expression from the members.
+        } else if let Some(composite_members) = self.composite_members.get(&input.name) {
+            // Build the composite expression from the members.
             let id = self.state.node_builder.next_id();
             self.state.type_table.insert(id, ty.clone());
             let Type::Composite(comp_type) = ty else {
-                panic!("The type of a struct init should be a composite.");
+                panic!("The type of a composite init should be a composite.");
             };
-            let expr = StructExpression {
+            let expr = CompositeExpression {
                 const_arguments: Vec::new(), // All const arguments should have been resolved by now
-                members: struct_members
-                    // This clone is unfortunate, but both `struct_members` and the closure below borrow self.
+                members: composite_members
+                    // This clone is unfortunate, but both `composite_members` and the closure below borrow self.
                     .clone()
                     .iter()
                     .map(|(field_name, ident)| {
                         let (expr, statements2) = self.reconstruct_identifier(*ident);
                         statements.extend(statements2);
-                        StructVariableInitializer {
+                        CompositeFieldInitializer {
                             identifier: Identifier::new(*field_name, self.state.node_builder.next_id()),
                             expression: Some(expr),
                             span: Default::default(),
@@ -104,7 +104,7 @@ impl WriteTransformingVisitor<'_> {
             statements.push(statement.into());
             (Path::from(input).into_absolute().into(), statements)
         } else {
-            // This is not a struct or array whose members are written to, so there's nothing to do.
+            // This is not a composite or array whose members are written to, so there's nothing to do.
             (Path::from(input).into_absolute().into(), Default::default())
         }
     }
@@ -143,10 +143,10 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         input: MemberAccess,
         _addiional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        let Expression::Path(ref struct_name) = input.inner else {
+        let Expression::Path(ref composite_name) = input.inner else {
             panic!("SSA ensures that this is a Path.");
         };
-        if let Some(member) = self.get_struct_member(struct_name.identifier().name, input.name.name) {
+        if let Some(member) = self.get_composite_member(composite_name.identifier().name, input.name.name) {
             self.reconstruct_identifier(member)
         } else {
             (input.into(), Default::default())
@@ -156,10 +156,10 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
     // The rest of the methods below don't do anything but traverse - we only modify their default implementations
     // to combine the `Vec<Statement>` outputs.
 
-    fn reconstruct_associated_function(
+    fn reconstruct_intrinsic(
         &mut self,
-        mut input: AssociatedFunctionExpression,
-        _addiional: &(),
+        mut input: IntrinsicExpression,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         for arg in input.arguments.iter_mut() {
@@ -214,9 +214,9 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         (CastExpression { expression, ..input }.into(), statements)
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: StructExpression,
+        mut input: CompositeExpression,
         _addiional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();

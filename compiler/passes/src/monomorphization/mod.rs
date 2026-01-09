@@ -44,7 +44,7 @@
 
 use crate::Pass;
 
-use leo_ast::{CompositeType, ProgramReconstructor as _, StructExpression};
+use leo_ast::{CompositeExpression, CompositeType, ProgramReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -59,11 +59,11 @@ use visitor::*;
 pub struct MonomorphizationOutput {
     /// If we encountered calls to const generic functions that were not resolved, keep track of them in this vector
     pub unresolved_calls: Vec<leo_ast::CallExpression>,
-    /// If we encountered const generic struct expressions that were not resolved, keep track of them in this vector
-    pub unresolved_struct_exprs: Vec<StructExpression>,
-    /// If we encountered const generic struct type instantiations that were not resolved, keep track of them in this
+    /// If we encountered const generic composite expressions that were not resolved, keep track of them in this vector
+    pub unresolved_composite_exprs: Vec<CompositeExpression>,
+    /// If we encountered const generic composite type instantiations that were not resolved, keep track of them in this
     /// vector
-    pub unresolved_struct_types: Vec<CompositeType>,
+    pub unresolved_composite_types: Vec<CompositeType>,
     /// Did we change anything in this program?
     pub changed: bool,
 }
@@ -83,13 +83,13 @@ impl Pass for Monomorphization {
             program: Symbol::intern(""),
             reconstructed_functions: indexmap::IndexMap::new(),
             function_map: indexmap::IndexMap::new(),
-            struct_map: indexmap::IndexMap::new(),
+            composite_map: indexmap::IndexMap::new(),
             monomorphized_functions: indexmap::IndexSet::new(),
-            reconstructed_structs: indexmap::IndexMap::new(),
-            monomorphized_structs: indexmap::IndexSet::new(),
+            reconstructed_composites: indexmap::IndexMap::new(),
+            monomorphized_composites: indexmap::IndexSet::new(),
             unresolved_calls: Vec::new(),
-            unresolved_struct_exprs: Vec::new(),
-            unresolved_struct_types: Vec::new(),
+            unresolved_composite_exprs: Vec::new(),
+            unresolved_composite_types: Vec::new(),
             changed: false,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
@@ -98,8 +98,8 @@ impl Pass for Monomorphization {
 
         Ok(MonomorphizationOutput {
             unresolved_calls: visitor.unresolved_calls,
-            unresolved_struct_exprs: visitor.unresolved_struct_exprs,
-            unresolved_struct_types: visitor.unresolved_struct_types,
+            unresolved_composite_exprs: visitor.unresolved_composite_exprs,
+            unresolved_composite_types: visitor.unresolved_composite_types,
             changed: visitor.changed,
         })
     }

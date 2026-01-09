@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::create_messages;
 use std::fmt::{Debug, Display};
 
 // TODO: Consolidate errors.
@@ -89,9 +88,9 @@ create_messages!(
     }
 
     @formatted
-    compile_core_function {
+    compile_intrinsic {
         args: (err: impl Display),
-        msg: format!("Error during compile time evaluation of this core function: {err}."),
+        msg: format!("Error during compile time evaluation of this intrinsic: {err}."),
         help: None,
     }
 

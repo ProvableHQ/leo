@@ -33,9 +33,9 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
 
     // We need to make sure we hit identifiers, so do our own traversal
     // rather than relying on the default.
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: leo_ast::StructExpression,
+        mut input: leo_ast::CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         for member in input.members.iter_mut() {
@@ -86,7 +86,7 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
             }
         };
 
-        if !lhs_is_used && self.side_effect_free(&input.value) {
+        if !lhs_is_used && self.is_pure(&input.value) {
             // We can eliminate this statement.
             (Statement::dummy(), Default::default())
         } else {
@@ -102,7 +102,7 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
     }
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
-        if self.side_effect_free(&input.expression) {
+        if self.is_pure(&input.expression) {
             (Statement::dummy(), Default::default())
         } else {
             (

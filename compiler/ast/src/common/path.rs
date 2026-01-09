@@ -36,7 +36,7 @@ pub struct Path {
     is_absolute: bool,
 
     /// The fully resolved path. We may not know this until the pass PathResolution pass runs.
-    /// For path that refer to global items (structs, consts, functions), `absolute_path` is
+    /// For path that refer to global items (composites, consts, functions), `absolute_path` is
     /// guaranteed to be set after the pass `PathResolution`.
     absolute_path: Option<Vec<Symbol>>,
 

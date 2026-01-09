@@ -31,7 +31,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     /// Reconstruct a path expression. If the path refers to a variable that has
     /// a constant value, replace it with that constant.
     fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
-        // In SSA form, paths should refer to local variables (or struct members).
+        // In SSA form, paths should refer to local variables (or composite members).
         // Check if this variable has a constant value.
         let identifier_name = input.identifier().name;
 

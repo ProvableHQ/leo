@@ -122,15 +122,13 @@ pub trait AstReconstructor {
         additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         match input {
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, additional),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, additional),
             Expression::Async(async_) => self.reconstruct_async(async_, additional),
             Expression::Array(array) => self.reconstruct_array(array, additional),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, additional),
             Expression::Binary(binary) => self.reconstruct_binary(*binary, additional),
             Expression::Call(call) => self.reconstruct_call(*call, additional),
             Expression::Cast(cast) => self.reconstruct_cast(*cast, additional),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, additional),
+            Expression::Composite(composite_) => self.reconstruct_composite_init(composite_, additional),
             Expression::Err(err) => self.reconstruct_err(err, additional),
             Expression::Path(path) => self.reconstruct_path(path, additional),
             Expression::Literal(value) => self.reconstruct_literal(value, additional),
@@ -142,6 +140,7 @@ pub trait AstReconstructor {
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, additional),
             Expression::Unary(unary) => self.reconstruct_unary(*unary, additional),
             Expression::Unit(unit) => self.reconstruct_unit(unit, additional),
+            Expression::Intrinsic(intr) => self.reconstruct_intrinsic(*intr, additional),
         }
     }
 
@@ -154,33 +153,6 @@ pub trait AstReconstructor {
             ArrayAccess {
                 array: self.reconstruct_expression(input.array, &Default::default()).0,
                 index: self.reconstruct_expression(input.index, &Default::default()).0,
-                ..input
-            }
-            .into(),
-            Default::default(),
-        )
-    }
-
-    fn reconstruct_associated_constant(
-        &mut self,
-        input: AssociatedConstantExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> (Expression, Self::AdditionalOutput) {
-        (input.into(), Default::default())
-    }
-
-    fn reconstruct_associated_function(
-        &mut self,
-        input: AssociatedFunctionExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> (Expression, Self::AdditionalOutput) {
-        (
-            AssociatedFunctionExpression {
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
-                    .collect(),
                 ..input
             }
             .into(),
@@ -216,6 +188,25 @@ pub trait AstReconstructor {
             RepeatExpression {
                 expr: self.reconstruct_expression(input.expr, &Default::default()).0,
                 count: self.reconstruct_expression(input.count, &Default::default()).0,
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_intrinsic(
+        &mut self,
+        input: IntrinsicExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            IntrinsicExpression {
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
+                    .collect(),
                 ..input
             }
             .into(),
@@ -308,13 +299,13 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        input: StructExpression,
+        input: CompositeExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (
-            StructExpression {
+            CompositeExpression {
                 const_arguments: input
                     .const_arguments
                     .into_iter()
@@ -323,7 +314,7 @@ pub trait AstReconstructor {
                 members: input
                     .members
                     .into_iter()
-                    .map(|member| StructVariableInitializer {
+                    .map(|member| CompositeFieldInitializer {
                         identifier: member.identifier,
                         expression: member
                             .expression
@@ -572,11 +563,7 @@ pub trait ProgramReconstructor: AstReconstructor {
         let program_scopes =
             input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
         Program {
-            imports: input
-                .imports
-                .into_iter()
-                .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
-                .collect(),
+            imports: input.imports,
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
             modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
             program_scopes,
@@ -588,7 +575,7 @@ pub trait ProgramReconstructor: AstReconstructor {
             imports: input.imports,
             stub_id: input.stub_id,
             consts: input.consts,
-            structs: input.structs,
+            composites: input.composites,
             mappings: input.mappings,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
             span: input.span,
@@ -606,7 +593,7 @@ pub trait ProgramReconstructor: AstReconstructor {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
             storage_variables: input
                 .storage_variables
@@ -631,7 +618,7 @@ pub trait ProgramReconstructor: AstReconstructor {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
         }
     }
@@ -676,7 +663,7 @@ pub trait ProgramReconstructor: AstReconstructor {
         input
     }
 
-    fn reconstruct_struct(&mut self, input: Composite) -> Composite {
+    fn reconstruct_composite(&mut self, input: Composite) -> Composite {
         Composite {
             const_parameters: input
                 .const_parameters

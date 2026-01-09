@@ -20,7 +20,7 @@ use leo_ast::{AstReconstructor as _, Constructor, Function, ProgramReconstructor
 
 impl ProgramReconstructor for WriteTransformingVisitor<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
-        // Since the input parameters may be structs or arrays that are written to,
+        // Since the input parameters may be composites or arrays that are written to,
         // we may need to define variable members.
         let mut statements = Vec::new();
         for parameter in input.input.iter() {

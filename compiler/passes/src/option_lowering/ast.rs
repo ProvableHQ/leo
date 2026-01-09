@@ -86,15 +86,14 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
         // Reconstruct the expression based on its variant
         let (expr, stmts) = match input {
-            Expression::AssociatedConstant(e) => self.reconstruct_associated_constant(e, additional),
-            Expression::AssociatedFunction(e) => self.reconstruct_associated_function(e, additional),
+            Expression::Intrinsic(e) => self.reconstruct_intrinsic(*e, additional),
             Expression::Async(e) => self.reconstruct_async(e, additional),
             Expression::Array(e) => self.reconstruct_array(e, additional),
             Expression::ArrayAccess(e) => self.reconstruct_array_access(*e, additional),
             Expression::Binary(e) => self.reconstruct_binary(*e, additional),
             Expression::Call(e) => self.reconstruct_call(*e, additional),
             Expression::Cast(e) => self.reconstruct_cast(*e, additional),
-            Expression::Struct(e) => self.reconstruct_struct_init(e, additional),
+            Expression::Composite(e) => self.reconstruct_composite_init(e, additional),
             Expression::Err(e) => self.reconstruct_err(e, additional),
             Expression::Path(e) => self.reconstruct_path(e, additional),
             Expression::Literal(e) => self.reconstruct_literal(e, additional),
@@ -140,13 +139,13 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         (input.into(), stmts_array)
     }
 
-    fn reconstruct_associated_function(
+    fn reconstruct_intrinsic(
         &mut self,
-        mut input: AssociatedFunctionExpression,
+        mut input: IntrinsicExpression,
         _additional: &Option<Type>,
     ) -> (Expression, Self::AdditionalOutput) {
-        match CoreFunction::from_symbols(input.variant.name, input.name.name) {
-            Some(CoreFunction::OptionalUnwrap) => {
+        match Intrinsic::from_symbol(input.name, &input.type_parameters) {
+            Some(Intrinsic::OptionalUnwrap) => {
                 let [optional_expr] = &input.arguments[..] else {
                     panic!("guaranteed by type checking");
                 };
@@ -187,7 +186,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
                 (val_access.into(), stmts)
             }
-            Some(CoreFunction::OptionalUnwrapOr) => {
+            Some(Intrinsic::OptionalUnwrapOr) => {
                 let [optional_expr, default_expr] = &input.arguments[..] else {
                     panic!("unwrap_or must have 2 arguments: optional and default");
                 };
@@ -409,9 +408,9 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         (input.into(), stmts)
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: StructExpression,
+        mut input: CompositeExpression,
         additional: &Option<Type>,
     ) -> (Expression, Self::AdditionalOutput) {
         let (const_parameters, member_types): (Vec<Type>, IndexMap<Symbol, Type>) = {
@@ -424,7 +423,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             if let Type::Composite(composite) = ty {
                 let program = composite.program.unwrap_or(self.program);
                 let location = Location::new(program, composite.path.absolute_path());
-                let struct_def = self
+                let composite_def = self
                     .state
                     .symbol_table
                     .lookup_record(&location)
@@ -432,9 +431,9 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     .or_else(|| self.new_structs.get(&composite.path.identifier().name))
                     .expect("guaranteed by type checking");
 
-                let const_parameters = struct_def.const_parameters.iter().map(|param| param.type_.clone()).collect();
+                let const_parameters = composite_def.const_parameters.iter().map(|param| param.type_.clone()).collect();
                 let member_types =
-                    struct_def.members.iter().map(|member| (member.identifier.name, member.type_.clone())).collect();
+                    composite_def.members.iter().map(|member| (member.identifier.name, member.type_.clone())).collect();
 
                 (const_parameters, member_types)
             } else {
@@ -464,7 +463,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let (new_expr, stmts) = self.reconstruct_expression(expression, &Some(expected_type));
 
                 (
-                    StructVariableInitializer {
+                    CompositeFieldInitializer {
                         identifier: member.identifier,
                         expression: Some(new_expr),
                         span: member.span,

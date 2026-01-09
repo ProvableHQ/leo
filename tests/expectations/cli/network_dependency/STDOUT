@@ -183,7 +183,7 @@ Attempting to determine the consensus version from the latest block height at ht
 
 ➕Adding programs to the VM in the following order:
   - test_program1.aleo (edition: 0)
-  - test_program2.aleo (edition: 1)
+  - test_program2.aleo (local)
 
 ⚙️ Executing test_program2.aleo/main...
 
@@ -191,7 +191,7 @@ Attempting to determine the consensus version from the latest block height at ht
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.001994
-  On‑chain Execution:   0.000000
+  On-chain Execution:   0.000000
   Priority Fee:         0.000000
   Total Fee:            0.001994
 ──────────────────────────────────────────────

@@ -19,7 +19,7 @@ use leo_ast::{
     *,
 };
 use leo_errors::StaticAnalyzerError;
-use leo_span::{Symbol, sym};
+use leo_span::Symbol;
 
 use super::ConstPropagationVisitor;
 
@@ -53,13 +53,12 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (new_expr, opt_value) = match input {
             Expression::Array(array) => self.reconstruct_array(array, &()),
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
-            Expression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant, &()),
-            Expression::AssociatedFunction(function) => self.reconstruct_associated_function(function, &()),
+            Expression::Intrinsic(intr) => self.reconstruct_intrinsic(*intr, &()),
             Expression::Async(async_) => self.reconstruct_async(async_, &()),
             Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
             Expression::Call(call) => self.reconstruct_call(*call, &()),
             Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_, &()),
+            Expression::Composite(composite) => self.reconstruct_composite_init(composite, &()),
             Expression::Err(err) => self.reconstruct_err(err, &()),
             Expression::Path(path) => self.reconstruct_path(path, &()),
             Expression::Literal(value) => self.reconstruct_literal(value, &()),
@@ -81,9 +80,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (new_expr, opt_value)
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: StructExpression,
+        mut input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
@@ -188,20 +187,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         (ArrayAccess { array, index, ..input }.into(), None)
     }
 
-    fn reconstruct_associated_constant(
+    fn reconstruct_intrinsic(
         &mut self,
-        input: leo_ast::AssociatedConstantExpression,
-        _additional: &(),
-    ) -> (Expression, Self::AdditionalOutput) {
-        // Currently there is only one associated constant.
-        let generator = Value::generator();
-        let expr = self.value_to_expression_node(&generator, &input).expect(VALUE_ERROR);
-        (expr, Some(generator))
-    }
-
-    fn reconstruct_associated_function(
-        &mut self,
-        mut input: leo_ast::AssociatedFunctionExpression,
+        mut input: leo_ast::IntrinsicExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut values = Vec::new();
@@ -213,12 +201,14 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             }
         }
 
-        if values.len() == input.arguments.len() && !matches!(input.variant.name, sym::CheatCode | sym::Mapping) {
-            // We've evaluated every argument, and this function isn't a cheat code or mapping
-            // operation, so maybe we can compute the result at compile time.
-            let core_function = CoreFunction::try_from(&input).expect("Type checking guarantees this is valid.");
+        let intrinsic = Intrinsic::from_symbol(input.name, &input.type_parameters)
+            .expect("Type checking guarantees this is valid.");
 
-            match interpreter_value::evaluate_core_function(&mut values, core_function, &[], input.span()) {
+        if values.len() == input.arguments.len() && intrinsic.is_pure() {
+            // We've evaluated every argument, and this function has no side
+            // effects, so maybe we can compute the result at compile time.
+
+            match interpreter_value::evaluate_intrinsic(&mut values, intrinsic, &[], input.span()) {
                 Ok(Some(value)) => {
                     // Successful evaluation.
                     let expr = self.value_to_expression_node(&value, &input).expect(VALUE_ERROR);
@@ -228,7 +218,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     // No errors, but we were unable to evaluate.
                     {}
                 Err(err) => {
-                    self.emit_err(StaticAnalyzerError::compile_core_function(err, input.span()));
+                    self.emit_err(StaticAnalyzerError::compile_intrinsic(err, input.span()));
                 }
             }
         }
@@ -245,8 +235,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let id = input.id();
         let (inner, value_opt) = self.reconstruct_expression(input.inner, &());
         let member_name = input.name.name;
-        if let Some(struct_) = value_opt {
-            let value_result = struct_.member_access(member_name).expect("Type checking guarantees the member exists.");
+        if let Some(composite) = value_opt {
+            let value_result =
+                composite.member_access(member_name).expect("Type checking guarantees the member exists.");
 
             (self.value_to_expression(&value_result, span, id).expect(VALUE_ERROR), Some(value_result.clone()))
         } else {

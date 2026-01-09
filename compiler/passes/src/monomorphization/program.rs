@@ -23,23 +23,23 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Set the current program name from the input.
         self.program = input.program_id.name.name;
 
-        // We first reconstruct all structs. Struct fields can instantiate other generic structs that we need to handle
-        // first. We'll then address struct expressions and other struct type instantiations.
-        let struct_order = self.state.struct_graph.post_order().unwrap();
+        // We first reconstruct all composites. Composite fields can instantiate other generic composites that we need to handle
+        // first. We'll then address composite expressions and other compoiste type instantiations.
+        let composite_order = self.state.composite_graph.post_order().unwrap();
 
-        // Reconstruct structs in post-order.
-        for struct_name in &struct_order {
-            if let Some(r#struct) = self.struct_map.swap_remove(struct_name) {
+        // Reconstruct composites in post-order.
+        for composite_name in &composite_order {
+            if let Some(composite) = self.composite_map.swap_remove(composite_name) {
                 // Perform monomorphization or other reconstruction logic.
-                let reconstructed_struct = self.reconstruct_struct(r#struct);
-                // Store the reconstructed struct for inclusion in the output scope.
-                self.reconstructed_structs.insert(struct_name.clone(), reconstructed_struct);
+                let reconstructed_composite = self.reconstruct_composite(composite);
+                // Store the reconstructed compoiste for inclusion in the output scope.
+                self.reconstructed_composites.insert(composite_name.clone(), reconstructed_composite);
             }
         }
 
-        // If there are some structs left in `struct_map`, that means these are dead structs since they do not show up
-        // in `struct_graph`. Therefore, they won't be reconstructed, implying a change in the reconstructed program.
-        if !self.struct_map.is_empty() {
+        // If there are some composites left in `composite_map`, that means these are dead composites since they do not show up
+        // in `composite_graph`. Therefore, they won't be reconstructed, implying a change in the reconstructed program.
+        if !self.composite_map.is_empty() {
             self.changed = true;
         }
 
@@ -126,11 +126,11 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
-            structs: self
-                .reconstructed_structs
+            composites: self
+                .reconstructed_composites
                 .iter()
                 .filter_map(|(path, c)| {
-                    // only consider structs defined at program scope. The rest will be added to their parent module.
+                    // only consider composites defined at program scope. The rest will be added to their parent module.
                     path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, c.clone()))
                 })
                 .collect(),
@@ -169,12 +169,12 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 self.function_map.insert(full_name, f);
             });
 
-        // Populate `self.struct_map` using the structs in the program scopes and the modules
+        // Populate `self.composite_map` using the composites in the program scopes and the modules
         input
             .modules
             .iter()
             .flat_map(|(module_path, m)| {
-                m.structs.iter().map(move |(name, f)| {
+                m.composites.iter().map(move |(name, f)| {
                     (module_path.iter().cloned().chain(std::iter::once(*name)).collect(), f.clone())
                 })
             })
@@ -182,13 +182,13 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 input
                     .program_scopes
                     .iter()
-                    .flat_map(|(_, scope)| scope.structs.iter().map(|(name, f)| (vec![*name], f.clone()))),
+                    .flat_map(|(_, scope)| scope.composites.iter().map(|(name, f)| (vec![*name], f.clone()))),
             )
             .for_each(|(full_name, f)| {
-                self.struct_map.insert(full_name, f);
+                self.composite_map.insert(full_name, f);
             });
 
-        // Reconstruct prrogram scopes first then reconstruct the modules after `self.reconstructed_structs`
+        // Reconstruct prrogram scopes first then reconstruct the modules after `self.reconstructed_composites`
         // and `self.reconstructed_functions` have been populated.
         Program {
             program_scopes: input
@@ -202,11 +202,11 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     }
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
-        // Here we're reconstructing structs and functions from `reconstructed_functions` and
-        // `reconstructed_structs` based on their paths and whether they match the module path
+        // Here we're reconstructing composites and functions from `reconstructed_functions` and
+        // `reconstructed_composites` based on their paths and whether they match the module path
         Module {
-            structs: self
-                .reconstructed_structs
+            composites: self
+                .reconstructed_composites
                 .iter()
                 .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
                 .filter(|&(_, rest, _)| input.path == rest)

@@ -1,14 +1,4 @@
-Error [ETYC0372003]: Expected type `()` but type `Future<Fn(address,u64)>` was found
-    --> compiler-test:7:17
-     |
-   7 |          return finalize_mint_public(receiver, amount);
-     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372009]: Mapping::has_key is not a valid core function.
-    --> compiler-test:11:30
-     |
-  11 |          let has_key: bool = Mapping::has_key(account, receiver);
-     |                              ^^^^^^^
-Error [ETYC0372014]: Mapping::has_key(account, receiver) is not a valid core function call.
+Error [EPAR0370047]: Unknown associated function: Mapping::has_key
     --> compiler-test:11:30
      |
   11 |          let has_key: bool = Mapping::has_key(account, receiver);

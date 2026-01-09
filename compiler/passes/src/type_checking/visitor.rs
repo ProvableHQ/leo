@@ -40,7 +40,7 @@ pub struct TypeCheckingVisitor<'a> {
     /// Mapping from async function name to the names of async transition callers.
     pub async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
-    pub used_structs: IndexSet<Vec<Symbol>>,
+    pub used_composites: IndexSet<Vec<Symbol>>,
     /// So we can check if we exceed limits on array size, number of mappings, or number of functions.
     pub limits: TypeCheckingInput,
     /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
@@ -195,86 +195,81 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    /// Type checks the inputs to an associated constant and returns the expected output type.
-    pub fn get_core_constant(&self, type_: &Type, constant: &Identifier) -> Option<CoreConstant> {
-        if let Type::Identifier(ident) = type_ {
-            // Lookup core constant
-            match CoreConstant::from_symbols(ident.name, constant.name) {
-                None => {
-                    // Not a core constant.
-                    self.emit_err(TypeCheckerError::invalid_core_constant(ident.name, constant.name, ident.span()));
-                }
-                Some(core_constant) => return Some(core_constant),
-            }
-        }
-        None
-    }
-
-    /// Emits an error if the `struct` is not a core library struct.
-    /// Emits an error if the `function` is not supported by the struct.
-    pub fn get_core_function_call(&self, associated_function: &AssociatedFunctionExpression) -> Option<CoreFunction> {
+    /// Emits an error if the intrinsic invocation is not valid.
+    pub fn get_intrinsic(&mut self, intrinsic_expr: &IntrinsicExpression) -> Option<Intrinsic> {
         // Lookup core struct
-        match CoreFunction::try_from(associated_function).ok() {
+        match Intrinsic::from_symbol(intrinsic_expr.name, &intrinsic_expr.type_parameters) {
+            None if intrinsic_expr.name == Symbol::intern("__unresolved_get") => {
+                let ty = self.visit_expression(&intrinsic_expr.arguments[0], &None);
+                self.assert_vector_or_mapping_type(&ty, intrinsic_expr.arguments[0].span());
+                match ty {
+                    Type::Vector(_) => Some(Intrinsic::VectorGet),
+                    Type::Mapping(_) => Some(Intrinsic::MappingGet),
+                    _ => None,
+                }
+            }
+            None if intrinsic_expr.name == Symbol::intern("__unresolved_set") => {
+                let ty = self.visit_expression(&intrinsic_expr.arguments[0], &None);
+                self.assert_vector_or_mapping_type(&ty, intrinsic_expr.arguments[0].span());
+                match ty {
+                    Type::Vector(_) => Some(Intrinsic::VectorSet),
+                    Type::Mapping(_) => Some(Intrinsic::MappingSet),
+                    _ => None,
+                }
+            }
             None => {
                 // Not a core library struct.
-                self.emit_err(TypeCheckerError::invalid_core_function(
-                    associated_function.variant.name,
-                    associated_function.name.name,
-                    associated_function.variant.span(),
-                ));
+                self.emit_err(TypeCheckerError::invalid_intrinsic(intrinsic_expr.name, intrinsic_expr.span()));
                 None
             }
-            core_function @ Some(CoreFunction::Deserialize(_, _)) => core_function,
-            Some(core_instruction) => {
+            intrinsic @ Some(Intrinsic::Deserialize(_, _)) => intrinsic,
+            Some(intrinsic) => {
                 // Check that the number of type parameters is 0.
-                if !associated_function.type_parameters.is_empty() {
+                if !intrinsic_expr.type_parameters.is_empty() {
                     self.emit_err(TypeCheckerError::custom(
-                        format!(
-                            "The core function `{}::{}` cannot have type parameters.",
-                            associated_function.variant, associated_function.name
-                        ),
-                        associated_function.name.span(),
+                        format!("The intrinsic `{}` cannot have type parameters.", intrinsic_expr.name),
+                        intrinsic_expr.span(),
                     ));
                     return None;
                 };
 
-                Some(core_instruction)
+                Some(intrinsic)
             }
         }
     }
 
-    /// Type checks the inputs to a core function call and returns the expected output type.
+    /// Type checks the inputs to an intrinsic call and returns the expected output type.
     /// Emits an error if the correct number of arguments are not provided.
     /// Emits an error if the arguments are not of the correct type.
-    pub fn check_core_function_call(
+    pub fn check_intrinsic(
         &mut self,
-        core_function: CoreFunction,
+        intrinsic: Intrinsic,
         arguments: &[Expression],
         expected: &Option<Type>,
         function_span: Span,
     ) -> Type {
         // Check that the number of arguments is correct.
-        if arguments.len() != core_function.num_args() {
+        if arguments.len() != intrinsic.num_args() {
             self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                core_function.num_args(),
+                intrinsic.num_args(),
                 arguments.len(),
                 function_span,
             ));
             return Type::Err;
         }
 
-        // Type check and reconstructs the arguments for a given core function call.
+        // Type check and reconstructs the arguments for a given intrinsic call.
         //
-        // Depending on the `core_function`, this handles:
+        // Depending on the intrinsic, this handles:
         // - Optional operations (`unwrap`, `unwrap_or`) with proper type inference
         // - Container access (`Get`, `Set`) for vectors and mappings
         // - Vector-specific operations (`push`, `swap_remove`)
-        // - Default handling for other core functions
+        // - Default handling for other intrinsics
         //
         // Returns a `Vec<(Type, &Expression)>` pairing each argument with its inferred type, or `Type::Err` if
         // type-checking fails. Argument counts are assumed to be already validated
-        let arguments = match core_function {
-            CoreFunction::OptionalUnwrap => {
+        let arguments = match intrinsic {
+            Intrinsic::OptionalUnwrap => {
                 // Expect exactly one argument
                 let [opt] = arguments else { panic!("number of arguments is already checked") };
 
@@ -291,7 +286,7 @@ impl TypeCheckingVisitor<'_> {
                 vec![(opt_ty, opt)]
             }
 
-            CoreFunction::OptionalUnwrapOr => {
+            Intrinsic::OptionalUnwrapOr => {
                 // Expect exactly two arguments: the optional and the fallback value
                 let [opt, fallback] = arguments else { panic!("number of arguments is already checked") };
 
@@ -315,26 +310,33 @@ impl TypeCheckingVisitor<'_> {
                 }
             }
 
-            // Get an element from a container (vector or mapping)
-            CoreFunction::Get => {
+            Intrinsic::MappingGet => {
                 let [container, key_or_index] = arguments else { panic!("number of arguments is already checked") };
 
                 let container_ty = self.visit_expression(container, &None);
 
                 // Key type depends on container type
-                let key_or_index_ty = match container_ty {
-                    Type::Vector(_) => self.visit_expression_infer_default_u32(key_or_index),
-                    Type::Mapping(MappingType { ref key, .. }) => {
-                        self.visit_expression(key_or_index, &Some(*key.clone()))
-                    }
-                    _ => self.visit_expression(key_or_index, &None),
+                let key_or_index_ty = if let Type::Mapping(MappingType { ref key, .. }) = container_ty {
+                    self.visit_expression(key_or_index, &Some(*key.clone()))
+                } else {
+                    self.visit_expression(key_or_index, &None)
                 };
 
                 vec![(container_ty, container), (key_or_index_ty, key_or_index)]
             }
 
-            // Set an element in a container (vector or mapping)
-            CoreFunction::Set => {
+            Intrinsic::VectorGet => {
+                let [container, key_or_index] = arguments else { panic!("number of arguments is already checked") };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                // Key type depends on container type
+                let key_or_index_ty = self.visit_expression_infer_default_u32(key_or_index);
+
+                vec![(container_ty, container), (key_or_index_ty, key_or_index)]
+            }
+
+            Intrinsic::MappingSet => {
                 let [container, key_or_index, val] = arguments else {
                     panic!("number of arguments is already checked")
                 };
@@ -349,18 +351,33 @@ impl TypeCheckingVisitor<'_> {
                     _ => self.visit_expression(key_or_index, &None),
                 };
 
-                let val_ty = match container_ty {
-                    Type::Vector(VectorType { ref element_type }) => {
-                        self.visit_expression(val, &Some(*element_type.clone()))
-                    }
-                    Type::Mapping(MappingType { ref value, .. }) => self.visit_expression(val, &Some(*value.clone())),
-                    _ => self.visit_expression(val, &None),
+                let val_ty = if let Type::Mapping(MappingType { ref value, .. }) = container_ty {
+                    self.visit_expression(val, &Some(*value.clone()))
+                } else {
+                    self.visit_expression(val, &None)
+                };
+
+                vec![(container_ty, container), (key_or_index_ty, key_or_index), (val_ty, val)]
+            }
+            Intrinsic::VectorSet => {
+                let [container, key_or_index, val] = arguments else {
+                    panic!("number of arguments is already checked")
+                };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                let key_or_index_ty = self.visit_expression_infer_default_u32(key_or_index);
+
+                let val_ty = if let Type::Vector(VectorType { ref element_type }) = container_ty {
+                    self.visit_expression(val, &Some(*element_type.clone()))
+                } else {
+                    self.visit_expression(val, &None)
                 };
 
                 vec![(container_ty, container), (key_or_index_ty, key_or_index), (val_ty, val)]
             }
 
-            CoreFunction::VectorPush => {
+            Intrinsic::VectorPush => {
                 let [vec, val] = arguments else { panic!("number of arguments is already checked") };
 
                 // Check vector type
@@ -376,7 +393,7 @@ impl TypeCheckingVisitor<'_> {
                 vec![(vec_ty, vec), (val_ty, val)]
             }
 
-            CoreFunction::VectorSwapRemove => {
+            Intrinsic::VectorSwapRemove => {
                 let [vec, index] = arguments else { panic!("number of arguments is already checked") };
 
                 let vec_ty = self.visit_expression(vec, &None);
@@ -387,7 +404,7 @@ impl TypeCheckingVisitor<'_> {
                 vec![(vec_ty, vec), (index_ty, index)]
             }
 
-            // Default case for other core functions
+            // Default case for other intrinsics
             _ => {
                 arguments.iter().map(|arg| (self.visit_expression_reject_numeric(arg, &None), arg)).collect::<Vec<_>>()
             }
@@ -401,7 +418,7 @@ impl TypeCheckingVisitor<'_> {
 
         // Make sure the input is no bigger than 64 bits.
         // Due to overhead in the bitwise representations of types in SnarkVM, 64 bit integers
-        // input more than 64 bits to a hash function, as do all structs and arrays.
+        // input more than 64 bits to a hash function, as do all composites and arrays.
         let assert_pedersen_64_bit_input = |type_: &Type, span: Span| {
             if !matches!(
                 type_,
@@ -425,7 +442,7 @@ impl TypeCheckingVisitor<'_> {
         // Make sure the input is no bigger than 128 bits.
         //
         // Due to overhead in the bitwise representations of types in SnarkVM, 128 bit integers
-        // input more than 128 bits to a hash function, as do most structs and arrays. We could
+        // input more than 128 bits to a hash function, as do most composites and arrays. We could
         // actually allow arrays with a single element of type smaller than 64 bits, but it
         // seems most understandable to the user to simply disallow composite types entirely.
         let assert_pedersen_128_bit_input = |type_: &Type, span: Span| {
@@ -454,8 +471,8 @@ impl TypeCheckingVisitor<'_> {
         let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
 
         // Check that the arguments are of the correct type.
-        match core_function {
-            CoreFunction::Commit(variant, type_) => {
+        match intrinsic {
+            Intrinsic::Commit(variant, type_) => {
                 match variant {
                     CommitVariant::CommitPED64 => {
                         assert_pedersen_64_bit_input(&arguments[0].0, arguments[0].1.span());
@@ -470,7 +487,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
                 type_.into()
             }
-            CoreFunction::Hash(variant, type_) => {
+            Intrinsic::Hash(variant, type_) => {
                 // If the hash variant must be byte aligned, check that the number bits of the input is a multiple of 8.
                 if variant.requires_byte_alignment() {
                     // Get the input type.
@@ -509,7 +526,7 @@ impl TypeCheckingVisitor<'_> {
                 }
                 type_
             }
-            CoreFunction::ECDSAVerify(variant) => {
+            Intrinsic::ECDSAVerify(variant) => {
                 // Get the expected signature size.
                 let signature_size = ECDSASignature::SIGNATURE_SIZE_IN_BYTES;
                 // Check that the first input is a 65-byte array.
@@ -533,7 +550,7 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
 
-                // Determine whether the core function is Ethereum-specifc.
+                // Determine whether the intrinsic is Ethereum-specifc.
                 let is_eth = match variant {
                     ECDSAVerifyVariant::Digest => false,
                     ECDSAVerifyVariant::DigestEth => true,
@@ -646,13 +663,8 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
-            CoreFunction::Get => {
-                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Vector::get", true, function_span);
-
-                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
-                } else if let Type::Mapping(MappingType { value, .. }) = &arguments[0].0 {
+            Intrinsic::MappingGet => {
+                if let Type::Mapping(MappingType { value, .. }) = &arguments[0].0 {
                     // Check that the operation is invoked in a `finalize` or `async` block.
                     self.check_access_allowed("Mapping::get", true, function_span);
 
@@ -662,13 +674,19 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::Set => {
-                if arguments[0].0.is_vector() {
+            Intrinsic::VectorGet => {
+                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
                     // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Vector::set", true, function_span);
+                    self.check_access_allowed("Vector::get", true, function_span);
 
-                    Type::Unit
-                } else if let Type::Mapping(_) = &arguments[0].0 {
+                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                } else {
+                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
+            }
+            Intrinsic::MappingSet => {
+                if let Type::Mapping(_) = &arguments[0].0 {
                     // Check that the operation is invoked in a `finalize` or `async` block.
                     self.check_access_allowed("Mapping::set", true, function_span);
 
@@ -678,7 +696,18 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::MappingGetOrUse => {
+            Intrinsic::VectorSet => {
+                if arguments[0].0.is_vector() {
+                    // Check that the operation is invoked in a `finalize` or `async` block.
+                    self.check_access_allowed("Vector::set", true, function_span);
+
+                    Type::Unit
+                } else {
+                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
+                    Type::Err
+                }
+            }
+            Intrinsic::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::get_or_use", true, function_span);
                 // Check that the first argument is a mapping.
@@ -696,7 +725,7 @@ impl TypeCheckingVisitor<'_> {
 
                 mapping_type.value.deref().clone()
             }
-            CoreFunction::MappingRemove => {
+            Intrinsic::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::remove", true, function_span);
                 // Check that the first argument is a mapping.
@@ -719,7 +748,7 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Unit
             }
-            CoreFunction::MappingContains => {
+            Intrinsic::MappingContains => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::contains", true, function_span);
                 // Check that the first argument is a mapping.
@@ -735,7 +764,7 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
-            CoreFunction::OptionalUnwrap => {
+            Intrinsic::OptionalUnwrap => {
                 // Check that the first argument is an optional.
                 self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
 
@@ -744,7 +773,7 @@ impl TypeCheckingVisitor<'_> {
                     _ => Type::Err,
                 }
             }
-            CoreFunction::OptionalUnwrapOr => {
+            Intrinsic::OptionalUnwrapOr => {
                 // Check that the first argument is an optional.
                 self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
 
@@ -757,7 +786,7 @@ impl TypeCheckingVisitor<'_> {
                     _ => Type::Err,
                 }
             }
-            CoreFunction::VectorPush => {
+            Intrinsic::VectorPush => {
                 self.check_access_allowed("Vector::push", true, function_span);
 
                 // Check that the first argument is a vector
@@ -773,7 +802,7 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
             }
-            CoreFunction::VectorLen => {
+            Intrinsic::VectorLen => {
                 self.check_access_allowed("Vector::len", true, function_span);
 
                 if arguments[0].0.is_vector() {
@@ -783,7 +812,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::VectorPop => {
+            Intrinsic::VectorPop => {
                 self.check_access_allowed("Vector::pop", true, function_span);
 
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
@@ -793,7 +822,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::VectorSwapRemove => {
+            Intrinsic::VectorSwapRemove => {
                 self.check_access_allowed("Vector::swap_remove", true, function_span);
 
                 if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
@@ -803,7 +832,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::VectorClear => {
+            Intrinsic::VectorClear => {
                 if arguments[0].0.is_vector() {
                     Type::Unit
                 } else {
@@ -811,13 +840,13 @@ impl TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
-            CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate => {
+            Intrinsic::GroupToXCoordinate | Intrinsic::GroupToYCoordinate => {
                 // Check that the first argument is a group.
                 self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1.span());
                 Type::Field
             }
-            CoreFunction::ChaChaRand(type_) => type_.into(),
-            CoreFunction::SignatureVerify => {
+            Intrinsic::ChaChaRand(type_) => type_.into(),
+            Intrinsic::SignatureVerify => {
                 // Check that the third argument is not a mapping nor a tuple. We have to do this
                 // before the other checks below to appease the borrow checker
                 assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1.span());
@@ -828,8 +857,9 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[1].0, &Type::Address, arguments[1].1.span());
                 Type::Boolean
             }
-            CoreFunction::FutureAwait => Type::Unit,
-            CoreFunction::ProgramChecksum => {
+            Intrinsic::FutureAwait => Type::Unit,
+            Intrinsic::GroupGen => Type::Group,
+            Intrinsic::ProgramChecksum => {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
@@ -857,7 +887,7 @@ impl TypeCheckingVisitor<'_> {
                     )),
                 ))
             }
-            CoreFunction::ProgramEdition => {
+            Intrinsic::ProgramEdition => {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
@@ -877,7 +907,7 @@ impl TypeCheckingVisitor<'_> {
                 // Return the type.
                 Type::Integer(IntegerType::U16)
             }
-            CoreFunction::ProgramOwner => {
+            Intrinsic::ProgramOwner => {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
@@ -897,7 +927,7 @@ impl TypeCheckingVisitor<'_> {
                 // Return the type.
                 Type::Address
             }
-            CoreFunction::Serialize(variant) => {
+            Intrinsic::Serialize(variant) => {
                 // Determine the variant.
                 let is_raw = match variant {
                     SerializeVariant::ToBits => false,
@@ -974,7 +1004,7 @@ impl TypeCheckingVisitor<'_> {
                 // Could not resolve the size in bits at this time.
                 Type::Err
             }
-            CoreFunction::Deserialize(variant, type_) => {
+            Intrinsic::Deserialize(variant, type_) => {
                 // Determine the variant.
                 let is_raw = match variant {
                     DeserializeVariant::FromBits => false,
@@ -1028,19 +1058,19 @@ impl TypeCheckingVisitor<'_> {
 
                 type_.clone()
             }
-            CoreFunction::CheatCodePrintMapping => {
+            Intrinsic::CheatCodePrintMapping => {
                 self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
                 Type::Unit
             }
-            CoreFunction::CheatCodeSetBlockHeight => {
+            Intrinsic::CheatCodeSetBlockHeight => {
                 self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1.span());
                 Type::Unit
             }
-            CoreFunction::CheatCodeSetBlockTimestamp => {
+            Intrinsic::CheatCodeSetBlockTimestamp => {
                 self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::I64), arguments[0].1.span());
                 Type::Unit
             }
-            CoreFunction::CheatCodeSetSigner => {
+            Intrinsic::CheatCodeSetSigner => {
                 // Assert that the argument is a string.
                 self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());
                 // Validate that the argument is a valid private key.
@@ -1060,20 +1090,65 @@ impl TypeCheckingVisitor<'_> {
                 };
                 Type::Unit
             }
+            Intrinsic::SelfAddress => Type::Address,
+            Intrinsic::SelfCaller => {
+                // Check that the operation is not invoked in a `finalize` block.
+                self.check_access_allowed("self.caller", false, function_span);
+                Type::Address
+            }
+            Intrinsic::SelfChecksum => Type::Array(ArrayType::new(
+                Type::Integer(IntegerType::U8),
+                Expression::Literal(Literal::integer(
+                    IntegerType::U8,
+                    "32".to_string(),
+                    Default::default(),
+                    Default::default(),
+                )),
+            )),
+            Intrinsic::SelfEdition => Type::Integer(IntegerType::U16),
+            Intrinsic::SelfId => Type::Address,
+            Intrinsic::SelfProgramOwner => {
+                // Check that the operation is only invoked in a `finalize` block.
+                self.check_access_allowed("program_owner", true, function_span);
+                Type::Address
+            }
+            Intrinsic::SelfSigner => {
+                // Check that operation is not invoked in a `finalize` block.
+                self.check_access_allowed("self.signer", false, function_span);
+                Type::Address
+            }
+            Intrinsic::BlockHeight => {
+                // Check that the operation is invoked in a `finalize` block.
+                self.check_access_allowed("block.height", true, function_span);
+                Type::Integer(IntegerType::U32)
+            }
+            Intrinsic::BlockTimestamp => {
+                // Check that the operation is invoked in a `finalize` block.
+                self.check_access_allowed("block.timestamp", true, function_span);
+                Type::Integer(IntegerType::I64)
+            }
+            Intrinsic::NetworkId => {
+                // Check that the operation is not invoked outside a `finalize` block.
+                self.check_access_allowed("network.id", true, function_span);
+                Type::Integer(IntegerType::U16)
+            }
         }
     }
 
-    /// Emits an error if the struct member is a record type.
+    /// Emits an error if the composite member is a record type.
     pub fn assert_member_is_not_record(&mut self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
-            Type::Composite(struct_)
+            Type::Composite(composite)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                    .is_some_and(|struct_| struct_.is_record) =>
+                    .lookup_composite(
+                        composite.program.or(self.scope_state.program_name),
+                        &composite.path.absolute_path(),
+                    )
+                    .is_some_and(|composite| composite.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
                     parent,
-                    struct_.path.clone(),
+                    composite.path.clone(),
                     span,
                 ))
             }
@@ -1098,12 +1173,15 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that named composite type has been defined.
-            Type::Composite(struct_)
+            Type::Composite(composite)
                 if self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
+                    .lookup_composite(
+                        composite.program.or(self.scope_state.program_name),
+                        &composite.path.absolute_path(),
+                    )
                     .is_none() =>
             {
-                self.emit_err(TypeCheckerError::undefined_type(struct_.path.clone(), span));
+                self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), span));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
@@ -1137,14 +1215,14 @@ impl TypeCheckingVisitor<'_> {
                     // Array elements cannot be tuples.
                     Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
                     // Array elements cannot be records.
-                    Type::Composite(struct_type) => {
+                    Type::Composite(composite_type) => {
                         // Look up the type.
-                        if let Some(struct_) = self.lookup_struct(
-                            struct_type.program.or(self.scope_state.program_name),
-                            &struct_type.path.absolute_path(),
+                        if let Some(composite) = self.lookup_composite(
+                            composite_type.program.or(self.scope_state.program_name),
+                            &composite_type.path.absolute_path(),
                         ) {
                             // Check that the type is not a record.
-                            if struct_.is_record {
+                            if composite.is_record {
                                 self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
                             }
                         }
@@ -1194,17 +1272,17 @@ impl TypeCheckingVisitor<'_> {
             | Type::Tuple(_)
             | Type::Vector(_) => true,
 
-            Type::Composite(struct_type) => {
-                if let Some(struct_) = self.lookup_struct(
-                    struct_type.program.or(self.scope_state.program_name),
-                    &struct_type.path.absolute_path(),
+            Type::Composite(composite_type) => {
+                if let Some(composite) = self.lookup_composite(
+                    composite_type.program.or(self.scope_state.program_name),
+                    &composite_type.path.absolute_path(),
                 ) {
-                    if struct_.is_record {
+                    if composite.is_record {
                         return true;
                     }
 
                     // recursively check all fields
-                    for field in &struct_.members {
+                    for field in &composite.members {
                         let field_ty = &field.type_;
                         // unwrap optional fields for the check
                         let ty_to_check = match field_ty {
@@ -1267,23 +1345,23 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span));
             }
 
-            // Structs (composites)
-            Type::Composite(struct_type) => {
-                if let Some(struct_) = self.lookup_struct(
-                    struct_type.program.or(self.scope_state.program_name),
-                    &struct_type.path.absolute_path(),
+            // Composites
+            Type::Composite(composite_type) => {
+                if let Some(composite) = self.lookup_composite(
+                    composite_type.program.or(self.scope_state.program_name),
+                    &composite_type.path.absolute_path(),
                 ) {
-                    if struct_.is_record {
+                    if composite.is_record {
                         self.emit_err(TypeCheckerError::invalid_storage_type("record", span));
                         return;
                     }
 
                     // Recursively check fields.
-                    for field in &struct_.members {
+                    for field in &composite.members {
                         self.assert_storage_type_is_valid(&field.type_, span);
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::invalid_storage_type("undefined struct", span));
+                    self.emit_err(TypeCheckerError::invalid_storage_type("undefined composite", span));
                 }
             }
 
@@ -1361,15 +1439,17 @@ impl TypeCheckingVisitor<'_> {
 
             Type::Array(array) => self.contains_optional_type_inner(&array.element_type, visited_paths),
 
-            Type::Composite(struct_type) => {
-                let path = struct_type.path.absolute_path();
+            Type::Composite(composite_type) => {
+                let path = composite_type.path.absolute_path();
 
                 // Prevent revisiting the same type
                 if !visited_paths.insert(path.clone()) {
                     return false;
                 }
 
-                if let Some(comp) = self.lookup_struct(struct_type.program.or(self.scope_state.program_name), &path) {
+                if let Some(comp) =
+                    self.lookup_composite(composite_type.program.or(self.scope_state.program_name), &path)
+                {
                     comp.members
                         .iter()
                         .any(|Member { type_, .. }| self.contains_optional_type_inner(type_, visited_paths))
@@ -1516,17 +1596,18 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Make sure only transitions can take a record as an input.
-            if let Type::Composite(struct_) = table_type {
+            if let Type::Composite(composite) = table_type {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
-                    if let Some(elem) = self
-                        .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                    {
+                    if let Some(elem) = self.lookup_composite(
+                        composite.program.or(self.scope_state.program_name),
+                        &composite.path.absolute_path(),
+                    ) {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
                         }
                     } else {
-                        self.emit_err(TypeCheckerError::undefined_type(struct_.path.clone(), input.span()));
+                        self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), input.span()));
                     }
                 }
             }
@@ -1592,9 +1673,11 @@ impl TypeCheckingVisitor<'_> {
 
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
-            if let Type::Composite(struct_) = function_output.type_.clone()
-                && let Some(val) =
-                    self.lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
+            if let Type::Composite(composite) = function_output.type_.clone()
+                && let Some(val) = self.lookup_composite(
+                    composite.program.or(self.scope_state.program_name),
+                    &composite.path.absolute_path(),
+                )
                 && val.is_record
                 && !function.variant.is_transition()
             {
@@ -1665,8 +1748,9 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    /// Wrapper around lookup_struct that additionally records all structs that are used in the program.
-    pub fn lookup_struct(&mut self, program: Option<Symbol>, name: &[Symbol]) -> Option<Composite> {
+    /// Wrapper around lookup_struct and lookup_record that additionally records all structs and records that are
+    /// used in the program.
+    pub fn lookup_composite(&mut self, program: Option<Symbol>, name: &[Symbol]) -> Option<Composite> {
         let record_comp =
             program.and_then(|prog| self.state.symbol_table.lookup_record(&Location::new(prog, name.to_vec())));
         let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name));
@@ -1674,7 +1758,7 @@ impl TypeCheckingVisitor<'_> {
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.
             if !s.is_record || program == self.scope_state.program_name {
-                self.used_structs.insert(name.to_vec());
+                self.used_composites.insert(name.to_vec());
             }
         }
         comp.cloned()

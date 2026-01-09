@@ -20,12 +20,12 @@ use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A struct member access expression `inner.name` to some structure with *named members*.
+/// A composite member access expression `inner.name` to some composite with *named members*.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MemberAccess {
-    /// The inner struct that is being accessed.
+    /// The inner composite that is being accessed.
     pub inner: Expression,
-    /// The name of the struct member to access.
+    /// The name of the composite member to access.
     pub name: Identifier,
     /// The span covering all of `inner.name`.
     pub span: Span,

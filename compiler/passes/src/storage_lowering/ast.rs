@@ -69,13 +69,13 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         (input.into(), stmts_array)
     }
 
-    fn reconstruct_associated_function(
+    fn reconstruct_intrinsic(
         &mut self,
-        mut input: AssociatedFunctionExpression,
-        _additional: &(),
+        mut input: IntrinsicExpression,
+        _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
-        match CoreFunction::from_symbols(input.variant.name, input.name.name) {
-            Some(CoreFunction::VectorPush) => {
+        match Intrinsic::from_symbol(input.name, &input.type_parameters) {
+            Some(Intrinsic::VectorPush) => {
                 // Input:
                 //   Vector::push(v, 42u32)
                 //
@@ -130,7 +130,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 (set_vec_stmt_expr, [stmts, vec![len_stmt, set_len_stmt]].concat())
             }
 
-            Some(CoreFunction::VectorLen) => {
+            Some(Intrinsic::VectorLen) => {
                 // Input:
                 //   Vector::len(v)
                 //
@@ -153,7 +153,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 (get_len_expr, vec![])
             }
 
-            Some(CoreFunction::VectorPop) => {
+            Some(Intrinsic::VectorPop) => {
                 // Input:
                 //   Vector::pop(v)
                 //
@@ -229,7 +229,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 (ternary_expr, vec![len_stmt, set_len_stmt])
             }
 
-            Some(CoreFunction::Get) => {
+            Some(Intrinsic::VectorGet) => {
                 // Unpack arguments (container, index/key)
                 let [container_expr, key_expr] = &mut input.arguments[..] else {
                     panic!("Get should have 2 arguments");
@@ -239,75 +239,60 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let (reconstructed_key_expr, key_stmts) =
                     self.reconstruct_expression(key_expr.clone(), &Default::default());
 
-                match self.state.type_table.get(&container_expr.id()) {
-                    Some(Type::Vector(VectorType { element_type })) => {
-                        // Input:
-                        //   Get(v, index)
-                        //
-                        // Lowered reconstruction:
-                        //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
-                        //   index < $len_var
-                        //       ? Mapping::get_or_use(vec_map, index, zero_value)
-                        //       : None
+                if let Some(Type::Vector(VectorType { element_type })) = self.state.type_table.get(&container_expr.id())
+                {
+                    // Input:
+                    //   Get(v, index)
+                    //
+                    // Lowered reconstruction:
+                    //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
+                    //   index < $len_var
+                    //       ? Mapping::get_or_use(vec_map, index, zero_value)
+                    //       : None
 
-                        let (vec_values_mapping_name, vec_length_mapping_name) =
-                            self.generate_mapping_names_for_vector(container_expr);
-                        let vec_path_expr = self.symbol_to_path_expr(vec_values_mapping_name);
-                        let len_path_expr = self.symbol_to_path_expr(vec_length_mapping_name);
+                    let (vec_values_mapping_name, vec_length_mapping_name) =
+                        self.generate_mapping_names_for_vector(container_expr);
+                    let vec_path_expr = self.symbol_to_path_expr(vec_values_mapping_name);
+                    let len_path_expr = self.symbol_to_path_expr(vec_length_mapping_name);
 
-                        // let $len_var = Mapping::get_or_use(len_map, false, 0u32)
-                        let len_var_sym = self.state.assigner.unique_symbol("$len_var", "$");
-                        let len_var_ident = Identifier {
-                            name: len_var_sym,
-                            span: Default::default(),
-                            id: self.state.node_builder.next_id(),
-                        };
-                        let get_len_expr = self.get_vector_len_expr(len_path_expr.clone(), input.span);
-                        let len_stmt = self.state.assigner.simple_definition(
-                            len_var_ident,
-                            get_len_expr,
-                            self.state.node_builder.next_id(),
-                        );
-                        let len_var_expr: Expression = len_var_ident.into();
+                    // let $len_var = Mapping::get_or_use(len_map, false, 0u32)
+                    let len_var_sym = self.state.assigner.unique_symbol("$len_var", "$");
+                    let len_var_ident = Identifier {
+                        name: len_var_sym,
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    let get_len_expr = self.get_vector_len_expr(len_path_expr.clone(), input.span);
+                    let len_stmt = self.state.assigner.simple_definition(
+                        len_var_ident,
+                        get_len_expr,
+                        self.state.node_builder.next_id(),
+                    );
+                    let len_var_expr: Expression = len_var_ident.into();
 
-                        // index < len
-                        let index_lt_len_expr =
-                            self.binary_expr(reconstructed_key_expr.clone(), BinaryOperation::Lt, len_var_expr.clone());
+                    // index < len
+                    let index_lt_len_expr =
+                        self.binary_expr(reconstructed_key_expr.clone(), BinaryOperation::Lt, len_var_expr.clone());
 
-                        // zero value for element type (used as default in get_or_use)
-                        let zero = self.zero(&element_type);
+                    // zero value for element type (used as default in get_or_use)
+                    let zero = self.zero(&element_type);
 
-                        // Mapping::get(vec_map, index)
-                        let get_or_use_expr = self.get_or_use_mapping_expr(
-                            vec_path_expr,
-                            reconstructed_key_expr.clone(),
-                            zero,
-                            input.span,
-                        );
+                    // Mapping::get(vec_map, index)
+                    let get_or_use_expr =
+                        self.get_or_use_mapping_expr(vec_path_expr, reconstructed_key_expr.clone(), zero, input.span);
 
-                        // ternary: index < len ? get(vec, index) : None
-                        let none_expr: Expression =
-                            Literal::none(Span::default(), self.state.node_builder.next_id()).into();
-                        let ternary_expr = self.ternary_expr(index_lt_len_expr, get_or_use_expr, none_expr, input.span);
+                    // ternary: index < len ? get(vec, index) : None
+                    let none_expr: Expression =
+                        Literal::none(Span::default(), self.state.node_builder.next_id()).into();
+                    let ternary_expr = self.ternary_expr(index_lt_len_expr, get_or_use_expr, none_expr, input.span);
 
-                        (ternary_expr, [key_stmts, vec![len_stmt]].concat())
-                    }
-
-                    Some(Type::Mapping(_)) => {
-                        // Update the `key` argument of the `Get` as well as the variant name from
-                        // `__unresolved` to `Mapping`.
-                        input.arguments[1] = reconstructed_key_expr;
-                        input.variant.name = sym::Mapping;
-                        (input.into(), key_stmts)
-                    }
-
-                    _ => {
-                        panic!("type checking should guarantee that no other type is expected here.")
-                    }
+                    (ternary_expr, [key_stmts, vec![len_stmt]].concat())
+                } else {
+                    panic!("type checking should guarantee that no other type is expected here.")
                 }
             }
 
-            Some(CoreFunction::Set) => {
+            Some(Intrinsic::VectorSet) => {
                 // Unpack arguments (container, index/key, value)
                 let [container_expr, index_expr, value_expr] = &mut input.arguments[..] else {
                     panic!("Set should have 3 arguments");
@@ -319,75 +304,55 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let (reconstructed_value_expr, value_stmts) =
                     self.reconstruct_expression(value_expr.clone(), &Default::default());
 
-                match self.state.type_table.get(&container_expr.id()) {
-                    Some(Type::Vector(_)) => {
-                        // Input:
-                        //   Set(v, index, value)
-                        //
-                        // Lowered reconstruction (conceptually):
-                        //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
-                        //   assert(index < $len_var);
-                        //   Mapping::set(vec_map, index, value);
+                // Input:
+                //   Set(v, index, value)
+                //
+                // Lowered reconstruction (conceptually):
+                //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
+                //   assert(index < $len_var);
+                //   Mapping::set(vec_map, index, value);
 
-                        let (vec_values_mapping_name, vec_length_mapping_name) =
-                            self.generate_mapping_names_for_vector(container_expr);
-                        let vec_path_expr = self.symbol_to_path_expr(vec_values_mapping_name);
-                        let len_path_expr = self.symbol_to_path_expr(vec_length_mapping_name);
+                let (vec_values_mapping_name, vec_length_mapping_name) =
+                    self.generate_mapping_names_for_vector(container_expr);
+                let vec_path_expr = self.symbol_to_path_expr(vec_values_mapping_name);
+                let len_path_expr = self.symbol_to_path_expr(vec_length_mapping_name);
 
-                        // let $len_var = Mapping::get_or_use(len_map, false, 0u32)
-                        let len_var_sym = self.state.assigner.unique_symbol("$len_var", "$");
-                        let len_var_ident = Identifier {
-                            name: len_var_sym,
-                            span: Default::default(),
-                            id: self.state.node_builder.next_id(),
-                        };
-                        let get_len_expr = self.get_vector_len_expr(len_path_expr.clone(), input.span);
-                        let len_stmt = self.state.assigner.simple_definition(
-                            len_var_ident,
-                            get_len_expr,
-                            self.state.node_builder.next_id(),
-                        );
-                        let len_var_expr: Expression = len_var_ident.into();
+                // let $len_var = Mapping::get_or_use(len_map, false, 0u32)
+                let len_var_sym = self.state.assigner.unique_symbol("$len_var", "$");
+                let len_var_ident =
+                    Identifier { name: len_var_sym, span: Default::default(), id: self.state.node_builder.next_id() };
+                let get_len_expr = self.get_vector_len_expr(len_path_expr.clone(), input.span);
+                let len_stmt = self.state.assigner.simple_definition(
+                    len_var_ident,
+                    get_len_expr,
+                    self.state.node_builder.next_id(),
+                );
+                let len_var_expr: Expression = len_var_ident.into();
 
-                        // index < $len_var
-                        let index_lt_len_expr =
-                            self.binary_expr(reconstructed_key_expr.clone(), BinaryOperation::Lt, len_var_expr.clone());
+                // index < $len_var
+                let index_lt_len_expr =
+                    self.binary_expr(reconstructed_key_expr.clone(), BinaryOperation::Lt, len_var_expr.clone());
 
-                        // Mapping::set(vec_map, index, value)
-                        let set_stmt_expr = self.set_mapping_expr(
-                            vec_path_expr.clone(),
-                            reconstructed_key_expr.clone(),
-                            reconstructed_value_expr.clone(),
-                            input.span,
-                        );
+                // Mapping::set(vec_map, index, value)
+                let set_stmt_expr = self.set_mapping_expr(
+                    vec_path_expr.clone(),
+                    reconstructed_key_expr.clone(),
+                    reconstructed_value_expr.clone(),
+                    input.span,
+                );
 
-                        // assert(index < len)
-                        let assert_stmt = Statement::Assert(AssertStatement {
-                            variant: AssertVariant::Assert(index_lt_len_expr.clone()),
-                            span: Span::default(),
-                            id: self.state.node_builder.next_id(),
-                        });
+                // assert(index < len)
+                let assert_stmt = Statement::Assert(AssertStatement {
+                    variant: AssertVariant::Assert(index_lt_len_expr.clone()),
+                    span: Span::default(),
+                    id: self.state.node_builder.next_id(),
+                });
 
-                        // Emit assert then set
-                        (set_stmt_expr, [key_stmts, value_stmts, vec![len_stmt, assert_stmt]].concat())
-                    }
-
-                    Some(Type::Mapping(_)) => {
-                        // Update the `key` and `value` arguments as well as the variant name from
-                        // `__unresolved` to `Mapping`.
-                        input.arguments[1] = reconstructed_key_expr;
-                        input.arguments[2] = reconstructed_value_expr;
-                        input.variant.name = sym::Mapping;
-                        (input.into(), [key_stmts, value_stmts].concat())
-                    }
-
-                    _ => {
-                        panic!("type checking should guarantee that no other type is expected here.")
-                    }
-                }
+                // Emit assert then set
+                (set_stmt_expr, [key_stmts, value_stmts, vec![len_stmt, assert_stmt]].concat())
             }
 
-            Some(CoreFunction::VectorClear) => {
+            Some(Intrinsic::VectorClear) => {
                 // Input:
                 //   Vector::clear(v)
                 //
@@ -417,7 +382,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 (set_len_stmt_expr, vec![])
             }
 
-            Some(CoreFunction::VectorSwapRemove) => {
+            Some(Intrinsic::VectorSwapRemove) => {
                 // Input:
                 //   Vector::swap_remove(v, index)
                 //
@@ -627,9 +592,9 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         (CastExpression { expression, ..input }.into(), statements)
     }
 
-    fn reconstruct_struct_init(
+    fn reconstruct_composite_init(
         &mut self,
-        mut input: StructExpression,
+        mut input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
@@ -690,9 +655,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let false_literal: Expression = Literal::boolean(false, Span::default(), id()).into();
 
                 // `<var_name>__.contains(false)`
-                let contains_expr: Expression = AssociatedFunctionExpression {
-                    variant: Identifier::new(sym::Mapping, id()),
-                    name: Identifier::new(Symbol::intern("contains"), id()),
+                let contains_expr: Expression = IntrinsicExpression {
+                    name: sym::_mapping_contains,
                     type_parameters: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal.clone()],
                     span: Span::default(),
@@ -704,9 +668,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let zero = self.zero(inner);
 
                 // `<var_name>__.get_or_use(false, zero_value)`
-                let get_or_use_expr: Expression = AssociatedFunctionExpression {
-                    variant: Identifier::new(sym::Mapping, id()),
-                    name: Identifier::new(Symbol::intern("get_or_use"), id()),
+                let get_or_use_expr: Expression = IntrinsicExpression {
+                    name: sym::_mapping_get_or_use,
                     type_parameters: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal, zero],
                     span: Span::default(),
@@ -847,10 +810,9 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     // Lowered reconstruction:
                     //   mapping x__: bool => field;
                     //   ...
-                    //   Mapping::remove(x__, false);
-                    let remove_expr: Expression = AssociatedFunctionExpression {
-                        variant: Identifier::new(sym::Mapping, id()),
-                        name: Identifier::new(Symbol::intern("remove"), id()),
+                    //   _mapping_remove(x__, false);
+                    let remove_expr: Expression = IntrinsicExpression {
+                        name: sym::_mapping_remove,
                         type_parameters: vec![],
                         arguments: vec![mapping_expr, false_literal],
                         span,
@@ -867,10 +829,9 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     // Lowered reconstruction:
                     //   mapping x__: bool => field;
                     //   ...
-                    //   Mapping::set(x__, false, 5field);
-                    let set_expr: Expression = AssociatedFunctionExpression {
-                        variant: Identifier::new(sym::Mapping, id()),
-                        name: Identifier::new(Symbol::intern("set"), id()),
+                    //   _mapping_set(x__, false, 5field);
+                    let set_expr: Expression = IntrinsicExpression {
+                        name: sym::_mapping_set,
                         type_parameters: vec![],
                         arguments: vec![mapping_expr, false_literal, new_value],
                         span,
@@ -941,7 +902,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
         let (reconstructed_expression, statements) = self.reconstruct_expression(input.expression, &Default::default());
-        if !matches!(reconstructed_expression, Expression::Call(_) | Expression::AssociatedFunction(_)) {
+        if !matches!(reconstructed_expression, Expression::Call(_) | Expression::Intrinsic(_)) {
             (
                 ExpressionStatement {
                     expression: Expression::Unit(UnitExpression {

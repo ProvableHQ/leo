@@ -21,6 +21,7 @@ use std::sync::LazyLock;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum IdVariants {
     Identifier,
+    Intrinsic,
     Path,
     ProgramId,
     Locator,
@@ -43,6 +44,8 @@ fn id_variant(lex: &mut logos::Lexer<Token>) -> IdVariants {
     } else if let Some(found) = REGEX_PATH.find(lex.remainder()) {
         lex.bump(found.len());
         IdVariants::Path
+    } else if lex.remainder().starts_with("_") {
+        IdVariants::Intrinsic
     } else {
         IdVariants::Identifier
     }
@@ -103,14 +106,12 @@ pub enum Token {
     // chase here.
 
     // Catch identifiers starting with underscore
-    #[regex(r"_[a-zA-Z][a-zA-Z0-9_]*")]
-    InvalidLeadingUnderscoreIdent,
-
+    #[regex(r"_[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Intrinsic)]
     #[regex(r"[a-zA-Z][a-zA-Z0-9_]*", id_variant)]
     // We need to special case `group::abc` and `signature::abc` as otherwise these are keywords.
-    #[token(r"group::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
-    #[token(r"signature::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
-    #[token(r"Future::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
+    #[regex(r"group::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
+    #[regex(r"signature::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
+    #[regex(r"Future::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
     IdVariants(IdVariants),
 
     // Address literals should have exactly 58 characters, but we lex other lengths
@@ -523,9 +524,6 @@ impl<'a> Iterator for Lexer<'a> {
 
         if matches!(token, Token::Bidi) {
             self.handler.emit_err(ParserError::lexer_bidi_override_span(span));
-            return None;
-        } else if matches!(token, Token::InvalidLeadingUnderscoreIdent) {
-            self.handler.emit_err(ParserError::identifier_cannot_start_with_underscore(span));
             return None;
         } else if matches!(token, Token::Integer) {
             let (s, radix) = if let Some(s) = text.strip_prefix("0x") {

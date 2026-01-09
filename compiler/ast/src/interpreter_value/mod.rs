@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod core_function;
-pub use core_function::*;
+mod intrinsic;
+pub use intrinsic::*;
 
 mod evaluate;
 pub use evaluate::*;

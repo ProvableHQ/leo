@@ -31,7 +31,7 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> Stub {
         imports: program.imports().into_iter().map(|(id, _)| ProgramId::from(id)).collect(),
         stub_id: program_id,
         consts: Vec::new(),
-        structs: [
+        composites: [
             program
                 .structs()
                 .iter()

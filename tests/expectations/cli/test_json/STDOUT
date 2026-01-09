@@ -1,0 +1,240 @@
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+
+➕Adding programs to the VM in the following order:
+  - test_json_program.aleo (local)
+
+➡️  Output
+
+ • 3u32
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+1 / 1 tests passed.
+PASSED: test_main.aleo/test_addition
+
+➕ Adding programs to the VM in the following order:
+  - test_json_program.aleo (local)
+
+🌱 Synthesizing the following keys in test_json_program.aleo:
+    - main
+
+🔑 Synthesized keys for test_json_program.aleo/main (edition 1)
+ℹ️ Circuit Information:
+    - Public Inputs: 16
+    - Variables: 12940
+    - Constraints: 12927
+    - Non-Zero Entries in A: 32191
+    - Non-Zero Entries in B: 46449
+    - Non-Zero Entries in C: 16949
+    - Circuit ID: XXXXXX
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp2RWGDcde3...
+  Address:            aleo1s3ws5tra87fjycnjrws...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  12
+
+📦 Deployment Tasks:
+  • test_json_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+🔧 Your program 'test_json_program.aleo' has the following constructor.
+──────────────────────────────────────────────
+constructor:
+    branch.eq edition 0u16 to end;
+    get expected_checksum[true] into r0;
+    assert.eq checksum r0;
+    position end;
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+
+📦 Creating deployment transaction for 'test_json_program.aleo'...
+
+
+📊 Deployment Summary for test_json_program.aleo
+──────────────────────────────────────────────
+  Program Size:         0.37 KB / 97.66 KB
+  Total Variables:      17,276
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.956000
+  Program Synthesis:    0.030203
+  Namespace:            1.000000
+  Constructor:          0.010440
+  Priority Fee:         0.000000
+  Total Fee:            1.996643
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for test_json_program.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🚀 Execution Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp2RWGDcde3...
+  Address:            aleo1s3ws5tra87fjycnjrws...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  12
+
+🎯 Execution Target:
+  Program:        test_json_program.aleo
+  Function:       main
+  Source:         local
+
+💸 Fee Info:
+  Priority Fee:   0 μcredits
+  Fee Record:     no (public fee)
+
+⚙️ Actions:
+  - Transaction will NOT be printed to the console.
+  - Transaction will NOT be saved to a file.
+  - Transaction will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+➕Adding programs to the VM in the following order:
+  - test_json_program.aleo (local)
+
+⚙️ Executing test_json_program.aleo/main...
+
+📊 Execution Summary for test_json_program.aleo
+──────────────────────────────────────────────
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.001328
+  On-chain Execution:   0.000000
+  Priority Fee:         0.000000
+  Total Fee:            0.001328
+──────────────────────────────────────────────
+
+➡️  Output
+
+ • 3u32
+
+📡 Broadcasting execution for test_json_program.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Execution confirmed!
+program test_json_program.aleo;
+
+mapping expected_checksum:
+    key as boolean.public;
+    value as [u8; 32u32].public;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    output r2 as u32.private;
+
+constructor:
+    branch.eq edition 0u16 to end;
+    get expected_checksum[true] into r0;
+    assert.eq checksum r0;
+    position end;
+
+
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp2RWGDcde3...
+  Address:            aleo1s3ws5tra87fjycnjrws...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  12
+
+📦 Deployment Tasks:
+  • test_json_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+Loaded the following programs into the VM:
+ - credits.aleo (default)
+ - test_json_program.aleo (edition 0)
+
+📦 Creating deployment transaction for 'test_json_program.aleo'...
+
+
+📊 Deployment Summary for test_json_program.aleo
+──────────────────────────────────────────────
+  Program Size:         0.37 KB / 97.66 KB
+  Total Variables:      17,276
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.956000
+  Program Synthesis:    0.030203
+  Namespace:            1.000000
+  Constructor:          0.010440
+  Priority Fee:         0.000000
+  Total Fee:            1.996643
+──────────────────────────────────────────────
+📡 Broadcasting upgrade for test_json_program.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Could not find the transaction.
+❌ Failed to upgrade program test_json_program.aleo: could not find the transaction on the network.

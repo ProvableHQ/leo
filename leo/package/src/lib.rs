@@ -103,6 +103,10 @@ pub const TESTS_DIRECTORY: &str = "tests";
 /// Maximum allowed program size in bytes.
 pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
 
+/// The edition of a deployed program on the Aleo network.
+/// Edition 0 is the initial deployment, and increments with each upgrade.
+pub type Edition = u16;
+
 fn symbol(name: &str) -> Result<Symbol> {
     name.strip_suffix(".aleo").map(Symbol::intern).ok_or_else(|| PackageError::invalid_network_name(name).into())
 }
@@ -200,6 +204,21 @@ pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkNa
     let url = format!("{endpoint}/{network}/program/{name}");
     let program = fetch_from_network(&url)?;
     Ok(program)
+}
+
+/// Fetch the latest edition of a program from the network.
+///
+/// Returns the actual latest edition number for the given program.
+/// This should be used instead of defaulting to arbitrary edition numbers.
+pub fn fetch_latest_edition(name: &str, endpoint: &str, network: NetworkName) -> Result<Edition, UtilError> {
+    // Strip the .aleo suffix if present for the URL.
+    let name_without_suffix = name.strip_suffix(".aleo").unwrap_or(name);
+
+    let url = format!("{endpoint}/{network}/program/{name_without_suffix}.aleo/latest_edition");
+    let contents = fetch_from_network(&url)?;
+    contents
+        .parse::<u16>()
+        .map_err(|e| UtilError::failed_to_retrieve_from_endpoint(url, format!("Failed to parse edition as u16: {e}")))
 }
 
 // Verify that a fetched program is valid aleo instructions.

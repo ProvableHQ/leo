@@ -1,5 +1,5 @@
 {
-  "Struct": {
+  "Composite": {
     "path": {
       "qualifier": [],
       "identifier": {
@@ -84,7 +84,7 @@
 }
 
 {
-  "Struct": {
+  "Composite": {
     "path": {
       "qualifier": [],
       "identifier": {

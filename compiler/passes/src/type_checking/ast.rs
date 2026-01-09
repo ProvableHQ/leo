@@ -127,109 +127,6 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn visit_member_access_general(&mut self, input: &MemberAccess, assign: bool, expected: &Option<Type>) -> Type {
-        // Handler member access expressions that correspond to valid operands in AVM code.
-        if !assign {
-            match &input.inner {
-                // If the access expression is of the form `self.<name>`, then check the <name> is valid.
-                Expression::Path(path) if path.identifier().name == sym::SelfLower => {
-                    match input.name.name {
-                        sym::address => {
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::caller => {
-                            // Check that the operation is not invoked in a `finalize` block.
-                            self.check_access_allowed("self.caller", false, input.name.span());
-
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::checksum => {
-                            let ty = Type::Array(ArrayType::new(
-                                Type::Integer(IntegerType::U8),
-                                Expression::Literal(Literal::integer(
-                                    IntegerType::U8,
-                                    "32".to_string(),
-                                    Default::default(),
-                                    Default::default(),
-                                )),
-                            ));
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::edition => {
-                            let ty = Type::Integer(IntegerType::U16);
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::id => {
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::program_owner => {
-                            // Check that the operation is only invoked in a `finalize` block.
-                            self.check_access_allowed("self.program_owner", true, input.name.span());
-
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        sym::signer => {
-                            // Check that operation is not invoked in a `finalize` block.
-                            self.check_access_allowed("self.signer", false, input.name.span());
-
-                            let ty = Type::Address;
-                            self.maybe_assert_type(&ty, expected, input.span());
-                            return ty;
-                        }
-                        _ => {
-                            self.emit_err(TypeCheckerError::invalid_self_access(input.name.span()));
-                            return Type::Err;
-                        }
-                    }
-                }
-                // If the access expression is of the form `block.<name>`, then check the <name> is valid.
-                Expression::Path(path) if path.identifier().name == sym::block => match input.name.name {
-                    sym::height => {
-                        // Check that the operation is invoked in a `finalize` block.
-                        self.check_access_allowed("block.height", true, input.name.span());
-                        let ty = Type::Integer(IntegerType::U32);
-                        self.maybe_assert_type(&ty, expected, input.span());
-                        return ty;
-                    }
-                    sym::timestamp => {
-                        // Check that the operation is invoked in a `finalize` block.
-                        self.check_access_allowed("block.timestamp", true, input.name.span());
-                        let ty = Type::Integer(IntegerType::I64);
-                        self.maybe_assert_type(&ty, expected, input.span());
-                        return ty;
-                    }
-                    _ => {
-                        self.emit_err(TypeCheckerError::invalid_block_access(input.name.span()));
-                        return Type::Err;
-                    }
-                },
-                // If the access expression is of the form `network.<name>`, then check that the <name> is valid.
-                Expression::Path(path) if path.identifier().name == sym::network => match input.name.name {
-                    sym::id => {
-                        // Check that the operation is not invoked outside a `finalize` block.
-                        self.check_access_allowed("network.id", true, input.name.span());
-                        let ty = Type::Integer(IntegerType::U16);
-                        self.maybe_assert_type(&ty, expected, input.span());
-                        return ty;
-                    }
-                    _ => {
-                        self.emit_err(TypeCheckerError::invalid_block_access(input.name.span()));
-                        return Type::Err;
-                    }
-                },
-                _ => {}
-            }
-        }
-
         let ty = if assign {
             self.visit_expression_assign(&input.inner).0
         } else {
@@ -241,30 +138,31 @@ impl TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::assignment_to_external_record_member(&ty, input.span));
         }
 
-        // Check that the type of `inner` in `inner.name` is a struct.
+        // Check that the type of `inner` in `inner.name` is a composite.
         match ty {
             Type::Err => Type::Err,
-            Type::Composite(ref struct_) => {
-                // Retrieve the struct definition associated with `identifier`.
-                let Some(struct_) = self
-                    .lookup_struct(struct_.program.or(self.scope_state.program_name), &struct_.path.absolute_path())
-                else {
+            Type::Composite(ref composite) => {
+                // Retrieve the composite definition associated with `identifier`.
+                let Some(composite) = self.lookup_composite(
+                    composite.program.or(self.scope_state.program_name),
+                    &composite.path.absolute_path(),
+                ) else {
                     self.emit_err(TypeCheckerError::undefined_type(ty, input.inner.span()));
                     return Type::Err;
                 };
-                // Check that `input.name` is a member of the struct.
-                match struct_.members.iter().find(|member| member.name() == input.name.name) {
-                    // Case where `input.name` is a member of the struct.
+                // Check that `input.name` is a member of the composite.
+                match composite.members.iter().find(|member| member.name() == input.name.name) {
+                    // Case where `input.name` is a member of the composite.
                     Some(Member { type_, .. }) => {
                         // Check that the type of `input.name` is the same as `expected`.
                         self.maybe_assert_type(type_, expected, input.span());
                         type_.clone()
                     }
-                    // Case where `input.name` is not a member of the struct.
+                    // Case where `input.name` is not a member of the composite.
                     None => {
-                        self.emit_err(TypeCheckerError::invalid_struct_variable(
+                        self.emit_err(TypeCheckerError::invalid_composite_variable(
                             input.name,
-                            &struct_,
+                            &composite,
                             input.name.span(),
                         ));
                         Type::Err
@@ -440,21 +338,21 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_composite_type(&mut self, input: &CompositeType) {
-        let struct_ = self.lookup_struct(self.scope_state.program_name, &input.path.absolute_path()).clone();
+        let composite = self.lookup_composite(self.scope_state.program_name, &input.path.absolute_path()).clone();
 
-        if let Some(struct_) = struct_ {
-            // Check the number of const arguments against the number of the struct's const parameters
-            if struct_.const_parameters.len() != input.const_arguments.len() {
+        if let Some(composite) = composite {
+            // Check the number of const arguments against the number of the composite's const parameters
+            if composite.const_parameters.len() != input.const_arguments.len() {
                 self.emit_err(TypeCheckerError::incorrect_num_const_args(
-                    "Struct type",
-                    struct_.const_parameters.len(),
+                    "Composite type",
+                    composite.const_parameters.len(),
                     input.const_arguments.len(),
                     input.path.span,
                 ));
             }
 
-            // Check the types of const arguments against the types of the struct's const parameters
-            for (expected, argument) in struct_.const_parameters.iter().zip(input.const_arguments.iter()) {
+            // Check the types of const arguments against the types of the composite's const parameters
+            for (expected, argument) in composite.const_parameters.iter().zip(input.const_arguments.iter()) {
                 self.visit_expression(argument, &Some(expected.type_().clone()));
             }
         } else if !input.const_arguments.is_empty() {
@@ -467,13 +365,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let output = match input {
             Expression::Array(array) => self.visit_array(array, additional),
             Expression::ArrayAccess(access) => self.visit_array_access_general(access, false, additional),
-            Expression::AssociatedConstant(constant) => self.visit_associated_constant(constant, additional),
-            Expression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
+            Expression::Intrinsic(intr) => self.visit_intrinsic(intr, additional),
             Expression::Async(async_) => self.visit_async(async_, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
-            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
+            Expression::Composite(composite) => self.visit_composite_init(composite, additional),
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
@@ -600,47 +497,26 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         type_
     }
 
-    fn visit_associated_constant(
-        &mut self,
-        input: &AssociatedConstantExpression,
-        expected: &Self::AdditionalInput,
-    ) -> Self::Output {
-        // Check associated constant type and constant name
-        let Some(core_constant) = self.get_core_constant(&input.ty, &input.name) else {
-            self.emit_err(TypeCheckerError::invalid_associated_constant(input, input.span));
-            return Type::Err;
-        };
-        let type_ = core_constant.to_type();
-        self.maybe_assert_type(&type_, expected, input.span());
-        type_
-    }
-
-    fn visit_associated_function(
-        &mut self,
-        input: &AssociatedFunctionExpression,
-        expected: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Check core struct name and function.
-        let Some(core_instruction) = self.get_core_function_call(input) else {
-            self.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
+        let Some(intrinsic) = self.get_intrinsic(input) else {
             return Type::Err;
         };
         // Check that operation is not restricted to finalize blocks.
         if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
             && self.async_block_id.is_none()
-            && core_instruction.is_finalize_command()
+            && intrinsic.is_finalize_command()
         {
             self.emit_err(TypeCheckerError::operation_must_be_in_async_block_or_function(input.span()));
         }
 
-        let return_type =
-            self.check_core_function_call(core_instruction.clone(), &input.arguments, expected, input.span());
+        let return_type = self.check_intrinsic(intrinsic.clone(), &input.arguments, expected, input.span());
 
         // Check return type if the expected type is known.
         self.maybe_assert_type(&return_type, expected, input.span());
 
         // Await futures here so that can use the argument variable names to lookup.
-        if core_instruction == CoreFunction::FutureAwait && input.arguments.len() != 1 {
+        if intrinsic == Intrinsic::FutureAwait && input.arguments.len() != 1 {
             self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(input.span));
         }
 
@@ -1364,25 +1240,29 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         input.type_.clone()
     }
 
-    fn visit_struct_init(&mut self, input: &StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.lookup_struct(self.scope_state.program_name, &input.path.absolute_path()).clone();
-        let Some(struct_) = struct_ else {
+    fn visit_composite_init(
+        &mut self,
+        input: &CompositeExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
+        let composite = self.lookup_composite(self.scope_state.program_name, &input.path.absolute_path()).clone();
+        let Some(composite) = composite else {
             self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.path.clone(), input.path.span()));
             return Type::Err;
         };
 
-        // Check the number of const arguments against the number of the struct's const parameters
-        if struct_.const_parameters.len() != input.const_arguments.len() {
+        // Check the number of const arguments against the number of the composite's const parameters
+        if composite.const_parameters.len() != input.const_arguments.len() {
             self.emit_err(TypeCheckerError::incorrect_num_const_args(
-                "Struct expression",
-                struct_.const_parameters.len(),
+                "Composite expression",
+                composite.const_parameters.len(),
                 input.const_arguments.len(),
                 input.span(),
             ));
         }
 
-        // Check the types of const arguments against the types of the struct's const parameters
-        for (expected, argument) in struct_.const_parameters.iter().zip(input.const_arguments.iter()) {
+        // Check the types of const arguments against the types of the composite's const parameters
+        for (expected, argument) in composite.const_parameters.iter().zip(input.const_arguments.iter()) {
             self.visit_expression(argument, &Some(expected.type_().clone()));
         }
 
@@ -1395,16 +1275,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         });
         self.maybe_assert_type(&type_, additional, input.path.span());
 
-        // Check number of struct members.
-        if struct_.members.len() != input.members.len() {
-            self.emit_err(TypeCheckerError::incorrect_num_struct_members(
-                struct_.members.len(),
+        // Check number of composite members.
+        if composite.members.len() != input.members.len() {
+            self.emit_err(TypeCheckerError::incorrect_num_composite_members(
+                composite.members.len(),
                 input.members.len(),
                 input.span(),
             ));
         }
 
-        for Member { identifier, type_, .. } in struct_.members.iter() {
+        for Member { identifier, type_, .. } in composite.members.iter() {
             if let Some(actual) = input.members.iter().find(|member| member.identifier.name == identifier.name) {
                 match &actual.expression {
                     None => {
@@ -1431,11 +1311,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     }
                 };
             } else {
-                self.emit_err(TypeCheckerError::missing_struct_member(struct_.identifier, identifier, input.span()));
+                self.emit_err(TypeCheckerError::missing_composite_member(
+                    composite.identifier,
+                    identifier,
+                    input.span(),
+                ));
             };
         }
 
-        if struct_.is_record {
+        if composite.is_record {
             // First, ensure that the current scope is not an async function. Records should not be instantiated in
             // async functions
             if self.scope_state.variant == Some(Variant::AsyncFunction) {
@@ -1455,15 +1339,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             //
             // Multiple occurrences of `owner` here is an error but that should be flagged somewhere else.
             input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
-                if let Some(Expression::MemberAccess(access)) = &init.expression
-                    && let MemberAccess {
-                        inner: Expression::Path(path),
-                        name: Identifier { name: sym::caller, .. },
-                        ..
-                    } = &**access
-                    && path.identifier().name == sym::SelfLower
+                if let Some(Expression::Intrinsic(intr)) = &init.expression
+                    && let IntrinsicExpression { name: sym::_self_caller, .. } = &**intr
                 {
-                    self.emit_warning(TypeCheckerWarning::caller_as_record_owner(input.path.clone(), access.span()));
+                    self.emit_warning(TypeCheckerWarning::caller_as_record_owner(input.path.clone(), intr.span()));
                 }
             });
         }
@@ -2104,7 +1983,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
         // Expression statements can only be function calls.
-        if !matches!(input.expression, Expression::Call(_) | Expression::AssociatedFunction(_) | Expression::Unit(_)) {
+        if !matches!(input.expression, Expression::Call(_) | Expression::Intrinsic(_) | Expression::Unit(_)) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.

@@ -1,21 +1,6 @@
 {
-  "AssociatedFunction": {
-    "variant": {
-      "name": "group",
-      "span": {
-        "lo": 0,
-        "hi": 5
-      },
-      "id": 1
-    },
-    "name": {
-      "name": "to_x_coordinate",
-      "span": {
-        "lo": 7,
-        "hi": 22
-      },
-      "id": 2
-    },
+  "Intrinsic": {
+    "name": "_group_to_x_coordinate",
     "type_parameters": [],
     "arguments": [
       {
@@ -48,23 +33,8 @@
 }
 
 {
-  "AssociatedFunction": {
-    "variant": {
-      "name": "group",
-      "span": {
-        "lo": 26,
-        "hi": 31
-      },
-      "id": 1
-    },
-    "name": {
-      "name": "to_y_coordinate",
-      "span": {
-        "lo": 33,
-        "hi": 48
-      },
-      "id": 2
-    },
+  "Intrinsic": {
+    "name": "_group_to_y_coordinate",
     "type_parameters": [],
     "arguments": [
       {

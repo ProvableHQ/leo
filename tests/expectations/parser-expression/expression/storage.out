@@ -1,21 +1,6 @@
 {
-  "AssociatedFunction": {
-    "variant": {
-      "name": "Vector",
-      "span": {
-        "lo": 0,
-        "hi": 0
-      },
-      "id": 6
-    },
-    "name": {
-      "name": "push",
-      "span": {
-        "lo": 2,
-        "hi": 6
-      },
-      "id": 1
-    },
+  "Intrinsic": {
+    "name": "_vector_push",
     "type_parameters": [],
     "arguments": [
       {
@@ -63,28 +48,13 @@
       "lo": 0,
       "hi": 9
     },
-    "id": 7
+    "id": 6
   }
 }
 
 {
-  "AssociatedFunction": {
-    "variant": {
-      "name": "Vector",
-      "span": {
-        "lo": 0,
-        "hi": 0
-      },
-      "id": 4
-    },
-    "name": {
-      "name": "pop",
-      "span": {
-        "lo": 12,
-        "hi": 15
-      },
-      "id": 1
-    },
+  "Intrinsic": {
+    "name": "_vector_pop",
     "type_parameters": [],
     "arguments": [
       {
@@ -112,28 +82,13 @@
       "lo": 10,
       "hi": 17
     },
-    "id": 5
+    "id": 4
   }
 }
 
 {
-  "AssociatedFunction": {
-    "variant": {
-      "name": "__unresolved",
-      "span": {
-        "lo": 0,
-        "hi": 0
-      },
-      "id": 6
-    },
-    "name": {
-      "name": "get",
-      "span": {
-        "lo": 20,
-        "hi": 23
-      },
-      "id": 1
-    },
+  "Intrinsic": {
+    "name": "__unresolved_get",
     "type_parameters": [],
     "arguments": [
       {
@@ -181,28 +136,13 @@
       "lo": 18,
       "hi": 26
     },
-    "id": 7
+    "id": 6
   }
 }
 
 {
-  "AssociatedFunction": {
-    "variant": {
-      "name": "__unresolved",
-      "span": {
-        "lo": 0,
-        "hi": 0
-      },
-      "id": 8
-    },
-    "name": {
-      "name": "set",
-      "span": {
-        "lo": 29,
-        "hi": 32
-      },
-      "id": 1
-    },
+  "Intrinsic": {
+    "name": "__unresolved_set",
     "type_parameters": [],
     "arguments": [
       {
@@ -275,23 +215,8 @@
 }
 
 {
-  "AssociatedFunction": {
-    "variant": {
-      "name": "Vector",
-      "span": {
-        "lo": 0,
-        "hi": 0
-      },
-      "id": 4
-    },
-    "name": {
-      "name": "len",
-      "span": {
-        "lo": 41,
-        "hi": 44
-      },
-      "id": 1
-    },
+  "Intrinsic": {
+    "name": "_vector_len",
     "type_parameters": [],
     "arguments": [
       {
@@ -319,28 +244,13 @@
       "lo": 39,
       "hi": 46
     },
-    "id": 5
+    "id": 4
   }
 }
 
 {
-  "AssociatedFunction": {
-    "variant": {
-      "name": "Vector",
-      "span": {
-        "lo": 0,
-        "hi": 0
-      },
-      "id": 6
-    },
-    "name": {
-      "name": "swap_remove",
-      "span": {
-        "lo": 49,
-        "hi": 60
-      },
-      "id": 1
-    },
+  "Intrinsic": {
+    "name": "_vector_swap_remove",
     "type_parameters": [],
     "arguments": [
       {
@@ -388,7 +298,7 @@
       "lo": 47,
       "hi": 63
     },
-    "id": 7
+    "id": 6
   }
 }
 

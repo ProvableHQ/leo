@@ -21,7 +21,7 @@
 //! - The name of the program the module belongs to (`program_name`)
 //! - The hierarchical path identifying the module (`path`)
 //! - A list of constant declarations (`consts`)
-//! - A list of struct type definitions (`structs`)
+//! - A list of composite type definitions (`composites`)
 //! - A list of function definitions (`functions`)
 
 use crate::{Composite, ConstDeclaration, Function, Indent};
@@ -42,8 +42,8 @@ pub struct Module {
     pub path: Vec<Symbol>,
     /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
-    /// A vector of struct definitions.
-    pub structs: Vec<(Symbol, Composite)>,
+    /// A vector of composite definitions.
+    pub composites: Vec<(Symbol, Composite)>,
     /// A vector of function definitions.
     pub functions: Vec<(Symbol, Function)>,
 }
@@ -54,8 +54,8 @@ impl fmt::Display for Module {
         for (_, const_decl) in self.consts.iter() {
             writeln!(f, "{};", Indent(const_decl))?;
         }
-        for (_, struct_) in self.structs.iter() {
-            writeln!(f, "{}", Indent(struct_))?;
+        for (_, composite) in self.composites.iter() {
+            writeln!(f, "{}", Indent(composite))?;
         }
         for (_, function) in self.functions.iter() {
             writeln!(f, "{}", Indent(function))?;

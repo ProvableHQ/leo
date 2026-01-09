@@ -17,8 +17,8 @@
 mod annotation;
 pub use annotation::*;
 
-mod core_function;
-pub use core_function::*;
+mod intrinsic;
+pub use intrinsic::*;
 
 mod variant;
 pub use variant::*;

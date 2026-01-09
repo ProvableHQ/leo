@@ -16,7 +16,8 @@
 
 use crate::cli::{commands::*, context::*, helpers::*};
 use clap::Parser;
-use leo_errors::Result;
+use leo_errors::{CliError, Result};
+use serde::Serialize;
 use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
@@ -28,6 +29,9 @@ pub struct CLI {
 
     #[clap(short, global = true, help = "Suppress CLI output")]
     quiet: bool,
+
+    #[clap(long, global = true, help = "Write results as JSON to a file. Defaults to build/json-outputs/<command>.json if no path specified.", num_args = 0..=1, require_equals = true, default_missing_value = "")]
+    json_output: Option<String>,
 
     #[clap(long, global = true, help = "Disable Leo's daily check for version updates")]
     disable_update_check: bool,
@@ -132,6 +136,29 @@ enum Commands {
     },
 }
 
+impl Commands {
+    fn name(&self) -> &'static str {
+        match self {
+            Commands::Account { .. } => "account",
+            Commands::New { .. } => "new",
+            Commands::Run { .. } => "run",
+            Commands::Test { .. } => "test",
+            Commands::Execute { .. } => "execute",
+            Commands::Deploy { .. } => "deploy",
+            Commands::Devnet { .. } => "devnet",
+            Commands::Query { .. } => "query",
+            Commands::Build { .. } => "build",
+            Commands::Debug { .. } => "debug",
+            Commands::Add { .. } => "add",
+            Commands::Remove { .. } => "remove",
+            Commands::Clean { .. } => "clean",
+            Commands::Synthesize { .. } => "synthesize",
+            Commands::Update { .. } => "update",
+            Commands::Upgrade { .. } => "upgrade",
+        }
+    }
+}
+
 pub fn handle_error<T>(res: Result<T>) -> T {
     match res {
         Ok(t) => t,
@@ -142,10 +169,26 @@ pub fn handle_error<T>(res: Result<T>) -> T {
     }
 }
 
+/// JSON output types for commands that support `--json`.
+#[derive(Serialize)]
+#[serde(untagged)]
+#[allow(clippy::large_enum_variant)]
+enum JsonOutput {
+    Deploy(DeployOutput),
+    Run(RunOutput),
+    Execute(ExecuteOutput),
+    Test(TestOutput),
+    Query(serde_json::Value),
+    Synthesize(SynthesizeOutput),
+}
+
 /// Run command with custom build arguments.
 pub fn run_with_args(cli: CLI) -> Result<()> {
+    // JSON output mode implies quiet mode.
+    let quiet = cli.quiet || cli.json_output.is_some();
+
     // Print the variables found in the `.env` files.
-    if let Ok(vars) = dotenvy::dotenv_iter().map(|v| v.flatten().collect::<Vec<_>>()) {
+    if !quiet && let Ok(vars) = dotenvy::dotenv_iter().map(|v| v.flatten().collect::<Vec<_>>()) {
         if !vars.is_empty() {
             println!("📢 Loading environment variables from a `.env` file in the directory tree.");
         }
@@ -159,7 +202,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     // Skip logger initialization for devnode -- it uses it's own logger.
     let is_devnode = matches!(&cli.command, Commands::Devnode { .. });
 
-    if !cli.quiet && !is_devnode {
+    if !quiet && !is_devnode {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match cli.debug {
             false => 1,
@@ -167,8 +210,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         })?;
     }
 
-    //  Check for updates. If not forced, it checks once per day.
-    if !cli.disable_update_check
+    // Check for updates. If not forced, it checks once per day.
+    if !quiet
+        && !cli.disable_update_check
         && let Ok(true) = updater::Updater::check_for_updates(false)
     {
         let _ = updater::Updater::print_cli();
@@ -176,27 +220,60 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    let context = handle_error(Context::new(cli.path, cli.home, false));
+    let context = handle_error(Context::new(cli.path.clone(), cli.home, false));
+
+    let command_name = cli.command.name();
+    let mut command_output: Option<JsonOutput> = None;
 
     match cli.command {
-        Commands::Add { command } => command.try_execute(context),
-        Commands::Account { command } => command.try_execute(context),
-        Commands::New { command } => command.try_execute(context),
-        Commands::Build { command } => command.try_execute(context),
-        Commands::Debug { command } => command.try_execute(context),
-        Commands::Query { command } => command.try_execute(context),
-        Commands::Clean { command } => command.try_execute(context),
-        Commands::Deploy { command } => command.try_execute(context),
-        Commands::Devnet { command } => command.try_execute(context),
-        Commands::Devnode { command } => command.try_execute(context),
-        Commands::Run { command } => command.try_execute(context),
-        Commands::Test { command } => command.try_execute(context),
-        Commands::Execute { command } => command.try_execute(context),
-        Commands::Remove { command } => command.try_execute(context),
-        Commands::Synthesize { command } => command.try_execute(context),
-        Commands::Update { command } => command.try_execute(context),
-        Commands::Upgrade { command } => command.try_execute(context),
+        Commands::Add { command } => command.try_execute(context)?,
+        Commands::Account { command } => command.try_execute(context)?,
+        Commands::New { command } => command.try_execute(context)?,
+        Commands::Build { command } => command.try_execute(context)?,
+        Commands::Debug { command } => command.try_execute(context)?,
+        Commands::Query { command } => {
+            let result = command.execute(context)?;
+            let data = serde_json::from_str(&result).unwrap_or_else(|_| serde_json::Value::String(result));
+            command_output = Some(JsonOutput::Query(data));
+        }
+        Commands::Clean { command } => command.try_execute(context)?,
+        Commands::Deploy { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
+        Commands::Devnet { command } => command.try_execute(context)?,
+        Commands::Devnode { command } => command.try_execute(context)?,
+        Commands::Run { command } => command_output = Some(JsonOutput::Run(command.execute(context)?)),
+        Commands::Test { command } => command_output = Some(JsonOutput::Test(command.execute(context)?)),
+        Commands::Execute { command } => command_output = Some(JsonOutput::Execute(command.execute(context)?)),
+        Commands::Remove { command } => command.try_execute(context)?,
+        Commands::Synthesize { command } => command_output = Some(JsonOutput::Synthesize(command.execute(context)?)),
+        Commands::Update { command } => command.try_execute(context)?,
+        Commands::Upgrade { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
     }
+
+    if let Some(json_output_arg) = cli.json_output
+        && let Some(output) = command_output
+    {
+        let json = serde_json::to_string_pretty(&output).expect("JSON serialization failed");
+
+        // Use provided path or default to build/json-outputs/<command>.json
+        let path = if json_output_arg.is_empty() {
+            cli.path
+                .unwrap_or_else(|| PathBuf::from("."))
+                .join("build")
+                .join("json-outputs")
+                .join(format!("{command_name}.json"))
+        } else {
+            PathBuf::from(json_output_arg)
+        };
+
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
+        }
+        std::fs::write(&path, json)
+            .map_err(|e| CliError::custom(format!("Failed to write JSON output to {}: {e}", path.display())))?;
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -232,6 +309,7 @@ mod tests {
         let run = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
@@ -275,6 +353,7 @@ mod tests {
         let run = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
@@ -319,6 +398,7 @@ mod tests {
         let run = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
@@ -357,6 +437,7 @@ mod tests {
         let run = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
@@ -398,6 +479,7 @@ mod test_helpers {
         let new = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -472,6 +554,7 @@ function external_nested_function:
         let add = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
@@ -519,6 +602,7 @@ function external_nested_function:
         let create_grandparent_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -534,6 +618,7 @@ function external_nested_function:
         let create_parent_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -549,6 +634,7 @@ function external_nested_function:
         let create_child_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -606,6 +692,7 @@ program child.aleo {
         let add_grandparent_dependency_1 = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
@@ -622,6 +709,7 @@ program child.aleo {
         let add_grandparent_dependency_2 = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
@@ -638,6 +726,7 @@ program child.aleo {
         let add_parent_dependency = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
@@ -683,6 +772,7 @@ program child.aleo {
         let create_outer_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -698,6 +788,7 @@ program child.aleo {
         let create_inner_1_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -713,6 +804,7 @@ program child.aleo {
         let create_inner_2_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -793,6 +885,7 @@ program outer.aleo {
         let add_outer_dependency_1 = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
@@ -809,6 +902,7 @@ program outer.aleo {
         let add_outer_dependency_2 = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
@@ -853,6 +947,7 @@ program outer.aleo {
         let create_outer_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -868,6 +963,7 @@ program outer.aleo {
         let create_inner_1_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -883,6 +979,7 @@ program outer.aleo {
         let create_inner_2_project = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::New {
                 command: LeoNew {
@@ -994,6 +1091,7 @@ program outer_2.aleo {
         let add_outer_dependency_1 = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
@@ -1010,6 +1108,7 @@ program outer_2.aleo {
         let add_outer_dependency_2 = CLI {
             debug: false,
             quiet: false,
+            json_output: None,
             disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {

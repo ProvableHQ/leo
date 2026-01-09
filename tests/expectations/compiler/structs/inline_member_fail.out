@@ -9,7 +9,7 @@ Error [ETYC0372113]: Cannot define a function with no parameters.
      |         ^^^^^^^^^^^^^^^^^^^^^^^
   10 |     }
      |     ^
-Error [ETYC0372013]: Struct initialization expression for `Foo` is missing member `x`.
+Error [ETYC0372013]: Composite initialization expression for `Foo` is missing member `x`.
     --> compiler-test:9:22
      |
    9 |         let a: Foo = Foo { y };
