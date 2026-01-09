@@ -57,7 +57,7 @@ pub struct LeoRun {
 
 impl Command for LeoRun {
     type Input = Option<Package>;
-    type Output = ();
+    type Output = RunOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -262,15 +262,18 @@ fn handle_run<A: Aleo>(
     let authorization = vm.authorize(&private_key, program_id, function_id, inputs.iter(), rng)?;
     let response = vm.process().read().evaluate::<A>(authorization)?;
 
+    // Collect outputs.
+    let outputs: Vec<String> = response.outputs().iter().map(|o| o.to_string()).collect();
+
     // Print the response.
-    match response.outputs().len() {
+    match outputs.len() {
         0 => (),
         1 => println!("\n➡️  Output\n"),
         _ => println!("\n➡️  Outputs\n"),
     };
-    for output in response.outputs() {
+    for output in &outputs {
         println!(" • {output}");
     }
 
-    Ok(())
+    Ok(RunOutput { program: program_id.to_string(), function: function_id.to_string(), outputs })
 }

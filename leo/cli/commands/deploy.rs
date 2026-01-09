@@ -70,7 +70,7 @@ pub struct Task<N: Network> {
 
 impl Command for LeoDeploy {
     type Input = Package;
-    type Output = ();
+    type Output = DeployOutput;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -221,6 +221,14 @@ fn handle_deploy<N: Network>(
     let consensus_version =
         get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
 
+    // Build the config for JSON output.
+    let config = Some(Config {
+        address: address.to_string(),
+        network: network.to_string(),
+        endpoint: Some(endpoint.clone()),
+        consensus_version: Some(consensus_version as u8),
+    });
+
     // Print a summary of the deployment plan.
     print_deployment_plan(
         &private_key,
@@ -238,7 +246,7 @@ fn handle_deploy<N: Network>(
     // Prompt the user to confirm the plan.
     if !confirm("Do you want to proceed with deployment?", command.extra.yes)? {
         println!("❌ Deployment aborted.");
-        return Ok(());
+        return Ok(DeployOutput::default());
     }
 
     // Initialize an RNG.
@@ -278,6 +286,8 @@ fn handle_deploy<N: Network>(
 
     // For each of the programs, generate a deployment transaction.
     let mut transactions = Vec::new();
+    let mut all_stats = Vec::new();
+    let mut all_broadcasts = Vec::new();
     for Task { id, program, priority_fee, record, bytecode_size, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if !skipped.contains(&id) {
@@ -295,7 +305,7 @@ Once it is deployed, it CANNOT be changed.
                 );
                 if !confirm("Would you like to proceed?", command.extra.yes)? {
                     println!("❌ Deployment aborted.");
-                    return Ok(());
+                    return Ok(DeployOutput::default());
                 }
             }
             println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
@@ -305,10 +315,18 @@ Once it is deployed, it CANNOT be changed.
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
             // Get the deployment.
             let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-            // Print the deployment stats.
-            print_deployment_stats(&vm, &id.to_string(), deployment, priority_fee, consensus_version, bytecode_size)?;
-            // Save the transaction.
+            // Compute and print the deployment stats.
+            let stats = print_deployment_stats(
+                &vm,
+                &id.to_string(),
+                deployment,
+                priority_fee,
+                consensus_version,
+                bytecode_size,
+            )?;
+            // Save the transaction and stats.
             transactions.push((id, transaction));
+            all_stats.push(stats);
         }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
@@ -359,6 +377,7 @@ Once it is deployed, it CANNOT be changed.
                 continue;
             }
             let fee_id = fee.id().to_string();
+            let fee_transaction_id = Transaction::from_fee(fee.clone())?.id().to_string();
             let id = transaction.id().to_string();
             let height_before = check_transaction::current_height(&endpoint, network)?;
             // Broadcast the transaction to the network.
@@ -381,7 +400,7 @@ Once it is deployed, it CANNOT be changed.
 
             match status {
                 200..=299 => {
-                    let status = check_transaction::check_transaction_with_message(
+                    let tx_status = check_transaction::check_transaction_with_message(
                         &id,
                         Some(&fee_id),
                         &endpoint,
@@ -390,26 +409,32 @@ Once it is deployed, it CANNOT be changed.
                         command.extra.max_wait,
                         command.extra.blocks_to_check,
                     )?;
-                    if status == Some(TransactionStatus::Accepted) {
+                    let confirmed = tx_status == Some(TransactionStatus::Accepted);
+                    if confirmed {
                         println!("✅ Deployment confirmed!");
                     } else if fail_and_prompt("could not find the transaction on the network")? {
                         continue;
                     } else {
-                        return Ok(());
+                        return Ok(build_deploy_output(config.clone(), &transactions, &all_stats, &all_broadcasts));
                     }
+                    all_broadcasts.push(BroadcastStats {
+                        fee_id: fee_id.clone(),
+                        fee_transaction_id: fee_transaction_id.clone(),
+                        confirmed,
+                    });
                 }
                 _ => {
                     if fail_and_prompt(&message)? {
                         continue;
                     } else {
-                        return Ok(());
+                        return Ok(build_deploy_output(config.clone(), &transactions, &all_stats, &all_broadcasts));
                     }
                 }
             }
         }
     }
 
-    Ok(())
+    Ok(build_deploy_output(config, &transactions, &all_stats, &all_broadcasts))
 }
 
 /// Check the tasks to warn the user about any potential issues.
@@ -596,8 +621,37 @@ pub(crate) fn print_deployment_plan<N: Network>(
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
 
-/// Pretty‑print deployment statistics without a table, using the same UI
-/// conventions as `print_deployment_plan`.
+/// Compute deployment statistics.
+pub(crate) fn compute_deployment_stats<N: Network>(
+    vm: &VM<N, ConsensusMemory<N>>,
+    deployment: &Deployment<N>,
+    priority_fee: Option<u64>,
+    consensus_version: ConsensusVersion,
+    bytecode_size: usize,
+) -> Result<DeploymentStats> {
+    let variables = deployment.num_combined_variables()?;
+    let constraints = deployment.num_combined_constraints()?;
+    let (_, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
+        deployment_cost(&vm.process().read(), deployment, consensus_version)?;
+
+    Ok(DeploymentStats {
+        program_size_bytes: bytecode_size,
+        max_program_size_bytes: N::MAX_PROGRAM_SIZE,
+        total_variables: variables,
+        total_constraints: constraints,
+        max_variables: N::MAX_DEPLOYMENT_VARIABLES,
+        max_constraints: N::MAX_DEPLOYMENT_CONSTRAINTS,
+        cost: CostBreakdown::for_deployment(
+            storage_cost,
+            synthesis_cost,
+            namespace_cost,
+            constructor_cost,
+            priority_fee.unwrap_or(0),
+        ),
+    })
+}
+
+/// Pretty-print deployment statistics.
 pub(crate) fn print_deployment_stats<N: Network>(
     vm: &VM<N, ConsensusMemory<N>>,
     program_id: &str,
@@ -605,58 +659,15 @@ pub(crate) fn print_deployment_stats<N: Network>(
     priority_fee: Option<u64>,
     consensus_version: ConsensusVersion,
     bytecode_size: usize,
-) -> Result<()> {
+) -> Result<DeploymentStats> {
     use colored::*;
-    use num_format::{Locale, ToFormattedString};
 
-    // ── Collect statistics ────────────────────────────────────────────────
-    let variables = deployment.num_combined_variables()?;
-    let constraints = deployment.num_combined_constraints()?;
-    let (base_fee, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
-        deployment_cost(&vm.process().read(), deployment, consensus_version)?;
+    let stats = compute_deployment_stats(vm, deployment, priority_fee, consensus_version, bytecode_size)?;
 
-    let base_fee_cr = base_fee as f64 / 1_000_000.0;
-    let prio_fee_cr = priority_fee.unwrap_or(0) as f64 / 1_000_000.0;
-    let total_fee_cr = base_fee_cr + prio_fee_cr;
-
-    // ── Header ────────────────────────────────────────────────────────────
     println!("\n{} {}", "📊 Deployment Summary for".bold(), program_id.bold());
     println!("{}", "──────────────────────────────────────────────".dimmed());
-
-    // ── High‑level metrics ────────────────────────────────────────────────
-    let (size_kb, max_kb, warning) = format_program_size(bytecode_size, N::MAX_PROGRAM_SIZE);
-    println!("  {:22}{size_kb:.2} KB / {max_kb:.2} KB", "Program Size:".cyan());
-    if let Some(msg) = warning {
-        println!("  {} Program is {msg}.", "⚠️ ".bold().yellow());
-    }
-    println!("  {:22}{}", "Total Variables:".cyan(), variables.to_formatted_string(&Locale::en).yellow());
-    println!("  {:22}{}", "Total Constraints:".cyan(), constraints.to_formatted_string(&Locale::en).yellow());
-    println!(
-        "  {:22}{}",
-        "Max Variables:".cyan(),
-        N::MAX_DEPLOYMENT_VARIABLES.to_formatted_string(&Locale::en).green()
-    );
-    println!(
-        "  {:22}{}",
-        "Max Constraints:".cyan(),
-        N::MAX_DEPLOYMENT_CONSTRAINTS.to_formatted_string(&Locale::en).green()
-    );
-
-    // ── Cost breakdown ────────────────────────────────────────────────────
-    println!("\n{}", "💰 Cost Breakdown (credits)".bold());
-    println!(
-        "  {:22}{}{:.6}",
-        "Transaction Storage:".cyan(),
-        "".yellow(), // spacer for alignment
-        storage_cost as f64 / 1_000_000.0
-    );
-    println!("  {:22}{}{:.6}", "Program Synthesis:".cyan(), "".yellow(), synthesis_cost as f64 / 1_000_000.0);
-    println!("  {:22}{}{:.6}", "Namespace:".cyan(), "".yellow(), namespace_cost as f64 / 1_000_000.0);
-    println!("  {:22}{}{:.6}", "Constructor:".cyan(), "".yellow(), constructor_cost as f64 / 1_000_000.0);
-    println!("  {:22}{}{:.6}", "Priority Fee:".cyan(), "".yellow(), prio_fee_cr);
-    println!("  {:22}{}{:.6}", "Total Fee:".cyan(), "".yellow(), total_fee_cr);
-
-    // ── Footer rule ───────────────────────────────────────────────────────
+    print!("{stats}");
     println!("{}", "──────────────────────────────────────────────".dimmed());
-    Ok(())
+
+    Ok(stats)
 }
