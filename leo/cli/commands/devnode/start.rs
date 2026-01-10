@@ -71,9 +71,10 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     println!("Starting the Devnode server...");
     initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
     // Parse the listener address.
-    let socket_addr: SocketAddr = command.socket_addr.parse().map_err(|e| {
-        CliError::custom(format!("Failed to parse listener address '{}': {}", command.socket_addr, e))
-    })?;
+    let socket_addr: SocketAddr = command
+        .socket_addr
+        .parse()
+        .map_err(|e| CliError::custom(format!("Failed to parse listener address '{}': {}", command.socket_addr, e)))?;
     let rps = 999999999;
     // Load the genesis block.
     let genesis_block: Block<TestnetV0> = if command.genesis_path != "blank" {

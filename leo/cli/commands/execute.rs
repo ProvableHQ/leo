@@ -415,8 +415,6 @@ fn handle_execute<A: Aleo>(
         consensus_version,
     )?;
 
-
-
     // Print the transaction.
     // If the `print` option is set, print the execution transaction to the console.
     // The transaction is printed in JSON format.
