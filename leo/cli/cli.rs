@@ -84,6 +84,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoDevnet,
     },
+    #[clap(about = "Run a local devnode")]
+    Devnode {
+        #[clap(flatten)]
+        command: LeoDevnode,
+    },
     #[clap(about = "Query live data from the Aleo network")]
     Query {
         #[clap(flatten)]
@@ -141,6 +146,7 @@ impl Commands {
             Commands::Execute { .. } => "execute",
             Commands::Deploy { .. } => "deploy",
             Commands::Devnet { .. } => "devnet",
+            Commands::Devnode { .. } => "devnode",
             Commands::Query { .. } => "query",
             Commands::Build { .. } => "build",
             Commands::Debug { .. } => "debug",
@@ -194,7 +200,10 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     // Initialize the `.env` file.
     dotenvy::dotenv().ok();
 
-    if !quiet {
+    // Skip logger initialization for devnode -- it uses it's own logger.
+    let is_devnode = matches!(&cli.command, Commands::Devnode { .. });
+
+    if !quiet && !is_devnode {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match cli.debug {
             false => 1,
@@ -231,6 +240,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Clean { command } => command.try_execute(context)?,
         Commands::Deploy { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
         Commands::Devnet { command } => command.try_execute(context)?,
+        Commands::Devnode { command } => command.try_execute(context)?,
         Commands::Run { command } => command_output = Some(JsonOutput::Run(command.execute(context)?)),
         Commands::Test { command } => command_output = Some(JsonOutput::Test(command.execute(context)?)),
         Commands::Execute { command } => command_output = Some(JsonOutput::Execute(command.execute(context)?)),

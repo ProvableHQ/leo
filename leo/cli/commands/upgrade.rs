@@ -23,11 +23,18 @@ use leo_package::{Package, ProgramData, fetch_program_from_network};
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
-    ledger::query::Query as SnarkVMQuery,
+    circuit::{Aleo, AleoTestnetV0},
+    ledger::query::{Query as SnarkVMQuery, QueryTrait},
     prelude::{
+        Certificate,
+        Deployment,
+        Fee,
         Program,
+        ProgramOwner,
         TestnetV0,
         VM,
+        VerifyingKey,
+        deployment_cost,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
@@ -58,6 +65,8 @@ pub struct LeoUpgrade {
     pub(crate) skip: Vec<String>,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
+    #[clap(long, help = "Skips deployment certificate generation.")]
+    pub(crate) skip_deploy_certificate: bool,
 }
 
 impl Command for LeoUpgrade {
@@ -85,25 +94,25 @@ impl Command for LeoUpgrade {
         let network = get_network(&self.env_override.network)?;
         // Handle each network with the appropriate parameterization.
         match network {
-            NetworkName::TestnetV0 => handle_upgrade::<TestnetV0>(&self, context, network, input),
+            NetworkName::TestnetV0 => handle_upgrade::<TestnetV0, AleoTestnetV0>(&self, context, network, input),
             NetworkName::MainnetV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_upgrade::<MainnetV0>(&self, context, network, input)
+                handle_upgrade::<MainnetV0, snarkvm::circuit::AleoV0>(&self, context, network, input)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_upgrade::<CanaryV0>(&self, context, network, input)
+                handle_upgrade::<CanaryV0, snarkvm::circuit::AleoCanaryV0>(&self, context, network, input)
             }
         }
     }
 }
 
 // A helper function to handle upgrade logic.
-fn handle_upgrade<N: Network>(
+fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     command: &LeoUpgrade,
     context: Context,
     network: NetworkName,
@@ -311,27 +320,98 @@ fn handle_upgrade<N: Network>(
     for Task { id, program, priority_fee, record, bytecode_size, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if !skipped.contains(&id) {
-            println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
-            // Generate the transaction.
-            let transaction =
-                vm.deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
+            if command.skip_deploy_certificate {
+                println!("⚠️  Skipping deployment certificate generation as per user request.\n");
+                assert!(!program.functions().is_empty(), "Program `{}` has no functions", program.id());
+                // Initialize a vector for the placeholder verifying keys and certificates.
+                let mut verifying_keys = Vec::with_capacity(program.functions().len());
+                for function_name in program.functions().keys() {
+                    let (verifying_key, certificate) = {
+                        // Use a placeholder verifying key.
+                        let verifying_key = VerifyingKey::from_str(
+                            "verifier1qygqqqqqqqqqqqyvxgqqqqqqqqq87vsqqqqqqqqqhe7sqqqqqqqqqma4qqqqqqqqqq65yqqqqqqqqqqvqqqqqqqqqqqgtlaj49fmrk2d8slmselaj9tpucgxv6awu6yu4pfcn5xa0yy0tpxpc8wemasjvvxr9248vt3509vpk3u60ejyfd9xtvjmudpp7ljq2csk4yqz70ug3x8xp3xn3ul0yrrw0mvd2g8ju7rts50u3smue03gp99j88f0ky8h6fjlpvh58rmxv53mldmgrxa3fq6spsh8gt5whvsyu2rk4a2wmeyrgvvdf29pwp02srktxnvht3k6ff094usjtllggva2ym75xc4lzuqu9xx8ylfkm3qc7lf7ktk9uu9du5raukh828dzgq26hrarq5ajjl7pz7zk924kekjrp92r6jh9dpp05mxtuffwlmvew84dvnqrkre7lw29mkdzgdxwe7q8z0vnkv2vwwdraekw2va3plu7rkxhtnkuxvce0qkgxcxn5mtg9q2c3vxdf2r7jjse2g68dgvyh85q4mzfnvn07lletrpty3vypus00gfu9m47rzay4mh5w9f03z9zgzgzhkv0mupdqsk8naljqm9tc2qqzhf6yp3mnv2ey89xk7sw9pslzzlkndfd2upzmew4e4vnrkr556kexs9qrykkuhsr260mnrgh7uv0sp2meky0keeukaxgjdsnmy77kl48g3swcvqdjm50ejzr7x04vy7hn7anhd0xeetclxunnl7pd6e52qxdlr3nmutz4zr8f2xqa57a2zkl59a28w842cj4783zpy9hxw03k6vz4a3uu7sm072uqknpxjk8fyq4vxtqd08kd93c2mt40lj9ag35nm4rwcfjayejk57m9qqu83qnkrj3sz90pw808srmf705n2yu6gvqazpvu2mwm8x6mgtlsntxfhr0qas43rqxnccft36z4ygty86390t7vrt08derz8368z8ekn3yywxgp4uq24gm6e58tpp0lcvtpsm3nkwpnmzztx4qvkaf6vk38wg787h8mfpqqqqqqqqqqt49m8x",
+                        )?;
+                        // Use a placeholder certificate.
+                        let certificate = Certificate::from_str(
+                            "certificate1qyqsqqqqqqqqqqxvwszp09v860w62s2l4g6eqf0kzppyax5we36957ywqm2dplzwvvlqg0kwlnmhzfatnax7uaqt7yqqqw0sc4u",
+                        )?;
+
+                        (verifying_key, certificate)
+                    };
+                    verifying_keys.push((*function_name, (verifying_key, certificate)));
+                }
+                // Increment the edition.
+                let edition = *vm.process().read().get_stack(id)?.program_edition() + 1;
+                println!("edition for deployed program: {}", edition);
+                let mut deployment = Deployment::new(edition, program.clone(), verifying_keys, None, None).unwrap();
+
+                // Set the program owner.
+                deployment.set_program_owner_raw(Some(Address::try_from(&private_key)?));
+
+                // Compute the checksum of the deployment.
+                deployment.set_program_checksum_raw(Some(deployment.program().to_checksum()));
+
+                // Compute the deployment ID.
+                let deployment_id = deployment.to_deployment_id()?;
+
+                // Construct the owner.
+                let owner = ProgramOwner::new(&private_key, deployment_id, rng)?;
+
+                // Construct the fee authorization.
+                let (minimum_deployment_cost, _) =
+                    deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
+                // Authorize the fee.
+                let fee_authorization = match record {
+                    Some(record) => vm.process().read().authorize_fee_private::<A, _>(
+                        &private_key,
+                        record,
+                        minimum_deployment_cost,
+                        priority_fee.unwrap_or(0),
+                        deployment_id,
+                        rng,
+                    )?,
+                    None => vm.process().read().authorize_fee_public::<A, _>(
+                        &private_key,
+                        minimum_deployment_cost,
+                        priority_fee.unwrap_or(0),
+                        deployment_id,
+                        rng,
+                    )?,
+                };
+
+                // Get the state root.
+                let state_root = query.current_state_root()?;
+
+                // Create a fee transition without a proof.
+                let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
+
+                // Create the transaction.
+                let transaction = Transaction::from_deployment(owner, deployment, fee)?;
+                // Add the transaction to the transactions vector.
+                transactions.push((id, transaction));
+            } else {
+                println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
+                // Generate the transaction.
+                let transaction = vm
+                    .deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
-            // Get the deployment.
-            let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-            // Compute and print the deployment stats.
-            let stats = print_deployment_stats(
-                &vm,
-                &id.to_string(),
-                deployment,
-                priority_fee,
-                consensus_version,
-                bytecode_size,
-            )?;
-            // Validate the deployment limits.
-            validate_deployment_limits(deployment, &id, &network)?;
-            // Save the transaction and stats.
-            transactions.push((id, transaction));
-            all_stats.push(stats);
+                // Get the deployment.
+                let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+                // Compute and print the deployment stats.
+                let stats = print_deployment_stats(
+                    &vm,
+                    &id.to_string(),
+                    deployment,
+                    priority_fee,
+                    consensus_version,
+                    bytecode_size,
+                )?;
+                // Validate the deployment limits.
+                validate_deployment_limits(deployment, &id, &network)?;
+                // Save the transaction and stats.
+                transactions.push((id, transaction));
+                all_stats.push(stats);
+            }
         }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
@@ -521,6 +601,7 @@ impl From<&LeoUpgrade> for LeoDeploy {
             extra: upgrade.extra.clone(),
             skip: upgrade.skip.clone(),
             build_options: upgrade.build_options.clone(),
+            skip_deploy_certificate: upgrade.skip_deploy_certificate,
         }
     }
 }
