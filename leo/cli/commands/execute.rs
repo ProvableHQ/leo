@@ -349,7 +349,6 @@ fn handle_execute<A: Aleo>(
     let (output_name, output, response) = if command.skip_execute_proof {
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
 
-<<<<<<< HEAD
         // Generate the authorization.
         let authorization =
             vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
@@ -402,19 +401,11 @@ fn handle_execute<A: Aleo>(
             Some(&query),
             rng,
         )?;
-
-        // Compute and print the execution stats.
-        let stats = print_execution_stats::<A::Network>(
-            &vm,
-            &program_name,
-            transaction.execution().expect("Expected execution"),
-            priority_fee,
-            consensus_version,
-        )?;
-
-
+        ("transaction", Box::new(transaction), response)
     };
-=======
+
+    let transaction = output.clone();
+
     // Compute and print the execution stats.
     let stats = print_execution_stats::<A::Network>(
         &vm,
@@ -423,7 +414,8 @@ fn handle_execute<A: Aleo>(
         priority_fee,
         consensus_version,
     )?;
->>>>>>> 9cbe8446217dbf90deba937120e35bad4176edb5
+
+
 
     // Print the transaction.
     // If the `print` option is set, print the execution transaction to the console.
@@ -467,7 +459,6 @@ fn handle_execute<A: Aleo>(
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
     if command.action.broadcast {
         println!("📡 Broadcasting execution for {program_name}...");
-        let transaction = output;
         // Get and confirm the fee with the user.
         let mut fee_id = None;
         let mut fee_transaction_id = None;

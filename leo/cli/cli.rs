@@ -146,6 +146,7 @@ impl Commands {
             Commands::Execute { .. } => "execute",
             Commands::Deploy { .. } => "deploy",
             Commands::Devnet { .. } => "devnet",
+            Commands::Devnode { .. } => "devnode",
             Commands::Query { .. } => "query",
             Commands::Build { .. } => "build",
             Commands::Debug { .. } => "debug",

@@ -412,6 +412,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
             transactions.push((id, transaction));
             all_stats.push(stats);
         }
+    }
         // Add the program to the VM.
         vm.process().write().add_program(&program)?;
     }
