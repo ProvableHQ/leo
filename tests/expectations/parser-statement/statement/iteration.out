@@ -251,6 +251,7 @@
     },
     "stop": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "Self",
@@ -260,8 +261,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 139,
           "hi": 143
@@ -560,6 +560,7 @@
     },
     "stop": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "Self",
@@ -569,8 +570,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 281,
           "hi": 285

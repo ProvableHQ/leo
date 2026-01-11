@@ -15,25 +15,33 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::PathResolutionVisitor;
+use crate::{VariableSymbol, VariableType};
 use leo_ast::{
     AstReconstructor,
+    Block,
     CallExpression,
     CompositeExpression,
     CompositeFieldInitializer,
     CompositeType,
+    ConstDeclaration,
+    DefinitionPlace,
+    DefinitionStatement,
     ErrExpression,
     Expression,
+    IterationStatement,
     Path,
+    Statement,
     Type,
 };
+use leo_errors::TypeCheckerError;
 
 impl AstReconstructor for PathResolutionVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = ();
 
     fn reconstruct_composite_type(&mut self, mut input: CompositeType) -> (Type, Self::AdditionalOutput) {
-        if input.path.try_absolute_path().is_none() {
-            input.path = input.path.with_module_prefix(&self.module);
+        if !input.path.is_resolved() {
+            input.path = input.path.resolve_as_global_in_module(self.program, self.module.clone());
         }
         (
             Type::Composite(CompositeType {
@@ -43,7 +51,6 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                     .into_iter()
                     .map(|arg| self.reconstruct_expression(arg, &()).0)
                     .collect(),
-                ..input
             }),
             Default::default(),
         )
@@ -58,8 +65,8 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         mut input: CallExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        if input.function.try_absolute_path().is_none() {
-            input.function = input.function.with_module_prefix(&self.module);
+        if !input.function.is_resolved() {
+            input.function = input.function.resolve_as_global_in_module(self.program, self.module.clone());
         }
         (
             CallExpression {
@@ -82,8 +89,8 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         mut input: CompositeExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        if input.path.try_absolute_path().is_none() {
-            input.path = input.path.with_module_prefix(&self.module)
+        if !input.path.is_resolved() {
+            input.path = input.path.resolve_as_global_in_module(self.program, self.module.clone());
         }
         (
             CompositeExpression {
@@ -111,11 +118,130 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_path(&mut self, mut input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
-        // Because some paths may be paths to global consts, we have to prefix all paths at this
-        // stage because we don't have semantic information just yet.
-        if input.try_absolute_path().is_none() {
-            input = input.with_module_prefix(&self.module);
+        let has_qualifier = !input.qualifier().is_empty();
+
+        if has_qualifier {
+            // paths with qualifiers must refer to a global.
+            input = input.resolve_as_global_in_module(self.program, self.module.clone());
+        } else {
+            let potentially_global = input.clone().resolve_as_global_in_module(self.program, self.module.clone());
+
+            if self.state.symbol_table.lookup_global(potentially_global.expect_global_location()).is_some() {
+                // If already inserted as a global variable in the symbol table, just resolve it to global.
+                input = potentially_global;
+            } else if self.state.symbol_table.lookup_local(input.identifier().name).is_some() {
+                // If already inserted as a local variable in the symbol table, just resolve it to local
+                input = input.to_local();
+            } else {
+                // Otherwise, unknown path.
+                self.state.handler.emit_err(TypeCheckerError::unknown_sym("variable", input.clone(), input.span()));
+            }
         }
-        (input.into(), Default::default())
+
+        // Convert to Expression BEFORE consuming input
+        let expr: Expression = input.clone().into();
+        (expr, Default::default())
+    }
+
+    fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
+        let reconstructed_type = self.reconstruct_type(input.type_).0;
+        let reconstructed_value = self.reconstruct_expression(input.value, &Default::default()).0;
+
+        // Are we in a global scope? If not, then this is a local `const`. Insert it as a local in
+        // the symbol table.
+        if !self.state.symbol_table.global_scope()
+            && let Err(err) =
+                self.state.symbol_table.insert_variable(self.program, &[input.place.name], VariableSymbol {
+                    type_: None,
+                    span: input.place.span,
+                    declaration: VariableType::Const,
+                })
+        {
+            self.state.handler.emit_err(err);
+        }
+
+        (ConstDeclaration { type_: reconstructed_type, value: reconstructed_value, ..input }.into(), Default::default())
+    }
+
+    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        let reconstructed_type = input.type_.map(|ty| self.reconstruct_type(ty).0);
+        let reconstructed_value = self.reconstruct_expression(input.value, &Default::default()).0;
+
+        match &input.place {
+            DefinitionPlace::Single(identifier) => {
+                if let Err(err) =
+                    self.state.symbol_table.insert_variable(self.program, &[identifier.name], VariableSymbol {
+                        type_: None,
+                        span: identifier.span,
+                        declaration: VariableType::Mut,
+                    })
+                {
+                    self.state.handler.emit_err(err);
+                }
+            }
+            DefinitionPlace::Multiple(identifiers) => {
+                // Now just insert each tuple element as a separate variable
+                for identifier in identifiers.iter() {
+                    if let Err(err) =
+                        self.state.symbol_table.insert_variable(self.program, &[identifier.name], VariableSymbol {
+                            type_: None,
+                            span: identifier.span,
+                            declaration: VariableType::Mut,
+                        })
+                    {
+                        self.state.handler.emit_err(err);
+                    }
+                }
+            }
+        }
+
+        (
+            DefinitionStatement { type_: reconstructed_type, value: reconstructed_value, ..input }.into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
+        self.in_scope(input.id, |slf| {
+            (
+                Block {
+                    statements: input.statements.into_iter().map(|s| slf.reconstruct_statement(s).0).collect(),
+                    span: input.span,
+                    id: input.id,
+                },
+                Default::default(),
+            )
+        })
+    }
+
+    fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
+        let reconstructed_type = input.type_.map(|ty| self.reconstruct_type(ty).0);
+        let reconstructed_start = self.reconstruct_expression(input.start, &Default::default()).0;
+        let reconstructed_stop = self.reconstruct_expression(input.stop, &Default::default()).0;
+
+        self.in_scope(input.id, |slf| {
+            // Insert the iterator into the symbol table.
+            if let Err(err) =
+                slf.state.symbol_table.insert_variable(slf.program, &[input.variable.name], VariableSymbol {
+                    type_: None,
+                    span: input.variable.span,
+                    declaration: VariableType::Const,
+                })
+            {
+                slf.state.handler.emit_err(err);
+            }
+
+            (
+                IterationStatement {
+                    type_: reconstructed_type,
+                    start: reconstructed_start,
+                    stop: reconstructed_stop,
+                    block: slf.reconstruct_block(input.block).0,
+                    ..input
+                }
+                .into(),
+                Default::default(),
+            )
+        })
     }
 }

@@ -65,6 +65,7 @@
                     "expression": {
                       "Call": {
                         "function": {
+                          "user_program": null,
                           "qualifier": [],
                           "identifier": {
                             "name": "inf",
@@ -74,8 +75,7 @@
                             },
                             "id": 3
                           },
-                          "is_absolute": false,
-                          "absolute_path": null,
+                          "target": "Unresolved",
                           "span": {
                             "lo": 56,
                             "hi": 59
@@ -84,7 +84,6 @@
                         },
                         "const_arguments": [],
                         "arguments": [],
-                        "program": null,
                         "span": {
                           "lo": 56,
                           "hi": 61
@@ -165,6 +164,7 @@
                     "expression": {
                       "Call": {
                         "function": {
+                          "user_program": null,
                           "qualifier": [],
                           "identifier": {
                             "name": "inf",
@@ -174,8 +174,7 @@
                             },
                             "id": 13
                           },
-                          "is_absolute": false,
-                          "absolute_path": null,
+                          "target": "Unresolved",
                           "span": {
                             "lo": 115,
                             "hi": 118
@@ -184,7 +183,6 @@
                         },
                         "const_arguments": [],
                         "arguments": [],
-                        "program": null,
                         "span": {
                           "lo": 115,
                           "hi": 120
@@ -203,6 +201,7 @@
                   "Return": {
                     "expression": {
                       "Path": {
+                        "user_program": null,
                         "qualifier": [],
                         "identifier": {
                           "name": "y",
@@ -212,8 +211,7 @@
                           },
                           "id": 17
                         },
-                        "is_absolute": false,
-                        "absolute_path": null,
+                        "target": "Unresolved",
                         "span": {
                           "lo": 137,
                           "hi": 138

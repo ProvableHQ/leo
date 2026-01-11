@@ -111,7 +111,7 @@ impl UnrollingVisitor<'_> {
             let value = Literal::integer(*integer_type, iteration_count.to_string(), Default::default(), const_id);
 
             // Add the loop variable as a constant for the current scope.
-            slf.state.symbol_table.insert_const(slf.program, &[input.variable.name], value.into());
+            slf.state.symbol_table.insert_local_const(input.variable.name, value.into());
 
             let duplicated_body =
                 super::duplicate::duplicate(input.block.clone(), &mut slf.state.symbol_table, &slf.state.node_builder);

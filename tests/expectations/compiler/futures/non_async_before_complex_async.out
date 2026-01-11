@@ -1,18 +1,18 @@
-Error [ESAZ0374004]: The call to mid will result in failed executions on-chain.
+Error [ESAZ0374004]: The call to mid.aleo/mid will result in failed executions on-chain.
     --> compiler-test:8:26
      |
    8 |         let f1: Future = mid.aleo/mid(0u32);
      |                          ^^^^^^^^^^^^^^^^^^
      |
      = There is a subtle error that occurs if an async transition call follows a non-async transition call, and the async call returns a `Future` that itself takes a `Future` as an input. See See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
-Error [ESAZ0374004]: The call to mid will result in failed executions on-chain.
+Error [ESAZ0374004]: The call to mid.aleo/mid will result in failed executions on-chain.
     --> compiler-test:9:26
      |
    9 |         let f2: Future = mid.aleo/mid(1u32);
      |                          ^^^^^^^^^^^^^^^^^^
      |
      = There is a subtle error that occurs if an async transition call follows a non-async transition call, and the async call returns a `Future` that itself takes a `Future` as an input. See See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
-Error [ESAZ0374004]: The call to mid will result in failed executions on-chain.
+Error [ESAZ0374004]: The call to mid.aleo/mid will result in failed executions on-chain.
     --> compiler-test:17:26
      |
   17 |         let f2: Future = mid.aleo/mid(1u32);

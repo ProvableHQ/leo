@@ -61,11 +61,11 @@ Error [ETYC0372000]: Invalid assignment target: (x, x, x).
      |         ^^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
-Error [ETYC0372000]: Invalid assignment target: x { x: y, y: z }.
+Error [ETYC0372000]: Invalid assignment target: x { x: y }.
     --> compiler-test:22:9
      |
-  22 |         x {x: y, y: z} = y;
-     |         ^^^^^^^^^^^^^^
+  22 |         x {x: y } = y;
+     |         ^^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: x().

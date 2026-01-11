@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_span::Symbol;
 
 use itertools::Itertools as _;
 
@@ -28,8 +27,6 @@ pub struct CallExpression {
     pub const_arguments: Vec<Expression>,
     /// Expressions for the arguments passed to the function's parameters.
     pub arguments: Vec<Expression>,
-    /// The name of the parent program call, e.g.`bar` in `bar.aleo`.
-    pub program: Option<Symbol>,
     /// Span of the entire call `function(arguments)`.
     pub span: Span,
     /// The ID of the node.

@@ -69,7 +69,7 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
             .map(|(guard, statement)| match guard {
                 ReturnGuard::None => (None, statement),
                 ReturnGuard::Unconstructed(plain) | ReturnGuard::Constructed { plain, .. } => {
-                    (Some(leo_ast::Path::from(plain).into_absolute().into()), statement)
+                    (Some(leo_ast::Path::from(plain).to_local().into()), statement)
                 }
             })
             .collect();

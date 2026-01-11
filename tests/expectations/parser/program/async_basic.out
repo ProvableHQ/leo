@@ -115,6 +115,7 @@
                     "value": {
                       "Call": {
                         "function": {
+                          "user_program": null,
                           "qualifier": [],
                           "identifier": {
                             "name": "finalize_main",
@@ -124,8 +125,7 @@
                             },
                             "id": 6
                           },
-                          "is_absolute": false,
-                          "absolute_path": null,
+                          "target": "Unresolved",
                           "span": {
                             "lo": 114,
                             "hi": 127
@@ -165,7 +165,6 @@
                             }
                           }
                         ],
-                        "program": null,
                         "span": {
                           "lo": 114,
                           "hi": 139
@@ -184,6 +183,7 @@
                   "Return": {
                     "expression": {
                       "Path": {
+                        "user_program": null,
                         "qualifier": [],
                         "identifier": {
                           "name": "f",
@@ -193,8 +193,7 @@
                           },
                           "id": 10
                         },
-                        "is_absolute": false,
-                        "absolute_path": null,
+                        "target": "Unresolved",
                         "span": {
                           "lo": 156,
                           "hi": 157
@@ -312,6 +311,7 @@
                         "arguments": [
                           {
                             "Path": {
+                              "user_program": null,
                               "qualifier": [],
                               "identifier": {
                                 "name": "Yo",
@@ -321,8 +321,7 @@
                                 },
                                 "id": 24
                               },
-                              "is_absolute": false,
-                              "absolute_path": null,
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 246,
                                 "hi": 248
@@ -332,6 +331,7 @@
                           },
                           {
                             "Path": {
+                              "user_program": null,
                               "qualifier": [],
                               "identifier": {
                                 "name": "a",
@@ -341,8 +341,7 @@
                                 },
                                 "id": 26
                               },
-                              "is_absolute": false,
-                              "absolute_path": null,
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 250,
                                 "hi": 251
@@ -352,6 +351,7 @@
                           },
                           {
                             "Path": {
+                              "user_program": null,
                               "qualifier": [],
                               "identifier": {
                                 "name": "b",
@@ -361,8 +361,7 @@
                                 },
                                 "id": 28
                               },
-                              "is_absolute": false,
-                              "absolute_path": null,
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 253,
                                 "hi": 254

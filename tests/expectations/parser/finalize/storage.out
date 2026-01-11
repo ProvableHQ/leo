@@ -61,6 +61,7 @@
             "type_": {
               "Composite": {
                 "path": {
+                  "user_program": null,
                   "qualifier": [],
                   "identifier": {
                     "name": "Foo",
@@ -70,16 +71,14 @@
                     },
                     "id": 3
                   },
-                  "is_absolute": false,
-                  "absolute_path": null,
+                  "target": "Unresolved",
                   "span": {
                     "lo": 55,
                     "hi": 58
                   },
                   "id": 4
                 },
-                "const_arguments": [],
-                "program": null
+                "const_arguments": []
               }
             },
             "span": {
@@ -169,6 +168,7 @@
                     "element_type": {
                       "Composite": {
                         "path": {
+                          "user_program": null,
                           "qualifier": [],
                           "identifier": {
                             "name": "Foo",
@@ -178,16 +178,14 @@
                             },
                             "id": 12
                           },
-                          "is_absolute": false,
-                          "absolute_path": null,
+                          "target": "Unresolved",
                           "span": {
                             "lo": 125,
                             "hi": 128
                           },
                           "id": 13
                         },
-                        "const_arguments": [],
-                        "program": null
+                        "const_arguments": []
                       }
                     },
                     "length": {

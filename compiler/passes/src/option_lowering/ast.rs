@@ -61,9 +61,9 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
         (
             Type::Composite(CompositeType {
-                path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
+                path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id()))
+                    .to_global(Location::new(self.program, vec![struct_name])),
                 const_arguments: vec![], // this is not a generic struct
-                program: None,           // current program
             }),
             Default::default(),
         )
@@ -114,7 +114,8 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     "Type table must contain type for this expression ID; IDs are not modified during lowering",
                 );
 
-            if actual_expr_type.can_coerce_to(inner) {
+            let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
+            if actual_expr_type.can_coerce_to(inner, &is_record) {
                 return (self.wrap_optional_value(expr, *inner.clone()), stmts);
             }
         }
@@ -361,12 +362,10 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         mut input: CallExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
-        let callee_program = input.program.unwrap_or(self.program);
-
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(callee_program, input.function.absolute_path()))
+            .lookup_function(input.function.expect_global_location())
             .expect("The symbol table creator should already have visited all functions.")
             .clone();
 
@@ -421,13 +420,12 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             }
 
             if let Type::Composite(composite) = ty {
-                let program = composite.program.unwrap_or(self.program);
-                let location = Location::new(program, composite.path.absolute_path());
+                let composite_location = composite.path.expect_global_location();
                 let composite_def = self
                     .state
                     .symbol_table
-                    .lookup_record(&location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(&composite.path.absolute_path()))
+                    .lookup_record(composite_location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(&composite_location.path))
                     .or_else(|| self.new_structs.get(&composite.path.identifier().name))
                     .expect("guaranteed by type checking");
 
@@ -457,8 +455,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let expected_type =
                     member_types.get(&member.identifier.name).expect("guaranteed by type checking").clone();
 
-                let expression =
-                    member.expression.unwrap_or_else(|| Path::from(member.identifier).into_absolute().into());
+                let expression = member.expression.unwrap_or_else(|| Path::from(member.identifier).to_local().into());
 
                 let (new_expr, stmts) = self.reconstruct_expression(expression, &Some(expected_type));
 

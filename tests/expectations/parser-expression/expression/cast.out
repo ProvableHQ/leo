@@ -2,6 +2,7 @@
   "Cast": {
     "expression": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "foo",
@@ -11,8 +12,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 0,
           "hi": 3
@@ -64,6 +64,7 @@
     "expression": {
       "Composite": {
         "path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "baz",
@@ -73,8 +74,7 @@
             },
             "id": 5
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 22,
             "hi": 25
@@ -134,6 +134,7 @@
   "Ternary": {
     "condition": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "flag",
@@ -143,8 +144,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 49,
           "hi": 53
@@ -206,6 +206,7 @@
       "Ternary": {
         "condition": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "flag",
@@ -215,8 +216,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 77,
               "hi": 81

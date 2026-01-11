@@ -3,6 +3,7 @@
     "expression": {
       "Call": {
         "function": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "decrement",
@@ -12,8 +13,7 @@
             },
             "id": 8
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 0,
             "hi": 9
@@ -24,6 +24,7 @@
         "arguments": [
           {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "foo",
@@ -33,8 +34,7 @@
                 },
                 "id": 3
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 10,
                 "hi": 13
@@ -44,6 +44,7 @@
           },
           {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "bar",
@@ -53,8 +54,7 @@
                 },
                 "id": 5
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 15,
                 "hi": 18
@@ -64,6 +64,7 @@
           },
           {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "baz",
@@ -73,8 +74,7 @@
                 },
                 "id": 7
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 20,
                 "hi": 23
@@ -83,7 +83,6 @@
             }
           }
         ],
-        "program": null,
         "span": {
           "lo": 0,
           "hi": 24
@@ -104,6 +103,7 @@
     "expression": {
       "Call": {
         "function": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "decrement",
@@ -113,8 +113,7 @@
             },
             "id": 6
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 26,
             "hi": 35
@@ -125,6 +124,7 @@
         "arguments": [
           {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "foo",
@@ -134,8 +134,7 @@
                 },
                 "id": 3
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 36,
                 "hi": 39
@@ -174,7 +173,6 @@
             }
           }
         ],
-        "program": null,
         "span": {
           "lo": 26,
           "hi": 50
@@ -195,6 +193,7 @@
     "expression": {
       "Call": {
         "function": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "decrement",
@@ -204,8 +203,7 @@
             },
             "id": 6
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 52,
             "hi": 61
@@ -216,6 +214,7 @@
         "arguments": [
           {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "foo",
@@ -225,8 +224,7 @@
                 },
                 "id": 3
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 62,
                 "hi": 65
@@ -236,6 +234,7 @@
           },
           {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "bar",
@@ -245,8 +244,7 @@
                 },
                 "id": 5
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 67,
                 "hi": 70
@@ -255,7 +253,6 @@
             }
           }
         ],
-        "program": null,
         "span": {
           "lo": 52,
           "hi": 71
@@ -276,6 +273,7 @@
     "expression": {
       "Call": {
         "function": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "decrement",
@@ -285,8 +283,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 73,
             "hi": 82
@@ -295,7 +292,6 @@
         },
         "const_arguments": [],
         "arguments": [],
-        "program": null,
         "span": {
           "lo": 73,
           "hi": 84
