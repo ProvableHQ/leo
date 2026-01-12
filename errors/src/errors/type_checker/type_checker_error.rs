@@ -1449,4 +1449,14 @@ create_messages!(
         help: Some("Use literal values or const expressions for slice bounds.".to_string()),
     }
 
+    /// For when array concatenation element types do not match.
+    @formatted
+    array_concat_element_mismatch {
+        args: (left: impl Display, right: impl Display),
+        msg: format!(
+            "Cannot concatenate arrays with different element types: `{left}` and `{right}`.",
+        ),
+        help: Some("Both arrays must have the same element type for concatenation.".to_string()),
+    }
+
 );

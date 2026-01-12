@@ -193,6 +193,21 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_binary(&mut self, input: &BinaryExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        // Array concatenation should be resolved during const propagation.
+        // If we reach code generation with an Add on arrays, something went wrong.
+        if matches!(input.op, BinaryOperation::Add) {
+            let left_type = self.state.type_table.get(&input.left.id());
+            let right_type = self.state.type_table.get(&input.right.id());
+            assert!(
+                !matches!(left_type, Some(Type::Array(_))),
+                "Array concatenation should be resolved before code generation"
+            );
+            assert!(
+                !matches!(right_type, Some(Type::Array(_))),
+                "Array concatenation should be resolved before code generation"
+            );
+        }
+
         let (left, left_instructions) = self.visit_expression(&input.left);
         let (right, right_instructions) = self.visit_expression(&input.right);
         let left = left.expect("Trying to operate on an empty expression");

@@ -310,21 +310,73 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left, &());
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right, &());
 
-        if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
+        if let (Some(lhs_value), Some(rhs_value)) = (&lhs_opt_value, &rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
             match interpreter_value::evaluate_binary(
                 span,
                 input.op,
-                &lhs_value,
-                &rhs_value,
+                lhs_value,
+                rhs_value,
                 &self.state.type_table.get(&input_id),
             ) {
                 Ok(new_value) => {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self
-                    .emit_err(StaticAnalyzerError::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span)),
+                Err(err) => self.emit_err(StaticAnalyzerError::compile_time_binary_op(
+                    lhs_value.clone(),
+                    rhs_value.clone(),
+                    input.op,
+                    err,
+                    span,
+                )),
+            }
+        }
+
+        // Handle array concatenation when values aren't known but types are arrays
+        if matches!(input.op, BinaryOperation::Add) {
+            let left_type = self.state.type_table.get(&left.id());
+            let right_type = self.state.type_table.get(&right.id());
+
+            if let (Some(Type::Array(left_arr)), Some(Type::Array(right_arr))) = (left_type, right_type) {
+                // Get array lengths
+                if let (Some(left_len), Some(right_len)) = (left_arr.length.as_u32(), right_arr.length.as_u32()) {
+                    // Expand a + b to [a[0], a[1], ..., b[0], b[1], ...]
+                    let mut elements = Vec::with_capacity((left_len + right_len) as usize);
+
+                    // Add elements from left array
+                    for i in 0..left_len {
+                        let index = Expression::Literal(Literal::integer(
+                            IntegerType::U32,
+                            i.to_string(),
+                            span,
+                            self.state.node_builder.next_id(),
+                        ));
+                        let access =
+                            ArrayAccess { array: left.clone(), index, span, id: self.state.node_builder.next_id() };
+                        // Register the element type in the type table
+                        self.state.type_table.insert(access.id, left_arr.element_type().clone());
+                        elements.push(Expression::ArrayAccess(Box::new(access)));
+                    }
+
+                    // Add elements from right array
+                    for i in 0..right_len {
+                        let index = Expression::Literal(Literal::integer(
+                            IntegerType::U32,
+                            i.to_string(),
+                            span,
+                            self.state.node_builder.next_id(),
+                        ));
+                        let access =
+                            ArrayAccess { array: right.clone(), index, span, id: self.state.node_builder.next_id() };
+                        // Register the element type in the type table
+                        self.state.type_table.insert(access.id, right_arr.element_type().clone());
+                        elements.push(Expression::ArrayAccess(Box::new(access)));
+                    }
+
+                    let array_expr = ArrayExpression { elements, span, id: input_id };
+                    return (Expression::Array(array_expr), None);
+                }
             }
         }
 

@@ -407,6 +407,22 @@ pub fn evaluate_binary(
         _ => {}
     }
 
+    // Handle array concatenation for Add operation
+    if matches!(op, BinaryOperation::Add) {
+        if let (
+            ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Array(x, _))),
+            ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Array(y, _))),
+        ) = (&lhs.contents, &rhs.contents)
+        {
+            let mut elements = x.clone();
+            elements.extend(y.clone());
+            return Ok(Value::from(ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Array(
+                elements,
+                Default::default(),
+            )))));
+        }
+    }
+
     let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(lhs, ..))) = &lhs.contents else {
         halt2!(span, "Type error");
     };

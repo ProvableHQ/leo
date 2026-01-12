@@ -790,11 +790,38 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 result_t
             }
             BinaryOperation::Add => {
-                let operand_expected = self.unwrap_optional_type(destination);
+                let unwrapped_dest = self.unwrap_optional_type(destination);
 
-                // The expected type for both `left` and `right` is the unwrapped type
+                // For array concatenation, don't pass destination type as expected (operands have different type than result)
+                // First, probe if operands are arrays by visiting without expected type
+                let is_array_dest = matches!(unwrapped_dest, Some(Type::Array(_)));
+                let operand_expected = if is_array_dest { None } else { unwrapped_dest.clone() };
+
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
+
+                // Handle array concatenation
+                if let (Type::Array(arr1), Type::Array(arr2)) = (&t1, &t2) {
+                    if arr1.element_type() != arr2.element_type() {
+                        self.emit_err(TypeCheckerError::array_concat_element_mismatch(
+                            arr1.element_type(),
+                            arr2.element_type(),
+                            input.span(),
+                        ));
+                        return Type::Err;
+                    }
+                    // Result type: [ElementType; len1 + len2]
+                    let result_length = Expression::Binary(Box::new(BinaryExpression {
+                        left: (*arr1.length).clone(),
+                        op: BinaryOperation::Add,
+                        right: (*arr2.length).clone(),
+                        id: self.state.node_builder.next_id(),
+                        span: Default::default(),
+                    }));
+                    let result_t = Type::Array(ArrayType::new(arr1.element_type().clone(), result_length));
+                    self.maybe_assert_type(&result_t, destination, input.span());
+                    return result_t;
+                }
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -804,7 +831,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_)) {
                         self.emit_err(TypeCheckerError::type_should_be2(
                             type_,
-                            "a field, group, scalar, or integer",
+                            "a field, group, scalar, integer, or array",
                             span,
                         ));
                     }
