@@ -15,7 +15,7 @@ program test.aleo {
         assert_eq(self.signer, aleo1njwre8svpvn8jytkldyj3x45ewnks44qkuvasf290399768fayqs7h0yru);
         assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
 
-        return finish();
+        return final { finish(); };
     }
 }
 

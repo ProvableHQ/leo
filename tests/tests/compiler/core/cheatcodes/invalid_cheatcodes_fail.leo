@@ -8,7 +8,7 @@ program test_dep.aleo {
     }
 
     fn main_dep(a:u32) -> (yeets, Final) {
-        let f: Final = finalize_main_dep(a, 1u32);
+        let f: Final = final { finalize_main_dep(a, 1u32); };
         let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
@@ -28,13 +28,13 @@ program test.aleo {
     mapping Yo: u32 => u32;
 
     fn main(public a: u64) -> Final {
-        return finish(a);
+        return final { finish(a); };
     }
 }
 
 final fn finish(public a: u64, b: address) {
     CheatCode::print_mapping(Yo);
-    CheatCode::print_mapping(test_dep.aleo/Yo);
+    CheatCode::print_mapping(test_dep.aleo/account);
     CheatCode::set_block_height(1u64);
     CheatCode::set_block_height(a);
     CheatCode::set_block_timestamp(1u32);

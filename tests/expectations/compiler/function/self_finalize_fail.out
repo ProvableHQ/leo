@@ -1,3 +1,8 @@
+Error [ETYC0372147]: Invalid expression in an async block. `self.caller` cannot be used directly here
+    --> compiler-test:4:63
+     |
+   4 |         return (self.caller == addr, final { finalize_matches(self.caller); });
+     |                                                               ^^^^^^^^^^^
 Error [ETYC0372066]: `self.caller` is not a valid operand in an async function call context.
     --> compiler-test:9:21
      |

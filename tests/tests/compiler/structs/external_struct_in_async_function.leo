@@ -10,7 +10,7 @@ program parent.aleo {
             data0: 0u128,
             data1: 1u128
         };
-        return finalize_init(test_struct);
+        return final { finalize_init(test_struct); };
     }
 }
 

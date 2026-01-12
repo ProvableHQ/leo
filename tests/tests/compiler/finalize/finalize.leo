@@ -4,11 +4,12 @@ program test.aleo {
     mapping values: u8 => u8;
 
     fn mint_public(public receiver: address, public amount: u64) -> Final {
-        return finalize_mint(receiver, amount);
+        return final { finalize_mint(receiver, amount); };
     }
 
     fn finalize_self_caller() -> Final {
-        return finalize_finalize_self_caller(self.caller);
+        let caller = self.caller;
+        return final { finalize_finalize_self_caller(caller); };
     }
 }
 

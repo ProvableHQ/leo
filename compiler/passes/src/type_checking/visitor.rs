@@ -20,7 +20,7 @@ use super::*;
 
 use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, sym};
 
 use anyhow::bail;
 use indexmap::{IndexMap, IndexSet};
@@ -1583,7 +1583,7 @@ impl TypeCheckingVisitor<'_> {
 
         let mut inferred_inputs: Vec<Type> = Vec::new();
 
-        if self.scope_state.variant == Some(Variant::AsyncFunction) && !self.scope_state.is_stub {
+        if matches!(self.scope_state.variant, Some(Variant::Finalize)) && !self.scope_state.is_stub {
             // Async functions are not allowed to return values.
             if !function.output.is_empty() {
                 self.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
@@ -1626,9 +1626,24 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Ensure that, if the function has generic const paramaters, then it must be an `inline`.
-        // Otherwise, emit an error.
-        if self.scope_state.variant != Some(Variant::Inline) && !function.const_parameters.is_empty() {
+        if !function.const_parameters.is_empty()
+            && function.annotations.iter().any(|a| a.identifier.name == sym::no_inline)
+        {
             self.emit_err(TypeCheckerError::only_inline_can_have_const_generics(function.identifier.span()));
+        }
+
+        // Ensure that `@no_inline` is not used on `final fn` functions.
+        if matches!(self.scope_state.variant, Some(Variant::FinalFn))
+            && function.annotations.iter().any(|a| a.identifier.name == sym::no_inline)
+        {
+            self.emit_err(TypeCheckerError::no_inline_not_allowed_on_final_fn(function.identifier.span()));
+        }
+
+        if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {
+            // final functions are not allowed to return values.
+            if !function.output.is_empty() {
+                self.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
+            }
         }
 
         for const_param in &function.const_parameters {
@@ -1650,7 +1665,7 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Ensure there aren't too many inputs
-        if function.input.len() > self.limits.max_inputs && function.variant != Variant::Inline {
+        if function.input.len() > self.limits.max_inputs {
             self.state.handler.emit_err(TypeCheckerError::function_has_too_many_inputs(
                 function.variant,
                 function.identifier,
@@ -1676,9 +1691,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Check that the type of the input parameter does not contain an optional.
-            if self.contains_optional_type(table_type)
-                && matches!(function.variant, Variant::Transition | Variant::AsyncTransition | Variant::Function)
-            {
+            if self.contains_optional_type(table_type) && matches!(function.variant, Variant::EntryPoint) {
                 self.emit_err(TypeCheckerError::function_cannot_take_option_as_input(
                     input.identifier,
                     table_type,
@@ -1689,7 +1702,7 @@ impl TypeCheckingVisitor<'_> {
             // Make sure only transitions can take a record as an input.
             if let Type::Composite(composite) = table_type {
                 // Throw error for undefined type.
-                if !function.variant.is_transition() {
+                if !function.variant.is_entry() {
                     if let Some(elem) = self.lookup_composite(composite.path.expect_global_location()) {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
@@ -1703,15 +1716,15 @@ impl TypeCheckingVisitor<'_> {
             // This unwrap works since we assign to `variant` above.
             match self.scope_state.variant.unwrap() {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
-                Variant::Transition | Variant::AsyncTransition if input.mode() == Mode::Constant => {
+                Variant::EntryPoint if input.mode() == Mode::Constant => {
                     self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input.span()))
                 }
                 // If the function is standard function or inline, then check that the parameters do not have an associated mode.
-                Variant::Function | Variant::Inline if input.mode() != Mode::None => {
+                Variant::Fn if input.mode() != Mode::None => {
                     self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input.span()))
                 }
                 // If the function is an async function, then check that the input parameter is not constant or private.
-                Variant::AsyncFunction if matches!(input.mode(), Mode::Constant | Mode::Private) => {
+                Variant::Finalize | Variant::FinalFn if matches!(input.mode(), Mode::Constant | Mode::Private) => {
                     self.emit_err(TypeCheckerError::async_function_input_must_be_public(input.span()));
                 }
                 _ => {} // Do nothing.
@@ -1719,7 +1732,7 @@ impl TypeCheckingVisitor<'_> {
 
             if matches!(table_type, Type::Future(..)) {
                 // Future parameters may only appear in async functions.
-                if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction)) {
+                if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)) {
                     self.emit_err(TypeCheckerError::no_future_parameters(input.span()));
                 }
             }
@@ -1734,7 +1747,7 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Ensure there aren't too many outputs
-        if function.output.len() > self.limits.max_outputs && function.variant != Variant::Inline {
+        if function.output.len() > self.limits.max_outputs && matches!(function.variant, Variant::EntryPoint) {
             self.state.handler.emit_err(TypeCheckerError::function_has_too_many_outputs(
                 function.variant,
                 function.identifier,
@@ -1754,7 +1767,7 @@ impl TypeCheckingVisitor<'_> {
             if let Type::Composite(composite) = function_output.type_.clone()
                 && let Some(val) = self.lookup_composite(composite.path.expect_global_location())
                 && val.is_record
-                && !function.variant.is_transition()
+                && !function.variant.is_entry()
             {
                 self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
             }
@@ -1768,9 +1781,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Check that the type of the input parameter does not contain an optional.
-            if self.contains_optional_type(&function_output.type_)
-                && matches!(function.variant, Variant::Transition | Variant::AsyncTransition | Variant::Function)
-            {
+            if self.contains_optional_type(&function_output.type_) && matches!(function.variant, Variant::EntryPoint) {
                 self.emit_err(TypeCheckerError::function_cannot_return_option_as_output(
                     &function_output.type_,
                     function_output.span(),
@@ -1783,14 +1794,15 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
             }
             // Async transitions must return exactly one future, and it must be in the last position.
-            if self.scope_state.variant == Some(Variant::AsyncTransition)
+            if function.has_final_output()
+                && function.variant.is_entry()
                 && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
                     || (index == function.output.len() - 1 && !matches!(function_output.type_, Type::Future(_))))
             {
                 self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
             }
             // If the function is not an async transition, then it cannot have a future as output.
-            if !matches!(self.scope_state.variant, Some(Variant::AsyncTransition) | Some(Variant::Script))
+            if !matches!(self.scope_state.variant, Some(Variant::EntryPoint) | Some(Variant::Script))
                 && matches!(function_output.type_, Type::Future(_))
             {
                 self.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
@@ -1871,7 +1883,7 @@ impl TypeCheckingVisitor<'_> {
     // an async function, an async block, or a finalize block.
     pub fn check_access_allowed(&mut self, name: &str, finalize_op: bool, span: Span) {
         // Case 1: Operation is not a finalize op, and we're inside an `async` function.
-        if self.scope_state.variant == Some(Variant::AsyncFunction) && !finalize_op {
+        if self.scope_state.variant.is_some_and(|v| v.is_onchain()) && !finalize_op {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span));
         }
         // Case 2: Operation is not a finalize op, and we're inside an `async` block.
@@ -1879,7 +1891,7 @@ impl TypeCheckingVisitor<'_> {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_async_block(name, span));
         }
         // Case 3: Operation *is* a finalize op, but we're *not* inside an async context.
-        else if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+        else if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::Script | Variant::FinalFn))
             && self.async_block_id.is_none()
             && finalize_op
         {

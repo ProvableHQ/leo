@@ -1,7 +1,7 @@
 
 program test.aleo {
     fn matches(timestamp: i64) -> Final {
-        return finalize_matches(timestamp);
+        return final { finalize_matches(timestamp); };
     }
 }
 

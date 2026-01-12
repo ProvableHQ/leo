@@ -1,6 +1,6 @@
 program test.aleo {
     fn main() -> Final {
-        return bar();
+        return final { bar(); };
     }
 }
 

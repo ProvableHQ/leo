@@ -58,12 +58,12 @@ impl fmt::Display for ProgramScope {
         for (_, mapping) in self.mappings.iter() {
             writeln!(f, "{};", Indent(mapping))?;
         }
-        for (_, function) in self.functions.iter().filter(|f| f.1.variant.is_transition()) {
+        for (_, function) in self.functions.iter().filter(|f| f.1.variant.is_entry()) {
             writeln!(f, "{}", Indent(function))?;
         }
         writeln!(f, "}}")?;
 
-        for (_, function) in self.functions.iter().filter(|f| !f.1.variant.is_transition()) {
+        for (_, function) in self.functions.iter().filter(|f| !f.1.variant.is_entry()) {
             writeln!(f, "{}", Indent(function))?;
         }
         Ok(())

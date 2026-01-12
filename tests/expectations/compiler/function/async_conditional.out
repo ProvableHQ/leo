@@ -5,13 +5,11 @@ mapping map:
     value as u32.public;
 
 function main:
-    async main 1u32 into r0;
+    async main into r0;
     output r0 as test.aleo/main.future;
 
 finalize main:
-    input r0 as u32.public;
-    is.eq r0 1u32 into r1;
-    branch.eq r1 false to end_then_0_0;
+    branch.eq true false to end_then_0_0;
     set 2u32 into map[2u32];
     branch.eq true true to end_otherwise_0_1;
     position end_then_0_0;

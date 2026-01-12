@@ -15,8 +15,6 @@ program test.aleo {
     fn t1() -> Final {
         let f: Final = dependent.aleo/t1(42, 43);
         return final {
-            let x: u8 = f.0;
-            let y: u16 = f.1;
             f.run();
         };
     }

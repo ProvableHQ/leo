@@ -10,11 +10,11 @@ script baz::[N: u32]()  { }
 
 program const_generics.aleo {
     fn main() -> Final {
-        return foo2::[1u32](0u32);
+        return final { foo2::[1u32](0u32); };
     }
     fn bar1::[N: u32]() { }
 
     fn bar2::[N: u32]() -> Final {
-        return foo2::[1u32](0u32);
+        return final { foo2::[1u32](0u32); };
     }
 }

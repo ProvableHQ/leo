@@ -3,7 +3,8 @@ program test.aleo {
     mapping admin: bool => address;
     
     fn set_expected(checksum: [u8; 32]) -> Final {
-        return set_expected_(self.caller, checksum);
+        let caller = self.caller;
+        return final { set_expected_(caller, checksum); };
     }
     @custom
     constructor() {

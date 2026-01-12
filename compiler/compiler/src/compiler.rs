@@ -188,8 +188,6 @@ impl Compiler {
     pub fn intermediate_passes(&mut self) -> Result<(leo_abi::Program, IndexMap<String, leo_abi::Program>)> {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
-        self.do_pass::<ForceInlineConversion>(())?;
-
         self.do_pass::<NameValidation>(())?;
 
         self.do_pass::<GlobalVarsCollection>(())?;

@@ -2,7 +2,7 @@
 program test.aleo {
 
   fn f(a: u64, b: u64) -> Final {
-    return finish(a, b);
+    return final { finish(a, b); };
   }
 }
 

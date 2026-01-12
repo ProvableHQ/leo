@@ -11,7 +11,7 @@ program lottery.aleo {
         let ticket: Ticket = Ticket {
             owner: self.signer,
         };
-        return (ticket, finalize_play());
+        return (ticket, final { finalize_play(); }); 
     }
 }
 

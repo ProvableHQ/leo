@@ -1,5 +1,5 @@
 Error [ETYC0372005]: Unknown function `test.aleo/decrement`
-    --> compiler-test:11:5
+    --> compiler-test:12:5
      |
-  11 |     decrement(amounts, addr, amount);
+  12 |     decrement(amounts, addr, amount);
      |     ^^^^^^^^^

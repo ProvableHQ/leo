@@ -2,7 +2,7 @@ program inner.aleo {
     mapping foo: u32 => u32;
 
     fn inner(a: u32) -> Final {
-        return finalize(a);
+        return final { finalize(a); };
     }
 }
 
@@ -17,7 +17,7 @@ program mid.aleo {
     fn mid(a: u32) -> Final {
         let f1: Final = inner.aleo/inner(0u32);
         let f2: Final = inner.aleo/inner(1u32);
-        let f:Final = finalize(f2, f1);
+        let f:Final = final { finalize(f2, f1); };
         return f;
     }
     fn dummy() {}
@@ -38,7 +38,7 @@ program outer.aleo {
         let f2: Final = mid.aleo/mid(1u32);
         // Allow this call to remain for now.
         mid.aleo/dummy();
-        let f:Final = finalize(f1, f2);
+        let f:Final = final { finalize(f1, f2); };
         return f;
     }
 }

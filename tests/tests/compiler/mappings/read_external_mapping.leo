@@ -3,10 +3,12 @@ program registry.aleo {
     mapping users: address => bool;
 
     fn register() -> Final {
-        return finalize_register(self.caller);
+        let caller = self.caller;
+        return final { finalize_register(caller); };
     }
     fn unregister() -> Final {
-        return finalize_unregister(self.caller);
+        let caller = self.caller;
+        return final { finalize_unregister(caller); };
     }
 }
 
@@ -31,11 +33,11 @@ program relay.aleo {
     }
 
     fn send(addr: address, val: u8) -> (message, Final) {
-        return (message {owner: addr, data: val}, finalize_send(addr));
+        return (message {owner: addr, data: val}, final { finalize_send(addr); });
     }
 
     fn send_without_check(addr: address, val: u8) -> (message, Final) {
-        return (message {owner: addr, data: val}, finalize_send_without_check(addr));
+        return (message {owner: addr, data: val}, final { finalize_send_without_check(addr); });
     }
 }
 

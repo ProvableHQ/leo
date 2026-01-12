@@ -15,7 +15,7 @@ program token.aleo {
     // The function `mint_public` issues the specified token amount for the token receiver publicly on the network.
     fn mint_public(public receiver: address, public amount: u64) -> Final {
         // Mint the tokens publicly by invoking the computation on-chain.
-        return finalize_mint_public(receiver, amount);
+        return final { finalize_mint_public(receiver, amount); };
     }
 
     // The function `mint_private` initializes a new record with the specified amount of tokens for the receiver.
@@ -29,7 +29,7 @@ program token.aleo {
     /* Transfer */
     fn transfer_public(public receiver: address, public amount: u64) -> Final {
         // Transfer the tokens publicly, by invoking the computation on-chain.
-        return finalize_transfer_public(self.caller, receiver, amount);
+        return final { finalize_transfer_public(self.caller, receiver, amount); };
     }
 
     // The function `transfer_private` sends the specified token amount to the token receiver from the specified token record.
@@ -71,7 +71,7 @@ program token.aleo {
 
         // Output the sender's change record.
         // Increment the token amount publicly for the token receiver.
-        return (remaining, finalize_transfer_private_to_public(receiver, amount));
+        return (remaining, final { finalize_transfer_private_to_public(receiver, amount); });
     }
 
     // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
@@ -85,7 +85,7 @@ program token.aleo {
 
         // Output the receiver's record.
         // Decrement the token amount of the caller publicly.
-        return (transferred, finalize_transfer_public_to_private(self.caller, amount));
+        return (transferred, final { finalize_transfer_public_to_private(self.caller, amount); });
     }
 }
 

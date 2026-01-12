@@ -31,7 +31,7 @@
           "foo",
           {
             "annotations": [],
-            "variant": "Transition",
+            "variant": "EntryPoint",
             "identifier": {
               "name": "foo",
               "span": {

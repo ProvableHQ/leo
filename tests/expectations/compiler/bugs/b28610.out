@@ -1,10 +1,10 @@
 Error [ETYC0372126]: records cannot be instantiated in an async function context.
-    --> compiler-test:12:20
+    --> compiler-test:13:20
      |
-  12 |     let t: Token = Token { owner: addr };
+  13 |     let t: Token = Token { owner: addr };
      |                    ^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372126]: records cannot be instantiated in an async function context.
-    --> compiler-test:13:12
+    --> compiler-test:14:12
      |
-  13 |     assert(Token { owner: addr }.owner == addr);
+  14 |     assert(Token { owner: addr }.owner == addr);
      |            ^^^^^^^^^^^^^^^^^^^^^

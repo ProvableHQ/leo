@@ -79,7 +79,7 @@ impl Pass for Flattening {
             condition_stack: Vec::new(),
             returns: Vec::new(),
             program: Symbol::intern(""),
-            is_async: false,
+            is_onchain: false,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err()?;

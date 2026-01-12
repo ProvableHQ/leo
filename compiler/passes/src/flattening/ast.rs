@@ -157,7 +157,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
         let mut statements = Vec::new();
 
         // If we are traversing an async function, then we can return the assert as it.
-        if self.is_async {
+        if self.is_onchain {
             return (input.into(), statements);
         }
 
@@ -294,7 +294,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
         let mut statements = Vec::with_capacity(conditional.then.statements.len());
 
         // If we are traversing an async function, reconstruct the if and else blocks, but do not flatten them.
-        if self.is_async {
+        if self.is_onchain {
             let then_block = self.reconstruct_block(conditional.then).0;
             let otherwise_block = match conditional.otherwise {
                 Some(statement) => match *statement {
@@ -419,7 +419,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
         use Expression::*;
 
         // If we are traversing an async function, return as is.
-        if self.is_async {
+        if self.is_onchain {
             return (input.into(), Default::default());
         }
         // Construct the associated guard.

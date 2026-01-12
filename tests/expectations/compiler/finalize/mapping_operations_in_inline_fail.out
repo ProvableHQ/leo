@@ -63,14 +63,3 @@ Error [ETYC0372083]: A program must have at least one transition function.
      |
    2 | program test.aleo {
      |         ^^^^^^^^^
-Warning [WTYC0372002]: The async function `finalize_finalize_no_params` is never called by an async transition.
-    --> compiler-test:19:1
-     |
-  19 | final fn finalize_finalize_no_params() {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  20 |     foo();
-     |     ^^^^^^
-  21 |     bar();
-     |     ^^^^^^
-  22 | }
-     | ^

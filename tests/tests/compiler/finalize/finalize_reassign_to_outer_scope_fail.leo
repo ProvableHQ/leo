@@ -6,7 +6,7 @@ program test.aleo {
     mapping token_name_to_info: field => TokenInfo;
 
     fn add_new_token_2() -> Final {
-        return finalize_add_new_token_2();
+        return final { finalize_add_new_token_2(); };
     }
 }
 

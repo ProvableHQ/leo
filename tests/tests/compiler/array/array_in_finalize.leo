@@ -1,7 +1,7 @@
 
 program test.aleo {
     fn foo(a: [bool; 8]) -> Final {
-        return fin_foo(a);
+        return final { fin_foo(a); };
     }
 }
 

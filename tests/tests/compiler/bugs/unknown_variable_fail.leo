@@ -31,7 +31,7 @@ program test.aleo {
     mapping global_state: bool => GlobalState;
 
     fn init(b: bool) -> (address, Final) {
-        return (self.caller, finalize_init(caller));
+        return (self.caller, final { finalize_init(caller); });
     }
 }
 

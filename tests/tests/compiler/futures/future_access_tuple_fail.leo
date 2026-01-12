@@ -5,7 +5,7 @@ program credits.aleo {
     }
 
     fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Final) {
-        let f: Final = finalize();
+        let f: Final = final { finalize(); };
         return (input, f);
     }
 }
@@ -23,7 +23,7 @@ program test_credits.aleo {
         let start: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input, self.address, amount);
         let after: (u8, credits.aleo/credits) = (1u8, start.0);
         let start_2: Final = start.1;
-        return (after.1, finish(start.1, start_2));
+        return (after.1, final { finish(start.1, start_2); });
     }
 }
 

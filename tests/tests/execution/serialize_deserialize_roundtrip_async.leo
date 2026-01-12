@@ -61,15 +61,18 @@ final fn fin_test_async_array_rt(addr: address, value: [u8; 2]) {
 
 program test.aleo {
     fn test_async_u32_rt(value: u32) -> Final {
-        return fin_test_async_u32_rt(self.caller, value);
+        let caller = self.caller;
+        return final { fin_test_async_u32_rt(caller, value); };
     }
 
     fn test_async_field_rt(value: field) -> Final {
-        return fin_test_async_field_rt(self.caller, value);
+        let caller = self.caller;
+        return final { fin_test_async_field_rt(caller, value); };
     }
 
     fn test_async_array_rt(value: [u8; 2]) -> Final {
-        return fin_test_async_array_rt(self.caller, value);
+        let caller = self.caller;
+        return final { fin_test_async_array_rt(caller, value); };
     }
 
     @noupgrade

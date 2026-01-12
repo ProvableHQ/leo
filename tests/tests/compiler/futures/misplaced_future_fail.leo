@@ -1,10 +1,10 @@
 
 program child.aleo {
     fn foo() -> Final {
-        return finalize_foo(0u32);
+        return final { finalize_foo(0u32); };
     }
     fn boo() -> (u32, Final) {
-        return (1u32, finalize_boo(0u32));
+        return (1u32, final { finalize_boo(0u32); });
     }
  }
 
@@ -29,7 +29,7 @@ program parent.aleo {
 
         child.aleo/boo();
 
-        return finalize_foo(f0);
+        return final { finalize_foo(f0); };
     }
 }
 

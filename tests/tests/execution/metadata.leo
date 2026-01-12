@@ -46,11 +46,11 @@ final fn finalize_is_network_id(network_id: u16) {
 
 program metadata.aleo {
     fn is_block_height(block_height: u32) -> Final {
-        return finalize_is_block_height(block_height);
+        return final { finalize_is_block_height(block_height); };
     }
 
     fn is_network_id(network_id: u16) -> Final {
-        return finalize_is_network_id(network_id);
+        return final { finalize_is_network_id(network_id); };
     }
 
     @custom

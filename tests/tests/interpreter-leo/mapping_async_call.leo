@@ -2,7 +2,7 @@ program test.aleo {
     mapping map: u32 => u32;
     fn main() -> (u32, Final) {
         let x = 5u32;
-        let f = finalize(x);
+        let f = final { finalize(x); };
         x = 6;
         assert(x == 6);
 

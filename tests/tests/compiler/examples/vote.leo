@@ -67,7 +67,7 @@ program vote.aleo {
 
         // Return a new record for the proposal.
         // Finalize the proposal id.
-        return (Proposal { owner: self.signer, id, info }, finalize_propose(id));
+        return (Proposal { owner: self.signer, id, info }, final { finalize_propose(id); });
     }
     // Create a new ticket to vote with.
     fn new_ticket(
@@ -76,16 +76,18 @@ program vote.aleo {
     ) -> (Ticket, Final) {
 
         // Finalize the proposal id for the ticket.
-        return (Ticket { owner: voter, pid }, finalize_new_ticket(pid));
+        return (Ticket { owner: voter, pid }, final { finalize_new_ticket(pid); });
     }
     // Vote privately to agree with a proposal.
     fn agree(ticket: Ticket) -> Final {
         // Finalize this vote.
-        return finalize_agree(ticket.pid);
+        let pid = ticket.pid;
+        return final { finalize_agree(pid); };
     }
     // Vote privately to disagree with a proposal.
     fn disagree(ticket: Ticket) -> Final {
         // Finalize this vote.
-        return finalize_disagree(ticket.pid);
+        let pid = ticket.pid;
+        return final { finalize_disagree(pid); };
     }
 }

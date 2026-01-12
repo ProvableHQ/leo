@@ -5,7 +5,7 @@ program empty_storage_type.aleo {
 	storage byte: u8;
 
     fn prepare(a: [u32; 0]) ->  Final {
-        return finalize(a);
+        return final { finalize(a); };
     }
 }
 

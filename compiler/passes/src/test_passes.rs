@@ -121,7 +121,6 @@ macro_rules! compiler_passes {
     ($macro:ident) => {
         $macro! {
             (common_subexpression_elimination_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -130,7 +129,6 @@ macro_rules! compiler_passes {
                 (CommonSubexpressionEliminating, ())
             ]),
             (const_prop_unroll_and_morphing_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -139,7 +137,6 @@ macro_rules! compiler_passes {
                 (ConstPropUnrollAndMorphing, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
             (destructuring_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -148,7 +145,6 @@ macro_rules! compiler_passes {
                 (Destructuring, ())
             ]),
             (dead_code_elimination_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -157,7 +153,6 @@ macro_rules! compiler_passes {
                 (DeadCodeEliminating, ())
             ]),
             (flattening_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -166,7 +161,6 @@ macro_rules! compiler_passes {
                 (Flattening, ())
             ]),
             (function_inlining_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -175,7 +169,6 @@ macro_rules! compiler_passes {
                 (FunctionInlining, ())
             ]),
             (option_lowering_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -184,7 +177,6 @@ macro_rules! compiler_passes {
                 (OptionLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
             (processing_async_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -193,7 +185,6 @@ macro_rules! compiler_passes {
                 (ProcessingAsync, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
             (processing_script_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -202,7 +193,6 @@ macro_rules! compiler_passes {
                 (ProcessingScript, ())
             ]),
             (ssa_forming_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -211,7 +201,6 @@ macro_rules! compiler_passes {
                 (SsaForming, (SsaFormingInput { rename_defs: true }))
             ]),
             (storage_lowering_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -220,7 +209,6 @@ macro_rules! compiler_passes {
                 (StorageLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
             (write_transforming_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -232,7 +220,6 @@ macro_rules! compiler_passes {
                 (RemoveUnreachable, ())
             ]),
             (ssa_const_propagation_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
@@ -242,15 +229,11 @@ macro_rules! compiler_passes {
                 (SsaConstPropagation, ()),
             ]),
             (disambiguate_runner, [
-                (ForceInlineConversion, ()),
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
-            ]),
-            (force_inline_conversion, [
-                (ForceInlineConversion, ()),
             ]),
         }
     };

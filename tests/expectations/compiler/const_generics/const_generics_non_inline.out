@@ -1,25 +1,5 @@
 Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:15:8
-     |
-  15 |     fn bar1::[N: u32]() { }
-     |        ^^^^
-Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:17:8
-     |
-  17 |     fn bar2::[N: u32]() -> Final {
-     |        ^^^^
-Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
     --> compiler-test:2:4
      |
    2 | fn foo1::[N: u32](x: u32) -> u32 {
      |    ^^^^
-Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:6:10
-     |
-   6 | final fn foo2::[N: u32](x: u32) { }
-     |          ^^^^
-Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:9:8
-     |
-   9 | script baz::[N: u32]()  { }
-     |        ^^^

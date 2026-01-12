@@ -7,11 +7,11 @@ program test.aleo {
 
 
     fn add_new_token () -> Final {
-        return finalize_add_new_token();
+        return final { finalize_add_new_token(); };
     }
 
     fn add_new_token_2 () -> Final {
-        return finalize_add_new_token_2();
+        return final { finalize_add_new_token_2(); };
     }
 }
 

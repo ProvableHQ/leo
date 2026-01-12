@@ -3,7 +3,8 @@ program registry.aleo {
     mapping users: address => bool;
 
     fn register() -> Final {
-        return finalize_register(self.caller);
+        let caller = self.caller;
+        return final { finalize_register(caller); };
     }
 }
 
@@ -15,7 +16,7 @@ final fn finalize_register(addr: address) {
 
 program relay.aleo {
     fn send(addr: address) -> Final {
-        return finalize_send(addr);
+        return final { finalize_send(addr); };
     }
 }
 

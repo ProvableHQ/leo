@@ -31,7 +31,7 @@
           "x",
           {
             "annotations": [],
-            "variant": "Function",
+            "variant": "Fn",
             "identifier": {
               "name": "x",
               "span": {
@@ -141,7 +141,7 @@
           "x",
           {
             "annotations": [],
-            "variant": "Function",
+            "variant": "Fn",
             "identifier": {
               "name": "x",
               "span": {

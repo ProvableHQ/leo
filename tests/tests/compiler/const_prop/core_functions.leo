@@ -18,6 +18,6 @@ program test.aleo {
     mapping mgroup: group => group;
     mapping mu32: u32 => u32;
     fn main() -> Final {
-        return foo();
+        return final { foo(); };
     }
 }

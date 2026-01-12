@@ -17,7 +17,7 @@ final fn finalize_bar(a: u8, b: u8) -> u8 {
 
 
 fn mint_public(receiver: address, amount: u64) -> Final {
-    return finalize_mint(receiver, amount);
+    return final { finalize_mint(receiver, amount); };
 }
 
 final fn finalize_mint(receiver: address, amount: u64) {

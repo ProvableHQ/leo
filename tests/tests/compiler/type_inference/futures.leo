@@ -1,9 +1,9 @@
 program child.aleo {
     fn foo() -> Final {
-        return foo_();
+        return final { foo_(); };
     }
     fn bar() -> Final {
-        return bar_();
+        return final { bar_(); };
     }
 }
 
@@ -17,13 +17,13 @@ import child.aleo;
 program type_inference.aleo {
     fn t1() -> (u64, Final) {
         let f = child.aleo/foo();
-        let r = foo(f);
+        let r = final { foo(f); };
         return (42u64, r);
     }
 
     fn t2() -> (u64, Final) {
         let f = child.aleo/bar();
-        let r = foo(f);
+        let r = final { foo(f); };
         return (99u64, r);
     }
 }

@@ -39,7 +39,7 @@ pub struct DestructuringVisitor<'a> {
     /// A mapping between variables and tuple elements.
     pub tuples: IndexMap<Symbol, Vec<Identifier>>,
     /// Whether or not we are currently traversing an async function block.
-    pub is_async: bool,
+    pub is_onchain: bool,
 }
 
 impl DestructuringVisitor<'_> {

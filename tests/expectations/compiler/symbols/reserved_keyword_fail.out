@@ -43,3 +43,8 @@ Error [ENV03711000]: `key` is an invalid function name. A function cannot be cal
      |
   28 | fn key() {}
      |    ^^^
+Error [ENV03711000]: `value` is an invalid function name. A function cannot be called "value".
+    --> compiler-test:29:4
+     |
+  29 | fn value() {}
+     |    ^^^^^

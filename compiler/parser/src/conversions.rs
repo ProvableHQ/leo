@@ -1070,12 +1070,7 @@ impl<'a> ConversionContext<'a> {
         Ok(leo_ast::Annotation { identifier: name, map, span: node.span, id: self.builder.next_id() })
     }
 
-    fn to_function(
-        &self,
-        node: &SyntaxNode<'_>,
-        is_in_program_block: bool,
-        is_in_module: bool,
-    ) -> Result<leo_ast::Function> {
+    fn to_function(&self, node: &SyntaxNode<'_>, is_in_program_block: bool) -> Result<leo_ast::Function> {
         assert_eq!(node.kind, SyntaxKind::Function);
 
         let annotations = node
@@ -1147,18 +1142,14 @@ impl<'a> ConversionContext<'a> {
             _ => Vec::new(),
         };
 
-        let returns_future = output.iter().any(|o| matches!(o.type_, leo_ast::Type::Future(_)));
-
         let variant = if is_in_program_block {
-            if returns_future { leo_ast::Variant::AsyncTransition } else { leo_ast::Variant::Transition }
+            leo_ast::Variant::EntryPoint
         } else if node.children[function_variant_index].text == "script" {
             leo_ast::Variant::Script
         } else if is_final {
-            leo_ast::Variant::AsyncFunction
-        } else if annotations.iter().any(|a| a.identifier.to_string() == "inline") || is_in_module {
-            leo_ast::Variant::Inline
+            leo_ast::Variant::FinalFn
         } else {
-            leo_ast::Variant::Function
+            leo_ast::Variant::Fn
         };
 
         Ok(leo_ast::Function::new(
@@ -1287,13 +1278,13 @@ impl<'a> ConversionContext<'a> {
             .iter()
             .filter(|child| matches!(child.kind, SyntaxKind::Function))
             .map(|child| {
-                let function = self.to_function(child, false, true)?;
+                let function = self.to_function(child, false)?;
                 Ok((function.identifier.name, function))
             })
             .collect::<Result<Vec<_>>>()?;
         // Passes like type checking expect transitions to come first.
         // Irrelevant for modules at the moment.
-        functions.sort_by_key(|func| if func.1.variant.is_transition() { 0u8 } else { 1u8 });
+        functions.sort_by_key(|func| if func.1.variant.is_entry() { 0u8 } else { 1u8 });
 
         let composites = node
             .children
@@ -1356,7 +1347,7 @@ impl<'a> ConversionContext<'a> {
                 .iter()
                 .filter(|child| matches!(child.kind, SyntaxKind::Function))
                 .map(|child| {
-                    let function = self.to_function(child, true, false)?;
+                    let function = self.to_function(child, true)?;
                     Ok((function.identifier.name, function))
                 })
                 .chain(
@@ -1365,7 +1356,7 @@ impl<'a> ConversionContext<'a> {
                         .iter()
                         .filter(|child| matches!(child.kind, SyntaxKind::Function))
                         .map(|child| {
-                            let function = self.to_function(child, false, false)?;
+                            let function = self.to_function(child, false)?;
                             Ok((function.identifier.name, function))
                         })
                 )

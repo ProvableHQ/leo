@@ -32,8 +32,6 @@ import dependent2.aleo;
 program test.aleo {
     fn t1() -> Final {
         let f: Final = dependent2.aleo/t1();
-        assert_eq(1u8, f.0.0);
-        assert_eq(1u16, f.0.1);
         return final { f.run(); };
     }
 }

@@ -12,10 +12,12 @@ program child.aleo {
     mapping count: address => field;
 
     fn foo() -> Final {
-        return finalize_foo(self.caller);
+        let caller = self.caller;
+        return final { finalize_foo(caller); };
     }
     fn boo() -> Final {
-        return finalize_boo(self.caller);
+        let caller = self.caller;
+        return final { finalize_boo(caller); };
     }
  }
 
@@ -34,7 +36,7 @@ program parent.aleo {
         let f5: Final = child.aleo/boo();
 
         // Doesn't pass f1.
-        return finalize_foo(f0, f3, f2, f5, f4);
+        return final { finalize_foo(f0, f3, f2, f5, f4); };
     }
 }
 

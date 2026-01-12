@@ -1,8 +1,8 @@
 Error [ETYC0372005]: Unknown variable `caller`
-    --> compiler-test:34:44
+    --> compiler-test:34:52
      |
-  34 |         return (self.caller, finalize_init(caller));
-     |                                            ^^^^^^
+  34 |         return (self.caller, final { finalize_init(caller); });
+     |                                                    ^^^^^^
 Error [ETYC0372005]: Unknown variable `account`
     --> compiler-test:52:49
      |

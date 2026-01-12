@@ -4,12 +4,12 @@ final fn finalize(x: u8) {
 
 program dependent.aleo {
     fn t1() -> Final {
-        let f: Final = finalize(1u8);
+        let f: Final = final { finalize(1u8); };
         return f;
     }
 
     fn t2() -> Final {
-        let f: Final = finalize(1u8);
+        let f: Final = final { finalize(1u8); };
         return f;
     }
 }
@@ -19,18 +19,17 @@ program dependent.aleo {
 import dependent.aleo;
 
 final fn finalize(f: Final) {
-    let x: u8 = f.0;
     f.run();
 }
 
 program test.aleo {
     fn t1() -> Final {
         let f: Final = dependent.aleo/t1();
-        return finalize(f);
+        return final { finalize(f); };
     }
 
     fn t2() -> Final {
         let f: Final = dependent.aleo/t2();
-        return finalize(f);
+        return final { finalize(f); };
     }
 }

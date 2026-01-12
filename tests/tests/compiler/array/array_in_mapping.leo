@@ -3,7 +3,8 @@ program test.aleo {
     mapping data: address => [bool; 8];
 
     fn foo(a: [bool; 8]) -> Final {
-        return fin_foo(self.caller, a);
+        let caller = self.caller;
+        return final { fin_foo(caller, a); };
     }
 }
 
