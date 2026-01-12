@@ -58,7 +58,7 @@ Attempting to determine the consensus version from the latest block height at ht
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.001334
-  On‑chain Execution:   0.000000
+  On-chain Execution:   0.000000
   Priority Fee:         0.000000
   Total Fee:            0.001334
 ──────────────────────────────────────────────
@@ -119,7 +119,7 @@ Attempting to determine the consensus version from the latest block height at ht
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.001334
-  On‑chain Execution:   0.000000
+  On-chain Execution:   0.000000
   Priority Fee:         0.000000
   Total Fee:            0.001334
 ──────────────────────────────────────────────

@@ -1,0 +1,10 @@
+{
+  "passed": 1,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "test_main.aleo/test_addition",
+      "passed": true
+    }
+  ]
+}

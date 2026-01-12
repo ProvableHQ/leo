@@ -1,0 +1,31 @@
+{
+  "config": {
+    "address": "XXXXXX",
+    "network": "testnet",
+    "endpoint": "http://localhost:3030",
+    "consensus_version": 12
+  },
+  "deployments": [
+    {
+      "program_id": "test_json_program.aleo",
+      "transaction_id": "XXXXXX",
+      "stats": {
+        "program_size_bytes": 381,
+        "max_program_size_bytes": 100000,
+        "total_variables": 17276,
+        "total_constraints": 12927,
+        "max_variables": 2097152,
+        "max_constraints": 2097152,
+        "cost": {
+          "storage": 956000,
+          "namespace": 1000000,
+          "synthesis": 30203,
+          "constructor": 10440,
+          "execution": null,
+          "priority": 0,
+          "total": 1996643
+        }
+      }
+    }
+  ]
+}

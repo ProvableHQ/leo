@@ -1,8 +1,9 @@
 {
-  "program": "test_shortcuts.aleo",
+  "program": "test_json_program.aleo",
   "version": "0.1.0",
   "description": "",
-  "license": "MIT",
+  "license": "",
+  "leo": "3.4.0",
   "dependencies": null,
   "dev_dependencies": null
 }

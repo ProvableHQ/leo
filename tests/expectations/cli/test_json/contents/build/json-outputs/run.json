@@ -1,0 +1,7 @@
+{
+  "program": "test_json_program.aleo",
+  "function": "main",
+  "outputs": [
+    "3u32"
+  ]
+}

@@ -4,8 +4,5 @@
   "description": "",
   "license": "MIT",
   "dependencies": null,
-  "dev_dependencies": null,
-  "upgrade": {
-    "mode": "noupgrade"
-  }
+  "dev_dependencies": null
 }

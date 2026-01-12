@@ -1,0 +1,21 @@
+{
+  "program": "test_json_program.aleo",
+  "functions": [
+    {
+      "name": "main",
+      "circuit_info": {
+        "num_public_inputs": 16,
+        "num_variables": 12940,
+        "num_constraints": 12927,
+        "num_non_zero_a": 32191,
+        "num_non_zero_b": 46449,
+        "num_non_zero_c": 16949,
+        "circuit_id": "XXXXXX"
+      },
+      "prover_checksum": "XXXXXX",
+      "prover_size": 0,
+      "verifier_checksum": "XXXXXX",
+      "verifier_size": 0
+    }
+  ]
+}

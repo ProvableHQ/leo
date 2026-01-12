@@ -1,0 +1,30 @@
+{
+  "config": {
+    "address": "XXXXXX",
+    "network": "testnet",
+    "endpoint": "http://localhost:3030",
+    "consensus_version": 12
+  },
+  "program": "test_json_program.aleo",
+  "function": "main",
+  "outputs": [
+    "3u32"
+  ],
+  "transaction_id": "XXXXXX",
+  "stats": {
+    "cost": {
+      "storage": 1328,
+      "namespace": null,
+      "synthesis": null,
+      "constructor": null,
+      "execution": 0,
+      "priority": 0,
+      "total": 1328
+    }
+  },
+  "broadcast": {
+    "fee_id": "XXXXXX",
+    "fee_transaction_id": "XXXXXX",
+    "confirmed": true
+  }
+}

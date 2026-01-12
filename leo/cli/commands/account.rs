@@ -286,7 +286,7 @@ fn import_account<N: Network>(
             Some(private_key) => FromStr::from_str(&private_key).map_err(CliError::failed_to_parse_private_key)?,
             None => {
                 return Err(CliError::failed_to_execute_account(
-                    "PRIVATE_KEY shouldn't be empty when --discreet is false",
+                    "Missing private key argument. Provide a private key or use the '--discreet' flag to enter it securely.",
                 )
                 .into());
             }
