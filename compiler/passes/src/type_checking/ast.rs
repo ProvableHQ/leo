@@ -420,6 +420,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
+            Expression::Slice(slice) => self.visit_slice(slice, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access_general(access, false, additional),
@@ -538,6 +539,87 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         self.maybe_assert_type(&type_, additional, input.span());
         type_
+    }
+
+    fn visit_slice(&mut self, input: &SliceExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        // Type check the array expression.
+        let array_type = self.visit_expression(&input.array, &None);
+
+        // Make sure the array type is actually an array.
+        let element_type = match &array_type {
+            Type::Array(array_ty) => array_ty.element_type().clone(),
+            Type::Err => return Type::Err,
+            _ => {
+                self.emit_err(TypeCheckerError::expected_array_type(array_type.clone(), input.array.span()));
+                return Type::Err;
+            }
+        };
+
+        // Type check the start expression if present.
+        if let Some(start) = &input.start {
+            self.visit_expression_infer_default_u32(start);
+        }
+
+        // Type check the end expression if present.
+        if let Some((_, end)) = &input.end {
+            self.visit_expression_infer_default_u32(end);
+        }
+
+        // Get the start index (default 0).
+        let start = input.start.as_ref().and_then(|e| e.as_u32()).unwrap_or(0);
+
+        // Get the original array length if known.
+        let array_len = if let Type::Array(array_ty) = &array_type { array_ty.length.as_u32() } else { None };
+
+        // Compute the slice length.
+        let slice_len = match (&input.end, array_len) {
+            (Some((inclusive, end_expr)), _) => {
+                if let Some(end) = end_expr.as_u32() {
+                    let end = if *inclusive { end + 1 } else { end };
+                    if end < start {
+                        self.emit_err(TypeCheckerError::slice_range_invalid(start, end, input.span()));
+                        return Type::Err;
+                    }
+                    Some(end - start)
+                } else {
+                    None
+                }
+            }
+            (None, Some(arr_len)) => {
+                // Slice to end of array.
+                if start > arr_len {
+                    self.emit_err(TypeCheckerError::slice_range_invalid(start, arr_len, input.span()));
+                    return Type::Err;
+                }
+                Some(arr_len - start)
+            }
+            (None, None) => None,
+        };
+
+        // If slice length is known, check bounds.
+        if let (Some(slice_len), Some(arr_len)) = (slice_len, array_len)
+            && start + slice_len > arr_len
+        {
+            self.emit_err(TypeCheckerError::slice_out_of_bounds(start, start + slice_len, arr_len, input.span()));
+        }
+
+        // Build the result type.
+        let result_type = if let Some(len) = slice_len {
+            let len_expr = Expression::Literal(Literal::integer(
+                IntegerType::U32,
+                len.to_string(),
+                input.span(),
+                self.state.node_builder.next_id(),
+            ));
+            Type::Array(ArrayType::new(element_type, len_expr))
+        } else {
+            // If we can't determine the length, emit an error.
+            self.emit_err(TypeCheckerError::slice_length_unknown(input.span()));
+            return Type::Err;
+        };
+
+        self.maybe_assert_type(&result_type, additional, input.span());
+        result_type
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Self::AdditionalInput) -> Self::Output {

@@ -37,6 +37,7 @@ pub trait ExpressionConsumer {
             Expression::Literal(value) => self.consume_literal(value),
             Expression::MemberAccess(access) => self.consume_member_access(*access),
             Expression::Repeat(repeat) => self.consume_repeat(*repeat),
+            Expression::Slice(slice) => self.consume_slice(*slice),
             Expression::Ternary(ternary) => self.consume_ternary(*ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
             Expression::TupleAccess(access) => self.consume_tuple_access(*access),
@@ -73,6 +74,8 @@ pub trait ExpressionConsumer {
     fn consume_literal(&mut self, _input: Literal) -> Self::Output;
 
     fn consume_repeat(&mut self, _input: RepeatExpression) -> Self::Output;
+
+    fn consume_slice(&mut self, _input: SliceExpression) -> Self::Output;
 
     fn consume_intrinsic(&mut self, _input: IntrinsicExpression) -> Self::Output;
 

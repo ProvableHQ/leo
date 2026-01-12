@@ -32,6 +32,7 @@ use leo_ast::{
     MemberAccess,
     Path,
     RepeatExpression,
+    SliceExpression,
     Statement,
     TernaryExpression,
     TupleAccess,
@@ -226,6 +227,13 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
 
         // By now, the repeat count should be a literal. So we just ignore it. There is no need to SSA it.
         (RepeatExpression { expr, ..input }.into(), statements)
+    }
+
+    fn consume_slice(&mut self, input: SliceExpression) -> Self::Output {
+        let (array, statements) = self.consume_expression_and_define(input.array);
+
+        // By now, the start and end should be literals. So we just ignore them. There is no need to SSA them.
+        (SliceExpression { array, ..input }.into(), statements)
     }
 
     /// Consumes a ternary expression, accumulating any statements that are generated.
