@@ -13,7 +13,7 @@ Error [EPAR0370005]: expected ';' -- found ','
      |
    1 | let x = a,;
      |          ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found ';'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '..', '..=', 'true', 'false', 'async', 'block', 'network', 'self' -- found ';'
     --> test_3:1:11
      |
    1 | let x = a[;
@@ -93,7 +93,7 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | let x = a>;
      |           ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found '..'
+Error [EPAR0370005]: expected ';' -- found '..'
     --> test_19:1:10
      |
    1 | let x = a..;
