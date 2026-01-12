@@ -1,32 +1,32 @@
 
 // The 'test_dep' program.
+
 program test_dep.aleo {
-    mapping Yo: u32 => u32;
     record yeets {
         owner: address,
         val: u32,
     }
 
+    mapping Yo: u32 => u32;
     async transition main_dep(a:u32) -> (yeets, Future<Fn(u32, u32)>) {
         let f: Future<Fn(u32, u32)> = finalize_main_dep(a, 1u32);
         let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
-
-    async function finalize_main_dep(a:u32, b:u32) {
-        Mapping::set(Yo, a, b);
-        let c:u32 = a + b;
-    }
-
     async transition main_dep_2(a:u32) -> (yeets, Future<Fn()>) {
         let f: Future<Fn()> = finalize_main_dep_2();
         let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
+}
 
-    async function finalize_main_dep_2() {
-        Mapping::set(Yo, 1u32, 1u32);
-    }
+async function finalize_main_dep(a:u32, b:u32) {
+    Mapping::set(Yo, a, b);
+    let c:u32 = a + b;
+}
+
+async function finalize_main_dep_2() {
+    Mapping::set(Yo, 1u32, 1u32);
 }
 
 // --- Next Program --- //
@@ -44,22 +44,22 @@ program test.aleo {
         let total: u32 = f.0 + f2.0 + 1u32;
         return (total + val + f.0*2u32, f3);
     }
+}
 
-    async function finalize_main(f: Future, f2: Future, a: u32) {
-        // f.await();
-        if a == 1u32 {
-            Future::await(f);
-            f2.await();
-        }
-
-        if a == 2u32 {
-            //f2.await();
-            Mapping::set(ayo, 1u32, 1u32);
-        }
-
-        let total: u32 = f.0 + f2.0;
-        Mapping::set(ayo, 1u32, total);
+async function finalize_main(f: Future, f2: Future, a: u32) {
+    // f.await();
+    if a == 1u32 {
+        Future::await(f);
+        f2.await();
     }
+
+    if a == 2u32 {
+        //f2.await();
+        Mapping::set(ayo, 1u32, 1u32);
+    }
+
+    let total: u32 = f.0 + f2.0;
+    Mapping::set(ayo, 1u32, total);
 }
 
 // --- Next Program --- //
@@ -74,12 +74,12 @@ program wrapper.aleo {
         let f4: Future = finalize_main(f,f2,f3);
         return (val, f4);
     }
+}
 
-    async function finalize_main(f: Future, f2: Future, f3: Future) {
-        f.await();
-        f2.await();
-        f3.await();
-    }
+async function finalize_main(f: Future, f2: Future, f3: Future) {
+    f.await();
+    f2.await();
+    f3.await();
 }
 
 // --- Next Program --- //
@@ -92,8 +92,8 @@ program big_wrapper.aleo {
         let f2:Future = finalize_main(f);
         return (f2.0.0.0.0, f2);
     }
+}
 
-    async function finalize_main(f: Future) {
-        f.await();
-    }
+async function finalize_main(f: Future) {
+    f.await();
 }

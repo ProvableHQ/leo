@@ -1,3 +1,10 @@
+// --- Structs ---
+struct MyStruct {
+    a: u32,
+    b: bool,
+    c: address,
+}
+
 program good_storage_tests.aleo {
     // --- Primitives ---
     storage bool_storage: bool;
@@ -8,12 +15,6 @@ program good_storage_tests.aleo {
     storage u32_storage: u32;
     storage i8_storage: i8;
 
-    // --- Structs ---
-    struct MyStruct {
-        a: u32,
-        b: bool,
-        c: address,
-    }
     storage struct_storage: MyStruct;
 
     // --- Arrays ---

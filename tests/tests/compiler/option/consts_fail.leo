@@ -1,20 +1,20 @@
 // TODO: Make this test pass. For now, we error out on consts that have optional types in them.
 
+// === CONSTS ===
+
+const A: u8? = 10u8;
+const B: [u8?; 3] = [1u8, 2u8, 3u8];
+const C: (u8, u8?) = (42u8, 99u8);
+const D: [[u8?; 2]; 2] = [[4u8, 5u8], [6u8, 7u8]];
+
+struct MyStruct {
+    x: u8?,
+}
+
+const E: MyStruct = MyStruct { x: 88u8 };
+const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
+
 program const_optionals.aleo {
-    // === CONSTS ===
-
-    const A: u8? = 10u8;
-    const B: [u8?; 3] = [1u8, 2u8, 3u8];
-    const C: (u8, u8?) = (42u8, 99u8);
-    const D: [[u8?; 2]; 2] = [[4u8, 5u8], [6u8, 7u8]];
-
-    struct MyStruct {
-        x: u8?,
-    }
-
-    const E: MyStruct = MyStruct { x: 88u8 };
-    const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
-
     // === TRANSITIONS ===
 
     transition const_single_optional() -> u8 {

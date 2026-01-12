@@ -1,9 +1,9 @@
-program test.aleo {
-    struct Wrapper {
-        outer: base::Foo,
-        inner: base::nested::Foo::[3],
-    }
+struct Wrapper {
+    outer: base::Foo,
+    inner: base::nested::Foo::[3],
+}
 
+program test.aleo {
     transition main() -> u32 {
         let outer_x = base::X;
         let inner_x = base::nested::X;

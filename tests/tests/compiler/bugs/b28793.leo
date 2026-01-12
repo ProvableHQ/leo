@@ -3,8 +3,8 @@ program b28610.aleo {
     async transition foo() {
         return bar();
     }
+}
 
-    async function bar() {
-        assert(true);
-    }
+async function bar() {
+    assert(true);
 }

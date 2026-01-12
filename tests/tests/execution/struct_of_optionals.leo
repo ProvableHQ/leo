@@ -7,11 +7,11 @@ function = "main"
 input = []
 */
 
-program test.aleo {
-    struct Foo {
-        x: u64?, // Optional field
-    }
+struct Foo {
+    x: u64?, // Optional field
+}
 
+program test.aleo {
     transition main() {
         let raw: [u64; 4] = [10u64, 0u64, 30u64, 0u64];
 

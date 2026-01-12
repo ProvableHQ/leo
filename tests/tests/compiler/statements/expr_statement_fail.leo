@@ -1,9 +1,9 @@
 
-program test.aleo {
+struct Foo {
+    a: u8,
+}
 
-    struct Foo {
-        a: u8,
-    }
+program test.aleo {
 
     transition foo2(flag: bool, a: u8, b: u8, foo: Foo, i: i8) -> u8 {
         a + b;

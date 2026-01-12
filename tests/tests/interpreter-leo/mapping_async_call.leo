@@ -12,12 +12,11 @@ program test.aleo {
         f.await(); 
         return (x, f);
     }
-
-    async function finalize(x: u32) {
-        map.set(0u32, 42u32);
-        assert(map.get(0u32) == 42u32);
-        map.set(1u32, map.get(0u32) + x);
-        assert(x == 5); // ensure we're using the old value of `x` not the updated one after the async block
-        assert(map.get(1u32) == 42u32 + 5);
-    }
+}
+async function finalize(x: u32) {
+    map.set(0u32, 42u32);
+    assert(map.get(0u32) == 42u32);
+    map.set(1u32, map.get(0u32) + x);
+    assert(x == 5); // ensure we're using the old value of `x` not the updated one after the async block
+    assert(map.get(1u32) == 42u32 + 5);
 }

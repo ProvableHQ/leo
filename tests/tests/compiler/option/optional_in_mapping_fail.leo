@@ -1,8 +1,8 @@
-program st.aleo {
-    struct Foo {
-        x: u32?
-    }
+struct Foo {
+    x: u32?
+}
 
+program st.aleo {
     mapping optional_balances: address? => Foo;
 
     transition foo() {

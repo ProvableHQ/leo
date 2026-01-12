@@ -18,6 +18,6 @@ program test.aleo {
         let f1 = async {};
         let f2 = async {};
     }
-
-    async function foo() {}
 }
+
+async function foo() {}

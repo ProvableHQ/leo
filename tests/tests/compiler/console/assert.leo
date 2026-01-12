@@ -1,16 +1,13 @@
-
+struct Foo {
+    a: u8,
+}
 program test.aleo {
-    struct Foo {
-        a: u8,
-    }
-
     record Token {
         // The token owner.
         owner: address,
         // The token amount.
         amount: u64,
     }
-
 
     transition main(a: bool, foo: Foo, token: Token) -> bool {
         assert_eq(a, true);

@@ -24,8 +24,9 @@ input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
+const SMALL:u64 = 0_1u64;
+
 program test.aleo {
-    const SMALL:u64 = 0_1u64;
     mapping counter: address => u64;
 
     async transition dubble() -> Future {

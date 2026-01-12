@@ -8,10 +8,10 @@ program credits.aleo {
         let f: Future = finalize();
         return (input, f);
     }
+}
 
-    async function finalize() {
-        assert_eq(1u8, 1u8);
-    }
+async function finalize() {
+    assert_eq(1u8, 1u8);
 }
 
 // --- Next Program --- //
@@ -25,9 +25,9 @@ program test_credits.aleo {
         let start_2: Future = start.1;
         return (after.1, finish(start.1, start_2));
     }
+}
 
-    async function finish(f1: Future, f2: Future) {
-        f1.await();
-        f2.await();
-    }
+async function finish(f1: Future, f2: Future) {
+    f1.await();
+    f2.await();
 }

@@ -21,22 +21,22 @@ input = ["1u32"]
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
+//
+// ────────────────────────────────────────────────────────────────
+// Struct definitions
+// ────────────────────────────────────────────────────────────────
+//
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Container {
+    id: u32,
+    points: [Point; 2],
+}
+
 program vector_structs.aleo {
-    //
-    // ────────────────────────────────────────────────────────────────
-    // Struct definitions
-    // ────────────────────────────────────────────────────────────────
-    //
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Container {
-        id: u32,
-        points: [Point; 2],
-    }
-
     //
     // ────────────────────────────────────────────────────────────────
     // Storage declarations (vectors only allowed here)

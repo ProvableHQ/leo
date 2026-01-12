@@ -1,8 +1,8 @@
-program child.aleo {
-    struct Bar::[N: u32] {
-        arr: [u32; N],
-    }
+struct Bar::[N: u32] {
+    arr: [u32; N],
+}
 
+program child.aleo {
     transition main(b: Bar::[5]) -> Bar::[3] {
         let c = Bar::[4] {
             arr: [b.arr[0]; 4],

@@ -1,9 +1,9 @@
-program test.aleo {
-    struct S {
-        x: u8,
-        y: u16,
-    }
+struct S {
+    x: u8,
+    y: u16,
+}
 
+program test.aleo {
     transition aggregates() {
         // Some tuples
         let t0 = (1u32, 2u16);
@@ -40,13 +40,13 @@ program test.aleo {
         for i: i128 in 1..20 { }
     }
 
-    inline bar(x: u32, y: u64) -> u16 {
-        return 0 + 1;
-    }
-
     transition function_calls(s: signature, a: address) {
         let z0 = bar(3, 4);
         let g = group::GEN;
         let verify = signature::verify(s, a, 0field);
     }        
+}
+
+inline bar(x: u32, y: u64) -> u16 {
+    return 0 + 1;
 }

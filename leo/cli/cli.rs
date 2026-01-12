@@ -811,12 +811,13 @@ program child.aleo {
         // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
         let outer_program = "import inner_1.aleo;
 import inner_2.aleo;
-program outer.aleo {
 
-    struct ex_struct {
-        arg1: u32,
-        arg2: u32,
-    }
+struct ex_struct {
+    arg1: u32,
+    arg2: u32,
+}
+
+program outer.aleo {
 
     record inner_1_record {
         owner: address,
@@ -835,16 +836,18 @@ program outer.aleo {
     @noupgrade
     async constructor() {}
 }";
-        let inner_1_program = "program inner_1.aleo {
+        let inner_1_program = "
+struct ex_struct {
+    arg1: u32,
+    arg2: u32,
+}
+program inner_1.aleo {
     mapping inner_1_mapping: u32 => u32;
     record inner_1_record {
         owner: address,
         val: u32,
     }
-    struct ex_struct {
-        arg1: u32,
-        arg2: u32,
-    }
+
     transition inner_1_main(public a: u32, b: u32, c: ex_struct) -> inner_1_record {
         return inner_1_record {
             owner: self.caller,
@@ -855,7 +858,8 @@ program outer.aleo {
     @noupgrade
     async constructor() {}
 }";
-        let inner_2_program = "program inner_2.aleo {
+        let inner_2_program = "
+program inner_2.aleo {
     mapping inner_2_mapping: u32 => u32;
     record inner_1_record {
         owner: address,
@@ -987,21 +991,21 @@ program outer.aleo {
         let outer_program = "
 import inner_1.aleo;
 import inner_2.aleo;
+struct Foo {
+    a: u32,
+    b: u32,
+    c: Boo,
+}
+struct Boo {
+    a: u32,
+    b: u32,
+}
+struct Goo {
+    a: u32,
+    b: u32,
+    c: u32,
+}
 program outer_2.aleo {
-    struct Foo {
-        a: u32,
-        b: u32,
-        c: Boo,
-    }
-    struct Boo {
-        a: u32,
-        b: u32,
-    }
-    struct Goo {
-        a: u32,
-        b: u32,
-        c: u32,
-    }
     record Hello {
         owner: address,
         a: u32,
@@ -1023,16 +1027,17 @@ program outer_2.aleo {
     async constructor() {}
 }
 ";
-        let inner_1_program = "program inner_1.aleo {
-    struct Foo {
-        a: u32,
-        b: u32,
-        c: Boo,
-    }
-    struct Boo {
-        a: u32,
-        b: u32,
-    }
+        let inner_1_program = "
+struct Foo {
+    a: u32,
+    b: u32,
+    c: Boo,
+}
+struct Boo {
+    a: u32,
+    b: u32,
+}
+program inner_1.aleo {
     transition main(public a: u32, b: u32) -> Foo {
         return Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}};
     }
@@ -1043,24 +1048,25 @@ program outer_2.aleo {
     @noupgrade
     async constructor() {}
 }";
-        let inner_2_program = "program inner_2.aleo {
-    struct Foo {
-        a: u32,
-        b: u32,
-        c: Boo,
-    }
-    struct Boo {
-        a: u32,
-        b: u32,
-    }
+        let inner_2_program = "
+struct Foo {
+    a: u32,
+    b: u32,
+    c: Boo,
+}
+struct Boo {
+    a: u32,
+    b: u32,
+}
+struct Goo {
+    a: u32,
+    b: u32,
+    c: u32,
+}
+program inner_2.aleo {
     record Yoo {
         owner: address,
         a: u32,
-    }
-    struct Goo {
-        a: u32,
-        b: u32,
-        c: u32,
     }
     transition main(public a: u32, b: u32) -> Foo {
         return Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}};

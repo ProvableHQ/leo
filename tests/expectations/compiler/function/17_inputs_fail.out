@@ -13,16 +13,16 @@ Error [ETYC0372168]: The async transition `baz` has 17 input parameters, which e
      |
      = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
 Error [ETYC0372168]: The async function `baz_finalize` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:19:20
+    --> compiler-test:20:16
      |
-  19 |     async function baz_finalize(
-     |                    ^^^^^^^^^^^^
+  20 | async function baz_finalize(
+     |                ^^^^^^^^^^^^
      |
      = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
 Error [ETYC0372168]: The function `foo` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:25:14
+    --> compiler-test:26:10
      |
-  25 |     function foo(
-     |              ^^^
+  26 | function foo(
+     |          ^^^
      |
      = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.

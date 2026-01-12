@@ -1,17 +1,16 @@
-program dependent.aleo {
-    async function finalize1(x: u8) {
-        assert_eq(1u8, 1u8);
-    }
+async function finalize1(x: u8) {
+    assert_eq(1u8, 1u8);
+}
 
+async function finalize2(x: u16) {
+    assert_eq(1u8, 1u8);
+}
+
+program dependent.aleo {
     async transition t1() -> Future {
         let f: Future = finalize1(1u8);
         return f;
     }
-
-    async function finalize2(x: u16) {
-        assert_eq(1u8, 1u8);
-    }
-
     async transition t2() -> Future {
         let f: Future = finalize2(1u16);
         return f;
@@ -22,12 +21,12 @@ program dependent.aleo {
 
 import dependent.aleo;
 
-program test.aleo {
-    async function finalize(f: Future) {
-        let x: u8 = f.0;
-        f.await();
-    }
+async function finalize(f: Future) {
+    let x: u8 = f.0;
+    f.await();
+}
 
+program test.aleo {
     async transition t1() -> Future {
         let f: Future = dependent.aleo/t1();
         return finalize(f);

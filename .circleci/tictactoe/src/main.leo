@@ -1,26 +1,4 @@
 program tictactoe.aleo {
-    // A row in a tic tac toe board.
-    // - `c1` : The first entry in the row.
-    // - `c2` : The second entry in the row.
-    // - `c3` : The third entry in the row.
-    // A valid entry is either 0, 1, or 2, where 0 is empty, 1 corresponds to player 1, and 2 corresponds to player 2.
-    // Any other values are invalid.
-    struct Row {
-        c1: u8,
-        c2: u8,
-        c3: u8
-    }
-
-    // A tic tac toe board.
-    // - `r1` : The first row in the board.
-    // - `r2` : The second row in the board.
-    // - `r3` : The third row in the board.
-    struct Board {
-        r1: Row,
-        r2: Row,
-        r3: Row,
-    }
-
     // Returns an empty board.
     transition new() -> Board {
         return Board {
@@ -28,21 +6,6 @@ program tictactoe.aleo {
             r2: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
             r3: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
         };
-    }
-
-    // Returns `true` if there exists a row, column, or diagonal with all entries occupied by the same player.
-    // - `b` : A tic tac toe board.
-    // - `p` : A number corresponding to a player.
-    function check_for_win(b: Board, p: u8) -> bool {
-        return
-            (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
-            (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p) || // row 2
-            (b.r3.c1 == p && b.r3.c3 == p && b.r3.c3 == p) || // row 3
-            (b.r1.c1 == p && b.r2.c1 == p && b.r3.c1 == p) || // column 1
-            (b.r1.c2 == p && b.r2.c3 == p && b.r3.c2 == p) || // column 2
-            (b.r1.c3 == p && b.r2.c3 == p && b.r3.c3 == p) || // column 3
-            (b.r1.c1 == p && b.r2.c2 == p && b.r3.c3 == p) || // diagonal
-            (b.r1.c3 == p && b.r2.c2 == p && b.r3.c1 == p); // other diagonal
     }
 
     // Returns an updated tic tac toe board with a move made by a player.
@@ -109,3 +72,41 @@ program tictactoe.aleo {
         }
     }
 }
+
+// A row in a tic tac toe board.
+// - `c1` : The first entry in the row.
+// - `c2` : The second entry in the row.
+// - `c3` : The third entry in the row.
+// A valid entry is either 0, 1, or 2, where 0 is empty, 1 corresponds to player 1, and 2 corresponds to player 2.
+// Any other values are invalid.
+struct Row {
+    c1: u8,
+    c2: u8,
+    c3: u8
+}
+
+// A tic tac toe board.
+// - `r1` : The first row in the board.
+// - `r2` : The second row in the board.
+// - `r3` : The third row in the board.
+struct Board {
+    r1: Row,
+    r2: Row,
+    r3: Row,
+}
+
+// Returns `true` if there exists a row, column, or diagonal with all entries occupied by the same player.
+// - `b` : A tic tac toe board.
+// - `p` : A number corresponding to a player.
+function check_for_win(b: Board, p: u8) -> bool {
+    return
+        (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
+        (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p) || // row 2
+        (b.r3.c1 == p && b.r3.c3 == p && b.r3.c3 == p) || // row 3
+        (b.r1.c1 == p && b.r2.c1 == p && b.r3.c1 == p) || // column 1
+        (b.r1.c2 == p && b.r2.c3 == p && b.r3.c2 == p) || // column 2
+        (b.r1.c3 == p && b.r2.c3 == p && b.r3.c3 == p) || // column 3
+        (b.r1.c1 == p && b.r2.c2 == p && b.r3.c3 == p) || // diagonal
+        (b.r1.c3 == p && b.r2.c2 == p && b.r3.c1 == p); // other diagonal
+}
+

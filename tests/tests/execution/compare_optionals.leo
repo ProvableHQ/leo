@@ -42,12 +42,12 @@ function = "array_some_neq_some"
 input = []
 */
 
-program compare_optionals.aleo {
-    struct Point {
-        x: u8,
-        y: u8,
-    }
+struct Point {
+    x: u8,
+    y: u8,
+}
 
+program compare_optionals.aleo {
     // u8? == none → false
     transition u8_some_eq_none() -> bool {
         let val: u8? = 5u8;

@@ -12,21 +12,21 @@ function = "makeconsts"
 input = ["1field", "2field"]
 */
 
-program test.aleo {
-    struct SomeStruct {
-        x: field,
-        y: u32,
-    }
+struct SomeStruct {
+    x: field,
+    y: u32,
+}
 
+struct StructConsts::[X: u32, Y: u32] {
+    xs: [field; X + Y],
+}
+
+program test.aleo {
     transition makeone(x: field, y: u32) -> SomeStruct {
         return SomeStruct {
             x,
             y,
         };
-    }
-
-    struct StructConsts::[X: u32, Y: u32] {
-        xs: [field; X + Y],
     }
 
     transition makeconsts(x: field, y: field) -> StructConsts::[1u32, 2u32] {

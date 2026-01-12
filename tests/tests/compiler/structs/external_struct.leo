@@ -1,26 +1,26 @@
 
+struct Foo {
+    bar: [Bar; 1],
+}
+
+struct Bar {
+    baz: [Baz; 2],
+}
+
+struct Baz {
+    one: One,
+}
+
+struct One {
+    two: [Two; 2],
+}
+
+struct Two {
+    val1: u32,
+    val2: u32,
+}
+
 program child.aleo {
-    struct Foo {
-        bar: [Bar; 1],
-    }
-
-    struct Bar {
-        baz: [Baz; 2],
-    }
-
-    struct Baz {
-        one: One,
-    }
-
-    struct One {
-        two: [Two; 2],
-    }
-
-    struct Two {
-        val1: u32,
-        val2: u32,
-    }
-
     record Boo {
         owner: address,
         val: u32,
@@ -36,17 +36,17 @@ program child.aleo {
 // --- Next Program --- //
 
 import child.aleo;
-program parent.aleo {
 
+struct Woo {
+    a: u32,
+    b: u32,
+}
+
+program parent.aleo {
     record BooHoo {
         owner: address,
         val: u32,
         woo: Woo,
-    }
-
-    struct Woo {
-        a: u32,
-        b: u32,
     }
 
     transition create_wrapper() -> (Foo, child.aleo/Boo) {

@@ -1,8 +1,8 @@
-program multifile.aleo {
-    struct QQ {
-        y: dep::Baz::[3],
-    }
+struct QQ {
+    y: dep::Baz::[3],
+}
 
+program multifile.aleo {
     transition main() -> u32 {
         let x = dep::X;
         let inner_x = inner::dep::X;
@@ -17,17 +17,17 @@ program multifile.aleo {
               + dep::bar() + inner::dep::bar() + goo::[30]()
               + dep::goo::[31]() + dep::other_dep::Y;
     }
+}
 
-    inline goo::[M: u32]() -> u32 { 
-        let b = dep::Bar::[M] {
-            a: [43; M],
-            c: dep::Baz::[M] {
-                x: 169, 
-            }
-        };
-        b.a[M/M] = 999999;
-        return M + dep::X + b.a[M/2]; 
-    }
+inline goo::[M: u32]() -> u32 { 
+    let b = dep::Bar::[M] {
+        a: [43; M],
+        c: dep::Baz::[M] {
+            x: 169, 
+        }
+    };
+    b.a[M/M] = 999999;
+    return M + dep::X + b.a[M/2]; 
 }
 
 // --- Next Module: dep.leo --- //

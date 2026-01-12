@@ -1,10 +1,8 @@
+struct foo {
+    data: field,
+}
 
 program test.aleo {
-
-    struct foo {
-        data: field,
-    }
-
     transition main(f: bool, a: group, b: address) -> (foo, foo) {
         let first: foo = foo { data: a as field };
         if f {

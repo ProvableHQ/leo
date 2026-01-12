@@ -1,10 +1,10 @@
-program all_module_features.aleo {
-    struct Nested {
-        a: alpha::SharedName,
-        b: beta::SharedName::[beta::X],
-        c: gamma::Inner,
-    }
+struct Nested {
+    a: alpha::SharedName,
+    b: beta::SharedName::[beta::X],
+    c: gamma::Inner,
+}
 
+program all_module_features.aleo {
     transition main() -> u32 {
         // Constant name shadowing (alpha::X vs beta::X vs gamma::X)
         let x1 = alpha::X;

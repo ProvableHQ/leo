@@ -1,8 +1,8 @@
+struct TokenInfo {
+    id: u64,
+}
 
 program test.aleo {
-    struct TokenInfo {
-        id: u64,
-    }
     mapping token_name_to_info: field => TokenInfo;
 
     async transition add_new_token () -> Future {

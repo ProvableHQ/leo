@@ -67,8 +67,8 @@
             "identifier": {
               "name": "foo",
               "span": {
-                "lo": 56,
-                "hi": 59
+                "lo": 54,
+                "hi": 57
               },
               "id": 3
             },
@@ -77,8 +77,8 @@
                 "identifier": {
                   "name": "N",
                   "span": {
-                    "lo": 62,
-                    "hi": 63
+                    "lo": 60,
+                    "hi": 61
                   },
                   "id": 4
                 },
@@ -86,8 +86,8 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 62,
-                  "hi": 68
+                  "lo": 60,
+                  "hi": 66
                 },
                 "id": 5
               },
@@ -95,8 +95,8 @@
                 "identifier": {
                   "name": "M",
                   "span": {
-                    "lo": 70,
-                    "hi": 71
+                    "lo": 68,
+                    "hi": 69
                   },
                   "id": 6
                 },
@@ -104,8 +104,8 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 70,
-                  "hi": 76
+                  "lo": 68,
+                  "hi": 74
                 },
                 "id": 7
               }
@@ -116,14 +116,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 80,
-                "hi": 82
+                "lo": 78,
+                "hi": 80
               },
               "id": 8
             },
             "span": {
-              "lo": 49,
-              "hi": 82
+              "lo": 47,
+              "hi": 80
             },
             "id": 9
           }
@@ -136,8 +136,8 @@
             "identifier": {
               "name": "bar",
               "span": {
-                "lo": 94,
-                "hi": 97
+                "lo": 88,
+                "hi": 91
               },
               "id": 10
             },
@@ -148,14 +148,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 104,
-                "hi": 106
+                "lo": 98,
+                "hi": 100
               },
               "id": 11
             },
             "span": {
-              "lo": 87,
-              "hi": 106
+              "lo": 81,
+              "hi": 100
             },
             "id": 12
           }
@@ -164,7 +164,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 108
+        "hi": 100
       }
     }
   }

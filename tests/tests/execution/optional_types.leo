@@ -52,37 +52,41 @@ function = "optional_address"
 input = [] 
 */
 
+
+// --- Shared Structs ---
+struct OptStruct {
+    val: u16?,
+}
+
+struct MyStruct {
+    x: u8,
+}
+
+struct Foo {
+    x: u8,
+}
+
+struct Inner {
+    val: u8?,
+}
+
+struct Wrapper {
+    arr: [Inner?; 2]?,
+}
+
+struct Container {
+    wrappers: [Wrapper?; 2]?,
+}
+
+struct Top {
+    container: Container?,
+}
+
+struct AddrStruct { a: address, b: address? }
+struct InnerAddr { val: address? }
+struct WrapperAddr { inner: InnerAddr }
+
 program all_types.aleo {
-
-    // --- Shared Structs ---
-    struct OptStruct {
-        val: u16?,
-    }
-
-    struct MyStruct {
-        x: u8,
-    }
-
-    struct Foo {
-        x: u8,
-    }
-
-    struct Inner {
-        val: u8?,
-    }
-
-    struct Wrapper {
-        arr: [Inner?; 2]?,
-    }
-
-    struct Container {
-        wrappers: [Wrapper?; 2]?,
-    }
-
-    struct Top {
-        container: Container?,
-    }
-
     // --- Section 1: Basic Optionals and Inference ---
     transition optional_basic_primitives() -> u32 {
         let a: u32? = 10;
@@ -167,9 +171,6 @@ program all_types.aleo {
     }
 
     // --- Section 10: Optionals with Address ---
-    struct AddrStruct { a: address, b: address? }
-    struct InnerAddr { val: address? }
-    struct WrapperAddr { inner: InnerAddr }
     transition optional_address() -> (address, address, address, address) {
         // Case 1: Direct optional address
         let a: address? = none;

@@ -1,8 +1,8 @@
+function foo(a: bool) {
+    assert_eq(true, a);
+}
+
 program test.aleo {
-    function foo(a: bool) {
-        assert_eq(true, a);
-    }
-    
     transition bar() {}
 
     @custom

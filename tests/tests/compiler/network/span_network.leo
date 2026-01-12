@@ -10,9 +10,10 @@ program child.aleo {
 // --- Next Program --- //
 
 import child.aleo;
-program parent.aleo {
-    function f(x :u8) {
-        assert_eq(x, x);
-    }
+
+program parent.aleo {}
+
+function f(x :u8) {
+    assert_eq(x, x);
 }
 

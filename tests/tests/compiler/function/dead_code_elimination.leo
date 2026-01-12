@@ -21,19 +21,19 @@ function foo:
     output r2 as u8.private;
 */
 
-program test.aleo {
 
+function eliminate_unused_function_call(a: u8, b: u8) -> u8 {
+    return a + b;
+}
+
+inline inline_and_eliminate(a: u8, b: u8) -> u8 {
+    return a * b;
+}
+
+program test.aleo {
     record dummy {
         owner: address,
         data: u8,
-    }
-
-    function eliminate_unused_function_call(a: u8, b: u8) -> u8 {
-        return a + b;
-    }
-
-    inline inline_and_eliminate(a: u8, b: u8) -> u8 {
-        return a * b;
     }
 
     transition foo(a: u8, b: u8) -> u8 {

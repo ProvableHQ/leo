@@ -4,16 +4,17 @@ program test.aleo {
 
     }
 
-    async function finalize_main() {
+}
 
-    }
-
-    function main() -> bool {
-
-    }
-    async function main(a: foo, b: bar) -> baz {
-
-    }
-
+async function finalize_main() {
 
 }
+
+function main() -> bool {
+
+}
+async function main(a: foo, b: bar) -> baz {
+
+}
+
+

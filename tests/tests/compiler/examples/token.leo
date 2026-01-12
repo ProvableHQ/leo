@@ -1,4 +1,45 @@
 
+async function finalize_mint_public(receiver: address, amount: u64) {
+    // Increments `account[receiver]` by `amount`.
+    // If `account[receiver]` does not exist, it will be created.
+    // If `account[receiver] + amount` overflows, `mint_public` is reverted.
+    let current_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
+    Mapping::set(account, receiver, current_amount + amount);
+}
+
+
+async function finalize_tr_public(sender: address, receiver: address, amount: u64) {
+    // Decrements `account[sender]` by `amount`.
+    // If `account[sender]` does not exist, it will be created.
+    // If `account[sender] - amount` underflows, `transfer_public` is reverted.
+    let sender_amount: u64 = Mapping::get_or_use(account, sender, 0u64);
+    Mapping::set(account, sender, sender_amount - amount);
+    // Increments `account[receiver]` by `amount`.
+    // If `account[receiver]` does not exist, it will be created.
+    // If `account[receiver] + amount` overflows, `transfer_public` is reverted.
+    let receiver_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
+    Mapping::set(account, receiver, receiver_amount + amount);
+}
+
+
+async function finalize_tr_private_to_public(receiver: address, amount: u64) {
+    // Increments `account[receiver]` by `amount`.
+    // If `account[receiver]` does not exist, it will be created.
+    // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
+    let current_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
+    Mapping::set(account, receiver, current_amount + amount);
+}
+
+
+async function finalize_tr_public_to_private(public sender: address, public amount: u64) {
+    // Decrements `account[sender]` by `amount`.
+    // If `account[sender]` does not exist, it will be created.
+    // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.
+    let current_amount: u64 = Mapping::get_or_use(account, sender, 0u64);
+    Mapping::set(account, sender, current_amount - amount);
+}
+
+
 program token.aleo {
     // On-chain storage of an `account` map, with `address` as the key,
     // and `u64` as the value.
@@ -18,15 +59,6 @@ program token.aleo {
         // Mint the tokens publicly by invoking the computation on-chain.
         return finalize_mint_public(receiver, amount);
     }
-
-    async function finalize_mint_public(receiver: address, amount: u64) {
-        // Increments `account[receiver]` by `amount`.
-        // If `account[receiver]` does not exist, it will be created.
-        // If `account[receiver] + amount` overflows, `mint_public` is reverted.
-        let current_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
-        Mapping::set(account, receiver, current_amount + amount);
-    }
-
     // The function `mint_private` initializes a new record with the specified amount of tokens for the receiver.
     transition mint_private(receiver: address, amount: u64) -> token {
         return token {
@@ -40,20 +72,6 @@ program token.aleo {
         // Transfer the tokens publicly, by invoking the computation on-chain.
         return finalize_tr_public(self.caller, receiver, amount);
     }
-
-    async function finalize_tr_public(sender: address, receiver: address, amount: u64) {
-        // Decrements `account[sender]` by `amount`.
-        // If `account[sender]` does not exist, it will be created.
-        // If `account[sender] - amount` underflows, `transfer_public` is reverted.
-        let sender_amount: u64 = Mapping::get_or_use(account, sender, 0u64);
-        Mapping::set(account, sender, sender_amount - amount);
-        // Increments `account[receiver]` by `amount`.
-        // If `account[receiver]` does not exist, it will be created.
-        // If `account[receiver] + amount` overflows, `transfer_public` is reverted.
-        let receiver_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
-        Mapping::set(account, receiver, receiver_amount + amount);
-    }
-
     // The function `transfer_private` sends the specified token amount to the token receiver from the specified token record.
     transition transfer_private(sender: token, receiver: address, amount: u64) -> (token, token) {
         // Checks the given token record has sufficient balance.
@@ -95,15 +113,6 @@ program token.aleo {
         // Increment the token amount publicly for the token receiver.
         return (remaining, finalize_tr_private_to_public(receiver, amount));
     }
-
-    async function finalize_tr_private_to_public(receiver: address, amount: u64) {
-        // Increments `account[receiver]` by `amount`.
-        // If `account[receiver]` does not exist, it will be created.
-        // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
-        let current_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
-        Mapping::set(account, receiver, current_amount + amount);
-    }
-
     // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
     // This function preserves privacy for the receiver's record, however it publicly reveals the caller and the specified token amount.
     async transition transfer_public_to_private(public receiver: address, public amount: u64) -> (token, Future) {
@@ -117,15 +126,4 @@ program token.aleo {
         // Decrement the token amount of the caller publicly.
         return (transferred, finalize_tr_public_to_private(self.caller, amount));
     }
-
-    async function finalize_tr_public_to_private(public sender: address, public amount: u64) {
-        // Decrements `account[sender]` by `amount`.
-        // If `account[sender]` does not exist, it will be created.
-        // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.
-        let current_amount: u64 = Mapping::get_or_use(account, sender, 0u64);
-        Mapping::set(account, sender, current_amount - amount);
-    }
-
 }
-
-

@@ -35,15 +35,15 @@
                 "identifier": {
                   "name": "test",
                   "span": {
-                    "lo": 106,
-                    "hi": 110
+                    "lo": 100,
+                    "hi": 104
                   },
                   "id": 0
                 },
                 "map": {},
                 "span": {
-                  "lo": 105,
-                  "hi": 110
+                  "lo": 99,
+                  "hi": 104
                 },
                 "id": 1
               }
@@ -52,8 +52,8 @@
             "identifier": {
               "name": "test",
               "span": {
-                "lo": 125,
-                "hi": 129
+                "lo": 115,
+                "hi": 119
               },
               "id": 2
             },
@@ -66,8 +66,8 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 135,
-                  "hi": 137
+                  "lo": 125,
+                  "hi": 127
                 },
                 "id": 4
               }
@@ -78,14 +78,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 138,
-                "hi": 140
+                "lo": 128,
+                "hi": 130
               },
               "id": 3
             },
             "span": {
-              "lo": 105,
-              "hi": 140
+              "lo": 99,
+              "hi": 130
             },
             "id": 5
           }
@@ -94,7 +94,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 142
+        "hi": 130
       }
     }
   }

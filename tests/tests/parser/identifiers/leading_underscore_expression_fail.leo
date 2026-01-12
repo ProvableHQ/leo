@@ -4,9 +4,9 @@ program test.aleo {
         // this should error when lexer sees _value
         return _value;
     }
-    
-    function foo(_param: u32) -> u32 {
-        return _param;
-    }
+}
+
+function foo(_param: u32) -> u32 {
+    return _param;
 }
 

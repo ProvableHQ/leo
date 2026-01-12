@@ -1,22 +1,21 @@
 
+function one(n: u8) -> u8 {
+    return two(n);
+}
+
+function two(n: u8) -> u8 {
+    return three(n) + four(n);
+}
+
+function three(n: u8) -> u8 {
+    return one(n);
+}
+
+function four(n: u8) -> u8 {
+    return one(n);
+}
+
 program test.aleo {
-
-    function one(n: u8) -> u8 {
-        return two(n);
-    }
-
-    function two(n: u8) -> u8 {
-        return three(n) + four(n);
-    }
-
-    function three(n: u8) -> u8 {
-        return one(n);
-    }
-
-    function four(n: u8) -> u8 {
-        return one(n);
-    }
-
     transition five(n: u8) -> u8 {
         return six(n);
     }

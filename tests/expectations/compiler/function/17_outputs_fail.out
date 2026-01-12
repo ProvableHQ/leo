@@ -13,9 +13,9 @@ Error [ETYC0372169]: The async transition `baz` has 17 output parameters, which 
      |
      = Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
 Error [ETYC0372169]: The function `foo` has 17 output parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:27:14
+    --> compiler-test:28:10
      |
-  27 |     function foo(x: u8) -> (
-     |              ^^^
+  28 | function foo(x: u8) -> (
+     |          ^^^
      |
      = Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.

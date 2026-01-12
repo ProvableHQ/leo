@@ -1,5 +1,6 @@
+const X: u32 = 5;
+
 program test.aleo {
-    const X: u32 = 5;
     mapping map: u32 => u32;
 
     async transition foo(p: u32, q: u8) -> Future {

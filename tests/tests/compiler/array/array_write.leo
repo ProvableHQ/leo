@@ -1,10 +1,21 @@
 
-program test.aleo {
-    struct S {
-        x: u8,
-        y: u32,
-    }
+struct S {
+    x: u8,
+    y: u32,
+}
 
+
+struct T {
+    x: u8,
+    y: [S; 3],
+    z: S,
+}
+
+async function f_finalize(x: u8) {
+    assert_eq(x, x);
+}
+
+program test.aleo {
     transition simple_struct(a: S) -> S {
         a.x = 1u8;
         a.y = a.y + 2u32;
@@ -15,12 +26,6 @@ program test.aleo {
         a[0u8][0u8][0u8] = true;
         a[1u8][1u8] = [true, false];
         return a;
-    }
-
-    struct T {
-        x: u8,
-        y: [S; 3],
-        z: S,
     }
 
     transition nested2(s: S, t: T) -> (S, T) {
@@ -54,10 +59,6 @@ program test.aleo {
     record R {
         owner: address,
         x: u8,
-    }
-
-    async function f_finalize(x: u8) {
-        assert_eq(x, x);
     }
 
     async transition f_record() -> (R, Future) {

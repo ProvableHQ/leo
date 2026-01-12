@@ -1,10 +1,10 @@
+
+// --- Base Structs ---
+struct S { x: u32 }
+struct OS { inner: S? }
+struct Wrap { arr: [u32?; 2]?, val: u32? }
+
 program opt_bug.aleo {
-
-    // --- Base Structs ---
-    struct S { x: u32 }
-    struct OS { inner: S? }
-    struct Wrap { arr: [u32?; 2]?, val: u32? }
-
     // --- 1. Basic unwrap assigns implicitly to optional targets ---
     transition assign_optional_from_unwrap() -> u32 {
         let a: u32? = 5u32;

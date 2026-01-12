@@ -1,3 +1,35 @@
+// Updates on-chain state by the amount of tokens deposited.
+// - `hash`  : The hash of the token owner.
+// - `amount`: The amount of tokens that were deposited.
+async function finalize_deposit(hash: field, amount: u64) {
+    let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
+    Mapping::set(balances, hash, current_amount + amount);
+}
+
+
+// Updates on-chain state by the amount of tokens withdrawn.
+// - `hash`  : The hash of the token owner.
+// - `amount`: The amount of tokens that were withdrawn.
+async function finalize_withdraw(hash: field, amount: u64) {
+    let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
+    Mapping::set(balances, hash, current_amount - amount);
+}
+
+// Returns the total amount of tokens after compounding interest.
+// - `principal`: The amount of tokens to compound interest over.
+// - `rate`     : The compound interest rate.
+// - `periods`  : The number of periods to compound the interest over.
+function calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {
+    let amount: u64 = principal;
+
+    for i:u64 in 0u64..100u64 {
+        if i < periods {
+            amount += (amount * rate) / 10000u64;
+        }
+    }
+
+    return amount;
+}
 
 program basic_bank.aleo {
     // A token, issued by a bank.
@@ -43,14 +75,6 @@ program basic_bank.aleo {
         return (remaining, finalize_deposit(hash, amount));
     }
 
-    // Updates on-chain state by the amount of tokens deposited.
-    // - `hash`  : The hash of the token owner.
-    // - `amount`: The amount of tokens that were deposited.
-    async function finalize_deposit(hash: field, amount: u64) {
-        let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
-        Mapping::set(balances, hash, current_amount + amount);
-    }
-
     // Returns a new Token containing the amount of money withdrawn.
     // - `recipient`: The address of the account to withdraw the tokens to.
     // - `amount`   : The amount of tokens to withdraw.
@@ -71,27 +95,4 @@ program basic_bank.aleo {
         return (token, finalize_withdraw(hash, amount));
     }
 
-    // Updates on-chain state by the amount of tokens withdrawn.
-    // - `hash`  : The hash of the token owner.
-    // - `amount`: The amount of tokens that were withdrawn.
-    async function finalize_withdraw(hash: field, amount: u64) {
-        let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
-        Mapping::set(balances, hash, current_amount - amount);
-    }
-
-    // Returns the total amount of tokens after compounding interest.
-    // - `principal`: The amount of tokens to compound interest over.
-    // - `rate`     : The compound interest rate.
-    // - `periods`  : The number of periods to compound the interest over.
-    function calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {
-        let amount: u64 = principal;
-
-        for i:u64 in 0u64..100u64 {
-            if i < periods {
-                amount += (amount * rate) / 10000u64;
-            }
-        }
-
-        return amount;
-    }
 }

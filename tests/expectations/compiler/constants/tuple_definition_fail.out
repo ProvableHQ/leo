@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected an identifier -- found '('
-    --> compiler-test:3:11
+    --> compiler-test:1:7
      |
-   3 |     const (HELLO,GOODBYE): (u8,u8) = (1u8, 1u8);
-     |           ^
+   1 | const (HELLO,GOODBYE): (u8,u8) = (1u8, 1u8);
+     |       ^

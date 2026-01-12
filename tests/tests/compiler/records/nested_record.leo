@@ -1,10 +1,10 @@
 
-program test.aleo {
-    struct Amount {
-        amount: u64,
-        amt: u64,
-    }
+struct Amount {
+    amount: u64,
+    amt: u64,
+}
 
+program test.aleo {
     record Token {
         // The token owner.
         owner: address,

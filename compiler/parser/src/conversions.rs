@@ -1357,31 +1357,58 @@ impl<'a> ConversionContext<'a> {
             })
             .collect::<IndexMap<_, _>>();
 
-        let program_node = node.children.last().unwrap();
-
-        let mut functions = program_node
+        let program_nodes = node
             .children
             .iter()
-            .filter(|child| matches!(child.kind, SyntaxKind::Function))
-            .map(|child| {
-                let function = self.to_function(child)?;
-                Ok((function.identifier.name, function))
-            })
-            .collect::<Result<Vec<_>>>()?;
-        // Passes like type checking expect transitions to come first.
-        functions.sort_by_key(|func| if func.1.variant.is_transition() { 0u8 } else { 1u8 });
+            .filter(|child| matches!(child.kind, SyntaxKind::ProgramDeclaration))
+            .collect::<Vec<_>>();
+        if program_nodes.is_empty() {
+            // FIXME: better error handling if missing program declaration
+            return Err(ParserError::missing_program_declaration(Span::new(0, 0)).into());
+        }
+        if program_nodes.len() > 1 {
+            for program_node in &program_nodes {
+                self.handler.emit_err(ParserError::multiple_program_declarations(program_node.span));
+            }
+        }
+        let program_node = program_nodes[0];
 
-        let composites = program_node
-            .children
-            .iter()
-            .filter(|child| matches!(child.kind, SyntaxKind::StructDeclaration))
-            .map(|child| {
-                let composite = self.to_composite(child)?;
-                Ok((composite.identifier.name, composite))
-            })
-            .collect::<Result<Vec<_>>>()?;
+        let functions =
+            // Passes like type checking expect transitions to come first.
+            // 
+            // Entry points inside the program block
+            program_node
+                .children
+                .iter()
+                .filter(|child| matches!(child.kind, SyntaxKind::Function))
+                .chain(
+                    // functions at the top level
+                    node.children.iter().filter(|child| matches!(child.kind, SyntaxKind::Function))
+                )
+                .map(|child| {
+                    let function = self.to_function(child)?;
+                    Ok((function.identifier.name, function))
+                })
+                .collect::<Result<Vec<_>>>()?;
 
-        let consts = program_node
+        // FIXME: structs should only be at the top level, and records inside the program declaration
+        let composites =
+            // composites at the top level (structs)
+            program_node
+                .children
+                .iter()
+                .filter(|child| matches!(child.kind, SyntaxKind::StructDeclaration))
+                .chain(
+                    // composites in the program declaration (records)
+                    node.children.iter().filter(|child| matches!(child.kind, SyntaxKind::StructDeclaration))
+                )
+                .map(|child| {
+                    let composite = self.to_composite(child)?;
+                    Ok((composite.identifier.name, composite))
+                })
+                .collect::<Result<Vec<_>>>()?;
+
+        let consts = node
             .children
             .iter()
             .filter(|child| matches!(child.kind, SyntaxKind::GlobalConst))

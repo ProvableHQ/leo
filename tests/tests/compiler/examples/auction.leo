@@ -1,4 +1,3 @@
-
 program test.aleo {
     // A bid in an auction.
     // - `owner`     : The address of the account that owns the record associated with this bid.

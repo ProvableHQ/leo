@@ -1,12 +1,12 @@
 
-program test.aleo {
-    struct Foo {
-        x: u8,
-    }
+program test.aleo { }
 
-    function Foo() {}
+struct Foo {
+    x: u8,
+}
 
-    function main(y: bool) -> bool {
-        return y;
-    }
+function Foo() {}
+
+function main(y: bool) -> bool {
+    return y;
 }

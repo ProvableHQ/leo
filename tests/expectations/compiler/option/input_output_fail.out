@@ -55,16 +55,16 @@ Error [ETYC0372164]: The input `f` has type `Foo`, which is or contains an optio
      |
      = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
 Error [ETYC0372164]: The input `x` has type `u8?`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
-    --> compiler-test:13:18
+    --> compiler-test:14:14
      |
-  13 |     function baz(x: u8?) -> u8? {
-     |                  ^^^^^^
+  14 | function baz(x: u8?) -> u8? {
+     |              ^^^^^^
      |
      = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
 Error [ETYC0372165]: This function has an output of type `u8?`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.
-    --> compiler-test:13:29
+    --> compiler-test:14:25
      |
-  13 |     function baz(x: u8?) -> u8? {
-     |                             ^^^
+  14 | function baz(x: u8?) -> u8? {
+     |                         ^^^
      |
      = Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.

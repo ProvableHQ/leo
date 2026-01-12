@@ -1,19 +1,19 @@
+//
+// ────────────────────────────────────────────────────────────────
+// Struct and array storage declarations
+// ────────────────────────────────────────────────────────────────
+//
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Stats {
+    values: [u32; 3],
+    active: bool,
+}
+
 program complex.aleo {
-    //
-    // ────────────────────────────────────────────────────────────────
-    // Struct and array storage declarations
-    // ────────────────────────────────────────────────────────────────
-    //
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Stats {
-        values: [u32; 3],
-        active: bool,
-    }
-
     storage point: Point;
     storage points: [Point; 2];
     storage stats: Stats;

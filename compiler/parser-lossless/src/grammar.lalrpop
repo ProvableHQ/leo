@@ -794,23 +794,28 @@ StorageDeclaration: SyntaxNode<'a> = {
     }
 }
 
-Item: SyntaxNode<'a> = {
+ProgramItem: SyntaxNode<'a> = {
     ConstructorDeclaration,
     FunctionDeclaration,
-    GlobalConst,
+    RecordDeclaration,
     MappingDeclaration,
     StorageDeclaration,
-    RecordDeclaration,
+}
+
+TopLevelItem: SyntaxNode<'a> = {
+    ProgramDeclaration,
+    FunctionDeclaration,
+    GlobalConst,
     StructDeclaration,
 }
 
 ProgramDeclaration: SyntaxNode<'a> = {
-    <p:WithTrivia<Program>> <pid:WithTrivia<ProgramId>> <l:WithTrivia<LeftCurly>> <is:Item*> <r:WithTrivia<RightCurly>> => {
+    <p:WithTrivia<Program>> <pid:WithTrivia<ProgramId>> <l:WithTrivia<LeftCurly>> <is:ProgramItem*> <r:WithTrivia<RightCurly>> => {
         SyntaxNode::new(SyntaxKind::ProgramDeclaration, [p, pid, l].into_iter().chain(is).chain([r]))
     },
 
     // For error reporting purposes we catch attempts to declare programs with networks other than `.aleo`.
-    <p:WithTrivia<Program>> <name:NoTrivia<Identifier>> <d:NoTrivia<Dot>> <net:WithTrivia<Identifier>> <l:WithTrivia<LeftCurly>> <is:Item*> <r:WithTrivia<RightCurly>> => {
+    <p:WithTrivia<Program>> <name:NoTrivia<Identifier>> <d:NoTrivia<Dot>> <net:WithTrivia<Identifier>> <l:WithTrivia<LeftCurly>> <is:ProgramItem*> <r:WithTrivia<RightCurly>> => {
         handler.emit_err(ParserError::invalid_network(net.span));
         SyntaxNode::new(SyntaxKind::ProgramDeclaration, [p, name, d, net, l].into_iter().chain(is).chain([r]))
     },
@@ -823,8 +828,8 @@ ImportDeclaration: SyntaxNode<'a> = {
 }
 
 pub MainContents: SyntaxNode<'a> = {
-    <ns:Nonsemantic*> <is:ImportDeclaration*> <p:ProgramDeclaration> => {
-        SyntaxNode::new(SyntaxKind::MainContents, ns.into_iter().chain(is).chain([p]))
+    <ns:Nonsemantic*> <is:ImportDeclaration*> <t:TopLevelItem+> => {
+        SyntaxNode::new(SyntaxKind::MainContents, ns.into_iter().chain(is).chain(t))
     },
 }
 

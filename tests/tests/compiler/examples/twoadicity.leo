@@ -15,15 +15,15 @@ program test.aleo {
         }
         return powers_of_two;
     }
+}
 
-    /* We define the is_even predicate on fields as follows.
-       If n is even and nonzero, clearly n/2 < n.
-       If n is odd, n-p is a field-equivalent negative number that is even, and
-       (n-p)/2 is a field-equivalent negative number closer to 0, greater than n-p.
-       If we add p to both of these negative numbers, we have
-       n/2 = (n-p)/2 + p = (n+p)/2 is greater than n and still less than p.
-    */
-    function is_even_and_nonzero (n: field) -> bool {
-        return n / 2field < n;
-    }
+/* We define the is_even predicate on fields as follows.
+   If n is even and nonzero, clearly n/2 < n.
+   If n is odd, n-p is a field-equivalent negative number that is even, and
+   (n-p)/2 is a field-equivalent negative number closer to 0, greater than n-p.
+   If we add p to both of these negative numbers, we have
+   n/2 = (n-p)/2 + p = (n+p)/2 is greater than n and still less than p.
+*/
+function is_even_and_nonzero (n: field) -> bool {
+    return n / 2field < n;
 }

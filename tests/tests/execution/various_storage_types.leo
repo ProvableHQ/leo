@@ -27,6 +27,16 @@ input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Container {
+    points: [Point; 2],
+    label: u8,
+}
+
 program mixed_types.aleo {
     //
     // ────────────────────────────────────────────────────────────────
@@ -42,16 +52,6 @@ program mixed_types.aleo {
     storage address_val: address;
     storage containers: [Container; 2];
     storage points_array: [Point; 3];
-
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Container {
-        points: [Point; 2],
-        label: u8,
-    }
 
     //
     // ────────────────────────────────────────────────────────────────

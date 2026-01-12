@@ -7,11 +7,12 @@ program test.aleo {
             return subber(a, b);
         }
     }
+}
 
-    function adder(a: u32, b: u32) -> u32 {
-        return a + b;
-    }
+function adder(a: u32, b: u32) -> u32 {
+    return a + b;
+}
 
-    function subber(a: u32, b: u32) -> u32 {
-        return a - b;
-    }}
+function subber(a: u32, b: u32) -> u32 {
+    return a - b;
+}

@@ -1,28 +1,26 @@
+function main() -> bool {
 
-program test.aleo {
-    function main() -> bool {
-
-    } finalize {
-
-    }
-
-    function main() -> bool {
-
-    } finalize() {
-
-    }
-
-    function main() -> bool {
-
-    } finalie() {
-
-    }
-
-    function main() -> bool {
-
-    } finalize main() floo {
-
-    }
-
+} finalize {
 
 }
+
+function main() -> bool {
+
+} finalize() {
+
+}
+
+function main() -> bool {
+
+} finalie() {
+
+}
+
+function main() -> bool {
+
+} finalize main() floo {
+
+}
+
+
+program test.aleo { }

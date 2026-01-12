@@ -10,12 +10,12 @@ import child.aleo;
 import credits.aleo;
 }*/
 
+const X: u32 = 1;
+const Y: u32 = 2;
+
+struct Baz { xxx: u32, yyy: bool }
+
 program test.aleo {
-    const X: u32 = 1;
-    const Y: u32 = 2;
-
-    struct Baz { xxx: u32, yyy: bool }
-
     transition main() {
         let a: [u32; 5] = [1, 2, 3, 4, 5];
         assert(a[1] == 2);
@@ -97,12 +97,12 @@ program test.aleo {
         assert(e == 5u32);
         assert(y == 6u32);*/
     }
+}
 
-    inline bar() -> u32 {
-        return 0;
-    }
+inline bar() -> u32 {
+    return 0;
+}
 
-    inline foo::[M: u32](arr: [u32; 3]) -> u32 {
-        return arr[M - 1];
-    }
+inline foo::[M: u32](arr: [u32; 3]) -> u32 {
+    return arr[M - 1];
 }

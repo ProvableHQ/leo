@@ -1,7 +1,7 @@
-program test.aleo {
-    const MAX: u32 = 100;
-    const MAX: u32 = 200;
+const MAX: u32 = 100;
+const MAX: u32 = 200;
 
+program test.aleo {
     transition main() -> u32 {
         return MAX;
     }

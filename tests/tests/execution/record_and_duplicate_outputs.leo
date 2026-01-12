@@ -44,6 +44,11 @@ program test0.aleo {
 
 import test0.aleo;
 
+struct S {
+    x: field,
+    y: field,
+}
+
 program test1.aleo {
     transition check_clone() -> test0.aleo/R {
         let r: test0.aleo/R = test0.aleo/make();
@@ -55,12 +60,6 @@ program test1.aleo {
     transition pass_through(r: test0.aleo/R) -> test0.aleo/R {
         return r;
     }
-
-    struct S {
-        x: field,
-        y: field,
-    }
-
     // As of commit 314d56a9e3626418e8a953ecb81f595555716459,
     // programs with duplicate outputs did not work.
     // Now they should clone the duplicates to satisfy SnarkVM.

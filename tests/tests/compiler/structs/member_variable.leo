@@ -1,9 +1,9 @@
 
-program test.aleo {
-    struct Foo {
-        x: u32,
-    }
+struct Foo {
+    x: u32,
+}
 
+program test.aleo {
     transition main(y: bool) -> bool {
         let a: Foo = Foo { x: 1u32 };
 

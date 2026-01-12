@@ -1,10 +1,10 @@
 
-program test.aleo {
-    struct Foo {
-        a: u128,
-        b: u128,
-    }
+struct Foo {
+    a: u128,
+    b: u128,
+}
 
+program test.aleo {
     transition main(
         i8_value: i8,
         i16_value: i16,

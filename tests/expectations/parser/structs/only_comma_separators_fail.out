@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected '}', ',' -- found ';'
-    --> test:3:14
+    --> test:8:10
      |
-   3 |         x: u8;
-     |              ^
+   8 |     x: u8;
+     |          ^

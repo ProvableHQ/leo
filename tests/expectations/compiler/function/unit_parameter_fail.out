@@ -1,8 +1,8 @@
 Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
-    --> compiler-test:4:9
+    --> compiler-test:3:5
      |
-   4 |         x: (),
-     |         ^^^^^
+   3 |     x: (),
+     |     ^^^^^
 Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
     --> compiler-test:8:21
      |

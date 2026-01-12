@@ -1,8 +1,20 @@
-program test.aleo {
-    struct QQ {
-        y: dep::Baz::[3],
-    }
+struct QQ {
+    y: dep::Baz::[3],
+}
 
+inline goo::[M: u32]() -> u32 { 
+    let b = dep::Bar::[M] {
+        a: [43; M],
+        c: dep::Baz::[M] {
+            x: 169, 
+        }
+    };
+    // Can't assign in the interpreter yet
+    // b.a[M/M] = 999999;
+    return M + dep::X + b.a[M/2]; 
+}
+
+program test.aleo {
     transition main() -> u32 {
         let x = dep::X;
         let inner_x = inner::dep::X;
@@ -16,18 +28,6 @@ program test.aleo {
               + f.a[dep::X / 2] + inner_f.a[inner::dep::X / 3]
               + dep::bar() + inner::dep::bar() + goo::[30]()
               + dep::goo::[31]() + dep::other_dep::Y;
-    }
-
-    inline goo::[M: u32]() -> u32 { 
-        let b = dep::Bar::[M] {
-            a: [43; M],
-            c: dep::Baz::[M] {
-                x: 169, 
-            }
-        };
-        // Can't assign in the interpreter yet
-        // b.a[M/M] = 999999;
-        return M + dep::X + b.a[M/2]; 
     }
 }
 

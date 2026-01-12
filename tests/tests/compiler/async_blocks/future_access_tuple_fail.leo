@@ -8,10 +8,10 @@ program credits.aleo {
         let f: Future = finalize();
         return (input, f);
     }
+}
 
-    async function finalize() {
-        assert_eq(1u8, 1u8);
-    }
+async function finalize() {
+    assert_eq(1u8, 1u8);
 }
 
 // --- Next Program --- //

@@ -1,12 +1,10 @@
 
+struct Foo {
+    data: field,
+}
+
 program test.aleo {
-
     mapping balances: field => field;
-
-    struct Foo {
-        data: field,
-    }
-
     async transition main(a: field) -> Future {
         // Cannot cast to a string.
         let b: string = a as string;
@@ -18,10 +16,10 @@ program test.aleo {
         let f: field = e as field;
         return finalize_main(a);
     }
+}
 
-    async function finalize_main(a: field) {
-        // Cannot cast a mapping.
-        let b: field = balances as field;
-        assert_eq(b, a);
-    }
+async function finalize_main(a: field) {
+    // Cannot cast a mapping.
+    let b: field = balances as field;
+    assert_eq(b, a);
 }

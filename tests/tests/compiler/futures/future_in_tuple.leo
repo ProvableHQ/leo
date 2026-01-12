@@ -8,10 +8,10 @@ program credits.aleo {
         let f: Future = finalize();
         return (input, f);
     }
+}
 
-    async function finalize() {
-        assert_eq(1u8, 1u8);
-    }
+async function finalize() {
+    assert_eq(1u8, 1u8);
 }
 
 // --- Next Program --- //
@@ -23,8 +23,8 @@ program test_credits.aleo {
         let result: (credits.aleo/credits, Future) = credits.aleo/transfer_private_to_public(input, self.address, amount);
         return (result.0, finish(result.1));
     }
+}
 
-    async function finish(f: Future) {
-        f.await();
-    }
+async function finish(f: Future) {
+    f.await();
 }

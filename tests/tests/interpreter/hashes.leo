@@ -20,12 +20,12 @@ input = ["987654321field", "0group", "1scalar"]
 */
 
 
-program test_hash_and_commit.aleo {
-    struct S {
-        x: field,
-        y: group,
-    }
+struct S {
+    x: field,
+    y: group,
+}
 
+program test_hash_and_commit.aleo {
     transition hash(x: field, y: group) -> ([field; 12], group) {
         let s = S {
             x,

@@ -1,8 +1,8 @@
-program child.aleo {
-    struct Bar::[N: u32] {
-        x: u32,
-    }
+struct Bar::[N: u32] {
+    x: u32,
+}
 
+program child.aleo {
     transition main(b: Bar::[5]) {}
 }
 

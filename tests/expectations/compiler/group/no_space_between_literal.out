@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found 'group'
-    --> compiler-test:4:24
+    --> compiler-test:5:20
      |
-   4 |       let g: group = 1 group;
-     |                        ^^^^^
+   5 |   let g: group = 1 group;
+     |                    ^^^^^

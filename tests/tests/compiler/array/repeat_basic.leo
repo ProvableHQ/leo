@@ -1,6 +1,7 @@
+const N: u32 = 2u32;
+const M: u32 = 1u32;
+
 program test.aleo {
-    const N: u32 = 2u32;
-    const M: u32 = 1u32;
     transition main() -> u32 {
         let arr: [u32; 10u8] = [3u32; 10u8];
         let arr1: [u32; 10u8] = [3u32; 10];

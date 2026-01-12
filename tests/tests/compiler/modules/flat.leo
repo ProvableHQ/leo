@@ -1,9 +1,9 @@
-program flat_module_corner.aleo {
-    struct Merge {
-        a: util::Data::[3],
-        b: config::Data,
-    }
+struct Merge {
+    a: util::Data::[3],
+    b: config::Data,
+}
 
+program flat_module_corner.aleo {
     transition main() -> u32 {
         let val1 = util::X;
         let val2 = config::X;

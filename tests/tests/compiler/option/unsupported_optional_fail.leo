@@ -13,11 +13,11 @@ program invalid_optional_types.aleo {
     async transition future_optional_type() {
         let fut: Future? = finalize(); // ERROR: Future? is not allowed
     }
-
-    // Dummy future-returning function
-    async function finalize() {
-    }
-
     @noupgrade
     async constructor() {}
 }
+
+// Dummy future-returning function
+async function finalize() {
+}
+

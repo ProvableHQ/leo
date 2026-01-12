@@ -1,14 +1,14 @@
+struct Point {
+    x: u32,
+    y: u32,
+}
+
+struct Point2 {
+    x: u32,
+    y: u32,
+}
+
 program test.aleo {
-    struct Point {
-        x: u32,
-        y: u32,
-    }
-
-    struct Point2 {
-        x: u32,
-        y: u32,
-    }
-
     transition main() {
         // Add
         assert_eq(1i8 + 2i8, 3i8);

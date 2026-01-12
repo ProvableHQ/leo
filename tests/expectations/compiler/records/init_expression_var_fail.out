@@ -1,24 +1,24 @@
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:10:44
+    --> compiler-test:11:40
      |
-  10 |     function mint(r0: address, r1: u64) -> Token {
-     |                                            ^^^^^
+  11 | function mint(r0: address, r1: u64) -> Token {
+     |                                        ^^^^^
 Error [ETYC0372013]: Composite initialization expression for `Token` is missing member `owner`.
-    --> compiler-test:11:16
+    --> compiler-test:12:12
      |
-  11 |         return Token {
-     |                ^^^^^^^
-  12 |             sender: r0, // This variable should be named `owner`.
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  13 |             amount: r1,
-     |             ^^^^^^^^^^^
-  14 |         };
-     |         ^
+  12 |     return Token {
+     |            ^^^^^^^
+  13 |         sender: r0, // This variable should be named `owner`.
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |         amount: r1,
+     |         ^^^^^^^^^^^
+  15 |     };
+     |     ^
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:19:24
+    --> compiler-test:20:20
      |
-  19 |         let t: Token = mint(x, c);
-     |                        ^^^^^^^^^^
+  20 |     let t: Token = mint(x, c);
+     |                    ^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

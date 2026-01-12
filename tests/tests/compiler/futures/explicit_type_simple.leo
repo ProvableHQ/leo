@@ -5,10 +5,10 @@ program test.aleo {
         let f: Future<Fn(u32)> = finalize(1u32);
         return (c, f);
     }
+}
 
-    async function finalize(a:u32) {
-        Mapping::set(foo, a, 1u32);
-    }
+async function finalize(a:u32) {
+    Mapping::set(foo, a, 1u32);
 }
 
 // --- Next Program --- //
@@ -21,9 +21,9 @@ program basic.aleo {
         let f:Future<Fn(u32, u32, Future<Fn(u32)>)> = finalize(a, c, f1);
         return (c,f);
     }
+}
 
-    async function finalize(a: u32, b:u32, f: Future<Fn(u32)>) {
-        f.await();
-        assert_eq(a, b);
-    }
+async function finalize(a: u32, b:u32, f: Future<Fn(u32)>) {
+    f.await();
+    assert_eq(a, b);
 }

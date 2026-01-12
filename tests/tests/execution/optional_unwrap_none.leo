@@ -13,16 +13,16 @@ function = "unwrap_struct_field_none"
 input = []
 */
 
+// === Struct with optional field ===
+struct MaybeValue {
+    val: u64?,
+}
+
 program unwrap_none_test.aleo {
     // === Direct unwrap of a none value ===
     transition unwrap_none() {
         let x: u8? = none;
         assert(x.unwrap() > 0); // ❌ should fail
-    }
-
-    // === Struct with optional field ===
-    struct MaybeValue {
-        val: u64?,
     }
 
     transition unwrap_struct_field_none() {

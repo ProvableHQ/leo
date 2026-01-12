@@ -5,12 +5,6 @@ program test.aleo {
     async transition set_expected(checksum: [u8; 32]) -> Future {
         return set_expected_(self.caller, checksum);
     }
-
-    async function set_expected_(addr: address, checksum: [u8; 32]) {
-        assert_eq(addr, admin.get(true));
-        expected.set(true, checksum);
-    }
-
     @custom
     async constructor() {
         let current_edition: u16 = self.edition;
@@ -23,3 +17,9 @@ program test.aleo {
         }
     }
 }
+
+async function set_expected_(addr: address, checksum: [u8; 32]) {
+    assert_eq(addr, admin.get(true));
+    expected.set(true, checksum);
+}
+

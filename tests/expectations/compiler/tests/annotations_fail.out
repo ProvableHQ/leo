@@ -1,65 +1,65 @@
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:3:5
+    --> compiler-test:6:5
      |
-   3 |     @test
+   6 |     @test
      |     ^^^^^
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:11:5
+    --> compiler-test:10:5
      |
-  11 |     @test(private_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+  10 |     @test(private_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372129]: Invalid annotation: Test annotation @should_fail appears outside of tests.
-    --> compiler-test:15:5
+    --> compiler-test:14:5
      |
-  15 |     @should_fail
+  14 |     @should_fail
      |     ^^^^^^^^^^^^
 Error [ETYC0372129]: Invalid annotation: Annotation @should_fail appears without @test.
-    --> compiler-test:15:5
+    --> compiler-test:14:5
      |
-  15 |     @should_fail
+  14 |     @should_fail
      |     ^^^^^^^^^^^^
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:20:5
-     |
-  20 |     @test
-     |     ^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @should_fail appears outside of tests.
     --> compiler-test:19:5
      |
-  19 |     @should_fail
+  19 |     @test
+     |     ^^^^^
+Error [ETYC0372129]: Invalid annotation: Test annotation @should_fail appears outside of tests.
+    --> compiler-test:18:5
+     |
+  18 |     @should_fail
      |     ^^^^^^^^^^^^
 Error [ETYC0372129]: Invalid annotation: Invalid key `bogus_key` for annotation @test.
-    --> compiler-test:24:5
+    --> compiler-test:23:5
      |
-  24 |     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+  23 |     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:24:5
+    --> compiler-test:23:5
      |
-  24 |     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+  23 |     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:7:5
+    --> compiler-test:1:1
      |
-   7 |     @test
-     |     ^^^^^
+   1 | @test
+     | ^^^^^
 Error [ETYC0372129]: Invalid annotation: Duplicate annotation @test.
-    --> compiler-test:28:5
+    --> compiler-test:28:1
      |
-  28 |     @test
-     |     ^^^^^
+  28 | @test
+     | ^^^^^
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:28:5
+    --> compiler-test:28:1
      |
-  28 |     @test
-     |     ^^^^^
+  28 | @test
+     | ^^^^^
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:33:5
+    --> compiler-test:33:1
      |
-  33 |     @test
-     |     ^^^^^
+  33 | @test
+     | ^^^^^
 Error [ETYC0372129]: Invalid annotation: A test procedure cannot have inputs.
-    --> compiler-test:34:17
+    --> compiler-test:34:13
      |
-  34 |     script foo8(x: u8) -> u8 {
-     |                 ^^^^^
+  34 | script foo8(x: u8) -> u8 {
+     |             ^^^^^

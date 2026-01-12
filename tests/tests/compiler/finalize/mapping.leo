@@ -5,21 +5,21 @@ program test.aleo {
     }
 
     mapping balances: address => u128;
-
-    struct Token {
-        Owner: address,
-        balance: u128,
-    }
-
     mapping tokens: address => Token;
-
-    struct Bar {
-        a: u128,
-    }
-
-    struct Baz {
-        a: u128,
-    }
 
     mapping foo: Bar => Baz;
 }
+
+struct Token {
+    Owner: address,
+    balance: u128,
+}
+
+struct Bar {
+    a: u128,
+}
+
+struct Baz {
+    a: u128,
+}
+

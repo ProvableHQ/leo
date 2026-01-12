@@ -1,5 +1,5 @@
-program optional_record_test.aleo {
 
+program optional_record_test.aleo {
     // === Record ===
     record Foo {
         owner: address,

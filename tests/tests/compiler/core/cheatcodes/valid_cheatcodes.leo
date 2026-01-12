@@ -12,11 +12,11 @@ program test_dep.aleo {
         let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
+}
 
-    async function finalize_main_dep(a:u32, b:u32) {
-        Mapping::set(Yo, a, b);
-        let c:u32 = a + b;
-    }
+async function finalize_main_dep(a:u32, b:u32) {
+    Mapping::set(Yo, a, b);
+    let c:u32 = a + b;
 }
 
 // --- Next Program --- //
@@ -29,14 +29,14 @@ program test.aleo {
     async transition main(public a: u32, public b: i64) -> Future {
         return finish(a, b);
     }
+}
 
-    async function finish(public a: u32, public b: i64) {
-        CheatCode::print_mapping(account);
-        CheatCode::print_mapping(test_dep.aleo/Yo);
-        CheatCode::set_block_height(1u32);
-        CheatCode::set_block_height(a);
-        CheatCode::set_block_timestamp(100i64);
-        CheatCode::set_block_timestamp(b);
-        CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH");
-    }
+async function finish(public a: u32, public b: i64) {
+    CheatCode::print_mapping(account);
+    CheatCode::print_mapping(test_dep.aleo/Yo);
+    CheatCode::set_block_height(1u32);
+    CheatCode::set_block_height(a);
+    CheatCode::set_block_timestamp(100i64);
+    CheatCode::set_block_timestamp(b);
+    CheatCode::set_signer("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH");
 }

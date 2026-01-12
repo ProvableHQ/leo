@@ -13,6 +13,6 @@ program parent.aleo {
         child.aleo/t();
         return future;
     }
-
-    async function finalize_foo() {}
 }
+
+async function finalize_foo() {}

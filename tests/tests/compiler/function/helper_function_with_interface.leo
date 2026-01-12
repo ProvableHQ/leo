@@ -4,12 +4,12 @@ program test.aleo {
         let c: u32 = a + b;
         return c;
     }
+}
 
-    struct Board {
-       foo: u8,
-    }
+struct Board {
+   foo: u8,
+}
 
-    function win(b: Board, p: u8) -> bool {
-    	return false & true;
-    }
+function win(b: Board, p: u8) -> bool {
+	return false & true;
 }

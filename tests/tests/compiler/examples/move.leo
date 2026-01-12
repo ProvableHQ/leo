@@ -1,4 +1,3 @@
-
 program test.aleo {
     record move {
         owner: address,

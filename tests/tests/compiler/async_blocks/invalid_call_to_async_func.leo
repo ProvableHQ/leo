@@ -4,7 +4,7 @@ program test.aleo {
             bar();
         };
     }
+}
 
-    async function bar() {
-    }
+async function bar() {
 }

@@ -7,12 +7,11 @@ program empty_storage_type.aleo {
     async transition prepare(a: [u32; 0]) ->  Future {
         return finalize(a);
     }
-
-
-    async function finalize(a: [u32;0]) {
-        empty_array = [];
-        vector_of_empty_array = [];
-		byte = 42u8;
-    }
-
 }
+
+async function finalize(a: [u32;0]) {
+    empty_array = [];
+    vector_of_empty_array = [];
+	byte = 42u8;
+}
+

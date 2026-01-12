@@ -9,10 +9,10 @@ program credits.aleo {
         let f: Future = finalize();
         return (input, f);
     }
+}
 
-    async function finalize() {
-        assert_eq(1u8, 1u8);
-    }
+async function finalize() {
+    assert_eq(1u8, 1u8);
 }
 
 // --- Next Program --- //
@@ -27,10 +27,10 @@ program multi_token_support_program.aleo {
         let f: Future = finalize();
         return (Token{owner: self.signer, amount: 100u64}, f);
     }
+}
 
-    async function finalize() {
-        assert_eq(1u8, 1u8);
-    }
+async function finalize() {
+    assert_eq(1u8, 1u8);
 }
 
 // --- Next Program --- //
@@ -47,11 +47,11 @@ program mtsp_credits.aleo {
       let mint_output: (multi_token_support_program.aleo/Token, Future) = multi_token_support_program.aleo/mint_private();
       return (transfer_output.0, mint_output.0, finalize_deposit(transfer_output.1, mint_output.1));
     }
+}
 
-    // In an earlier Leo version, both Futures would be incorrectly inferred to
-    // be the same type.
-    async function finalize_deposit(f0: Future, f1: Future) {
-      f0.await();
-      f1.await();
-    }
+// In an earlier Leo version, both Futures would be incorrectly inferred to
+// be the same type.
+async function finalize_deposit(f0: Future, f1: Future) {
+  f0.await();
+  f1.await();
 }

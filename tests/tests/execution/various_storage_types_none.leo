@@ -27,6 +27,16 @@ input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Container {
+    id: u8,
+    point: Point, // non-optional now
+}
+
 program none_cases.aleo {
     //
     // ────────────────────────────────────────────────────────────────
@@ -39,16 +49,6 @@ program none_cases.aleo {
     storage field_val: field;
     storage points: [Point; 2];
     storage container: Container;
-
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Container {
-        id: u8,
-        point: Point, // non-optional now
-    }
 
     //
     // ────────────────────────────────────────────────────────────────

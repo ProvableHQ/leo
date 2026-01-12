@@ -3,11 +3,11 @@ namespace: Compile
 expectation: Fail
 */
 
-program test.aleo {
-    struct Message {
-        data: u32,
-    }
+struct Message {
+    data: u32,
+}
 
+program test.aleo {
     // Test serialize/deserialize with various type errors
     transition test_deserialize_wrong_sizes() -> (u32, field, scalar, address, [u8; 4]) {
         // Fail: u32 raw requires 32 bits, providing 64

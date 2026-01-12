@@ -1,14 +1,14 @@
-program foo.aleo {
-    struct S {
-        x: u32,
-        y: u32,
-    }
+struct S {
+    x: u32,
+    y: u32,
+}
 
+program foo.aleo {
     record R {
         owner: address,
         v: u64
     }
-    
+
     transition main(x: u32, y: u32, addr: address, arr: [u32; 4]) 
         -> (S, S, u64, u32, u32, bool, u32, u32) {
         let s1 = S { x, y };
@@ -22,8 +22,8 @@ program foo.aleo {
         let array_access = arr[3u8];
         return (t.0, t.1, t.2, x_plus_1, y_plus_2, b, call_result, array_access);
     }
+}
 
-    inline foo(x: u32) -> u32 {
-        return x * x;
-    }
+inline foo(x: u32) -> u32 {
+    return x * x;
 }

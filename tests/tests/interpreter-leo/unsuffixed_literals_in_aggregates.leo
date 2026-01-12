@@ -1,9 +1,13 @@
-program test.aleo {
-    struct S {
-        x: u8,
-        y: u16,
-    }
+struct S {
+    x: u8,
+    y: u16,
+}
 
+inline bar(x: u32, y: u64) -> u16 {
+    return 0 + 1;
+}
+
+program test.aleo {
     transition main() {
         // Some tuples
         let t0 = (1u32, 2u16);
@@ -41,9 +45,5 @@ program test.aleo {
 
         let z0 = bar(3, 4);
         let g = group::GEN;
-    }
-
-    inline bar(x: u32, y: u64) -> u16 {
-        return 0 + 1;
     }
 }

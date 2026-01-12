@@ -6,20 +6,20 @@ program child.aleo {
         return finalize_foo(self.caller);
     }
 
-    async function finalize_foo(addr: address) {
-        let val: field = Mapping::get_or_use(count, addr, 0field);
-        Mapping::set(count, addr, val + 1field);
-    }
-
     async transition boo() -> Future {
         return finalize_boo(self.caller);
     }
-
-    async function finalize_boo(addr: address) {
-        let val: field = Mapping::get_or_use(count, addr, 0field);
-        Mapping::set(count, addr, val + 1field);
-    }
  }
+
+async function finalize_foo(addr: address) {
+    let val: field = Mapping::get_or_use(count, addr, 0field);
+    Mapping::set(count, addr, val + 1field);
+}
+
+async function finalize_boo(addr: address) {
+    let val: field = Mapping::get_or_use(count, addr, 0field);
+    Mapping::set(count, addr, val + 1field);
+}
 
 // --- Next Program --- //
 

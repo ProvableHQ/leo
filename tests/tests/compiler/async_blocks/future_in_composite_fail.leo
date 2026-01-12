@@ -1,11 +1,9 @@
+struct S {
+    member: Future,
+}
 
 program test.aleo {
     mapping x: Future => Future;
-
-    struct S {
-        member: Future,
-    }
-
     async transition main() -> Future {
         let future = async {
             assert_eq(1u8, 1u8);

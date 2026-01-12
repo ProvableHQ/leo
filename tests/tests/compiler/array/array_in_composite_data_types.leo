@@ -1,9 +1,9 @@
 
-program test.aleo {
-    struct bar {
-        data: [u8; 8],
-    }
+struct bar {
+    data: [u8; 8],
+}
 
+program test.aleo {
     record floo {
         owner: address,
         data: [u8; 8],

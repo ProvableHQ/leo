@@ -7,14 +7,14 @@ program test.aleo {
     transition bar(a: [bool; 8]) -> [bool; 8] {
         return a;
     }
+}
 
-    function baz(a: [bool; 8]) -> bool {
-        assert(a[0u8]);
-        return true;
-    }
+function baz(a: [bool; 8]) -> bool {
+    assert(a[0u8]);
+    return true;
+}
 
-    function qux(a: [bool; 8]) -> [bool; 8] {
-        assert(a[0u8]);
-        return a;
-    }
+function qux(a: [bool; 8]) -> [bool; 8] {
+    assert(a[0u8]);
+    return a;
 }

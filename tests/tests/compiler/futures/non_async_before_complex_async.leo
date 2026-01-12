@@ -4,10 +4,10 @@ program inner.aleo {
     async transition inner(a: u32) -> Future {
         return finalize(a);
     }
+}
 
-    async function finalize(a: u32) {
-        Mapping::set(foo, 0u32, a);
-    }
+async function finalize(a: u32) {
+    Mapping::set(foo, 0u32, a);
 }
 
 // --- Next Program --- //
@@ -20,13 +20,12 @@ program mid.aleo {
         let f:Future = finalize(f2, f1);
         return f;
     }
-
-    async function finalize(f1: Future, f2: Future) {
-        f1.await();
-        f2.await();
-    }
-
     transition dummy() {}
+}
+
+async function finalize(f1: Future, f2: Future) {
+    f1.await();
+    f2.await();
 }
 
 // --- Next Program --- //
@@ -49,9 +48,9 @@ program outer.aleo {
         let f:Future = finalize(f1, f2);
         return f;
     }
+}
 
-    async function finalize(f1: Future, f2: Future) {
-        f1.await();
-        f2.await();
-    }
+async function finalize(f1: Future, f2: Future) {
+    f1.await();
+    f2.await();
 }

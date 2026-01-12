@@ -7,11 +7,11 @@ program test.aleo {
 
         return a;
     }
+}
+function signed(a: i8, b: u8, c: u16, d: u32) -> i8 {
+    a >>= b;
+    a >>= c;
+    a >>= d;
 
-    function signed(a: i8, b: u8, c: u16, d: u32) -> i8 {
-        a >>= b;
-        a >>= c;
-        a >>= d;
-
-        return a;
-    }}
+    return a;
+}

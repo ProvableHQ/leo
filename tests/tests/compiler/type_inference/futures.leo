@@ -2,15 +2,13 @@ program child.aleo {
     async transition foo() -> Future {
         return foo_();
     }
-
-    async function foo_() {}
-
     async transition bar() -> Future {
         return bar_();
     }
-
-    async function bar_() {}
 }
+
+async function foo_() {}
+async function bar_() {}
 
 // --- Next Program --- //
 
@@ -28,8 +26,8 @@ program type_inference.aleo {
         let r = foo(f);
         return (99u64, r);
     }
+}
 
-    async function foo(fut: Future) {
-        fut.await();
-    }
+async function foo(fut: Future) {
+    fut.await();
 }

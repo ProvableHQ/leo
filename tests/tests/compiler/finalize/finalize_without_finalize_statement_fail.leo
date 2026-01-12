@@ -5,8 +5,8 @@ program test.aleo {
     async transition mint_public(public receiver: address, public amount: u64) {
 
     }
+}
 
-    async function finalize_mint_public (public receiver: address, public amount: u64) {
-        Mapping::set(account, receiver, amount);
-    }
+async function finalize_mint_public (public receiver: address, public amount: u64) {
+    Mapping::set(account, receiver, amount);
 }

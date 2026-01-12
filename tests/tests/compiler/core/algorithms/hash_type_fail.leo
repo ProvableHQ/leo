@@ -3,11 +3,11 @@ namespace: Compile
 expectation: Fail
 */
 
-program test.aleo {
-    struct Message {
-        data: u32,
-    }
+struct Message {
+    data: u32,
+}
 
+program test.aleo {
     // Test hash functions with various type errors
     transition test_hash_wrong_input_sizes() -> field {
         // Fail: Pedersen64 requires input <= 64 bits, providing u128

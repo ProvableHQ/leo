@@ -6,8 +6,8 @@ program test.aleo {
     async transition mint_public(public receiver: address, public amount: u64) -> Future {
         return finalize_mint_public(receiver, amount, amount);
     }
+}
 
-    async function finalize_mint_public (public receiver: address, public amount: u64) {
-        Mapping::set(account, receiver, amount);
-    }
+async function finalize_mint_public (public receiver: address, public amount: u64) {
+    Mapping::set(account, receiver, amount);
 }

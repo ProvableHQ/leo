@@ -4,14 +4,13 @@ program test.aleo {
     async transition main_inner(public a: u32, public b: u32) -> Future {
         return finalize(a, b);
     }
-
-    async function finalize(a: u32, b: u32) {
-        Mapping::set(foo, a, b);
-    }
-
     transition baz(a: u32, b: u32) -> u32 {
         return a + b;
     }
+}
+
+async function finalize(a: u32, b: u32) {
+    Mapping::set(foo, a, b);
 }
 
 // --- Next Program --- //
@@ -35,9 +34,9 @@ program basic.aleo {
         let f:Future = finalize(f1, f2);
         return f;
     }
+}
 
-    async function finalize(f1: Future, f2: Future) {
-        f1.await();
-        f2.await();
-    }
+async function finalize(f1: Future, f2: Future) {
+    f1.await();
+    f2.await();
 }

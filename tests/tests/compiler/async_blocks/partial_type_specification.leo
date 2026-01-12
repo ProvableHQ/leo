@@ -88,9 +88,8 @@ program big_wrapper.aleo {
         let f2:Future = finalize_main(f);
         return (f2.0.0.1.0, f2);
     }
+}
 
-    async function finalize_main(f: Future) {
-        f.await();
-    }
-
+async function finalize_main(f: Future) {
+    f.await();
 }

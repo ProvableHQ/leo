@@ -1,5 +1,5 @@
 Error [ETYC0372005]: Unknown function `decrement`
-    --> compiler-test:10:9
+    --> compiler-test:11:5
      |
-  10 |         decrement(amounts, addr, amount);
-     |         ^^^^^^^^^
+  11 |     decrement(amounts, addr, amount);
+     |     ^^^^^^^^^

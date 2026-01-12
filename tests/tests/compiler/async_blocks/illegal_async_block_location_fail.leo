@@ -14,16 +14,16 @@ program test.aleo {
             let f = async {};
         }
     }
+}
 
-    function f2(x: u32) {
-        let f = async {};
-    }
+function f2(x: u32) {
+    let f = async {};
+}
 
-    async function f3() {
-        let f = async {};
-    }
+async function f3() {
+    let f = async {};
+}
 
-    inline i() {
-        let f = async {};
-    }
+inline i() {
+    let f = async {};
 }

@@ -1,9 +1,9 @@
 
-program test.aleo {
-    struct S {
-        x: [field; 2]
-    }
+struct S {
+    x: [field; 2]
+}
 
+program test.aleo {
     transition main() -> S {
         let array: [field; 2] = [1field, 1field];
         array[0] = 2field;
