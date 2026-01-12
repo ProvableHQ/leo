@@ -339,40 +339,52 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             let right_type = self.state.type_table.get(&right.id());
 
             if let (Some(Type::Array(left_arr)), Some(Type::Array(right_arr))) = (left_type, right_type) {
-                // Get array lengths
-                if let (Some(left_len), Some(right_len)) = (left_arr.length.as_u32(), right_arr.length.as_u32()) {
+                // Get array lengths - either from the expression itself (if ArrayExpression)
+                // or from the type (if literal length)
+                let left_len = match &left {
+                    Expression::Array(arr) => Some(arr.elements.len() as u32),
+                    _ => left_arr.length.as_u32(),
+                };
+                let right_len = match &right {
+                    Expression::Array(arr) => Some(arr.elements.len() as u32),
+                    _ => right_arr.length.as_u32(),
+                };
+
+                if let (Some(left_len), Some(right_len)) = (left_len, right_len) {
                     // Expand a + b to [a[0], a[1], ..., b[0], b[1], ...]
                     let mut elements = Vec::with_capacity((left_len + right_len) as usize);
 
-                    // Add elements from left array
-                    for i in 0..left_len {
-                        let index = Expression::Literal(Literal::integer(
-                            IntegerType::U32,
-                            i.to_string(),
-                            span,
-                            self.state.node_builder.next_id(),
-                        ));
-                        let access =
-                            ArrayAccess { array: left.clone(), index, span, id: self.state.node_builder.next_id() };
-                        // Register the element type in the type table
-                        self.state.type_table.insert(access.id, left_arr.element_type().clone());
-                        elements.push(Expression::ArrayAccess(Box::new(access)));
-                    }
+                    // Helper to add elements from an array operand
+                    let mut add_elements = |arr: &Expression, arr_type: &ArrayType, len: u32| {
+                        // If the operand is already an ArrayExpression, use its elements directly
+                        if let Expression::Array(array_expr) = arr {
+                            for elem in &array_expr.elements {
+                                elements.push(elem.clone());
+                            }
+                        } else {
+                            // Otherwise, create array accesses
+                            for i in 0..len {
+                                let index = Expression::Literal(Literal::integer(
+                                    IntegerType::U32,
+                                    i.to_string(),
+                                    span,
+                                    self.state.node_builder.next_id(),
+                                ));
+                                let access = ArrayAccess {
+                                    array: arr.clone(),
+                                    index,
+                                    span,
+                                    id: self.state.node_builder.next_id(),
+                                };
+                                // Register the element type in the type table
+                                self.state.type_table.insert(access.id, arr_type.element_type().clone());
+                                elements.push(Expression::ArrayAccess(Box::new(access)));
+                            }
+                        }
+                    };
 
-                    // Add elements from right array
-                    for i in 0..right_len {
-                        let index = Expression::Literal(Literal::integer(
-                            IntegerType::U32,
-                            i.to_string(),
-                            span,
-                            self.state.node_builder.next_id(),
-                        ));
-                        let access =
-                            ArrayAccess { array: right.clone(), index, span, id: self.state.node_builder.next_id() };
-                        // Register the element type in the type table
-                        self.state.type_table.insert(access.id, right_arr.element_type().clone());
-                        elements.push(Expression::ArrayAccess(Box::new(access)));
-                    }
+                    add_elements(&left, &left_arr, left_len);
+                    add_elements(&right, &right_arr, right_len);
 
                     let array_expr = ArrayExpression { elements, span, id: input_id };
                     return (Expression::Array(array_expr), None);
