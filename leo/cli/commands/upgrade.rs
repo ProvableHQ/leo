@@ -254,10 +254,7 @@ fn handle_upgrade<N: Network>(
             &endpoint,
             true,
         ) else {
-            confirm(
-                &format!("Failed to fetch program {id} from the network. Do you want to continue?"),
-                command.extra.yes,
-            )?;
+            warn_and_confirm(&format!("Failed to fetch program {id} from the network."), command.extra.yes)?;
             continue;
         };
 
@@ -321,10 +318,7 @@ fn handle_upgrade<N: Network>(
         }
         // Add the program to the VM.
         if let Err(e) = vm.process().write().add_program(&program) {
-            confirm(
-                &format!("Failed to add program {id} to the VM.\nError: {e}.\nDo you want to continue?"),
-                command.extra.yes,
-            )?;
+            warn_and_confirm(&format!("Failed to add program {id} to the VM. Error: {e}"), command.extra.yes)?;
         }
     }
 
