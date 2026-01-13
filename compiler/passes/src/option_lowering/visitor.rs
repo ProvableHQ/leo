@@ -73,7 +73,8 @@ impl OptionLoweringVisitor<'_> {
         let struct_name = self.insert_optional_wrapper_struct(&lowered_inner_type);
 
         let struct_expr = CompositeExpression {
-            path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
+            path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id()))
+                .to_global(Location::new(self.program, vec![struct_name])),
             const_arguments: vec![],
             members: vec![
                 CompositeFieldInitializer {
@@ -145,7 +146,8 @@ impl OptionLoweringVisitor<'_> {
         let struct_name = self.insert_optional_wrapper_struct(&lowered_inner_type);
 
         let struct_expr = CompositeExpression {
-            path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
+            path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id()))
+                .to_global(Location::new(self.program, vec![struct_name])),
             const_arguments: vec![],
             members: vec![
                 CompositeFieldInitializer {

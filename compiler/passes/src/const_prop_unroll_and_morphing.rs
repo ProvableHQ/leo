@@ -17,10 +17,12 @@
 use crate::{
     CompilerState,
     ConstPropagation,
+    GlobalItemsCollection,
+    GlobalVarsCollection,
     Monomorphization,
     Pass,
+    PathResolution,
     RemoveUnreachable,
-    SymbolTableCreation,
     TypeChecking,
     TypeCheckingInput,
     Unrolling,
@@ -54,7 +56,9 @@ impl Pass for ConstPropUnrollAndMorphing {
             // program may have changed significantly (new functions may have been added, some functions may have been
             // deleted, etc.) We do want to retain evaluated consts, so that const propagation can tell when it has evaluated a new one.
             state.symbol_table.reset_but_consts();
-            SymbolTableCreation::do_pass((), state)?;
+            GlobalVarsCollection::do_pass((), state)?;
+            PathResolution::do_pass((), state)?;
+            GlobalItemsCollection::do_pass((), state)?;
 
             // Now run the type checker again to validate and infer types. Again, this is important because the program
             // may have changed significantly after the passes above.

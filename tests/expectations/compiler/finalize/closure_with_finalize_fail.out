@@ -1,57 +1,52 @@
 Error [ETYC0372110]: Only `async transition` can return a future.
-    --> compiler-test:3:35
+    --> compiler-test:5:35
      |
-   3 |     function foo(a: u8, b: u8) -> Future {
+   5 |     function foo(a: u8, b: u8) -> Future {
      |                                   ^^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:4:16
+    --> compiler-test:6:16
      |
-   4 |         return finalize_bar(a, b);
+   6 |         return finalize_bar(a, b);
      |                ^^^^^^^^^^^^^^^^^^
 Error [ETYC0372101]: Can only make an async call from an async transition.
-    --> compiler-test:4:16
+    --> compiler-test:6:16
      |
-   4 |         return finalize_bar(a, b);
+   6 |         return finalize_bar(a, b);
      |                ^^^^^^^^^^^^^^^^^^
      |
      = Move the async call inside of the async transition block.
 Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:11:5
+    --> compiler-test:13:5
      |
-  11 |     async function finalize_bar(a: u8, b: u8) -> u8 {
+  13 |     async function finalize_bar(a: u8, b: u8) -> u8 {
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  12 |         return a + b;
+  14 |         return a + b;
      |         ^^^^^^^^^^^^^
-  13 |     }
+  15 |     }
      |     ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
 Error [ETYC0372110]: Only `async transition` can return a future.
-    --> compiler-test:16:61
+    --> compiler-test:18:61
      |
-  16 |     function mint_public(receiver: address, amount: u64) -> Future {
+  18 |     function mint_public(receiver: address, amount: u64) -> Future {
      |                                                             ^^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:17:16
+    --> compiler-test:19:16
      |
-  17 |         return finalize_mint(receiver, amount);
+  19 |         return finalize_mint(receiver, amount);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372101]: Can only make an async call from an async transition.
-    --> compiler-test:17:16
+    --> compiler-test:19:16
      |
-  17 |         return finalize_mint(receiver, amount);
+  19 |         return finalize_mint(receiver, amount);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Move the async call inside of the async transition block.
-Error [ETYC0372005]: Unknown variable `account`
-    --> compiler-test:21:22
-     |
-  21 |         Mapping::set(account, receiver, amount);
-     |                      ^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

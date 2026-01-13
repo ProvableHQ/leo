@@ -2,6 +2,7 @@
   "Conditional": {
     "condition": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -11,8 +12,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 3,
           "hi": 4
@@ -66,6 +66,7 @@
   "Conditional": {
     "condition": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -75,8 +76,7 @@
           },
           "id": 3
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 29,
           "hi": 30
@@ -130,6 +130,7 @@
   "Conditional": {
     "condition": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -139,8 +140,7 @@
           },
           "id": 3
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 56,
           "hi": 57
@@ -180,6 +180,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -189,8 +190,7 @@
               },
               "id": 3
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 73,
               "hi": 74
@@ -200,6 +200,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "y",
@@ -209,8 +210,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 75,
               "hi": 76
@@ -240,6 +240,7 @@
           "Binary": {
             "left": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "x",
@@ -249,8 +250,7 @@
                   },
                   "id": 10
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 88,
                   "hi": 89
@@ -260,6 +260,7 @@
             },
             "right": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "z",
@@ -269,8 +270,7 @@
                   },
                   "id": 12
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 90,
                   "hi": 91
@@ -325,6 +325,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -334,8 +335,7 @@
               },
               "id": 3
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 106,
               "hi": 107
@@ -345,6 +345,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "y",
@@ -354,8 +355,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 108,
               "hi": 109

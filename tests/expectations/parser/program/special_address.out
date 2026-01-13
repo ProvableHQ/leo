@@ -93,6 +93,7 @@
                       "AssertEq": [
                         {
                           "Path": {
+                            "user_program": null,
                             "qualifier": [],
                             "identifier": {
                               "name": "a",
@@ -102,8 +103,7 @@
                               },
                               "id": 5
                             },
-                            "is_absolute": false,
-                            "absolute_path": null,
+                            "target": "Unresolved",
                             "span": {
                               "lo": 106,
                               "hi": 107
@@ -138,6 +138,7 @@
                       "AssertEq": [
                         {
                           "Path": {
+                            "user_program": null,
                             "qualifier": [],
                             "identifier": {
                               "name": "a",
@@ -147,8 +148,7 @@
                               },
                               "id": 9
                             },
-                            "is_absolute": false,
-                            "absolute_path": null,
+                            "target": "Unresolved",
                             "span": {
                               "lo": 141,
                               "hi": 142
@@ -183,6 +183,7 @@
                       "AssertEq": [
                         {
                           "Path": {
+                            "user_program": null,
                             "qualifier": [],
                             "identifier": {
                               "name": "a",
@@ -192,8 +193,7 @@
                               },
                               "id": 13
                             },
-                            "is_absolute": false,
-                            "absolute_path": null,
+                            "target": "Unresolved",
                             "span": {
                               "lo": 177,
                               "hi": 178

@@ -455,7 +455,7 @@ impl Cursor {
             }
         }
 
-        let full_name = self.to_absolute_path(&path.as_symbols());
+        let full_name = self.to_absolute_path(&path.segments());
 
         let mut leo_value = self.lookup(&full_name).unwrap_or(Value::make_unit());
 
@@ -1187,10 +1187,12 @@ impl Cursor {
             Expression::Call(call) if step == 0 => {
                 // Resolve the function's program and name
                 let (function_program, function_path) = {
-                    let maybe_program = call.program.or_else(|| self.current_program());
+                    let maybe_program = call.function.program().or_else(|| self.current_program());
                     if let Some(program) = maybe_program {
-                        (program, self.to_absolute_path(&call.function.as_symbols()))
+                        (program, self.to_absolute_path(&call.function.segments()))
                     } else {
+                        dbg!(&call.function);
+                        dbg!(self.current_program());
                         halt!(call.span, "No current program");
                     }
                 };
@@ -1236,9 +1238,9 @@ impl Cursor {
             Expression::Call(call) if step == 1 => {
                 let len = self.values.len();
                 let (program, path) = {
-                    let maybe_program = call.program.or_else(|| self.current_program());
+                    let maybe_program = call.function.program().or_else(|| self.current_program());
                     if let Some(program) = maybe_program {
-                        (program, call.function.as_symbols())
+                        (program, call.function.segments())
                     } else {
                         halt!(call.span, "No current program");
                     }
@@ -1271,14 +1273,14 @@ impl Cursor {
             }
             Expression::Err(_) => todo!(),
             Expression::Path(path) if step == 0 => {
-                Some(self.lookup(&self.to_absolute_path(&path.as_symbols())).expect_tc(path.span())?)
+                Some(self.lookup(&self.to_absolute_path(&path.segments())).expect_tc(path.span())?)
             }
             Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
             Expression::Locator(_locator) => todo!(),
             Expression::Composite(composite) if step == 0 => {
                 let members = self
                     .composites
-                    .get(&self.to_absolute_path(&composite.path.as_symbols()))
+                    .get(&self.to_absolute_path(&composite.path.segments()))
                     .expect_tc(composite.span())?;
                 for CompositeFieldInitializer { identifier: field_init_name, expression: init, .. } in
                     &composite.members
@@ -1304,7 +1306,7 @@ impl Cursor {
                 // And now put them into an IndexMap in the correct order.
                 let members = self
                     .composites
-                    .get(&self.to_absolute_path(&composite.path.as_symbols()))
+                    .get(&self.to_absolute_path(&composite.path.segments()))
                     .expect_tc(composite.span())?;
                 let contents = members.iter().map(|(identifier, _)| {
                     (*identifier, contents_tmp.remove(identifier).expect("we just inserted this"))
@@ -1312,7 +1314,10 @@ impl Cursor {
 
                 // TODO: this only works for composites defined in the top level module.. must figure
                 // something out for structs defined in modules
-                Some(Value::make_struct(contents, self.current_program().unwrap(), composite.path.as_symbols()))
+                Some(Value::make_struct(
+                    contents,
+                    Location::new(self.current_program().unwrap(), composite.path.segments()),
+                ))
             }
             Expression::Ternary(ternary) if step == 0 => {
                 push!()(&ternary.condition, &None);

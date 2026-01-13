@@ -38,13 +38,3 @@ Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
      |
   23 |         tokens.get_or_use(addr, Token { owner_addr: addr, amount: 1u8 });
      |                                                                   ^^^
-Error [ETYC0372005]: Unknown variable `foo`
-    --> compiler-test:24:29
-     |
-  24 |         Mapping::get_or_use(foo, addr, amount);
-     |                             ^^^
-Error [ETYC0372005]: Unknown variable `foo`
-    --> compiler-test:25:9
-     |
-  25 |         foo.get_or_use(addr, amount);
-     |         ^^^

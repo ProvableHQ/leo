@@ -48,8 +48,9 @@ impl Display for VariableType {
 /// An entry for a variable in the symbol table.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct VariableSymbol {
-    /// The `Type` of the variable.
-    pub type_: Type,
+    /// The `Type` of the variable. This is an `Option` because variables are inserted into the
+    /// symbol table first without types. The types are only set in `TypeChecking`.
+    pub type_: Option<Type>,
     /// The `Span` associated with the variable.
     pub span: Span,
     /// The type of declaration for the variable.
@@ -58,7 +59,11 @@ pub struct VariableSymbol {
 
 impl Display for VariableSymbol {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {}", self.declaration, self.type_)?;
+        if let Some(type_) = &self.type_ {
+            write!(f, "{}: {}", self.declaration, type_)?;
+        } else {
+            write!(f, "{}", self.declaration)?;
+        }
         Ok(())
     }
 }

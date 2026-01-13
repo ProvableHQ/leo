@@ -235,16 +235,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 let register_num = self.next_register();
 
                 // Track all internal record inputs.
-                if let Type::Composite(comp) = &input.type_ {
-                    let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
-                    if let Some(record) = self
-                        .state
-                        .symbol_table
-                        .lookup_record(&Location::new(program, comp.path.absolute_path().to_vec()))
-                        && (record.external.is_none() || record.external == self.program_id.map(|id| id.name.name))
-                    {
-                        self.internal_record_inputs.insert(AleoExpr::Reg(register_num.clone()));
-                    }
+                if let Type::Composite(comp) = &input.type_
+                    && let Some(record) = self.state.symbol_table.lookup_record(comp.path.expect_global_location())
+                    && (record.external.is_none() || record.external == self.program_id.map(|id| id.name.name))
+                {
+                    self.internal_record_inputs.insert(AleoExpr::Reg(register_num.clone()));
                 }
 
                 let (input_type, input_visibility) = {

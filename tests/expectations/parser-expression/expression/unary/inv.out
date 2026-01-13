@@ -2,6 +2,7 @@
   "Unary": {
     "receiver": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -11,8 +12,7 @@
           },
           "id": 3
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 0,
           "hi": 1
@@ -37,6 +37,7 @@
           "Unary": {
             "receiver": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "x",
@@ -46,8 +47,7 @@
                   },
                   "id": 7
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 8,
                   "hi": 9
@@ -86,6 +86,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -95,8 +96,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 29,
               "hi": 30
@@ -127,6 +127,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -136,8 +137,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 39,
               "hi": 40
@@ -168,6 +168,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -177,8 +178,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 50,
               "hi": 51
@@ -211,6 +211,7 @@
           "Unary": {
             "receiver": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "x",
@@ -220,8 +221,7 @@
                   },
                   "id": 7
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 61,
                   "hi": 62
@@ -260,6 +260,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -269,8 +270,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 77,
               "hi": 78
@@ -301,6 +301,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -310,8 +311,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 87,
               "hi": 88
@@ -342,6 +342,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -351,8 +352,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 98,
               "hi": 99
@@ -385,6 +385,7 @@
           "Unary": {
             "receiver": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "x",
@@ -394,8 +395,7 @@
                   },
                   "id": 7
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 109,
                   "hi": 110

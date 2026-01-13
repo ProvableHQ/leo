@@ -35,7 +35,7 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> Stub {
             program
                 .structs()
                 .iter()
-                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s)))
+                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s, program_id.name.name)))
                 .collect_vec(),
             program
                 .records()
@@ -47,7 +47,7 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> Stub {
         mappings: program
             .mappings()
             .into_iter()
-            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m)))
+            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m, program_id.name.name)))
             .collect(),
         functions: [
             program

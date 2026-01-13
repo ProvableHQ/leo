@@ -2,9 +2,9 @@ program test.aleo {
     transition main(a$$0: u16, b$$1: u16) -> u32 {
         let $var$4 = a$$0 as u32;
         let $var$5 = b$$1 as u32;
-        let (x$#2, y$#3) = foo(::$var$4, ::$var$5);
+        let (x$#2, y$#3) = foo($var$4, $var$5);
         let $var$6 = x$#2 + y$#3;
-        return ::$var$6;
+        return $var$6;
     }
     function foo(x$$7: u32, y$$8: u32) -> (u32, u32) {
         return (x$$7, y$$8);

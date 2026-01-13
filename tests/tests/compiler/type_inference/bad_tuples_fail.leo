@@ -6,8 +6,8 @@ program foo.aleo {
         let t2: (u32, u32) = (x, y, z);
         let t3: (u32, (u32, u32)) = (x, (y, z));
         let t4: (u32, u8) = (x, y);
-        let (a, b) = (x, y, z);
-        let (a, b): u32 = (x, y);
-        let (a, b): (u32, u8) = (x, y);
+        let (a0, b0) = (x, y, z);
+        let (a1, b1): u32 = (x, y);
+        let (a2, b2): (u32, u8) = (x, y);
     }
 }

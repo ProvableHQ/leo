@@ -31,7 +31,6 @@ use leo_ast::{
     IntrinsicExpression,
     Literal,
     LiteralVariant,
-    Location,
     LocatorExpression,
     MemberAccess,
     NetworkName,
@@ -328,17 +327,18 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_composite_init(&mut self, input: &CompositeExpression) -> (AleoExpr, Vec<AleoStmt>) {
         // Lookup struct or record.
-        let composite_type = if let Some(is_record) = self.composite_mapping.get(&input.path.absolute_path()) {
+        let composite_location = input.path.expect_global_location();
+        let composite_type = if let Some(is_record) = self.composite_mapping.get(&composite_location.path) {
             if *is_record {
                 // record.private;
-                let [record_name] = &input.path.absolute_path()[..] else {
+                let [record_name] = &composite_location.path[..] else {
                     panic!("Absolute paths to records can only have a single segment at this stage.")
                 };
                 AleoType::Record { name: record_name.to_string(), program: None }
             } else {
                 // foo; // no visibility for structs
                 AleoType::Ident {
-                    name: Self::legalize_path(&input.path.absolute_path())
+                    name: Self::legalize_path(&composite_location.path)
                         .expect("path format cannot be legalized at this point"),
                 }
             }
@@ -361,7 +361,7 @@ impl CodeGeneratingVisitor<'_> {
 
                     variable_operand
                 } else {
-                    Some(self.visit_path(&Path::from(member.identifier).into_absolute()))
+                    Some(self.visit_path(&Path::from(member.identifier).to_local()))
                 }
             })
             .collect();
@@ -455,12 +455,13 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let function_location = input.function.expect_global_location();
         let caller_program = self.program_id.expect("Calls only appear within programs.").name.name;
-        let callee_program = input.program.unwrap_or(caller_program);
+        let callee_program = function_location.program;
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(callee_program, input.function.absolute_path().to_vec()))
+            .lookup_function(function_location)
             .expect("Type checking guarantees functions exist");
 
         let mut instructions = vec![];
@@ -507,7 +508,10 @@ impl CodeGeneratingVisitor<'_> {
                 "Type checking guarantees that imported and stub programs are present."
             );
 
-            AleoStmt::Call(format!("{}.aleo/{}", callee_program, input.function), arguments, destinations.clone())
+            let [function_name] = &function_location.path[..] else {
+                panic!("paths to external functions can only have a single segment at this stage.")
+            };
+            AleoStmt::Call(format!("{}.aleo/{}", callee_program, function_name), arguments, destinations.clone())
         } else if func_symbol.function.variant.is_async() {
             AleoStmt::Async(self.current_function.unwrap().identifier.to_string(), arguments, destinations.clone())
         } else {
@@ -795,13 +799,12 @@ impl CodeGeneratingVisitor<'_> {
 
             Type::Composite(comp_ty) => {
                 // We need to cast the old struct or record's members into the new one.
-                let program = comp_ty.program.unwrap_or(self.program_id.unwrap().name.name);
-                let location = Location::new(program, comp_ty.path.absolute_path().to_vec());
+                let composite_location = comp_ty.path.expect_global_location();
                 let comp = self
                     .state
                     .symbol_table
-                    .lookup_record(&location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(&comp_ty.path.absolute_path()))
+                    .lookup_record(composite_location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(&composite_location.path))
                     .unwrap();
                 let elems = comp
                     .members

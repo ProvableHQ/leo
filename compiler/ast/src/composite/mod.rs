@@ -70,7 +70,7 @@ impl Composite {
         self.identifier.name
     }
 
-    pub fn from_external_record<N: Network>(input: &RecordType<N>, external_program: Symbol) -> Self {
+    pub fn from_external_record<N: Network>(input: &RecordType<N>, program: Symbol) -> Self {
         Self {
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),
@@ -89,9 +89,9 @@ impl Composite {
                         mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
                         identifier: Identifier::from(id),
                         type_: match entry {
-                            Public(t) => Type::from_snarkvm(t, None),
-                            Private(t) => Type::from_snarkvm(t, None),
-                            Constant(t) => Type::from_snarkvm(t, None),
+                            Public(t) => Type::from_snarkvm(t, program),
+                            Private(t) => Type::from_snarkvm(t, program),
+                            Constant(t) => Type::from_snarkvm(t, program),
                         },
                         span: Default::default(),
                         id: Default::default(),
@@ -99,14 +99,14 @@ impl Composite {
                     .collect_vec(),
             ]
             .concat(),
-            external: Some(external_program),
+            external: Some(program),
             is_record: true,
             span: Default::default(),
             id: Default::default(),
         }
     }
 
-    pub fn from_snarkvm<N: Network>(input: &StructType<N>) -> Self {
+    pub fn from_snarkvm<N: Network>(input: &StructType<N>, program: Symbol) -> Self {
         Self {
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),
@@ -116,7 +116,7 @@ impl Composite {
                 .map(|(id, type_)| Member {
                     mode: Mode::None,
                     identifier: Identifier::from(id),
-                    type_: Type::from_snarkvm(type_, None),
+                    type_: Type::from_snarkvm(type_, program),
                     span: Default::default(),
                     id: Default::default(),
                 })

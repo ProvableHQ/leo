@@ -48,7 +48,7 @@ use leo_span::{Span, Symbol};
 /// - `Some(index)` means a tuple field access.
 struct SymbolAccessCollector<'a> {
     state: &'a CompilerState,
-    symbol_accesses: IndexSet<(Vec<Symbol>, Option<usize>)>,
+    symbol_accesses: IndexSet<(Path, Option<usize>)>,
 }
 
 impl AstVisitor for SymbolAccessCollector<'_> {
@@ -56,7 +56,7 @@ impl AstVisitor for SymbolAccessCollector<'_> {
     type Output = ();
 
     fn visit_path(&mut self, input: &Path, _: &Self::AdditionalInput) -> Self::Output {
-        self.symbol_accesses.insert((input.absolute_path(), None));
+        self.symbol_accesses.insert((input.clone(), None));
     }
 
     fn visit_tuple_access(&mut self, input: &TupleAccess, _: &Self::AdditionalInput) -> Self::Output {
@@ -65,9 +65,9 @@ impl AstVisitor for SymbolAccessCollector<'_> {
         if let Expression::Path(path) = &input.tuple {
             // Futures aren't accessed by field; treat the whole thing as a direct variable
             if let Some(Type::Future(_)) = self.state.type_table.get(&input.tuple.id()) {
-                self.symbol_accesses.insert((path.absolute_path(), None));
+                self.symbol_accesses.insert((path.clone(), None));
             } else {
-                self.symbol_accesses.insert((path.absolute_path(), Some(input.index.value())));
+                self.symbol_accesses.insert((path.clone(), Some(input.index.value())));
             }
         } else {
             self.visit_expression(&input.tuple, &());
@@ -155,12 +155,12 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                             id: slf.state.node_builder.next_id(),
                         };
 
-                        replacements.insert((symbol, Some(index)), Path::from(identifier).into_absolute().into());
+                        replacements.insert((symbol, Some(index)), Path::from(identifier).to_local().into());
 
                         vec![(
                             input,
                             TupleAccess {
-                                tuple: Path::from(make_identifier(slf, symbol)).into_absolute().into(),
+                                tuple: Path::from(make_identifier(slf, symbol)).to_local().into(),
                                 index: index.into(),
                                 span: Span::default(),
                                 id: slf.state.node_builder.next_id(),
@@ -196,14 +196,14 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                     id: slf.state.node_builder.next_id(),
                                 };
 
-                                let expr: Expression = Path::from(identifier).into_absolute().into();
+                                let expr: Expression = Path::from(identifier).to_local().into();
 
                                 replacements.insert(key, expr.clone());
                                 tuple_elements.push(expr.clone());
                                 inputs_and_arguments.push((
                                     input,
                                     TupleAccess {
-                                        tuple: Path::from(make_identifier(slf, symbol)).into_absolute().into(),
+                                        tuple: Path::from(make_identifier(slf, symbol)).to_local().into(),
                                         index: i.into(),
                                         span: Span::default(),
                                         id: slf.state.node_builder.next_id(),
@@ -235,9 +235,9 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                                 id: slf.state.node_builder.next_id(),
                             };
 
-                            replacements.insert((symbol, None), Path::from(identifier).into_absolute().into());
+                            replacements.insert((symbol, None), Path::from(identifier).to_local().into());
 
-                            let argument = Path::from(make_identifier(slf, symbol)).into_absolute().into();
+                            let argument = Path::from(make_identifier(slf, symbol)).to_local().into();
                             vec![(input, argument)]
                         }
                     },
@@ -252,20 +252,19 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                 // Skip globals and variables that are local to this block or to one of its children.
 
                 // Skip globals.
-                if self.state.symbol_table.lookup_global(&Location::new(self.current_program, path.to_vec())).is_some()
-                {
+                if path.is_global() {
                     return None;
                 }
 
                 // Skip variables that are local to this block or to one of its children.
-                let local_var_name = *path.last().expect("all paths must have at least one segment.");
+                let local_var_name = path.expect_local_symbol(); // Not global, so must be local
                 if self.state.symbol_table.is_local_to_or_in_child_scope(input.block.id(), local_var_name) {
                     return None;
                 }
 
                 // All other variables become parameters to the async function being built.
                 let var = self.state.symbol_table.lookup_local(local_var_name)?;
-                Some(make_inputs_and_arguments(self, local_var_name, &var.type_, *index))
+                Some(make_inputs_and_arguments(self, local_var_name, &var.type_.expect("must be known by now"), *index))
             })
             .flatten()
             .unzip();
@@ -324,17 +323,10 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
 
         // Step 7: Create the call expression to invoke the async function
         let call_to_finalize = CallExpression {
-            function: Path::new(
-                vec![],
-                make_identifier(self, finalize_fn_name),
-                true,
-                Some(vec![finalize_fn_name]), // the finalize function lives in the top level program scope
-                Span::default(),
-                self.state.node_builder.next_id(),
-            ),
+            function: Path::from(make_identifier(self, finalize_fn_name))
+                .to_global(Location::new(self.current_program, vec![finalize_fn_name])),
             const_arguments: vec![],
             arguments,
-            program: Some(self.current_program),
             span: input.span,
             id: self.state.node_builder.next_id(),
         };

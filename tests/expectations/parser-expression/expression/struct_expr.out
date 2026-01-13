@@ -1,6 +1,7 @@
 {
   "Composite": {
     "path": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "Foo",
@@ -10,8 +11,7 @@
         },
         "id": 7
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 0,
         "hi": 3
@@ -86,6 +86,7 @@
 {
   "Composite": {
     "path": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "Foo",
@@ -95,8 +96,7 @@
         },
         "id": 10
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 20,
         "hi": 23

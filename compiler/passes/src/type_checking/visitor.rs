@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, VariableSymbol, VariableType, type_checking::scope_state::ScopeState};
+use crate::{CompilerState, type_checking::scope_state::ScopeState};
 
 use super::*;
 
@@ -51,7 +51,7 @@ pub struct TypeCheckingVisitor<'a> {
 
 impl TypeCheckingVisitor<'_> {
     pub fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
-        self.state.symbol_table.enter_scope(Some(id));
+        self.state.symbol_table.enter_existing_scope(Some(id));
         let result = func(self);
         self.state.symbol_table.enter_parent();
         result
@@ -114,7 +114,8 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
-        if actual != &Type::Err && !actual.can_coerce_to(expected) {
+        let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
+        if actual != &Type::Err && !actual.can_coerce_to(expected, &is_record) {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
         }
@@ -1140,10 +1141,7 @@ impl TypeCheckingVisitor<'_> {
         match type_ {
             Type::Composite(composite)
                 if self
-                    .lookup_composite(
-                        composite.program.or(self.scope_state.program_name),
-                        &composite.path.absolute_path(),
-                    )
+                    .lookup_composite(composite.path.expect_global_location())
                     .is_some_and(|composite| composite.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
@@ -1173,14 +1171,7 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that named composite type has been defined.
-            Type::Composite(composite)
-                if self
-                    .lookup_composite(
-                        composite.program.or(self.scope_state.program_name),
-                        &composite.path.absolute_path(),
-                    )
-                    .is_none() =>
-            {
+            Type::Composite(composite) if self.lookup_composite(composite.path.expect_global_location()).is_none() => {
                 self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), span));
             }
             // Check that the constituent types of the tuple are valid.
@@ -1217,10 +1208,7 @@ impl TypeCheckingVisitor<'_> {
                     // Array elements cannot be records.
                     Type::Composite(composite_type) => {
                         // Look up the type.
-                        if let Some(composite) = self.lookup_composite(
-                            composite_type.program.or(self.scope_state.program_name),
-                            &composite_type.path.absolute_path(),
-                        ) {
+                        if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location()) {
                             // Check that the type is not a record.
                             if composite.is_record {
                                 self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
@@ -1273,10 +1261,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Vector(_) => true,
 
             Type::Composite(composite_type) => {
-                if let Some(composite) = self.lookup_composite(
-                    composite_type.program.or(self.scope_state.program_name),
-                    &composite_type.path.absolute_path(),
-                ) {
+                if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if composite.is_record {
                         return true;
                     }
@@ -1347,10 +1332,7 @@ impl TypeCheckingVisitor<'_> {
 
             // Composites
             Type::Composite(composite_type) => {
-                if let Some(composite) = self.lookup_composite(
-                    composite_type.program.or(self.scope_state.program_name),
-                    &composite_type.path.absolute_path(),
-                ) {
+                if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if composite.is_record {
                         self.emit_err(TypeCheckerError::invalid_storage_type("record", span));
                         return;
@@ -1440,16 +1422,15 @@ impl TypeCheckingVisitor<'_> {
             Type::Array(array) => self.contains_optional_type_inner(&array.element_type, visited_paths),
 
             Type::Composite(composite_type) => {
-                let path = composite_type.path.absolute_path();
+                let composite_location = composite_type.path.expect_global_location();
 
                 // Prevent revisiting the same type
-                if !visited_paths.insert(path.clone()) {
+                // TODO: store locations here not just paths. Pending external structs.
+                if !visited_paths.insert(composite_location.path.clone()) {
                     return false;
                 }
 
-                if let Some(comp) =
-                    self.lookup_composite(composite_type.program.or(self.scope_state.program_name), &path)
-                {
+                if let Some(comp) = self.lookup_composite(composite_location) {
                     comp.members
                         .iter()
                         .any(|Member { type_, .. }| self.contains_optional_type_inner(type_, visited_paths))
@@ -1513,7 +1494,7 @@ impl TypeCheckingVisitor<'_> {
                 for finalizer in caller_finalizers {
                     assert_eq!(inferred_inputs.len(), finalizer.inferred_inputs.len());
                     for (t1, t2) in inferred_inputs.iter_mut().zip(finalizer.inferred_inputs.iter()) {
-                        Self::merge_types(t1, t2);
+                        self.merge_types(t1, t2);
                     }
                 }
             } else {
@@ -1541,18 +1522,8 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::bad_const_generic_type(const_param.type_(), const_param.span()));
             }
 
-            // Add the input to the symbol table.
-            if let Err(err) = self.state.symbol_table.insert_variable(
-                self.scope_state.program_name.unwrap(),
-                &[const_param.identifier().name],
-                VariableSymbol {
-                    type_: const_param.type_().clone(),
-                    span: const_param.identifier.span(),
-                    declaration: VariableType::ConstParameter,
-                },
-            ) {
-                self.state.handler.emit_err(err);
-            }
+            // Set the type of the input in the symbol table.
+            self.state.symbol_table.set_local_type(const_param.identifier.name, const_param.type_().clone());
 
             // Add the input to the type table.
             self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
@@ -1599,10 +1570,7 @@ impl TypeCheckingVisitor<'_> {
             if let Type::Composite(composite) = table_type {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
-                    if let Some(elem) = self.lookup_composite(
-                        composite.program.or(self.scope_state.program_name),
-                        &composite.path.absolute_path(),
-                    ) {
+                    if let Some(elem) = self.lookup_composite(composite.path.expect_global_location()) {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
                         }
@@ -1637,18 +1605,8 @@ impl TypeCheckingVisitor<'_> {
             }
 
             if !is_stub {
-                // Add the input to the symbol table.
-                if let Err(err) = self.state.symbol_table.insert_variable(
-                    self.scope_state.program_name.unwrap(),
-                    &[input.identifier().name],
-                    VariableSymbol {
-                        type_: table_type.clone(),
-                        span: input.identifier.span(),
-                        declaration: VariableType::Input(input.mode()),
-                    },
-                ) {
-                    self.state.handler.emit_err(err);
-                }
+                // Set the type of the input in the symbol table.
+                self.state.symbol_table.set_local_type(input.identifier.name, table_type.clone());
 
                 // Add the input to the type table.
                 self.state.type_table.insert(input.identifier().id(), table_type.clone());
@@ -1674,10 +1632,7 @@ impl TypeCheckingVisitor<'_> {
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
             if let Type::Composite(composite) = function_output.type_.clone()
-                && let Some(val) = self.lookup_composite(
-                    composite.program.or(self.scope_state.program_name),
-                    &composite.path.absolute_path(),
-                )
+                && let Some(val) = self.lookup_composite(composite.path.expect_global_location())
                 && val.is_record
                 && !function.variant.is_transition()
             {
@@ -1730,12 +1685,13 @@ impl TypeCheckingVisitor<'_> {
     /// That is, if `lhs` and `rhs` aren't equal, set `lhs` to Type::Err;
     /// or, if they're both futures, set any member of `lhs` that isn't
     /// equal to the equivalent member of `rhs` to `Type::Err`.
-    fn merge_types(lhs: &mut Type, rhs: &Type) {
+    fn merge_types(&self, lhs: &mut Type, rhs: &Type) {
+        let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
         if let Type::Future(f1) = lhs {
             if let Type::Future(f2) = rhs {
                 for (i, type_) in f2.inputs.iter().enumerate() {
                     if let Some(lhs_type) = f1.inputs.get_mut(i) {
-                        Self::merge_types(lhs_type, type_);
+                        self.merge_types(lhs_type, type_);
                     } else {
                         f1.inputs.push(Type::Err);
                     }
@@ -1743,29 +1699,28 @@ impl TypeCheckingVisitor<'_> {
             } else {
                 *lhs = Type::Err;
             }
-        } else if !lhs.eq_user(rhs) {
+        } else if !lhs.eq_user(rhs, &is_record) {
             *lhs = Type::Err;
         }
     }
 
     /// Wrapper around lookup_struct and lookup_record that additionally records all structs and records that are
     /// used in the program.
-    pub fn lookup_composite(&mut self, program: Option<Symbol>, name: &[Symbol]) -> Option<Composite> {
-        let record_comp =
-            program.and_then(|prog| self.state.symbol_table.lookup_record(&Location::new(prog, name.to_vec())));
-        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(name));
+    pub fn lookup_composite(&mut self, loc: &Location) -> Option<Composite> {
+        let record_comp = self.state.symbol_table.lookup_record(loc);
+        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(&loc.path));
         // Record the usage.
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.
-            if !s.is_record || program == self.scope_state.program_name {
-                self.used_composites.insert(name.to_vec());
+            if !s.is_record || Some(loc.program) == self.scope_state.program_name {
+                self.used_composites.insert(loc.path.clone());
             }
         }
         comp.cloned()
     }
 
-    /// Inserts variable to symbol table.
-    pub fn insert_variable(&mut self, inferred_type: Option<Type>, name: &Identifier, type_: Type, span: Span) {
+    /// Sets the type of a variable in the symbol table.
+    pub fn set_local_type(&mut self, inferred_type: Option<Type>, name: &Identifier, type_: Type) {
         self.insert_symbol_conditional_scope(name.name);
 
         let is_future = match &type_ {
@@ -1788,14 +1743,7 @@ impl TypeCheckingVisitor<'_> {
             (true, None) => unreachable!("Type checking guarantees the inferred type is present"),
         };
 
-        // Insert the variable into the symbol table.
-        if let Err(err) = self.state.symbol_table.insert_variable(
-            self.scope_state.program_name.unwrap(),
-            &[name.name],
-            VariableSymbol { type_: ty.clone(), span, declaration: VariableType::Mut },
-        ) {
-            self.state.handler.emit_err(err);
-        }
+        self.state.symbol_table.set_local_type(name.name, ty.clone());
     }
 
     // Validates whether an access operation is allowed in the current function or block context.
@@ -1822,13 +1770,9 @@ impl TypeCheckingVisitor<'_> {
     pub fn is_external_record(&self, ty: &Type) -> bool {
         if let Type::Composite(typ) = &ty {
             let this_program = self.scope_state.program_name.unwrap();
-            let program = typ.program.unwrap_or(this_program);
-            program != this_program
-                && self
-                    .state
-                    .symbol_table
-                    .lookup_record(&Location::new(program, typ.path.absolute_path().to_vec()))
-                    .is_some()
+            let composite_location = typ.path.expect_global_location();
+            composite_location.program != this_program
+                && self.state.symbol_table.lookup_record(composite_location).is_some()
         } else {
             false
         }

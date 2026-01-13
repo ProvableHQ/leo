@@ -50,6 +50,12 @@ pub use flattening::*;
 mod function_inlining;
 pub use function_inlining::*;
 
+mod global_items_collection;
+pub use global_items_collection::*;
+
+mod global_vars_collection;
+pub use global_vars_collection::*;
+
 mod loop_unrolling;
 pub use loop_unrolling::*;
 
@@ -82,9 +88,6 @@ pub use ssa_const_propagation::*;
 
 mod storage_lowering;
 pub use storage_lowering::*;
-
-mod symbol_table_creation;
-pub use symbol_table_creation::*;
 
 mod type_checking;
 pub use type_checking::*;

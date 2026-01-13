@@ -75,11 +75,11 @@ impl StaticAnalyzingVisitor<'_> {
 
     /// Assert that an async call is a "simple" one.
     /// Simple is defined as an async transition function which does not return a `Future` that itself takes a `Future` as an argument.
-    pub fn assert_simple_async_transition_call(&mut self, program: Symbol, function_path: &Path, span: Span) {
+    pub fn assert_simple_async_transition_call(&mut self, function_path: &Path, span: Span) {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(program, function_path.absolute_path().to_vec()))
+            .lookup_function(function_path.expect_global_location())
             .expect("Type checking guarantees functions are present.");
 
         // If it is not an async transition, return.
@@ -118,8 +118,9 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
+        let function_location = input.function.expect_global_location();
         let caller_program = self.current_program;
-        let callee_program = input.program.unwrap_or(caller_program);
+        let callee_program = function_location.program;
 
         // If the function call is an external async transition, then for all async calls that follow a non-async call,
         // we must check that the async call is not an async function that takes a future as an argument.
@@ -127,16 +128,13 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
             && self.variant == Some(Variant::AsyncTransition)
             && callee_program != caller_program
         {
-            self.assert_simple_async_transition_call(callee_program, &input.function, input.span());
+            self.assert_simple_async_transition_call(&input.function, input.span());
         }
-
-        // Look up the function and check if it is a non-async call.
-        let function_program = input.program.unwrap_or(self.current_program);
 
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(function_program, input.function.absolute_path().to_vec()))
+            .lookup_function(input.function.expect_global_location())
             .expect("Type checking guarantees functions exist.");
 
         if func_symbol.function.variant == Variant::Transition {

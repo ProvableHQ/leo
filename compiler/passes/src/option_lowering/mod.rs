@@ -57,7 +57,15 @@
 //! After this pass, no `T?` types remain in the program: all optional values are represented explicitly
 //! as structs with `is_some` and `val` fields.
 
-use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use crate::{
+    GlobalItemsCollection,
+    GlobalVarsCollection,
+    Pass,
+    PathResolution,
+    SymbolTable,
+    TypeChecking,
+    TypeCheckingInput,
+};
 
 use leo_ast::{ArrayType, CompositeType, ProgramReconstructor as _, Type};
 use leo_errors::Result;
@@ -98,8 +106,9 @@ impl Pass for OptionLowering {
         // We need to recreate the symbol table and run type checking again because this pass may introduce new structs
         // and modify existing ones.
         visitor.state.symbol_table = SymbolTable::default();
+        GlobalVarsCollection::do_pass((), state)?;
         PathResolution::do_pass((), state)?;
-        SymbolTableCreation::do_pass((), state)?;
+        GlobalItemsCollection::do_pass((), state)?;
         TypeChecking::do_pass(input.clone(), state)?;
 
         Ok(())
@@ -121,7 +130,7 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
                 format!("[{}; {length}]", display_type(element_type))
             }
             Type::Composite(CompositeType { path, .. }) => {
-                format!("::{}", path.absolute_path().iter().format("::"))
+                format!("::{}", path.expect_global_location().path.iter().format("::"))
             }
 
             Type::Tuple(_)

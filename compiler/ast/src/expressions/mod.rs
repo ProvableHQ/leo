@@ -444,7 +444,7 @@ impl Expression {
             // Composite types
             Type::Composite(composite_type) => {
                 let path = &composite_type.path;
-                let members = composite_lookup(&path.absolute_path());
+                let members = composite_lookup(&path.expect_global_location().path);
 
                 let composite_members = members
                     .into_iter()

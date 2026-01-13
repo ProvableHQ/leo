@@ -41,7 +41,7 @@ pub struct ConstPropagationVisitor<'a> {
 impl ConstPropagationVisitor<'_> {
     /// Enter the symbol table's scope `id`, execute `func`, and then return to the parent scope.
     pub fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
-        self.state.symbol_table.enter_scope(Some(id));
+        self.state.symbol_table.enter_existing_scope(Some(id));
         let result = func(self);
         self.state.symbol_table.enter_parent();
         result

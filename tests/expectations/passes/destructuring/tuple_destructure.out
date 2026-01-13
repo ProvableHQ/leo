@@ -2,19 +2,19 @@ program tuple_pass_tests.aleo {
     transition test_members(x: u32, y: u32) -> (u32, u32) {
         let t#tuple0$0: u32 = x;
         let t#tuple1$1: u32 = y;
-        assert_eq(::t#tuple0$0, x);
-        assert_eq(::t#tuple1$1, y);
-        return (::t#tuple0$0, ::t#tuple1$1);
+        assert_eq(t#tuple0$0, x);
+        assert_eq(t#tuple1$1, y);
+        return (t#tuple0$0, t#tuple1$1);
     }
     transition test_eq(a: u32, b: u32) {
         let t1#tuple0$2: u32 = a;
         let t1#tuple1$3: u32 = b;
         let t2#tuple0$4: u32 = a;
         let t2#tuple1$5: u32 = b;
-        assert((::t1#tuple0$2 == ::t2#tuple0$4) && (::t1#tuple1$3 == ::t2#tuple1$5));
-        assert_eq(::t1#tuple0$2, ::t2#tuple0$4);
-        assert_eq(::t1#tuple1$3, ::t2#tuple1$5);
-        let flag = (::t1#tuple0$2 == ::t2#tuple0$4) && (::t1#tuple1$3 == ::t2#tuple1$5);
+        assert((t1#tuple0$2 == t2#tuple0$4) && (t1#tuple1$3 == t2#tuple1$5));
+        assert_eq(t1#tuple0$2, t2#tuple0$4);
+        assert_eq(t1#tuple1$3, t2#tuple1$5);
+        let flag = (t1#tuple0$2 == t2#tuple0$4) && (t1#tuple1$3 == t2#tuple1$5);
         assert(flag);
     }
     transition test_neq(a: u32, b: u32) {
@@ -22,10 +22,10 @@ program tuple_pass_tests.aleo {
         let t1#tuple1$7: u32 = b;
         let t2#tuple0$8: u32 = a + 1u32;
         let t2#tuple1$9: u32 = b;
-        assert((::t1#tuple0$6 != ::t2#tuple0$8) || (::t1#tuple1$7 != ::t2#tuple1$9));
-        assert_neq(::t1#tuple0$6, ::t2#tuple0$8);
-        assert_neq(::t1#tuple1$7, ::t2#tuple1$9);
-        let flag = (::t1#tuple0$6 != ::t2#tuple0$8) || (::t1#tuple1$7 != ::t2#tuple1$9);
+        assert((t1#tuple0$6 != t2#tuple0$8) || (t1#tuple1$7 != t2#tuple1$9));
+        assert_neq(t1#tuple0$6, t2#tuple0$8);
+        assert_neq(t1#tuple1$7, t2#tuple1$9);
+        let flag = (t1#tuple0$6 != t2#tuple0$8) || (t1#tuple1$7 != t2#tuple1$9);
         assert(flag);
     }
     transition test_destructure(a: u32, b: u32) -> u32 {
@@ -38,10 +38,10 @@ program tuple_pass_tests.aleo {
     transition test_mix(a: u32, b: u32) {
         let t#tuple0$10: u32 = a;
         let t#tuple1$11: u32 = b;
-        assert((::t#tuple0$10 == ::t#tuple0$10) && (::t#tuple1$11 == ::t#tuple1$11));
-        assert_neq(::t#tuple0$10 + 1u32, ::t#tuple0$10);
-        assert_neq(::t#tuple1$11, ::t#tuple1$11);
-        let ok = (::t#tuple0$10 == ::t#tuple0$10) && (::t#tuple1$11 == ::t#tuple1$11);
+        assert((t#tuple0$10 == t#tuple0$10) && (t#tuple1$11 == t#tuple1$11));
+        assert_neq(t#tuple0$10 + 1u32, t#tuple0$10);
+        assert_neq(t#tuple1$11, t#tuple1$11);
+        let ok = (t#tuple0$10 == t#tuple0$10) && (t#tuple1$11 == t#tuple1$11);
         assert(ok);
     }
     transition test_ternary(a: u32, b: u32) -> u32 {
@@ -49,19 +49,19 @@ program tuple_pass_tests.aleo {
         let t1#tuple1$13: u32 = b;
         let t2#tuple0$14: u32 = a + 1u32;
         let t2#tuple1$15: u32 = b;
-        let cond$$16 = (::t1#tuple0$12 == ::t2#tuple0$14) && (::t1#tuple1$13 == ::t2#tuple1$15);
-        let ternary_0$$17 = ::cond$$16 ? ::t1#tuple0$12 : ::t2#tuple0$14;
-        let ternary_1$$18 = ::cond$$16 ? ::t1#tuple1$13 : ::t2#tuple1$15;
-        let r0#tuple0$19: u32 = ::ternary_0$$17;
-        let r0#tuple1$20: u32 = ::ternary_1$$18;
-        let r1 = (::t1#tuple0$12 == ::t1#tuple0$12) && (::t1#tuple1$13 == ::t1#tuple1$13) ? 10u32 : 99u32;
-        let r2 = (::t1#tuple0$12 == ::t2#tuple0$14) && (::t1#tuple1$13 == ::t2#tuple1$15) ? 77u32 : 11u32;
+        let cond$$16 = (t1#tuple0$12 == t2#tuple0$14) && (t1#tuple1$13 == t2#tuple1$15);
+        let ternary_0$$17 = cond$$16 ? t1#tuple0$12 : t2#tuple0$14;
+        let ternary_1$$18 = cond$$16 ? t1#tuple1$13 : t2#tuple1$15;
+        let r0#tuple0$19: u32 = ternary_0$$17;
+        let r0#tuple1$20: u32 = ternary_1$$18;
+        let r1 = (t1#tuple0$12 == t1#tuple0$12) && (t1#tuple1$13 == t1#tuple1$13) ? 10u32 : 99u32;
+        let r2 = (t1#tuple0$12 == t2#tuple0$14) && (t1#tuple1$13 == t2#tuple1$15) ? 77u32 : 11u32;
         assert_eq(r1, 10u32);
         assert_eq(r2, 11u32);
         let r3 = (a != a) || (b != b) ? 1u32 : 2u32;
         let r4 = (a != a + 1u32) || (b != b) ? 3u32 : 4u32;
         assert_eq(r3, 2u32);
         assert_eq(r4, 3u32);
-        return ::r0#tuple0$19 + ::r0#tuple1$20 + r1 + r2 + r3 + r4;
+        return r0#tuple0$19 + r0#tuple1$20 + r1 + r2 + r3 + r4;
     }
 }

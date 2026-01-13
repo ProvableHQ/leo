@@ -3,8 +3,3 @@ Error [ETYC0372005]: Unknown variable `z`
      |
    4 |     	let b: u8 = 1u8**z;
      |                       ^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^

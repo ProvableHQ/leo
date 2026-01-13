@@ -2,6 +2,7 @@
   "Unary": {
     "receiver": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -11,8 +12,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 1,
           "hi": 2
@@ -34,6 +34,7 @@
     "receiver": {
       "Call": {
         "function": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "x",
@@ -43,8 +44,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 4,
             "hi": 5
@@ -53,7 +53,6 @@
         },
         "const_arguments": [],
         "arguments": [],
-        "program": null,
         "span": {
           "lo": 4,
           "hi": 7
@@ -76,6 +75,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -85,8 +85,7 @@
               },
               "id": 3
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 10,
               "hi": 11
@@ -119,6 +118,7 @@
           "Unary": {
             "receiver": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "x",
@@ -128,8 +128,7 @@
                   },
                   "id": 5
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 14,
                   "hi": 15
@@ -170,6 +169,7 @@
           "Unary": {
             "receiver": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "x",
@@ -179,8 +179,7 @@
                   },
                   "id": 7
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 22,
                   "hi": 23
@@ -219,6 +218,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -228,8 +228,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 43,
               "hi": 44
@@ -260,6 +259,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -269,8 +269,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 53,
               "hi": 54
@@ -301,6 +300,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -310,8 +310,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 64,
               "hi": 65
@@ -344,6 +343,7 @@
           "Unary": {
             "receiver": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "x",
@@ -353,8 +353,7 @@
                   },
                   "id": 7
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 75,
                   "hi": 76
@@ -393,6 +392,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -402,8 +402,7 @@
               },
               "id": 4
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 91,
               "hi": 92
@@ -434,6 +433,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -443,8 +443,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 101,
               "hi": 102
@@ -475,6 +474,7 @@
       "Unary": {
         "receiver": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -484,8 +484,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 112,
               "hi": 113
@@ -518,6 +517,7 @@
           "Unary": {
             "receiver": {
               "Path": {
+                "user_program": null,
                 "qualifier": [],
                 "identifier": {
                   "name": "x",
@@ -527,8 +527,7 @@
                   },
                   "id": 7
                 },
-                "is_absolute": false,
-                "absolute_path": null,
+                "target": "Unresolved",
                 "span": {
                   "lo": 123,
                   "hi": 124

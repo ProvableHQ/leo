@@ -2,6 +2,7 @@
   "Expression": {
     "expression": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "expr",
@@ -11,8 +12,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 0,
           "hi": 4
@@ -34,6 +34,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -43,8 +44,7 @@
               },
               "id": 3
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 6,
               "hi": 7
@@ -54,6 +54,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "y",
@@ -63,8 +64,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 8,
               "hi": 9
@@ -93,6 +93,7 @@
     "expression": {
       "Call": {
         "function": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "x",
@@ -102,8 +103,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 11,
             "hi": 12
@@ -112,7 +112,6 @@
         },
         "const_arguments": [],
         "arguments": [],
-        "program": null,
         "span": {
           "lo": 11,
           "hi": 14

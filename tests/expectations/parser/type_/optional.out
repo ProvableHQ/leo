@@ -146,6 +146,7 @@
                     "inner": {
                       "Composite": {
                         "path": {
+                          "user_program": null,
                           "qualifier": [],
                           "identifier": {
                             "name": "Foo",
@@ -155,16 +156,14 @@
                             },
                             "id": 9
                           },
-                          "is_absolute": false,
-                          "absolute_path": null,
+                          "target": "Unresolved",
                           "span": {
                             "lo": 105,
                             "hi": 108
                           },
                           "id": 10
                         },
-                        "const_arguments": [],
-                        "program": null
+                        "const_arguments": []
                       }
                     }
                   }

@@ -60,13 +60,13 @@ impl WriteTransformingVisitor<'_> {
                 id,
             };
             let statement = AssignStatement {
-                place: Path::from(input).into_absolute().into(),
+                place: Path::from(input).to_local().into(),
                 value: expr.into(),
                 span: Default::default(),
                 id: self.state.node_builder.next_id(),
             };
             statements.push(statement.into());
-            (Path::from(input).into_absolute().into(), statements)
+            (Path::from(input).to_local().into(), statements)
         } else if let Some(composite_members) = self.composite_members.get(&input.name) {
             // Build the composite expression from the members.
             let id = self.state.node_builder.next_id();
@@ -96,16 +96,16 @@ impl WriteTransformingVisitor<'_> {
                 id,
             };
             let statement = AssignStatement {
-                place: Path::from(input).into_absolute().into(),
+                place: Path::from(input).to_local().into(),
                 value: expr.into(),
                 span: Default::default(),
                 id: self.state.node_builder.next_id(),
             };
             statements.push(statement.into());
-            (Path::from(input).into_absolute().into(), statements)
+            (Path::from(input).to_local().into(), statements)
         } else {
             // This is not a composite or array whose members are written to, so there's nothing to do.
-            (Path::from(input).into_absolute().into(), Default::default())
+            (Path::from(input).to_local().into(), Default::default())
         }
     }
 }
