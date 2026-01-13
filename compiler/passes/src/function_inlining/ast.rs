@@ -21,6 +21,7 @@ use leo_ast::*;
 
 use indexmap::IndexMap;
 use itertools::Itertools;
+use leo_span::sym;
 
 impl AstReconstructor for FunctionInliningVisitor<'_> {
     type AdditionalInput = ();
@@ -42,58 +43,70 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
             .find(|(path, _)| *path == function_location.path)
             .expect("guaranteed to exist due to post-order traversal of the call graph.");
 
+        let call_count_ref = self.state.call_count.get_mut(function_location).expect("Guaranteed by type checking");
+
+        // TODO: improve inline heuristic
+        let should_inline = !callee.annotations.iter().any(|a| a.identifier.name == sym::no_inline)
+            && match callee.variant {
+                Variant::Inline => true,
+                Variant::Function if *call_count_ref == 1 => true,
+                Variant::Function
+                | Variant::Script
+                | Variant::AsyncFunction
+                | Variant::Transition
+                | Variant::AsyncTransition => false,
+            };
+
         // Inline the callee function, if required, otherwise, return the call expression.
-        match callee.variant {
-            Variant::Inline => {
-                // Construct a mapping from input variables of the callee function to arguments passed to the callee.
-                let parameter_to_argument = callee
-                    .input
-                    .iter()
-                    .map(|input| input.identifier().name)
-                    .zip_eq(input.arguments)
-                    .collect::<IndexMap<_, _>>();
+        if should_inline {
+            // We are inlining, thus removing one call
+            *call_count_ref -= 1;
 
-                // Function to replace path expressions with their corresponding const argument or keep them unchanged.
-                let replace_path = |expr: &Expression| match expr {
-                    Expression::Path(path) => parameter_to_argument
-                        .get(&path.identifier().name)
-                        .map_or(Expression::Path(path.clone()), |expr| expr.clone()),
-                    _ => expr.clone(),
-                };
+            // Construct a mapping from input variables of the callee function to arguments passed to the callee.
+            let parameter_to_argument = callee
+                .input
+                .iter()
+                .map(|input| input.identifier().name)
+                .zip_eq(input.arguments)
+                .collect::<IndexMap<_, _>>();
 
-                // Replace path expressions with their corresponding const argument or keep them unchanged.
-                let reconstructed_block = Replacer::new(replace_path, false /* refresh IDs */, self.state)
-                    .reconstruct_block(callee.block.clone())
-                    .0;
+            // Function to replace path expressions with their corresponding const argument or keep them unchanged.
+            let replace_path = |expr: &Expression| match expr {
+                Expression::Path(path) => parameter_to_argument
+                    .get(&path.identifier().name)
+                    .map_or(Expression::Path(path.clone()), |expr| expr.clone()),
+                _ => expr.clone(),
+            };
 
-                // Run SSA formation on the inlined block and rename definitions. Renaming is necessary to avoid shadowing variables.
-                let mut inlined_statements =
-                    SsaFormingVisitor::new(self.state, SsaFormingInput { rename_defs: true }, self.program)
-                        .consume_block(reconstructed_block);
+            // Replace path expressions with their corresponding const argument or keep them unchanged.
+            let reconstructed_block = Replacer::new(replace_path, false /* refresh IDs */, self.state)
+                .reconstruct_block(callee.block.clone())
+                .0;
 
-                // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
-                let result = match inlined_statements.last() {
-                    Some(Statement::Return(_)) => {
-                        // Note that this unwrap is safe since we know that the last statement is a return statement.
-                        match inlined_statements.pop().unwrap() {
-                            Statement::Return(ReturnStatement { expression, .. }) => expression,
-                            _ => panic!("This branch checks that the last statement is a return statement."),
-                        }
+            // Run SSA formation on the inlined block and rename definitions. Renaming is necessary to avoid shadowing variables.
+            let mut inlined_statements =
+                SsaFormingVisitor::new(self.state, SsaFormingInput { rename_defs: true }, self.program)
+                    .consume_block(reconstructed_block);
+
+            // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
+            let result = match inlined_statements.last() {
+                Some(Statement::Return(_)) => {
+                    // Note that this unwrap is safe since we know that the last statement is a return statement.
+                    match inlined_statements.pop().unwrap() {
+                        Statement::Return(ReturnStatement { expression, .. }) => expression,
+                        _ => panic!("This branch checks that the last statement is a return statement."),
                     }
-                    _ => {
-                        let id = self.state.node_builder.next_id();
-                        self.state.type_table.insert(id, Type::Unit);
-                        UnitExpression { span: Default::default(), id }.into()
-                    }
-                };
+                }
+                _ => {
+                    let id = self.state.node_builder.next_id();
+                    self.state.type_table.insert(id, Type::Unit);
+                    UnitExpression { span: Default::default(), id }.into()
+                }
+            };
 
-                (result, inlined_statements)
-            }
-            Variant::Function
-            | Variant::Script
-            | Variant::AsyncFunction
-            | Variant::Transition
-            | Variant::AsyncTransition => (input.into(), Default::default()),
+            (result, inlined_statements)
+        } else {
+            (input.into(), Default::default())
         }
     }
 

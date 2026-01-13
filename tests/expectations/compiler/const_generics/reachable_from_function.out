@@ -1,8 +1,3 @@
 program const_generics.aleo;
 
 function foo:
-
-closure bar:
-    input r0 as field;
-    assert.eq true true;
-    output 0field as field;
