@@ -63,12 +63,12 @@ impl Command for LeoDevnode {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        hanlde_devnode(self, context)
+        handle_devnode(self, context)
     }
 }
 
 // A helper function to handle the Devnode command based on the subcommand provided.
-fn hanlde_devnode(devnode_command: LeoDevnode, context: Context) -> Result<<LeoDevnode as Command>::Output> {
+fn handle_devnode(devnode_command: LeoDevnode, context: Context) -> Result<<LeoDevnode as Command>::Output> {
     match devnode_command.command {
         DevnodeCommands::Start { command } => {
             tracing::info!("Starting the Devnode server...");
