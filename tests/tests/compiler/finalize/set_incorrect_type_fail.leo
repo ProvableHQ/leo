@@ -21,7 +21,5 @@ program test.aleo {
         amounts.set(addr, 1u8);
         Mapping::set(tokens, addr, Token { owner_addr: addr, amount: 1u8 });
         tokens.set(addr, Token { owner_addr: addr, amount: 1u8 });
-        Mapping::set(foo, addr, amount);
-        foo.set(addr, amount);
     }
 }

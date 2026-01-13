@@ -39,6 +39,7 @@
             "key_type": {
               "Composite": {
                 "path": {
+                  "user_program": null,
                   "qualifier": [],
                   "identifier": {
                     "name": "bar",
@@ -48,21 +49,20 @@
                     },
                     "id": 1
                   },
-                  "is_absolute": false,
-                  "absolute_path": null,
+                  "target": "Unresolved",
                   "span": {
                     "lo": 38,
                     "hi": 41
                   },
                   "id": 2
                 },
-                "const_arguments": [],
-                "program": null
+                "const_arguments": []
               }
             },
             "value_type": {
               "Composite": {
                 "path": {
+                  "user_program": null,
                   "qualifier": [],
                   "identifier": {
                     "name": "baz",
@@ -72,16 +72,14 @@
                     },
                     "id": 3
                   },
-                  "is_absolute": false,
-                  "absolute_path": null,
+                  "target": "Unresolved",
                   "span": {
                     "lo": 45,
                     "hi": 48
                   },
                   "id": 4
                 },
-                "const_arguments": [],
-                "program": null
+                "const_arguments": []
               }
             },
             "span": {

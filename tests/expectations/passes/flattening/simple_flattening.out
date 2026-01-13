@@ -8,7 +8,7 @@ program test.aleo {
         }
         {
         }
-        let $ret$2 = ::condition$0 ? a : b;
-        return ::$ret$2;
+        let $ret$2 = condition$0 ? a : b;
+        return $ret$2;
     }
 }

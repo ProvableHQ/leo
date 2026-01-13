@@ -16,7 +16,6 @@
 
 use crate::{Expression, Path, Type};
 use itertools::Itertools as _;
-use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -27,17 +26,11 @@ pub struct CompositeType {
     pub path: Path,
     /// Expressions for the const arguments passed to the composite's const parameters.
     pub const_arguments: Vec<Expression>,
-    /// The external program that this composite is defined in.
-    pub program: Option<Symbol>,
 }
 
 impl fmt::Display for CompositeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(program) = self.program.as_ref() {
-            write!(f, "{}.aleo/{}", program, self.path)?;
-        } else {
-            write!(f, "{}", self.path)?;
-        }
+        write!(f, "{}", self.path)?;
 
         if !self.const_arguments.is_empty() {
             write!(f, "::[{}]", self.const_arguments.iter().format(", "))?;

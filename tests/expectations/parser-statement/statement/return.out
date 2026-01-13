@@ -2,6 +2,7 @@
   "Return": {
     "expression": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "expr",
@@ -11,8 +12,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 7,
           "hi": 11

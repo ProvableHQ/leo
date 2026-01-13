@@ -44,7 +44,10 @@ impl StorageLoweringVisitor<'_> {
 
     /// Creates a path expression from a symbol
     pub fn symbol_to_path_expr(&mut self, sym: Symbol) -> Expression {
-        Expression::Path(Path::from(Identifier::new(sym, self.state.node_builder.next_id())).into_absolute())
+        Expression::Path(
+            Path::from(Identifier::new(sym, self.state.node_builder.next_id()))
+                .to_global(Location::new(self.program, vec![sym])),
+        )
     }
 
     /// Standard literal expressions used frequently

@@ -3,6 +3,7 @@
     "expression": {
       "Call": {
         "function": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "finalize",
@@ -12,8 +13,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 0,
             "hi": 8
@@ -24,6 +24,7 @@
         "arguments": [
           {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "foo",
@@ -33,8 +34,7 @@
                 },
                 "id": 3
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 9,
                 "hi": 12
@@ -43,7 +43,6 @@
             }
           }
         ],
-        "program": null,
         "span": {
           "lo": 0,
           "hi": 13

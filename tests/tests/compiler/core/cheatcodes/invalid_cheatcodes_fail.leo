@@ -25,6 +25,7 @@ import test_dep.aleo;
 
 program test.aleo {
     mapping account: address => u64;
+    mapping Yo: u32 => u32;
 
     async transition main(public a: u64) -> Future {
         return finish(a);

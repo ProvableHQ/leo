@@ -1,6 +1,7 @@
 {
   "Call": {
     "function": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "x",
@@ -10,8 +11,7 @@
         },
         "id": 1
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 0,
         "hi": 1
@@ -20,7 +20,6 @@
     },
     "const_arguments": [],
     "arguments": [],
-    "program": null,
     "span": {
       "lo": 0,
       "hi": 3
@@ -32,6 +31,7 @@
 {
   "Call": {
     "function": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "X",
@@ -41,8 +41,7 @@
         },
         "id": 1
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 4,
         "hi": 5
@@ -51,7 +50,6 @@
     },
     "const_arguments": [],
     "arguments": [],
-    "program": null,
     "span": {
       "lo": 4,
       "hi": 7
@@ -63,6 +61,7 @@
 {
   "Call": {
     "function": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "x",
@@ -72,8 +71,7 @@
         },
         "id": 3
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 8,
         "hi": 9
@@ -84,6 +82,7 @@
     "arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "y",
@@ -93,8 +92,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 10,
             "hi": 11
@@ -103,7 +101,6 @@
         }
       }
     ],
-    "program": null,
     "span": {
       "lo": 8,
       "hi": 12
@@ -115,6 +112,7 @@
 {
   "Call": {
     "function": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "x",
@@ -124,8 +122,7 @@
         },
         "id": 5
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 13,
         "hi": 14
@@ -136,6 +133,7 @@
     "arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "y",
@@ -145,8 +143,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 15,
             "hi": 16
@@ -156,6 +153,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "z",
@@ -165,8 +163,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 18,
             "hi": 19
@@ -175,7 +172,6 @@
         }
       }
     ],
-    "program": null,
     "span": {
       "lo": 13,
       "hi": 20
@@ -187,6 +183,7 @@
 {
   "Call": {
     "function": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "x",
@@ -196,8 +193,7 @@
         },
         "id": 7
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 21,
         "hi": 22
@@ -208,6 +204,7 @@
     "arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "x",
@@ -217,8 +214,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 23,
             "hi": 24
@@ -228,6 +224,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "y",
@@ -237,8 +234,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 26,
             "hi": 27
@@ -248,6 +244,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "z",
@@ -257,8 +254,7 @@
             },
             "id": 6
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 29,
             "hi": 30
@@ -267,7 +263,6 @@
         }
       }
     ],
-    "program": null,
     "span": {
       "lo": 21,
       "hi": 31
@@ -279,6 +274,7 @@
 {
   "Call": {
     "function": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "x",
@@ -288,8 +284,7 @@
         },
         "id": 7
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 32,
         "hi": 33
@@ -300,6 +295,7 @@
     "arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "x",
@@ -309,8 +305,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 38,
             "hi": 39
@@ -320,6 +315,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "y",
@@ -329,8 +325,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 41,
             "hi": 42
@@ -340,6 +335,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "z",
@@ -349,8 +345,7 @@
             },
             "id": 6
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 44,
             "hi": 45
@@ -359,7 +354,6 @@
         }
       }
     ],
-    "program": null,
     "span": {
       "lo": 32,
       "hi": 46
@@ -371,6 +365,7 @@
 {
   "Call": {
     "function": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "x",
@@ -380,8 +375,7 @@
         },
         "id": 7
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 47,
         "hi": 48
@@ -391,6 +385,7 @@
     "const_arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "p",
@@ -400,8 +395,7 @@
             },
             "id": 10
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 51,
             "hi": 52
@@ -413,6 +407,7 @@
     "arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "x",
@@ -422,8 +417,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 54,
             "hi": 55
@@ -433,6 +427,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "y",
@@ -442,8 +437,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 57,
             "hi": 58
@@ -453,6 +447,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "z",
@@ -462,8 +457,7 @@
             },
             "id": 6
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 60,
             "hi": 61
@@ -472,7 +466,6 @@
         }
       }
     ],
-    "program": null,
     "span": {
       "lo": 47,
       "hi": 62
@@ -484,6 +477,7 @@
 {
   "Call": {
     "function": {
+      "user_program": null,
       "qualifier": [],
       "identifier": {
         "name": "x",
@@ -493,8 +487,7 @@
         },
         "id": 7
       },
-      "is_absolute": false,
-      "absolute_path": null,
+      "target": "Unresolved",
       "span": {
         "lo": 63,
         "hi": 64
@@ -528,6 +521,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "z",
@@ -537,8 +531,7 @@
             },
             "id": 12
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 73,
             "hi": 74
@@ -562,6 +555,7 @@
           },
           "right": {
             "Path": {
+              "user_program": null,
               "qualifier": [],
               "identifier": {
                 "name": "y",
@@ -571,8 +565,7 @@
                 },
                 "id": 16
               },
-              "is_absolute": false,
-              "absolute_path": null,
+              "target": "Unresolved",
               "span": {
                 "lo": 80,
                 "hi": 81
@@ -592,6 +585,7 @@
     "arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "x",
@@ -601,8 +595,7 @@
             },
             "id": 2
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 83,
             "hi": 84
@@ -612,6 +605,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "y",
@@ -621,8 +615,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 86,
             "hi": 87
@@ -632,6 +625,7 @@
       },
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "z",
@@ -641,8 +635,7 @@
             },
             "id": 6
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 89,
             "hi": 90
@@ -651,7 +644,6 @@
         }
       }
     ],
-    "program": null,
     "span": {
       "lo": 63,
       "hi": 91

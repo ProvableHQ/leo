@@ -13,6 +13,7 @@
     "type_": null,
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "expr",
@@ -22,8 +23,7 @@
           },
           "id": 3
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 8,
           "hi": 12

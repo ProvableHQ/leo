@@ -14,43 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! A transform pass that resolves and reconstructs AST paths by prefixing them with the current module path.
+//! A transform pass that resolves AST paths into explicit local or global references
+//! and constructs all local scopes in the symbol table.
 //!
-//! The main goal is to fully qualify all paths by prepending the current module's path segments
-//! before semantic analysis is performed. Since semantic information (e.g., symbol resolution)
-//! is not yet available at this stage, this pass conservatively prefixes all paths to ensure
-//! that references to items (functions, types, constants, composites) are correctly scoped.
+//! This pass walks the AST and transforms each `Path` from an unresolved, user-written
+//! form into either a local or global target, based on syntactic context and the current
+//! symbol table state. Global paths are resolved to fully qualified `Location`s, while
+//! local paths are resolved to concrete local symbols. Unresolvable paths are reported
+//! as errors.
+//!
+//! In addition to path resolution, this pass is responsible for creating all local
+//! scopes and inserting local bindings (inputs, const parameters, local variables,
+//! loop iterators, etc.) into the symbol table. After this pass completes, the symbol
+//! table contains a complete and accurate representation of all lexical scopes.
 //!
 //! # Key behaviors:
-//! - Composite types have their `resolved_path` set to the concatenation of the current module path and the type's path.
-//! - Function call expressions have their function path fully qualified similarly.
-//! - Composite initializers have their paths prefixed, and their member expressions recursively reconstructed.
-//! - Standalone paths are prefixed as well, accounting for possible global constants.
+//! - Paths with qualifiers are always resolved as global paths.
+//! - Unqualified paths are resolved as global or local based on symbol table lookup.
+//! - Global paths are resolved relative to the current module and program context.
+//! - Local scopes are created for functions, blocks, composites, constructors, and loops.
+//! - Local variables are inserted with their declaration kind, but without final types.
 //!
-//! # Note:
-//! This pass does not perform full semantic resolution; it prepares the AST paths for later
-//! stages by making all paths absolute or fully qualified relative to the current module context.
-//!
-//! # Example
-//!
-//! Input (in module `foo`):
-//! ```leo
-//! struct Bar { x: u32 }
-//! const Y: u32 = 1;
-//! transition t() { let z = Bar { x: Y }; }
-//! ```
-//!
-//! After `PathResolution`, all relevant paths are qualified with `foo::`:
-//! ```leo
-//! struct Bar { x: u32 }
-//! const Y: u32 = 1;
-//! transition t() { let z = foo::Bar { x: foo::Y }; }
-//! ```
+//! # Pipeline position:
+//! This pass runs after `GlobalVarsCollection` and before `GlobalItemsCollection`.
+//! Subsequent passes (e.g. type checking) assume that all paths are resolved and
+//! that all scopes already exist, and therefore do not create or mutate scopes.
 
 use crate::Pass;
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
+use leo_span::Symbol;
 
 mod ast;
 
@@ -69,7 +63,7 @@ impl Pass for PathResolution {
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let mut ast = std::mem::take(&mut state.ast);
-        let mut visitor = PathResolutionVisitor { state, module: Vec::new() };
+        let mut visitor = PathResolutionVisitor { state, program: Symbol::intern(""), module: Vec::new() };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;

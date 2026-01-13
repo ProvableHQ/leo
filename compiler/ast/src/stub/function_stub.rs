@@ -136,19 +136,19 @@ impl FunctionStub {
             .map(|output| match output.value_type() {
                 ValueType::Constant(val) => vec![Output {
                     mode: Mode::Constant,
-                    type_: Type::from_snarkvm(val, None),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
                 }],
                 ValueType::Public(val) => vec![Output {
                     mode: Mode::Public,
-                    type_: Type::from_snarkvm(val, None),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
                 }],
                 ValueType::Private(val) => vec![Output {
                     mode: Mode::Private,
-                    type_: Type::from_snarkvm(val, None),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
                 }],
@@ -157,15 +157,17 @@ impl FunctionStub {
                     type_: Type::Composite(CompositeType {
                         path: {
                             let ident = Identifier::from(id);
-                            Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                            Path::from(ident)
+                                .to_global(Location::new(program, vec![ident.name]))
+                                .with_user_program(Identifier::new(program, Default::default()))
                         },
                         const_arguments: Vec::new(),
-                        program: Some(program),
                     }),
                     span: Default::default(),
                     id: Default::default(),
                 }],
                 ValueType::ExternalRecord(loc) => {
+                    let external_program = ProgramId::from(loc.program_id()).name.name;
                     vec![Output {
                         mode: Mode::None,
                         span: Default::default(),
@@ -173,10 +175,11 @@ impl FunctionStub {
                         type_: Type::Composite(CompositeType {
                             path: {
                                 let ident = Identifier::from(loc.resource());
-                                Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                                Path::from(ident)
+                                    .to_global(Location::new(external_program, vec![ident.name]))
+                                    .with_user_program(Identifier::new(external_program, Default::default()))
                             },
                             const_arguments: Vec::new(),
-                            program: Some(ProgramId::from(loc.program_id()).name.name),
                         }),
                     }]
                 }
@@ -217,21 +220,21 @@ impl FunctionStub {
                         ValueType::Constant(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Constant,
-                            type_: Type::from_snarkvm(val, None),
+                            type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
                         },
                         ValueType::Public(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Public,
-                            type_: Type::from_snarkvm(val, None),
+                            type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
                         },
                         ValueType::Private(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Private,
-                            type_: Type::from_snarkvm(val, None),
+                            type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
                         },
@@ -241,28 +244,33 @@ impl FunctionStub {
                             type_: Type::Composite(CompositeType {
                                 path: {
                                     let ident = Identifier::from(id);
-                                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                                    Path::from(ident)
+                                        .to_global(Location::new(program, vec![ident.name]))
+                                        .with_user_program(Identifier::new(program, Default::default()))
                                 },
                                 const_arguments: Vec::new(),
-                                program: Some(program),
                             }),
                             span: Default::default(),
                             id: Default::default(),
                         },
-                        ValueType::ExternalRecord(loc) => Input {
-                            identifier: arg_name,
-                            mode: Mode::None,
-                            span: Default::default(),
-                            id: Default::default(),
-                            type_: Type::Composite(CompositeType {
-                                path: {
-                                    let ident = Identifier::from(loc.resource());
-                                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
-                                },
-                                const_arguments: Vec::new(),
-                                program: Some(ProgramId::from(loc.program_id()).name.name),
-                            }),
-                        },
+                        ValueType::ExternalRecord(loc) => {
+                            let external_program = ProgramId::from(loc.program_id()).name.name;
+                            Input {
+                                identifier: arg_name,
+                                mode: Mode::None,
+                                span: Default::default(),
+                                id: Default::default(),
+                                type_: Type::Composite(CompositeType {
+                                    path: {
+                                        let ident = Identifier::from(loc.resource());
+                                        Path::from(ident)
+                                            .to_global(Location::new(external_program, vec![ident.name]))
+                                            .with_user_program(Identifier::new(external_program, Default::default()))
+                                    },
+                                    const_arguments: Vec::new(),
+                                }),
+                            }
+                        }
                         ValueType::Future(_) => panic!("Functions do not contain futures as inputs"),
                     }
                 })
@@ -289,7 +297,7 @@ impl FunctionStub {
                     identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
                     mode: Mode::None,
                     type_: match input.finalize_type() {
-                        PlaintextFinalizeType(val) => Type::from_snarkvm(val, Some(program)),
+                        PlaintextFinalizeType(val) => Type::from_snarkvm(val, program),
                         FutureFinalizeType(val) => Type::Future(FutureType::new(
                             Vec::new(),
                             Some(Location::new(Identifier::from(val.program_id().name()).name, vec![Symbol::intern(
@@ -316,7 +324,7 @@ impl FunctionStub {
             .map(|output| match output.register_type() {
                 Plaintext(val) => Output {
                     mode: Mode::None,
-                    type_: Type::from_snarkvm(val, Some(program)),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
                 },
@@ -345,7 +353,7 @@ impl FunctionStub {
                         Plaintext(val) => Input {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Type::from_snarkvm(val, None),
+                            type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
                         },

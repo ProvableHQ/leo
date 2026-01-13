@@ -723,8 +723,8 @@ impl Value {
         Value { id: None, contents: ValueVariants::Unit }
     }
 
-    pub fn make_struct(contents: impl Iterator<Item = (Symbol, Value)>, program: Symbol, path: Vec<Symbol>) -> Self {
-        let id = Some(Location { program, path });
+    pub fn make_struct(contents: impl Iterator<Item = (Symbol, Value)>, location: Location) -> Self {
+        let id = Some(location);
 
         let contents = Plaintext::Struct(
             contents
@@ -924,8 +924,8 @@ fn plaintext_to_expression(
             let Type::Composite(composite_type) = ty else {
                 return None;
             };
-            let symbols = composite_type.path.as_symbols();
-            let iter_members = struct_lookup(&symbols);
+            let symbols = &composite_type.path.expect_global_location().path;
+            let iter_members = struct_lookup(symbols);
             CompositeExpression {
                 span,
                 id,

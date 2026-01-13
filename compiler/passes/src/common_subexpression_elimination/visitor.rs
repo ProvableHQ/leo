@@ -86,14 +86,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     // Get the type of the expression.
                     let type_ = self.state.type_table.get(&id)?;
                     // Construct a new path for this identifier.
-                    let p = Path::new(
-                        Vec::new(),
-                        Identifier::new(*name, self.state.node_builder.next_id()),
-                        true,
-                        Some(vec![*name]),
-                        path.span(),
-                        self.state.node_builder.next_id(),
-                    );
+                    let p = Path::from(Identifier::new(*name, self.state.node_builder.next_id())).to_local();
                     // Assign the type of the path.
                     self.state.type_table.insert(p.id(), type_);
                     // This path is mapped to some name already, so replace it.

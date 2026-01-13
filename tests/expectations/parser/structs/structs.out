@@ -188,6 +188,7 @@
                 "type_": {
                   "Composite": {
                     "path": {
+                      "user_program": null,
                       "qualifier": [],
                       "identifier": {
                         "name": "Foo2",
@@ -197,8 +198,7 @@
                         },
                         "id": 14
                       },
-                      "is_absolute": false,
-                      "absolute_path": null,
+                      "target": "Unresolved",
                       "span": {
                         "lo": 169,
                         "hi": 173
@@ -218,8 +218,7 @@
                           }
                         }
                       }
-                    ],
-                    "program": null
+                    ]
                   }
                 },
                 "span": {

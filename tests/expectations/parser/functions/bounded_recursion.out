@@ -86,6 +86,7 @@
                       "Binary": {
                         "left": {
                           "Path": {
+                            "user_program": null,
                             "qualifier": [],
                             "identifier": {
                               "name": "y",
@@ -95,8 +96,7 @@
                               },
                               "id": 6
                             },
-                            "is_absolute": false,
-                            "absolute_path": null,
+                            "target": "Unresolved",
                             "span": {
                               "lo": 72,
                               "hi": 73
@@ -134,6 +134,7 @@
                             "expression": {
                               "Call": {
                                 "function": {
+                                  "user_program": null,
                                   "qualifier": [],
                                   "identifier": {
                                     "name": "x",
@@ -143,8 +144,7 @@
                                     },
                                     "id": 14
                                   },
-                                  "is_absolute": false,
-                                  "absolute_path": null,
+                                  "target": "Unresolved",
                                   "span": {
                                     "lo": 95,
                                     "hi": 96
@@ -157,6 +157,7 @@
                                     "Binary": {
                                       "left": {
                                         "Path": {
+                                          "user_program": null,
                                           "qualifier": [],
                                           "identifier": {
                                             "name": "y",
@@ -166,8 +167,7 @@
                                             },
                                             "id": 12
                                           },
-                                          "is_absolute": false,
-                                          "absolute_path": null,
+                                          "target": "Unresolved",
                                           "span": {
                                             "lo": 97,
                                             "hi": 98
@@ -199,7 +199,6 @@
                                     }
                                   }
                                 ],
-                                "program": null,
                                 "span": {
                                   "lo": 95,
                                   "hi": 104
@@ -295,6 +294,7 @@
                     "expression": {
                       "Call": {
                         "function": {
+                          "user_program": null,
                           "qualifier": [],
                           "identifier": {
                             "name": "x",
@@ -304,8 +304,7 @@
                             },
                             "id": 26
                           },
-                          "is_absolute": false,
-                          "absolute_path": null,
+                          "target": "Unresolved",
                           "span": {
                             "lo": 168,
                             "hi": 169
@@ -330,7 +329,6 @@
                             }
                           }
                         ],
-                        "program": null,
                         "span": {
                           "lo": 168,
                           "hi": 175
@@ -349,6 +347,7 @@
                   "Return": {
                     "expression": {
                       "Path": {
+                        "user_program": null,
                         "qualifier": [],
                         "identifier": {
                           "name": "y",
@@ -358,8 +357,7 @@
                           },
                           "id": 30
                         },
-                        "is_absolute": false,
-                        "absolute_path": null,
+                        "target": "Unresolved",
                         "span": {
                           "lo": 192,
                           "hi": 193

@@ -45,16 +45,18 @@ Examples:
 ```rust
 // Single pass with typical prelude
 (new_pass_runner, [
+    (GlobalVarsCollection, ()),
     (PathResolution, ()),
-    (SymbolTableCreation, ()),
+    (GlobalItemsCollection, ()),
     (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
     (NewPass, (NewPassInput { option: true }))
 ]),
 
 // Multiple passes run sequentially
 (multi_pass_runner, [
+    (GlobalVarsCollection, ()),
     (PathResolution, ()),
-    (SymbolTableCreation, ()),
+    (GlobalItemsCollection, ()),
     (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
     (FirstPass, ()),
     (SecondPass, (SecondPassInput { value: NetworkName::TestnetV0 }))
@@ -110,91 +112,103 @@ use serial_test::serial;
 /// Each entry is a tuple of `(runner_name, [(pass_struct, input), ...])`
 /// - `runner_name` – the function name for this pass runner (snake_case).
 /// - `[(pass_struct, input), ...]` – a list of passes to run sequentially. Each entry is a tuple of `(pass_struct, input)`.
-///   Include the prelude passes (PathResolution, SymbolTableCreation, TypeChecking) at the beginning if needed.
+///   Include the prelude passes (GlobalVarsCollection, PathResolution, GlobalItemsCollection, TypeChecking) at the beginning if needed.
 /// - `input` – the argument to the pass. Can be `()` if none, or a struct literal like `(SsaFormingInput { rename_defs: true })`.
 macro_rules! compiler_passes {
     ($macro:ident) => {
         $macro! {
             (common_subexpression_elimination_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (CommonSubexpressionEliminating, ())
             ]),
             (const_prop_unroll_and_morphing_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (ConstPropUnrollAndMorphing, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
             (destructuring_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (Destructuring, ())
             ]),
             (dead_code_elimination_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (DeadCodeEliminating, ())
             ]),
             (flattening_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (Flattening, ())
             ]),
             (function_inlining_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (FunctionInlining, ())
             ]),
             (option_lowering_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (OptionLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
             (processing_async_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (ProcessingAsync, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
             (processing_script_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (ProcessingScript, ())
             ]),
             (ssa_forming_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (SsaForming, (SsaFormingInput { rename_defs: true }))
             ]),
             (storage_lowering_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (StorageLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
             (write_transforming_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (WriteTransforming, ())
@@ -203,16 +217,18 @@ macro_rules! compiler_passes {
                 (RemoveUnreachable, ())
             ]),
             (ssa_const_propagation_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (SsaForming, (SsaFormingInput { rename_defs: true })),
                 (SsaConstPropagation, ()),
             ]),
             (disambiguate_runner, [
+                (GlobalVarsCollection, ()),
                 (PathResolution, ()),
-                (SymbolTableCreation, ()),
+                (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
             ]),

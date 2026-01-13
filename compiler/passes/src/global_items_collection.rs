@@ -14,7 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, Pass, SymbolTable, VariableSymbol, VariableType};
+//! Collects all *global items* into the symbol table after path resolution.
+//!
+//! This pass is responsible for registering globally visible program items,
+//! including functions, structs, records, mappings, constants, and storage
+//! variables, along with their associated types. It operates only on *resolved*
+//! paths and assumes that global variables and local scopes have already been
+//! established by earlier passes.
+//!
+//! Unlike earlier pipeline stages, this pass does **not** create scopes,
+//! resolve names, or insert local symbols. Its sole responsibility is to
+//! populate the global portion of the symbol table with fully qualified
+//! `Location`s and to attach type information where applicable.
+//!
+//! This pass runs after `GlobalVarsCollection` and `PathResolution`, and
+//! before type checking. After it completes, the symbol table is guaranteed
+//! to contain all globally defined items, enabling subsequent passes to
+//! perform type checking and validation without mutating symbol structure.
+
+use crate::{CompilerState, Pass, SymbolTable};
 
 use leo_ast::{
     AstVisitor,
@@ -43,17 +61,17 @@ use indexmap::IndexMap;
 /// A pass to fill the SymbolTable.
 ///
 /// Only creates the global data - local data will be constructed during type checking.
-pub struct SymbolTableCreation;
+pub struct GlobalItemsCollection;
 
-impl Pass for SymbolTableCreation {
+impl Pass for GlobalItemsCollection {
     type Input = ();
     type Output = ();
 
-    const NAME: &'static str = "SymbolTableCreation";
+    const NAME: &'static str = "GlobalItemsCollection";
 
     fn do_pass(_input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
-        let mut visitor = SymbolTableCreationVisitor {
+        let mut visitor = GlobalItemsCollectionVisitor {
             state,
             structs: IndexMap::new(),
             program_name: Symbol::intern(""),
@@ -67,7 +85,7 @@ impl Pass for SymbolTableCreation {
     }
 }
 
-struct SymbolTableCreationVisitor<'a> {
+struct GlobalItemsCollectionVisitor<'a> {
     /// The state of the compiler.
     state: &'a mut CompilerState,
     /// The current program name.
@@ -80,7 +98,7 @@ struct SymbolTableCreationVisitor<'a> {
     structs: IndexMap<Vec<Symbol>, Span>,
 }
 
-impl SymbolTableCreationVisitor<'_> {
+impl GlobalItemsCollectionVisitor<'_> {
     /// Enter module scope with path `module`, execute `func`, and then return to the parent module.
     pub fn in_module_scope<T>(&mut self, module: &[Symbol], func: impl FnOnce(&mut Self) -> T) -> T {
         let parent_module = self.module.clone();
@@ -91,25 +109,18 @@ impl SymbolTableCreationVisitor<'_> {
     }
 }
 
-impl AstVisitor for SymbolTableCreationVisitor<'_> {
+impl AstVisitor for GlobalItemsCollectionVisitor<'_> {
     type AdditionalInput = ();
     type Output = ();
 
     fn visit_const(&mut self, input: &ConstDeclaration) {
-        // Just add the const to the symbol table without validating it; that will happen later
-        // in type checking.
+        // Just set the type of the const in the symbol table.
         let const_path: Vec<Symbol> = self.module.iter().cloned().chain(std::iter::once(input.place.name)).collect();
-        if let Err(err) = self.state.symbol_table.insert_variable(self.program_name, &const_path, VariableSymbol {
-            type_: input.type_.clone(),
-            span: input.place.span,
-            declaration: VariableType::Const,
-        }) {
-            self.state.handler.emit_err(err);
-        }
+        self.state.symbol_table.set_global_type(&Location::new(self.program_name, const_path), input.type_.clone());
     }
 }
 
-impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
+impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set current program name
         self.program_name = input.program_id.name.name;
@@ -171,25 +182,19 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
     }
 
     fn visit_mapping(&mut self, input: &Mapping) {
-        // Add the variable associated with the mapping to the symbol table.
-        if let Err(err) = self.state.symbol_table.insert_global(
-            Location::new(self.program_name, vec![input.identifier.name]),
-            VariableSymbol {
-                type_: Type::Mapping(MappingType {
-                    key: Box::new(input.key_type.clone()),
-                    value: Box::new(input.value_type.clone()),
-                    program: self.program_name,
-                }),
-                span: input.span,
-                declaration: VariableType::Storage,
-            },
-        ) {
-            self.state.handler.emit_err(err);
-        }
+        // Set the type of the variable associated with the mapping in the symbol table.
+        self.state.symbol_table.set_global_type(
+            &Location::new(self.program_name, vec![input.identifier.name]),
+            Type::Mapping(MappingType {
+                key: Box::new(input.key_type.clone()),
+                value: Box::new(input.value_type.clone()),
+                program: self.program_name,
+            }),
+        );
     }
 
     fn visit_storage_variable(&mut self, input: &StorageVariable) {
-        // Add the variable associated with the mapping to the symbol table.
+        // Set the type of the storage variable in the symbol table.
 
         // The type of non-vector storage variables is implicitly wrapped in an optional.
         let type_ = match input.type_ {
@@ -197,12 +202,7 @@ impl ProgramVisitor for SymbolTableCreationVisitor<'_> {
             _ => Type::Optional(OptionalType { inner: Box::new(input.type_.clone()) }),
         };
 
-        if let Err(err) = self.state.symbol_table.insert_global(
-            Location::new(self.program_name, vec![input.identifier.name]),
-            VariableSymbol { type_, span: input.span, declaration: VariableType::Storage },
-        ) {
-            self.state.handler.emit_err(err);
-        }
+        self.state.symbol_table.set_global_type(&Location::new(self.program_name, vec![input.identifier.name]), type_);
     }
 
     fn visit_function(&mut self, input: &Function) {

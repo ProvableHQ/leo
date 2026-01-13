@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Composite, Expression, Function, Location, NodeBuilder, NodeID, Type};
+use leo_ast::{Composite, Expression, Function, Location, NodeBuilder, NodeID, Path, Type};
 use leo_errors::{AstError, Color, Label, LeoError, Result};
 use leo_span::{Span, Symbol};
 
@@ -203,15 +203,19 @@ impl SymbolTable {
     /// # Arguments
     ///
     /// * `program` - The root symbol representing the program or module context.
-    /// * `path` - A slice of symbols representing the absolute path to the variable.
+    /// * `path` - A `Path`.
     ///
     /// # Returns
     ///
     /// An `Option<VariableSymbol>` containing the resolved symbol if found, otherwise `None`.
-    pub fn lookup_path(&self, program: Symbol, path: &[Symbol]) -> Option<VariableSymbol> {
-        self.lookup_global(&Location::new(program, path.to_vec()))
-            .cloned()
-            .or_else(|| path.last().copied().and_then(|name| self.lookup_local(name)))
+    pub fn lookup_path(&self, path: &Path) -> Option<VariableSymbol> {
+        if let Some(loc) = path.try_global_location() {
+            self.lookup_global(loc).cloned()
+        } else if let Some(sym) = path.try_local_symbol() {
+            self.lookup_local(sym)
+        } else {
+            None
+        }
     }
 
     /// Access the variable accessible by this name in the current scope.
@@ -243,6 +247,20 @@ impl SymbolTable {
                 let new_table = LocalTable::new(self, id, parent);
                 self.all_locals.insert(id, new_table.clone());
                 new_table
+            };
+
+            assert_eq!(parent, new_local_table.inner.borrow().parent, "Entered scopes out of order.");
+            new_local_table.clone()
+        });
+    }
+
+    pub fn enter_existing_scope(&mut self, id: Option<NodeID>) {
+        self.local = id.map(|id| {
+            let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
+            let new_local_table = if let Some(existing) = self.all_locals.get(&id) {
+                existing.clone()
+            } else {
+                panic!("local scope must exist");
             };
 
             assert_eq!(parent, new_local_table.inner.borrow().parent, "Entered scopes out of order.");
@@ -327,23 +345,29 @@ impl SymbolTable {
         false
     }
 
-    /// Insert an evaluated const into the current scope.
-    pub fn insert_const(&mut self, program: Symbol, path: &[Symbol], value: Expression) {
+    /// Insert an evaluated local const into the current scope.
+    /// This function does nothing if we're in a global scope.
+    pub fn insert_local_const(&mut self, name: Symbol, value: Expression) {
         if let Some(table) = self.local.as_mut() {
-            let [const_name] = &path else { panic!("Local consts cannot have paths with more than 1 segment.") };
-            table.inner.borrow_mut().consts.insert(*const_name, value);
-        } else {
-            self.global_consts.insert(Location::new(program, path.to_vec()), value);
+            table.inner.borrow_mut().consts.insert(name, value);
+        }
+    }
+
+    /// Insert an evaluated global const into the global scope
+    /// This function does nothing if we're in a local scope.
+    pub fn insert_global_const(&mut self, location: Location, value: Expression) {
+        if self.global_scope() {
+            self.global_consts.insert(location, value);
         }
     }
 
     /// Find the evaluated const accessible by the given name in the current scope.
-    pub fn lookup_const(&self, program: Symbol, path: &[Symbol]) -> Option<Expression> {
+    pub fn lookup_local_const(&self, name: Symbol) -> Option<Expression> {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
             let borrowed = table.inner.borrow();
-            let value = borrowed.consts.get(path.last().expect("all paths must have at least 1 segment"));
+            let value = borrowed.consts.get(&name);
             if value.is_some() {
                 return value.cloned();
             }
@@ -351,7 +375,11 @@ impl SymbolTable {
             current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
         }
 
-        self.global_consts.get(&Location::new(program, path.to_vec())).cloned()
+        None
+    }
+
+    pub fn lookup_global_const(&self, location: &Location) -> Option<Expression> {
+        self.global_consts.get(location).cloned()
     }
 
     /// Insert a struct at this name.
@@ -396,6 +424,33 @@ impl SymbolTable {
     /// Access the global at this location if it exists.
     pub fn lookup_global(&self, location: &Location) -> Option<&VariableSymbol> {
         self.globals.get(location)
+    }
+
+    /// Sets the type of a local using its name. Returns `false` if the local is not found.
+    pub fn set_local_type(&mut self, name: Symbol, ty: Type) -> bool {
+        let mut current = self.local.as_ref();
+
+        while let Some(table) = current {
+            let mut inner = table.inner.borrow_mut();
+
+            if let Some(sym) = inner.variables.get_mut(&name) {
+                sym.type_ = Some(ty);
+                return true;
+            }
+
+            current = inner.parent.and_then(|id| self.all_locals.get(&id));
+        }
+
+        false
+    }
+
+    /// Sets the type of a global using its location. Returns `false` if the global is not found.
+    pub fn set_global_type(&mut self, location: &Location, ty: Type) -> bool {
+        if let Some(sym) = self.globals.get_mut(location) {
+            sym.type_ = Some(ty);
+            return true;
+        }
+        false
     }
 
     pub fn emit_shadow_error(name: Symbol, span: Span, prev_span: Span) -> LeoError {

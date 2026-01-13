@@ -1,5 +1,5 @@
 
 program test.aleo {
-    function main(x: u32) {
-        let x: bool = true ? x: true;
+    function main(y: u32) {
+        let x: bool = true ? y: true;
     }}
