@@ -1,10 +1,10 @@
 program test.aleo {
-    function add_inline(a: u32, b: u32) -> u32 {
+    add_inline(a: u32, b: u32) -> u32 {
         return a + b;
     }
 
     @no_inline
-    function add_no_inline(a: u32, b: u32) -> u32 {
+    function add_no_inlint(a: u32, b: u32) -> u32 {
         return a + b;
     }
 
