@@ -301,17 +301,12 @@ impl Display for AleoInput {
 #[derive(Debug)]
 pub struct AleoConstructor {
     statements: Vec<AleoStmt>,
-    // FIXME: remove later, needed for the exact same behavior as previous codegen
-    is_custom: bool,
 }
 impl Display for AleoConstructor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "constructor:")?;
         for stm in &self.statements {
             write!(f, "{}", stm)?;
-        }
-        if self.is_custom {
-            writeln!(f)?;
         }
         Ok(())
     }

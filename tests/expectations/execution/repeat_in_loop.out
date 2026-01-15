@@ -112,6 +112,5 @@ function main:
 
 constructor:
     assert.eq edition 0u16;
-
 status: success
 output: 570u32

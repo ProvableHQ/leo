@@ -321,7 +321,6 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let constructor = match &upgrade_variant {
             // This is the expected snarkVM constructor bytecode for a program that is only upgradable by a fixed admin.
             UpgradeVariant::Admin { address } => AleoConstructor {
-                is_custom: false,
                 statements: vec![AleoStmt::AssertEq(
                     AleoExpr::RawName("program_owner".to_string()),
                     AleoExpr::RawName(address.to_string()),
@@ -342,7 +341,6 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 // This is the required snarkVM constructor bytecode for a program that is only upgradable
                 // if the new program's checksum matches the one declared in a pre-determined mapping.
                 AleoConstructor {
-                    is_custom: false,
                     statements: vec![
                         AleoStmt::BranchEq(
                             AleoExpr::RawName("edition".to_string()),
@@ -355,13 +353,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     ],
                 }
             }
-            UpgradeVariant::Custom => {
-                AleoConstructor { statements: self.visit_block(&constructor.block), is_custom: true }
-            }
+            UpgradeVariant::Custom => AleoConstructor { statements: self.visit_block(&constructor.block) },
             UpgradeVariant::NoUpgrade => {
                 // This is the expected snarkVM constructor bytecode for a program that is not upgradable.
                 AleoConstructor {
-                    is_custom: false,
                     statements: vec![AleoStmt::AssertEq(AleoExpr::RawName("edition".to_string()), AleoExpr::U16(0))],
                 }
             }
