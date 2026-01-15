@@ -4,6 +4,7 @@ DEPLOYMENT 1
        Leo     The program checksum is: '[192u8, 225u8, 38u8, 151u8, 139u8, 155u8, 148u8, 209u8, 105u8, 110u8, 246u8, 83u8, 90u8, 243u8, 78u8, 35u8, 155u8, 186u8, 242u8, 17u8, 196u8, 169u8, 179u8, 144u8, 71u8, 227u8, 34u8, 207u8, 121u8, 158u8, 34u8, 25u8]'.
        Leo     Program size: 0.14 KB / 97.66 KB
        Leo ✅ Compiled 'test_program1.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
@@ -75,6 +76,7 @@ DEPLOYMENT 2
        Leo     The program checksum is: '[206u8, 255u8, 111u8, 48u8, 59u8, 85u8, 122u8, 166u8, 182u8, 205u8, 10u8, 141u8, 58u8, 23u8, 70u8, 232u8, 105u8, 221u8, 83u8, 216u8, 186u8, 14u8, 207u8, 24u8, 13u8, 221u8, 236u8, 0u8, 143u8, 199u8, 151u8, 2u8]'.
        Leo     Program size: 0.19 KB / 97.66 KB
        Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
@@ -150,6 +152,7 @@ EXECUTION
        Leo     The program checksum is: '[206u8, 255u8, 111u8, 48u8, 59u8, 85u8, 122u8, 166u8, 182u8, 205u8, 10u8, 141u8, 58u8, 23u8, 70u8, 232u8, 105u8, 221u8, 83u8, 216u8, 186u8, 14u8, 207u8, 24u8, 13u8, 221u8, 236u8, 0u8, 143u8, 199u8, 151u8, 2u8]'.
        Leo     Program size: 0.19 KB / 97.66 KB
        Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.

@@ -1,0 +1,36 @@
+{
+  "program": "test_program1.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "transitions": [
+    {
+      "name": "main",
+      "inputs": [
+        {
+          "name": "b",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

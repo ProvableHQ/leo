@@ -31,6 +31,8 @@ rust-version = "1.92.0"
 
 [workspace]
 members = [
+  "compiler/abi",
+  "compiler/abi-types",
   "compiler/ast",
   "compiler/compiler",
   "compiler/parser-lossless",
@@ -63,6 +65,8 @@ only_testnet = [ ]
 
 [workspace.dependencies]
 # leo dependencies
+leo-abi             = { path = "./compiler/abi",              version = "=3.4.0" }
+leo-abi-types       = { path = "./compiler/abi-types",        version = "=3.4.0" }
 leo-ast             = { path = "./compiler/ast",              version = "=3.4.0" }
 leo-compiler        = { path = "./compiler/compiler",         version = "=3.4.0" }
 leo-disassembler    = { path = "./utils/disassembler",        version = "=3.4.0" }

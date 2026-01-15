@@ -58,9 +58,9 @@ fn whole_compile(
 
     let filename = FileName::Custom("execution-test".into());
 
-    let bytecode = compiler.compile(source, filename, &Vec::new())?;
+    let compiled = compiler.compile(source, filename, &Vec::new())?;
 
-    Ok((bytecode, compiler.program_name.unwrap()))
+    Ok((compiled.bytecode, compiler.program_name.unwrap()))
 }
 
 /// Parse a Leo `source` with some stubs
