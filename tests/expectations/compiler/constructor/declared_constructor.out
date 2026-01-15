@@ -29,4 +29,3 @@ constructor:
     position end_then_0_0;
     set program_owner into admin[true];
     position end_otherwise_0_1;
-

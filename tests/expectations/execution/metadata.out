@@ -20,7 +20,6 @@ finalize is_network_id:
 
 constructor:
     assert.eq true true;
-
 verified: true
 status: rejected
 {
