@@ -26,13 +26,7 @@ use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
     ledger::{query::Query as SnarkVMQuery, store::helpers::memory::BlockMemory},
     prelude::{
-        ConsensusVersion,
-        Deployment,
-        Program,
-        ProgramID,
-        TestnetV0,
-        VM,
-        deployment_cost,
+        ConsensusVersion, Deployment, Program, ProgramID, TestnetV0, VM, deployment_cost,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
 };
@@ -487,7 +481,7 @@ fn check_tasks_for_warnings<N: Network>(
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
         }
         // Check if the program size is approaching the limit.
-        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::MAX_PROGRAM_SIZE.last().unwrap().1) {
+        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::LATEST_MAX_PROGRAM_SIZE().unwrap()) {
             warnings.push(format!("The program '{id}' is {msg}."));
         }
     }
@@ -636,7 +630,7 @@ pub(crate) fn compute_deployment_stats<N: Network>(
 
     Ok(DeploymentStats {
         program_size_bytes: bytecode_size,
-        max_program_size_bytes: N::MAX_PROGRAM_SIZE.last().unwrap().1,
+        max_program_size_bytes: N::LATEST_MAX_PROGRAM_SIZE()?,
         total_variables: variables,
         total_constraints: constraints,
         max_variables: N::MAX_DEPLOYMENT_VARIABLES,
