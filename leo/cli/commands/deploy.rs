@@ -487,7 +487,7 @@ fn check_tasks_for_warnings<N: Network>(
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
         }
         // Check if the program size is approaching the limit.
-        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::MAX_PROGRAM_SIZE) {
+        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::MAX_PROGRAM_SIZE.last().unwrap().1) {
             warnings.push(format!("The program '{id}' is {msg}."));
         }
     }
@@ -636,7 +636,7 @@ pub(crate) fn compute_deployment_stats<N: Network>(
 
     Ok(DeploymentStats {
         program_size_bytes: bytecode_size,
-        max_program_size_bytes: N::MAX_PROGRAM_SIZE,
+        max_program_size_bytes: N::MAX_PROGRAM_SIZE.last().unwrap().1,
         total_variables: variables,
         total_constraints: constraints,
         max_variables: N::MAX_DEPLOYMENT_VARIABLES,

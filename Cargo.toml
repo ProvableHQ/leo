@@ -145,7 +145,7 @@ version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
 git = "http://github.com/ProvableHQ/snarkVM.git"
-rev = "ad7f23e"
+rev = "db956ea"
 #version = "4.4.0"
 features = [ "test_consensus_heights" ]
 
