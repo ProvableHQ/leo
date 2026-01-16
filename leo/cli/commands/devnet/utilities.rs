@@ -81,7 +81,7 @@ pub fn clean_snarkos<S: AsRef<OsStr>>(
     network: usize,
     _role: &str,
     idx: usize,
-    _storage: &Path,
+    storage: &Path,
 ) -> std::io::Result<Child> {
     StdCommand::new(snarkos)
         .arg("clean")
@@ -89,6 +89,8 @@ pub fn clean_snarkos<S: AsRef<OsStr>>(
         .arg(network.to_string())
         .arg("--dev")
         .arg(idx.to_string())
+        .arg("--path")
+        .arg(storage)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()

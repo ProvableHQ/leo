@@ -298,6 +298,7 @@ impl LeoDevnet {
             idx: usize,
             log_file: &Path,
             metrics_port: Option<u16>,
+            storage: &Path,
         ) -> Vec<String> {
             let mut base = vec![
                 "start".to_string(),
@@ -314,6 +315,8 @@ impl LeoDevnet {
                 log_file.to_str().unwrap().to_string(),
                 "--verbosity".to_string(),
                 verbosity.to_string(),
+                "--ledger-storage".to_string(),
+                storage.to_str().unwrap().to_string(),
             ];
             match role {
                 "validator" => {
@@ -390,6 +393,7 @@ impl LeoDevnet {
                         idx,
                         log_file.as_path(),
                         Some(metrics_port),
+                        &storage,
                     ))
                     .collect::<Vec<_>>()
                     .join(" ");
@@ -416,6 +420,7 @@ impl LeoDevnet {
                         dev_idx,
                         log_file.as_path(),
                         None,
+                        &storage,
                     ))
                     .collect::<Vec<_>>()
                     .join(" ");
@@ -475,6 +480,7 @@ impl LeoDevnet {
                             idx,
                             &log_file,
                             Some(9000 + idx as u16),
+                            &storage,
                         ));
                         c
                     },
@@ -499,6 +505,7 @@ impl LeoDevnet {
                             dev_idx,
                             &log_file,
                             None,
+                            &storage,
                         ));
                         c
                     },
