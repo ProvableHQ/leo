@@ -691,16 +691,24 @@ impl CodeGeneratingVisitor<'_> {
                     // Get the instruction variant.
                     let is_raw = matches!(variant, SerializeVariant::ToBitsRaw);
                     // Get the size in bits of the input type.
-                    let size_in_bits =
-                        match self.state.network {
-                            NetworkName::TestnetV0 => input_type
-                                .size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("composites are not supported")),
-                            NetworkName::MainnetV0 => input_type
-                                .size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("composites are not supported")),
-                            NetworkName::CanaryV0 => input_type
-                                .size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("composites are not supported")),
-                        }
-                        .expect("TYC guarantees that all types have a valid size in bits");
+                    let size_in_bits = match self.state.network {
+                        NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
+                            is_raw,
+                            |_| bail!("composites are not supported"),
+                            |_| bail!("composites are not supported"),
+                        ),
+                        NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
+                            is_raw,
+                            |_| bail!("composites are not supported"),
+                            |_| bail!("composites are not supported"),
+                        ),
+                        NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
+                            is_raw,
+                            |_| bail!("composites are not supported"),
+                            |_| bail!("composites are not supported"),
+                        ),
+                    }
+                    .expect("TYC guarantees that all types have a valid size in bits");
 
                     let dest_reg = self.next_register();
                     let output_type = AleoType::Array { inner: Box::new(AleoType::Boolean), len: size_in_bits as u32 };

@@ -5,7 +5,7 @@ DEPLOYMENT 1
        Leo     Program size: 0.14 KB / 97.66 KB
        Leo ✅ Compiled 'test_program1.aleo' into Aleo instructions.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -17,7 +17,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  12
+  Consensus Version:  13
 
 📦 Deployment Tasks:
   • test_program1.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -76,7 +76,7 @@ DEPLOYMENT 2
        Leo     Program size: 0.19 KB / 97.66 KB
        Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -88,7 +88,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  12
+  Consensus Version:  13
 
 📦 Deployment Tasks:
   • test_program2.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -151,7 +151,7 @@ EXECUTION
        Leo     Program size: 0.19 KB / 97.66 KB
        Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -163,7 +163,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  12
+  Consensus Version:  13
 
 🎯 Execution Target:
   Program:        test_program2.aleo

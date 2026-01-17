@@ -37,7 +37,6 @@ use leo_errors::Result;
 use aleo_std_storage::StorageMode;
 use anyhow::anyhow;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
-use rayon::prelude::*;
 use serde_json;
 use snarkvm::{
     circuit::AleoTestnetV0,
@@ -194,7 +193,7 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
         .collect::<Result<Vec<_>>>()?;
 
     let outcomes: Vec<EvaluationOutcome> = cases
-        .par_iter()
+        .iter()
         .map(|case| {
             let rng = &mut ChaCha20Rng::seed_from_u64(config.seed);
 
@@ -352,7 +351,6 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
     let mut indexed_ledgers = vec![(0, ledger)];
     indexed_ledgers.extend(
         (1..case_sets.len())
-            .into_par_iter()
             .map(|i| {
                 // Initialize a `Ledger`. This should always succeed.
                 let l = Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(
@@ -372,7 +370,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
 
     // For each of the case sets, run the cases sequentially.
     let results = indexed_ledgers
-        .into_par_iter()
+        .into_iter()
         .map(|(index, ledger)| {
             // Get the cases for this ledger.
             let cases = &case_sets[index];

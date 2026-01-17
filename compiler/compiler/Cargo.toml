@@ -17,6 +17,9 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
+[build-dependencies.walkdir]
+workspace = true
+
 [dependencies.leo-ast]
 workspace = true
 
@@ -42,9 +45,6 @@ workspace = true
 version = "1.0"
 
 [dependencies.rand_chacha]
-workspace = true
-
-[dependencies.rayon]
 workspace = true
 
 [dependencies.snarkvm]
