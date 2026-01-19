@@ -131,11 +131,11 @@ impl fmt::Display for Function {
         }
 
         match self.variant {
-            Variant::Inline => write!(f, "inline ")?,
-            Variant::Function => write!(f, "function ")?,
-            Variant::AsyncFunction => write!(f, "async function ")?,
-            Variant::Transition => write!(f, "transition ")?,
-            Variant::AsyncTransition => write!(f, "async transition ")?,
+            Variant::Inline => write!(f, "fn ")?,
+            Variant::Function => write!(f, "fn ")?,
+            Variant::AsyncFunction => write!(f, "async fn ")?,
+            Variant::Transition => write!(f, "fn ")?,
+            Variant::AsyncTransition => write!(f, "async fn ")?,
             Variant::Script => write!(f, "script ")?,
         }
 

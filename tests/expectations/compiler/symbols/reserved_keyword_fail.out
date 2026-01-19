@@ -29,17 +29,17 @@ Error [ENV03711000]: `owner` is an invalid struct member name. A struct member c
    6 |     owner: u32,
      |     ^^^^^
 Error [ENV03711000]: `value` is an invalid transition name. A transition cannot be called "value".
-    --> compiler-test:15:16
+    --> compiler-test:15:8
      |
-  15 |     transition value() {}
-     |                ^^^^^
+  15 |     fn value() {}
+     |        ^^^^^
 Error [ENV03711000]: `output` is an invalid transition name. A transition cannot be called "output".
-    --> compiler-test:17:22
+    --> compiler-test:17:14
      |
-  17 |     async transition output() -> Future {
-     |                      ^^^^^^
+  17 |     async fn output() -> Future {
+     |              ^^^^^^
 Error [ENV03711000]: `key` is an invalid function name. A function cannot be called "key".
-    --> compiler-test:27:10
+    --> compiler-test:27:4
      |
-  27 | function key() {}
-     |          ^^^
+  27 | fn key() {}
+     |    ^^^

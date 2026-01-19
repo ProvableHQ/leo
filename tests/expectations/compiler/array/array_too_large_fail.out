@@ -1,8 +1,8 @@
 Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
-    --> compiler-test:3:20
+    --> compiler-test:3:12
      |
-   3 |     transition foo(a: [bool; 513]) -> bool {
-     |                    ^^^^^^^^^^^^^^
+   3 |     fn foo(a: [bool; 513]) -> bool {
+     |            ^^^^^^^^^^^^^^
 Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
     --> compiler-test:4:19
      |

@@ -1,10 +1,10 @@
 Error [ETYC0372142]: Cannot assign to const parameter `N`
-    --> compiler-test:8:5
-     |
-   8 |     N = 5u32;
-     |     ^
-Error [ETYC0372142]: Cannot assign to const parameter `M`
     --> compiler-test:9:5
      |
-   9 |     M = 6u32;
+   9 |     N = 5u32;
+     |     ^
+Error [ETYC0372142]: Cannot assign to const parameter `M`
+    --> compiler-test:10:5
+     |
+  10 |     M = 6u32;
      |     ^

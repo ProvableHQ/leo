@@ -3,8 +3,8 @@ Error [EPAR0370055]: A Leo program can only have one `program` declaration.
      |
    1 | program test1.aleo {
      | ^^^^^^^^^^^^^^^^^^^^
-   2 |     transition foo() -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+   2 |     fn foo() -> u32 {
+     |     ^^^^^^^^^^^^^^^^^
    3 |         return 0u32;
      |         ^^^^^^^^^^^^
    4 |     }
@@ -18,8 +18,8 @@ Error [EPAR0370055]: A Leo program can only have one `program` declaration.
      |
    7 | program test2.aleo {
      | ^^^^^^^^^^^^^^^^^^^^
-   8 |     transition bar() -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 |     fn bar() -> u32 {
+     |     ^^^^^^^^^^^^^^^^^
    9 |         return 0u32;
      |         ^^^^^^^^^^^^
   10 |     }

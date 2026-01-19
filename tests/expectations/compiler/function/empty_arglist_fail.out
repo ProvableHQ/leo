@@ -1,8 +1,8 @@
 Error [ETYC0372113]: Cannot define a function with no parameters.
     --> compiler-test:2:1
      |
-   2 | function x() -> u8 {
-     | ^^^^^^^^^^^^^^^^^^^^
+   2 | fn x() -> u8 {
+     | ^^^^^^^^^^^^^^
    3 |     return 0u8;
      |     ^^^^^^^^^^^
    4 | }
@@ -10,8 +10,8 @@ Error [ETYC0372113]: Cannot define a function with no parameters.
 Error [ETYC0372170]: Cannot define a function with only empty parameters.
     --> compiler-test:5:1
      |
-   5 | function y(a: [u8;0]) -> [u8;0] {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   5 | fn y(a: [u8;0]) -> [u8;0] {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    6 |     return a;
      |     ^^^^^^^^^
    7 | }

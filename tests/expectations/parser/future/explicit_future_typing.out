@@ -35,8 +35,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 41,
-                "hi": 45
+                "lo": 33,
+                "hi": 37
               },
               "id": 0
             },
@@ -92,8 +92,8 @@
                   }
                 },
                 "span": {
-                  "lo": 51,
-                  "hi": 124
+                  "lo": 43,
+                  "hi": 116
                 },
                 "id": 28
               }
@@ -152,8 +152,8 @@
                       "Single": {
                         "name": "f0",
                         "span": {
-                          "lo": 139,
-                          "hi": 141
+                          "lo": 131,
+                          "hi": 133
                         },
                         "id": 2
                       }
@@ -171,8 +171,8 @@
                           "user_program": {
                             "name": "bye",
                             "span": {
-                              "lo": 158,
-                              "hi": 161
+                              "lo": 150,
+                              "hi": 153
                             },
                             "id": 4
                           },
@@ -180,30 +180,30 @@
                           "identifier": {
                             "name": "add",
                             "span": {
-                              "lo": 167,
-                              "hi": 170
+                              "lo": 159,
+                              "hi": 162
                             },
                             "id": 5
                           },
                           "target": "Unresolved",
                           "span": {
-                            "lo": 158,
-                            "hi": 172
+                            "lo": 150,
+                            "hi": 164
                           },
                           "id": 6
                         },
                         "const_arguments": [],
                         "arguments": [],
                         "span": {
-                          "lo": 158,
-                          "hi": 172
+                          "lo": 150,
+                          "hi": 164
                         },
                         "id": 3
                       }
                     },
                     "span": {
-                      "lo": 135,
-                      "hi": 173
+                      "lo": 127,
+                      "hi": 165
                     },
                     "id": 1
                   }
@@ -214,8 +214,8 @@
                       "Single": {
                         "name": "f1",
                         "span": {
-                          "lo": 186,
-                          "hi": 188
+                          "lo": 178,
+                          "hi": 180
                         },
                         "id": 8
                       }
@@ -251,8 +251,8 @@
                           "user_program": {
                             "name": "hello",
                             "span": {
-                              "lo": 230,
-                              "hi": 235
+                              "lo": 222,
+                              "hi": 227
                             },
                             "id": 10
                           },
@@ -260,30 +260,30 @@
                           "identifier": {
                             "name": "nested_fn",
                             "span": {
-                              "lo": 241,
-                              "hi": 250
+                              "lo": 233,
+                              "hi": 242
                             },
                             "id": 11
                           },
                           "target": "Unresolved",
                           "span": {
-                            "lo": 230,
-                            "hi": 252
+                            "lo": 222,
+                            "hi": 244
                           },
                           "id": 12
                         },
                         "const_arguments": [],
                         "arguments": [],
                         "span": {
-                          "lo": 230,
-                          "hi": 252
+                          "lo": 222,
+                          "hi": 244
                         },
                         "id": 9
                       }
                     },
                     "span": {
-                      "lo": 182,
-                      "hi": 253
+                      "lo": 174,
+                      "hi": 245
                     },
                     "id": 7
                   }
@@ -294,8 +294,8 @@
                       "Single": {
                         "name": "f2",
                         "span": {
-                          "lo": 266,
-                          "hi": 268
+                          "lo": 258,
+                          "hi": 260
                         },
                         "id": 14
                       }
@@ -354,15 +354,15 @@
                           "identifier": {
                             "name": "finalize_main",
                             "span": {
-                              "lo": 346,
-                              "hi": 359
+                              "lo": 338,
+                              "hi": 351
                             },
                             "id": 22
                           },
                           "target": "Unresolved",
                           "span": {
-                            "lo": 346,
-                            "hi": 359
+                            "lo": 338,
+                            "hi": 351
                           },
                           "id": 23
                         },
@@ -371,8 +371,8 @@
                           {
                             "Literal": {
                               "span": {
-                                "lo": 360,
-                                "hi": 364
+                                "lo": 352,
+                                "hi": 356
                               },
                               "id": 16,
                               "variant": {
@@ -386,8 +386,8 @@
                           {
                             "Literal": {
                               "span": {
-                                "lo": 366,
-                                "hi": 370
+                                "lo": 358,
+                                "hi": 362
                               },
                               "id": 17,
                               "variant": {
@@ -405,15 +405,15 @@
                               "identifier": {
                                 "name": "f0",
                                 "span": {
-                                  "lo": 372,
-                                  "hi": 374
+                                  "lo": 364,
+                                  "hi": 366
                                 },
                                 "id": 19
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 372,
-                                "hi": 374
+                                "lo": 364,
+                                "hi": 366
                               },
                               "id": 18
                             }
@@ -425,30 +425,30 @@
                               "identifier": {
                                 "name": "f1",
                                 "span": {
-                                  "lo": 376,
-                                  "hi": 378
+                                  "lo": 368,
+                                  "hi": 370
                                 },
                                 "id": 21
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 376,
-                                "hi": 378
+                                "lo": 368,
+                                "hi": 370
                               },
                               "id": 20
                             }
                           }
                         ],
                         "span": {
-                          "lo": 346,
-                          "hi": 379
+                          "lo": 338,
+                          "hi": 371
                         },
                         "id": 15
                       }
                     },
                     "span": {
-                      "lo": 262,
-                      "hi": 380
+                      "lo": 254,
+                      "hi": 372
                     },
                     "id": 13
                   }
@@ -462,36 +462,36 @@
                         "identifier": {
                           "name": "f2",
                           "span": {
-                            "lo": 396,
-                            "hi": 398
+                            "lo": 388,
+                            "hi": 390
                           },
                           "id": 26
                         },
                         "target": "Unresolved",
                         "span": {
-                          "lo": 396,
-                          "hi": 398
+                          "lo": 388,
+                          "hi": 390
                         },
                         "id": 25
                       }
                     },
                     "span": {
-                      "lo": 389,
-                      "hi": 399
+                      "lo": 381,
+                      "hi": 391
                     },
                     "id": 24
                   }
                 }
               ],
               "span": {
-                "lo": 125,
-                "hi": 405
+                "lo": 117,
+                "hi": 397
               },
               "id": 27
             },
             "span": {
               "lo": 24,
-              "hi": 405
+              "hi": 397
             },
             "id": 29
           }
@@ -504,8 +504,8 @@
             "identifier": {
               "name": "finalize_main",
               "span": {
-                "lo": 423,
-                "hi": 436
+                "lo": 409,
+                "hi": 422
               },
               "id": 30
             },
@@ -515,8 +515,8 @@
                 "identifier": {
                   "name": "a",
                   "span": {
-                    "lo": 437,
-                    "hi": 438
+                    "lo": 423,
+                    "hi": 424
                   },
                   "id": 31
                 },
@@ -525,8 +525,8 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 437,
-                  "hi": 443
+                  "lo": 423,
+                  "hi": 429
                 },
                 "id": 32
               },
@@ -534,8 +534,8 @@
                 "identifier": {
                   "name": "b",
                   "span": {
-                    "lo": 445,
-                    "hi": 446
+                    "lo": 431,
+                    "hi": 432
                   },
                   "id": 33
                 },
@@ -544,8 +544,8 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 445,
-                  "hi": 451
+                  "lo": 431,
+                  "hi": 437
                 },
                 "id": 34
               },
@@ -553,8 +553,8 @@
                 "identifier": {
                   "name": "f0",
                   "span": {
-                    "lo": 453,
-                    "hi": 455
+                    "lo": 439,
+                    "hi": 441
                   },
                   "id": 35
                 },
@@ -567,8 +567,8 @@
                   }
                 },
                 "span": {
-                  "lo": 453,
-                  "hi": 469
+                  "lo": 439,
+                  "hi": 455
                 },
                 "id": 36
               },
@@ -576,8 +576,8 @@
                 "identifier": {
                   "name": "f1",
                   "span": {
-                    "lo": 471,
-                    "hi": 473
+                    "lo": 457,
+                    "hi": 459
                   },
                   "id": 37
                 },
@@ -608,8 +608,8 @@
                   }
                 },
                 "span": {
-                  "lo": 471,
-                  "hi": 512
+                  "lo": 457,
+                  "hi": 498
                 },
                 "id": 38
               }
@@ -632,30 +632,30 @@
                               "identifier": {
                                 "name": "f0",
                                 "span": {
-                                  "lo": 520,
-                                  "hi": 522
+                                  "lo": 506,
+                                  "hi": 508
                                 },
                                 "id": 43
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 520,
-                                "hi": 522
+                                "lo": 506,
+                                "hi": 508
                               },
                               "id": 42
                             }
                           }
                         ],
                         "span": {
-                          "lo": 520,
-                          "hi": 530
+                          "lo": 506,
+                          "hi": 516
                         },
                         "id": 44
                       }
                     },
                     "span": {
-                      "lo": 520,
-                      "hi": 531
+                      "lo": 506,
+                      "hi": 517
                     },
                     "id": 39
                   }
@@ -674,30 +674,30 @@
                               "identifier": {
                                 "name": "f1",
                                 "span": {
-                                  "lo": 536,
-                                  "hi": 538
+                                  "lo": 522,
+                                  "hi": 524
                                 },
                                 "id": 49
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 536,
-                                "hi": 538
+                                "lo": 522,
+                                "hi": 524
                               },
                               "id": 48
                             }
                           }
                         ],
                         "span": {
-                          "lo": 536,
-                          "hi": 546
+                          "lo": 522,
+                          "hi": 532
                         },
                         "id": 50
                       }
                     },
                     "span": {
-                      "lo": 536,
-                      "hi": 547
+                      "lo": 522,
+                      "hi": 533
                     },
                     "id": 45
                   }
@@ -713,15 +713,15 @@
                             "identifier": {
                               "name": "a",
                               "span": {
-                                "lo": 562,
-                                "hi": 563
+                                "lo": 548,
+                                "hi": 549
                               },
                               "id": 53
                             },
                             "target": "Unresolved",
                             "span": {
-                              "lo": 562,
-                              "hi": 563
+                              "lo": 548,
+                              "hi": 549
                             },
                             "id": 52
                           }
@@ -733,15 +733,15 @@
                             "identifier": {
                               "name": "b",
                               "span": {
-                                "lo": 564,
-                                "hi": 565
+                                "lo": 550,
+                                "hi": 551
                               },
                               "id": 55
                             },
                             "target": "Unresolved",
                             "span": {
-                              "lo": 564,
-                              "hi": 565
+                              "lo": 550,
+                              "hi": 551
                             },
                             "id": 54
                           }
@@ -749,22 +749,22 @@
                       ]
                     },
                     "span": {
-                      "lo": 552,
-                      "hi": 567
+                      "lo": 538,
+                      "hi": 553
                     },
                     "id": 51
                   }
                 }
               ],
               "span": {
-                "lo": 514,
-                "hi": 569
+                "lo": 500,
+                "hi": 555
               },
               "id": 56
             },
             "span": {
-              "lo": 408,
-              "hi": 569
+              "lo": 400,
+              "hi": 555
             },
             "id": 57
           }
@@ -773,7 +773,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 569
+        "hi": 555
       }
     }
   }

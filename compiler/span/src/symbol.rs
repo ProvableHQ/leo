@@ -835,6 +835,7 @@ symbols! {
     admin,
     key,
     no_inline,
+    inline,
 
     // annotation keys
     private_key,
@@ -852,12 +853,10 @@ symbols! {
     decrement,
     Else: "else",
     For: "for",
-    function,
     If: "if",
     In: "in",
     import,
     increment,
-    inline,
     input,
     Let: "let",
     leo,
@@ -871,7 +870,6 @@ symbols! {
     SelfUpper: "Self",
     signer,
     Star: "*",
-    transition,
     Type: "type",
 
     aleo,

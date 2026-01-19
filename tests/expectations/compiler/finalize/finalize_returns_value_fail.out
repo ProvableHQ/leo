@@ -1,8 +1,8 @@
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:8:1
      |
-   8 | async function finalize_public_adder(a: u8, b: u8) -> public u8 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | async fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    9 |     return a + b;
      |     ^^^^^^^^^^^^^
   10 | }

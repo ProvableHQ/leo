@@ -35,8 +35,8 @@
             "identifier": {
               "name": "x",
               "span": {
-                "lo": 31,
-                "hi": 32
+                "lo": 25,
+                "hi": 26
               },
               "id": 0
             },
@@ -46,8 +46,8 @@
                 "identifier": {
                   "name": "x",
                   "span": {
-                    "lo": 42,
-                    "hi": 43
+                    "lo": 36,
+                    "hi": 37
                   },
                   "id": 1
                 },
@@ -56,8 +56,8 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 33,
-                  "hi": 47
+                  "lo": 27,
+                  "hi": 41
                 },
                 "id": 2
               }
@@ -69,8 +69,8 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 52,
-                  "hi": 54
+                  "lo": 46,
+                  "hi": 48
                 },
                 "id": 4
               }
@@ -81,14 +81,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 55,
-                "hi": 57
+                "lo": 49,
+                "hi": 51
               },
               "id": 3
             },
             "span": {
               "lo": 22,
-              "hi": 57
+              "hi": 51
             },
             "id": 5
           }
@@ -97,7 +97,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 57
+        "hi": 51
       }
     }
   }

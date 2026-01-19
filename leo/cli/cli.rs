@@ -196,10 +196,13 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     if !quiet {
         // Init logger with optional debug flag.
-        logger::init_logger("leo", match cli.debug {
-            false => 1,
-            true => 2,
-        })?;
+        logger::init_logger(
+            "leo",
+            match cli.debug {
+                false => 1,
+                true => 2,
+            },
+        )?;
     }
 
     // Check for updates. If not forced, it checks once per day.
@@ -491,7 +494,7 @@ mod test_helpers {
         let program_str = "
 import nested_example_layer_0.aleo;
 program nested.aleo {
-    transition example(public a: u32, b: u32) -> u32 {
+    fn example(public a: u32, b: u32) -> u32 {
         let c: u32 = nested_example_layer_0.aleo/main(a, b);
         return c;
     }
@@ -643,7 +646,7 @@ function external_nested_function:
 import child.aleo;
 import parent.aleo;
 program grandparent.aleo {
-    transition double_wrapper_mint(owner: address, val: u32) -> child.aleo/A {
+    fn double_wrapper_mint(owner: address, val: u32) -> child.aleo/A {
         return parent.aleo/wrapper_mint(owner, val);
     }
 
@@ -654,7 +657,7 @@ program grandparent.aleo {
         let parent_program = "
 import child.aleo;
 program parent.aleo {
-    transition wrapper_mint(owner: address, val: u32) ->  child.aleo/A {
+    fn wrapper_mint(owner: address, val: u32) ->  child.aleo/A {
         return child.aleo/mint(owner, val);
     }
 
@@ -670,7 +673,7 @@ program child.aleo {
         owner: address,
         val: u32,
     }
-    transition mint(owner: address, val: u32) -> A {
+    fn mint(owner: address, val: u32) -> A {
         return A {owner: owner, val: val};
     }
 
@@ -826,7 +829,7 @@ program outer.aleo {
         arg3: u32,
     }
 
-    transition inner_1_main(public a: u32, b: u32) -> (inner_1.aleo/inner_1_record, inner_2.aleo/inner_1_record, inner_1_record) {
+    fn inner_1_main(public a: u32, b: u32) -> (inner_1.aleo/inner_1_record, inner_2.aleo/inner_1_record, inner_1_record) {
         let c: ex_struct = ex_struct {arg1: 1u32, arg2: 1u32};
         let rec_1:inner_1.aleo/inner_1_record = inner_1.aleo/inner_1_main(1u32,1u32, c);
         let rec_2:inner_2.aleo/inner_1_record = inner_2.aleo/inner_1_main(1u32,1u32);
@@ -848,7 +851,7 @@ program inner_1.aleo {
         val: u32,
     }
 
-    transition inner_1_main(public a: u32, b: u32, c: ex_struct) -> inner_1_record {
+    fn inner_1_main(public a: u32, b: u32, c: ex_struct) -> inner_1_record {
         return inner_1_record {
             owner: self.caller,
             val: c.arg1,
@@ -865,7 +868,7 @@ program inner_2.aleo {
         owner: address,
         val: u32,
     }
-    transition inner_1_main(public a: u32, b: u32) -> inner_1_record {
+    fn inner_1_main(public a: u32, b: u32) -> inner_1_record {
         let c: u32 = a + b;
         return inner_1_record {
             owner: self.caller,
@@ -1010,7 +1013,7 @@ program outer_2.aleo {
         owner: address,
         a: u32,
     }
-    transition main(public a: u32, b: u32) -> (inner_2.aleo/Yoo, Hello) {
+    fn main(public a: u32, b: u32) -> (inner_2.aleo/Yoo, Hello) {
         let d: Foo = inner_1.aleo/main(1u32,1u32);
         let e: u32 = inner_1.aleo/main_2(Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}});
         let f: Boo = Boo {a:1u32, b:1u32};
@@ -1038,10 +1041,10 @@ struct Boo {
     b: u32,
 }
 program inner_1.aleo {
-    transition main(public a: u32, b: u32) -> Foo {
+    fn main(public a: u32, b: u32) -> Foo {
         return Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}};
     }
-    transition main_2(a:Foo)->u32{
+    fn main_2(a:Foo)->u32{
         return a.a;
     }
 
@@ -1068,16 +1071,16 @@ program inner_2.aleo {
         owner: address,
         a: u32,
     }
-    transition main(public a: u32, b: u32) -> Foo {
+    fn main(public a: u32, b: u32) -> Foo {
         return Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}};
     }
-    transition Yo()-> Yoo {
+    fn Yo()-> Yoo {
         return Yoo {owner: self.signer, a:1u32};
     }
-    transition Yo_Consumer(a: Yoo)->u32 {
+    fn Yo_Consumer(a: Yoo)->u32 {
         return a.a;
     }
-    transition Goo_creator() -> Goo {
+    fn Goo_creator() -> Goo {
         return Goo {a:100u32, b:1u32, c:1u32};
     }
 

@@ -1,8 +1,8 @@
 Error [ETYC0372110]: Only `async transition` can return a future.
-    --> compiler-test:6:31
+    --> compiler-test:6:25
      |
-   6 | function foo(a: u8, b: u8) -> Future {
-     |                               ^^^^^^
+   6 | fn foo(a: u8, b: u8) -> Future {
+     |                         ^^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
@@ -20,8 +20,8 @@ Error [ETYC0372101]: Can only make an async call from an async transition.
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:14:1
      |
-  14 | async function finalize_bar(a: u8, b: u8) -> u8 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 | async fn finalize_bar(a: u8, b: u8) -> u8 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   15 |     return a + b;
      |     ^^^^^^^^^^^^^
   16 | }
@@ -29,10 +29,10 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
 Error [ETYC0372110]: Only `async transition` can return a future.
-    --> compiler-test:19:57
+    --> compiler-test:19:51
      |
-  19 | function mint_public(receiver: address, amount: u64) -> Future {
-     |                                                         ^^^^^^
+  19 | fn mint_public(receiver: address, amount: u64) -> Future {
+     |                                                   ^^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.

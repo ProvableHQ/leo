@@ -1,8 +1,5 @@
 program inline_no_shadowing.aleo {
-    inline square(x: u32) -> u32 {
-        return x * x;
-    }
-    transition main(a: u32, b: u32) -> u32 {
+    fn main(a: u32, b: u32) -> u32 {
         let $var$0 = a * a;
         let first: u32 = $var$0;
         let $var$1 = b * b;
@@ -10,3 +7,8 @@ program inline_no_shadowing.aleo {
         return first + second;
     }
 }
+    @inline
+    fn square(x: u32) -> u32 {
+        return x * x;
+    }
+

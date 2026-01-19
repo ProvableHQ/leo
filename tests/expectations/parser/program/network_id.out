@@ -35,8 +35,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 31,
-                "hi": 35
+                "lo": 25,
+                "hi": 29
               },
               "id": 0
             },
@@ -46,16 +46,16 @@
                 "identifier": {
                   "name": "a",
                   "span": {
-                    "lo": 36,
-                    "hi": 37
+                    "lo": 30,
+                    "hi": 31
                   },
                   "id": 1
                 },
                 "mode": "None",
                 "type_": "Address",
                 "span": {
-                  "lo": 36,
-                  "hi": 46
+                  "lo": 30,
+                  "hi": 40
                 },
                 "id": 2
               }
@@ -74,8 +74,8 @@
                             "type_parameters": [],
                             "arguments": [],
                             "span": {
-                              "lo": 64,
-                              "hi": 74
+                              "lo": 58,
+                              "hi": 68
                             },
                             "id": 4
                           }
@@ -83,8 +83,8 @@
                         {
                           "Literal": {
                             "span": {
-                              "lo": 76,
-                              "hi": 80
+                              "lo": 70,
+                              "hi": 74
                             },
                             "id": 5,
                             "variant": {
@@ -98,8 +98,8 @@
                       ]
                     },
                     "span": {
-                      "lo": 54,
-                      "hi": 82
+                      "lo": 48,
+                      "hi": 76
                     },
                     "id": 3
                   }
@@ -113,36 +113,36 @@
                         "identifier": {
                           "name": "a",
                           "span": {
-                            "lo": 94,
-                            "hi": 95
+                            "lo": 88,
+                            "hi": 89
                           },
                           "id": 8
                         },
                         "target": "Unresolved",
                         "span": {
-                          "lo": 94,
-                          "hi": 95
+                          "lo": 88,
+                          "hi": 89
                         },
                         "id": 7
                       }
                     },
                     "span": {
-                      "lo": 87,
-                      "hi": 96
+                      "lo": 81,
+                      "hi": 90
                     },
                     "id": 6
                   }
                 }
               ],
               "span": {
-                "lo": 48,
-                "hi": 98
+                "lo": 42,
+                "hi": 92
               },
               "id": 9
             },
             "span": {
               "lo": 22,
-              "hi": 98
+              "hi": 92
             },
             "id": 10
           }
@@ -151,7 +151,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 98
+        "hi": 92
       }
     }
   }

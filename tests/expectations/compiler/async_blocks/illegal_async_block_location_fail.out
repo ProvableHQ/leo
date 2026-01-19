@@ -38,17 +38,17 @@ Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transitio
      |
      = Try moving this `async` block into an `async` transition or a script function.
 Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:28:13
+    --> compiler-test:29:13
      |
-  28 |     let f = async {};
+  29 |     let f = async {};
      |             ^^^^^^^^
      |
      = Try moving this `async` block into an `async` transition or a script function.
 Warning [WTYC0372002]: The async function `f3` is never called by an async transition.
     --> compiler-test:23:1
      |
-  23 | async function f3() {
-     | ^^^^^^^^^^^^^^^^^^^^^
+  23 | async fn f3() {
+     | ^^^^^^^^^^^^^^^
   24 |     let f = async {};
      |     ^^^^^^^^^^^^^^^^^
   25 | }

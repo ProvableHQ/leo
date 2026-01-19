@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '@', 'struct', 'async', 'const', 'function', 'inline', 'program', 'script', 'transition' -- found 'finalize'
+Error [EPAR0370005]: expected '@', 'struct', 'async', 'const', 'Fn', 'program', 'script' -- found 'finalize'
     --> test:3:3
      |
    3 | } finalize {

@@ -302,12 +302,12 @@ pub enum Token {
     Constructor,
     #[token("else")]
     Else,
-    #[token("Fn")]
+    #[token("fn")]
     Fn,
+    #[token("Fn")]
+    FnUpper,
     #[token("for")]
     For,
-    #[token("function")]
-    Function,
     #[token("Future")]
     Future,
     #[token("if")]
@@ -316,8 +316,6 @@ pub enum Token {
     Import,
     #[token("in")]
     In,
-    #[token("inline")]
-    Inline,
     #[token("let")]
     Let,
     #[token("mapping")]
@@ -338,8 +336,6 @@ pub enum Token {
     Script,
     #[token("self")]
     SelfLower,
-    #[token("transition")]
-    Transition,
 
     // Unicode bidirectional control characters are a potential risk in
     // source. We detect them so we can report them as an error.
@@ -459,7 +455,7 @@ impl Token {
             "Else" => "'else'",
             "Fn" => "'Fn'",
             "For" => "'for'",
-            "Function" => "'function'",
+            "fn" => "'fn'",
             "Future" => "'future'",
             "If" => "'if'",
             "Import" => "'import'",
@@ -475,7 +471,6 @@ impl Token {
             "Return" => "'return'",
             "Script" => "'script'",
             "SelfLower" => "'self'",
-            "Transition" => "'transition'",
 
             "Never" => return None,
 

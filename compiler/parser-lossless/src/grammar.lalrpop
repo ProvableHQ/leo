@@ -74,7 +74,7 @@ Type3: SyntaxNode<'a> = {
         SyntaxNode::new(TypeKind::Future, [<>])
     },
 
-    <fut:WithTrivia<Future>> <l:WithTrivia<Lt>> <f:WithTrivia<Fn>> <lparen:WithTrivia<LeftParen>>
+    <fut:WithTrivia<Future>> <l:WithTrivia<Lt>> <f:WithTrivia<FnUpper>> <lparen:WithTrivia<LeftParen>>
     <ts:CommaMaybe<Type>> <rparen:WithTrivia<RightParen>> <r:WithTrivia<Gt>> => {
         SyntaxNode::new(TypeKind::Future, [fut, l, f, lparen].into_iter().chain(ts).chain([rparen, r]))
     },
@@ -669,10 +669,8 @@ ParameterList: SyntaxNode<'a> = {
 }
 
 FunctionKind: LalrToken<'a> = {
-    Function,
-    Inline,
+    Fn,
     Script,
-    Transition,
 }
 
 FunctionOutput: SyntaxNode<'a> = {
@@ -734,8 +732,6 @@ FunctionDeclarationMacro<FunctionKindKind>: SyntaxNode<'a> = {
         SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain(a).chain([k, name]).chain(c).chain([p, b]))
     },
 }
-
-InlineDeclaration: SyntaxNode<'a> = FunctionDeclarationMacro<Inline>;
 
 FunctionDeclaration: SyntaxNode<'a> = FunctionDeclarationMacro<FunctionKind>;
 
@@ -834,7 +830,7 @@ pub MainContents: SyntaxNode<'a> = {
 }
 
 ModuleItem: SyntaxNode<'a> = {
-    InlineDeclaration,
+    FunctionDeclaration,
     GlobalConst,
     StructDeclaration,
 }
@@ -957,13 +953,12 @@ extern {
         Constructor => LalrToken { token: Token::Constructor, .. },
         Else => LalrToken { token: Token::Else, .. },
         Fn => LalrToken { token: Token::Fn, .. },
+        FnUpper => LalrToken { token: Token::FnUpper, .. },
         For => LalrToken { token: Token::For, .. },
-        Function => LalrToken { token: Token::Function, .. },
         Future => LalrToken { token: Token::Future, .. },
         If => LalrToken { token: Token::If, .. },
         Import => LalrToken { token: Token::Import, .. },
         In => LalrToken { token: Token::In, .. },
-        Inline => LalrToken { token: Token::Inline, .. },
         Let => LalrToken { token: Token::Let, .. },
         Mapping => LalrToken { token: Token::Mapping, .. },
         Storage => LalrToken { token: Token::Storage, .. },
@@ -974,7 +969,6 @@ extern {
         Return => LalrToken { token: Token::Return, .. },
         Script => LalrToken { token: Token::Script, .. },
         SelfLower => LalrToken { token: Token::SelfLower, .. },
-        Transition => LalrToken { token: Token::Transition, .. },
 
         Never => LalrToken { token: Token::Never, .. },
     }

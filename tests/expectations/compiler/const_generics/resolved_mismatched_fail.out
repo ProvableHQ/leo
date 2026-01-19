@@ -1,5 +1,5 @@
 Error [ETYC0372117]: Expected type `Foo::[0u32]` but type `Foo::[1u32]` was found.
-    --> compiler-test:13:12
+    --> compiler-test:14:12
      |
-  13 |     return Foo::[2 * N + 1] { x: 0 };
+  14 |     return Foo::[2 * N + 1] { x: 0 };
      |            ^^^

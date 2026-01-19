@@ -1,8 +1,8 @@
 Error [ETYC0372088]: An `async` transition must contain at least one async operation — either a call to an `async` function or an `async` block.
     --> compiler-test:5:5
      |
-   5 |     async transition mint_public(public receiver: address, public amount: u64) {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   5 |     async fn mint_public(public receiver: address, public amount: u64) {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    6 | 
    7 |     }
      |     ^
@@ -11,8 +11,8 @@ Error [ETYC0372088]: An `async` transition must contain at least one async opera
 Warning [WTYC0372002]: The async function `finalize_mint_public` is never called by an async transition.
     --> compiler-test:10:1
      |
-  10 | async function finalize_mint_public (public receiver: address, public amount: u64) {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 | async fn finalize_mint_public (public receiver: address, public amount: u64) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |     Mapping::set(account, receiver, amount);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 | }

@@ -16,7 +16,7 @@ program complex.aleo {
     mapping arr_u32__: bool => [u32; 3];
     mapping arr_bool__: bool => [bool; 2];
     mapping nested__: bool => [[u8; 2]; 2];
-    async transition initialize() -> Future<Fn()> {
+    async fn initialize() -> Future<Fn()> {
         return async {
             _mapping_set(point__, false, Point { x: 1field, y: 2field });
             _mapping_set(points__, false, [Point { x: 10field, y: 20field }, Point { x: 30field, y: 40field }]);
@@ -26,7 +26,7 @@ program complex.aleo {
             _mapping_set(nested__, false, [[1u8, 2u8], [3u8, 4u8]]);
         };
     }
-    async transition to_none() -> Future<Fn()> {
+    async fn to_none() -> Future<Fn()> {
         return async {
             _mapping_remove(point__, false);
             _mapping_remove(points__, false);
@@ -36,7 +36,7 @@ program complex.aleo {
             _mapping_remove(nested__, false);
         };
     }
-    async transition check1() -> Future<Fn()> {
+    async fn check1() -> Future<Fn()> {
         return async {
             let p = _optional_unwrap(_mapping_contains(point__, false) ? _mapping_get_or_use(point__, false, Point { x: 0field, y: 0field }) : none);
             assert(p.x == 1field);
@@ -57,7 +57,7 @@ program complex.aleo {
             assert(n[1][0] == 3u8);
         };
     }
-    async transition check2() -> Future<Fn()> {
+    async fn check2() -> Future<Fn()> {
         return async {
             let p = _optional_unwrap_or(_mapping_contains(point__, false) ? _mapping_get_or_use(point__, false, Point { x: 0field, y: 0field }) : none, Point { x: 0field, y: 0field });
             assert(p.x == 1field);
@@ -77,3 +77,4 @@ program complex.aleo {
         };
     }
 }
+

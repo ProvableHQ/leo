@@ -249,8 +249,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 166,
-                "hi": 170
+                "lo": 158,
+                "hi": 162
               },
               "id": 0
             },
@@ -261,14 +261,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 173,
-                "hi": 180
+                "lo": 165,
+                "hi": 172
               },
               "id": 1
             },
             "span": {
               "lo": 155,
-              "hi": 180
+              "hi": 172
             },
             "id": 2
           }
@@ -277,7 +277,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 182
+        "hi": 174
       }
     }
   }

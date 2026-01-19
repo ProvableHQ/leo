@@ -9,25 +9,25 @@ Error [EPAR0370046]: Identifier field__name cannot contain a double underscore `
    2 |     field__name: u8
      |     ^^^^^^^^^^^
 Error [EPAR0370046]: Identifier test__function cannot contain a double underscore `__`
-    --> test:5:10
+    --> test:5:4
      |
-   5 | function test__function(param__name: u8) -> bool {
-     |          ^^^^^^^^^^^^^^
+   5 | fn test__function(param__name: u8) -> bool {
+     |    ^^^^^^^^^^^^^^
 Error [EPAR0370046]: Identifier param__name cannot contain a double underscore `__`
-    --> test:5:25
+    --> test:5:19
      |
-   5 | function test__function(param__name: u8) -> bool {
-     |                         ^^^^^^^^^^^
+   5 | fn test__function(param__name: u8) -> bool {
+     |                   ^^^^^^^^^^^
 Error [EPAR0370046]: Identifier triple___underscore cannot contain a double underscore `__`
-    --> test:9:10
+    --> test:9:4
      |
-   9 | function triple___underscore(param___name: u8) -> bool {
-     |          ^^^^^^^^^^^^^^^^^^^
+   9 | fn triple___underscore(param___name: u8) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^
 Error [EPAR0370046]: Identifier param___name cannot contain a double underscore `__`
-    --> test:9:30
+    --> test:9:24
      |
-   9 | function triple___underscore(param___name: u8) -> bool {
-     |                              ^^^^^^^^^^^^
+   9 | fn triple___underscore(param___name: u8) -> bool {
+     |                        ^^^^^^^^^^^^
 Error [EPAR0370046]: Identifier test__var cannot contain a double underscore `__`
     --> test:15:13
      |

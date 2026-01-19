@@ -4,15 +4,15 @@ Error [ETYC0372050]: A struct cannot contain a tuple.
   22 |     mem: (u8, u16)
      |     ^^^
 Error [ETYC0372051]: A function cannot take in a tuple as input.
-    --> compiler-test:8:14
+    --> compiler-test:8:8
      |
-   8 | function foo(a: (u8, u16)) -> (u8, u16) {
-     |              ^^^^^^^^^^^^
+   8 | fn foo(a: (u8, u16)) -> (u8, u16) {
+     |        ^^^^^^^^^^^^
 Error [ETYC0372049]: A tuple type cannot contain a tuple.
-    --> compiler-test:12:32
+    --> compiler-test:12:26
      |
-  12 | function bar(zz: bool) -> (u8, (u16, u32)) {
-     |                                ^^^^^^^^^^
+  12 | fn bar(zz: bool) -> (u8, (u16, u32)) {
+     |                          ^^^^^^^^^^
 Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
     --> compiler-test:13:18
      |

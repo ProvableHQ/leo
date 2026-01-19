@@ -1,13 +1,13 @@
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:9:14
+    --> compiler-test:9:8
      |
-   9 | function foo(a: credits) -> u8 {
-     |              ^^^^^^^^^^
+   9 | fn foo(a: credits) -> u8 {
+     |        ^^^^^^^^^^
 Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:13:37
+    --> compiler-test:13:31
      |
-  13 | function boo(a: address, b: u64) -> credits {
-     |                                     ^^^^^^^
+  13 | fn boo(a: address, b: u64) -> credits {
+     |                               ^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

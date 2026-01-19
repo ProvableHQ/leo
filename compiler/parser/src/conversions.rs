@@ -21,18 +21,10 @@ use snarkvm::prelude::{Address, TestnetV0};
 use leo_ast::{Expression, Intrinsic, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result, TypeCheckerError};
 use leo_parser_lossless::{
-    ExpressionKind,
-    IntegerLiteralKind,
-    IntegerTypeKind,
-    LiteralKind,
-    StatementKind,
-    SyntaxKind,
-    SyntaxNode,
-    TypeKind,
+    ExpressionKind, IntegerLiteralKind, IntegerTypeKind, LiteralKind, StatementKind, SyntaxKind, SyntaxNode, TypeKind,
 };
 use leo_span::{
-    Span,
-    Symbol,
+    Span, Symbol,
     sym::{self},
 };
 
@@ -1102,7 +1094,12 @@ impl<'a> ConversionContext<'a> {
         Ok(leo_ast::Annotation { identifier: name, map, span: node.span, id: self.builder.next_id() })
     }
 
-    fn to_function(&self, node: &SyntaxNode<'_>) -> Result<leo_ast::Function> {
+    fn to_function(
+        &self,
+        node: &SyntaxNode<'_>,
+        is_in_program_block: bool,
+        is_in_module: bool,
+    ) -> Result<leo_ast::Function> {
         assert_eq!(node.kind, SyntaxKind::Function);
 
         let annotations = node
@@ -1118,14 +1115,16 @@ impl<'a> ConversionContext<'a> {
 
         // The behavior here matches the old parser - "inline" and "script" may be marked async,
         // but async is ignored. Presumably we should fix this but it's theoretically a breaking change.
-        let variant = match (is_async, node.children[function_variant_index].text) {
-            (true, "function") => leo_ast::Variant::AsyncFunction,
-            (false, "function") => leo_ast::Variant::Function,
-            (_, "inline") => leo_ast::Variant::Inline,
-            (_, "script") => leo_ast::Variant::Script,
-            (true, "transition") => leo_ast::Variant::AsyncTransition,
-            (false, "transition") => leo_ast::Variant::Transition,
-            _ => panic!("Can't happen"),
+        let variant = if is_in_program_block {
+            if is_async { leo_ast::Variant::AsyncTransition } else { leo_ast::Variant::Transition }
+        } else if node.children[function_variant_index].text == "script" {
+            leo_ast::Variant::Script
+        } else if annotations.iter().any(|a| a.identifier.to_string() == "inline") || is_in_module {
+            leo_ast::Variant::Inline
+        } else if is_async {
+            leo_ast::Variant::AsyncFunction
+        } else {
+            leo_ast::Variant::Function
         };
 
         let name = &node.children[function_variant_index + 1];
@@ -1313,7 +1312,7 @@ impl<'a> ConversionContext<'a> {
             .iter()
             .filter(|child| matches!(child.kind, SyntaxKind::Function))
             .map(|child| {
-                let function = self.to_function(child)?;
+                let function = self.to_function(child, false, true)?;
                 Ok((function.identifier.name, function))
             })
             .collect::<Result<Vec<_>>>()?;
@@ -1381,14 +1380,20 @@ impl<'a> ConversionContext<'a> {
                 .children
                 .iter()
                 .filter(|child| matches!(child.kind, SyntaxKind::Function))
-                .chain(
-                    // functions at the top level
-                    node.children.iter().filter(|child| matches!(child.kind, SyntaxKind::Function))
-                )
                 .map(|child| {
-                    let function = self.to_function(child)?;
+                    let function = self.to_function(child, true, false)?;
                     Ok((function.identifier.name, function))
                 })
+                .chain(
+                    // functions at the top level
+                    node.children
+                        .iter()
+                        .filter(|child| matches!(child.kind, SyntaxKind::Function))
+                        .map(|child| {
+                            let function = self.to_function(child, false, false)?;
+                            Ok((function.identifier.name, function))
+                        })
+                )
                 .collect::<Result<Vec<_>>>()?;
 
         // FIXME: structs should only be at the top level, and records inside the program declaration

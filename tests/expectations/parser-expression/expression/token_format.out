@@ -322,11 +322,11 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | for
      | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'function'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'fn'
     --> test_63:1:1
      |
-   1 | function
-     | ^^^^^^^^
+   1 | fn
+     | ^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'if'
     --> test_64:1:1
      |

@@ -52,8 +52,8 @@
             "identifier": {
               "name": "test",
               "span": {
-                "lo": 115,
-                "hi": 119
+                "lo": 109,
+                "hi": 113
               },
               "id": 2
             },
@@ -66,8 +66,8 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 125,
-                  "hi": 127
+                  "lo": 119,
+                  "hi": 121
                 },
                 "id": 4
               }
@@ -78,14 +78,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 128,
-                "hi": 130
+                "lo": 122,
+                "hi": 124
               },
               "id": 3
             },
             "span": {
               "lo": 99,
-              "hi": 130
+              "hi": 124
             },
             "id": 5
           }
@@ -94,7 +94,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 130
+        "hi": 124
       }
     }
   }

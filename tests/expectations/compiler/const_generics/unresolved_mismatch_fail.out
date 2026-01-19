@@ -1,5 +1,5 @@
 Error [ECMP0376012]: Unable to resolve composite expression `Foo`. A non-const expression was provided where a const generic parameter is required.
-    --> compiler-test:13:18
+    --> compiler-test:14:18
      |
-  13 |     return Foo::[2 * N * x] { x: 0 };
+  14 |     return Foo::[2 * N * x] { x: 0 };
      |                  ^^^^^^^^^

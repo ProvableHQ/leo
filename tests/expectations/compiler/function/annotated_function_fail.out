@@ -9,10 +9,10 @@ Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on scr
    4 | @test
      | ^^^^^
 Error [ETYC0372129]: Invalid annotation: A test procedure cannot have inputs.
-    --> compiler-test:5:14
+    --> compiler-test:5:8
      |
-   5 | function foo(a: u8, b: u8) -> u8 {
-     |              ^^^^^
+   5 | fn foo(a: u8, b: u8) -> u8 {
+     |        ^^^^^
 Error [ETYC0372027]: Unknown annotation: `@program`.
     --> compiler-test:9:1
      |
