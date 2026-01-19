@@ -9,7 +9,7 @@ program test.aleo {
         amount: u64,
     }
 
-    transition main(a: bool, foo: Foo, token: Token) -> bool {
+    fn main(a: bool, foo: Foo, token: Token) -> bool {
         assert_eq(a, true);
         assert_neq(a, false);
         assert(a);

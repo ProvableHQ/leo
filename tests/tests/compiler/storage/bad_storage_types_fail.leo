@@ -31,5 +31,5 @@ program negative_storage_tests.aleo {
     storage vec_tuple: [(u32, u32)];
     storage vec_record: [MyRecord];
 
-    transition foo() {}
+    fn foo() {}
 }

@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(x: u32) -> bool {
+    fn main(x: u32) -> bool {
         let c: u32 = 0u32;
 
         if x == 1u32 {

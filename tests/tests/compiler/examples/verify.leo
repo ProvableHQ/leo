@@ -1,7 +1,7 @@
 // Returns the number of flipped bits.
 // E.g. 17870283321406128128u64, in binary 11111000 00000000 00000000 00000000 00000000 00000000 00000000 00000000,
 // returns 5u64;
-function bitcount(bits: u64) -> u64 {
+fn bitcount(bits: u64) -> u64 {
     let r1: u64 = bits / 2u64;
     let r2: u64 = bits / 4u64;
     let r3: u64 = bits / 8u64;
@@ -23,7 +23,7 @@ function bitcount(bits: u64) -> u64 {
 // Returns boolean of whether all the flipped bits in location are "adjacent". Horizontally, this means all flipped bits are
 // directly next to each other (111). Vertically, this means all flipped bits are separated by 7 unflipped bits
 // (10000000100000001).
-function adjacency_check(
+fn adjacency_check(
     // The u64 representation of a ship's placement in an 8x8 grid.
     ship: u64,
     // The u64 representation of a ship's bitstring, either horizontally or vertically.
@@ -50,7 +50,7 @@ function adjacency_check(
 
 // Returns boolean of whether adjacent flipped bits don't split a row of size 8.
 // E.g. 111000000 has adjacent flipped bits but splits a row: 00000001 11000000
-function horizontal_check(
+fn horizontal_check(
     // The u64 representation of a ship's placement in an 8x8 grid.
     ship: u64,
     // The u64 representation of a ship's bitstring horizontally.
@@ -76,7 +76,7 @@ function horizontal_check(
 
 program test.aleo {
     // Returns `true` if the ship placement is valid.
-    transition validate_ship(
+    fn validate_ship(
         // The u64 representation of a ship's placement in an 8x8 grid.
         ship: u64,
         // The length of the placed ship.
@@ -105,7 +105,7 @@ program test.aleo {
 
     // Returns the u64 representation of all the ships' placements in an 8x8 grid. This function will fail
     // if any of the ship placements overlap each other.
-    transition create_board(
+    fn create_board(
         // The u64 representation of a carrier's placement in an 8x8 grid. Length = 5.
         carrier: u64,
         // The u64 representation of a battleship's placement in an 8x8 grid. Length = 4.

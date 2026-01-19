@@ -7,6 +7,6 @@ struct Foo {
     a: [u8; 0],
 }
 
-function main(zz: bool) -> bool {
+fn main(zz: bool) -> bool {
     return true;
 }

@@ -17,7 +17,7 @@ struct Baz {
 }
 
 program test.aleo {
-    transition main(g: Goo::[7u32], b: Baz, x: u32) -> u32 {
+    fn main(g: Goo::[7u32], b: Baz, x: u32) -> u32 {
         let g2 = Goo::[6u32] {
             f: Foo::[6u32] {
                 arr: [42u32; 6],

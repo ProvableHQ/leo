@@ -2,7 +2,8 @@ struct QQ {
     y: dep::Baz::[3],
 }
 
-inline goo::[M: u32]() -> u32 { 
+@inline
+fn goo::[M: u32]() -> u32 { 
     let b = dep::Bar::[M] {
         a: [43; M],
         c: dep::Baz::[M] {
@@ -15,7 +16,7 @@ inline goo::[M: u32]() -> u32 {
 }
 
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         let x = dep::X;
         let inner_x = inner::dep::X;
         let f = dep::Foo::[dep::X] {
@@ -49,7 +50,8 @@ struct Bar::[N: u32] {
     c: Baz::[N],
 }
 
-inline bar() -> u32 {
+@inline
+fn bar() -> u32 {
     let c = Foo::[X] {
         a: [66; X]
     };
@@ -60,7 +62,8 @@ inline bar() -> u32 {
     return c.a[0] + goo::[29]() + X + other_dep::Y;
 }
 
-inline goo::[M: u32]() -> u32 { 
+@inline
+fn goo::[M: u32]() -> u32 { 
     let c = Baz::[M] {
         x: 69,
     };
@@ -89,11 +92,13 @@ struct Bar::[N: u32] {
     a: [u32; N],
 }
 
-inline bar() -> u32 {
+@inline
+fn bar() -> u32 {
     let c = Foo {
         a: [6; X]
     };
     return c.a[0] + goo::[99]() + X;
 }
 
-inline goo::[N: u32]() -> u32 { return N + X; }
+@inline
+fn goo::[N: u32]() -> u32 { return N + X; }

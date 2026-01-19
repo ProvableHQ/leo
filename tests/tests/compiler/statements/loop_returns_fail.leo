@@ -1,6 +1,6 @@
 
 program test.aleo {}
-function main(x: u32) -> bool {
+fn main(x: u32) -> bool {
 
     for i: u32 in 0u32..9u32 {
         return false;

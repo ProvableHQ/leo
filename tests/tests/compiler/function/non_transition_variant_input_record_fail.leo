@@ -6,11 +6,11 @@ program test.aleo {
     }
 }
 
-function foo(a: credits) -> u8 {
+fn foo(a: credits) -> u8 {
     return 1u8;
 }
 
-function boo(a: address, b: u64) -> credits {
+fn boo(a: address, b: u64) -> credits {
     return credits {
        owner: a,
        micrcredits: b,

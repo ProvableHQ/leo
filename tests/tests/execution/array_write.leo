@@ -27,7 +27,7 @@ struct S {
 }
 
 program test.aleo {
-    transition some_assignments(public a: bool, public b: bool) -> public [u32; 11] {
+    fn some_assignments(public a: bool, public b: bool) -> public [u32; 11] {
         let arr: [u32; 3] = [0u32, 1u32, 2u32];
         if a {
             arr[0u8] = 10u32;

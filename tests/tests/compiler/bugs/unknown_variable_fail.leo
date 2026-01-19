@@ -30,12 +30,12 @@ program test.aleo {
 
     mapping global_state: bool => GlobalState;
 
-    async transition init(b: bool) -> (address, Future) {
+    async fn init(b: bool) -> (address, Future) {
         return (self.caller, finalize_init(caller));
     }
 }
 
-async function finalize_init(caller: address) {
+async fn finalize_init(caller: address) {
     let gs: GlobalState = Mapping::get_or_use(global_state, true, GlobalState {
         next_token_id: 0field,
         admin: aleo1az8p9vlllyqwtj0c2g9svkd0e5v0p3zzdflwwrpa7kpe8xrfxgfqqpru7m,

@@ -4,11 +4,11 @@ program test.aleo {
     }
 
     @no_inline
-    function add_no_inlint(a: u32, b: u32) -> u32 {
+    fn add_no_inlint(a: u32, b: u32) -> u32 {
         return a + b;
     }
 
-    transition main(x: u32, y: u32) -> (u32, u32) {
+    fn main(x: u32, y: u32) -> (u32, u32) {
         let result_inline: u32 = add_inline(x, y);
         let result_no_inline: u32 = add_no_inline(x, y);
         return (result_inline, result_no_inline);

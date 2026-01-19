@@ -6,6 +6,6 @@ program test.aleo {
     }
 
 }
-function main(x: field) -> bool {
+fn main(x: field) -> bool {
     return true;
 }

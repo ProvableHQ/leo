@@ -1,6 +1,6 @@
 import hello.aleo;
 program test.aleo {}
 
-function main() {
+fn main() {
     let x:u8 = 1u8;
 }

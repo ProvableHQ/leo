@@ -17,28 +17,28 @@ const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
 program const_optionals.aleo {
     // === TRANSITIONS ===
 
-    transition const_single_optional() -> u8 {
+    fn const_single_optional() -> u8 {
         return A.unwrap();
     }
 
-    transition const_array_of_optionals() -> u8 {
+    fn const_array_of_optionals() -> u8 {
         return B[1].unwrap();
     }
 
-    transition const_tuple_with_optional() -> u8 {
+    fn const_tuple_with_optional() -> u8 {
         return C.1.unwrap();
     }
 
-    transition const_nested_array() -> u8 {
+    fn const_nested_array() -> u8 {
         const D_local: [[u8?; 2]; 2] = [[1u8, 2u8], [3u8, 4u8]];
         return D_local[0][1].unwrap() + D[0][1].unwrap();
     }
 
-    transition const_struct_with_optional() -> u8 {
+    fn const_struct_with_optional() -> u8 {
         return E.x.unwrap();
     }
 
-    transition const_array_of_structs() -> u8 {
+    fn const_array_of_structs() -> u8 {
         return F[0].x.unwrap() + F[1].x.unwrap();
     }
 

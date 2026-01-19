@@ -1,3 +1,3 @@
 
 program test.aleo {}
-function x(const x: u8) -> u8 {}
+fn x(const x: u8) -> u8 {}

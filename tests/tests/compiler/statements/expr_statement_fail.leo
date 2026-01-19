@@ -5,7 +5,7 @@ struct Foo {
 
 program test.aleo {
 
-    transition foo2(flag: bool, a: u8, b: u8, foo: Foo, i: i8) -> u8 {
+    fn foo2(flag: bool, a: u8, b: u8, foo: Foo, i: i8) -> u8 {
         a + b;
         flag ? a : b;
         foo.a;

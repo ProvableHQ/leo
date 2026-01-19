@@ -5,6 +5,6 @@ struct Foo {
 program st.aleo {
     mapping optional_balances: address? => Foo;
 
-    transition foo() {
+    fn foo() {
     }
 }

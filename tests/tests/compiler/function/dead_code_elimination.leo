@@ -22,11 +22,12 @@ function foo:
 */
 
 
-function eliminate_unused_function_call(a: u8, b: u8) -> u8 {
+fn eliminate_unused_function_call(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
-inline inline_and_eliminate(a: u8, b: u8) -> u8 {
+@inline
+fn inline_and_eliminate(a: u8, b: u8) -> u8 {
     return a * b;
 }
 
@@ -36,7 +37,7 @@ program test.aleo {
         data: u8,
     }
 
-    transition foo(a: u8, b: u8) -> u8 {
+    fn foo(a: u8, b: u8) -> u8 {
         let c: u8 = a + b;
         // For now allow this call to remain.
         let d: u8 = eliminate_unused_function_call(a, b);

@@ -1,5 +1,5 @@
 program test.aleo {
-    async transition t1() {
+    async fn t1() {
         let f1 = async {
             let s = self.signer;
             let c = self.caller;

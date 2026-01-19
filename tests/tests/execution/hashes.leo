@@ -31,7 +31,7 @@ struct Outer {
 }
 
 program test_hash_and_commit.aleo {
-    transition hash(x: field, y: group) -> (public [field; 6], public group) {
+    fn hash(x: field, y: group) -> (public [field; 6], public group) {
         // Wrap x and y into optionals, include a none.
         let sx: field? = x;
         let sy: group? = none;
@@ -60,7 +60,7 @@ program test_hash_and_commit.aleo {
         );
     }
 
-    transition commit(x: field, y: group, z: scalar) -> public [field; 6] {
+    fn commit(x: field, y: group, z: scalar) -> public [field; 6] {
         let sx: field? = none;
         let sy: group? = y;
 

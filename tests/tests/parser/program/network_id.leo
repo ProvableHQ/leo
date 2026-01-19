@@ -1,6 +1,6 @@
 program test.aleo {}
 
-function main(a: address) {
+fn main(a: address) {
     assert_eq(network.id, 1u32);
     return a;
 }

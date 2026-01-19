@@ -5,13 +5,13 @@ struct foo {
 }
 
 program test.aleo {
-    transition verify_field(s: signature, a: address, v: field) {
+    fn verify_field(s: signature, a: address, v: field) {
         let first: bool = signature::verify(a, s, v);
         let second: bool = s.verify(1u8, v);
         assert_eq(first, second);
     }
 
-    transition verify_foo(s: signature, a: address, v: foo) {
+    fn verify_foo(s: signature, a: address, v: foo) {
         let first: bool = signature::verify(a, v, s);
         let second: bool = s.verify(v, a);
         assert_eq(first, second);

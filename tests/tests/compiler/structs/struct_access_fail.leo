@@ -6,7 +6,7 @@ struct s1 {
 }
 
 program test.aleo {
-    transition main(id_type: i8, s: s1) -> i8 {
+    fn main(id_type: i8, s: s1) -> i8 {
         let x: i8 = s.f1;
         x = x + 1i8;
         return x;

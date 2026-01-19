@@ -1,6 +1,6 @@
 
 program test.aleo { }
 
-function main(x: bool) {
+fn main(x: bool) {
     let i = 1 u128;
 }

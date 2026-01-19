@@ -1,8 +1,8 @@
 
-function x() -> u8 {
+fn x() -> u8 {
     return 0u8;
 }
-function y(a: [u8;0]) -> [u8;0] {
+fn y(a: [u8;0]) -> [u8;0] {
     return a;
 }
 program test.aleo {}

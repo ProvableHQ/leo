@@ -6,12 +6,12 @@ struct Baz {
 program scratch.aleo {
     mapping baz: Baz => u64;
 
-    async transition prepare(a: [u32; 0]) ->  Future {
+    async fn prepare(a: [u32; 0]) ->  Future {
         return finalize(a);
     }
 }
 
-async function finalize(a: [u32;0]) {
+async fn finalize(a: [u32;0]) {
     Mapping::set(baz, Baz { a: 0, b: [] }, 3);
 }
 

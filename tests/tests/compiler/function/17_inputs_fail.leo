@@ -1,6 +1,6 @@
 program test.aleo {
     // The maximum number of inputs to a `transition` is 16.
-    transition bar(
+    fn bar(
         a: u8, b: u8, c: u8, d: u8, e: u8, f: u8, g: u8, h: u8,
         i: u8, j: u8, k: u8, l: u8, m: u8, n: u8, o: u8, p: u8, q: u8
     ) -> u8 {
@@ -8,7 +8,7 @@ program test.aleo {
     }
 
     // The maximum number of inputs to an `async transition` is 16.
-    async transition baz(
+    async fn baz(
         a: u8, b: u8, c: u8, d: u8, e: u8, f: u8, g: u8, h: u8,
         i: u8, j: u8, k: u8, l: u8, m: u8, n: u8, o: u8, p: u8, q: u8
     ) -> Future {
@@ -17,13 +17,13 @@ program test.aleo {
 }
 
 // The maximum number of inputs to an `async function`  is 16.
-async function baz_finalize(
+async fn baz_finalize(
     a: u8, b: u8, c: u8, d: u8, e: u8, f: u8, g: u8, h: u8,
     i: u8, j: u8, k: u8, l: u8, m: u8, n: u8, o: u8, p: u8, q: u8
 ) {  }
 
 // The maximum number of arguments to a `function` is 16.
-function foo(
+fn foo(
     a: u8, b: u8, c: u8, d: u8, e: u8, f: u8, g: u8, h: u8,
     i: u8, j: u8, k: u8, l: u8, m: u8, n: u8, o: u8, p: u8, q: u8
 ) -> u8 {

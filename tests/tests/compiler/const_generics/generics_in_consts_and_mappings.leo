@@ -5,11 +5,11 @@ const F: Foo::[true] = Foo::[true] { x: true };
 program b28668.aleo {
     mapping map: Foo::[true] => Foo::[false];
 
-    async transition main(y: u32) -> (bool, Future) {
+    async fn main(y: u32) -> (bool, Future) {
         return (F.x, f());
     }
 }
 
-async function f() {
+async fn f() {
     map.set(Foo::[true] { x: false }, Foo::[false] { x: true });
 }

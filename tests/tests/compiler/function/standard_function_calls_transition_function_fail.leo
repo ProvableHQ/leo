@@ -1,5 +1,5 @@
 
-function main(a: u32, b: u32, y: bool) -> u32 {
+fn main(a: u32, b: u32, y: bool) -> u32 {
     if y {
        return adder(a, b);
     } else {
@@ -8,10 +8,10 @@ function main(a: u32, b: u32, y: bool) -> u32 {
 }
 
 program test.aleo {
-    transition adder(a: u32, b: u32) -> u32 {
+    fn adder(a: u32, b: u32) -> u32 {
         return a + b;
     }
 
-    transition subber(a: u32, b: u32) -> u32 {
+    fn subber(a: u32, b: u32) -> u32 {
         return a - b;
     }}

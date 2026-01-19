@@ -1,10 +1,11 @@
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         return foo::[10]();
     }
 }
 
-inline foo::[P: u32]() -> u32 {
+@inline
+fn foo::[P: u32]() -> u32 {
     let sum = 0u32;
     for i: u32 in 1..P {
         let arr = [0u32; i];

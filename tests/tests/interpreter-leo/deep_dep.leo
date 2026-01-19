@@ -4,7 +4,7 @@ struct Wrapper {
 }
 
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         let outer_x = base::X;
         let inner_x = base::nested::X;
         let deep_x = base::nested::deeper::X;
@@ -44,7 +44,8 @@ struct Foo::[N: u32] {
     a: [u32; N],
 }
 
-inline compute() -> u32 {
+@inline
+fn compute() -> u32 {
     let b = Foo::[X] {
         a: [10; X],
     };
@@ -59,7 +60,8 @@ struct Foo::[M: u32] {
     a: [u32; M],
 }
 
-inline compute() -> u32 {
+@inline
+fn compute() -> u32 {
     let f = Foo::[X] {
         a: [20; X],
     };

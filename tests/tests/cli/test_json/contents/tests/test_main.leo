@@ -1,7 +1,7 @@
 import test_json_program.aleo;
 program test_main.aleo {
-    // Required by snarkVM - every program needs at least one transition.
-    transition placeholder() {}
+    // Required by snarkVM - every program needs at least one fn.
+    fn placeholder() {}
 
     @test
     script test_addition() {

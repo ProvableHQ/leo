@@ -58,7 +58,7 @@ program mixed_types.aleo {
     // Unsigned integers test
     // ────────────────────────────────────────────────────────────────
     //
-    async transition unsigned_integers() -> Future {
+    async fn unsigned_integers() -> Future {
         return async {
             counter_u32 = 10;
             assert(counter_u32.unwrap() == 10);
@@ -78,7 +78,7 @@ program mixed_types.aleo {
     // Signed integers test
     // ────────────────────────────────────────────────────────────────
     //
-    async transition signed_integers() -> Future {
+    async fn signed_integers() -> Future {
         return async {
             counter_i32 = -5i32;
             assert(counter_i32.unwrap() == -5i32);
@@ -98,7 +98,7 @@ program mixed_types.aleo {
     // Primitive types test
     // ────────────────────────────────────────────────────────────────
     //
-    async transition primitive_types() -> Future {
+    async fn primitive_types() -> Future {
         return async {
             flag = true;
             scalar_val = 2scalar;
@@ -127,7 +127,7 @@ program mixed_types.aleo {
     // Structs and arrays test (nested)
     // ────────────────────────────────────────────────────────────────
     //
-    async transition structs_and_arrays() -> Future {
+    async fn structs_and_arrays() -> Future {
         return async {
             // Build nested data
             let p0 = Point { x: 1field, y: 2field };

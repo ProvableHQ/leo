@@ -1,6 +1,6 @@
 program test.aleo {
     mapping map: u32 => u32;
-    async transition main() -> (u32, Future) {
+    async fn main() -> (u32, Future) {
         let x = 5u32;
         let f = finalize(x);
         x = 6;
@@ -13,7 +13,7 @@ program test.aleo {
         return (x, f);
     }
 }
-async function finalize(x: u32) {
+async fn finalize(x: u32) {
     map.set(0u32, 42u32);
     assert(map.get(0u32) == 42u32);
     map.set(1u32, map.get(0u32) + x);

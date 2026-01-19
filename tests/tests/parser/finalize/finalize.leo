@@ -1,19 +1,19 @@
 
 program test.aleo {
-    async transition main() -> bool {
+    async fn main() -> bool {
 
     }
 
 }
 
-async function finalize_main() {
+async fn finalize_main() {
 
 }
 
-function main() -> bool {
+fn main() -> bool {
 
 }
-async function main(a: foo, b: bar) -> baz {
+async fn main(a: foo, b: bar) -> baz {
 
 }
 

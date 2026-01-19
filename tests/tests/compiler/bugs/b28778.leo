@@ -5,7 +5,7 @@ struct Foo {
 }
 
 program b28788.aleo {
-    transition main(public a: u32, b: u32) -> u32 {
+    fn main(public a: u32, b: u32) -> u32 {
         // Previously the `x` would lead to a panic in codegen.
         let f = Foo { x };
         return f.x;

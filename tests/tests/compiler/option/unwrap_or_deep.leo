@@ -16,7 +16,7 @@ struct Top {
 }
 
 program unwrap_or_deep.aleo {
-    transition unwrap_or_deep() -> u8 {
+    fn unwrap_or_deep() -> u8 {
         // Top structure with missing values deep inside
         let top: Top = Top {
             container: Container {

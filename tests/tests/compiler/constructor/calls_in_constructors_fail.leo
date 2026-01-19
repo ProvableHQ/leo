@@ -1,9 +1,9 @@
-function foo(a: bool) {
+fn foo(a: bool) {
     assert_eq(true, a);
 }
 
 program test.aleo {
-    transition bar() {}
+    fn bar() {}
 
     @custom
     async constructor() {

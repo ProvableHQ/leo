@@ -7,7 +7,7 @@ struct Goo::[P: u32] {
 
 program test.aleo {
     mapping baz: u32 => u32;
-    transition main(g: Goo::[7u32]) -> u32 {
+    fn main(g: Goo::[7u32]) -> u32 {
         let x = 5u32;
         let y: x::[5] = [3];
 

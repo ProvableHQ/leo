@@ -1,5 +1,5 @@
 
 program test.aleo {}
-function aria192check_for_win(b: Board, p: u8) -> u128bool {
+fn aria192check_for_win(b: Board, p: u8) -> u128bool {
     return 0;
 }

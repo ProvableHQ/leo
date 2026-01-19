@@ -9,12 +9,12 @@ program test.aleo {
         v: u64
     }
 
-    transition main() -> (S, S, u64, u32, u32, bool, u32, u32) {
+    fn main() -> (S, S, u64, u32, u32, bool, u32, u32) {
         return run(0, 1, [5, 6, 7, 8]);
     }
 }
 
-function run(x: u32, y: u32, arr: [u32; 4]) 
+fn run(x: u32, y: u32, arr: [u32; 4]) 
     -> (S, S, u64, u32, u32, bool, u32, u32) {
     let s1: S = S { x, y };
     let s2: S = s1;
@@ -28,6 +28,7 @@ function run(x: u32, y: u32, arr: [u32; 4])
     return (t.0, t.1, t.2, x_plus_1, y_plus_2, b, call_result, array_access);
 }
 
-inline foo(x: u32) -> u32 {
+@inline
+fn foo(x: u32) -> u32 {
     return x * x;
 }

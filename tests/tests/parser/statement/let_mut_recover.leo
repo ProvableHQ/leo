@@ -1,6 +1,6 @@
 
 program test.aleo {}
-function foo() {
+fn foo() {
     let mut x = 0;
     let mut y = 0; // recovery witness
 }

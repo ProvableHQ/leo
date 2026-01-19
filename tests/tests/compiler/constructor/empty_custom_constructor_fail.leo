@@ -1,5 +1,5 @@
 program constr.aleo {
-    transition main() {
+    fn main() {
     }
 
     @custom

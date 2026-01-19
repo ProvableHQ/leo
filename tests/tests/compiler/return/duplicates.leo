@@ -8,11 +8,11 @@ struct S {
 }
 
 program test.aleo {
-    transition foo1(x: field, y: field) -> (field, field, field, field, u8, u8) {
+    fn foo1(x: field, y: field) -> (field, field, field, field, u8, u8) {
         return (x, x, y, y, 1u8, 1u8);
     }
 
-    transition foo2(x: S, y: S) -> (S, S, field, field, u8, u8) {
+    fn foo2(x: S, y: S) -> (S, S, field, field, u8, u8) {
         return (x, x, 2field, 2field, 1u8, 1u8);
     }
 }

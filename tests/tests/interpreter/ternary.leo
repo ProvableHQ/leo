@@ -24,7 +24,7 @@ struct S {
 }
 
 program test_ternary.aleo {
-    transition do_ternary(x: bool, y: bool, f1: field, f2: field, f3: field) -> S {
+    fn do_ternary(x: bool, y: bool, f1: field, f2: field, f3: field) -> S {
         let s1 = S { a: f1 };
         let s2 = S { a: f2 };
         let s3 = S { a: f3 };

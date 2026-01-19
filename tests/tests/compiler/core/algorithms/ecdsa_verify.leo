@@ -11,7 +11,7 @@ struct Message {
 program test.aleo {
     // Test all ECDSA verification variants with correct types
     // Note: Digest variants require [u8; 32], hash variants require byte-aligned types
-    async transition main(
+    async fn main(
         sig: [u8; 65],
         addr: [u8; 33],       // For non-eth variants
         addr_eth: [u8; 20],   // For eth variants
@@ -26,7 +26,7 @@ program test.aleo {
     }
 }
 
-async function finalize(
+async fn finalize(
     sig: [u8; 65],
     addr: [u8; 33],
     addr_eth: [u8; 20],

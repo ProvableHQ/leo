@@ -1,11 +1,11 @@
 const a: u32 = 10u32;
 
 program test.aleo {
-    transition main(x: u32) -> u32 {
+    fn main(x: u32) -> u32 {
         let b: u32 = a + 5u32;
         return x + b;
     }
-    transition foo(x: u32) -> u32 {
+    fn foo(x: u32) -> u32 {
         let b: u32 = a + 5u32;
         if true {
             b = 42;

@@ -3,12 +3,13 @@ struct S {
     y: u16,
 }
 
-inline bar(x: u32, y: u64) -> u16 {
+@inline
+fn bar(x: u32, y: u64) -> u16 {
     return 0 + 1;
 }
 
 program test.aleo {
-    transition main() {
+    fn main() {
         // Some tuples
         let t0 = (1u32, 2u16);
         let t0_0 = t0.0;

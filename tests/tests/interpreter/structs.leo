@@ -22,14 +22,14 @@ struct StructConsts::[X: u32, Y: u32] {
 }
 
 program test.aleo {
-    transition makeone(x: field, y: u32) -> SomeStruct {
+    fn makeone(x: field, y: u32) -> SomeStruct {
         return SomeStruct {
             x,
             y,
         };
     }
 
-    transition makeconsts(x: field, y: field) -> StructConsts::[1u32, 2u32] {
+    fn makeconsts(x: field, y: field) -> StructConsts::[1u32, 2u32] {
         return StructConsts::[1u32, 2u32] {
             xs: [x, y, y],
         };

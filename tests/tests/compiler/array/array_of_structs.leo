@@ -4,7 +4,7 @@ struct bar {
 }
 
 program test.aleo {
-    transition foo(a: [bar; 8]) -> u8 {
+    fn foo(a: [bar; 8]) -> u8 {
         return a[0u8].data;
     }
 }

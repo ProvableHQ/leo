@@ -26,7 +26,7 @@ struct S {
 }
 
 program test_hash_and_commit.aleo {
-    transition hash(x: field, y: group) -> ([field; 12], group) {
+    fn hash(x: field, y: group) -> ([field; 12], group) {
         let s = S {
             x,
             y,
@@ -51,7 +51,7 @@ program test_hash_and_commit.aleo {
         );
     }
 
-    transition commit(x: field, y: group, z: scalar) -> [field; 6] {
+    fn commit(x: field, y: group, z: scalar) -> [field; 6] {
         let s = S {
             x,
             y,

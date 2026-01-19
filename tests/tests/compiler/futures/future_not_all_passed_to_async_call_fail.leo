@@ -1,9 +1,9 @@
-async function finalize_foo(addr: address) {
+async fn finalize_foo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
     Mapping::set(count, addr, val + 1field);
 }
 
-async function finalize_boo(addr: address) {
+async fn finalize_boo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
     Mapping::set(count, addr, val + 1field);
 }
@@ -11,10 +11,10 @@ async function finalize_boo(addr: address) {
 program child.aleo {
     mapping count: address => field;
 
-    async transition foo() -> Future {
+    async fn foo() -> Future {
         return finalize_foo(self.caller);
     }
-    async transition boo() -> Future {
+    async fn boo() -> Future {
         return finalize_boo(self.caller);
     }
  }
@@ -25,7 +25,7 @@ import child.aleo;
 
 program parent.aleo {
 
-    async transition foo() -> Future {
+    async fn foo() -> Future {
         let f0: Future = child.aleo/foo();
         let f1: Future = child.aleo/foo();
         let f2: Future = child.aleo/foo();
@@ -38,7 +38,7 @@ program parent.aleo {
     }
 }
 
-async function finalize_foo(f0: Future, f1: Future, f2: Future, f3: Future, f4: Future) {
+async fn finalize_foo(f0: Future, f1: Future, f2: Future, f3: Future, f4: Future) {
     f1.await();
     f4.await();
     f2.await();

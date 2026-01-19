@@ -1,5 +1,5 @@
 
-async function foo() {
+async fn foo() {
     let c: [u8; 32] = Program::checksum(test.aleo);
     let d: [u8; 31] = Program::checksum(credits.aleo);
     assert_neq(c, d);
@@ -10,7 +10,7 @@ async function foo() {
 }
 
 program test.aleo {
-    async transition bar() -> Future {
+    async fn bar() -> Future {
         return foo();
     }
 }

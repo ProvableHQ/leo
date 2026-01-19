@@ -7,7 +7,8 @@ struct Matrix::[M: u32, N: u32] {
 }
 
 // Multiply two matrices wrapped in the `Matrix` struct
-inline matmul_and_check::[M: u32, K: u32, N: u32](
+@inline
+fn matmul_and_check::[M: u32, K: u32, N: u32](
     A: Matrix::[M, K],
     B: Matrix::[K, N]
 ) {
@@ -35,7 +36,7 @@ inline matmul_and_check::[M: u32, K: u32, N: u32](
 }
 
 program test.aleo {
-    transition main() -> bool {
+    fn main() -> bool {
         // Matrix A: 2x3
         let A = Matrix::[M_, K_] {
             data: [

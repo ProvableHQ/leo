@@ -12,7 +12,7 @@ struct Message {
 program test.aleo {
     // The "main" function of this Leo program takes a "Message" struct type as input.
     // To see how to input variable "m" is passed in open up `inputs/message.in`.
-    transition main(m: Message) -> field {
+    fn main(m: Message) -> field {
 
         // 1. Define the "Message" type.
         // 2. Use brackets `{ }` to enclose the struct members.

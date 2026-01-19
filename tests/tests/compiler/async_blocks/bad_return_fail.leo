@@ -1,12 +1,12 @@
 program test.aleo {
-    async transition foo() -> Future {
+    async fn foo() -> Future {
         let f = async {
             return 0u32;
         };
         return f;
     }
 
-    async transition foo2() -> Future {
+    async fn foo2() -> Future {
         let f = async {
             return;
         };

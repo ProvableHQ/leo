@@ -3,7 +3,7 @@ struct Bar::[N: u32] {
 }
 
 program child.aleo {
-    transition main(b: Bar::[5]) -> Bar::[3] {
+    fn main(b: Bar::[5]) -> Bar::[3] {
         let c = Bar::[4] {
             arr: [b.arr[0]; 4],
         };
@@ -17,6 +17,6 @@ program child.aleo {
 
 import child.aleo;
 program parent.aleo {
-    transition main() {
+    fn main() {
     }
 }

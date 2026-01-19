@@ -7,7 +7,7 @@ program lottery.aleo {
 
     mapping num_winners: u8 => u8;
 
-    async transition play() -> (Ticket, Future) {
+    async fn play() -> (Ticket, Future) {
         let ticket: Ticket = Ticket {
             owner: self.signer,
         };
@@ -15,7 +15,7 @@ program lottery.aleo {
     }
 }
 
-async function finalize_play() {
+async fn finalize_play() {
     // Check that the lottery has not expired.
     assert(block.height <= 1000u32);
 

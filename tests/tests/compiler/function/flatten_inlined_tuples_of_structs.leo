@@ -9,7 +9,8 @@ struct Data {
     c: Extra,
 }
 
-inline foo(a: u8, b: u8) -> (u8, u8, Data) {
+@inline
+fn foo(a: u8, b: u8) -> (u8, u8, Data) {
     let extra: Extra = Extra { c: a };
     let data: Data = Data { a: a, b: b, c: extra };
     if (a == b) {
@@ -22,7 +23,7 @@ inline foo(a: u8, b: u8) -> (u8, u8, Data) {
 }
 
 program test.aleo {
-    transition bar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
+    fn bar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
         let start: (u8, u8, Data) = foo(a, b);
         if flag1 {
             start = foo(start.0, start.2.c.c);

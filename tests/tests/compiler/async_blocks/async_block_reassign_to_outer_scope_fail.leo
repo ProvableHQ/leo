@@ -5,7 +5,7 @@ struct TokenInfo {
 program test.aleo {
     mapping token_name_to_info: field => TokenInfo;
 
-    async transition add_new_token_2() -> Future {
+    async fn add_new_token_2() -> Future {
         return async {
             let try_get_token: TokenInfo = Mapping::get_or_use(
                 token_name_to_info,

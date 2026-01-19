@@ -4,7 +4,7 @@ struct Merge {
 }
 
 program flat_module_corner.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         let val1 = util::X;
         let val2 = config::X;
 
@@ -34,7 +34,8 @@ struct Data::[N: u32] {
     values: [u32; N],
 }
 
-inline helper() -> u32 {
+@inline
+fn helper() -> u32 {
     const LOCAL_CONST_IN_A_MODULE: u32 = 0;
     let d = Data::[X + LOCAL_CONST_IN_A_MODULE] {
         values: [1, 2, 3],
@@ -50,7 +51,8 @@ struct Data {
     values: [u32; X],
 }
 
-inline helper() -> u32 {
+@inline
+fn helper() -> u32 {
     let d = Data {
         values: [5; X],
     };
@@ -59,7 +61,8 @@ inline helper() -> u32 {
 
 // --- Next Module: shared.leo --- //
 
-inline boost(n: u32) -> u32 {
+@inline
+fn boost(n: u32) -> u32 {
     // Only uses values accessible within this module or passed in
     return n * 2;
 }

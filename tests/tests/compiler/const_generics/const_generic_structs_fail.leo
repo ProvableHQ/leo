@@ -1,7 +1,7 @@
 struct Foo::[N: u32] { y: u32 }
 
 program test.aleo {
-    transition main(x: u32) {
+    fn main(x: u32) {
         let f = Foo::[x] { y: 0 };
     }
 }

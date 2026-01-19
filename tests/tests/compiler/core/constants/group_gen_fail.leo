@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(
+    fn main(
         group_value: group,
     ) -> group {
         let a: group = group::GENERATOR;

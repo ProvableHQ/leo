@@ -1,7 +1,7 @@
 struct Foo { x: u32, y: u32 }
 
 program test.aleo {
-    async transition foo(p: u32, q: u8) -> Future {
+    async fn foo(p: u32, q: u8) -> Future {
         let y = (1u32, 2u8, 3u16);
         let a = [1u32, 2u32];
         let x = 0u32;

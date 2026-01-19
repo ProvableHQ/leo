@@ -8,12 +8,13 @@ function = "main"
 input = []
 */
 
-inline foo::[M: u32](arr: [u32; 3]) -> u32 {
+@inline
+fn foo::[M: u32](arr: [u32; 3]) -> u32 {
     return arr[M - 1];
 }
 
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         return foo::[3u32]([1, 2, 3]);
     }
 

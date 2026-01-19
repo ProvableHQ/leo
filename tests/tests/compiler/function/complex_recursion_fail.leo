@@ -1,34 +1,34 @@
 
-function one(n: u8) -> u8 {
+fn one(n: u8) -> u8 {
     return two(n);
 }
 
-function two(n: u8) -> u8 {
+fn two(n: u8) -> u8 {
     return three(n) + four(n);
 }
 
-function three(n: u8) -> u8 {
+fn three(n: u8) -> u8 {
     return one(n);
 }
 
-function four(n: u8) -> u8 {
+fn four(n: u8) -> u8 {
     return one(n);
 }
 
 program test.aleo {
-    transition five(n: u8) -> u8 {
+    fn five(n: u8) -> u8 {
         return six(n);
     }
 
-    transition six(n: u8) -> u8 {
+    fn six(n: u8) -> u8 {
         return seven(n) + eight(n);
     }
 
-    transition seven(n: u8) -> u8 {
+    fn seven(n: u8) -> u8 {
         return five(n);
     }
 
-    transition eight(n: u8) -> u8 {
+    fn eight(n: u8) -> u8 {
         return five(n);
     }
 }

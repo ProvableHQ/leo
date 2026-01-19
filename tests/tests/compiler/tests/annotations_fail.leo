@@ -4,24 +4,24 @@ script foo2() {
 
 program test.aleo {
     @test
-    transition foo1() {
+    fn foo1() {
     }
 
     @test(private_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
-    transition foo3() {
+    fn foo3() {
     }
 
     @should_fail
-    transition foo4() {
+    fn foo4() {
     }
 
     @should_fail
     @test
-    transition foo5() {
+    fn foo5() {
     }
 
     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
-    transition foo6() {
+    fn foo6() {
     }
 }
 

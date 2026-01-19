@@ -36,6 +36,6 @@ struct Config {
     host: field,
 }
 
-function main(zz: bool) -> bool {
+fn main(zz: bool) -> bool {
     return true;
 }

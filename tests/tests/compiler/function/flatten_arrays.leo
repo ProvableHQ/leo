@@ -3,7 +3,7 @@ struct Data {
     data: [u8; 2],
 }
 
-function foo(a: u8, b: u8) -> [Data; 2] {
+fn foo(a: u8, b: u8) -> [Data; 2] {
     let data_1: Data = Data { data: [a, b] };
     let data_2: Data = Data { data: [b, a] };
     if (a == b) {
@@ -16,7 +16,7 @@ function foo(a: u8, b: u8) -> [Data; 2] {
 }
 
 program test.aleo {
-    transition bar(flag1: bool, flag2: bool, a: u8, b: u8) -> [Data; 2] {
+    fn bar(flag1: bool, flag2: bool, a: u8, b: u8) -> [Data; 2] {
         let start: [Data; 2] = foo(a, b);
         if flag1 {
             start = foo(start[0u8].data[0u8], start[1u8].data[1u8]);

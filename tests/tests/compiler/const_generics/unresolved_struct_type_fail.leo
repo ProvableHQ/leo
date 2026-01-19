@@ -5,7 +5,7 @@ struct Goo::[P: u32] {
 }
 
 program b28668.aleo {
-    transition main(y: u32) -> u32 {
+    fn main(y: u32) -> u32 {
         let g: Goo::[y] = Goo::[y] {
             z: Foo::[self.caller] {
                 x: 5,

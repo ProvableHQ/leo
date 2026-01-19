@@ -1,4 +1,4 @@
-function fib(n: u8) -> u8 {
+fn fib(n: u8) -> u8 {
     if n <= 1u8 {
         return n;
     } else {
@@ -7,7 +7,7 @@ function fib(n: u8) -> u8 {
 }
 
 program test.aleo {
-    transition foo(n: u8) -> u8 {
+    fn foo(n: u8) -> u8 {
         if n <= 1u8 {
             return n;
         } else {

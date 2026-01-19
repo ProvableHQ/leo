@@ -5,8 +5,8 @@ struct Foo {
     x: u8,
 }
 
-function Foo() {}
+fn Foo() {}
 
-function main(y: bool) -> bool {
+fn main(y: bool) -> bool {
     return y;
 }

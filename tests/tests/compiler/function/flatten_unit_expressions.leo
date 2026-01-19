@@ -1,7 +1,7 @@
 
 program test.aleo {
 
-    transition bar() {
+    fn bar() {
         if (true) {
             return;
         }

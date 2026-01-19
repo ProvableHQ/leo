@@ -4,7 +4,7 @@ struct S {
 }
 
 program test.aleo {
-    transition main() -> u8 {
+    fn main() -> u8 {
         const s: S = S { x: 1u8, y: 2u8 };
         return s.x;
     }

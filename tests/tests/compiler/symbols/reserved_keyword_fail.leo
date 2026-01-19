@@ -12,17 +12,18 @@ program finalize.aleo {
         owner: u32,
     }
 
-    transition value() {}
+    fn value() {}
 
-    async transition output() -> Future {
+    async fn output() -> Future {
         return finalize();
     }
 
-    transition main(f: Foo) -> Foo {
+    fn main(f: Foo) -> Foo {
         return f;
     }
 }
 
-async function finalize() {}
-function key() {}
-inline value() {}
+async fn finalize() {}
+fn key() {}
+@inline
+fn value() {}

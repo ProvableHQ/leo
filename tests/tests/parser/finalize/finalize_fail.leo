@@ -1,22 +1,22 @@
-function main() -> bool {
+fn main() -> bool {
 
 } finalize {
 
 }
 
-function main() -> bool {
+fn main() -> bool {
 
 } finalize() {
 
 }
 
-function main() -> bool {
+fn main() -> bool {
 
 } finalie() {
 
 }
 
-function main() -> bool {
+fn main() -> bool {
 
 } finalize main() floo {
 

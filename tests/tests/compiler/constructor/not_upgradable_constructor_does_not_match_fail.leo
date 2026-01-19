@@ -1,5 +1,5 @@
 program test.aleo {
-    transition foo() {}
+    fn foo() {}
 
     @noupgrade
     async constructor() {

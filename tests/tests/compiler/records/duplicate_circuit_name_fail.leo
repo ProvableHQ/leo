@@ -13,6 +13,6 @@ struct Token { // This struct cannot have the same name as the record defined ab
     x: u32,
 }
 
-function main(zz: bool) -> bool {
+fn main(zz: bool) -> bool {
     return true;
 }

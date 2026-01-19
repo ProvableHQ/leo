@@ -21,7 +21,8 @@ struct Matrix::[M: u32, N: u32] {
 }
 
 // Multiplies two matrices wrapped in the `Matrix` struct
-inline matmul::[M: u32, K: u32, N: u32](
+@inline
+fn matmul::[M: u32, K: u32, N: u32](
     A: Matrix::[M, K],
     B: Matrix::[K, N]
 ) -> Matrix::[M, N] {
@@ -41,7 +42,8 @@ inline matmul::[M: u32, K: u32, N: u32](
 }
 
 // Checks if a square matrix is symmetric
-inline is_symmetric::[N: u32](A: Matrix::[N, N]) -> bool {
+@inline
+fn is_symmetric::[N: u32](A: Matrix::[N, N]) -> bool {
     for i in 0u32..N-1 {
         for j in (i + 1u32)..N { // Only check upper triangle
             if A.data[i][j] != A.data[j][i] {
@@ -53,7 +55,7 @@ inline is_symmetric::[N: u32](A: Matrix::[N, N]) -> bool {
 }
 
 program test.aleo {
-    transition main_1() -> Matrix::[M_, N_] {
+    fn main_1() -> Matrix::[M_, N_] {
         // Matrix A: 2x3
         let A = Matrix::[M_, K_] {
             data: [
@@ -77,7 +79,7 @@ program test.aleo {
         return C;
     }
 
-    transition main_2() -> bool {
+    fn main_2() -> bool {
         let A = Matrix::[K_, K_] {
             data: [
                 [1i32, 2i32, 3i32],

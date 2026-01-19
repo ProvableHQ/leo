@@ -1,6 +1,6 @@
 program test.aleo {}
 
-function main(a: u8) -> bool {
+fn main(a: u8) -> bool {
     let b: bool = -a == -1u8;
     let c: bool = -a > -1u8;
     let d: bool = -a < -1u8;

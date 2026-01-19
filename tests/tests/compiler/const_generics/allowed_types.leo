@@ -19,7 +19,8 @@ struct Foo::[
 }
 
 // Define a generic function `foo` that takes all allowed types and returns them as a tuple
-inline foo::[
+@inline
+fn foo::[
     a1: bool,
     a2: u8,
     a3: u16,
@@ -57,7 +58,7 @@ inline foo::[
 
 program test.aleo {
     // Main transition that calls `foo` with values of all types and returns its result
-    transition main() -> (
+    fn main() -> (
         bool,
         u8,
         u16,
@@ -94,7 +95,7 @@ program test.aleo {
         ]();
     }
 
-    transition main2() {
+    fn main2() {
         let f = Foo::[
             true,
             8,

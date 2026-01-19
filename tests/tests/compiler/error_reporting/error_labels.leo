@@ -1,5 +1,5 @@
 program labels.aleo {
-    transition foo() {}
+    fn foo() {}
 }
 struct Foo0 {
     x: u32,

@@ -1,11 +1,12 @@
 
-inline foo(a: u8, b: u8) -> u8 {
+@inline
+fn foo(a: u8, b: u8) -> u8 {
     assert_neq(a, b);
     return a + b;
 }
 
 program test.aleo {
-    async transition public_adder(public a: u8, public b: u8) -> Future {
+    async fn public_adder(public a: u8, public b: u8) -> Future {
         return async {
             let result: u8 = foo(a, b);
             assert_neq(result, 0u8);

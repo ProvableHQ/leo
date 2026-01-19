@@ -4,7 +4,7 @@ struct Foo {
 }
 
 program test.aleo {
-    function main(let x: u8, y: bool) -> bool {
+    fn main(let x: u8, y: bool) -> bool {
         let a: Foo = Foo { x };
 
         return (b.x == a.x) == y;

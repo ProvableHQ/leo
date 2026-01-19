@@ -1,13 +1,13 @@
 
 let x: u32 = 0;
 
-function foo() {}
+fn foo() {}
 
-async function foo() {}
+async fn foo() {}
 
-transition foo() {}
+fn foo() {}
 
-async transition foo() {}
+async fn foo() {}
 
 record Foo {}
 

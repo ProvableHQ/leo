@@ -1,7 +1,7 @@
 const Five: u32 = 5;
 
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         let total = 0u32;
         total += sum_array::[1]([1]);
         total += sum_array::[2]([1, 2u32]);
@@ -14,7 +14,8 @@ program test.aleo {
     }
 }
 
-inline sum_array::[N: u32](arr: [u32; N]) -> u32 {
+@inline
+fn sum_array::[N: u32](arr: [u32; N]) -> u32 {
     let sum = 0u32;
     for i in 0u32..N {
         sum += arr[i];

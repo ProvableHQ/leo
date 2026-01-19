@@ -1,7 +1,7 @@
 struct Foo::[N: u32] { x: u32 }
 
 program test.aleo {
-    transition main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
+    fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
         let x = foo::[5u16]();
         let y = foo::[]();
         let z = foo::[5u32, 5u32]();
@@ -14,6 +14,7 @@ program test.aleo {
     }
 }
 
-inline foo::[N: u32]() -> u32 {
+@inline
+fn foo::[N: u32]() -> u32 {
     return N;
 }

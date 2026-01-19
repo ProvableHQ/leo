@@ -2,7 +2,7 @@ program test.aleo {
     mapping expected: bool => [u8; 32];
     mapping admin: bool => address;
     
-    async transition set_expected(checksum: [u8; 32]) -> Future {
+    async fn set_expected(checksum: [u8; 32]) -> Future {
         return set_expected_(self.caller, checksum);
     }
     @custom
@@ -18,7 +18,7 @@ program test.aleo {
     }
 }
 
-async function set_expected_(addr: address, checksum: [u8; 32]) {
+async fn set_expected_(addr: address, checksum: [u8; 32]) {
     assert_eq(addr, admin.get(true));
     expected.set(true, checksum);
 }

@@ -3,7 +3,7 @@ struct foo {
 }
 
 program test.aleo {
-    transition main(f: bool, a: group, b: address) -> (foo, foo) {
+    fn main(f: bool, a: group, b: address) -> (foo, foo) {
         let first: foo = foo { data: a as field };
         if f {
             let second: foo = foo { data: 1field };

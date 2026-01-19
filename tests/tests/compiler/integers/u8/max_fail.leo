@@ -1,5 +1,5 @@
 
 program test.aleo { }
-function main(x: bool) {
+fn main(x: bool) {
     let a: u8 = 256u8;
 }

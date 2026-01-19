@@ -1,9 +1,9 @@
 
 program test.aleo {
-    // The 'ntzsearchtree' main function.
+    // The 'ntzsearchtree' main fn.
     // From Hacker's Delight 2nd ed. figure 5-22,
     // expanded to a 32-bit version.
-    transition main(public x: u32) -> u8 {
+    fn main(public x: u32) -> u8 {
         if (x & 65535u32 != 0u32) {
             if (x & 255u32 != 0u32) {
                 if (x & 15u32 != 0u32) {

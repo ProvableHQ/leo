@@ -1,5 +1,7 @@
 program test.aleo {
-    transition main() {}
+    fn main() {}
 }
-inline foo::[N: u32, M: u32]() {}
-inline bar::[]() {}
+@inline
+fn foo::[N: u32, M: u32]() {}
+@inline
+fn bar::[]() {}

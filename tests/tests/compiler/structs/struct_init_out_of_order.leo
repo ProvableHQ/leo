@@ -12,7 +12,7 @@ struct Bar {
 }
 
 program test.aleo {
-    transition main(a: u8, b: u16) -> (Foo, Bar) {
+    fn main(a: u8, b: u16) -> (Foo, Bar) {
         let c: u8 = a + a;
         let d: u16 = b * b;
         let e: Foo = Foo {

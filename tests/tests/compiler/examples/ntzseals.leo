@@ -2,7 +2,7 @@
 program test.aleo {
     // The 'nztseals' main function.
     // From Hacker's Delight 2nd ed. figure 5-25
-    transition main(public x: u32) -> u8 {
+    fn main(public x: u32) -> u8 {
         // 0x0450FBAF = 72416175
         x = (x & 0u32.sub_wrapped(x)).mul_wrapped(72416175u32);
         return sealsTableLookup(x >> 26u8);
@@ -16,7 +16,7 @@ program test.aleo {
 //  31,11, 5, u, u, u, u, u,   9, u, u,24, u, u,20,26,
 //  30, u, u, u, u,23, u,19,  29, u,22,18,28,17,16, u};
 
-function sealsTableLookup(i: u32) -> u8 {
+fn sealsTableLookup(i: u32) -> u8 {
 
     if i == 0u32 {return 32u8;} else
     if i == 1u32 {return 0u8;} else

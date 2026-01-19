@@ -40,7 +40,7 @@ struct H {
 }
 
 program test.aleo {
-    transition foo(f: F) -> u8 {
+    fn foo(f: F) -> u8 {
         let a: u8 = f.b.a.data;
         let c: u8 = f.b.d.c.data;
         let e: u8 = f.b.d.e.data;

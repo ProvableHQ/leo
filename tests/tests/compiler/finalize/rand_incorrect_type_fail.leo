@@ -3,12 +3,12 @@ program test.aleo {
 
     mapping values: scalar => group;
 
-    async transition foo() -> Future {
+    async fn foo() -> Future {
         return finalize_foo();
     }
 }
 
-async function finalize_foo() {
+async fn finalize_foo() {
     let a: scalar = ChaCha::rand_field();
     let b: group = ChaCha::rand_field();
     values.set(a, b);

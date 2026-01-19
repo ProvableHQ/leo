@@ -1,5 +1,5 @@
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         return dep::X + dep::inner::Y 
         + dep::foo(dep::X, dep::inner::Y)
         + dep::inner::foo(dep::X, dep::inner::Y);
@@ -10,7 +10,8 @@ program test.aleo {
 
 const X: u32 = 32;
 
-inline foo(x: u32, y: u32) -> u32 {
+@inline
+fn foo(x: u32, y: u32) -> u32 {
     return x + y; 
 }
 
@@ -18,6 +19,7 @@ inline foo(x: u32, y: u32) -> u32 {
 
 const Y: u32 = 64;
 
-inline foo(x: u32, y: u32) -> u32 {
+@inline
+fn foo(x: u32, y: u32) -> u32 {
     return x * y; 
 }

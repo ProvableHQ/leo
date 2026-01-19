@@ -13,7 +13,7 @@ input = ["2group"]
 */
 
 program test.aleo {
-    transition main(a: group) -> (field, field) {
+    fn main(a: group) -> (field, field) {
         let b: field = group::to_x_coordinate(a);
         let c: field = a as field;
         let e: field = a.to_x_coordinate();

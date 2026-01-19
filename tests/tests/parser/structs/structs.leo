@@ -9,6 +9,6 @@ struct Foo3::[N: u32, M: address] {
 }
 
 program comma_separators.aleo {
-    transition main() {
+    fn main() {
     }
 }

@@ -8,7 +8,7 @@ input = []
 */
 
 program child.aleo {
-    transition dummy() {}
+    fn dummy() {}
 
     @noupgrade
     async constructor() {}
@@ -19,7 +19,7 @@ program child.aleo {
 import child.aleo;
 
 program test.aleo {
-    async transition bar() -> Future {
+    async fn bar() -> Future {
         return async {
             let c: [u8; 32] = self.checksum;
             let d: [u8; 32] = Program::checksum(child.aleo);

@@ -5,13 +5,13 @@ struct S {
 
 program test.aleo {
     mapping x: Future => Future;
-    async transition main() -> Future {
+    async fn main() -> Future {
         let future: Future = finish();
         let an_array: [Future; 1] = [future];
         return an_array[0u32];
     }
 }
 
-async function finish() {
+async fn finish() {
     assert_eq(1u8, 1u8);
 }

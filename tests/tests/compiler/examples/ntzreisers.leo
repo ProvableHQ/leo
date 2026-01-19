@@ -2,7 +2,7 @@
 program test.aleo {
     // The 'ntzreisers' main function.
     // From Hacker's Delight 2nd ed. figure 5-27
-    transition main(public x: u32) -> u8 {
+    fn main(public x: u32) -> u8 {
         x = (x & 0u32.sub_wrapped(x)).rem_wrapped(37u32);
         return reisersTableLookup(x);
     }
@@ -13,7 +13,7 @@ program test.aleo {
 //   7, 17, u, 25, 22, 31, 15, 29, 10, 12,
 //   6, u, 21, 14, 9, 5, 20, 8, 19, 18};
 
-function reisersTableLookup(i: u32) -> u8 {
+fn reisersTableLookup(i: u32) -> u8 {
 
     if i == 0u32 {return 32u8;} else
     if i == 1u32 {return 0u8;} else

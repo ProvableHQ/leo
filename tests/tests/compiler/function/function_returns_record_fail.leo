@@ -1,12 +1,12 @@
 
-function foo(board: Board, data: u8) -> Board {
+fn foo(board: Board, data: u8) -> Board {
     return Board {
         owner: board.owner,
         data: data,
     };
 }
 
-function bar(board: Board) {
+fn bar(board: Board) {
     assert_eq(board.data, 0u8);
 }
 
@@ -16,7 +16,7 @@ program test.aleo {
         data: u8,
     }
 
-    transition main(board: Board) -> Board {
+    fn main(board: Board) -> Board {
         bar(board);
         return foo(board, 1u8);
     }

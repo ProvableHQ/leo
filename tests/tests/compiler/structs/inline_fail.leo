@@ -4,7 +4,7 @@ struct Foo {
 }
 
 program test.aleo {
-    function main(zz: bool) {
+    fn main(zz: bool) {
         // no member y in Foo
         let a: Foo = Foo { y: 0u32 };
     }

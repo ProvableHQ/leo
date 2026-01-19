@@ -1,5 +1,5 @@
 program empty_arrays.aleo {
-    transition main(a: [u32; 0], c: [u32; 0]) ->  ([u32;0], u32, [u64;0], u64) {
+    fn main(a: [u32; 0], c: [u32; 0]) ->  ([u32;0], u32, [u64;0], u64) {
         let val: [u32;0u64] = [];
         let val_64: [u64;0] = [];
         val = id(val);
@@ -7,24 +7,27 @@ program empty_arrays.aleo {
     }
 }
 
-function foo(a: u32, b:[u32; 0]) -> [u32;0] {
+fn foo(a: u32, b:[u32; 0]) -> [u32;0] {
     let c = b;
     let d = c;
     return d;
 }
 
-inline id(a: [u32;0]) -> [u32;0] {
+@inline
+fn id(a: [u32;0]) -> [u32;0] {
     return a;
 } 
 
-inline sum::[N: u32](arr: [u32; N]) -> u32 {
+@inline
+fn sum::[N: u32](arr: [u32; N]) -> u32 {
     let total = 0u32;
     for i in 0u32..N {
         total += arr[i];
     }
     return total;
 }
-inline sum_64::[N: u64](arr: [u64; N]) -> u64 {
+@inline
+fn sum_64::[N: u64](arr: [u64; N]) -> u64 {
     let total = 0u64;
     for i in 0u64..N {
         total += arr[i];

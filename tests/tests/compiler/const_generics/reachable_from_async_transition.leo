@@ -1,16 +1,18 @@
 program const_generics.aleo {
-    async transition foo() -> (field, Future) {
+    async fn foo() -> (field, Future) {
         let f = bar();
         return (abc::[0](), f);
     }
 }
 
-async function bar() { }
+async fn bar() { }
 
-inline abc::[C: field]() -> field {
+@inline
+fn abc::[C: field]() -> field {
     return def::[C]();
 }
 
-inline def::[C: field]() -> field {
+@inline
+fn def::[C: field]() -> field {
     return C;
 }

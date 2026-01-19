@@ -1,6 +1,6 @@
 program test.aleo {
     // The maximum number of outputs for a `transition` is 16.
-    transition bar() -> (
+    fn bar() -> (
         u8, u8, u8, u8, u8, u8, u8, u8,
         u8, u8, u8, u8, u8, u8, u8, u8,
         u8
@@ -11,7 +11,7 @@ program test.aleo {
     }
 
     // The maximum number of outputs for an `async transition` is 16.
-    async transition baz() ->
+    async fn baz() ->
         (u8, u8, u8, u8, u8, u8, u8,
         u8, u8, u8, u8, u8, u8, u8, u8,
         u8, Future)
@@ -22,10 +22,10 @@ program test.aleo {
     }
 }
 
-async function baz_finalize() {}
+async fn baz_finalize() {}
 
 // The maximum number of outputs for a `function` is 16.
-function foo(x: u8) -> (
+fn foo(x: u8) -> (
     u8, u8, u8, u8, u8, u8, u8, u8,
     u8, u8, u8, u8, u8, u8, u8, u8,
     u8

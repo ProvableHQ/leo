@@ -10,7 +10,7 @@ struct Data {
 
 program test.aleo {
     // Test all BHP raw hash variants
-    transition main(input: u64) -> (
+    fn main(input: u64) -> (
         address, field, group, i8, u32, scalar,  // BHP256 raw
         field, group, scalar,                     // BHP512 raw
         field, u64,                               // BHP768 raw

@@ -1,4 +1,4 @@
-async function foo() {
+async fn foo() {
     mfield.set(
         BHP512::hash_to_field(1234567u128),
         BHP512::hash_to_field(12field),
@@ -17,7 +17,7 @@ program test.aleo {
     mapping mfield: field => field;
     mapping mgroup: group => group;
     mapping mu32: u32 => u32;
-    async transition main() -> Future {
+    async fn main() -> Future {
         return foo();
     }
 }

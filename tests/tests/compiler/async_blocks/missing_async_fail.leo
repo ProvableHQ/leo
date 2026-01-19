@@ -1,3 +1,3 @@
 program test.aleo {
-    async transition t() { }
+    async fn t() { }
 }

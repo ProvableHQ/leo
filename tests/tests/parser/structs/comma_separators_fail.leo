@@ -1,5 +1,5 @@
 program comma_separators.aleo {
-    transition main(public a: u32) -> u32 {
+    fn main(public a: u32) -> u32 {
 		return a;
     }
 }

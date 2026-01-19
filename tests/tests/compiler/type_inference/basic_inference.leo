@@ -9,7 +9,7 @@ program foo.aleo {
         v: u64
     }
 
-    transition main(x: u32, y: u32, addr: address, arr: [u32; 4]) 
+    fn main(x: u32, y: u32, addr: address, arr: [u32; 4]) 
         -> (S, S, u64, u32, u32, bool, u32, u32) {
         let s1 = S { x, y };
         let s2: S = s1;
@@ -24,6 +24,7 @@ program foo.aleo {
     }
 }
 
-inline foo(x: u32) -> u32 {
+@inline
+fn foo(x: u32) -> u32 {
     return x * x;
 }

@@ -9,7 +9,7 @@ struct Point2 {
 }
 
 program test.aleo {
-    transition main() {
+    fn main() {
         // Add
         assert_eq(1i8 + 2i8, 3i8);
         assert_eq(1000i16 + 2345i16, 3345i16);

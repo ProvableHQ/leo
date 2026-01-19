@@ -34,7 +34,7 @@ struct WrapperAddr { inner: InnerAddr }
 
 program all_types.aleo {
     // --- Section 1: Basic Optionals and Inference ---
-    transition optional_basic_primitives() -> u32 {
+    fn optional_basic_primitives() -> u32 {
         let a: u32? = 10u32;
         let b: u32? = none;
         let c: u32 = a.unwrap();
@@ -43,7 +43,7 @@ program all_types.aleo {
     }
 
     // --- Section 2: Arrays of Optionals ---
-    transition array_of_optionals() -> u8 {
+    fn array_of_optionals() -> u8 {
         let arr: [u8?; 3] = [1u8, none, 3u8];
         let sum = arr[0].unwrap_or(10u8)
                   + arr[1].unwrap_or(20u8)
@@ -52,32 +52,32 @@ program all_types.aleo {
     }
 
     // --- Section 3: Optional Arrays ---
-    transition optional_array() -> u8 {
+    fn optional_array() -> u8 {
         let arr_opt: [u8?; 2]? = [1u8, none];
         let first = arr_opt.unwrap()[0].unwrap_or(10u8);
         return first; // 1
     }
 
     // --- Section 4: Structs with Optional Fields ---
-    transition optional_struct_field() -> u16 {
+    fn optional_struct_field() -> u16 {
         let s = OptStruct { val: none };
         return s.val.unwrap_or(123u16); // 123
     }
 
     // --- Section 5: Optional Structs ---
-    transition optional_struct() -> u8 {
+    fn optional_struct() -> u8 {
         let s: MyStruct? = MyStruct { x: 5u8 };
         return s.unwrap().x; // 5
     }
 
     // --- Section 6: Arrays of Optional Structs ---
-    transition array_of_optional_structs() -> u8 {
+    fn array_of_optional_structs() -> u8 {
         let arr: [Foo?; 2] = [Foo { x: 10u8 }, none];
         return arr[0].unwrap().x; // 10
     }
 
     // --- Section 7: Nested Optionals in Structs & Arrays ---
-    transition nested_optional_structs() -> u8 {
+    fn nested_optional_structs() -> u8 {
         let inner = Inner { val: 10u8 };
         let wrapper = Wrapper { arr: [inner, none] };
         let container = Container { wrappers: [wrapper, none] };
@@ -90,7 +90,7 @@ program all_types.aleo {
     }
 
     // --- Section 8: Tuples with Optional Elements ---
-    transition tuples_with_optional_elements() -> u32 {
+    fn tuples_with_optional_elements() -> u32 {
         let t1: (u32, u32?) = (100u32, 200u32);
         let t2: (u32, u32?) = (300u32, none);
 
@@ -100,7 +100,7 @@ program all_types.aleo {
     }
 
     // --- Section 9: Optionals with group, field, scalar ---
-    transition optional_misc_primitive_types() -> (group, field, scalar) {
+    fn optional_misc_primitive_types() -> (group, field, scalar) {
         let gr: group? = 0group;
         let fl: field? = 1field;
         let sc: scalar? = 2scalar;
@@ -113,7 +113,7 @@ program all_types.aleo {
     }
 
     // --- Section 10: Optionals with Address ---
-    transition optional_address_allowed() -> (address, address, address, address) {
+    fn optional_address_allowed() -> (address, address, address, address) {
         // Case 1: Direct optional address
         let a: address? = none;
         let b: address? = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;

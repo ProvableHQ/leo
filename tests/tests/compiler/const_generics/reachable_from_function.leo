@@ -1,13 +1,15 @@
 program const_generics.aleo {
-    transition foo() {}
+    fn foo() {}
 }
 
-function bar(x: field) -> field { return abc::[0](); }
+fn bar(x: field) -> field { return abc::[0](); }
 
-inline abc::[C: field]() -> field {
+@inline
+fn abc::[C: field]() -> field {
     return def::[C]();
 }
 
-inline def::[C: field]() -> field {
+@inline
+fn def::[C: field]() -> field {
     return C;
 }

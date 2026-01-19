@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {
     // Test Serialize::to_bits_raw on primitives (no struct test - raw only works on literals/arrays)
-    transition main(
+    fn main(
         f: field,
         g: group,
         u64_val: u64,

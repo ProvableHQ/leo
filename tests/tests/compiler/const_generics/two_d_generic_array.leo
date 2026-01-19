@@ -3,7 +3,7 @@ const K_: u32 = 3u32; // Columns in A / Rows in B
 const N_: u32 = 2u32; // Columns in B
 
 program test.aleo {
-    transition main() -> [[i32; N_]; M_] {
+    fn main() -> [[i32; N_]; M_] {
         // Matrix A: 2x3
         let A: [[i32; K_]; M_] = [
             [1i32, 2i32, 3i32],
@@ -25,7 +25,8 @@ program test.aleo {
 }
 
 // Multiply two 2D matrices: A[M][K] * B[K][N] = C[M][N]
-inline matmul::[M: u32, K: u32, N: u32](
+@inline
+fn matmul::[M: u32, K: u32, N: u32](
     A: [[i32; K]; M],
     B: [[i32; N]; K]
 ) -> [[i32; N]; M] {

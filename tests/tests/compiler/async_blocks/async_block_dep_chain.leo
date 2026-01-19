@@ -3,7 +3,7 @@
 // two layers of dependencies.
 
 program dependent.aleo {
-    async transition t1() -> Future {
+    async fn t1() -> Future {
         let x = 1u8;
         let y = 2u16;
         let f: Future = async {
@@ -19,7 +19,7 @@ program dependent.aleo {
 import dependent.aleo;
 
 program dependent2.aleo {
-    async transition t1() -> Future {
+    async fn t1() -> Future {
         let f: Future = dependent.aleo/t1();
         return async { f.await(); };
     }
@@ -30,7 +30,7 @@ program dependent2.aleo {
 import dependent2.aleo;
 
 program test.aleo {
-    async transition t1() -> Future {
+    async fn t1() -> Future {
         let f: Future = dependent2.aleo/t1();
         assert_eq(1u8, f.0.0);
         assert_eq(1u16, f.0.1);

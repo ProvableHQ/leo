@@ -23,7 +23,7 @@ struct S {
     y: field,
 }
 
-function transmogrify(s: S, a: field, b: field) -> S {
+fn transmogrify(s: S, a: field, b: field) -> S {
     for i in 0u8..7u8 {
         s.x[0u32].x += a;
         s.x[1u32].x += b;
@@ -36,7 +36,7 @@ function transmogrify(s: S, a: field, b: field) -> S {
 }
 
 program test_assignments.aleo {
-    transition run_transmogrify(x: field, y: u8, z: bool) -> S {
+    fn run_transmogrify(x: field, y: u8, z: bool) -> S {
         let t1 = T {
             x,
             y,

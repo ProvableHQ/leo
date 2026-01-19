@@ -1,7 +1,7 @@
 
 program test.aleo {
     // This calculates the n-th fibonacci number (up to 64th)
-    transition fibonacci(public n: u8) -> u128 {
+    fn fibonacci(public n: u8) -> u128 {
         assert(n <= 64u8);
 
         let f0: u128 = 0u128;
@@ -30,7 +30,7 @@ program test.aleo {
     }
 }
 
-function reverse_bits(n: u8) -> u8 {
+fn reverse_bits(n: u8) -> u8 {
     let reverse: u8 = 0u8;
 
     for i:u8 in 0u8..8u8 {

@@ -25,6 +25,6 @@ program test.aleo {
 
 }
 
-function main(zz: bool) -> bool {
+fn main(zz: bool) -> bool {
     return true;
 }

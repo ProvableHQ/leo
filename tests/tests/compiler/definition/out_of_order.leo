@@ -1,11 +1,11 @@
 
 program test.aleo {
-    transition main(y: bool) -> bool {
+    fn main(y: bool) -> bool {
         return y == true;
     }
 }
 
 // @test
-// function fake_test() {}
+// fn fake_test() {}
 
 // struct Foo {}

@@ -2,16 +2,16 @@ struct My__Struct {
     field__name: u8
 }
 
-function test__function(param__name: u8) -> bool {
+fn test__function(param__name: u8) -> bool {
     return true;
 }
 
-function triple___underscore(param___name: u8) -> bool {
+fn triple___underscore(param___name: u8) -> bool {
     return true;
 }
 
 program test.aleo {
-    transition main() -> bool {
+    fn main() -> bool {
         let test__var: u32 = 42u32;
         let trailing_double_underscore__: bool = true;
 

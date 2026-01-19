@@ -5,7 +5,7 @@ program primitives.aleo {
     storage group_val: group;
     storage addr_val: address;
 
-    async transition initialize() -> Future {
+    async fn initialize() -> Future {
         return async {
             flag = true;
             scalar_val = 1;
@@ -15,7 +15,7 @@ program primitives.aleo {
         };
     }
 
-    async transition to_none() -> Future {
+    async fn to_none() -> Future {
         return async {
             // Reset all storages to none
             flag = none;
@@ -26,7 +26,7 @@ program primitives.aleo {
         };
     }
 
-    async transition check1() -> Future {
+    async fn check1() -> Future {
         return async {
             assert(flag.unwrap() == true);
             assert(scalar_val.unwrap() == 1);
@@ -36,7 +36,7 @@ program primitives.aleo {
         };
     }
 
-    async transition check2() -> Future {
+    async fn check2() -> Future {
         return async {
             assert(flag.unwrap_or(false) == true);
             assert(scalar_val.unwrap_or(0) == 1);

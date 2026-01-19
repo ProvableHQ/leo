@@ -5,7 +5,7 @@ struct Foo {
 }
 
 program test.aleo {
-    transition main(a: u8) -> u8 {
+    fn main(a: u8) -> u8 {
         return a + 1u8;
     }
 }

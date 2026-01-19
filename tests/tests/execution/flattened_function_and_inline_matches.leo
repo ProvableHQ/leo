@@ -48,7 +48,8 @@ struct Data {
     c: Extra,
 }
 
-inline foo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
+@inline
+fn foo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     let extra: Extra = Extra { c: a };
     let data: Data = Data { a: a, b: b, c: extra };
     if (a == b) {
@@ -62,7 +63,7 @@ inline foo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     return (c, d, data);
 }
 
-function floo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
+fn floo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     let extra: Extra = Extra { c: a };
     let data: Data = Data { a: a, b: b, c: extra };
     if (a == b) {
@@ -77,7 +78,7 @@ function floo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
 }
 
 program test.aleo {
-    transition bar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
+    fn bar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
         let data: Data = Data { a: a, b: b, c: Extra { c: a } };
         let start: (u8, u8, Data) = foo(a, b, data);
         // (2, 1, Data { a: 1, b: 0, c: Extra { c: 1 } })
@@ -97,7 +98,7 @@ program test.aleo {
         return start;
     }
 
-    transition blar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
+    fn blar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
         let data: Data = Data { a: a, b: b, c: Extra { c: a } };
 
         let start: (u8, u8, Data) = floo(a, b, data);

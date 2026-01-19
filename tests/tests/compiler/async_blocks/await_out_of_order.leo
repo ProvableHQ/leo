@@ -1,6 +1,6 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    async transition main_inner(public a: u32, public b: u32) -> Future {
+    async fn main_inner(public a: u32, public b: u32) -> Future {
         return async {
             Mapping::set(foo, a, b);
         };
@@ -11,7 +11,7 @@ program test.aleo {
 
 import test.aleo;
 program basic.aleo {
-    async transition main(public a: u32, b: u32) -> Future {
+    async fn main(public a: u32, b: u32) -> Future {
         let f1: Future = test.aleo/main_inner(0u32, 0u32);
         let f2: Future = test.aleo/main_inner(1u32, 1u32);
 

@@ -1,7 +1,7 @@
 // Updates on-chain state by the amount of tokens deposited.
 // - `hash`  : The hash of the token owner.
 // - `amount`: The amount of tokens that were deposited.
-async function finalize_deposit(hash: field, amount: u64) {
+async fn finalize_deposit(hash: field, amount: u64) {
     let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
     Mapping::set(balances, hash, current_amount + amount);
 }
@@ -10,7 +10,7 @@ async function finalize_deposit(hash: field, amount: u64) {
 // Updates on-chain state by the amount of tokens withdrawn.
 // - `hash`  : The hash of the token owner.
 // - `amount`: The amount of tokens that were withdrawn.
-async function finalize_withdraw(hash: field, amount: u64) {
+async fn finalize_withdraw(hash: field, amount: u64) {
     let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
     Mapping::set(balances, hash, current_amount - amount);
 }
@@ -19,7 +19,7 @@ async function finalize_withdraw(hash: field, amount: u64) {
 // - `principal`: The amount of tokens to compound interest over.
 // - `rate`     : The compound interest rate.
 // - `periods`  : The number of periods to compound the interest over.
-function calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {
+fn calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {
     let amount: u64 = principal;
 
     for i:u64 in 0u64..100u64 {
@@ -49,7 +49,7 @@ program basic_bank.aleo {
     // - `amount`: The amount of tokens to issue.
     // Requires that the function caller is the bank.
     // The bank's address is aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a.
-    transition issue(owner: address, amount: u64) -> Token {
+    fn issue(owner: address, amount: u64) -> Token {
         assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
         return Token {
             owner: owner,
@@ -61,7 +61,7 @@ program basic_bank.aleo {
     // Returns a new Token with the remaining amount of money.
     // - `token` : A record containing tokens to deposit.
     // - `amount`: The amount of tokens to deposit.
-    async transition deposit(token: Token, amount: u64) -> (Token, Future) {
+    async fn deposit(token: Token, amount: u64) -> (Token, Future) {
         let difference: u64 = token.amount - amount;
 
         let remaining: Token = Token {
@@ -81,7 +81,7 @@ program basic_bank.aleo {
     // - `rate`     : The compound interest rate.
     // - `periods`  : The number of periods to compound the interest over.
     // Requires that the function caller is the bank.
-    async transition withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> (Token, Future) {
+    async fn withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> (Token, Future) {
         assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
         let hash: field = BHP256::hash_to_field(recipient);
 

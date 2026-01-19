@@ -1,10 +1,10 @@
 program test.aleo {
-    async transition main() -> Future {
+    async fn main() -> Future {
         return bar();
     }
 }
 
-async function bar() {
+async fn bar() {
     for i in 1u8..2u16 {
         for j: u8 in 0u32..1u32 {
 

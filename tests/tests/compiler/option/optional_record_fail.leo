@@ -6,7 +6,7 @@ program optional_record_test.aleo {
         val: u64,
     }
 
-    transition handle_optional_record() -> u64 {
+    fn handle_optional_record() -> u64 {
         let f: Foo? = Foo {
             owner: self.signer,
             val: 5,

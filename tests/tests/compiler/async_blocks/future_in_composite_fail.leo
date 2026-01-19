@@ -4,7 +4,7 @@ struct S {
 
 program test.aleo {
     mapping x: Future => Future;
-    async transition main() -> Future {
+    async fn main() -> Future {
         let future = async {
             assert_eq(1u8, 1u8);
         };

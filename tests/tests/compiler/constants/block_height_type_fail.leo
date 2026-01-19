@@ -1,9 +1,9 @@
-async function bar() {
+async fn bar() {
     let x: u64 = block.height;
 }
 
 program test.aleo {
-    async transition foo() -> Future {
+    async fn foo() -> Future {
         return bar();
     }
 }

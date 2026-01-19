@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: u8, b: u8) -> bool {
+    fn main(a: u8, b: u8) -> bool {
         // unary
         let h: u8 = a.not();
 

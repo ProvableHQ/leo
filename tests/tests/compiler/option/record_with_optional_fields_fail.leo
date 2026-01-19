@@ -20,7 +20,7 @@ program record_with_optional_fields.aleo {
         inner: InnerStruct, // ERROR: contains optional via nested struct
     }
 
-    transition foo() {}
+    fn foo() {}
 
     @noupgrade
     async constructor() {}

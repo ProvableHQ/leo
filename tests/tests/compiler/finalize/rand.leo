@@ -1,11 +1,11 @@
 
 program test.aleo {
-    async transition foo() -> Future {
+    async fn foo() -> Future {
         return finalize_foo();
     }
 }
 
-async function finalize_foo() {
+async fn finalize_foo() {
     let a: address = ChaCha::rand_address();
     let b: bool = ChaCha::rand_bool();
     let c: field = ChaCha::rand_field();

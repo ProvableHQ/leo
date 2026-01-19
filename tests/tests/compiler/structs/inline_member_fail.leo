@@ -4,7 +4,7 @@ struct Foo {
 }
 
 program test.aleo {
-    function main() {
+    fn main() {
         let y: u8 = 1;
         let a: Foo = Foo { y };
     }

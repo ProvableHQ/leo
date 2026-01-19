@@ -5,7 +5,7 @@ expectation: Fail
 
 program test.aleo {
     // Test ECDSA verification with incorrect types - should fail
-    async transition main(
+    async fn main(
         sig_correct: [u8; 65],          // Correct signature
         sig_wrong_size: [u8; 64],       // Wrong: should be [u8; 65]
         sig_wrong_type: u64,            // Wrong: should be [u8; 65]
@@ -19,7 +19,7 @@ program test.aleo {
     }
 }
 
-async function finalize(
+async fn finalize(
     sig_correct: [u8; 65],
     sig_wrong_size: [u8; 64],
     sig_wrong_type: u64,

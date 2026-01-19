@@ -1,10 +1,10 @@
 program b28610.aleo {
     // This should produce only one type error.
-    async transition foo() {
+    async fn foo() {
         return bar();
     }
 }
 
-async function bar() {
+async fn bar() {
     assert(true);
 }

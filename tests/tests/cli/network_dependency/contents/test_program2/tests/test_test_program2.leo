@@ -3,7 +3,7 @@ import test_program2.aleo;
 program test_test_program2.aleo {
     @test
     @should_fail
-    transition do_nothing() {
+    fn do_nothing() {
         let result: u32 = test_program2.aleo/main(2u32, 3u32);
         assert_eq(result, 3u32);
     }

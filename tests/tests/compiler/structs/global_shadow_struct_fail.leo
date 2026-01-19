@@ -11,7 +11,7 @@ struct s1 {
 }
 
 program test.aleo {
-    transition main(id_type: i8, s: s1) -> u32 {
+    fn main(id_type: i8, s: s1) -> u32 {
         let x: u32 = s.f1;
         x = x + 1u32;
         return x;

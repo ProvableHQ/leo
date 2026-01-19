@@ -33,6 +33,6 @@ program good_storage_tests.aleo {
     storage vec_i8: [i8];
     storage vec_struct: [MyStruct];
 
-    transition foo() {}
+    fn foo() {}
 }
 

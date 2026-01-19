@@ -5,7 +5,7 @@ struct Foo {
 }
 
 program test.aleo {
-    transition main(
+    fn main(
         i8_value: i8,
         i16_value: i16,
         i32_value: i32,

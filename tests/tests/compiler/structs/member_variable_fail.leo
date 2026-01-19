@@ -4,7 +4,7 @@ struct Foo {
 }
 
 program test.aleo {
-    transition main() {
+    fn main() {
         let a: Foo = Foo { x: 1u32 };
         let err = a.y;
     }

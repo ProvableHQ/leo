@@ -1,5 +1,5 @@
 program test.aleo {
-    transition foo() {}
+    fn foo() {}
     
     async constructor() {
         assert_eq(true, true);

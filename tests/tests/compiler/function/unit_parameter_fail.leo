@@ -5,10 +5,10 @@ struct S {
 }
 
 program test.aleo {
-    transition main(x: ()) {}
+    fn main(x: ()) {}
 
-    transition other(x: [(); 2]) {}
+    fn other(x: [(); 2]) {}
 
-    transition yet_another() -> [(); 2] {}
+    fn yet_another() -> [(); 2] {}
 
 }

@@ -4,12 +4,12 @@ program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
 
-    async transition finalize_self_caller() -> Future {
+    async fn finalize_self_caller() -> Future {
         return finalize_finalize_self_caller(self.caller);
     }
 }
 
-async function finalize_finalize_self_caller(caller: address) -> () {
+async fn finalize_finalize_self_caller(caller: address) -> () {
     const TINY: u8 = 3u8;
     let current_value: u8 = Mapping::get_or_use(values, 0u8, 0u8) + TINY + BIG_NUMBER;
     Mapping::set(values, 0u8, current_value + 1u8);

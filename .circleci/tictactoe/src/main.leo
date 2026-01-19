@@ -1,6 +1,6 @@
 program tictactoe.aleo {
     // Returns an empty board.
-    transition new() -> Board {
+    fn new() -> Board {
         return Board {
             r1: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
             r2: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
@@ -17,7 +17,7 @@ program tictactoe.aleo {
     // Assumes that `player` is either 1 or 2.
     // Assumes that `row` and `col` are valid indices into the board.
     // If an entry is already occupied, the move is invalid and the board is returned unchanged.
-    transition make_move(player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
+    fn make_move(player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
         // Check that inputs are valid.
         assert(player == 1u8 || player == 2u8);
         assert(1u8 <= row && row <= 3u8);
@@ -98,7 +98,7 @@ struct Board {
 // Returns `true` if there exists a row, column, or diagonal with all entries occupied by the same player.
 // - `b` : A tic tac toe board.
 // - `p` : A number corresponding to a player.
-function check_for_win(b: Board, p: u8) -> bool {
+fn check_for_win(b: Board, p: u8) -> bool {
     return
         (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
         (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p) || // row 2

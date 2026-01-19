@@ -30,32 +30,32 @@ const I3: i8 = 001i8;
 const I4: i8 = -0003i8;
 
 program test.aleo {
-    transition field_tr() -> field {
+    fn field_tr() -> field {
         return F1 + F2 + F3 + F4 + F5 + F6 + F7;
     }
 
-    transition field_tr2() -> field {
+    fn field_tr2() -> field {
         return F3;
     }
-    transition group_tr() -> group {
+    fn group_tr() -> group {
         return G1 + G2 + G3 + G4 + G5 + G6 + G7 + G8;
     }
 
-    transition group_tr2() -> group {
+    fn group_tr2() -> group {
         return G3;
     }
-    transition scalar_tr() -> scalar {
+    fn scalar_tr() -> scalar {
         return S1 + S2 + S3 + S4 + S5;
     }
 
-    transition scalar_tr2() -> scalar {
+    fn scalar_tr2() -> scalar {
         return S5;
     }
-    transition i8_tr() -> i8 {
+    fn i8_tr() -> i8 {
         return I1 + I2 + I3 + I4;
     }
 
-    transition i8_tr2() -> i8 {
+    fn i8_tr2() -> i8 {
         return I4;
     }
 }

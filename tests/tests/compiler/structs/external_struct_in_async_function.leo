@@ -5,7 +5,7 @@ struct TestStruct {
 }
 
 program parent.aleo {
-    async transition init() -> Future {
+    async fn init() -> Future {
         let test_struct: TestStruct = TestStruct {
             data0: 0u128,
             data1: 1u128
@@ -14,7 +14,7 @@ program parent.aleo {
     }
 }
 
-async function finalize_init(public test_struct: TestStruct) {
+async fn finalize_init(public test_struct: TestStruct) {
     assert_eq(0u32, 0u32);
 }
 
@@ -22,7 +22,7 @@ async function finalize_init(public test_struct: TestStruct) {
 
 import parent.aleo;
 program child.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         return 1u32;
     }
 }
