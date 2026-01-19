@@ -71,34 +71,29 @@ impl Composite {
     }
 
     pub fn from_external_record<N: Network>(input: &RecordType<N>, program: Symbol) -> Self {
+        let mut members = Vec::with_capacity(input.entries().len() + 1);
+        members.push(Member {
+            mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
+            identifier: Identifier::new(Symbol::intern("owner"), Default::default()),
+            type_: Type::Address,
+            span: Default::default(),
+            id: Default::default(),
+        });
+        members.extend(input.entries().iter().map(|(id, entry)| Member {
+            mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
+            identifier: Identifier::from(id),
+            type_: match entry {
+                Public(t) => Type::from_snarkvm(t, program),
+                Private(t) => Type::from_snarkvm(t, program),
+                Constant(t) => Type::from_snarkvm(t, program),
+            },
+            span: Default::default(),
+            id: Default::default(),
+        }));
         Self {
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),
-            members: [
-                vec![Member {
-                    mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
-                    identifier: Identifier::new(Symbol::intern("owner"), Default::default()),
-                    type_: Type::Address,
-                    span: Default::default(),
-                    id: Default::default(),
-                }],
-                input
-                    .entries()
-                    .iter()
-                    .map(|(id, entry)| Member {
-                        mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
-                        identifier: Identifier::from(id),
-                        type_: match entry {
-                            Public(t) => Type::from_snarkvm(t, program),
-                            Private(t) => Type::from_snarkvm(t, program),
-                            Constant(t) => Type::from_snarkvm(t, program),
-                        },
-                        span: Default::default(),
-                        id: Default::default(),
-                    })
-                    .collect_vec(),
-            ]
-            .concat(),
+            members,
             external: Some(program),
             is_record: true,
             span: Default::default(),
