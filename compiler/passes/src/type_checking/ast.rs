@@ -1121,6 +1121,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let caller = Location::new(caller_program, caller_path.clone());
         let callee = Location::new(callee_program, callee_path.clone());
+        let call_count = self
+            .state
+            .call_count
+            .get_mut(&callee)
+            .expect("Call count should habe been set at the beginning of type checking");
+        *call_count += 1;
         self.state.call_graph.add_edge(caller, callee);
 
         if func.variant.is_transition() && self.scope_state.variant == Some(Variant::AsyncTransition) {

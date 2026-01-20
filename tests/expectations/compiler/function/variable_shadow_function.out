@@ -4,8 +4,3 @@ function main:
     input r0 as i8.private;
     input r1 as u8.private;
     output 1u8 as u8.private;
-
-closure f1:
-    input r0 as u8;
-    mul r0 100u8 into r1;
-    output r1 as u8;

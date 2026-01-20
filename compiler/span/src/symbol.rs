@@ -834,6 +834,7 @@ symbols! {
     custom,
     admin,
     key,
+    no_inline,
 
     // annotation keys
     private_key,
