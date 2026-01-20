@@ -21,10 +21,18 @@ use snarkvm::prelude::{Address, TestnetV0};
 use leo_ast::{Expression, Intrinsic, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result, TypeCheckerError};
 use leo_parser_lossless::{
-    ExpressionKind, IntegerLiteralKind, IntegerTypeKind, LiteralKind, StatementKind, SyntaxKind, SyntaxNode, TypeKind,
+    ExpressionKind,
+    IntegerLiteralKind,
+    IntegerTypeKind,
+    LiteralKind,
+    StatementKind,
+    SyntaxKind,
+    SyntaxNode,
+    TypeKind,
 };
 use leo_span::{
-    Span, Symbol,
+    Span,
+    Symbol,
     sym::{self},
 };
 
@@ -1113,20 +1121,6 @@ impl<'a> ConversionContext<'a> {
 
         let function_variant_index = if is_async { async_index + 1 } else { async_index };
 
-        // The behavior here matches the old parser - "inline" and "script" may be marked async,
-        // but async is ignored. Presumably we should fix this but it's theoretically a breaking change.
-        let variant = if is_in_program_block {
-            if is_async { leo_ast::Variant::AsyncTransition } else { leo_ast::Variant::Transition }
-        } else if node.children[function_variant_index].text == "script" {
-            leo_ast::Variant::Script
-        } else if annotations.iter().any(|a| a.identifier.to_string() == "inline") || is_in_module {
-            leo_ast::Variant::Inline
-        } else if is_async {
-            leo_ast::Variant::AsyncFunction
-        } else {
-            leo_ast::Variant::Function
-        };
-
         let name = &node.children[function_variant_index + 1];
         let id = self.to_identifier(name);
 
@@ -1136,6 +1130,21 @@ impl<'a> ConversionContext<'a> {
         {
             const_parameters = self.to_const_parameters(const_param_list)?;
         }
+
+        let variant = if is_in_program_block {
+            if is_async { leo_ast::Variant::AsyncTransition } else { leo_ast::Variant::Transition }
+        } else if node.children[function_variant_index].text == "script" {
+            leo_ast::Variant::Script
+        } else if is_async {
+            leo_ast::Variant::AsyncFunction
+        } else if annotations.iter().any(|a| a.identifier.to_string() == "inline")
+            || is_in_module
+            || !const_parameters.is_empty()
+        {
+            leo_ast::Variant::Inline
+        } else {
+            leo_ast::Variant::Function
+        };
 
         let parameter_list =
             node.children.iter().find(|child| matches!(child.kind, SyntaxKind::ParameterList)).unwrap();
