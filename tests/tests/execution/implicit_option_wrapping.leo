@@ -67,12 +67,10 @@ struct Wrapper {
     arr: [Foo?; 2], // array of optional structs
 }
 
-@inline
 fn foo() -> u8? {
     return 5; // implicitly wrapped
 }
 
-@inline
 fn takes_optional_u8(x: u8?) -> u8 {
     return x.unwrap_or(100);
 }
@@ -81,7 +79,6 @@ struct Bar {
     x: [u8?; 3]
 }
 
-@inline
 fn bar() -> Wrapper? {
     return Wrapper {
         arr: [Foo { x: 8 }, none], // 8u8 implicitly wrapped into u8?
@@ -89,7 +86,6 @@ fn bar() -> Wrapper? {
 }
 
 // 2. Implicit argument: Wrapper → Wrapper?
-@inline
 fn takes_optional_wrapper(w: Wrapper?) -> u8 {
     return w.unwrap().arr[0].unwrap().x.unwrap_or(42);
 }

@@ -1137,10 +1137,7 @@ impl<'a> ConversionContext<'a> {
             leo_ast::Variant::Script
         } else if is_async {
             leo_ast::Variant::AsyncFunction
-        } else if annotations.iter().any(|a| a.identifier.to_string() == "inline")
-            || is_in_module
-            || !const_parameters.is_empty()
-        {
+        } else if annotations.iter().any(|a| a.identifier.to_string() == "inline") || is_in_module {
             leo_ast::Variant::Inline
         } else {
             leo_ast::Variant::Function

@@ -24,7 +24,6 @@ async fn f3() {
     let f = async {};
 }
 
-@inline
 fn i() {
     let f = async {};
 }

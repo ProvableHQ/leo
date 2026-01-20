@@ -11,7 +11,6 @@ input = []
 const N:u32 = 10;
 
 
-@inline
 fn foo::[P: u32]() -> u32 {
     let arr = [P; P];
     return arr[P-1];

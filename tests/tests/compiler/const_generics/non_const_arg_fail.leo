@@ -4,7 +4,6 @@ program test.aleo {
     }
 }
 
-@inline
 fn bar::[N: u32]() -> u32 {
     return N;
 }

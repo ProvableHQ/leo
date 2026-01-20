@@ -1,33 +1,28 @@
 
 // 1. Return u8? → move to inline, unwrap in transition
-@inline
 fn basic_implicit_return_() -> u8? {
     return 5u8; // implicitly wrapped
 }
 
 
 // 2. Optional input (inline is OK)
-@inline
 fn takes_optional_u8(x: u8?) -> u8 {
     return x.unwrap_or(100u8);
 }
 
 // 3. Implicit optional argument → use inline
-@inline
 fn basic_implicit_argument_() -> u8 {
     return takes_optional_u8(42u8); // implicitly wrapped
 }
 
 
 // 4. Return u8? → unwrap
-@inline
 fn basic_implicit_ternary_(cond: bool) -> u8? {
     let result: u8? = cond ? 10u8 : none;
     return result;
 }
 
 // 1. Return dep::Wrapper? → unwrap fully to [u8; 2]
-@inline
 fn complex_implicit_return_() -> [u8?; 2] {
     let wrapper_opt: dep::Wrapper? = dep::Wrapper {
         arr: [dep::inner::Foo { x: 8u8 }, none],
@@ -40,12 +35,10 @@ fn complex_implicit_return_() -> [u8?; 2] {
 }
 
 // 2. Optional arg → already inline
-@inline
 fn takes_optional_wrapper(w: dep::Wrapper?) -> u8 {
     return w.unwrap().arr[0].unwrap().x.unwrap_or(0u8);
 }
 
-@inline
 fn complex_implicit_argument_() -> u8 {
     return takes_optional_wrapper(dep::Wrapper {
         arr: [dep::inner::Foo { x: none }, none],
@@ -53,7 +46,6 @@ fn complex_implicit_argument_() -> u8 {
 }
 
 // 3. Return dep::Wrapper? → unwrap fully to [u8; 2]
-@inline
 fn complex_implicit_ternary_(cond: bool) -> [u8?; 2] {
     let wrapper_opt: dep::Wrapper? = cond
         ? dep::Wrapper { arr: [dep::inner::Foo { x: 99u8 }, none] }
@@ -66,7 +58,6 @@ fn complex_implicit_ternary_(cond: bool) -> [u8?; 2] {
 }
 
 // 5. [dep::Wrapper; 3]? → unwrap all the way to [[u8; 2]; 3]
-@inline
 fn complex_array_wrapping_() -> [[u8?; 2]; 3] {
     let arr_opt: [dep::Wrapper; 3]? = none;
     let arr = arr_opt.unwrap();
@@ -88,7 +79,6 @@ fn complex_array_wrapping_() -> [[u8?; 2]; 3] {
 }
 
 // 6. Deeper access into optional array — unwrap fully
-@inline
 fn complex_array_access_() -> [[u8?; 2]; 3] {
     let arr_opt: [dep::Wrapper; 3]? = [
         dep::Wrapper { arr: [dep::inner::Foo { x: 10u8 }, none] },

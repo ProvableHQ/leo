@@ -10,7 +10,6 @@ program test.aleo {
 
 const X: u32 = 32;
 
-@inline
 fn foo(x: u32, y: u32) -> u32 {
     return x + y; 
 }
@@ -19,7 +18,6 @@ fn foo(x: u32, y: u32) -> u32 {
 
 const Y: u32 = 64;
 
-@inline
 fn foo(x: u32, y: u32) -> u32 {
     return x * y; 
 }

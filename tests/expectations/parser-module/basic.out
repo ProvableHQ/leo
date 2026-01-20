@@ -119,32 +119,15 @@
     [
       "foo",
       {
-        "annotations": [
-          {
-            "identifier": {
-              "name": "inline",
-              "span": {
-                "lo": 80,
-                "hi": 86
-              },
-              "id": 0
-            },
-            "map": {},
-            "span": {
-              "lo": 79,
-              "hi": 86
-            },
-            "id": 1
-          }
-        ],
+        "annotations": [],
         "variant": "Inline",
         "identifier": {
           "name": "foo",
           "span": {
-            "lo": 90,
-            "hi": 93
+            "lo": 82,
+            "hi": 85
           },
-          "id": 2
+          "id": 0
         },
         "const_parameters": [],
         "input": [],
@@ -153,16 +136,16 @@
         "block": {
           "statements": [],
           "span": {
-            "lo": 96,
-            "hi": 98
+            "lo": 88,
+            "hi": 90
           },
-          "id": 3
+          "id": 1
         },
         "span": {
           "lo": 79,
-          "hi": 98
+          "hi": 90
         },
-        "id": 4
+        "id": 2
       }
     ]
   ]
@@ -178,10 +161,10 @@
         "place": {
           "name": "X",
           "span": {
-            "lo": 115,
-            "hi": 116
+            "lo": 107,
+            "hi": 108
           },
-          "id": 22
+          "id": 18
         },
         "type_": {
           "Integer": "U32"
@@ -189,20 +172,20 @@
         "value": {
           "Literal": {
             "span": {
-              "lo": 124,
-              "hi": 125
+              "lo": 116,
+              "hi": 117
             },
-            "id": 23,
+            "id": 19,
             "variant": {
               "Unsuffixed": "5"
             }
           }
         },
         "span": {
-          "lo": 109,
-          "hi": 126
+          "lo": 101,
+          "hi": 118
         },
-        "id": 24
+        "id": 20
       }
     ],
     [
@@ -211,10 +194,10 @@
         "place": {
           "name": "Y",
           "span": {
-            "lo": 215,
-            "hi": 216
+            "lo": 199,
+            "hi": 200
           },
-          "id": 25
+          "id": 21
         },
         "type_": {
           "Integer": "U32"
@@ -222,20 +205,20 @@
         "value": {
           "Literal": {
             "span": {
-              "lo": 224,
-              "hi": 225
+              "lo": 208,
+              "hi": 209
             },
-            "id": 26,
+            "id": 22,
             "variant": {
               "Unsuffixed": "5"
             }
           }
         },
         "span": {
-          "lo": 209,
-          "hi": 226
+          "lo": 193,
+          "hi": 210
         },
-        "id": 27
+        "id": 23
       }
     ],
     [
@@ -244,10 +227,10 @@
         "place": {
           "name": "Z",
           "span": {
-            "lo": 253,
-            "hi": 254
+            "lo": 229,
+            "hi": 230
           },
-          "id": 28
+          "id": 24
         },
         "type_": {
           "Integer": "U32"
@@ -255,20 +238,20 @@
         "value": {
           "Literal": {
             "span": {
-              "lo": 262,
-              "hi": 263
+              "lo": 238,
+              "hi": 239
             },
-            "id": 29,
+            "id": 25,
             "variant": {
               "Unsuffixed": "5"
             }
           }
         },
         "span": {
-          "lo": 247,
-          "hi": 264
+          "lo": 223,
+          "hi": 240
         },
-        "id": 30
+        "id": 26
       }
     ]
   ],
@@ -279,10 +262,10 @@
         "identifier": {
           "name": "Foo",
           "span": {
-            "lo": 134,
-            "hi": 137
+            "lo": 126,
+            "hi": 129
           },
-          "id": 14
+          "id": 10
         },
         "const_parameters": [],
         "members": [
@@ -291,10 +274,29 @@
             "identifier": {
               "name": "x",
               "span": {
+                "lo": 132,
+                "hi": 133
+              },
+              "id": 6
+            },
+            "type_": {
+              "Integer": "U32"
+            },
+            "span": {
+              "lo": 132,
+              "hi": 138
+            },
+            "id": 7
+          },
+          {
+            "mode": "None",
+            "identifier": {
+              "name": "y",
+              "span": {
                 "lo": 140,
                 "hi": 141
               },
-              "id": 10
+              "id": 8
             },
             "type_": {
               "Integer": "U32"
@@ -303,35 +305,16 @@
               "lo": 140,
               "hi": 146
             },
-            "id": 11
-          },
-          {
-            "mode": "None",
-            "identifier": {
-              "name": "y",
-              "span": {
-                "lo": 148,
-                "hi": 149
-              },
-              "id": 12
-            },
-            "type_": {
-              "Integer": "U32"
-            },
-            "span": {
-              "lo": 148,
-              "hi": 154
-            },
-            "id": 13
+            "id": 9
           }
         ],
         "external": null,
         "is_record": false,
         "span": {
-          "lo": 127,
-          "hi": 157
+          "lo": 119,
+          "hi": 149
         },
-        "id": 15
+        "id": 11
       }
     ],
     [
@@ -340,10 +323,10 @@
         "identifier": {
           "name": "Bar",
           "span": {
-            "lo": 185,
-            "hi": 188
+            "lo": 169,
+            "hi": 172
           },
-          "id": 20
+          "id": 16
         },
         "const_parameters": [],
         "members": [
@@ -352,47 +335,47 @@
             "identifier": {
               "name": "x",
               "span": {
-                "lo": 191,
-                "hi": 192
+                "lo": 175,
+                "hi": 176
               },
-              "id": 16
+              "id": 12
             },
             "type_": {
               "Integer": "U32"
             },
             "span": {
-              "lo": 191,
-              "hi": 197
+              "lo": 175,
+              "hi": 181
             },
-            "id": 17
+            "id": 13
           },
           {
             "mode": "None",
             "identifier": {
               "name": "y",
               "span": {
-                "lo": 199,
-                "hi": 200
+                "lo": 183,
+                "hi": 184
               },
-              "id": 18
+              "id": 14
             },
             "type_": {
               "Integer": "U32"
             },
             "span": {
-              "lo": 199,
-              "hi": 205
+              "lo": 183,
+              "hi": 189
             },
-            "id": 19
+            "id": 15
           }
         ],
         "external": null,
         "is_record": false,
         "span": {
-          "lo": 178,
-          "hi": 208
+          "lo": 162,
+          "hi": 192
         },
-        "id": 21
+        "id": 17
       }
     ]
   ],
@@ -400,32 +383,15 @@
     [
       "foo",
       {
-        "annotations": [
-          {
-            "identifier": {
-              "name": "inline",
-              "span": {
-                "lo": 159,
-                "hi": 165
-              },
-              "id": 0
-            },
-            "map": {},
-            "span": {
-              "lo": 158,
-              "hi": 165
-            },
-            "id": 1
-          }
-        ],
+        "annotations": [],
         "variant": "Inline",
         "identifier": {
           "name": "foo",
           "span": {
-            "lo": 169,
-            "hi": 172
+            "lo": 153,
+            "hi": 156
           },
-          "id": 2
+          "id": 0
         },
         "const_parameters": [],
         "input": [],
@@ -434,47 +400,30 @@
         "block": {
           "statements": [],
           "span": {
-            "lo": 175,
-            "hi": 177
+            "lo": 159,
+            "hi": 161
           },
-          "id": 3
+          "id": 1
         },
         "span": {
-          "lo": 158,
-          "hi": 177
+          "lo": 150,
+          "hi": 161
         },
-        "id": 4
+        "id": 2
       }
     ],
     [
       "bar",
       {
-        "annotations": [
-          {
-            "identifier": {
-              "name": "inline",
-              "span": {
-                "lo": 228,
-                "hi": 234
-              },
-              "id": 5
-            },
-            "map": {},
-            "span": {
-              "lo": 227,
-              "hi": 234
-            },
-            "id": 6
-          }
-        ],
+        "annotations": [],
         "variant": "Inline",
         "identifier": {
           "name": "bar",
           "span": {
-            "lo": 238,
-            "hi": 241
+            "lo": 214,
+            "hi": 217
           },
-          "id": 7
+          "id": 3
         },
         "const_parameters": [],
         "input": [],
@@ -483,16 +432,16 @@
         "block": {
           "statements": [],
           "span": {
-            "lo": 244,
-            "hi": 246
+            "lo": 220,
+            "hi": 222
           },
-          "id": 8
+          "id": 4
         },
         "span": {
-          "lo": 227,
-          "hi": 246
+          "lo": 211,
+          "hi": 222
         },
-        "id": 9
+        "id": 5
       }
     ]
   ]

@@ -8,6 +8,7 @@ program test.aleo {
     }
 }
 
+@no_inline
 fn mint(r0: address, r1: u64) -> Token {
     return Token {
         sender: r0, // This variable should be named `owner`.

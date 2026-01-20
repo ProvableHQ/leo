@@ -54,7 +54,6 @@ struct WrappedMatrix::[M: u32, N: u32] {
 }
 
 // ✅ Function constructing matrix and modifying it with loop/assignment
-@inline
 fn use_matrix() -> WrappedMatrix::[R, C] {
     let base = Matrix::[R, C] {
         values: [[1; C]; R],

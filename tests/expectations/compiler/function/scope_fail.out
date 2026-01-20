@@ -1,5 +1,5 @@
 Error [ETYC0372005]: Unknown variable `myGlobal`
-    --> compiler-test:3:12
+    --> compiler-test:2:12
      |
-   3 |     return myGlobal;
+   2 |     return myGlobal;
      |            ^^^^^^^^

@@ -7,7 +7,6 @@ struct Matrix::[M: u32, N: u32] {
 }
 
 // Multiply two matrices wrapped in the `Matrix` struct
-@inline
 fn matmul_and_check::[M: u32, K: u32, N: u32](
     A: Matrix::[M, K],
     B: Matrix::[K, N]

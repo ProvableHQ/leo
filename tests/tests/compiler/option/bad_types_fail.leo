@@ -19,13 +19,11 @@ struct Bar {
 const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
 
 // ❌ Inline fn expecting u8, given u8?
-@inline
 fn takes_u8(x: u8) -> u8 {
     return x + 1u8;
 }
 
 // ❌ Inline fn returning u8?, assigned to u8
-@inline
 fn returns_optional() -> u8? {
     return 42u8;
 }

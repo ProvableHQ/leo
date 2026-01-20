@@ -19,7 +19,6 @@ struct Foo::[
 }
 
 // Define a generic function `foo` that takes all allowed types and returns them as a tuple
-@inline
 fn foo::[
     a1: bool,
     a2: u8,

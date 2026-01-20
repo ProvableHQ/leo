@@ -8,7 +8,6 @@ program foo.aleo {
 
 // Here, `Foo::[2 * N]` can be resolved but `Foo::[2 * N * x]` can't.
 // Ensure we emit a monomorphization error (not a type check error).
-@inline
 fn foo::[N: u32]() -> Foo::[2 * N] {
     let x: u32 = 1u32;
     return Foo::[2 * N * x] { x: 0 };

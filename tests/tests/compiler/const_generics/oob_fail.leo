@@ -3,7 +3,6 @@ program test.aleo {
         return foo::[2u32]([2, 3]);
     }
 }
-@inline
 fn foo::[M: u32](arr: [u32; M]) -> u32 {
     return arr[20];
 }

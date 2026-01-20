@@ -38,9 +38,9 @@ Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transitio
      |
      = Try moving this `async` block into an `async` transition or a script function.
 Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:29:13
+    --> compiler-test:28:13
      |
-  29 |     let f = async {};
+  28 |     let f = async {};
      |             ^^^^^^^^
      |
      = Try moving this `async` block into an `async` transition or a script function.

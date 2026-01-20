@@ -2,7 +2,6 @@ struct QQ {
     y: dep::Baz::[3],
 }
 
-@inline
 fn goo::[M: u32]() -> u32 { 
     let b = dep::Bar::[M] {
         a: [43; M],
@@ -50,7 +49,6 @@ struct Bar::[N: u32] {
     c: Baz::[N],
 }
 
-@inline
 fn bar() -> u32 {
     let c = Foo::[X] {
         a: [66; X]
@@ -62,7 +60,6 @@ fn bar() -> u32 {
     return c.a[0] + goo::[29]() + X + other_dep::Y;
 }
 
-@inline
 fn goo::[M: u32]() -> u32 { 
     let c = Baz::[M] {
         x: 69,
@@ -92,7 +89,6 @@ struct Bar::[N: u32] {
     a: [u32; N],
 }
 
-@inline
 fn bar() -> u32 {
     let c = Foo {
         a: [6; X]
@@ -100,5 +96,4 @@ fn bar() -> u32 {
     return c.a[0] + goo::[99]() + X;
 }
 
-@inline
 fn goo::[N: u32]() -> u32 { return N + X; }

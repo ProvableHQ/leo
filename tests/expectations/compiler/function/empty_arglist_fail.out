@@ -1,23 +1,27 @@
 Error [ETYC0372113]: Cannot define a function with no parameters.
     --> compiler-test:2:1
      |
-   2 | fn x() -> u8 {
+   2 | @no_inline
+     | ^^^^^^^^^^
+   3 | fn x() -> u8 {
      | ^^^^^^^^^^^^^^
-   3 |     return 0u8;
+   4 |     return 0u8;
      |     ^^^^^^^^^^^
-   4 | }
+   5 | }
      | ^
 Error [ETYC0372170]: Cannot define a function with only empty parameters.
-    --> compiler-test:5:1
+    --> compiler-test:6:1
      |
-   5 | fn y(a: [u8;0]) -> [u8;0] {
+   6 | @no_inline
+     | ^^^^^^^^^^
+   7 | fn y(a: [u8;0]) -> [u8;0] {
      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   6 |     return a;
+   8 |     return a;
      |     ^^^^^^^^^
-   7 | }
+   9 | }
      | ^
 Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:8:9
+    --> compiler-test:10:9
      |
-   8 | program test.aleo {}
+  10 | program test.aleo {}
      |         ^^^^^^^^^

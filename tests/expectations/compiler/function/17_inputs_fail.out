@@ -20,9 +20,9 @@ Error [ETYC0372168]: The async function `baz_finalize` has 17 input parameters, 
      |
      = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
 Error [ETYC0372168]: The function `foo` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:26:4
+    --> compiler-test:27:4
      |
-  26 | fn foo(
+  27 | fn foo(
      |    ^^^
      |
      = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.

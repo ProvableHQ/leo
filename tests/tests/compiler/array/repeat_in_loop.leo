@@ -4,7 +4,6 @@ program test.aleo {
     }
 }
 
-@inline
 fn foo::[P: u32]() -> u32 {
     let sum = 0u32;
     for i: u32 in 1..P {

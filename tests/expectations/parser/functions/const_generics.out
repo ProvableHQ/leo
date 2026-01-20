@@ -11,7 +11,7 @@
             "lo": 8,
             "hi": 12
           },
-          "id": 17
+          "id": 13
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 13,
             "hi": 17
           },
-          "id": 18
+          "id": 14
         }
       },
       "consts": [],
@@ -62,37 +62,38 @@
         [
           "foo",
           {
-            "annotations": [
-              {
-                "identifier": {
-                  "name": "inline",
-                  "span": {
-                    "lo": 40,
-                    "hi": 46
-                  },
-                  "id": 3
-                },
-                "map": {},
-                "span": {
-                  "lo": 39,
-                  "hi": 46
-                },
-                "id": 4
-              }
-            ],
-            "variant": "Inline",
+            "annotations": [],
+            "variant": "Function",
             "identifier": {
               "name": "foo",
               "span": {
-                "lo": 50,
-                "hi": 53
+                "lo": 42,
+                "hi": 45
               },
-              "id": 5
+              "id": 3
             },
             "const_parameters": [
               {
                 "identifier": {
                   "name": "N",
+                  "span": {
+                    "lo": 48,
+                    "hi": 49
+                  },
+                  "id": 4
+                },
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 48,
+                  "hi": 54
+                },
+                "id": 5
+              },
+              {
+                "identifier": {
+                  "name": "M",
                   "span": {
                     "lo": 56,
                     "hi": 57
@@ -107,24 +108,6 @@
                   "hi": 62
                 },
                 "id": 7
-              },
-              {
-                "identifier": {
-                  "name": "M",
-                  "span": {
-                    "lo": 64,
-                    "hi": 65
-                  },
-                  "id": 8
-                },
-                "type_": {
-                  "Integer": "U32"
-                },
-                "span": {
-                  "lo": 64,
-                  "hi": 70
-                },
-                "id": 9
               }
             ],
             "input": [],
@@ -133,47 +116,30 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 74,
-                "hi": 76
+                "lo": 66,
+                "hi": 68
               },
-              "id": 10
+              "id": 8
             },
             "span": {
               "lo": 39,
-              "hi": 76
+              "hi": 68
             },
-            "id": 11
+            "id": 9
           }
         ],
         [
           "bar",
           {
-            "annotations": [
-              {
-                "identifier": {
-                  "name": "inline",
-                  "span": {
-                    "lo": 78,
-                    "hi": 84
-                  },
-                  "id": 12
-                },
-                "map": {},
-                "span": {
-                  "lo": 77,
-                  "hi": 84
-                },
-                "id": 13
-              }
-            ],
-            "variant": "Inline",
+            "annotations": [],
+            "variant": "Function",
             "identifier": {
               "name": "bar",
               "span": {
-                "lo": 88,
-                "hi": 91
+                "lo": 72,
+                "hi": 75
               },
-              "id": 14
+              "id": 10
             },
             "const_parameters": [],
             "input": [],
@@ -182,23 +148,23 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 98,
-                "hi": 100
+                "lo": 82,
+                "hi": 84
               },
-              "id": 15
+              "id": 11
             },
             "span": {
-              "lo": 77,
-              "hi": 100
+              "lo": 69,
+              "hi": 84
             },
-            "id": 16
+            "id": 12
           }
         ]
       ],
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 100
+        "hi": 84
       }
     }
   }

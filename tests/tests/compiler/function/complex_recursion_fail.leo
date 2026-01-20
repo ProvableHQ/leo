@@ -1,16 +1,20 @@
 
+@no_inline
 fn one(n: u8) -> u8 {
     return two(n);
 }
 
+@no_inline
 fn two(n: u8) -> u8 {
     return three(n) + four(n);
 }
 
+@no_inline
 fn three(n: u8) -> u8 {
     return one(n);
 }
 
+@no_inline
 fn four(n: u8) -> u8 {
     return one(n);
 }

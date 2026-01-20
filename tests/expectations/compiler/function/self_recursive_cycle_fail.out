@@ -1,21 +1,21 @@
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:14:20
+    --> compiler-test:15:20
      |
-  14 |             return foo(n - 1u8) + foo(n - 2u8);
+  15 |             return foo(n - 1u8) + foo(n - 2u8);
      |                    ^^^^^^^^^^^^
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:14:35
+    --> compiler-test:15:35
      |
-  14 |             return foo(n - 1u8) + foo(n - 2u8);
+  15 |             return foo(n - 1u8) + foo(n - 2u8);
      |                                   ^^^^^^^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:5:16
+    --> compiler-test:6:16
      |
-   5 |         return fib(n - 1u8) + fib(n - 2u8);
+   6 |         return fib(n - 1u8) + fib(n - 2u8);
      |                ^^^^^^^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:5:31
+    --> compiler-test:6:31
      |
-   5 |         return fib(n - 1u8) + fib(n - 2u8);
+   6 |         return fib(n - 1u8) + fib(n - 2u8);
      |                               ^^^^^^^^^^^^
 Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/foo` --> `test.aleo/foo`

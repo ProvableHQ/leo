@@ -14,7 +14,6 @@ program test.aleo {
     }
 }
 
-@inline
 fn sum_array::[N: u32](arr: [u32; N]) -> u32 {
     let sum = 0u32;
     for i in 0u32..N {

@@ -9,7 +9,6 @@ program test.aleo {
     }
 }
 
-@inline
 fn at_n::[N: u32](arr: [u32; 6]) -> u32 {
     return arr[N];
 }

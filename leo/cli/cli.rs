@@ -196,13 +196,10 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     if !quiet {
         // Init logger with optional debug flag.
-        logger::init_logger(
-            "leo",
-            match cli.debug {
-                false => 1,
-                true => 2,
-            },
-        )?;
+        logger::init_logger("leo", match cli.debug {
+            false => 1,
+            true => 2,
+        })?;
     }
 
     // Check for updates. If not forced, it checks once per day.
@@ -814,14 +811,11 @@ program child.aleo {
         // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
         let outer_program = "import inner_1.aleo;
 import inner_2.aleo;
-
 struct ex_struct {
     arg1: u32,
     arg2: u32,
 }
-
 program outer.aleo {
-
     record inner_1_record {
         owner: address,
         arg1: u32,
@@ -850,7 +844,6 @@ program inner_1.aleo {
         owner: address,
         val: u32,
     }
-
     fn inner_1_main(public a: u32, b: u32, c: ex_struct) -> inner_1_record {
         return inner_1_record {
             owner: self.caller,

@@ -24,7 +24,6 @@ program foo.aleo {
     }
 }
 
-@inline
 fn foo(x: u32) -> u32 {
     return x * x;
 }

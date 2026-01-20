@@ -1,10 +1,8 @@
 
-@inline
 fn function_that_returns_a_value() -> u32 {
     return 0u32;
 }
 
-@inline
 fn another_f_that_returns_a_value(a: u32) -> u32 {
     return a * a;
 }

@@ -1,4 +1,3 @@
-@inline
 fn foo(x: u32) -> field {
     return myGlobal;
 }

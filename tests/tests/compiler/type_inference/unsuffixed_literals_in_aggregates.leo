@@ -47,7 +47,6 @@ program test.aleo {
     }        
 }
 
-@inline
 fn bar(x: u32, y: u64) -> u16 {
     return 0 + 1;
 }

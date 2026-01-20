@@ -1,7 +1,7 @@
 Error [EAST0372017]: The name `N` is defined multiple times.
-    --> compiler-test:9:9
+    --> compiler-test:8:9
      |
-   8 |   fn foo::[N: u32]() -> u32 {
+   7 |   fn foo::[N: u32]() -> u32 {
      |            ^ previous definition of `N` here
-   9 |       let N: u32 = 10u32;
+   8 |       let N: u32 = 10u32;
      |           ^ `N` redefined here

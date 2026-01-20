@@ -1,3 +1,4 @@
+@no_inline
 fn fib(n: u8) -> u8 {
     if n <= 1u8 {
         return n;

@@ -99,12 +99,10 @@ program test.aleo {
     }
 }
 
-@inline
 fn bar() -> u32 {
     return 0;
 }
 
-@inline
 fn foo::[M: u32](arr: [u32; 3]) -> u32 {
     return arr[M - 1];
 }

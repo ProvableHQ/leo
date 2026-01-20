@@ -8,7 +8,6 @@ function = "main"
 input = []
 */
 
-@inline
 fn foo::[M: u32](arr: [u32; 3]) -> u32 {
     return arr[M - 1];
 }

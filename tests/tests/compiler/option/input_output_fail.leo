@@ -11,6 +11,7 @@ program test.aleo {
     }
 }
 
+@no_inline
 fn baz(x: u8?) -> u8? {
     return x;
 }

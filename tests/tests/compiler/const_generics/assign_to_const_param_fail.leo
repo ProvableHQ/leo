@@ -4,7 +4,6 @@ program test.aleo {
     }
 }
 
-@inline
 fn foo::[N: u32, M: u32]() -> u32 {
     N = 5u32;
     M = 6u32;

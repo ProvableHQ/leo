@@ -21,7 +21,6 @@ struct Matrix::[M: u32, N: u32] {
 }
 
 // Multiplies two matrices wrapped in the `Matrix` struct
-@inline
 fn matmul::[M: u32, K: u32, N: u32](
     A: Matrix::[M, K],
     B: Matrix::[K, N]
@@ -42,7 +41,6 @@ fn matmul::[M: u32, K: u32, N: u32](
 }
 
 // Checks if a square matrix is symmetric
-@inline
 fn is_symmetric::[N: u32](A: Matrix::[N, N]) -> bool {
     for i in 0u32..N-1 {
         for j in (i + 1u32)..N { // Only check upper triangle

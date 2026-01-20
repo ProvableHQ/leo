@@ -48,7 +48,6 @@ struct SharedName {
 }
 
 // Inline returning its own struct
-@inline
 fn make() -> SharedName {
     return SharedName { val: 99 };
 }
@@ -64,7 +63,6 @@ struct SharedName::[N: u32] {
 }
 
 // Inline using generic struct
-@inline
 fn make() -> SharedName::[X] {
     return SharedName::[X] {
         val: [5; X],
@@ -82,12 +80,10 @@ struct Inner {
 }
 
 // Inline returning struct defined here
-@inline
 fn make_inner(n: u32) -> Inner {
     return Inner { n };
 }
 
-@inline
 fn consume_inner(inner: Inner) -> u32 {
     return inner.n + X;
 }

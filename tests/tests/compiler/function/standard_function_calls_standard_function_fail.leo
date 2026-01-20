@@ -9,10 +9,12 @@ fn main(a: u32, b: u32, y: bool) -> u32 {
     }
 }
 
+@no_inline
 fn adder(a: u32, b: u32) -> u32 {
     return a + b;
 }
 
+@no_inline
 fn subber(a: u32, b: u32) -> u32 {
     return a - b;
 }

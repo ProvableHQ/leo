@@ -48,7 +48,6 @@ struct Data {
     c: Extra,
 }
 
-@inline
 fn foo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     let extra: Extra = Extra { c: a };
     let data: Data = Data { a: a, b: b, c: extra };

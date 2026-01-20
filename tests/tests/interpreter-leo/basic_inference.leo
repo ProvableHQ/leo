@@ -28,7 +28,6 @@ fn run(x: u32, y: u32, arr: [u32; 4])
     return (t.0, t.1, t.2, x_plus_1, y_plus_2, b, call_result, array_access);
 }
 
-@inline
 fn foo(x: u32) -> u32 {
     return x * x;
 }

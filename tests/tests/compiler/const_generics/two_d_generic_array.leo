@@ -25,7 +25,6 @@ program test.aleo {
 }
 
 // Multiply two 2D matrices: A[M][K] * B[K][N] = C[M][N]
-@inline
 fn matmul::[M: u32, K: u32, N: u32](
     A: [[i32; K]; M],
     B: [[i32; N]; K]

@@ -8,12 +8,10 @@ program const_generics.aleo {
     }
 }
 
-@inline
 fn bar::[N: u32, S: scalar]() -> u32 {
     return N;
 }
 
-@inline
 fn foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
     return N;
 }

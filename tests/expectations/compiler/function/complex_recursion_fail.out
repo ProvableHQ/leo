@@ -1,51 +1,51 @@
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:20:16
-     |
-  20 |         return six(n);
-     |                ^^^^^^
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
     --> compiler-test:24:16
      |
-  24 |         return seven(n) + eight(n);
-     |                ^^^^^^^^
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
-    --> compiler-test:24:27
-     |
-  24 |         return seven(n) + eight(n);
-     |                           ^^^^^^^^
+  24 |         return six(n);
+     |                ^^^^^^
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
     --> compiler-test:28:16
      |
-  28 |         return five(n);
-     |                ^^^^^^^
+  28 |         return seven(n) + eight(n);
+     |                ^^^^^^^^
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:28:27
+     |
+  28 |         return seven(n) + eight(n);
+     |                           ^^^^^^^^
 Error [ETYC0372043]: Cannot call a local transition function from a transition function.
     --> compiler-test:32:16
      |
   32 |         return five(n);
      |                ^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:3:12
+Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+    --> compiler-test:36:16
      |
-   3 |     return two(n);
+  36 |         return five(n);
+     |                ^^^^^^^
+Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
+    --> compiler-test:4:12
+     |
+   4 |     return two(n);
      |            ^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:7:12
+    --> compiler-test:9:12
      |
-   7 |     return three(n) + four(n);
+   9 |     return three(n) + four(n);
      |            ^^^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:7:23
+    --> compiler-test:9:23
      |
-   7 |     return three(n) + four(n);
+   9 |     return three(n) + four(n);
      |                       ^^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:11:12
+    --> compiler-test:14:12
      |
-  11 |     return one(n);
+  14 |     return one(n);
      |            ^^^^^^
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:15:12
+    --> compiler-test:19:12
      |
-  15 |     return one(n);
+  19 |     return one(n);
      |            ^^^^^^
 Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/five` --> `test.aleo/six` --> `test.aleo/seven` --> `test.aleo/five`

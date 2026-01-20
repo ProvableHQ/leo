@@ -6,6 +6,5 @@ program test.aleo {
 }
 
 const N: u32 = 5;
-@inline
 fn foo::[N: u32]() {}
 

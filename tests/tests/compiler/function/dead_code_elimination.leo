@@ -26,7 +26,6 @@ fn eliminate_unused_function_call(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
-@inline
 fn inline_and_eliminate(a: u8, b: u8) -> u8 {
     return a * b;
 }

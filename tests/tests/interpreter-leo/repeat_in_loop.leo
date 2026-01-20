@@ -1,4 +1,3 @@
-@inline
 fn foo::[P: u32]() -> u32 {
     let sum = 0u32;
     for i: u32 in 1..P {
@@ -13,7 +12,6 @@ fn foo::[P: u32]() -> u32 {
     return sum;
 }
 
-@inline
 fn bar::[K: u32](arr: [u32; K]) -> u32 {
     let sum = 0u32;
     for j: u32 in 0..K {

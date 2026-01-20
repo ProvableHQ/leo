@@ -3,12 +3,10 @@ struct S {
     b: u32,
 }
 
-@inline
 fn make_pair(x: u32, y: u32) -> (u32, u32) {
     return (x, y);
 }
 
-@inline
 fn make_triple(x: u32, y: u32, z: u32) -> (u32, u32, u32) {
     return (x, y, z);
 }

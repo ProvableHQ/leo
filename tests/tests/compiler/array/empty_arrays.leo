@@ -13,12 +13,10 @@ fn foo(a: u32, b:[u32; 0]) -> [u32;0] {
     return d;
 }
 
-@inline
 fn id(a: [u32;0]) -> [u32;0] {
     return a;
 } 
 
-@inline
 fn sum::[N: u32](arr: [u32; N]) -> u32 {
     let total = 0u32;
     for i in 0u32..N {
@@ -26,7 +24,6 @@ fn sum::[N: u32](arr: [u32; N]) -> u32 {
     }
     return total;
 }
-@inline
 fn sum_64::[N: u64](arr: [u64; N]) -> u64 {
     let total = 0u64;
     for i in 0u64..N {

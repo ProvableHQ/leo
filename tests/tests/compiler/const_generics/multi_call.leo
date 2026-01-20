@@ -4,12 +4,9 @@ program test.aleo {
     }
 }
 
-@inline
 fn bar::[N: u32, M: u32]() -> u32 {
     return N + M + foo1() + foo2();
 }
 
-@inline
 fn foo1() -> u32 { return 1000u32; }
-@inline
 fn foo2() -> u32 { return 10u32; }

@@ -8,6 +8,7 @@ program test.aleo {
     }
 }
 
+@no_inline
 fn mint(r0: address, r1: u64) -> Token {
     return Token {
         owner: r1, // This variable should be type address.

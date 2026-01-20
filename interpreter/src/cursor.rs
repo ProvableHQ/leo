@@ -1191,8 +1191,6 @@ impl Cursor {
                     if let Some(program) = maybe_program {
                         (program, self.to_absolute_path(&call.function.segments()))
                     } else {
-                        dbg!(&call.function);
-                        dbg!(self.current_program());
                         halt!(call.span, "No current program");
                     }
                 };

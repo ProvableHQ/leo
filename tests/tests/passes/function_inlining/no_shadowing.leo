@@ -6,7 +6,6 @@ program inline_no_shadowing.aleo {
     }
 }
 
-@inline
 fn square(x: u32) -> u32 {
     return x * x;
 }

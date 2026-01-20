@@ -9,13 +9,11 @@ program test.aleo {
         return var1;
     }
 }
-    @inline
     fn helper(x: u32) -> u32 {
         let var3 = 1u32;
         let var4 = x + var3;
         return var4;
     }
-    @inline
     fn wrapper(y: u32) -> u32 {
         let var3$#0 = 1u32;
         let var4$#1 = y + var3$#0;

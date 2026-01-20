@@ -12,7 +12,6 @@ function = "outer_const"
 input = ["17field"]
 */
 
-@inline
 fn inner2(a: field) -> field {
     let b: field = 3field;
     return a + b;
@@ -23,7 +22,6 @@ fn inner(a: field) -> field {
     return inner2(a) + inner2(b);
 }
 
-@inline
 fn inner_const::[X: field, Y: field](a: field) -> field {
     return X * (Y + a);
 }

@@ -3,7 +3,6 @@ struct S {
     y: u16,
 }
 
-@inline
 fn bar(x: u32, y: u64) -> u16 {
     return 0 + 1;
 }

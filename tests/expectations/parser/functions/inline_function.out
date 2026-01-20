@@ -11,7 +11,7 @@
             "lo": 9,
             "hi": 13
           },
-          "id": 12
+          "id": 10
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 14,
             "hi": 18
           },
-          "id": 13
+          "id": 11
         }
       },
       "consts": [],
@@ -30,38 +30,40 @@
         [
           "foo",
           {
-            "annotations": [
-              {
-                "identifier": {
-                  "name": "inline",
-                  "span": {
-                    "lo": 23,
-                    "hi": 29
-                  },
-                  "id": 0
-                },
-                "map": {},
-                "span": {
-                  "lo": 22,
-                  "hi": 29
-                },
-                "id": 1
-              }
-            ],
-            "variant": "Inline",
+            "annotations": [],
+            "variant": "Function",
             "identifier": {
               "name": "foo",
               "span": {
-                "lo": 33,
-                "hi": 36
+                "lo": 25,
+                "hi": 28
               },
-              "id": 2
+              "id": 0
             },
             "const_parameters": [],
             "input": [
               {
                 "identifier": {
                   "name": "x",
+                  "span": {
+                    "lo": 29,
+                    "hi": 30
+                  },
+                  "id": 1
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "span": {
+                  "lo": 29,
+                  "hi": 35
+                },
+                "id": 2
+              },
+              {
+                "identifier": {
+                  "name": "y",
                   "span": {
                     "lo": 37,
                     "hi": 38
@@ -70,32 +72,13 @@
                 },
                 "mode": "None",
                 "type_": {
-                  "Integer": "U32"
+                  "Integer": "I32"
                 },
                 "span": {
                   "lo": 37,
                   "hi": 43
                 },
                 "id": 4
-              },
-              {
-                "identifier": {
-                  "name": "y",
-                  "span": {
-                    "lo": 45,
-                    "hi": 46
-                  },
-                  "id": 5
-                },
-                "mode": "None",
-                "type_": {
-                  "Integer": "I32"
-                },
-                "span": {
-                  "lo": 45,
-                  "hi": 51
-                },
-                "id": 6
               }
             ],
             "output": [
@@ -105,10 +88,10 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 56,
-                  "hi": 59
+                  "lo": 48,
+                  "hi": 51
                 },
-                "id": 10
+                "id": 8
               }
             ],
             "output_type": {
@@ -121,10 +104,10 @@
                     "expression": {
                       "Literal": {
                         "span": {
-                          "lo": 73,
-                          "hi": 77
+                          "lo": 65,
+                          "hi": 69
                         },
-                        "id": 8,
+                        "id": 6,
                         "variant": {
                           "Integer": [
                             "U32",
@@ -134,31 +117,31 @@
                       }
                     },
                     "span": {
-                      "lo": 66,
-                      "hi": 78
+                      "lo": 58,
+                      "hi": 70
                     },
-                    "id": 7
+                    "id": 5
                   }
                 }
               ],
               "span": {
-                "lo": 60,
-                "hi": 80
+                "lo": 52,
+                "hi": 72
               },
-              "id": 9
+              "id": 7
             },
             "span": {
               "lo": 22,
-              "hi": 80
+              "hi": 72
             },
-            "id": 11
+            "id": 9
           }
         ]
       ],
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 80
+        "hi": 72
       }
     }
   }

@@ -44,7 +44,6 @@ struct Foo::[N: u32] {
     a: [u32; N],
 }
 
-@inline
 fn compute() -> u32 {
     let b = Foo::[X] {
         a: [10; X],
@@ -60,7 +59,6 @@ struct Foo::[M: u32] {
     a: [u32; M],
 }
 
-@inline
 fn compute() -> u32 {
     let f = Foo::[X] {
         a: [20; X],

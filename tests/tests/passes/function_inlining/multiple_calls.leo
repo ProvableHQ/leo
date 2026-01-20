@@ -6,7 +6,6 @@ program test.aleo {
     }
 }
 
-@inline
 fn square(x: u32) -> u32 {
     return x * x;
 }
