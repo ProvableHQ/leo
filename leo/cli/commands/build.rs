@@ -211,6 +211,8 @@ fn compile_leo_source_directory(
     stubs: IndexMap<Symbol, Stub>,
     network: NetworkName,
 ) -> Result<String> {
+    tracing::info!("🔨 Compiling '{program_name}.leo'");
+
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
         Some(program_name.to_string()),
@@ -253,7 +255,6 @@ fn compile_leo_source_directory(
     if let Some(msg) = warning {
         tracing::warn!("⚠️  Program '{program_name}' is {msg}.");
     }
-
-    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions.");
+    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions.\n");
     Ok(bytecode)
 }
