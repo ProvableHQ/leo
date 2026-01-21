@@ -24,7 +24,6 @@ use snarkvm::prelude::TestnetV0;
 
 use indexmap::IndexMap;
 use itertools::Itertools as _;
-use serial_test::serial;
 use std::fmt::Write as _;
 
 type CurrentNetwork = TestnetV0;
@@ -132,8 +131,7 @@ fn execution_runner(source: &str) -> String {
     })
 }
 
-#[test]
-#[serial]
-fn test_execution() {
-    leo_test_framework::run_tests("execution", execution_runner);
+#[cfg(test)]
+mod execution_tests {
+    include!(concat!(env!("OUT_DIR"), "/execution_tests.rs"));
 }

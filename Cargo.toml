@@ -144,7 +144,8 @@ version = "3.1.1"
 version = "0.10.9"
 
 [workspace.dependencies.snarkvm]
-version = "4.4.0"
+git = "https://github.com/ProvableHQ/snarkVM.git"
+tag = "canary-v4.5.0"
 features = [ "test_consensus_heights" ]
 
 [workspace.dependencies.tempfile]

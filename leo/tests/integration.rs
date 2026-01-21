@@ -34,6 +34,7 @@ use std::{
 };
 
 use anyhow::anyhow;
+use serial_test::serial;
 use snarkvm::prelude::ConsensusVersion;
 
 const VALIDATOR_COUNT: usize = 4usize;
@@ -220,6 +221,7 @@ fn filter_json_file(data: &str) -> String {
 const BINARY_PATH: &str = env!("CARGO_BIN_EXE_leo");
 
 #[test]
+#[serial]
 fn integration_tests() {
     if !cfg!(target_family = "unix") {
         println!("Skipping CLI integration tests (they only run on unix systems).");
@@ -238,7 +240,7 @@ fn integration_tests() {
     // Wait for snarkos to start listening on port 3030.
     let height_url = "http://localhost:3030/testnet/block/height/latest";
     let start = std::time::Instant::now();
-    let timeout = std::time::Duration::from_secs(90);
+    let timeout = std::time::Duration::from_secs(300);
 
     loop {
         match leo_package::fetch_from_network_plain(height_url) {
@@ -248,7 +250,36 @@ fn integration_tests() {
             Err(_) if start.elapsed() < timeout => {
                 std::thread::sleep(std::time::Duration::from_secs(1));
             }
-            Err(e) => panic!("snarkos did not start within {timeout:?}: {e}"),
+            Err(e) => {
+                let snarkos_path: PathBuf =
+                    which::which("snarkos").unwrap_or_else(|_| panic!("Cannot find snarkos path.")); // fallback for CI
+
+                let version_output = Command::new(&snarkos_path)
+                    .arg("--version")
+                    .output()
+                    .map(|output| {
+                        let stdout = String::from_utf8_lossy(&output.stdout);
+                        let stderr = String::from_utf8_lossy(&output.stderr);
+
+                        if output.status.success() {
+                            stdout.trim().to_string()
+                        } else {
+                            format!(
+                                "failed to get version (status {}): stdout: `{}`, stderr: `{}`",
+                                output.status,
+                                stdout.trim(),
+                                stderr.trim()
+                            )
+                        }
+                    })
+                    .unwrap_or_else(|err| format!("failed to execute snarkos --version: {err}"));
+
+                panic!(
+                    "{} (version: {}) did not start within {timeout:?}: {e}.",
+                    snarkos_path.display(),
+                    version_output
+                )
+            }
         }
     }
 

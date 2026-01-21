@@ -19,7 +19,10 @@
 #[cfg(not(feature = "no_parallel"))]
 use rayon::prelude::*;
 
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 use walkdir::WalkDir;
 
 enum TestFailure {
@@ -86,9 +89,11 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
         .collect();
 
     let run_test = |path: &PathBuf| -> TestResult {
+        println!("Running: {}", path.display());
         let contents =
             fs::read_to_string(path).unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", path.display()));
         let result_output = std::panic::catch_unwind(|| runner(&contents));
+        println!("Finished running: {}", path.display());
         if let Err(payload) = result_output {
             let s1 = payload.downcast_ref::<&str>().map(|s| s.to_string());
             let s2 = payload.downcast_ref::<String>().cloned();
@@ -160,4 +165,71 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
     }
 
     assert!(failure_count == 0);
+}
+
+pub fn run_single_test(category: &str, path: &Path, runner: fn(&str) -> String) {
+    use std::fs;
+
+    // Canonicalize the test file path to avoid strip_prefix issues
+    let path = path.canonicalize().unwrap();
+
+    unsafe {
+        // Disable colored output in test failures
+        std::env::set_var("NOCOLOR", "x");
+    }
+
+    // Base directories
+    let base_tests_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "tests"].iter().collect();
+    let base_tests_dir = base_tests_dir.canonicalize().unwrap();
+
+    let tests_dir = base_tests_dir.join("tests").join(category);
+    let expectations_dir = base_tests_dir.join("expectations").join(category);
+
+    let rewrite_expectations = std::env::var("REWRITE_EXPECTATIONS").is_ok();
+
+    // Read the test file
+    println!("Running: {}", path.display());
+    let contents = fs::read_to_string(&path).unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", path.display()));
+
+    // Run the test and catch panics
+    let result_output = std::panic::catch_unwind(|| runner(&contents));
+    println!("Finished running: {}", path.display());
+
+    let mut wrote = false;
+
+    match result_output {
+        Err(payload) => {
+            let s1 = payload.downcast_ref::<&str>().map(|s| s.to_string());
+            let s2 = payload.downcast_ref::<String>().cloned();
+            let s = s1.or(s2).unwrap_or_else(|| "Unknown panic payload".to_string());
+
+            eprintln!("FAILURE: {}:", path.display());
+            eprintln!("Rust panic:\n{s}");
+            panic!("Test failed: {}", path.display());
+        }
+        Ok(output) => {
+            // Expectation file
+            let mut expectation_path = expectations_dir.join(path.strip_prefix(&tests_dir).unwrap());
+            expectation_path.set_extension("out");
+
+            if rewrite_expectations || !expectation_path.exists() {
+                fs::write(&expectation_path, &output)
+                    .unwrap_or_else(|e| panic!("Failed to write file {}: {e}.", expectation_path.display()));
+                wrote = true;
+            } else {
+                let expected = fs::read_to_string(&expectation_path)
+                    .unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", expectation_path.display()));
+
+                if output != expected {
+                    eprintln!("FAILURE: {}:", path.display());
+                    eprintln!("\ngot:\n{output}\nexpected:\n{expected}\n");
+                    panic!("Test failed: {}", path.display());
+                }
+            }
+        }
+    }
+
+    if wrote {
+        println!("Wrote expectation file for test: {}", path.display());
+    }
 }
