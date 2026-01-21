@@ -373,6 +373,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
+            Expression::Slice(slice) => self.visit_slice(slice, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access_general(access, false, additional),
@@ -491,6 +492,87 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         self.maybe_assert_type(&type_, additional, input.span());
         type_
+    }
+
+    fn visit_slice(&mut self, input: &SliceExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        // Type check the array expression.
+        let array_type = self.visit_expression(&input.array, &None);
+
+        // Make sure the array type is actually an array.
+        let element_type = match &array_type {
+            Type::Array(array_ty) => array_ty.element_type().clone(),
+            Type::Err => return Type::Err,
+            _ => {
+                self.emit_err(TypeCheckerError::expected_array_type(array_type.clone(), input.array.span()));
+                return Type::Err;
+            }
+        };
+
+        // Type check the start expression if present.
+        if let Some(start) = &input.start {
+            self.visit_expression_infer_default_u32(start);
+        }
+
+        // Type check the end expression if present.
+        if let Some((_, end)) = &input.end {
+            self.visit_expression_infer_default_u32(end);
+        }
+
+        // Get the start index (default 0).
+        let start = input.start.as_ref().and_then(|e| e.as_u32()).unwrap_or(0);
+
+        // Get the original array length if known.
+        let array_len = if let Type::Array(array_ty) = &array_type { array_ty.length.as_u32() } else { None };
+
+        // Compute the slice length.
+        let slice_len = match (&input.end, array_len) {
+            (Some((inclusive, end_expr)), _) => {
+                if let Some(end) = end_expr.as_u32() {
+                    let end = if *inclusive { end + 1 } else { end };
+                    if end < start {
+                        self.emit_err(TypeCheckerError::slice_range_invalid(start, end, input.span()));
+                        return Type::Err;
+                    }
+                    Some(end - start)
+                } else {
+                    None
+                }
+            }
+            (None, Some(arr_len)) => {
+                // Slice to end of array.
+                if start > arr_len {
+                    self.emit_err(TypeCheckerError::slice_range_invalid(start, arr_len, input.span()));
+                    return Type::Err;
+                }
+                Some(arr_len - start)
+            }
+            (None, None) => None,
+        };
+
+        // If slice length is known, check bounds.
+        if let (Some(slice_len), Some(arr_len)) = (slice_len, array_len)
+            && start + slice_len > arr_len
+        {
+            self.emit_err(TypeCheckerError::slice_out_of_bounds(start, start + slice_len, arr_len, input.span()));
+        }
+
+        // Build the result type.
+        let result_type = if let Some(len) = slice_len {
+            let len_expr = Expression::Literal(Literal::integer(
+                IntegerType::U32,
+                len.to_string(),
+                input.span(),
+                self.state.node_builder.next_id(),
+            ));
+            Type::Array(ArrayType::new(element_type, len_expr))
+        } else {
+            // If we can't determine the length, emit an error.
+            self.emit_err(TypeCheckerError::slice_length_unknown(input.span()));
+            return Type::Err;
+        };
+
+        self.maybe_assert_type(&result_type, additional, input.span());
+        result_type
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Self::AdditionalInput) -> Self::Output {
@@ -645,11 +727,38 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 result_t
             }
             BinaryOperation::Add => {
-                let operand_expected = self.unwrap_optional_type(destination);
+                let unwrapped_dest = self.unwrap_optional_type(destination);
 
-                // The expected type for both `left` and `right` is the unwrapped type
+                // For array concatenation, don't pass destination type as expected (operands have different type than result)
+                // First, probe if operands are arrays by visiting without expected type
+                let is_array_dest = matches!(unwrapped_dest, Some(Type::Array(_)));
+                let operand_expected = if is_array_dest { None } else { unwrapped_dest.clone() };
+
                 let mut t1 = self.visit_expression(&input.left, &operand_expected);
                 let mut t2 = self.visit_expression(&input.right, &operand_expected);
+
+                // Handle array concatenation
+                if let (Type::Array(arr1), Type::Array(arr2)) = (&t1, &t2) {
+                    if arr1.element_type() != arr2.element_type() {
+                        self.emit_err(TypeCheckerError::array_concat_element_mismatch(
+                            arr1.element_type(),
+                            arr2.element_type(),
+                            input.span(),
+                        ));
+                        return Type::Err;
+                    }
+                    // Result type: [ElementType; len1 + len2]
+                    let result_length = Expression::Binary(Box::new(BinaryExpression {
+                        left: (*arr1.length).clone(),
+                        op: BinaryOperation::Add,
+                        right: (*arr2.length).clone(),
+                        id: self.state.node_builder.next_id(),
+                        span: Default::default(),
+                    }));
+                    let result_t = Type::Array(ArrayType::new(arr1.element_type().clone(), result_length));
+                    self.maybe_assert_type(&result_t, destination, input.span());
+                    return result_t;
+                }
 
                 // Infer `Numeric` types if possible
                 infer_numeric_types(self, &mut t1, &mut t2);
@@ -659,7 +768,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_)) {
                         self.emit_err(TypeCheckerError::type_should_be2(
                             type_,
-                            "a field, group, scalar, or integer",
+                            "a field, group, scalar, integer, or array",
                             span,
                         ));
                     }

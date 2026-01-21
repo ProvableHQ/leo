@@ -1384,4 +1384,54 @@ create_messages!(
         help: None,
     }
 
+    /// For when slicing is applied to a non-array type.
+    @formatted
+    expected_array_type {
+        args: (found: impl Display),
+        msg: format!(
+            "Expected an array type, found `{found}`.",
+        ),
+        help: Some("Slice expressions can only be applied to arrays.".to_string()),
+    }
+
+    /// For when a slice range is invalid (e.g., start > end).
+    @formatted
+    slice_range_invalid {
+        args: (start: impl Display, end: impl Display),
+        msg: format!(
+            "Invalid slice range: start index `{start}` is greater than end index `{end}`.",
+        ),
+        help: None,
+    }
+
+    /// For when a slice is out of bounds.
+    @formatted
+    slice_out_of_bounds {
+        args: (start: impl Display, end: impl Display, length: impl Display),
+        msg: format!(
+            "Slice range [{start}..{end}] is out of bounds for array of length `{length}`.",
+        ),
+        help: None,
+    }
+
+    /// For when a slice length cannot be determined.
+    @formatted
+    slice_length_unknown {
+        args: (),
+        msg: format!(
+            "Cannot determine the length of the slice. Slice bounds must be compile-time constants.",
+        ),
+        help: Some("Use literal values or const expressions for slice bounds.".to_string()),
+    }
+
+    /// For when array concatenation element types do not match.
+    @formatted
+    array_concat_element_mismatch {
+        args: (left: impl Display, right: impl Display),
+        msg: format!(
+            "Cannot concatenate arrays with different element types: `{left}` and `{right}`.",
+        ),
+        help: Some("Both arrays must have the same element type for concatenation.".to_string()),
+    }
+
 );

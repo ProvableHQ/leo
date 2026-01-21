@@ -64,6 +64,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
+            Expression::Slice(slice) => self.reconstruct_slice(*slice, &()),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, &()),
@@ -310,21 +311,85 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left, &());
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right, &());
 
-        if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
+        if let (Some(lhs_value), Some(rhs_value)) = (&lhs_opt_value, &rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
             match interpreter_value::evaluate_binary(
                 span,
                 input.op,
-                &lhs_value,
-                &rhs_value,
+                lhs_value,
+                rhs_value,
                 &self.state.type_table.get(&input_id),
             ) {
                 Ok(new_value) => {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self
-                    .emit_err(StaticAnalyzerError::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span)),
+                Err(err) => self.emit_err(StaticAnalyzerError::compile_time_binary_op(
+                    lhs_value.clone(),
+                    rhs_value.clone(),
+                    input.op,
+                    err,
+                    span,
+                )),
+            }
+        }
+
+        // Handle array concatenation when values aren't known but types are arrays
+        if matches!(input.op, BinaryOperation::Add) {
+            let left_type = self.state.type_table.get(&left.id());
+            let right_type = self.state.type_table.get(&right.id());
+
+            if let (Some(Type::Array(left_arr)), Some(Type::Array(right_arr))) = (left_type, right_type) {
+                // Get array lengths - either from the expression itself (if ArrayExpression)
+                // or from the type (if literal length)
+                let left_len = match &left {
+                    Expression::Array(arr) => Some(arr.elements.len() as u32),
+                    _ => left_arr.length.as_u32(),
+                };
+                let right_len = match &right {
+                    Expression::Array(arr) => Some(arr.elements.len() as u32),
+                    _ => right_arr.length.as_u32(),
+                };
+
+                if let (Some(left_len), Some(right_len)) = (left_len, right_len) {
+                    // Expand a + b to [a[0], a[1], ..., b[0], b[1], ...]
+                    let mut elements = Vec::with_capacity((left_len + right_len) as usize);
+
+                    // Helper to add elements from an array operand
+                    let mut add_elements = |arr: &Expression, arr_type: &ArrayType, len: u32| {
+                        // If the operand is already an ArrayExpression, use its elements directly
+                        if let Expression::Array(array_expr) = arr {
+                            for elem in &array_expr.elements {
+                                elements.push(elem.clone());
+                            }
+                        } else {
+                            // Otherwise, create array accesses
+                            for i in 0..len {
+                                let index = Expression::Literal(Literal::integer(
+                                    IntegerType::U32,
+                                    i.to_string(),
+                                    span,
+                                    self.state.node_builder.next_id(),
+                                ));
+                                let access = ArrayAccess {
+                                    array: arr.clone(),
+                                    index,
+                                    span,
+                                    id: self.state.node_builder.next_id(),
+                                };
+                                // Register the element type in the type table
+                                self.state.type_table.insert(access.id, arr_type.element_type().clone());
+                                elements.push(Expression::ArrayAccess(Box::new(access)));
+                            }
+                        }
+                    };
+
+                    add_elements(&left, &left_arr, left_len);
+                    add_elements(&right, &right_arr, right_len);
+
+                    let array_expr = ArrayExpression { elements, span, id: input_id };
+                    return (Expression::Array(array_expr), None);
+                }
             }
         }
 
