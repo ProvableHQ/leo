@@ -17,35 +17,21 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies.leo-ast]
-workspace = true
+[dependencies]
+# leo dependencies
+leo-ast             = { workspace = true }
+leo-errors          = { workspace = true }
+leo-parser-lossless = { workspace = true }
+leo-span            = { workspace = true }
+# third party dependencies
+indexmap            = { workspace = true }
+itertools           = { workspace = true }
+snarkvm             = { workspace = true }
 
-[dependencies.leo-errors]
-workspace = true
-
-[dependencies.leo-parser-lossless]
-workspace = true
-
-[dependencies.leo-span]
-workspace = true
-
-[dependencies.snarkvm]
-workspace = true
-
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.itertools]
-workspace = true
-
-[dev-dependencies.serde]
-workspace = true
-
-[dev-dependencies.serde_json]
-workspace = true
-
-[dev-dependencies.serial_test]
-workspace = true
-
-[dev-dependencies.leo-test-framework]
-workspace = true
+[dev-dependencies]
+# leo dependencies
+leo-test-framework  = { workspace = true }
+# third party dependencies
+serde               = { workspace = true }
+serde_json          = { workspace = true }
+serial_test         = { workspace = true }

@@ -17,11 +17,10 @@ include = [ "Cargo.toml", "src", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies.rayon]
-workspace = true
-
-[dependencies.walkdir]
-workspace = true
-
 [features]
-no_parallel = [ ]
+no_parallel = []
+
+[dependencies]
+# third party dependencies
+rayon   = { workspace = true }
+walkdir = { workspace = true }

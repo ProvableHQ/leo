@@ -20,56 +20,28 @@ edition = "2024"
 [lib]
 path = "src/lib.rs"
 
-[dependencies.anyhow]
-workspace = true
+[dependencies]
+# leo dependencies
+leo-ast       = { workspace = true }
+leo-errors    = { workspace = true }
+leo-package   = { workspace = true }
+leo-span      = { workspace = true }
+# third party dependencies
+anyhow        = { workspace = true }
+base62        = { workspace = true }
+indexmap      = { workspace = true }
+itertools     = { workspace = true }
+num-traits    = { workspace = true }
+regex         = { workspace = true }
+sha2          = { workspace = true }
+serde         = { workspace = true }
+serde_json    = { workspace = true }
+snarkvm       = { workspace = true }
 
-[dependencies.base62]
-workspace = true
-
-[dependencies.snarkvm]
-workspace = true
-
-[dependencies.leo-ast]
-workspace = true
-
-[dependencies.leo-errors]
-workspace = true
-
-[dependencies.leo-package]
-workspace = true
-
-[dependencies.leo-span]
-workspace = true
-
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.itertools]
-workspace = true
-
-[dependencies.num-traits]
-version = "0.2.19"
-
-[dependencies.regex]
-workspace = true
-
-[dependencies.sha2]
-workspace = true
-
-[dependencies.serde]
-workspace = true
-
-[dependencies.serde_json]
-workspace = true
-
-[dev-dependencies.leo-test-framework]
-workspace = true
-
-[dev-dependencies.leo-parser]
-workspace = true
-
-[dev-dependencies.paste]
-workspace = true
-
-[dev-dependencies.serial_test]
-workspace = true
+[dev-dependencies]
+# leo dependencies
+leo-parser         = { workspace = true }
+leo-test-framework = { workspace = true }
+# third party dependencies
+paste              = { workspace = true }
+serial_test        = { workspace = true }

@@ -17,29 +17,15 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies.leo-span]
-workspace = true
-
-[dependencies.anyhow]
-version = "1.0"
-
-[dependencies.backtrace]
-version = "0.3.74"
-
-[dependencies.colored]
-version = "2.0.4"
-
-[dependencies.color-backtrace]
-version = "0.6.1"
-
-[dependencies.derivative]
-version = "2.2.0"
-
-[dependencies.itertools]
-workspace = true
-
-[dependencies.serde]
-workspace = true
-
-[dependencies.thiserror]
-version = "1.0.65"
+[dependencies]
+# leo dependencies
+leo-span         = { workspace = true }
+# third party dependencies
+anyhow           = { workspace = true }
+backtrace        = { workspace = true }
+colored          = { workspace = true }
+color-backtrace  = { workspace = true }
+derivative       = { workspace = true }
+itertools        = { workspace = true }
+serde            = { workspace = true }
+thiserror        = { workspace = true }
