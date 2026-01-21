@@ -389,7 +389,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         // Then handle global consts.
         if let Some(location) = input.try_global_location()
-            && let Some(expression) = self.state.symbol_table.lookup_global_const(location)
+            && let Some(expression) = self.state.symbol_table.lookup_global_const(self.program, location)
         {
             let (expression, opt_value) = self.reconstruct_expression(expression, &());
             if opt_value.is_some() {
@@ -565,7 +565,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     self.program,
                     self.module.iter().copied().chain(std::iter::once(input.place.name)).collect::<Vec<_>>(),
                 );
-                if self.state.symbol_table.lookup_global_const(&location).is_none() {
+                if self.state.symbol_table.lookup_global_const(self.program, &location).is_none() {
                     // It wasn't already evaluated - insert it and record that we've made a change.
                     self.state.symbol_table.insert_global_const(location, expr.clone());
                     self.changed = true;

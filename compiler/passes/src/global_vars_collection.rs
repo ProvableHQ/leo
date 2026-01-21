@@ -43,6 +43,7 @@
 use crate::{CompilerState, Pass, VariableSymbol, VariableType};
 
 use leo_ast::{
+    AleoProgram,
     AstVisitor,
     ConstDeclaration,
     Location,
@@ -51,7 +52,6 @@ use leo_ast::{
     ProgramScope,
     ProgramVisitor,
     StorageVariable,
-    Stub,
 };
 use leo_errors::Result;
 use leo_span::Symbol;
@@ -148,7 +148,7 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
         }
     }
 
-    fn visit_stub(&mut self, input: &Stub) {
+    fn visit_aleo_program(&mut self, input: &AleoProgram) {
         self.program_name = input.stub_id.name.name;
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
     }

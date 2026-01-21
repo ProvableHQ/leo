@@ -249,9 +249,16 @@ impl Path {
 
 impl fmt::Display for Path {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Optional program prefix
-        if let Some(user_program) = &self.user_program {
-            write!(f, "{}.aleo/", user_program.name)?;
+        // Determine the effective program symbol
+        let program: Option<Symbol> = self
+            .user_program
+            .as_ref()
+            .map(|id| id.name) // Convert Identifier -> Symbol
+            .or_else(|| self.try_global_location().map(|global| global.program));
+
+        // Program prefix
+        if let Some(program) = program {
+            write!(f, "{}.aleo/", program)?;
         }
 
         // Qualifiers

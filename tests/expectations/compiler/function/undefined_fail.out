@@ -1,4 +1,4 @@
-Error [ETYC0372005]: Unknown function `my_function`
+Error [ETYC0372005]: Unknown function `test.aleo/my_function`
     --> compiler-test:4:9
      |
    4 |         my_function();

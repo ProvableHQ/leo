@@ -16,10 +16,10 @@
 
 use super::*;
 
-use leo_ast::{CompositeType, IntegerType, Type};
+use leo_ast::{IntegerType, Type};
 
 impl CodeGeneratingVisitor<'_> {
-    pub fn visit_type(input: &Type) -> AleoType {
+    pub fn visit_type(&self, input: &Type) -> AleoType {
         match input {
             Type::Address => AleoType::Address,
             Type::Field => AleoType::Field,
@@ -41,13 +41,21 @@ impl CodeGeneratingVisitor<'_> {
                 IntegerType::I128 => AleoType::I128,
             },
             Type::Identifier(id) => AleoType::Ident { name: id.to_string() },
-            Type::Composite(CompositeType { path, .. }) => AleoType::Ident {
-                name: Self::legalize_path(&path.expect_global_location().path)
-                    .expect("path format cannot be legalized at this point"),
-            },
+            Type::Composite(composite) => {
+                let composite_location = composite.path.expect_global_location();
+                let this_program_name = self.program_id.unwrap().name.name;
+                let program_name = composite_location.program;
+                let composite_name = Self::legalize_path(&composite_location.path)
+                    .expect("path format cannot be legalized at this point");
+                if program_name == this_program_name {
+                    AleoType::Ident { name: composite_name.to_string() }
+                } else {
+                    AleoType::Location { program: program_name.to_string(), name: composite_name.to_string() }
+                }
+            }
             Type::Boolean => AleoType::Boolean,
             Type::Array(array_type) => AleoType::Array {
-                inner: Box::new(Self::visit_type(array_type.element_type())),
+                inner: Box::new(self.visit_type(array_type.element_type())),
                 len: array_type.length.as_u32().expect("length should be known at this point"),
             },
             Type::Future(..) => {
@@ -81,7 +89,7 @@ impl CodeGeneratingVisitor<'_> {
             let composite_location = composite.path.expect_global_location();
             let this_program_name = self.program_id.unwrap().name.name;
             let program_name = composite_location.program;
-            if self.state.symbol_table.lookup_record(composite_location).is_some() {
+            if self.state.symbol_table.lookup_record(this_program_name, composite_location).is_some() {
                 let [record_name] = &composite_location.path[..] else {
                     panic!("Absolute paths to records can only have a single segment at this stage.")
                 };
@@ -96,6 +104,6 @@ impl CodeGeneratingVisitor<'_> {
             }
         }
 
-        (Self::visit_type(type_), visibility)
+        (self.visit_type(type_), visibility)
     }
 }

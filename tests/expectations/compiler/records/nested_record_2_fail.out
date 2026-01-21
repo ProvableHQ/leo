@@ -9,14 +9,14 @@ Error [ETYC0372030]: A struct or record cannot contain another record.
    6 |         foo: (Foo, Foo),
      |         ^^^
      |
-     = Remove the record `Foo` from `Token2`.
+     = Remove the record `test.aleo/Foo` from `Token2`.
 Error [ETYC0372030]: A struct or record cannot contain another record.
     --> compiler-test:6:9
      |
    6 |         foo: (Foo, Foo),
      |         ^^^
      |
-     = Remove the record `Foo` from `Token2`.
+     = Remove the record `test.aleo/Foo` from `Token2`.
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

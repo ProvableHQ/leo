@@ -1,0 +1,17 @@
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[95u8, 99u8, 136u8, 243u8, 82u8, 169u8, 200u8, 72u8, 133u8, 227u8, 122u8, 161u8, 195u8, 178u8, 69u8, 37u8, 167u8, 114u8, 104u8, 192u8, 161u8, 175u8, 195u8, 180u8, 120u8, 4u8, 192u8, 16u8, 86u8, 199u8, 76u8, 235u8]'.
+       Leo     Program size: 0.20 KB / 97.66 KB
+       Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
+       Leo     6 statements before dead code elimination.
+       Leo     6 statements after dead code elimination.
+       Leo     The program checksum is: '[74u8, 114u8, 9u8, 196u8, 119u8, 213u8, 43u8, 122u8, 92u8, 155u8, 60u8, 120u8, 169u8, 0u8, 41u8, 92u8, 14u8, 87u8, 204u8, 10u8, 34u8, 79u8, 168u8, 242u8, 102u8, 138u8, 132u8, 112u8, 157u8, 113u8, 231u8, 17u8]'.
+       Leo     Program size: 0.22 KB / 97.66 KB
+       Leo ✅ Compiled 'test_some_sample_leo_program.aleo' into Aleo instructions.
+       Leo     Dependency 'some_sample_leo_program.aleo': checksum = '[95u8, 99u8, 136u8, 243u8, 82u8, 169u8, 200u8, 72u8, 133u8, 227u8, 122u8, 161u8, 195u8, 178u8, 69u8, 37u8, 167u8, 114u8, 104u8, 192u8, 161u8, 175u8, 195u8, 180u8, 120u8, 4u8, 192u8, 16u8, 86u8, 199u8, 76u8, 235u8]'
+       Leo Loading the ledger from storage...
+2 / 2 tests passed.
+PASSED: test_some_sample_leo_program.aleo/test_it
+PASSED: test_some_sample_leo_program.aleo/do_nothing

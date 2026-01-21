@@ -4,7 +4,7 @@ program test.aleo {
         val: u32,
     }
     transition main(x: u32, flag: bool) -> u32 {
-        let result: "u32?" = "u32?" { is_some: true, val: 5u32 };
+        let result: test.aleo/"u32?" = test.aleo/"u32?" { is_some: true, val: 5u32 };
         assert(result.is_some);
         return result.val;
     }

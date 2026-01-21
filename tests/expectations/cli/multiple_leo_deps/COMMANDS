@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+cd parent || exit 1
+$LEO_BIN build

@@ -45,8 +45,6 @@ pub struct Composite {
     pub const_parameters: Vec<ConstParameter>,
     /// The fields, constant variables, and functions of this composite.
     pub members: Vec<Member>,
-    /// The external program the composite is defined in.
-    pub external: Option<Symbol>,
     /// Was this a `record Foo { ... }`?
     /// If so, it wasn't a composite.
     pub is_record: bool,
@@ -58,7 +56,7 @@ pub struct Composite {
 
 impl PartialEq for Composite {
     fn eq(&self, other: &Self) -> bool {
-        self.identifier == other.identifier && self.external == other.external
+        self.identifier == other.identifier
     }
 }
 
@@ -94,7 +92,6 @@ impl Composite {
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),
             members,
-            external: Some(program),
             is_record: true,
             span: Default::default(),
             id: Default::default(),
@@ -116,7 +113,6 @@ impl Composite {
                     id: Default::default(),
                 })
                 .collect(),
-            external: None,
             is_record: false,
             span: Default::default(),
             id: Default::default(),

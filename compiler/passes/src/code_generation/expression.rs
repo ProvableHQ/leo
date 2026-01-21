@@ -241,7 +241,7 @@ impl CodeGeneratingVisitor<'_> {
         // Construct the destination register.
         let dest_reg = self.next_register();
 
-        let cast_instruction = AleoStmt::Cast(operand, dest_reg.clone(), Self::visit_type(&input.type_));
+        let cast_instruction = AleoStmt::Cast(operand, dest_reg.clone(), self.visit_type(&input.type_));
 
         // Concatenate the instructions.
         instructions.push(cast_instruction);
@@ -268,7 +268,7 @@ impl CodeGeneratingVisitor<'_> {
         let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
             panic!("All types should be known at this phase of compilation");
         };
-        let array_type: AleoType = Self::visit_type(&array_type);
+        let array_type: AleoType = self.visit_type(&array_type);
 
         let array_instruction = AleoStmt::Cast(AleoExpr::Tuple(operands), destination_register.clone(), array_type);
 
@@ -328,7 +328,9 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_composite_init(&mut self, input: &CompositeExpression) -> (AleoExpr, Vec<AleoStmt>) {
         // Lookup struct or record.
         let composite_location = input.path.expect_global_location();
-        let composite_type = if let Some(is_record) = self.composite_mapping.get(&composite_location.path) {
+        let program = composite_location.program;
+        let this_program_name = self.program_id.unwrap().name.name;
+        let composite_type = if let Some(is_record) = self.composite_mapping.get(composite_location) {
             if *is_record {
                 // record.private;
                 let [record_name] = &composite_location.path[..] else {
@@ -337,9 +339,12 @@ impl CodeGeneratingVisitor<'_> {
                 AleoType::Record { name: record_name.to_string(), program: None }
             } else {
                 // foo; // no visibility for structs
-                AleoType::Ident {
-                    name: Self::legalize_path(&composite_location.path)
-                        .expect("path format cannot be legalized at this point"),
+                let struct_name = Self::legalize_path(&composite_location.path)
+                    .expect("path format cannot be legalized at this point");
+                if program == this_program_name {
+                    AleoType::Ident { name: struct_name.to_string() }
+                } else {
+                    AleoType::Location { program: program.to_string(), name: struct_name.to_string() }
                 }
             }
         } else {
@@ -418,7 +423,7 @@ impl CodeGeneratingVisitor<'_> {
         let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
             panic!("All types should be known at this phase of compilation");
         };
-        let array_type = Self::visit_type(&array_type);
+        let array_type = self.visit_type(&array_type);
 
         let array_instruction = AleoStmt::Cast(AleoExpr::Tuple(expression_operands), dest_reg.clone(), array_type);
 
@@ -461,7 +466,7 @@ impl CodeGeneratingVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(function_location)
+            .lookup_function(caller_program, function_location)
             .expect("Type checking guarantees functions exist");
 
         let mut instructions = vec![];
@@ -515,7 +520,7 @@ impl CodeGeneratingVisitor<'_> {
         } else if func_symbol.function.variant.is_async() {
             AleoStmt::Async(self.current_function.unwrap().identifier.to_string(), arguments, destinations.clone())
         } else {
-            AleoStmt::Call(input.function.to_string(), arguments, destinations.clone())
+            AleoStmt::Call(input.function.identifier().to_string(), arguments, destinations.clone())
         };
 
         // Push the call instruction to the list of instructions.
@@ -691,28 +696,31 @@ impl CodeGeneratingVisitor<'_> {
                     // Get the instruction variant.
                     let is_raw = matches!(variant, SerializeVariant::ToBitsRaw);
                     // Get the size in bits of the input type.
+                    fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
+                        bail!("structs are not supported")
+                    }
                     let size_in_bits = match self.state.network {
                         NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
                             is_raw,
-                            |_| bail!("composites are not supported"),
-                            |_| bail!("composites are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                         NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
                             is_raw,
-                            |_| bail!("composites are not supported"),
-                            |_| bail!("composites are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                         NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
                             is_raw,
-                            |_| bail!("composites are not supported"),
-                            |_| bail!("composites are not supported"),
+                            &struct_not_supported,
+                            &struct_not_supported,
                         ),
                     }
                     .expect("TYC guarantees that all types have a valid size in bits");
 
                     let dest_reg = self.next_register();
                     let output_type = AleoType::Array { inner: Box::new(AleoType::Boolean), len: size_in_bits as u32 };
-                    let input_type = Self::visit_type(&input_type);
+                    let input_type = self.visit_type(&input_type);
                     let instruction =
                         AleoStmt::Serialize(variant, args[0].clone(), input_type, dest_reg.clone(), output_type);
 
@@ -725,8 +733,8 @@ impl CodeGeneratingVisitor<'_> {
                     };
 
                     let dest_reg = self.next_register();
-                    let input_type = Self::visit_type(&input_type);
-                    let output_type = Self::visit_type(&output_type);
+                    let input_type = self.visit_type(&input_type);
+                    let output_type = self.visit_type(&output_type);
                     let instruction =
                         AleoStmt::Deserialize(variant, args[0].clone(), input_type, dest_reg.clone(), output_type);
 
@@ -801,18 +809,19 @@ impl CodeGeneratingVisitor<'_> {
                     .map(|i| AleoExpr::ArrayAccess(Box::new(register.clone()), Box::new(AleoExpr::U32(i))))
                     .collect::<Vec<_>>();
 
-                let ins = AleoStmt::Cast(AleoExpr::Tuple(elems), new_reg.clone(), Self::visit_type(typ));
+                let ins = AleoStmt::Cast(AleoExpr::Tuple(elems), new_reg.clone(), self.visit_type(typ));
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
 
             Type::Composite(comp_ty) => {
+                let current_program = self.program_id.unwrap().name.name;
                 // We need to cast the old struct or record's members into the new one.
                 let composite_location = comp_ty.path.expect_global_location();
                 let comp = self
                     .state
                     .symbol_table
-                    .lookup_record(composite_location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(&composite_location.path))
+                    .lookup_record(current_program, composite_location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(current_program, composite_location))
                     .unwrap();
                 let elems = comp
                     .members

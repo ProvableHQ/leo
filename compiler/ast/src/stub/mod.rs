@@ -19,14 +19,70 @@
 pub mod function_stub;
 pub use function_stub::*;
 
-use crate::{Composite, ConstDeclaration, Identifier, Indent, Mapping, NodeID, ProgramId};
+use crate::{Composite, ConstDeclaration, Identifier, Indent, Mapping, NodeID, Program, ProgramId};
+use indexmap::IndexSet;
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum Stub {
+    /// A dependency that is a Leo program parsed into an AST.
+    FromLeo {
+        program: Program,
+        parents: IndexSet<Symbol>, // These are the names of all the programs that import this dependency.
+    },
+    /// A dependency that is an Aleo program.
+    FromAleo {
+        program: AleoProgram,
+        parents: IndexSet<Symbol>, // These are the names of all the programs that import this dependency.
+    },
+}
+
+impl Stub {
+    /// Returns the programs that this stub imports.
+    pub fn imports(&self) -> Box<dyn Iterator<Item = &Symbol> + '_> {
+        match self {
+            Stub::FromLeo { program, .. } => Box::new(program.imports.keys()),
+            Stub::FromAleo { program, .. } => Box::new(program.imports.iter().map(|id| &id.name.name)),
+        }
+    }
+
+    /// Inserts the given program name as a parent for this stub, implying that the stub is
+    /// imported by this parent.
+    pub fn add_parent(&mut self, parent: Symbol) {
+        match self {
+            Stub::FromLeo { parents, .. } | Stub::FromAleo { parents, .. } => {
+                parents.insert(parent);
+            }
+        }
+    }
+}
+
+impl fmt::Display for Stub {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Stub::FromLeo { program, .. } => write!(f, "{program}"),
+            Stub::FromAleo { program, .. } => write!(f, "{program}"),
+        }
+    }
+}
+
+impl From<Program> for Stub {
+    fn from(program: Program) -> Self {
+        Stub::FromLeo { program, parents: IndexSet::new() }
+    }
+}
+
+impl From<AleoProgram> for Stub {
+    fn from(program: AleoProgram) -> Self {
+        Stub::FromAleo { program, parents: IndexSet::new() }
+    }
+}
+
 /// Stores the Leo stub abstract syntax tree.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Stub {
+pub struct AleoProgram {
     /// A vector of imported programs.
     pub imports: Vec<ProgramId>,
     /// The stub id
@@ -43,7 +99,7 @@ pub struct Stub {
     pub span: Span,
 }
 
-impl Default for Stub {
+impl Default for AleoProgram {
     /// Constructs an empty program stub
     fn default() -> Self {
         Self {
@@ -61,7 +117,7 @@ impl Default for Stub {
     }
 }
 
-impl fmt::Display for Stub {
+impl fmt::Display for AleoProgram {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "stub {} {{", self.stub_id)?;
         for import in self.imports.iter() {

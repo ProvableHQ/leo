@@ -173,6 +173,12 @@ pub trait ProgramConsumer {
     fn consume_program(&mut self, input: Program) -> Self::Output;
 }
 
+/// A Consumer trait for a stub in the AST.
+pub trait StubConsumer {
+    type Output;
+    fn consume_stub(&mut self, input: Stub) -> Self::Output;
+}
+
 /// A Consumer trait for modules in the AST.
 pub trait ModuleConsumer {
     type Output;

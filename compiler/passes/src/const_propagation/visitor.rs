@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{Expression, Node, NodeID, interpreter_value::Value};
+use leo_ast::{Expression, Location, Node, NodeID, interpreter_value::Value};
 use leo_errors::StaticAnalyzerError;
 use leo_span::{Span, Symbol};
 
@@ -64,9 +64,9 @@ impl ConstPropagationVisitor<'_> {
     pub fn value_to_expression(&self, value: &Value, span: Span, id: NodeID) -> Option<Expression> {
         let ty = self.state.type_table.get(&id)?;
         let symbol_table = &self.state.symbol_table;
-        let struct_lookup = |sym: &[Symbol]| {
+        let struct_lookup = |loc: &Location| {
             symbol_table
-                .lookup_struct(sym)
+                .lookup_struct(self.program, loc)
                 .unwrap()
                 .members
                 .iter()

@@ -1,19 +1,19 @@
-Error [ECMP0376012]: Unable to resolve composite expression `Foo`. A non-const expression was provided where a const generic parameter is required.
+Error [ECMP0376012]: Unable to resolve composite expression `b28668.aleo/Foo`. A non-const expression was provided where a const generic parameter is required.
     --> compiler-test:10:22
      |
   10 |             z: Foo::[self.caller] {
      |                      ^^^^^^^^^^^
-Error [ECMP0376012]: Unable to resolve composite expression `Goo`. A non-const expression was provided where a const generic parameter is required.
+Error [ECMP0376012]: Unable to resolve composite expression `b28668.aleo/Goo`. A non-const expression was provided where a const generic parameter is required.
     --> compiler-test:9:33
      |
    9 |         let g: Goo::[y] = Goo::[y] {
      |                                 ^
-Error [ECMP0376012]: Unable to resolve composite type `Foo`. A non-const expression was provided where a const generic parameter is required.
+Error [ECMP0376012]: Unable to resolve composite type `b28668.aleo/Foo`. A non-const expression was provided where a const generic parameter is required.
     --> compiler-test:5:18
      |
    5 |         z: Foo::[self.caller],
      |                  ^^^^^^^^^^^
-Error [ECMP0376012]: Unable to resolve composite type `Goo`. A non-const expression was provided where a const generic parameter is required.
+Error [ECMP0376012]: Unable to resolve composite type `b28668.aleo/Goo`. A non-const expression was provided where a const generic parameter is required.
     --> compiler-test:9:22
      |
    9 |         let g: Goo::[y] = Goo::[y] {

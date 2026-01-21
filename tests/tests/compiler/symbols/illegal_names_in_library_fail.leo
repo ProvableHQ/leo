@@ -22,7 +22,7 @@ program childaleo.aleo {
 
 // --- Next Program --- //
 
-import child.aleo;
+import childaleo.aleo;
 
 program foo.aleo {
     transition foo () {}
