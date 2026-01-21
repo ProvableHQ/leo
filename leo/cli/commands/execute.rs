@@ -21,7 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Execution, Itertools, Network, Program, execution_cost};
+use snarkvm::prelude::{Execution, Fee, Itertools, Network, Program, execution_cost};
 
 use clap::Parser;
 use colored::*;
@@ -36,7 +36,7 @@ use snarkvm::{
         Identifier,
         ProgramID,
         VM,
-        query::Query as SnarkVMQuery,
+        query::{Query as SnarkVMQuery, QueryTrait},
         store::{
             ConsensusStore,
             helpers::memory::{BlockMemory, ConsensusMemory},
@@ -58,6 +58,8 @@ pub struct LeoExecute {
         help = "The program inputs e.g. `1u32`, `record1...` (record ciphertext), or `{ owner: ...}` "
     )]
     inputs: Vec<String>,
+    #[clap(long, help = "Skips proving.")]
+    pub(crate) skip_execute_proof: bool,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
     #[clap(flatten)]
@@ -269,7 +271,7 @@ fn handle_execute<A: Aleo>(
         command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
 
     // Get the first fee option.
-    let (_, priority_fee, record) =
+    let (base_fee, priority_fee, record) =
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
@@ -298,6 +300,7 @@ fn handle_execute<A: Aleo>(
         &command.action,
         consensus_version,
         &check_task_for_warnings(&endpoint, network, &programs, consensus_version),
+        command.skip_execute_proof,
     );
 
     // Prompt the user to confirm the plan.
@@ -342,17 +345,66 @@ fn handle_execute<A: Aleo>(
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
-    // Execute the program and produce a transaction.
-    println!("\n⚙️ Executing {program_name}/{function_name}...");
-    let (transaction, response) = vm.execute_with_response(
-        &private_key,
-        (&program_name, &function_name),
-        inputs.iter(),
-        record,
-        priority_fee.unwrap_or(0),
-        Some(&query),
-        rng,
-    )?;
+    // Generate the execution and fee transitions without proofs if specified.
+    let (output_name, output, response) = if command.skip_execute_proof {
+        println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
+
+        // Generate the authorization.
+        let authorization =
+            vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
+
+        // Get the state root.
+        let state_root = query.current_state_root()?;
+
+        // Create an execution without the proof.
+        let execution = Execution::from(authorization.transitions().values().cloned(), state_root, None)?;
+
+        // Calculate the cost.
+        let (cost, _) = execution_cost(&vm.process().read(), &execution, consensus_version)?;
+
+        // Generate the fee authorization.
+        let id = authorization.to_execution_id()?;
+        let fee_authorization = match record {
+            None => {
+                vm.authorize_fee_public(&private_key, base_fee.unwrap_or(cost), priority_fee.unwrap_or(0), id, rng)?
+            }
+            Some(record) => vm.authorize_fee_private(
+                &private_key,
+                record,
+                base_fee.unwrap_or(cost),
+                priority_fee.unwrap_or(0),
+                id,
+                rng,
+            )?,
+        };
+
+        // Create a fee transition without a proof.
+        let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
+
+        // Create the transaction.
+        let transaction = Transaction::from_execution(execution, Some(fee))?;
+
+        // Evaluate the transaction to get the response.
+        let response = vm.process().read().evaluate::<A>(authorization)?;
+
+        ("transaction", Box::new(transaction), response)
+    } else {
+        println!("\n⚙️ Executing {program_name}/{function_name}...");
+
+        // Generate the transaction and get the response.
+        let (transaction, response) = vm.execute_with_response(
+            &private_key,
+            (&program_name, &function_name),
+            inputs.iter(),
+            record,
+            priority_fee.unwrap_or(0),
+            Some(&query),
+            rng,
+        )?;
+        ("transaction", Box::new(transaction), response)
+    };
+
+    let transaction = output.clone();
 
     // Compute and print the execution stats.
     let stats = print_execution_stats::<A::Network>(
@@ -367,9 +419,9 @@ fn handle_execute<A: Aleo>(
     // If the `print` option is set, print the execution transaction to the console.
     // The transaction is printed in JSON format.
     if command.action.print {
-        let transaction_json = serde_json::to_string_pretty(&transaction)
+        let transaction_json = serde_json::to_string_pretty(&output)
             .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
-        println!("🖨️ Printing execution for {program_name}\n{transaction_json}");
+        println!("🖨️ Printing execution for {output_name}\n{transaction_json}");
     }
 
     // If the `save` option is set, save the execution transaction to a file in the specified directory.
@@ -379,9 +431,9 @@ fn handle_execute<A: Aleo>(
         // Create the directory if it doesn't exist.
         std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
         // Save the transaction to a file.
-        let file_path = PathBuf::from(path).join(format!("{program_name}.execution.json"));
-        println!("💾 Saving execution for {program_name} at {}", file_path.display());
-        let transaction_json = serde_json::to_string_pretty(&transaction)
+        let file_path = PathBuf::from(path).join(format!("{output_name}.execution.json"));
+        println!("💾 Saving execution for {output_name} at {}", file_path.display());
+        let transaction_json = serde_json::to_string_pretty(&output)
             .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
         std::fs::write(file_path, transaction_json)
             .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
@@ -526,6 +578,7 @@ fn print_execution_plan<N: Network>(
     action: &TransactionAction,
     consensus_version: ConsensusVersion,
     warnings: &[String],
+    skip_execute_proof: bool,
 ) {
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
@@ -549,6 +602,9 @@ fn print_execution_plan<N: Network>(
     println!("\n{}", "⚙️ Actions:".bold());
     if !is_local {
         println!("  - Program and its dependencies will be downloaded from the network.");
+    }
+    if skip_execute_proof {
+        println!("  - A transaction will be generated, WITHOUT a proof.");
     }
     if action.print {
         println!("  - Transaction will be printed to the console.");
