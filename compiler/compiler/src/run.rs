@@ -317,10 +317,14 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         let mut deploy = || -> Result<()> {
             // Add the program to the ledger.
             // Note that this function performs an additional validity check on the bytecode.
-            let deployment = ledger
-                .vm()
-                .deploy(&genesis_private_key, &aleo_program, None, 0, None, &mut rng)
-                .map_err(|e| anyhow!("Failed to deploy program {name}: {e}"))?;
+            // Catch panics during deployment (e.g., constraint failures during key synthesis).
+            let deployment = match catch_unwind(AssertUnwindSafe(|| {
+                ledger.vm().deploy(&genesis_private_key, &aleo_program, None, 0, None, &mut rng)
+            })) {
+                Ok(Ok(deployment)) => deployment,
+                Ok(Err(e)) => return Err(anyhow!("Failed to deploy program {name}: {e}").into()),
+                Err(e) => return Err(anyhow!("Panic during deployment of program {name}: {e:?}").into()),
+            };
             let block = ledger
                 .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![deployment], &mut rng)
                 .map_err(|e| anyhow!("Failed to prepare to advance block for program {name}: {e}"))?;
