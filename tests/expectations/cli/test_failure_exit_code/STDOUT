@@ -3,9 +3,12 @@
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
        Leo     The program checksum is: '[169u8, 44u8, 143u8, 18u8, 47u8, 196u8, 2u8, 77u8, 84u8, 100u8, 131u8, 15u8, 54u8, 173u8, 74u8, 56u8, 55u8, 110u8, 248u8, 62u8, 168u8, 75u8, 162u8, 68u8, 220u8, 201u8, 90u8, 144u8, 1u8, 150u8, 69u8, 68u8]'.
+       Leo     Program size: 0.12 KB / 97.66 KB
        Leo ✅ Compiled 'test_failure_exit_code.aleo' into Aleo instructions.
-       Leo     3 statements before dead code elimination.
-       Leo     3 statements after dead code elimination.
+       Leo     5 statements before dead code elimination.
+       Leo     5 statements after dead code elimination.
        Leo     The program checksum is: '[102u8, 47u8, 165u8, 186u8, 89u8, 127u8, 235u8, 8u8, 218u8, 104u8, 153u8, 232u8, 55u8, 84u8, 184u8, 59u8, 59u8, 81u8, 222u8, 235u8, 199u8, 43u8, 69u8, 129u8, 112u8, 197u8, 74u8, 39u8, 13u8, 220u8, 22u8, 196u8]'.
+       Leo     Program size: 0.11 KB / 97.66 KB
        Leo ✅ Compiled 'test_failure.aleo' into Aleo instructions.
+       Leo     Dependency 'test_failure_exit_code.aleo': checksum = '[169u8, 44u8, 143u8, 18u8, 47u8, 196u8, 2u8, 77u8, 84u8, 100u8, 131u8, 15u8, 54u8, 173u8, 74u8, 56u8, 55u8, 110u8, 248u8, 62u8, 168u8, 75u8, 162u8, 68u8, 220u8, 201u8, 90u8, 144u8, 1u8, 150u8, 69u8, 68u8]'
        Leo Loading the ledger from storage...
