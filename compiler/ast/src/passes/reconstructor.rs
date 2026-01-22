@@ -638,17 +638,29 @@ pub trait ProgramReconstructor: AstReconstructor {
             const_parameters: input
                 .const_parameters
                 .iter()
-                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .map(|param| {
+                    let mut param = param.clone();
+                    param.type_ = self.reconstruct_type(param.type_).0;
+                    param
+                })
                 .collect(),
             input: input
                 .input
                 .iter()
-                .map(|input| Input { type_: self.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .map(|input| {
+                    let mut input = input.clone();
+                    input.type_ = self.reconstruct_type(input.type_).0;
+                    input
+                })
                 .collect(),
             output: input
                 .output
                 .iter()
-                .map(|output| Output { type_: self.reconstruct_type(output.type_.clone()).0, ..output.clone() })
+                .map(|output| {
+                    let mut output = output.clone();
+                    output.type_ = self.reconstruct_type(output.type_).0;
+                    output
+                })
                 .collect(),
             output_type: self.reconstruct_type(input.output_type).0,
             block: self.reconstruct_block(input.block).0,
@@ -675,12 +687,20 @@ pub trait ProgramReconstructor: AstReconstructor {
             const_parameters: input
                 .const_parameters
                 .iter()
-                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .map(|param| {
+                    let mut param = param.clone();
+                    param.type_ = self.reconstruct_type(param.type_).0;
+                    param
+                })
                 .collect(),
             members: input
                 .members
                 .iter()
-                .map(|member| Member { type_: self.reconstruct_type(member.type_.clone()).0, ..member.clone() })
+                .map(|member| {
+                    let mut member = member.clone();
+                    member.type_ = self.reconstruct_type(member.type_).0;
+                    member
+                })
                 .collect(),
             ..input
         }
