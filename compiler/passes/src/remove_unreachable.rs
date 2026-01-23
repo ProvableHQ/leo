@@ -110,7 +110,6 @@ impl AstReconstructor for RemoveUnreachableVisitor<'_> {
                 *return_seen |= self.has_return;
                 res
             })
-            .filter_map(Some)
             .collect();
         (Block { statements: statements_with_first_return_only, span: input.span, id: input.id }, Default::default())
     }
