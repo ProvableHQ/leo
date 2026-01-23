@@ -2,12 +2,12 @@
 program test.aleo {
     mapping map: u32 => u32;
 
-    async fn main() -> Future {
+    fn main() -> Future {
         return finalize_main(1u32);
     }
 }
 
-async fn finalize_main(a:u32) {
+onchain fn finalize_main(a:u32) {
     if a == 1u32 {
         let y: u32 = 1u32;
         {

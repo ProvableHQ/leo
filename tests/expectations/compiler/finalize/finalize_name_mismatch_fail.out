@@ -6,8 +6,8 @@ Error [ETYC0372005]: Unknown function `finalize_mint_public`
 Error [ETYC0372088]: An `async` transition must contain at least one async operation — either a call to an `async` function or an `async` block.
     --> compiler-test:6:5
      |
-   6 |     async fn mint_public(public receiver: address, public amount: u64) -> Future {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   6 |     fn mint_public(public receiver: address, public amount: u64) -> Future {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    7 |         return finalize_mint_public(receiver, amount);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    8 |     }
@@ -17,8 +17,8 @@ Error [ETYC0372088]: An `async` transition must contain at least one async opera
 Warning [WTYC0372002]: The async function `finalize_mint_private` is never called by an async transition.
     --> compiler-test:11:1
      |
-  11 | async fn finalize_mint_private (public receiver: address, public amount: u64) {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 | onchain fn finalize_mint_private (public receiver: address, public amount: u64) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     Mapping::set(account, receiver, amount);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   13 | }

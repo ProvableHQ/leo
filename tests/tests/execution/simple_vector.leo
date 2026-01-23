@@ -12,7 +12,7 @@ private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 program test.aleo {
     storage vec: [u32];
 
-    async fn test_vector_ops() -> Future {
+    fn test_vector_ops() -> Future {
         return async {
             // Initialize: ensure empty
             assert(vec.len() == 0);
@@ -68,5 +68,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

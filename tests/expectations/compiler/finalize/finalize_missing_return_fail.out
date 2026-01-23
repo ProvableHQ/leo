@@ -1,8 +1,8 @@
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:11:1
      |
-  11 | async fn fin_mint(public receiver: address, public amount: u64) -> u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 | onchain fn fin_mint(public receiver: address, public amount: u64) -> u64 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     Mapping::set(account, receiver, amount);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   13 | }
@@ -12,8 +12,8 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
 Error [ETYC0372036]: Function must return a value.
     --> compiler-test:11:1
      |
-  11 | async fn fin_mint(public receiver: address, public amount: u64) -> u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 | onchain fn fin_mint(public receiver: address, public amount: u64) -> u64 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     Mapping::set(account, receiver, amount);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   13 | }

@@ -3,12 +3,12 @@ program const_generics.aleo {
         return 0;
     }
 
-    async fn main2() -> Future {
+    fn main2() -> Future {
         return foo();
     }
 }
 
-async fn foo() {}
+onchain fn foo() {}
 
 fn bar(x: field) -> field { return x; }
 

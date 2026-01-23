@@ -26,7 +26,7 @@ program complex.aleo {
     // Initialization
     // ────────────────────────────────────────────────────────────────
     //
-    async fn initialize() -> Future {
+    fn initialize() -> Future {
         return async {
             // Structs
             point = Point { x: 1field, y: 2field };
@@ -49,7 +49,7 @@ program complex.aleo {
     // Unset everything 
     // ────────────────────────────────────────────────────────────────
     //
-    async fn to_none() -> Future {
+    fn to_none() -> Future {
         return async {
             // Integers
             point = none;
@@ -66,7 +66,7 @@ program complex.aleo {
     // Direct unwrap checks
     // ────────────────────────────────────────────────────────────────
     //
-    async fn check1() -> Future {
+    fn check1() -> Future {
         return async {
             // Struct
             let p = point.unwrap();
@@ -102,7 +102,7 @@ program complex.aleo {
     // unwrap_or checks (fallback behavior)
     // ────────────────────────────────────────────────────────────────
     //
-    async fn check2() -> Future {
+    fn check2() -> Future {
         return async {
             // Struct
             let p = point.unwrap_or(Point { x: 0field, y: 0field });
@@ -140,5 +140,5 @@ program complex.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

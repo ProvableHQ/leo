@@ -1117,9 +1117,9 @@ impl<'a> ConversionContext<'a> {
             .map(|child| self.to_annotation(child))
             .collect::<Result<Vec<_>>>()?;
         let async_index = annotations.len();
-        let is_async = node.children[async_index].text == "async";
+        let is_onchain = node.children[async_index].text == "onchain";
 
-        let function_variant_index = if is_async { async_index + 1 } else { async_index };
+        let function_variant_index = if is_onchain { async_index + 1 } else { async_index };
 
         let name = &node.children[function_variant_index + 1];
         let id = self.to_identifier(name);
@@ -1130,18 +1130,6 @@ impl<'a> ConversionContext<'a> {
         {
             const_parameters = self.to_const_parameters(const_param_list)?;
         }
-
-        let variant = if is_in_program_block {
-            if is_async { leo_ast::Variant::AsyncTransition } else { leo_ast::Variant::Transition }
-        } else if node.children[function_variant_index].text == "script" {
-            leo_ast::Variant::Script
-        } else if is_async {
-            leo_ast::Variant::AsyncFunction
-        } else if annotations.iter().any(|a| a.identifier.to_string() == "inline") || is_in_module {
-            leo_ast::Variant::Inline
-        } else {
-            leo_ast::Variant::Function
-        };
 
         let parameter_list =
             node.children.iter().find(|child| matches!(child.kind, SyntaxKind::ParameterList)).unwrap();
@@ -1189,6 +1177,20 @@ impl<'a> ConversionContext<'a> {
                 .map(to_output)
                 .collect::<Result<Vec<_>>>()?,
             _ => Vec::new(),
+        };
+
+        let returns_future = output.iter().any(|o| matches!(o.type_, leo_ast::Type::Future(_)));
+
+        let variant = if is_in_program_block {
+            if returns_future { leo_ast::Variant::AsyncTransition } else { leo_ast::Variant::Transition }
+        } else if node.children[function_variant_index].text == "script" {
+            leo_ast::Variant::Script
+        } else if is_onchain {
+            leo_ast::Variant::AsyncFunction
+        } else if annotations.iter().any(|a| a.identifier.to_string() == "inline") || is_in_module {
+            leo_ast::Variant::Inline
+        } else {
+            leo_ast::Variant::Function
         };
 
         Ok(leo_ast::Function::new(

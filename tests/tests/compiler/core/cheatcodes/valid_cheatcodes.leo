@@ -7,14 +7,14 @@ program test_dep.aleo {
         val: u32,
     }
 
-    async fn main_dep(a:u32) -> (yeets, Future) {
+    fn main_dep(a:u32) -> (yeets, Future) {
         let f: Future = finalize_main_dep(a, 1u32);
         let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
 }
 
-async fn finalize_main_dep(a:u32, b:u32) {
+onchain fn finalize_main_dep(a:u32, b:u32) {
     Mapping::set(Yo, a, b);
     let c:u32 = a + b;
 }
@@ -26,12 +26,12 @@ import test_dep.aleo;
 program test.aleo {
     mapping account: address => u64;
 
-    async fn main(public a: u32, public b: i64) -> Future {
+    fn main(public a: u32, public b: i64) -> Future {
         return finish(a, b);
     }
 }
 
-async fn finish(public a: u32, public b: i64) {
+onchain fn finish(public a: u32, public b: i64) {
     CheatCode::print_mapping(account);
     CheatCode::print_mapping(test_dep.aleo/Yo);
     CheatCode::set_block_height(1u32);

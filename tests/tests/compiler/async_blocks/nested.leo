@@ -7,7 +7,7 @@ program test_dep.aleo {
         val: u32,
     }
 
-    async fn main_dep(a:u32) -> (yeets, Future) {
+    fn main_dep(a:u32) -> (yeets, Future) {
         let b = 1u32;
         // Captures `a` then `b`
         let f: Future = async {
@@ -26,7 +26,7 @@ import test_dep.aleo;
 program test.aleo {
     mapping ayo: u32 => u32;
 
-    async fn main(a:u32)-> (u32, Future) {
+    fn main(a:u32)-> (u32, Future) {
         let (y,f): (test_dep.aleo/yeets, Future) = test_dep.aleo/main_dep(10u32);
         let (y2,f2): (test_dep.aleo/yeets, Future) = test_dep.aleo/main_dep(1u32);
         let val:u32 = f.0;
@@ -56,7 +56,7 @@ program test.aleo {
 // The 'wrapper' program.
 import test.aleo;
 program wrapper.aleo {
-    async fn main(public a: u32, b: u32) -> (u32, Future){
+    fn main(public a: u32, b: u32) -> (u32, Future){
         let (val, f): (u32, Future) = test.aleo/main(1u32);
         let (val2, f2): (u32, Future) = test.aleo/main(1u32);
         let (val3, f3): (u32, Future) = test.aleo/main(1u32);
@@ -75,13 +75,13 @@ program wrapper.aleo {
 import wrapper.aleo;
 import test_dep.aleo;
 program big_wrapper.aleo {
-    async fn main(public a: u32, b: u32) -> (u32, Future){
+    fn main(public a: u32, b: u32) -> (u32, Future){
         let (val, f): (u32, Future) = wrapper.aleo/main(10u32, 10u32);
         let f2:Future = finalize_main(f);
         return (f2.0.0.1.0, f2);
     }
 }
 
-async fn finalize_main(f: Future) {
+onchain fn finalize_main(f: Future) {
     f.await();
 }

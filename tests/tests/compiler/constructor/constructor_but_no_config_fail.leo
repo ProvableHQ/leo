@@ -1,7 +1,7 @@
 program test.aleo {
     fn foo() {}
     
-    async constructor() {
+    constructor() {
         assert_eq(true, true);
     }
 }

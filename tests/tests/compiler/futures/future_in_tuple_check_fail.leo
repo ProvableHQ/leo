@@ -4,13 +4,13 @@ program credits.aleo {
         amount: u64,
     }
 
-    async fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Future) {
+    fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Future) {
         let f: Future = finalize();
         return (input, f);
     }
 }
 
-async fn finalize() {
+onchain fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -19,13 +19,13 @@ async fn finalize() {
 import credits.aleo;
 
 program test_credits.aleo {
-    async fn send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Future) {
+    fn send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Future) {
         let result: (credits.aleo/credits, Future) = credits.aleo/transfer_private_to_public(input, self.address, amount);
         let result2: (credits.aleo/credits, Future) = credits.aleo/transfer_private_to_public(input, self.address, amount);
         return (result.0, finish(result.1));
     }
 }
 
-async fn finish(f: Future) {
+onchain fn finish(f: Future) {
     f.await();
 }

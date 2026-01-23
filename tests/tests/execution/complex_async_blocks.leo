@@ -25,7 +25,7 @@ input = []
 program zero_program.aleo {
     mapping counts: address => u64;
 
-    async fn c() -> Future {
+    fn c() -> Future {
         let addr = self.signer;
         let f = async {
             let count: u64 = counts.get_or_use(addr, 0u64);
@@ -35,7 +35,7 @@ program zero_program.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 
@@ -45,7 +45,7 @@ program zero_program.aleo {
 program one_program.aleo {
     mapping counts: address => u64;
 
-    async fn d() -> Future {
+    fn d() -> Future {
         let addr = self.signer;
         let f = async {
             let count: u64 = counts.get_or_use(addr, 0u64);
@@ -55,7 +55,7 @@ program one_program.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -67,7 +67,7 @@ import one_program.aleo;
 program two_program.aleo {
     mapping counts: address => u64;
 
-    async fn b() -> Future {
+    fn b() -> Future {
         let f0: Future = zero_program.aleo/c();
         let f1: Future = one_program.aleo/d();
         let addr = self.signer; 
@@ -81,7 +81,7 @@ program two_program.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -93,7 +93,7 @@ import two_program.aleo;
 program three_program.aleo {
     mapping counts: address => u64;
 
-    async fn e() -> Future {
+    fn e() -> Future {
         let f0: Future = two_program.aleo/b();
         let f1: Future = one_program.aleo/d();
         let f2: Future = zero_program.aleo/c();
@@ -108,7 +108,7 @@ program three_program.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -119,7 +119,7 @@ import three_program.aleo;
 program four_program.aleo {
     mapping counts: address => u64;
 
-    async fn a() -> Future {
+    fn a() -> Future {
         let f0: Future = two_program.aleo/b();
         let f1: Future = three_program.aleo/e();
         let addr = self.signer;
@@ -132,5 +132,5 @@ program four_program.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

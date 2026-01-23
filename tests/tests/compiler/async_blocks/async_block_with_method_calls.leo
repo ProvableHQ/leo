@@ -3,14 +3,14 @@ program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
 
-    async fn mint_public(public receiver: address, public amount: u64) -> Future {
+    fn mint_public(public receiver: address, public amount: u64) -> Future {
         return async {
             let current_amount: u64 = account.get_or_use(receiver, 0u64);
             account.set(receiver, current_amount + amount);
         };
     }
 
-    async fn finalize_self_caller() -> Future {
+    fn finalize_self_caller() -> Future {
         let caller = self.caller;
         return async {
             let current_value: u8 = values.get_or_use(0u8, 0u8);

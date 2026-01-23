@@ -103,6 +103,6 @@ program compare_optionals.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 

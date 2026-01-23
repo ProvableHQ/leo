@@ -668,11 +668,6 @@ ParameterList: SyntaxNode<'a> = {
     },
 }
 
-FunctionKind: LalrToken<'a> = {
-    Fn,
-    Script,
-}
-
 FunctionOutput: SyntaxNode<'a> = {
     <p:WithTrivia<PrivacyKeyword>?> <t:Type> => {
         SyntaxNode::new(SyntaxKind::FunctionOutput, p.into_iter().chain([t]))
@@ -721,23 +716,47 @@ Annotation: SyntaxNode<'a> = {
 
 // Items.
 
-FunctionDeclarationMacro<FunctionKindKind>: SyntaxNode<'a> = {
+FnDeclaration: SyntaxNode<'a> = {
      // With a return type.
-    <anns:(Annotation)*> <a:WithTrivia<Async>?> <k:WithTrivia<FunctionKindKind>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
-        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain(a).chain([k, name]).chain(c).chain([p, arrow, t, b]))
+    <anns:(Annotation)*> <k:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([k, name]).chain(c).chain([p, arrow, t, b]))
     },
 
     // No return type.
-    <anns:(Annotation)*> <a:WithTrivia<Async>?> <k:WithTrivia<FunctionKindKind>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
-        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain(a).chain([k, name]).chain(c).chain([p, b]))
+    <anns:(Annotation)*> <k:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([k, name]).chain(c).chain([p, b]))
     },
 }
 
-FunctionDeclaration: SyntaxNode<'a> = FunctionDeclarationMacro<FunctionKind>;
+
+ScriptDeclaration: SyntaxNode<'a> = {
+     // With a return type.
+    <anns:(Annotation)*> <k:WithTrivia<Script>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([k, name]).chain(c).chain([p, arrow, t, b]))
+    },
+
+    // No return type.
+    <anns:(Annotation)*> <k:WithTrivia<Script>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([k, name]).chain(c).chain([p, b]))
+    },
+}
+
+
+OnchainFnDeclaration: SyntaxNode<'a> = {
+     // With a return type.
+    <anns:(Annotation)*> <ko:WithTrivia<Onchain>> <kf:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([ko, kf, name]).chain(c).chain([p, arrow, t, b]))
+    },
+
+    // No return type.
+    <anns:(Annotation)*> <ko:WithTrivia<Onchain>> <kf:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([ko, kf, name]).chain(c).chain([p, b]))
+    },
+}
 
 ConstructorDeclaration: SyntaxNode<'a> = {
-    <anns:(Annotation)*> <a:WithTrivia<Async>> <c:WithTrivia<Constructor>> <l:WithTrivia<LeftParen>> <r:WithTrivia<RightParen>> <b:BlockStatement> => {
-        SyntaxNode::new(SyntaxKind::Constructor, anns.into_iter().chain([a, c, l, r, b]))
+    <anns:(Annotation)*> <c:WithTrivia<Constructor>> <l:WithTrivia<LeftParen>> <r:WithTrivia<RightParen>> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Constructor, anns.into_iter().chain([c, l, r, b]))
     },
 }
 
@@ -792,7 +811,7 @@ StorageDeclaration: SyntaxNode<'a> = {
 
 ProgramItem: SyntaxNode<'a> = {
     ConstructorDeclaration,
-    FunctionDeclaration,
+    FnDeclaration,
     RecordDeclaration,
     MappingDeclaration,
     StorageDeclaration,
@@ -800,7 +819,9 @@ ProgramItem: SyntaxNode<'a> = {
 
 TopLevelItem: SyntaxNode<'a> = {
     ProgramDeclaration,
-    FunctionDeclaration,
+    FnDeclaration,
+    ScriptDeclaration,
+    OnchainFnDeclaration,
     GlobalConst,
     StructDeclaration,
 }
@@ -830,7 +851,7 @@ pub MainContents: SyntaxNode<'a> = {
 }
 
 ModuleItem: SyntaxNode<'a> = {
-    FunctionDeclaration,
+    FnDeclaration,
     GlobalConst,
     StructDeclaration,
 }
@@ -947,6 +968,7 @@ extern {
         AssertEq => LalrToken { token: Token::AssertEq, .. },
         AssertNeq => LalrToken { token: Token::AssertNeq, .. },
         Async => LalrToken { token: Token::Async, .. },
+        Onchain => LalrToken { token: Token::Onchain, .. },
         Block => LalrToken { token: Token::Block, .. },
         Const => LalrToken { token: Token::Const, .. },
         Constant => LalrToken { token: Token::Constant, .. },

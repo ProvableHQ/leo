@@ -8,11 +8,11 @@ program child.aleo {
 import child.aleo;
 
 program parent.aleo {
-    async fn foo() -> Future {
+    fn foo() -> Future {
         let future: Future = finalize_foo();
         child.aleo/t();
         return future;
     }
 }
 
-async fn finalize_foo() {}
+onchain fn finalize_foo() {}

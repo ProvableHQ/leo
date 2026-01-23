@@ -14,7 +14,7 @@ program finalize.aleo {
 
     fn value() {}
 
-    async fn output() -> Future {
+    fn output() -> Future {
         return finalize();
     }
 
@@ -23,7 +23,7 @@ program finalize.aleo {
     }
 }
 
-async fn finalize() {}
+onchain fn finalize() {}
 @no_inline
 fn key() {}
 fn value() {}

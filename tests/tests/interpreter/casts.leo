@@ -40,5 +40,5 @@ program test_casts.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

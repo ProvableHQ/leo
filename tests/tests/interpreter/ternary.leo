@@ -32,5 +32,5 @@ program test_ternary.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

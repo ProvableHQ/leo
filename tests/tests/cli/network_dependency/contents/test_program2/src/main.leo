@@ -5,5 +5,5 @@ program test_program2.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

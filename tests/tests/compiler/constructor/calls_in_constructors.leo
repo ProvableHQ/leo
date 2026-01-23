@@ -8,7 +8,7 @@ program test.aleo {
     fn food() {}
 
     @custom
-    async constructor() {
+    constructor() {
         let entry: u8 = foo.get(0u8);
         check_first_entry_is_zero(entry);
     }

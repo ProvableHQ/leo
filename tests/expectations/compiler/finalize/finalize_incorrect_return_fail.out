@@ -1,8 +1,8 @@
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:10:1
      |
-  10 | async fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 | onchain fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |     Mapping::set(account, receiver, amount);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     return 1u8 + 2u8;

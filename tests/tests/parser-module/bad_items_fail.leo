@@ -3,11 +3,11 @@ let x: u32 = 0;
 
 fn foo() {}
 
-async fn foo() {}
+fn foo() {}
 
 fn foo() {}
 
-async fn foo() {}
+onchain fn foo() {}
 
 record Foo {}
 

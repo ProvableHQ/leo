@@ -36,7 +36,7 @@ program test.aleo {
     }
 
     @custom
-    async constructor() {
+    constructor() {
         assert_eq(self.edition, 0u16);
     }
 }

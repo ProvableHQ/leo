@@ -11,7 +11,7 @@ struct T {
     z: S,
 }
 
-async fn f_finalize(x: u8) {
+onchain fn f_finalize(x: u8) {
     assert_eq(x, x);
 }
 
@@ -61,7 +61,7 @@ program test.aleo {
         x: u8,
     }
 
-    async fn f_record() -> (R, Future) {
+    fn f_record() -> (R, Future) {
         let fut: Future = f_finalize(1u8);
         let r: R = R {
             owner: self.signer,

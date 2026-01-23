@@ -1,6 +1,6 @@
 
 program test.aleo {
-    async fn first(x: Future) -> Future {
+    fn first(x: Future) -> Future {
         return finish();
     }
 
@@ -13,6 +13,6 @@ fn third(x: Future) -> u8 {
     return 1u8;
 }
 
-async fn finish() {
+onchain fn finish() {
     assert_eq(1u8, 1u8);
 }

@@ -33,5 +33,5 @@ program bubble_sort.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

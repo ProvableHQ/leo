@@ -7,7 +7,7 @@ program test.aleo {
     fn bar() {}
 
     @custom
-    async constructor() {
+    constructor() {
         foo(true);
         bar();
     }

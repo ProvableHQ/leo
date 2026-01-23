@@ -13,7 +13,7 @@ program token.aleo {
     /* Mint */
 
     // The function `mint_public` issues the specified token amount for the token receiver publicly on the network.
-    async fn mint_public(public receiver: address, public amount: u64) -> Future {
+    fn mint_public(public receiver: address, public amount: u64) -> Future {
         // Mint the tokens publicly by invoking the computation on-chain.
         return finalize_mint_public(receiver, amount);
     }
@@ -27,7 +27,7 @@ program token.aleo {
     }
 
     /* Transfer */
-    async fn transfer_public(public receiver: address, public amount: u64) -> Future {
+    fn transfer_public(public receiver: address, public amount: u64) -> Future {
         // Transfer the tokens publicly, by invoking the computation on-chain.
         return finalize_transfer_public(self.caller, receiver, amount);
     }
@@ -57,7 +57,7 @@ program token.aleo {
 
     // The function `transfer_private_to_public` turns a specified token amount from a token record into public tokens for the specified receiver.
     // This function preserves privacy for the sender's record, however it publicly reveals the token receiver and the token amount.
-    async fn transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> (token, Future) {
+    fn transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> (token, Future) {
         // Checks the given token record has a sufficient token amount.
         // This `sub` operation is safe, and the proof will fail if an underflow occurs.
         // `difference` holds the change amount for the caller.
@@ -76,7 +76,7 @@ program token.aleo {
 
     // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
     // This function preserves privacy for the receiver's record, however it publicly reveals the caller and the specified token amount.
-    async fn transfer_public_to_private(public receiver: address, public amount: u64) -> (token, Future) {
+    fn transfer_public_to_private(public receiver: address, public amount: u64) -> (token, Future) {
         // Produces a token record for the token receiver.
         let transferred: token = token {
             owner: receiver,
@@ -89,7 +89,7 @@ program token.aleo {
     }
 }
 
-async fn finalize_mint_public(public receiver: address, public amount: u64) {
+onchain fn finalize_mint_public(public receiver: address, public amount: u64) {
     // Increments `account[receiver]` by `amount`.
     // If `account[receiver]` does not exist, it will be created.
     // If `account[receiver] + amount` overflows, `mint_public` is reverted.
@@ -98,7 +98,7 @@ async fn finalize_mint_public(public receiver: address, public amount: u64) {
 }
 
 
-async fn finalize_transfer_public(public sender: address, public receiver: address, public amount: u64) {
+onchain fn finalize_transfer_public(public sender: address, public receiver: address, public amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public` is reverted.
@@ -112,7 +112,7 @@ async fn finalize_transfer_public(public sender: address, public receiver: addre
 }
 
 
-async fn finalize_transfer_private_to_public(public receiver: address, public amount: u64) {
+onchain fn finalize_transfer_private_to_public(public receiver: address, public amount: u64) {
     // Increments `account[receiver]` by `amount`.
     // If `account[receiver]` does not exist, it will be created.
     // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
@@ -120,7 +120,7 @@ async fn finalize_transfer_private_to_public(public receiver: address, public am
     Mapping::set(account, receiver, current_amount + amount);
 }
 
-async fn finalize_transfer_public_to_private(public sender: address, public amount: u64) {
+onchain fn finalize_transfer_public_to_private(public sender: address, public amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.

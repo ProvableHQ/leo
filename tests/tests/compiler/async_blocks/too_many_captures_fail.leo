@@ -1,5 +1,5 @@
 program test.aleo {
-    async fn main(x: u32) -> Future {
+    fn main(x: u32) -> Future {
         let a0 = 0u32;
         let a1 = 0u32;
         let a2 = 0u32;

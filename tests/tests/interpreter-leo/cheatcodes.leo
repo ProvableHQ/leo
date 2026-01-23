@@ -1,5 +1,5 @@
 program test.aleo {
-    async fn main() -> Future {
+    fn main() -> Future {
         assert_eq(self.signer, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
 
@@ -19,7 +19,7 @@ program test.aleo {
     }
 }
 
-async fn finish() {
+onchain fn finish() {
     CheatCode::set_block_height(1u32);
     assert_eq(block.height, 1u32);
     CheatCode::set_block_height(999u32);

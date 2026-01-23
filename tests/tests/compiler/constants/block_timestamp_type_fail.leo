@@ -1,10 +1,10 @@
 
-async fn bar() {
+onchain fn bar() {
     let x: u32 = block.timestamp;
 }
 
 program test.aleo {
-    async fn foo() -> Future {
+    fn foo() -> Future {
         return bar();
     }
 }

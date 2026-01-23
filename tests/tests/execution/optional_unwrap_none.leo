@@ -31,5 +31,5 @@ program unwrap_none_test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

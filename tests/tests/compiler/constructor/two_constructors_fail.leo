@@ -2,12 +2,12 @@ program test.aleo {
     fn foo() {}
 
     @custom
-    async constructor() {
+    constructor() {
         assert_eq(true, true);
     }
 
     @custom
-    async constructor() {
+    constructor() {
         assert_eq(true, true);
     }
 }

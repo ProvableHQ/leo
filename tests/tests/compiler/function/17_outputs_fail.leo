@@ -11,7 +11,7 @@ program test.aleo {
     }
 
     // The maximum number of outputs for an `async transition` is 16.
-    async fn baz() ->
+    fn baz() ->
         (u8, u8, u8, u8, u8, u8, u8,
         u8, u8, u8, u8, u8, u8, u8, u8,
         u8, Future)
@@ -22,7 +22,7 @@ program test.aleo {
     }
 }
 
-async fn baz_finalize() {}
+onchain fn baz_finalize() {}
 
 // The maximum number of outputs for a `function` is 16.
 fn foo(x: u8) -> (

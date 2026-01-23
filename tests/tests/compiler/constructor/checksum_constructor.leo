@@ -5,5 +5,5 @@ program test.aleo {
     fn foo() {}
 
     @checksum(mapping = "test.aleo/expected_checksum", key = "true")
-    async constructor() {}
+    constructor() {}
 }

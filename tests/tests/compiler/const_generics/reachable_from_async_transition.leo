@@ -1,11 +1,11 @@
 program const_generics.aleo {
-    async fn foo() -> (field, Future) {
+    fn foo() -> (field, Future) {
         let f = bar();
         return (abc::[0](), f);
     }
 }
 
-async fn bar() { }
+onchain fn bar() { }
 
 fn abc::[C: field]() -> field {
     return def::[C]();

@@ -13,7 +13,7 @@ program test.aleo {
     fn foo() {}
 
     @checksum(mapping = "dependent.aleo/bar", key = "1field")
-    async constructor() {}
+    constructor() {}
 
     fn food() {
         dependent.aleo/foo();

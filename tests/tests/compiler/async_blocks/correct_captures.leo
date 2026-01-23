@@ -3,7 +3,7 @@ const X: u32 = 5;
 program test.aleo {
     mapping map: u32 => u32;
 
-    async fn foo(p: u32, q: u8) -> Future {
+    fn foo(p: u32, q: u8) -> Future {
         let x = 5u32;
         let y = (1u32, 2u8, 3u16);
         let w = (1u32, true);

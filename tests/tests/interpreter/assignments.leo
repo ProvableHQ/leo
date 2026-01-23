@@ -58,5 +58,5 @@ program test_assignments.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

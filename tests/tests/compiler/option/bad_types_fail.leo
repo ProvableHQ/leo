@@ -101,5 +101,5 @@ program bad_types.aleo {
     // === Const-related errors ===
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

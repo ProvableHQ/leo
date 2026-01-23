@@ -1,7 +1,7 @@
 program test.aleo {
     mapping foo: u32 => u32;
 
-    async fn main_inner(public a: u32, public b: u32) -> Future {
+    fn main_inner(public a: u32, public b: u32) -> Future {
         return finalize(a, b);
     }
     fn baz(a: u32, b: u32) -> u32 {
@@ -9,7 +9,7 @@ program test.aleo {
     }
 }
 
-async fn finalize(a: u32, b: u32) {
+onchain fn finalize(a: u32, b: u32) {
     Mapping::set(foo, a, b);
 }
 
@@ -17,7 +17,7 @@ async fn finalize(a: u32, b: u32) {
 
 import test.aleo;
 program basic.aleo {
-    async fn main(public a: u32, b: u32) -> Future {
+    fn main(public a: u32, b: u32) -> Future {
         let sum1: u32 = test.aleo/baz(a, b);
         assert_eq(sum1, 1u32);
 
@@ -36,7 +36,7 @@ program basic.aleo {
     }
 }
 
-async fn finalize(f1: Future, f2: Future) {
+onchain fn finalize(f1: Future, f2: Future) {
     f1.await();
     f2.await();
 }

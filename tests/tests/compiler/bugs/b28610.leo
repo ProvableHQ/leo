@@ -3,12 +3,12 @@ program b28610.aleo {
         owner: address,
     }
 
-    async fn foo() -> Future {
+    fn foo() -> Future {
         return bar(self.signer);
     }
 }
 
-async fn bar(addr: address) {
+onchain fn bar(addr: address) {
     let t: Token = Token { owner: addr };
     assert(Token { owner: addr }.owner == addr);
 }

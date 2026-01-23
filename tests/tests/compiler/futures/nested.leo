@@ -7,14 +7,14 @@ program test_dep.aleo {
         val: u32,
     }
 
-    async fn main_dep(a:u32) -> (yeets, Future) {
+    fn main_dep(a:u32) -> (yeets, Future) {
         let f: Future = finalize_main_dep(a, 1u32);
         let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
 }
 
-async fn finalize_main_dep(a:u32, b:u32) {
+onchain fn finalize_main_dep(a:u32, b:u32) {
     Mapping::set(Yo, a, b);
     let c:u32 = a + b;
 }
@@ -26,7 +26,7 @@ import test_dep.aleo;
 program test.aleo {
     mapping ayo: u32 => u32;
 
-    async fn main(a:u32)-> (u32, Future) {
+    fn main(a:u32)-> (u32, Future) {
         let (y,f): (test_dep.aleo/yeets, Future) = test_dep.aleo/main_dep(10u32);
         let (y2,f2): (test_dep.aleo/yeets, Future) = test_dep.aleo/main_dep(1u32);
         let val:u32 = f.0;
@@ -36,7 +36,7 @@ program test.aleo {
     }
 }
 
-async fn finalize_main(f: Future, f2: Future, a: u32) {
+onchain fn finalize_main(f: Future, f2: Future, a: u32) {
     // f.await();
     if a == 1u32 {
         Future::await(f);
@@ -57,7 +57,7 @@ async fn finalize_main(f: Future, f2: Future, a: u32) {
 // The 'wrapper' program.
 import test.aleo;
 program wrapper.aleo {
-    async fn main(public a: u32, b: u32) -> (u32, Future){
+    fn main(public a: u32, b: u32) -> (u32, Future){
         let (val, f): (u32, Future) = test.aleo/main(1u32);
         let (val2, f2): (u32, Future) = test.aleo/main(1u32);
         let (val3, f3): (u32, Future) = test.aleo/main(1u32);
@@ -66,7 +66,7 @@ program wrapper.aleo {
     }
 }
 
-async fn finalize_main(f: Future, f2: Future, f3: Future) {
+onchain fn finalize_main(f: Future, f2: Future, f3: Future) {
     f.await();
     f2.await();
     f3.await();
@@ -77,13 +77,13 @@ async fn finalize_main(f: Future, f2: Future, f3: Future) {
 import wrapper.aleo;
 import test_dep.aleo;
 program big_wrapper.aleo {
-    async fn main(public a: u32, b: u32) -> (u32, Future){
+    fn main(public a: u32, b: u32) -> (u32, Future){
         let (val, f): (u32, Future) = wrapper.aleo/main(10u32, 10u32);
         let f2:Future = finalize_main(f);
         return (f2.0.0.0.0, f2);
     }
 }
 
-async fn finalize_main(f: Future) {
+onchain fn finalize_main(f: Future) {
     f.await();
 }

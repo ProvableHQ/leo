@@ -1,4 +1,4 @@
-async fn foo() {
+onchain fn foo() {
     let c: [u8; 32] = self.checksum;
     let d: [u8; 32] = Program::checksum(test.aleo);
     let e: u16 = self.edition;
@@ -11,7 +11,7 @@ async fn foo() {
 }
 
 program test.aleo {
-    async fn bar() -> Future {
+    fn bar() -> Future {
       return foo();
     }
 }

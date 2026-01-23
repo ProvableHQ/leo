@@ -11,7 +11,7 @@ fn bar(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
-async fn finalize_bar(a: u8, b: u8) -> u8 {
+onchain fn finalize_bar(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
@@ -20,6 +20,6 @@ fn mint_public(receiver: address, amount: u64) -> Future {
     return finalize_mint(receiver, amount);
 }
 
-async fn finalize_mint(receiver: address, amount: u64) {
+onchain fn finalize_mint(receiver: address, amount: u64) {
     Mapping::set(account, receiver, amount);
 }

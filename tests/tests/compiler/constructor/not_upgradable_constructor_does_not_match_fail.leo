@@ -2,7 +2,7 @@ program test.aleo {
     fn foo() {}
 
     @noupgrade
-    async constructor() {
+    constructor() {
         assert_eq(self.edition, 0u16);
     }
 }

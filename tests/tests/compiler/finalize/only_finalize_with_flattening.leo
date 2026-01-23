@@ -6,16 +6,16 @@ program test.aleo {
     mapping token_name_to_info: field => TokenInfo;
 
 
-    async fn add_new_token () -> Future {
+    fn add_new_token () -> Future {
         return finalize_add_new_token();
     }
 
-    async fn add_new_token_2 () -> Future {
+    fn add_new_token_2 () -> Future {
         return finalize_add_new_token_2();
     }
 }
 
-async fn finalize_add_new_token() -> () {
+onchain fn finalize_add_new_token() -> () {
     if (false) {
         return;
     }
@@ -33,7 +33,7 @@ async fn finalize_add_new_token() -> () {
     }
 }
 
-async fn finalize_add_new_token_2() {
+onchain fn finalize_add_new_token_2() {
     let try_get_token: TokenInfo = Mapping::get_or_use(
         token_name_to_info,
         0field,

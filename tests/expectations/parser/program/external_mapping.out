@@ -13,16 +13,16 @@
         "name": {
           "name": "test",
           "span": {
-            "lo": 339,
-            "hi": 343
+            "lo": 341,
+            "hi": 345
           },
           "id": 64
         },
         "network": {
           "name": "aleo",
           "span": {
-            "lo": 344,
-            "hi": 348
+            "lo": 346,
+            "hi": 350
           },
           "id": 65
         }
@@ -36,12 +36,12 @@
           "main",
           {
             "annotations": [],
-            "variant": "AsyncTransition",
+            "variant": "Transition",
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 364,
-                "hi": 368
+                "lo": 360,
+                "hi": 364
               },
               "id": 0
             },
@@ -57,8 +57,8 @@
                       "Single": {
                         "name": "x",
                         "span": {
-                          "lo": 385,
-                          "hi": 386
+                          "lo": 381,
+                          "hi": 382
                         },
                         "id": 2
                       }
@@ -69,8 +69,8 @@
                     "value": {
                       "Literal": {
                         "span": {
-                          "lo": 392,
-                          "hi": 395
+                          "lo": 388,
+                          "hi": 391
                         },
                         "id": 3,
                         "variant": {
@@ -82,8 +82,8 @@
                       }
                     },
                     "span": {
-                      "lo": 381,
-                      "hi": 396
+                      "lo": 377,
+                      "hi": 392
                     },
                     "id": 1
                   }
@@ -93,29 +93,29 @@
                     "expression": {
                       "Unit": {
                         "span": {
-                          "lo": 405,
-                          "hi": 412
+                          "lo": 401,
+                          "hi": 408
                         },
                         "id": 5
                       }
                     },
                     "span": {
-                      "lo": 405,
-                      "hi": 412
+                      "lo": 401,
+                      "hi": 408
                     },
                     "id": 4
                   }
                 }
               ],
               "span": {
-                "lo": 371,
-                "hi": 418
+                "lo": 367,
+                "hi": 414
               },
               "id": 6
             },
             "span": {
-              "lo": 355,
-              "hi": 418
+              "lo": 357,
+              "hi": 414
             },
             "id": 7
           }
@@ -128,8 +128,8 @@
             "identifier": {
               "name": "finalize_main",
               "span": {
-                "lo": 28,
-                "hi": 41
+                "lo": 30,
+                "hi": 43
               },
               "id": 8
             },
@@ -152,24 +152,24 @@
                                 "name": {
                                   "name": "hello",
                                   "span": {
-                                    "lo": 63,
-                                    "hi": 68
+                                    "lo": 65,
+                                    "hi": 70
                                   },
                                   "id": 14
                                 },
                                 "network": {
                                   "name": "aleo",
                                   "span": {
-                                    "lo": 69,
-                                    "hi": 73
+                                    "lo": 71,
+                                    "hi": 75
                                   },
                                   "id": 15
                                 }
                               },
                               "name": "counter",
                               "span": {
-                                "lo": 63,
-                                "hi": 81
+                                "lo": 65,
+                                "hi": 83
                               },
                               "id": 13
                             }
@@ -181,15 +181,15 @@
                               "identifier": {
                                 "name": "addr",
                                 "span": {
-                                  "lo": 83,
-                                  "hi": 87
+                                  "lo": 85,
+                                  "hi": 89
                                 },
                                 "id": 17
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 83,
-                                "hi": 87
+                                "lo": 85,
+                                "hi": 89
                               },
                               "id": 16
                             }
@@ -203,15 +203,15 @@
                                   "identifier": {
                                     "name": "current_value",
                                     "span": {
-                                      "lo": 89,
-                                      "hi": 102
+                                      "lo": 91,
+                                      "hi": 104
                                     },
                                     "id": 20
                                   },
                                   "target": "Unresolved",
                                   "span": {
-                                    "lo": 89,
-                                    "hi": 102
+                                    "lo": 91,
+                                    "hi": 104
                                   },
                                   "id": 19
                                 }
@@ -219,8 +219,8 @@
                               "right": {
                                 "Literal": {
                                   "span": {
-                                    "lo": 105,
-                                    "hi": 109
+                                    "lo": 107,
+                                    "hi": 111
                                   },
                                   "id": 21,
                                   "variant": {
@@ -233,23 +233,23 @@
                               },
                               "op": "Add",
                               "span": {
-                                "lo": 89,
-                                "hi": 109
+                                "lo": 91,
+                                "hi": 111
                               },
                               "id": 18
                             }
                           }
                         ],
                         "span": {
-                          "lo": 50,
-                          "hi": 110
+                          "lo": 52,
+                          "hi": 112
                         },
                         "id": 10
                       }
                     },
                     "span": {
-                      "lo": 50,
-                      "hi": 111
+                      "lo": 52,
+                      "hi": 113
                     },
                     "id": 9
                   }
@@ -267,24 +267,24 @@
                                 "name": {
                                   "name": "hello",
                                   "span": {
-                                    "lo": 132,
-                                    "hi": 137
+                                    "lo": 134,
+                                    "hi": 139
                                   },
                                   "id": 27
                                 },
                                 "network": {
                                   "name": "aleo",
                                   "span": {
-                                    "lo": 138,
-                                    "hi": 142
+                                    "lo": 140,
+                                    "hi": 144
                                   },
                                   "id": 28
                                 }
                               },
                               "name": "foo",
                               "span": {
-                                "lo": 132,
-                                "hi": 146
+                                "lo": 134,
+                                "hi": 148
                               },
                               "id": 26
                             }
@@ -296,30 +296,30 @@
                               "identifier": {
                                 "name": "addr",
                                 "span": {
-                                  "lo": 148,
-                                  "hi": 152
+                                  "lo": 150,
+                                  "hi": 154
                                 },
                                 "id": 30
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 148,
-                                "hi": 152
+                                "lo": 150,
+                                "hi": 154
                               },
                               "id": 29
                             }
                           }
                         ],
                         "span": {
-                          "lo": 116,
-                          "hi": 153
+                          "lo": 118,
+                          "hi": 155
                         },
                         "id": 23
                       }
                     },
                     "span": {
-                      "lo": 116,
-                      "hi": 154
+                      "lo": 118,
+                      "hi": 156
                     },
                     "id": 22
                   }
@@ -330,8 +330,8 @@
                       "Single": {
                         "name": "a",
                         "span": {
-                          "lo": 163,
-                          "hi": 164
+                          "lo": 165,
+                          "hi": 166
                         },
                         "id": 32
                       }
@@ -350,24 +350,24 @@
                                 "name": {
                                   "name": "hello",
                                   "span": {
-                                    "lo": 184,
-                                    "hi": 189
+                                    "lo": 186,
+                                    "hi": 191
                                   },
                                   "id": 37
                                 },
                                 "network": {
                                   "name": "aleo",
                                   "span": {
-                                    "lo": 190,
-                                    "hi": 194
+                                    "lo": 192,
+                                    "hi": 196
                                   },
                                   "id": 38
                                 }
                               },
                               "name": "foo",
                               "span": {
-                                "lo": 184,
-                                "hi": 198
+                                "lo": 186,
+                                "hi": 200
                               },
                               "id": 36
                             }
@@ -379,30 +379,30 @@
                               "identifier": {
                                 "name": "addr",
                                 "span": {
-                                  "lo": 200,
-                                  "hi": 204
+                                  "lo": 202,
+                                  "hi": 206
                                 },
                                 "id": 40
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 200,
-                                "hi": 204
+                                "lo": 202,
+                                "hi": 206
                               },
                               "id": 39
                             }
                           }
                         ],
                         "span": {
-                          "lo": 171,
-                          "hi": 205
+                          "lo": 173,
+                          "hi": 207
                         },
                         "id": 33
                       }
                     },
                     "span": {
-                      "lo": 159,
-                      "hi": 206
+                      "lo": 161,
+                      "hi": 208
                     },
                     "id": 31
                   }
@@ -413,8 +413,8 @@
                       "Single": {
                         "name": "b",
                         "span": {
-                          "lo": 215,
-                          "hi": 216
+                          "lo": 217,
+                          "hi": 218
                         },
                         "id": 42
                       }
@@ -433,24 +433,24 @@
                                 "name": {
                                   "name": "hello",
                                   "span": {
-                                    "lo": 243,
-                                    "hi": 248
+                                    "lo": 245,
+                                    "hi": 250
                                   },
                                   "id": 47
                                 },
                                 "network": {
                                   "name": "aleo",
                                   "span": {
-                                    "lo": 249,
-                                    "hi": 253
+                                    "lo": 251,
+                                    "hi": 255
                                   },
                                   "id": 48
                                 }
                               },
                               "name": "foo",
                               "span": {
-                                "lo": 243,
-                                "hi": 257
+                                "lo": 245,
+                                "hi": 259
                               },
                               "id": 46
                             }
@@ -462,15 +462,15 @@
                               "identifier": {
                                 "name": "addr",
                                 "span": {
-                                  "lo": 259,
-                                  "hi": 263
+                                  "lo": 261,
+                                  "hi": 265
                                 },
                                 "id": 50
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 259,
-                                "hi": 263
+                                "lo": 261,
+                                "hi": 265
                               },
                               "id": 49
                             }
@@ -478,8 +478,8 @@
                           {
                             "Literal": {
                               "span": {
-                                "lo": 265,
-                                "hi": 269
+                                "lo": 267,
+                                "hi": 271
                               },
                               "id": 51,
                               "variant": {
@@ -492,15 +492,15 @@
                           }
                         ],
                         "span": {
-                          "lo": 223,
-                          "hi": 270
+                          "lo": 225,
+                          "hi": 272
                         },
                         "id": 43
                       }
                     },
                     "span": {
-                      "lo": 211,
-                      "hi": 271
+                      "lo": 213,
+                      "hi": 273
                     },
                     "id": 41
                   }
@@ -511,8 +511,8 @@
                       "Single": {
                         "name": "c",
                         "span": {
-                          "lo": 280,
-                          "hi": 281
+                          "lo": 282,
+                          "hi": 283
                         },
                         "id": 53
                       }
@@ -531,24 +531,24 @@
                                 "name": {
                                   "name": "hello",
                                   "span": {
-                                    "lo": 306,
-                                    "hi": 311
+                                    "lo": 308,
+                                    "hi": 313
                                   },
                                   "id": 58
                                 },
                                 "network": {
                                   "name": "aleo",
                                   "span": {
-                                    "lo": 312,
-                                    "hi": 316
+                                    "lo": 314,
+                                    "hi": 318
                                   },
                                   "id": 59
                                 }
                               },
                               "name": "foo",
                               "span": {
-                                "lo": 306,
-                                "hi": 320
+                                "lo": 308,
+                                "hi": 322
                               },
                               "id": 57
                             }
@@ -560,44 +560,44 @@
                               "identifier": {
                                 "name": "addr",
                                 "span": {
-                                  "lo": 322,
-                                  "hi": 326
+                                  "lo": 324,
+                                  "hi": 328
                                 },
                                 "id": 61
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 322,
-                                "hi": 326
+                                "lo": 324,
+                                "hi": 328
                               },
                               "id": 60
                             }
                           }
                         ],
                         "span": {
-                          "lo": 288,
-                          "hi": 327
+                          "lo": 290,
+                          "hi": 329
                         },
                         "id": 54
                       }
                     },
                     "span": {
-                      "lo": 276,
-                      "hi": 328
+                      "lo": 278,
+                      "hi": 330
                     },
                     "id": 52
                   }
                 }
               ],
               "span": {
-                "lo": 44,
-                "hi": 330
+                "lo": 46,
+                "hi": 332
               },
               "id": 62
             },
             "span": {
               "lo": 19,
-              "hi": 330
+              "hi": 332
             },
             "id": 63
           }
@@ -606,7 +606,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 420
+        "hi": 416
       }
     }
   }

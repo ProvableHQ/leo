@@ -5,7 +5,7 @@ struct TestStruct {
 }
 
 program parent.aleo {
-    async fn init() -> Future {
+    fn init() -> Future {
         let test_struct: TestStruct = TestStruct {
             data0: 0u128,
             data1: 1u128
@@ -14,7 +14,7 @@ program parent.aleo {
     }
 }
 
-async fn finalize_init(public test_struct: TestStruct) {
+onchain fn finalize_init(public test_struct: TestStruct) {
     assert_eq(0u32, 0u32);
 }
 

@@ -7,7 +7,7 @@ program test_dep.aleo {
         val: u32,
     }
 
-    async fn main_dep(a:u32) -> (yeets, Future<Fn(u32, u32)>) {
+    fn main_dep(a:u32) -> (yeets, Future<Fn(u32, u32)>) {
         let b = 1u32;
         let f: Future<Fn(u32, u32)> = async {
             Mapping::set(Yo, a, b);
@@ -17,7 +17,7 @@ program test_dep.aleo {
         return (l, f);
     }
 
-    async fn main_dep_2(a:u32) -> (yeets, Future<Fn()>) {
+    fn main_dep_2(a:u32) -> (yeets, Future<Fn()>) {
         let f: Future<Fn()> = async {
             Mapping::set(Yo, 1u32, 1u32);
         };
@@ -33,7 +33,7 @@ import test_dep.aleo;
 program test.aleo {
     mapping ayo: u32 => u32;
 
-    async fn main(a:u32)-> (u32, Future) {
+    fn main(a:u32)-> (u32, Future) {
         let (y,f): (test_dep.aleo/yeets, Future) = test_dep.aleo/main_dep(10u32);
         let (y2,f2): (test_dep.aleo/yeets, Future) = test_dep.aleo/main_dep(1u32);
         let val:u32 = f.0;
@@ -64,7 +64,7 @@ program test.aleo {
 // The 'wrapper' program.
 import test.aleo;
 program wrapper.aleo {
-    async fn main(public a: u32, b: u32) -> (u32, Future){
+    fn main(public a: u32, b: u32) -> (u32, Future){
         let (val, f): (u32, Future) = test.aleo/main(1u32);
         let (val2, f2): (u32, Future) = test.aleo/main(1u32);
         let (val3, f3): (u32, Future) = test.aleo/main(1u32);
@@ -82,7 +82,7 @@ program wrapper.aleo {
 import wrapper.aleo;
 import test_dep.aleo;
 program big_wrapper.aleo {
-    async fn main(public a: u32, b: u32) -> (u32, Future<Fn(Future<Fn(Future<Fn(u32,
+    fn main(public a: u32, b: u32) -> (u32, Future<Fn(Future<Fn(Future<Fn(u32,
     Future<Fn(u32,u32)>,Future<Fn(u32,u32)>)>,Future<Fn(u32, Future<Fn(u32,u32)>,Future<Fn(u32,u32)>)>,Future<Fn(u32, Future<Fn(u32,u32)>,Future<Fn(u32,u32)>)>)>)>){
         let (val, f): (u32, Future) = wrapper.aleo/main(10u32, 10u32);
         let f2:Future = finalize_main(f);
@@ -90,6 +90,6 @@ program big_wrapper.aleo {
     }
 }
 
-async fn finalize_main(f: Future) {
+onchain fn finalize_main(f: Future) {
     f.await();
 }

@@ -3,7 +3,7 @@ program constr.aleo {
     }
 
     @custom
-    async constructor() {
+    constructor() {
         let x = self.program_owner;
     }
 }

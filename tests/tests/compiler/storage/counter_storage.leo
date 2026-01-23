@@ -1,13 +1,13 @@
 program test.aleo {
     storage counter: u32;
 
-    async fn initialize() -> Future {
+    fn initialize() -> Future {
         return async {
             counter = 0;
         };
     }
 
-    async fn increment() -> Future {
+    fn increment() -> Future {
         return async {
             let old_counter_value = counter.unwrap_or(0);
             counter = old_counter_value + 1u32;
@@ -16,5 +16,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

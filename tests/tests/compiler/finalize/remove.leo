@@ -3,12 +3,12 @@ program test.aleo {
 
     mapping balances: address => u32;
 
-    async fn foo() -> Future {
+    fn foo() -> Future {
         return finalize_foo(self.caller);
     }
 }
 
-async fn finalize_foo(account: address) -> () {
+onchain fn finalize_foo(account: address) -> () {
     Mapping::set(balances, account, 1u32);
 
     let expect_true: bool = Mapping::contains(balances, account);

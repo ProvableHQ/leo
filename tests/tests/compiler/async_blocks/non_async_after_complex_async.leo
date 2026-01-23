@@ -1,7 +1,7 @@
 program inner.aleo {
     mapping foo: u32 => u32;
 
-    async fn inner(a: u32) -> Future {
+    fn inner(a: u32) -> Future {
         return async { Mapping::set(foo, 0u32, a);};
     }
 }
@@ -10,7 +10,7 @@ program inner.aleo {
 
 import inner.aleo;
 program mid.aleo {
-    async fn mid(a: u32) -> Future {
+    fn mid(a: u32) -> Future {
         let f1: Future = inner.aleo/inner(0u32);
         let f2: Future = inner.aleo/inner(1u32);
         let f:Future = async { f2.await(); f1.await(); };
@@ -25,7 +25,7 @@ program mid.aleo {
 import inner.aleo;
 import mid.aleo;
 program outer.aleo {
-    async fn outer(a: u32) -> Future {
+    fn outer(a: u32) -> Future {
         let f1: Future = mid.aleo/mid(0u32);
         let f2: Future = mid.aleo/mid(1u32);
         // Allow this call to remain for now.

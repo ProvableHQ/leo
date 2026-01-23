@@ -8,12 +8,12 @@ program test.aleo {
     mapping amounts: address => u128;
     mapping tokens: address => Token;
 
-    async fn decrease_self(amount: u128) -> Future {
+    fn decrease_self(amount: u128) -> Future {
         return finalize_decrease_self(self.caller, amount);
     }
 }
 
-async fn finalize_decrease_self(addr: address, amount: u128) {
+onchain fn finalize_decrease_self(addr: address, amount: u128) {
     Mapping::get_or_use(tokens, addr, amount);
     tokens.get_or_use(addr, amount);
     Mapping::get_or_use(amounts, 1u8, amount);

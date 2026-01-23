@@ -1,6 +1,6 @@
 program b28923.aleo {
     @noupgrade
-    async constructor() {}
+    constructor() {}
 
     fn main(message_raw: [u8; 4]) -> [u8; 4] {
         const length: u32 = 4;

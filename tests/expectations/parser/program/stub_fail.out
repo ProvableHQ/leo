@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '@', 'struct', 'async', 'const', 'Fn', 'program', 'script' -- found 'stub'
+Error [EPAR0370005]: expected '@', 'struct', 'onchain', 'const', 'fn', 'program', 'script' -- found 'stub'
     --> test:7:1
      |
    7 | stub credits.aleo {

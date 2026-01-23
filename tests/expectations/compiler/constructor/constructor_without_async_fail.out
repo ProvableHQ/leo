@@ -1,5 +1,0 @@
-Error [EPAR0370005]: expected '(', '@', 'async', 'Fn', 'script' -- found 'constructor'
-    --> compiler-test:5:5
-     |
-   5 |     constructor() {
-     |     ^^^^^^^^^^^

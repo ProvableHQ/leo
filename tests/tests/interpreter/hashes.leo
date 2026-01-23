@@ -68,5 +68,5 @@ program test_hash_and_commit.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

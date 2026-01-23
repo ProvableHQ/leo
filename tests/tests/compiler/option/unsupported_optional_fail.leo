@@ -10,14 +10,14 @@ program invalid_optional_types.aleo {
     }
 
     // Future cannot be optional
-    async fn future_optional_type() {
+    fn future_optional_type() {
         let fut: Future? = finalize(); // ERROR: Future? is not allowed
     }
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // Dummy future-returning function
-async fn finalize() {
+onchain fn finalize() {
 }
 

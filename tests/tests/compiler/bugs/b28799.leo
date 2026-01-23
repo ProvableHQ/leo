@@ -1,6 +1,6 @@
 program bug.aleo {
     @noupgrade
-    async constructor() {}
+    constructor() {}
 
     fn bar() -> Foo::[16] {
         return foo::[8]();

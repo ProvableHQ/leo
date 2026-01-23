@@ -497,7 +497,7 @@ program nested.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 ";
         // `nested_example_layer_0.aleo` program
@@ -648,7 +648,7 @@ program grandparent.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 ";
         let parent_program = "
@@ -659,7 +659,7 @@ program parent.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 ";
 
@@ -675,7 +675,7 @@ program child.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 ";
 
@@ -831,7 +831,7 @@ program outer.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }";
         let inner_1_program = "
 struct ex_struct {
@@ -852,7 +852,7 @@ program inner_1.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }";
         let inner_2_program = "
 program inner_2.aleo {
@@ -870,7 +870,7 @@ program inner_2.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }";
         // Add dependencies `outer/program.json`
         let add_outer_dependency_1 = CLI {
@@ -1020,7 +1020,7 @@ program outer_2.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 ";
         let inner_1_program = "
@@ -1042,7 +1042,7 @@ program inner_1.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }";
         let inner_2_program = "
 struct Foo {
@@ -1078,7 +1078,7 @@ program inner_2.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }";
         // Add dependencies `outer_2/program.json`
         let add_outer_dependency_1 = CLI {

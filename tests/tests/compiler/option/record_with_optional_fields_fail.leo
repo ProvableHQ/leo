@@ -23,5 +23,5 @@ program record_with_optional_fields.aleo {
     fn foo() {}
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

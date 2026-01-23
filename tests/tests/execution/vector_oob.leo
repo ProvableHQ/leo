@@ -31,7 +31,7 @@ program test_oob.aleo {
     storage vec: [u32];
 
     // OOB get: should return None
-    async fn oob_get() -> Future {
+    fn oob_get() -> Future {
         return async {
             vec.clear();
             assert(vec.len() == 0u32);
@@ -42,7 +42,7 @@ program test_oob.aleo {
     }
 
     // OOB set: should panic (transition rejected)
-    async fn oob_set() -> Future {
+    fn oob_set() -> Future {
         return async {
             vec.clear();
             assert(vec.len() == 0u32);
@@ -52,7 +52,7 @@ program test_oob.aleo {
     }
 
     // OOB swap_remove: should panic (transition rejected)
-    async fn oob_swap_remove() -> Future {
+    fn oob_swap_remove() -> Future {
         return async {
             vec.clear();
             assert(vec.len() == 0u32);
@@ -62,7 +62,7 @@ program test_oob.aleo {
     }
 
     // Pop empty vector: should return None
-    async fn oob_pop() -> Future {
+    fn oob_pop() -> Future {
         return async {
             vec.clear();
             assert(vec.len() == 0u32);
@@ -73,5 +73,5 @@ program test_oob.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

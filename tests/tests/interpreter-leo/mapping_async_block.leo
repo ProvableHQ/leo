@@ -1,6 +1,6 @@
 program test.aleo {
     mapping map: u32 => u32;
-    async fn main() -> (u32, Future) {
+    fn main() -> (u32, Future) {
         let x = 5u32;
         let f = async {
             map.set(0u32, 42u32);

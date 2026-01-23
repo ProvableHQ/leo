@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '@', 'struct', 'async', 'const', 'Fn', 'program', 'script' -- found '1'
+Error [EPAR0370005]: expected '@', 'struct', 'onchain', 'const', 'fn', 'program', 'script' -- found '1'
     --> test:3:1
      |
    3 | 1 main() {}

@@ -24,5 +24,5 @@ program test_tuples.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

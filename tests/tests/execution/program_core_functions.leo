@@ -11,7 +11,7 @@ program child.aleo {
     fn dummy() {}
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -19,7 +19,7 @@ program child.aleo {
 import child.aleo;
 
 program test.aleo {
-    async fn bar() -> Future {
+    fn bar() -> Future {
         return async {
             let c: [u8; 32] = self.checksum;
             let d: [u8; 32] = Program::checksum(child.aleo);
@@ -36,5 +36,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

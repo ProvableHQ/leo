@@ -37,7 +37,7 @@ program test0.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -72,7 +72,7 @@ program test1.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -89,5 +89,5 @@ program test2.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

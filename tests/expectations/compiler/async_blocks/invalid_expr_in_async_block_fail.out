@@ -1,3 +1,16 @@
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:3:18
+     |
+   3 |         let f1 = async {
+     |                  ^^^^^^^
+   4 |             let s = self.signer;
+     |             ^^^^^^^^^^^^^^^^^^^^
+   5 |             let c = self.caller;
+     |             ^^^^^^^^^^^^^^^^^^^^
+   6 |         };
+     |         ^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
 Error [ETYC0372147]: Invalid expression in an async block. `self.signer` cannot be used directly here
     --> compiler-test:4:21
      |

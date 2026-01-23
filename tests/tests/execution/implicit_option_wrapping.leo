@@ -164,5 +164,5 @@ program implicit_wrapping.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

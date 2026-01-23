@@ -4,7 +4,7 @@ program st.aleo {
     // can handle converting long names correctly.
     storage some_very_long_storage_variable: u8;
     storage some_verrry_long_storage_vector: [u8];
-    async fn foo() -> Future {
+    fn foo() -> Future {
         return async {
             some_very_long_storage_variable = 0;
             some_verrry_long_storage_vector.push(some_very_long_storage_variable.unwrap());

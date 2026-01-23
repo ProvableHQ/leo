@@ -4,7 +4,7 @@ program test.aleo {
     storage field_val: field;
     storage group_val: group;
 
-    async fn initialize() -> Future {
+    fn initialize() -> Future {
         return async {
             flag = true;
             scalar_val = 1;
@@ -13,7 +13,7 @@ program test.aleo {
         };
     }
 
-    async fn to_none() -> Future {
+    fn to_none() -> Future {
         return async {
             // Integers
             flag = none;
@@ -23,7 +23,7 @@ program test.aleo {
         };
     }
 
-    async fn check1() -> Future {
+    fn check1() -> Future {
         return async {
             assert(flag.unwrap() == true);
             assert(scalar_val.unwrap() == 1);
@@ -32,7 +32,7 @@ program test.aleo {
         };
     }
 
-    async fn check2() -> Future {
+    fn check2() -> Future {
         return async {
             assert(flag.unwrap_or(false) == true);
             assert(scalar_val.unwrap_or(0) == 1);

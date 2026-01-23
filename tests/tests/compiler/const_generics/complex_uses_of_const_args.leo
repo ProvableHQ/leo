@@ -18,7 +18,7 @@ fn make_offset_vector::[A: u32, B: u32]() -> Vector::[(A * 2 + B / 2) - 1] {
 
 program complex.aleo {
     @noupgrade
-    async constructor() {}
+    constructor() {}
     // Uses const expression with nested arithmetic
     fn complex_call_pass() -> Vector::[8] {
         return make_offset_vector::[4, 2]();  // (4 * 2 + 2 / 2) - 1 = 8

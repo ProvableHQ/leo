@@ -15,6 +15,6 @@ program optional_record_test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 

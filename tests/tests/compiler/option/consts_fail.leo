@@ -43,5 +43,5 @@ program const_optionals.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

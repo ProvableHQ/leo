@@ -1,6 +1,6 @@
 program b28789.aleo {
     @custom
-    async constructor()  {
+    constructor()  {
         // This should be an error and not a compiler panic.
         return true;
     }

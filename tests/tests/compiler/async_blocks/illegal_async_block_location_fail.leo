@@ -3,13 +3,13 @@ program test.aleo {
         let f1 = async {};
     }
 
-    async fn t2() {
+    fn t2() {
         for j in 0u32..2u32 {
             let f = async {};
         }
     }
 
-    async fn t3() {
+    fn t3() {
         if true {
             let f = async {};
         }
@@ -20,7 +20,7 @@ fn f2(x: u32) {
     let f = async {};
 }
 
-async fn f3() {
+onchain fn f3() {
     let f = async {};
 }
 

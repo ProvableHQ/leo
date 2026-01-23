@@ -1,10 +1,10 @@
 program test.aleo {
-    async fn foo(private a: u8) -> Future {
+    fn foo(private a: u8) -> Future {
         return async {
             bar();
         };
     }
 }
 
-async fn bar() {
+onchain fn bar() {
 }

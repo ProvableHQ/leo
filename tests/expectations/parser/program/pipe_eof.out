@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '}', '@', 'record', 'async', 'Fn', 'mapping', 'storage', 'script' -- found '|'
+Error [EPAR0370005]: expected '}', '@', 'record', 'constructor', 'fn', 'mapping', 'storage' -- found '|'
     --> test:6:5
      |
    6 |     |}

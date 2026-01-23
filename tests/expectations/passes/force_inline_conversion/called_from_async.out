@@ -1,6 +1,6 @@
 program test.aleo {
     mapping counter: address => u64;
-    fn main(owner: address) -> Future<Fn()> {
+    async fn main(owner: address) -> Future<Fn()> {
         return async {
             let value: u64 = compute(5u64);
             __unresolved_set(counter, owner, value);

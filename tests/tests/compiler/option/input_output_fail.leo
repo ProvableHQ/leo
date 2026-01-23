@@ -6,7 +6,7 @@ program test.aleo {
         return (x, x, f);
     }
 
-    async fn bar(x: u8?, f: Foo) {
+    fn bar(x: u8?, f: Foo) {
         return async {};
     }
 }

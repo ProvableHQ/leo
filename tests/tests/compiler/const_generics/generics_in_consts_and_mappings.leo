@@ -5,11 +5,11 @@ const F: Foo::[true] = Foo::[true] { x: true };
 program b28668.aleo {
     mapping map: Foo::[true] => Foo::[false];
 
-    async fn main(y: u32) -> (bool, Future) {
+    fn main(y: u32) -> (bool, Future) {
         return (F.x, f());
     }
 }
 
-async fn f() {
+onchain fn f() {
     map.set(Foo::[true] { x: false }, Foo::[false] { x: true });
 }

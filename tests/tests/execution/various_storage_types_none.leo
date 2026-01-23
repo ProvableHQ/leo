@@ -55,7 +55,7 @@ program none_cases.aleo {
     // Integers none behavior
     // ────────────────────────────────────────────────────────────────
     //
-    async fn integers_none_behavior() -> Future {
+    fn integers_none_behavior() -> Future {
         return async {
             assert(counter_u32 == none);
             assert(counter_u32.unwrap_or(99) == 99);
@@ -74,7 +74,7 @@ program none_cases.aleo {
     // Primitive none behavior
     // ────────────────────────────────────────────────────────────────
     //
-    async fn primitives_none_behavior() -> Future {
+    fn primitives_none_behavior() -> Future {
         return async {
             assert(flag == none);
             assert(flag.unwrap_or(true) == true);
@@ -103,7 +103,7 @@ program none_cases.aleo {
     // Arrays with none elements (local only)
     // ────────────────────────────────────────────────────────────────
     //
-    async fn arrays_none_behavior() -> Future {
+    fn arrays_none_behavior() -> Future {
         return async {
             let arr: [u32?; 3] = [none, 2, none];
             assert(arr[0].unwrap_or(9) == 9);
@@ -127,7 +127,7 @@ program none_cases.aleo {
     // Structs with local optionals
     // ────────────────────────────────────────────────────────────────
     //
-    async fn structs_none_behavior() -> Future {
+    fn structs_none_behavior() -> Future {
         return async {
             // Local optional struct
             let c: Container? = none;
@@ -149,5 +149,5 @@ program none_cases.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

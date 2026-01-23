@@ -5,6 +5,6 @@ fn x(x: u32, public const y: i32) {
     return 0;
 }
 
-async fn x(public constant x: u32, y: i32) {
+onchain fn x(public constant x: u32, y: i32) {
     return 0;
 }

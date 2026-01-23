@@ -1,18 +1,18 @@
 
 program child.aleo {
-    async fn foo() -> Future {
+    fn foo() -> Future {
         return finalize_foo(0u32);
     }
-    async fn boo() -> (u32, Future) {
+    fn boo() -> (u32, Future) {
         return (1u32, finalize_boo(0u32));
     }
  }
 
-async fn finalize_foo(x: u32) {
+onchain fn finalize_foo(x: u32) {
     assert_eq(1u32, 1u32);
 }
 
-async fn finalize_boo(x: u32) {
+onchain fn finalize_boo(x: u32) {
     assert_eq(1u32, 1u32);
 }
 
@@ -22,7 +22,7 @@ import child.aleo;
 
 program parent.aleo {
 
-    async fn foo() -> Future {
+    fn foo() -> Future {
         let f0: Future = child.aleo/foo();
 
         child.aleo/foo();
@@ -33,6 +33,6 @@ program parent.aleo {
     }
 }
 
-async fn finalize_foo(f0: Future) {
+onchain fn finalize_foo(f0: Future) {
     f0.await();
 }

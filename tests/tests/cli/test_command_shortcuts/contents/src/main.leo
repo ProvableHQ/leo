@@ -5,5 +5,5 @@ program test_shortcuts.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

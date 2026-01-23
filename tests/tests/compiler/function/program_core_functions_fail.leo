@@ -1,5 +1,5 @@
 
-async fn foo() {
+onchain fn foo() {
     let c: [u8; 32] = Program::checksum(test.aleo);
     let d: [u8; 31] = Program::checksum(credits.aleo);
     assert_neq(c, d);
@@ -10,7 +10,7 @@ async fn foo() {
 }
 
 program test.aleo {
-    async fn bar() -> Future {
+    fn bar() -> Future {
         return foo();
     }
 }

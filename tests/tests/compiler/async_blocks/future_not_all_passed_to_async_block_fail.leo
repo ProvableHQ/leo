@@ -2,21 +2,21 @@
 program child.aleo {
     mapping count: address => field;
 
-    async fn foo() -> Future {
+    fn foo() -> Future {
         return finalize_foo(self.caller);
     }
 
-    async fn boo() -> Future {
+    fn boo() -> Future {
         return finalize_boo(self.caller);
     }
  }
 
-async fn finalize_foo(addr: address) {
+onchain fn finalize_foo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
     Mapping::set(count, addr, val + 1field);
 }
 
-async fn finalize_boo(addr: address) {
+onchain fn finalize_boo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
     Mapping::set(count, addr, val + 1field);
 }
@@ -27,7 +27,7 @@ import child.aleo;
 
 program parent.aleo {
 
-    async fn foo() -> Future {
+    fn foo() -> Future {
         let f0: Future = child.aleo/foo();
         let f1: Future = child.aleo/foo();
         let f2: Future = child.aleo/foo();

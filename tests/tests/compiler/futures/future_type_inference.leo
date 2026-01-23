@@ -5,13 +5,13 @@ program credits.aleo {
         amount: u64,
     }
 
-    async fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Future) {
+    fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Future) {
         let f: Future = finalize();
         return (input, f);
     }
 }
 
-async fn finalize() {
+onchain fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -23,13 +23,13 @@ program multi_token_support_program.aleo {
         amount: u64,
     }
 
-    async fn mint_private() -> (Token, Future) {
+    fn mint_private() -> (Token, Future) {
         let f: Future = finalize();
         return (Token{owner: self.signer, amount: 100u64}, f);
     }
 }
 
-async fn finalize() {
+onchain fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -39,7 +39,7 @@ import credits.aleo;
 import multi_token_support_program.aleo;
 
 program mtsp_credits.aleo {
-    async fn deposit_credits_private(
+    fn deposit_credits_private(
       input_record: credits.aleo/credits,
       amount: u64
     ) -> (credits.aleo/credits, multi_token_support_program.aleo/Token, Future) {
@@ -51,7 +51,7 @@ program mtsp_credits.aleo {
 
 // In an earlier Leo version, both Futures would be incorrectly inferred to
 // be the same type.
-async fn finalize_deposit(f0: Future, f1: Future) {
+onchain fn finalize_deposit(f0: Future, f1: Future) {
   f0.await();
   f1.await();
 }

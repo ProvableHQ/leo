@@ -19,7 +19,7 @@ input = ["[100u8, 200u8]"]
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
-async fn fin_test_async_u32_rt(addr: address, value: u32) {
+onchain fn fin_test_async_u32_rt(addr: address, value: u32) {
     let bits: [bool; 58] = Serialize::to_bits(value);
     let reconstructed: u32 = Deserialize::from_bits::[u32](bits);
     let matches_non_raw: bool = value == reconstructed;
@@ -31,7 +31,7 @@ async fn fin_test_async_u32_rt(addr: address, value: u32) {
     assert(matches_non_raw && matches_raw);
 }
 
-async fn fin_test_async_field_rt(addr: address, value: field) {
+onchain fn fin_test_async_field_rt(addr: address, value: field) {
     let bits: [bool; 279] = Serialize::to_bits(value);
     let reconstructed: field = Deserialize::from_bits::[field](bits);
     let matches_non_raw: bool = value == reconstructed;
@@ -43,7 +43,7 @@ async fn fin_test_async_field_rt(addr: address, value: field) {
     assert(matches_non_raw && matches_raw);
 }
 
-async fn fin_test_async_array_rt(addr: address, value: [u8; 2]) {
+onchain fn fin_test_async_array_rt(addr: address, value: [u8; 2]) {
     let bits: [bool; 134] = Serialize::to_bits(value);
     let reconstructed: [u8; 2] = Deserialize::from_bits::[[u8; 2]](bits);
     let matches_non_raw: bool =
@@ -60,18 +60,18 @@ async fn fin_test_async_array_rt(addr: address, value: [u8; 2]) {
 }
 
 program test.aleo {
-    async fn test_async_u32_rt(value: u32) -> Future {
+    fn test_async_u32_rt(value: u32) -> Future {
         return fin_test_async_u32_rt(self.caller, value);
     }
 
-    async fn test_async_field_rt(value: field) -> Future {
+    fn test_async_field_rt(value: field) -> Future {
         return fin_test_async_field_rt(self.caller, value);
     }
 
-    async fn test_async_array_rt(value: [u8; 2]) -> Future {
+    fn test_async_array_rt(value: [u8; 2]) -> Future {
         return fin_test_async_array_rt(self.caller, value);
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

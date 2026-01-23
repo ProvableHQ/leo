@@ -201,5 +201,5 @@ program all_types.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
