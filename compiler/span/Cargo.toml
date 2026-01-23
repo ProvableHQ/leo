@@ -17,14 +17,9 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.fxhash]
-version = "0.2.1"
-
-[dependencies.scoped-tls]
-version = "1.0.1"
-
-[dependencies.serde]
-workspace = true
+[dependencies]
+# third party dependencies
+fxhash       = { workspace = true }
+indexmap     = { workspace = true }
+scoped-tls   = { workspace = true }
+serde        = { workspace = true }

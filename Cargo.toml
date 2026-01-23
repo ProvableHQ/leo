@@ -44,125 +44,6 @@ members = [
   "utils/disassembler"
 ]
 
-[workspace.dependencies.leo-ast]
-path = "./compiler/ast"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-compiler]
-path = "./compiler/compiler"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-disassembler]
-path = "./utils/disassembler"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-errors]
-path = "./errors"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-interpreter]
-path = "./interpreter"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-package]
-path = "./leo/package"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-parser]
-path = "./compiler/parser"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-parser-lossless]
-path = "./compiler/parser-lossless"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-passes]
-path = "./compiler/passes"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-span]
-path = "./compiler/span"
-version = "=3.4.0"
-
-[workspace.dependencies.leo-test-framework]
-path = "./test-framework"
-version = "=3.4.0"
-
-[workspace.dependencies.aleo-std]
-version = "1.0.1"
-default-features = false
-
-[workspace.dependencies.anyhow]
-version = "1.0"
-
-[workspace.dependencies.base62]
-version = "2.2.1"
-
-[workspace.dependencies.colored]
-version = "2.0"
-
-[workspace.dependencies.indexmap]
-version = "2.6"
-features = [ "serde" ]
-
-[workspace.dependencies.itertools]
-version = "0.13.0"
-
-[workspace.dependencies.paste]
-version = "1.0"
-
-[workspace.dependencies.rand]
-version = "0.8"
-default-features = false
-
-[workspace.dependencies.rand_chacha]
-version = "0.3.0"
-default-features = false
-
-[workspace.dependencies.rayon]
-version = "1.11.0"
-
-[workspace.dependencies.regex]
-version = "1.11.1"
-
-[workspace.dependencies.self_update]
-version = "0.41.0"
-features = [ "archive-zip", "compression-zip-deflate" ]
-
-[workspace.dependencies.serde]
-version = "1.0.214"
-features = [ "derive", "rc" ]
-
-[workspace.dependencies.serde_json]
-version = "1.0"
-features = [ "preserve_order" ]
-
-[workspace.dependencies.serial_test]
-version = "3.1.1"
-
-[workspace.dependencies.sha2]
-version = "0.10.9"
-
-[workspace.dependencies.snarkvm]
-git = "https://github.com/ProvableHQ/snarkVM.git"
-tag = "canary-v4.5.0"
-features = [ "test_consensus_heights" ]
-
-[workspace.dependencies.tempfile]
-version = "3.13"
-
-[workspace.dependencies.tracing]
-version = "0.1"
-
-[workspace.dependencies.ureq]
-version = "3.0.12"
-
-[workspace.dependencies.walkdir]
-version = "2.5"
-
-[workspace.dependencies.which]
-version = "4.4"
-
 [lib]
 path = "leo/lib.rs"
 
@@ -180,166 +61,130 @@ ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 only_testnet = [ ]
 
-[dependencies.leo-ast]
-workspace = true
+[workspace.dependencies]
+# leo dependencies
+leo-ast             = { path = "./compiler/ast",              version = "=3.4.0" }
+leo-compiler        = { path = "./compiler/compiler",         version = "=3.4.0" }
+leo-disassembler    = { path = "./utils/disassembler",        version = "=3.4.0" }
+leo-errors          = { path = "./errors",                    version = "=3.4.0" }
+leo-interpreter     = { path = "./interpreter",               version = "=3.4.0" }
+leo-package         = { path = "./leo/package",               version = "=3.4.0" }
+leo-parser          = { path = "./compiler/parser",           version = "=3.4.0" }
+leo-parser-lossless = { path = "./compiler/parser-lossless",  version = "=3.4.0" }
+leo-passes          = { path = "./compiler/passes",           version = "=3.4.0" }
+leo-span            = { path = "./compiler/span",             version = "=3.4.0" }
+leo-test-framework  = { path = "./test-framework",            version = "=3.4.0" }
+# third party dependencies
+aleo-std           = { version = "1.0", default-features = false }
+aleo-std-storage   = "1.0"
+anyhow             = "1.0"
+backtrace          = "0.3"
+base62             = "2.2"
+chrono             = "0.4"
+clap               = { version = "4.5", features = [ "derive", "env", "color", "unstable-styles" ] }
+color-backtrace    = "0.6"
+colored            = "2.0"
+crossbeam-channel  = "0.5"
+crossterm          = "0.29"
+ctrlc              = "3.4"
+derivative         = "2.2"
+dialoguer          = "0.11"
+dotenvy            = "0.15"
+dunce              = "1.0"
+fxhash             = "0.2.1"
+indexmap           = { version = "2.6", features = [ "serde" ] }
+itertools          = "0.13"
+lalrpop            = "0.22"
+lalrpop-util       = { version = "0.21", features = [ "unicode" ] }
+logos              = "0.15"
+num-format         = "0.4"
+num-traits         = "0.2.19"
+once_cell          = "1.21"
+parking_lot        = "0.12"
+paste              = "1.0"
+rand               = { version = "0.8", default-features = false }
+rand_chacha        = { version = "0.3", default-features = false }
+ratatui            = "0.29"
+rayon              = "1.11"
+regex              = "1.11"
+rpassword          = "7.4"
+scoped-tls         = "1.0"
+self_update        = { version = "0.41", features = [ "archive-zip", "compression-zip-deflate" ] }
+serde              = { version = "1.0", features = [ "derive", "rc" ] }
+serde_json         = { version = "1.0", features = [ "preserve_order" ] }
+serial_test        = "3.1"
+sha2               = "0.10"
+snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", tag = "canary-v4.5.0", features = [ "test_consensus_heights" ] }
+sys-info           = "0.9"
+tempfile           = "3.20"
+thiserror          = "1.0"
+tracing            = "0.1"
+tracing-subscriber = { version = "0.3", features = [ "fmt" ] }
+ureq               = { version = "3.0", features = [ "json" ] }
+walkdir            = "2.5"
+which              = "4.4"
 
-[dependencies.leo-compiler]
-workspace = true
+[dependencies]
+# leo dependencies
+leo-ast           = { workspace = true }
+leo-compiler      = { workspace = true }
+leo-disassembler  = { workspace = true }
+leo-errors        = { workspace = true }
+leo-interpreter   = { workspace = true }
+leo-package       = { workspace = true }
+leo-span          = { workspace = true }
+# third party dependencies
+aleo-std           = { workspace = true }
+anyhow             = { workspace = true }
+backtrace          = { workspace = true }
+chrono             = { workspace = true }
+clap               = { workspace = true }
+colored            = { workspace = true }
+crossbeam-channel  = { workspace = true }
+crossterm          = { workspace = true }
+ctrlc              = { workspace = true }
+dialoguer          = { workspace = true }
+dotenvy            = { workspace = true }
+dunce              = { workspace = true }
+indexmap           = { workspace = true }
+itertools          = { workspace = true }
+num-format         = { workspace = true }
+once_cell          = { workspace = true }
+parking_lot        = { workspace = true }
+rand               = { workspace = true }
+rand_chacha        = { workspace = true }
+rayon              = { workspace = true }
+regex              = { workspace = true }
+rpassword          = { workspace = true }
+self_update        = { workspace = true }
+serde              = { workspace = true }
+serde_json         = { workspace = true }
+serial_test        = { workspace = true }
+sha2               = { workspace = true }
+snarkvm            = { workspace = true }
+sys-info           = { workspace = true }
+tempfile           = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
+ureq               = { workspace = true }
+walkdir            = { workspace = true }
+which              = { workspace = true }
 
-[dependencies.leo-disassembler]
-workspace = true
+[dev-dependencies]
+regex = { workspace = true }
+which = { workspace = true }
 
-[dependencies.leo-errors]
-workspace = true
+[build-dependencies]
+walkdir = { workspace = true }
 
-[dependencies.leo-interpreter]
-workspace = true
+[target."cfg(unix)".dependencies]
+libc        = "0.2"
+signal-hook = { version = "0.4", features = [ "iterator" ] }
 
-[dependencies.leo-package]
-workspace = true
-
-[dependencies.leo-span]
-workspace = true
-
-[dependencies.anyhow]
-workspace = true
-
-[dependencies.aleo-std]
-workspace = true
-
-[dependencies.backtrace]
-version = "0.3.74"
-
-[dependencies.chrono]
-version = "0.4.41"
-
-[dependencies.clap]
-version = "4.5"
-features = [ "derive", "env", "color", "unstable-styles" ]
-
-[dependencies.colored]
-workspace = true
-
-[dependencies.crossterm]
-version = "0.29.0"
-
-[dependencies.crossbeam-channel]
-version = "0.5.15"
-
-[dependencies.ctrlc]
-version = "3.4.7"
-
-[dependencies.dialoguer]
-version = "0.11.0"
-
-[dependencies.dotenvy]
-version = "0.15.7"
-
-[dependencies.dunce]
-version = "1.0.5"
-
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.itertools]
-workspace = true
-
-[dependencies.num-format]
-version = "0.4.4"
-
-[dependencies.once_cell]
-version = "1.21.3"
-
-[dependencies.parking_lot]
-version = "0.12.1"
-
-[dependencies.rand]
-workspace = true
-
-[dependencies.rayon]
-workspace = true
-
-[dependencies.rand_chacha]
-workspace = true
-
-[dependencies.regex]
-workspace = true
-
-[dependencies.rpassword]
-version = "7.4.0"
-
-[dependencies.self_update]
-workspace = true
-
-[dependencies.serde]
-workspace = true
-
-[dependencies.serde_json]
-workspace = true
-
-[dependencies.serial_test]
-workspace = true
-
-[dependencies.sha2]
-workspace = true
-
-[dependencies.snarkvm]
-workspace = true
-features = [ "circuit", "console" ]
-
-[dependencies.sys-info]
-version = "0.9.1"
-
-[dependencies.tempfile]
-version = "3.20.0"
-
-[dependencies.tracing]
-workspace = true
-
-[dependencies.tracing-subscriber]
-version = "0.3.18"
-features = [ "fmt" ]
-
-[dependencies.ureq]
-workspace = true
-features = [ "json" ]
-
-[dependencies.walkdir]
-workspace = true
-
-[dev-dependencies.regex]
-workspace = true
-
-[dev-dependencies.which]
-workspace = true
-
-[target."cfg(unix)".dependencies.nix]
-version = "0.30.1"
-features = [ "process", "term", "fs", "poll" ]
-
-[target."cfg(unix)".dependencies.libc]
-version = "0.2.174"
-
-[target."cfg(unix)".dependencies.signal-hook]
-version = "0.3.17"
-features = [ "iterator" ]
-
-[target."cfg(windows)".dependencies.winapi]
-version = "0.3.9"
-
-[target."cfg(windows)".dependencies.ansi_term]
-version = "0.12.1"
-
-[target."cfg(windows)".dependencies.windows-sys]
-version = "0.59"
-features = [
-  "Win32_Foundation",
-  "Win32_System_Threading",
-  "Win32_System_JobObjects"
-]
-
-[build-dependencies.walkdir]
-workspace = true
+[target."cfg(windows)".dependencies]
+winapi      = "0.3"
+ansi_term   = "0.12"
+windows-sys = { version = "0.61", features = [ "Win32_Foundation", "Win32_System_Threading", "Win32_System_JobObjects" ] }
 
 [profile.release]
 opt-level = 3
