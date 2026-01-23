@@ -2,7 +2,7 @@
 program test.aleo {
     mapping counter: address => u64;
 
-    fn main(owner: address) -> Future {
+    fn main(owner: address) -> Final {
         return async {
             let value: u64 = compute(5u64);
             counter.set(owner, value);

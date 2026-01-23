@@ -3,7 +3,7 @@ program test.aleo {
 
     mapping values: field => field;
 
-    fn foo() -> Future {
+    fn foo() -> Final {
         return finalize_foo();
     }
 }

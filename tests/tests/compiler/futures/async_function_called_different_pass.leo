@@ -1,10 +1,10 @@
 program dependent.aleo {
-    fn t1() -> Future {
-        let f: Future = finalize1(1u8);
+    fn t1() -> Final {
+        let f: Final = finalize1(1u8);
         return f;
     }
-    fn t2() -> Future {
-        let f: Future = finalize2(1u8);
+    fn t2() -> Final {
+        let f: Final = finalize2(1u8);
         return f;
     }
 }
@@ -21,18 +21,18 @@ onchain fn finalize2(x: u8) {
 import dependent.aleo;
 
 program test.aleo {
-    fn t1() -> Future {
-        let f: Future = dependent.aleo/t1();
+    fn t1() -> Final {
+        let f: Final = dependent.aleo/t1();
         return finalize(f);
     }
 
-    fn t2() -> Future {
-        let f: Future = dependent.aleo/t2();
+    fn t2() -> Final {
+        let f: Final = dependent.aleo/t2();
         return finalize(f);
     }
 }
 
-onchain fn finalize(f: Future) {
+onchain fn finalize(f: Final) {
     let x: u8 = f.0;
     f.await();
 }

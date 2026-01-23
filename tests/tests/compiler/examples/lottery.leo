@@ -7,7 +7,7 @@ program lottery.aleo {
 
     mapping num_winners: u8 => u8;
 
-    fn play() -> (Ticket, Future) {
+    fn play() -> (Ticket, Final) {
         let ticket: Ticket = Ticket {
             owner: self.signer,
         };

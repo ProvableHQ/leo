@@ -1,7 +1,7 @@
 program test.aleo {
     mapping account: address => u64;
 
-    fn main() -> Future {
+    fn main() -> Final {
         return finalize(aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px, 200);
     }
 

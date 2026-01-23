@@ -5,8 +5,8 @@ program credits.aleo {
         amount: u64,
     }
 
-    fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Future) {
-        let f: Future = finalize();
+    fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Final) {
+        let f: Final = finalize();
         return (input, f);
     }
 }
@@ -23,8 +23,8 @@ program multi_token_support_program.aleo {
         amount: u64,
     }
 
-    fn mint_private() -> (Token, Future) {
-        let f: Future = finalize();
+    fn mint_private() -> (Token, Final) {
+        let f: Final = finalize();
         return (Token{owner: self.signer, amount: 100u64}, f);
     }
 }
@@ -42,16 +42,16 @@ program mtsp_credits.aleo {
     fn deposit_credits_private(
       input_record: credits.aleo/credits,
       amount: u64
-    ) -> (credits.aleo/credits, multi_token_support_program.aleo/Token, Future) {
-      let transfer_output: (credits.aleo/credits, Future) = credits.aleo/transfer_private_to_public(input_record, self.address, amount);
-      let mint_output: (multi_token_support_program.aleo/Token, Future) = multi_token_support_program.aleo/mint_private();
+    ) -> (credits.aleo/credits, multi_token_support_program.aleo/Token, Final) {
+      let transfer_output: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input_record, self.address, amount);
+      let mint_output: (multi_token_support_program.aleo/Token, Final) = multi_token_support_program.aleo/mint_private();
       return (transfer_output.0, mint_output.0, finalize_deposit(transfer_output.1, mint_output.1));
     }
 }
 
-// In an earlier Leo version, both Futures would be incorrectly inferred to
+// In an earlier Leo version, both Finals would be incorrectly inferred to
 // be the same type.
-onchain fn finalize_deposit(f0: Future, f1: Future) {
+onchain fn finalize_deposit(f0: Final, f1: Final) {
   f0.await();
   f1.await();
 }

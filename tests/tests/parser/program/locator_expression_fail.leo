@@ -2,7 +2,7 @@
 program relay.aleo {
     mapping users: address => bool;
 
-    fn send(addr: address) -> Future {
+    fn send(addr: address) -> Final {
         let a: mapping = relay.aleo/users;
         return finalize_send(addr);
     }

@@ -24,10 +24,7 @@ use snarkvm::{
 };
 
 use crate::{
-    ArrayType,
-    Expression,
-    Intrinsic,
-    Type,
+    ArrayType, Expression, Intrinsic, Type,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
 };
@@ -332,7 +329,7 @@ pub fn evaluate_intrinsic(
             // TODO
             return Ok(None);
         }
-        Intrinsic::FutureAwait => panic!("await must be handled elsewhere"),
+        Intrinsic::FinalAwait => panic!("await must be handled elsewhere"),
         Intrinsic::ProgramChecksum => {
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its checksum.
             return Ok(None);

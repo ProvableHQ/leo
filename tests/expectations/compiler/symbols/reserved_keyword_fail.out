@@ -36,7 +36,7 @@ Error [ENV03711000]: `value` is an invalid transition name. A transition cannot 
 Error [ENV03711000]: `output` is an invalid transition name. A transition cannot be called "output".
     --> compiler-test:17:8
      |
-  17 |     fn output() -> Future {
+  17 |     fn output() -> Final {
      |        ^^^^^^
 Error [ENV03711000]: `key` is an invalid function name. A function cannot be called "key".
     --> compiler-test:28:4

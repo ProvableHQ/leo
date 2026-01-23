@@ -6,7 +6,7 @@ struct Baz {
 program scratch.aleo {
     mapping baz: Baz => u64;
 
-    fn prepare(a: [u32; 0]) ->  Future {
+    fn prepare(a: [u32; 0]) ->  Final {
         return finalize(a);
     }
 }

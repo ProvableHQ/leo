@@ -27,13 +27,13 @@ private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 program test.aleo {
     storage counter: u32;
 
-    fn initialize() -> Future {
+    fn initialize() -> Final {
         return async {
             counter = 0;
         };
     }
 
-    fn increment() -> Future {
+    fn increment() -> Final {
         return async {
             let old_counter_value = counter.unwrap_or(0);
             counter = old_counter_value + 1u32;

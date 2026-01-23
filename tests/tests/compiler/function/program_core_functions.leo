@@ -11,7 +11,7 @@ onchain fn foo() {
 }
 
 program test.aleo {
-    fn bar() -> Future {
+    fn bar() -> Final {
       return foo();
     }
 }

@@ -4,7 +4,7 @@ program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
 
-    fn finalize_self_caller() -> Future {
+    fn finalize_self_caller() -> Final {
         return finalize_finalize_self_caller(self.caller);
     }
 }

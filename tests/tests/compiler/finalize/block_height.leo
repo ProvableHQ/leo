@@ -1,6 +1,6 @@
 
 program test.aleo {
-    fn matches(height: u32) -> Future {
+    fn matches(height: u32) -> Final {
         return finalize_matches(height);
     }
 }

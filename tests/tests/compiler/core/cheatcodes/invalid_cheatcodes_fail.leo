@@ -7,8 +7,8 @@ program test_dep.aleo {
         val: u32,
     }
 
-    fn main_dep(a:u32) -> (yeets, Future) {
-        let f: Future = finalize_main_dep(a, 1u32);
+    fn main_dep(a:u32) -> (yeets, Final) {
+        let f: Final = finalize_main_dep(a, 1u32);
         let l: yeets = yeets {owner: self.signer, val: 1u32};
         return (l, f);
     }
@@ -27,7 +27,7 @@ program test.aleo {
     mapping account: address => u64;
     mapping Yo: u32 => u32;
 
-    fn main(public a: u64) -> Future {
+    fn main(public a: u64) -> Final {
         return finish(a);
     }
 }

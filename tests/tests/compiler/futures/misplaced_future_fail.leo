@@ -1,9 +1,9 @@
 
 program child.aleo {
-    fn foo() -> Future {
+    fn foo() -> Final {
         return finalize_foo(0u32);
     }
-    fn boo() -> (u32, Future) {
+    fn boo() -> (u32, Final) {
         return (1u32, finalize_boo(0u32));
     }
  }
@@ -22,8 +22,8 @@ import child.aleo;
 
 program parent.aleo {
 
-    fn foo() -> Future {
-        let f0: Future = child.aleo/foo();
+    fn foo() -> Final {
+        let f0: Final = child.aleo/foo();
 
         child.aleo/foo();
 
@@ -33,6 +33,6 @@ program parent.aleo {
     }
 }
 
-onchain fn finalize_foo(f0: Future) {
+onchain fn finalize_foo(f0: Final) {
     f0.await();
 }

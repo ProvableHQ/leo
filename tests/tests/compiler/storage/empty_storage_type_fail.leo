@@ -4,7 +4,7 @@ program empty_storage_type.aleo {
     storage vector_of_empty_array: [[u8; 0]];
 	storage byte: u8;
 
-    fn prepare(a: [u32; 0]) ->  Future {
+    fn prepare(a: [u32; 0]) ->  Final {
         return finalize(a);
     }
 }

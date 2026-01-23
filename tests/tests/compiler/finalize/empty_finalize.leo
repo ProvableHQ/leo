@@ -1,7 +1,7 @@
 
 program test.aleo {
 
-    fn mint_public(public receiver: address, public amount: u64) -> Future {
+    fn mint_public(public receiver: address, public amount: u64) -> Final {
         return finalize_mint(receiver, amount);
     }
 }

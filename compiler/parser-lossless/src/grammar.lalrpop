@@ -70,13 +70,13 @@ Type3: SyntaxNode<'a> = {
         SyntaxNode::new(TypeKind::Array, [l, t, s, i, r])
     },
 
-    <WithTrivia<Future>> => {
-        SyntaxNode::new(TypeKind::Future, [<>])
+    <WithTrivia<Final>> => {
+        SyntaxNode::new(TypeKind::Final, [<>])
     },
 
-    <fut:WithTrivia<Future>> <l:WithTrivia<Lt>> <f:WithTrivia<FnUpper>> <lparen:WithTrivia<LeftParen>>
+    <fut:WithTrivia<Final>> <l:WithTrivia<Lt>> <f:WithTrivia<FnUpper>> <lparen:WithTrivia<LeftParen>>
     <ts:CommaMaybe<Type>> <rparen:WithTrivia<RightParen>> <r:WithTrivia<Gt>> => {
-        SyntaxNode::new(TypeKind::Future, [fut, l, f, lparen].into_iter().chain(ts).chain([rparen, r]))
+        SyntaxNode::new(TypeKind::Final, [fut, l, f, lparen].into_iter().chain(ts).chain([rparen, r]))
     },
 }
 
@@ -285,7 +285,7 @@ Expr0: SyntaxNode<'a> = {
                 (
                     "BHP256" | "BHP512" |"BHP768" | "BHP1024" | "ChaCha" | "Keccak256" | "Keccak384" | "Keccak512" |
                     "Pedersen64" | "Pedersen128" | "Poseidon2" | "Poseidon4" | "Poseidon8" | "SHA3_256" | "SHA3_384" |
-                    "SHA3_512" | "Mapping" | "Program" | "signature" | "Future" | "CheatCode" | "group" | "ECDSA" | 
+                    "SHA3_512" | "Mapping" | "Program" | "signature" | "Final" | "CheatCode" | "group" | "ECDSA" | 
                     "Serialize" | "Deserialize",
                     _
                 )
@@ -977,7 +977,7 @@ extern {
         Fn => LalrToken { token: Token::Fn, .. },
         FnUpper => LalrToken { token: Token::FnUpper, .. },
         For => LalrToken { token: Token::For, .. },
-        Future => LalrToken { token: Token::Future, .. },
+        Final => LalrToken { token: Token::Final, .. },
         If => LalrToken { token: Token::If, .. },
         Import => LalrToken { token: Token::Import, .. },
         In => LalrToken { token: Token::In, .. },

@@ -1,5 +1,5 @@
 program test.aleo {
-    fn main(x: u32) -> Future {
+    fn main(x: u32) -> Final {
         let f = async {
             assert(x == 3);
         };

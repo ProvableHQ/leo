@@ -5,7 +5,7 @@ struct TestStruct {
 }
 
 program parent.aleo {
-    fn init() -> Future {
+    fn init() -> Final {
         let test_struct: TestStruct = TestStruct {
             data0: 0u128,
             data1: 1u128

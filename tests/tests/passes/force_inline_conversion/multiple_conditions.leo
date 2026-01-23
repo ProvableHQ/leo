@@ -2,7 +2,7 @@
 program test.aleo {
     mapping counter: address => u64;
 
-    fn main(owner: address, x: u32) -> Future {
+    fn main(owner: address, x: u32) -> Final {
         let a: u32 = outer(x);
         return async {
             let value: u64 = async_helper(5u64);

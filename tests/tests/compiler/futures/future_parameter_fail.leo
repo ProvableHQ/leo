@@ -1,15 +1,15 @@
 
 program test.aleo {
-    fn first(x: Future) -> Future {
+    fn first(x: Final) -> Final {
         return finish();
     }
 
-    fn second(x: Future) -> u8 {
+    fn second(x: Final) -> u8 {
         return 1u8;
     }
 }
 
-fn third(x: Future) -> u8 {
+fn third(x: Final) -> u8 {
     return 1u8;
 }
 

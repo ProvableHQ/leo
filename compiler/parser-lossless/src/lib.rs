@@ -112,7 +112,7 @@ pub enum TypeKind {
     Boolean,
     Composite,
     Field,
-    Future,
+    Final,
     Group,
     Identifier,
     Integer(IntegerTypeKind),

@@ -5,7 +5,7 @@ struct Foo {
 
 program test.aleo {
     mapping balances: field => field;
-    fn main(a: field) -> Future {
+    fn main(a: field) -> Final {
         // Cannot cast to a string.
         let b: string = a as string;
         // Cannot cast a struct.

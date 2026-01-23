@@ -4,8 +4,8 @@ program credits.aleo {
         amount: u64,
     }
 
-    fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Future) {
-        let f: Future = finalize();
+    fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Final) {
+        let f: Final = finalize();
         return (input, f);
     }
 }
@@ -19,15 +19,15 @@ onchain fn finalize() {
 import credits.aleo;
 
 program test_credits.aleo {
-    fn send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Future) {
-        let start: (credits.aleo/credits, Future) = credits.aleo/transfer_private_to_public(input, self.address, amount);
+    fn send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Final) {
+        let start: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input, self.address, amount);
         let after: (u8, credits.aleo/credits) = (1u8, start.0);
-        let start_2: Future = start.1;
+        let start_2: Final = start.1;
         return (after.1, finish(start.1, start_2));
     }
 }
 
-onchain fn finish(f1: Future, f2: Future) {
+onchain fn finish(f1: Final, f2: Final) {
     f1.await();
     f2.await();
 }

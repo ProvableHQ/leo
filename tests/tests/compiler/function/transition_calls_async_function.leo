@@ -1,7 +1,7 @@
 
 program test.aleo {
 
-  fn f(a: u64, b: u64) -> Future {
+  fn f(a: u64, b: u64) -> Final {
     return finish(a, b);
   }
 }

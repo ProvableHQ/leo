@@ -111,7 +111,7 @@ pub enum Token {
     // We need to special case `group::abc` and `signature::abc` as otherwise these are keywords.
     #[regex(r"group::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
     #[regex(r"signature::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
-    #[regex(r"Future::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
+    #[regex(r"Final::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
     IdVariants(IdVariants),
 
     // Address literals should have exactly 58 characters, but we lex other lengths
@@ -310,8 +310,8 @@ pub enum Token {
     FnUpper,
     #[token("for")]
     For,
-    #[token("Future")]
-    Future,
+    #[token("Final")]
+    Final,
     #[token("if")]
     If,
     #[token("import")]
@@ -459,7 +459,7 @@ impl Token {
             "FnUpper" => "'Fn'",
             "For" => "'for'",
             "Fn" => "'fn'",
-            "Future" => "'future'",
+            "Final" => "'final'",
             "If" => "'if'",
             "Import" => "'import'",
             "In" => "'in'",

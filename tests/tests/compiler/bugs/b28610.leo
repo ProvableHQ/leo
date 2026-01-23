@@ -3,7 +3,7 @@ program b28610.aleo {
         owner: address,
     }
 
-    fn foo() -> Future {
+    fn foo() -> Final {
         return bar(self.signer);
     }
 }

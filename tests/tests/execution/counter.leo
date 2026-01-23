@@ -45,11 +45,11 @@ onchain fn finalize_unsafe_increment(addr: address) {
 program test.aleo {
     mapping counter: address => u64;
 
-    fn dubble() -> Future {
+    fn dubble() -> Final {
         return finalize_dubble(self.caller);
     }
 
-    fn unsafe_increment() -> Future {
+    fn unsafe_increment() -> Final {
         return finalize_unsafe_increment(self.caller);
     }
 

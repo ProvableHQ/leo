@@ -19,7 +19,7 @@ program child.aleo {
 import child.aleo;
 
 program test.aleo {
-    fn bar() -> Future {
+    fn bar() -> Final {
         return async {
             let c: [u8; 32] = self.checksum;
             let d: [u8; 32] = Program::checksum(child.aleo);

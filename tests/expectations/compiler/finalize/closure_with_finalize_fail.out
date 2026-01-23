@@ -1,8 +1,8 @@
 Error [ETYC0372110]: Only `async transition` can return a future.
     --> compiler-test:6:25
      |
-   6 | fn foo(a: u8, b: u8) -> Future {
-     |                         ^^^^^^
+   6 | fn foo(a: u8, b: u8) -> Final {
+     |                         ^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
@@ -31,8 +31,8 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
 Error [ETYC0372110]: Only `async transition` can return a future.
     --> compiler-test:19:51
      |
-  19 | fn mint_public(receiver: address, amount: u64) -> Future {
-     |                                                   ^^^^^^
+  19 | fn mint_public(receiver: address, amount: u64) -> Final {
+     |                                                   ^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.

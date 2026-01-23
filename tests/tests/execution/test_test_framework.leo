@@ -15,7 +15,7 @@ onchain fn check_starting_height_(height: u32) {
 }
 
 program test.aleo {
-    fn check_starting_height(height: u32) -> Future {
+    fn check_starting_height(height: u32) -> Final {
         return check_starting_height_(height);
     }
 

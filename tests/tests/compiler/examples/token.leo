@@ -55,7 +55,7 @@ program token.aleo {
     /* Mint */
 
     // The function `mint_public` issues the specified token amount for the token receiver publicly on the network.
-    fn mint_public(public receiver: address, public amount: u64) -> Future {
+    fn mint_public(public receiver: address, public amount: u64) -> Final {
         // Mint the tokens publicly by invoking the computation on-chain.
         return finalize_mint_public(receiver, amount);
     }
@@ -68,7 +68,7 @@ program token.aleo {
     }
 
     /* Transfer */
-    fn transfer_public(public receiver: address, public amount: u64) -> Future {
+    fn transfer_public(public receiver: address, public amount: u64) -> Final {
         // Transfer the tokens publicly, by invoking the computation on-chain.
         return finalize_tr_public(self.caller, receiver, amount);
     }
@@ -97,7 +97,7 @@ program token.aleo {
 
     // The function `transfer_private_to_public` turns a specified token amount from a token record into public tokens for the specified receiver.
     // This function preserves privacy for the sender's record, however it publicly reveals the token receiver and the token amount.
-    fn transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> (token, Future) {
+    fn transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> (token, Final) {
         // Checks the given token record has a sufficient token amount.
         // This `sub` operation is safe, and the proof will fail if an underflow occurs.
         // `difference` holds the change amount for the caller.
@@ -115,7 +115,7 @@ program token.aleo {
     }
     // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
     // This function preserves privacy for the receiver's record, however it publicly reveals the caller and the specified token amount.
-    fn transfer_public_to_private(public receiver: address, public amount: u64) -> (token, Future) {
+    fn transfer_public_to_private(public receiver: address, public amount: u64) -> (token, Final) {
         // Produces a token record for the token receiver.
         let transferred: token = token {
             owner: receiver,

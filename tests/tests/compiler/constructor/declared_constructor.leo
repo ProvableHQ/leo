@@ -2,7 +2,7 @@ program test.aleo {
     mapping expected: bool => [u8; 32];
     mapping admin: bool => address;
     
-    fn set_expected(checksum: [u8; 32]) -> Future {
+    fn set_expected(checksum: [u8; 32]) -> Final {
         return set_expected_(self.caller, checksum);
     }
     @custom

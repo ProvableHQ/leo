@@ -14,7 +14,7 @@ program finalize.aleo {
 
     fn value() {}
 
-    fn output() -> Future {
+    fn output() -> Final {
         return finalize();
     }
 

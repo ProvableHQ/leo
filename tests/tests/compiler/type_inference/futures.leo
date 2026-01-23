@@ -1,8 +1,8 @@
 program child.aleo {
-    fn foo() -> Future {
+    fn foo() -> Final {
         return foo_();
     }
-    fn bar() -> Future {
+    fn bar() -> Final {
         return bar_();
     }
 }
@@ -15,19 +15,19 @@ onchain fn bar_() {}
 import child.aleo;
 
 program type_inference.aleo {
-    fn t1() -> (u64, Future) {
+    fn t1() -> (u64, Final) {
         let f = child.aleo/foo();
         let r = foo(f);
         return (42u64, r);
     }
 
-    fn t2() -> (u64, Future) {
+    fn t2() -> (u64, Final) {
         let f = child.aleo/bar();
         let r = foo(f);
         return (99u64, r);
     }
 }
 
-onchain fn foo(fut: Future) {
+onchain fn foo(fut: Final) {
     fut.await();
 }

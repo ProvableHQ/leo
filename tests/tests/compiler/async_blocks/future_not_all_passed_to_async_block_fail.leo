@@ -2,11 +2,11 @@
 program child.aleo {
     mapping count: address => field;
 
-    fn foo() -> Future {
+    fn foo() -> Final {
         return finalize_foo(self.caller);
     }
 
-    fn boo() -> Future {
+    fn boo() -> Final {
         return finalize_boo(self.caller);
     }
  }
@@ -27,13 +27,13 @@ import child.aleo;
 
 program parent.aleo {
 
-    fn foo() -> Future {
-        let f0: Future = child.aleo/foo();
-        let f1: Future = child.aleo/foo();
-        let f2: Future = child.aleo/foo();
-        let f3: Future = child.aleo/boo();
-        let f4: Future = child.aleo/boo();
-        let f5: Future = child.aleo/boo();
+    fn foo() -> Final {
+        let f0: Final = child.aleo/foo();
+        let f1: Final = child.aleo/foo();
+        let f2: Final = child.aleo/foo();
+        let f3: Final = child.aleo/boo();
+        let f4: Final = child.aleo/boo();
+        let f5: Final = child.aleo/boo();
 
         // Doesn't capture f1.
         return async {

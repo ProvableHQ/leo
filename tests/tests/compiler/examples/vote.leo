@@ -57,7 +57,7 @@ program vote.aleo {
     mapping disagree_votes: field => u64;
 
     // Propose a new proposal to vote on.
-    fn propose(public info: ProposalInfo) -> (Proposal, Future) {
+    fn propose(public info: ProposalInfo) -> (Proposal, Final) {
         // Authenticate proposer.
         assert_eq(self.signer, info.proposer);
 
@@ -73,18 +73,18 @@ program vote.aleo {
     fn new_ticket(
         public pid: field,
         public voter: address,
-    ) -> (Ticket, Future) {
+    ) -> (Ticket, Final) {
 
         // Finalize the proposal id for the ticket.
         return (Ticket { owner: voter, pid }, finalize_new_ticket(pid));
     }
     // Vote privately to agree with a proposal.
-    fn agree(ticket: Ticket) -> Future {
+    fn agree(ticket: Ticket) -> Final {
         // Finalize this vote.
         return finalize_agree(ticket.pid);
     }
     // Vote privately to disagree with a proposal.
-    fn disagree(ticket: Ticket) -> Future {
+    fn disagree(ticket: Ticket) -> Final {
         // Finalize this vote.
         return finalize_disagree(ticket.pid);
     }

@@ -61,7 +61,7 @@ program basic_bank.aleo {
     // Returns a new Token with the remaining amount of money.
     // - `token` : A record containing tokens to deposit.
     // - `amount`: The amount of tokens to deposit.
-    fn deposit(token: Token, amount: u64) -> (Token, Future) {
+    fn deposit(token: Token, amount: u64) -> (Token, Final) {
         let difference: u64 = token.amount - amount;
 
         let remaining: Token = Token {
@@ -81,7 +81,7 @@ program basic_bank.aleo {
     // - `rate`     : The compound interest rate.
     // - `periods`  : The number of periods to compound the interest over.
     // Requires that the function caller is the bank.
-    fn withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> (Token, Future) {
+    fn withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> (Token, Final) {
         assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
         let hash: field = BHP256::hash_to_field(recipient);
 

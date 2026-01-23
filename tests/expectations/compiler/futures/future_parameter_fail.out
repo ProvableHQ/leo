@@ -1,15 +1,15 @@
 Error [ETYC0372116]: Futures may only appear as parameters to async functions.
     --> compiler-test:3:14
      |
-   3 |     fn first(x: Future) -> Future {
-     |              ^^^^^^^^^
+   3 |     fn first(x: Final) -> Final {
+     |              ^^^^^^^^
 Error [ETYC0372116]: Futures may only appear as parameters to async functions.
     --> compiler-test:7:15
      |
-   7 |     fn second(x: Future) -> u8 {
-     |               ^^^^^^^^^
+   7 |     fn second(x: Final) -> u8 {
+     |               ^^^^^^^^
 Error [ETYC0372116]: Futures may only appear as parameters to async functions.
     --> compiler-test:12:10
      |
-  12 | fn third(x: Future) -> u8 {
-     |          ^^^^^^^^^
+  12 | fn third(x: Final) -> u8 {
+     |          ^^^^^^^^

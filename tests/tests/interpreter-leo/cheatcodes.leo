@@ -1,5 +1,5 @@
 program test.aleo {
-    fn main() -> Future {
+    fn main() -> Final {
         assert_eq(self.signer, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
 

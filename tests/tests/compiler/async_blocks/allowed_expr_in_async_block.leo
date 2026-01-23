@@ -1,6 +1,6 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    fn t1() -> Future {
+    fn t1() -> Final {
         return async {
             let b = block.height;
             let t = block.timestamp;

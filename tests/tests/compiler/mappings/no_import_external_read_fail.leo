@@ -2,7 +2,7 @@
 program registry.aleo {
     mapping users: address => bool;
 
-    fn register() -> Future {
+    fn register() -> Final {
         return finalize_register(self.caller);
     }
 }
@@ -14,7 +14,7 @@ onchain fn finalize_register(addr: address) {
 // --- Next Program --- //
 
 program relay.aleo {
-    fn send(addr: address) -> Future {
+    fn send(addr: address) -> Final {
         return finalize_send(addr);
     }
 }

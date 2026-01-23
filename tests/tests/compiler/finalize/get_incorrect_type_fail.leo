@@ -8,7 +8,7 @@ program test.aleo {
     mapping amounts: address => u128;
     mapping tokens: address => Token;
 
-    fn decrease_self(amount: u128) -> Future {
+    fn decrease_self(amount: u128) -> Final {
         return finalize_decrease_self(self.caller, amount);
     }
 }

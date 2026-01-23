@@ -51,7 +51,7 @@ program vector_structs.aleo {
     // Test 1 — Vector of primitives
     // ────────────────────────────────────────────────────────────────
     //
-    fn test_vector_primitives_behavior(index: u32, new_value: u32) -> Future {
+    fn test_vector_primitives_behavior(index: u32, new_value: u32) -> Final {
         return async {
             // Ensure empty at start
             ids.clear();
@@ -95,7 +95,7 @@ program vector_structs.aleo {
     // Test 2 — Vector of structs
     // ────────────────────────────────────────────────────────────────
     //
-    fn test_vector_structs_behavior(idx: u32) -> Future {
+    fn test_vector_structs_behavior(idx: u32) -> Final {
         return async {
             assert(points.len() == 0u32);
 
@@ -123,7 +123,7 @@ program vector_structs.aleo {
     // Test 3 — Vector of containers (structs with arrays)
     // ────────────────────────────────────────────────────────────────
     //
-    fn test_vector_containers_behavior(idx: u32) -> Future {
+    fn test_vector_containers_behavior(idx: u32) -> Final {
         return async {
             assert(containers.len() == 0u32);
 

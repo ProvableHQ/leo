@@ -2,10 +2,10 @@ program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
 
-    fn mint_public(public receiver: address, public amount: u64) -> Future {
+    fn mint_public(public receiver: address, public amount: u64) -> Final {
         return finalize_mint_public(receiver, amount);
     }
-    fn public_adder(public a: u8, public b: u8) -> Future {
+    fn public_adder(public a: u8, public b: u8) -> Final {
         return finalize_public_adder(a, b);
     }
 }

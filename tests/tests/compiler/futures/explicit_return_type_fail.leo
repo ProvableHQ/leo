@@ -1,13 +1,13 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    fn main_inner(public a: u32, b: u32) -> (u32, Future) {
+    fn main_inner(public a: u32, b: u32) -> (u32, Final) {
         let c: u32 = a + b;
-        let f: Future = finalize();
+        let f: Final = finalize();
         return (c, f);
     }
 }
 
-onchain fn finalize() -> Future {
+onchain fn finalize() -> Final {
     Mapping::set(foo, 1u32, 1u32);
 }
 
@@ -15,15 +15,15 @@ onchain fn finalize() -> Future {
 
 import test.aleo;
 program basic.aleo {
-    fn main(public a: u32, b: u32) -> (u32, Future) {
+    fn main(public a: u32, b: u32) -> (u32, Final) {
         let c: u32 = a + b;
-        let (d, f1): (u32, Future) = test.aleo/main_inner(1u32, 1u32);
-        let f:Future = finalize(c, f1);
+        let (d, f1): (u32, Final) = test.aleo/main_inner(1u32, 1u32);
+        let f:Final = finalize(c, f1);
         return (c,f);
     }
 }
 
-onchain fn finalize(input: u32, f: Future) {
+onchain fn finalize(input: u32, f: Final) {
     f.await();
     assert_eq(input, 1u32);
 }

@@ -3,11 +3,11 @@ program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
 
-    fn mint_public(public receiver: address, public amount: u64) -> Future {
+    fn mint_public(public receiver: address, public amount: u64) -> Final {
         return finalize_mint(receiver, amount);
     }
 
-    fn finalize_self_caller() -> Future {
+    fn finalize_self_caller() -> Final {
         return finalize_finalize_self_caller(self.caller);
     }
 }

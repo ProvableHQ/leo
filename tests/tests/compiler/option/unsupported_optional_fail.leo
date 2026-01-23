@@ -9,9 +9,9 @@ program invalid_optional_types.aleo {
         let a: address? = a_;
     }
 
-    // Future cannot be optional
+    // Final cannot be optional
     fn future_optional_type() {
-        let fut: Future? = finalize(); // ERROR: Future? is not allowed
+        let fut: Final? = finalize(); // ERROR: Final? is not allowed
     }
     @noupgrade
     constructor() {}

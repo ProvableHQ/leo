@@ -1,7 +1,7 @@
 Error [EAST0372017]: The name `finalize_no_params` is defined multiple times.
     --> compiler-test:25:12
      |
-  12 |       fn finalize_no_params() -> Future {
+  12 |       fn finalize_no_params() -> Final {
      |          ^^^^^^^^^^^^^^^^^^ previous definition of `finalize_no_params` here
    ...
   25 |   onchain fn finalize_no_params() {

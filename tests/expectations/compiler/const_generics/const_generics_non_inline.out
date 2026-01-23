@@ -6,7 +6,7 @@ Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
 Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
     --> compiler-test:17:8
      |
-  17 |     fn bar2::[N: u32]() -> Future {
+  17 |     fn bar2::[N: u32]() -> Final {
      |        ^^^^
 Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
     --> compiler-test:2:4

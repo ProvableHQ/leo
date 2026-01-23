@@ -1,5 +1,5 @@
 program test.aleo {
-    fn foo(private a: u8) -> Future {
+    fn foo(private a: u8) -> Final {
         return async {
             bar();
         };

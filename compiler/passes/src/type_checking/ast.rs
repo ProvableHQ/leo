@@ -512,7 +512,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         self.maybe_assert_type(&return_type, expected, input.span());
 
         // Await futures here so that can use the argument variable names to lookup.
-        if intrinsic == Intrinsic::FutureAwait && input.arguments.len() != 1 {
+        if intrinsic == Intrinsic::FinalAwait && input.arguments.len() != 1 {
             self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(input.span));
         }
 

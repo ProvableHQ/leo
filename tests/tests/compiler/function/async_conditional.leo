@@ -2,7 +2,7 @@
 program test.aleo {
     mapping map: u32 => u32;
 
-    fn main() -> Future {
+    fn main() -> Final {
         return finalize_main(1u32);
     }
 }

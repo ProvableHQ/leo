@@ -1,5 +1,5 @@
 program dependent.aleo {
-    fn t1(x: u8, y: u16) -> Future {
+    fn t1(x: u8, y: u16) -> Final {
         return async {
             assert_eq(x, 1u8);
             assert_eq(y, 1u16);
@@ -12,8 +12,8 @@ program dependent.aleo {
 import dependent.aleo;
 
 program test.aleo {
-    fn t1() -> Future {
-        let f: Future = dependent.aleo/t1(42, 43);
+    fn t1() -> Final {
+        let f: Final = dependent.aleo/t1(42, 43);
         return async {
             let x: u16 = f.0;
             let y: u8 = f.1;

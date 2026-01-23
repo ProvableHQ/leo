@@ -1,6 +1,6 @@
 
 program test.aleo {
-    fn public_adder(public a: u8, public b: u8) -> Future {
+    fn public_adder(public a: u8, public b: u8) -> Final {
         return finalize_public_adder(a, b);
     }
 }

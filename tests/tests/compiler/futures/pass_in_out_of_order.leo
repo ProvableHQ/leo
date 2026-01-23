@@ -1,6 +1,6 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    fn main_inner(public a: u32, public b: u32) -> Future {
+    fn main_inner(public a: u32, public b: u32) -> Final {
         return finalize(a, b);
     }
 }
@@ -13,15 +13,15 @@ onchain fn finalize(a: u32, b: u32) {
 
 import test.aleo;
 program basic.aleo {
-    fn main(public a: u32, b: u32) -> Future {
-        let f1: Future = test.aleo/main_inner(0u32, 0u32);
-        let f2: Future = test.aleo/main_inner(1u32, 1u32);
-        let f:Future = finalize(f2, f1);
+    fn main(public a: u32, b: u32) -> Final {
+        let f1: Final = test.aleo/main_inner(0u32, 0u32);
+        let f2: Final = test.aleo/main_inner(1u32, 1u32);
+        let f:Final = finalize(f2, f1);
         return f;
     }
 }
 
-onchain fn finalize(f1: Future, f2: Future) {
+onchain fn finalize(f1: Final, f2: Final) {
     f1.await();
     f2.await();
 }

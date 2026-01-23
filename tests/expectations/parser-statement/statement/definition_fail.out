@@ -99,12 +99,12 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | let x: [u8; (2,,)] = [[0,0], [0,0]];
      |                ^
-Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'future' -- found 'const'
+Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'final' -- found 'const'
     --> test_24:1:8
      |
    1 | let x: const = expr;
      |        ^^^^^
-Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'future' -- found 'let'
+Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'final' -- found 'let'
     --> test_25:1:10
      |
    1 | const x: let = expr;
@@ -154,7 +154,7 @@ Error [EPAR0370003]: unexpected EOF
      |
    1 | let x: u8
      |         ^
-Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'future' -- found '='
+Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'final' -- found '='
     --> test_35:1:8
      |
    1 | let x: = 1;

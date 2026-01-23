@@ -5,7 +5,7 @@ const F: Foo::[true] = Foo::[true] { x: true };
 program b28668.aleo {
     mapping map: Foo::[true] => Foo::[false];
 
-    fn main(y: u32) -> (bool, Future) {
+    fn main(y: u32) -> (bool, Final) {
         return (F.x, f());
     }
 }

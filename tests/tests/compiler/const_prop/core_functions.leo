@@ -17,7 +17,7 @@ program test.aleo {
     mapping mfield: field => field;
     mapping mgroup: group => group;
     mapping mu32: u32 => u32;
-    fn main() -> Future {
+    fn main() -> Final {
         return foo();
     }
 }

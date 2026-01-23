@@ -12,7 +12,7 @@ onchain fn foo() {
 
 program test.aleo {
     mapping m: u32 => u32;
-    fn main() -> Future {
+    fn main() -> Final {
         return foo();
     }
 }

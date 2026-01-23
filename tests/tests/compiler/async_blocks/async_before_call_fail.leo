@@ -8,8 +8,8 @@ program child.aleo {
 import child.aleo;
 
 program parent.aleo {
-    fn foo() -> Future {
-        let future: Future = async {};
+    fn foo() -> Final {
+        let future: Final = async {};
         child.aleo/t();
         return future;
     }

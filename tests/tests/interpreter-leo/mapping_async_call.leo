@@ -1,6 +1,6 @@
 program test.aleo {
     mapping map: u32 => u32;
-    fn main() -> (u32, Future) {
+    fn main() -> (u32, Final) {
         let x = 5u32;
         let f = finalize(x);
         x = 6;

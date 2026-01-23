@@ -3,7 +3,7 @@ program test.aleo {
 
     mapping balances: address => u32;
 
-    fn foo() -> Future {
+    fn foo() -> Final {
         return finalize_foo(self.caller);
     }
 }

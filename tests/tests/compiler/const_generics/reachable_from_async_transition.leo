@@ -1,5 +1,5 @@
 program const_generics.aleo {
-    fn foo() -> (field, Future) {
+    fn foo() -> (field, Final) {
         let f = bar();
         return (abc::[0](), f);
     }

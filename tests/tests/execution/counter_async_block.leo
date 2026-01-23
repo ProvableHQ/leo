@@ -29,7 +29,7 @@ const SMALL:u64 = 0_1u64;
 program test.aleo {
     mapping counter: address => u64;
 
-    fn dubble() -> Future {
+    fn dubble() -> Final {
         let addr = self.caller;
         let f = async {
             const BIG: u64 = 234u64;
@@ -42,7 +42,7 @@ program test.aleo {
         return f;
     }
 
-    fn unsafe_increment() -> Future {
+    fn unsafe_increment() -> Final {
         let addr = self.caller;
         return async {
             let current_value: u64 = Mapping::get(counter, addr);

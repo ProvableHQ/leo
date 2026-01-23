@@ -14,7 +14,7 @@ program test.aleo {
         addr_wrong_elem: [u32; 33],     // Wrong element type: should be u8
         digest_wrong_size: [u8; 31],    // Wrong for digest: should be [u8; 32]
         msg: u64
-    ) -> Future {
+    ) -> Final {
         return finalize(sig_correct, sig_wrong_size, sig_wrong_type, addr_wrong_size_1, addr_wrong_size_2, addr_wrong_elem, digest_wrong_size, msg);
     }
 }

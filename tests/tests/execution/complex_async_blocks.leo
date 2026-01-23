@@ -25,7 +25,7 @@ input = []
 program zero_program.aleo {
     mapping counts: address => u64;
 
-    fn c() -> Future {
+    fn c() -> Final {
         let addr = self.signer;
         let f = async {
             let count: u64 = counts.get_or_use(addr, 0u64);
@@ -45,7 +45,7 @@ program zero_program.aleo {
 program one_program.aleo {
     mapping counts: address => u64;
 
-    fn d() -> Future {
+    fn d() -> Final {
         let addr = self.signer;
         let f = async {
             let count: u64 = counts.get_or_use(addr, 0u64);
@@ -67,9 +67,9 @@ import one_program.aleo;
 program two_program.aleo {
     mapping counts: address => u64;
 
-    fn b() -> Future {
-        let f0: Future = zero_program.aleo/c();
-        let f1: Future = one_program.aleo/d();
+    fn b() -> Final {
+        let f0: Final = zero_program.aleo/c();
+        let f1: Final = one_program.aleo/d();
         let addr = self.signer; 
 
         return async {
@@ -93,10 +93,10 @@ import two_program.aleo;
 program three_program.aleo {
     mapping counts: address => u64;
 
-    fn e() -> Future {
-        let f0: Future = two_program.aleo/b();
-        let f1: Future = one_program.aleo/d();
-        let f2: Future = zero_program.aleo/c();
+    fn e() -> Final {
+        let f0: Final = two_program.aleo/b();
+        let f1: Final = one_program.aleo/d();
+        let f2: Final = zero_program.aleo/c();
         let addr = self.signer;
         return async {
             f0.await();
@@ -119,9 +119,9 @@ import three_program.aleo;
 program four_program.aleo {
     mapping counts: address => u64;
 
-    fn a() -> Future {
-        let f0: Future = two_program.aleo/b();
-        let f1: Future = three_program.aleo/e();
+    fn a() -> Final {
+        let f0: Final = two_program.aleo/b();
+        let f1: Final = three_program.aleo/e();
         let addr = self.signer;
         return async {
             f0.await();

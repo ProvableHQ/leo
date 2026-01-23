@@ -1,8 +1,8 @@
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:10:1
      |
-  10 | onchain fn finalize() -> Future {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 | onchain fn finalize() -> Final {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |     Mapping::set(foo, 1u32, 1u32);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 | }
@@ -12,15 +12,15 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
 Error [ETYC0372110]: Only `async transition` can return a future.
     --> compiler-test:10:26
      |
-  10 | onchain fn finalize() -> Future {
-     |                          ^^^^^^
+  10 | onchain fn finalize() -> Final {
+     |                          ^^^^^
      |
      = Use an `async transition` instead.
 Error [ETYC0372036]: Function must return a value.
     --> compiler-test:10:1
      |
-  10 | onchain fn finalize() -> Future {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 | onchain fn finalize() -> Final {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   11 |     Mapping::set(foo, 1u32, 1u32);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 | }

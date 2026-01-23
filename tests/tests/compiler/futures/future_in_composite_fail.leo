@@ -1,13 +1,13 @@
 
 struct S {
-    member: Future,
+    member: Final,
 }
 
 program test.aleo {
-    mapping x: Future => Future;
-    fn main() -> Future {
-        let future: Future = finish();
-        let an_array: [Future; 1] = [future];
+    mapping x: Final => Final;
+    fn main() -> Final {
+        let future: Final = finish();
+        let an_array: [Final; 1] = [future];
         return an_array[0u32];
     }
 }

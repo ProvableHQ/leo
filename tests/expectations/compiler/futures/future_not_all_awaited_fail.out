@@ -1,8 +1,8 @@
 Error [ESAZ0374001]: The following futures were never awaited: f4
     --> compiler-test:12:1
      |
-  12 | onchain fn finalize_foo(f0: Future, f1: Future, f2: Future, f3: Future, f4: Future, f5: Future) {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 | onchain fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   13 |     f1.await();
      |     ^^^^^^^^^^^
   14 |     f2.await();

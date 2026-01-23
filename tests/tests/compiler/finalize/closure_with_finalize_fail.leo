@@ -3,7 +3,7 @@ program test.aleo {
     mapping account: address => u64;
 }
 
-fn foo(a: u8, b: u8) -> Future {
+fn foo(a: u8, b: u8) -> Final {
     return finalize_bar(a, b);
 }
 
@@ -16,7 +16,7 @@ onchain fn finalize_bar(a: u8, b: u8) -> u8 {
 }
 
 
-fn mint_public(receiver: address, amount: u64) -> Future {
+fn mint_public(receiver: address, amount: u64) -> Final {
     return finalize_mint(receiver, amount);
 }
 

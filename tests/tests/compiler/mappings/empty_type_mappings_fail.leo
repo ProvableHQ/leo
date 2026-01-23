@@ -2,7 +2,7 @@ program empty_type_mappings.aleo {
     mapping foo: u64 => [u32; 0];
     mapping bar: [u32; 0] => u64;
 
-    fn prepare(a: [u32; 0]) ->  Future {
+    fn prepare(a: [u32; 0]) ->  Final {
         return finalize(a);
     }
 }

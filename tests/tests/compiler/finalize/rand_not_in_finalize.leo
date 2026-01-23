@@ -3,7 +3,7 @@ program test.aleo {
 
     mapping values: scalar => group;
 
-    fn foo() -> Future {
+    fn foo() -> Final {
         let a: scalar = ChaCha::rand_scalar();
         return finalize_foo(a);
     }

@@ -3,7 +3,7 @@ program const_generics.aleo {
         return 0;
     }
 
-    fn main2() -> Future {
+    fn main2() -> Final {
         return foo();
     }
 }

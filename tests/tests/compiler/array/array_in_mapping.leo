@@ -2,7 +2,7 @@
 program test.aleo {
     mapping data: address => [bool; 8];
 
-    fn foo(a: [bool; 8]) -> Future {
+    fn foo(a: [bool; 8]) -> Final {
         return fin_foo(self.caller, a);
     }
 }

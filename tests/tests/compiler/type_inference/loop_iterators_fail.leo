@@ -1,5 +1,5 @@
 program test.aleo {
-    fn main() -> Future {
+    fn main() -> Final {
         return bar();
     }
 }

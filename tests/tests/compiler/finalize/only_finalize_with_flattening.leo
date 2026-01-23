@@ -6,11 +6,11 @@ program test.aleo {
     mapping token_name_to_info: field => TokenInfo;
 
 
-    fn add_new_token () -> Future {
+    fn add_new_token () -> Final {
         return finalize_add_new_token();
     }
 
-    fn add_new_token_2 () -> Future {
+    fn add_new_token_2 () -> Final {
         return finalize_add_new_token_2();
     }
 }

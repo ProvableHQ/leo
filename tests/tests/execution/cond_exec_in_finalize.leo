@@ -26,7 +26,7 @@ onchain fn finish(a: u64, b: u64) {
 
 program cond_exec_in_finalize.aleo {
 
-  fn f(a: u64, b: u64) -> Future {
+  fn f(a: u64, b: u64) -> Final {
     return finish(a, b);
   }
 

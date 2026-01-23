@@ -17,46 +17,18 @@
 use super::*;
 
 use leo_ast::{
-    ArrayType,
-    AssertVariant,
-    AsyncExpression,
-    BinaryOperation,
-    Block,
-    CompositeFieldInitializer,
-    DefinitionPlace,
-    Expression,
-    Function,
-    Intrinsic,
-    Location,
-    NodeID,
-    Statement,
-    Type,
-    UnaryOperation,
-    Variant,
+    ArrayType, AssertVariant, AsyncExpression, BinaryOperation, Block, CompositeFieldInitializer, DefinitionPlace,
+    Expression, Function, Intrinsic, Location, NodeID, Statement, Type, UnaryOperation, Variant,
     interpreter_value::{
-        AsyncExecution,
-        IntrinsicHelper,
-        Value,
-        evaluate_binary,
-        evaluate_intrinsic,
-        evaluate_unary,
-        literal_to_value,
+        AsyncExecution, IntrinsicHelper, Value, evaluate_binary, evaluate_intrinsic, evaluate_unary, literal_to_value,
     },
 };
 use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol};
 
 use snarkvm::prelude::{
-    Address,
-    CanaryV0,
-    Closure as SvmClosure,
-    Finalize as SvmFinalize,
-    Function as SvmFunctionParam,
-    MainnetV0,
-    Network,
-    PrivateKey,
-    ProgramID,
-    TestnetV0,
+    Address, CanaryV0, Closure as SvmClosure, Finalize as SvmFinalize, Function as SvmFunctionParam, MainnetV0,
+    Network, PrivateKey, ProgramID, TestnetV0,
 };
 
 use indexmap::IndexMap;
@@ -1090,7 +1062,7 @@ impl Cursor {
 
                 let span = intr.span();
 
-                if let Intrinsic::FutureAwait = intrinsic {
+                if let Intrinsic::FinalAwait = intrinsic {
                     let value = self.pop_value()?;
                     let Some(asyncs) = value.as_future() else {
                         halt!(span, "Invalid value for await: {value}");
@@ -1138,7 +1110,7 @@ impl Cursor {
                 } else {
                     halt!(intr.span(), "Unknown intrinsic {}", intr.name);
                 };
-                assert!(intrinsic == Intrinsic::FutureAwait);
+                assert!(intrinsic == Intrinsic::FinalAwait);
                 Some(Value::make_unit())
             }
 

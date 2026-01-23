@@ -1,6 +1,6 @@
 
 program test.aleo {
-    fn foo() -> Future {
+    fn foo() -> Final {
         return finalize_foo();
     }
 }

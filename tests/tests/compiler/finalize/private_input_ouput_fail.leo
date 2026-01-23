@@ -1,10 +1,10 @@
 
 program test.aleo {
-    fn foo(public a: u8) -> (u8, Future) {
+    fn foo(public a: u8) -> (u8, Final) {
         async finalize_foo(a);
         return a + a;
     }
-    fn bar(public a: u8) -> (u8, Future) {
+    fn bar(public a: u8) -> (u8, Final) {
         async finalize_bar(a);
         return a + a;
     }

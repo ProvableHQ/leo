@@ -11,10 +11,10 @@ onchain fn finalize_boo(addr: address) {
 program child.aleo {
     mapping count: address => field;
 
-    fn foo() -> Future {
+    fn foo() -> Final {
         return finalize_foo(self.caller);
     }
-    fn boo() -> Future {
+    fn boo() -> Final {
         return finalize_boo(self.caller);
     }
  }
@@ -25,20 +25,20 @@ import child.aleo;
 
 program parent.aleo {
 
-    fn foo() -> Future {
-        let f0: Future = child.aleo/foo();
-        let f1: Future = child.aleo/foo();
-        let f2: Future = child.aleo/foo();
-        let f3: Future = child.aleo/boo();
-        let f4: Future = child.aleo/boo();
-        let f5: Future = child.aleo/boo();
+    fn foo() -> Final {
+        let f0: Final = child.aleo/foo();
+        let f1: Final = child.aleo/foo();
+        let f2: Final = child.aleo/foo();
+        let f3: Final = child.aleo/boo();
+        let f4: Final = child.aleo/boo();
+        let f5: Final = child.aleo/boo();
 
         // Doesn't pass f1.
         return finalize_foo(f0, f3, f2, f5, f4);
     }
 }
 
-onchain fn finalize_foo(f0: Future, f1: Future, f2: Future, f3: Future, f4: Future) {
+onchain fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final) {
     f1.await();
     f4.await();
     f2.await();

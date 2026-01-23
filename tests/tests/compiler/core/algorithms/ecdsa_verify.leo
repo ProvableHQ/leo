@@ -21,7 +21,7 @@ program test.aleo {
         msg_u128: u128,
         msg_array: [u32; 2],
         msg_array2: [u64; 4]
-    ) -> Future {
+    ) -> Final {
         return finalize(sig, addr, addr_eth, digest, msg_u32, msg_u64, msg_u128, msg_array, msg_array2);
     }
 }

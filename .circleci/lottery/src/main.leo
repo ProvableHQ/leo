@@ -7,7 +7,7 @@ program lottery.aleo {
         owner: address,
     }
 
-    fn play() -> (Ticket, Future) {
+    fn play() -> (Ticket, Final) {
         let ticket: Ticket = Ticket {
             owner: self.caller,
         };
