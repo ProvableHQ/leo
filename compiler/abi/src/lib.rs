@@ -44,6 +44,8 @@ pub fn generate(scope: &ast::ProgramScope, stubs: &IndexMap<Symbol, ast::Stub>) 
 
     let mappings = scope.mappings.iter().map(|(_, m)| convert_mapping(m)).collect();
 
+    let storage_variables = scope.storage_variables.iter().map(|(_, sv)| convert_storage_variable(sv)).collect();
+
     let transitions = scope
         .functions
         .iter()
@@ -51,7 +53,7 @@ pub fn generate(scope: &ast::ProgramScope, stubs: &IndexMap<Symbol, ast::Stub>) 
         .map(|(_, f)| convert_transition(f, &ctx))
         .collect();
 
-    abi::Program { program, structs, records, mappings, transitions }
+    abi::Program { program, structs, records, mappings, storage_variables, transitions }
 }
 
 fn convert_struct(composite: &ast::Composite) -> abi::Struct {
@@ -85,6 +87,17 @@ fn convert_mapping(mapping: &ast::Mapping) -> abi::Mapping {
         name: mapping.identifier.name.to_string(),
         key: convert_plaintext(&mapping.key_type),
         value: convert_plaintext(&mapping.value_type),
+    }
+}
+
+fn convert_storage_variable(sv: &ast::StorageVariable) -> abi::StorageVariable {
+    abi::StorageVariable { name: sv.identifier.name.to_string(), ty: convert_storage_type(&sv.type_) }
+}
+
+fn convert_storage_type(ty: &ast::Type) -> abi::StorageType {
+    match ty {
+        ast::Type::Vector(v) => abi::StorageType::Vector(Box::new(convert_storage_type(&v.element_type))),
+        other => abi::StorageType::Plaintext(convert_plaintext(other)),
     }
 }
 

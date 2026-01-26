@@ -41,6 +41,8 @@ pub struct Program {
     pub records: Vec<Record>,
     /// On-chain key-value storage definitions.
     pub mappings: Vec<Mapping>,
+    /// Storage variable definitions.
+    pub storage_variables: Vec<StorageVariable>,
     /// Public entry points (transitions only, not internal functions).
     pub transitions: Vec<Transition>,
 }
@@ -65,6 +67,32 @@ pub struct Mapping {
     pub name: String,
     pub key: Plaintext,
     pub value: Plaintext,
+}
+
+/// A storage variable declaration.
+///
+/// # Lowering
+///
+/// Storage variables are lowered to mappings in Aleo bytecode:
+/// - `storage x: T` becomes `mapping x__: bool => T` (value stored at key `false`)
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct StorageVariable {
+    pub name: String,
+    pub ty: StorageType,
+}
+
+/// Type for storage variables. Supports Vector unlike Plaintext.
+///
+/// # Lowering
+///
+/// Storage vectors are lowered to two mappings:
+/// - `storage vec: Vector<T>` becomes:
+///   - `mapping vec__: u32 => T` (elements by index)
+///   - `mapping vec__len__: bool => u32` (length at key `false`)
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub enum StorageType {
+    Plaintext(Plaintext),
+    Vector(Box<StorageType>),
 }
 
 /// A transition function (public entry point).
