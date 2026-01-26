@@ -1,5 +1,5 @@
 // Comprehensive ABI generation test program.
-// Exercises ABI features: primitives, arrays, structs, records, mappings, transitions.
+// Exercises ABI features: primitives, arrays, structs, records, mappings, storage variables, transitions.
 
 program abi_test.aleo {
 
@@ -55,6 +55,17 @@ program abi_test.aleo {
 
     // Mapping with array value
     mapping arrays: u32 => [field; 2];
+
+    // === Storage Variables ===
+
+    // Simple storage variable
+    storage counter: u32;
+
+    // Storage variable with struct type
+    storage last_point: Point;
+
+    // Storage vector
+    storage history: [u64];
 
     // === Transitions ===
 

@@ -2,7 +2,7 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
        Leo     34 statements before dead code elimination.
        Leo     34 statements after dead code elimination.
-       Leo     The program checksum is: '[173u8, 28u8, 65u8, 207u8, 141u8, 215u8, 218u8, 56u8, 40u8, 11u8, 219u8, 179u8, 137u8, 241u8, 83u8, 155u8, 208u8, 243u8, 73u8, 195u8, 55u8, 227u8, 167u8, 194u8, 29u8, 118u8, 134u8, 192u8, 241u8, 176u8, 120u8, 158u8]'.
-       Leo     Program size: 2.79 KB / 97.66 KB
+       Leo     The program checksum is: '[82u8, 239u8, 240u8, 190u8, 203u8, 240u8, 229u8, 76u8, 158u8, 189u8, 138u8, 244u8, 155u8, 172u8, 253u8, 189u8, 225u8, 76u8, 222u8, 180u8, 12u8, 77u8, 86u8, 229u8, 59u8, 74u8, 32u8, 6u8, 202u8, 137u8, 196u8, 9u8]'.
+       Leo     Program size: 3.07 KB / 97.66 KB
        Leo ✅ Compiled 'abi_test.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.

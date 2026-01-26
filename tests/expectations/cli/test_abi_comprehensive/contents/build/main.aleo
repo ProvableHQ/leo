@@ -42,6 +42,22 @@ mapping arrays:
     key as u32.public;
     value as [field; 2u32].public;
 
+mapping counter__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping last_point__:
+    key as boolean.public;
+    value as Point.public;
+
+mapping history__:
+    key as u32.public;
+    value as u64.public;
+
+mapping history__len__:
+    key as boolean.public;
+    value as u32.public;
+
 function single_primitive:
     input r0 as u32.private;
     add r0 1u32 into r1;

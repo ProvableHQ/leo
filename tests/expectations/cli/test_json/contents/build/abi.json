@@ -20,9 +20,11 @@
       }
     }
   ],
+  "storage_variables": [],
   "transitions": [
     {
       "name": "main",
+      "is_async": false,
       "inputs": [
         {
           "name": "a",
