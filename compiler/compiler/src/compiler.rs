@@ -237,7 +237,9 @@ impl Compiler {
 
     /// Generates the ABI from the current AST state.
     fn generate_abi(&self) -> leo_abi::Program {
-        leo_abi::generate(&self.state.ast.ast)
+        let mut abi = leo_abi::generate(&self.state.ast.ast);
+        leo_abi::prune_non_interface_types(&mut abi);
+        abi
     }
 
     /// Compiles a program from a given source string and a list of module sources.

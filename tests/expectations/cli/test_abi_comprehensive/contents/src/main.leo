@@ -5,6 +5,12 @@ program abi_test.aleo {
 
     // === Struct Definitions ===
 
+    // This struct is NOT used in any transition, mapping, or storage.
+    // It should be pruned from the ABI.
+    struct Unused {
+        x: u32,
+    }
+
     // Simple struct with primitives
     struct Point {
         x: i32,

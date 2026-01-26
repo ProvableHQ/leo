@@ -26,6 +26,7 @@ use leo_ast::{self as ast, Expression, Literal, LiteralVariant};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
+use std::collections::HashSet;
 
 struct Ctx<'a> {
     scope: &'a ast::ProgramScope,
@@ -269,5 +270,131 @@ fn convert_integer(int_ty: ast::IntegerType) -> abi::Primitive {
         ast::IntegerType::U32 => abi::Primitive::UInt(abi::UInt::U32),
         ast::IntegerType::U64 => abi::Primitive::UInt(abi::UInt::U64),
         ast::IntegerType::U128 => abi::Primitive::UInt(abi::UInt::U128),
+    }
+}
+
+/// Prunes types not referenced in the public interface (transitions, mappings, storage).
+pub fn prune_non_interface_types(program: &mut abi::Program) {
+    let mut used_types: HashSet<abi::Path> = HashSet::new();
+
+    // Extract program name without .aleo suffix for comparison
+    let program_name = program.program.strip_suffix(".aleo").unwrap_or(&program.program);
+
+    // Phase 1: Collect from interface items
+    for transition in &program.transitions {
+        for input in &transition.inputs {
+            collect_from_transition_input(&input.ty, program_name, &mut used_types);
+        }
+        for output in &transition.outputs {
+            collect_from_transition_output(&output.ty, program_name, &mut used_types);
+        }
+    }
+
+    for mapping in &program.mappings {
+        collect_from_plaintext(&mapping.key, program_name, &mut used_types);
+        collect_from_plaintext(&mapping.value, program_name, &mut used_types);
+    }
+
+    for storage_var in &program.storage_variables {
+        collect_from_abi_storage_type(&storage_var.ty, program_name, &mut used_types);
+    }
+
+    // Phase 2: Collect transitive dependencies from structs and records
+    collect_transitive_from_structs(&program.structs, program_name, &mut used_types);
+    collect_transitive_from_records(&program.records, program_name, &mut used_types);
+
+    // Phase 3: Prune
+    program.structs.retain(|s| used_types.contains(&s.path));
+    program.records.retain(|r| used_types.contains(&r.path));
+}
+
+/// Checks if a type reference is local to the current program.
+fn is_local_type(type_program: Option<&str>, current_program: &str) -> bool {
+    match type_program {
+        None => true,
+        Some(p) => p == current_program,
+    }
+}
+
+fn collect_from_plaintext(ty: &abi::Plaintext, program_name: &str, used: &mut HashSet<abi::Path>) {
+    match ty {
+        abi::Plaintext::Struct(struct_ref) => {
+            if is_local_type(struct_ref.program.as_deref(), program_name) {
+                used.insert(struct_ref.path.clone());
+            }
+        }
+        abi::Plaintext::Array(arr) => {
+            collect_from_plaintext(&arr.element, program_name, used);
+        }
+        abi::Plaintext::Optional(opt) => {
+            collect_from_plaintext(&opt.0, program_name, used);
+        }
+        abi::Plaintext::Primitive(_) => {}
+    }
+}
+
+fn collect_from_abi_storage_type(ty: &abi::StorageType, program_name: &str, used: &mut HashSet<abi::Path>) {
+    match ty {
+        abi::StorageType::Plaintext(p) => collect_from_plaintext(p, program_name, used),
+        abi::StorageType::Vector(inner) => collect_from_abi_storage_type(inner, program_name, used),
+    }
+}
+
+fn collect_from_transition_input(ty: &abi::TransitionInput, program_name: &str, used: &mut HashSet<abi::Path>) {
+    match ty {
+        abi::TransitionInput::Plaintext(p) => collect_from_plaintext(p, program_name, used),
+        abi::TransitionInput::Record(rec_ref) => {
+            if is_local_type(rec_ref.program.as_deref(), program_name) {
+                used.insert(rec_ref.path.clone());
+            }
+        }
+    }
+}
+
+fn collect_from_transition_output(ty: &abi::TransitionOutput, program_name: &str, used: &mut HashSet<abi::Path>) {
+    match ty {
+        abi::TransitionOutput::Plaintext(p) => collect_from_plaintext(p, program_name, used),
+        abi::TransitionOutput::Record(rec_ref) => {
+            if is_local_type(rec_ref.program.as_deref(), program_name) {
+                used.insert(rec_ref.path.clone());
+            }
+        }
+        abi::TransitionOutput::Future => {}
+    }
+}
+
+fn collect_transitive_from_structs(structs: &[abi::Struct], program_name: &str, used: &mut HashSet<abi::Path>) {
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for s in structs {
+            if used.contains(&s.path) {
+                for field in &s.fields {
+                    let before = used.len();
+                    collect_from_plaintext(&field.ty, program_name, used);
+                    if used.len() > before {
+                        changed = true;
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn collect_transitive_from_records(records: &[abi::Record], program_name: &str, used: &mut HashSet<abi::Path>) {
+    let mut changed = true;
+    while changed {
+        changed = false;
+        for r in records {
+            if used.contains(&r.path) {
+                for field in &r.fields {
+                    let before = used.len();
+                    collect_from_plaintext(&field.ty, program_name, used);
+                    if used.len() > before {
+                        changed = true;
+                    }
+                }
+            }
+        }
     }
 }
