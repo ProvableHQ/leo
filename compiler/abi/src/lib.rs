@@ -19,6 +19,8 @@
 //! This crate generates ABI definitions from the Leo AST. The ABI should be
 //! generated after type checking to ensure all types are resolved.
 
+pub mod aleo;
+
 pub use leo_abi_types::*;
 
 use leo_abi_types as abi;
@@ -35,6 +37,9 @@ struct Ctx<'a> {
 }
 
 /// Generates the ABI for a Leo program.
+///
+/// The returned ABI is pruned to only include types that appear in the public
+/// interface (transitions, mappings, storage variables).
 pub fn generate(ast: &ast::Program) -> abi::Program {
     let scope = ast.program_scopes.values().next().unwrap();
     let ctx = Ctx { scope, stubs: &ast.stubs, modules: &ast.modules };
@@ -70,7 +75,12 @@ pub fn generate(ast: &ast::Program) -> abi::Program {
         .map(|(_, f)| convert_transition(f, &ctx))
         .collect();
 
-    abi::Program { program, structs, records, mappings, storage_variables, transitions }
+    let mut program = abi::Program { program, structs, records, mappings, storage_variables, transitions };
+
+    // Prune types not used in the public interface.
+    prune_non_interface_types(&mut program);
+
+    program
 }
 
 fn convert_struct(composite: &ast::Composite, module_path: &[Symbol]) -> abi::Struct {
