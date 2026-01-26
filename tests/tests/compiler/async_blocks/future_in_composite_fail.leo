@@ -5,7 +5,7 @@ struct S {
 program test.aleo {
     mapping x: Final => Final;
     fn main() -> Final {
-        let future = async {
+        let future = final {
             assert_eq(1u8, 1u8);
         };
         let an_array: [Final; 1] = [future];

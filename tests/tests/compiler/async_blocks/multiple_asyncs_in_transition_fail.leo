@@ -1,12 +1,12 @@
 program test.aleo {
     fn t1() {
-        let f1 = async {};
+        let f1 = final {};
         let f2 = foo();
     }
 
     fn t2() {
         let f1 = foo();
-        let f2 = async {};
+        let f2 = final {};
     }
 
     fn t3() {
@@ -15,8 +15,8 @@ program test.aleo {
     }
 
     fn t4() {
-        let f1 = async {};
-        let f2 = async {};
+        let f1 = final {};
+        let f2 = final {};
     }
 }
 

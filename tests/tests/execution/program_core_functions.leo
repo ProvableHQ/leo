@@ -20,7 +20,7 @@ import child.aleo;
 
 program test.aleo {
     fn bar() -> Final {
-        return async {
+        return final {
             let c: [u8; 32] = self.checksum;
             let d: [u8; 32] = Program::checksum(child.aleo);
             assert_neq(c, d);

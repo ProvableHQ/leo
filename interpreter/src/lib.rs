@@ -15,7 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    Ast, CallExpression, ExpressionStatement, Location, NetworkName, Node as _, NodeBuilder, Path, Statement,
+    Ast,
+    CallExpression,
+    ExpressionStatement,
+    Location,
+    NetworkName,
+    Node as _,
+    NodeBuilder,
+    Path,
+    Statement,
     interpreter_value::Value,
 };
 use leo_errors::{InterpreterHalt, LeoError, Result};

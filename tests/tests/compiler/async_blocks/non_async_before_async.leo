@@ -2,7 +2,7 @@ program test.aleo {
     mapping foo: u32 => u32;
 
     fn main_inner(public a: u32, public b: u32) -> Final {
-        return async { Mapping::set(foo, a, b); };
+        return final { Mapping::set(foo, a, b); };
     }
 
     fn baz(a: u32, b: u32) -> u32 {
@@ -28,7 +28,7 @@ program basic.aleo {
         let sum3: u32 = test.aleo/baz(a, b);
         assert_eq(sum3, 1u32);
 
-        let f:Final = async { f1.await(); f2.await(); };
+        let f:Final = final { f1.await(); f2.await(); };
         return f;
     }
 }

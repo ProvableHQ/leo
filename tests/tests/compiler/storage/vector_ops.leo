@@ -4,39 +4,39 @@ program singleton_storage.aleo {
     storage vec: [u8];
 
     fn push() -> Final {
-        return async {
+        return final {
             vec.push(42u8);
         };
     }
 
     fn pop() -> Final {
-        return async {
+        return final {
             let x = vec.pop();
             assert(x != none);
         };
     }
 
     fn get() -> Final {
-        return async {
+        return final {
             let x = vec.get(3u32);
             assert(x != none);
         };
     }
 
     fn set() -> Final {
-        return async {
+        return final {
             vec.set(3u32, 42u8);
         };
     }
 
     fn clear() -> Final {
-        return async {
+        return final {
             vec.clear();
         };
     }
 
     fn swap_remove() -> Final {
-        return async {
+        return final {
             let x = vec.swap_remove(3u32);
             assert(x >= 0);
         };

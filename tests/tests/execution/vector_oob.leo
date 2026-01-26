@@ -32,7 +32,7 @@ program test_oob.aleo {
 
     // OOB get: should return None
     fn oob_get() -> Final {
-        return async {
+        return final {
             vec.clear();
             assert(vec.len() == 0u32);
 
@@ -43,7 +43,7 @@ program test_oob.aleo {
 
     // OOB set: should panic (transition rejected)
     fn oob_set() -> Final {
-        return async {
+        return final {
             vec.clear();
             assert(vec.len() == 0u32);
 
@@ -53,7 +53,7 @@ program test_oob.aleo {
 
     // OOB swap_remove: should panic (transition rejected)
     fn oob_swap_remove() -> Final {
-        return async {
+        return final {
             vec.clear();
             assert(vec.len() == 0u32);
 
@@ -63,7 +63,7 @@ program test_oob.aleo {
 
     // Pop empty vector: should return None
     fn oob_pop() -> Final {
-        return async {
+        return final {
             vec.clear();
             assert(vec.len() == 0u32);
 

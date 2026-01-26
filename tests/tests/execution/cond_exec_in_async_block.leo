@@ -18,7 +18,7 @@ input = ["1u64", "2u64"]
 
 program cond_exec_in_finalize.aleo {
     fn f(a: u64, b: u64) -> Final {
-        return async {
+        return final {
             if (b == 0u64) {
               assert_eq(b, 0u64);
             } else {

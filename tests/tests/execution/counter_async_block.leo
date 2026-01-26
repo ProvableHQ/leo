@@ -31,7 +31,7 @@ program test.aleo {
 
     fn dubble() -> Final {
         let addr = self.caller;
-        let f = async {
+        let f = final {
             const BIG: u64 = 234u64;
             let current_value: u64 = Mapping::get_or_use(counter, addr, 0_0u64 + BIG + SMALL);
             Mapping::set(counter, addr, current_value + 1__u64);
@@ -44,7 +44,7 @@ program test.aleo {
 
     fn unsafe_increment() -> Final {
         let addr = self.caller;
-        return async {
+        return final {
             let current_value: u64 = Mapping::get(counter, addr);
             for i:u64 in SMALL..10u64 {
                 current_value = current_value + 1u64;

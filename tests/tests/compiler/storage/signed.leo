@@ -6,7 +6,7 @@ program signed.aleo {
     storage counter_i128: i128;
 
     fn initialize() -> Final {
-        return async {
+        return final {
             counter_i8 = -1i8;
             counter_i16 = -2i16;
             counter_i32 = -3i32;
@@ -16,7 +16,7 @@ program signed.aleo {
     }
 
     fn to_none() -> Final {
-        return async {
+        return final {
             // Integers
             counter_i8 = none;
             counter_i16 = none;
@@ -27,7 +27,7 @@ program signed.aleo {
     }
 
     fn check1() -> Final {
-        return async {
+        return final {
             assert(counter_i8.unwrap() == -1i8);
             assert(counter_i16.unwrap() == -2i16);
             assert(counter_i32.unwrap() == -3i32);
@@ -37,7 +37,7 @@ program signed.aleo {
     }
 
     fn check2() -> Final {
-        return async {
+        return final {
             assert(counter_i8.unwrap_or(0) == -1i8);
             assert(counter_i16.unwrap_or(0) == -2i16);
             assert(counter_i32.unwrap_or(0) == -3i32);

@@ -1,7 +1,7 @@
 Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
     --> compiler-test:14:25
      |
-  14 |         let f3: Final = async {
+  14 |         let f3: Final = final {
      |                         ^^^^^^^
   15 |             // f.await();
      |             ^^^^^^^^^^^^^

@@ -27,7 +27,7 @@ program complex.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn initialize() -> Final {
-        return async {
+        return final {
             // Structs
             point = Point { x: 1field, y: 2field };
             points = [
@@ -50,7 +50,7 @@ program complex.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn to_none() -> Final {
-        return async {
+        return final {
             // Integers
             point = none;
             points = none;
@@ -67,7 +67,7 @@ program complex.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn check1() -> Final {
-        return async {
+        return final {
             // Struct
             let p = point.unwrap();
             assert(p.x == 1field);
@@ -103,7 +103,7 @@ program complex.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn check2() -> Final {
-        return async {
+        return final {
             // Struct
             let p = point.unwrap_or(Point { x: 0field, y: 0field });
             assert(p.x == 1field);

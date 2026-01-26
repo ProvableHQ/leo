@@ -17,16 +17,28 @@
 use super::*;
 
 use leo_ast::{
-    BinaryOperation, IntegerType, Intrinsic, Location, Type, UnaryOperation,
+    BinaryOperation,
+    IntegerType,
+    Intrinsic,
+    Location,
+    Type,
+    UnaryOperation,
     interpreter_value::{self, AsyncExecution, Value},
 };
 
 use snarkvm::{
     prelude::{Identifier, LiteralType, PlaintextType, Register, TestnetV0},
     synthesizer::{
-        Command, Instruction,
+        Command,
+        Instruction,
         program::{
-            CallOperator, CastType, CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, Operand,
+            CallOperator,
+            CastType,
+            CommitVariant,
+            DeserializeVariant,
+            ECDSAVerifyVariant,
+            HashVariant,
+            Operand,
             SerializeVariant,
         },
     },

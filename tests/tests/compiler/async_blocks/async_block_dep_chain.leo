@@ -6,7 +6,7 @@ program dependent.aleo {
     fn t1() -> Final {
         let x = 1u8;
         let y = 2u16;
-        let f: Final = async {
+        let f: Final = final {
             assert_eq(x, 1u8);
             assert_eq(y, 2u16);
         };
@@ -21,7 +21,7 @@ import dependent.aleo;
 program dependent2.aleo {
     fn t1() -> Final {
         let f: Final = dependent.aleo/t1();
-        return async { f.await(); };
+        return final { f.await(); };
     }
 }
 
@@ -34,6 +34,6 @@ program test.aleo {
         let f: Final = dependent2.aleo/t1();
         assert_eq(1u8, f.0.0);
         assert_eq(1u16, f.0.1);
-        return async { f.await(); };
+        return final { f.await(); };
     }
 }

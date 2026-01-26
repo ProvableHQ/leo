@@ -21,10 +21,18 @@ use snarkvm::prelude::{Address, TestnetV0};
 use leo_ast::{Expression, Intrinsic, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result, TypeCheckerError};
 use leo_parser_lossless::{
-    ExpressionKind, IntegerLiteralKind, IntegerTypeKind, LiteralKind, StatementKind, SyntaxKind, SyntaxNode, TypeKind,
+    ExpressionKind,
+    IntegerLiteralKind,
+    IntegerTypeKind,
+    LiteralKind,
+    StatementKind,
+    SyntaxKind,
+    SyntaxNode,
+    TypeKind,
 };
 use leo_span::{
-    Span, Symbol,
+    Span,
+    Symbol,
     sym::{self},
 };
 
@@ -530,7 +538,7 @@ impl<'a> ConversionContext<'a> {
                     leo_ast::ErrExpression { span, id }.into()
                 }
             }
-            ExpressionKind::Async => {
+            ExpressionKind::Final => {
                 let [_a, block] = &node.children[..] else {
                     panic!("Can't happen");
                 };

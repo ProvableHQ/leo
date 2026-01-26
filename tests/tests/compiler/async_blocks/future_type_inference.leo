@@ -6,7 +6,7 @@ program credits.aleo {
     }
 
     fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Final) {
-        return (input, async { assert_eq(1u8, 1u8); });
+        return (input, final { assert_eq(1u8, 1u8); });
     }
 }
 
@@ -19,7 +19,7 @@ program multi_token_support_program.aleo {
     }
 
     fn mint_private() -> (Token, Final) {
-        let f: Final = async { assert_eq(1u8, 1u8); };
+        let f: Final = final { assert_eq(1u8, 1u8); };
         return (Token{owner: self.signer, amount: 100u64}, f);
     }
 }
@@ -36,6 +36,6 @@ program mtsp_credits.aleo {
     ) -> (credits.aleo/credits, multi_token_support_program.aleo/Token, Final) {
       let transfer_output: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input_record, self.address, amount);
       let mint_output: (multi_token_support_program.aleo/Token, Final) = multi_token_support_program.aleo/mint_private();
-      return (transfer_output.0, mint_output.0, async { transfer_output.1.await(); mint_output.1.await(); });
+      return (transfer_output.0, mint_output.0, final { transfer_output.1.await(); mint_output.1.await(); });
     }
 }

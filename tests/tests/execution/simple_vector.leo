@@ -13,7 +13,7 @@ program test.aleo {
     storage vec: [u32];
 
     fn test_vector_ops() -> Final {
-        return async {
+        return final {
             // Initialize: ensure empty
             assert(vec.len() == 0);
 

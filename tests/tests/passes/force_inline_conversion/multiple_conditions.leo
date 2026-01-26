@@ -4,7 +4,7 @@ program test.aleo {
 
     fn main(owner: address, x: u32) -> Final {
         let a: u32 = outer(x);
-        return async {
+        return final {
             let value: u64 = async_helper(5u64);
             counter.set(owner, value);
         };

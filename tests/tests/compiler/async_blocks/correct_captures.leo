@@ -9,7 +9,7 @@ program test.aleo {
         let w = (1u32, true);
         let z = [1u8; 3];
         let (t1, t2) = (6u32, 8u8);
-        let f = async {
+        let f = final {
             let w2 = w;
             let sum1 = x + y.0 + (y.1 as u32) + (z[0] as u32) + (z[2] as u32) + w.0 + w2.0;
             let y2 = y;

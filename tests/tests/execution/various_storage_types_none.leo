@@ -56,7 +56,7 @@ program none_cases.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn integers_none_behavior() -> Final {
-        return async {
+        return final {
             assert(counter_u32 == none);
             assert(counter_u32.unwrap_or(99) == 99);
 
@@ -75,7 +75,7 @@ program none_cases.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn primitives_none_behavior() -> Final {
-        return async {
+        return final {
             assert(flag == none);
             assert(flag.unwrap_or(true) == true);
 
@@ -104,7 +104,7 @@ program none_cases.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn arrays_none_behavior() -> Final {
-        return async {
+        return final {
             let arr: [u32?; 3] = [none, 2, none];
             assert(arr[0].unwrap_or(9) == 9);
             assert(arr[1].unwrap_or(0) == 2);
@@ -128,7 +128,7 @@ program none_cases.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn structs_none_behavior() -> Final {
-        return async {
+        return final {
             // Local optional struct
             let c: Container? = none;
             assert(c == none);

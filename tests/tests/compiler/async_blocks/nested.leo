@@ -10,7 +10,7 @@ program test_dep.aleo {
     fn main_dep(a:u32) -> (yeets, Final) {
         let b = 1u32;
         // Captures `a` then `b`
-        let f: Final = async {
+        let f: Final = final {
             Mapping::set(Yo, a, b);
             let c:u32 = a + b;
         };
@@ -32,7 +32,7 @@ program test.aleo {
         let val:u32 = f.0;
         let b = 1u32;
         // captures `b` then `f` then `f2`
-        let f3: Final = async {
+        let f3: Final = final {
             if b == 1u32 {
                 Final::await(f);
                 f2.await();
@@ -61,7 +61,7 @@ program wrapper.aleo {
         let (val2, f2): (u32, Final) = test.aleo/main(1u32);
         let (val3, f3): (u32, Final) = test.aleo/main(1u32);
         // Captures `f` then `f2` then `f3`
-        let f4: Final = async {
+        let f4: Final = final {
             f.await();
             f2.await();
             f3.await();

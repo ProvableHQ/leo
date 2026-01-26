@@ -57,7 +57,7 @@ Error [ETYC0372164]: The input `f` has type `Foo`, which is or contains an optio
 Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
     --> compiler-test:10:16
      |
-  10 |         return async {};
+  10 |         return final {};
      |                ^^^^^^^^
      |
      = Try moving this `async` block into an `async` transition or a script function.

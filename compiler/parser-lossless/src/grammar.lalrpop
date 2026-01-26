@@ -70,11 +70,11 @@ Type3: SyntaxNode<'a> = {
         SyntaxNode::new(TypeKind::Array, [l, t, s, i, r])
     },
 
-    <WithTrivia<Final>> => {
+    <WithTrivia<FinalUpper>> => {
         SyntaxNode::new(TypeKind::Final, [<>])
     },
 
-    <fut:WithTrivia<Final>> <l:WithTrivia<Lt>> <f:WithTrivia<FnUpper>> <lparen:WithTrivia<LeftParen>>
+    <fut:WithTrivia<FinalUpper>> <l:WithTrivia<Lt>> <f:WithTrivia<FnUpper>> <lparen:WithTrivia<LeftParen>>
     <ts:CommaMaybe<Type>> <rparen:WithTrivia<RightParen>> <r:WithTrivia<Gt>> => {
         SyntaxNode::new(TypeKind::Final, [fut, l, f, lparen].into_iter().chain(ts).chain([rparen, r]))
     },
@@ -351,8 +351,8 @@ Expr0: SyntaxNode<'a> = {
     },
 
     // async block.
-    <a:WithTrivia<Async>> <b:BlockStatement> => {
-        SyntaxNode::new(ExpressionKind::Async, [a, b])
+    <a:WithTrivia<Final>> <b:BlockStatement> => {
+        SyntaxNode::new(ExpressionKind::Final, [a, b])
     }
 }
 
@@ -967,7 +967,7 @@ extern {
         Assert => LalrToken { token: Token::Assert, .. },
         AssertEq => LalrToken { token: Token::AssertEq, .. },
         AssertNeq => LalrToken { token: Token::AssertNeq, .. },
-        Async => LalrToken { token: Token::Async, .. },
+        Final => LalrToken { token: Token::Final, .. },
         Onchain => LalrToken { token: Token::Onchain, .. },
         Block => LalrToken { token: Token::Block, .. },
         Const => LalrToken { token: Token::Const, .. },
@@ -977,7 +977,7 @@ extern {
         Fn => LalrToken { token: Token::Fn, .. },
         FnUpper => LalrToken { token: Token::FnUpper, .. },
         For => LalrToken { token: Token::For, .. },
-        Final => LalrToken { token: Token::Final, .. },
+        FinalUpper => LalrToken { token: Token::FinalUpper, .. },
         If => LalrToken { token: Token::If, .. },
         Import => LalrToken { token: Token::Import, .. },
         In => LalrToken { token: Token::In, .. },

@@ -1,7 +1,7 @@
 Error [ETYC0372104]: Not all futures were consumed: f1
     --> compiler-test:16:16
      |
-  16 |         return async {
+  16 |         return final {
      |                ^^^^^^^
   17 |             f0.await(); 
      |             ^^^^^^^^^^^^

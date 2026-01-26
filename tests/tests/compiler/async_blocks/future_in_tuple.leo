@@ -5,7 +5,7 @@ program credits.aleo {
     }
 
     fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Final) {
-        let f: Final = async { assert_eq(1u8, 1u8); };
+        let f: Final = final { assert_eq(1u8, 1u8); };
         return (input, f);
     }
 }
@@ -17,6 +17,6 @@ import credits.aleo;
 program test_credits.aleo {
     fn send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Final) {
         let result: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input, self.address, amount);
-        return (result.0, async { result.1.await(); });
+        return (result.0, final { result.1.await(); });
     }
 }

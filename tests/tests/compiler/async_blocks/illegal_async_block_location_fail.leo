@@ -1,29 +1,29 @@
 program test.aleo {
     fn t1() {
-        let f1 = async {};
+        let f1 = final {};
     }
 
     fn t2() {
         for j in 0u32..2u32 {
-            let f = async {};
+            let f = final {};
         }
     }
 
     fn t3() {
         if true {
-            let f = async {};
+            let f = final {};
         }
     }
 }
 
 fn f2(x: u32) {
-    let f = async {};
+    let f = final {};
 }
 
 onchain fn f3() {
-    let f = async {};
+    let f = final {};
 }
 
 fn i() {
-    let f = async {};
+    let f = final {};
 }

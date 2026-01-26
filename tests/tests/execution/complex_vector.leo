@@ -52,7 +52,7 @@ program vector_structs.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn test_vector_primitives_behavior(index: u32, new_value: u32) -> Final {
-        return async {
+        return final {
             // Ensure empty at start
             ids.clear();
             assert(ids.len() == 0u32);
@@ -96,7 +96,7 @@ program vector_structs.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn test_vector_structs_behavior(idx: u32) -> Final {
-        return async {
+        return final {
             assert(points.len() == 0u32);
 
             points.push(Point { x: 1field, y: 2field });
@@ -124,7 +124,7 @@ program vector_structs.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     fn test_vector_containers_behavior(idx: u32) -> Final {
-        return async {
+        return final {
             assert(containers.len() == 0u32);
 
             let c1 = Container {

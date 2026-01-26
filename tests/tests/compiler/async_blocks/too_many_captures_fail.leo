@@ -22,7 +22,7 @@ program test.aleo {
         let b9 = 0u32;
 
         // More captures than allowed in the VM
-        let f = async {
+        let f = final {
             assert(a0 == 0);
             assert(a1 == 0);
             assert(a2 == 0);

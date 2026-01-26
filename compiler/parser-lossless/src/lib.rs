@@ -150,7 +150,7 @@ pub enum ExpressionKind {
     ArrayAccess,
     AssociatedConstant,
     AssociatedFunctionCall,
-    Async,
+    Final,
     Array,
     Binary,
     Call,

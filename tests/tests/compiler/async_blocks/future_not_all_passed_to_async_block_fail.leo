@@ -36,7 +36,7 @@ program parent.aleo {
         let f5: Final = child.aleo/boo();
 
         // Doesn't capture f1.
-        return async {
+        return final {
             f0.await(); 
             f3.await(); 
             f2.await(); 

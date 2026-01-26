@@ -310,8 +310,10 @@ pub enum Token {
     FnUpper,
     #[token("for")]
     For,
-    #[token("Final")]
+    #[token("final")]
     Final,
+    #[token("Final")]
+    FinalUpper,
     #[token("if")]
     If,
     #[token("import")]

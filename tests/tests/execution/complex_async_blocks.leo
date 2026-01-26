@@ -27,7 +27,7 @@ program zero_program.aleo {
 
     fn c() -> Final {
         let addr = self.signer;
-        let f = async {
+        let f = final {
             let count: u64 = counts.get_or_use(addr, 0u64);
             counts.set(addr, count + 1u64);
         };
@@ -47,7 +47,7 @@ program one_program.aleo {
 
     fn d() -> Final {
         let addr = self.signer;
-        let f = async {
+        let f = final {
             let count: u64 = counts.get_or_use(addr, 0u64);
             counts.set(addr, count + 1u64);
         };
@@ -72,7 +72,7 @@ program two_program.aleo {
         let f1: Final = one_program.aleo/d();
         let addr = self.signer; 
 
-        return async {
+        return final {
             f0.await();
             f1.await();
             let count: u64 = counts.get_or_use(addr, 0u64);
@@ -98,7 +98,7 @@ program three_program.aleo {
         let f1: Final = one_program.aleo/d();
         let f2: Final = zero_program.aleo/c();
         let addr = self.signer;
-        return async {
+        return final {
             f0.await();
             f1.await();
             f2.await();
@@ -123,7 +123,7 @@ program four_program.aleo {
         let f0: Final = two_program.aleo/b();
         let f1: Final = three_program.aleo/e();
         let addr = self.signer;
-        return async {
+        return final {
             f0.await();
             f1.await();
             let count: u64 = counts.get_or_use(addr, 0u64);

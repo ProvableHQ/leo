@@ -7,7 +7,7 @@ program test.aleo {
     }
 
     fn bar(x: u8?, f: Foo) {
-        return async {};
+        return final {};
     }
 }
 

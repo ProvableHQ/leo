@@ -2,7 +2,7 @@ program inner.aleo {
     mapping foo: u32 => u32;
 
     fn inner(a: u32) -> Final {
-        return async {
+        return final {
             Mapping::set(foo, 0u32, a);
         };
     }
@@ -15,7 +15,7 @@ program mid.aleo {
     fn mid(a: u32) -> Final {
         let f1: Final = inner.aleo/inner(0u32);
         let f2: Final = inner.aleo/inner(1u32);
-        let f:Final = async {
+        let f:Final = final {
             f2.await();
             f1.await();
         };
@@ -34,7 +34,7 @@ program outer.aleo {
         mid.aleo/dummy();
         let f1: Final = mid.aleo/mid(0u32);
         let f2: Final = mid.aleo/mid(1u32);
-        let f:Final = async {
+        let f:Final = final {
             f1.await();
             f2.await();
         };
@@ -45,7 +45,7 @@ program outer.aleo {
         let f1: Final = mid.aleo/mid(0u32);
         mid.aleo/dummy();
         let f2: Final = mid.aleo/mid(1u32);
-        let f:Final = async {
+        let f:Final = final {
             f1.await();
             f2.await();
         };

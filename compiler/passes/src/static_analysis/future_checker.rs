@@ -141,8 +141,7 @@ impl AstVisitor for FutureChecker<'_> {
         input: &leo_ast::IntrinsicExpression,
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        let position = if let Some(Intrinsic::FinalAwait) = Intrinsic::from_symbol(input.name, &input.type_parameters)
-        {
+        let position = if let Some(Intrinsic::FinalAwait) = Intrinsic::from_symbol(input.name, &input.type_parameters) {
             Position::Await
         } else {
             Position::Misc

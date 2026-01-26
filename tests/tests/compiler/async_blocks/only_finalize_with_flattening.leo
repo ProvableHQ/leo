@@ -6,7 +6,7 @@ program test.aleo {
     mapping token_name_to_info: field => TokenInfo;
 
     fn add_new_token () -> Final {
-        return async {
+        return final {
             if false {
                 let token_info: TokenInfo = TokenInfo {
                     id: 0u64,
@@ -17,7 +17,7 @@ program test.aleo {
     }
 
     fn add_new_token_2 () -> Final {
-        return async {
+        return final {
             let try_get_token: TokenInfo = Mapping::get_or_use(
                 token_name_to_info,
                 0field,

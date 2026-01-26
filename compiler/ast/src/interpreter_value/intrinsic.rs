@@ -24,7 +24,10 @@ use snarkvm::{
 };
 
 use crate::{
-    ArrayType, Expression, Intrinsic, Type,
+    ArrayType,
+    Expression,
+    Intrinsic,
+    Type,
     interpreter_value::{ExpectTc, Value},
     tc_fail2,
 };

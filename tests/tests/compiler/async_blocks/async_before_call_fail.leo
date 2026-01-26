@@ -9,7 +9,7 @@ import child.aleo;
 
 program parent.aleo {
     fn foo() -> Final {
-        let future: Final = async {};
+        let future: Final = final {};
         child.aleo/t();
         return future;
     }

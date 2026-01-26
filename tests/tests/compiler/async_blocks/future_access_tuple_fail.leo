@@ -25,7 +25,7 @@ program test_credits.aleo {
         let start_2: Final = start.1;
         return (
             after.1, 
-            async {
+            final {
                 start.1.await();
                 start_2.await();
             }

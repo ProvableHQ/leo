@@ -17,18 +17,46 @@
 use super::*;
 
 use leo_ast::{
-    ArrayType, AssertVariant, AsyncExpression, BinaryOperation, Block, CompositeFieldInitializer, DefinitionPlace,
-    Expression, Function, Intrinsic, Location, NodeID, Statement, Type, UnaryOperation, Variant,
+    ArrayType,
+    AssertVariant,
+    AsyncExpression,
+    BinaryOperation,
+    Block,
+    CompositeFieldInitializer,
+    DefinitionPlace,
+    Expression,
+    Function,
+    Intrinsic,
+    Location,
+    NodeID,
+    Statement,
+    Type,
+    UnaryOperation,
+    Variant,
     interpreter_value::{
-        AsyncExecution, IntrinsicHelper, Value, evaluate_binary, evaluate_intrinsic, evaluate_unary, literal_to_value,
+        AsyncExecution,
+        IntrinsicHelper,
+        Value,
+        evaluate_binary,
+        evaluate_intrinsic,
+        evaluate_unary,
+        literal_to_value,
     },
 };
 use leo_errors::{InterpreterHalt, Result};
 use leo_span::{Span, Symbol};
 
 use snarkvm::prelude::{
-    Address, CanaryV0, Closure as SvmClosure, Finalize as SvmFinalize, Function as SvmFunctionParam, MainnetV0,
-    Network, PrivateKey, ProgramID, TestnetV0,
+    Address,
+    CanaryV0,
+    Closure as SvmClosure,
+    Finalize as SvmFinalize,
+    Function as SvmFunctionParam,
+    MainnetV0,
+    Network,
+    PrivateKey,
+    ProgramID,
+    TestnetV0,
 };
 
 use indexmap::IndexMap;

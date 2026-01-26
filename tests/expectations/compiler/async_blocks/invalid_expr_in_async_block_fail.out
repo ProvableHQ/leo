@@ -1,7 +1,7 @@
 Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
     --> compiler-test:3:18
      |
-   3 |         let f1 = async {
+   3 |         let f1 = final {
      |                  ^^^^^^^
    4 |             let s = self.signer;
      |             ^^^^^^^^^^^^^^^^^^^^
