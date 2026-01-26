@@ -16,8 +16,9 @@
 
 use crate::run;
 
-use leo_ast::{Bytecode, NodeBuilder};
+use leo_ast::NodeBuilder;
 use leo_errors::{BufferEmitter, Handler, Result};
+use leo_passes::Bytecode;
 use leo_span::{Symbol, create_session_if_not_set_then};
 
 use indexmap::IndexMap;
@@ -60,18 +61,17 @@ fn execution_run_test(
     }
 
     // Full compile for the final program.
-    let (compiled_programs, program_name) =
-        super::test_utils::whole_compile(last, handler, node_builder, import_stubs.clone())?;
+    let (compiled, program_name) = super::test_utils::whole_compile(last, handler, node_builder, import_stubs.clone())?;
 
     // Add imports.
     let mut requires_ledger = false;
-    for Bytecode { program_name, bytecode } in compiled_programs.import_bytecodes {
+    for Bytecode { program_name, bytecode } in compiled.programs.import_bytecodes {
         requires_ledger |= bytecode.contains("async");
         ledger_config.programs.push(run::Program { bytecode, name: program_name });
     }
 
     // Add main program.
-    let primary_bytecode = compiled_programs.primary_bytecode.clone();
+    let primary_bytecode = compiled.programs.primary_bytecode.clone();
     requires_ledger |= primary_bytecode.contains("async");
     ledger_config.programs.push(run::Program { bytecode: primary_bytecode, name: program_name });
 

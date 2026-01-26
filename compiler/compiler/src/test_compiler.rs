@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Bytecode, NodeBuilder};
+use leo_ast::NodeBuilder;
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
+use leo_passes::Bytecode;
 use leo_span::{Symbol, create_session_if_not_set_then};
 
 use snarkvm::{
@@ -83,10 +84,10 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
                 // Parse the bytecode as an Aleo program.
                 // Note that this function checks that the bytecode is well-formed.
-                add_aleo_program(&programs.primary_bytecode)?;
+                add_aleo_program(&programs.programs.primary_bytecode)?;
 
                 let program = handler.extend_if_error(
-                    disassemble_from_str::<TestnetV0>(&program_name, &programs.primary_bytecode)
+                    disassemble_from_str::<TestnetV0>(&program_name, &programs.programs.primary_bytecode)
                         .map_err(|err| err.into()),
                 )?;
 
@@ -96,13 +97,13 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
                     return Err(());
                 }
 
-                bytecodes.push(programs.primary_bytecode);
+                bytecodes.push(programs.programs.primary_bytecode);
             }
         };
     }
 
     // Full compile for final program.
-    let (compiled_programs, _program_name) =
+    let (compiled, _program_name) =
         handler.extend_if_error(super::test_utils::whole_compile(last, handler, node_builder, import_stubs.clone()))?;
 
     // Only error out if there are errors. Warnings are okay but we still want to print them later.
@@ -112,14 +113,14 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
     // Add imports but only if the imports are in Leo form. Aleo stubs are added earlier.
     if stub_type == StubType::FromLeo {
-        for Bytecode { bytecode, .. } in compiled_programs.import_bytecodes {
+        for Bytecode { bytecode, .. } in compiled.programs.import_bytecodes {
             add_aleo_program(&bytecode)?;
             bytecodes.push(bytecode.clone());
         }
     }
 
     // Add main program.
-    let primary_bytecode = compiled_programs.primary_bytecode.clone();
+    let primary_bytecode = compiled.programs.primary_bytecode.clone();
     add_aleo_program(&primary_bytecode)?;
     bytecodes.push(primary_bytecode);
 

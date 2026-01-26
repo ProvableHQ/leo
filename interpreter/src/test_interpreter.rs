@@ -16,8 +16,8 @@
 
 //! These tests compare interpreter runs against ledger runs.
 
-use leo_ast::{Bytecode, CompiledPrograms, NetworkName, NodeBuilder, Program, Stub, interpreter_value::Value};
-use leo_compiler::{Compiler, run};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub, interpreter_value::Value};
+use leo_compiler::{Bytecode, CompiledPrograms, Compiler, run};
 use leo_errors::{BufferEmitter, Handler, Result};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
@@ -60,7 +60,7 @@ fn whole_compile(
 
     let compiled = compiler.compile(source, filename, &Vec::new())?;
 
-    Ok((compiled.bytecode, compiler.program_name.unwrap()))
+    Ok((compiled.programs, compiler.program_name.unwrap()))
 }
 
 /// Parse a Leo `source` with some stubs
