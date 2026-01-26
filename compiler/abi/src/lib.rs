@@ -144,7 +144,7 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
             length: extract_array_length(&arr_ty.length),
         }),
         ast::Type::Composite(comp_ty) => abi::Plaintext::Struct(abi::StructRef {
-            name: comp_ty.path.identifier().name.to_string(),
+            path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
             program: comp_ty.path.program().map(|s| s.to_string()),
         }),
         ast::Type::Optional(opt_ty) => {
@@ -170,7 +170,7 @@ fn convert_transition_input(ty: &ast::Type, ctx: &Ctx) -> abi::TransitionInput {
         && is_record(comp_ty, ctx)
     {
         return abi::TransitionInput::Record(abi::RecordRef {
-            name: comp_ty.path.identifier().name.to_string(),
+            path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
             program: comp_ty.path.program().map(|s| s.to_string()),
         });
     }
@@ -181,7 +181,7 @@ fn convert_transition_output(ty: &ast::Type, ctx: &Ctx) -> abi::TransitionOutput
     match ty {
         ast::Type::Future(_) => abi::TransitionOutput::Future,
         ast::Type::Composite(comp_ty) if is_record(comp_ty, ctx) => abi::TransitionOutput::Record(abi::RecordRef {
-            name: comp_ty.path.identifier().name.to_string(),
+            path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
             program: comp_ty.path.program().map(|s| s.to_string()),
         }),
         _ => abi::TransitionOutput::Plaintext(convert_plaintext(ty)),

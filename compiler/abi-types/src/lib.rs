@@ -30,6 +30,9 @@
 
 use serde::{Deserialize, Serialize};
 
+/// A path to a type (e.g., `["utils", "math", "Vector3"]` for `utils::math::Vector3`).
+pub type Path = Vec<String>;
+
 /// The complete ABI for a Leo program.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
@@ -153,7 +156,8 @@ pub struct Array {
 /// A reference to a struct type, possibly from another program.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct StructRef {
-    pub name: String,
+    /// Path segments to the struct (e.g., `["utils", "Vector3"]` for `utils::Vector3`).
+    pub path: Path,
     /// The program containing this struct, if external.
     pub program: Option<String>,
 }
@@ -161,7 +165,8 @@ pub struct StructRef {
 /// A reference to a record type, possibly from another program.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct RecordRef {
-    pub name: String,
+    /// Path segments to the record (e.g., `["Token"]` for a top-level record).
+    pub path: Path,
     /// The program containing this record, if external.
     pub program: Option<String>,
 }
