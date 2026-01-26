@@ -150,7 +150,10 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
         ast::Type::Optional(opt_ty) => {
             abi::Plaintext::Optional(abi::Optional(Box::new(convert_plaintext(&opt_ty.inner))))
         }
-        // These types should not appear in plaintext contexts after type checking
+        // These types cannot appear in plaintext contexts:
+        // - Tuple: not allowed in storage or transition inputs/outputs
+        // - Vector: only allowed in storage variables (handled by convert_storage_type)
+        // - Others: resolved or invalid after type checking
         ast::Type::Future(_)
         | ast::Type::Mapping(_)
         | ast::Type::Tuple(_)
@@ -225,9 +228,9 @@ fn extract_array_length(expr: &Expression) -> u32 {
     match expr {
         Expression::Literal(Literal { variant: LiteralVariant::Integer(_, s), .. })
         | Expression::Literal(Literal { variant: LiteralVariant::Unsuffixed(s), .. }) => {
-            s.parse().expect("array length should be a valid u32 after type checking")
+            s.parse().expect("array length should be a valid u32 after type checking and const eval")
         }
-        _ => unreachable!("array length should be a literal after type checking"),
+        _ => unreachable!("array length should be a literal after type checking and const eval"),
     }
 }
 
