@@ -1,5 +1,5 @@
 // Comprehensive ABI generation test program.
-// Exercises ABI features: primitives, arrays, structs, records, mappings, storage variables, transitions.
+// Exercises ABI features: primitives, arrays, structs, records, mappings, storage variables, transitions, modules.
 
 program abi_test.aleo {
 
@@ -122,6 +122,11 @@ program abi_test.aleo {
     // All primitives transition
     transition all_primitives_io(p: AllPrimitives) -> AllPrimitives {
         return p;
+    }
+
+    // Module struct input/output
+    transition module_struct_io(v: utils::Vector3) -> utils::Vector3 {
+        return v;
     }
 
     // Async transition with finalize

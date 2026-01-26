@@ -30,17 +30,33 @@ use indexmap::IndexMap;
 struct Ctx<'a> {
     scope: &'a ast::ProgramScope,
     stubs: &'a IndexMap<Symbol, ast::Stub>,
+    modules: &'a IndexMap<Vec<Symbol>, ast::Module>,
 }
 
-/// Generates the ABI for a program scope.
-pub fn generate(scope: &ast::ProgramScope, stubs: &IndexMap<Symbol, ast::Stub>) -> abi::Program {
-    let ctx = Ctx { scope, stubs };
+/// Generates the ABI for a Leo program.
+pub fn generate(ast: &ast::Program) -> abi::Program {
+    let scope = ast.program_scopes.values().next().unwrap();
+    let ctx = Ctx { scope, stubs: &ast.stubs, modules: &ast.modules };
 
     let program = scope.program_id.to_string();
 
-    let structs = scope.composites.iter().filter(|(_, c)| !c.is_record).map(|(_, c)| convert_struct(c)).collect();
+    // Collect program-scope composites (path = [name])
+    let mut structs: Vec<abi::Struct> =
+        scope.composites.iter().filter(|(_, c)| !c.is_record).map(|(_, c)| convert_struct(c, &[])).collect();
 
-    let records = scope.composites.iter().filter(|(_, c)| c.is_record).map(|(_, c)| convert_record(c)).collect();
+    let mut records: Vec<abi::Record> =
+        scope.composites.iter().filter(|(_, c)| c.is_record).map(|(_, c)| convert_record(c, &[])).collect();
+
+    // Collect module composites (path = module_path + [name])
+    for (module_path, module) in &ast.modules {
+        for (_, composite) in &module.composites {
+            if composite.is_record {
+                records.push(convert_record(composite, module_path));
+            } else {
+                structs.push(convert_struct(composite, module_path));
+            }
+        }
+    }
 
     let mappings = scope.mappings.iter().map(|(_, m)| convert_mapping(m)).collect();
 
@@ -56,18 +72,18 @@ pub fn generate(scope: &ast::ProgramScope, stubs: &IndexMap<Symbol, ast::Stub>) 
     abi::Program { program, structs, records, mappings, storage_variables, transitions }
 }
 
-fn convert_struct(composite: &ast::Composite) -> abi::Struct {
-    abi::Struct {
-        name: composite.identifier.name.to_string(),
-        fields: composite.members.iter().map(convert_field).collect(),
-    }
+fn convert_struct(composite: &ast::Composite, module_path: &[Symbol]) -> abi::Struct {
+    let mut path: Vec<String> = module_path.iter().map(|s| s.to_string()).collect();
+    path.push(composite.identifier.name.to_string());
+
+    abi::Struct { path, fields: composite.members.iter().map(convert_field).collect() }
 }
 
-fn convert_record(composite: &ast::Composite) -> abi::Record {
-    abi::Record {
-        name: composite.identifier.name.to_string(),
-        fields: composite.members.iter().map(convert_record_field).collect(),
-    }
+fn convert_record(composite: &ast::Composite, module_path: &[Symbol]) -> abi::Record {
+    let mut path: Vec<String> = module_path.iter().map(|s| s.to_string()).collect();
+    path.push(composite.identifier.name.to_string());
+
+    abi::Record { path, fields: composite.members.iter().map(convert_record_field).collect() }
 }
 
 fn convert_field(member: &ast::Member) -> abi::StructField {
@@ -195,9 +211,16 @@ fn convert_transition_output(ty: &ast::Type, ctx: &Ctx) -> abi::TransitionOutput
 fn is_record(comp_ty: &ast::CompositeType, ctx: &Ctx) -> bool {
     let name = comp_ty.path.identifier().name;
 
-    // Check if it's defined in the current scope
+    // Check if it's defined in the current program scope
     if let Some((_, composite)) = ctx.scope.composites.iter().find(|(sym, _)| *sym == name) {
         return composite.is_record;
+    }
+
+    // Check if it's defined in a module
+    for module in ctx.modules.values() {
+        if let Some((_, composite)) = module.composites.iter().find(|(sym, _)| *sym == name) {
+            return composite.is_record;
+        }
     }
 
     // Check if it's defined in an imported stub

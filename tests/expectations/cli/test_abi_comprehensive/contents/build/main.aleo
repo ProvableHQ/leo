@@ -30,6 +30,11 @@ struct Rectangle:
     top_left as Point;
     bottom_right as Point;
 
+struct Vector3__8EklNlXs5Ds:
+    x as i32;
+    y as i32;
+    z as i32;
+
 mapping balances:
     key as address.public;
     value as u64.public;
@@ -118,6 +123,10 @@ function record_output:
 function all_primitives_io:
     input r0 as AllPrimitives.private;
     output r0 as AllPrimitives.private;
+
+function module_struct_io:
+    input r0 as Vector3__8EklNlXs5Ds.private;
+    output r0 as Vector3__8EklNlXs5Ds.private;
 
 function async_with_finalize:
     input r0 as u64.public;

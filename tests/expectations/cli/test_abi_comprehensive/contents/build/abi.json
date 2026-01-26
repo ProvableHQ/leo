@@ -2,7 +2,9 @@
   "program": "abi_test.aleo",
   "structs": [
     {
-      "name": "Point",
+      "path": [
+        "Point"
+      ],
       "fields": [
         {
           "name": "x",
@@ -23,7 +25,9 @@
       ]
     },
     {
-      "name": "AllPrimitives",
+      "path": [
+        "AllPrimitives"
+      ],
       "fields": [
         {
           "name": "f_address",
@@ -138,7 +142,9 @@
       ]
     },
     {
-      "name": "Rectangle",
+      "path": [
+        "Rectangle"
+      ],
       "fields": [
         {
           "name": "top_left",
@@ -163,11 +169,45 @@
           }
         }
       ]
+    },
+    {
+      "path": [
+        "utils",
+        "Vector3"
+      ],
+      "fields": [
+        {
+          "name": "x",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        },
+        {
+          "name": "y",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        },
+        {
+          "name": "z",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        }
+      ]
     }
   ],
   "records": [
     {
-      "name": "Token",
+      "path": [
+        "Token"
+      ],
       "fields": [
         {
           "name": "owner",
@@ -708,6 +748,43 @@
               "Struct": {
                 "path": [
                   "AllPrimitives"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "module_struct_io",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "utils",
+                  "Vector3"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "utils",
+                  "Vector3"
                 ],
                 "program": "abi_test"
               }

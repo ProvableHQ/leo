@@ -237,8 +237,7 @@ impl Compiler {
 
     /// Generates the ABI from the current AST state.
     fn generate_abi(&self) -> leo_abi::Program {
-        let scope = self.state.ast.ast.program_scopes.values().next().unwrap();
-        leo_abi::generate(scope, &self.state.ast.ast.stubs)
+        leo_abi::generate(&self.state.ast.ast)
     }
 
     /// Compiles a program from a given source string and a list of module sources.

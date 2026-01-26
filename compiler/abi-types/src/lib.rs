@@ -53,14 +53,16 @@ pub struct Program {
 /// A struct type definition.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Struct {
-    pub name: String,
+    /// Path to the struct (e.g., `["Point"]` or `["utils", "Vector3"]` for module structs).
+    pub path: Path,
     pub fields: Vec<StructField>,
 }
 
 /// A record type definition. Records have an implicit `owner: address` field.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Record {
-    pub name: String,
+    /// Path to the record (e.g., `["Token"]` or `["utils", "Token"]` for module records).
+    pub path: Path,
     pub fields: Vec<RecordField>,
 }
 
