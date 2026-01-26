@@ -34,6 +34,7 @@ members = [
   "compiler/ast",
   "compiler/compiler",
   "compiler/parser-lossless",
+  "compiler/parser-rowan",
   "compiler/parser",
   "compiler/passes",
   "compiler/span",
@@ -73,6 +74,7 @@ leo-interpreter     = { path = "./interpreter",               version = "=3.4.0"
 leo-package         = { path = "./leo/package",               version = "=3.4.0" }
 leo-parser          = { path = "./compiler/parser",           version = "=3.4.0" }
 leo-parser-lossless = { path = "./compiler/parser-lossless",  version = "=3.4.0" }
+leo-parser-rowan    = { path = "./compiler/parser-rowan",     version = "=3.4.0" }
 leo-passes          = { path = "./compiler/passes",           version = "=3.4.0" }
 leo-span            = { path = "./compiler/span",             version = "=3.4.0" }
 leo-test-framework  = { path = "./test-framework",            version = "=3.4.0" }
@@ -109,6 +111,7 @@ rand_chacha        = { version = "0.3", default-features = false }
 ratatui            = "0.29"
 rayon              = "1.11"
 regex              = "1.11"
+rowan              = "0.16"
 rpassword          = "7.4"
 scoped-tls         = "1.0"
 self_update        = { version = "0.41", features = [ "archive-zip", "compression-zip-deflate" ] }
