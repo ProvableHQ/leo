@@ -71,6 +71,7 @@ pub struct Mapping {
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Transition {
     pub name: String,
+    pub is_async: bool,
     pub inputs: Vec<Input>,
     pub outputs: Vec<Output>,
 }

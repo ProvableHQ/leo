@@ -90,9 +90,10 @@ fn convert_mapping(mapping: &ast::Mapping) -> abi::Mapping {
 
 fn convert_transition(function: &ast::Function, ctx: &Ctx) -> abi::Transition {
     let name = function.identifier.name.to_string();
+    let is_async = function.variant.is_async();
     let inputs = function.input.iter().map(|i| convert_input(i, ctx)).collect();
     let outputs = function.output.iter().map(|o| convert_output(o, ctx)).collect();
-    abi::Transition { name, inputs, outputs }
+    abi::Transition { name, is_async, inputs, outputs }
 }
 
 fn convert_input(input: &ast::Input, ctx: &Ctx) -> abi::Input {
