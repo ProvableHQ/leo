@@ -17,7 +17,6 @@
 use leo_ast::NodeBuilder;
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
-use leo_passes::Bytecode;
 use leo_span::{Symbol, create_session_if_not_set_then};
 
 use snarkvm::{
@@ -84,10 +83,10 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
                 // Parse the bytecode as an Aleo program.
                 // Note that this function checks that the bytecode is well-formed.
-                add_aleo_program(&programs.programs.primary_bytecode)?;
+                add_aleo_program(&programs.primary.bytecode)?;
 
                 let program = handler.extend_if_error(
-                    disassemble_from_str::<TestnetV0>(&program_name, &programs.programs.primary_bytecode)
+                    disassemble_from_str::<TestnetV0>(&program_name, &programs.primary.bytecode)
                         .map_err(|err| err.into()),
                 )?;
 
@@ -97,7 +96,7 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
                     return Err(());
                 }
 
-                bytecodes.push(programs.programs.primary_bytecode);
+                bytecodes.push(programs.primary.bytecode);
             }
         };
     }
@@ -113,14 +112,14 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
     // Add imports but only if the imports are in Leo form. Aleo stubs are added earlier.
     if stub_type == StubType::FromLeo {
-        for Bytecode { bytecode, .. } in compiled.programs.import_bytecodes {
-            add_aleo_program(&bytecode)?;
-            bytecodes.push(bytecode.clone());
+        for import in &compiled.imports {
+            add_aleo_program(&import.bytecode)?;
+            bytecodes.push(import.bytecode.clone());
         }
     }
 
     // Add main program.
-    let primary_bytecode = compiled.programs.primary_bytecode.clone();
+    let primary_bytecode = compiled.primary.bytecode.clone();
     add_aleo_program(&primary_bytecode)?;
     bytecodes.push(primary_bytecode);
 

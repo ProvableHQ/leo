@@ -36,12 +36,22 @@ use std::{
 use indexmap::{IndexMap, IndexSet};
 use walkdir::WalkDir;
 
+/// A single compiled program with its bytecode and ABI.
+pub struct CompiledProgram {
+    /// The program name (without `.aleo` suffix).
+    pub name: String,
+    /// The generated Aleo bytecode.
+    pub bytecode: String,
+    /// The ABI describing the program's public interface.
+    pub abi: leo_abi::Program,
+}
+
 /// The result of compiling a Leo program.
 pub struct Compiled {
-    /// The compiled bytecode for all programs.
-    pub programs: CompiledPrograms,
-    /// The ABI describing the primary program's public interface.
-    pub abi: leo_abi::Program,
+    /// The primary program that was compiled.
+    pub primary: CompiledProgram,
+    /// Compiled programs for imports.
+    pub imports: Vec<CompiledProgram>,
 }
 
 /// The primary entry point of the Leo compiler.
@@ -172,9 +182,10 @@ impl Compiler {
 
     /// Runs the compiler stages.
     ///
-    /// Returns the generated ABI, which is captured immediately after
-    /// monomorphisation to ensure all types are resolved, but not yet lowered.
-    pub fn intermediate_passes(&mut self) -> Result<leo_abi::Program> {
+    /// Returns the generated ABIs (primary and imports), which are captured
+    /// immediately after monomorphisation to ensure all types are resolved,
+    /// but not yet lowered.
+    pub fn intermediate_passes(&mut self) -> Result<(leo_abi::Program, IndexMap<String, leo_abi::Program>)> {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
         self.do_pass::<NameValidation>(())?;
@@ -195,9 +206,9 @@ impl Compiler {
 
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
 
-        // Generate ABI after monomorphization to capture concrete types.
+        // Generate ABIs after monomorphization to capture concrete types.
         // Const generic structs are resolved to their monomorphized versions.
-        let abi = self.generate_abi();
+        let abis = self.generate_abi();
 
         self.do_pass::<StorageLowering>(type_checking_config.clone())?;
 
@@ -232,14 +243,34 @@ impl Compiler {
         self.statements_before_dce = output.statements_before;
         self.statements_after_dce = output.statements_after;
 
-        Ok(abi)
+        Ok(abis)
     }
 
-    /// Generates the ABI from the current AST state.
-    fn generate_abi(&self) -> leo_abi::Program {
-        let mut abi = leo_abi::generate(&self.state.ast.ast);
-        leo_abi::prune_non_interface_types(&mut abi);
-        abi
+    /// Generates ABIs for the primary program and all imports.
+    ///
+    /// Returns `(primary_abi, import_abis)` where `import_abis` maps program
+    /// names to their ABIs.
+    fn generate_abi(&self) -> (leo_abi::Program, IndexMap<String, leo_abi::Program>) {
+        // Generate primary ABI (pruning happens inside generate).
+        let primary_abi = leo_abi::generate(&self.state.ast.ast);
+
+        // Generate import ABIs from stubs.
+        let import_abis: IndexMap<String, leo_abi::Program> = self
+            .state
+            .ast
+            .ast
+            .stubs
+            .iter()
+            .map(|(name, stub)| {
+                let abi = match stub {
+                    Stub::FromLeo { program, .. } => leo_abi::generate(program),
+                    Stub::FromAleo { program, .. } => leo_abi::aleo::generate(program),
+                };
+                (name.to_string(), abi)
+            })
+            .collect();
+
+        (primary_abi, import_abis)
     }
 
     /// Compiles a program from a given source string and a list of module sources.
@@ -261,11 +292,29 @@ impl Compiler {
         self.parse(source, filename, modules)?;
         // Merge the stubs into the AST.
         self.add_import_stubs()?;
-        // Run the intermediate compiler stages.
-        let abi = self.intermediate_passes()?;
+        // Run the intermediate compiler stages, which also generates ABIs.
+        let (primary_abi, import_abis) = self.intermediate_passes()?;
         // Run code generation.
-        let programs = CodeGenerating::do_pass((), &mut self.state)?;
-        Ok(Compiled { programs, abi })
+        let bytecodes = CodeGenerating::do_pass((), &mut self.state)?;
+
+        // Build the primary compiled program.
+        let primary = CompiledProgram {
+            name: self.program_name.clone().unwrap(),
+            bytecode: bytecodes.primary_bytecode,
+            abi: primary_abi,
+        };
+
+        // Build compiled programs for imports, looking up ABIs by name.
+        let imports: Vec<CompiledProgram> = bytecodes
+            .import_bytecodes
+            .into_iter()
+            .map(|bc| {
+                let abi = import_abis.get(&bc.program_name).expect("ABI should exist for all imports").clone();
+                CompiledProgram { name: bc.program_name, bytecode: bc.bytecode, abi }
+            })
+            .collect();
+
+        Ok(Compiled { primary, imports })
     }
 
     /// Reads the main source file and all module files in the same directory tree.
