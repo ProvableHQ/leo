@@ -97,6 +97,20 @@ create_messages!(
     }
 
     @backtraced
+    failed_to_serialize_abi {
+        args: (error: impl Display),
+        msg: format!("Failed to serialize ABI to JSON.\nError: {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_write_abi {
+        args: (error: impl Display),
+        msg: format!("Failed to write ABI file.\nIO Error: {error}"),
+        help: None,
+    }
+
+    @backtraced
     needs_leo_build {
         args: (),
         msg: "You must run leo build before deploying a program.".to_string(),

@@ -5,3 +5,4 @@
        Leo     The program checksum is: '[100u8, 207u8, 87u8, 107u8, 187u8, 153u8, 95u8, 22u8, 31u8, 75u8, 125u8, 95u8, 119u8, 144u8, 156u8, 19u8, 111u8, 156u8, 213u8, 202u8, 101u8, 112u8, 208u8, 87u8, 81u8, 218u8, 221u8, 118u8, 35u8, 125u8, 183u8, 157u8]'.
        Leo     Program size: 0.22 KB / 97.66 KB
        Leo ✅ Compiled 'complex.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.

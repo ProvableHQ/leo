@@ -1,0 +1,853 @@
+{
+  "program": "abi_test.aleo",
+  "structs": [
+    {
+      "path": [
+        "Point"
+      ],
+      "fields": [
+        {
+          "name": "x",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        },
+        {
+          "name": "y",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": [
+        "AllPrimitives"
+      ],
+      "fields": [
+        {
+          "name": "f_address",
+          "ty": {
+            "Primitive": "Address"
+          }
+        },
+        {
+          "name": "f_bool",
+          "ty": {
+            "Primitive": "Boolean"
+          }
+        },
+        {
+          "name": "f_field",
+          "ty": {
+            "Primitive": "Field"
+          }
+        },
+        {
+          "name": "f_group",
+          "ty": {
+            "Primitive": "Group"
+          }
+        },
+        {
+          "name": "f_scalar",
+          "ty": {
+            "Primitive": "Scalar"
+          }
+        },
+        {
+          "name": "f_i8",
+          "ty": {
+            "Primitive": {
+              "Int": "I8"
+            }
+          }
+        },
+        {
+          "name": "f_i16",
+          "ty": {
+            "Primitive": {
+              "Int": "I16"
+            }
+          }
+        },
+        {
+          "name": "f_i32",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        },
+        {
+          "name": "f_i64",
+          "ty": {
+            "Primitive": {
+              "Int": "I64"
+            }
+          }
+        },
+        {
+          "name": "f_i128",
+          "ty": {
+            "Primitive": {
+              "Int": "I128"
+            }
+          }
+        },
+        {
+          "name": "f_u8",
+          "ty": {
+            "Primitive": {
+              "UInt": "U8"
+            }
+          }
+        },
+        {
+          "name": "f_u16",
+          "ty": {
+            "Primitive": {
+              "UInt": "U16"
+            }
+          }
+        },
+        {
+          "name": "f_u32",
+          "ty": {
+            "Primitive": {
+              "UInt": "U32"
+            }
+          }
+        },
+        {
+          "name": "f_u64",
+          "ty": {
+            "Primitive": {
+              "UInt": "U64"
+            }
+          }
+        },
+        {
+          "name": "f_u128",
+          "ty": {
+            "Primitive": {
+              "UInt": "U128"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": [
+        "Rectangle"
+      ],
+      "fields": [
+        {
+          "name": "top_left",
+          "ty": {
+            "Struct": {
+              "path": [
+                "Point"
+              ],
+              "program": "abi_test"
+            }
+          }
+        },
+        {
+          "name": "bottom_right",
+          "ty": {
+            "Struct": {
+              "path": [
+                "Point"
+              ],
+              "program": "abi_test"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "path": [
+        "utils",
+        "Vector3"
+      ],
+      "fields": [
+        {
+          "name": "x",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        },
+        {
+          "name": "y",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        },
+        {
+          "name": "z",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "path": [
+        "Token"
+      ],
+      "fields": [
+        {
+          "name": "owner",
+          "ty": {
+            "Primitive": "Address"
+          },
+          "mode": "None"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Primitive": {
+              "UInt": "U64"
+            }
+          },
+          "mode": "Public"
+        },
+        {
+          "name": "data",
+          "ty": {
+            "Primitive": "Field"
+          },
+          "mode": "Private"
+        }
+      ]
+    }
+  ],
+  "mappings": [
+    {
+      "name": "balances",
+      "key": {
+        "Primitive": "Address"
+      },
+      "value": {
+        "Primitive": {
+          "UInt": "U64"
+        }
+      }
+    },
+    {
+      "name": "positions",
+      "key": {
+        "Primitive": "Address"
+      },
+      "value": {
+        "Struct": {
+          "path": [
+            "Point"
+          ],
+          "program": "abi_test"
+        }
+      }
+    },
+    {
+      "name": "arrays",
+      "key": {
+        "Primitive": {
+          "UInt": "U32"
+        }
+      },
+      "value": {
+        "Array": {
+          "element": {
+            "Primitive": "Field"
+          },
+          "length": 2
+        }
+      }
+    }
+  ],
+  "storage_variables": [
+    {
+      "name": "counter",
+      "ty": {
+        "Plaintext": {
+          "Primitive": {
+            "UInt": "U32"
+          }
+        }
+      }
+    },
+    {
+      "name": "last_point",
+      "ty": {
+        "Plaintext": {
+          "Struct": {
+            "path": [
+              "Point"
+            ],
+            "program": "abi_test"
+          }
+        }
+      }
+    },
+    {
+      "name": "history",
+      "ty": {
+        "Vector": {
+          "Plaintext": {
+            "Primitive": {
+              "UInt": "U64"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "name": "single_primitive",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "multi_input",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "b",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "c",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "multi_output",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "visibility_modes",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Public"
+        },
+        {
+          "name": "b",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        },
+        {
+          "name": "c",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Public"
+        }
+      ]
+    },
+    {
+      "name": "struct_io",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "p",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "nested_struct_io",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "r",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Rectangle"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Rectangle"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "array_io",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "arr",
+          "ty": {
+            "Plaintext": {
+              "Array": {
+                "element": {
+                  "Primitive": {
+                    "UInt": "U32"
+                  }
+                },
+                "length": 4
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Array": {
+                "element": {
+                  "Primitive": {
+                    "UInt": "U32"
+                  }
+                },
+                "length": 4
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "nested_array_io",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "arr",
+          "ty": {
+            "Plaintext": {
+              "Array": {
+                "element": {
+                  "Array": {
+                    "element": {
+                      "Primitive": {
+                        "UInt": "U32"
+                      }
+                    },
+                    "length": 2
+                  }
+                },
+                "length": 3
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Array": {
+                "element": {
+                  "Array": {
+                    "element": {
+                      "Primitive": {
+                        "UInt": "U32"
+                      }
+                    },
+                    "length": 2
+                  }
+                },
+                "length": 3
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "record_input",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "t",
+          "ty": {
+            "Record": {
+              "path": [
+                "Token"
+              ],
+              "program": "abi_test"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "record_output",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "owner",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "data",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Field"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Record": {
+              "path": [
+                "Token"
+              ],
+              "program": "abi_test"
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "all_primitives_io",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "p",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "AllPrimitives"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "AllPrimitives"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "module_struct_io",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "utils",
+                  "Vector3"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "utils",
+                  "Vector3"
+                ],
+                "program": "abi_test"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "async_with_finalize",
+      "is_async": true,
+      "inputs": [
+        {
+          "name": "amount",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "Public"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Future",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "update_balance",
+      "is_async": true,
+      "inputs": [
+        {
+          "name": "user",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "Public"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "Public"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Future",
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

@@ -16,10 +16,10 @@
 
 use super::*;
 
-use leo_ast::{Bytecode, CompiledPrograms, NetworkName, NodeBuilder, Program, Stub};
-use leo_compiler::{AstSnapshots, Compiler, CompilerOptions};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
+use leo_compiler::{AstSnapshots, Compiled, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
-use leo_package::{Manifest, Package};
+use leo_package::{ABI_FILENAME, BUILD_DIRECTORY, Manifest, Package};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{CanaryV0, MainnetV0, Program as SvmProgram, TestnetV0};
@@ -170,7 +170,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
                 if source == &main_source_path || program.is_test {
                     // Compile the program (main or test).
-                    let compiled_programs = compile_leo_source_directory(
+                    let compiled = compile_leo_source_directory(
                         source, // entry file
                         &source_dir,
                         program.name,
@@ -191,13 +191,28 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     };
 
                     // Write the primary program bytecode.
-                    std::fs::write(&primary_path, &compiled_programs.primary_bytecode)
+                    std::fs::write(&primary_path, &compiled.primary.bytecode)
                         .map_err(CliError::failed_to_load_instructions)?;
 
-                    // Write imports.
-                    for Bytecode { program_name, bytecode } in compiled_programs.import_bytecodes {
-                        let import_path = imports_directory.join(format!("{}.aleo", program_name));
-                        std::fs::write(&import_path, &bytecode).map_err(CliError::failed_to_load_instructions)?;
+                    // Write imports (bytecode and ABI).
+                    for import in &compiled.imports {
+                        let import_path = imports_directory.join(format!("{}.aleo", import.name));
+                        std::fs::write(&import_path, &import.bytecode)
+                            .map_err(CliError::failed_to_load_instructions)?;
+
+                        let import_abi_path = imports_directory.join(format!("{}.abi.json", import.name));
+                        let import_abi_json = serde_json::to_string_pretty(&import.abi)
+                            .map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
+                        std::fs::write(&import_abi_path, import_abi_json).map_err(CliError::failed_to_write_abi)?;
+                    }
+
+                    // Write the ABI file for the main program.
+                    if source == &main_source_path {
+                        let abi_path = build_directory.join(ABI_FILENAME);
+                        let abi_json = serde_json::to_string_pretty(&compiled.primary.abi)
+                            .map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
+                        std::fs::write(&abi_path, abi_json).map_err(CliError::failed_to_write_abi)?;
+                        tracing::info!("✅ Generated ABI at '{BUILD_DIRECTORY}/{ABI_FILENAME}'.");
                     }
                 }
 
@@ -234,7 +249,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     Ok(package)
 }
 
-/// Compiles a Leo file. Writes and returns the compiled bytecode.
+/// Compiles a Leo file. Writes and returns the compiled bytecode and ABI.
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_source_directory(
     entry_file_path: &Path,
@@ -247,7 +262,7 @@ fn compile_leo_source_directory(
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
     network: NetworkName,
-) -> Result<CompiledPrograms> {
+) -> Result<Compiled> {
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
         Some(program_name.to_string()),
@@ -261,8 +276,8 @@ fn compile_leo_source_directory(
     );
 
     // Compile the Leo program into Aleo instructions.
-    let compiled_programs = compiler.compile_from_directory(entry_file_path, source_directory)?;
-    let primary_bytecode = compiled_programs.primary_bytecode.clone();
+    let compiled = compiler.compile_from_directory(entry_file_path, source_directory)?;
+    let primary_bytecode = &compiled.primary.bytecode;
 
     // Check the program size limit for each bytecode.
     use leo_package::MAX_PROGRAM_SIZE;
@@ -278,9 +293,9 @@ fn compile_leo_source_directory(
 
     // Get the AVM bytecode.
     let checksum: String = match network {
-        NetworkName::MainnetV0 => SvmProgram::<MainnetV0>::from_str(&primary_bytecode)?.to_checksum().iter().join(", "),
-        NetworkName::TestnetV0 => SvmProgram::<TestnetV0>::from_str(&primary_bytecode)?.to_checksum().iter().join(", "),
-        NetworkName::CanaryV0 => SvmProgram::<CanaryV0>::from_str(&primary_bytecode)?.to_checksum().iter().join(", "),
+        NetworkName::MainnetV0 => SvmProgram::<MainnetV0>::from_str(primary_bytecode)?.to_checksum().iter().join(", "),
+        NetworkName::TestnetV0 => SvmProgram::<TestnetV0>::from_str(primary_bytecode)?.to_checksum().iter().join(", "),
+        NetworkName::CanaryV0 => SvmProgram::<CanaryV0>::from_str(primary_bytecode)?.to_checksum().iter().join(", "),
     };
 
     tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
@@ -295,22 +310,28 @@ fn compile_leo_source_directory(
 
     tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions.");
 
-    // Print checksums for all additional bytecodes (dependencies).
-    for Bytecode { program_name: dep_name, bytecode: dep_bytecode } in &compiled_programs.import_bytecodes {
+    // Print checksums for all additional bytecodes (imports).
+    for import in &compiled.imports {
         // Compute checksum depending on network.
         let dep_checksum: String = match network {
-            NetworkName::MainnetV0 => SvmProgram::<MainnetV0>::from_str(dep_bytecode)?.to_checksum().iter().join(", "),
-            NetworkName::TestnetV0 => SvmProgram::<TestnetV0>::from_str(dep_bytecode)?.to_checksum().iter().join(", "),
-            NetworkName::CanaryV0 => SvmProgram::<CanaryV0>::from_str(dep_bytecode)?.to_checksum().iter().join(", "),
+            NetworkName::MainnetV0 => {
+                SvmProgram::<MainnetV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
+            }
+            NetworkName::TestnetV0 => {
+                SvmProgram::<TestnetV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
+            }
+            NetworkName::CanaryV0 => {
+                SvmProgram::<CanaryV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
+            }
         };
 
-        tracing::info!("    Dependency '{dep_name}.aleo': checksum = '[{dep_checksum}]'");
+        tracing::info!("    Import '{}.aleo': checksum = '[{dep_checksum}]'", import.name);
     }
 
-    Ok(compiled_programs)
+    Ok(compiled)
 }
 
-/// Compiles a Leo file. Writes and returns the compiled bytecode.
+/// Parses a Leo file into an AST without generating bytecode.
 fn parse_leo_source_directory(
     entry_file_path: &Path,
     source_directory: &Path,
@@ -332,6 +353,6 @@ fn parse_leo_source_directory(
         network,
     );
 
-    // Compile the Leo program into Aleo instructions.
+    // Parse the Leo program into an AST.
     compiler.parse_from_directory(entry_file_path, source_directory)
 }

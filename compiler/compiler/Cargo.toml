@@ -23,6 +23,7 @@ ci_skip = [ "leo-ast/ci_skip" ]
 
 [dependencies]
 # leo dependencies
+leo-abi           = { workspace = true }
 leo-ast           = { workspace = true }
 leo-errors        = { workspace = true }
 leo-passes        = { workspace = true }

@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Compiler;
+use crate::{Compiled, Compiler};
 
-use leo_ast::{CompiledPrograms, NetworkName, NodeBuilder, Program, Stub};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
 use leo_errors::{Handler, LeoError};
 use leo_span::{Symbol, source_map::FileName};
 
@@ -44,7 +44,7 @@ pub fn whole_compile(
     handler: &Handler,
     node_builder: &Rc<NodeBuilder>,
     import_stubs: IndexMap<Symbol, Stub>,
-) -> Result<(CompiledPrograms, String), LeoError> {
+) -> Result<(Compiled, String), LeoError> {
     let (main_source, modules) = split_modules(source);
 
     let mut compiler = Compiler::new(
