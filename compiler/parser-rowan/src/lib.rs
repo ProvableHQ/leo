@@ -20,34 +20,12 @@
 //! IDE-grade error recovery. It will eventually replace the LALRPOP-based
 //! parser in `leo-parser-lossless`.
 
+mod lexer;
+mod syntax_kind;
+
 use leo_errors::{Handler, Result};
-
-/// Syntax kind enum for the rowan-based parser.
-//
-// TODO: This enum will be expanded as we implement the parser. Currently
-// contains only the essential kinds needed for the initial setup.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(u16)]
-pub enum SyntaxKind {
-    /// Error node for wrapping parse errors.
-    ERROR = 0,
-    /// End of file marker.
-    EOF,
-    /// Whitespace trivia (spaces, tabs).
-    WHITESPACE,
-    /// Comment trivia (line and block comments).
-    COMMENT,
-    /// Root node of the syntax tree.
-    ROOT,
-    // TODO: Add remaining syntax kinds as we implement the parser.
-    // See parent plan for the full list of kinds to add.
-}
-
-impl From<SyntaxKind> for rowan::SyntaxKind {
-    fn from(kind: SyntaxKind) -> Self {
-        Self(kind as u16)
-    }
-}
+pub use lexer::{LexError, Token, lex};
+pub use syntax_kind::{SyntaxKind, syntax_kind_from_raw};
 
 /// The Leo language type for rowan.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -57,14 +35,7 @@ impl rowan::Language for LeoLanguage {
     type Kind = SyntaxKind;
 
     fn kind_from_raw(raw: rowan::SyntaxKind) -> Self::Kind {
-        match raw.0 {
-            0 => SyntaxKind::ERROR,
-            1 => SyntaxKind::EOF,
-            2 => SyntaxKind::WHITESPACE,
-            3 => SyntaxKind::COMMENT,
-            4 => SyntaxKind::ROOT,
-            n => panic!("invalid SyntaxKind: {n}"),
-        }
+        syntax_kind_from_raw(raw)
     }
 
     fn kind_to_raw(kind: Self::Kind) -> rowan::SyntaxKind {
