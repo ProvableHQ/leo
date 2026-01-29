@@ -1,0 +1,1 @@
+program test.aleo {}
