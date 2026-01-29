@@ -32,3 +32,6 @@ leo-errors = { workspace = true }
 leo-span = { workspace = true }
 rowan = { workspace = true }
 logos = { workspace = true }
+
+[dev-dependencies]
+expect-test = { workspace = true }
