@@ -1,5 +1,5 @@
 program test.aleo {
-    transition main(x$$0: u32, condition$$1: bool) -> u32 {
+    fn main(x$$0: u32, condition$$1: bool) -> u32 {
         let result$#2 = 0u32;
         if condition$$1 {
             let $var$3 = 1u32;
@@ -12,3 +12,4 @@ program test.aleo {
         return result$7;
     }
 }
+

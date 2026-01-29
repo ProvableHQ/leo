@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '='
-    --> compiler-test:15:30
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '='
+    --> compiler-test:15:26
      |
-  15 |         for a: u32 in 10u32..=0u32 {
-     |                              ^
+  15 |     for a: u32 in 10u32..=0u32 {
+     |                          ^

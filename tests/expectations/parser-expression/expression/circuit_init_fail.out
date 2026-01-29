@@ -53,7 +53,7 @@ Error [EPAR0370005]: expected an identifier, '}' -- found ','
      |
    1 | x {,x:y}
      |    ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '}'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '}'
     --> test_11:1:6
      |
    1 | x {x:}

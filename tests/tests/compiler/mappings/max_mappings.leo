@@ -33,7 +33,7 @@ program test.aleo {
     mapping thirty: field => field;
     mapping thirtyone: field => field;
 
-    transition foo() -> u8 {
+    fn foo() -> u8 {
         return 1u8 + 1u8;
     }
 }

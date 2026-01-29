@@ -1,5 +1,5 @@
 Error [ETYC0372066]: `self.caller` is not a valid operand in an async function call context.
-    --> compiler-test:7:25
+    --> compiler-test:9:21
      |
-   7 |         assert_eq(addr, self.caller);
-     |                         ^^^^^^^^^^^
+   9 |     assert_eq(addr, self.caller);
+     |                     ^^^^^^^^^^^

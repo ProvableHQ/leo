@@ -663,7 +663,7 @@ impl CodeGeneratingVisitor<'_> {
                     );
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Intrinsic::FutureAwait => {
+                Intrinsic::FinalAwait => {
                     let instruction = AleoStmt::Await(args[0].clone());
                     (None, vec![instruction])
                 }

@@ -21,7 +21,7 @@ program test.aleo {
     }
 
     // Returns a new board_state.
-    transition new_board_state(
+    fn new_board_state(
         ships: u64,
         opponent: address,
     ) -> board_state {
@@ -38,7 +38,7 @@ program test.aleo {
 
     // Returns a new board state that has been started.
     // Fails if this board has been started before.
-    transition start_board(
+    fn start_board(
         // The record of the board to start. A board can only be started once.
         board: board_state,
     ) -> board_state {
@@ -58,7 +58,7 @@ program test.aleo {
 
     // Returns a new board state record that includes all the played tiles.
     // Fails if r1 has been played before.
-    transition update_played_tiles(
+    fn update_played_tiles(
         // The record of the board to update.
         board: board_state,
         // The u64 equivalent of a bitstring fire coordinate to send to the opponent.
@@ -89,7 +89,7 @@ program test.aleo {
     }
 
     // Returns a new board state record that includes all the hits and misses.
-    transition update_hits_and_misses(
+    fn update_hits_and_misses(
         // The record of the board to update.
         board: board_state,
         // The u64 equivalent of a bitstring of whether this player's previous move was a hit or miss.

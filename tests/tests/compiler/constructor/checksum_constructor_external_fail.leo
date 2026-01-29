@@ -1,7 +1,7 @@
 program dependent.aleo {
     mapping floo: field => [u8; 32];
    
-    transition foo() {}
+    fn foo() {}
 }
 
 
@@ -10,12 +10,12 @@ program dependent.aleo {
 
 import dependent.aleo;
 program test.aleo {
-    transition foo() {}
+    fn foo() {}
 
     @checksum(mapping = "dependent.aleo/bar", key = "1field")
-    async constructor() {}
+    constructor() {}
 
-    transition food() {
+    fn food() {
         dependent.aleo/foo();
     }
 }

@@ -3,5 +3,5 @@ Error [ETYC0372156]: A 'custom' constructor cannot be empty
      |
    4 |     @custom
      |     ^^^^^^^
-   5 |     async constructor() {}
-     |     ^^^^^^^^^^^^^^^^^^^^^^
+   5 |     constructor() {}
+     |     ^^^^^^^^^^^^^^^^

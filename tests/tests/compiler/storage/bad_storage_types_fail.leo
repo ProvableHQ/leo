@@ -3,7 +3,7 @@ program negative_storage_tests.aleo {
     storage unit_storage: ();
     storage string_storage: string;
     storage signature_storage: signature;
-    storage future_storage: Future;
+    storage future_storage: Final;
     storage optional_storage: u32?;
     storage tuple_storage: (u32, u32);
 
@@ -17,7 +17,7 @@ program negative_storage_tests.aleo {
     storage array_unit: [(); 2];
     storage array_string: [string; 2];
     storage array_signature: [signature; 2];
-    storage array_future: [Future; 2];
+    storage array_future: [Final; 2];
     storage array_optional: [u32?; 2];
     storage array_tuple: [(u32, u32); 2];
     storage array_record: [MyRecord; 2];
@@ -26,10 +26,10 @@ program negative_storage_tests.aleo {
     storage vec_unit: [()];
     storage vec_string: [string];
     storage vec_signature: [signature];
-    storage vec_future: [Future];
+    storage vec_future: [Final];
     storage vec_optional: [u32?];
     storage vec_tuple: [(u32, u32)];
     storage vec_record: [MyRecord];
 
-    transition foo() {}
+    fn foo() {}
 }

@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(x: u32) -> bool {
+    fn main(x: u32) -> bool {
 
         // For i8
         let count_i8: i8 = 0__0i8 + 1_9i8;

@@ -1,3 +1,3 @@
 
-program test.aleo {
-    test main() {}}
+program test.aleo {}
+test main() {}

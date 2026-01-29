@@ -112,7 +112,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // Check `Future::await` core functions.
-        if let Some(Intrinsic::FutureAwait) = Intrinsic::from_symbol(input.name, &input.type_parameters) {
+        if let Some(Intrinsic::FinalAwait) = Intrinsic::from_symbol(input.name, &input.type_parameters) {
             self.assert_future_await(&input.arguments.first(), input.span());
         }
     }

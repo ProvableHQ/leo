@@ -9,8 +9,3 @@ Error [ETYC0372019]: The `record` type requires the variable `owner: address`.
      |         ^^^^^^^^^^^^
    7 |     }
      |     ^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^

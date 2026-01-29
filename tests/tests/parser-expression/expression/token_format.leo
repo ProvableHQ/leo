@@ -125,7 +125,7 @@ else
 
 for
 
-function
+fn
 
 if
 

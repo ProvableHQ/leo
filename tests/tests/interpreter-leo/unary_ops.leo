@@ -1,5 +1,5 @@
 program test.aleo {
-    transition main() {
+    fn main() {
         // Abs
         assert_eq((-1i8).abs(), 1i8);
         assert_eq((-1i16).abs(), 1i16);

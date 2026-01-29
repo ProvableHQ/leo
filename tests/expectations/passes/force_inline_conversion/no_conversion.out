@@ -1,0 +1,9 @@
+program test.aleo {
+    fn main(x: u32) -> u32 {
+        return helper(x);
+    }
+}
+    fn helper(x: u32) -> u32 {
+        return x * 2u32;
+    }
+

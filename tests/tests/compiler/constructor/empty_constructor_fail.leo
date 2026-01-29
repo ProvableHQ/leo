@@ -1,6 +1,6 @@
 program test.aleo {
-    transition foo() {}
+    fn foo() {}
 
     @custom
-    async constructor() {}
+    constructor() {}
 }

@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: field, b: field) -> bool {
+    fn main(a: field, b: field) -> bool {
        // unary
        let f: field = a.inv();
        let g: field = a.neg();

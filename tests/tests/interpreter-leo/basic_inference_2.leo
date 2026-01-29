@@ -1,7 +1,7 @@
 /*program child.aleo {
     struct External { x: u32, y: u32 }
 
-    transition main(e: External, public a: u32, b: u32) -> u32 {
+    fn main(e: External, public a: u32, b: u32) -> u32 {
         let c: u32 = a + b;
         return c;
     }
@@ -10,13 +10,13 @@ import child.aleo;
 import credits.aleo;
 }*/
 
+const X: u32 = 1;
+const Y: u32 = 2;
+
+struct Baz { xxx: u32, yyy: bool }
+
 program test.aleo {
-    const X: u32 = 1;
-    const Y: u32 = 2;
-
-    struct Baz { xxx: u32, yyy: bool }
-
-    transition main() {
+    fn main() {
         let a: [u32; 5] = [1, 2, 3, 4, 5];
         assert(a[1] == 2);
 
@@ -97,12 +97,12 @@ program test.aleo {
         assert(e == 5u32);
         assert(y == 6u32);*/
     }
+}
 
-    inline bar() -> u32 {
-        return 0;
-    }
+fn bar() -> u32 {
+    return 0;
+}
 
-    inline foo::[M: u32](arr: [u32; 3]) -> u32 {
-        return arr[M - 1];
-    }
+fn foo::[M: u32](arr: [u32; 3]) -> u32 {
+    return arr[M - 1];
 }

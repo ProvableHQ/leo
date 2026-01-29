@@ -1,8 +1,8 @@
 Error [EAST0372017]: The name `foo` is defined multiple times.
-    --> compiler-test:6:16
+    --> compiler-test:6:8
      |
-   4 |       transition foo(constant a: u8) {}
-     |                  ^^^ previous definition of `foo` here
+   4 |       fn foo(constant a: u8) {}
+     |          ^^^ previous definition of `foo` here
    5 |
-   6 |       transition foo(a: u8) -> constant u8 {
-     |                  ^^^ `foo` redefined here
+   6 |       fn foo(a: u8) -> constant u8 {
+     |          ^^^ `foo` redefined here

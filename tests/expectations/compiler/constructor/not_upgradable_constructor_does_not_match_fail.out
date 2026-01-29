@@ -3,8 +3,8 @@ Error [ETYC0372156]: A 'noupgrade', 'admin', or 'checksum' constructor must be e
      |
    4 |     @noupgrade
      |     ^^^^^^^^^^
-   5 |     async constructor() {
-     |     ^^^^^^^^^^^^^^^^^^^^^
+   5 |     constructor() {
+     |     ^^^^^^^^^^^^^^^
    6 |         assert_eq(self.edition, 0u16);
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    7 |     }

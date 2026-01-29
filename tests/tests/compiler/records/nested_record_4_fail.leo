@@ -5,17 +5,13 @@ program test.aleo {
         bar: (Bar, Bar),
     }
 
-    struct Bar {
-        bar: (Token2, Token2),
-    }
-
     record Token2 {
         owner: address,
         amount: u64,
     }
-
-
-
-
-
 }
+
+struct Bar {
+    bar: (Token2, Token2),
+}
+

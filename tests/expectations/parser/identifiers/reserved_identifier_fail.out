@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected an identifier, '(' -- found 'constructor'
-    --> test:7:13
+    --> test:8:9
      |
-   7 |         let constructor: u32 = 42u32;
-     |             ^^^^^^^^^^^
+   8 |     let constructor: u32 = 42u32;
+     |         ^^^^^^^^^^^

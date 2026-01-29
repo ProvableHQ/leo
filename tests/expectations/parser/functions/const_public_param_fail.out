@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected an identifier, ')', 'constant', 'private', 'public' -- found 'const'
-    --> test:3:24
+    --> test:4:14
      |
-   3 |     function x(x: u32, const public y: i32) {
-     |                        ^^^^^
+   4 | fn x(x: u32, const public y: i32) {
+     |              ^^^^^

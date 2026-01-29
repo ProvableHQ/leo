@@ -6,7 +6,7 @@ program test.aleo {
         owner: address,
     }
 
-    transition foo(r: R) -> R {
+    fn foo(r: R) -> R {
         // This should be cloned.
         return r;
     }

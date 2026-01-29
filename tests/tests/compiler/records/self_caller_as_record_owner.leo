@@ -3,13 +3,13 @@ program test0.aleo {
         owner: address,
     }
 
-    transition foo() -> Token {
+    fn foo() -> Token {
         return Token {
             owner: self.caller,
         };
     }
 
-    transition bar() -> Token {
+    fn bar() -> Token {
         let t: Token = Token {
             owner: self.caller,
         };

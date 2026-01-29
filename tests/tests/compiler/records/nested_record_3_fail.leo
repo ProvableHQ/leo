@@ -5,13 +5,12 @@ program test.aleo {
         bar: Bar,
     }
 
-
-    struct Bar {
-        bar: Foo,
-    }
-
     record Foo {
         owner: address,
         amount: u64,
     }
+}
+
+struct Bar {
+    bar: Foo,
 }

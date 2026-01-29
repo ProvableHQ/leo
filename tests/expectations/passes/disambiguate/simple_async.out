@@ -1,9 +1,10 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    async transition main(x: u32, y: u32) -> Future<Fn()> {
+    async fn main(x: u32, y: u32) -> Future<Fn()> {
         return async {
             let a = _mapping_get(foo, x);
             _mapping_set(foo, x, y);
         };
     }
 }
+
