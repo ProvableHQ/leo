@@ -21,9 +21,11 @@
 //! parser in `leo-parser-lossless`.
 
 mod lexer;
+mod parser;
 mod syntax_kind;
 
 pub use lexer::{lex, LexError, Token};
+pub use parser::{Parse, ParseError, Parser};
 pub use syntax_kind::{syntax_kind_from_raw, SyntaxKind};
 
 use leo_errors::{Handler, Result};
