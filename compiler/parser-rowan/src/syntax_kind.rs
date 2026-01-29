@@ -840,10 +840,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
 /// # Panics
 /// Panics if the raw value is out of range.
 pub fn syntax_kind_from_raw(raw: rowan::SyntaxKind) -> SyntaxKind {
-    SYNTAX_KIND_TABLE
-        .get(raw.0 as usize)
-        .copied()
-        .unwrap_or_else(|| panic!("invalid SyntaxKind: {}", raw.0))
+    SYNTAX_KIND_TABLE.get(raw.0 as usize).copied().unwrap_or_else(|| panic!("invalid SyntaxKind: {}", raw.0))
 }
 
 #[cfg(test)]

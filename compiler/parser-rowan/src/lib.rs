@@ -24,9 +24,9 @@ mod lexer;
 mod parser;
 mod syntax_kind;
 
-pub use lexer::{lex, LexError, Token};
+pub use lexer::{LexError, Token, lex};
 pub use parser::{Parse, ParseError, Parser};
-pub use syntax_kind::{syntax_kind_from_raw, SyntaxKind};
+pub use syntax_kind::{SyntaxKind, syntax_kind_from_raw};
 
 use leo_errors::{Handler, Result};
 

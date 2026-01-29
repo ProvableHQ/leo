@@ -22,10 +22,11 @@
 
 use rowan::{Checkpoint, GreenNode, GreenNodeBuilder};
 
-use crate::lexer::Token;
-use crate::syntax_kind::SyntaxKind;
-use crate::syntax_kind::SyntaxKind::*;
-use crate::SyntaxNode;
+use crate::{
+    SyntaxNode,
+    lexer::Token,
+    syntax_kind::{SyntaxKind, SyntaxKind::*},
+};
 
 /// An error encountered during parsing.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -66,11 +67,7 @@ impl Parse {
 
     /// Convert to a Result, returning the syntax node on success or errors on failure.
     pub fn ok(self) -> Result<SyntaxNode, Vec<ParseError>> {
-        if self.errors.is_empty() {
-            Ok(self.syntax())
-        } else {
-            Err(self.errors)
-        }
+        if self.errors.is_empty() { Ok(self.syntax()) } else { Err(self.errors) }
     }
 }
 
@@ -97,14 +94,7 @@ pub struct Parser<'t, 's> {
 impl<'t, 's> Parser<'t, 's> {
     /// Create a new parser for the given source and tokens.
     pub fn new(source: &'s str, tokens: &'t [Token]) -> Self {
-        Self {
-            source,
-            tokens,
-            pos: 0,
-            byte_offset: 0,
-            builder: GreenNodeBuilder::new(),
-            errors: Vec::new(),
-        }
+        Self { source, tokens, pos: 0, byte_offset: 0, builder: GreenNodeBuilder::new(), errors: Vec::new() }
     }
 
     // =========================================================================
@@ -140,10 +130,7 @@ impl<'t, 's> Parser<'t, 's> {
 
     /// Get the kind of the current token including trivia.
     pub fn current_including_trivia(&self) -> SyntaxKind {
-        self.tokens
-            .get(self.pos)
-            .map(|t| t.kind)
-            .unwrap_or(EOF)
+        self.tokens.get(self.pos).map(|t| t.kind).unwrap_or(EOF)
     }
 
     /// Check if the current token matches the given kind.
@@ -264,10 +251,7 @@ impl<'t, 's> Parser<'t, 's> {
 
     /// Record a parse error at the current position.
     pub fn error(&mut self, message: String) {
-        self.errors.push(ParseError {
-            message,
-            offset: self.byte_offset,
-        });
+        self.errors.push(ParseError { message, offset: self.byte_offset });
     }
 
     /// Wrap unexpected tokens in an ERROR node until we reach a recovery point.
@@ -296,10 +280,7 @@ impl<'t, 's> Parser<'t, 's> {
 
     /// Finish parsing and return the parse result.
     pub fn finish(self) -> Parse {
-        Parse {
-            green: self.builder.finish(),
-            errors: self.errors,
-        }
+        Parse { green: self.builder.finish(), errors: self.errors }
     }
 }
 
@@ -307,7 +288,7 @@ impl<'t, 's> Parser<'t, 's> {
 mod tests {
     use super::*;
     use crate::lexer::lex;
-    use expect_test::{expect, Expect};
+    use expect_test::{Expect, expect};
 
     /// Helper to parse source and format the tree for snapshot testing.
     fn check_parse(input: &str, parse_fn: impl FnOnce(&mut Parser), expect: Expect) {
@@ -325,112 +306,131 @@ mod tests {
         let mut parser = Parser::new(input, &tokens);
         parse_fn(&mut parser);
         let parse = parser.finish();
-        let output = parse
-            .errors()
-            .iter()
-            .map(|e| format!("{}:{}", e.offset, e.message))
-            .collect::<Vec<_>>()
-            .join("\n");
+        let output =
+            parse.errors().iter().map(|e| format!("{}:{}", e.offset, e.message)).collect::<Vec<_>>().join("\n");
         expect.assert_eq(&output);
     }
 
     #[test]
     fn parse_empty() {
-        check_parse("", |p| {
-            p.start_node(ROOT);
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "",
+            |p| {
+                p.start_node(ROOT);
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..0
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_whitespace_only() {
-        check_parse("   ", |p| {
-            p.start_node(ROOT);
-            p.skip_trivia();
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "   ",
+            |p| {
+                p.start_node(ROOT);
+                p.skip_trivia();
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..3
               WHITESPACE@0..3 "   "
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_single_token() {
-        check_parse("foo", |p| {
-            p.start_node(ROOT);
-            p.skip_trivia();
-            p.bump();
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "foo",
+            |p| {
+                p.start_node(ROOT);
+                p.skip_trivia();
+                p.bump();
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..3
               IDENT@0..3 "foo"
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_token_with_trivia() {
-        check_parse("  foo  ", |p| {
-            p.start_node(ROOT);
-            p.skip_trivia();
-            p.bump();
-            p.skip_trivia();
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "  foo  ",
+            |p| {
+                p.start_node(ROOT);
+                p.skip_trivia();
+                p.bump();
+                p.skip_trivia();
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..7
               WHITESPACE@0..2 "  "
               IDENT@2..5 "foo"
               WHITESPACE@5..7 "  "
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_nested_nodes() {
-        check_parse("(a)", |p| {
-            p.start_node(ROOT);
-            p.start_node(PAREN_EXPR);
-            p.eat(L_PAREN);
-            p.skip_trivia();
-            p.start_node(NAME_REF);
-            p.bump();
-            p.finish_node();
-            p.eat(R_PAREN);
-            p.finish_node();
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "(a)",
+            |p| {
+                p.start_node(ROOT);
+                p.start_node(PAREN_EXPR);
+                p.eat(L_PAREN);
+                p.skip_trivia();
+                p.start_node(NAME_REF);
+                p.bump();
+                p.finish_node();
+                p.eat(R_PAREN);
+                p.finish_node();
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..3
               PAREN_EXPR@0..3
                 L_PAREN@0..1 "("
                 NAME_REF@1..2
                   IDENT@1..2 "a"
                 R_PAREN@2..3 ")"
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_with_checkpoint() {
         // Simulate parsing "1 + 2" where we wrap the LHS after seeing the operator
-        check_parse("1 + 2", |p| {
-            p.start_node(ROOT);
-            p.skip_trivia();
-            let checkpoint = p.checkpoint();
-            // Parse LHS
-            p.start_node(LITERAL);
-            p.bump(); // 1
-            p.finish_node();
-            p.skip_trivia();
-            // See operator - wrap LHS in binary expr
-            p.start_node_at(checkpoint, BINARY_EXPR);
-            p.bump(); // +
-            p.skip_trivia();
-            // Parse RHS
-            p.start_node(LITERAL);
-            p.bump(); // 2
-            p.finish_node();
-            p.finish_node(); // BINARY_EXPR
-            p.finish_node(); // ROOT
-        }, expect![[r#"
+        check_parse(
+            "1 + 2",
+            |p| {
+                p.start_node(ROOT);
+                p.skip_trivia();
+                let checkpoint = p.checkpoint();
+                // Parse LHS
+                p.start_node(LITERAL);
+                p.bump(); // 1
+                p.finish_node();
+                p.skip_trivia();
+                // See operator - wrap LHS in binary expr
+                p.start_node_at(checkpoint, BINARY_EXPR);
+                p.bump(); // +
+                p.skip_trivia();
+                // Parse RHS
+                p.start_node(LITERAL);
+                p.bump(); // 2
+                p.finish_node();
+                p.finish_node(); // BINARY_EXPR
+                p.finish_node(); // ROOT
+            },
+            expect![[r#"
             ROOT@0..5
               BINARY_EXPR@0..5
                 LITERAL@0..1
@@ -440,41 +440,53 @@ mod tests {
                 WHITESPACE@3..4 " "
                 LITERAL@4..5
                   INTEGER@4..5 "2"
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_expect_success() {
-        check_parse(";", |p| {
-            p.start_node(ROOT);
-            p.expect(SEMICOLON);
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            ";",
+            |p| {
+                p.start_node(ROOT);
+                p.expect(SEMICOLON);
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..1
               SEMICOLON@0..1 ";"
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_expect_failure() {
-        check_parse_errors("foo", |p| {
-            p.start_node(ROOT);
-            p.expect(SEMICOLON);
-            p.finish_node();
-        }, expect![[r#"0:expected SEMICOLON"#]]);
+        check_parse_errors(
+            "foo",
+            |p| {
+                p.start_node(ROOT);
+                p.expect(SEMICOLON);
+                p.finish_node();
+            },
+            expect![[r#"0:expected SEMICOLON"#]],
+        );
     }
 
     #[test]
     fn parse_error_recover() {
-        check_parse("garbage ; ok", |p| {
-            p.start_node(ROOT);
-            // Try to recover at semicolon
-            p.error_recover("unexpected tokens", &[SEMICOLON]);
-            p.eat(SEMICOLON);
-            p.skip_trivia();
-            p.bump();
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "garbage ; ok",
+            |p| {
+                p.start_node(ROOT);
+                // Try to recover at semicolon
+                p.error_recover("unexpected tokens", &[SEMICOLON]);
+                p.eat(SEMICOLON);
+                p.skip_trivia();
+                p.bump();
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..12
               ERROR@0..7
                 IDENT@0..7 "garbage"
@@ -482,59 +494,71 @@ mod tests {
               SEMICOLON@8..9 ";"
               WHITESPACE@9..10 " "
               IDENT@10..12 "ok"
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_error_and_bump() {
-        check_parse("$", |p| {
-            p.start_node(ROOT);
-            p.skip_trivia();
-            p.error_and_bump("unexpected token");
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "$",
+            |p| {
+                p.start_node(ROOT);
+                p.skip_trivia();
+                p.error_and_bump("unexpected token");
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..1
               ERROR@0..1
                 ERROR@0..1 "$"
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_at_and_eat() {
-        check_parse("let x", |p| {
-            p.start_node(ROOT);
-            assert!(p.at(KW_LET));
-            assert!(!p.at(KW_CONST));
-            p.eat(KW_LET);
-            assert!(p.at(IDENT));
-            p.skip_trivia();
-            p.bump();
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "let x",
+            |p| {
+                p.start_node(ROOT);
+                assert!(p.at(KW_LET));
+                assert!(!p.at(KW_CONST));
+                p.eat(KW_LET);
+                assert!(p.at(IDENT));
+                p.skip_trivia();
+                p.bump();
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..5
               KW_LET@0..3 "let"
               WHITESPACE@3..4 " "
               IDENT@4..5 "x"
-        "#]]);
+        "#]],
+        );
     }
 
     #[test]
     fn parse_nth_lookahead() {
-        check_parse("a + b * c", |p| {
-            p.start_node(ROOT);
-            // At "a", look ahead
-            assert_eq!(p.nth(0), IDENT);
-            assert_eq!(p.nth(1), PLUS);
-            assert_eq!(p.nth(2), IDENT);
-            assert_eq!(p.nth(3), STAR);
-            assert_eq!(p.nth(4), IDENT);
-            assert_eq!(p.nth(5), EOF);
-            // Just consume everything
-            while !p.at_eof() {
-                p.bump_any();
-            }
-            p.finish_node();
-        }, expect![[r#"
+        check_parse(
+            "a + b * c",
+            |p| {
+                p.start_node(ROOT);
+                // At "a", look ahead
+                assert_eq!(p.nth(0), IDENT);
+                assert_eq!(p.nth(1), PLUS);
+                assert_eq!(p.nth(2), IDENT);
+                assert_eq!(p.nth(3), STAR);
+                assert_eq!(p.nth(4), IDENT);
+                assert_eq!(p.nth(5), EOF);
+                // Just consume everything
+                while !p.at_eof() {
+                    p.bump_any();
+                }
+                p.finish_node();
+            },
+            expect![[r#"
             ROOT@0..9
               IDENT@0..1 "a"
               WHITESPACE@1..2 " "
@@ -545,6 +569,7 @@ mod tests {
               STAR@6..7 "*"
               WHITESPACE@7..8 " "
               IDENT@8..9 "c"
-        "#]]);
+        "#]],
+        );
     }
 }

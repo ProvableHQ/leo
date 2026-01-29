@@ -22,8 +22,7 @@
 
 use logos::Logos;
 
-use crate::SyntaxKind;
-use crate::SyntaxKind::*;
+use crate::{SyntaxKind, SyntaxKind::*};
 
 /// A token produced by the lexer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -75,7 +74,7 @@ fn comment_block(lex: &mut logos::Lexer<LogosToken>) -> bool {
 /// This is mapped to `SyntaxKind` during lexing. We use a separate enum here
 /// because logos requires ownership of the token type during lexing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Logos)]
-#[logos(skip r"")]  // Don't skip anything - we want all tokens for lossless parsing
+#[logos(skip r"")] // Don't skip anything - we want all tokens for lossless parsing
 enum LogosToken {
     // =========================================================================
     // Trivia
@@ -423,10 +422,7 @@ pub fn lex(source: &str) -> (Vec<Token>, Vec<LexError>) {
                 }
             },
             Err(()) => {
-                errors.push(LexError {
-                    offset: span.start,
-                    message: format!("unexpected character: {:?}", slice),
-                });
+                errors.push(LexError { offset: span.start, message: format!("unexpected character: {:?}", slice) });
                 ERROR
             }
         };
@@ -443,7 +439,7 @@ pub fn lex(source: &str) -> (Vec<Token>, Vec<LexError>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use expect_test::{expect, Expect};
+    use expect_test::{Expect, expect};
 
     /// Helper to format tokens for snapshot testing.
     fn check_lex(input: &str, expect: Expect) {
@@ -461,11 +457,7 @@ mod tests {
     /// Helper to check that lexing produces expected errors.
     fn check_lex_errors(input: &str, expect: Expect) {
         let (_tokens, errors) = lex(input);
-        let output = errors
-            .iter()
-            .map(|e| format!("{}:{}", e.offset, e.message))
-            .collect::<Vec<_>>()
-            .join("\n");
+        let output = errors.iter().map(|e| format!("{}:{}", e.offset, e.message)).collect::<Vec<_>>().join("\n");
         expect.assert_eq(&output);
     }
 
