@@ -38,6 +38,7 @@ members = [
   "compiler/passes",
   "compiler/span",
   "errors",
+  "leo-fmt",
   "interpreter",
   "leo/package",
   "test-framework",
@@ -67,6 +68,7 @@ leo-ast             = { path = "./compiler/ast",              version = "=3.4.0"
 leo-compiler        = { path = "./compiler/compiler",         version = "=3.4.0" }
 leo-disassembler    = { path = "./utils/disassembler",        version = "=3.4.0" }
 leo-errors          = { path = "./errors",                    version = "=3.4.0" }
+leo-fmt             = { path = "./leo-fmt",                   version = "=3.4.0" }
 leo-interpreter     = { path = "./interpreter",               version = "=3.4.0" }
 leo-package         = { path = "./leo/package",               version = "=3.4.0" }
 leo-parser          = { path = "./compiler/parser",           version = "=3.4.0" }
