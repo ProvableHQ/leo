@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'future' -- found 'mapping'
+Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'mapping'
     --> test:6:16
      |
    6 |         let a: mapping = relay.aleo/users;

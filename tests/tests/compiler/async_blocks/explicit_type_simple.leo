@@ -1,9 +1,9 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    async transition main_inner(public a: u32, b: u32) -> (u32, Future<Fn(u32)>) {
+    fn main_inner(public a: u32, b: u32) -> (u32, Final<Fn(u32)>) {
         let c: u32 = a + b;
         let x = 1u32;
-        let f: Future<Fn(u32)> = async { // captures only `x`
+        let f: Final<Fn(u32)> = final { // captures only `x`
             Mapping::set(foo, a, 1u32);
         };
         return (c, f);
@@ -14,11 +14,11 @@ program test.aleo {
 
 import test.aleo;
 program basic.aleo {
-    async transition main(public a: u32, b: u32) -> (u32, Future<Fn(Future<Fn(u32)>, u32, u32)>) {
+    fn main(public a: u32, b: u32) -> (u32, Final<Fn(Final<Fn(u32)>, u32, u32)>) {
         let c: u32 = a + b;
-        let (d, f1): (u32, Future<Fn(u32)>) = test.aleo/main_inner(1u32, 1u32);
-        let f:Future<Fn(Future<Fn(u32)>, u32, u32)> = async { // captures `f1`, `a`, and `c` in this order
-            f1.await();
+        let (d, f1): (u32, Final<Fn(u32)>) = test.aleo/main_inner(1u32, 1u32);
+        let f:Final<Fn(Final<Fn(u32)>, u32, u32)> = final { // captures `f1`, `a`, and `c` in this order
+            f1.run();
             assert_eq(a, c);
         }; 
         return (c,f);

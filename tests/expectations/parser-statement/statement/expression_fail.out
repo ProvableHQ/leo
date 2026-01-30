@@ -1,9 +1,9 @@
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', ')', '[', ',', 'true', 'false', 'async', 'block', 'network', 'self' -- found ']'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', ')', '[', ',', 'true', 'false', 'final', 'block', 'network', 'self' -- found ']'
     --> test_0:1:2
      |
    1 | (];
      |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', ',', 'true', 'false', 'async', 'block', 'network', 'self' -- found ')'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ']', ',', 'true', 'false', 'final', 'block', 'network', 'self' -- found ')'
     --> test_1:1:2
      |
    1 | [);
@@ -14,12 +14,12 @@ Error [EPAR0370050]: Could not lex the following content: `\`.
      |
    1 | x\y;
      |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found ';'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
     --> test_3:1:6
      |
    1 | (x,y|;
      |      ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '}'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '}'
     --> test_4:1:3
      |
    1 | x[};

@@ -1,8 +1,8 @@
 Error [ETYC0372049]: A tuple type cannot contain a tuple.
-    --> compiler-test:3:35
+    --> compiler-test:3:27
      |
-   3 |     transition bar(a: u8) -> (u8, (u8, u8)) {
-     |                                   ^^^^^^^^
+   3 |     fn bar(a: u8) -> (u8, (u8, u8)) {
+     |                           ^^^^^^^^
 Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
     --> compiler-test:4:20
      |

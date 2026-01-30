@@ -143,10 +143,10 @@ fn symbol_is_keyword(symbol: Symbol) -> bool {
         sym::Else |
         sym::False |
         sym::field |
+        sym::FnUpper |
         sym::Fn |
         sym::For |
-        sym::function |
-        sym::Future |
+        sym::Final |
         sym::group |
         sym::i8 |
         sym::i16 |
@@ -173,7 +173,6 @@ fn symbol_is_keyword(symbol: Symbol) -> bool {
         sym::signature |
         sym::string |
         sym::Struct |
-        sym::transition |
         sym::True |
         sym::u8 |
         sym::u16 |

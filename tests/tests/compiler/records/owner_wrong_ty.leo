@@ -5,7 +5,7 @@ program test.aleo {
         owner: bool,
     }
 
-    function main(x: field) -> bool {
-        return true;
-    }
+}
+fn main(x: field) -> bool {
+    return true;
 }

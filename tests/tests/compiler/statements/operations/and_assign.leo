@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(k: bool) -> bool {
+    fn main(k: bool) -> bool {
         let b: bool = true;
         b &&= k;
 

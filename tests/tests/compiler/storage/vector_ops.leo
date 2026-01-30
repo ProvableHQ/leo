@@ -3,45 +3,45 @@ program singleton_storage.aleo {
     
     storage vec: [u8];
 
-    async transition push() -> Future {
-        return async {
+    fn push() -> Final {
+        return final {
             vec.push(42u8);
         };
     }
 
-    async transition pop() -> Future {
-        return async {
+    fn pop() -> Final {
+        return final {
             let x = vec.pop();
             assert(x != none);
         };
     }
 
-    async transition get() -> Future {
-        return async {
+    fn get() -> Final {
+        return final {
             let x = vec.get(3u32);
             assert(x != none);
         };
     }
 
-    async transition set() -> Future {
-        return async {
+    fn set() -> Final {
+        return final {
             vec.set(3u32, 42u8);
         };
     }
 
-    async transition clear() -> Future {
-        return async {
+    fn clear() -> Final {
+        return final {
             vec.clear();
         };
     }
 
-    async transition swap_remove() -> Future {
-        return async {
+    fn swap_remove() -> Final {
+        return final {
             let x = vec.swap_remove(3u32);
             assert(x >= 0);
         };
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

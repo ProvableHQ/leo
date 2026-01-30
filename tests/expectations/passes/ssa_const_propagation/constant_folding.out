@@ -1,5 +1,5 @@
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         let $var$0 = 5u32;
         let $var$1 = 3u32;
         let x$#2 = 8u32;
@@ -7,7 +7,7 @@ program test.aleo {
         let y$#4 = 16u32;
         return 16u32;
     }
-    transition foo() -> u32 {
+    fn foo() -> u32 {
         let $var$5 = 5u32;
         let $var$6 = 3u32;
         let x$#7 = 8u32;
@@ -19,3 +19,4 @@ program test.aleo {
         return 24u32;
     }
 }
+

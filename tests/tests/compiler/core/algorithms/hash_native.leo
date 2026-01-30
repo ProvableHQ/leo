@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {
     // Test native hash functions that return bit arrays
-    transition main(input: u64) -> (
+    fn main(input: u64) -> (
         bool, bool, bool, bool,  // Keccak256 native samples
         bool, bool,               // Keccak384 native samples
         bool, bool,               // Keccak512 native samples

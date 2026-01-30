@@ -1090,7 +1090,7 @@ impl Cursor {
 
                 let span = intr.span();
 
-                if let Intrinsic::FutureAwait = intrinsic {
+                if let Intrinsic::FinalRun = intrinsic {
                     let value = self.pop_value()?;
                     let Some(asyncs) = value.as_future() else {
                         halt!(span, "Invalid value for await: {value}");
@@ -1138,7 +1138,7 @@ impl Cursor {
                 } else {
                     halt!(intr.span(), "Unknown intrinsic {}", intr.name);
                 };
-                assert!(intrinsic == Intrinsic::FutureAwait);
+                assert!(intrinsic == Intrinsic::FinalRun);
                 Some(Value::make_unit())
             }
 
@@ -1191,8 +1191,6 @@ impl Cursor {
                     if let Some(program) = maybe_program {
                         (program, self.to_absolute_path(&call.function.segments()))
                     } else {
-                        dbg!(&call.function);
-                        dbg!(self.current_program());
                         halt!(call.span, "No current program");
                     }
                 };

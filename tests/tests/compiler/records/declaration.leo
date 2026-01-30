@@ -7,7 +7,7 @@ program test.aleo {
         amount: u64,
     }
 
-    transition main(a: u8, b:u8) -> u8 {
+    fn main(a: u8, b:u8) -> u8 {
         return a + b;
     }
 }

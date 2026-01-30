@@ -3,14 +3,14 @@ namespace: Compile
 expectation: Pass
 */
 
-program test.aleo {
-    struct Data {
-        x: u32,
-        y: u32,
-    }
+struct Data {
+    x: u32,
+    y: u32,
+}
 
+program test.aleo {
     // Test all BHP raw hash variants
-    transition main(input: u64) -> (
+    fn main(input: u64) -> (
         address, field, group, i8, u32, scalar,  // BHP256 raw
         field, group, scalar,                     // BHP512 raw
         field, u64,                               // BHP768 raw

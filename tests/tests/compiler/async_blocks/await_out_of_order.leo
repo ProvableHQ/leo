@@ -1,7 +1,7 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    async transition main_inner(public a: u32, public b: u32) -> Future {
-        return async {
+    fn main_inner(public a: u32, public b: u32) -> Final {
+        return final {
             Mapping::set(foo, a, b);
         };
     }
@@ -11,14 +11,14 @@ program test.aleo {
 
 import test.aleo;
 program basic.aleo {
-    async transition main(public a: u32, b: u32) -> Future {
-        let f1: Future = test.aleo/main_inner(0u32, 0u32);
-        let f2: Future = test.aleo/main_inner(1u32, 1u32);
+    fn main(public a: u32, b: u32) -> Final {
+        let f1: Final = test.aleo/main_inner(0u32, 0u32);
+        let f2: Final = test.aleo/main_inner(1u32, 1u32);
 
         // No "out of order" warning since the futures are captured in the order they appear in inside the block anyways.
-        let f:Future = async {
-            f2.await();
-            f1.await();
+        let f:Final = final {
+            f2.run();
+            f1.run();
         };
         return f;
     }

@@ -1,23 +1,23 @@
+const M: u32 = 52;
+
+struct Foo::[N: u32] {
+    arr: [u32; N],
+}
+
+struct Goo::[P: u32] {
+    f: Foo::[P],
+}
+
+struct Boo::[P: u32] {
+    g: Goo::[P],
+}
+
+struct Baz {
+    f: Foo::[10u32],
+}
+
 program test.aleo {
-    const M: u32 = 52;
-
-    struct Foo::[N: u32] {
-        arr: [u32; N],
-    }
-
-    struct Goo::[P: u32] {
-        f: Foo::[P],
-    }
-
-    struct Boo::[P: u32] {
-        g: Goo::[P],
-    }
-
-    struct Baz {
-        f: Foo::[10u32],
-    }
-
-    transition main(g: Goo::[7u32], b: Baz, x: u32) -> u32 {
+    fn main(g: Goo::[7u32], b: Baz, x: u32) -> u32 {
         let g2 = Goo::[6u32] {
             f: Foo::[6u32] {
                 arr: [42u32; 6],

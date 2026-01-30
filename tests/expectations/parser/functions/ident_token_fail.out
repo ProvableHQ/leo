@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'storage', 'script', 'transition' -- found '1'
-    --> test:3:5
+Error [EPAR0370005]: expected '@', 'struct', 'final', 'const', 'fn', 'program', 'script' -- found '1'
+    --> test:3:1
      |
-   3 |     1 main() {}}
-     |     ^
+   3 | 1 main() {}
+     | ^

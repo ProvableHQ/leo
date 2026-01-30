@@ -1,5 +1,5 @@
 Error [ETYC0372005]: Unknown function `increment`
-    --> compiler-test:10:9
+    --> compiler-test:11:5
      |
-  10 |         increment(amounts, addr, amount);
-     |         ^^^^^^^^^
+  11 |     increment(amounts, addr, amount);
+     |     ^^^^^^^^^

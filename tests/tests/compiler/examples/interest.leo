@@ -2,7 +2,7 @@
 program test.aleo {
     // This function calculates the interest accrued
     // over ten iterations for some `capital` and `rate`.
-    transition fixed_iteration_interest(capital: u32, public rate: u32) -> u32 {
+    fn fixed_iteration_interest(capital: u32, public rate: u32) -> u32 {
         let amount: u32 = capital;
 
         // Accrue for exactly 10 iterations.
@@ -16,7 +16,7 @@ program test.aleo {
 
     // This function calculates the interest accrued
     // over a variable number of iterations (max 50) for some `capital` and `rate`.
-    transition bounded_iteration_interest(capital: u32,
+    fn bounded_iteration_interest(capital: u32,
                                         public rate: u32,
                                         iterations: u8) -> u32 {
         assert(iterations <= 50u8);

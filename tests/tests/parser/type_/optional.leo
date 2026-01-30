@@ -1,5 +1,5 @@
 program foo.aleo {
-    transition bar(
+    fn bar(
         a: u8?,
         b: u16?,
         c: [u8?; 3]?,

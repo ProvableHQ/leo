@@ -1,6 +1,5 @@
 program test.aleo {
-
-    async transition main() -> Future {
+    fn main() -> Final {
         assert_eq(self.signer, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
 
@@ -18,16 +17,16 @@ program test.aleo {
 
         return finish();
     }
+}
 
-    async function finish() {
-        CheatCode::set_block_height(1u32);
-        assert_eq(block.height, 1u32);
-        CheatCode::set_block_height(999u32);
-        assert_eq(block.height, 999u32);
+final fn finish() {
+    CheatCode::set_block_height(1u32);
+    assert_eq(block.height, 1u32);
+    CheatCode::set_block_height(999u32);
+    assert_eq(block.height, 999u32);
 
-        CheatCode::set_block_timestamp(1i64);
-        assert_eq(block.timestamp, 1i64);
-        CheatCode::set_block_timestamp(999i64);
-        assert_eq(block.timestamp, 999i64);
-    }
+    CheatCode::set_block_timestamp(1i64);
+    assert_eq(block.timestamp, 1i64);
+    CheatCode::set_block_timestamp(999i64);
+    assert_eq(block.timestamp, 999i64);
 }

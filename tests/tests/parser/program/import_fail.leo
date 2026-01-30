@@ -1,6 +1,5 @@
 import hello.leo;
-program test.aleo {
-    function main() {
-        let x:u8 = 1u8;
-    }
+program test.aleo {}
+fn main() {
+    let x:u8 = 1u8;
 }

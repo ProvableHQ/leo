@@ -4,7 +4,7 @@ program child.aleo {
         val: u32,
     }
 
-    transition bar() {}
+    fn bar() {}
 }
 
 // --- Next Program --- //
@@ -27,5 +27,5 @@ program parent.aleo {
         owner: address,
     }
 
-    transition foo () {}
+    fn foo () {}
 }

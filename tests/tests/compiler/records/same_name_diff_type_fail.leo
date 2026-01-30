@@ -5,7 +5,7 @@ program child.aleo {
         x: u8,
     }
 
-    transition create() -> R {
+    fn create() -> R {
         return R {
             owner: self.signer,
             x: 1u8,
@@ -22,7 +22,7 @@ program parent.aleo {
         x: u16,
     }
 
-    transition check() -> bool {
+    fn check() -> bool {
         let r1: R = R {
             owner: self.signer,
             x: 1u16,

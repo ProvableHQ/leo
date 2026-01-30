@@ -21,22 +21,22 @@ function foo:
     output r2 as u8.private;
 */
 
-program test.aleo {
 
+fn eliminate_unused_function_call(a: u8, b: u8) -> u8 {
+    return a + b;
+}
+
+fn inline_and_eliminate(a: u8, b: u8) -> u8 {
+    return a * b;
+}
+
+program test.aleo {
     record dummy {
         owner: address,
         data: u8,
     }
 
-    function eliminate_unused_function_call(a: u8, b: u8) -> u8 {
-        return a + b;
-    }
-
-    inline inline_and_eliminate(a: u8, b: u8) -> u8 {
-        return a * b;
-    }
-
-    transition foo(a: u8, b: u8) -> u8 {
+    fn foo(a: u8, b: u8) -> u8 {
         let c: u8 = a + b;
         // For now allow this call to remain.
         let d: u8 = eliminate_unused_function_call(a, b);

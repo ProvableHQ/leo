@@ -1,6 +1,6 @@
 
-async {}
+final {}
 
-async { let x = 0; }
+final { let x = 0; }
 
-async { let x = 0; let y = foo(); }
+final { let x = 0; let y = foo(); }

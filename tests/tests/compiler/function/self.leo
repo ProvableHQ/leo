@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition matches(addr: address) -> bool {
+    fn matches(addr: address) -> bool {
         return self.caller == addr;
     }
 }

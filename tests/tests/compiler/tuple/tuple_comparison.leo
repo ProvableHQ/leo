@@ -1,18 +1,18 @@
+struct S {
+    a: u32,
+    b: u32,
+}
+
+fn make_pair(x: u32, y: u32) -> (u32, u32) {
+    return (x, y);
+}
+
+fn make_triple(x: u32, y: u32, z: u32) -> (u32, u32, u32) {
+    return (x, y, z);
+}
+
 program tuple_eq_flat_stress.aleo {
-    struct S {
-        a: u32,
-        b: u32,
-    }
-
-    inline make_pair(x: u32, y: u32) -> (u32, u32) {
-        return (x, y);
-    }
-
-    inline make_triple(x: u32, y: u32, z: u32) -> (u32, u32, u32) {
-        return (x, y, z);
-    }
-
-    transition test_all() {
+    fn test_all() {
 
         // --- Base tuples
         let t1 = (1u32, 2u32);

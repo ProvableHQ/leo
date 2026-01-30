@@ -3,8 +3,8 @@ Error [ETYC0372156]: A 'noupgrade', 'admin', or 'checksum' constructor must be e
      |
    7 |     @checksum(mapping = "test.aleo/expected_checksum", key = "true")
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |     async constructor() {
-     |     ^^^^^^^^^^^^^^^^^^^^^
+   8 |     constructor() {
+     |     ^^^^^^^^^^^^^^^
    9 |         if self.edition >= 0u16 {
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^
   10 |             let expected: [u8; 32] = Mapping::get(expected_checksum, true);

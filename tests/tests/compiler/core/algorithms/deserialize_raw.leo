@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {
     // Test Deserialize::from_bits_raw for primitive types (raw = no metadata)
-    transition main() -> (
+    fn main() -> (
         u32, u64, i32, i64,
         field, group, scalar, address,
         bool, bool, bool, bool, bool, bool, bool, bool

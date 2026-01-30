@@ -1,8 +1,15 @@
 Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
     --> compiler-test:3:18
      |
-   3 |         let f1 = async {};
+   3 |         let f1 = final {};
      |                  ^^^^^^^^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:8:21
+     |
+   8 |             let f = final {};
+     |                     ^^^^^^^^
      |
      = Try moving this `async` block into an `async` transition or a script function.
 Error [ETYC0372035]: Loop body contains an async block expression.
@@ -10,7 +17,7 @@ Error [ETYC0372035]: Loop body contains an async block expression.
      |
    7 |         for j in 0u32..2u32 {
      |         ^^^^^^^^^^^^^^^^^^^^^
-   8 |             let f = async {};
+   8 |             let f = final {};
      |             ^^^^^^^^^^^^^^^^^
    9 |         }
      |         ^
@@ -19,37 +26,44 @@ Error [ETYC0372035]: Loop body contains an async block expression.
 Error [ETYC0372151]: `async` blocks are not allowed inside conditional blocks.
     --> compiler-test:14:21
      |
-  14 |             let f = async {};
+  14 |             let f = final {};
      |                     ^^^^^^^^
      |
      = Refactor your code to move the `async` block outside of the conditional block.
 Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:19:17
+    --> compiler-test:14:21
      |
-  19 |         let f = async {};
-     |                 ^^^^^^^^
-     |
-     = Try moving this `async` block into an `async` transition or a script function.
-Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:23:17
-     |
-  23 |         let f = async {};
-     |                 ^^^^^^^^
+  14 |             let f = final {};
+     |                     ^^^^^^^^
      |
      = Try moving this `async` block into an `async` transition or a script function.
 Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:27:17
+    --> compiler-test:20:13
      |
-  27 |         let f = async {};
-     |                 ^^^^^^^^
+  20 |     let f = final {};
+     |             ^^^^^^^^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:24:13
+     |
+  24 |     let f = final {};
+     |             ^^^^^^^^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:28:13
+     |
+  28 |     let f = final {};
+     |             ^^^^^^^^
      |
      = Try moving this `async` block into an `async` transition or a script function.
 Warning [WTYC0372002]: The async function `f3` is never called by an async transition.
-    --> compiler-test:22:5
+    --> compiler-test:23:1
      |
-  22 |     async function f3() {
-     |     ^^^^^^^^^^^^^^^^^^^^^
-  23 |         let f = async {};
-     |         ^^^^^^^^^^^^^^^^^
-  24 |     }
-     |     ^
+  23 | final fn f3() {
+     | ^^^^^^^^^^^^^^^
+  24 |     let f = final {};
+     |     ^^^^^^^^^^^^^^^^^
+  25 | }
+     | ^

@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected an identifier -- found '1'
-    --> compiler-test:4:14
+    --> compiler-test:4:10
      |
-   4 |         let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);
-     |              ^
+   4 |     let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);
+     |          ^

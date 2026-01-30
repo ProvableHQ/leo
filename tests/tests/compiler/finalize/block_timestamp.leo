@@ -1,10 +1,10 @@
 
 program test.aleo {
-    async transition matches(timestamp: i64) -> Future {
+    fn matches(timestamp: i64) -> Final {
         return finalize_matches(timestamp);
     }
+}
 
-    async function finalize_matches(timestamp: i64) {
-        assert_eq(timestamp, block.timestamp);
-    }
+final fn finalize_matches(timestamp: i64) {
+    assert_eq(timestamp, block.timestamp);
 }

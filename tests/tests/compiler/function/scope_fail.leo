@@ -1,11 +1,9 @@
+fn foo(x: u32) -> field {
+    return myGlobal;
+}
 
 program test.aleo {
-
-    inline foo(x: u32) -> field {
-        return myGlobal;
-    }
-
-    transition main() -> field {
+    fn main() -> field {
         let myGlobal = 42field;
         let err = foo(3u32);
 

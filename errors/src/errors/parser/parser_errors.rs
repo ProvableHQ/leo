@@ -476,4 +476,46 @@ create_messages!(
         msg: "Identifiers cannot start with an underscore.",
         help: Some("Identifiers must start with a letter.".to_string()),
     }
+
+    @formatted
+    missing_program_declaration {
+        args: (),
+        msg: "A Leo program must have exactly one `program` declaration.",
+        help: Some("Add a `program` block to define your program's entry points.".to_string()),
+    }
+
+    @formatted
+    multiple_program_declarations {
+        args: (),
+        msg: "A Leo program can only have one `program` declaration.",
+        help: Some("Remove the duplicate `program` block. Only one is allowed per program.".to_string()),
+    }
+
+    @formatted
+    const_must_be_outside_program_block {
+        args: (),
+        msg: "Constant declarations must be outside the `program` block.",
+        help: Some("Move this constant declaration to the top level, before the `program` block.".to_string()),
+    }
+
+    @formatted
+    composite_must_be_outside_program_block {
+        args: (type_name: impl Display),
+        msg: format!("{type_name} declarations must be outside the `program` block."),
+        help: Some("Move this type declaration to the top level, before the `program` block.".to_string()),
+    }
+
+    @formatted
+    only_transitions_allowed_in_program_block {
+        args: (variant: impl Display),
+        msg: format!("Only transitions can be declared inside the `program` block, found `{variant}`."),
+        help: Some("Move helper functions outside the `program` block. Only entry points (transitions) belong inside.".to_string()),
+    }
+
+    @formatted
+    transitions_must_be_in_program_block {
+        args: (),
+        msg: "Transitions must be declared inside the `program` block.",
+        help: Some("Move this transition into the `program` block. Transitions are entry points and must be part of the program's public interface.".to_string()),
+    }
 );

@@ -3,8 +3,8 @@ Error [ETYC0372156]: A program can only have one constructor.
      |
    9 |     @custom
      |     ^^^^^^^
-  10 |     async constructor() {
-     |     ^^^^^^^^^^^^^^^^^^^^^
+  10 |     constructor() {
+     |     ^^^^^^^^^^^^^^^
   11 |         assert_eq(true, true);
      |         ^^^^^^^^^^^^^^^^^^^^^^
   12 |     }

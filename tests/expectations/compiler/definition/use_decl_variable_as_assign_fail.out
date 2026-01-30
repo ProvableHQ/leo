@@ -1,5 +1,5 @@
 Error [ETYC0372005]: Unknown variable `b`
-    --> compiler-test:4:18
+    --> compiler-test:5:14
      |
-   4 |     	let b: u8 = b;
-     |                  ^
+   5 | 	let b: u8 = b;
+     |              ^

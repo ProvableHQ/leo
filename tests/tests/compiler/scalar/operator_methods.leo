@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: scalar, b: scalar) -> bool {
+    fn main(a: scalar, b: scalar) -> bool {
        // binary
        let j: scalar = a.add(b);
        let o: bool = a.eq(b);

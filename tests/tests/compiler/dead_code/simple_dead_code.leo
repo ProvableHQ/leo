@@ -4,7 +4,7 @@ expectation = "Pass"
 */
 
 program test.aleo {
-    transition main(public x: field, y: field, a: u8, b: u8) -> field {
+    fn main(public x: field, y: field, a: u8, b: u8) -> field {
         // This line is dead and should be eliminated by DCE.
         let z: field = BHP256::hash_to_field(x);
 

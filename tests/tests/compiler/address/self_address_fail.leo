@@ -1,10 +1,10 @@
 
 program test.aleo {
-    transition main() -> bool {
+    fn main() -> bool {
       return self.address;
     }
 
-    transition next() -> bool {
+    fn next() -> bool {
       let a = self.address;
       return a;
     }

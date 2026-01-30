@@ -1,18 +1,18 @@
 
 // TODO: This should be made into an integration test.
 
+struct Foo {
+    a: u8,
+    b: u16,
+}
+
+struct Bar {
+    a: u8,
+    b: u8,
+}
+
 program test.aleo {
-    struct Foo {
-        a: u8,
-        b: u16,
-    }
-
-    struct Bar {
-        a: u8,
-        b: u8,
-    }
-
-    transition main(a: u8, b: u16) -> (Foo, Bar) {
+    fn main(a: u8, b: u16) -> (Foo, Bar) {
         let c: u8 = a + a;
         let d: u16 = b * b;
         let e: Foo = Foo {

@@ -2,17 +2,11 @@ program test.aleo {
     mapping expected: bool => [u8; 32];
     mapping admin: bool => address;
     
-    async transition set_expected(checksum: [u8; 32]) -> Future {
+    fn set_expected(checksum: [u8; 32]) -> Final {
         return set_expected_(self.caller, checksum);
     }
-
-    async function set_expected_(addr: address, checksum: [u8; 32]) {
-        assert_eq(addr, admin.get(true));
-        expected.set(true, checksum);
-    }
-
     @custom
-    async constructor() {
+    constructor() {
         let current_edition: u16 = self.edition;
         if current_edition > 0u16 {
             let expected_checksum: [u8; 32] = expected.get(true);
@@ -23,3 +17,9 @@ program test.aleo {
         }
     }
 }
+
+final fn set_expected_(addr: address, checksum: [u8; 32]) {
+    assert_eq(addr, admin.get(true));
+    expected.set(true, checksum);
+}
+

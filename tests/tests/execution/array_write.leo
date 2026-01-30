@@ -21,13 +21,13 @@ input = ["true", "true"]
 */
 
 
-program test.aleo {
-    struct S {
-        x: u32,
-        y: [u32; 3],
-    }
+struct S {
+    x: u32,
+    y: [u32; 3],
+}
 
-    transition some_assignments(public a: bool, public b: bool) -> public [u32; 11] {
+program test.aleo {
+    fn some_assignments(public a: bool, public b: bool) -> public [u32; 11] {
         let arr: [u32; 3] = [0u32, 1u32, 2u32];
         if a {
             arr[0u8] = 10u32;
@@ -66,5 +66,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

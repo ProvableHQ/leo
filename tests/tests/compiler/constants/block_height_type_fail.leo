@@ -1,10 +1,9 @@
+final fn bar() {
+    let x: u64 = block.height;
+}
 
 program test.aleo {
-    async function bar() {
-        let x: u64 = block.height;
-    }
-
-    async transition foo() -> Future {
+    fn foo() -> Final {
         return bar();
     }
 }

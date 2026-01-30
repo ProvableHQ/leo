@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected 'import', 'program' -- found 'struct'
-    --> test:1:1
+Error [EPAR0370005]: expected an identifier -- found 'import'
+    --> test:1:8
      |
    1 | struct import
-     | ^^^^^^
+     |        ^^^^^^

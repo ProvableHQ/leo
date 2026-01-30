@@ -35,8 +35,8 @@
             "identifier": {
               "name": "baz",
               "span": {
-                "lo": 36,
-                "hi": 39
+                "lo": 28,
+                "hi": 31
               },
               "id": 0
             },
@@ -46,16 +46,16 @@
                 "identifier": {
                   "name": "s",
                   "span": {
-                    "lo": 40,
-                    "hi": 41
+                    "lo": 32,
+                    "hi": 33
                   },
                   "id": 1
                 },
                 "mode": "None",
                 "type_": "Signature",
                 "span": {
-                  "lo": 40,
-                  "hi": 52
+                  "lo": 32,
+                  "hi": 44
                 },
                 "id": 2
               },
@@ -63,16 +63,16 @@
                 "identifier": {
                   "name": "a",
                   "span": {
-                    "lo": 54,
-                    "hi": 55
+                    "lo": 46,
+                    "hi": 47
                   },
                   "id": 3
                 },
                 "mode": "None",
                 "type_": "Address",
                 "span": {
-                  "lo": 54,
-                  "hi": 64
+                  "lo": 46,
+                  "hi": 56
                 },
                 "id": 4
               },
@@ -80,8 +80,8 @@
                 "identifier": {
                   "name": "v",
                   "span": {
-                    "lo": 66,
-                    "hi": 67
+                    "lo": 58,
+                    "hi": 59
                   },
                   "id": 5
                 },
@@ -94,15 +94,15 @@
                       "identifier": {
                         "name": "value",
                         "span": {
-                          "lo": 69,
-                          "hi": 74
+                          "lo": 61,
+                          "hi": 66
                         },
                         "id": 6
                       },
                       "target": "Unresolved",
                       "span": {
-                        "lo": 69,
-                        "hi": 74
+                        "lo": 61,
+                        "hi": 66
                       },
                       "id": 7
                     },
@@ -110,8 +110,8 @@
                   }
                 },
                 "span": {
-                  "lo": 66,
-                  "hi": 74
+                  "lo": 58,
+                  "hi": 66
                 },
                 "id": 8
               }
@@ -126,8 +126,8 @@
                       "Single": {
                         "name": "a",
                         "span": {
-                          "lo": 90,
-                          "hi": 91
+                          "lo": 82,
+                          "hi": 83
                         },
                         "id": 10
                       }
@@ -145,15 +145,15 @@
                               "identifier": {
                                 "name": "s",
                                 "span": {
-                                  "lo": 118,
-                                  "hi": 119
+                                  "lo": 110,
+                                  "hi": 111
                                 },
                                 "id": 15
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 118,
-                                "hi": 119
+                                "lo": 110,
+                                "hi": 111
                               },
                               "id": 14
                             }
@@ -165,15 +165,15 @@
                               "identifier": {
                                 "name": "a",
                                 "span": {
-                                  "lo": 121,
-                                  "hi": 122
+                                  "lo": 113,
+                                  "hi": 114
                                 },
                                 "id": 17
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 121,
-                                "hi": 122
+                                "lo": 113,
+                                "hi": 114
                               },
                               "id": 16
                             }
@@ -185,30 +185,30 @@
                               "identifier": {
                                 "name": "v",
                                 "span": {
-                                  "lo": 124,
-                                  "hi": 125
+                                  "lo": 116,
+                                  "hi": 117
                                 },
                                 "id": 19
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 124,
-                                "hi": 125
+                                "lo": 116,
+                                "hi": 117
                               },
                               "id": 18
                             }
                           }
                         ],
                         "span": {
-                          "lo": 100,
-                          "hi": 126
+                          "lo": 92,
+                          "hi": 118
                         },
                         "id": 11
                       }
                     },
                     "span": {
-                      "lo": 86,
-                      "hi": 127
+                      "lo": 78,
+                      "hi": 119
                     },
                     "id": 9
                   }
@@ -219,8 +219,8 @@
                       "Single": {
                         "name": "b",
                         "span": {
-                          "lo": 140,
-                          "hi": 141
+                          "lo": 132,
+                          "hi": 133
                         },
                         "id": 21
                       }
@@ -238,15 +238,15 @@
                               "identifier": {
                                 "name": "s",
                                 "span": {
-                                  "lo": 150,
-                                  "hi": 151
+                                  "lo": 142,
+                                  "hi": 143
                                 },
                                 "id": 25
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 150,
-                                "hi": 151
+                                "lo": 142,
+                                "hi": 143
                               },
                               "id": 24
                             }
@@ -258,15 +258,15 @@
                               "identifier": {
                                 "name": "a",
                                 "span": {
-                                  "lo": 159,
-                                  "hi": 160
+                                  "lo": 151,
+                                  "hi": 152
                                 },
                                 "id": 27
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 159,
-                                "hi": 160
+                                "lo": 151,
+                                "hi": 152
                               },
                               "id": 26
                             }
@@ -278,30 +278,30 @@
                               "identifier": {
                                 "name": "v",
                                 "span": {
-                                  "lo": 162,
-                                  "hi": 163
+                                  "lo": 154,
+                                  "hi": 155
                                 },
                                 "id": 29
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 162,
-                                "hi": 163
+                                "lo": 154,
+                                "hi": 155
                               },
                               "id": 28
                             }
                           }
                         ],
                         "span": {
-                          "lo": 150,
-                          "hi": 164
+                          "lo": 142,
+                          "hi": 156
                         },
                         "id": 22
                       }
                     },
                     "span": {
-                      "lo": 136,
-                      "hi": 165
+                      "lo": 128,
+                      "hi": 157
                     },
                     "id": 20
                   }
@@ -317,15 +317,15 @@
                             "identifier": {
                               "name": "a",
                               "span": {
-                                "lo": 184,
-                                "hi": 185
+                                "lo": 176,
+                                "hi": 177
                               },
                               "id": 32
                             },
                             "target": "Unresolved",
                             "span": {
-                              "lo": 184,
-                              "hi": 185
+                              "lo": 176,
+                              "hi": 177
                             },
                             "id": 31
                           }
@@ -337,15 +337,15 @@
                             "identifier": {
                               "name": "b",
                               "span": {
-                                "lo": 187,
-                                "hi": 188
+                                "lo": 179,
+                                "hi": 180
                               },
                               "id": 34
                             },
                             "target": "Unresolved",
                             "span": {
-                              "lo": 187,
-                              "hi": 188
+                              "lo": 179,
+                              "hi": 180
                             },
                             "id": 33
                           }
@@ -353,22 +353,22 @@
                       ]
                     },
                     "span": {
-                      "lo": 174,
-                      "hi": 190
+                      "lo": 166,
+                      "hi": 182
                     },
                     "id": 30
                   }
                 }
               ],
               "span": {
-                "lo": 76,
-                "hi": 196
+                "lo": 68,
+                "hi": 188
               },
               "id": 35
             },
             "span": {
               "lo": 25,
-              "hi": 196
+              "hi": 188
             },
             "id": 36
           }
@@ -381,8 +381,8 @@
             "identifier": {
               "name": "bar",
               "span": {
-                "lo": 213,
-                "hi": 216
+                "lo": 197,
+                "hi": 200
               },
               "id": 37
             },
@@ -392,8 +392,8 @@
                 "identifier": {
                   "name": "x",
                   "span": {
-                    "lo": 217,
-                    "hi": 218
+                    "lo": 201,
+                    "hi": 202
                   },
                   "id": 38
                 },
@@ -402,8 +402,8 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 217,
-                  "hi": 222
+                  "lo": 201,
+                  "hi": 206
                 },
                 "id": 39
               }
@@ -415,8 +415,8 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 227,
-                  "hi": 229
+                  "lo": 211,
+                  "hi": 213
                 },
                 "id": 50
               }
@@ -432,8 +432,8 @@
                       "Single": {
                         "name": "signature_",
                         "span": {
-                          "lo": 244,
-                          "hi": 254
+                          "lo": 228,
+                          "hi": 238
                         },
                         "id": 41
                       }
@@ -446,8 +446,8 @@
                         "left": {
                           "Literal": {
                             "span": {
-                              "lo": 261,
-                              "hi": 264
+                              "lo": 245,
+                              "hi": 248
                             },
                             "id": 43,
                             "variant": {
@@ -465,30 +465,30 @@
                             "identifier": {
                               "name": "x",
                               "span": {
-                                "lo": 267,
-                                "hi": 268
+                                "lo": 251,
+                                "hi": 252
                               },
                               "id": 45
                             },
                             "target": "Unresolved",
                             "span": {
-                              "lo": 267,
-                              "hi": 268
+                              "lo": 251,
+                              "hi": 252
                             },
                             "id": 44
                           }
                         },
                         "op": "Add",
                         "span": {
-                          "lo": 261,
-                          "hi": 268
+                          "lo": 245,
+                          "hi": 252
                         },
                         "id": 42
                       }
                     },
                     "span": {
-                      "lo": 240,
-                      "hi": 269
+                      "lo": 224,
+                      "hi": 253
                     },
                     "id": 40
                   }
@@ -502,36 +502,36 @@
                         "identifier": {
                           "name": "signature_",
                           "span": {
-                            "lo": 285,
-                            "hi": 295
+                            "lo": 269,
+                            "hi": 279
                           },
                           "id": 48
                         },
                         "target": "Unresolved",
                         "span": {
-                          "lo": 285,
-                          "hi": 295
+                          "lo": 269,
+                          "hi": 279
                         },
                         "id": 47
                       }
                     },
                     "span": {
-                      "lo": 278,
-                      "hi": 296
+                      "lo": 262,
+                      "hi": 280
                     },
                     "id": 46
                   }
                 }
               ],
               "span": {
-                "lo": 230,
-                "hi": 302
+                "lo": 214,
+                "hi": 286
               },
               "id": 49
             },
             "span": {
-              "lo": 202,
-              "hi": 302
+              "lo": 194,
+              "hi": 286
             },
             "id": 51
           }
@@ -540,7 +540,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 304
+        "hi": 288
       }
     }
   }
