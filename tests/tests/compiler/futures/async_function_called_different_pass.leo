@@ -34,6 +34,6 @@ program test.aleo {
 
 onchain fn finalize(f: Final) {
     let x: u8 = f.0;
-    f.await();
+    f.run();
 }
 

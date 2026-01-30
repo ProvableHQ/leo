@@ -26,5 +26,5 @@ program test_credits.aleo {
 }
 
 onchain fn finish(f: Final) {
-    f.await();
+    f.run();
 }

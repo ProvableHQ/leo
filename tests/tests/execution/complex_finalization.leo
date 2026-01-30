@@ -69,8 +69,8 @@ import zero_program.aleo;
 import one_program.aleo;
 
 onchain fn finalize_b(f0: Final, f1: Final, addr: address) {
-    f0.await();
-    f1.await();
+    f0.run();
+    f1.run();
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
 }
@@ -99,9 +99,9 @@ import one_program.aleo;
 import two_program.aleo;
 
 onchain fn finalize_e(f0: Final, f1: Final, f2: Final, addr: address) {
-    f0.await();
-    f1.await();
-    f2.await();
+    f0.run();
+    f1.run();
+    f2.run();
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
 }
@@ -130,8 +130,8 @@ import two_program.aleo;
 import three_program.aleo;
 
 onchain fn finalize_a(f0: Final, f1: Final, addr: address) {
-  f0.await();
-  f1.await();
+  f0.run();
+  f1.run();
   let count: u64 = counts.get_or_use(addr, 0u64);
   counts.set(addr, count + 1u64);
 }

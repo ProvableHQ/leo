@@ -73,8 +73,8 @@ program two_program.aleo {
         let addr = self.signer; 
 
         return final {
-            f0.await();
-            f1.await();
+            f0.run();
+            f1.run();
             let count: u64 = counts.get_or_use(addr, 0u64);
             counts.set(addr, count + 1u64);
         };
@@ -99,9 +99,9 @@ program three_program.aleo {
         let f2: Final = zero_program.aleo/c();
         let addr = self.signer;
         return final {
-            f0.await();
-            f1.await();
-            f2.await();
+            f0.run();
+            f1.run();
+            f2.run();
             let count: u64 = counts.get_or_use(addr, 0u64);
             counts.set(addr, count + 1u64);
         };
@@ -124,8 +124,8 @@ program four_program.aleo {
         let f1: Final = three_program.aleo/e();
         let addr = self.signer;
         return final {
-            f0.await();
-            f1.await();
+            f0.run();
+            f1.run();
             let count: u64 = counts.get_or_use(addr, 0u64);
             counts.set(addr, count + 1u64);
         };

@@ -32,9 +32,9 @@ program parent.aleo {
 
 // Doesn't await f4.
 onchain fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
-    f1.await();
-    f2.await();
-    f3.await();
-    f0.await();
-    f5.await();
+    f1.run();
+    f2.run();
+    f3.run();
+    f0.run();
+    f5.run();
 }

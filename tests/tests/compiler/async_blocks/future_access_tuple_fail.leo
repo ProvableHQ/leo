@@ -26,8 +26,8 @@ program test_credits.aleo {
         return (
             after.1, 
             final {
-                start.1.await();
-                start_2.await();
+                start.1.run();
+                start_2.run();
             }
         );
     }

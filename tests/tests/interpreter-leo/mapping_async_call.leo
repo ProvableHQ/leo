@@ -9,7 +9,7 @@ program test.aleo {
         // Ensures that that the async call is actually executed (including the asserts in `finalize`).
         // This is technically illegal since `await` is not allowed in a transition. However, for testing purposes, this
         // seems fine for now. We should improve this when we have better testing infra for the interpreter
-        f.await(); 
+        f.run(); 
         return (x, f);
     }
 }

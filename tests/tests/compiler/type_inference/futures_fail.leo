@@ -30,5 +30,5 @@ program type_inference.aleo {
 }
 
 onchain fn foo(fut: Final) {
-    fut.await();
+    fut.run();
 }

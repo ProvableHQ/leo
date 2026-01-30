@@ -34,5 +34,5 @@ program parent.aleo {
 }
 
 onchain fn finalize_foo(f0: Final) {
-    f0.await();
+    f0.run();
 }

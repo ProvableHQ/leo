@@ -39,9 +39,9 @@ program parent.aleo {
 }
 
 onchain fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final) {
-    f1.await();
-    f4.await();
-    f2.await();
-    f3.await();
-    f0.await();
+    f1.run();
+    f4.run();
+    f2.run();
+    f3.run();
+    f0.run();
 }

@@ -37,11 +37,11 @@ program parent.aleo {
 
         // Doesn't capture f1.
         return final {
-            f0.await(); 
-            f3.await(); 
-            f2.await(); 
-            f5.await(); 
-            f4.await();
+            f0.run(); 
+            f3.run(); 
+            f2.run(); 
+            f5.run(); 
+            f4.run();
         };
     }
 }

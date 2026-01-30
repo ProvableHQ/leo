@@ -651,7 +651,7 @@ symbols! {
     _program_edition,
     _program_owner,
     _signature_verify,
-    _final_await,
+    _final_run,
     _serialize_to_bits,
     _serialize_to_bits_raw,
     _deserialize_from_bits,
@@ -783,7 +783,7 @@ symbols! {
     from_bits,
     from_bits_raw,
 
-    Await: "await",
+    run,
     unwrap,
     unwrap_or,
     push,

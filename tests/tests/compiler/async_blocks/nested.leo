@@ -34,8 +34,8 @@ program test.aleo {
         // captures `b` then `f` then `f2`
         let f3: Final = final {
             if b == 1u32 {
-                Final::await(f);
-                f2.await();
+                Final::run(f);
+                f2.run();
             }
 
             if b == 2u32 {
@@ -62,9 +62,9 @@ program wrapper.aleo {
         let (val3, f3): (u32, Final) = test.aleo/main(1u32);
         // Captures `f` then `f2` then `f3`
         let f4: Final = final {
-            f.await();
-            f2.await();
-            f3.await();
+            f.run();
+            f2.run();
+            f3.run();
         };
         return (val, f4);
     }
@@ -83,5 +83,5 @@ program big_wrapper.aleo {
 }
 
 onchain fn finalize_main(f: Final) {
-    f.await();
+    f.run();
 }

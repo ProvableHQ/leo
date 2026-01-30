@@ -17,7 +17,7 @@ program test.aleo {
         return final {
             let x: u8 = f.0;
             let y: u16 = f.1;
-            f.await();
+            f.run();
         };
     }
 }

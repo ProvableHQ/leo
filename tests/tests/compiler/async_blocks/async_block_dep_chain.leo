@@ -21,7 +21,7 @@ import dependent.aleo;
 program dependent2.aleo {
     fn t1() -> Final {
         let f: Final = dependent.aleo/t1();
-        return final { f.await(); };
+        return final { f.run(); };
     }
 }
 
@@ -34,6 +34,6 @@ program test.aleo {
         let f: Final = dependent2.aleo/t1();
         assert_eq(1u8, f.0.0);
         assert_eq(1u16, f.0.1);
-        return final { f.await(); };
+        return final { f.run(); };
     }
 }

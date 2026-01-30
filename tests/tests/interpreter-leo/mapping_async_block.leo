@@ -18,7 +18,7 @@ program test.aleo {
         // Ensures that that the async block is actually executed (including the asserts).
         // This is technically illegal since `await` is not allowed in a transition. However, for testing purposes, this
         // seems fine for now. We should improve this when we have better testing infra for the interpreter
-        f.await();
+        f.run();
 
         assert(x == 7); // x should still have its value update outside the async block
         return (x, f);

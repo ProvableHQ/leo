@@ -52,6 +52,6 @@ program mtsp_credits.aleo {
 // In an earlier Leo version, both Finals would be incorrectly inferred to
 // be the same type.
 onchain fn finalize_deposit(f0: Final, f1: Final) {
-  f0.await();
-  f1.await();
+  f0.run();
+  f1.run();
 }

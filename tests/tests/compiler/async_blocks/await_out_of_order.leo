@@ -17,8 +17,8 @@ program basic.aleo {
 
         // No "out of order" warning since the futures are captured in the order they appear in inside the block anyways.
         let f:Final = final {
-            f2.await();
-            f1.await();
+            f2.run();
+            f1.run();
         };
         return f;
     }

@@ -59,7 +59,7 @@ pub enum Intrinsic {
     // Schnorr signature verification.
     SignatureVerify,
 
-    FinalAwait,
+    FinalRun,
 
     ProgramChecksum,
     ProgramEdition,
@@ -632,7 +632,7 @@ impl Intrinsic {
             sym::_program_owner => Self::ProgramOwner,
 
             sym::_signature_verify => Self::SignatureVerify,
-            sym::_final_await => Self::FinalAwait,
+            sym::_final_run => Self::FinalRun,
 
             sym::_serialize_to_bits => Self::Serialize(SerializeVariant::ToBits),
             sym::_serialize_to_bits_raw => Self::Serialize(SerializeVariant::ToBitsRaw),
@@ -1182,7 +1182,7 @@ impl Intrinsic {
             (sym::ProgramCore, sym::program_owner) => sym::_program_owner,
 
             (sym::signature, sym::verify) => sym::_signature_verify,
-            (sym::Final, sym::Await) => sym::_final_await,
+            (sym::Final, sym::run) => sym::_final_run,
 
             (sym::Serialize, sym::to_bits) => sym::_serialize_to_bits,
             (sym::Serialize, sym::to_bits_raw) => sym::_serialize_to_bits_raw,
@@ -1236,7 +1236,7 @@ impl Intrinsic {
             Self::GroupToYCoordinate => 1,
 
             Self::SignatureVerify => 3,
-            Self::FinalAwait => 1,
+            Self::FinalRun => 1,
 
             Self::ProgramChecksum => 1,
             Self::ProgramEdition => 1,
@@ -1255,7 +1255,7 @@ impl Intrinsic {
     /// Returns whether or not this function is finalize command.
     pub fn is_finalize_command(&self) -> bool {
         match self {
-            Intrinsic::FinalAwait
+            Intrinsic::FinalRun
             | Intrinsic::ChaChaRand(_)
             | Intrinsic::ECDSAVerify(_)
             | Intrinsic::MappingGet
@@ -1303,7 +1303,7 @@ impl Intrinsic {
     /// Returns whether or not this function has side effects
     pub fn is_pure(&self) -> bool {
         match self {
-            Intrinsic::FinalAwait
+            Intrinsic::FinalRun
             | Intrinsic::VectorSet
             | Intrinsic::VectorPush
             | Intrinsic::VectorClear

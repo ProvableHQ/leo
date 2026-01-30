@@ -40,14 +40,14 @@ program test.aleo {
         let b = 1u32;
         // Captures `b` then `f` then `f2`
         let f3: Final = final {
-            // f.await();
+            // f.run();
             if b == 1u32 {
-                Final::await(f);
-                f2.await();
+                Final::run(f);
+                f2.run();
             }
 
             if b == 2u32 {
-                //f2.await();
+                //f2.run();
                 Mapping::set(ayo, 1u32, 1u32);
             }
 
@@ -69,9 +69,9 @@ program wrapper.aleo {
         let (val2, f2): (u32, Final) = test.aleo/main(1u32);
         let (val3, f3): (u32, Final) = test.aleo/main(1u32);
         let f4: Final = final {
-            f.await();
-            f2.await();
-            f3.await();
+            f.run();
+            f2.run();
+            f3.run();
         }; 
         return (val, f4);
     }
@@ -91,5 +91,5 @@ program big_wrapper.aleo {
 }
 
 onchain fn finalize_main(f: Final) {
-    f.await();
+    f.run();
 }

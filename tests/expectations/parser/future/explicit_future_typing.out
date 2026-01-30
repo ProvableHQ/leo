@@ -622,7 +622,7 @@
                   "Expression": {
                     "expression": {
                       "Intrinsic": {
-                        "name": "_final_await",
+                        "name": "_final_run",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -648,14 +648,14 @@
                         ],
                         "span": {
                           "lo": 488,
-                          "hi": 498
+                          "hi": 496
                         },
                         "id": 44
                       }
                     },
                     "span": {
                       "lo": 488,
-                      "hi": 499
+                      "hi": 497
                     },
                     "id": 39
                   }
@@ -664,7 +664,7 @@
                   "Expression": {
                     "expression": {
                       "Intrinsic": {
-                        "name": "_final_await",
+                        "name": "_final_run",
                         "type_parameters": [],
                         "arguments": [
                           {
@@ -674,30 +674,30 @@
                               "identifier": {
                                 "name": "f1",
                                 "span": {
-                                  "lo": 504,
-                                  "hi": 506
+                                  "lo": 502,
+                                  "hi": 504
                                 },
                                 "id": 49
                               },
                               "target": "Unresolved",
                               "span": {
-                                "lo": 504,
-                                "hi": 506
+                                "lo": 502,
+                                "hi": 504
                               },
                               "id": 48
                             }
                           }
                         ],
                         "span": {
-                          "lo": 504,
-                          "hi": 514
+                          "lo": 502,
+                          "hi": 510
                         },
                         "id": 50
                       }
                     },
                     "span": {
-                      "lo": 504,
-                      "hi": 515
+                      "lo": 502,
+                      "hi": 511
                     },
                     "id": 45
                   }
@@ -713,15 +713,15 @@
                             "identifier": {
                               "name": "a",
                               "span": {
-                                "lo": 530,
-                                "hi": 531
+                                "lo": 526,
+                                "hi": 527
                               },
                               "id": 53
                             },
                             "target": "Unresolved",
                             "span": {
-                              "lo": 530,
-                              "hi": 531
+                              "lo": 526,
+                              "hi": 527
                             },
                             "id": 52
                           }
@@ -733,15 +733,15 @@
                             "identifier": {
                               "name": "b",
                               "span": {
-                                "lo": 532,
-                                "hi": 533
+                                "lo": 528,
+                                "hi": 529
                               },
                               "id": 55
                             },
                             "target": "Unresolved",
                             "span": {
-                              "lo": 532,
-                              "hi": 533
+                              "lo": 528,
+                              "hi": 529
                             },
                             "id": 54
                           }
@@ -749,8 +749,8 @@
                       ]
                     },
                     "span": {
-                      "lo": 520,
-                      "hi": 535
+                      "lo": 516,
+                      "hi": 531
                     },
                     "id": 51
                   }
@@ -758,13 +758,13 @@
               ],
               "span": {
                 "lo": 482,
-                "hi": 537
+                "hi": 533
               },
               "id": 56
             },
             "span": {
               "lo": 383,
-              "hi": 537
+              "hi": 533
             },
             "id": 57
           }
@@ -773,7 +773,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 537
+        "hi": 533
       }
     }
   }

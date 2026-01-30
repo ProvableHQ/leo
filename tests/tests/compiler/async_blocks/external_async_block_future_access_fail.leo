@@ -18,7 +18,7 @@ program test.aleo {
             let x: u16 = f.0;
             let y: u8 = f.1;
             let z = f.2;
-            f.await();           
+            f.run();           
         };
     }
 }

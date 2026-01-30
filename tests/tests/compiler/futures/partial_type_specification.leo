@@ -47,14 +47,14 @@ program test.aleo {
 }
 
 onchain fn finalize_main(f: Final, f2: Final, a: u32) {
-    // f.await();
+    // f.run();
     if a == 1u32 {
-        Final::await(f);
-        f2.await();
+        Final::run(f);
+        f2.run();
     }
 
     if a == 2u32 {
-        //f2.await();
+        //f2.run();
         Mapping::set(ayo, 1u32, 1u32);
     }
 
@@ -77,9 +77,9 @@ program wrapper.aleo {
 }
 
 onchain fn finalize_main(f: Final, f2: Final, f3: Final) {
-    f.await();
-    f2.await();
-    f3.await();
+    f.run();
+    f2.run();
+    f3.run();
 }
 
 // --- Next Program --- //
@@ -95,5 +95,5 @@ program big_wrapper.aleo {
 }
 
 onchain fn finalize_main(f: Final) {
-    f.await();
+    f.run();
 }

@@ -18,7 +18,7 @@ program dependent.aleo {
 import dependent.aleo;
 
 onchain fn finalize(f: Final) {
-    f.await();
+    f.run();
 }
 
 program dependent2.aleo {
@@ -33,7 +33,7 @@ program dependent2.aleo {
 import dependent2.aleo;
 
 onchain fn finalize(f: Final) {
-    f.await();
+    f.run();
 }
 
 program test.aleo {

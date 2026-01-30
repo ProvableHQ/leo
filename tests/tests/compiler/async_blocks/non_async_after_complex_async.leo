@@ -13,7 +13,7 @@ program mid.aleo {
     fn mid(a: u32) -> Final {
         let f1: Final = inner.aleo/inner(0u32);
         let f2: Final = inner.aleo/inner(1u32);
-        let f:Final = final { f2.await(); f1.await(); };
+        let f:Final = final { f2.run(); f1.run(); };
         return f;
     }
 
@@ -30,7 +30,7 @@ program outer.aleo {
         let f2: Final = mid.aleo/mid(1u32);
         // Allow this call to remain for now.
         mid.aleo/dummy();
-        let f:Final = final { f1.await(); f2.await(); };
+        let f:Final = final { f1.run(); f2.run(); };
         return f;
     }
 }

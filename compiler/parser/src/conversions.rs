@@ -21,18 +21,10 @@ use snarkvm::prelude::{Address, TestnetV0};
 use leo_ast::{Expression, Intrinsic, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result, TypeCheckerError};
 use leo_parser_lossless::{
-    ExpressionKind,
-    IntegerLiteralKind,
-    IntegerTypeKind,
-    LiteralKind,
-    StatementKind,
-    SyntaxKind,
-    SyntaxNode,
-    TypeKind,
+    ExpressionKind, IntegerLiteralKind, IntegerTypeKind, LiteralKind, StatementKind, SyntaxKind, SyntaxNode, TypeKind,
 };
 use leo_span::{
-    Span,
-    Symbol,
+    Span, Symbol,
     sym::{self},
 };
 
@@ -775,7 +767,7 @@ impl<'a> ConversionContext<'a> {
                         id,
                     }
                     .into()
-                } else if let (0, Some(name @ sym::_final_await)) =
+                } else if let (0, Some(name @ sym::_final_run)) =
                     (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Final, name.name))
                 {
                     leo_ast::IntrinsicExpression {

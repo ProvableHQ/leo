@@ -24,6 +24,6 @@ program basic.aleo {
 }
 
 onchain fn finalize(a: u32, b:u32, f: Final<Fn(u32)>) {
-    f.await();
+    f.run();
     assert_eq(a, b);
 }

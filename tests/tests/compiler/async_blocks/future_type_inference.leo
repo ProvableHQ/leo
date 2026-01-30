@@ -36,6 +36,6 @@ program mtsp_credits.aleo {
     ) -> (credits.aleo/credits, multi_token_support_program.aleo/Token, Final) {
       let transfer_output: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input_record, self.address, amount);
       let mint_output: (multi_token_support_program.aleo/Token, Final) = multi_token_support_program.aleo/mint_private();
-      return (transfer_output.0, mint_output.0, final { transfer_output.1.await(); mint_output.1.await(); });
+      return (transfer_output.0, mint_output.0, final { transfer_output.1.run(); mint_output.1.run(); });
     }
 }
