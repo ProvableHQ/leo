@@ -19,7 +19,7 @@ program test.aleo {
     }
 }
 
-onchain fn finish() {
+final fn finish() {
     CheatCode::set_block_height(1u32);
     assert_eq(block.height, 1u32);
     CheatCode::set_block_height(999u32);

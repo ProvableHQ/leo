@@ -865,7 +865,6 @@ symbols! {
     mapping,
     storage,
     Mut: "mut",
-    onchain,
     Return: "return",
     script,
     SelfLower: "self",

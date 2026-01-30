@@ -90,6 +90,6 @@ program big_wrapper.aleo {
     }
 }
 
-onchain fn finalize_main(f: Final) {
+final fn finalize_main(f: Final) {
     f.run();
 }

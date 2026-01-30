@@ -742,14 +742,14 @@ ScriptDeclaration: SyntaxNode<'a> = {
 }
 
 
-OnchainFnDeclaration: SyntaxNode<'a> = {
+FinalFnDeclaration: SyntaxNode<'a> = {
      // With a return type.
-    <anns:(Annotation)*> <ko:WithTrivia<Onchain>> <kf:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
+    <anns:(Annotation)*> <ko:WithTrivia<Final>> <kf:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
         SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([ko, kf, name]).chain(c).chain([p, arrow, t, b]))
     },
 
     // No return type.
-    <anns:(Annotation)*> <ko:WithTrivia<Onchain>> <kf:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
+    <anns:(Annotation)*> <ko:WithTrivia<Final>> <kf:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
         SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([ko, kf, name]).chain(c).chain([p, b]))
     },
 }
@@ -821,7 +821,7 @@ TopLevelItem: SyntaxNode<'a> = {
     ProgramDeclaration,
     FnDeclaration,
     ScriptDeclaration,
-    OnchainFnDeclaration,
+    FinalFnDeclaration,
     GlobalConst,
     StructDeclaration,
 }
@@ -968,7 +968,6 @@ extern {
         AssertEq => LalrToken { token: Token::AssertEq, .. },
         AssertNeq => LalrToken { token: Token::AssertNeq, .. },
         Final => LalrToken { token: Token::Final, .. },
-        Onchain => LalrToken { token: Token::Onchain, .. },
         Block => LalrToken { token: Token::Block, .. },
         Const => LalrToken { token: Token::Const, .. },
         Constant => LalrToken { token: Token::Constant, .. },

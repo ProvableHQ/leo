@@ -11,7 +11,7 @@ program scratch.aleo {
     }
 }
 
-onchain fn finalize(a: [u32;0]) {
+final fn finalize(a: [u32;0]) {
     Mapping::set(baz, Baz { a: 0, b: [] }, 3);
 }
 

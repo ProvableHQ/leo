@@ -1,4 +1,4 @@
-onchain fn finalize(x: u8) {
+final fn finalize(x: u8) {
     assert_eq(1u8, 1u8);
 }
 
@@ -18,7 +18,7 @@ program dependent.aleo {
 
 import dependent.aleo;
 
-onchain fn finalize(f: Final) {
+final fn finalize(f: Final) {
     let x: u8 = f.0;
     f.run();
 }

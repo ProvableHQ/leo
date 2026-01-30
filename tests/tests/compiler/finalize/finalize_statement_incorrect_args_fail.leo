@@ -8,6 +8,6 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_mint_public (public receiver: address, public amount: u64) {
+final fn finalize_mint_public (public receiver: address, public amount: u64) {
     Mapping::set(account, receiver, amount);
 }

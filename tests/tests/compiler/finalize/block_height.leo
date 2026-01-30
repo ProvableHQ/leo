@@ -5,6 +5,6 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_matches(height: u32) {
+final fn finalize_matches(height: u32) {
     assert_eq(height, block.height);
 }

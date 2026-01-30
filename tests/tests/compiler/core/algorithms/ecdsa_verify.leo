@@ -26,7 +26,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize(
+final fn finalize(
     sig: [u8; 65],
     addr: [u8; 33],
     addr_eth: [u8; 20],

@@ -20,12 +20,12 @@ program test_dep.aleo {
     }
 }
 
-onchain fn finalize_main_dep(a:u32, b:u32) {
+final fn finalize_main_dep(a:u32, b:u32) {
     Mapping::set(Yo, a, b);
     let c:u32 = a + b;
 }
 
-onchain fn finalize_main_dep_2() {
+final fn finalize_main_dep_2() {
     Mapping::set(Yo, 1u32, 1u32);
 }
 
@@ -46,7 +46,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_main(f: Final, f2: Final, a: u32) {
+final fn finalize_main(f: Final, f2: Final, a: u32) {
     // f.run();
     if a == 1u32 {
         Final::run(f);
@@ -76,7 +76,7 @@ program wrapper.aleo {
     }
 }
 
-onchain fn finalize_main(f: Final, f2: Final, f3: Final) {
+final fn finalize_main(f: Final, f2: Final, f3: Final) {
     f.run();
     f2.run();
     f3.run();
@@ -94,6 +94,6 @@ program big_wrapper.aleo {
     }
 }
 
-onchain fn finalize_main(f: Final) {
+final fn finalize_main(f: Final) {
     f.run();
 }

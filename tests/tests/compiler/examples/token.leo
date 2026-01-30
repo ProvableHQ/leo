@@ -1,5 +1,5 @@
 
-onchain fn finalize_mint_public(receiver: address, amount: u64) {
+final fn finalize_mint_public(receiver: address, amount: u64) {
     // Increments `account[receiver]` by `amount`.
     // If `account[receiver]` does not exist, it will be created.
     // If `account[receiver] + amount` overflows, `mint_public` is reverted.
@@ -8,7 +8,7 @@ onchain fn finalize_mint_public(receiver: address, amount: u64) {
 }
 
 
-onchain fn finalize_tr_public(sender: address, receiver: address, amount: u64) {
+final fn finalize_tr_public(sender: address, receiver: address, amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public` is reverted.
@@ -22,7 +22,7 @@ onchain fn finalize_tr_public(sender: address, receiver: address, amount: u64) {
 }
 
 
-onchain fn finalize_tr_private_to_public(receiver: address, amount: u64) {
+final fn finalize_tr_private_to_public(receiver: address, amount: u64) {
     // Increments `account[receiver]` by `amount`.
     // If `account[receiver]` does not exist, it will be created.
     // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
@@ -31,7 +31,7 @@ onchain fn finalize_tr_private_to_public(receiver: address, amount: u64) {
 }
 
 
-onchain fn finalize_tr_public_to_private(public sender: address, public amount: u64) {
+final fn finalize_tr_public_to_private(public sender: address, public amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.

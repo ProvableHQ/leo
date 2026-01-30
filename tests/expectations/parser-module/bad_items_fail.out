@@ -3,11 +3,11 @@ Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'let'
      |
    1 | let x: u32 = 0;
      | ^^^
-Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'onchain'
+Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'final'
     --> test_4:1:1
      |
-   1 | onchain fn foo() {}
-     | ^^^^^^^
+   1 | final fn foo() {}
+     | ^^^^^
 Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'record'
     --> test_5:1:1
      |

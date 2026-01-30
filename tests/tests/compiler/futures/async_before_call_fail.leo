@@ -15,4 +15,4 @@ program parent.aleo {
     }
 }
 
-onchain fn finalize_foo() {}
+final fn finalize_foo() {}

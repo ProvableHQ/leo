@@ -8,11 +8,11 @@ program child.aleo {
     }
  }
 
-onchain fn finalize_foo(x: u32) {
+final fn finalize_foo(x: u32) {
     assert_eq(1u32, 1u32);
 }
 
-onchain fn finalize_boo(x: u32) {
+final fn finalize_boo(x: u32) {
     assert_eq(1u32, 1u32);
 }
 
@@ -33,6 +33,6 @@ program parent.aleo {
     }
 }
 
-onchain fn finalize_foo(f0: Final) {
+final fn finalize_foo(f0: Final) {
     f0.run();
 }

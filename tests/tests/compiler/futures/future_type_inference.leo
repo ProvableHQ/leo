@@ -11,7 +11,7 @@ program credits.aleo {
     }
 }
 
-onchain fn finalize() {
+final fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -29,7 +29,7 @@ program multi_token_support_program.aleo {
     }
 }
 
-onchain fn finalize() {
+final fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -51,7 +51,7 @@ program mtsp_credits.aleo {
 
 // In an earlier Leo version, both Finals would be incorrectly inferred to
 // be the same type.
-onchain fn finalize_deposit(f0: Final, f1: Final) {
+final fn finalize_deposit(f0: Final, f1: Final) {
   f0.run();
   f1.run();
 }

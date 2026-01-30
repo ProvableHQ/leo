@@ -13,7 +13,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_decrease_self(addr: address, amount: u128) {
+final fn finalize_decrease_self(addr: address, amount: u128) {
     Mapping::set(tokens, addr, amount, 1u128);
     tokens.set(addr, amount, 1u128);
     Mapping::set(amounts, 1u8);

@@ -10,7 +10,7 @@ fn foo(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
-onchain fn finalize_public_adder(a: u8, b: u8) {
+final fn finalize_public_adder(a: u8, b: u8) {
     let result: u8 = foo(a, b);
     assert_neq(result, 0u8);
 }

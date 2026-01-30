@@ -13,6 +13,6 @@ fn third(x: Final) -> u8 {
     return 1u8;
 }
 
-onchain fn finish() {
+final fn finish() {
     assert_eq(1u8, 1u8);
 }

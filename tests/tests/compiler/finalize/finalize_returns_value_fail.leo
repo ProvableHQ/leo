@@ -5,6 +5,6 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
     return a + b;
 }

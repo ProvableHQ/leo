@@ -10,10 +10,10 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_foo(private a: u8) -> u8 {
+final fn finalize_foo(private a: u8) -> u8 {
     return a * a;
 }
 
-onchain fn finalize_bar(a: u8) -> private u8 {
+final fn finalize_bar(a: u8) -> private u8 {
     return a * a;
 }

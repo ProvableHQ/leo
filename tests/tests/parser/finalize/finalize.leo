@@ -6,14 +6,14 @@ program test.aleo {
 
 }
 
-onchain fn finalize_main() {
+final fn finalize_main() {
 
 }
 
 fn main() -> bool {
 
 }
-onchain fn main(a: foo, b: bar) -> baz {
+final fn main(a: foo, b: bar) -> baz {
 
 }
 

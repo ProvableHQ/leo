@@ -8,8 +8,8 @@ program child.aleo {
     }
 }
 
-onchain fn foo_() {}
-onchain fn bar_() {}
+final fn foo_() {}
+final fn bar_() {}
 
 // --- Next Program --- //
 
@@ -29,6 +29,6 @@ program type_inference.aleo {
     }
 }
 
-onchain fn foo(fut: Final) {
+final fn foo(fut: Final) {
     fut.run();
 }

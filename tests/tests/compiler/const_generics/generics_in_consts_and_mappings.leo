@@ -10,6 +10,6 @@ program b28668.aleo {
     }
 }
 
-onchain fn f() {
+final fn f() {
     map.set(Foo::[true] { x: false }, Foo::[false] { x: true });
 }

@@ -23,7 +23,7 @@ program finalize.aleo {
     }
 }
 
-onchain fn finalize() {}
+final fn finalize() {}
 @no_inline
 fn key() {}
 fn value() {}

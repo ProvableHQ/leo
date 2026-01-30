@@ -13,7 +13,7 @@ program test.aleo {
         return (x, f);
     }
 }
-onchain fn finalize(x: u32) {
+final fn finalize(x: u32) {
     map.set(0u32, 42u32);
     assert(map.get(0u32) == 42u32);
     map.set(1u32, map.get(0u32) + x);

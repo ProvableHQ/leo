@@ -11,12 +11,12 @@ program child.aleo {
     }
  }
 
-onchain fn finalize_foo(addr: address) {
+final fn finalize_foo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
     Mapping::set(count, addr, val + 1field);
 }
 
-onchain fn finalize_boo(addr: address) {
+final fn finalize_boo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
     Mapping::set(count, addr, val + 1field);
 }

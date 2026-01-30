@@ -36,11 +36,11 @@ function = "is_network_id"
 input = ["3u16"]
 */
 
-onchain fn finalize_is_block_height(block_height: u32) {
+final fn finalize_is_block_height(block_height: u32) {
     assert_eq(block_height, block.height);
 }
 
-onchain fn finalize_is_network_id(network_id: u16) {
+final fn finalize_is_network_id(network_id: u16) {
     assert_eq(network_id, network.id);
 }
 

@@ -16,7 +16,7 @@ fn bar() {
     Mapping::get(values, 0u8);
 }
 
-onchain fn finalize_finalize_no_params() {
+final fn finalize_finalize_no_params() {
     foo();
     bar();
 }

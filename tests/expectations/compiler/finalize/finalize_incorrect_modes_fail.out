@@ -1,8 +1,8 @@
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:14:1
      |
-  14 | onchain fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 | final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   15 |     Mapping::set(account, receiver, amount);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   16 | }
@@ -10,22 +10,22 @@ Error [ETYC0372106]: An async function is not allowed to return a value.
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
 Error [ETYC0372032]: An input to an async function must be public.
-    --> compiler-test:14:59
+    --> compiler-test:14:57
      |
-  14 | onchain fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     |                                                           ^^^^^^^^^^^^^^^^^^^^
+  14 | final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+     |                                                         ^^^^^^^^^^^^^^^^^^^^
      |
      = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
 Error [ETYC0372038]: A returned value cannot be a constant.
-    --> compiler-test:14:84
+    --> compiler-test:14:82
      |
-  14 | onchain fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     |                                                                                    ^^^^^^^^^^^^
+  14 | final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+     |                                                                                  ^^^^^^^^^^^^
 Error [ETYC0372036]: Function must return a value.
     --> compiler-test:14:1
      |
-  14 | onchain fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 | final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   15 |     Mapping::set(account, receiver, amount);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   16 | }
@@ -33,8 +33,8 @@ Error [ETYC0372036]: Function must return a value.
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:18:1
      |
-  18 | onchain fn finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  18 | final fn finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   19 |     Mapping::set(account, receiver, amount);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   20 |     return amount + amount;

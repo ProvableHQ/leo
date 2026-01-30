@@ -6,4 +6,4 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_mint(public receiver: address, public amount: u64) {}
+final fn finalize_mint(public receiver: address, public amount: u64) {}

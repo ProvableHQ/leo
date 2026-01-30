@@ -61,8 +61,8 @@ Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transitio
 Warning [WTYC0372002]: The async function `f3` is never called by an async transition.
     --> compiler-test:23:1
      |
-  23 | onchain fn f3() {
-     | ^^^^^^^^^^^^^^^^^
+  23 | final fn f3() {
+     | ^^^^^^^^^^^^^^^
   24 |     let f = final {};
      |     ^^^^^^^^^^^^^^^^^
   25 | }

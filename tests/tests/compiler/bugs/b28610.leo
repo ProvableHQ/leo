@@ -8,7 +8,7 @@ program b28610.aleo {
     }
 }
 
-onchain fn bar(addr: address) {
+final fn bar(addr: address) {
     let t: Token = Token { owner: addr };
     assert(Token { owner: addr }.owner == addr);
 }

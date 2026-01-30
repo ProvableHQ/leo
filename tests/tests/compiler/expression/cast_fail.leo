@@ -18,7 +18,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_main(a: field) {
+final fn finalize_main(a: field) {
     // Cannot cast a mapping.
     let b: field = balances as field;
     assert_eq(b, a);

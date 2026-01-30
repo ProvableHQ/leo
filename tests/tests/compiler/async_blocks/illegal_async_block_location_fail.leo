@@ -20,7 +20,7 @@ fn f2(x: u32) {
     let f = final {};
 }
 
-onchain fn f3() {
+final fn f3() {
     let f = final {};
 }
 

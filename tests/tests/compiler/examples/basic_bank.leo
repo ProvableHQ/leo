@@ -1,7 +1,7 @@
 // Updates on-chain state by the amount of tokens deposited.
 // - `hash`  : The hash of the token owner.
 // - `amount`: The amount of tokens that were deposited.
-onchain fn finalize_deposit(hash: field, amount: u64) {
+final fn finalize_deposit(hash: field, amount: u64) {
     let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
     Mapping::set(balances, hash, current_amount + amount);
 }
@@ -10,7 +10,7 @@ onchain fn finalize_deposit(hash: field, amount: u64) {
 // Updates on-chain state by the amount of tokens withdrawn.
 // - `hash`  : The hash of the token owner.
 // - `amount`: The amount of tokens that were withdrawn.
-onchain fn finalize_withdraw(hash: field, amount: u64) {
+final fn finalize_withdraw(hash: field, amount: u64) {
     let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
     Mapping::set(balances, hash, current_amount - amount);
 }

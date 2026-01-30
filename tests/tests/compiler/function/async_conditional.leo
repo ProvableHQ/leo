@@ -7,7 +7,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_main(a:u32) {
+final fn finalize_main(a:u32) {
     if a == 1u32 {
         let y: u32 = 1u32;
         {

@@ -9,7 +9,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_finalize_self_caller(caller: address) -> () {
+final fn finalize_finalize_self_caller(caller: address) -> () {
     const TINY: u8 = 3u8;
     let current_value: u8 = Mapping::get_or_use(values, 0u8, 0u8) + TINY + BIG_NUMBER;
     Mapping::set(values, 0u8, current_value + 1u8);

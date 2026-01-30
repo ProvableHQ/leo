@@ -1,8 +1,8 @@
 Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
     --> compiler-test:18:1
      |
-  18 | onchain fn finalize_main(f: Final, f2: Final, a: u32) {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  18 | final fn finalize_main(f: Final, f2: Final, a: u32) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   19 |     // f.run();
      |     ^^^^^^^^^^^
   20 |     if a == 1u32 {

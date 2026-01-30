@@ -8,6 +8,6 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_main(a:u32, b:u32) {
+final fn finalize_main(a:u32, b:u32) {
     Mapping::set(Yo, a, b);
 }

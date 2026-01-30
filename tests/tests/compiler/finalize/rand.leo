@@ -5,7 +5,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_foo() {
+final fn finalize_foo() {
     let a: address = ChaCha::rand_address();
     let b: bool = ChaCha::rand_bool();
     let c: field = ChaCha::rand_field();

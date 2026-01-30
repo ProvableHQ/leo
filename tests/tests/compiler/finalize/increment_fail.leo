@@ -7,6 +7,6 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_increase_self(addr: address, amount: u128) {
+final fn finalize_increase_self(addr: address, amount: u128) {
     increment(amounts, addr, amount);
 }

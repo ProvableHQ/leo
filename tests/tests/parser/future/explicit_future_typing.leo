@@ -6,7 +6,7 @@ program test.aleo {
         return f2;
     }
 }
-onchain fn finalize_main(a: u32, b: u32, f0: Final<Fn()>, f1: Final<Fn(u32, Final<Fn(u32, u32)>)>) {
+final fn finalize_main(a: u32, b: u32, f0: Final<Fn()>, f1: Final<Fn(u32, Final<Fn(u32, u32)>)>) {
     f0.run();
     f1.run();
     assert_eq(a,b);

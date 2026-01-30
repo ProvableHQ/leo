@@ -10,12 +10,12 @@ program child.aleo {
     }
  }
 
-onchain fn finalize_foo(addr: address) {
+final fn finalize_foo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
     Mapping::set(count, addr, val + 1field);
 }
 
-onchain fn finalize_boo(addr: address) {
+final fn finalize_boo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
     Mapping::set(count, addr, val + 1field);
 }
@@ -31,7 +31,7 @@ program parent.aleo {
 }
 
 // Doesn't await f4.
-onchain fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
+final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
     f1.run();
     f2.run();
     f3.run();

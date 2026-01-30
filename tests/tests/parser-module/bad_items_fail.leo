@@ -7,7 +7,7 @@ fn foo() {}
 
 fn foo() {}
 
-onchain fn foo() {}
+final fn foo() {}
 
 record Foo {}
 

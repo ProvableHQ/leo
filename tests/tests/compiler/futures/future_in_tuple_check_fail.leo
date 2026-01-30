@@ -10,7 +10,7 @@ program credits.aleo {
     }
 }
 
-onchain fn finalize() {
+final fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -26,6 +26,6 @@ program test_credits.aleo {
     }
 }
 
-onchain fn finish(f: Final) {
+final fn finish(f: Final) {
     f.run();
 }

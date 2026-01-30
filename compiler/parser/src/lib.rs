@@ -160,7 +160,6 @@ fn symbol_is_keyword(symbol: Symbol) -> bool {
         sym::Let |
         sym::leo |
         sym::mapping |
-        sym::onchain |
         sym::storage |
         sym::network |
         sym::private |

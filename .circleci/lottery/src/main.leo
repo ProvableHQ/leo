@@ -15,7 +15,7 @@ program lottery.aleo {
     }
 }
 
-onchain fn finalize_play() {
+final fn finalize_play() {
     // Check that the lottery has not expired.
     assert(block.height <= 1000u32);
 

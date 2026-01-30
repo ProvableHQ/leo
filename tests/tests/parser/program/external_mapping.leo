@@ -1,5 +1,5 @@
 import hello.aleo;
-onchain fn finalize_main() {
+final fn finalize_main() {
     Mapping::set(hello.aleo/counter, addr, current_value + 1u64);
     Mapping::remove(hello.aleo/foo, addr);
     let a:u32 = Mapping::get(hello.aleo/foo, addr);

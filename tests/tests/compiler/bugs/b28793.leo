@@ -5,6 +5,6 @@ program b28610.aleo {
     }
 }
 
-onchain fn bar() {
+final fn bar() {
     assert(true);
 }

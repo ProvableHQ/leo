@@ -5,6 +5,6 @@ program test.aleo {
     }
 }
 
-onchain fn fin_foo(a: [bool; 8]) {
+final fn fin_foo(a: [bool; 8]) {
     assert_eq(true, true);
 }

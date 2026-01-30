@@ -10,23 +10,23 @@ struct ProposalInfo {
 }
 
 // Create a new proposal in the "tickets" mapping.
-onchain fn finalize_propose(public id: field) {
+final fn finalize_propose(public id: field) {
     Mapping::set(tickets, id, 0u64);
 }
 
 // Create a new ticket on a proposal in the "tickets" mapping.
-onchain fn finalize_new_ticket(public pid: field) {
+final fn finalize_new_ticket(public pid: field) {
     let current: u64 = Mapping::get_or_use(tickets, pid, 0u64);
     Mapping::set(tickets, pid, current + 1u64);
 }
 
-onchain fn finalize_agree(public pid: field) {
+final fn finalize_agree(public pid: field) {
     // Publicly increment the number of agree votes.
     let current: u64 = Mapping::get_or_use(agree_votes, pid, 0u64);
     Mapping::set(agree_votes, pid, current + 1u64);
 }
 
-onchain fn finalize_disagree(pid: field) {
+final fn finalize_disagree(pid: field) {
     // Publicly increment the number of disagree votes.
     let current: u64 = Mapping::get_or_use(disagree_votes, pid, 0u64);
     Mapping::set(disagree_votes, pid, current + 1u64);

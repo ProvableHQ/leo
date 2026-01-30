@@ -20,8 +20,8 @@ Error [ETYC0372101]: Can only make an async call from an async transition.
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:14:1
      |
-  14 | onchain fn finalize_bar(a: u8, b: u8) -> u8 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 | final fn finalize_bar(a: u8, b: u8) -> u8 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   15 |     return a + b;
      |     ^^^^^^^^^^^^^
   16 | }

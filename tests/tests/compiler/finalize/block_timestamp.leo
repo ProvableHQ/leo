@@ -5,6 +5,6 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_matches(timestamp: i64) {
+final fn finalize_matches(timestamp: i64) {
     assert_eq(timestamp, block.timestamp);
 }

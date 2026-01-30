@@ -9,7 +9,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_foo(a: scalar) {
+final fn finalize_foo(a: scalar) {
     let b: group = ChaCha::rand_group();
     values.set(a, b);
 }

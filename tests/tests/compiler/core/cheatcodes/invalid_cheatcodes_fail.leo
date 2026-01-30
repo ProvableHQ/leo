@@ -14,7 +14,7 @@ program test_dep.aleo {
     }
 }
 
-onchain fn finalize_main_dep(a:u32, b:u32) {
+final fn finalize_main_dep(a:u32, b:u32) {
     Mapping::set(Yo, a, b);
     let c:u32 = a + b;
 }
@@ -32,7 +32,7 @@ program test.aleo {
     }
 }
 
-onchain fn finish(public a: u64, b: address) {
+final fn finish(public a: u64, b: address) {
     CheatCode::print_mapping(Yo);
     CheatCode::print_mapping(test_dep.aleo/account);
     CheatCode::set_block_height(1u64);

@@ -14,15 +14,15 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_mint_public(public receiver: address, public amount: u64) {
+final fn finalize_mint_public(public receiver: address, public amount: u64) {
     increment(account, receiver, amount);
 }
 
-onchain fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
     return a + b;
 }
 
-onchain fn finalize_no_params() {
+final fn finalize_no_params() {
     increment(values, 0u8, 1u8);
     increment(account, self.caller, 1u64);
 }

@@ -7,6 +7,6 @@ program relay.aleo {
         return finalize_send(addr);
     }
 }
-onchain fn finalize_send(addr: address) {
+final fn finalize_send(addr: address) {
     let a:bool = Mapping::get(relay.aleo/users, addr);
 }

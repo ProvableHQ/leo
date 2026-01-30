@@ -22,7 +22,7 @@ program test.aleo {
     }
 }
 
-onchain fn baz_finalize() {}
+final fn baz_finalize() {}
 
 // The maximum number of outputs for a `function` is 16.
 fn foo(x: u8) -> (

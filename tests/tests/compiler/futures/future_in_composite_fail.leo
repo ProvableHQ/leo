@@ -12,6 +12,6 @@ program test.aleo {
     }
 }
 
-onchain fn finish() {
+final fn finish() {
     assert_eq(1u8, 1u8);
 }

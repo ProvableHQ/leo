@@ -8,7 +8,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_foo(account: address) -> () {
+final fn finalize_foo(account: address) -> () {
     Mapping::set(balances, account, 1u32);
 
     let expect_true: bool = Mapping::contains(balances, account);

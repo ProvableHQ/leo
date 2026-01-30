@@ -10,7 +10,7 @@ input = ["23u32"]
 
 // Note the input height is 23, since the test framework creates a few more blocks to set up the VM.
 
-onchain fn check_starting_height_(height: u32) {
+final fn check_starting_height_(height: u32) {
     assert(height <= block.height);
 }
 

@@ -18,7 +18,7 @@ program test.aleo {
     }
 }
 
-onchain fn set_expected_(addr: address, checksum: [u8; 32]) {
+final fn set_expected_(addr: address, checksum: [u8; 32]) {
     assert_eq(addr, admin.get(true));
     expected.set(true, checksum);
 }

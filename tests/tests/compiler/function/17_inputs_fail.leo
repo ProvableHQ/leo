@@ -17,7 +17,7 @@ program test.aleo {
 }
 
 // The maximum number of inputs to an `async function`  is 16.
-onchain fn baz_finalize(
+final fn baz_finalize(
     a: u8, b: u8, c: u8, d: u8, e: u8, f: u8, g: u8, h: u8,
     i: u8, j: u8, k: u8, l: u8, m: u8, n: u8, o: u8, p: u8, q: u8
 ) {  }

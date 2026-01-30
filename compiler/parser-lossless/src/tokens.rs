@@ -292,8 +292,6 @@ pub enum Token {
     AssertNeq,
     #[token("async")]
     Async,
-    #[token("onchain")]
-    Onchain,
     #[token("block")]
     Block,
     #[token("const")]
@@ -452,7 +450,6 @@ impl Token {
             "AssertEq" => "'assert_eq'",
             "AssertNeq" => "'assert_neq'",
             "Async" => "'async'",
-            "Onchain" => "'onchain'",
             "Block" => "'block'",
             "Const" => "'const'",
             "Constant" => "'constant'",

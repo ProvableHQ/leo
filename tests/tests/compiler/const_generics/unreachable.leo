@@ -8,7 +8,7 @@ program const_generics.aleo {
     }
 }
 
-onchain fn foo() {}
+final fn foo() {}
 
 fn bar(x: field) -> field { return x; }
 

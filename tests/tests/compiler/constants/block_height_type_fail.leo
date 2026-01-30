@@ -1,4 +1,4 @@
-onchain fn bar() {
+final fn bar() {
     let x: u64 = block.height;
 }
 

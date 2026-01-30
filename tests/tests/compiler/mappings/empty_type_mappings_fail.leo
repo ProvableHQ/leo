@@ -7,7 +7,7 @@ program empty_type_mappings.aleo {
     }
 }
 
-onchain fn finalize(a: [u32;0]) {
+final fn finalize(a: [u32;0]) {
     Mapping::set(foo, 0, []);
     Mapping::set(bar, [], 0);
 }

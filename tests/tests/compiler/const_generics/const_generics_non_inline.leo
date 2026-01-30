@@ -3,7 +3,7 @@ fn foo1::[N: u32](x: u32) -> u32 {
     return N;
 }
 
-onchain fn foo2::[N: u32](x: u32) { }
+final fn foo2::[N: u32](x: u32) { }
 
 
 script baz::[N: u32]()  { }

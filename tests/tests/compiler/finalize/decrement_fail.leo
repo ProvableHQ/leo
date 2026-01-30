@@ -7,6 +7,6 @@ program test.aleo {
     }
 }
 
-onchain fn finalize_dec(addr: address, amount: u128) {
+final fn finalize_dec(addr: address, amount: u128) {
     decrement(amounts, addr, amount);
 }

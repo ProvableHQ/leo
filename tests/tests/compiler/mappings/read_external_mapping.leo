@@ -10,11 +10,11 @@ program registry.aleo {
     }
 }
 
-onchain fn finalize_register(addr: address) {
+final fn finalize_register(addr: address) {
     Mapping::set(users, addr, true);
 }
 
-onchain fn finalize_unregister(addr: address) {
+final fn finalize_unregister(addr: address) {
     Mapping::set(users, addr, false);
 }
 
@@ -39,12 +39,12 @@ program relay.aleo {
     }
 }
 
-onchain fn finalize_send(addr: address) {
+final fn finalize_send(addr: address) {
     let a:bool = Mapping::get(registry.aleo/users, addr);
     assert_eq(a, true);
 }
 
-onchain fn finalize_send_without_check(addr: address) {
+final fn finalize_send_without_check(addr: address) {
     let a:bool = Mapping::get_or_use(registry.aleo/users, addr, true);
     assert_eq(a, true);
 }

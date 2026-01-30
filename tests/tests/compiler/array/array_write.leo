@@ -11,7 +11,7 @@ struct T {
     z: S,
 }
 
-onchain fn f_finalize(x: u8) {
+final fn f_finalize(x: u8) {
     assert_eq(x, x);
 }
 

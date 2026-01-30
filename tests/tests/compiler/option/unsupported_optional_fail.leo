@@ -18,6 +18,6 @@ program invalid_optional_types.aleo {
 }
 
 // Dummy future-returning function
-onchain fn finalize() {
+final fn finalize() {
 }
 

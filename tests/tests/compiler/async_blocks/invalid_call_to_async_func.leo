@@ -6,5 +6,5 @@ program test.aleo {
     }
 }
 
-onchain fn bar() {
+final fn bar() {
 }

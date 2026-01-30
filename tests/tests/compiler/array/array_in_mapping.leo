@@ -7,6 +7,6 @@ program test.aleo {
     }
 }
 
-onchain fn fin_foo(caller: address, a: [bool; 8]) {
+final fn fin_foo(caller: address, a: [bool; 8]) {
     data.set(caller, a);
 }

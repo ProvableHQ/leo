@@ -5,7 +5,7 @@ program test.aleo {
     }
 }
 
-onchain fn finalize(a: u32, b: u32) {
+final fn finalize(a: u32, b: u32) {
     Mapping::set(foo, a, b);
 }
 
@@ -21,7 +21,7 @@ program basic.aleo {
     }
 }
 
-onchain fn finalize(f1: Final, f2: Final) {
+final fn finalize(f1: Final, f2: Final) {
     f1.run();
     f2.run();
 }

@@ -1,4 +1,4 @@
-onchain fn foo() {
+final fn foo() {
     mfield.set(
         BHP512::hash_to_field(1234567u128),
         BHP512::hash_to_field(12field),

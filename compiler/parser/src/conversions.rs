@@ -21,10 +21,18 @@ use snarkvm::prelude::{Address, TestnetV0};
 use leo_ast::{Expression, Intrinsic, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result, TypeCheckerError};
 use leo_parser_lossless::{
-    ExpressionKind, IntegerLiteralKind, IntegerTypeKind, LiteralKind, StatementKind, SyntaxKind, SyntaxNode, TypeKind,
+    ExpressionKind,
+    IntegerLiteralKind,
+    IntegerTypeKind,
+    LiteralKind,
+    StatementKind,
+    SyntaxKind,
+    SyntaxNode,
+    TypeKind,
 };
 use leo_span::{
-    Span, Symbol,
+    Span,
+    Symbol,
     sym::{self},
 };
 
@@ -1109,9 +1117,9 @@ impl<'a> ConversionContext<'a> {
             .map(|child| self.to_annotation(child))
             .collect::<Result<Vec<_>>>()?;
         let async_index = annotations.len();
-        let is_onchain = node.children[async_index].text == "onchain";
+        let is_final = node.children[async_index].text == "final";
 
-        let function_variant_index = if is_onchain { async_index + 1 } else { async_index };
+        let function_variant_index = if is_final { async_index + 1 } else { async_index };
 
         let name = &node.children[function_variant_index + 1];
         let id = self.to_identifier(name);
@@ -1177,7 +1185,7 @@ impl<'a> ConversionContext<'a> {
             if returns_future { leo_ast::Variant::AsyncTransition } else { leo_ast::Variant::Transition }
         } else if node.children[function_variant_index].text == "script" {
             leo_ast::Variant::Script
-        } else if is_onchain {
+        } else if is_final {
             leo_ast::Variant::AsyncFunction
         } else if annotations.iter().any(|a| a.identifier.to_string() == "inline") || is_in_module {
             leo_ast::Variant::Inline

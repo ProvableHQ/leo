@@ -20,4 +20,4 @@ program test.aleo {
     }
 }
 
-onchain fn foo() {}
+final fn foo() {}
