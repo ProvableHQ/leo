@@ -1842,6 +1842,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
+name = "leo-abi"
+version = "3.4.0"
+dependencies = [
+ "indexmap",
+ "leo-abi-types",
+ "leo-ast",
+ "leo-span",
+]
+
+[[package]]
+name = "leo-abi-types"
+version = "3.4.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "leo-ast"
 version = "3.4.0"
 dependencies = [
@@ -1866,6 +1883,7 @@ dependencies = [
  "anyhow",
  "indexmap",
  "itertools 0.13.0",
+ "leo-abi",
  "leo-ast",
  "leo-disassembler",
  "leo-errors",
@@ -2064,6 +2082,7 @@ dependencies = [
  "base62",
  "indexmap",
  "itertools 0.13.0",
+ "leo-abi-types",
  "leo-ast",
  "leo-errors",
  "leo-package",
