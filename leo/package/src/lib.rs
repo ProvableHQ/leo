@@ -98,6 +98,8 @@ pub const OUTPUTS_DIRECTORY: &str = "outputs";
 
 pub const BUILD_DIRECTORY: &str = "build";
 
+pub const ABI_FILENAME: &str = "abi.json";
+
 pub const TESTS_DIRECTORY: &str = "tests";
 
 /// Maximum allowed program size in bytes.

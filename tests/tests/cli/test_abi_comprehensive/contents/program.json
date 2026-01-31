@@ -1,0 +1,11 @@
+{
+  "program": "abi_test.aleo",
+  "version": "0.1.0",
+  "description": "Comprehensive ABI generation test",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null,
+  "upgrade": {
+    "mode": "noupgrade"
+  }
+}

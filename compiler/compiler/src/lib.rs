@@ -25,6 +25,9 @@ pub use compiler::*;
 mod options;
 pub use options::*;
 
+// Re-export types from leo_passes for convenience
+pub use leo_passes::{Bytecode, CompiledPrograms};
+
 pub mod run;
 
 #[cfg(test)]

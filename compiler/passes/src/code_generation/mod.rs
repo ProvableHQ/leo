@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Pass;
+use crate::{CompiledPrograms, Pass};
 
 use itertools::Itertools;
-use leo_ast::{CompiledPrograms, Mode, ProgramId};
+use leo_ast::{Mode, ProgramId};
 use leo_errors::Result;
 
 use std::fmt::Display;

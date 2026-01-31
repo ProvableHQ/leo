@@ -17,36 +17,20 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies.snarkvm]
-workspace = true
-
-[dependencies.leo-errors]
-workspace = true
-
-[dependencies.leo-span]
-workspace = true
-
-[dependencies.anyhow]
-workspace = true
-
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.itertools]
-workspace = true
-
-[dependencies.rand]
-workspace = true
-
-[dependencies.rand_chacha]
-workspace = true
-
-[dependencies.serde]
-workspace = true
-
-[dependencies.serde_json]
-workspace = true
-
 [features]
 default = [ ]
 ci_skip = [ ]
+
+[dependencies]
+# leo dependencies
+leo-errors      = { workspace = true }
+leo-span        = { workspace = true }
+# third party dependencies
+anyhow          = { workspace = true }
+indexmap        = { workspace = true }
+itertools       = { workspace = true }
+rand            = { workspace = true }
+rand_chacha     = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
+snarkvm         = { workspace = true }

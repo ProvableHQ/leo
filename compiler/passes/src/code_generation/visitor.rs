@@ -16,7 +16,8 @@
 
 use crate::{AleoConstructor, AleoExpr, AleoReg, CompilerState};
 
-use leo_ast::{Bytecode, CompiledPrograms, Function, Location, Program, ProgramId, Variant};
+use crate::{Bytecode, CompiledPrograms};
+use leo_ast::{Function, Location, Program, ProgramId, Variant};
 use leo_span::Symbol;
 
 use snarkvm::prelude::Network;
