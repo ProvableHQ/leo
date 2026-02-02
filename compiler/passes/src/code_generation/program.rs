@@ -106,15 +106,13 @@ impl<'a> CodeGeneratingVisitor<'a> {
                             .finalizer
                             .unwrap();
                         // Write the finalize string.
+                        let [finalize_name] = &finalize.location.path[..] else {
+                            panic!("finalize location must have a single-segment path at this stage of compilation");
+                        };
                         if let Some(caller) = &mut aleo_function {
                             caller.as_function_ref_mut().finalize = Some(
                                 self.visit_function_with(
-                                    &program_scope
-                                        .functions
-                                        .iter()
-                                        .find(|(name, _f)| vec![*name] == finalize.location.path)
-                                        .unwrap()
-                                        .1,
+                                    &program_scope.functions.iter().find(|(name, _f)| name == finalize_name).unwrap().1,
                                     &finalize.future_inputs,
                                 )
                                 .unwrap()
