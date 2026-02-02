@@ -862,11 +862,20 @@ create_messages!(
         msg: "The output of an async function must be assigned to a `Future` type..".to_string(),
         help: None,
     }
+
     @formatted
-    cannot_modify_external_mapping {
-        args: (operation: impl Display),
-        msg: format!("Cannot use operation `{operation}` on external mapping."),
-        help: Some("The only valid operations on external mappings are contains, get, and get_or_use.".to_string()),
+    cannot_modify_external_container {
+        args: (operation: impl Display, kind: impl Display),
+        msg: format!("Cannot use operation `{operation}` on external {kind}s."),
+        help: Some(format!("The only valid operations on external {kind}s are {}.",
+            if kind.to_string() == "vector" {
+                "`get` and `len`"
+            } else if kind.to_string() == "mapping" {
+                "`contains`, `get`, and `get_or_use`"
+            } else {
+                panic!("no other kinds expected here")
+            }
+        )),
     }
 
     @formatted
