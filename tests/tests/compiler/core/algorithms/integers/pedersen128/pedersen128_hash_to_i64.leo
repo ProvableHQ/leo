@@ -1,11 +1,11 @@
 
-program test.aleo {
-    struct Foo {
-        a: u32,
-        b: u32,
-    }
+struct Foo {
+    a: u32,
+    b: u32,
+}
 
-    transition main(
+program test.aleo {
+    fn main(
         i8_value: i8,
         i16_value: i16,
         i32_value: i32,

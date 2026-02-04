@@ -35,8 +35,8 @@
             "identifier": {
               "name": "inf",
               "span": {
-                "lo": 34,
-                "hi": 37
+                "lo": 27,
+                "hi": 30
               },
               "id": 0
             },
@@ -49,8 +49,8 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 43,
-                  "hi": 45
+                  "lo": 36,
+                  "hi": 38
                 },
                 "id": 6
               }
@@ -70,44 +70,44 @@
                           "identifier": {
                             "name": "inf",
                             "span": {
-                              "lo": 56,
-                              "hi": 59
+                              "lo": 45,
+                              "hi": 48
                             },
                             "id": 3
                           },
                           "target": "Unresolved",
                           "span": {
-                            "lo": 56,
-                            "hi": 59
+                            "lo": 45,
+                            "hi": 48
                           },
                           "id": 4
                         },
                         "const_arguments": [],
                         "arguments": [],
                         "span": {
-                          "lo": 56,
-                          "hi": 61
+                          "lo": 45,
+                          "hi": 50
                         },
                         "id": 2
                       }
                     },
                     "span": {
-                      "lo": 56,
-                      "hi": 62
+                      "lo": 45,
+                      "hi": 51
                     },
                     "id": 1
                   }
                 }
               ],
               "span": {
-                "lo": 46,
-                "hi": 68
+                "lo": 39,
+                "hi": 53
               },
               "id": 5
             },
             "span": {
-              "lo": 25,
-              "hi": 68
+              "lo": 24,
+              "hi": 53
             },
             "id": 7
           }
@@ -120,8 +120,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 83,
-                "hi": 87
+                "lo": 58,
+                "hi": 62
               },
               "id": 8
             },
@@ -131,16 +131,16 @@
                 "identifier": {
                   "name": "y",
                   "span": {
-                    "lo": 88,
-                    "hi": 89
+                    "lo": 63,
+                    "hi": 64
                   },
                   "id": 9
                 },
                 "mode": "None",
                 "type_": "Boolean",
                 "span": {
-                  "lo": 88,
-                  "hi": 95
+                  "lo": 63,
+                  "hi": 70
                 },
                 "id": 10
               }
@@ -150,8 +150,8 @@
                 "mode": "None",
                 "type_": "Boolean",
                 "span": {
-                  "lo": 100,
-                  "hi": 104
+                  "lo": 75,
+                  "hi": 79
                 },
                 "id": 19
               }
@@ -169,30 +169,30 @@
                           "identifier": {
                             "name": "inf",
                             "span": {
-                              "lo": 115,
-                              "hi": 118
+                              "lo": 86,
+                              "hi": 89
                             },
                             "id": 13
                           },
                           "target": "Unresolved",
                           "span": {
-                            "lo": 115,
-                            "hi": 118
+                            "lo": 86,
+                            "hi": 89
                           },
                           "id": 14
                         },
                         "const_arguments": [],
                         "arguments": [],
                         "span": {
-                          "lo": 115,
-                          "hi": 120
+                          "lo": 86,
+                          "hi": 91
                         },
                         "id": 12
                       }
                     },
                     "span": {
-                      "lo": 115,
-                      "hi": 121
+                      "lo": 86,
+                      "hi": 92
                     },
                     "id": 11
                   }
@@ -206,36 +206,36 @@
                         "identifier": {
                           "name": "y",
                           "span": {
-                            "lo": 137,
-                            "hi": 138
+                            "lo": 104,
+                            "hi": 105
                           },
                           "id": 17
                         },
                         "target": "Unresolved",
                         "span": {
-                          "lo": 137,
-                          "hi": 138
+                          "lo": 104,
+                          "hi": 105
                         },
                         "id": 16
                       }
                     },
                     "span": {
-                      "lo": 130,
-                      "hi": 139
+                      "lo": 97,
+                      "hi": 106
                     },
                     "id": 15
                   }
                 }
               ],
               "span": {
-                "lo": 105,
-                "hi": 145
+                "lo": 80,
+                "hi": 108
               },
               "id": 18
             },
             "span": {
-              "lo": 74,
-              "hi": 145
+              "lo": 55,
+              "hi": 108
             },
             "id": 20
           }
@@ -244,7 +244,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 147
+        "hi": 108
       }
     }
   }

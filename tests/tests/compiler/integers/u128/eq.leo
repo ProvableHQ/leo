@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: u128, b: u128, c: bool) -> bool {
+    fn main(a: u128, b: u128, c: bool) -> bool {
         return (a == b) == c;
     }
 }

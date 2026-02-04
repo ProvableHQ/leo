@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(x: u32) -> u32 {
+    fn main(x: u32) -> u32 {
         let y: u32 = x;
 
         for i: u32 in 0u32..2u32 {

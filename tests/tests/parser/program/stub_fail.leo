@@ -1,3 +1,8 @@
+struct Row {
+    c1: u8,
+    c2: u8,
+    c3: u8
+}
 
 stub credits.aleo {
     import battleship.aleo;
@@ -6,11 +11,7 @@ stub credits.aleo {
         owner: address,
         micrcredits: u64,
     }
-    struct Row {
-        c1: u8,
-        c2: u8,
-        c3: u8
-    }
+
     mapping num_winners: u8 => u8;
 
     record board_state {
@@ -26,30 +27,32 @@ stub credits.aleo {
         game_started: bool,
     }
 
-    transition mint(public a1: address, public a2: u64) -> credits;
+    fn mint(public a1: address, public a2: u64) -> credits;
 
-    transition transfer_public(public a1: address, public a2: u64) -> exchange.aleo/tokens;
+    fn transfer_public(public a1: address, public a2: u64) -> exchange.aleo/tokens;
 
-    transition transfer_private(a1: credits, a2: address, a3: u64) -> (credits, credits);
+    fn transfer_private(a1: credits, a2: address, a3: u64) -> (credits, credits);
 
-    transition transfer_private_to_public(a1: credits, public a2: address, public a3: u64) -> credits;
+    fn transfer_private_to_public(a1: credits, public a2: address, public a3: u64) -> credits;
 
-    transition transfer_public_to_private(public a1: address, public a2: u64) -> credits;
+    fn transfer_public_to_private(public a1: address, public a2: u64) -> credits;
 
-    transition join(a1: credits, a2: credits) -> credits;
+    fn join(a1: credits, a2: credits) -> credits;
 
-    transition split(a1: credits, a2: u64) -> (credits, credits);
+    fn split(a1: credits, a2: u64) -> (credits, credits);
 
-    function foo() {
-       let a:u8 = 1u8;
-    }
-    finalize foo() {
-        let c:u8 = 1u8;
-    }
 }
 
+fn foo() {
+   let a:u8 = 1u8;
+}
+finalize foo() {
+    let c:u8 = 1u8;
+}
+
+
 program test.aleo {
-    transition foo(arg1: address, arg1: u64, cred: credits.aleo/credits)->credits.aleo/credits {
+    fn foo(arg1: address, arg1: u64, cred: credits.aleo/credits)->credits.aleo/credits {
         credits.aleo/transfer_public(arg1, arg2);
         credits.leo/transfer_public(arg1, arg2);
     }

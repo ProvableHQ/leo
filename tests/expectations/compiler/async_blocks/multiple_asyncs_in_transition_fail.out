@@ -1,3 +1,17 @@
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:3:18
+     |
+   3 |         let f1 = final {};
+     |                  ^^^^^^^^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
+Error [ETYC0372101]: Can only make an async call from an async transition.
+    --> compiler-test:4:18
+     |
+   4 |         let f2 = foo();
+     |                  ^^^^^
+     |
+     = Move the async call inside of the async transition block.
 Error [ETYC0372149]: A transition function cannot contain both an `async` function call and an `async` block at the same time.
     --> compiler-test:4:18
      |
@@ -5,13 +19,41 @@ Error [ETYC0372149]: A transition function cannot contain both an `async` functi
      |                  ^^^^^
      |
      = Refactor the transition to use either an `async` call or an `async` block, but not both.
+Error [ETYC0372101]: Can only make an async call from an async transition.
+    --> compiler-test:8:18
+     |
+   8 |         let f1 = foo();
+     |                  ^^^^^
+     |
+     = Move the async call inside of the async transition block.
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:9:18
+     |
+   9 |         let f2 = final {};
+     |                  ^^^^^^^^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
 Error [ETYC0372149]: A transition function cannot contain both an `async` function call and an `async` block at the same time.
     --> compiler-test:9:18
      |
-   9 |         let f2 = async {};
+   9 |         let f2 = final {};
      |                  ^^^^^^^^
      |
      = Refactor the transition to use either an `async` call or an `async` block, but not both.
+Error [ETYC0372101]: Can only make an async call from an async transition.
+    --> compiler-test:13:18
+     |
+  13 |         let f1 = foo();
+     |                  ^^^^^
+     |
+     = Move the async call inside of the async transition block.
+Error [ETYC0372101]: Can only make an async call from an async transition.
+    --> compiler-test:14:18
+     |
+  14 |         let f2 = foo();
+     |                  ^^^^^
+     |
+     = Move the async call inside of the async transition block.
 Error [ETYC0372100]: Must call exactly one local async function per transition function.
     --> compiler-test:14:18
      |
@@ -26,10 +68,24 @@ Error [ETYC0372104]: Not all futures were consumed: f1
      |                  ^^^^^
      |
      = Make sure all futures are consumed exactly once. Consume by passing to an async function call or async block.
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:18:18
+     |
+  18 |         let f1 = final {};
+     |                  ^^^^^^^^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:19:18
+     |
+  19 |         let f2 = final {};
+     |                  ^^^^^^^^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
 Error [ETYC0372150]: A transition function cannot contain more than one `async` block.
     --> compiler-test:19:18
      |
-  19 |         let f2 = async {};
+  19 |         let f2 = final {};
      |                  ^^^^^^^^
      |
      = Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition.

@@ -1,21 +1,5 @@
-Error [ETYC0372113]: Cannot define a function with no parameters.
-    --> compiler-test:7:5
-     |
-   7 |     function main() {
-     |     ^^^^^^^^^^^^^^^^^
-   8 |         let y: u8 = 1;
-     |         ^^^^^^^^^^^^^^
-   9 |         let a: Foo = Foo { y };
-     |         ^^^^^^^^^^^^^^^^^^^^^^^
-  10 |     }
-     |     ^
 Error [ETYC0372013]: Composite initialization expression for `Foo` is missing member `x`.
     --> compiler-test:9:22
      |
    9 |         let a: Foo = Foo { y };
      |                      ^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^

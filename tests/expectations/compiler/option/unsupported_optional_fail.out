@@ -20,12 +20,19 @@ Error [ETYC0372160]: The type `signature` cannot be wrapped in an optional.
 Error [ETYC0372160]: The type `Future<Fn()>` cannot be wrapped in an optional.
     --> compiler-test:14:9
      |
-  14 |         let fut: Future? = finalize(); // ERROR: Future? is not allowed
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |         let fut: Final? = finalize(); // ERROR: Final? is not allowed
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Optionals cannot wrap signatures, futures, mappings, tuples, vectors, records, arrays whose elements are optional-unsafe, or structures containing any such types.
-Error [ETYC0372003]: Expected type `Future<Fn()>?` but type `Future<Fn()>` was found
-    --> compiler-test:14:28
+Error [ETYC0372101]: Can only make an async call from an async transition.
+    --> compiler-test:14:27
      |
-  14 |         let fut: Future? = finalize(); // ERROR: Future? is not allowed
-     |                            ^^^^^^^^^^
+  14 |         let fut: Final? = finalize(); // ERROR: Final? is not allowed
+     |                           ^^^^^^^^^^
+     |
+     = Move the async call inside of the async transition block.
+Error [ETYC0372003]: Expected type `Future<Fn()>?` but type `Future<Fn()>` was found
+    --> compiler-test:14:27
+     |
+  14 |         let fut: Final? = finalize(); // ERROR: Final? is not allowed
+     |                           ^^^^^^^^^^

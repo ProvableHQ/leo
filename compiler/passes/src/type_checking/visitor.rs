@@ -858,7 +858,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(&arguments[1].0, &Type::Address, arguments[1].1.span());
                 Type::Boolean
             }
-            Intrinsic::FutureAwait => Type::Unit,
+            Intrinsic::FinalRun => Type::Unit,
             Intrinsic::GroupGen => Type::Group,
             Intrinsic::ProgramChecksum => {
                 // Get the argument type, expression, and span.

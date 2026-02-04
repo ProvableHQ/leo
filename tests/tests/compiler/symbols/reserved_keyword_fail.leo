@@ -1,29 +1,29 @@
+struct Foo {
+    value: u32,
+}
+
+struct value {
+    owner: u32,
+}
+
 program finalize.aleo {
-    struct Foo {
-        value: u32,
-    }
-
-    struct value {
-        owner: u32,
-    }
-
     record value {
         value: u32,
         owner: u32,
     }
 
-    transition value() {}
+    fn value() {}
 
-    async transition output() -> Future {
+    fn output() -> Final {
         return finalize();
     }
-    async function finalize() {}
 
-    function key() {}
-
-    inline value() {}
-
-    transition main(f: Foo) -> Foo {
+    fn main(f: Foo) -> Foo {
         return f;
     }
 }
+
+final fn finalize() {}
+@no_inline
+fn key() {}
+fn value() {}

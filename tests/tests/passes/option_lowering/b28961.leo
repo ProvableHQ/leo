@@ -1,5 +1,5 @@
 program test.aleo {
-    transition assign_optional_from_unwrap() -> u32 {
+    fn assign_optional_from_unwrap() -> u32 {
         let a: u32? = 5u32;
 
         // Case 1: T? = unwrap(T?)

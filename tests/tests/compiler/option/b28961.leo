@@ -1,12 +1,12 @@
+
+// --- Base Structs ---
+struct S { x: u32 }
+struct OS { inner: S? }
+struct Wrap { arr: [u32?; 2]?, val: u32? }
+
 program opt_bug.aleo {
-
-    // --- Base Structs ---
-    struct S { x: u32 }
-    struct OS { inner: S? }
-    struct Wrap { arr: [u32?; 2]?, val: u32? }
-
     // --- 1. Basic unwrap assigns implicitly to optional targets ---
-    transition assign_optional_from_unwrap() -> u32 {
+    fn assign_optional_from_unwrap() -> u32 {
         let a: u32? = 5u32;
 
         // Case 1: T? = unwrap(T?)
@@ -22,14 +22,14 @@ program opt_bug.aleo {
     }
 
     // --- 2. Unwrap inside arithmetic expressions (core regression) ---
-    transition unwrap_inside_expression() -> u32 {
+    fn unwrap_inside_expression() -> u32 {
         let a: u32? = 9u32;
         let b = a.unwrap() * 2u32 + 3u32;
         return b; // 9*2 + 3 = 21
     }
 
     // --- 3. Deep nested expressions with multiple unwraps ---
-    transition nested_expression_unwraps() -> u32 {
+    fn nested_expression_unwraps() -> u32 {
         let x: u32? = 4u32;
         let y: u32? = 6u32;
         let sum = x.unwrap() + (y.unwrap() * x.unwrap());
@@ -37,7 +37,7 @@ program opt_bug.aleo {
     }
 
     // --- 4. Unwrap in arrays ---
-    transition unwrap_in_arrays() -> u32 {
+    fn unwrap_in_arrays() -> u32 {
         let arr: [u32?; 3] = [1u32, none, 3u32];
 
         // unwrap_or in a composite expr
@@ -49,21 +49,21 @@ program opt_bug.aleo {
     }
 
     // --- 5. Optional arrays themselves ---
-    transition optional_array_handling() -> u32 {
+    fn optional_array_handling() -> u32 {
         let arr: [u32?; 2]? = [7u32, none];
         let first = arr.unwrap()[0].unwrap();
         return first; // 7
     }
 
     // --- 6. Optional structs and fields inside expressions ---
-    transition optional_struct_field_expr() -> u32 {
+    fn optional_struct_field_expr() -> u32 {
         let os: OS = OS { inner: S { x: 11u32 } };
         let result = os.inner.unwrap().x + 5u32;
         return result; // 16
     }
 
     // --- 7. Optional of a struct in arithmetic expression ---
-    transition optional_struct_unwrap_assign() -> u32 {
+    fn optional_struct_unwrap_assign() -> u32 {
         let s: S? = S { x: 30u32 };
 
         // Implicit wrapping back to optional
@@ -72,7 +72,7 @@ program opt_bug.aleo {
     }
 
     // --- 8. Nested optional structs and arrays together ---
-    transition nested_struct_array_mix() -> u32 {
+    fn nested_struct_array_mix() -> u32 {
         let w = Wrap { arr: [1u32, none], val: none };
         let arr_unwrapped = w.arr.unwrap();
         let r = arr_unwrapped[0].unwrap_or(0)
@@ -81,14 +81,14 @@ program opt_bug.aleo {
     }
 
     // --- 9. Optional tuple fields ---
-    transition tuple_optional_fields() -> u32 {
+    fn tuple_optional_fields() -> u32 {
         let t: (u32?, u32) = (4u32, 9u32);
         let r = t.0.unwrap() + t.1;
         return r; // 4 + 9 = 13
     }
 
     // --- 10. Optional used inside function-like calls ---
-    transition optionals_in_function_context() -> u32 {
+    fn optionals_in_function_context() -> u32 {
         let a: u32? = 6u32;
         let b: u32? = none;
 
@@ -98,7 +98,7 @@ program opt_bug.aleo {
     }
 
     // --- 11. Stress: compound expression with 5+ unwraps ---
-    transition stress_compound_unwrap() -> u32 {
+    fn stress_compound_unwrap() -> u32 {
         let a: u32? = 2u32;
         let b: u32? = 3u32;
         let c: u32? = none;
@@ -114,7 +114,7 @@ program opt_bug.aleo {
     }
 
     // --- 12. Ternary + Optionals ---
-    transition ternary_optional_cases() -> u32 {
+    fn ternary_optional_cases() -> u32 {
         let a: u32? = 10u32;
         let b: u32? = none;
         let cond = 1u32 < 5u32;   // true

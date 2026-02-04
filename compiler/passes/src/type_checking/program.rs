@@ -410,7 +410,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the function's annotations are valid.
         for annotation in function.annotations.iter() {
-            if !matches!(annotation.identifier.name, sym::test | sym::should_fail | sym::no_inline) {
+            if !matches!(annotation.identifier.name, sym::test | sym::should_fail | sym::no_inline | sym::inline) {
                 self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
             }
         }

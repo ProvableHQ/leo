@@ -31,12 +31,12 @@
           "main",
           {
             "annotations": [],
-            "variant": "AsyncTransition",
+            "variant": "Transition",
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 42,
-                "hi": 46
+                "lo": 28,
+                "hi": 32
               },
               "id": 0
             },
@@ -47,8 +47,8 @@
                 "mode": "None",
                 "type_": "Boolean",
                 "span": {
-                  "lo": 52,
-                  "hi": 56
+                  "lo": 38,
+                  "hi": 42
                 },
                 "id": 2
               }
@@ -57,14 +57,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 57,
-                "hi": 65
+                "lo": 43,
+                "hi": 51
               },
               "id": 1
             },
             "span": {
               "lo": 25,
-              "hi": 65
+              "hi": 51
             },
             "id": 3
           }
@@ -77,8 +77,8 @@
             "identifier": {
               "name": "finalize_main",
               "span": {
-                "lo": 86,
-                "hi": 99
+                "lo": 65,
+                "hi": 78
               },
               "id": 4
             },
@@ -89,14 +89,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 102,
-                "hi": 110
+                "lo": 81,
+                "hi": 85
               },
               "id": 5
             },
             "span": {
-              "lo": 71,
-              "hi": 110
+              "lo": 56,
+              "hi": 85
             },
             "id": 6
           }
@@ -109,8 +109,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 125,
-                "hi": 129
+                "lo": 90,
+                "hi": 94
               },
               "id": 7
             },
@@ -121,8 +121,8 @@
                 "mode": "None",
                 "type_": "Boolean",
                 "span": {
-                  "lo": 135,
-                  "hi": 139
+                  "lo": 100,
+                  "hi": 104
                 },
                 "id": 9
               }
@@ -131,14 +131,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 140,
-                "hi": 148
+                "lo": 105,
+                "hi": 109
               },
               "id": 8
             },
             "span": {
-              "lo": 116,
-              "hi": 148
+              "lo": 87,
+              "hi": 109
             },
             "id": 10
           }
@@ -151,8 +151,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 168,
-                "hi": 172
+                "lo": 119,
+                "hi": 123
               },
               "id": 11
             },
@@ -162,8 +162,8 @@
                 "identifier": {
                   "name": "a",
                   "span": {
-                    "lo": 173,
-                    "hi": 174
+                    "lo": 124,
+                    "hi": 125
                   },
                   "id": 12
                 },
@@ -176,15 +176,15 @@
                       "identifier": {
                         "name": "foo",
                         "span": {
-                          "lo": 176,
-                          "hi": 179
+                          "lo": 127,
+                          "hi": 130
                         },
                         "id": 13
                       },
                       "target": "Unresolved",
                       "span": {
-                        "lo": 176,
-                        "hi": 179
+                        "lo": 127,
+                        "hi": 130
                       },
                       "id": 14
                     },
@@ -192,8 +192,8 @@
                   }
                 },
                 "span": {
-                  "lo": 173,
-                  "hi": 179
+                  "lo": 124,
+                  "hi": 130
                 },
                 "id": 15
               },
@@ -201,8 +201,8 @@
                 "identifier": {
                   "name": "b",
                   "span": {
-                    "lo": 181,
-                    "hi": 182
+                    "lo": 132,
+                    "hi": 133
                   },
                   "id": 16
                 },
@@ -215,15 +215,15 @@
                       "identifier": {
                         "name": "bar",
                         "span": {
-                          "lo": 184,
-                          "hi": 187
+                          "lo": 135,
+                          "hi": 138
                         },
                         "id": 17
                       },
                       "target": "Unresolved",
                       "span": {
-                        "lo": 184,
-                        "hi": 187
+                        "lo": 135,
+                        "hi": 138
                       },
                       "id": 18
                     },
@@ -231,8 +231,8 @@
                   }
                 },
                 "span": {
-                  "lo": 181,
-                  "hi": 187
+                  "lo": 132,
+                  "hi": 138
                 },
                 "id": 19
               }
@@ -248,15 +248,15 @@
                       "identifier": {
                         "name": "baz",
                         "span": {
-                          "lo": 192,
-                          "hi": 195
+                          "lo": 143,
+                          "hi": 146
                         },
                         "id": 21
                       },
                       "target": "Unresolved",
                       "span": {
-                        "lo": 192,
-                        "hi": 195
+                        "lo": 143,
+                        "hi": 146
                       },
                       "id": 22
                     },
@@ -264,8 +264,8 @@
                   }
                 },
                 "span": {
-                  "lo": 192,
-                  "hi": 195
+                  "lo": 143,
+                  "hi": 146
                 },
                 "id": 23
               }
@@ -278,15 +278,15 @@
                   "identifier": {
                     "name": "baz",
                     "span": {
-                      "lo": 192,
-                      "hi": 195
+                      "lo": 143,
+                      "hi": 146
                     },
                     "id": 21
                   },
                   "target": "Unresolved",
                   "span": {
-                    "lo": 192,
-                    "hi": 195
+                    "lo": 143,
+                    "hi": 146
                   },
                   "id": 22
                 },
@@ -296,14 +296,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 196,
-                "hi": 204
+                "lo": 147,
+                "hi": 151
               },
               "id": 20
             },
             "span": {
-              "lo": 153,
-              "hi": 204
+              "lo": 110,
+              "hi": 151
             },
             "id": 24
           }
@@ -312,7 +312,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 208
+        "hi": 151
       }
     }
   }

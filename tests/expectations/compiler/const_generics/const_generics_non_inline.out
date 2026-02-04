@@ -1,25 +1,25 @@
 Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:12:16
+    --> compiler-test:15:8
      |
-  12 |     transition bar1::[N: u32]() { }
-     |                ^^^^
+  15 |     fn bar1::[N: u32]() { }
+     |        ^^^^
 Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:14:22
+    --> compiler-test:17:8
      |
-  14 |     async transition bar2::[N: u32]() -> Future {
-     |                      ^^^^
+  17 |     fn bar2::[N: u32]() -> Final {
+     |        ^^^^
 Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:6:14
+    --> compiler-test:2:4
      |
-   6 |     function foo1::[N: u32](x: u32) -> u32 {
-     |              ^^^^
+   2 | fn foo1::[N: u32](x: u32) -> u32 {
+     |    ^^^^
 Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:10:20
+    --> compiler-test:6:10
      |
-  10 |     async function foo2::[N: u32](x: u32) { }
-     |                    ^^^^
+   6 | final fn foo2::[N: u32](x: u32) { }
+     |          ^^^^
 Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
-    --> compiler-test:18:12
+    --> compiler-test:9:8
      |
-  18 |     script baz::[N: u32]()  { }
-     |            ^^^
+   9 | script baz::[N: u32]()  { }
+     |        ^^^

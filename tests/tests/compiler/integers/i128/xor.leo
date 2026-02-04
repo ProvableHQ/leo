@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: i128, b: i128) -> i128 {
+    fn main(a: i128, b: i128) -> i128 {
         return a ^ b;
     }
 

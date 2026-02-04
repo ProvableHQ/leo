@@ -1,6 +1,6 @@
 
 program test.aleo {
-    function main(zz: bool) {
+    fn main(zz: bool) {
         let a: Foo = Foo { };
     }
 }

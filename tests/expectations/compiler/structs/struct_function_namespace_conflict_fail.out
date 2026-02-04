@@ -1,8 +1,8 @@
 Error [EAST0372017]: The name `Foo` is defined multiple times.
-    --> compiler-test:7:14
+    --> compiler-test:8:4
      |
-   3 |       struct Foo {
-     |              ^^^ previous definition of `Foo` here
+   4 |   struct Foo {
+     |          ^^^ previous definition of `Foo` here
    ...
-   7 |       function Foo() {}
-     |                ^^^ `Foo` redefined here
+   8 |   fn Foo() {}
+     |      ^^^ `Foo` redefined here

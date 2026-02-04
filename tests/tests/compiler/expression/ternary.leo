@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(
+    fn main(
         a: address, b: bool, c: field, d: i8, e: i16, f: i64, g: i128, h: u8, i: u16, j: u32, k: u64, l: u128, m: scalar, n: i32
     ) -> (
         address, bool, field, i8, i16, i64, i128, u8, u16, u32, u64, u128, scalar, i32

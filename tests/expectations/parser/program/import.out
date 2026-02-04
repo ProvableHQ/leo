@@ -40,8 +40,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 52,
-                "hi": 56
+                "lo": 44,
+                "hi": 48
               },
               "id": 0
             },
@@ -57,8 +57,8 @@
                       "Single": {
                         "name": "x",
                         "span": {
-                          "lo": 73,
-                          "hi": 74
+                          "lo": 61,
+                          "hi": 62
                         },
                         "id": 2
                       }
@@ -69,8 +69,8 @@
                     "value": {
                       "Literal": {
                         "span": {
-                          "lo": 80,
-                          "hi": 83
+                          "lo": 68,
+                          "hi": 71
                         },
                         "id": 3,
                         "variant": {
@@ -82,22 +82,22 @@
                       }
                     },
                     "span": {
-                      "lo": 69,
-                      "hi": 84
+                      "lo": 57,
+                      "hi": 72
                     },
                     "id": 1
                   }
                 }
               ],
               "span": {
-                "lo": 59,
-                "hi": 90
+                "lo": 51,
+                "hi": 74
               },
               "id": 4
             },
             "span": {
-              "lo": 43,
-              "hi": 90
+              "lo": 41,
+              "hi": 74
             },
             "id": 5
           }
@@ -106,7 +106,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 92
+        "hi": 74
       }
     }
   }

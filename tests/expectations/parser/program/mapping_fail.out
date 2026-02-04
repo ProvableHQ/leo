@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'storage', 'script', 'transition' -- found 'mappin'
+Error [EPAR0370005]: expected '}', '@', 'record', 'constructor', 'fn', 'mapping', 'storage' -- found 'mappin'
     --> test:3:5
      |
    3 |     mappin balances: address => u128;

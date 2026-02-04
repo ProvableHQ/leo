@@ -35,8 +35,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 35,
-                "hi": 39
+                "lo": 27,
+                "hi": 31
               },
               "id": 0
             },
@@ -47,14 +47,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 42,
-                "hi": 44
+                "lo": 34,
+                "hi": 36
               },
               "id": 1
             },
             "span": {
               "lo": 24,
-              "hi": 44
+              "hi": 36
             },
             "id": 2
           }
@@ -63,12 +63,12 @@
           "foo",
           {
             "annotations": [],
-            "variant": "Inline",
+            "variant": "Function",
             "identifier": {
               "name": "foo",
               "span": {
-                "lo": 56,
-                "hi": 59
+                "lo": 42,
+                "hi": 45
               },
               "id": 3
             },
@@ -77,8 +77,8 @@
                 "identifier": {
                   "name": "N",
                   "span": {
-                    "lo": 62,
-                    "hi": 63
+                    "lo": 48,
+                    "hi": 49
                   },
                   "id": 4
                 },
@@ -86,8 +86,8 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 62,
-                  "hi": 68
+                  "lo": 48,
+                  "hi": 54
                 },
                 "id": 5
               },
@@ -95,8 +95,8 @@
                 "identifier": {
                   "name": "M",
                   "span": {
-                    "lo": 70,
-                    "hi": 71
+                    "lo": 56,
+                    "hi": 57
                   },
                   "id": 6
                 },
@@ -104,8 +104,8 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 70,
-                  "hi": 76
+                  "lo": 56,
+                  "hi": 62
                 },
                 "id": 7
               }
@@ -116,14 +116,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 80,
-                "hi": 82
+                "lo": 66,
+                "hi": 68
               },
               "id": 8
             },
             "span": {
-              "lo": 49,
-              "hi": 82
+              "lo": 39,
+              "hi": 68
             },
             "id": 9
           }
@@ -132,12 +132,12 @@
           "bar",
           {
             "annotations": [],
-            "variant": "Inline",
+            "variant": "Function",
             "identifier": {
               "name": "bar",
               "span": {
-                "lo": 94,
-                "hi": 97
+                "lo": 72,
+                "hi": 75
               },
               "id": 10
             },
@@ -148,14 +148,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 104,
-                "hi": 106
+                "lo": 82,
+                "hi": 84
               },
               "id": 11
             },
             "span": {
-              "lo": 87,
-              "hi": 106
+              "lo": 69,
+              "hi": 84
             },
             "id": 12
           }
@@ -164,7 +164,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 108
+        "hi": 84
       }
     }
   }

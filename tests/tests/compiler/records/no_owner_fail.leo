@@ -6,6 +6,6 @@ program test.aleo {
         amount: u64,
     }
 
-    function main(zz: bool) -> bool {
+    fn main(zz: bool) -> bool {
         return true;
     }}

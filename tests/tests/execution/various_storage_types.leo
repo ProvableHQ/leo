@@ -27,6 +27,16 @@ input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Container {
+    points: [Point; 2],
+    label: u8,
+}
+
 program mixed_types.aleo {
     //
     // ────────────────────────────────────────────────────────────────
@@ -43,23 +53,13 @@ program mixed_types.aleo {
     storage containers: [Container; 2];
     storage points_array: [Point; 3];
 
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Container {
-        points: [Point; 2],
-        label: u8,
-    }
-
     //
     // ────────────────────────────────────────────────────────────────
     // Unsigned integers test
     // ────────────────────────────────────────────────────────────────
     //
-    async transition unsigned_integers() -> Future {
-        return async {
+    fn unsigned_integers() -> Final {
+        return final {
             counter_u32 = 10;
             assert(counter_u32.unwrap() == 10);
 
@@ -78,8 +78,8 @@ program mixed_types.aleo {
     // Signed integers test
     // ────────────────────────────────────────────────────────────────
     //
-    async transition signed_integers() -> Future {
-        return async {
+    fn signed_integers() -> Final {
+        return final {
             counter_i32 = -5i32;
             assert(counter_i32.unwrap() == -5i32);
 
@@ -98,8 +98,8 @@ program mixed_types.aleo {
     // Primitive types test
     // ────────────────────────────────────────────────────────────────
     //
-    async transition primitive_types() -> Future {
-        return async {
+    fn primitive_types() -> Final {
+        return final {
             flag = true;
             scalar_val = 2scalar;
             field_val = 21field;
@@ -127,8 +127,8 @@ program mixed_types.aleo {
     // Structs and arrays test (nested)
     // ────────────────────────────────────────────────────────────────
     //
-    async transition structs_and_arrays() -> Future {
-        return async {
+    fn structs_and_arrays() -> Final {
+        return final {
             // Build nested data
             let p0 = Point { x: 1field, y: 2field };
             let p1 = Point { x: 3field, y: 4field };
@@ -171,5 +171,5 @@ program mixed_types.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

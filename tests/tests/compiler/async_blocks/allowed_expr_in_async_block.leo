@@ -1,7 +1,7 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    async transition t1() -> Future {
-        return async {
+    fn t1() -> Final {
+        return final {
             let b = block.height;
             let t = block.timestamp;
             let i = network.id;

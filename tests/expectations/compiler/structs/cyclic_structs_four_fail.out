@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected ';' -- found ','
-    --> compiler-test:8:18
+    --> compiler-test:9:14
      |
-   8 |         baz: [Baz, 2],
-     |                  ^
+   9 |     baz: [Baz, 2],
+     |              ^

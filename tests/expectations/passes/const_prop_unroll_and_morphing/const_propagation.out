@@ -1,10 +1,10 @@
 program test.aleo {
     const a: u32 = 10u32;
-    transition main(x: u32) -> u32 {
+    fn main(x: u32) -> u32 {
         let b: u32 = 15u32;
         return x + b;
     }
-    transition foo(x: u32) -> u32 {
+    fn foo(x: u32) -> u32 {
         let b: u32 = 15u32;
         {
             b = 42u32;
@@ -15,3 +15,4 @@ program test.aleo {
         return x + b;
     }
 }
+

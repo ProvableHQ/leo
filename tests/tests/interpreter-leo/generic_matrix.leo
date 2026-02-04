@@ -1,13 +1,41 @@
-program test.aleo {
-    const M_: u32 = 2u32; // Rows in A
-    const K_: u32 = 3u32; // Columns in A / Rows in B
-    const N_: u32 = 2u32; // Columns in B
+const M_: u32 = 2u32; // Rows in A
+const K_: u32 = 3u32; // Columns in A / Rows in B
+const N_: u32 = 2u32; // Columns in B
 
-    struct Matrix::[M: u32, N: u32] {
-        data: [[i32; N]; M]
+struct Matrix::[M: u32, N: u32] {
+    data: [[i32; N]; M]
+}
+
+// Multiply two matrices wrapped in the `Matrix` struct
+fn matmul_and_check::[M: u32, K: u32, N: u32](
+    A: Matrix::[M, K],
+    B: Matrix::[K, N]
+) {
+    let C_data: [[i32; N]; M] = [[0; N]; M];
+
+    for i in 0u32..M {
+        for j in 0u32..N {
+            let sum = 0i32;
+            for k in 0u32..K {
+                sum += A.data[i][k] * B.data[k][j];
+            }
+            // This is just a workaround due to the fact that we can't 
+            // assign to `C[i][j]` just yet in the interpreter
+            if i == 0 && j == 0 {
+                assert(sum == 58);
+            } else if i == 0 && j == 1 {
+                assert(sum == 64);
+            } else if i == 1 && j == 0 {
+                assert(sum == 139);
+            } else if i == 1 && j == 1 {
+                assert(sum == 154);
+            }
+        }
     }
+}
 
-    transition main() -> bool {
+program test.aleo {
+    fn main() -> bool {
         // Matrix A: 2x3
         let A = Matrix::[M_, K_] {
             data: [
@@ -30,33 +58,5 @@ program test.aleo {
 
         // If none of the asserts fail, the output will just be `true`
         return true;
-    }
-
-    // Multiply two matrices wrapped in the `Matrix` struct
-    inline matmul_and_check::[M: u32, K: u32, N: u32](
-        A: Matrix::[M, K],
-        B: Matrix::[K, N]
-    ) {
-        let C_data: [[i32; N]; M] = [[0; N]; M];
-
-        for i in 0u32..M {
-            for j in 0u32..N {
-                let sum = 0i32;
-                for k in 0u32..K {
-                    sum += A.data[i][k] * B.data[k][j];
-                }
-                // This is just a workaround due to the fact that we can't 
-                // assign to `C[i][j]` just yet in the interpreter
-                if i == 0 && j == 0 {
-                    assert(sum == 58);
-                } else if i == 0 && j == 1 {
-                    assert(sum == 64);
-                } else if i == 1 && j == 0 {
-                    assert(sum == 139);
-                } else if i == 1 && j == 1 {
-                    assert(sum == 154);
-                }
-            }
-        }
     }
 }

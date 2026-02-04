@@ -3,7 +3,7 @@ program tuple_pass_tests.aleo {
     // --------------------------------------------
     // 1. Tuple construction + member access
     // --------------------------------------------
-    transition test_members(x: u32, y: u32) -> (u32, u32) {
+    fn test_members(x: u32, y: u32) -> (u32, u32) {
         let t = (x, y);
 
         assert_eq(t.0, x);
@@ -15,7 +15,7 @@ program tuple_pass_tests.aleo {
     // --------------------------------------------
     // 2. Tuple equality
     // --------------------------------------------
-    transition test_eq(a: u32, b: u32) {
+    fn test_eq(a: u32, b: u32) {
         let t1 = (a, b);
         let t2 = (a, b);
 
@@ -29,7 +29,7 @@ program tuple_pass_tests.aleo {
     // --------------------------------------------
     // 3. Tuple inequality
     // --------------------------------------------
-    transition test_neq(a: u32, b: u32) {
+    fn test_neq(a: u32, b: u32) {
         let t1 = (a, b);
         let t2 = (a + 1u32, b);
 
@@ -43,7 +43,7 @@ program tuple_pass_tests.aleo {
     // --------------------------------------------
     // 4. Tuple destructuring (pattern binding)
     // --------------------------------------------
-    transition test_destructure(a: u32, b: u32) -> u32 {
+    fn test_destructure(a: u32, b: u32) -> u32 {
         let (x, y): (u32, u32) = (a, b);
 
         assert_eq(x, a);
@@ -55,7 +55,7 @@ program tuple_pass_tests.aleo {
     // --------------------------------------------
     // 5. Mixing tuple projections and eq/neq
     // --------------------------------------------
-    transition test_mix(a: u32, b: u32) {
+    fn test_mix(a: u32, b: u32) {
         let t = (a, b);
 
         assert((t.0, t.1) == t);
@@ -68,7 +68,7 @@ program tuple_pass_tests.aleo {
     // --------------------------------------------
     // 6. Ternary operator using tuple comparisons
     // --------------------------------------------
-    transition test_ternary(a: u32, b: u32) -> u32 {
+    fn test_ternary(a: u32, b: u32) -> u32 {
         let t1 = (a, b);
         let t2 = (a + 1u32, b);
 

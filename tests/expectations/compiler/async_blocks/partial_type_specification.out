@@ -1,23 +1,23 @@
 Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
-    --> compiler-test:14:26
+    --> compiler-test:14:25
      |
-  14 |         let f3: Future = async {
-     |                          ^^^^^^^
-  15 |             // f.await();
-     |             ^^^^^^^^^^^^^
+  14 |         let f3: Final = final {
+     |                         ^^^^^^^
+  15 |             // f.run();
+     |             ^^^^^^^^^^^
   16 |             if b == 1u32 {
      |             ^^^^^^^^^^^^^^
-  17 |                 Future::await(f);
-     |                 ^^^^^^^^^^^^^^^^^
-  18 |                 f2.await();
-     |                 ^^^^^^^^^^^
+  17 |                 Final::run(f);
+     |                 ^^^^^^^^^^^^^^
+  18 |                 f2.run();
+     |                 ^^^^^^^^^
   19 |             }
      |             ^
   20 | 
   21 |             if b == 2u32 {
      |             ^^^^^^^^^^^^^^
-  22 |                 //f2.await();
-     |                 ^^^^^^^^^^^^^
+  22 |                 //f2.run();
+     |                 ^^^^^^^^^^^
   23 |                 Mapping::set(ayo, 1u32, 1u32);
      |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   24 |             }

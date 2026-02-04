@@ -1,3 +1,8 @@
+    // Nested struct with optional field
+    struct InnerStruct {
+        val: u64?,
+    }
+
 program record_with_optional_fields.aleo {
     record BadRecord1 {
         owner: address,
@@ -10,19 +15,13 @@ program record_with_optional_fields.aleo {
         flags: [bool?; 4], // ERROR: contains optional
     }
 
-    // Nested struct with optional field
-    struct InnerStruct {
-        val: u64?,
-    }
-
     record BadRecord3 {
         owner: address,
         inner: InnerStruct, // ERROR: contains optional via nested struct
     }
 
-    transition foo() {
-    }
+    fn foo() {}
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

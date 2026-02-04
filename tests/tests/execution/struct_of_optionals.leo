@@ -7,12 +7,12 @@ function = "main"
 input = []
 */
 
-program test.aleo {
-    struct Foo {
-        x: u64?, // Optional field
-    }
+struct Foo {
+    x: u64?, // Optional field
+}
 
-    transition main() {
+program test.aleo {
+    fn main() {
         let raw: [u64; 4] = [10u64, 0u64, 30u64, 0u64];
 
         // Convert into Foo structs where 0 → none
@@ -32,5 +32,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

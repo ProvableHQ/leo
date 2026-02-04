@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected an identifier -- found 'const'
-    --> test:3:31
+    --> test:4:21
      |
-   3 |     function x(x: u32, public const y: i32) {
-     |                               ^^^^^
+   4 | fn x(x: u32, public const y: i32) {
+     |                     ^^^^^

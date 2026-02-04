@@ -4,15 +4,16 @@
 // source files, a panic could happen.
 
 program child.aleo {
-    transition main() {}
+    fn main() {}
 }
 
 // --- Next Program --- //
 
 import child.aleo;
-program parent.aleo {
-    function f(x :u8) {
-        assert_eq(x, x);
-    }
+
+program parent.aleo {}
+
+fn f(x :u8) {
+    assert_eq(x, x);
 }
 

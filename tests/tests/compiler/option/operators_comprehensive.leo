@@ -1,7 +1,7 @@
 program operators_comprehensive.aleo {
     
     // Test all arithmetic operators
-    transition test_all_arithmetic() -> u8 {
+    fn test_all_arithmetic() -> u8 {
         let add: u8? = 1 + 1;
         let sub: u8? = 5 - 3;
         let mul: u8? = 2 * 3;
@@ -12,7 +12,7 @@ program operators_comprehensive.aleo {
     }
     
     // Test all bitwise operators
-    transition test_all_bitwise() -> u8 {
+    fn test_all_bitwise() -> u8 {
         let and: u8? = 5 & 3;
         let or: u8? = 5 | 3;
         let xor: u8? = 5 ^ 3;
@@ -22,7 +22,7 @@ program operators_comprehensive.aleo {
     }
     
     // Test all wrapped operators
-    transition test_all_wrapped() -> u8 {
+    fn test_all_wrapped() -> u8 {
         let add_w: u8? = 250.add_wrapped(10);
         let sub_w: u8? = 5.sub_wrapped(10);
         let mul_w: u8? = 200.mul_wrapped(2);
@@ -35,7 +35,7 @@ program operators_comprehensive.aleo {
     }
     
     // Test all unary operators for signed integers
-    transition test_all_unary_signed() -> u8 {
+    fn test_all_unary_signed() -> u8 {
         let neg: i8? = -5;
         let abs: i8? = (-10).abs();
         let abs_w: i8? = (-127).abs_wrapped();
@@ -43,19 +43,19 @@ program operators_comprehensive.aleo {
     }
     
     // Test all unary operators for unsigned integers
-    transition test_all_unary_unsigned() -> u8 {
+    fn test_all_unary_unsigned() -> u8 {
         let not: u8? = !5;
         return 42u8;
     }
     
     // Test all unary operators for bool
-    transition test_all_unary_bool() -> u8 {
+    fn test_all_unary_bool() -> u8 {
         let not_bool: bool? = !true;
         return 42u8;
     }
     
     // Test all unary operators for field
-    transition test_all_unary_field() -> u8 {
+    fn test_all_unary_field() -> u8 {
         let neg_f: field? = -1;
         let double_f: field? = (5).double();
         let inv_f: field? = (5).inv();
@@ -65,7 +65,7 @@ program operators_comprehensive.aleo {
     }
     
     // Test complex nested expressions
-    transition test_complex_nested() -> u8 {
+    fn test_complex_nested() -> u8 {
         let a: u8? = (1 + 2) * (3 + 4);
         let b: u8? = ((5 - 2) * 3) + (10 / 2);
         let c: i8? = -(5 + 3);
@@ -74,7 +74,7 @@ program operators_comprehensive.aleo {
     }
     
     // Test with all integer types
-    transition test_all_integer_types() -> u8 {
+    fn test_all_integer_types() -> u8 {
         let u8_val: u8? = 1 + 1;
         let u16_val: u16? = 100 + 200;
         let u32_val: u32? = 1000 + 2000;
@@ -89,7 +89,7 @@ program operators_comprehensive.aleo {
     }
     
     // Test operator precedence with optionals
-    transition test_operator_precedence() -> u8 {
+    fn test_operator_precedence() -> u8 {
         let a: u8? = 1 + 2 * 3;
         let b: u8? = 10 - 2 / 2;
         let c: u8? = 2 ** 3u8 * 2;
@@ -97,14 +97,14 @@ program operators_comprehensive.aleo {
     }
     
     // Test comparison operators (return bool, not optional)
-    transition test_comparison_operators() -> bool {
+    fn test_comparison_operators() -> bool {
         let a: u8 = 5;
         let b: u8 = 3;
         return a > b;
     }
     
     // Test logical operators (return bool, not optional)
-    transition test_logical_operators() -> bool {
+    fn test_logical_operators() -> bool {
         return true && false;
     }
 }

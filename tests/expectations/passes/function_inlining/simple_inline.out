@@ -1,10 +1,11 @@
 program test.aleo {
-    inline add(a: u32, b: u32) -> u32 {
-        return a + b;
-    }
-    transition main(x: u32, y: u32) -> u32 {
+    fn main(x: u32, y: u32) -> u32 {
         let $var$0 = x + y;
         let result: u32 = $var$0;
         return result;
     }
 }
+    fn add(a: u32, b: u32) -> u32 {
+        return a + b;
+    }
+

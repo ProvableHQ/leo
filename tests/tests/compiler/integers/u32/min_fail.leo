@@ -1,6 +1,5 @@
 
-program test.aleo {
-    function main(x: bool) {
-        let a: u32 = -1u32;
-    }
+program test.aleo { }
+fn main(x: bool) {
+    let a: u32 = -1u32;
 }

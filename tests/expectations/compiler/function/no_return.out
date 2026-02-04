@@ -1,5 +1,5 @@
 Error [ETYC0372036]: Function must return a value.
     --> compiler-test:3:5
      |
-   3 |     transition main() -> u8 {}
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   3 |     fn main() -> u8 {}
+     |     ^^^^^^^^^^^^^^^^^^

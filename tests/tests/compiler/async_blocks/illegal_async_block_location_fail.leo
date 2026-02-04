@@ -1,29 +1,29 @@
 program test.aleo {
-    transition t1() {
-        let f1 = async {};
+    fn t1() {
+        let f1 = final {};
     }
 
-    async transition t2() {
+    fn t2() {
         for j in 0u32..2u32 {
-            let f = async {};
+            let f = final {};
         }
     }
 
-    async transition t3() {
+    fn t3() {
         if true {
-            let f = async {};
+            let f = final {};
         }
     }
+}
 
-    function f2(x: u32) {
-        let f = async {};
-    }
+fn f2(x: u32) {
+    let f = final {};
+}
 
-    async function f3() {
-        let f = async {};
-    }
+final fn f3() {
+    let f = final {};
+}
 
-    inline i() {
-        let f = async {};
-    }
+fn i() {
+    let f = final {};
 }

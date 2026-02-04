@@ -1,8 +1,8 @@
 program inner.aleo {
     mapping foo: u32 => u32;
 
-    async transition inner(a: u32) -> Future {
-        return async {
+    fn inner(a: u32) -> Final {
+        return final {
             Mapping::set(foo, 0u32, a);
         };
     }
@@ -12,17 +12,17 @@ program inner.aleo {
 
 import inner.aleo;
 program mid.aleo {
-    async transition mid(a: u32) -> Future {
-        let f1: Future = inner.aleo/inner(0u32);
-        let f2: Future = inner.aleo/inner(1u32);
-        let f:Future = async {
-            f2.await();
-            f1.await();
+    fn mid(a: u32) -> Final {
+        let f1: Final = inner.aleo/inner(0u32);
+        let f2: Final = inner.aleo/inner(1u32);
+        let f:Final = final {
+            f2.run();
+            f1.run();
         };
         return f;
     }
 
-    transition dummy() {}
+    fn dummy() {}
 }
 
 // --- Next Program --- //
@@ -30,24 +30,24 @@ program mid.aleo {
 import inner.aleo;
 import mid.aleo;
 program outer.aleo {
-    async transition outer_1(a: u32) -> Future {
+    fn outer_1(a: u32) -> Final {
         mid.aleo/dummy();
-        let f1: Future = mid.aleo/mid(0u32);
-        let f2: Future = mid.aleo/mid(1u32);
-        let f:Future = async {
-            f1.await();
-            f2.await();
+        let f1: Final = mid.aleo/mid(0u32);
+        let f2: Final = mid.aleo/mid(1u32);
+        let f:Final = final {
+            f1.run();
+            f2.run();
         };
         return f;
     }
 
-    async transition outer_2(a: u32) -> Future {
-        let f1: Future = mid.aleo/mid(0u32);
+    fn outer_2(a: u32) -> Final {
+        let f1: Final = mid.aleo/mid(0u32);
         mid.aleo/dummy();
-        let f2: Future = mid.aleo/mid(1u32);
-        let f:Future = async {
-            f1.await();
-            f2.await();
+        let f2: Final = mid.aleo/mid(1u32);
+        let f:Final = final {
+            f1.run();
+            f2.run();
         };
         return f;
     }

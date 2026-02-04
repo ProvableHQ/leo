@@ -1,14 +1,14 @@
 Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
-    --> compiler-test:14:26
+    --> compiler-test:14:25
      |
-  14 |         let f3: Future = async {
-     |                          ^^^^^^^
+  14 |         let f3: Final = final {
+     |                         ^^^^^^^
   15 |             if b == 1u32 {
      |             ^^^^^^^^^^^^^^
-  16 |                 Future::await(f);
-     |                 ^^^^^^^^^^^^^^^^^
-  17 |                 f2.await();
-     |                 ^^^^^^^^^^^
+  16 |                 Final::run(f);
+     |                 ^^^^^^^^^^^^^^
+  17 |                 f2.run();
+     |                 ^^^^^^^^^
   18 |             }
      |             ^
   19 | 
