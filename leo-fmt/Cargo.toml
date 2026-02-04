@@ -15,7 +15,6 @@ categories = [ "development-tools", "command-line-utilities" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.92.0"
 
 [dependencies]
 leo-errors          = { workspace = true }
