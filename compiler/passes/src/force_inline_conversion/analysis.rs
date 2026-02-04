@@ -24,7 +24,7 @@ use leo_span::Symbol;
 pub struct AnalysisVisitor {
     /// The variant of the function we're currently visiting.
     current_variant: Option<Variant>,
-    /// Whether wer're currently inside a constructor
+    /// Whether we're currently inside a constructor
     in_constructor: bool,
     /// Whether we're currently inside an async block.
     in_async_block: bool,
