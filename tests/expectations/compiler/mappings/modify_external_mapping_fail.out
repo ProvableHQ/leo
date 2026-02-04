@@ -1,0 +1,14 @@
+Error [ETYC0372108]: Cannot use operation `set` on external mappings.
+    --> compiler-test:11:13
+     |
+  11 |             provider.aleo/balances.set(3u32, 300u32);  // ❌ illegal external mutation
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = The only valid operations on external mappings are `contains`, `get`, and `get_or_use`.
+Error [ETYC0372108]: Cannot use operation `remove` on external mappings.
+    --> compiler-test:12:13
+     |
+  12 |             provider.aleo/balances.remove(1u32);       // ❌ illegal external mutation
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = The only valid operations on external mappings are `contains`, `get`, and `get_or_use`.
