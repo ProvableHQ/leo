@@ -593,7 +593,8 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             for _ in 0..num_blocks {
                 let txs = unconfirmed_txs.take().unwrap_or_default();
 
-                // Prepare the new block.
+                // Prepare the new block.  Note that transactions in the buffer are added to the first block.
+                // If there are no transactions left in the buffer, create an empty block.
                 let new_block = rest
                     .ledger
                     .prepare_advance_to_next_beacon_block(&private_key, vec![], vec![], txs, &mut rand::thread_rng())

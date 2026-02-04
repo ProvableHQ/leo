@@ -133,6 +133,7 @@ serde              = { version = "1.0", features = [ "derive", "rc" ] }
 serde_json         = { version = "1.0", features = [ "preserve_order" ] }
 serial_test        = "3.1"
 sha2               = "0.10"
+# We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
 snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", tag = "canary-v4.5.0", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
