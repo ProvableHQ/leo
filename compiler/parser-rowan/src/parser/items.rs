@@ -35,6 +35,11 @@ impl Parser<'_, '_> {
     /// files appear in Leo test suites where programs are separated by
     /// `// --- Next Program --- //` comments (the comment itself is trivia
     /// and doesn't affect parsing).
+    ///
+    /// Module-level items (`const`, `struct`, `inline`) are also accepted
+    /// at the top level to support multi-section test files that combine
+    /// program declarations with module content separated by
+    /// `// --- Next Module: path --- //` comments.
     pub fn parse_file_items(&mut self) {
         loop {
             self.skip_trivia();
@@ -49,10 +54,49 @@ impl Parser<'_, '_> {
                 KW_PROGRAM => {
                     self.parse_program_decl();
                 }
+                // Module-level items at top level (for module files and
+                // multi-section test files with `// --- Next Module:` separators).
+                KW_CONST | KW_STRUCT | KW_INLINE | AT => {
+                    if self.parse_module_item().is_none() {
+                        self.error_and_bump("expected module item");
+                    }
+                }
                 _ => {
-                    self.error_and_bump("expected `import` or `program` at top level");
+                    self.error_and_bump("expected `import`, `program`, or module item at top level");
                 }
             }
+        }
+    }
+
+    /// Parse module-level items.
+    ///
+    /// Module files contain only `const`, `struct`, and `inline` declarations
+    /// (with optional annotations). No `import` or `program` blocks.
+    pub fn parse_module_items(&mut self) {
+        loop {
+            self.skip_trivia();
+            if self.at_eof() {
+                break;
+            }
+
+            if self.parse_module_item().is_none() {
+                self.error_and_bump("expected `const`, `struct`, or `inline` in module");
+            }
+        }
+    }
+
+    /// Parse a single module-level item: `const`, `struct`, or `inline fn`.
+    fn parse_module_item(&mut self) -> Option<CompletedMarker> {
+        // Handle annotations
+        while self.at(AT) {
+            self.parse_annotation();
+        }
+
+        match self.current() {
+            KW_CONST => self.parse_global_const(),
+            KW_STRUCT => self.parse_struct_def(),
+            KW_INLINE => self.parse_function_or_constructor(),
+            _ => None,
         }
     }
 

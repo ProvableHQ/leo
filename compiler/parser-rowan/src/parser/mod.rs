@@ -31,7 +31,7 @@ use crate::{
     lexer::Token,
     syntax_kind::{SyntaxKind, SyntaxKind::*},
 };
-pub use grammar::{parse_expression_entry, parse_file, parse_statement_entry};
+pub use grammar::{parse_expression_entry, parse_file, parse_module_entry, parse_statement_entry};
 use rowan::{Checkpoint, GreenNode, GreenNodeBuilder};
 
 // =============================================================================

@@ -26,7 +26,15 @@ mod syntax_kind;
 
 use leo_errors::Result;
 pub use lexer::{LexError, Token, lex};
-pub use parser::{Parse, ParseError, Parser, parse_expression_entry, parse_file, parse_statement_entry};
+pub use parser::{
+    Parse,
+    ParseError,
+    Parser,
+    parse_expression_entry,
+    parse_file,
+    parse_module_entry,
+    parse_statement_entry,
+};
 pub use syntax_kind::{SyntaxKind, syntax_kind_from_raw};
 
 /// The Leo language type for rowan.
@@ -88,8 +96,7 @@ pub fn parse_statement(source: &str) -> Result<SyntaxNode> {
 /// # Returns
 /// A syntax node representing the parsed module.
 pub fn parse_module(source: &str) -> Result<SyntaxNode> {
-    // For now, modules and files are parsed the same way
-    let parse = parse_file(source);
+    let parse = parse_module_entry(source);
     // TODO: Convert ParseErrors to leo_errors::Result when needed
     Ok(parse.syntax())
 }
