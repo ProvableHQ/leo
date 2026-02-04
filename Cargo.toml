@@ -33,14 +33,18 @@ rust-version = "1.92.0"
 members = [
   "compiler/abi",
   "compiler/abi-types",
+  "compiler/abi",
+  "compiler/abi-types",
   "compiler/ast",
   "compiler/compiler",
   "compiler/parser-lossless",
+  "compiler/parser-rowan",
   "compiler/parser-rowan",
   "compiler/parser",
   "compiler/passes",
   "compiler/span",
   "errors",
+  "leo-fmt",
   "leo-fmt",
   "interpreter",
   "leo/package",
@@ -208,6 +212,10 @@ libc        = "0.2"
 nix         = { version = "0.30", features = [ "process", "term", "fs", "poll" ] }
 signal-hook = { version = "0.4", features = [ "iterator" ] }
 
+[target."cfg(windows)".dependencies]
+winapi      = "0.3"
+ansi_term   = "0.12"
+windows-sys = { version = "0.61", features = [ "Win32_Foundation", "Win32_System_Threading", "Win32_System_JobObjects" ] }
 [target."cfg(windows)".dependencies]
 winapi      = "0.3"
 ansi_term   = "0.12"
