@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -56,17 +56,21 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         let this_program = self.program_id.unwrap().name.name;
 
-        let lookup = |name: &[Symbol]| {
-            self.state
-                .symbol_table
-                .lookup_struct(name)
-                .or_else(|| self.state.symbol_table.lookup_record(&Location::new(this_program, name.to_vec())))
+        let lookup = |loc: &Location| {
+            if loc.program == this_program {
+                self.state
+                    .symbol_table
+                    .lookup_struct(this_program, loc)
+                    .or_else(|| self.state.symbol_table.lookup_record(this_program, loc))
+            } else {
+                None
+            }
         };
 
         // Add each `struct` or `record` in the post-ordering and produce an Aleo struct or record.
         let data_types = order
             .into_iter()
-            .filter_map(|name| lookup(&name).map(|composite| self.visit_struct_or_record(composite, &name)))
+            .filter_map(|loc| lookup(&loc).map(|composite| self.visit_struct_or_record(composite, &loc)))
             .collect();
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
@@ -90,24 +94,25 @@ impl<'a> CodeGeneratingVisitor<'a> {
                         let finalize = &self
                             .state
                             .symbol_table
-                            .lookup_function(&Location::new(
-                                self.program_id.unwrap().name.name,
-                                vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
-                            ))
+                            .lookup_function(
+                                this_program,
+                                &Location::new(
+                                    this_program,
+                                    vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
+                                ),
+                            )
                             .unwrap()
                             .clone()
                             .finalizer
                             .unwrap();
                         // Write the finalize string.
+                        let [finalize_name] = &finalize.location.path[..] else {
+                            panic!("finalize location must have a single-segment path at this stage of compilation");
+                        };
                         if let Some(caller) = &mut aleo_function {
                             caller.as_function_ref_mut().finalize = Some(
                                 self.visit_function_with(
-                                    &program_scope
-                                        .functions
-                                        .iter()
-                                        .find(|(name, _f)| vec![*name] == finalize.location.path)
-                                        .unwrap()
-                                        .1,
+                                    &program_scope.functions.iter().find(|(name, _f)| name == finalize_name).unwrap().1,
                                     &finalize.future_inputs,
                                 )
                                 .unwrap()
@@ -128,22 +133,21 @@ impl<'a> CodeGeneratingVisitor<'a> {
         AleoProgram { imports, program_id, data_types, mappings, functions, constructor }
     }
 
-    fn visit_struct_or_record(&mut self, composite: &'a Composite, absolute_path: &[Symbol]) -> AleoDatatype {
+    fn visit_struct_or_record(&mut self, composite: &'a Composite, loc: &Location) -> AleoDatatype {
         if composite.is_record {
-            AleoDatatype::Record(self.visit_record(composite, absolute_path))
+            AleoDatatype::Record(self.visit_record(composite, loc))
         } else {
-            AleoDatatype::Struct(self.visit_struct(composite, absolute_path))
+            AleoDatatype::Struct(self.visit_struct(composite, loc))
         }
     }
 
-    fn visit_struct(&mut self, struct_: &'a Composite, absolute_path: &[Symbol]) -> AleoStruct {
+    fn visit_struct(&mut self, struct_: &'a Composite, loc: &Location) -> AleoStruct {
         // Add private symbol to composite types.
-        self.composite_mapping.insert(absolute_path.to_vec(), false); // todo: private by default here.
+        self.composite_mapping.insert(loc.clone(), false); // todo: private by default here.
 
         // todo: check if this is safe from name conflicts.
-        let name = Self::legalize_path(absolute_path).unwrap_or_else(|| {
-            panic!("path format cannot be legalized at this point: {}", absolute_path.iter().join("::"))
-        });
+        let name = Self::legalize_path(&loc.path)
+            .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", loc.path.iter().join("::")));
 
         // Construct and append the record variables.
         let fields = struct_
@@ -153,7 +157,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if var.type_.is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), Self::visit_type(&var.type_)))
+                    Some((var.identifier.to_string(), self.visit_type(&var.type_)))
                 }
             })
             .collect();
@@ -161,9 +165,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         AleoStruct { name, fields }
     }
 
-    fn visit_record(&mut self, record: &'a Composite, absolute_path: &[Symbol]) -> AleoRecord {
+    fn visit_record(&mut self, record: &'a Composite, loc: &Location) -> AleoRecord {
         // Add record symbol to composite types.
-        self.composite_mapping.insert(absolute_path.to_vec(), true);
+        self.composite_mapping.insert(loc.clone(), true);
 
         let name = record.identifier.to_string(); // todo: check if this is safe from name conflicts.
 
@@ -185,7 +189,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if var.type_.is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), Self::visit_type(&var.type_), match var.mode {
+                    Some((var.identifier.to_string(), self.visit_type(&var.type_), match var.mode {
                         Mode::Constant => AleoVisibility::Constant,
                         Mode::Public => AleoVisibility::Public,
                         Mode::None | Mode::Private => AleoVisibility::Private,
@@ -233,15 +237,13 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     return None;
                 }
                 let register_num = self.next_register();
+                let current_program = self.program_id.unwrap().name.name;
 
                 // Track all internal record inputs.
                 if let Type::Composite(comp) = &input.type_ {
-                    let program = comp.program.unwrap_or(self.program_id.unwrap().name.name);
-                    if let Some(record) = self
-                        .state
-                        .symbol_table
-                        .lookup_record(&Location::new(program, comp.path.absolute_path().to_vec()))
-                        && (record.external.is_none() || record.external == self.program_id.map(|id| id.name.name))
+                    let composite_location = comp.path.expect_global_location();
+                    if self.state.symbol_table.lookup_record(current_program, composite_location).is_some()
+                        && (composite_location.program == current_program)
                     {
                         self.internal_record_inputs.insert(AleoExpr::Reg(register_num.clone()));
                     }
@@ -326,7 +328,6 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let constructor = match &upgrade_variant {
             // This is the expected snarkVM constructor bytecode for a program that is only upgradable by a fixed admin.
             UpgradeVariant::Admin { address } => AleoConstructor {
-                is_custom: false,
                 statements: vec![AleoStmt::AssertEq(
                     AleoExpr::RawName("program_owner".to_string()),
                     AleoExpr::RawName(address.to_string()),
@@ -347,7 +348,6 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 // This is the required snarkVM constructor bytecode for a program that is only upgradable
                 // if the new program's checksum matches the one declared in a pre-determined mapping.
                 AleoConstructor {
-                    is_custom: false,
                     statements: vec![
                         AleoStmt::BranchEq(
                             AleoExpr::RawName("edition".to_string()),
@@ -360,13 +360,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     ],
                 }
             }
-            UpgradeVariant::Custom => {
-                AleoConstructor { statements: self.visit_block(&constructor.block), is_custom: true }
-            }
+            UpgradeVariant::Custom => AleoConstructor { statements: self.visit_block(&constructor.block) },
             UpgradeVariant::NoUpgrade => {
                 // This is the expected snarkVM constructor bytecode for a program that is not upgradable.
                 AleoConstructor {
-                    is_custom: false,
                     statements: vec![AleoStmt::AssertEq(AleoExpr::RawName("edition".to_string()), AleoExpr::U16(0))],
                 }
             }
@@ -398,8 +395,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 Type::Mapping(_) | Type::Tuple(_) => panic!("Mappings cannot contain mappings or tuples."),
                 Type::Identifier(identifier) => {
                     // Lookup the type in the composite mapping.
-                    // Note that this unwrap is safe since all structs and records have been added to the composite mapping.
-                    let is_record = self.composite_mapping.get(&vec![identifier.name]).unwrap();
+                    // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
+                    let is_record = self
+                        .composite_mapping
+                        .get(&Location::new(self.program_id.unwrap().name.name, vec![identifier.name]))
+                        .unwrap();
                     assert!(!is_record, "Type checking guarantees that mappings cannot contain records.");
                     self.visit_type_with_visibility(type_, Some(AleoVisibility::Public))
                 }

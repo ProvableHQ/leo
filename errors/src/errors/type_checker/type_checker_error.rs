@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -1384,4 +1384,12 @@ create_messages!(
         help: None,
     }
 
+    @formatted
+    cannot_instantiate_external_record  {
+        args: (loc: impl Display),
+        msg: format!(
+            "Cannot create external record `{loc}`. Records can only be created in the program that they are defined in",
+        ),
+        help: None,
+    }
 );

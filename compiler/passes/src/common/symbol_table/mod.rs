@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Composite, Expression, Function, Location, NodeBuilder, NodeID, Type};
+use leo_ast::{Composite, Expression, Function, Location, NodeBuilder, NodeID, Path, Type};
 use leo_errors::{AstError, Color, Label, LeoError, Result};
 use leo_span::{Span, Symbol};
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -30,6 +30,9 @@ pub use symbols::*;
 /// Scopes are indexed by the NodeID of the function, block, or iteration.
 #[derive(Debug, Default)]
 pub struct SymbolTable {
+    /// Maps a program to the list of programs it imports
+    imports: IndexMap<Symbol, IndexSet<Symbol>>,
+
     /// Functions indexed by location.
     functions: IndexMap<Location, FunctionSymbol>,
 
@@ -37,7 +40,7 @@ pub struct SymbolTable {
     records: IndexMap<Location, Composite>,
 
     /// Structs indexed by a path.
-    structs: IndexMap<Vec<Symbol>, Composite>,
+    structs: IndexMap<Location, Composite>,
 
     /// Consts that have been successfully evaluated.
     global_consts: IndexMap<Location, Expression>,
@@ -144,6 +147,69 @@ impl LocalTable {
 }
 
 impl SymbolTable {
+    /// Record that `importer` imports `imported`.
+    pub fn add_import(&mut self, importer: Symbol, imported: Symbol) {
+        self.imports.entry(importer).or_default().insert(imported);
+    }
+
+    /// Record that multiple importers import the same `imported` program.
+    pub fn add_imported_by(&mut self, imported: Symbol, importers: &IndexSet<Symbol>) {
+        for importer in importers {
+            self.add_import(*importer, imported);
+        }
+    }
+
+    /// Returns all programs imported by a given program.
+    pub fn get_imports(&self, program: &Symbol) -> Option<&IndexSet<Symbol>> {
+        self.imports.get(program)
+    }
+
+    /// Returns a mutable reference to the set of imports for a given program.
+    pub fn get_imports_mut(&mut self, program: &Symbol) -> Option<&mut IndexSet<Symbol>> {
+        self.imports.get_mut(program)
+    }
+
+    /// Returns an iterator over all import relationships.
+    pub fn iter_imports(&self) -> impl Iterator<Item = (&Symbol, &IndexSet<Symbol>)> {
+        self.imports.iter()
+    }
+
+    /// Check if `target` program is visible from `current` program.
+    fn is_visible(&self, current: Symbol, target: &Symbol) -> bool {
+        current == *target || self.imports.get(&current).map(|imports| imports.contains(target)).unwrap_or(false)
+    }
+
+    /// Returns the transitive closure of imports for a given program.
+    pub fn get_transitive_imports(&self, program: &Symbol) -> IndexSet<Symbol> {
+        let mut ordered = IndexSet::new();
+        let mut seen = IndexSet::new();
+
+        if let Some(direct_imports) = self.imports.get(program) {
+            for imported in direct_imports {
+                self.collect_imports_postorder(imported, &mut ordered, &mut seen);
+            }
+        }
+
+        ordered
+    }
+
+    /// Performs a depth-first traversal of the import graph and records programs in dependency order, ensuring that
+    /// each program is added only after all of its transitive imports have been processed.
+    fn collect_imports_postorder(&self, program: &Symbol, ordered: &mut IndexSet<Symbol>, seen: &mut IndexSet<Symbol>) {
+        // Prevent cycles
+        if !seen.insert(*program) {
+            return;
+        }
+
+        if let Some(direct_imports) = self.imports.get(program) {
+            for imported in direct_imports {
+                self.collect_imports_postorder(imported, ordered, seen);
+            }
+        }
+
+        ordered.insert(*program);
+    }
+
     /// Reset everything except leave consts that have been evaluated.
     pub fn reset_but_consts(&mut self) {
         self.functions.clear();
@@ -165,7 +231,7 @@ impl SymbolTable {
     }
 
     /// Iterator over all the structs (not records) in this program.
-    pub fn iter_structs(&self) -> impl Iterator<Item = (&Vec<Symbol>, &Composite)> {
+    pub fn iter_structs(&self) -> impl Iterator<Item = (&Location, &Composite)> {
         self.structs.iter()
     }
 
@@ -179,22 +245,22 @@ impl SymbolTable {
         self.functions.iter()
     }
 
-    /// Access the struct by this name if it exists.
-    pub fn lookup_struct(&self, path: &[Symbol]) -> Option<&Composite> {
-        self.structs.get(path)
+    /// Access a struct by this location if it exists and is accessible from program named `current_program`.
+    pub fn lookup_struct(&self, current_program: Symbol, loc: &Location) -> Option<&Composite> {
+        if self.is_visible(current_program, &loc.program) { self.structs.get(loc) } else { None }
     }
 
-    /// Access the record at this location if it exists.
-    pub fn lookup_record(&self, location: &Location) -> Option<&Composite> {
-        self.records.get(location)
+    /// Access a record at this location if it exists and is accessible from program named `current_program`.
+    pub fn lookup_record(&self, current_program: Symbol, location: &Location) -> Option<&Composite> {
+        if self.is_visible(current_program, &location.program) { self.records.get(location) } else { None }
     }
 
-    /// Access the function at this location if it exists.
-    pub fn lookup_function(&self, location: &Location) -> Option<&FunctionSymbol> {
-        self.functions.get(location)
+    /// Access a function by this name if it exists and is accessible from program named `current_program`.
+    pub fn lookup_function(&self, current_program: Symbol, location: &Location) -> Option<&FunctionSymbol> {
+        if self.is_visible(current_program, &location.program) { self.functions.get(location) } else { None }
     }
 
-    /// Attempts to look up a variable by a path.
+    /// Attempts to look up a variable by a path from program named `current_program`.
     ///
     /// First, it tries to resolve the symbol as a global using the full path under the given program.
     /// If that fails and the path is non-empty, it falls back to resolving the last component
@@ -203,15 +269,19 @@ impl SymbolTable {
     /// # Arguments
     ///
     /// * `program` - The root symbol representing the program or module context.
-    /// * `path` - A slice of symbols representing the absolute path to the variable.
+    /// * `path` - A `Path`.
     ///
     /// # Returns
     ///
     /// An `Option<VariableSymbol>` containing the resolved symbol if found, otherwise `None`.
-    pub fn lookup_path(&self, program: Symbol, path: &[Symbol]) -> Option<VariableSymbol> {
-        self.lookup_global(&Location::new(program, path.to_vec()))
-            .cloned()
-            .or_else(|| path.last().copied().and_then(|name| self.lookup_local(name)))
+    pub fn lookup_path(&self, current_program: Symbol, path: &Path) -> Option<VariableSymbol> {
+        if let Some(loc) = path.try_global_location() {
+            self.lookup_global(current_program, loc).cloned()
+        } else if let Some(sym) = path.try_local_symbol() {
+            self.lookup_local(sym)
+        } else {
+            None
+        }
     }
 
     /// Access the variable accessible by this name in the current scope.
@@ -243,6 +313,20 @@ impl SymbolTable {
                 let new_table = LocalTable::new(self, id, parent);
                 self.all_locals.insert(id, new_table.clone());
                 new_table
+            };
+
+            assert_eq!(parent, new_local_table.inner.borrow().parent, "Entered scopes out of order.");
+            new_local_table.clone()
+        });
+    }
+
+    pub fn enter_existing_scope(&mut self, id: Option<NodeID>) {
+        self.local = id.map(|id| {
+            let parent = self.local.as_ref().map(|table| table.inner.borrow().id);
+            let new_local_table = if let Some(existing) = self.all_locals.get(&id) {
+                existing.clone()
+            } else {
+                panic!("local scope must exist");
             };
 
             assert_eq!(parent, new_local_table.inner.borrow().parent, "Entered scopes out of order.");
@@ -327,23 +411,29 @@ impl SymbolTable {
         false
     }
 
-    /// Insert an evaluated const into the current scope.
-    pub fn insert_const(&mut self, program: Symbol, path: &[Symbol], value: Expression) {
+    /// Insert an evaluated local const into the current scope.
+    /// This function does nothing if we're in a global scope.
+    pub fn insert_local_const(&mut self, name: Symbol, value: Expression) {
         if let Some(table) = self.local.as_mut() {
-            let [const_name] = &path else { panic!("Local consts cannot have paths with more than 1 segment.") };
-            table.inner.borrow_mut().consts.insert(*const_name, value);
-        } else {
-            self.global_consts.insert(Location::new(program, path.to_vec()), value);
+            table.inner.borrow_mut().consts.insert(name, value);
+        }
+    }
+
+    /// Insert an evaluated global const into the global scope
+    /// This function does nothing if we're in a local scope.
+    pub fn insert_global_const(&mut self, location: Location, value: Expression) {
+        if self.global_scope() {
+            self.global_consts.insert(location, value);
         }
     }
 
     /// Find the evaluated const accessible by the given name in the current scope.
-    pub fn lookup_const(&self, program: Symbol, path: &[Symbol]) -> Option<Expression> {
+    pub fn lookup_local_const(&self, name: Symbol) -> Option<Expression> {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
             let borrowed = table.inner.borrow();
-            let value = borrowed.consts.get(path.last().expect("all paths must have at least 1 segment"));
+            let value = borrowed.consts.get(&name);
             if value.is_some() {
                 return value.cloned();
             }
@@ -351,31 +441,28 @@ impl SymbolTable {
             current = borrowed.parent.and_then(|id| self.all_locals.get(&id));
         }
 
-        self.global_consts.get(&Location::new(program, path.to_vec())).cloned()
+        None
     }
 
-    /// Insert a struct at this name.
-    ///
-    /// Since structs are indexed only by name, the program is used only to check shadowing.
-    pub fn insert_struct(&mut self, program: Symbol, path: &[Symbol], composite: Composite) -> Result<()> {
-        if let Some(old_composite) = self.structs.get(path) {
-            if eq_struct(&composite, old_composite) {
-                Ok(())
-            } else {
-                Err(AstError::redefining_external_struct(path.iter().format("::"), old_composite.span).into())
-            }
+    pub fn lookup_global_const(&self, current_program: Symbol, location: &Location) -> Option<Expression> {
+        if self.is_visible(current_program, &location.program) {
+            self.global_consts.get(location).cloned()
         } else {
-            let location = Location::new(program, path.to_vec());
-            self.check_shadow_global(&location, composite.identifier.span)?;
-            self.structs.insert(path.to_vec(), composite);
-            Ok(())
+            None
         }
     }
 
+    /// Insert a struct at this location.
+    pub fn insert_struct(&mut self, location: Location, r#struct: Composite) -> Result<()> {
+        self.check_shadow_global(&location, r#struct.identifier.span)?;
+        self.structs.insert(location, r#struct);
+        Ok(())
+    }
+
     /// Insert a record at this location.
-    pub fn insert_record(&mut self, location: Location, composite: Composite) -> Result<()> {
-        self.check_shadow_global(&location, composite.identifier.span)?;
-        self.records.insert(location, composite);
+    pub fn insert_record(&mut self, location: Location, record: Composite) -> Result<()> {
+        self.check_shadow_global(&location, record.identifier.span)?;
+        self.records.insert(location, record);
         Ok(())
     }
 
@@ -393,9 +480,37 @@ impl SymbolTable {
         Ok(())
     }
 
-    /// Access the global at this location if it exists.
-    pub fn lookup_global(&self, location: &Location) -> Option<&VariableSymbol> {
-        self.globals.get(location)
+    /// Access the global variable at this location if it exists and is visible
+    /// from the given `current_program`.
+    pub fn lookup_global(&self, current_program: Symbol, location: &Location) -> Option<&VariableSymbol> {
+        if self.is_visible(current_program, &location.program) { self.globals.get(location) } else { None }
+    }
+
+    /// Sets the type of a local using its name. Returns `false` if the local is not found.
+    pub fn set_local_type(&mut self, name: Symbol, ty: Type) -> bool {
+        let mut current = self.local.as_ref();
+
+        while let Some(table) = current {
+            let mut inner = table.inner.borrow_mut();
+
+            if let Some(sym) = inner.variables.get_mut(&name) {
+                sym.type_ = Some(ty);
+                return true;
+            }
+
+            current = inner.parent.and_then(|id| self.all_locals.get(&id));
+        }
+
+        false
+    }
+
+    /// Sets the type of a global using its location. Returns `false` if the global is not found.
+    pub fn set_global_type(&mut self, location: &Location, ty: Type) -> bool {
+        if let Some(sym) = self.globals.get_mut(location) {
+            sym.type_ = Some(ty);
+            return true;
+        }
+        false
     }
 
     pub fn emit_shadow_error(name: Symbol, span: Span, prev_span: Span) -> LeoError {
@@ -414,7 +529,7 @@ impl SymbolTable {
             .get(location)
             .map(|f| f.function.identifier.span)
             .or_else(|| self.records.get(location).map(|r| r.identifier.span))
-            .or_else(|| self.structs.get(&location.path).map(|s| s.identifier.span))
+            .or_else(|| self.structs.get(location).map(|s| s.identifier.span))
             .or_else(|| self.globals.get(location).map(|g| g.span))
             .map_or_else(|| Ok(()), |prev_span| Err(Self::emit_shadow_error(*name, span, prev_span)))
     }
@@ -467,15 +582,4 @@ impl SymbolTable {
             Err(AstError::function_not_found(caller.path.iter().format("::")).into())
         }
     }
-}
-
-fn eq_struct(new: &Composite, old: &Composite) -> bool {
-    if new.members.len() != old.members.len() {
-        return false;
-    }
-
-    new.members
-        .iter()
-        .zip(old.members.iter())
-        .all(|(member1, member2)| member1.name() == member2.name() && member1.type_.eq_flat_relaxed(&member2.type_))
 }

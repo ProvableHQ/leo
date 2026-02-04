@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,45 +14,106 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Compiler;
+use crate::{Compiled, Compiler};
 
-use leo_ast::{NetworkName, Stub};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
 use leo_errors::{Handler, LeoError};
 use leo_span::{Symbol, source_map::FileName};
 
-use std::path::PathBuf;
+use std::{path::PathBuf, rc::Rc};
 
 use indexmap::IndexMap;
 
 pub const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
 pub const MODULE_DELIMITER: &str = "// --- Next Module:";
 
-/// Compiles a complete program from a single source string that may contain
-/// embedded modules marked by a delimiter.
+/// Fully compiles a Leo source string into bytecode.
 ///
-/// The source string is expected to contain sections separated by the `MODULE_DELIMITER`,
-/// each representing either the main source or a named module. The compiler parses each
-/// section and compiles the full program, including any modules.
+/// This performs the entire compilation pipeline:
+/// - splits embedded modules,
+/// - initializes a compiler with the given `handler`, `node_builder`, and `import_stubs`,
+/// - compiles the main program and its modules,
+/// - returns:
+///     * `(main_bytecode, imported_bytecodes)` and
+///     * the compiled program's name.
+///
+/// Used when compiling the final (top-level) program in a test.
+#[allow(clippy::type_complexity)]
 pub fn whole_compile(
     source: &str,
     handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
     import_stubs: IndexMap<Symbol, Stub>,
-) -> Result<(String, String), LeoError> {
+) -> Result<(Compiled, String), LeoError> {
+    let (main_source, modules) = split_modules(source);
+
     let mut compiler = Compiler::new(
         None,
         /* is_test */ false,
         handler.clone(),
+        node_builder.clone(),
         "/fakedirectory-wont-use".into(),
         None,
         import_stubs,
         NetworkName::TestnetV0,
     );
 
+    // Prepare module references
+    let module_refs: Vec<(&str, FileName)> =
+        modules.iter().map(|(src, path)| (src.as_str(), FileName::Custom(path.to_string_lossy().into()))).collect();
+
+    let filename = FileName::Custom("compiler-test".into());
+    let bytecodes = compiler.compile(&main_source, filename, &module_refs)?;
+
+    Ok((bytecodes, compiler.program_name.unwrap()))
+}
+
+/// Parses a Leo source string into an AST `Program` without generating bytecode.
+///
+/// This runs only the front-end portion of the pipeline:
+/// - splits embedded modules,
+/// - initializes a compiler with the given `handler`, `node_builder`, and `import_stubs`,
+/// - parses the main program and its modules into an AST,
+/// - returns the parsed `Program` and the program's name.
+///
+/// Used for intermediate programs that are imported by the final one.
+pub fn parse(
+    source: &str,
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+    import_stubs: IndexMap<Symbol, Stub>,
+) -> Result<(Program, String), LeoError> {
+    let (main_source, modules) = split_modules(source);
+
+    let mut compiler = Compiler::new(
+        None,
+        /* is_test */ false,
+        handler.clone(),
+        node_builder.clone(),
+        "/fakedirectory-wont-use".into(),
+        None,
+        import_stubs,
+        NetworkName::TestnetV0,
+    );
+
+    // Prepare module references
+    let module_refs: Vec<(&str, FileName)> =
+        modules.iter().map(|(src, path)| (src.as_str(), FileName::Custom(path.to_string_lossy().into()))).collect();
+
+    let filename = FileName::Custom("compiler-test".into());
+    let program = compiler.parse_and_return_ast(&main_source, filename, &module_refs)?;
+
+    Ok((program, compiler.program_name.unwrap()))
+}
+
+/// Splits a single source string into a main source and a list of module
+/// `(source, path)` pairs using the MODULE_DELIMITER protocol.
+///
+/// Shared by both `whole_compile` and `parse`.
+fn split_modules(source: &str) -> (String, Vec<(String, PathBuf)>) {
+    // Fast path — no modules at all
     if !source.contains(MODULE_DELIMITER) {
-        // Fast path: no modules
-        let filename = FileName::Custom("compiler-test".into());
-        let bytecode = compiler.compile(source, filename.clone(), &Vec::new())?;
-        return Ok((bytecode, compiler.program_name.unwrap()));
+        return (source.to_string(), Vec::new());
     }
 
     let mut main_source = String::new();
@@ -88,12 +149,5 @@ pub fn whole_compile(
         main_source = current_module_source;
     }
 
-    // Prepare module references for compiler
-    let module_refs: Vec<(&str, FileName)> =
-        modules.iter().map(|(src, path)| (src.as_str(), FileName::Custom(path.to_string_lossy().into()))).collect();
-
-    let filename = FileName::Custom("compiler-test".into());
-    let bytecode = compiler.compile(&main_source, filename, &module_refs)?;
-
-    Ok((bytecode, compiler.program_name.unwrap()))
+    (main_source, modules)
 }

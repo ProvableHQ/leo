@@ -3,7 +3,7 @@
     "address": "XXXXXX",
     "network": "testnet",
     "endpoint": "http://localhost:3030",
-    "consensus_version": 12
+    "consensus_version": 13
   },
   "program": "test_json_program.aleo",
   "function": "main",

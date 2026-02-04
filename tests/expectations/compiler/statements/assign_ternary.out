@@ -1,22 +1,15 @@
 Error [ETYC0372117]: Expected type `bool` but type `u32` was found.
     --> compiler-test:4:30
      |
-   4 |         let x: bool = true ? x: true;
+   4 |         let x: bool = true ? y: true;
      |                              ^
 Error [ETYC0372118]: Received different types `u32` and `bool` for the arms of a ternary conditional.
     --> compiler-test:4:23
      |
-   4 |         let x: bool = true ? x: true;
+   4 |         let x: bool = true ? y: true;
      |                       ^^^^^^^^^^^^^^
      |
      = Make both branches the same type.
-Error [EAST0372017]: The name `x` is defined multiple times.
-    --> compiler-test:4:13
-     |
-   3 |       function main(x: u32) {
-     |                     ^ previous definition of `x` here
-   4 |           let x: bool = true ? x: true;
-     |               ^ `x` redefined here
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

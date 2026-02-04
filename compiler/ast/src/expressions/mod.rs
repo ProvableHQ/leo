@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, Intrinsic, Node, NodeBuilder, NodeID, Path, Type};
+use crate::{Identifier, IntegerType, Intrinsic, Location, Node, NodeBuilder, NodeID, Path, Type};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -388,7 +388,7 @@ impl Expression {
         ty: &Type,
         span: Span,
         node_builder: &NodeBuilder,
-        composite_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+        composite_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
     ) -> Option<Self> {
         let id = node_builder.next_id();
 
@@ -444,7 +444,7 @@ impl Expression {
             // Composite types
             Type::Composite(composite_type) => {
                 let path = &composite_type.path;
-                let members = composite_lookup(&path.absolute_path());
+                let members = composite_lookup(path.expect_global_location());
 
                 let composite_members = members
                     .into_iter()

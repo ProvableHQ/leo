@@ -1,0 +1,16 @@
+{
+  "program": "complex.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.4.0",
+  "dependencies": [
+    {
+      "name": "simple.aleo",
+      "location": "local",
+      "path": "simple.aleo",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}

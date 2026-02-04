@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -163,11 +163,13 @@ pub fn evaluate_intrinsic(
             _ => crate::halt_no_span2!("expected array for deserialization"),
         };
         let get_struct_fail = |_: &SvmIdentifier| anyhow::bail!("structs are not supported");
+        let get_external_struct_fail = |_: &SvmLocator| anyhow::bail!("structs are not supported");
         let value = snarkvm::synthesizer::program::evaluate_deserialize(
             variant,
             &bits,
             &type_.to_snarkvm()?,
             &get_struct_fail,
+            &get_external_struct_fail,
         )?;
         Ok(value.into())
     };

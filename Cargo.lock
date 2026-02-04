@@ -669,6 +669,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
 
 [[package]]
+name = "countme"
+version = "3.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7704b5fdd17b18ae31c4c1da5a2e0305a2bf17b5249300a9ee9ed7b72114c636"
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -731,7 +737,7 @@ dependencies = [
  "mio",
  "parking_lot",
  "rustix 0.38.44",
- "signal-hook",
+ "signal-hook 0.3.18",
  "signal-hook-mio",
  "winapi",
 ]
@@ -749,7 +755,7 @@ dependencies = [
  "mio",
  "parking_lot",
  "rustix 1.1.3",
- "signal-hook",
+ "signal-hook 0.3.18",
  "signal-hook-mio",
  "winapi",
 ]
@@ -1039,6 +1045,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dissimilar"
+version = "1.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8975ffdaa0ef3661bfe02dbdcc06c9f829dfafe6a3c474de366a8d5e44276921"
+
+[[package]]
 name = "document-features"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1195,6 +1207,16 @@ checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "expect-test"
+version = "1.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63af43ff4431e848fb47472a920f14fa71c24de13255a5692e93d4e90302acb0"
+dependencies = [
+ "dissimilar",
+ "once_cell",
 ]
 
 [[package]]
@@ -1818,7 +1840,7 @@ checksum = "7714e70437a7dc3ac8eb7e6f8df75fd8eb422675fc7678aff7364301092b1017"
 dependencies = [
  "equivalent",
  "hashbrown 0.16.1",
- "rayon 1.11.0",
+ "rayon",
  "serde",
  "serde_core",
 ]
@@ -1958,6 +1980,7 @@ dependencies = [
  "itertools 0.14.0",
  "lalrpop-util 0.22.2",
  "petgraph",
+ "pico-args",
  "regex",
  "regex-syntax",
  "sha3",
@@ -1982,6 +2005,7 @@ version = "0.22.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5baa5e9ff84f1aefd264e6869907646538a52147a755d494517a8007fb48733"
 dependencies = [
+ "regex-automata",
  "rustversion",
 ]
 
@@ -1990,6 +2014,23 @@ name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+
+[[package]]
+name = "leo-abi"
+version = "3.4.0"
+dependencies = [
+ "indexmap",
+ "leo-abi-types",
+ "leo-ast",
+ "leo-span",
+]
+
+[[package]]
+name = "leo-abi-types"
+version = "3.4.0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "leo-ast"
@@ -2016,6 +2057,7 @@ dependencies = [
  "anyhow",
  "indexmap",
  "itertools 0.13.0",
+ "leo-abi",
  "leo-ast",
  "leo-disassembler",
  "leo-errors",
@@ -2024,7 +2066,7 @@ dependencies = [
  "leo-span",
  "leo-test-framework",
  "rand_chacha 0.3.1",
- "rayon 0.8.2",
+ "rayon",
  "regex",
  "serde",
  "serde_json",
@@ -2059,12 +2101,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-fmt"
+version = "3.4.0"
+dependencies = [
+ "anyhow",
+ "leo-errors",
+ "leo-parser-lossless",
+ "similar",
+ "walkdir",
+]
+
+[[package]]
 name = "leo-interpreter"
 version = "3.4.0"
 dependencies = [
  "chrono",
  "colored 2.2.0",
- "crossterm 0.28.1",
+ "crossterm 0.29.0",
  "dialoguer",
  "indexmap",
  "itertools 0.13.0",
@@ -2122,7 +2175,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "rayon 0.8.2",
+ "rayon",
  "regex",
  "reqwest",
  "rpassword",
@@ -2131,7 +2184,7 @@ dependencies = [
  "serde_json",
  "serial_test",
  "sha2",
- "signal-hook",
+ "signal-hook 0.4.3",
  "snarkvm",
  "sys-info",
  "tempfile",
@@ -2144,7 +2197,7 @@ dependencies = [
  "walkdir",
  "which",
  "winapi",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2171,6 +2224,7 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-parser-lossless",
+ "leo-parser-rowan",
  "leo-span",
  "leo-test-framework",
  "serde",
@@ -2193,6 +2247,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-parser-rowan"
+version = "3.4.0"
+dependencies = [
+ "expect-test",
+ "leo-errors",
+ "leo-span",
+ "logos",
+ "rowan",
+]
+
+[[package]]
 name = "leo-passes"
 version = "3.4.0"
 dependencies = [
@@ -2200,6 +2265,7 @@ dependencies = [
  "base62",
  "indexmap",
  "itertools 0.13.0",
+ "leo-abi-types",
  "leo-ast",
  "leo-errors",
  "leo-package",
@@ -2230,7 +2296,7 @@ dependencies = [
 name = "leo-test-framework"
 version = "3.4.0"
 dependencies = [
- "rayon 0.8.2",
+ "rayon",
  "walkdir",
 ]
 
@@ -2686,6 +2752,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "pico-args"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5be167a7af36ee22fe3115051bc51f6e6c7054c9348e28deb4f49bd6f705a315"
+
+[[package]]
 name = "pin-project"
 version = "1.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2923,15 +2995,6 @@ dependencies = [
 
 [[package]]
 name = "rayon"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b614fe08b6665cb9a231d07ac1364b0ef3cb3698f1239ee0c4c3a88a524f54c8"
-dependencies = [
- "rayon-core",
-]
-
-[[package]]
-name = "rayon"
 version = "1.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "368f01d005bf8fd9b1206fb6fa653e6c4a81ceb1466406b81792d87c5677a58f"
@@ -3066,6 +3129,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "rowan"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "417a3a9f582e349834051b8a10c8d71ca88da4211e4093528e36b9845f6b5f21"
+dependencies = [
+ "countme",
+ "hashbrown 0.14.5",
+ "rustc-hash",
+ "text-size",
+]
+
+[[package]]
 name = "rpassword"
 version = "7.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3091,6 +3166,12 @@ name = "rustc-demangle"
 version = "0.1.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56f7d92ca342cea22a06f2121d944b4fd82af56988c270852495420f961d4ace"
+
+[[package]]
+name = "rustc-hash"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
 name = "rustc_version"
@@ -3456,6 +3537,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "signal-hook"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b57709da74f9ff9f4a27dce9526eec25ca8407c45a7887243b031a58935fb8e"
+dependencies = [
+ "libc",
+ "signal-hook-registry",
+]
+
+[[package]]
 name = "signal-hook-mio"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3463,7 +3554,7 @@ checksum = "b75a19a7a740b25bc7944bdee6172368f988763b744e3d4dfe753f6b4ece40cc"
 dependencies = [
  "libc",
  "mio",
- "signal-hook",
+ "signal-hook 0.3.18",
 ]
 
 [[package]]
@@ -3491,6 +3582,12 @@ name = "simd-adler32"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e320a6c5ad31d271ad523dcf3ad13e2767ad8b1cb8f047f75a8aeaf8da139da2"
+
+[[package]]
+name = "similar"
+version = "2.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
 
 [[package]]
 name = "siphasher"
@@ -3521,8 +3618,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "anyhow",
  "dotenvy",
@@ -3541,8 +3638,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-algorithms"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3555,7 +3652,7 @@ dependencies = [
  "itertools 0.14.0",
  "num-traits",
  "rand 0.8.5",
- "rayon 1.11.0",
+ "rayon",
  "serde",
  "sha2",
  "smallvec",
@@ -3568,8 +3665,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-account",
  "snarkvm-circuit-algorithms",
@@ -3582,8 +3679,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-account"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-network",
  "snarkvm-circuit-types",
@@ -3592,8 +3689,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-algorithms"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-types",
  "snarkvm-console-algorithms",
@@ -3602,8 +3699,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-collections"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-algorithms",
  "snarkvm-circuit-types",
@@ -3612,8 +3709,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-environment"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "indexmap",
  "itertools 0.14.0",
@@ -3630,13 +3727,13 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-environment-witness"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 
 [[package]]
 name = "snarkvm-circuit-network"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-algorithms",
  "snarkvm-circuit-collections",
@@ -3646,8 +3743,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-program"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-account",
  "snarkvm-circuit-algorithms",
@@ -3660,8 +3757,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-types"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-address",
@@ -3675,8 +3772,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-types-address"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3688,8 +3785,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-types-boolean"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-console-types-boolean",
@@ -3697,8 +3794,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-types-field"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3707,8 +3804,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-types-group"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3719,8 +3816,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-types-integers"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3731,8 +3828,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-types-scalar"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3742,8 +3839,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-circuit-types-string"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-circuit-environment",
  "snarkvm-circuit-types-boolean",
@@ -3754,8 +3851,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-account",
  "snarkvm-console-algorithms",
@@ -3767,8 +3864,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-account"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "bs58",
  "snarkvm-console-network",
@@ -3778,12 +3875,13 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-algorithms"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "blake2s_simd",
  "hex",
  "k256",
+ "serde",
  "smallvec",
  "snarkvm-console-types",
  "snarkvm-fields",
@@ -3793,19 +3891,20 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-collections"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
- "rayon 1.11.0",
+ "rayon",
+ "serde",
  "snarkvm-console-algorithms",
  "snarkvm-console-types",
 ]
 
 [[package]]
 name = "snarkvm-console-network"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "anyhow",
  "enum-iterator",
@@ -3824,8 +3923,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-network-environment"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "anyhow",
  "bech32",
@@ -3842,8 +3941,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-program"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "enum-iterator",
  "enum_index",
@@ -3863,8 +3962,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-types"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-address",
@@ -3878,8 +3977,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-types-address"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3889,16 +3988,16 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-types-boolean"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-network-environment",
 ]
 
 [[package]]
 name = "snarkvm-console-types-field"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3907,8 +4006,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-types-group"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3918,8 +4017,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-types-integers"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3929,8 +4028,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-types-scalar"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3940,8 +4039,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-console-types-string"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console-network-environment",
  "snarkvm-console-types-boolean",
@@ -3951,11 +4050,10 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-curves"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "rand 0.8.5",
- "rayon 1.11.0",
  "rustc_version",
  "serde",
  "snarkvm-fields",
@@ -3965,15 +4063,15 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-fields"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "anyhow",
  "itertools 0.14.0",
  "num-traits",
  "rand 0.8.5",
- "rayon 1.11.0",
+ "rayon",
  "serde",
  "snarkvm-utilities",
  "thiserror 2.0.17",
@@ -3982,8 +4080,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -3992,7 +4090,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "rayon 1.11.0",
+ "rayon",
  "snarkvm-console",
  "snarkvm-ledger-authority",
  "snarkvm-ledger-block",
@@ -4003,14 +4101,15 @@ dependencies = [
  "snarkvm-ledger-store",
  "snarkvm-synthesizer",
  "snarkvm-utilities",
+ "thiserror 2.0.17",
  "time",
  "tracing",
 ]
 
 [[package]]
 name = "snarkvm-ledger-authority"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "anyhow",
  "rand 0.8.5",
@@ -4021,12 +4120,12 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-block"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "anyhow",
  "indexmap",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-console",
  "snarkvm-ledger-authority",
@@ -4043,11 +4142,11 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-committee"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "indexmap",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-console",
  "snarkvm-ledger-narwhal-batch-header",
@@ -4055,8 +4154,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-narwhal"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-ledger-narwhal-batch-certificate",
  "snarkvm-ledger-narwhal-batch-header",
@@ -4068,11 +4167,11 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-narwhal-batch-certificate"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "indexmap",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-console",
  "snarkvm-ledger-narwhal-batch-header",
@@ -4081,11 +4180,11 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-narwhal-batch-header"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "indexmap",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-console",
  "snarkvm-ledger-narwhal-transmission-id",
@@ -4093,8 +4192,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-narwhal-data"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "bytes",
  "serde_json",
@@ -4104,11 +4203,11 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-narwhal-subdag"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "indexmap",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-console",
  "snarkvm-ledger-committee",
@@ -4119,8 +4218,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-narwhal-transmission"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "bytes",
  "serde_json",
@@ -4132,8 +4231,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-narwhal-transmission-id"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "snarkvm-console",
  "snarkvm-ledger-puzzle",
@@ -4141,8 +4240,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-puzzle"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -4152,7 +4251,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-algorithms",
  "snarkvm-console",
@@ -4160,8 +4259,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-puzzle-epoch"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -4171,7 +4270,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "rayon 1.11.0",
+ "rayon",
  "snarkvm-circuit",
  "snarkvm-console",
  "snarkvm-ledger-puzzle",
@@ -4182,8 +4281,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-query"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4199,15 +4298,15 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-ledger-store"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std-storage",
  "anyhow",
  "bincode",
  "indexmap",
  "parking_lot",
- "rayon 1.11.0",
+ "rayon",
  "serde",
  "serde_json",
  "snarkvm-console",
@@ -4224,8 +4323,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-parameters"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -4246,8 +4345,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-synthesizer"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -4256,7 +4355,7 @@ dependencies = [
  "lru 0.16.3",
  "parking_lot",
  "rand 0.8.5",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-algorithms",
  "snarkvm-circuit",
@@ -4278,8 +4377,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-synthesizer-process"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "colored 3.0.0",
@@ -4287,7 +4386,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-algorithms",
  "snarkvm-circuit",
@@ -4302,15 +4401,15 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-synthesizer-program"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "enum-iterator",
  "indexmap",
  "paste",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
- "rayon 1.11.0",
+ "rayon",
  "serde_json",
  "snarkvm-circuit",
  "snarkvm-console",
@@ -4321,8 +4420,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-synthesizer-snark"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "bincode",
  "serde_json",
@@ -4334,8 +4433,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-utilities"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "aleo-std",
  "anyhow",
@@ -4345,7 +4444,7 @@ dependencies = [
  "num_cpus",
  "rand 0.8.5",
  "rand_xorshift",
- "rayon 1.11.0",
+ "rayon",
  "serde",
  "serde_json",
  "smol_str",
@@ -4357,8 +4456,8 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-utilities-derives"
-version = "4.3.0"
-source = "git+https://github.com/ProvableHQ/snarkVM.git?rev=7787e6e#7787e6e694ec25758b4b7f4fcae9be87fd5e77fa"
+version = "4.4.0"
+source = "git+https://github.com/ProvableHQ/snarkVM.git?tag=canary-v4.5.0#990f618ad12d85ade7d05dd3595173396751f52c"
 dependencies = [
  "proc-macro2",
  "quote 1.0.43",
@@ -4575,6 +4674,12 @@ checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
 dependencies = [
  "winapi-util",
 ]
+
+[[package]]
+name = "text-size"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f18aa187839b2bdb1ad2fa35ead8c4c2976b64e4363c386d45ac0f7ee85c9233"
 
 [[package]]
 name = "thiserror"

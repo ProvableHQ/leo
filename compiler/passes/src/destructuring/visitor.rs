@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -60,7 +60,7 @@ impl DestructuringVisitor<'_> {
                 // It's a variable name, so just get the member identifiers we've already made.
                 let identifiers = self.tuples.get(&path.identifier().name).expect("Tuples should have been found");
                 let elements: Vec<Expression> =
-                    identifiers.iter().map(|identifier| Path::from(*identifier).into_absolute().into()).collect();
+                    identifiers.iter().map(|identifier| Path::from(*identifier).to_local().into()).collect();
 
                 let tuple: Expression =
                     TupleExpression { elements, span: Default::default(), id: self.state.node_builder.next_id() }
@@ -86,8 +86,7 @@ impl DestructuringVisitor<'_> {
                     panic!("`assign_tuple` always creates a definition with `Multiple`");
                 };
 
-                let elements =
-                    identifiers.iter().map(|identifier| Path::from(*identifier).into_absolute().into()).collect();
+                let elements = identifiers.iter().map(|identifier| Path::from(*identifier).to_local().into()).collect();
 
                 let expr = Expression::Tuple(TupleExpression {
                     elements,

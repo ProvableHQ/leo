@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -171,6 +171,12 @@ pub trait ProgramScopeConsumer {
 pub trait ProgramConsumer {
     type Output;
     fn consume_program(&mut self, input: Program) -> Self::Output;
+}
+
+/// A Consumer trait for a stub in the AST.
+pub trait StubConsumer {
+    type Output;
+    fn consume_stub(&mut self, input: Stub) -> Self::Output;
 }
 
 /// A Consumer trait for modules in the AST.

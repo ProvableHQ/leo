@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -619,13 +619,16 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
     fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Check if this path corresponds to a global symbol.
-        let Some(var) = self.state.symbol_table.lookup_global(&Location::new(self.program, input.absolute_path()))
-        else {
-            // Nothing to do
+        let Some(global_location) = input.try_global_location() else {
             return (input.into(), vec![]);
         };
+        let var = self
+            .state
+            .symbol_table
+            .lookup_global(self.program, global_location)
+            .expect("A global path must point to a global");
 
-        match &var.type_ {
+        match var.type_.as_ref().expect("must be known by now") {
             Type::Mapping(_) => {
                 // No transformation needed for mappings.
                 (input.into(), vec![])
@@ -651,7 +654,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let mapping_ident = Identifier::new(mapping_symbol, id());
 
                 // === Build expressions ===
-                let mapping_expr: Expression = Path::from(mapping_ident).into_absolute().into();
+                let mapping_expr: Expression =
+                    Path::from(mapping_ident).to_global(Location::new(self.program, vec![mapping_symbol])).into();
                 let false_literal: Expression = Literal::boolean(false, Span::default(), id()).into();
 
                 // `<var_name>__.contains(false)`
@@ -780,11 +784,16 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         // Check if `place` is a path
         if let Expression::Path(path) = &place {
             // Check if the path corresponds to a global storage variable
-            if let Some(var) = self.state.symbol_table.lookup_global(&Location::new(self.program, path.absolute_path()))
-            {
+            if let Some(global_location) = path.try_global_location() {
+                let var = self
+                    .state
+                    .symbol_table
+                    .lookup_global(self.program, global_location)
+                    .expect("A global path must point to a global");
+
                 // Storage variables that are not optional nor mappings are implicitly wrapped in an optional.
                 assert!(
-                    var.type_.is_optional(),
+                    var.type_.as_ref().expect("must be known by now").is_optional(),
                     "Only storage variables that are not vectors or mappings are expected here."
                 );
 
@@ -798,7 +807,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 // Path to the mapping backing the storage variable: `<var_name>__`
                 let mapping_symbol = Symbol::intern(&format!("{var_name}__"));
                 let mapping_ident = Identifier::new(mapping_symbol, id());
-                let mapping_expr: Expression = Path::from(mapping_ident).into_absolute().into();
+                let mapping_expr: Expression =
+                    Path::from(mapping_ident).to_global(Location::new(self.program, vec![mapping_symbol])).into();
                 let false_literal: Expression = Literal::boolean(false, Span::default(), id()).into();
 
                 let stmt = if matches!(new_value, Expression::Literal(Literal { variant: LiteralVariant::None, .. })) {

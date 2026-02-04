@@ -31,15 +31,15 @@ Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
 Error [ETYC0372072]: Expected a tuple with 3 elements, found one with 2 elements
     --> compiler-test:9:9
      |
-   9 |         let (a, b) = (x, y, z);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^
+   9 |         let (a0, b0) = (x, y, z);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected u32 but type `(u32, u32)` was found.
-    --> compiler-test:10:27
+    --> compiler-test:10:29
      |
-  10 |         let (a, b): u32 = (x, y);
-     |                           ^^^^^^
+  10 |         let (a1, b1): u32 = (x, y);
+     |                             ^^^^^^
 Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
-    --> compiler-test:11:37
+    --> compiler-test:11:39
      |
-  11 |         let (a, b): (u32, u8) = (x, y);
-     |                                     ^
+  11 |         let (a2, b2): (u32, u8) = (x, y);
+     |                                       ^

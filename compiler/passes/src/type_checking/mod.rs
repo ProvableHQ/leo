@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -88,8 +88,8 @@ impl Pass for TypeChecking {
         let composite_names = state
             .symbol_table
             .iter_records()
-            .map(|(loc, _)| loc.path.clone())
-            .chain(state.symbol_table.iter_structs().map(|(name, _)| name.clone()))
+            .map(|(loc, _)| loc.clone())
+            .chain(state.symbol_table.iter_structs().map(|(loc, _)| loc.clone()))
             .collect();
         let function_names = state.symbol_table.iter_functions().map(|(loc, _)| loc.clone()).collect();
 

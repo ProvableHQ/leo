@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -97,6 +97,8 @@ pub const IMPORTS_DIRECTORY: &str = "build/imports";
 pub const OUTPUTS_DIRECTORY: &str = "outputs";
 
 pub const BUILD_DIRECTORY: &str = "build";
+
+pub const ABI_FILENAME: &str = "abi.json";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 

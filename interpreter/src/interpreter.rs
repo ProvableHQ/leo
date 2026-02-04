@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -230,7 +230,7 @@ impl Interpreter {
                         .members()
                         .iter()
                         .map(|(id, type_)| {
-                            (leo_ast::Identifier::from(id).name, leo_ast::Type::from_snarkvm(type_, None))
+                            (leo_ast::Identifier::from(id).name, leo_ast::Type::from_snarkvm(type_, program))
                         })
                         .collect::<IndexMap<_, _>>(),
                 );
@@ -249,7 +249,7 @@ impl Interpreter {
                                 EntryType::Public(t) | EntryType::Private(t) | EntryType::Constant(t) => t,
                             };
 
-                            (leo_ast::Identifier::from(id).name, leo_ast::Type::from_snarkvm(t, None))
+                            (leo_ast::Identifier::from(id).name, leo_ast::Type::from_snarkvm(t, program))
                         })
                         .collect::<IndexMap<_, _>>(),
                 );

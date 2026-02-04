@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::TypeCheckingVisitor;
-use crate::{VariableSymbol, VariableType};
+use crate::VariableSymbol;
 
 use leo_ast::{DiGraphError, Type, *};
 use leo_errors::{Label, TypeCheckerError};
@@ -29,13 +29,15 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
-            // Check that naming and ordering is consistent.
-            if symbol != &stub.stub_id.name.name {
-                self.emit_err(TypeCheckerError::stub_name_mismatch(
-                    symbol,
-                    stub.stub_id.name,
-                    stub.stub_id.network.span,
-                ));
+            if let Stub::FromAleo { program, .. } = stub {
+                // Check that naming and ordering is consistent.
+                if symbol != &program.stub_id.name.name {
+                    self.emit_err(TypeCheckerError::stub_name_mismatch(
+                        symbol,
+                        program.stub_id.name,
+                        program.stub_id.network.span,
+                    ));
+                }
             }
             self.visit_stub(stub)
         });
@@ -82,7 +84,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // Check that the composite dependency graph does not have any cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.state.composite_graph.post_order() {
             self.emit_err(TypeCheckerError::cyclic_composite_dependency(
-                path.iter().map(|p| p.iter().format("::")).collect(),
+                path.iter().map(|loc| loc.to_string()).collect(),
             ));
         }
 
@@ -161,7 +163,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.module_name = parent_module;
     }
 
-    fn visit_stub(&mut self, input: &Stub) {
+    fn visit_aleo_program(&mut self, input: &AleoProgram) {
         // Set the scope state.
         self.scope_state.program_name = Some(input.stub_id.name.name);
         self.scope_state.is_stub = true;
@@ -203,18 +205,8 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                             ));
                         }
 
-                        // Add the input to the symbol table.
-                        if let Err(err) = slf.state.symbol_table.insert_variable(
-                            slf.scope_state.program_name.unwrap(),
-                            &[const_param.identifier().name],
-                            VariableSymbol {
-                                type_: const_param.type_().clone(),
-                                span: const_param.identifier.span(),
-                                declaration: VariableType::ConstParameter,
-                            },
-                        ) {
-                            slf.state.handler.emit_err(err);
-                        }
+                        // Set the type of the input in the symbol table.
+                        slf.state.symbol_table.set_local_type(const_param.identifier.name, const_param.type_().clone());
 
                         // Add the input to the type table.
                         slf.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
@@ -305,18 +297,22 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                     .cloned()
                     .chain(std::iter::once(input.identifier.name))
                     .collect::<Vec<Symbol>>();
+                let this_program = self.scope_state.program_name.unwrap();
+                let composite_location = Location::new(this_program, composite_path);
                 if let Type::Composite(composite_member_type) = type_ {
                     // Note that since there are no cycles in the program dependency graph, there are no cycles in the
                     // composite dependency graph caused by external composites.
                     self.state
                         .composite_graph
-                        .add_edge(composite_path, composite_member_type.path.absolute_path().to_vec());
+                        .add_edge(composite_location, composite_member_type.path.expect_global_location().clone());
                 } else if let Type::Array(array_type) = type_ {
                     // Get the base element type.
                     let base_element_type = array_type.base_element_type();
                     // If the base element type is a composite, then add it to the composite dependency graph.
                     if let Type::Composite(member_type) = base_element_type {
-                        self.state.composite_graph.add_edge(composite_path, member_type.path.absolute_path().to_vec());
+                        self.state
+                            .composite_graph
+                            .add_edge(composite_location, member_type.path.expect_global_location().clone());
                     }
                 }
 
@@ -339,10 +335,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "future", input.span)),
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(composite_type) => {
-                if let Some(comp) = self.lookup_composite(
-                    composite_type.program.or(self.scope_state.program_name),
-                    &composite_type.path.absolute_path(),
-                ) {
+                if let Some(comp) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
                     }
@@ -374,10 +367,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "future", input.span)),
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(composite_type) => {
-                if let Some(comp) = self.lookup_composite(
-                    composite_type.program.or(self.scope_state.program_name),
-                    &composite_type.path.absolute_path(),
-                ) {
+                if let Some(comp) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if comp.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
                     }
@@ -575,8 +565,8 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // For the checksum variant, check that the mapping exists and that the type matches.
         if let UpgradeVariant::Checksum { mapping, key, key_type } = &upgrade_variant {
             // Look up the mapping type.
-            let Some(VariableSymbol { type_: Type::Mapping(mapping_type), .. }) =
-                self.state.symbol_table.lookup_global(mapping)
+            let Some(VariableSymbol { type_: Some(Type::Mapping(mapping_type)), .. }) =
+                self.state.symbol_table.lookup_global(self.scope_state.program_name.unwrap(), mapping)
             else {
                 self.emit_err(TypeCheckerError::custom(
                     format!("The mapping '{mapping}' does not exist. Please ensure that it is imported or defined in your program."),

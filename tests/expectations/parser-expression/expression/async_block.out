@@ -119,6 +119,7 @@
             "value": {
               "Call": {
                 "function": {
+                  "user_program": null,
                   "qualifier": [],
                   "identifier": {
                     "name": "foo",
@@ -128,8 +129,7 @@
                     },
                     "id": 7
                   },
-                  "is_absolute": false,
-                  "absolute_path": null,
+                  "target": "Unresolved",
                   "span": {
                     "lo": 57,
                     "hi": 60
@@ -138,7 +138,6 @@
                 },
                 "const_arguments": [],
                 "arguments": [],
-                "program": null,
                 "span": {
                   "lo": 57,
                   "hi": 62

@@ -2,6 +2,7 @@
   "Ternary": {
     "condition": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -11,8 +12,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 0,
           "hi": 1
@@ -22,6 +22,7 @@
     },
     "if_true": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "y",
@@ -31,8 +32,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 4,
           "hi": 5
@@ -42,6 +42,7 @@
     },
     "if_false": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "z",
@@ -51,8 +52,7 @@
           },
           "id": 6
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 8,
           "hi": 9
@@ -72,6 +72,7 @@
   "Ternary": {
     "condition": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -81,8 +82,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 10,
           "hi": 11
@@ -94,6 +94,7 @@
       "Ternary": {
         "condition": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -103,8 +104,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 14,
               "hi": 15
@@ -114,6 +114,7 @@
         },
         "if_true": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -123,8 +124,7 @@
               },
               "id": 7
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 18,
               "hi": 19
@@ -134,6 +134,7 @@
         },
         "if_false": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "c",
@@ -143,8 +144,7 @@
               },
               "id": 9
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 22,
               "hi": 23
@@ -161,6 +161,7 @@
     },
     "if_false": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "z",
@@ -170,8 +171,7 @@
           },
           "id": 11
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 26,
           "hi": 27
@@ -191,6 +191,7 @@
   "Ternary": {
     "condition": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -200,8 +201,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 28,
           "hi": 29
@@ -211,6 +211,7 @@
     },
     "if_true": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "y",
@@ -220,8 +221,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 32,
           "hi": 33
@@ -233,6 +233,7 @@
       "Ternary": {
         "condition": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "a",
@@ -242,8 +243,7 @@
               },
               "id": 7
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 36,
               "hi": 37
@@ -253,6 +253,7 @@
         },
         "if_true": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "b",
@@ -262,8 +263,7 @@
               },
               "id": 9
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 40,
               "hi": 41
@@ -273,6 +273,7 @@
         },
         "if_false": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "c",
@@ -282,8 +283,7 @@
               },
               "id": 11
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 44,
               "hi": 45

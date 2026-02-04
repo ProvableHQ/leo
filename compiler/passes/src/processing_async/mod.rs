@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -47,7 +47,15 @@
 //! }
 //! ```
 
-use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use crate::{
+    GlobalItemsCollection,
+    GlobalVarsCollection,
+    Pass,
+    PathResolution,
+    SymbolTable,
+    TypeChecking,
+    TypeCheckingInput,
+};
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
@@ -86,8 +94,9 @@ impl Pass for ProcessingAsync {
             // If we actually changed anything in the program, then we need to recreate the symbol table and run type
             // checking again. That's because this pass introduces new `async function`s to the program.
             visitor.state.symbol_table = SymbolTable::default();
+            GlobalVarsCollection::do_pass((), state)?;
             PathResolution::do_pass((), state)?;
-            SymbolTableCreation::do_pass((), state)?;
+            GlobalItemsCollection::do_pass((), state)?;
             TypeChecking::do_pass(input.clone(), state)?;
         }
 

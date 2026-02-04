@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use crate::{Identifier, Node, NodeID, Type};
 
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{Mapping as MappingCore, Network};
@@ -38,11 +38,11 @@ pub struct Mapping {
 }
 
 impl Mapping {
-    pub fn from_snarkvm<N: Network>(mapping: &MappingCore<N>) -> Self {
+    pub fn from_snarkvm<N: Network>(mapping: &MappingCore<N>, program: Symbol) -> Self {
         Self {
             identifier: Identifier::from(mapping.name()),
-            key_type: Type::from_snarkvm(mapping.key().plaintext_type(), None),
-            value_type: Type::from_snarkvm(mapping.value().plaintext_type(), None),
+            key_type: Type::from_snarkvm(mapping.key().plaintext_type(), program),
+            value_type: Type::from_snarkvm(mapping.value().plaintext_type(), program),
             span: Default::default(),
             id: Default::default(),
         }

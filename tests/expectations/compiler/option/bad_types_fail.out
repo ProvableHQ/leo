@@ -47,7 +47,7 @@ Error [ETYC0372117]: Expected type `u8?` but type `i8` was found.
      |
   51 |         let arr: [u8?; 3] = [1u8, none, 3i8]; // ERROR
      |                                         ^^^
-Error [ETYC0372119]: Received different types `Foo` and `Foo?` for the operation `==`.
+Error [ETYC0372119]: Received different types `bad_types.aleo/Foo` and `bad_types.aleo/Foo?` for the operation `==`.
     --> compiler-test:58:22
      |
   58 |         let result = a == b; // ERROR

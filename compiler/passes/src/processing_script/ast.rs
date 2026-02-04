@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use super::ProcessingScriptVisitor;
 
-use leo_ast::{AstReconstructor, CallExpression, Expression, Location, Variant};
+use leo_ast::{AstReconstructor, CallExpression, Expression, Variant};
 use leo_errors::TypeCheckerError;
 
 impl AstReconstructor for ProcessingScriptVisitor<'_> {
@@ -26,12 +26,8 @@ impl AstReconstructor for ProcessingScriptVisitor<'_> {
     /* Expressions */
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         if !matches!(self.current_variant, Variant::Script) {
-            let callee_program = input.program.unwrap_or(self.program_name);
-
-            let Some(func_symbol) = self
-                .state
-                .symbol_table
-                .lookup_function(&Location::new(callee_program, input.function.absolute_path().to_vec()))
+            let Some(func_symbol) =
+                self.state.symbol_table.lookup_function(self.program_name, input.function.expect_global_location())
             else {
                 panic!("Type checking should have prevented this.");
             };

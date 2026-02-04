@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
         input.functions.iter().for_each(|(_, function)| self.visit_function(function));
     }
 
-    fn visit_stub(&mut self, input: &Stub) {
+    fn visit_aleo_program(&mut self, input: &AleoProgram) {
         input.composites.iter().for_each(|(_, function)| self.visit_composite_stub(function));
         input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
     }

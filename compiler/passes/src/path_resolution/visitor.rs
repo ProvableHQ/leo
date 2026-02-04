@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,11 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::CompilerState;
+use leo_ast::NodeID;
 
 use leo_span::Symbol;
 
 pub struct PathResolutionVisitor<'a> {
     pub state: &'a mut CompilerState,
+    /// The current program.
+    pub program: Symbol,
     /// The current module.
     pub module: Vec<Symbol>,
 }
@@ -31,6 +34,13 @@ impl PathResolutionVisitor<'_> {
         self.module = module.to_vec();
         let result = func(self);
         self.module = parent_module;
+        result
+    }
+
+    pub fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
+        self.state.symbol_table.enter_scope(Some(id));
+        let result = func(self);
+        self.state.symbol_table.enter_parent();
         result
     }
 }

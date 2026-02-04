@@ -3,7 +3,7 @@ Error [ETYC0372161]: The type `address?` is or contains an optional type which c
      |
    6 |     mapping optional_balances: address? => Foo;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372161]: The type `Foo` is or contains an optional type which cannot be used as the value in a mapping
+Error [ETYC0372161]: The type `st.aleo/Foo` is or contains an optional type which cannot be used as the value in a mapping
     --> compiler-test:6:5
      |
    6 |     mapping optional_balances: address? => Foo;

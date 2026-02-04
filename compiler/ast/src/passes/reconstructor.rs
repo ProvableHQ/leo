@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -560,18 +560,16 @@ pub trait AstReconstructor {
 /// A Reconstructor trait for the program represented by the AST.
 pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
+        let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
         let program_scopes =
             input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
-        Program {
-            imports: input.imports,
-            stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
-            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
-            program_scopes,
-        }
+        let modules = input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect();
+
+        Program { modules, imports: input.imports, stubs, program_scopes }
     }
 
-    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
-        Stub {
+    fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
+        AleoProgram {
             imports: input.imports,
             stub_id: input.stub_id,
             consts: input.consts,
@@ -579,6 +577,15 @@ pub trait ProgramReconstructor: AstReconstructor {
             mappings: input.mappings,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
             span: input.span,
+        }
+    }
+
+    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
+        match input {
+            Stub::FromLeo { program, parents } => Stub::FromLeo { program: self.reconstruct_program(program), parents },
+            Stub::FromAleo { program, parents } => {
+                Stub::FromAleo { program: self.reconstruct_aleo_program(program), parents }
+            }
         }
     }
 
@@ -631,17 +638,29 @@ pub trait ProgramReconstructor: AstReconstructor {
             const_parameters: input
                 .const_parameters
                 .iter()
-                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .map(|param| {
+                    let mut param = param.clone();
+                    param.type_ = self.reconstruct_type(param.type_).0;
+                    param
+                })
                 .collect(),
             input: input
                 .input
                 .iter()
-                .map(|input| Input { type_: self.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .map(|input| {
+                    let mut input = input.clone();
+                    input.type_ = self.reconstruct_type(input.type_).0;
+                    input
+                })
                 .collect(),
             output: input
                 .output
                 .iter()
-                .map(|output| Output { type_: self.reconstruct_type(output.type_.clone()).0, ..output.clone() })
+                .map(|output| {
+                    let mut output = output.clone();
+                    output.type_ = self.reconstruct_type(output.type_).0;
+                    output
+                })
                 .collect(),
             output_type: self.reconstruct_type(input.output_type).0,
             block: self.reconstruct_block(input.block).0,
@@ -668,19 +687,23 @@ pub trait ProgramReconstructor: AstReconstructor {
             const_parameters: input
                 .const_parameters
                 .iter()
-                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .map(|param| {
+                    let mut param = param.clone();
+                    param.type_ = self.reconstruct_type(param.type_).0;
+                    param
+                })
                 .collect(),
             members: input
                 .members
                 .iter()
-                .map(|member| Member { type_: self.reconstruct_type(member.type_.clone()).0, ..member.clone() })
+                .map(|member| {
+                    let mut member = member.clone();
+                    member.type_ = self.reconstruct_type(member.type_).0;
+                    member
+                })
                 .collect(),
             ..input
         }
-    }
-
-    fn reconstruct_import(&mut self, input: Program) -> Program {
-        self.reconstruct_program(input)
     }
 
     fn reconstruct_mapping(&mut self, input: Mapping) -> Mapping {

@@ -1,121 +1,20 @@
-program child.aleo;
-
-record Boo:
-    owner as address.private;
-    val as u32.private;
-
-struct Two:
-    val1 as u32;
-    val2 as u32;
-
-struct One:
-    two as [Two; 2u32];
-
-struct Baz:
-    one as One;
-
-struct Bar:
-    baz as [Baz; 2u32];
-
-struct Foo:
-    bar as [Bar; 1u32];
-
-function create:
-    cast 1u32 2u32 into r0 as Two;
-    cast 3u32 4u32 into r1 as Two;
-    cast r0 r1 into r2 as [Two; 2u32];
-    cast r2 into r3 as One;
-    cast r3 into r4 as Baz;
-    cast 5u32 6u32 into r5 as Two;
-    cast 7u32 8u32 into r6 as Two;
-    cast r5 r6 into r7 as [Two; 2u32];
-    cast r7 into r8 as One;
-    cast r8 into r9 as Baz;
-    cast r4 r9 into r10 as [Baz; 2u32];
-    cast r10 into r11 as Bar;
-    cast r11 into r12 as [Bar; 1u32];
-    cast r12 into r13 as Foo;
-    cast self.signer 10u32 into r14 as Boo.record;
-    output r13 as Foo.private;
-    output r14 as Boo.record;
-// --- Next Program --- //
-import child.aleo;
-program parent.aleo;
-
-struct Woo:
-    a as u32;
-    b as u32;
-
-record BooHoo:
-    owner as address.private;
-    val as u32.private;
-    woo as Woo.private;
-
-struct Two:
-    val1 as u32;
-    val2 as u32;
-
-struct One:
-    two as [Two; 2u32];
-
-struct Baz:
-    one as One;
-
-struct Bar:
-    baz as [Baz; 2u32];
-
-struct Foo:
-    bar as [Bar; 1u32];
-
-function create_wrapper:
-    call child.aleo/create into r0 r1;
-    call child.aleo/create into r2 r3;
-    output r2 as Foo.private;
-    output r3 as child.aleo/Boo.record;
-
-function create_another_wrapper:
-    call child.aleo/create into r0 r1;
-    cast 1u32 2u32 into r2 as Woo;
-    cast self.signer 10u32 r2 into r3 as BooHoo.record;
-    cast 3u32 4u32 into r4 as Woo;
-    output r0 as Foo.private;
-    output r1 as child.aleo/Boo.record;
-    output r3 as BooHoo.record;
-    output r4 as Woo.private;
-// --- Next Program --- //
-import child.aleo;
-import parent.aleo;
-program grandparent.aleo;
-
-struct Two:
-    val1 as u32;
-    val2 as u32;
-
-struct One:
-    two as [Two; 2u32];
-
-struct Baz:
-    one as One;
-
-struct Bar:
-    baz as [Baz; 2u32];
-
-struct Foo:
-    bar as [Bar; 1u32];
-
-struct Woo:
-    a as u32;
-    b as u32;
-
-function main:
-    input r0 as u32.private;
-    add 1u32 r0 into r1;
-    output r1 as u32.private;
-
-function omega_wrapper:
-    call parent.aleo/create_another_wrapper into r0 r1 r2 r3;
-    call parent.aleo/create_another_wrapper into r4 r5 r6 r7;
-    output r4 as Foo.private;
-    output r5 as child.aleo/Boo.record;
-    output r6 as parent.aleo/BooHoo.record;
-    output r7 as Woo.private;
+Error [ETYC0372017]: The type `child.aleo/child` is not found in the current scope.
+    --> compiler-test:1:1
+     |
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372017]: The type `child.aleo/child` is not found in the current scope.
+    --> compiler-test:1:1
+     |
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372003]: Expected type `(child.aleo/Foo, child.aleo/Boo, parent.aleo/BooHoo, parent.aleo/Woo)` but type `(child.aleo/child, child.aleo/Boo, parent.aleo/BooHoo, parent.aleo/Woo)` was found
+    --> compiler-test:12:100
+     |
+  12 |         let (f, b, bh, w): (child.aleo/Foo, child.aleo/Boo, parent.aleo/BooHoo, parent.aleo/Woo) = parent.aleo/create_another_wrapper();
+     |                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372003]: Expected type `(child.aleo/Foo, child.aleo/Boo, parent.aleo/BooHoo, parent.aleo/Woo)` but type `(child.aleo/child, child.aleo/Boo, parent.aleo/BooHoo, parent.aleo/Woo)` was found
+    --> compiler-test:13:16
+     |
+  13 |         return parent.aleo/create_another_wrapper();
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -8,7 +8,7 @@ Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address
      |
   12 |         let b: string = a as string;
      |                         ^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `Foo` was found.
+Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `test.aleo/Foo` was found.
     --> compiler-test:15:24
      |
   15 |         let d: field = c as field;

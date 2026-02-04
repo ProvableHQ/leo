@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@ use leo_ast::{
     *,
 };
 use leo_errors::StaticAnalyzerError;
-use leo_span::Symbol;
 
 use super::ConstPropagationVisitor;
 
@@ -90,9 +89,8 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             *arg = self.reconstruct_expression(std::mem::take(arg), &()).0;
         });
         for member in input.members.iter_mut() {
-            let expression = member.expression.take().unwrap_or_else(|| {
-                Path::from(member.identifier).with_absolute_path(Some(vec![member.identifier.name])).into()
-            });
+            let expression =
+                member.expression.take().unwrap_or_else(|| Path::from(member.identifier).to_local().into());
             let (new_expr, value_opt) = self.reconstruct_expression(expression, &());
             member.expression = Some(new_expr);
             if let Some(value) = value_opt {
@@ -103,8 +101,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         if values.len() == input.members.len() && input.const_arguments.is_empty() {
             let value = Value::make_struct(
                 input.members.iter().map(|mem| mem.identifier.name).zip(values),
-                self.program,
-                input.path.absolute_path(),
+                input.path.expect_global_location().clone(),
             );
             (input.into(), Some(value))
         } else {
@@ -379,7 +376,21 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_path(&mut self, input: leo_ast::Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Substitute the identifier with the constant value if it is a constant that's been evaluated.
-        if let Some(expression) = self.state.symbol_table.lookup_const(self.program, &input.absolute_path()) {
+
+        // Handle local consts first.
+        if let Some(name) = input.try_local_symbol()
+            && let Some(expression) = self.state.symbol_table.lookup_local_const(name)
+        {
+            let (expression, opt_value) = self.reconstruct_expression(expression, &());
+            if opt_value.is_some() {
+                return (expression, opt_value);
+            }
+        }
+
+        // Then handle global consts.
+        if let Some(location) = input.try_global_location()
+            && let Some(expression) = self.state.symbol_table.lookup_global_const(self.program, location)
+        {
             let (expression, opt_value) = self.reconstruct_expression(expression, &());
             if opt_value.is_some() {
                 return (expression, opt_value);
@@ -549,15 +560,19 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (expr, opt_value) = self.reconstruct_expression(input.value, &());
 
         if opt_value.is_some() {
-            let path: &[Symbol] = if self.state.symbol_table.global_scope() {
-                // Then we need to insert the const with its full module-scoped path.
-                &self.module.iter().copied().chain(std::iter::once(input.place.name)).collect::<Vec<_>>()
-            } else {
-                &[input.place.name]
-            };
-            if self.state.symbol_table.lookup_const(self.program, path).is_none() {
+            if self.state.symbol_table.global_scope() {
+                let location = Location::new(
+                    self.program,
+                    self.module.iter().copied().chain(std::iter::once(input.place.name)).collect::<Vec<_>>(),
+                );
+                if self.state.symbol_table.lookup_global_const(self.program, &location).is_none() {
+                    // It wasn't already evaluated - insert it and record that we've made a change.
+                    self.state.symbol_table.insert_global_const(location, expr.clone());
+                    self.changed = true;
+                }
+            } else if self.state.symbol_table.lookup_local_const(input.place.name).is_none() {
                 // It wasn't already evaluated - insert it and record that we've made a change.
-                self.state.symbol_table.insert_const(self.program, path, expr.clone());
+                self.state.symbol_table.insert_local_const(input.place.name, expr.clone());
                 self.changed = true;
             }
         } else {

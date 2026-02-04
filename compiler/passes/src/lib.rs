@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -50,6 +50,12 @@ pub use flattening::*;
 mod function_inlining;
 pub use function_inlining::*;
 
+mod global_items_collection;
+pub use global_items_collection::*;
+
+mod global_vars_collection;
+pub use global_vars_collection::*;
+
 mod loop_unrolling;
 pub use loop_unrolling::*;
 
@@ -83,9 +89,6 @@ pub use ssa_const_propagation::*;
 mod storage_lowering;
 pub use storage_lowering::*;
 
-mod symbol_table_creation;
-pub use symbol_table_creation::*;
-
 mod type_checking;
 pub use type_checking::*;
 
@@ -94,6 +97,22 @@ pub use name_validation::*;
 
 mod write_transforming;
 pub use write_transforming::*;
+
+/// The result of code generation for a Leo program.
+pub struct CompiledPrograms {
+    /// The generated Aleo bytecode for the primary program.
+    pub primary_bytecode: String,
+    /// Compiled bytecodes for imported programs.
+    pub import_bytecodes: Vec<Bytecode>,
+}
+
+/// Bytecode for a single program.
+pub struct Bytecode {
+    /// The name of the program.
+    pub program_name: String,
+    /// The generated Aleo bytecode.
+    pub bytecode: String,
+}
 
 #[cfg(test)]
 mod test_passes;

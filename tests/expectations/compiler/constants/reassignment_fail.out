@@ -1,4 +1,4 @@
-Error [ETYC0372002]: Cannot assign to const variable `HELLO`
+Error [ETYC0372002]: Cannot assign to const variable `test.aleo/HELLO`
     --> compiler-test:3:11
      |
    3 |     const HELLO: u8 = 0u8;

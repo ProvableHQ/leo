@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -44,7 +44,10 @@ impl StorageLoweringVisitor<'_> {
 
     /// Creates a path expression from a symbol
     pub fn symbol_to_path_expr(&mut self, sym: Symbol) -> Expression {
-        Expression::Path(Path::from(Identifier::new(sym, self.state.node_builder.next_id())).into_absolute())
+        Expression::Path(
+            Path::from(Identifier::new(sym, self.state.node_builder.next_id()))
+                .to_global(Location::new(self.program, vec![sym])),
+        )
     }
 
     /// Standard literal expressions used frequently
@@ -140,9 +143,9 @@ impl StorageLoweringVisitor<'_> {
     pub fn zero(&self, ty: &Type) -> Expression {
         // zero value for element type (used as default in get_or_use)
         let symbol_table = &self.state.symbol_table;
-        let struct_lookup = |sym: &[Symbol]| {
+        let struct_lookup = |loc: &Location| {
             symbol_table
-                .lookup_struct(sym)
+                .lookup_struct(self.program, loc)
                 .unwrap()
                 .members
                 .iter()

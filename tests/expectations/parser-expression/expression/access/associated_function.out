@@ -5,6 +5,7 @@
     "arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "a",
@@ -14,8 +15,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 23,
             "hi": 24
@@ -39,6 +39,7 @@
     "arguments": [
       {
         "Path": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "a",
@@ -48,8 +49,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 49,
             "hi": 50

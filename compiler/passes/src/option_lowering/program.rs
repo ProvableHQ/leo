@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@ use leo_ast::{
     ConstParameter,
     Function,
     Input,
+    Location,
     Module,
     Output,
     Program,
@@ -31,23 +32,31 @@ use leo_span::Symbol;
 
 impl ProgramReconstructor for OptionLoweringVisitor<'_> {
     fn reconstruct_program(&mut self, input: Program) -> Program {
+        self.program =
+            *input.program_scopes.first().expect("a program must have a single program scope at this time.").0;
+
         // Reconstruct all composites first and keep track of them in `self.reconstructed_composites`.
         for (_, scope) in &input.program_scopes {
+            self.program = scope.program_id.name.name;
             for (_, c) in &scope.composites {
                 let new_composite = self.reconstruct_composite(c.clone());
-                self.reconstructed_composites.insert(vec![new_composite.name()], new_composite);
+                self.reconstructed_composites
+                    .insert(Location::new(scope.program_id.name.name, vec![new_composite.name()]), new_composite);
             }
         }
         for (module_path, module) in &input.modules {
+            self.program = module.program_name;
             for (_, c) in &module.composites {
                 let full_name = module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
                 let new_composite = self.reconstruct_composite(c.clone());
-                self.reconstructed_composites.insert(full_name, new_composite.clone());
+                self.reconstructed_composites
+                    .insert(Location::new(module.program_name, full_name), new_composite.clone());
             }
         }
 
         // Now we're ready to reconstruct everything else.
         Program {
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
             imports: input.imports,
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
             program_scopes: input
@@ -55,7 +64,6 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                 .into_iter()
                 .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
                 .collect(),
-            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
         }
     }
 
@@ -74,10 +82,15 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
             composites: self
                 .reconstructed_composites
                 .iter()
-                .filter_map(|(path, s)| {
-                    path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, s.clone()))
+                .filter_map(|(loc, c)| {
+                    // Only consider structs defined at program scope within the same program.
+                    loc.path
+                        .split_last()
+                        .filter(|(_, rest)| rest.is_empty() && loc.program == self.program)
+                        .map(|(last, _)| (*last, c.clone()))
                 })
                 .collect(),
+
             mappings: input.mappings.into_iter().map(|(id, m)| (id, self.reconstruct_mapping(m))).collect(),
             storage_variables: input
                 .storage_variables
@@ -89,7 +102,13 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
             ..input
         };
 
-        program.composites.extend(self.new_structs.drain(..));
+        program.composites.extend(self.new_structs.drain(..).map(|(location, composite)| {
+            assert_eq!(location.program, self.program);
+            assert_eq!(location.path.len(), 1);
+
+            let symbol = location.path[0];
+            (symbol, composite)
+        }));
         program
     }
 
@@ -107,10 +126,14 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
             composites: slf
                 .reconstructed_composites
                 .iter()
-                .filter_map(|(path, c)| path.split_last().map(|(last, rest)| (last, rest, c)))
-                .filter(|&(_, rest, _)| input.path == rest)
-                .map(|(last, _, c)| (*last, c.clone()))
+                .filter_map(|(loc, c)| {
+                    loc.path
+                        .split_last()
+                        .filter(|(_, rest)| *rest == input.path && loc.program == slf.program)
+                        .map(|(last, _)| (*last, c.clone()))
+                })
                 .collect(),
+
             functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
             ..input
         })

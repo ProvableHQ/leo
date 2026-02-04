@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -69,7 +69,7 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
             .map(|(guard, statement)| match guard {
                 ReturnGuard::None => (None, statement),
                 ReturnGuard::Unconstructed(plain) | ReturnGuard::Constructed { plain, .. } => {
-                    (Some(leo_ast::Path::from(plain).into_absolute().into()), statement)
+                    (Some(leo_ast::Path::from(plain).to_local().into()), statement)
                 }
             })
             .collect();

@@ -3,14 +3,14 @@ Error [ETYC0372117]: Expected type `field` but type `field?` was found.
      |
    9 |             s_field = opt_val; // ❌ illegal
      |                       ^^^^^^^
-Error [ETYC0372000]: Invalid assignment target: s_vec.
+Error [ETYC0372000]: Invalid assignment target: st.aleo/s_vec.
     --> compiler-test:15:13
      |
   15 |             s_vec = [1u32, 2u32]; // ❌ cannot assign whole vector directly
      |             ^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
-Error [ETYC0372000]: Invalid assignment target: s_vec.
+Error [ETYC0372000]: Invalid assignment target: st.aleo/s_vec.
     --> compiler-test:16:13
      |
   16 |             s_vec = none;         // ❌ cannot assign none to a storage vector

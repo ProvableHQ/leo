@@ -8,7 +8,7 @@ Error [ETYC0372117]: Expected an integer but type `address` was found.
      |
    8 |         return balances[addr];
      |                         ^^^^
-Error [ETYC0372125]: Cannot assign to the mapping `balances`.
+Error [ETYC0372125]: Cannot assign to the mapping `test.aleo/balances`.
     --> compiler-test:12:9
      |
   12 |         balances[addr] = amount;
@@ -23,7 +23,7 @@ Error [ETYC0372117]: Expected an integer but type `address` was found.
      |
   12 |         balances[addr] = amount;
      |                  ^^^^
-Error [ETYC0372125]: Cannot assign to the mapping `balances`.
+Error [ETYC0372125]: Cannot assign to the mapping `test.aleo/balances`.
     --> compiler-test:16:9
      |
   16 |         balances = misc;

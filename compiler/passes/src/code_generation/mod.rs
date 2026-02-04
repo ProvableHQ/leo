@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::fmt::Display;
-
-use crate::Pass;
+use crate::{CompiledPrograms, Pass};
 
 use itertools::Itertools;
 use leo_ast::{Mode, ProgramId};
 use leo_errors::Result;
+
+use std::fmt::Display;
 
 mod expression;
 
@@ -41,7 +41,7 @@ pub struct CodeGenerating;
 
 impl Pass for CodeGenerating {
     type Input = ();
-    type Output = AleoProgram;
+    type Output = CompiledPrograms;
 
     const NAME: &str = "CodeGenerating";
 
@@ -61,8 +61,8 @@ impl Pass for CodeGenerating {
             conditional_depth: 0,
             internal_record_inputs: Default::default(),
         };
-        let code = visitor.visit_program(visitor.state.ast.as_repr());
-        Ok(code)
+
+        Ok(visitor.visit_package())
     }
 }
 
@@ -301,17 +301,12 @@ impl Display for AleoInput {
 #[derive(Debug)]
 pub struct AleoConstructor {
     statements: Vec<AleoStmt>,
-    // FIXME: remove later, needed for the exact same behavior as previous codegen
-    is_custom: bool,
 }
 impl Display for AleoConstructor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "constructor:")?;
         for stm in &self.statements {
             write!(f, "{}", stm)?;
-        }
-        if self.is_custom {
-            writeln!(f)?;
         }
         Ok(())
     }
@@ -557,6 +552,7 @@ pub enum AleoType {
     Future { name: String, program: String },
     Record { name: String, program: Option<String> },
     Ident { name: String },
+    Location { program: String, name: String },
     Array { inner: Box<AleoType>, len: u32 },
     GroupX,
     GroupY,
@@ -587,6 +583,7 @@ impl Display for AleoType {
             Self::GroupX => write!(f, "group.x"),
             Self::GroupY => write!(f, "group.y"),
             Self::Ident { name } => write!(f, "{name}"),
+            Self::Location { program, name } => write!(f, "{program}.aleo/{name}"),
             Self::Address => write!(f, "address"),
             Self::Boolean => write!(f, "boolean"),
             Self::Field => write!(f, "field"),
@@ -613,6 +610,9 @@ impl<N: Network> From<PlaintextType<N>> for AleoType {
         match value {
             PlaintextType::Literal(lit) => lit.into(),
             PlaintextType::Struct(id) => Self::Ident { name: id.to_string() },
+            PlaintextType::ExternalStruct(loc) => {
+                Self::Location { program: loc.program_id().to_string(), name: loc.name().to_string() }
+            }
             PlaintextType::Array(arr) => arr.into(),
         }
     }

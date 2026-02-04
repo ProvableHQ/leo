@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -29,7 +29,6 @@ use leo_ast::{
     ExpressionConsumer,
     IntrinsicExpression,
     Literal,
-    Location,
     LocatorExpression,
     MemberAccess,
     Path,
@@ -54,7 +53,7 @@ impl SsaFormingVisitor<'_> {
         } else {
             let (place, statement) = self.unique_simple_definition(expr);
             statements.push(statement);
-            (Path::from(place).into_absolute().into(), statements)
+            (Path::from(place).to_local().into(), statements)
         }
     }
 }
@@ -159,7 +158,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
                 let (expression, mut stmts) = if let Some(expr) = arg.expression {
                     self.consume_expression_and_define(expr)
                 } else {
-                    self.consume_path(Path::from(arg.identifier).into_absolute())
+                    self.consume_path(Path::from(arg.identifier).to_local())
                 };
                 // Accumulate any statements produced.
                 statements.append(&mut stmts);
@@ -172,11 +171,12 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         // Reorder the members to match that of the composite definition.
 
         // Lookup the composite definition.
+        let composite_location = input.path.expect_global_location();
         let composite_definition: &Composite = self
             .state
             .symbol_table
-            .lookup_record(&Location::new(self.program, input.path.absolute_path()))
-            .or_else(|| self.state.symbol_table.lookup_struct(&input.path.absolute_path()))
+            .lookup_record(self.program, composite_location)
+            .or_else(|| self.state.symbol_table.lookup_struct(self.program, composite_location))
             .expect("Type checking guarantees this definition exists.");
 
         // Initialize the list of reordered members.

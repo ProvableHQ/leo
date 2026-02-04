@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@ pub struct ProcessingAsyncVisitor<'a> {
 
 impl ProcessingAsyncVisitor<'_> {
     pub fn in_scope<T>(&mut self, id: NodeID, func: impl FnOnce(&mut Self) -> T) -> T {
-        self.state.symbol_table.enter_scope(Some(id));
+        self.state.symbol_table.enter_existing_scope(Some(id));
         let result = func(self);
         self.state.symbol_table.enter_parent();
         result

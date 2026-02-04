@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -29,16 +29,17 @@ impl AstReconstructor for FunctionInliningVisitor<'_> {
     /* Expressions */
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Type checking guarantees that only functions local to the program scope can be inlined.
-        if input.program.is_some_and(|prog| prog != self.program) {
+        if input.function.expect_global_location().program != self.program {
             return (input.into(), Default::default());
         }
 
         // Lookup the reconstructed callee function.
         // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
+        let function_location = input.function.expect_global_location();
         let (_, callee) = self
             .reconstructed_functions
             .iter()
-            .find(|(path, _)| *path == input.function.absolute_path())
+            .find(|(path, _)| *path == function_location.path)
             .expect("guaranteed to exist due to post-order traversal of the call graph.");
 
         // Inline the callee function, if required, otherwise, return the call expression.

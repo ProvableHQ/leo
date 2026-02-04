@@ -2,7 +2,7 @@
 
 LEO_BIN=${1}
 PRIVATE_KEY="APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh"
-COMMON_OPTS="--disable-update-check --devnet --network testnet --endpoint http://localhost:3030 --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11"
+COMMON_OPTS="--disable-update-check --devnet --network testnet --endpoint http://localhost:3030 --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12"
 
 $LEO_BIN run --json-output main 1u32 2u32
 

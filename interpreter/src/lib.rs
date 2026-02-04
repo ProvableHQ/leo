@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -199,10 +199,10 @@ pub fn find_and_run_tests(
         assert!(function.variant.is_script(), "Type checking should ensure test functions are transitions or scripts.");
 
         let call = CallExpression {
-            function: function.identifier.into(),
+            function: Path::from(function.identifier)
+                .to_global(Location::new(id.program, vec![function.identifier.name])),
             const_arguments: vec![], // scripts don't have const parameters for now
             arguments: Vec::new(),
-            program: Some(id.program),
             span: Default::default(),
             id: interpreter.node_builder.next_id(),
         };

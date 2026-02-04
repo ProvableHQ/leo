@@ -108,6 +108,7 @@
                   "Return": {
                     "expression": {
                       "Path": {
+                        "user_program": null,
                         "qualifier": [],
                         "identifier": {
                           "name": "a",
@@ -117,8 +118,7 @@
                           },
                           "id": 8
                         },
-                        "is_absolute": false,
-                        "absolute_path": null,
+                        "target": "Unresolved",
                         "span": {
                           "lo": 104,
                           "hi": 105

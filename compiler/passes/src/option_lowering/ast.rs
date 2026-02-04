@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -61,9 +61,9 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
         (
             Type::Composite(CompositeType {
-                path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id())).into_absolute(),
+                path: Path::from(Identifier::new(struct_name, self.state.node_builder.next_id()))
+                    .to_global(Location::new(self.program, vec![struct_name])),
                 const_arguments: vec![], // this is not a generic struct
-                program: None,           // current program
             }),
             Default::default(),
         )
@@ -361,12 +361,11 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         mut input: CallExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
-        let callee_program = input.program.unwrap_or(self.program);
-
+        let callee_location = input.function.expect_global_location();
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(callee_program, input.function.absolute_path()))
+            .lookup_function(self.program, callee_location)
             .expect("The symbol table creator should already have visited all functions.")
             .clone();
 
@@ -421,14 +420,13 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             }
 
             if let Type::Composite(composite) = ty {
-                let program = composite.program.unwrap_or(self.program);
-                let location = Location::new(program, composite.path.absolute_path());
+                let composite_location = composite.path.expect_global_location();
                 let composite_def = self
                     .state
                     .symbol_table
-                    .lookup_record(&location)
-                    .or_else(|| self.state.symbol_table.lookup_struct(&composite.path.absolute_path()))
-                    .or_else(|| self.new_structs.get(&composite.path.identifier().name))
+                    .lookup_record(self.program, composite_location)
+                    .or_else(|| self.state.symbol_table.lookup_struct(self.program, composite_location))
+                    .or_else(|| self.new_structs.get(composite_location))
                     .expect("guaranteed by type checking");
 
                 let const_parameters = composite_def.const_parameters.iter().map(|param| param.type_.clone()).collect();
@@ -457,8 +455,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let expected_type =
                     member_types.get(&member.identifier.name).expect("guaranteed by type checking").clone();
 
-                let expression =
-                    member.expression.unwrap_or_else(|| Path::from(member.identifier).into_absolute().into());
+                let expression = member.expression.unwrap_or_else(|| Path::from(member.identifier).to_local().into());
 
                 let (new_expr, stmts) = self.reconstruct_expression(expression, &Some(expected_type));
 
@@ -709,7 +706,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(self.program, caller_path))
+            .lookup_function(self.program, &Location::new(self.program, caller_path))
             .expect("The symbol table creator should already have visited all functions.");
 
         let return_type = func_symbol.function.output_type.clone();

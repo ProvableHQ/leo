@@ -2,6 +2,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -11,8 +12,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 0,
           "hi": 1
@@ -22,6 +22,7 @@
     },
     "value": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "expr",
@@ -31,8 +32,7 @@
           },
           "id": 4
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 4,
           "hi": 8
@@ -52,6 +52,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -61,8 +62,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 10,
           "hi": 11
@@ -74,6 +74,7 @@
       "Binary": {
         "left": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "x",
@@ -83,8 +84,7 @@
               },
               "id": 5
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 14,
               "hi": 15
@@ -94,6 +94,7 @@
         },
         "right": {
           "Path": {
+            "user_program": null,
             "qualifier": [],
             "identifier": {
               "name": "y",
@@ -103,8 +104,7 @@
               },
               "id": 7
             },
-            "is_absolute": false,
-            "absolute_path": null,
+            "target": "Unresolved",
             "span": {
               "lo": 16,
               "hi": 17
@@ -132,6 +132,7 @@
   "Assign": {
     "place": {
       "Path": {
+        "user_program": null,
         "qualifier": [],
         "identifier": {
           "name": "x",
@@ -141,8 +142,7 @@
           },
           "id": 2
         },
-        "is_absolute": false,
-        "absolute_path": null,
+        "target": "Unresolved",
         "span": {
           "lo": 19,
           "hi": 20
@@ -153,6 +153,7 @@
     "value": {
       "Call": {
         "function": {
+          "user_program": null,
           "qualifier": [],
           "identifier": {
             "name": "x",
@@ -162,8 +163,7 @@
             },
             "id": 4
           },
-          "is_absolute": false,
-          "absolute_path": null,
+          "target": "Unresolved",
           "span": {
             "lo": 23,
             "hi": 24
@@ -172,7 +172,6 @@
         },
         "const_arguments": [],
         "arguments": [],
-        "program": null,
         "span": {
           "lo": 23,
           "hi": 26
