@@ -216,10 +216,6 @@ signal-hook = { version = "0.4", features = [ "iterator" ] }
 winapi      = "0.3"
 ansi_term   = "0.12"
 windows-sys = { version = "0.61", features = [ "Win32_Foundation", "Win32_System_Threading", "Win32_System_JobObjects" ] }
-[target."cfg(windows)".dependencies]
-winapi      = "0.3"
-ansi_term   = "0.12"
-windows-sys = { version = "0.61", features = [ "Win32_Foundation", "Win32_System_Threading", "Win32_System_JobObjects" ] }
 
 [profile.release]
 opt-level = 3
