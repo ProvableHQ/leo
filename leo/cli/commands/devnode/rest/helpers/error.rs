@@ -133,7 +133,7 @@ impl From<String> for RestError {
 impl From<&str> for RestError {
     fn from(msg: &str) -> Self {
         // Default to 500 Internal Server Error
-        Self::InternalServerError(anyhow::anyhow!(msg.to_string()))
+        Self::InternalServerError(anyhow::anyhow!("{msg}"))
     }
 }
 

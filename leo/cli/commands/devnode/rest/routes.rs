@@ -521,7 +521,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             {
                 return Err(RestError::too_many_requests(anyhow!("{err_msg}")));
             }
-            println!("We've arrived at the transaction check section.");
             // Perform the check.
             let res = rest
                 .ledger
