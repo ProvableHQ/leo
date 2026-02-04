@@ -100,12 +100,12 @@ enum LogosToken {
     AddressLiteral,
 
     // Integer literals with various radixes
-    // Avoid lowercase letters to prevent ambiguity with the `field` postfix.
-    // Allow invalid digits for each radix so we can report errors later.
-    #[regex(r"0x[0-9A-Z_]+")]
-    #[regex(r"0o[0-9A-Z_]+")]
-    #[regex(r"0b[0-9A-Z_]+")]
-    #[regex(r"[0-9][0-9A-Z_]*")]
+    // The regex includes type suffixes (u8, i32, field, etc.) to lex as a single token.
+    // Hex/octal/binary literals use uppercase for hex digits to avoid ambiguity with suffixes.
+    #[regex(r"0x[0-9A-F_]+([ui](8|16|32|64|128)|field|group|scalar)?")]
+    #[regex(r"0o[0-7_]+([ui](8|16|32|64|128)|field|group|scalar)?")]
+    #[regex(r"0b[01_]+([ui](8|16|32|64|128)|field|group|scalar)?")]
+    #[regex(r"[0-9][0-9_]*([ui](8|16|32|64|128)|field|group|scalar)?")]
     Integer,
 
     #[regex(r#""[^"]*""#)]
@@ -861,6 +861,34 @@ mod tests {
     }
 
     #[test]
+    fn lex_typed_integers() {
+        // Integer literals with type suffixes should be lexed as single tokens
+        check_lex("1000u32 42i64 0u8 255u128", expect![[r#"
+            INTEGER "1000u32"
+            WHITESPACE " "
+            INTEGER "42i64"
+            WHITESPACE " "
+            INTEGER "0u8"
+            WHITESPACE " "
+            INTEGER "255u128"
+            EOF ""
+        "#]]);
+    }
+
+    #[test]
+    fn lex_typed_integers_field() {
+        // Field, group, and scalar suffixes
+        check_lex("123field 456group 789scalar", expect![[r#"
+            INTEGER "123field"
+            WHITESPACE " "
+            INTEGER "456group"
+            WHITESPACE " "
+            INTEGER "789scalar"
+            EOF ""
+        "#]]);
+    }
+
+    #[test]
     fn lex_special_paths() {
         // These are special cases where keywords are followed by ::
         check_lex("group::GEN signature::verify Future::await", expect![[r#"
@@ -869,6 +897,17 @@ mod tests {
             IDENT "signature::verify"
             WHITESPACE " "
             IDENT "Future::await"
+            EOF ""
+        "#]]);
+    }
+
+    #[test]
+    fn lex_typed_integer_range() {
+        // Integer with type suffix followed by range operator
+        check_lex("0u8..STOP", expect![[r#"
+            INTEGER "0u8"
+            DOT_DOT ".."
+            IDENT "STOP"
             EOF ""
         "#]]);
     }
