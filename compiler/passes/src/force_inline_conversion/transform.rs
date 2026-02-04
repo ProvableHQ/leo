@@ -33,7 +33,7 @@ impl TransformVisitor {
     }
 
     /// Check if a names an optional type. We don't need to check the type
-    /// recursively with the sumbol table, hiding optionals behind structs is
+    /// recursively with the symbol table, hiding optionals behind structs is
     /// allowed.
     fn names_optional_type(ty: &Type) -> bool {
         match ty {
