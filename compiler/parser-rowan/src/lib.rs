@@ -21,10 +21,20 @@
 //! parser in `leo-parser-lossless`.
 
 mod lexer;
+mod parser;
 mod syntax_kind;
 
-use leo_errors::{Handler, Result};
+use leo_errors::Result;
 pub use lexer::{LexError, Token, lex};
+pub use parser::{
+    Parse,
+    ParseError,
+    Parser,
+    parse_expression_entry,
+    parse_file,
+    parse_module_entry,
+    parse_statement_entry,
+};
 pub use syntax_kind::{SyntaxKind, syntax_kind_from_raw};
 
 /// The Leo language type for rowan.
@@ -55,51 +65,51 @@ pub type SyntaxElement = rowan::SyntaxElement<LeoLanguage>;
 /// Parse an expression from source code.
 ///
 /// # Arguments
-/// * `handler` - Error handler for collecting diagnostics.
 /// * `source` - The source code to parse.
-/// * `start_pos` - The starting byte position in the source file.
 ///
 /// # Returns
 /// A syntax node representing the parsed expression.
-pub fn parse_expression(_handler: Handler, _source: &str, _start_pos: u32) -> Result<SyntaxNode> {
-    todo!("rowan parser: parse_expression")
+pub fn parse_expression(source: &str) -> Result<SyntaxNode> {
+    let parse = parse_expression_entry(source);
+    // TODO: Convert ParseErrors to leo_errors::Result when needed
+    Ok(parse.syntax())
 }
 
 /// Parse a statement from source code.
 ///
 /// # Arguments
-/// * `handler` - Error handler for collecting diagnostics.
 /// * `source` - The source code to parse.
-/// * `start_pos` - The starting byte position in the source file.
 ///
 /// # Returns
 /// A syntax node representing the parsed statement.
-pub fn parse_statement(_handler: Handler, _source: &str, _start_pos: u32) -> Result<SyntaxNode> {
-    todo!("rowan parser: parse_statement")
+pub fn parse_statement(source: &str) -> Result<SyntaxNode> {
+    let parse = parse_statement_entry(source);
+    // TODO: Convert ParseErrors to leo_errors::Result when needed
+    Ok(parse.syntax())
 }
 
 /// Parse a module from source code.
 ///
 /// # Arguments
-/// * `handler` - Error handler for collecting diagnostics.
 /// * `source` - The source code to parse.
-/// * `start_pos` - The starting byte position in the source file.
 ///
 /// # Returns
 /// A syntax node representing the parsed module.
-pub fn parse_module(_handler: Handler, _source: &str, _start_pos: u32) -> Result<SyntaxNode> {
-    todo!("rowan parser: parse_module")
+pub fn parse_module(source: &str) -> Result<SyntaxNode> {
+    let parse = parse_module_entry(source);
+    // TODO: Convert ParseErrors to leo_errors::Result when needed
+    Ok(parse.syntax())
 }
 
 /// Parse a main program file from source code.
 ///
 /// # Arguments
-/// * `handler` - Error handler for collecting diagnostics.
 /// * `source` - The source code to parse.
-/// * `start_pos` - The starting byte position in the source file.
 ///
 /// # Returns
 /// A syntax node representing the parsed program.
-pub fn parse_main(_handler: Handler, _source: &str, _start_pos: u32) -> Result<SyntaxNode> {
-    todo!("rowan parser: parse_main")
+pub fn parse_main(source: &str) -> Result<SyntaxNode> {
+    let parse = parse_file(source);
+    // TODO: Convert ParseErrors to leo_errors::Result when needed
+    Ok(parse.syntax())
 }
