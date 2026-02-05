@@ -376,3 +376,66 @@
   }
 }
 
+{
+  "Path": {
+    "user_program": null,
+    "qualifier": [],
+    "identifier": {
+      "name": "sig",
+      "span": {
+        "lo": 95,
+        "hi": 98
+      },
+      "id": 1
+    },
+    "target": "Unresolved",
+    "span": {
+      "lo": 95,
+      "hi": 98
+    },
+    "id": 0
+  }
+}
+
+{
+  "Path": {
+    "user_program": null,
+    "qualifier": [],
+    "identifier": {
+      "name": "signer",
+      "span": {
+        "lo": 99,
+        "hi": 105
+      },
+      "id": 1
+    },
+    "target": "Unresolved",
+    "span": {
+      "lo": 99,
+      "hi": 105
+    },
+    "id": 0
+  }
+}
+
+{
+  "Path": {
+    "user_program": null,
+    "qualifier": [],
+    "identifier": {
+      "name": "sign",
+      "span": {
+        "lo": 106,
+        "hi": 110
+      },
+      "id": 1
+    },
+    "target": "Unresolved",
+    "span": {
+      "lo": 106,
+      "hi": 110
+    },
+    "id": 0
+  }
+}
+

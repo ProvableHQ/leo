@@ -161,15 +161,10 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         match literal.variant.clone() {
-            LiteralVariant::None | LiteralVariant::Unsuffixed(..) => {
-                panic!("This literal variant should no longer exist at code generation")
-            }
             LiteralVariant::Address(val) => AleoExpr::Address(prepare_literal(&val)),
             LiteralVariant::Boolean(val) => AleoExpr::Bool(val),
             LiteralVariant::Field(val) => AleoExpr::Field(prepare_literal(&val)),
             LiteralVariant::Group(val) => AleoExpr::Group(prepare_literal(&val)),
-            LiteralVariant::Scalar(val) => AleoExpr::Scalar(prepare_literal(&val)),
-            LiteralVariant::String(val) => AleoExpr::String(val),
             LiteralVariant::Integer(itype, val) => {
                 let val = val.replace('_', "");
 
@@ -185,6 +180,12 @@ impl CodeGeneratingVisitor<'_> {
                     IntegerType::I64 => AleoExpr::I64(i64::from_str_by_radix(&val).unwrap()),
                     IntegerType::I128 => AleoExpr::I128(i128::from_str_by_radix(&val).unwrap()),
                 }
+            }
+            LiteralVariant::Scalar(val) => AleoExpr::Scalar(prepare_literal(&val)),
+            LiteralVariant::Signature(val) => AleoExpr::Signature(prepare_literal(&val)),
+            LiteralVariant::String(val) => AleoExpr::String(val),
+            LiteralVariant::None | LiteralVariant::Unsuffixed(..) => {
+                panic!("This literal variant should no longer exist at code generation")
             }
         }
     }

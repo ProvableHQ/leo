@@ -324,6 +324,7 @@ pub enum AleoExpr {
     Bool(bool),
     Field(String),
     Group(String),
+    Signature(String),
     Scalar(String),
     String(String),
     U8(u8),
@@ -345,12 +346,11 @@ impl Display for AleoExpr {
             Self::ArrayAccess(array, index) => write!(f, "{array}[{index}]"),
             Self::MemberAccess(comp, member) => write!(f, "{comp}.{member}"),
             Self::RawName(n) => write!(f, "{n}"),
+            // Literals
             Self::Address(val) => write!(f, "{val}"),
             Self::Bool(val) => write!(f, "{val}"),
             Self::Field(val) => write!(f, "{val}field"),
             Self::Group(val) => write!(f, "{val}group"),
-            Self::Scalar(val) => write!(f, "{val}scalar"),
-            Self::String(val) => write!(f, "\"{val}\""),
             Self::U8(val) => write!(f, "{val}u8"),
             Self::U16(val) => write!(f, "{val}u16"),
             Self::U32(val) => write!(f, "{val}u32"),
@@ -361,6 +361,9 @@ impl Display for AleoExpr {
             Self::I32(val) => write!(f, "{val}i32"),
             Self::I64(val) => write!(f, "{val}i64"),
             Self::I128(val) => write!(f, "{val}i128"),
+            Self::Scalar(val) => write!(f, "{val}scalar"),
+            Self::Signature(val) => write!(f, "{val}"),
+            Self::String(val) => write!(f, "\"{val}\""),
         }
     }
 }

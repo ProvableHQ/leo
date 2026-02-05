@@ -44,10 +44,12 @@ pub enum LiteralVariant {
     /// A scalar literal, e.g. `1scalar`.
     /// An unsigned number followed by the keyword `scalar`.
     Scalar(String),
-    /// An unsuffixed literal, e.g. `42` (without a type suffix)
-    Unsuffixed(String),
+    /// A signature literal, eg `sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj`.
+    Signature(String),
     /// A string literal, e.g., `"foobar"`.
     String(String),
+    /// An unsuffixed literal, e.g. `42` (without a type suffix)
+    Unsuffixed(String),
 }
 
 impl fmt::Display for LiteralVariant {
@@ -60,8 +62,9 @@ impl fmt::Display for LiteralVariant {
             Self::Integer(type_, value) => write!(f, "{value}{type_}"),
             Self::None => write!(f, "none"),
             Self::Scalar(scalar) => write!(f, "{scalar}scalar"),
-            Self::Unsuffixed(value) => write!(f, "{value}"),
+            Self::Signature(signature) => write!(f, "sign{signature}"),
             Self::String(string) => write!(f, "\"{string}\""),
+            Self::Unsuffixed(value) => write!(f, "{value}"),
         }
     }
 }
@@ -75,8 +78,12 @@ impl fmt::Display for Literal {
 crate::simple_node_impl!(Literal);
 
 impl Literal {
-    pub fn string(s: String, span: Span, id: NodeID) -> Self {
-        Literal { variant: LiteralVariant::String(s), span, id }
+    pub fn address(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Address(s), span, id }
+    }
+
+    pub fn boolean(s: bool, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Boolean(s), span, id }
     }
 
     pub fn field(s: String, span: Span, id: NodeID) -> Self {
@@ -87,28 +94,28 @@ impl Literal {
         Literal { variant: LiteralVariant::Group(s), span, id }
     }
 
-    pub fn address(s: String, span: Span, id: NodeID) -> Self {
-        Literal { variant: LiteralVariant::Address(s), span, id }
+    pub fn integer(integer_type: IntegerType, s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Integer(integer_type, s), span, id }
+    }
+
+    pub fn none(span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::None, span, id }
     }
 
     pub fn scalar(s: String, span: Span, id: NodeID) -> Self {
         Literal { variant: LiteralVariant::Scalar(s), span, id }
     }
 
-    pub fn boolean(s: bool, span: Span, id: NodeID) -> Self {
-        Literal { variant: LiteralVariant::Boolean(s), span, id }
+    pub fn signature(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Signature(s), span, id }
     }
 
-    pub fn integer(integer_type: IntegerType, s: String, span: Span, id: NodeID) -> Self {
-        Literal { variant: LiteralVariant::Integer(integer_type, s), span, id }
+    pub fn string(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::String(s), span, id }
     }
 
     pub fn unsuffixed(s: String, span: Span, id: NodeID) -> Self {
         Literal { variant: LiteralVariant::Unsuffixed(s), span, id }
-    }
-
-    pub fn none(span: Span, id: NodeID) -> Self {
-        Literal { variant: LiteralVariant::None, span, id }
     }
 
     /// For an integer literal, parse it and cast it to a u32.
