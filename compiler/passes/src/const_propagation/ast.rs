@@ -61,7 +61,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Err(err) => self.reconstruct_err(err, &()),
             Expression::Path(path) => self.reconstruct_path(path, &()),
             Expression::Literal(value) => self.reconstruct_literal(value, &()),
-            Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
@@ -429,14 +428,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         } else {
             (input.into(), None)
         }
-    }
-
-    fn reconstruct_locator(
-        &mut self,
-        input: leo_ast::LocatorExpression,
-        _additional: &(),
-    ) -> (Expression, Self::AdditionalOutput) {
-        (input.into(), Default::default())
     }
 
     fn reconstruct_tuple(

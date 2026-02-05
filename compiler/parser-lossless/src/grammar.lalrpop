@@ -58,10 +58,6 @@ Path: LalrToken<'a> = {
 Type3: SyntaxNode<'a> = {
     NamedPrimitiveType,
 
-    <name:WithTrivia<Locator>> => {
-        SyntaxNode::new(TypeKind::Composite, [name])
-    },
-
     <name:WithTrivia<Path>> <c:(ConstArgumentList)?> => {
         SyntaxNode::new(TypeKind::Composite, iter::once(name).chain(c))
     },
@@ -165,11 +161,10 @@ CommaTwo<T>: Vec<SyntaxNode<'a>> = {
     },
 }
 
-CommaInitializersMaybe = CommaMaybe<StructMemberInitializer>;
+CommaInitializersMaybe = CommaMaybe<CompositeMemberInitializer>;
 
 FunctionIdentifier: SyntaxNode<'a> = {
     WithTrivia<Path>,
-    WithTrivia<Locator>,
     WithTrivia<Intrinsic>,
 }
 
@@ -181,20 +176,20 @@ NoTrivia<T>: SyntaxNode<'a> = {
     <t:T> => SyntaxNode::new_token(SyntaxKind::Token, t, Vec::new()),
 }
 
-StructMemberInitializer: SyntaxNode<'a> = {
+CompositeMemberInitializer: SyntaxNode<'a> = {
     <name:WithTrivia<Identifier>> <c:WithTrivia<Colon>> <e:Expr> => {
-        SyntaxNode::new(SyntaxKind::StructMemberInitializer, [name, c, e])
+        SyntaxNode::new(SyntaxKind::CompositeMemberInitializer, [name, c, e])
     },
 
     <name:WithTrivia<Identifier>> => {
-        SyntaxNode::new(SyntaxKind::StructMemberInitializer, [name])
+        SyntaxNode::new(SyntaxKind::CompositeMemberInitializer, [name])
     },
 }
 
-ExprStruct: SyntaxNode<'a> = {
-    // Struct initializer.
+ExprComposite: SyntaxNode<'a> = {
+    // Composite initializer.
     <name:FunctionIdentifier> <c:(ConstArgumentList)?> <l:WithTrivia<LeftCurly>> <inits:CommaInitializersMaybe> <r:WithTrivia<RightCurly>> => {
-        SyntaxNode::new(ExpressionKind::Struct, iter::once(name).chain(c).chain([l]).chain(inits).chain([r]))
+        SyntaxNode::new(ExpressionKind::Composite, iter::once(name).chain(c).chain([l]).chain(inits).chain([r]))
     },
 }
 
@@ -209,7 +204,7 @@ ExprNever: SyntaxNode<'a> = {
 // Namely this is the case in condition of `if` statements and the loop bounds of a `for` loop.
 //
 // Thus we need to handle operator precedence and associativity manually, threading through macros
-// two nonterminals - `ExprStruct` which is a struct initializer, and `ExprNever` which is never produced.
+// two nonterminals - `ExprComposite` which is a struct initializer, and `ExprNever` which is never produced.
 //
 // It's possible there is a shorter way to implement this than writing a separate nonterminal for each
 // precedence level, but this seems a straightforward way for now.
@@ -265,9 +260,6 @@ Expr0: SyntaxNode<'a> = {
         }
     },
 
-    // Locator.
-    <WithTrivia<Locator>> => SyntaxNode::new(ExpressionKind::Locator, [<>]),
-
     // Parenthesized expression.
     <l:WithTrivia<LeftParen>> <e:Expr> <r:WithTrivia<RightParen>> => {
         SyntaxNode::new(ExpressionKind::Parenthesized, [l, e, r])
@@ -287,7 +279,7 @@ Expr0: SyntaxNode<'a> = {
                 )
             )
         ) {
-            ExpressionKind::AssociatedFunctionCall
+            ExpressionKind::AssociatedFunctionCall 
         } else if name.text.starts_with("_") {
             ExpressionKind::Intrinsic
         } else {
@@ -491,7 +483,7 @@ Expr15<S>: SyntaxNode<'a> = {
 
 
 // An expression, including struct inits.
-pub Expr: SyntaxNode<'a> = Expr15<ExprStruct>;
+pub Expr: SyntaxNode<'a> = Expr15<ExprComposite>;
 
 // An expression, exluding struct inits in key places.
 ExprNoS: SyntaxNode<'a> = Expr15<ExprNever>;
@@ -741,34 +733,34 @@ ConstructorDeclaration: SyntaxNode<'a> = {
     },
 }
 
-StructComponentKeyword: LalrToken<'a> = {
+CompositeComponentKeyword: LalrToken<'a> = {
     <Constant> => <>,
     <Private> => <>,
     <Public> => <>,
 }
 
-StructMemberDeclaration: SyntaxNode<'a> = {
-    <k:WithTrivia<StructComponentKeyword>?> <i:WithTrivia<CheckedIdentifier>> <c:WithTrivia<Colon>> <t:Type> => {
-        SyntaxNode::new(SyntaxKind::StructMemberDeclaration, k.into_iter().chain([i, c, t]))
+CompositeMemberDeclaration: SyntaxNode<'a> = {
+    <k:WithTrivia<CompositeComponentKeyword>?> <i:WithTrivia<CheckedIdentifier>> <c:WithTrivia<Colon>> <t:Type> => {
+        SyntaxNode::new(SyntaxKind::CompositeMemberDeclaration, k.into_iter().chain([i, c, t]))
     },
 }
 
-StructMemberDeclarationList: SyntaxNode<'a> = {
-    <l:WithTrivia<LeftCurly>> <v:CommaMaybe<StructMemberDeclaration>> <r:WithTrivia<RightCurly>> => {
-        SyntaxNode::new(SyntaxKind::StructMemberDeclarationList, iter::once(l).chain(v).chain([r]))
+CompositeMemberDeclarationList: SyntaxNode<'a> = {
+    <l:WithTrivia<LeftCurly>> <v:CommaMaybe<CompositeMemberDeclaration>> <r:WithTrivia<RightCurly>> => {
+        SyntaxNode::new(SyntaxKind::CompositeMemberDeclarationList, iter::once(l).chain(v).chain([r]))
     },
 }
 
 StructDeclaration: SyntaxNode<'a> = {
-    <s:WithTrivia<Struct>> <i:WithTrivia<CheckedIdentifier>> <c:ConstParameterList?> <m:StructMemberDeclarationList> => {
-        SyntaxNode::new(SyntaxKind::StructDeclaration, [s, i].into_iter().chain(c).chain([m]))
+    <s:WithTrivia<Struct>> <i:WithTrivia<CheckedIdentifier>> <c:ConstParameterList?> <m:CompositeMemberDeclarationList> => {
+        SyntaxNode::new(SyntaxKind::CompositeDeclaration, [s, i].into_iter().chain(c).chain([m]))
     },
 }
 
 RecordDeclaration: SyntaxNode<'a> = {
     // We allow a const parameter list so we can later give an error.
-    <r:WithTrivia<Record>> <i:WithTrivia<CheckedIdentifier>> <c:ConstParameterList?> <m:StructMemberDeclarationList> => {
-        SyntaxNode::new(SyntaxKind::StructDeclaration, [r, i].into_iter().chain(c).chain([m]))
+    <r:WithTrivia<Record>> <i:WithTrivia<CheckedIdentifier>> <c:ConstParameterList?> <m:CompositeMemberDeclarationList> => {
+        SyntaxNode::new(SyntaxKind::CompositeDeclaration, [r, i].into_iter().chain(c).chain([m]))
     },
 }
 
@@ -850,7 +842,6 @@ extern {
         Identifier => LalrToken { token: Token::IdVariants(IdVariants::Identifier), .. },
         Intrinsic => LalrToken { token: Token::IdVariants(IdVariants::Intrinsic), .. },
         ProgramId => LalrToken { token: Token::IdVariants(IdVariants::ProgramId), .. },
-        Locator => LalrToken { token: Token::IdVariants(IdVariants::Locator), .. },
         RealPath => LalrToken { token: Token::IdVariants(IdVariants::Path), .. },
 
         AddressLiteral => LalrToken { token: Token::AddressLiteral, .. },

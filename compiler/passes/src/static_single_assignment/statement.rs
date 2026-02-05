@@ -32,6 +32,7 @@ use leo_ast::{
     Identifier,
     IterationStatement,
     Node,
+    Path,
     ReturnStatement,
     Statement,
     StatementConsumer,
@@ -184,7 +185,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                     let id = *table
                         .lookup_id(&name)
                         .unwrap_or_else(|| panic!("Symbol {name} should exist in the rename table."));
-                    Identifier { name, span: Default::default(), id }.into()
+                    Path::from(Identifier { name, span: Default::default(), id }).to_local().into()
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.

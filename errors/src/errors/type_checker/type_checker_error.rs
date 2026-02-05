@@ -1401,4 +1401,11 @@ create_messages!(
         ),
         help: None,
     }
+
+    @formatted
+    cannot_modify_external_storage_variable {
+        args: (),
+        msg: format!("Assignment to storage variables of another program is not allowed. You can only modify storage declared in the current program."),
+        help: None,
+    }
 );

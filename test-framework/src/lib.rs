@@ -89,11 +89,9 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
         .collect();
 
     let run_test = |path: &PathBuf| -> TestResult {
-        println!("Running: {}", path.display());
         let contents =
             fs::read_to_string(path).unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", path.display()));
         let result_output = std::panic::catch_unwind(|| runner(&contents));
-        println!("Finished running: {}", path.display());
         if let Err(payload) = result_output {
             let s1 = payload.downcast_ref::<&str>().map(|s| s.to_string());
             let s2 = payload.downcast_ref::<String>().cloned();
@@ -193,7 +191,6 @@ pub fn run_single_test(category: &str, path: &Path, runner: fn(&str) -> String) 
 
     // Run the test and catch panics
     let result_output = std::panic::catch_unwind(|| runner(&contents));
-    println!("Finished running: {}", path.display());
 
     let mut wrote = false;
 

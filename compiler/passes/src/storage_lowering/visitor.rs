@@ -32,44 +32,24 @@ impl StorageLoweringVisitor<'_> {
     /// Returns the two mapping expressions that back a vector: `<base>__` (values)
     /// and `<base>__len__` (length).
     ///
-    /// The returned expressions match the input form:
-    /// - `Path` → absolute `Path` expressions
-    /// - `Locator` → `LocatorExpression`s preserving the program name
-    ///
-    /// Panics if `expr` is not a `Path` or `Locator`.
-    pub fn generate_vector_mapping_exprs(&mut self, expr: &Expression) -> (Expression, Expression) {
-        match expr {
-            Expression::Path(path) => {
-                let base = path.identifier().name;
-                let val = Symbol::intern(&format!("{base}__"));
-                let len = Symbol::intern(&format!("{base}__len__"));
+    /// Panics if `expr` is not a `Path`.
+    pub fn generate_vector_mapping_exprs(&mut self, path: &Path) -> (Expression, Expression) {
+        let base = path.identifier().name;
+        let val = Symbol::intern(&format!("{base}__"));
+        let len = Symbol::intern(&format!("{base}__len__"));
 
-                (
-                    Path::from(Identifier::new(val, self.state.node_builder.next_id()))
-                        .to_global(Location::new(self.program, vec![val]))
-                        .into(),
-                    Path::from(Identifier::new(len, self.state.node_builder.next_id()))
-                        .to_global(Location::new(self.program, vec![len]))
-                        .into(),
-                )
+        let make_expr = |sym| {
+            let ident = Identifier::new(sym, self.state.node_builder.next_id());
+            let mut p = Path::from(ident);
+
+            if let Some(program) = path.user_program().filter(|p| p.name != self.program) {
+                p = p.with_user_program(*program);
             }
 
-            Expression::Locator(loc) => {
-                let base = loc.name;
-                let val = Symbol::intern(&format!("{base}__"));
-                let len = Symbol::intern(&format!("{base}__len__"));
-                let span = expr.span();
+            p.to_global(Location::new(self.program, vec![sym])).into()
+        };
 
-                (
-                    LocatorExpression { program: loc.program, name: val, span, id: self.state.node_builder.next_id() }
-                        .into(),
-                    LocatorExpression { program: loc.program, name: len, span, id: self.state.node_builder.next_id() }
-                        .into(),
-                )
-            }
-
-            _ => panic!("Expected Path or Locator expression for vector mapping"),
-        }
+        (make_expr(val), make_expr(len))
     }
 
     /// Standard literal expressions used frequently
@@ -188,7 +168,6 @@ impl StorageLoweringVisitor<'_> {
                 // Otherwise, it should be a global path.
                 path.expect_global_location().clone()
             }
-            Expression::Locator(locator) => Location::new(locator.program.name.name, vec![locator.name]),
             _ => panic!("unexpected expression type"),
         };
 
@@ -224,18 +203,23 @@ impl StorageLoweringVisitor<'_> {
                 let mapping_ident = Identifier::new(mapping_symbol, id());
 
                 // === Build expressions ===
-                let mapping_expr: Expression = match input {
-                    Expression::Path(_) => Path::from(mapping_ident)
-                        .to_global(Location::new(self.program, vec![mapping_ident.name]))
-                        .into(),
-                    Expression::Locator(locator) => LocatorExpression {
-                        program: locator.program,
-                        name: mapping_symbol,
-                        span: locator.span,
-                        id: id(),
+                let mapping_expr: Expression = {
+                    let path = if let Expression::Path(path) = input {
+                        path
+                    } else {
+                        panic!("unexpected expression type");
+                    };
+
+                    let mut base_path = Path::from(mapping_ident);
+
+                    // Attach user program only if it's present and different from current
+                    if let Some(user_program) = path.user_program()
+                        && user_program.name != self.program
+                    {
+                        base_path = base_path.with_user_program(*user_program);
                     }
-                    .into(),
-                    _ => panic!("unexpected expression type"),
+
+                    base_path.to_global(Location::new(self.program, vec![mapping_ident.name])).into()
                 };
 
                 let false_literal: Expression = Literal::boolean(false, Span::default(), id()).into();

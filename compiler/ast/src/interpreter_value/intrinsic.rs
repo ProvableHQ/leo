@@ -221,8 +221,7 @@ pub fn evaluate_intrinsic(
         }
         Intrinsic::CheatCodePrintMapping => {
             let (program, name) = match &arguments[0] {
-                Expression::Path(id) => (None, id.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             if let Some(mapping) = helper.lookup_mapping(program, name) {
@@ -259,8 +258,7 @@ pub fn evaluate_intrinsic(
         Intrinsic::MappingGet => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).expect_tc(span)?.clone()
@@ -269,8 +267,7 @@ pub fn evaluate_intrinsic(
             let value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_set(program, name, key, value).expect_tc(span)?;
@@ -280,8 +277,7 @@ pub fn evaluate_intrinsic(
             let use_value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).unwrap_or(use_value)
@@ -289,8 +285,7 @@ pub fn evaluate_intrinsic(
         Intrinsic::MappingRemove => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_remove(program, name, &key).expect_tc(span)?;
@@ -299,8 +294,7 @@ pub fn evaluate_intrinsic(
         Intrinsic::MappingContains => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).is_some().into()
