@@ -33,14 +33,18 @@ rust-version = "1.92.0"
 members = [
   "compiler/abi",
   "compiler/abi-types",
+  "compiler/abi",
+  "compiler/abi-types",
   "compiler/ast",
   "compiler/compiler",
   "compiler/parser-lossless",
+  "compiler/parser-rowan",
   "compiler/parser-rowan",
   "compiler/parser",
   "compiler/passes",
   "compiler/span",
   "errors",
+  "leo-fmt",
   "leo-fmt",
   "interpreter",
   "leo/package",
@@ -83,9 +87,11 @@ leo-passes          = { path = "./compiler/passes",           version = "=3.4.0"
 leo-span            = { path = "./compiler/span",             version = "=3.4.0" }
 leo-test-framework  = { path = "./test-framework",            version = "=3.4.0" }
 # third party dependencies
-aleo-std           = { version = "1.0", default-features = false }
-aleo-std-storage   = "1.0"
+aleo-std           = { version = "1.0.3"}
+aleo-std-storage   = { version = "1.0.3", default-features = false }
 anyhow             = "1.0"
+axum               = "0.8.0"
+axum-extra         = { version = "0.10", features = [ "erased-json", "typed-header" ] }
 backtrace          = "0.3"
 base62             = "2.2"
 chrono             = "0.4"
@@ -101,7 +107,9 @@ dotenvy            = "0.15"
 dunce              = "1.0"
 expect-test        = "1.5"
 fxhash             = "0.2.1"
+http               = "1"
 indexmap           = { version = "2.6", features = [ "serde" ] }
+is-terminal        = "0.4"
 itertools          = "0.13"
 lalrpop            = "0.22"
 lalrpop-util       = { version = "0.21", features = [ "unicode" ] }
@@ -116,6 +124,7 @@ rand_chacha        = { version = "0.3", default-features = false }
 ratatui            = "0.29"
 rayon              = "1.11"
 regex              = "1.11"
+reqwest            = "0.12"
 rowan              = "0.16"
 rpassword          = "7.4"
 scoped-tls         = "1.0"
@@ -124,13 +133,17 @@ serde              = { version = "1.0", features = [ "derive", "rc" ] }
 serde_json         = { version = "1.0", features = [ "preserve_order" ] }
 serial_test        = "3.1"
 sha2               = "0.10"
+# We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
 # TODO: update `rev` to an actual snarkVM tag when available.
-snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "24e0b1f08f964a0eaf309be4d7ce9639c760899c", features = [ "test_consensus_heights" ] }
+snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "24e0b1f08f964a0eaf309be4d7ce9639c760899c", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "1.0"
+tokio              = { version = "1", features = [ "full" ] }
+tower-http         = { version = "0.6.0", features = [ "cors", "trace" ] }
+tower_governor     = "0.7"
 tracing            = "0.1"
-tracing-subscriber = { version = "0.3", features = [ "fmt" ] }
+tracing-subscriber = { version = "0.3", features = [ "env-filter", "fmt" ] }
 ureq               = { version = "3.0", features = [ "json" ] }
 walkdir            = "2.5"
 which              = "4.4"
@@ -146,7 +159,10 @@ leo-package       = { workspace = true }
 leo-span          = { workspace = true }
 # third party dependencies
 aleo-std           = { workspace = true }
+aleo-std-storage   = { workspace = true }
 anyhow             = { workspace = true }
+axum               = { workspace = true }
+axum-extra         = { workspace = true }
 backtrace          = { workspace = true }
 chrono             = { workspace = true }
 clap               = { workspace = true }
@@ -158,6 +174,7 @@ dialoguer          = { workspace = true }
 dotenvy            = { workspace = true }
 dunce              = { workspace = true }
 indexmap           = { workspace = true }
+is-terminal        = { workspace = true }
 itertools          = { workspace = true }
 num-format         = { workspace = true }
 once_cell          = { workspace = true }
@@ -166,6 +183,7 @@ rand               = { workspace = true }
 rand_chacha        = { workspace = true }
 rayon              = { workspace = true }
 regex              = { workspace = true }
+reqwest            = { workspace = true }
 rpassword          = { workspace = true }
 self_update        = { workspace = true }
 serde              = { workspace = true }
@@ -175,6 +193,9 @@ sha2               = { workspace = true }
 snarkvm            = { workspace = true }
 sys-info           = { workspace = true }
 tempfile           = { workspace = true }
+tokio              = { workspace = true }
+tower-http         = { workspace = true }
+tower_governor     = { workspace = true }
 tracing            = { workspace = true }
 tracing-subscriber = { workspace = true }
 ureq               = { workspace = true }
@@ -190,6 +211,7 @@ walkdir = { workspace = true }
 
 [target."cfg(unix)".dependencies]
 libc        = "0.2"
+nix         = { version = "0.30", features = [ "process", "term", "fs", "poll" ] }
 signal-hook = { version = "0.4", features = [ "iterator" ] }
 
 [target."cfg(windows)".dependencies]
