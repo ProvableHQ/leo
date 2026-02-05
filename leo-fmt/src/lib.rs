@@ -29,11 +29,14 @@
 //! let formatted = format_source(source)?;
 //! ```
 
+mod format;
 mod output;
 
 use anyhow::{Context, Result};
 use leo_errors::Handler;
 use leo_parser_lossless::parse_main;
+
+use output::Output;
 
 /// Indentation string: 4 spaces.
 pub const INDENT: &str = "    ";
@@ -54,18 +57,11 @@ pub const NEWLINE: &str = "\n";
 /// - **Comment-preserving**: All comments are retained
 pub fn format_source(source: &str) -> Result<String> {
     let handler = Handler::default();
+    let tree = parse_main(handler, source, 0).context("parse failed")?;
 
-    // Verify the source parses successfully.
-    let _tree = parse_main(handler, source, 0).context("parse failed")?;
-
-    // TODO: Implement actual formatting in follow up PRs.
-    // For now, return the input unchanged (stub implementation).
-    let mut result = source.trim_end().to_string();
-    if !result.is_empty() {
-        result.push('\n');
-    }
-
-    Ok(result)
+    let mut out = Output::new();
+    format::format_node(&tree, &mut out);
+    Ok(out.finish())
 }
 
 /// Check if source code is already formatted.

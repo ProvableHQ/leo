@@ -25,29 +25,51 @@ pub struct StorageLoweringVisitor<'a> {
     pub state: &'a mut CompilerState,
     // The name of the current program scope
     pub program: Symbol,
-    pub new_mappings: IndexMap<Symbol, Mapping>,
+    pub new_mappings: IndexMap<Location, Mapping>,
 }
 
 impl StorageLoweringVisitor<'_> {
-    /// Generate mapping names for a vector expression. Each vector is represented using two
-    /// mappings: a mapping for values and a mapping for the length.
-    pub fn generate_mapping_names_for_vector(&self, expr: &Expression) -> (Symbol, Symbol) {
-        let path = match expr {
-            Expression::Path(path) => path,
-            _ => panic!("Expected path expression for vector"),
-        };
-        let base_sym = path.identifier().name;
-        let vec_values_mapping_name = Symbol::intern(&format!("{base_sym}__"));
-        let vec_length_mapping_name = Symbol::intern(&format!("{base_sym}__len__"));
-        (vec_values_mapping_name, vec_length_mapping_name)
-    }
+    /// Returns the two mapping expressions that back a vector: `<base>__` (values)
+    /// and `<base>__len__` (length).
+    ///
+    /// The returned expressions match the input form:
+    /// - `Path` → absolute `Path` expressions
+    /// - `Locator` → `LocatorExpression`s preserving the program name
+    ///
+    /// Panics if `expr` is not a `Path` or `Locator`.
+    pub fn generate_vector_mapping_exprs(&mut self, expr: &Expression) -> (Expression, Expression) {
+        match expr {
+            Expression::Path(path) => {
+                let base = path.identifier().name;
+                let val = Symbol::intern(&format!("{base}__"));
+                let len = Symbol::intern(&format!("{base}__len__"));
 
-    /// Creates a path expression from a symbol
-    pub fn symbol_to_path_expr(&mut self, sym: Symbol) -> Expression {
-        Expression::Path(
-            Path::from(Identifier::new(sym, self.state.node_builder.next_id()))
-                .to_global(Location::new(self.program, vec![sym])),
-        )
+                (
+                    Path::from(Identifier::new(val, self.state.node_builder.next_id()))
+                        .to_global(Location::new(self.program, vec![val]))
+                        .into(),
+                    Path::from(Identifier::new(len, self.state.node_builder.next_id()))
+                        .to_global(Location::new(self.program, vec![len]))
+                        .into(),
+                )
+            }
+
+            Expression::Locator(loc) => {
+                let base = loc.name;
+                let val = Symbol::intern(&format!("{base}__"));
+                let len = Symbol::intern(&format!("{base}__len__"));
+                let span = expr.span();
+
+                (
+                    LocatorExpression { program: loc.program, name: val, span, id: self.state.node_builder.next_id() }
+                        .into(),
+                    LocatorExpression { program: loc.program, name: len, span, id: self.state.node_builder.next_id() }
+                        .into(),
+                )
+            }
+
+            _ => panic!("Expected Path or Locator expression for vector mapping"),
+        }
     }
 
     /// Standard literal expressions used frequently
@@ -154,5 +176,114 @@ impl StorageLoweringVisitor<'_> {
         };
         Expression::zero(ty, Span::default(), &self.state.node_builder, &struct_lookup)
             .expect("zero value generation failed")
+    }
+
+    pub fn reconstruct_path_or_locator(&self, input: Expression) -> Expression {
+        let location = match input {
+            Expression::Path(ref path) if path.is_local() => {
+                // nothing to do for local paths.
+                return input;
+            }
+            Expression::Path(ref path) => {
+                // Otherwise, it should be a global path.
+                path.expect_global_location().clone()
+            }
+            Expression::Locator(locator) => Location::new(locator.program.name.name, vec![locator.name]),
+            _ => panic!("unexpected expression type"),
+        };
+
+        // Check if this path corresponds to a global symbol.
+        let Some(var) = self.state.symbol_table.lookup_global(self.program, &location) else {
+            // Nothing to do
+            return input;
+        };
+
+        match &var.type_ {
+            Some(Type::Mapping(_)) => {
+                // No transformation needed for mappings.
+                input
+            }
+
+            Some(Type::Optional(OptionalType { inner })) => {
+                // Input:
+                //   storage x: field;
+                //   ...
+                //   let y = x;
+                //
+                // Lowered reconstruction:
+                //  mapping x__: bool => field
+                //  let y = x__.contains(false)
+                //      ? x__.get_or_use(false, 0field)
+                //      : None;
+
+                let id = || self.state.node_builder.next_id();
+                let var_name = location.path.last().unwrap();
+
+                // Path to the mapping backing the optional variable: `<var_name>__`
+                let mapping_symbol = Symbol::intern(&format!("{var_name}__"));
+                let mapping_ident = Identifier::new(mapping_symbol, id());
+
+                // === Build expressions ===
+                let mapping_expr: Expression = match input {
+                    Expression::Path(_) => Path::from(mapping_ident)
+                        .to_global(Location::new(self.program, vec![mapping_ident.name]))
+                        .into(),
+                    Expression::Locator(locator) => LocatorExpression {
+                        program: locator.program,
+                        name: mapping_symbol,
+                        span: locator.span,
+                        id: id(),
+                    }
+                    .into(),
+                    _ => panic!("unexpected expression type"),
+                };
+
+                let false_literal: Expression = Literal::boolean(false, Span::default(), id()).into();
+
+                // `<var_name>__.contains(false)`
+                let contains_expr: Expression = IntrinsicExpression {
+                    name: sym::_mapping_contains,
+                    type_parameters: vec![],
+                    arguments: vec![mapping_expr.clone(), false_literal.clone()],
+                    span: Span::default(),
+                    id: id(),
+                }
+                .into();
+
+                // zero value for element type
+                let zero = self.zero(inner);
+
+                // `<var_name>__.get_or_use(false, zero_value)`
+                let get_or_use_expr: Expression = IntrinsicExpression {
+                    name: sym::_mapping_get_or_use,
+                    type_parameters: vec![],
+                    arguments: vec![mapping_expr.clone(), false_literal, zero],
+                    span: Span::default(),
+                    id: id(),
+                }
+                .into();
+
+                // `None`
+                let none_expr =
+                    Expression::Literal(Literal { variant: LiteralVariant::None, span: Span::default(), id: id() });
+
+                // Combine into ternary:
+                // `<var_name>__.contains(false) ? <var_name>__.get_or_use(false, zero_val) : None`
+                let ternary_expr: Expression = TernaryExpression {
+                    condition: contains_expr,
+                    if_true: get_or_use_expr,
+                    if_false: none_expr,
+                    span: Span::default(),
+                    id: id(),
+                }
+                .into();
+
+                ternary_expr
+            }
+
+            _ => {
+                panic!("Expected an optional or a mapping, found {:?}", var.type_);
+            }
+        }
     }
 }
