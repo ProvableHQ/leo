@@ -26,5 +26,8 @@ sccache*/
 .env
 
 # Claude
-.claude
+.claude/*
+!.claude/skills/
+!.claude/CLAUDE.md
+!.claude/.gitignore
 tests/mismatches/
