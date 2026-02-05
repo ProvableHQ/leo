@@ -353,6 +353,8 @@ pub enum SyntaxKind {
     CONSTRUCTOR_DEF,
     /// Struct definition.
     STRUCT_DEF,
+    /// Record definition.
+    RECORD_DEF,
     /// Struct member declaration.
     STRUCT_MEMBER,
     /// Mapping definition.
@@ -405,6 +407,16 @@ pub enum SyntaxKind {
     ASSERT_EQ_STMT,
     /// Assert not equals statement: `assert_neq(...);`
     ASSERT_NEQ_STMT,
+
+    // ==========================================================================
+    // Composite Nodes - Patterns
+    // ==========================================================================
+    /// Identifier pattern: `x`
+    IDENT_PATTERN,
+    /// Tuple pattern: `(a, b, c)`
+    TUPLE_PATTERN,
+    /// Wildcard pattern: `_`
+    WILDCARD_PATTERN,
 
     // ==========================================================================
     // Composite Nodes - Expressions
@@ -779,6 +791,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     FUNCTION_DEF,
     CONSTRUCTOR_DEF,
     STRUCT_DEF,
+    RECORD_DEF,
     STRUCT_MEMBER,
     MAPPING_DEF,
     STORAGE_DEF,
@@ -801,6 +814,9 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     ASSERT_STMT,
     ASSERT_EQ_STMT,
     ASSERT_NEQ_STMT,
+    IDENT_PATTERN,
+    TUPLE_PATTERN,
+    WILDCARD_PATTERN,
     BINARY_EXPR,
     UNARY_EXPR,
     CALL_EXPR,
