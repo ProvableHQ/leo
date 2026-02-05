@@ -273,6 +273,13 @@ impl Parser<'_, '_> {
                     self.error("expected type name after /".to_string());
                 }
             }
+
+            // Optional const generic args after locator: child.aleo/Bar::[4]
+            if self.at(COLON_COLON) && self.nth(1) == L_BRACKET {
+                self.bump_any(); // ::
+                self.parse_const_generic_args_bracket();
+            }
+
             return Some(m.complete(self, TYPE_PATH));
         }
 
@@ -297,52 +304,129 @@ impl Parser<'_, '_> {
         Some(m.complete(self, TYPE_PATH))
     }
 
-    /// Parse const generic arguments with bracket syntax: `::[N]` or `::[N, M]`.
-    pub fn parse_const_generic_args_bracket(&mut self) {
+    /// Parse a const generic parameter list (declaration site): `::[N: u32, M: u32]`.
+    ///
+    /// Wraps the list in a `CONST_PARAM_LIST` node. Each parameter is
+    /// wrapped in a `CONST_PARAM` node containing `name: Type`.
+    pub fn parse_const_param_list(&mut self) {
+        let m = self.start();
+
         if !self.eat(L_BRACKET) {
+            m.abandon(self);
             return;
         }
 
-        // Parse first argument
-        self.parse_const_generic_arg();
-
-        // Parse remaining arguments
-        while self.eat(COMMA) {
-            if self.at(R_BRACKET) {
-                break;
+        // Parse comma-separated const params
+        if !self.at(R_BRACKET) {
+            self.parse_const_param();
+            while self.eat(COMMA) {
+                if self.at(R_BRACKET) {
+                    break;
+                }
+                self.parse_const_param();
             }
-            self.parse_const_generic_arg();
         }
 
         self.expect(R_BRACKET);
+        m.complete(self, CONST_PARAM_LIST);
     }
 
-    /// Parse const generic arguments with angle bracket syntax: `::<N>` or `::<N, M>`.
-    pub fn parse_const_generic_args_angle(&mut self) {
-        if !self.eat(LT) {
+    /// Parse a single const generic parameter: `N: u32`.
+    fn parse_const_param(&mut self) {
+        let m = self.start();
+        self.skip_trivia();
+
+        if self.at(IDENT) {
+            self.bump_any(); // param name
+        } else {
+            self.error("expected const parameter name".to_string());
+        }
+
+        self.expect(COLON);
+        self.parse_type();
+
+        m.complete(self, CONST_PARAM);
+    }
+
+    /// Parse const generic arguments with bracket syntax (use site): `::[N]` or `::[N + 1, u32]`.
+    ///
+    /// Each argument may be an expression or a type (for intrinsics).
+    /// Wraps the list in a `CONST_ARG_LIST` node.
+    pub fn parse_const_generic_args_bracket(&mut self) {
+        let m = self.start();
+
+        if !self.eat(L_BRACKET) {
+            m.abandon(self);
             return;
         }
 
-        // Parse first argument
-        self.parse_const_generic_arg();
+        // Parse comma-separated arguments
+        if !self.at(R_BRACKET) {
+            self.parse_const_generic_arg();
+            while self.eat(COMMA) {
+                if self.at(R_BRACKET) {
+                    break;
+                }
+                self.parse_const_generic_arg();
+            }
+        }
 
-        // Parse remaining arguments
+        self.expect(R_BRACKET);
+        m.complete(self, CONST_ARG_LIST);
+    }
+
+    /// Parse const generic arguments with angle bracket syntax: `::<N>` or `::<N, M>`.
+    ///
+    /// Only accepts simple IDENT/INTEGER arguments because `>` conflicts
+    /// with the expression parser's greater-than operator. Angle bracket
+    /// generics are low priority (the LALRPOP grammar doesn't use them).
+    pub fn parse_const_generic_args_angle(&mut self) {
+        let m = self.start();
+
+        if !self.eat(LT) {
+            m.abandon(self);
+            return;
+        }
+
+        // Simple arg parser — avoids expression parser which would consume `>`.
+        if self.at(IDENT) || self.at(INTEGER) {
+            self.bump_any();
+        }
+
         while self.eat(COMMA) {
             if self.at(GT) {
                 break;
             }
-            self.parse_const_generic_arg();
+            if self.at(IDENT) || self.at(INTEGER) {
+                self.bump_any();
+            } else {
+                self.error("expected const generic argument".to_string());
+                break;
+            }
         }
 
         self.expect(GT);
+        m.complete(self, CONST_ARG_LIST);
     }
 
-    /// Parse a single const generic argument (identifier or integer).
+    /// Parse a single const generic argument (expression or type).
+    ///
+    /// At use sites, `::[]` can contain either expressions (`N + 1`, `5`)
+    /// or types (`u32`, `[u8; 4]`). The heuristic: if the current token
+    /// is a primitive type keyword, or `[` followed by a primitive type
+    /// keyword (array type arg), parse as a type. Otherwise parse as an
+    /// expression.
     fn parse_const_generic_arg(&mut self) {
-        if self.at(IDENT) || self.at(INTEGER) {
-            self.bump_any();
+        self.skip_trivia();
+        if self.at_primitive_type() {
+            // Type argument (e.g. `u32` in `Deserialize::[u32]`)
+            self.parse_type();
+        } else if self.at(L_BRACKET) && self.nth(1).is_type_keyword() {
+            // Array type argument (e.g. `[u8; 4]` in `Deserialize::[[u8; 4]]`)
+            self.parse_type();
         } else {
-            self.error("expected const generic argument".to_string());
+            // Expression argument (e.g. `N + 1`, `5`, `N`)
+            self.parse_expr();
         }
     }
 }
@@ -645,27 +729,30 @@ mod tests {
     #[test]
     fn parse_type_named_const_generic_bracket() {
         check_type("Poseidon::[N]", expect![[r#"
-                ROOT@0..13
-                  TYPE_PATH@0..13
-                    IDENT@0..8 "Poseidon"
-                    COLON_COLON@8..10 "::"
-                    L_BRACKET@10..11 "["
+            ROOT@0..13
+              TYPE_PATH@0..13
+                IDENT@0..8 "Poseidon"
+                COLON_COLON@8..10 "::"
+                CONST_ARG_LIST@10..13
+                  L_BRACKET@10..11 "["
+                  PATH_EXPR@11..12
                     IDENT@11..12 "N"
-                    R_BRACKET@12..13 "]"
-            "#]]);
+                  R_BRACKET@12..13 "]"
+        "#]]);
     }
 
     #[test]
     fn parse_type_named_const_generic_angle() {
         check_type("Poseidon::<4>", expect![[r#"
-                ROOT@0..13
-                  TYPE_PATH@0..13
-                    IDENT@0..8 "Poseidon"
-                    COLON_COLON@8..10 "::"
-                    LT@10..11 "<"
-                    INTEGER@11..12 "4"
-                    GT@12..13 ">"
-            "#]]);
+            ROOT@0..13
+              TYPE_PATH@0..13
+                IDENT@0..8 "Poseidon"
+                COLON_COLON@8..10 "::"
+                CONST_ARG_LIST@10..13
+                  LT@10..11 "<"
+                  INTEGER@11..12 "4"
+                  GT@12..13 ">"
+        "#]]);
     }
 
     #[test]
@@ -766,5 +853,66 @@ mod tests {
                     TYPE_PATH@19..22
                       KW_U64@19..22 "u64"
             "#]]);
+    }
+
+    // =========================================================================
+    // Const Generic Arguments (Use Sites) in Types
+    // =========================================================================
+
+    fn check_type_no_errors(input: &str) {
+        let (tokens, _) = lex(input);
+        let mut parser = Parser::new(input, &tokens);
+        let root = parser.start();
+        parser.parse_type();
+        parser.skip_trivia();
+        root.complete(&mut parser, ROOT);
+        let parse: Parse = parser.finish();
+        if !parse.errors().is_empty() {
+            for err in parse.errors() {
+                eprintln!("error at {}: {}", err.offset, err.message);
+            }
+            eprintln!("tree:\n{:#?}", parse.syntax());
+            panic!("type parse had {} error(s)", parse.errors().len());
+        }
+    }
+
+    #[test]
+    fn parse_type_const_generic_expr_simple() {
+        // Expression arg: integer literal
+        check_type_no_errors("Foo::[3]");
+    }
+
+    #[test]
+    fn parse_type_const_generic_expr_add() {
+        // Expression arg: binary expression
+        check_type_no_errors("Foo::[N + 1]");
+    }
+
+    #[test]
+    fn parse_type_const_generic_expr_mul() {
+        check_type_no_errors("Foo::[2 * N]");
+    }
+
+    #[test]
+    fn parse_type_const_generic_multi_args() {
+        check_type_no_errors("Matrix::[M, K, N]");
+    }
+
+    #[test]
+    fn parse_type_const_generic_type_arg() {
+        // Type arg: primitive type keyword (used by intrinsics)
+        check_type_no_errors("Deserialize::[u32]");
+    }
+
+    #[test]
+    fn parse_type_const_generic_array_type_arg() {
+        // Array type arg: [u8; 4] inside ::[]
+        check_type_no_errors("Deserialize::[[u8; 4]]");
+    }
+
+    #[test]
+    fn parse_type_locator_const_generic() {
+        // Locator + const generic args
+        check_type_no_errors("child.aleo/Bar::[4]");
     }
 }

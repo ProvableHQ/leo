@@ -436,6 +436,28 @@ impl Parser<'_, '_> {
                 }
             }
 
+            // Optional const generic args after locator: child.aleo/foo::[3]
+            if self.at(COLON_COLON) && self.nth(1) == L_BRACKET {
+                self.bump_any(); // ::
+                self.parse_const_generic_args_bracket();
+            }
+
+            // Check for struct literal: `child.aleo/Foo::[N] { ... }`
+            if !opts.no_struct && self.at(L_BRACE) {
+                self.bump_any(); // {
+                if !self.at(R_BRACE) {
+                    self.parse_struct_field();
+                    while self.eat(COMMA) {
+                        if self.at(R_BRACE) {
+                            break;
+                        }
+                        self.parse_struct_field();
+                    }
+                }
+                self.expect(R_BRACE);
+                return Some(m.complete(self, STRUCT_EXPR));
+            }
+
             // Check for call
             if self.at(L_PAREN) {
                 let cm = m.complete(self, PATH_EXPR);
@@ -1043,6 +1065,67 @@ mod tests {
                       WHITESPACE@12..13 " "
                     R_BRACE@13..14 "}"
             "#]]);
+    }
+
+    // =========================================================================
+    // Complex Expressions
+    // =========================================================================
+
+    // =========================================================================
+    // Const Generic Arguments (Use Sites) in Expressions
+    // =========================================================================
+
+    fn check_expr_no_errors(input: &str) {
+        let (tokens, _) = lex(input);
+        let mut parser = Parser::new(input, &tokens);
+        let root = parser.start();
+        parser.parse_expr();
+        parser.skip_trivia();
+        root.complete(&mut parser, ROOT);
+        let parse: Parse = parser.finish();
+        if !parse.errors().is_empty() {
+            for err in parse.errors() {
+                eprintln!("error at {}: {}", err.offset, err.message);
+            }
+            eprintln!("tree:\n{:#?}", parse.syntax());
+            panic!("expression parse had {} error(s)", parse.errors().len());
+        }
+    }
+
+    #[test]
+    fn parse_expr_call_const_generic_simple() {
+        // Function call with const generic integer arg
+        check_expr_no_errors("foo::[5]()");
+    }
+
+    #[test]
+    fn parse_expr_call_const_generic_expr() {
+        // Function call with expression const generic arg
+        check_expr_no_errors("foo::[N + 1]()");
+    }
+
+    #[test]
+    fn parse_expr_call_const_generic_multi() {
+        // Multi-arg const generic call
+        check_expr_no_errors("bar::[M, K, N]()");
+    }
+
+    #[test]
+    fn parse_expr_struct_lit_const_generic() {
+        // Struct literal with const generic arg
+        check_expr_no_errors("Foo::[8u32] { arr: x }");
+    }
+
+    #[test]
+    fn parse_expr_locator_call_const_generic() {
+        // Locator + const generic call
+        check_expr_no_errors("child.aleo/foo::[3]()");
+    }
+
+    #[test]
+    fn parse_expr_assoc_fn_const_generic() {
+        // Associated function with const generic: Path::method::[N]()
+        check_expr_no_errors("Foo::bar::[N]()");
     }
 
     // =========================================================================

@@ -223,6 +223,12 @@ impl Parser<'_, '_> {
             self.error("expected struct name".to_string());
         }
 
+        // Optional const generic parameters: ::[N: u32]
+        if self.at(COLON_COLON) && self.nth(1) == L_BRACKET {
+            self.bump_any(); // ::
+            self.parse_const_param_list();
+        }
+
         // Fields
         self.expect(L_BRACE);
         self.parse_struct_fields();
@@ -242,6 +248,12 @@ impl Parser<'_, '_> {
             self.bump_any();
         } else {
             self.error("expected record name".to_string());
+        }
+
+        // Optional const generic parameters: ::[N: u32]
+        if self.at(COLON_COLON) && self.nth(1) == L_BRACKET {
+            self.bump_any(); // ::
+            self.parse_const_param_list();
         }
 
         // Fields
@@ -393,10 +405,10 @@ impl Parser<'_, '_> {
             self.error("expected function name".to_string());
         }
 
-        // Optional const generic parameters: ::[N]
+        // Optional const generic parameters: ::[N: u32, M: u32]
         if self.at(COLON_COLON) && self.nth(1) == L_BRACKET {
             self.bump_any(); // ::
-            self.parse_const_generic_args_bracket();
+            self.parse_const_param_list();
         }
 
         // Parameters
@@ -509,6 +521,22 @@ mod tests {
         let parse: Parse = parser.finish();
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
+    }
+
+    fn check_file_no_errors(input: &str) {
+        let (tokens, _) = lex(input);
+        let mut parser = Parser::new(input, &tokens);
+        let root = parser.start();
+        parser.parse_file_items();
+        root.complete(&mut parser, ROOT);
+        let parse: Parse = parser.finish();
+        if !parse.errors().is_empty() {
+            for err in parse.errors() {
+                eprintln!("error at {}: {}", err.offset, err.message);
+            }
+            eprintln!("tree:\n{:#?}", parse.syntax());
+            panic!("parse had {} error(s)", parse.errors().len());
+        }
     }
 
     // =========================================================================
@@ -740,6 +768,46 @@ mod tests {
                     WHITESPACE@73..74 " "
                     R_BRACE@74..75 "}"
             "#]]);
+    }
+
+    // =========================================================================
+    // Const Generic Parameters (Declarations)
+    // =========================================================================
+
+    #[test]
+    fn parse_function_const_generic_single() {
+        check_file_no_errors("program test.aleo { function foo::[N: u32]() {} }");
+    }
+
+    #[test]
+    fn parse_function_const_generic_multi() {
+        check_file_no_errors("program test.aleo { inline bar::[N: u32, M: u32](arr: u32) -> u32 { return 0u32; } }");
+    }
+
+    #[test]
+    fn parse_function_const_generic_empty() {
+        check_file_no_errors("program test.aleo { inline baz::[]() {} }");
+    }
+
+    #[test]
+    fn parse_async_transition_const_generic() {
+        check_file_no_errors("program test.aleo { async transition t::[N: u32]() -> Future { return async {}; } }");
+    }
+
+    #[test]
+    fn parse_struct_const_generic() {
+        check_file_no_errors("program test.aleo { struct Foo::[N: u32] { arr: u32, } }");
+    }
+
+    #[test]
+    fn parse_struct_const_generic_multi() {
+        check_file_no_errors("program test.aleo { struct Matrix::[M: u32, N: u32] { data: u32, } }");
+    }
+
+    #[test]
+    fn parse_record_const_generic() {
+        // Syntactically valid, semantically rejected later.
+        check_file_no_errors("program test.aleo { record Bar::[N: u32] { owner: address, } }");
     }
 
     #[test]
