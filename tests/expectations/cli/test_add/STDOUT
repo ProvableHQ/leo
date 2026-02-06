@@ -14,11 +14,10 @@
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
 
-📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000,12669000,14146000
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 1 but found 13 at http://localhost:3030
 
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
@@ -27,7 +26,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  1
+  Consensus Version:  13
 
 🎯 Execution Target:
   Program:        some_sample_leo_program.aleo
@@ -44,7 +43,6 @@ Attempting to determine the consensus version from the latest block height at ht
   - Transaction will NOT be broadcast to the network.
 
 ⚠️ Warnings:
-  • Expected consensus version 1 but found 13 at http://localhost:3030. In some cases, the execution may fail
 ──────────────────────────────────────────────
 
 
