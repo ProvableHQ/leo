@@ -101,7 +101,7 @@ impl CodeGeneratingVisitor<'_> {
             // If the path points to a global symbol, look for the corresponding variable in `self.global_mapping`
             let name = self.global_mapping.get(location).expect("guaranteed by pass pipeline.").clone();
             if program == location.program {
-                // Do not prefix with the program name if we're in he same program as the program containing
+                // Do not prefix with the program name if we're in the same program as the program containing
                 // the global variable.
                 AleoExpr::RawName(name)
             } else {
