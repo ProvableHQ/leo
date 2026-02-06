@@ -22,19 +22,7 @@ use crossterm::event::{self, Event, KeyCode, KeyModifiers};
 use ratatui::{
     Frame,
     Terminal,
-    prelude::{
-        Buffer,
-        Constraint,
-        CrosstermBackend,
-        Direction,
-        Layout,
-        Line,
-        Modifier,
-        Rect,
-        Span,
-        Style,
-        Stylize as _,
-    },
+    prelude::{Buffer, Constraint, CrosstermBackend, Direction, Layout, Line, Modifier, Rect, Span, Style},
     text::Text,
     widgets::{Block, Paragraph, Widget},
 };
