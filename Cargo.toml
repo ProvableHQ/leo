@@ -91,18 +91,18 @@ aleo-std           = { version = "1.0.3"}
 aleo-std-storage   = { version = "1.0.3", default-features = false }
 anyhow             = "1.0"
 axum               = "0.8.0"
-axum-extra         = { version = "0.10", features = [ "erased-json", "typed-header" ] }
+axum-extra         = { version = "0.12", features = [ "erased-json", "typed-header" ] }
 backtrace          = "0.3"
 base62             = "2.2"
 chrono             = "0.4"
 clap               = { version = "4.5", features = [ "derive", "env", "color", "unstable-styles" ] }
-color-backtrace    = "0.6"
-colored            = "2.0"
+color-backtrace    = "0.7"
+colored            = "3.1"
 crossbeam-channel  = "0.5"
 crossterm          = "0.29"
 ctrlc              = "3.4"
 derivative         = "2.2"
-dialoguer          = "0.11"
+dialoguer          = "0.12"
 dotenvy            = "0.15"
 dunce              = "1.0"
 expect-test        = "1.5"
@@ -110,9 +110,9 @@ fxhash             = "0.2.1"
 http               = "1"
 indexmap           = { version = "2.6", features = [ "serde" ] }
 is-terminal        = "0.4"
-itertools          = "0.13"
+itertools          = "0.14"
 lalrpop            = "0.22"
-lalrpop-util       = { version = "0.21", features = [ "unicode" ] }
+lalrpop-util       = { version = "0.22", features = [ "unicode" ] }
 logos              = "0.15"
 num-format         = "0.4"
 num-traits         = "0.2.19"
@@ -121,24 +121,24 @@ parking_lot        = "0.12"
 paste              = "1.0"
 rand               = { version = "0.8", default-features = false }
 rand_chacha        = { version = "0.3", default-features = false }
-ratatui            = "0.29"
+ratatui            = "0.30"
 rayon              = "1.11"
 regex              = "1.11"
 reqwest            = "0.12"
 rowan              = "0.16"
 rpassword          = "7.4"
 scoped-tls         = "1.0"
-self_update        = { version = "0.41", features = [ "archive-zip", "compression-zip-deflate" ] }
+self_update        = { version = "0.42", features = [ "archive-zip", "compression-zip-deflate" ] }
 serde              = { version = "1.0", features = [ "derive", "rc" ] }
 serde_json         = { version = "1.0", features = [ "preserve_order" ] }
 serial_test        = "3.1"
 sha2               = "0.10"
 # We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
 # TODO: update `rev` to an actual snarkVM tag when available.
-snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "24e0b1f08f964a0eaf309be4d7ce9639c760899c", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets" ] }
+snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", tag = "testnet-v4.5.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
-thiserror          = "1.0"
+thiserror          = "2.0"
 tokio              = { version = "1", features = [ "full" ] }
 tower-http         = { version = "0.6.0", features = [ "cors", "trace" ] }
 tower_governor     = "0.7"
@@ -146,7 +146,7 @@ tracing            = "0.1"
 tracing-subscriber = { version = "0.3", features = [ "env-filter", "fmt" ] }
 ureq               = { version = "3.0", features = [ "json" ] }
 walkdir            = "2.5"
-which              = "4.4"
+which              = "8.0"
 
 [dependencies]
 # leo dependencies

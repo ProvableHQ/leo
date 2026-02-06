@@ -2,15 +2,15 @@
 
 LEO_BIN=${1}
 PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
-COMMON_OPTS="--disable-update-check --broadcast --devnet --network testnet --endpoint http://localhost:3030 --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12"
+COMMON_OPTS="-y --blocks-to-check 20 --disable-update-check --broadcast --devnet --network testnet --endpoint http://localhost:3030 --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12"
 
 cd test_program1 || exit 1
 echo "DEPLOYMENT 1"
-$LEO_BIN deploy -y $COMMON_OPTS
+$LEO_BIN deploy $COMMON_OPTS
 
 cd ../test_program2 || exit 1
 echo "DEPLOYMENT 2"
-$LEO_BIN deploy -y $COMMON_OPTS
+$LEO_BIN deploy $COMMON_OPTS
 
 echo "EXECUTION"
-$LEO_BIN execute test_program2.aleo/main -y $COMMON_OPTS
+$LEO_BIN execute test_program2.aleo/main $COMMON_OPTS
