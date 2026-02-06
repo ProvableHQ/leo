@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   snarkos-rev:
     type: string
-    default: "b1080b24ff45e7f5d9b5a72e6c951e2d0baa904b" # canary-v4.5.0
+    default: "c0b9a20d2a8aa6811e3ce93826ed489b59ab9bf3" # testnet-v4.5.1
 
 # Notes
 # - `sccache` was removed because it doesn't actually provide much benefit in CI. Lots of cache misses.
