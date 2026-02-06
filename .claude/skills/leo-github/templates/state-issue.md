@@ -1,11 +1,10 @@
-# Issue ${NUM} — ${TITLE}
+# Issue {{NUM}} — {{TITLE}}
 
-**Author:** ${AUTHOR} | **State:** ${STATE}
-**Labels:** ${LABELS}
+**Author:** {{AUTHOR}} | **State:** {{STATE}}
 
 ## Problem
 
-${BODY}
+{{BODY}}
 
 ## Investigation
 

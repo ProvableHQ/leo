@@ -1,9 +1,10 @@
-# PR ${NUM} — ${TITLE}
+# PR {{NUM}} — {{TITLE}}
 
-**Author:** ${AUTHOR} | **Branch:** ${BRANCH}
-**Stats:** ${ADDITIONS}+/${DELETIONS}-/${FILES} files
-**Crates:** ${CRATES}
-**CI:** ${CI_STATUS}
+**Author:** {{AUTHOR}} | **Branch:** {{BRANCH}}
+**Stats:** {{STATS}}
+**Review:** {{UNRESOLVED}} unresolved / {{TOTAL}} total ({{RESOLVED}} resolved)
+**CI:** {{CI_STATUS}}
+**Crates:** {{CRATES}}
 
 ## Risk Assessment
 

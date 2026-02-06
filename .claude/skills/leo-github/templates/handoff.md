@@ -1,21 +1,20 @@
-# Handoff: ${TYPE} #${NUM}
+# Handoff: PR {{NUM}}
 
-**From:** ${FROM_SKILL}
-**To:** ${TO_SKILL}
-**Date:** ${DATE}
+## Required Fixes
+
+| # | Location | Request | Risk | Notes |
+|---|----------|---------|------|-------|
 
 ## Context
 
-${CONTEXT}
+- **State file:** `.claude/workspace/state-pr-{{NUM}}.md`
+- **Unresolved threads:** `.claude/workspace/unresolved-pr-{{NUM}}.json`
+- **Files changed:** `.claude/workspace/files-pr-{{NUM}}.txt`
 
-## Required Actions
+## Summary
 
-${ACTIONS}
+<!-- Brief description of what needs to be fixed -->
 
-## Files to Modify
+## Instructions
 
-${FILES}
-
-## Notes
-
-${NOTES}
+Run `/leo-fix-pr {{NUM}}` to address these items.

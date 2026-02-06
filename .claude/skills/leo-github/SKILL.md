@@ -1,63 +1,91 @@
 ---
 name: leo-github
-version: 1.0.0
-description: Fetch GitHub PR or issue context into workspace
-user-invocable: true
-tools:
-  - Bash
-  - Read
-  - Write
-arguments:
-  - name: type
-    description: "pr or issue"
-    required: true
-  - name: number
-    description: "PR or issue number"
-    required: true
+description: |
+  Fetch GitHub context (PR or issue) into workspace for Leo development.
+  WHEN: User says "fetch pr", "fetch issue", "get PR context", "load issue",
+  mentions PR/issue numbers like "#123" or "PR 456", or needs GitHub context
+  before reviewing/fixing.
+  WHEN NOT: User already has fresh context loaded, or is asking about
+  non-Leo repositories.
+allowed-tools: Bash, Read, Write
 ---
 
-# Leo GitHub Context Fetcher
+# Leo GitHub Context
 
-Fetch PR or issue context into `.claude/workspace/` for other skills.
+Fetch PR or issue context from ProvableHQ/leo into `.claude/workspace/`.
 
 ## Usage
 
 ```
-/leo-github pr <number>
-/leo-github issue <number>
+/leo-github pr <number> [--force]
+/leo-github issue <number> [--force]
 ```
 
-## What It Does
+## Prerequisites
 
-### For PRs
+Ensure `gh` CLI is authenticated:
+```bash
+gh auth status || gh auth login
+```
 
-Fetches and stores:
-- **context-pr-N.json**: Metadata (title, author, state, stats, labels)
-- **files-pr-N.txt**: Changed files with +/- lines
-- **commits-pr-N.json**: Commit history
-- **comments-pr-N.json**: PR comments (paginated)
-- **checks-pr-N.json**: CI status
-- **threads-pr-N.jsonl**: Review threads (paginated)
-- **unresolved-pr-N.json**: Unresolved review comments
-- **linked-issues-pr-N.txt**: Referenced issues
-- **state-pr-N.md**: Human-readable state file
+## Fetch PR Context
 
-### For Issues
+```bash
+SKILL_DIR="$(dirname "$(readlink -f "$0")")"
+"$SKILL_DIR/scripts/fetch-pr.sh" $ARGUMENTS
+```
 
-Fetches and stores:
-- **context-issue-N.json**: Metadata (title, body, state, labels)
-- **comments-issue-N.jsonl**: Comments (paginated)
-- **timeline-issue-N.json**: Timeline events (linked PRs)
-- **linked-prs-issue-N.txt**: Referenced PRs
-- **state-issue-N.md**: Human-readable state file
+This fetches:
+- **context-pr-N.json** — PR metadata (title, author, state, branch, stats)
+- **files-pr-N.txt** — Changed files with +/- counts
+- **crates-pr-N.txt** — Affected Leo crates (auto-detected)
+- **commits-pr-N.json** — Commit history
+- **comments-pr-N.json** — PR conversation comments
+- **checks-pr-N.json** — CI/check run status
+- **threads-pr-N.jsonl** — All review threads
+- **unresolved-pr-N.json** — Unresolved review comments
+- **resolved-pr-N.json** — Resolved review comments
+- **linked-issues-pr-N.txt** — Issues referenced in PR body
+- **state-pr-N.md** — Working state file for tracking findings
+
+## Fetch Issue Context
+
+```bash
+SKILL_DIR="$(dirname "$(readlink -f "$0")")"
+"$SKILL_DIR/scripts/fetch-issue.sh" $ARGUMENTS
+```
+
+This fetches:
+- **context-issue-N.json** — Issue metadata (title, body, state, author, labels)
+- **comments-issue-N.jsonl** — All comments
+- **timeline-issue-N.json** — Timeline events (cross-references, linked PRs)
+- **linked-prs-issue-N.txt** — PRs that reference this issue
+- **state-issue-N.md** — Working state file for investigation
+
+## Quick Refresh (PR threads only)
+
+For faster updates when you only need current review thread status:
+
+```bash
+SKILL_DIR="$(dirname "$(readlink -f "$0")")"
+"$SKILL_DIR/scripts/refresh-threads.sh" <pr_number>
+```
 
 ## Caching
 
-Context is cached for 1 hour. Delete `workspace/*{type}*{number}*` to force refresh.
+Context is cached for 1 hour. Use `--force` to bypass:
+```bash
+/leo-github pr 123 --force
+```
+
+Or delete workspace files to refresh:
+```bash
+rm .claude/workspace/*pr*123*
+```
 
 ## Leo Crate Detection
 
-After fetching, detects affected crates from file paths:
+After fetching PR files, automatically detects affected crates:
 
 | Directory | Crate |
 |-----------|-------|
@@ -71,26 +99,31 @@ After fetching, detects affected crates from file paths:
 | interpreter | leo-interpreter |
 | leo/package | leo-package |
 | test-framework | leo-test-framework |
+| utils/disassembler | leo-disassembler |
 
-## Instructions
+## Workspace Structure
 
-<instructions>
-Parse arguments: `$ARGUMENTS` contains "pr <number>" or "issue <number>".
+```
+.claude/workspace/
+├── context-pr-123.json      # PR metadata
+├── files-pr-123.txt         # Changed files
+├── crates-pr-123.txt        # Affected crates
+├── commits-pr-123.json      # Commits
+├── comments-pr-123.json     # PR comments
+├── checks-pr-123.json       # CI status
+├── threads-pr-123.jsonl     # Review threads (raw)
+├── unresolved-pr-123.json   # Unresolved comments
+├── resolved-pr-123.json     # Resolved comments
+├── linked-issues-pr-123.txt # Linked issues
+├── state-pr-123.md          # Working state file
+└── handoff-pr-123.md        # Review→fix handoff (if created)
+```
 
-1. **Setup**
-   ```bash
-   TYPE=$(echo "$ARGUMENTS" | awk '{print $1}')
-   NUM=$(echo "$ARGUMENTS" | awk '{print $2}')
-   ```
-   Validate: TYPE must be "pr" or "issue", NUM must be numeric.
+## Integration with Other Skills
 
-2. **Check freshness**: If `context-{type}-{num}.json` exists and is less than 1 hour old, report cached and exit.
+This skill provides context for:
+- **leo-review** — Security-focused PR review
+- **leo-fix-pr** — Fix PR review feedback
+- **leo-fix** — Fix GitHub issues
 
-3. **Run fetch script**: Execute `.claude/skills/leo-github/scripts/fetch-{type}.sh $NUM`
-
-4. **Detect crates**: Run `.claude/skills/leo-github/scripts/detect-crates.sh $NUM` (for PRs)
-
-5. **Report**: List fetched files and detected crates.
-
-If any script fails, report the error and suggest checking `gh auth status`.
-</instructions>
+Always ensure context is loaded before running those skills.

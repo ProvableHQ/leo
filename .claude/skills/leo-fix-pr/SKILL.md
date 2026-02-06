@@ -1,112 +1,170 @@
 ---
 name: leo-fix-pr
-version: 1.0.0
-description: Fix PR review feedback with TDD
-user-invocable: true
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Grep
-  - Glob
-  - Task
-  - AskUserQuestion
-arguments:
-  - name: pr
-    description: "PR number"
-    required: true
+description: |
+  Fix PR review feedback in Leo using TDD workflow.
+  WHEN: User says "fix pr", "fix PR feedback", "address review comments",
+  "resolve review threads", or wants to address reviewer requests on a PR.
+  WHEN NOT: Creating new fixes for issues (use leo-fix), doing security
+  review (use leo-review), or initial PR creation.
+allowed-tools: Bash, Read, Write, Grep, Glob, Task, AskUserQuestion
 ---
 
-# Leo PR Feedback Fixer
+# Fix PR Review Feedback
 
-Address PR review comments using test-driven development.
+Address PR review comments in Leo using test-driven development.
 
 ## Usage
 
 ```
-/leo-fix-pr <pr-number>
+/leo-fix-pr <pr_number>
 ```
 
-## Prerequisites
+## Setup
 
-Run `/leo-github pr <number>` first to fetch context.
-
-## Workflow
-
-1. **Context** - Read PR state and unresolved comments
-2. **Analyze** - Understand each reviewer request
-3. **Plan** - Present fix plan for approval
-4. **Implement** - TDD: update tests, fix, verify
-5. **Validate** - Run check, clippy, fmt, test
-6. **Report** - Summarize resolutions
-
-## Instructions
-
-<instructions>
-Parse arguments: `$ARGUMENTS` contains the PR number.
-
-## Phase 1: Context
-
-Check for context files:
 ```bash
 PR=$ARGUMENTS
 WS=".claude/workspace"
-ls -la "$WS"/*pr*$PR* 2>/dev/null || echo "No context found"
+SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../leo-github" && pwd)"
 ```
 
-If missing, instruct user to run `/leo-github pr $PR` first.
+## 1. Load Context
 
-Read state and unresolved comments:
+Ensure PR context exists. If missing, fetch it:
+
+```bash
+if [[ ! -f "$WS/state-pr-$PR.md" ]]; then
+  echo "Context missing. Fetching PR #$PR..."
+  "$SKILL_DIR/scripts/fetch-pr.sh" "$PR"
+fi
+```
+
+Quick-refresh threads to get latest resolved status (faster than full fetch):
+
+```bash
+"$SKILL_DIR/scripts/refresh-threads.sh" "$PR"
+```
+
+Review current state:
+
 ```bash
 cat "$WS/state-pr-$PR.md"
+echo "--- Unresolved comments ---"
 cat "$WS/unresolved-pr-$PR.json" | jq -r '.[] | "- \(.path):\(.line) [\(.reviewer)]: \(.comment[0:100])..."'
-[ -f "$WS/handoff-pr-$PR.md" ] && cat "$WS/handoff-pr-$PR.md"
+
+# Check if there's a handoff from review
+if [[ -f "$WS/handoff-pr-$PR.md" ]]; then
+  echo "--- Handoff from review ---"
+  cat "$WS/handoff-pr-$PR.md"
+fi
 ```
 
-## Phase 2: Analyze
+## 2. Analyze Each Comment
 
 For each unresolved comment, determine:
-1. What is the request?
-2. What's the concern? (Correctness / Performance / Security / Style)
-3. What could break?
-4. Risk level?
 
-Update `$WS/state-pr-$PR.md` with analysis.
+| # | Path:Line | Reviewer | Request | Concern Type | Risk |
+|---|-----------|----------|---------|--------------|------|
+
+**Concern types:**
+- **Correctness** — Logic error, wrong behavior
+- **Performance** — Inefficiency, unnecessary allocations
+- **Security** — Vulnerability, unsafe code
+- **Style** — Naming, formatting, idioms
+- **Clarity** — Confusing code, missing docs
+
+**Risk levels:**
+- **Low** — Isolated change, well-tested area
+- **Medium** — Touches multiple components
+- **High** — Core logic, compiler passes, parser
+
+Update `$WS/state-pr-$PR.md` with your analysis.
 
 **Think hard. Do not proceed until you understand each request.**
 
-## Phase 3: Plan (APPROVAL REQUIRED)
+## 3. Plan (APPROVAL REQUIRED)
 
-Present plan as table:
+Present a fix plan:
 
-| # | Location | Request | Fix | Risk |
-|---|----------|---------|-----|------|
+| # | Location | Request | Proposed Fix | Risk |
+|---|----------|---------|--------------|------|
+| 1 | path/file.rs:42 | "Add bounds check" | Add `if len > MAX` guard | Low |
+| 2 | ... | ... | ... | ... |
 
-**Use AskUserQuestion to get approval before implementing.**
+**Use AskUserQuestion to get explicit approval before proceeding.**
 
-## Phase 4: Implement
+## 4. Implement Fixes (TDD)
 
-Establish baseline first:
+### 4.1 Establish baseline
+
 ```bash
-cargo check -p <crate> && cargo clippy -p <crate> -- -D warnings && cargo test -p <crate> --lib
+# Detect affected crates
+CRATES=$(cat "$WS/crates-pr-$PR.txt" 2>/dev/null || echo "")
+
+# Verify baseline passes
+for crate in $CRATES; do
+  cargo check -p "$crate"
+  cargo clippy -p "$crate" -- -D warnings
+  cargo test -p "$crate" --lib
+done
 ```
 
-For each fix:
-1. Write/update test (should fail if applicable)
-2. Make minimal change (match existing style exactly)
-3. Verify: `cargo check && cargo clippy && cargo test`
-4. Log progress to state file
+### 4.2 Fix each comment
 
-For parser/compiler tests:
+For each fix:
+
+1. **Write/update test** (if behavioral change)
+   ```rust
+   #[test]
+   fn test_bounds_check_prevents_overflow() {
+       // Test the fix
+   }
+   ```
+
+2. **Verify test fails** (for new behavior):
+   ```bash
+   cargo test -p <crate> test_bounds_check -- --nocapture
+   ```
+
+3. **Make minimal change**
+   - Match existing code style
+   - Preserve formatting conventions
+   - Add comments if non-obvious
+
+4. **Verify fix works**:
+   ```bash
+   cargo check -p <crate>
+   cargo clippy -p <crate> -- -D warnings
+   cargo test -p <crate>
+   ```
+
+5. **Log to state file**:
+
+   | Action | Result |
+   |--------|--------|
+   | Fix #1 | Added bounds check at file.rs:42 |
+
+For parser/compiler tests with expectation files:
 ```bash
 REWRITE_EXPECTATIONS=1 cargo test -p leo-parser  # Update expectations
 TEST_FILTER=test_name cargo test                  # Run specific test
 ```
 
-## Phase 5: Validate
+### 4.3 Batch style/nit fixes
 
-Run full validation:
+For pure style changes (no behavioral impact), batch them:
+
+```bash
+# Apply formatting
+cargo +nightly fmt --all
+
+# Fix clippy lints
+cargo clippy -p <crate> --fix --allow-dirty
+```
+
+## 5. Final Validation
+
+Run complete validation:
+
 ```bash
 cargo check -p <crate>
 cargo clippy -p <crate> -- -D warnings
@@ -114,15 +172,27 @@ cargo +nightly fmt --check
 cargo test -p <crate>
 ```
 
-## Phase 6: Report
+Or use the validation script:
 
-Output resolution table:
+```bash
+"$SKILL_DIR/scripts/cargo-validate.sh" $CRATES
+```
+
+## 6. Report
+
+Summarize resolutions:
 
 | # | Comment | Resolution | Verified |
 |---|---------|------------|----------|
+| 1 | "Add bounds check" | Added guard at file.rs:42 | cargo test |
+| 2 | "Rename variable" | Changed `x` to `count` | style only |
+| 3 | "Add doc comment" | Added /// explaining behavior | docs |
 
-Do not commit unless explicitly asked.
-</instructions>
+**Files changed:**
+- path/to/file.rs — [changes]
+- path/to/test.rs — [new/updated tests]
+
+**Do not commit unless explicitly asked.**
 
 ## Handling Different Feedback Types
 
@@ -145,3 +215,14 @@ Do not commit unless explicitly asked.
 - Match existing patterns exactly
 - Run `cargo +nightly fmt`
 - Verify clippy passes
+
+## Handling Disagreements
+
+If you disagree with a review comment:
+
+1. Explain your reasoning clearly
+2. Provide evidence (benchmarks, tests, spec references)
+3. Propose an alternative if applicable
+4. **Use AskUserQuestion** to discuss with user before proceeding
+
+Never silently ignore review feedback.

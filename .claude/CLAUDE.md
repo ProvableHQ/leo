@@ -70,3 +70,14 @@ For large tasks (>10 files or >500 lines changed):
 - If responses slow down or truncate, stop and consolidate state
 
 These are guidelines, not mandates. Adapt based on task complexity. The goal is reliable state persistence.
+
+
+<claude-mem-context>
+# Recent Activity
+
+### Feb 6, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #73 | 9:37 AM | 🔵 | Leo Permissions Configuration for Skills | ~480 |
+</claude-mem-context>

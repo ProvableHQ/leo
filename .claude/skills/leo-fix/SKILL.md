@@ -1,114 +1,167 @@
 ---
 name: leo-fix
-version: 1.0.0
-description: Fix GitHub issue with TDD
-user-invocable: true
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Grep
-  - Glob
-  - Task
-  - AskUserQuestion
-arguments:
-  - name: issue
-    description: "Issue number"
-    required: true
+description: |
+  Fix GitHub issues in Leo using TDD workflow.
+  WHEN: User says "fix issue", "fix #123", "address issue", "implement fix for issue",
+  or wants to resolve a bug/feature request from GitHub issues.
+  WHEN NOT: Fixing PR review feedback (use leo-fix-pr), doing security review
+  (use leo-review), or working on non-Leo code.
+allowed-tools: Bash, Read, Write, Grep, Glob, Task, AskUserQuestion
 ---
 
-# Leo Issue Fixer
+# Fix GitHub Issue
 
-Fix GitHub issues using test-driven development.
+Fix Leo GitHub issues using test-driven development.
 
 ## Usage
 
 ```
-/leo-fix <issue-number>
+/leo-fix <issue_number>
 ```
 
-## Prerequisites
+## Setup
 
-Run `/leo-github issue <number>` first to fetch context.
-
-## Workflow
-
-1. **Context** - Read issue state and comments
-2. **Investigate** - Find root cause
-3. **Plan** - Present fix plan for approval
-4. **Implement** - TDD: write failing test, fix, verify
-5. **Validate** - Run check, clippy, fmt, test
-6. **Report** - Summarize changes
-
-## Instructions
-
-<instructions>
-Parse arguments: `$ARGUMENTS` contains the issue number.
-
-## Phase 1: Context
-
-Check for context files:
 ```bash
 ISSUE=$ARGUMENTS
 WS=".claude/workspace"
-ls -la "$WS"/*issue*$ISSUE* 2>/dev/null || echo "No context found"
+SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../leo-github" && pwd)"
 ```
 
-If missing, instruct user to run `/leo-github issue $ISSUE` first.
+## 1. Load Context
 
-Read state:
+Ensure issue context is loaded. If missing or stale, fetch it first:
+
+```bash
+if [[ ! -f "$WS/state-issue-$ISSUE.md" ]]; then
+  echo "Context missing. Fetching issue #$ISSUE..."
+  "$SKILL_DIR/scripts/fetch-issue.sh" "$ISSUE"
+fi
+```
+
+Review the context:
+
 ```bash
 cat "$WS/state-issue-$ISSUE.md"
+echo "--- Recent comments ---"
 cat "$WS/comments-issue-$ISSUE.jsonl" | jq -r '"[\(.author.login)]: \(.body[0:150])..."' | head -10
 ```
 
-## Phase 2: Investigate
+## 2. Investigate
 
-Search for related code using Grep and Glob tools.
+Search for related code:
 
-Answer these questions (update state file with findings):
-- Can you reproduce the issue?
-- Expected vs actual behavior?
-- Where does the code path go wrong?
-- Which crate/pass is affected?
+```bash
+# Search for relevant terms from the issue
+git grep -n "relevant_term" -- "*.rs" | head -30
+```
+
+Answer these questions:
+1. Can you reproduce the issue?
+2. What is the expected vs actual behavior?
+3. Where does the code path go wrong?
+4. What are the edge cases?
+
+**Update `$WS/state-issue-$ISSUE.md`** with:
+- Root cause analysis
+- Relevant code locations
+- Evidence/reproduction steps
 
 **Think hard. Do not proceed until you can explain the root cause.**
 
-## Phase 3: Plan (APPROVAL REQUIRED)
+### Investigation Hints
 
-Present plan to user:
-- **Root cause**: [specific explanation]
-- **Fix**: [specific changes]
-- **Crate**: leo-{ast,parser,passes,compiler,...}
-- **Files**: path/to/file.rs - change X to Y
-- **Tests**: test_name - verifies Z
-- **Risk**: Low/Med/High
+When investigating Leo issues:
 
-**Use AskUserQuestion to get approval before implementing.**
+- **Parser bugs**: Check `compiler/parser-lossless/` grammar (`leo.lalrpop`), `compiler/parser/` AST conversion
+- **Type errors**: Check type-checking pass, AST type nodes
+- **Code generation bugs**: Check `compiler/passes/code_generation/`, Aleo instruction output
+- **Pass ordering issues**: Check `compiler/compiler/src/run.rs` pass sequence
+- **Span bugs**: Check span preservation through transformations
 
-## Phase 4: Implement
+## 3. Plan (APPROVAL REQUIRED)
 
-Establish baseline first:
+Present a concrete plan:
+
+| Aspect | Details |
+|--------|---------|
+| **Root cause** | [specific explanation] |
+| **Fix** | [specific code changes] |
+| **Files** | path/to/file.rs — change X to Y |
+| **Tests** | test_name — verifies Z |
+| **Risk** | Low / Medium / High |
+
+**Use AskUserQuestion to get explicit approval before proceeding.**
+
+## 4. Implement (TDD)
+
+### 4.1 Establish baseline
+
+Detect affected crates and verify current state:
+
 ```bash
-cargo check -p <crate> && cargo clippy -p <crate> -- -D warnings && cargo test -p <crate> --lib
+CRATES=$(cat "$WS/crates-pr-$ISSUE.txt" 2>/dev/null || echo "")
+
+# Run baseline checks
+for crate in $CRATES; do
+  cargo check -p "$crate"
+  cargo clippy -p "$crate" -- -D warnings
+  cargo test -p "$crate" --lib
+done
 ```
 
-TDD workflow:
-1. Write failing test (use test-framework expectations if applicable)
-2. Make minimal fix (match existing style exactly)
-3. Verify test passes
-4. Log progress to state file
+### 4.2 Write failing test first
 
-For parser/compiler tests:
+Create a test that:
+- Reproduces the issue
+- Will pass once the fix is applied
+- Covers edge cases identified in investigation
+
+```rust
+#[test]
+fn test_issue_NNNN_description() {
+    // Setup
+    // Action
+    // Assert expected behavior
+}
+```
+
+Verify the test fails:
+```bash
+cargo test -p <crate> test_issue_NNNN -- --nocapture
+```
+
+For parser/compiler tests with expectation files:
 ```bash
 REWRITE_EXPECTATIONS=1 cargo test -p leo-parser  # Update expectations
 TEST_FILTER=test_name cargo test                  # Run specific test
 ```
 
-## Phase 5: Validate
+### 4.3 Implement minimal fix
 
-Run full validation:
+- Match existing code style
+- Make the smallest change that fixes the issue
+- Add comments explaining non-obvious changes
+
+### 4.4 Verify test passes
+
+```bash
+cargo test -p <crate> test_issue_NNNN -- --nocapture
+```
+
+### 4.5 Log progress
+
+Update `$WS/state-issue-$ISSUE.md` with:
+
+| Action | Result |
+|--------|--------|
+| Wrote test | test_issue_NNNN in path/to/test.rs |
+| Applied fix | Changed X to Y in path/to/file.rs |
+| Verified | Test passes |
+
+## 5. Final Validation
+
+Run full validation on affected crates:
+
 ```bash
 cargo check -p <crate>
 cargo clippy -p <crate> -- -D warnings
@@ -116,26 +169,27 @@ cargo +nightly fmt --check
 cargo test -p <crate>
 ```
 
-## Phase 6: Report
+Or use the validation script:
 
-Output summary:
-- **Issue**: #$ISSUE - [title]
-- **Root cause**: [brief]
-- **Fix**: [what changed]
-- **Test**: [what it verifies]
+```bash
+"$SKILL_DIR/scripts/cargo-validate.sh" $CRATES
+```
 
-Do not commit unless explicitly asked.
-</instructions>
+## 6. Report
 
-## Leo Memory Patterns
+Summarize the fix:
 
-When investigating Leo issues:
+```
+**Issue**: #$ISSUE — [title]
+**Root cause**: [brief explanation]
+**Fix**: [what changed and why]
+**Test**: [what the test verifies]
+**Files changed**:
+- path/to/file.rs — [change description]
+- path/to/test.rs — [new test]
+```
 
-- **Parser bugs**: Check `compiler/parser-lossless/` grammar, `compiler/parser/` AST conversion
-- **Type errors**: Check type-checking pass, AST type nodes
-- **Code generation bugs**: Check `compiler/passes/code_generation/`, Aleo instruction output
-- **Pass ordering issues**: Check `compiler/src/run.rs` pass sequence
-- **Span bugs**: Check span preservation through transformations
+**Do not commit unless explicitly asked.**
 
 ## Risk Assessment
 

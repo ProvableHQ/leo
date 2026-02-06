@@ -1,12 +1,21 @@
 #!/bin/bash
 # Detect affected Leo crates from PR file list
-set -e
+# Usage: detect-crates.sh <pr_number>
 
-NUM=$1
-WS=".claude/workspace"
+set -euo pipefail
 
-[ -z "$NUM" ] && echo "Usage: detect-crates.sh <number>" && exit 1
-[ ! -f "$WS/files-pr-$NUM.txt" ] && echo "No files list found. Run fetch-pr.sh first." && exit 1
+WS="${WS:-.claude/workspace}"
+NUM="${1:-}"
+
+if [[ -z "$NUM" ]]; then
+  echo "Usage: detect-crates.sh <pr_number>"
+  exit 1
+fi
+
+if [[ ! -f "$WS/files-pr-$NUM.txt" ]]; then
+  echo "No files list found. Run fetch-pr.sh first."
+  exit 1
+fi
 
 echo "Detecting affected crates for PR #$NUM..."
 
@@ -35,7 +44,7 @@ done < "$WS/files-pr-$NUM.txt"
 # Deduplicate and sort
 UNIQUE_CRATES=$(echo "$CRATES" | tr ' ' '\n' | sort -u | grep -v '^$' | tr '\n' ' ')
 
-if [ -n "$UNIQUE_CRATES" ]; then
+if [[ -n "$UNIQUE_CRATES" ]]; then
   echo "$UNIQUE_CRATES" > "$WS/crates-pr-$NUM.txt"
   echo "Affected crates: $UNIQUE_CRATES"
 else
