@@ -147,26 +147,25 @@
                         "type_parameters": [],
                         "arguments": [
                           {
-                            "Locator": {
-                              "program": {
-                                "name": {
-                                  "name": "hello",
-                                  "span": {
-                                    "lo": 173,
-                                    "hi": 178
-                                  },
-                                  "id": 14
+                            "Path": {
+                              "user_program": {
+                                "name": "hello",
+                                "span": {
+                                  "lo": 173,
+                                  "hi": 178
                                 },
-                                "network": {
-                                  "name": "aleo",
-                                  "span": {
-                                    "lo": 179,
-                                    "hi": 183
-                                  },
-                                  "id": 15
-                                }
+                                "id": 14
                               },
-                              "name": "counter",
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "counter",
+                                "span": {
+                                  "lo": 184,
+                                  "hi": 191
+                                },
+                                "id": 15
+                              },
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 173,
                                 "hi": 191
@@ -262,26 +261,25 @@
                         "type_parameters": [],
                         "arguments": [
                           {
-                            "Locator": {
-                              "program": {
-                                "name": {
-                                  "name": "hello",
-                                  "span": {
-                                    "lo": 246,
-                                    "hi": 251
-                                  },
-                                  "id": 27
+                            "Path": {
+                              "user_program": {
+                                "name": "hello",
+                                "span": {
+                                  "lo": 246,
+                                  "hi": 251
                                 },
-                                "network": {
-                                  "name": "aleo",
-                                  "span": {
-                                    "lo": 252,
-                                    "hi": 256
-                                  },
-                                  "id": 28
-                                }
+                                "id": 27
                               },
-                              "name": "foo",
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "foo",
+                                "span": {
+                                  "lo": 257,
+                                  "hi": 260
+                                },
+                                "id": 28
+                              },
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 246,
                                 "hi": 260
@@ -345,26 +343,25 @@
                         "type_parameters": [],
                         "arguments": [
                           {
-                            "Locator": {
-                              "program": {
-                                "name": {
-                                  "name": "hello",
-                                  "span": {
-                                    "lo": 302,
-                                    "hi": 307
-                                  },
-                                  "id": 37
+                            "Path": {
+                              "user_program": {
+                                "name": "hello",
+                                "span": {
+                                  "lo": 302,
+                                  "hi": 307
                                 },
-                                "network": {
-                                  "name": "aleo",
-                                  "span": {
-                                    "lo": 308,
-                                    "hi": 312
-                                  },
-                                  "id": 38
-                                }
+                                "id": 37
                               },
-                              "name": "foo",
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "foo",
+                                "span": {
+                                  "lo": 313,
+                                  "hi": 316
+                                },
+                                "id": 38
+                              },
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 302,
                                 "hi": 316
@@ -428,26 +425,25 @@
                         "type_parameters": [],
                         "arguments": [
                           {
-                            "Locator": {
-                              "program": {
-                                "name": {
-                                  "name": "hello",
-                                  "span": {
-                                    "lo": 365,
-                                    "hi": 370
-                                  },
-                                  "id": 47
+                            "Path": {
+                              "user_program": {
+                                "name": "hello",
+                                "span": {
+                                  "lo": 365,
+                                  "hi": 370
                                 },
-                                "network": {
-                                  "name": "aleo",
-                                  "span": {
-                                    "lo": 371,
-                                    "hi": 375
-                                  },
-                                  "id": 48
-                                }
+                                "id": 47
                               },
-                              "name": "foo",
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "foo",
+                                "span": {
+                                  "lo": 376,
+                                  "hi": 379
+                                },
+                                "id": 48
+                              },
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 365,
                                 "hi": 379
@@ -526,26 +522,25 @@
                         "type_parameters": [],
                         "arguments": [
                           {
-                            "Locator": {
-                              "program": {
-                                "name": {
-                                  "name": "hello",
-                                  "span": {
-                                    "lo": 432,
-                                    "hi": 437
-                                  },
-                                  "id": 58
+                            "Path": {
+                              "user_program": {
+                                "name": "hello",
+                                "span": {
+                                  "lo": 432,
+                                  "hi": 437
                                 },
-                                "network": {
-                                  "name": "aleo",
-                                  "span": {
-                                    "lo": 438,
-                                    "hi": 442
-                                  },
-                                  "id": 59
-                                }
+                                "id": 58
                               },
-                              "name": "foo",
+                              "qualifier": [],
+                              "identifier": {
+                                "name": "foo",
+                                "span": {
+                                  "lo": 443,
+                                  "hi": 446
+                                },
+                                "id": 59
+                              },
+                              "target": "Unresolved",
                               "span": {
                                 "lo": 432,
                                 "hi": 446

@@ -15,14 +15,14 @@
           "identifier": {
             "name": "credits",
             "span": {
-              "lo": 19,
+              "lo": 20,
               "hi": 27
             },
             "id": 11
           },
           "target": "Unresolved",
           "span": {
-            "lo": 19,
+            "lo": 7,
             "hi": 27
           },
           "id": 12
@@ -142,14 +142,14 @@
           "identifier": {
             "name": "board",
             "span": {
-              "lo": 75,
+              "lo": 76,
               "hi": 81
             },
             "id": 13
           },
           "target": "Unresolved",
           "span": {
-            "lo": 75,
+            "lo": 65,
             "hi": 81
           },
           "id": 14
@@ -172,14 +172,14 @@
           "identifier": {
             "name": "board",
             "span": {
-              "lo": 94,
+              "lo": 95,
               "hi": 100
             },
             "id": 10
           },
           "target": "Unresolved",
           "span": {
-            "lo": 94,
+            "lo": 84,
             "hi": 100
           },
           "id": 11

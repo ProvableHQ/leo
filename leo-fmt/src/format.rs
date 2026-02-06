@@ -27,7 +27,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         SyntaxKind::ModuleContents => format_module_contents(node, out),
         SyntaxKind::Function => format_function(node, out),
         SyntaxKind::Constructor => format_function(node, out),
-        SyntaxKind::StructDeclaration => format_struct(node, out),
+        SyntaxKind::CompositeDeclaration => format_struct(node, out),
         SyntaxKind::Import => format_import(node, out),
         SyntaxKind::Mapping => format_mapping(node, out),
         SyntaxKind::Annotation => format_annotation(node, out),
@@ -35,8 +35,8 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         SyntaxKind::Parameter => format_parameter(node, out),
         SyntaxKind::FunctionOutputs => format_function_outputs(node, out),
         SyntaxKind::FunctionOutput => format_function_output(node, out),
-        SyntaxKind::StructMemberDeclarationList => format_struct_member_list(node, out),
-        SyntaxKind::StructMemberDeclaration => format_struct_member(node, out),
+        SyntaxKind::CompositeMemberDeclarationList => format_composite_member_list(node, out),
+        SyntaxKind::CompositeMemberDeclaration => format_composite_member(node, out),
         SyntaxKind::Statement(StatementKind::Block) => format_block(node, out),
         SyntaxKind::Statement(StatementKind::Return) => format_return(node, out),
         SyntaxKind::Expression(ExpressionKind::Literal(_)) => format_literal(node, out),
@@ -106,7 +106,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
         .filter(|c| {
             matches!(
                 c.kind,
-                SyntaxKind::Function | SyntaxKind::Constructor | SyntaxKind::StructDeclaration | SyntaxKind::Mapping
+                SyntaxKind::Function | SyntaxKind::Constructor | SyntaxKind::CompositeDeclaration | SyntaxKind::Mapping
             )
         })
         .collect();
@@ -129,7 +129,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                 out.newline();
             }
             SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Function | SyntaxKind::Constructor | SyntaxKind::StructDeclaration | SyntaxKind::Mapping => {
+            SyntaxKind::Function | SyntaxKind::Constructor | SyntaxKind::CompositeDeclaration | SyntaxKind::Mapping => {
                 out.indented(|out| {
                     format_node(child, out);
                     // Add blank line between items (but not after the last one)
@@ -151,14 +151,14 @@ fn format_module_contents(node: &SyntaxNode, out: &mut Output) {
         .filter(|c| {
             matches!(
                 c.kind,
-                SyntaxKind::Function | SyntaxKind::Constructor | SyntaxKind::StructDeclaration | SyntaxKind::Mapping
+                SyntaxKind::Function | SyntaxKind::Constructor | SyntaxKind::CompositeDeclaration | SyntaxKind::Mapping
             )
         })
         .collect();
 
     for child in &node.children {
         match &child.kind {
-            SyntaxKind::Function | SyntaxKind::Constructor | SyntaxKind::StructDeclaration | SyntaxKind::Mapping => {
+            SyntaxKind::Function | SyntaxKind::Constructor | SyntaxKind::CompositeDeclaration | SyntaxKind::Mapping => {
                 format_node(child, out);
                 let is_last = items.iter().position(|x| std::ptr::eq(*x, child)) == Some(items.len() - 1);
                 if !is_last {
@@ -226,8 +226,8 @@ fn format_struct(node: &SyntaxNode, out: &mut Output) {
                 out.write(child.text);
                 out.space();
             }
-            SyntaxKind::StructMemberDeclarationList => {
-                format_struct_member_list(child, out);
+            SyntaxKind::CompositeMemberDeclarationList => {
+                format_composite_member_list(child, out);
             }
             _ => {}
         }
@@ -235,7 +235,7 @@ fn format_struct(node: &SyntaxNode, out: &mut Output) {
     out.ensure_newline();
 }
 
-fn format_struct_member_list(node: &SyntaxNode, out: &mut Output) {
+fn format_composite_member_list(node: &SyntaxNode, out: &mut Output) {
     for child in &node.children {
         match &child.kind {
             SyntaxKind::Token if child.text == "{" => {
@@ -249,9 +249,9 @@ fn format_struct_member_list(node: &SyntaxNode, out: &mut Output) {
                 out.write(",");
                 out.newline();
             }
-            SyntaxKind::StructMemberDeclaration => {
+            SyntaxKind::CompositeMemberDeclaration => {
                 out.indented(|out| {
-                    format_struct_member(child, out);
+                    format_composite_member(child, out);
                 });
             }
             _ => {}
@@ -259,7 +259,7 @@ fn format_struct_member_list(node: &SyntaxNode, out: &mut Output) {
     }
 }
 
-fn format_struct_member(node: &SyntaxNode, out: &mut Output) {
+fn format_composite_member(node: &SyntaxNode, out: &mut Output) {
     for child in &node.children {
         match &child.kind {
             SyntaxKind::Token if child.text == ":" => {

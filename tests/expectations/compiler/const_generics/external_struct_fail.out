@@ -1,5 +1,36 @@
-Error [EPAR0370005]: expected ')', ',', '?' -- found '::'
-    --> compiler-test:5:38
+Error [ETYC0372017]: The type `child.aleo/Bar::[4u32]` is not found in the current scope.
+    --> compiler-test:5:21
      |
    5 |     transition main(c: child.aleo/Bar::[4]) {
-     |                                      ^^
+     |                     ^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372005]: Unknown struct or record `child.aleo/Bar::[3u32]`
+    --> compiler-test:6:17
+     |
+   6 |         let b = child.aleo/Bar::[3] {
+     |                 ^^^^^^^^^^^^^^
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372146]: unexpected generic const argment for child.aleo/Bar::[4].
+    --> compiler-test:5:24
+     |
+   5 |     transition main(c: child.aleo/Bar::[4]) {
+     |                        ^^^^^^^^^^^^^^
+     |
+     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+Error [ETYC0372017]: The type `child.aleo/Bar` is not found in the current scope.
+    --> compiler-test:5:21
+     |
+   5 |     transition main(c: child.aleo/Bar::[4]) {
+     |                     ^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`
+Error [ETYC0372005]: Unknown struct or record `child.aleo/Bar`
+    --> compiler-test:6:17
+     |
+   6 |         let b = child.aleo/Bar::[3] {
+     |                 ^^^^^^^^^^^^^^

@@ -39,9 +39,7 @@ pub struct CodeGeneratingVisitor<'a> {
     /// A composite here is identified by its `Location`.
     pub composite_mapping: IndexMap<Location, bool>,
     /// Mapping of global identifiers to their associated names.
-    /// Because we only allow mappings in the top level program scope at this stage, we can identify them using only a
-    /// `Symbol` (i.e. a path is not necessary here currently).
-    pub global_mapping: IndexMap<Symbol, AleoExpr>,
+    pub global_mapping: IndexMap<Location, String>,
     /// The variant of the function we are currently traversing.
     pub variant: Option<Variant>,
     /// A reference to program. This is needed to look up external programs.
@@ -80,29 +78,42 @@ impl CodeGeneratingVisitor<'_> {
             .stubs
             .values()
             .filter_map(|stub| {
-                if let leo_ast::Stub::FromLeo { program, .. } = stub {
-                    let program_name = program
-                        .program_scopes
-                        .first()
-                        .expect("programs must have a single program scope at this time.")
-                        .0;
+                match stub {
+                    leo_ast::Stub::FromLeo { program, .. } => {
+                        let program_name = program
+                            .program_scopes
+                            .first()
+                            .expect("programs must have a single program scope at this time.")
+                            .0;
 
-                    // Get transitive imports for this program
-                    let transitive_imports = self
-                        .state
-                        .symbol_table
-                        .get_transitive_imports(program_name)
-                        .into_iter()
-                        .map(|sym| sym.to_string())
-                        .collect::<Vec<_>>();
+                        // Get transitive imports for this program
+                        let transitive_imports = self
+                            .state
+                            .symbol_table
+                            .get_transitive_imports(program_name)
+                            .into_iter()
+                            .map(|sym| sym.to_string())
+                            .collect::<Vec<_>>();
 
-                    // Generate this stub’s Aleo program text
-                    let mut bytecode = self.visit_program(program);
-                    bytecode.imports.extend(transitive_imports);
+                        // Generate this stub’s Aleo program text
+                        let mut bytecode = self.visit_program(program);
+                        bytecode.imports.extend(transitive_imports);
 
-                    Some(Bytecode { program_name: program_name.to_string(), bytecode: bytecode.to_string() })
-                } else {
-                    None
+                        Some(Bytecode { program_name: program_name.to_string(), bytecode: bytecode.to_string() })
+                    }
+                    leo_ast::Stub::FromAleo { program, .. } => {
+                        // Nothing to return here because the bytecode is already computed.
+                        // However, we still need to collect global items into the appropriate mappings.
+                        for (name, _) in &program.mappings {
+                            self.global_mapping
+                                .insert(Location::new(program.stub_id.name.name, vec![*name]), name.to_string());
+                        }
+                        for (name, leo_ast::Composite { is_record, .. }) in &program.composites {
+                            self.composite_mapping
+                                .insert(Location::new(program.stub_id.name.name, vec![*name]), *is_record);
+                        }
+                        None
+                    }
                 }
             })
             .collect();

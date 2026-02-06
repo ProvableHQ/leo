@@ -327,18 +327,13 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown variable `val_u32`
+Error [ETYC0372005]: Unknown variable `base.aleo/val_u32`
     --> compiler-test:11:20
      |
   11 |             assert(base.aleo/val_u32.unwrap() == 99u32);
      |                    ^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `val_u32`
+Error [ETYC0372005]: Unknown variable `base.aleo/val_u32`
     --> compiler-test:18:20
      |
   18 |             assert(base.aleo/val_u32 == none);
      |                    ^^^^^^^^^^^^^^^^^
-Error [ETYC0372158]: Found `none`, but the expected type `error` is not an optional type.
-    --> compiler-test:18:41
-     |
-  18 |             assert(base.aleo/val_u32 == none);
-     |                                         ^^^^

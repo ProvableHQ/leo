@@ -147,7 +147,7 @@
             "lo": 48,
             "hi": 49
           },
-          "id": 4
+          "id": 2
         },
         "const_arguments": [],
         "arguments": [],
@@ -356,7 +356,7 @@
             "lo": 123,
             "hi": 124
           },
-          "id": 4
+          "id": 2
         },
         "const_arguments": [],
         "arguments": [],
@@ -439,14 +439,14 @@
               "lo": 157,
               "hi": 164
             },
-            "id": 7
+            "id": 6
           },
           "target": "Unresolved",
           "span": {
             "lo": 157,
             "hi": 164
           },
-          "id": 8
+          "id": 7
         },
         "const_arguments": []
       }
@@ -474,9 +474,9 @@
           "target": "Unresolved",
           "span": {
             "lo": 167,
-            "hi": 200
+            "hi": 192
           },
-          "id": 6
+          "id": 2
         },
         "const_arguments": [],
         "arguments": [
@@ -532,23 +532,23 @@
               "lo": 209,
               "hi": 216
             },
-            "id": 7
+            "id": 6
           },
           "qualifier": [],
           "identifier": {
             "name": "credits",
             "span": {
-              "lo": 221,
+              "lo": 222,
               "hi": 229
             },
-            "id": 8
+            "id": 7
           },
           "target": "Unresolved",
           "span": {
-            "lo": 221,
+            "lo": 209,
             "hi": 229
           },
-          "id": 9
+          "id": 8
         },
         "const_arguments": []
       }
@@ -576,9 +576,9 @@
           "target": "Unresolved",
           "span": {
             "lo": 232,
-            "hi": 265
+            "hi": 257
           },
-          "id": 6
+          "id": 2
         },
         "const_arguments": [],
         "arguments": [
@@ -762,7 +762,7 @@
             "lo": 317,
             "hi": 318
           },
-          "id": 4
+          "id": 2
         },
         "const_arguments": [],
         "arguments": [],
@@ -930,7 +930,7 @@
             "lo": 372,
             "hi": 373
           },
-          "id": 4
+          "id": 2
         },
         "const_arguments": [],
         "arguments": [],
@@ -1019,7 +1019,7 @@
                     "lo": 472,
                     "hi": 475
                   },
-                  "id": 10
+                  "id": 5
                 },
                 "const_arguments": [],
                 "arguments": [
@@ -1075,14 +1075,14 @@
                     "lo": 485,
                     "hi": 486
                   },
-                  "id": 12
+                  "id": 11
                 },
                 "target": "Unresolved",
                 "span": {
                   "lo": 485,
                   "hi": 486
                 },
-                "id": 11
+                "id": 10
               }
             },
             "op": "Mul",

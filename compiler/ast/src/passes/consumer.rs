@@ -35,7 +35,6 @@ pub trait ExpressionConsumer {
             Expression::Err(err) => self.consume_err(err),
             Expression::Path(path) => self.consume_path(path),
             Expression::Literal(value) => self.consume_literal(value),
-            Expression::Locator(locator) => self.consume_locator(locator),
             Expression::MemberAccess(access) => self.consume_member_access(*access),
             Expression::Repeat(repeat) => self.consume_repeat(*repeat),
             Expression::Ternary(ternary) => self.consume_ternary(*ternary),
@@ -72,8 +71,6 @@ pub trait ExpressionConsumer {
     fn consume_path(&mut self, _input: Path) -> Self::Output;
 
     fn consume_literal(&mut self, _input: Literal) -> Self::Output;
-
-    fn consume_locator(&mut self, _input: LocatorExpression) -> Self::Output;
 
     fn consume_repeat(&mut self, _input: RepeatExpression) -> Self::Output;
 

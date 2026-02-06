@@ -89,7 +89,6 @@ pub trait AstReconstructor {
             Type::Mapping(MappingType {
                 key: Box::new(self.reconstruct_type(*input.key).0),
                 value: Box::new(self.reconstruct_type(*input.value).0),
-                ..input
             }),
             Default::default(),
         )
@@ -132,7 +131,6 @@ pub trait AstReconstructor {
             Expression::Err(err) => self.reconstruct_err(err, additional),
             Expression::Path(path) => self.reconstruct_path(path, additional),
             Expression::Literal(value) => self.reconstruct_literal(value, additional),
-            Expression::Locator(locator) => self.reconstruct_locator(locator, additional),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, additional),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, additional),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, additional),
@@ -349,14 +347,6 @@ pub trait AstReconstructor {
     fn reconstruct_literal(
         &mut self,
         input: Literal,
-        _additional: &Self::AdditionalInput,
-    ) -> (Expression, Self::AdditionalOutput) {
-        (input.into(), Default::default())
-    }
-
-    fn reconstruct_locator(
-        &mut self,
-        input: LocatorExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
         (input.into(), Default::default())
