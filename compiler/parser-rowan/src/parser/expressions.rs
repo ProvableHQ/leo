@@ -19,7 +19,7 @@
 //! This module implements a Pratt parser (precedence climbing) for Leo expressions.
 //! It handles operator precedence, associativity, and all expression forms.
 
-use super::{CompletedMarker, Parser};
+use super::{CompletedMarker, EXPR_RECOVERY, Parser};
 use crate::syntax_kind::{SyntaxKind, SyntaxKind::*};
 
 // =============================================================================
@@ -167,7 +167,10 @@ impl Parser<'_, '_> {
             self.bump_any(); // operator
 
             // Parse operand with prefix binding power
-            self.parse_expr_bp(bp, opts);
+            // If the operand fails, we still complete the unary expression
+            if self.parse_expr_bp(bp, opts).is_none() {
+                self.error("expected expression after unary operator".to_string());
+            }
 
             return Some(m.complete(self, UNARY_EXPR));
         }
@@ -199,12 +202,17 @@ impl Parser<'_, '_> {
 
         // Handle cast specially - parse type instead of expression
         if op == KW_AS {
-            self.parse_type();
+            if self.parse_type().is_none() {
+                self.error("expected type after 'as'".to_string());
+            }
             return Some(m.complete(self, CAST_EXPR));
         }
 
         // Parse right-hand side
-        self.parse_expr_bp(r_bp, opts);
+        // If RHS fails, we still complete the binary expression with an error
+        if self.parse_expr_bp(r_bp, opts).is_none() {
+            self.error("expected expression after operator".to_string());
+        }
 
         Some(m.complete(self, BINARY_EXPR))
     }
@@ -215,12 +223,16 @@ impl Parser<'_, '_> {
         self.bump_any(); // ?
 
         // Parse then branch
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error("expected expression after '?'".to_string());
+        }
 
         self.expect(COLON);
 
         // Parse else branch (right-associative)
-        self.parse_expr_bp(2, ExprOpts::default());
+        if self.parse_expr_bp(2, ExprOpts::default()).is_none() {
+            self.error("expected expression after ':'".to_string());
+        }
 
         Some(m.complete(self, TERNARY_EXPR))
     }
@@ -248,7 +260,9 @@ impl Parser<'_, '_> {
         let m = lhs.precede(self);
         self.bump_any(); // [
 
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error("expected index expression".to_string());
+        }
 
         self.expect(R_BRACKET);
 
@@ -262,12 +276,17 @@ impl Parser<'_, '_> {
 
         // Parse arguments
         if !self.at(R_PAREN) {
-            self.parse_expr();
+            if self.parse_expr().is_none() && !self.at(R_PAREN) && !self.at(COMMA) {
+                // Skip invalid tokens until we find a recovery point
+                self.error_recover("expected argument expression", EXPR_RECOVERY);
+            }
             while self.eat(COMMA) {
                 if self.at(R_PAREN) {
                     break;
                 }
-                self.parse_expr();
+                if self.parse_expr().is_none() && !self.at(R_PAREN) && !self.at(COMMA) {
+                    self.error_recover("expected argument expression", EXPR_RECOVERY);
+                }
             }
         }
 
@@ -364,18 +383,24 @@ impl Parser<'_, '_> {
         }
 
         // Parse first expression
-        self.parse_expr();
+        if self.parse_expr().is_none() && !self.at(R_PAREN) && !self.at(COMMA) {
+            self.error_recover("expected expression", EXPR_RECOVERY);
+        }
 
         // Check if this is a tuple
         if self.eat(COMMA) {
             // It's a tuple - parse remaining elements
             if !self.at(R_PAREN) {
-                self.parse_expr();
+                if self.parse_expr().is_none() && !self.at(R_PAREN) && !self.at(COMMA) {
+                    self.error_recover("expected tuple element", EXPR_RECOVERY);
+                }
                 while self.eat(COMMA) {
                     if self.at(R_PAREN) {
                         break;
                     }
-                    self.parse_expr();
+                    if self.parse_expr().is_none() && !self.at(R_PAREN) && !self.at(COMMA) {
+                        self.error_recover("expected tuple element", EXPR_RECOVERY);
+                    }
                 }
             }
             self.expect(R_PAREN);
@@ -398,11 +423,15 @@ impl Parser<'_, '_> {
         }
 
         // Parse first element
-        self.parse_expr();
+        if self.parse_expr().is_none() && !self.at(R_BRACKET) && !self.at(COMMA) && !self.at(SEMICOLON) {
+            self.error_recover("expected array element", EXPR_RECOVERY);
+        }
 
         // Check for repeat syntax: [x; n]
         if self.eat(SEMICOLON) {
-            self.parse_expr();
+            if self.parse_expr().is_none() && !self.at(R_BRACKET) {
+                self.error("expected repeat count".to_string());
+            }
             self.expect(R_BRACKET);
             return Some(m.complete(self, ARRAY_EXPR));
         }
@@ -412,7 +441,9 @@ impl Parser<'_, '_> {
             if self.at(R_BRACKET) {
                 break;
             }
-            self.parse_expr();
+            if self.parse_expr().is_none() && !self.at(R_BRACKET) && !self.at(COMMA) {
+                self.error_recover("expected array element", EXPR_RECOVERY);
+            }
         }
 
         self.expect(R_BRACKET);
@@ -524,7 +555,9 @@ impl Parser<'_, '_> {
 
             if self.eat(COLON) {
                 // Field with value
-                self.parse_expr();
+                if self.parse_expr().is_none() && !self.at(R_BRACE) && !self.at(COMMA) {
+                    self.error("expected field value".to_string());
+                }
             }
             // Otherwise it's shorthand: `{ x }` means `{ x: x }`
         } else {
@@ -560,7 +593,9 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // async
         self.skip_trivia();
-        self.parse_block();
+        if self.parse_block().is_none() {
+            self.error("expected block after 'async'".to_string());
+        }
         Some(m.complete(self, ASYNC_EXPR))
     }
 }
@@ -1085,7 +1120,7 @@ mod tests {
         let parse: Parse = parser.finish();
         if !parse.errors().is_empty() {
             for err in parse.errors() {
-                eprintln!("error at {}: {}", err.offset, err.message);
+                eprintln!("error at {:?}: {}", err.range, err.message);
             }
             eprintln!("tree:\n{:#?}", parse.syntax());
             panic!("expression parse had {} error(s)", parse.errors().len());

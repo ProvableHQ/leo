@@ -869,7 +869,7 @@ mod tests {
         let parse: Parse = parser.finish();
         if !parse.errors().is_empty() {
             for err in parse.errors() {
-                eprintln!("error at {}: {}", err.offset, err.message);
+                eprintln!("error at {:?}: {}", err.range, err.message);
             }
             eprintln!("tree:\n{:#?}", parse.syntax());
             panic!("type parse had {} error(s)", parse.errors().len());
