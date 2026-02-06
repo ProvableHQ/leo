@@ -1,0 +1,135 @@
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[65u8, 89u8, 187u8, 94u8, 189u8, 162u8, 9u8, 5u8, 82u8, 113u8, 145u8, 228u8, 159u8, 225u8, 53u8, 52u8, 194u8, 213u8, 69u8, 110u8, 78u8, 244u8, 159u8, 99u8, 80u8, 151u8, 122u8, 38u8, 220u8, 73u8, 200u8, 114u8]'.
+       Leo     Program size: 0.26 KB / 97.66 KB
+       Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  13
+
+📦 Deployment Tasks:
+  • broadcast_error.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+🔧 Your program 'broadcast_error.aleo' has the following constructor.
+──────────────────────────────────────────────
+constructor:
+    assert.eq program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+
+📦 Creating deployment transaction for 'broadcast_error.aleo'...
+
+
+📊 Deployment Summary for broadcast_error.aleo
+──────────────────────────────────────────────
+  Program Size:         0.26 KB / 97.66 KB
+  Total Variables:      17,191
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.914000
+  Program Synthesis:    0.030118
+  Namespace:            1.000000
+  Constructor:          0.002000
+  Priority Fee:         0.000000
+  Total Fee:            1.946118
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for broadcast_error.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[65u8, 89u8, 187u8, 94u8, 189u8, 162u8, 9u8, 5u8, 82u8, 113u8, 145u8, 228u8, 159u8, 225u8, 53u8, 52u8, 194u8, 213u8, 69u8, 110u8, 78u8, 244u8, 159u8, 99u8, 80u8, 151u8, 122u8, 38u8, 220u8, 73u8, 200u8, 114u8]'.
+       Leo     Program size: 0.26 KB / 97.66 KB
+       Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  13
+
+📦 Deployment Tasks:
+  • broadcast_error.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+
+⚠️ Warnings:
+  • The program 'broadcast_error.aleo' already exists on the network. Please use `leo upgrade` instead.
+──────────────────────────────────────────────
+
+
+🔧 Your program 'broadcast_error.aleo' has the following constructor.
+──────────────────────────────────────────────
+constructor:
+    assert.eq program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+
+📦 Creating deployment transaction for 'broadcast_error.aleo'...
+
+
+📊 Deployment Summary for broadcast_error.aleo
+──────────────────────────────────────────────
+  Program Size:         0.26 KB / 97.66 KB
+  Total Variables:      17,191
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.914000
+  Program Synthesis:    0.030118
+  Namespace:            1.000000
+  Constructor:          0.002000
+  Priority Fee:         0.000000
+  Total Fee:            1.946118
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for broadcast_error.aleo...
+💰Your current public balance is XXXXXX credits.
+
