@@ -430,6 +430,18 @@ impl Expression {
             Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
             Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
 
+            // Signature: signatures don't have a well defined _zero_. The value chosen here is arbitrary.
+            // That being said, this value should really never be used directly. It should only be used as a 
+            // placeholder for representing `none` for example.
+            Type::Signature => Some(
+                Literal::signature(
+                    "sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj".to_string(),
+                    span,
+                    id,
+                )
+                .into(),
+            ),
+
             // Composite types
             Type::Composite(composite_type) => {
                 let path = &composite_type.path;

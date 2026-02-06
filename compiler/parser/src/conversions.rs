@@ -16,7 +16,7 @@
 
 use indexmap::IndexMap;
 
-use snarkvm::prelude::{Address, TestnetV0};
+use snarkvm::prelude::{Address, Signature, TestnetV0};
 
 use leo_ast::{Expression, Intrinsic, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result, TypeCheckerError};
@@ -651,10 +651,21 @@ impl<'a> ConversionContext<'a> {
                 leo_ast::CastExpression { expression, type_, span, id }.into()
             }
             ExpressionKind::Path => {
-                // We need to find the spans of the individual path components, since the
-                // lossless tree just has the span of the entire path.
                 let (program, qualifier, name, _) = self.path_to_parts(&node.children[0]);
-                leo_ast::Path::new(program, qualifier, name, span, id).into()
+
+                // This is a bit weird but I don't see a way around it right now. Maybe things will
+                // change with the new parser. Basically, we want to parse identifiers that start
+                // with `sign` and are valid signature into `Literal::Signature`s. If instead we capture
+                // these in the grammar file, we would then have to disallow all identifiers that
+                // start with `sign` which isn't very ergonomic.
+                if program.is_none()
+                    && qualifier.is_empty()
+                    && name.name.to_string().parse::<Signature<TestnetV0>>().is_ok()
+                {
+                    leo_ast::Literal::signature(name.name.to_string(), span, id).into()
+                } else {
+                    leo_ast::Path::new(program, qualifier, name, span, id).into()
+                }
             }
             ExpressionKind::Literal(literal_kind) => match literal_kind {
                 LiteralKind::Address => {

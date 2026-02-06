@@ -1376,7 +1376,6 @@ impl TypeCheckingVisitor<'_> {
             | Type::Mapping(_)
             | Type::Optional(_)
             | Type::String
-            | Type::Signature
             | Type::Tuple(_)
             | Type::Vector(_) => true,
 
@@ -1416,7 +1415,8 @@ impl TypeCheckingVisitor<'_> {
             | Type::Group
             | Type::Integer(_)
             | Type::Numeric
-            | Type::Scalar => false,
+            | Type::Scalar
+            | Type::Signature => false,
         }
     }
 

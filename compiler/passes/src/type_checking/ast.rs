@@ -1452,8 +1452,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             LiteralVariant::Address(..) => Type::Address,
             LiteralVariant::Boolean(..) => Type::Boolean,
             LiteralVariant::Field(..) => Type::Field,
-            LiteralVariant::Scalar(..) => Type::Scalar,
-            LiteralVariant::String(..) => Type::String,
+            LiteralVariant::Group(s) => {
+                let trimmed = s.trim_start_matches('-').trim_start_matches('0');
+                if !trimmed.is_empty()
+                    && format!("{trimmed}group")
+                        .parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>()
+                        .is_err()
+                {
+                    self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span));
+                }
+                Type::Group
+            }
             LiteralVariant::Integer(kind, string) => match kind {
                 IntegerType::U8 => parse_and_return!(u8, IntegerType::U8, string, "u8"),
                 IntegerType::U16 => parse_and_return!(u16, IntegerType::U16, string, "u16"),
@@ -1466,17 +1475,20 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 IntegerType::I64 => parse_and_return!(i64, IntegerType::I64, string, "i64"),
                 IntegerType::I128 => parse_and_return!(i128, IntegerType::I128, string, "i128"),
             },
-            LiteralVariant::Group(s) => {
-                let trimmed = s.trim_start_matches('-').trim_start_matches('0');
-                if !trimmed.is_empty()
-                    && format!("{trimmed}group")
-                        .parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>()
-                        .is_err()
-                {
-                    self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span));
+            LiteralVariant::None => {
+                if let Some(ty @ Type::Optional(_)) = expected {
+                    ty.clone()
+                } else if let Some(ty) = expected {
+                    self.emit_err(TypeCheckerError::none_found_non_optional(format!("{ty}"), span));
+                    Type::Err
+                } else {
+                    self.emit_err(TypeCheckerError::could_not_determine_type(format!("{input}"), span));
+                    Type::Err
                 }
-                Type::Group
             }
+            LiteralVariant::Scalar(..) => Type::Scalar,
+            LiteralVariant::Signature(..) => Type::Signature,
+            LiteralVariant::String(..) => Type::String,
             LiteralVariant::Unsuffixed(_) => match expected {
                 Some(ty @ Type::Integer(_) | ty @ Type::Field | ty @ Type::Group | ty @ Type::Scalar) => {
                     self.check_numeric_literal(input, ty);
@@ -1505,17 +1517,6 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 }
                 None => Type::Numeric,
             },
-            LiteralVariant::None => {
-                if let Some(ty @ Type::Optional(_)) = expected {
-                    ty.clone()
-                } else if let Some(ty) = expected {
-                    self.emit_err(TypeCheckerError::none_found_non_optional(format!("{ty}"), span));
-                    Type::Err
-                } else {
-                    self.emit_err(TypeCheckerError::could_not_determine_type(format!("{input}"), span));
-                    Type::Err
-                }
-            }
         };
 
         self.maybe_assert_type(&type_, expected, span);

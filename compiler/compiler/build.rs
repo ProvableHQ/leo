@@ -26,6 +26,8 @@ use std::{env, fs, path::PathBuf};
 /// This allows each Leo test to appear as an individual Rust test, enabling
 /// fine-grained filtering, parallel execution, and clearer failure reporting.
 fn main() {
+    println!("cargo::rerun-if-changed=../../tests/tests/execution");
+
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let tests_dir = manifest_dir.join("../../tests/tests/execution");
 
