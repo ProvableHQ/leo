@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![allow(dead_code)]
-
 //! Output buffer for building formatted source code.
 //!
 //! The `Output` struct manages indentation and newline handling automatically,
@@ -34,12 +32,14 @@ pub struct Output {
     depth: usize,
     /// Whether we're at the start of a line (for auto-indentation).
     at_line_start: bool,
+    /// Optional position marker for deferred newline insertion.
+    mark: Option<usize>,
 }
 
 impl Output {
     /// Create a new empty output buffer.
     pub fn new() -> Self {
-        Self { buf: String::new(), depth: 0, at_line_start: true }
+        Self { buf: String::new(), depth: 0, at_line_start: true, mark: None }
     }
 
     /// Write text to the buffer.
@@ -83,15 +83,35 @@ impl Output {
         }
     }
 
+    /// Mark the current buffer position for later newline insertion.
+    ///
+    /// Used by item formatters to mark the position after a closing `}` or `;`,
+    /// so that `format_program` can insert an inter-item blank line at this
+    /// position rather than at the end (after any trailing comments).
+    pub fn set_mark(&mut self) {
+        self.mark = Some(self.buf.len());
+    }
+
+    /// Insert a newline at the previously marked position.
+    ///
+    /// If no mark was set, falls back to appending a newline at the end.
+    pub fn insert_newline_at_mark(&mut self) {
+        if let Some(pos) = self.mark.take() {
+            self.buf.insert_str(pos, NEWLINE);
+        } else {
+            self.newline();
+        }
+    }
+
     /// Increase the indentation level.
-    pub fn indent(&mut self) {
+    fn indent(&mut self) {
         self.depth += 1;
     }
 
     /// Decrease the indentation level.
     ///
     /// Uses saturating subtraction to prevent underflow.
-    pub fn dedent(&mut self) {
+    fn dedent(&mut self) {
         self.depth = self.depth.saturating_sub(1);
     }
 
