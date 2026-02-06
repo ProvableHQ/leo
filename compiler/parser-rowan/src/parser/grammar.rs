@@ -117,7 +117,7 @@ mod tests {
         let parse = parse_module_entry(input);
         if !parse.errors().is_empty() {
             for err in parse.errors() {
-                eprintln!("error at {}: {}", err.offset, err.message);
+                eprintln!("error at {:?}: {}", err.range, err.message);
             }
             eprintln!("tree:\n{:#?}", parse.syntax());
             panic!("module parse had {} error(s)", parse.errors().len());
@@ -186,7 +186,7 @@ const Y: u32 = 64u32;";
         let parse = parse_file(source);
         if !parse.errors().is_empty() {
             for err in parse.errors() {
-                eprintln!("error at {}: {}", err.offset, err.message);
+                eprintln!("error at {:?}: {}", err.range, err.message);
             }
             eprintln!("tree:\n{:#?}", parse.syntax());
             panic!("file parse had {} error(s)", parse.errors().len());

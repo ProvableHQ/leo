@@ -32,7 +32,7 @@ use crate::{
     syntax_kind::{SyntaxKind, SyntaxKind::*},
 };
 pub use grammar::{parse_expression_entry, parse_file, parse_module_entry, parse_statement_entry};
-use rowan::{Checkpoint, GreenNode, GreenNodeBuilder};
+use rowan::{Checkpoint, GreenNode, GreenNodeBuilder, TextRange, TextSize};
 
 // =============================================================================
 // Parse Result
@@ -43,8 +43,12 @@ use rowan::{Checkpoint, GreenNode, GreenNodeBuilder};
 pub struct ParseError {
     /// A description of the error.
     pub message: String,
-    /// The byte offset where the error occurred.
-    pub offset: usize,
+    /// The source range where the error occurred.
+    ///
+    /// For "expected X" errors, this is typically a zero-length range at the
+    /// error position. For recovery errors, this spans the tokens wrapped in
+    /// the ERROR node.
+    pub range: TextRange,
 }
 
 /// The result of a parse operation.
@@ -192,12 +196,28 @@ pub struct Parser<'t, 's> {
     builder: GreenNodeBuilder<'static>,
     /// Accumulated parse errors.
     errors: Vec<ParseError>,
+    /// Nesting depth of parentheses (for delimiter recovery).
+    paren_depth: u32,
+    /// Nesting depth of braces (for delimiter recovery).
+    brace_depth: u32,
+    /// Nesting depth of brackets (for delimiter recovery).
+    bracket_depth: u32,
 }
 
 impl<'t, 's> Parser<'t, 's> {
     /// Create a new parser for the given source and tokens.
     pub fn new(source: &'s str, tokens: &'t [Token]) -> Self {
-        Self { source, tokens, pos: 0, byte_offset: 0, builder: GreenNodeBuilder::new(), errors: Vec::new() }
+        Self {
+            source,
+            tokens,
+            pos: 0,
+            byte_offset: 0,
+            builder: GreenNodeBuilder::new(),
+            errors: Vec::new(),
+            paren_depth: 0,
+            brace_depth: 0,
+            bracket_depth: 0,
+        }
     }
 
     // =========================================================================
@@ -304,11 +324,25 @@ impl<'t, 's> Parser<'t, 's> {
     }
 
     /// Consume the current token without skipping trivia first.
+    ///
+    /// Also tracks delimiter depth for recovery purposes.
     fn bump_raw(&mut self) {
         if self.pos >= self.tokens.len() {
             return;
         }
         let token = &self.tokens[self.pos];
+
+        // Track delimiter depth for recovery
+        match token.kind {
+            L_PAREN => self.paren_depth += 1,
+            R_PAREN => self.paren_depth = self.paren_depth.saturating_sub(1),
+            L_BRACE => self.brace_depth += 1,
+            R_BRACE => self.brace_depth = self.brace_depth.saturating_sub(1),
+            L_BRACKET => self.bracket_depth += 1,
+            R_BRACKET => self.bracket_depth = self.bracket_depth.saturating_sub(1),
+            _ => {}
+        }
+
         let text = &self.source[self.byte_offset..self.byte_offset + token.len as usize];
         self.builder.token(token.kind.into(), text);
         self.byte_offset += token.len as usize;
@@ -384,17 +418,27 @@ impl<'t, 's> Parser<'t, 's> {
         }
     }
 
-    /// Record a parse error at the current position.
+    /// Record a parse error at the current position (zero-length range).
     pub fn error(&mut self, message: String) {
-        self.errors.push(ParseError { message, offset: self.byte_offset });
+        let pos = TextSize::new(self.byte_offset as u32);
+        self.errors.push(ParseError { message, range: TextRange::empty(pos) });
+    }
+
+    /// Record a parse error spanning from `start` to the current position.
+    fn error_span(&mut self, message: String, start: usize) {
+        self.errors.push(ParseError {
+            message,
+            range: TextRange::new(TextSize::new(start as u32), TextSize::new(self.byte_offset as u32)),
+        });
     }
 
     /// Wrap unexpected tokens in an ERROR node until we reach a recovery point.
     ///
     /// This consumes tokens until we see one of the recovery tokens or EOF.
     /// If already at a recovery token, consumes it to ensure progress is made.
+    /// The error range spans the tokens wrapped in the ERROR node.
     pub fn error_recover(&mut self, message: &str, recovery: &[SyntaxKind]) {
-        self.error(message.to_string());
+        let start = self.byte_offset;
         self.start_node(ERROR);
 
         // If we're already at a recovery token, consume it to ensure progress.
@@ -408,14 +452,66 @@ impl<'t, 's> Parser<'t, 's> {
             self.bump_any();
         }
         self.finish_node();
+
+        // Record error with the span of consumed tokens
+        self.error_span(message.to_string(), start);
     }
 
     /// Create an ERROR node containing the current token.
+    /// The error range spans the single consumed token.
     pub fn error_and_bump(&mut self, message: &str) {
-        self.error(message.to_string());
+        let start = self.byte_offset;
         self.start_node(ERROR);
         self.bump_any();
         self.finish_node();
+        self.error_span(message.to_string(), start);
+    }
+
+    // =========================================================================
+    // Delimiter Tracking
+    // =========================================================================
+
+    /// Get the current parenthesis nesting depth.
+    #[allow(unused)]
+    pub fn paren_depth(&self) -> u32 {
+        self.paren_depth
+    }
+
+    /// Get the current brace nesting depth.
+    #[allow(unused)]
+    pub fn brace_depth(&self) -> u32 {
+        self.brace_depth
+    }
+
+    /// Get the current bracket nesting depth.
+    #[allow(unused)]
+    pub fn bracket_depth(&self) -> u32 {
+        self.bracket_depth
+    }
+
+    /// Skip tokens until we reach a balanced closing delimiter at depth 0.
+    ///
+    /// This is useful for recovering from errors inside parenthesized expressions,
+    /// blocks, or array literals. It consumes tokens while tracking delimiter
+    /// depth, stopping when the matching close delimiter would bring us back to
+    /// the starting depth.
+    ///
+    /// Returns true if a balanced delimiter was found, false if EOF was reached.
+    #[allow(unused)]
+    pub fn skip_to_balanced(&mut self, open: SyntaxKind, close: SyntaxKind) -> bool {
+        let mut depth: u32 = 1;
+        while !self.at_eof() && depth > 0 {
+            if self.at(open) {
+                depth += 1;
+            } else if self.at(close) {
+                depth -= 1;
+                if depth == 0 {
+                    return true;
+                }
+            }
+            self.bump_any();
+        }
+        false
     }
 
     // =========================================================================
@@ -453,6 +549,29 @@ pub const ITEM_RECOVERY: &[SyntaxKind] = &[
     R_BRACE,
 ];
 
+/// Tokens that indicate we should stop expression recovery.
+pub const EXPR_RECOVERY: &[SyntaxKind] = &[
+    SEMICOLON,
+    COMMA,
+    R_PAREN,
+    R_BRACKET,
+    R_BRACE,
+    KW_LET,
+    KW_CONST,
+    KW_RETURN,
+    KW_IF,
+    KW_FOR,
+    KW_ASSERT,
+    KW_ASSERT_EQ,
+    KW_ASSERT_NEQ,
+];
+
+/// Tokens for recovering inside type parsing.
+pub const TYPE_RECOVERY: &[SyntaxKind] = &[COMMA, GT, R_BRACKET, R_PAREN, L_BRACE, R_BRACE, EQ, SEMICOLON, ARROW];
+
+/// Tokens for recovering inside parameter lists.
+pub const PARAM_RECOVERY: &[SyntaxKind] = &[COMMA, R_PAREN, L_BRACE, ARROW];
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -475,8 +594,12 @@ mod tests {
         let mut parser = Parser::new(input, &tokens);
         parse_fn(&mut parser);
         let parse = parser.finish();
-        let output =
-            parse.errors().iter().map(|e| format!("{}:{}", e.offset, e.message)).collect::<Vec<_>>().join("\n");
+        let output = parse
+            .errors()
+            .iter()
+            .map(|e| format!("{}..{}:{}", u32::from(e.range.start()), u32::from(e.range.end()), e.message))
+            .collect::<Vec<_>>()
+            .join("\n");
         expect.assert_eq(&output);
     }
 
@@ -638,7 +761,7 @@ mod tests {
                 p.expect(SEMICOLON);
                 p.finish_node();
             },
-            expect![[r#"0:expected SEMICOLON"#]],
+            expect![[r#"0..0:expected SEMICOLON"#]],
         );
     }
 
@@ -829,5 +952,289 @@ mod tests {
                 R_PAREN@2..3 ")"
         "#]],
         );
+    }
+
+    // =========================================================================
+    // Error Recovery Tests
+    // =========================================================================
+    //
+    // These tests verify that the parser can recover from various error
+    // conditions and continue parsing. The key invariants are:
+    // 1. Parser never panics
+    // 2. ERROR nodes contain malformed content
+    // 3. Valid portions are parsed correctly
+    // 4. Reasonable error messages are generated
+
+    /// Helper to parse a file and return both tree and errors.
+    fn parse_file(input: &str) -> Parse {
+        let (tokens, _) = lex(input);
+        let mut parser = Parser::new(input, &tokens);
+        let root = parser.start();
+        parser.parse_file_items();
+        root.complete(&mut parser, ROOT);
+        parser.finish()
+    }
+
+    /// Helper to parse a statement and return both tree and errors.
+    fn parse_stmt_result(input: &str) -> Parse {
+        let (tokens, _) = lex(input);
+        let mut parser = Parser::new(input, &tokens);
+        let root = parser.start();
+        parser.parse_stmt();
+        parser.skip_trivia();
+        root.complete(&mut parser, ROOT);
+        parser.finish()
+    }
+
+    #[test]
+    fn recover_missing_semicolon_let() {
+        let parse = parse_stmt_result("let x = 1");
+        // Parser should complete but report an error
+        assert!(!parse.errors().is_empty(), "should have errors");
+        // Tree should still have a LET_STMT
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+    }
+
+    #[test]
+    fn recover_missing_semicolon_return() {
+        let parse = parse_stmt_result("return 42");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("RETURN_STMT"), "tree should have RETURN_STMT");
+    }
+
+    #[test]
+    fn recover_missing_expr_in_let() {
+        let parse = parse_stmt_result("let x = ;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+    }
+
+    #[test]
+    fn recover_missing_type_in_let() {
+        let parse = parse_stmt_result("let x: = 1;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+    }
+
+    #[test]
+    fn recover_missing_condition_in_if() {
+        // When the condition is missing and we have `if { }`, the `{` is parsed
+        // as an empty block expression in the condition position. The parser
+        // should still recover and produce an IF_STMT.
+        let parse = parse_stmt_result("if { }");
+        // May or may not have errors depending on interpretation
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("IF_STMT"), "tree should have IF_STMT");
+    }
+
+    #[test]
+    fn recover_missing_block_in_if() {
+        let parse = parse_stmt_result("if x");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("IF_STMT"), "tree should have IF_STMT");
+    }
+
+    #[test]
+    fn recover_missing_range_in_for() {
+        let parse = parse_stmt_result("for i in { }");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("FOR_STMT"), "tree should have FOR_STMT");
+    }
+
+    #[test]
+    fn recover_missing_operand_binary() {
+        let parse = parse_stmt_result("let x = 1 + ;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("BINARY_EXPR"), "tree should have BINARY_EXPR");
+    }
+
+    #[test]
+    fn recover_missing_operand_unary() {
+        let parse = parse_stmt_result("let x = -;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("UNARY_EXPR"), "tree should have UNARY_EXPR");
+    }
+
+    #[test]
+    fn recover_unclosed_paren() {
+        let parse = parse_stmt_result("let x = (1 + 2;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+    }
+
+    #[test]
+    fn recover_unclosed_bracket() {
+        let parse = parse_stmt_result("let x = [1, 2;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+    }
+
+    #[test]
+    fn recover_invalid_token_in_expr() {
+        let parse = parse_stmt_result("let x = 1 @ 2;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+    }
+
+    #[test]
+    fn recover_malformed_assert() {
+        let parse = parse_stmt_result("assert();");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("ASSERT_STMT"), "tree should have ASSERT_STMT");
+    }
+
+    #[test]
+    fn recover_malformed_assert_eq() {
+        let parse = parse_stmt_result("assert_eq(1);");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("ASSERT_EQ_STMT"), "tree should have ASSERT_EQ_STMT");
+    }
+
+    #[test]
+    fn recover_missing_assignment_rhs() {
+        let parse = parse_stmt_result("x = ;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("ASSIGN_STMT"), "tree should have ASSIGN_STMT");
+    }
+
+    #[test]
+    fn recover_malformed_function_missing_params() {
+        let parse = parse_file("program test.aleo { function foo { } }");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("PROGRAM_DECL"), "tree should have PROGRAM_DECL");
+        assert!(tree.contains("FUNCTION_DEF"), "tree should have FUNCTION_DEF");
+    }
+
+    #[test]
+    fn recover_malformed_function_missing_body() {
+        let parse = parse_file("program test.aleo { function foo() }");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("PROGRAM_DECL"), "tree should have PROGRAM_DECL");
+        assert!(tree.contains("FUNCTION_DEF"), "tree should have FUNCTION_DEF");
+    }
+
+    #[test]
+    fn recover_malformed_struct_field() {
+        let parse = parse_file("program test.aleo { struct Foo { x, y: u32 } }");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("STRUCT_DEF"), "tree should have STRUCT_DEF");
+    }
+
+    #[test]
+    fn recover_malformed_mapping() {
+        let parse = parse_file("program test.aleo { mapping balances: => u64; }");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("MAPPING_DEF"), "tree should have MAPPING_DEF");
+    }
+
+    #[test]
+    fn recover_multiple_errors_in_function() {
+        let parse = parse_file(
+            r#"program test.aleo {
+                function foo() {
+                    let x = ;
+                    let y: = 1;
+                    return x +;
+                }
+            }"#,
+        );
+        // Should have multiple errors but still parse the structure
+        assert!(parse.errors().len() >= 3, "should have at least 3 errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("FUNCTION_DEF"), "tree should have FUNCTION_DEF");
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+        assert!(tree.contains("RETURN_STMT"), "tree should have RETURN_STMT");
+    }
+
+    #[test]
+    fn recover_valid_items_after_error() {
+        let parse = parse_file(
+            r#"program test.aleo {
+                struct Invalid { x }
+                struct Valid { y: u32 }
+            }"#,
+        );
+        // Should have errors but parse both structs
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        // Both structs should be present
+        let struct_count = tree.matches("STRUCT_DEF").count();
+        assert_eq!(struct_count, 2, "should have 2 struct definitions");
+    }
+
+    #[test]
+    fn recover_empty_tuple_pattern() {
+        let parse = parse_stmt_result("let () = foo;");
+        // Empty tuple pattern should work
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+        assert!(tree.contains("TUPLE_PATTERN"), "tree should have TUPLE_PATTERN");
+    }
+
+    #[test]
+    fn recover_nested_errors() {
+        // Errors within nested expressions
+        let parse = parse_stmt_result("let x = ((1 + ) + 2);");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("LET_STMT"), "tree should have LET_STMT");
+        assert!(tree.contains("PAREN_EXPR"), "tree should have PAREN_EXPR");
+    }
+
+    #[test]
+    fn recover_ternary_missing_then() {
+        let parse = parse_stmt_result("let x = cond ? : 2;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("TERNARY_EXPR"), "tree should have TERNARY_EXPR");
+    }
+
+    #[test]
+    fn recover_ternary_missing_else() {
+        let parse = parse_stmt_result("let x = cond ? 1 :;");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("TERNARY_EXPR"), "tree should have TERNARY_EXPR");
+    }
+
+    #[test]
+    fn never_panics_on_garbage() {
+        // Feed various garbage inputs - parser should never panic
+        let garbage_inputs = [
+            "@#$%^&*()",
+            "{{{{{{",
+            "}}}}}}",
+            "let let let",
+            "program { program { program",
+            "struct struct struct",
+            ";;;;;;",
+            "++ -- ** //",
+            "",
+            "   \n\t\r  ",
+            "🦀🦀🦀", // Unicode
+        ];
+
+        for input in garbage_inputs {
+            // This should never panic
+            let _ = parse_file(input);
+        }
     }
 }

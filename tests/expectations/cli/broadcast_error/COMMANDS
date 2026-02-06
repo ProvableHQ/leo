@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Test that broadcast errors include the server's response body.
+# We deploy a program twice - the second deploy should fail with a
+# detailed error message (not just a status code).
+
+LEO_BIN=${1}
+PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
+COMMON_OPTS="--disable-update-check --broadcast --devnet --network testnet --endpoint http://localhost:3030 --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12"
+
+# First deploy should succeed
+$LEO_BIN deploy -y $COMMON_OPTS
+
+# Second deploy should fail with a detailed error message
+$LEO_BIN deploy -y $COMMON_OPTS || true

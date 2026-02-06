@@ -179,16 +179,22 @@ pub fn reserved_keywords() -> impl Iterator<Item = &'static str> {
     Program::<TestnetV0>::KEYWORDS.iter().copied().chain(restricted)
 }
 
+/// Creates a configured ureq agent for Leo network requests.
+///
+/// Disables `http_status_as_error` so 4xx/5xx responses return `Ok(Response)`
+/// instead of `Err(StatusCode)`. This preserves response bodies which often
+/// contain useful error details from the server.
+pub fn create_http_agent() -> ureq::Agent {
+    ureq::Agent::config_builder().max_redirects(0).http_status_as_error(false).build().new_agent()
+}
+
 // Fetch the given endpoint url and return the sanitized response.
 pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
     fetch_from_network_plain(url).map(|s| s.replace("\\n", "\n").replace('\"', ""))
 }
 
 pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
-    let mut response = ureq::Agent::config_builder()
-        .max_redirects(0)
-        .build()
-        .new_agent()
+    let mut response = create_http_agent()
         .get(url)
         .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .call()

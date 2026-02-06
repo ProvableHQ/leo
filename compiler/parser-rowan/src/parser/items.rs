@@ -24,10 +24,15 @@
 //! - Mappings and storage
 //! - Global constants
 
-use super::{CompletedMarker, ITEM_RECOVERY, Parser};
-use crate::syntax_kind::SyntaxKind::*;
+use super::{CompletedMarker, EXPR_RECOVERY, ITEM_RECOVERY, PARAM_RECOVERY, Parser, TYPE_RECOVERY};
+use crate::syntax_kind::SyntaxKind::{self, *};
 
 impl Parser<'_, '_> {
+    /// Recovery set for struct/record fields.
+    const FIELD_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_BRACE, KW_PUBLIC, KW_PRIVATE, KW_CONSTANT];
+    /// Recovery set for return type parsing.
+    const RETURN_TYPE_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_PAREN, L_BRACE];
+
     /// Parse a complete file.
     ///
     /// A file may contain one or more program sections, each consisting of
@@ -279,12 +284,22 @@ impl Parser<'_, '_> {
                 self.bump_any();
             } else {
                 m.abandon(self);
+                // Try to recover to next field or end of struct
+                if !self.at(R_BRACE) {
+                    self.error_recover("expected field name", Self::FIELD_RECOVERY);
+                }
+                // If we recovered to a comma, consume it and continue
+                if self.eat(COMMA) {
+                    continue;
+                }
                 break;
             }
 
             // Colon and type
             self.expect(COLON);
-            self.parse_type();
+            if self.parse_type().is_none() {
+                self.error_recover("expected type", Self::FIELD_RECOVERY);
+            }
 
             m.complete(self, STRUCT_MEMBER);
 
@@ -310,9 +325,13 @@ impl Parser<'_, '_> {
 
         // Key and value types
         self.expect(COLON);
-        self.parse_type();
+        if self.parse_type().is_none() {
+            self.error_recover("expected key type", TYPE_RECOVERY);
+        }
         self.expect(FAT_ARROW);
-        self.parse_type();
+        if self.parse_type().is_none() {
+            self.error_recover("expected value type", TYPE_RECOVERY);
+        }
 
         self.expect(SEMICOLON);
         Some(m.complete(self, MAPPING_DEF))
@@ -333,7 +352,9 @@ impl Parser<'_, '_> {
 
         // Type
         self.expect(COLON);
-        self.parse_type();
+        if self.parse_type().is_none() {
+            self.error_recover("expected type", TYPE_RECOVERY);
+        }
 
         self.expect(SEMICOLON);
         Some(m.complete(self, STORAGE_DEF))
@@ -354,11 +375,15 @@ impl Parser<'_, '_> {
 
         // Type
         self.expect(COLON);
-        self.parse_type();
+        if self.parse_type().is_none() {
+            self.error_recover("expected type", TYPE_RECOVERY);
+        }
 
         // Value
         self.expect(EQ);
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error_recover("expected expression", EXPR_RECOVERY);
+        }
 
         self.expect(SEMICOLON);
         Some(m.complete(self, GLOBAL_CONST))
@@ -437,13 +462,17 @@ impl Parser<'_, '_> {
             if !self.at(R_PAREN) {
                 // First output
                 let _ = self.eat(KW_PUBLIC) || self.eat(KW_PRIVATE) || self.eat(KW_CONSTANT);
-                self.parse_type();
+                if self.parse_type().is_none() {
+                    self.error_recover("expected return type", Self::RETURN_TYPE_RECOVERY);
+                }
                 while self.eat(COMMA) {
                     if self.at(R_PAREN) {
                         break;
                     }
                     let _ = self.eat(KW_PUBLIC) || self.eat(KW_PRIVATE) || self.eat(KW_CONSTANT);
-                    self.parse_type();
+                    if self.parse_type().is_none() {
+                        self.error_recover("expected return type", Self::RETURN_TYPE_RECOVERY);
+                    }
                 }
             }
             self.expect(R_PAREN);
@@ -451,7 +480,9 @@ impl Parser<'_, '_> {
         } else {
             // Single return type with optional visibility
             let _ = self.eat(KW_PUBLIC) || self.eat(KW_PRIVATE) || self.eat(KW_CONSTANT);
-            self.parse_type();
+            if self.parse_type().is_none() {
+                self.error_recover("expected return type", Self::RETURN_TYPE_RECOVERY);
+            }
         }
     }
 
@@ -500,7 +531,9 @@ impl Parser<'_, '_> {
 
         // Type
         self.expect(COLON);
-        self.parse_type();
+        if self.parse_type().is_none() {
+            self.error_recover("expected parameter type", PARAM_RECOVERY);
+        }
 
         m.complete(self, PARAM);
     }
@@ -532,7 +565,7 @@ mod tests {
         let parse: Parse = parser.finish();
         if !parse.errors().is_empty() {
             for err in parse.errors() {
-                eprintln!("error at {}: {}", err.offset, err.message);
+                eprintln!("error at {:?}: {}", err.range, err.message);
             }
             eprintln!("tree:\n{:#?}", parse.syntax());
             panic!("parse had {} error(s)", parse.errors().len());

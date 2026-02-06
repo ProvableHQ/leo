@@ -25,10 +25,13 @@
 //! - Expression statements
 //! - Blocks
 
-use super::{CompletedMarker, Parser, STMT_RECOVERY, expressions::ExprOpts};
+use super::{CompletedMarker, EXPR_RECOVERY, Parser, STMT_RECOVERY, TYPE_RECOVERY, expressions::ExprOpts};
 use crate::syntax_kind::{SyntaxKind, SyntaxKind::*};
 
 impl Parser<'_, '_> {
+    /// Recovery tokens for pattern parsing.
+    const PATTERN_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_PAREN, COLON, EQ];
+
     /// Parse a statement.
     pub fn parse_stmt(&mut self) -> Option<CompletedMarker> {
         self.skip_trivia();
@@ -56,13 +59,15 @@ impl Parser<'_, '_> {
         self.parse_pattern();
 
         // Optional type annotation
-        if self.eat(COLON) {
-            self.parse_type();
+        if self.eat(COLON) && self.parse_type().is_none() {
+            self.error_recover("expected type", TYPE_RECOVERY);
         }
 
         // Initializer
         self.expect(EQ);
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error_recover("expected expression", EXPR_RECOVERY);
+        }
 
         self.expect(SEMICOLON);
         Some(m.complete(self, LET_STMT))
@@ -83,11 +88,15 @@ impl Parser<'_, '_> {
 
         // Type annotation (required for const)
         self.expect(COLON);
-        self.parse_type();
+        if self.parse_type().is_none() {
+            self.error_recover("expected type", TYPE_RECOVERY);
+        }
 
         // Initializer
         self.expect(EQ);
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error_recover("expected expression", EXPR_RECOVERY);
+        }
 
         self.expect(SEMICOLON);
         Some(m.complete(self, CONST_STMT))
@@ -98,9 +107,10 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // return
 
-        // Optional expression
-        if !self.at(SEMICOLON) && !self.at_eof() {
-            self.parse_expr();
+        // Optional expression - only attempt if we're not at semicolon/EOF
+        if !self.at(SEMICOLON) && !self.at_eof() && self.parse_expr().is_none() {
+            // Tried to parse expression but failed - recover
+            self.error_recover("expected expression or ';'", EXPR_RECOVERY);
         }
 
         self.expect(SEMICOLON);
@@ -113,10 +123,14 @@ impl Parser<'_, '_> {
         self.bump_any(); // if
 
         // Parse condition (no struct literals to avoid ambiguity)
-        self.parse_expr_with_opts(ExprOpts::no_struct());
+        if self.parse_expr_with_opts(ExprOpts::no_struct()).is_none() {
+            self.error_recover("expected condition", EXPR_RECOVERY);
+        }
 
-        // Then block
-        self.parse_block();
+        // Then block - recover if missing
+        if self.parse_block().is_none() && !self.at_eof() {
+            self.error_recover("expected block", STMT_RECOVERY);
+        }
 
         // Optional else clause
         if self.eat(KW_ELSE) {
@@ -124,8 +138,10 @@ impl Parser<'_, '_> {
                 // else if
                 self.parse_if_stmt();
             } else {
-                // else block
-                self.parse_block();
+                // else block - recover if missing
+                if self.parse_block().is_none() && !self.at_eof() {
+                    self.error_recover("expected block after 'else'", STMT_RECOVERY);
+                }
             }
         }
 
@@ -146,8 +162,8 @@ impl Parser<'_, '_> {
         }
 
         // Optional type annotation
-        if self.eat(COLON) {
-            self.parse_type();
+        if self.eat(COLON) && self.parse_type().is_none() {
+            self.error_recover("expected type", TYPE_RECOVERY);
         }
 
         // in keyword
@@ -155,13 +171,17 @@ impl Parser<'_, '_> {
 
         // Range: lo..hi
         // Disallow struct literals so `IDENT {` parses as range + block body.
-        self.parse_expr_with_opts(ExprOpts::no_struct());
-        if self.eat(DOT_DOT) {
-            self.parse_expr_with_opts(ExprOpts::no_struct());
+        if self.parse_expr_with_opts(ExprOpts::no_struct()).is_none() {
+            self.error_recover("expected range start", EXPR_RECOVERY);
+        }
+        if self.eat(DOT_DOT) && self.parse_expr_with_opts(ExprOpts::no_struct()).is_none() {
+            self.error_recover("expected range end", EXPR_RECOVERY);
         }
 
-        // Body
-        self.parse_block();
+        // Body - recover if missing
+        if self.parse_block().is_none() && !self.at_eof() {
+            self.error_recover("expected block", STMT_RECOVERY);
+        }
 
         Some(m.complete(self, FOR_STMT))
     }
@@ -172,7 +192,9 @@ impl Parser<'_, '_> {
         self.bump_any(); // assert
 
         self.expect(L_PAREN);
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error_recover("expected expression", EXPR_RECOVERY);
+        }
         self.expect(R_PAREN);
 
         self.expect(SEMICOLON);
@@ -185,9 +207,13 @@ impl Parser<'_, '_> {
         self.bump_any(); // assert_eq
 
         self.expect(L_PAREN);
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error_recover("expected first expression", EXPR_RECOVERY);
+        }
         self.expect(COMMA);
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error_recover("expected second expression", EXPR_RECOVERY);
+        }
         self.expect(R_PAREN);
 
         self.expect(SEMICOLON);
@@ -200,9 +226,13 @@ impl Parser<'_, '_> {
         self.bump_any(); // assert_neq
 
         self.expect(L_PAREN);
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error_recover("expected first expression", EXPR_RECOVERY);
+        }
         self.expect(COMMA);
-        self.parse_expr();
+        if self.parse_expr().is_none() {
+            self.error_recover("expected second expression", EXPR_RECOVERY);
+        }
         self.expect(R_PAREN);
 
         self.expect(SEMICOLON);
@@ -244,7 +274,9 @@ impl Parser<'_, '_> {
         // Check for assignment operators
         if let Some(assign_kind) = self.current_assign_op() {
             self.bump_any(); // operator
-            self.parse_expr();
+            if self.parse_expr().is_none() {
+                self.error_recover("expected expression after assignment operator", EXPR_RECOVERY);
+            }
             self.expect(SEMICOLON);
             return Some(m.complete(self, assign_kind));
         }
@@ -311,7 +343,7 @@ impl Parser<'_, '_> {
                 m.complete(self, WILDCARD_PATTERN);
             }
             _ => {
-                self.error("expected pattern".to_string());
+                self.error_recover("expected pattern", Self::PATTERN_RECOVERY);
             }
         }
     }

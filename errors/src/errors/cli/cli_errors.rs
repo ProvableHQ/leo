@@ -274,7 +274,7 @@ create_messages!(
     @backtraced
     broadcast_error {
         args: (error: impl Display),
-        msg: format!("Failed to broadcast transaction: {error}"),
+        msg: format!("Failed to broadcast transaction:\n{error}"),
         help: None,
     }
 
