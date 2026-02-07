@@ -251,9 +251,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     }
 
     if let Some(json_output_arg) = cli.json_output
-        && let Some(output) = command_output
+        && let Some(output) = &command_output
     {
-        let json = serde_json::to_string_pretty(&output).expect("JSON serialization failed");
+        let json = serde_json::to_string_pretty(output).expect("JSON serialization failed");
 
         // Use provided path or default to build/json-outputs/<command>.json
         let path = if json_output_arg.is_empty() {
@@ -272,6 +272,12 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         }
         std::fs::write(&path, json)
             .map_err(|e| CliError::custom(format!("Failed to write JSON output to {}: {e}", path.display())))?;
+    }
+
+    if let Some(JsonOutput::Test(output)) = &command_output {
+        if output.failed > 0 {
+            return Err(CliError::tests_failed(output.failed, output.tests.len()).into());
+        }
     }
 
     Ok(())
@@ -1017,7 +1023,7 @@ program outer_2.aleo {
         owner: address,
         a: u32,
     }
-    
+
     transition main(public a: u32, b: u32) -> (inner_2.aleo/Yoo, Hello) {
         let d: inner_1.aleo/Foo = inner_1.aleo/main(1u32,1u32);
         let e: u32 = inner_1.aleo/main_2(inner_1.aleo/Foo {a: a, b: b, c: inner_1.aleo/Boo {a:1u32, b:1u32}});

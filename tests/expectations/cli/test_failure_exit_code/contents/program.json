@@ -1,0 +1,6 @@
+{
+    "program": "test_failure_exit_code.aleo",
+    "version": "1.0.0",
+    "description": "Test program for exit code verification",
+    "license": "MIT"
+}

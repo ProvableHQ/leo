@@ -1,0 +1,134 @@
+thread `main` panicked at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/circuit/environment/src/testnet_circuit.rs:152:29:
+assertion `left == right` failed: Constant constraint failed: (0 * 1) =?= 1
+  left: 0
+ right: 1
+stack backtrace: 
+   0: leo::set_panic_hook::{{closure}}
+             at /home/mindtree/repo/provable/leo/leo/cli/main.rs:26:50
+   1: <alloc::boxed::Box<F,A> as core::ops::function::Fn<Args>>::call
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/alloc/src/boxed.rs:2019:9
+      std::panicking::panic_with_hook
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:842:13
+   2: std::panicking::panic_handler::{{closure}}
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:707:13
+   3: std::sys::backtrace::__rust_end_short_backtrace
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/sys/backtrace.rs:174:18
+   4: __rustc::rust_begin_unwind
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:698:5
+   5: core::panicking::panic_fmt
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/panicking.rs:80:14
+   6: core::panicking::assert_failed_inner
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/panicking.rs:439:23
+   7: core::panicking::assert_failed
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/panicking.rs:399:5
+   8: <snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce::{{closure}}::{{closure}}
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/circuit/environment/src/testnet_circuit.rs:152:29
+      std::thread::local::LocalKey<T>::try_with
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/thread/local.rs:508:12
+      std::thread::local::LocalKey<T>::with
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/thread/local.rs:472:20
+      <snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce::{{closure}}
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/circuit/environment/src/testnet_circuit.rs:135:33
+      std::thread::local::LocalKey<T>::try_with
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/thread/local.rs:508:12
+      std::thread::local::LocalKey<T>::with
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/thread/local.rs:472:20
+   9: <snarkvm_circuit_environment::testnet_circuit::TestnetCircuit as snarkvm_circuit_environment::environment::Environment>::enforce
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/circuit/environment/src/testnet_circuit.rs:132:20
+      <snarkvm_circuit_network::testnet_v0::AleoTestnetV0 as snarkvm_circuit_environment::environment::Environment>::enforce
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/circuit/network/src/testnet_v0.rs:433:9
+      snarkvm_circuit_environment::environment::Environment::assert
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/circuit/environment/src/environment.rs:74:9
+  10: snarkvm_synthesizer_program::logic::instruction::operation::assert::AssertInstruction<N,_>::execute
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/synthesizer/program/src/logic/instruction/operation/assert.rs:127:18
+  11: snarkvm_synthesizer_process::stack::execute::<impl snarkvm_synthesizer_process::stack::Stack<N>>::execute_function
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/synthesizer/process/src/stack/execute.rs:325:34
+  12: snarkvm_synthesizer_process::stack::helpers::synthesize::<impl snarkvm_synthesizer_process::stack::Stack<N>>::synthesize_key
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/synthesizer/process/src/stack/helpers/synthesize.rs:82:30
+      snarkvm_synthesizer_process::stack::deploy::<impl snarkvm_synthesizer_process::stack::Stack<N>>::deploy
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/synthesizer/process/src/stack/deploy.rs:34:18
+      snarkvm_synthesizer_process::deploy::<impl snarkvm_synthesizer_process::Process<N>>::deploy
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/synthesizer/process/src/deploy.rs:33:32
+      snarkvm_synthesizer::vm::deploy::<impl snarkvm_synthesizer::vm::VM<N,C>>::deploy_raw
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/synthesizer/src/vm/deploy.rs:94:43
+      snarkvm_synthesizer::vm::deploy::<impl snarkvm_synthesizer::vm::VM<N,C>>::deploy
+             at /home/mindtree/.cargo/git/checkouts/snarkvm-cca64a3992502984/990f618/synthesizer/src/vm/deploy.rs:35:35
+  13: leo_compiler::run::run_with_ledger::{{closure}}::{{closure}}
+             at /home/mindtree/repo/provable/leo/compiler/compiler/src/run.rs:322:29
+      core::ops::function::FnOnce::call_once
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/ops/function.rs:250:5
+      <core::panic::unwind_safe::AssertUnwindSafe<F> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/panic/unwind_safe.rs:274:9
+      std::panicking::catch_unwind::do_call
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:590:40
+      std::panicking::catch_unwind
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:553:19
+      std::panic::catch_unwind
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panic.rs:359:14
+      leo_compiler::run::run_with_ledger::{{closure}}
+             at /home/mindtree/repo/provable/leo/compiler/compiler/src/run.rs:321:36
+  14: leo_compiler::run::run_with_ledger
+             at /home/mindtree/repo/provable/leo/compiler/compiler/src/run.rs:347:9
+  15: leo_lang::cli::commands::test::handle_test
+             at /home/mindtree/repo/provable/leo/leo/cli/commands/test.rs:128:20
+      <leo_lang::cli::commands::test::LeoTest as leo_lang::cli::commands::Command>::apply
+             at /home/mindtree/repo/provable/leo/leo/cli/commands/test.rs:60:9
+  16: leo_lang::cli::commands::Command::execute
+             at /home/mindtree/repo/provable/leo/leo/cli/commands/mod.rs:129:24
+  17: leo_lang::cli::cli::run_with_args
+             at /home/mindtree/repo/provable/leo/leo/cli/cli.rs:235:86
+  18: leo::main::{{closure}}
+             at /home/mindtree/repo/provable/leo/leo/cli/main.rs:47:53
+      scoped_tls::ScopedKey<T>::with
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/scoped-tls-1.0.1/src/lib.rs:171:13
+  19: leo_span::symbol::create_session_if_not_set_then::{{closure}}
+             at /home/mindtree/repo/provable/leo/compiler/span/src/symbol.rs:978:53
+      scoped_tls::ScopedKey<T>::set
+             at /home/mindtree/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/scoped-tls-1.0.1/src/lib.rs:137:9
+  20: leo_span::symbol::create_session_if_not_set_then
+             at /home/mindtree/repo/provable/leo/compiler/span/src/symbol.rs:978:25
+      leo::main
+             at /home/mindtree/repo/provable/leo/leo/cli/main.rs:47:5
+  21: core::ops::function::FnOnce::call_once
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/ops/function.rs:250:5
+      std::sys::backtrace::__rust_begin_short_backtrace
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/sys/backtrace.rs:158:18
+  22: std::rt::lang_start::{{closure}}
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/rt.rs:206:18
+  23: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/core/src/ops/function.rs:287:21
+      std::panicking::catch_unwind::do_call
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:590:40
+      std::panicking::catch_unwind
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:553:19
+      std::panic::catch_unwind
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panic.rs:359:14
+      std::rt::lang_start_internal::{{closure}}
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/rt.rs:175:24
+      std::panicking::catch_unwind::do_call
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:590:40
+      std::panicking::catch_unwind
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panicking.rs:553:19
+      std::panic::catch_unwind
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/panic.rs:359:14
+      std::rt::lang_start_internal
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/rt.rs:171:5
+  24: std::rt::lang_start
+             at /rustc/ded5c06cf21d2b93bffd5d884aa6e96934ee4234/library/std/src/rt.rs:205:5
+  25: __libc_start_call_main
+  26: __libc_start_main_alias_1
+  27: _start
+
+error: internal compiler error: unexpected panic
+
+note: the compiler unexpectedly panicked. this is a bug.
+
+note: we would appreciate a bug report: https://github.com/ProvableHQ/leo/issues/new?labels=bug,panic&template=bug.md&title=[Bug]
+
+note: leo-lang 3.4.0 running on Linux 6.12.63
+
+note: compiler args: /home/mindtree/repo/provable/leo/target/debug/leo test
+
+note: compiler flags: CLI { debug: false, quiet: false, json_output: None, disable_update_check: false, command: Test { command: LeoTest { test_name: "", compiler_options: BuildOptions { offline: false, enable_ast_spans: false, enable_dce: true, conditional_block_max_depth: 10, disable_conditional_branch_type_checking: false, enable_initial_ast_snapshot: false, enable_all_ast_snapshots: false, ast_snapshots: [], build_tests: false, no_cache: false, no_local: false }, env_override: EnvOptions { private_key: None, network: None, endpoint: None, devnet: false, consensus_heights: None } } }, path: None, home: None }
+
+Panic during deployment of program test_failure: Any { .. }
