@@ -97,7 +97,6 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             Expression::Err(e) => self.reconstruct_err(e, additional),
             Expression::Path(e) => self.reconstruct_path(e, additional),
             Expression::Literal(e) => self.reconstruct_literal(e, additional),
-            Expression::Locator(e) => self.reconstruct_locator(e, additional),
             Expression::MemberAccess(e) => self.reconstruct_member_access(*e, additional),
             Expression::Repeat(e) => self.reconstruct_repeat(*e, additional),
             Expression::Ternary(e) => self.reconstruct_ternary(*e, additional),

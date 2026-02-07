@@ -1,0 +1,237 @@
+program zero_program.aleo;
+
+struct Optional__DOnC9eGtnsJ:
+    is_some as boolean;
+    val as u64;
+
+mapping count__:
+    key as boolean.public;
+    value as u64.public;
+
+function c:
+    async c into r0;
+    output r0 as zero_program.aleo/c.future;
+
+finalize c:
+    contains count__[false] into r0;
+    get.or_use count__[false] 0u64 into r1;
+    cast true r1 into r2 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r3 as Optional__DOnC9eGtnsJ;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__DOnC9eGtnsJ;
+    contains count__[false] into r7;
+    get.or_use count__[false] 0u64 into r8;
+    cast true r8 into r9 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r10 as Optional__DOnC9eGtnsJ;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__DOnC9eGtnsJ;
+    ternary r6.is_some r13.val 0u64 into r14;
+    add r14 1u64 into r15;
+    set r15 into count__[false];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+program one_program.aleo;
+
+struct Optional__DOnC9eGtnsJ:
+    is_some as boolean;
+    val as u64;
+
+mapping count__:
+    key as boolean.public;
+    value as u64.public;
+
+function d:
+    async d into r0;
+    output r0 as one_program.aleo/d.future;
+
+finalize d:
+    contains count__[false] into r0;
+    get.or_use count__[false] 0u64 into r1;
+    cast true r1 into r2 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r3 as Optional__DOnC9eGtnsJ;
+    ternary r0 r2.is_some r3.is_some into r4;
+    ternary r0 r2.val r3.val into r5;
+    cast r4 r5 into r6 as Optional__DOnC9eGtnsJ;
+    contains count__[false] into r7;
+    get.or_use count__[false] 0u64 into r8;
+    cast true r8 into r9 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r10 as Optional__DOnC9eGtnsJ;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__DOnC9eGtnsJ;
+    ternary r6.is_some r13.val 0u64 into r14;
+    add r14 2u64 into r15;
+    set r15 into count__[false];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import zero_program.aleo;
+import one_program.aleo;
+program two_program.aleo;
+
+struct Optional__DOnC9eGtnsJ:
+    is_some as boolean;
+    val as u64;
+
+mapping count__:
+    key as boolean.public;
+    value as u64.public;
+
+function b:
+    call zero_program.aleo/c into r0;
+    call one_program.aleo/d into r1;
+    async b r0 r1 into r2;
+    output r2 as two_program.aleo/b.future;
+
+finalize b:
+    input r0 as zero_program.aleo/c.future;
+    input r1 as one_program.aleo/d.future;
+    await r0;
+    await r1;
+    contains zero_program.aleo/count__[false] into r2;
+    get.or_use zero_program.aleo/count__[false] 0u64 into r3;
+    cast true r3 into r4 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r5 as Optional__DOnC9eGtnsJ;
+    ternary r2 r4.is_some r5.is_some into r6;
+    ternary r2 r4.val r5.val into r7;
+    cast r6 r7 into r8 as Optional__DOnC9eGtnsJ;
+    assert.eq r8.is_some true;
+    contains zero_program.aleo/count__[false] into r9;
+    get.or_use zero_program.aleo/count__[false] 0u64 into r10;
+    cast true r10 into r11 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r12 as Optional__DOnC9eGtnsJ;
+    ternary r9 r11.is_some r12.is_some into r13;
+    ternary r9 r11.val r12.val into r14;
+    cast r13 r14 into r15 as Optional__DOnC9eGtnsJ;
+    is.eq r15.val 1u64 into r16;
+    assert.eq r16 true;
+    contains one_program.aleo/count__[false] into r17;
+    get.or_use one_program.aleo/count__[false] 0u64 into r18;
+    cast true r18 into r19 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r20 as Optional__DOnC9eGtnsJ;
+    ternary r17 r19.is_some r20.is_some into r21;
+    ternary r17 r19.val r20.val into r22;
+    cast r21 r22 into r23 as Optional__DOnC9eGtnsJ;
+    assert.eq r23.is_some true;
+    contains one_program.aleo/count__[false] into r24;
+    get.or_use one_program.aleo/count__[false] 0u64 into r25;
+    cast true r25 into r26 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r27 as Optional__DOnC9eGtnsJ;
+    ternary r24 r26.is_some r27.is_some into r28;
+    ternary r24 r26.val r27.val into r29;
+    cast r28 r29 into r30 as Optional__DOnC9eGtnsJ;
+    is.eq r30.val 2u64 into r31;
+    assert.eq r31 true;
+    contains zero_program.aleo/count__[false] into r32;
+    get.or_use zero_program.aleo/count__[false] 0u64 into r33;
+    cast true r33 into r34 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r35 as Optional__DOnC9eGtnsJ;
+    ternary r32 r34.is_some r35.is_some into r36;
+    ternary r32 r34.val r35.val into r37;
+    cast r36 r37 into r38 as Optional__DOnC9eGtnsJ;
+    assert.eq r38.is_some true;
+    contains one_program.aleo/count__[false] into r39;
+    get.or_use one_program.aleo/count__[false] 0u64 into r40;
+    cast true r40 into r41 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r42 as Optional__DOnC9eGtnsJ;
+    ternary r39 r41.is_some r42.is_some into r43;
+    ternary r39 r41.val r42.val into r44;
+    cast r43 r44 into r45 as Optional__DOnC9eGtnsJ;
+    assert.eq r45.is_some true;
+    contains zero_program.aleo/count__[false] into r46;
+    get.or_use zero_program.aleo/count__[false] 0u64 into r47;
+    cast true r47 into r48 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r49 as Optional__DOnC9eGtnsJ;
+    ternary r46 r48.is_some r49.is_some into r50;
+    ternary r46 r48.val r49.val into r51;
+    cast r50 r51 into r52 as Optional__DOnC9eGtnsJ;
+    contains one_program.aleo/count__[false] into r53;
+    get.or_use one_program.aleo/count__[false] 0u64 into r54;
+    cast true r54 into r55 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r56 as Optional__DOnC9eGtnsJ;
+    ternary r53 r55.is_some r56.is_some into r57;
+    ternary r53 r55.val r56.val into r58;
+    cast r57 r58 into r59 as Optional__DOnC9eGtnsJ;
+    add r52.val r59.val into r60;
+    set r60 into count__[false];
+    contains count__[false] into r61;
+    get.or_use count__[false] 0u64 into r62;
+    cast true r62 into r63 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r64 as Optional__DOnC9eGtnsJ;
+    ternary r61 r63.is_some r64.is_some into r65;
+    ternary r61 r63.val r64.val into r66;
+    cast r65 r66 into r67 as Optional__DOnC9eGtnsJ;
+    assert.eq r67.is_some true;
+    contains count__[false] into r68;
+    get.or_use count__[false] 0u64 into r69;
+    cast true r69 into r70 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r71 as Optional__DOnC9eGtnsJ;
+    ternary r68 r70.is_some r71.is_some into r72;
+    ternary r68 r70.val r71.val into r73;
+    cast r72 r73 into r74 as Optional__DOnC9eGtnsJ;
+    is.eq r74.val 3u64 into r75;
+    assert.eq r75 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1mesefhvljsc6ysk88xeu9zk0f3rnkfdkgx4t7k5uh2e6mx6nxvgsfuamy0",
+      "program": "zero_program.aleo",
+      "function": "c",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6353417269826004346337036455073950035275591770381756918589390900866190551517field",
+          "value": "{\n  program_id: zero_program.aleo,\n  function_name: c,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "4891349659429101880187622959032363449909879395103937148719323127598736976512group",
+      "tcm": "1656195081837078703474906934608004624538485442115181112802201059004959944656field",
+      "scm": "4196562792364116741371709409983149619190283207119310626178410584458997949967field"
+    },
+    {
+      "id": "au1ww5rqjraelvht2hutl2k33l5ycdnxrrlaxdzg8accpam79pjhvxsxk8zqd",
+      "program": "one_program.aleo",
+      "function": "d",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8226253967653370565261042044501738345504236666433388381613695900009466899885field",
+          "value": "{\n  program_id: one_program.aleo,\n  function_name: d,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "3545847661431759503194087514096230199684641427014048778710483379996570588118group",
+      "tcm": "4711530905669029484011402363604757603729909624854306335293689205281785917618field",
+      "scm": "4196562792364116741371709409983149619190283207119310626178410584458997949967field"
+    },
+    {
+      "id": "au1pekwuvmclwtuw8q6wmry9zsdqe6vvtes4fh8chsp2er5q9gj6q8sqcfxz0",
+      "program": "two_program.aleo",
+      "function": "b",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3312956436094324037845859710095587138903590558738302040547111360328098674168field",
+          "value": "{\n  program_id: two_program.aleo,\n  function_name: b,\n  arguments: [\n    {\n      program_id: zero_program.aleo,\n      function_name: c,\n      arguments: []\n    },\n    {\n      program_id: one_program.aleo,\n      function_name: d,\n      arguments: []\n    }\n  \n  ]\n}"
+        }
+      ],
+      "tpk": "4993475131721409843737488172680555341642610224967868736396638984265060682226group",
+      "tcm": "8440107908087307383584703186667798446823532776196587749318778929015270780871field",
+      "scm": "4196562792364116741371709409983149619190283207119310626178410584458997949967field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

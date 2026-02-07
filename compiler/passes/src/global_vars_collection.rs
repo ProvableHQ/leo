@@ -52,9 +52,12 @@ use leo_ast::{
     ProgramScope,
     ProgramVisitor,
     StorageVariable,
+    Stub,
 };
 use leo_errors::Result;
 use leo_span::Symbol;
+
+use indexmap::IndexSet;
 
 pub struct GlobalVarsCollection;
 
@@ -66,7 +69,12 @@ impl Pass for GlobalVarsCollection {
 
     fn do_pass(_input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
-        let mut visitor = GlobalVarsCollectionVisitor { state, program_name: Symbol::intern(""), module: vec![] };
+        let mut visitor = GlobalVarsCollectionVisitor {
+            state,
+            program_name: Symbol::intern(""),
+            module: vec![],
+            parents: IndexSet::new(),
+        };
         visitor.visit_program(ast.as_repr());
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
@@ -81,6 +89,8 @@ struct GlobalVarsCollectionVisitor<'a> {
     program_name: Symbol,
     /// The current module name.
     module: Vec<Symbol>,
+    /// The set of programs that import the program we're visiting.
+    parents: IndexSet<Symbol>,
 }
 
 impl GlobalVarsCollectionVisitor<'_> {
@@ -117,6 +127,9 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
         // Set current program name
         self.program_name = input.program_id.name.name;
 
+        // Update the `imports` map in the symbol table.
+        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
+
         // Visit the program scope
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
@@ -148,8 +161,25 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
         }
     }
 
+    fn visit_stub(&mut self, input: &Stub) {
+        match input {
+            Stub::FromLeo { program, parents } => {
+                self.parents = parents.clone();
+                self.visit_program(program);
+            }
+            Stub::FromAleo { program, parents } => {
+                self.parents = parents.clone();
+                self.visit_aleo_program(program);
+            }
+        }
+    }
+
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
         self.program_name = input.stub_id.name.name;
+
+        // Update the `imports` map in the symbol table.
+        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
+
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
     }
 }

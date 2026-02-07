@@ -100,7 +100,6 @@ impl AstVisitor for FutureChecker<'_> {
             Expression::Err(err) => self.visit_err(err, &Position::Misc),
             Expression::Path(path) => self.visit_path(path, &Position::Misc),
             Expression::Literal(literal) => self.visit_literal(literal, &Position::Misc),
-            Expression::Locator(locator) => self.visit_locator(locator, &Position::Misc),
             Expression::MemberAccess(access) => self.visit_member_access(access, &Position::Misc),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, &Position::Misc),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, &Position::Misc),

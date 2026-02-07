@@ -92,20 +92,16 @@ jobs:
             exit 1
           fi
 
-      - name: Build
-        # Use an older version of this Docker image as newer versions don't have OpenSSL.
+      - name: Build musl binary
         run: |
-          docker pull clux/muslrust:1.85.1-stable
           docker run \
-            -v ${{ github.workspace }}:/volume \
-            -v cargo-cache:/root/.cargo/registry \
+            -v ${{ github.workspace }}:/home/rust/src \
             --rm \
-            -t clux/muslrust:1.85.1-stable \
-            bash -c "
-              rustup install stable &&
-              rustup default stable &&
+            -t docker.io/blackdex/rust-musl:x86_64-musl-stable \
+            bash -lc "
               rustup target add x86_64-unknown-linux-musl &&
-              cargo build --target x86_64-unknown-linux-musl --package leo-lang --release --locked --features noconfig
+              cd /home/rust/src &&
+              cargo build --target x86_64-unknown-linux-musl --release --locked --package leo-lang --features noconfig
             "
 
       - name: Check Binary
@@ -135,8 +131,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   macos:
-    name: macOS
-    runs-on: macos-13
+    name: macOS X86
+    runs-on: macos-14-large
     steps:
       - name: Checkout Specific Tag
         uses: actions/checkout@v2
@@ -187,7 +183,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   macos_m1:
-    name: macOS M1
+    name: macOS AArch64
     runs-on: macos-latest
     steps:
       - name: Xcode Select

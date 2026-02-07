@@ -22,6 +22,7 @@ path = "src/lib.rs"
 
 [dependencies]
 # leo dependencies
+leo-abi-types = { workspace = true }
 leo-ast       = { workspace = true }
 leo-errors    = { workspace = true }
 leo-package   = { workspace = true }

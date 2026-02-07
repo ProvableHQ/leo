@@ -106,7 +106,6 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::Call(_)
             | Expression::Cast(_)
             | Expression::Err(_)
-            | Expression::Locator(_)
             | Expression::MemberAccess(_)
             | Expression::Repeat(_)
             | Expression::Composite(_)
@@ -186,9 +185,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
 
             Expression::Intrinsic(intrinsic) => {
                 for arg in &mut intrinsic.arguments {
-                    if !matches!(arg, Expression::Locator(_)) {
-                        self.try_atom(arg)?;
-                    }
+                    self.try_atom(arg)?;
                 }
                 return Some((expression, false));
             }
@@ -233,7 +230,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
 
             Expression::TupleAccess(_) => panic!("Tuple access expressions should not exist in this pass."),
 
-            Expression::Locator(_) | Expression::Async(_) | Expression::Err(_) | Expression::Unit(_) => {
+            Expression::Async(_) | Expression::Err(_) | Expression::Unit(_) => {
                 return Some((expression, false));
             }
         };
@@ -250,9 +247,9 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     // We were defining a new variable, whose right hand side is already defined, so map
                     // this variable to the previous variable.
                     self.scopes.last_mut().unwrap().expressions.insert(Atom::Path(vec![place]).into(), name);
-                    return Some((identifier.into(), true));
+                    return Some((Path::from(identifier).to_local().into(), true));
                 }
-                return Some((identifier.into(), false));
+                return Some((Path::from(identifier).to_local().into(), false));
             }
         }
 

@@ -106,15 +106,13 @@ impl<'a> CodeGeneratingVisitor<'a> {
                             .finalizer
                             .unwrap();
                         // Write the finalize string.
+                        let [finalize_name] = &finalize.location.path[..] else {
+                            panic!("finalize location must have a single-segment path at this stage of compilation");
+                        };
                         if let Some(caller) = &mut aleo_function {
                             caller.as_function_ref_mut().finalize = Some(
                                 self.visit_function_with(
-                                    &program_scope
-                                        .functions
-                                        .iter()
-                                        .find(|(name, _f)| vec![*name] == finalize.location.path)
-                                        .unwrap()
-                                        .1,
+                                    &program_scope.functions.iter().find(|(name, _f)| name == finalize_name).unwrap().1,
                                     &finalize.future_inputs,
                                 )
                                 .unwrap()
@@ -391,6 +389,8 @@ impl<'a> CodeGeneratingVisitor<'a> {
             .clone()
             .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier));
 
+        let program = self.program_id.unwrap().name.name;
+
         // Helper to construct the string associated with the type.
         let create_type = |type_: &Type| {
             match type_ {
@@ -398,10 +398,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 Type::Identifier(identifier) => {
                     // Lookup the type in the composite mapping.
                     // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
-                    let is_record = self
-                        .composite_mapping
-                        .get(&Location::new(self.program_id.unwrap().name.name, vec![identifier.name]))
-                        .unwrap();
+                    let is_record = self.composite_mapping.get(&Location::new(program, vec![identifier.name])).unwrap();
                     assert!(!is_record, "Type checking guarantees that mappings cannot contain records.");
                     self.visit_type_with_visibility(type_, Some(AleoVisibility::Public))
                 }
@@ -415,13 +412,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // Create the value string, e.g. `    value as address.public`.
         let (value_type, value_visibility) = create_type(&mapping.value_type);
 
-        // Add the mapping to the variable mapping.
+        // Add the mapping to the global variable mapping.
         self.global_mapping.insert(
-            mapping.identifier.name,
-            AleoExpr::RawName(
-                legalized_mapping_name
-                    .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier)),
-            ),
+            Location::new(program, vec![mapping.identifier.name]),
+            legalized_mapping_name
+                .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier)),
         );
 
         AleoMapping { name, key_type, value_type, key_visibility, value_visibility }

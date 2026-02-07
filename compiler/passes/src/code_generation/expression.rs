@@ -31,7 +31,6 @@ use leo_ast::{
     IntrinsicExpression,
     Literal,
     LiteralVariant,
-    LocatorExpression,
     MemberAccess,
     NetworkName,
     Node,
@@ -71,7 +70,6 @@ impl CodeGeneratingVisitor<'_> {
             Expression::MemberAccess(expr) => (Some(self.visit_member_access(expr)), vec![]),
             Expression::Path(expr) => (Some(self.visit_path(expr)), vec![]),
             Expression::Literal(expr) => (Some(self.visit_value(expr)), vec![]),
-            Expression::Locator(expr) => (Some(self.visit_locator(expr)), vec![]),
 
             Expression::Array(expr) => some_expr(self.visit_array(expr)),
             Expression::Binary(expr) => some_expr(self.visit_binary(expr)),
@@ -95,10 +93,23 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_path(&mut self, input: &Path) -> AleoExpr {
-        // The only relevant paths here are paths to local variable or to mappings, so we really only care about their
-        // names since mappings are only allowed in the top level program scope
-        let var_name = input.identifier().name;
-        self.variable_mapping.get(&var_name).or_else(|| self.global_mapping.get(&var_name)).unwrap().clone()
+        let program = self.program_id.unwrap().name.name;
+        if let Some(name) = input.try_local_symbol() {
+            // If the path points to a local symbol, look for the corresponding variable in `self.variable_mapping`
+            self.variable_mapping.get(&name).expect("guaranteed by pass pipeline.").clone()
+        } else if let Some(location) = input.try_global_location() {
+            // If the path points to a global symbol, look for the corresponding variable in `self.global_mapping`
+            let name = self.global_mapping.get(location).expect("guaranteed by pass pipeline.").clone();
+            if program == location.program {
+                // Do not prefix with the program name if we're in the same program as the program containing
+                // the global variable.
+                AleoExpr::RawName(name)
+            } else {
+                AleoExpr::RawName(location.program.to_string() + ".aleo/" + &name)
+            }
+        } else {
+            panic!("path must be resolved by now.")
+        }
     }
 
     fn visit_value(&mut self, input: &Literal) -> AleoExpr {
@@ -175,15 +186,6 @@ impl CodeGeneratingVisitor<'_> {
                     IntegerType::I128 => AleoExpr::I128(i128::from_str_by_radix(&val).unwrap()),
                 }
             }
-        }
-    }
-
-    fn visit_locator(&mut self, input: &LocatorExpression) -> AleoExpr {
-        if input.program.name.name == self.program_id.expect("Locators only appear within programs.").name.name {
-            // This locator refers to the current program, so we only output the name, not the program.
-            AleoExpr::RawName(input.name.to_string())
-        } else {
-            AleoExpr::RawName(input.to_string())
         }
     }
 

@@ -16,7 +16,6 @@
 
 use crate::Type;
 
-use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -25,7 +24,6 @@ use std::fmt;
 pub struct MappingType {
     pub key: Box<Type>,
     pub value: Box<Type>,
-    pub program: Symbol,
 }
 
 impl fmt::Display for MappingType {

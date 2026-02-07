@@ -18,7 +18,7 @@
             "lo": 0,
             "hi": 9
           },
-          "id": 9
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [
@@ -118,7 +118,7 @@
             "lo": 26,
             "hi": 35
           },
-          "id": 7
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [
@@ -208,7 +208,7 @@
             "lo": 52,
             "hi": 61
           },
-          "id": 7
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [
@@ -288,7 +288,7 @@
             "lo": 73,
             "hi": 82
           },
-          "id": 3
+          "id": 1
         },
         "const_arguments": [],
         "arguments": [],

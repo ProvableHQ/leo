@@ -1,0 +1,307 @@
+program vec_program_a.aleo;
+
+mapping numbers__:
+    key as u32.public;
+    value as u32.public;
+
+mapping numbers__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function push_a:
+    async push_a into r0;
+    output r0 as vec_program_a.aleo/push_a.future;
+
+finalize push_a:
+    get.or_use numbers__len__[false] 0u32 into r0;
+    add r0 1u32 into r1;
+    set r1 into numbers__len__[false];
+    set 10u32 into numbers__[r0];
+    get.or_use numbers__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into numbers__len__[false];
+    set 20u32 into numbers__[r2];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+program vec_program_b.aleo;
+
+mapping numbers__:
+    key as u32.public;
+    value as u32.public;
+
+mapping numbers__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function push_b:
+    async push_b into r0;
+    output r0 as vec_program_b.aleo/push_b.future;
+
+finalize push_b:
+    get.or_use numbers__len__[false] 0u32 into r0;
+    add r0 1u32 into r1;
+    set r1 into numbers__len__[false];
+    set 1u32 into numbers__[r0];
+    get.or_use numbers__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into numbers__len__[false];
+    set 2u32 into numbers__[r2];
+    get.or_use numbers__len__[false] 0u32 into r4;
+    add r4 1u32 into r5;
+    set r5 into numbers__len__[false];
+    set 3u32 into numbers__[r4];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import vec_program_a.aleo;
+import vec_program_b.aleo;
+program vec_program_c.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping sum_vec__:
+    key as u32.public;
+    value as u32.public;
+
+mapping sum_vec__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function combine:
+    call vec_program_a.aleo/push_a into r0;
+    call vec_program_b.aleo/push_b into r1;
+    async combine r0 r1 into r2;
+    output r2 as vec_program_c.aleo/combine.future;
+
+finalize combine:
+    input r0 as vec_program_a.aleo/push_a.future;
+    input r1 as vec_program_b.aleo/push_b.future;
+    await r0;
+    await r1;
+    get.or_use vec_program_a.aleo/numbers__len__[false] 0u32 into r2;
+    get.or_use vec_program_b.aleo/numbers__len__[false] 0u32 into r3;
+    is.eq r2 2u32 into r4;
+    assert.eq r4 true;
+    is.eq r3 3u32 into r5;
+    assert.eq r5 true;
+    set 0u32 into sum_vec__len__[false];
+    get.or_use vec_program_a.aleo/numbers__len__[false] 0u32 into r6;
+    lt 0u32 r6 into r7;
+    get.or_use vec_program_a.aleo/numbers__[0u32] 0u32 into r8;
+    cast true r8 into r9 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r10 as Optional__EsDmm5O6sv6;
+    ternary r7 r9.is_some r10.is_some into r11;
+    ternary r7 r9.val r10.val into r12;
+    cast r11 r12 into r13 as Optional__EsDmm5O6sv6;
+    get.or_use vec_program_a.aleo/numbers__[0u32] 0u32 into r14;
+    cast true r14 into r15 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r16 as Optional__EsDmm5O6sv6;
+    ternary r7 r15.is_some r16.is_some into r17;
+    ternary r7 r15.val r16.val into r18;
+    cast r17 r18 into r19 as Optional__EsDmm5O6sv6;
+    ternary r13.is_some r19.val 0u32 into r20;
+    get.or_use vec_program_b.aleo/numbers__len__[false] 0u32 into r21;
+    lt 0u32 r21 into r22;
+    get.or_use vec_program_b.aleo/numbers__[0u32] 0u32 into r23;
+    cast true r23 into r24 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r25 as Optional__EsDmm5O6sv6;
+    ternary r22 r24.is_some r25.is_some into r26;
+    ternary r22 r24.val r25.val into r27;
+    cast r26 r27 into r28 as Optional__EsDmm5O6sv6;
+    get.or_use vec_program_b.aleo/numbers__[0u32] 0u32 into r29;
+    cast true r29 into r30 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r31 as Optional__EsDmm5O6sv6;
+    ternary r22 r30.is_some r31.is_some into r32;
+    ternary r22 r30.val r31.val into r33;
+    cast r32 r33 into r34 as Optional__EsDmm5O6sv6;
+    ternary r28.is_some r34.val 0u32 into r35;
+    get.or_use sum_vec__len__[false] 0u32 into r36;
+    add r36 1u32 into r37;
+    set r37 into sum_vec__len__[false];
+    add r20 r35 into r38;
+    set r38 into sum_vec__[r36];
+    get.or_use vec_program_a.aleo/numbers__len__[false] 0u32 into r39;
+    lt 1u32 r39 into r40;
+    get.or_use vec_program_a.aleo/numbers__[1u32] 0u32 into r41;
+    cast true r41 into r42 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r43 as Optional__EsDmm5O6sv6;
+    ternary r40 r42.is_some r43.is_some into r44;
+    ternary r40 r42.val r43.val into r45;
+    cast r44 r45 into r46 as Optional__EsDmm5O6sv6;
+    get.or_use vec_program_a.aleo/numbers__[1u32] 0u32 into r47;
+    cast true r47 into r48 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r49 as Optional__EsDmm5O6sv6;
+    ternary r40 r48.is_some r49.is_some into r50;
+    ternary r40 r48.val r49.val into r51;
+    cast r50 r51 into r52 as Optional__EsDmm5O6sv6;
+    ternary r46.is_some r52.val 0u32 into r53;
+    get.or_use vec_program_b.aleo/numbers__len__[false] 0u32 into r54;
+    lt 1u32 r54 into r55;
+    get.or_use vec_program_b.aleo/numbers__[1u32] 0u32 into r56;
+    cast true r56 into r57 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r58 as Optional__EsDmm5O6sv6;
+    ternary r55 r57.is_some r58.is_some into r59;
+    ternary r55 r57.val r58.val into r60;
+    cast r59 r60 into r61 as Optional__EsDmm5O6sv6;
+    get.or_use vec_program_b.aleo/numbers__[1u32] 0u32 into r62;
+    cast true r62 into r63 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r64 as Optional__EsDmm5O6sv6;
+    ternary r55 r63.is_some r64.is_some into r65;
+    ternary r55 r63.val r64.val into r66;
+    cast r65 r66 into r67 as Optional__EsDmm5O6sv6;
+    ternary r61.is_some r67.val 0u32 into r68;
+    get.or_use sum_vec__len__[false] 0u32 into r69;
+    add r69 1u32 into r70;
+    set r70 into sum_vec__len__[false];
+    add r53 r68 into r71;
+    set r71 into sum_vec__[r69];
+    get.or_use vec_program_a.aleo/numbers__len__[false] 0u32 into r72;
+    lt 2u32 r72 into r73;
+    get.or_use vec_program_a.aleo/numbers__[2u32] 0u32 into r74;
+    cast true r74 into r75 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r76 as Optional__EsDmm5O6sv6;
+    ternary r73 r75.is_some r76.is_some into r77;
+    ternary r73 r75.val r76.val into r78;
+    cast r77 r78 into r79 as Optional__EsDmm5O6sv6;
+    get.or_use vec_program_a.aleo/numbers__[2u32] 0u32 into r80;
+    cast true r80 into r81 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r82 as Optional__EsDmm5O6sv6;
+    ternary r73 r81.is_some r82.is_some into r83;
+    ternary r73 r81.val r82.val into r84;
+    cast r83 r84 into r85 as Optional__EsDmm5O6sv6;
+    ternary r79.is_some r85.val 0u32 into r86;
+    get.or_use vec_program_b.aleo/numbers__len__[false] 0u32 into r87;
+    lt 2u32 r87 into r88;
+    get.or_use vec_program_b.aleo/numbers__[2u32] 0u32 into r89;
+    cast true r89 into r90 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r91 as Optional__EsDmm5O6sv6;
+    ternary r88 r90.is_some r91.is_some into r92;
+    ternary r88 r90.val r91.val into r93;
+    cast r92 r93 into r94 as Optional__EsDmm5O6sv6;
+    get.or_use vec_program_b.aleo/numbers__[2u32] 0u32 into r95;
+    cast true r95 into r96 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r97 as Optional__EsDmm5O6sv6;
+    ternary r88 r96.is_some r97.is_some into r98;
+    ternary r88 r96.val r97.val into r99;
+    cast r98 r99 into r100 as Optional__EsDmm5O6sv6;
+    ternary r94.is_some r100.val 0u32 into r101;
+    get.or_use sum_vec__len__[false] 0u32 into r102;
+    add r102 1u32 into r103;
+    set r103 into sum_vec__len__[false];
+    add r86 r101 into r104;
+    set r104 into sum_vec__[r102];
+    get.or_use sum_vec__len__[false] 0u32 into r105;
+    lt 0u32 r105 into r106;
+    get.or_use sum_vec__[0u32] 0u32 into r107;
+    cast true r107 into r108 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r109 as Optional__EsDmm5O6sv6;
+    ternary r106 r108.is_some r109.is_some into r110;
+    ternary r106 r108.val r109.val into r111;
+    cast r110 r111 into r112 as Optional__EsDmm5O6sv6;
+    assert.eq r112.is_some true;
+    get.or_use sum_vec__[0u32] 0u32 into r113;
+    cast true r113 into r114 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r115 as Optional__EsDmm5O6sv6;
+    ternary r106 r114.is_some r115.is_some into r116;
+    ternary r106 r114.val r115.val into r117;
+    cast r116 r117 into r118 as Optional__EsDmm5O6sv6;
+    is.eq r118.val 11u32 into r119;
+    assert.eq r119 true;
+    get.or_use sum_vec__len__[false] 0u32 into r120;
+    lt 1u32 r120 into r121;
+    get.or_use sum_vec__[1u32] 0u32 into r122;
+    cast true r122 into r123 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r124 as Optional__EsDmm5O6sv6;
+    ternary r121 r123.is_some r124.is_some into r125;
+    ternary r121 r123.val r124.val into r126;
+    cast r125 r126 into r127 as Optional__EsDmm5O6sv6;
+    assert.eq r127.is_some true;
+    get.or_use sum_vec__[1u32] 0u32 into r128;
+    cast true r128 into r129 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r130 as Optional__EsDmm5O6sv6;
+    ternary r121 r129.is_some r130.is_some into r131;
+    ternary r121 r129.val r130.val into r132;
+    cast r131 r132 into r133 as Optional__EsDmm5O6sv6;
+    is.eq r133.val 22u32 into r134;
+    assert.eq r134 true;
+    get.or_use sum_vec__len__[false] 0u32 into r135;
+    lt 2u32 r135 into r136;
+    get.or_use sum_vec__[2u32] 0u32 into r137;
+    cast true r137 into r138 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r139 as Optional__EsDmm5O6sv6;
+    ternary r136 r138.is_some r139.is_some into r140;
+    ternary r136 r138.val r139.val into r141;
+    cast r140 r141 into r142 as Optional__EsDmm5O6sv6;
+    assert.eq r142.is_some true;
+    get.or_use sum_vec__[2u32] 0u32 into r143;
+    cast true r143 into r144 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r145 as Optional__EsDmm5O6sv6;
+    ternary r136 r144.is_some r145.is_some into r146;
+    ternary r136 r144.val r145.val into r147;
+    cast r146 r147 into r148 as Optional__EsDmm5O6sv6;
+    is.eq r148.val 3u32 into r149;
+    assert.eq r149 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1lw4l8atjftr8uerq6yqvpzpcd3kv3m9qlcxsg7wyzpk46d27uggswaetvm",
+      "program": "vec_program_a.aleo",
+      "function": "push_a",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7802218824388637568612768402391352634982902697294574392317401722241756958173field",
+          "value": "{\n  program_id: vec_program_a.aleo,\n  function_name: push_a,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "4891349659429101880187622959032363449909879395103937148719323127598736976512group",
+      "tcm": "1656195081837078703474906934608004624538485442115181112802201059004959944656field",
+      "scm": "4196562792364116741371709409983149619190283207119310626178410584458997949967field"
+    },
+    {
+      "id": "au1lufyf25c8yx0klc4389dkug539ftnzttkrvq8s5xnee3k0zm5ggswq5tgn",
+      "program": "vec_program_b.aleo",
+      "function": "push_b",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "318516203330785284985761647610188732523237537619604794843107614696250508745field",
+          "value": "{\n  program_id: vec_program_b.aleo,\n  function_name: push_b,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "3545847661431759503194087514096230199684641427014048778710483379996570588118group",
+      "tcm": "4711530905669029484011402363604757603729909624854306335293689205281785917618field",
+      "scm": "4196562792364116741371709409983149619190283207119310626178410584458997949967field"
+    },
+    {
+      "id": "au1ca86y0j55xnsvl9dettrxnc2mrm7auzvd7uq3hk78uhymsnp9yxsrsqq7g",
+      "program": "vec_program_c.aleo",
+      "function": "combine",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5490353189766102170488428130292367092554180733866445890671305489153035136482field",
+          "value": "{\n  program_id: vec_program_c.aleo,\n  function_name: combine,\n  arguments: [\n    {\n      program_id: vec_program_a.aleo,\n      function_name: push_a,\n      arguments: []\n    },\n    {\n      program_id: vec_program_b.aleo,\n      function_name: push_b,\n      arguments: []\n    }\n  \n  ]\n}"
+        }
+      ],
+      "tpk": "4993475131721409843737488172680555341642610224967868736396638984265060682226group",
+      "tcm": "8440107908087307383584703186667798446823532776196587749318778929015270780871field",
+      "scm": "4196562792364116741371709409983149619190283207119310626178410584458997949967field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
