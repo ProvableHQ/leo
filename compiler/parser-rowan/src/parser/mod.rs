@@ -88,11 +88,7 @@ impl Parse {
 
     /// Convert to a Result, returning the syntax node on success or errors on failure.
     pub fn ok(self) -> Result<SyntaxNode, Vec<ParseError>> {
-        if self.errors.is_empty() && self.lex_errors.is_empty() {
-            Ok(self.syntax())
-        } else {
-            Err(self.errors)
-        }
+        if self.errors.is_empty() && self.lex_errors.is_empty() { Ok(self.syntax()) } else { Err(self.errors) }
     }
 }
 

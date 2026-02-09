@@ -376,10 +376,7 @@ fn validate_integer_digits(text: &str, offset: usize, errors: &mut Vec<LexError>
             // Found an invalid digit - span covers the entire numeric part (like LALRPOP)
             let error_end = offset + num_part.len();
             errors.push(LexError {
-                range: TextRange::new(
-                    TextSize::new(offset as u32),
-                    TextSize::new(error_end as u32),
-                ),
+                range: TextRange::new(TextSize::new(offset as u32), TextSize::new(error_end as u32)),
                 message: format!("Digit {} invalid in radix {} (token {}).", c, radix, num_part),
             });
             return; // Only report the first invalid digit
@@ -494,10 +491,7 @@ pub fn lex(source: &str) -> (Vec<Token>, Vec<LexError>) {
                 // Security: bidi characters
                 LogosToken::Bidi => {
                     errors.push(LexError {
-                        range: TextRange::new(
-                            TextSize::new(span.start as u32),
-                            TextSize::new(span.end as u32),
-                        ),
+                        range: TextRange::new(TextSize::new(span.start as u32), TextSize::new(span.end as u32)),
                         message: "Unicode bidi override code point encountered.".to_string(),
                     });
                     ERROR
@@ -505,10 +499,7 @@ pub fn lex(source: &str) -> (Vec<Token>, Vec<LexError>) {
             },
             Err(()) => {
                 errors.push(LexError {
-                    range: TextRange::new(
-                        TextSize::new(span.start as u32),
-                        TextSize::new(span.end as u32),
-                    ),
+                    range: TextRange::new(TextSize::new(span.start as u32), TextSize::new(span.end as u32)),
                     message: format!("Could not lex the following content: `{}`.\n", slice),
                 });
                 ERROR

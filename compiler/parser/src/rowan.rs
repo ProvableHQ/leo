@@ -67,19 +67,13 @@ impl<'a> ConversionContext<'a> {
     /// Convert a rowan TextRange to a leo_span::Span.
     fn to_span(&self, node: &SyntaxNode) -> Span {
         let range = node.text_range();
-        Span::new(
-            u32::from(range.start()) + self.start_pos,
-            u32::from(range.end()) + self.start_pos,
-        )
+        Span::new(u32::from(range.start()) + self.start_pos, u32::from(range.end()) + self.start_pos)
     }
 
     /// Convert a token's text range to a Span.
     fn token_span(&self, token: &SyntaxToken) -> Span {
         let range = token.text_range();
-        Span::new(
-            u32::from(range.start()) + self.start_pos,
-            u32::from(range.end()) + self.start_pos,
-        )
+        Span::new(u32::from(range.start()) + self.start_pos, u32::from(range.end()) + self.start_pos)
     }
 
     /// Convert an IDENT token to a leo_ast::Identifier.
@@ -399,11 +393,7 @@ impl<'a> ConversionContext<'a> {
             }
             // Error recovery: return ErrExpression for ERROR nodes
             ERROR => {
-                self.handler.emit_err(ParserError::unexpected_str(
-                    "valid expression",
-                    node.text().to_string(),
-                    span,
-                ));
+                self.handler.emit_err(ParserError::unexpected_str("valid expression", node.text().to_string(), span));
                 leo_ast::ErrExpression { span, id }.into()
             }
             kind => panic!("unexpected expression kind: {:?}", kind),
@@ -454,12 +444,12 @@ impl<'a> ConversionContext<'a> {
             }
             STRING => leo_ast::Literal::string(text.to_string(), span, id).into(),
             ADDRESS_LIT => {
-                    // Validate address literal (skip program addresses like "program.aleo")
-                    if !text.contains(".aleo") && text.parse::<Address<TestnetV0>>().is_err() {
-                        self.handler.emit_err(ParserError::invalid_address_lit(text, span));
-                    }
-                    leo_ast::Literal::address(text.to_string(), span, id).into()
+                // Validate address literal (skip program addresses like "program.aleo")
+                if !text.contains(".aleo") && text.parse::<Address<TestnetV0>>().is_err() {
+                    self.handler.emit_err(ParserError::invalid_address_lit(text, span));
                 }
+                leo_ast::Literal::address(text.to_string(), span, id).into()
+            }
             KW_TRUE => leo_ast::Literal::boolean(true, span, id).into(),
             KW_FALSE => leo_ast::Literal::boolean(false, span, id).into(),
             KW_NONE => leo_ast::Literal::none(span, id).into(),
@@ -509,11 +499,7 @@ impl<'a> ConversionContext<'a> {
         // Get right operand
         let right = if op_token.kind() == KW_AS {
             // Cast expression - should be handled as CAST_EXPR, emit error for unexpected case
-            self.handler.emit_err(ParserError::unexpected_str(
-                "cast expression",
-                "binary AS expression",
-                span,
-            ));
+            self.handler.emit_err(ParserError::unexpected_str("cast expression", "binary AS expression", span));
             return Ok(leo_ast::ErrExpression { span, id }.into());
         } else if let Some(right_node) = expr_children.get(1) {
             self.to_expression(right_node)?
@@ -549,11 +535,7 @@ impl<'a> ConversionContext<'a> {
             BANG => leo_ast::UnaryOperation::Not,
             MINUS => leo_ast::UnaryOperation::Negate,
             _ => {
-                self.handler.emit_err(ParserError::unexpected_str(
-                    "! or -",
-                    node.text().to_string(),
-                    span,
-                ));
+                self.handler.emit_err(ParserError::unexpected_str("! or -", node.text().to_string(), span));
                 return Ok(leo_ast::ErrExpression { span, id }.into());
             }
         };
@@ -633,7 +615,11 @@ impl<'a> ConversionContext<'a> {
         let receiver = match field_children.next() {
             Some(receiver_node) => self.to_expression(&receiver_node)?,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("receiver in method call", field_node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "receiver in method call",
+                    field_node.text().to_string(),
+                    span,
+                ));
                 return Ok(leo_ast::ErrExpression { span, id }.into());
             }
         };
@@ -642,7 +628,11 @@ impl<'a> ConversionContext<'a> {
         let method_name = match tokens(field_node).find(|t| t.kind() == IDENT) {
             Some(method_token) => self.to_identifier(&method_token),
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("method name in method call", field_node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "method name in method call",
+                    field_node.text().to_string(),
+                    span,
+                ));
                 return Ok(leo_ast::ErrExpression { span, id }.into());
             }
         };
@@ -842,14 +832,22 @@ impl<'a> ConversionContext<'a> {
         let array = if let Some(array_node) = expr_children.first() {
             self.to_expression(array_node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("array in index expression", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "array in index expression",
+                node.text().to_string(),
+                span,
+            ));
             return Ok(leo_ast::ErrExpression { span, id }.into());
         };
 
         let index = if let Some(index_node) = expr_children.get(1) {
             self.to_expression(index_node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("index in index expression", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "index in index expression",
+                node.text().to_string(),
+                span,
+            ));
             return Ok(leo_ast::ErrExpression { span, id }.into());
         };
 
@@ -864,11 +862,7 @@ impl<'a> ConversionContext<'a> {
 
         // Get the expression being cast
         let Some(expr_node) = children(node).find(|n| is_expression_kind(n.kind())) else {
-            self.handler.emit_err(ParserError::unexpected_str(
-                "expression in cast",
-                node.text().to_string(),
-                span,
-            ));
+            self.handler.emit_err(ParserError::unexpected_str("expression in cast", node.text().to_string(), span));
             return Ok(leo_ast::ErrExpression { span, id }.into());
         };
         let expression = self.to_expression(&expr_node)?;
@@ -898,21 +892,33 @@ impl<'a> ConversionContext<'a> {
         let condition = if let Some(node) = expr_children.first() {
             self.to_expression(node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("condition in ternary expression", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "condition in ternary expression",
+                node.text().to_string(),
+                span,
+            ));
             return Ok(leo_ast::ErrExpression { span, id }.into());
         };
 
         let if_true = if let Some(node) = expr_children.get(1) {
             self.to_expression(node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("true branch in ternary expression", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "true branch in ternary expression",
+                node.text().to_string(),
+                span,
+            ));
             return Ok(leo_ast::ErrExpression { span, id }.into());
         };
 
         let if_false = if let Some(node) = expr_children.get(2) {
             self.to_expression(node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("false branch in ternary expression", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "false branch in ternary expression",
+                node.text().to_string(),
+                span,
+            ));
             return Ok(leo_ast::ErrExpression { span, id }.into());
         };
 
@@ -955,15 +961,13 @@ impl<'a> ConversionContext<'a> {
         match elements.len() {
             0 => {
                 // Empty tuple is invalid - emit error
-                self.handler
-                    .emit_err(ParserError::tuple_must_have_at_least_two_elements("expression", span));
+                self.handler.emit_err(ParserError::tuple_must_have_at_least_two_elements("expression", span));
                 // Return unit expression for error recovery
                 Ok(leo_ast::UnitExpression { span, id }.into())
             }
             1 => {
                 // Single-element tuple is invalid - emit error
-                self.handler
-                    .emit_err(ParserError::tuple_must_have_at_least_two_elements("expression", span));
+                self.handler.emit_err(ParserError::tuple_must_have_at_least_two_elements("expression", span));
                 // Return the single element for error recovery
                 Ok(elements.into_iter().next().unwrap())
             }
@@ -1041,11 +1045,8 @@ impl<'a> ConversionContext<'a> {
                 node.text().to_string(),
                 span,
             ));
-            let identifier = leo_ast::Identifier {
-                name: Symbol::intern("__error__"),
-                span,
-                id: self.builder.next_id(),
-            };
+            let identifier =
+                leo_ast::Identifier { name: Symbol::intern("__error__"), span, id: self.builder.next_id() };
             return Ok(leo_ast::CompositeFieldInitializer { identifier, expression: None, span, id });
         };
         let identifier = self.to_identifier(&ident_token);
@@ -1053,10 +1054,7 @@ impl<'a> ConversionContext<'a> {
         // Check if there's an expression (has COLON followed by expression)
         let has_colon = tokens(node).any(|t| t.kind() == COLON);
         let expression = if has_colon {
-            children(node)
-                .find(|n| is_expression_kind(n.kind()))
-                .map(|n| self.to_expression(&n))
-                .transpose()?
+            children(node).find(|n| is_expression_kind(n.kind())).map(|n| self.to_expression(&n)).transpose()?
         } else {
             None
         };
@@ -1171,7 +1169,11 @@ impl<'a> ConversionContext<'a> {
                 let expression = match children(node).find(|n| is_expression_kind(n.kind())) {
                     Some(expr) => self.to_expression(&expr)?,
                     None => {
-                        self.handler.emit_err(ParserError::unexpected_str("expression in assert", node.text().to_string(), span));
+                        self.handler.emit_err(ParserError::unexpected_str(
+                            "expression in assert",
+                            node.text().to_string(),
+                            span,
+                        ));
                         leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
                     }
                 };
@@ -1182,13 +1184,21 @@ impl<'a> ConversionContext<'a> {
                 let e0 = if let Some(expr) = exprs.first() {
                     self.to_expression(expr)?
                 } else {
-                    self.handler.emit_err(ParserError::unexpected_str("first expression in assert_eq", node.text().to_string(), span));
+                    self.handler.emit_err(ParserError::unexpected_str(
+                        "first expression in assert_eq",
+                        node.text().to_string(),
+                        span,
+                    ));
                     leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
                 };
                 let e1 = if let Some(expr) = exprs.get(1) {
                     self.to_expression(expr)?
                 } else {
-                    self.handler.emit_err(ParserError::unexpected_str("second expression in assert_eq", node.text().to_string(), span));
+                    self.handler.emit_err(ParserError::unexpected_str(
+                        "second expression in assert_eq",
+                        node.text().to_string(),
+                        span,
+                    ));
                     leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
                 };
                 leo_ast::AssertStatement { variant: leo_ast::AssertVariant::AssertEq(e0, e1), span, id }.into()
@@ -1198,13 +1208,21 @@ impl<'a> ConversionContext<'a> {
                 let e0 = if let Some(expr) = exprs.first() {
                     self.to_expression(expr)?
                 } else {
-                    self.handler.emit_err(ParserError::unexpected_str("first expression in assert_neq", node.text().to_string(), span));
+                    self.handler.emit_err(ParserError::unexpected_str(
+                        "first expression in assert_neq",
+                        node.text().to_string(),
+                        span,
+                    ));
                     leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
                 };
                 let e1 = if let Some(expr) = exprs.get(1) {
                     self.to_expression(expr)?
                 } else {
-                    self.handler.emit_err(ParserError::unexpected_str("second expression in assert_neq", node.text().to_string(), span));
+                    self.handler.emit_err(ParserError::unexpected_str(
+                        "second expression in assert_neq",
+                        node.text().to_string(),
+                        span,
+                    ));
                     leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
                 };
                 leo_ast::AssertStatement { variant: leo_ast::AssertVariant::AssertNeq(e0, e1), span, id }.into()
@@ -1214,7 +1232,11 @@ impl<'a> ConversionContext<'a> {
                 if let Some(inner) = children(node).find(|n| is_statement_kind(n.kind())) {
                     self.to_statement(&inner)?
                 } else {
-                    self.handler.emit_err(ParserError::unexpected_str("valid statement", node.text().to_string(), span));
+                    self.handler.emit_err(ParserError::unexpected_str(
+                        "valid statement",
+                        node.text().to_string(),
+                        span,
+                    ));
                     leo_ast::ExpressionStatement {
                         expression: leo_ast::ErrExpression { span, id: self.builder.next_id() }.into(),
                         span,
@@ -1225,11 +1247,7 @@ impl<'a> ConversionContext<'a> {
             }
             // Error recovery: emit error and return empty expression statement for ERROR nodes
             ERROR => {
-                self.handler.emit_err(ParserError::unexpected_str(
-                    "valid statement",
-                    node.text().to_string(),
-                    span,
-                ));
+                self.handler.emit_err(ParserError::unexpected_str("valid statement", node.text().to_string(), span));
                 // Return an expression statement with an ErrExpression
                 leo_ast::ExpressionStatement {
                     expression: leo_ast::ErrExpression { span, id: self.builder.next_id() }.into(),
@@ -1265,10 +1283,15 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
 
         // Find the pattern
-        let place = match children(node).find(|n| matches!(n.kind(), IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN)) {
+        let place = match children(node).find(|n| matches!(n.kind(), IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN))
+        {
             Some(pattern_node) => self.pattern_to_definition_place(&pattern_node)?,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("pattern in let statement", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "pattern in let statement",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::DefinitionPlace::Single(leo_ast::Identifier {
                     name: Symbol::intern("_error"),
                     span,
@@ -1284,7 +1307,11 @@ impl<'a> ConversionContext<'a> {
         let value = match children(node).find(|n| is_expression_kind(n.kind())) {
             Some(expr_node) => self.to_expression(&expr_node)?,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("value in let statement", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "value in let statement",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
             }
         };
@@ -1300,7 +1327,11 @@ impl<'a> ConversionContext<'a> {
                 let ident = match tokens(node).find(|t| t.kind() == IDENT) {
                     Some(token) => self.to_identifier(&token),
                     None => {
-                        self.handler.emit_err(ParserError::unexpected_str("identifier in pattern", node.text().to_string(), span));
+                        self.handler.emit_err(ParserError::unexpected_str(
+                            "identifier in pattern",
+                            node.text().to_string(),
+                            span,
+                        ));
                         leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
                     }
                 };
@@ -1319,8 +1350,16 @@ impl<'a> ConversionContext<'a> {
                                 Some(token) => self.to_identifier(&token),
                                 None => {
                                     let span = self.to_span(&n);
-                                    self.handler.emit_err(ParserError::unexpected_str("identifier in pattern", n.text().to_string(), span));
-                                    leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
+                                    self.handler.emit_err(ParserError::unexpected_str(
+                                        "identifier in pattern",
+                                        n.text().to_string(),
+                                        span,
+                                    ));
+                                    leo_ast::Identifier {
+                                        name: Symbol::intern("_error"),
+                                        span,
+                                        id: self.builder.next_id(),
+                                    }
                                 }
                             }
                         }
@@ -1355,7 +1394,11 @@ impl<'a> ConversionContext<'a> {
         let place = match tokens(node).find(|t| t.kind() == IDENT) {
             Some(token) => self.to_identifier(&token),
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("name in const declaration", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "name in const declaration",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
             }
         };
@@ -1364,7 +1407,11 @@ impl<'a> ConversionContext<'a> {
         let type_ = match children(node).find(|n| is_type_kind(n.kind())) {
             Some(type_node) => self.to_type(&type_node)?,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("type in const declaration", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "type in const declaration",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::Type::Err
             }
         };
@@ -1373,7 +1420,11 @@ impl<'a> ConversionContext<'a> {
         let value = match children(node).find(|n| is_expression_kind(n.kind())) {
             Some(value_node) => self.to_expression(&value_node)?,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("value in const declaration", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "value in const declaration",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
             }
         };
@@ -1406,7 +1457,11 @@ impl<'a> ConversionContext<'a> {
         let expression = match children(node).find(|n| is_expression_kind(n.kind())) {
             Some(expr_node) => self.to_expression(&expr_node)?,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("expression in expression statement", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "expression in expression statement",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
             }
         };
@@ -1426,18 +1481,27 @@ impl<'a> ConversionContext<'a> {
         let left = if let Some(left_node) = expr_children.first() {
             self.to_expression(left_node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("left side in assignment", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "left side in assignment",
+                node.text().to_string(),
+                span,
+            ));
             return Ok(leo_ast::ExpressionStatement {
                 expression: leo_ast::ErrExpression { span, id: self.builder.next_id() }.into(),
                 span,
                 id,
-            }.into());
+            }
+            .into());
         };
 
         let right_expr = if let Some(right_node) = expr_children.get(1) {
             self.to_expression(right_node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("right side in assignment", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "right side in assignment",
+                node.text().to_string(),
+                span,
+            ));
             leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
         };
 
@@ -1445,7 +1509,11 @@ impl<'a> ConversionContext<'a> {
         let op_token = match tokens(node).find(|t| is_assign_op(t.kind())) {
             Some(token) => token,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("operator in assignment", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "operator in assignment",
+                    node.text().to_string(),
+                    span,
+                ));
                 return Ok(leo_ast::AssignStatement { place: left, value: right_expr, span, id }.into());
             }
         };
@@ -1470,7 +1538,11 @@ impl<'a> ConversionContext<'a> {
                 AMP2_EQ => leo_ast::BinaryOperation::And,
                 PIPE2_EQ => leo_ast::BinaryOperation::Or,
                 _ => {
-                    self.handler.emit_err(ParserError::unexpected_str("compound assignment operator", format!("{:?}", op_token.kind()), span));
+                    self.handler.emit_err(ParserError::unexpected_str(
+                        "compound assignment operator",
+                        format!("{:?}", op_token.kind()),
+                        span,
+                    ));
                     return Ok(leo_ast::AssignStatement { place: left, value: right_expr, span, id }.into());
                 }
             };
@@ -1497,7 +1569,11 @@ impl<'a> ConversionContext<'a> {
         let condition = match children(node).find(|n| is_expression_kind(n.kind())) {
             Some(condition_node) => self.to_expression(&condition_node)?,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("condition in if statement", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "condition in if statement",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
             }
         };
@@ -1507,7 +1583,11 @@ impl<'a> ConversionContext<'a> {
         let then = if let Some(then_block) = blocks.first() {
             self.to_block(then_block)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("then block in if statement", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "then block in if statement",
+                node.text().to_string(),
+                span,
+            ));
             leo_ast::Block { span, statements: Vec::new(), id: self.builder.next_id() }
         };
 
@@ -1533,7 +1613,11 @@ impl<'a> ConversionContext<'a> {
         let variable = match tokens(node).find(|t| t.kind() == IDENT) {
             Some(token) => self.to_identifier(&token),
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("variable in for statement", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "variable in for statement",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
             }
         };
@@ -1547,14 +1631,22 @@ impl<'a> ConversionContext<'a> {
         let start = if let Some(start_node) = expr_children.first() {
             self.to_expression(start_node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("start expression in for statement", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "start expression in for statement",
+                node.text().to_string(),
+                span,
+            ));
             leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
         };
 
         let stop = if let Some(stop_node) = expr_children.get(1) {
             self.to_expression(stop_node)?
         } else {
-            self.handler.emit_err(ParserError::unexpected_str("stop expression in for statement", node.text().to_string(), span));
+            self.handler.emit_err(ParserError::unexpected_str(
+                "stop expression in for statement",
+                node.text().to_string(),
+                span,
+            ));
             leo_ast::ErrExpression { span, id: self.builder.next_id() }.into()
         };
 
@@ -1562,7 +1654,11 @@ impl<'a> ConversionContext<'a> {
         let block = match children(node).find(|n| n.kind() == BLOCK) {
             Some(block_node) => self.to_block(&block_node)?,
             None => {
-                self.handler.emit_err(ParserError::unexpected_str("block in for statement", node.text().to_string(), span));
+                self.handler.emit_err(ParserError::unexpected_str(
+                    "block in for statement",
+                    node.text().to_string(),
+                    span,
+                ));
                 leo_ast::Block { span, statements: Vec::new(), id: self.builder.next_id() }
             }
         };
@@ -1875,8 +1971,7 @@ impl<'a> ConversionContext<'a> {
                 let name_token = tokens(&n).find(|t| t.kind() == IDENT).expect("const param should have name");
                 let identifier = self.to_identifier(&name_token);
 
-                let type_node =
-                    children(&n).find(|n| is_type_kind(n.kind())).expect("const param should have type");
+                let type_node = children(&n).find(|n| is_type_kind(n.kind())).expect("const param should have type");
                 let type_ = self.to_type(&type_node)?;
 
                 Ok(leo_ast::ConstParameter { identifier, type_, span, id })
@@ -1942,13 +2037,11 @@ impl<'a> ConversionContext<'a> {
         let place = self.to_identifier(&name_token);
 
         // Get type
-        let type_node =
-            children(node).find(|n| is_type_kind(n.kind())).expect("global const should have type");
+        let type_node = children(node).find(|n| is_type_kind(n.kind())).expect("global const should have type");
         let type_ = self.to_type(&type_node)?;
 
         // Get value
-        let expr_node =
-            children(node).find(|n| is_expression_kind(n.kind())).expect("global const should have value");
+        let expr_node = children(node).find(|n| is_expression_kind(n.kind())).expect("global const should have value");
         let value = self.to_expression(&expr_node)?;
 
         Ok(leo_ast::ConstDeclaration { place, type_, value, span, id })
