@@ -272,7 +272,8 @@ impl Parser<'_, '_> {
     /// Parse struct/record fields.
     fn parse_struct_fields(&mut self) {
         while !self.at(R_BRACE) && !self.at_eof() {
-            // Start marker first so leading whitespace is inside the field node
+            // Skip trivia before starting marker so member span starts at identifier
+            self.skip_trivia();
             let m = self.start();
 
             // Check for visibility modifier

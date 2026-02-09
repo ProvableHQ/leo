@@ -571,6 +571,12 @@ impl Parser<'_, '_> {
     fn parse_self_expr(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
         self.bump_any(); // self
+
+        // `self` can only be followed by `.` for member access, not `::`
+        if self.at(COLON_COLON) {
+            self.error("expected '.' -- found '::'".to_string());
+        }
+
         Some(m.complete(self, PATH_EXPR))
     }
 
@@ -689,6 +695,24 @@ mod tests {
                   PATH_EXPR@0..4
                     KW_SELF@0..4 "self"
             "#]]);
+    }
+
+    #[test]
+    fn parse_expr_self_colon_colon_is_error() {
+        // `self::y` is invalid - self can only be followed by `.` not `::`
+        let (tokens, _) = lex("self::y");
+        let mut parser = Parser::new("self::y", &tokens);
+        let root = parser.start();
+        parser.parse_expr();
+        parser.skip_trivia();
+        root.complete(&mut parser, ROOT);
+        let parse: Parse = parser.finish();
+        assert!(!parse.errors().is_empty(), "expected error for self::");
+        assert!(
+            parse.errors().iter().any(|e| e.message.contains("expected '.'")),
+            "expected error message to mention expected '.', got: {:?}",
+            parse.errors()
+        );
     }
 
     // =========================================================================

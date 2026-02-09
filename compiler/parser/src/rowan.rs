@@ -28,6 +28,7 @@
 //   compiler.
 
 use itertools::Itertools as _;
+use snarkvm::prelude::{Address, TestnetV0};
 
 use leo_ast::{NetworkName, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result};
@@ -257,12 +258,32 @@ impl<'a> ConversionContext<'a> {
         debug_assert_eq!(token.kind(), INTEGER);
         let text = token.text();
         let span = self.token_span(token);
+        let id = self.builder.next_id();
 
-        // Parse the integer literal - it may have a type suffix
-        let (value_str, int_type) = parse_integer_literal(text);
-        let value = value_str.replace('_', "");
+        // Check for integer type suffix
+        let suffixes = [
+            ("u128", leo_ast::IntegerType::U128),
+            ("u64", leo_ast::IntegerType::U64),
+            ("u32", leo_ast::IntegerType::U32),
+            ("u16", leo_ast::IntegerType::U16),
+            ("u8", leo_ast::IntegerType::U8),
+            ("i128", leo_ast::IntegerType::I128),
+            ("i64", leo_ast::IntegerType::I64),
+            ("i32", leo_ast::IntegerType::I32),
+            ("i16", leo_ast::IntegerType::I16),
+            ("i8", leo_ast::IntegerType::I8),
+        ];
 
-        Ok(leo_ast::Expression::Literal(leo_ast::Literal::integer(int_type, value, span, self.builder.next_id())))
+        for (suffix, int_type) in suffixes {
+            if text.ends_with(suffix) {
+                // Suffixed integer - preserve underscores in value
+                let value = text.strip_suffix(suffix).unwrap().to_string();
+                return Ok(leo_ast::Literal::integer(int_type, value, span, id).into());
+            }
+        }
+
+        // No suffix - use Unsuffixed variant (preserving underscores)
+        Ok(leo_ast::Literal::unsuffixed(text.to_string(), span, id).into())
     }
 
     /// Convert a TYPE_TUPLE node to a TupleType or Unit.
@@ -396,19 +417,41 @@ impl<'a> ConversionContext<'a> {
         let expr = match token.kind() {
             INTEGER => {
                 // Check for special suffixes: field, group, scalar
-                if text.ends_with("field") {
-                    leo_ast::Literal::field(text.to_string(), span, id).into()
-                } else if text.ends_with("group") {
-                    leo_ast::Literal::group(text.to_string(), span, id).into()
-                } else if text.ends_with("scalar") {
-                    leo_ast::Literal::scalar(text.to_string(), span, id).into()
+                if let Some(value) = text.strip_suffix("field") {
+                    // Hex, octal, and binary literals are not allowed for field type
+                    if text.starts_with("0x") || text.starts_with("0o") || text.starts_with("0b") {
+                        // Error span only covers the numeric prefix, not the suffix
+                        let prefix_span = Span::new(span.lo, span.hi - "field".len() as u32);
+                        self.handler.emit_err(ParserError::hexbin_literal_nonintegers(prefix_span));
+                    }
+                    leo_ast::Literal::field(value.to_string(), span, id).into()
+                } else if let Some(value) = text.strip_suffix("group") {
+                    // Hex, octal, and binary literals are not allowed for group type
+                    if text.starts_with("0x") || text.starts_with("0o") || text.starts_with("0b") {
+                        let prefix_span = Span::new(span.lo, span.hi - "group".len() as u32);
+                        self.handler.emit_err(ParserError::hexbin_literal_nonintegers(prefix_span));
+                    }
+                    leo_ast::Literal::group(value.to_string(), span, id).into()
+                } else if let Some(value) = text.strip_suffix("scalar") {
+                    // Hex, octal, and binary literals are not allowed for scalar type
+                    if text.starts_with("0x") || text.starts_with("0o") || text.starts_with("0b") {
+                        let prefix_span = Span::new(span.lo, span.hi - "scalar".len() as u32);
+                        self.handler.emit_err(ParserError::hexbin_literal_nonintegers(prefix_span));
+                    }
+                    leo_ast::Literal::scalar(value.to_string(), span, id).into()
                 } else {
                     // Regular integer
                     self.integer_token_to_expression(&token)?
                 }
             }
             STRING => leo_ast::Literal::string(text.to_string(), span, id).into(),
-            ADDRESS_LIT => leo_ast::Literal::address(text.to_string(), span, id).into(),
+            ADDRESS_LIT => {
+                    // Validate address literal (skip program addresses like "program.aleo")
+                    if !text.contains(".aleo") && text.parse::<Address<TestnetV0>>().is_err() {
+                        self.handler.emit_err(ParserError::invalid_address_lit(text, span));
+                    }
+                    leo_ast::Literal::address(text.to_string(), span, id).into()
+                }
             KW_TRUE => leo_ast::Literal::boolean(true, span, id).into(),
             KW_FALSE => leo_ast::Literal::boolean(false, span, id).into(),
             KW_NONE => leo_ast::Literal::none(span, id).into(),
@@ -1980,7 +2023,7 @@ pub fn parse_expression(
     // Report parse errors to the handler
     for error in parse.errors() {
         let span = safe_error_span(error, start_pos, source_len);
-        handler.emit_err(ParserError::unexpected_str("valid syntax", &error.message, span));
+        handler.emit_err(ParserError::custom(&error.message, span));
     }
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
@@ -2001,7 +2044,7 @@ pub fn parse_statement(
     // Report parse errors to the handler
     for error in parse.errors() {
         let span = safe_error_span(error, start_pos, source_len);
-        handler.emit_err(ParserError::unexpected_str("valid syntax", &error.message, span));
+        handler.emit_err(ParserError::custom(&error.message, span));
     }
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
@@ -2024,7 +2067,7 @@ pub fn parse_module(
     // Report parse errors to the handler
     for error in parse.errors() {
         let span = safe_error_span(error, start_pos, source_len);
-        handler.emit_err(ParserError::unexpected_str("valid syntax", &error.message, span));
+        handler.emit_err(ParserError::custom(&error.message, span));
     }
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
@@ -2046,7 +2089,7 @@ pub fn parse(
     // Report parse errors to the handler
     for error in parse.errors() {
         let span = safe_error_span(error, source.absolute_start, source_len);
-        handler.emit_err(ParserError::unexpected_str("valid syntax", &error.message, span));
+        handler.emit_err(ParserError::custom(&error.message, span));
     }
 
     // Create context with the main file's start position
@@ -2067,7 +2110,7 @@ pub fn parse(
         // Report parse errors for each module
         for error in module_parse.errors() {
             let span = safe_error_span(error, module.absolute_start, module_len);
-            handler.emit_err(ParserError::unexpected_str("valid syntax", &error.message, span));
+            handler.emit_err(ParserError::custom(&error.message, span));
         }
 
         if let Some(key) = compute_module_key(&module.name, root_dir.as_deref()) {
@@ -2234,33 +2277,6 @@ fn token_to_binary_op(kind: SyntaxKind) -> leo_ast::BinaryOperation {
         CARET => leo_ast::BinaryOperation::Xor,
         _ => panic!("unexpected binary operator: {:?}", kind),
     }
-}
-
-/// Parse an integer literal string, returning the numeric part and type.
-fn parse_integer_literal(text: &str) -> (String, leo_ast::IntegerType) {
-    // Check for type suffix
-    let suffixes = [
-        ("u8", leo_ast::IntegerType::U8),
-        ("u16", leo_ast::IntegerType::U16),
-        ("u32", leo_ast::IntegerType::U32),
-        ("u64", leo_ast::IntegerType::U64),
-        ("u128", leo_ast::IntegerType::U128),
-        ("i8", leo_ast::IntegerType::I8),
-        ("i16", leo_ast::IntegerType::I16),
-        ("i32", leo_ast::IntegerType::I32),
-        ("i64", leo_ast::IntegerType::I64),
-        ("i128", leo_ast::IntegerType::I128),
-    ];
-
-    for (suffix, ty) in suffixes {
-        if text.ends_with(suffix) {
-            let value = text.trim_end_matches(suffix);
-            return (value.to_string(), ty);
-        }
-    }
-
-    // Default to u32 if no suffix (will be inferred later)
-    (text.to_string(), leo_ast::IntegerType::U32)
 }
 
 fn symbol_is_keyword(symbol: Symbol) -> bool {
