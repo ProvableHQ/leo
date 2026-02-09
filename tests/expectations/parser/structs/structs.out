@@ -11,7 +11,7 @@
             "lo": 8,
             "hi": 24
           },
-          "id": 24
+          "id": 26
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 25,
             "hi": 29
           },
-          "id": 25
+          "id": 27
         }
       },
       "consts": [],
@@ -134,7 +134,7 @@
                 "lo": 129,
                 "hi": 133
               },
-              "id": 22
+              "id": 24
             },
             "const_parameters": [
               {
@@ -170,6 +170,22 @@
                   "hi": 154
                 },
                 "id": 21
+              },
+              {
+                "identifier": {
+                  "name": "N",
+                  "span": {
+                    "lo": 156,
+                    "hi": 157
+                  },
+                  "id": 22
+                },
+                "type_": "Signature",
+                "span": {
+                  "lo": 156,
+                  "hi": 168
+                },
+                "id": 23
               }
             ],
             "members": [
@@ -178,8 +194,8 @@
                 "identifier": {
                   "name": "z",
                   "span": {
-                    "lo": 166,
-                    "hi": 167
+                    "lo": 180,
+                    "hi": 181
                   },
                   "id": 13
                 },
@@ -191,15 +207,15 @@
                       "identifier": {
                         "name": "Foo2",
                         "span": {
-                          "lo": 169,
-                          "hi": 173
+                          "lo": 183,
+                          "hi": 187
                         },
                         "id": 14
                       },
                       "target": "Unresolved",
                       "span": {
-                        "lo": 169,
-                        "hi": 173
+                        "lo": 183,
+                        "hi": 187
                       },
                       "id": 16
                     },
@@ -207,8 +223,8 @@
                       {
                         "Literal": {
                           "span": {
-                            "lo": 176,
-                            "hi": 177
+                            "lo": 190,
+                            "hi": 191
                           },
                           "id": 15,
                           "variant": {
@@ -220,8 +236,8 @@
                   }
                 },
                 "span": {
-                  "lo": 166,
-                  "hi": 178
+                  "lo": 180,
+                  "hi": 192
                 },
                 "id": 17
               }
@@ -229,9 +245,9 @@
             "is_record": false,
             "span": {
               "lo": 122,
-              "hi": 185
+              "hi": 199
             },
-            "id": 23
+            "id": 25
           }
         ]
       ],
@@ -246,8 +262,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 202,
-                "hi": 206
+                "lo": 216,
+                "hi": 220
               },
               "id": 0
             },
@@ -258,14 +274,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 209,
-                "hi": 216
+                "lo": 223,
+                "hi": 230
               },
               "id": 1
             },
             "span": {
-              "lo": 191,
-              "hi": 216
+              "lo": 205,
+              "hi": 230
             },
             "id": 2
           }
@@ -274,7 +290,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 218
+        "hi": 232
       }
     }
   }
