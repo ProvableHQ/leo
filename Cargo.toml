@@ -133,6 +133,7 @@ serde              = { version = "1.0", features = [ "derive", "rc" ] }
 serde_json         = { version = "1.0", features = [ "preserve_order" ] }
 serial_test        = "3.1"
 sha2               = "0.10"
+similar            = "2.6"
 # We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
 # TODO: update `rev` to an actual snarkVM tag when available.
 snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", tag = "testnet-v4.5.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets" ] }
