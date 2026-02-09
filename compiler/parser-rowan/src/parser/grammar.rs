@@ -26,50 +26,50 @@ use crate::{lexer::lex, syntax_kind::SyntaxKind::*};
 ///
 /// This handles imports followed by a program declaration.
 pub fn parse_file(source: &str) -> Parse {
-    let (tokens, _lex_errors) = lex(source);
+    let (tokens, lex_errors) = lex(source);
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
     parser.parse_file_items();
     root.complete(&mut parser, ROOT);
 
-    parser.finish()
+    parser.finish(lex_errors)
 }
 
 /// Parse a single expression.
 pub fn parse_expression_entry(source: &str) -> Parse {
-    let (tokens, _lex_errors) = lex(source);
+    let (tokens, lex_errors) = lex(source);
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
     parser.parse_expr();
     root.complete(&mut parser, ROOT);
 
-    parser.finish()
+    parser.finish(lex_errors)
 }
 
 /// Parse module contents (const, struct, inline declarations only).
 pub fn parse_module_entry(source: &str) -> Parse {
-    let (tokens, _lex_errors) = lex(source);
+    let (tokens, lex_errors) = lex(source);
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
     parser.parse_module_items();
     root.complete(&mut parser, ROOT);
 
-    parser.finish()
+    parser.finish(lex_errors)
 }
 
 /// Parse a single statement.
 pub fn parse_statement_entry(source: &str) -> Parse {
-    let (tokens, _lex_errors) = lex(source);
+    let (tokens, lex_errors) = lex(source);
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
     parser.parse_stmt();
     root.complete(&mut parser, ROOT);
 
-    parser.finish()
+    parser.finish(lex_errors)
 }
 
 #[cfg(test)]

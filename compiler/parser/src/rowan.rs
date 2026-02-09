@@ -289,6 +289,7 @@ impl<'a> ConversionContext<'a> {
     /// Convert a TYPE_TUPLE node to a TupleType or Unit.
     fn type_tuple_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_TUPLE);
+        let span = self.to_span(node);
 
         let type_nodes: Vec<_> = children(node)
             .filter(|n| matches!(n.kind(), TYPE_PATH | TYPE_ARRAY | TYPE_TUPLE | TYPE_OPTIONAL | TYPE_FUTURE))
@@ -300,6 +301,13 @@ impl<'a> ConversionContext<'a> {
         }
 
         let elements = type_nodes.iter().map(|n| self.to_type(n)).collect::<Result<Vec<_>>>()?;
+
+        if elements.len() == 1 {
+            // Single-element tuple type is invalid - emit error
+            self.handler.emit_err(ParserError::tuple_must_have_at_least_two_elements("type", span));
+            // Return the single element for error recovery
+            return Ok(elements.into_iter().next().unwrap());
+        }
 
         Ok(leo_ast::TupleType::new(elements).into())
     }
@@ -944,10 +952,22 @@ impl<'a> ConversionContext<'a> {
             .map(|n| self.to_expression(&n))
             .collect::<Result<Vec<_>>>()?;
 
-        if elements.is_empty() {
-            Ok(leo_ast::UnitExpression { span, id }.into())
-        } else {
-            Ok(leo_ast::TupleExpression { elements, span, id }.into())
+        match elements.len() {
+            0 => {
+                // Empty tuple is invalid - emit error
+                self.handler
+                    .emit_err(ParserError::tuple_must_have_at_least_two_elements("expression", span));
+                // Return unit expression for error recovery
+                Ok(leo_ast::UnitExpression { span, id }.into())
+            }
+            1 => {
+                // Single-element tuple is invalid - emit error
+                self.handler
+                    .emit_err(ParserError::tuple_must_have_at_least_two_elements("expression", span));
+                // Return the single element for error recovery
+                Ok(elements.into_iter().next().unwrap())
+            }
+            _ => Ok(leo_ast::TupleExpression { elements, span, id }.into()),
         }
     }
 
@@ -2009,6 +2029,57 @@ fn safe_error_span(error: &leo_parser_rowan::ParseError, start_pos: u32, source_
     Span::new(lo, hi)
 }
 
+/// Emit lexer errors to the handler with appropriate error types.
+fn emit_lex_errors(handler: &Handler, lex_errors: &[leo_parser_rowan::LexError], start_pos: u32, source_len: u32) {
+    for error in lex_errors {
+        let range = error.range;
+        let lo = u32::from(range.start()).saturating_add(start_pos).min(start_pos + source_len);
+        let hi = u32::from(range.end()).saturating_add(start_pos).min(start_pos + source_len);
+        let span = Span::new(lo, hi);
+
+        // Map to specific error types based on message content
+        if error.message.contains("invalid in radix") {
+            // Parse "Digit X invalid in radix Y (token Z)." format
+            if let Some((digit, radix, token)) = parse_invalid_digit_error(&error.message) {
+                handler.emit_err(ParserError::wrong_digit_for_radix_span(digit, radix, token, span));
+            } else {
+                handler.emit_err(ParserError::custom(&error.message, span));
+            }
+        } else if error.message.contains("Could not lex") {
+            // Parse "Could not lex the following content: `X`.\n" format
+            if let Some(content) = parse_could_not_lex_error(&error.message) {
+                handler.emit_err(ParserError::could_not_lex_span(content, span));
+            } else {
+                handler.emit_err(ParserError::custom(&error.message, span));
+            }
+        } else if error.message.contains("bidi") {
+            handler.emit_err(ParserError::lexer_bidi_override_span(span));
+        } else {
+            handler.emit_err(ParserError::custom(&error.message, span));
+        }
+    }
+}
+
+/// Parse "Digit X invalid in radix Y (token Z)." error message.
+fn parse_invalid_digit_error(msg: &str) -> Option<(char, u32, String)> {
+    // Format: "Digit X invalid in radix Y (token Z)."
+    let msg = msg.strip_prefix("Digit ")?;
+    let (digit_str, rest) = msg.split_once(" invalid in radix ")?;
+    let digit = digit_str.chars().next()?;
+    let (radix_str, rest) = rest.split_once(" (token ")?;
+    let radix: u32 = radix_str.parse().ok()?;
+    let token = rest.strip_suffix(").")?.to_string();
+    Some((digit, radix, token))
+}
+
+/// Parse "Could not lex the following content: `X`.\n" error message.
+fn parse_could_not_lex_error(msg: &str) -> Option<String> {
+    // Format: "Could not lex the following content: `X`.\n"
+    let msg = msg.strip_prefix("Could not lex the following content: `")?;
+    let content = msg.strip_suffix("`.\n")?;
+    Some(content.to_string())
+}
+
 /// Parses a single expression from source code.
 pub fn parse_expression(
     handler: Handler,
@@ -2019,6 +2090,9 @@ pub fn parse_expression(
 ) -> Result<leo_ast::Expression> {
     let parse = leo_parser_rowan::parse_expression_entry(source);
     let source_len = source.len() as u32;
+
+    // Report lex errors to the handler
+    emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
 
     // Report parse errors to the handler
     for error in parse.errors() {
@@ -2040,6 +2114,9 @@ pub fn parse_statement(
 ) -> Result<leo_ast::Statement> {
     let parse = leo_parser_rowan::parse_statement_entry(source);
     let source_len = source.len() as u32;
+
+    // Report lex errors to the handler
+    emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
 
     // Report parse errors to the handler
     for error in parse.errors() {
@@ -2064,6 +2141,9 @@ pub fn parse_module(
     let parse = leo_parser_rowan::parse_module_entry(source);
     let source_len = source.len() as u32;
 
+    // Report lex errors to the handler
+    emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
+
     // Report parse errors to the handler
     for error in parse.errors() {
         let span = safe_error_span(error, start_pos, source_len);
@@ -2086,6 +2166,9 @@ pub fn parse(
     let parse = leo_parser_rowan::parse_file(&source.src);
     let source_len = source.src.len() as u32;
 
+    // Report lex errors to the handler
+    emit_lex_errors(&handler, parse.lex_errors(), source.absolute_start, source_len);
+
     // Report parse errors to the handler
     for error in parse.errors() {
         let span = safe_error_span(error, source.absolute_start, source_len);
@@ -2106,6 +2189,9 @@ pub fn parse(
     for module in modules {
         let module_parse = leo_parser_rowan::parse_module_entry(&module.src);
         let module_len = module.src.len() as u32;
+
+        // Report lex errors for each module
+        emit_lex_errors(&handler, module_parse.lex_errors(), module.absolute_start, module_len);
 
         // Report parse errors for each module
         for error in module_parse.errors() {

@@ -28,7 +28,7 @@ mod types;
 
 use crate::{
     SyntaxNode,
-    lexer::Token,
+    lexer::{LexError, Token},
     syntax_kind::{SyntaxKind, SyntaxKind::*},
 };
 pub use grammar::{parse_expression_entry, parse_file, parse_module_entry, parse_statement_entry};
@@ -61,6 +61,8 @@ pub struct Parse {
     green: GreenNode,
     /// Errors encountered during parsing.
     errors: Vec<ParseError>,
+    /// Errors encountered during lexing.
+    lex_errors: Vec<LexError>,
 }
 
 impl Parse {
@@ -74,14 +76,23 @@ impl Parse {
         &self.errors
     }
 
+    /// Get the lexer errors.
+    pub fn lex_errors(&self) -> &[LexError] {
+        &self.lex_errors
+    }
+
     /// Check if the parse was successful (no errors).
     pub fn is_ok(&self) -> bool {
-        self.errors.is_empty()
+        self.errors.is_empty() && self.lex_errors.is_empty()
     }
 
     /// Convert to a Result, returning the syntax node on success or errors on failure.
     pub fn ok(self) -> Result<SyntaxNode, Vec<ParseError>> {
-        if self.errors.is_empty() { Ok(self.syntax()) } else { Err(self.errors) }
+        if self.errors.is_empty() && self.lex_errors.is_empty() {
+            Ok(self.syntax())
+        } else {
+            Err(self.errors)
+        }
     }
 }
 
@@ -519,8 +530,8 @@ impl<'t, 's> Parser<'t, 's> {
     // =========================================================================
 
     /// Finish parsing and return the parse result.
-    pub fn finish(self) -> Parse {
-        Parse { green: self.builder.finish(), errors: self.errors }
+    pub fn finish(self, lex_errors: Vec<LexError>) -> Parse {
+        Parse { green: self.builder.finish(), errors: self.errors, lex_errors }
     }
 }
 
