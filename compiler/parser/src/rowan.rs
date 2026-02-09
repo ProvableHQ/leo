@@ -19,6 +19,14 @@
 //! This module uses `leo-parser-rowan` (rowan) and converts its output
 //! to the Leo AST via the `ConversionContext`.
 
+// Implementation notes:
+//
+// - All user-reachable errors should be emitted via the error handler (mostly
+//   `ERROR` nodes).
+// - All implementation bugs (e.g. unexpected node structure from
+//   `leo_parser_rowan`) should `panic!` in order to catch logic bugs in the
+//   compiler.
+
 use itertools::Itertools as _;
 
 use leo_ast::{NetworkName, NodeBuilder};
