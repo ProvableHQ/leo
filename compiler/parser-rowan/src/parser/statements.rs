@@ -362,7 +362,7 @@ mod tests {
         parser.parse_stmt();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }

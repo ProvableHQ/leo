@@ -49,6 +49,10 @@ pub struct ParseError {
     /// error position. For recovery errors, this spans the tokens wrapped in
     /// the ERROR node.
     pub range: TextRange,
+    /// The token that was found (for "expected X, found Y" errors).
+    pub found: Option<String>,
+    /// The list of expected tokens (for structured error messages).
+    pub expected: Vec<String>,
 }
 
 /// The result of a parse operation.
@@ -420,7 +424,18 @@ impl<'t, 's> Parser<'t, 's> {
         if self.eat(kind) {
             true
         } else {
-            self.error(format!("expected {:?}", kind));
+            let found = self.current();
+            let found_text = self.current_text().to_string();
+            let expected_name = kind.user_friendly_name();
+            let pos = TextSize::new(self.byte_offset as u32);
+            self.errors.push(ParseError {
+                message: format!("expected {}", expected_name),
+                range: TextRange::empty(pos),
+                found: Some(found_text),
+                expected: vec![expected_name.to_string()],
+            });
+            // Also store the SyntaxKind for the found token
+            let _ = found; // Mark as intentionally unused for now
             false
         }
     }
@@ -428,7 +443,44 @@ impl<'t, 's> Parser<'t, 's> {
     /// Record a parse error at the current position (zero-length range).
     pub fn error(&mut self, message: String) {
         let pos = TextSize::new(self.byte_offset as u32);
-        self.errors.push(ParseError { message, range: TextRange::empty(pos) });
+        let found_text = if !self.at_eof() { Some(self.current_text().to_string()) } else { None };
+        self.errors.push(ParseError {
+            message,
+            range: TextRange::empty(pos),
+            found: found_text,
+            expected: vec![],
+        });
+    }
+
+    /// Record an "unexpected token" error with explicit expected tokens.
+    ///
+    /// This sets both `found` and `expected` fields, allowing rowan.rs to emit
+    /// a ParserError::unexpected instead of ParserError::custom.
+    /// The `found_kind` parameter should be the SyntaxKind of the unexpected token.
+    pub fn error_unexpected(&mut self, found_kind: SyntaxKind, expected: &[&str]) {
+        // Find the actual position of the found token (skipping trivia).
+        let mut pos_offset = self.byte_offset;
+        let mut token_pos = self.pos;
+        while token_pos < self.tokens.len() {
+            let kind = self.tokens[token_pos].kind;
+            if !kind.is_trivia() {
+                break;
+            }
+            pos_offset += self.tokens[token_pos].len as usize;
+            token_pos += 1;
+        }
+
+        let pos = TextSize::new(pos_offset as u32);
+        // For 'found', use the user_friendly_name but strip surrounding quotes
+        // since the error formatter (ParserError::unexpected) adds its own quotes.
+        let name = found_kind.user_friendly_name();
+        let found_text = name.trim_matches('\'').to_string();
+        self.errors.push(ParseError {
+            message: format!("expected {}", expected.join(", ")),
+            range: TextRange::empty(pos),
+            found: Some(found_text),
+            expected: expected.iter().map(|s| s.to_string()).collect(),
+        });
     }
 
     /// Record a parse error spanning from `start` to the current position.
@@ -436,6 +488,8 @@ impl<'t, 's> Parser<'t, 's> {
         self.errors.push(ParseError {
             message,
             range: TextRange::new(TextSize::new(start as u32), TextSize::new(self.byte_offset as u32)),
+            found: None,
+            expected: vec![],
         });
     }
 
@@ -590,7 +644,7 @@ mod tests {
         let (tokens, _) = lex(input);
         let mut parser = Parser::new(input, &tokens);
         parse_fn(&mut parser);
-        let parse = parser.finish();
+        let parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -600,7 +654,7 @@ mod tests {
         let (tokens, _) = lex(input);
         let mut parser = Parser::new(input, &tokens);
         parse_fn(&mut parser);
-        let parse = parser.finish();
+        let parse = parser.finish(vec![]);
         let output = parse
             .errors()
             .iter()
@@ -768,7 +822,7 @@ mod tests {
                 p.expect(SEMICOLON);
                 p.finish_node();
             },
-            expect![[r#"0..0:expected SEMICOLON"#]],
+            expect![[r#"0..0:expected ';'"#]],
         );
     }
 
@@ -979,7 +1033,7 @@ mod tests {
         let root = parser.start();
         parser.parse_file_items();
         root.complete(&mut parser, ROOT);
-        parser.finish()
+        parser.finish(vec![])
     }
 
     /// Helper to parse a statement and return both tree and errors.
@@ -990,7 +1044,7 @@ mod tests {
         parser.parse_stmt();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        parser.finish()
+        parser.finish(vec![])
     }
 
     #[test]

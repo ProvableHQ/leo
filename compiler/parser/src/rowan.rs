@@ -2173,6 +2173,43 @@ fn parse_could_not_lex_error(msg: &str) -> Option<String> {
     Some(content.to_string())
 }
 
+/// Emit parse errors to the handler, using structured error types when available.
+/// Duplicate errors at the same location are filtered out to prevent cascading errors.
+fn emit_parse_errors(
+    handler: &Handler,
+    errors: &[leo_parser_rowan::ParseError],
+    start_pos: u32,
+    source_len: u32,
+) {
+    use std::collections::HashSet;
+
+    // Track emitted error ranges to prevent duplicate errors at the same location
+    let mut emitted_ranges: HashSet<(u32, u32)> = HashSet::new();
+
+    for error in errors {
+        let span = safe_error_span(error, start_pos, source_len);
+        let range_key = (span.lo, span.hi);
+
+        // Skip if we already emitted an error at this exact range
+        if emitted_ranges.contains(&range_key) {
+            continue;
+        }
+        emitted_ranges.insert(range_key);
+
+        // Use ParserError::unexpected if we have structured found/expected info
+        if let Some(found) = &error.found {
+            if !error.expected.is_empty() {
+                let expected_str = error.expected.join(", ");
+                handler.emit_err(ParserError::unexpected(found, expected_str, span));
+                continue;
+            }
+        }
+
+        // Fall back to custom error for unstructured errors
+        handler.emit_err(ParserError::custom(&error.message, span));
+    }
+}
+
 /// Parses a single expression from source code.
 pub fn parse_expression(
     handler: Handler,
@@ -2188,10 +2225,7 @@ pub fn parse_expression(
     emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
 
     // Report parse errors to the handler
-    for error in parse.errors() {
-        let span = safe_error_span(error, start_pos, source_len);
-        handler.emit_err(ParserError::custom(&error.message, span));
-    }
+    emit_parse_errors(&handler, parse.errors(), start_pos, source_len);
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
     conversion_context.to_expression(&parse.syntax())
@@ -2212,10 +2246,7 @@ pub fn parse_statement(
     emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
 
     // Report parse errors to the handler
-    for error in parse.errors() {
-        let span = safe_error_span(error, start_pos, source_len);
-        handler.emit_err(ParserError::custom(&error.message, span));
-    }
+    emit_parse_errors(&handler, parse.errors(), start_pos, source_len);
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
     conversion_context.to_statement(&parse.syntax())
@@ -2238,10 +2269,7 @@ pub fn parse_module(
     emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
 
     // Report parse errors to the handler
-    for error in parse.errors() {
-        let span = safe_error_span(error, start_pos, source_len);
-        handler.emit_err(ParserError::custom(&error.message, span));
-    }
+    emit_parse_errors(&handler, parse.errors(), start_pos, source_len);
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
     conversion_context.to_module(&parse.syntax(), program_name, path)
@@ -2263,10 +2291,7 @@ pub fn parse(
     emit_lex_errors(&handler, parse.lex_errors(), source.absolute_start, source_len);
 
     // Report parse errors to the handler
-    for error in parse.errors() {
-        let span = safe_error_span(error, source.absolute_start, source_len);
-        handler.emit_err(ParserError::custom(&error.message, span));
-    }
+    emit_parse_errors(&handler, parse.errors(), source.absolute_start, source_len);
 
     // Create context with the main file's start position
     let main_context = ConversionContext::new(&handler, node_builder, source.absolute_start);
@@ -2287,10 +2312,7 @@ pub fn parse(
         emit_lex_errors(&handler, module_parse.lex_errors(), module.absolute_start, module_len);
 
         // Report parse errors for each module
-        for error in module_parse.errors() {
-            let span = safe_error_span(error, module.absolute_start, module_len);
-            handler.emit_err(ParserError::custom(&error.message, span));
-        }
+        emit_parse_errors(&handler, module_parse.errors(), module.absolute_start, module_len);
 
         if let Some(key) = compute_module_key(&module.name, root_dir.as_deref()) {
             // Ensure no module uses a keyword in its name

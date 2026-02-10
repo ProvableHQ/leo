@@ -659,6 +659,159 @@ impl SyntaxKind {
                 | SHR
         )
     }
+
+    /// Returns a user-friendly name for this token kind, suitable for error messages.
+    pub fn user_friendly_name(self) -> &'static str {
+        match self {
+            // Special
+            ERROR => "an error",
+            EOF => "end of file",
+
+            // Trivia
+            WHITESPACE | LINEBREAK => "whitespace",
+            COMMENT_LINE | COMMENT_BLOCK => "a comment",
+
+            // Literals
+            INTEGER => "an integer literal",
+            STRING => "a static string",
+            ADDRESS_LIT => "an address literal",
+
+            // Identifiers
+            IDENT => "an identifier",
+
+            // Boolean literals
+            KW_TRUE => "'true'",
+            KW_FALSE => "'false'",
+            KW_NONE => "'none'",
+
+            // Type keywords
+            KW_ADDRESS => "'address'",
+            KW_BOOL => "'bool'",
+            KW_FIELD => "'field'",
+            KW_GROUP => "'group'",
+            KW_SCALAR => "'scalar'",
+            KW_SIGNATURE => "'signature'",
+            KW_STRING => "'string'",
+            KW_RECORD => "'record'",
+            KW_FUTURE => "'Future'",
+            KW_I8 => "'i8'",
+            KW_I16 => "'i16'",
+            KW_I32 => "'i32'",
+            KW_I64 => "'i64'",
+            KW_I128 => "'i128'",
+            KW_U8 => "'u8'",
+            KW_U16 => "'u16'",
+            KW_U32 => "'u32'",
+            KW_U64 => "'u64'",
+            KW_U128 => "'u128'",
+
+            // Control flow keywords
+            KW_IF => "'if'",
+            KW_ELSE => "'else'",
+            KW_FOR => "'for'",
+            KW_IN => "'in'",
+            KW_RETURN => "'return'",
+
+            // Declaration keywords
+            KW_LET => "'let'",
+            KW_CONST => "'const'",
+            KW_CONSTANT => "'constant'",
+            KW_FUNCTION => "'function'",
+            KW_TRANSITION => "'transition'",
+            KW_INLINE => "'inline'",
+            KW_ASYNC => "'async'",
+            KW_FN => "'Fn'",
+            KW_STRUCT => "'struct'",
+            KW_CONSTRUCTOR => "'constructor'",
+
+            // Program structure keywords
+            KW_PROGRAM => "'program'",
+            KW_IMPORT => "'import'",
+            KW_MAPPING => "'mapping'",
+            KW_STORAGE => "'storage'",
+            KW_NETWORK => "'network'",
+            KW_ALEO => "'aleo'",
+            KW_SCRIPT => "'script'",
+            KW_BLOCK => "'block'",
+
+            // Visibility and assertion keywords
+            KW_PUBLIC => "'public'",
+            KW_PRIVATE => "'private'",
+            KW_AS => "'as'",
+            KW_SELF => "'self'",
+            KW_ASSERT => "'assert'",
+            KW_ASSERT_EQ => "'assert_eq'",
+            KW_ASSERT_NEQ => "'assert_neq'",
+
+            // Delimiters
+            L_PAREN => "'('",
+            R_PAREN => "')'",
+            L_BRACKET => "'['",
+            R_BRACKET => "']'",
+            L_BRACE => "'{'",
+            R_BRACE => "'}'",
+
+            // Separators
+            COMMA => "','",
+            DOT => "'.'",
+            DOT_DOT => "'..'",
+            SEMICOLON => "';'",
+            COLON => "':'",
+            COLON_COLON => "'::'",
+            QUESTION => "'?'",
+            ARROW => "'->'",
+            FAT_ARROW => "'=>'",
+            UNDERSCORE => "'_'",
+            AT => "'@'",
+
+            // Assignment operators
+            EQ => "'='",
+            PLUS_EQ => "'+='",
+            MINUS_EQ => "'-='",
+            STAR_EQ => "'*='",
+            SLASH_EQ => "'/='",
+            PERCENT_EQ => "'%='",
+            STAR2_EQ => "'**='",
+            AMP2_EQ => "'&&='",
+            PIPE2_EQ => "'||='",
+            AMP_EQ => "'&='",
+            PIPE_EQ => "'|='",
+            CARET_EQ => "'^='",
+            SHL_EQ => "'<<='",
+            SHR_EQ => "'>>='",
+
+            // Arithmetic operators
+            PLUS => "'+'",
+            MINUS => "'-'",
+            STAR => "'*'",
+            SLASH => "'/'",
+            PERCENT => "'%'",
+            STAR2 => "'**'",
+
+            // Comparison operators
+            EQ2 => "'=='",
+            BANG_EQ => "'!='",
+            LT => "'<'",
+            LT_EQ => "'<='",
+            GT => "'>'",
+            GT_EQ => "'>='",
+
+            // Logical operators
+            AMP2 => "'&&'",
+            PIPE2 => "'||'",
+            BANG => "'!'",
+
+            // Bitwise operators
+            AMP => "'&'",
+            PIPE => "'|'",
+            CARET => "'^'",
+            SHL => "'<<'",
+            SHR => "'>>'",
+
+            // Composite nodes - these shouldn't appear in "expected" messages typically
+            _ => "a token",
+        }
+    }
 }
 
 impl From<SyntaxKind> for rowan::SyntaxKind {

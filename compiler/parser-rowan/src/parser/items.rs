@@ -552,7 +552,7 @@ mod tests {
         let root = parser.start();
         parser.parse_file_items();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -563,7 +563,7 @@ mod tests {
         let root = parser.start();
         parser.parse_file_items();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         if !parse.errors().is_empty() {
             for err in parse.errors() {
                 eprintln!("error at {:?}: {}", err.range, err.message);
@@ -635,16 +635,16 @@ mod tests {
                       IDENT@27..32 "Point"
                       WHITESPACE@32..33 " "
                       L_BRACE@33..34 "{"
-                      STRUCT_MEMBER@34..41
-                        WHITESPACE@34..35 " "
+                      WHITESPACE@34..35 " "
+                      STRUCT_MEMBER@35..41
                         IDENT@35..36 "x"
                         COLON@36..37 ":"
                         WHITESPACE@37..38 " "
                         TYPE_PATH@38..41
                           KW_U32@38..41 "u32"
                       COMMA@41..42 ","
-                      STRUCT_MEMBER@42..49
-                        WHITESPACE@42..43 " "
+                      WHITESPACE@42..43 " "
+                      STRUCT_MEMBER@43..49
                         IDENT@43..44 "y"
                         COLON@44..45 ":"
                         WHITESPACE@45..46 " "
@@ -680,16 +680,16 @@ mod tests {
                       IDENT@27..32 "Token"
                       WHITESPACE@32..33 " "
                       L_BRACE@33..34 "{"
-                      STRUCT_MEMBER@34..49
-                        WHITESPACE@34..35 " "
+                      WHITESPACE@34..35 " "
+                      STRUCT_MEMBER@35..49
                         IDENT@35..40 "owner"
                         COLON@40..41 ":"
                         WHITESPACE@41..42 " "
                         TYPE_PATH@42..49
                           KW_ADDRESS@42..49 "address"
                       COMMA@49..50 ","
-                      STRUCT_MEMBER@50..62
-                        WHITESPACE@50..51 " "
+                      WHITESPACE@50..51 " "
+                      STRUCT_MEMBER@51..62
                         IDENT@51..57 "amount"
                         COLON@57..58 ":"
                         WHITESPACE@58..59 " "

@@ -444,7 +444,7 @@ mod tests {
         parser.parse_type();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -456,7 +456,7 @@ mod tests {
         parser.parse_type_with_opts(TypeOpts::default().allow_optional());
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -866,7 +866,7 @@ mod tests {
         parser.parse_type();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         if !parse.errors().is_empty() {
             for err in parse.errors() {
                 eprintln!("error at {:?}: {}", err.range, err.message);

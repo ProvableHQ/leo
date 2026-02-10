@@ -31,36 +31,54 @@ use crate::syntax_kind::{SyntaxKind, SyntaxKind::*};
 /// Left-associative: left_bp < right_bp
 /// Right-associative: left_bp > right_bp
 /// Non-associative: left_bp == right_bp (with special handling)
+///
+/// LALRPOP levels go from Expr0 (atoms, tightest) to Expr15 (entry, loosest).
+/// Pratt BP: higher = tighter. So we use (16 - Level) * 2 as base BP.
 fn infix_binding_power(op: SyntaxKind) -> Option<(u8, u8)> {
     let bp = match op {
-        // Ternary is handled specially at the lowest level
-        // Level 14: ||
-        PIPE2 => (28, 29),
+        // Ternary is handled specially at the lowest level (Level 15 -> BP 2)
+        // Level 14: || (lowest precedence among binary ops)
+        PIPE2 => (4, 5),
         // Level 13: &&
-        AMP2 => (26, 27),
-        // Level 12: == != (non-associative, but we parse left-to-right)
-        EQ2 | BANG_EQ => (24, 25),
-        // Level 11: < <= > >= (non-associative)
-        LT | LT_EQ | GT | GT_EQ => (22, 23),
+        AMP2 => (6, 7),
+        // Level 12: == != (non-associative - equal binding powers)
+        EQ2 | BANG_EQ => (8, 8),
+        // Level 11: < <= > >= (non-associative - equal binding powers)
+        LT | LT_EQ | GT | GT_EQ => (10, 10),
         // Level 10: |
-        PIPE => (20, 21),
+        PIPE => (12, 13),
         // Level 9: ^
-        CARET => (18, 19),
+        CARET => (14, 15),
         // Level 8: &
         AMP => (16, 17),
         // Level 7: << >>
-        SHL | SHR => (14, 15),
+        SHL | SHR => (18, 19),
         // Level 6: + -
-        PLUS | MINUS => (12, 13),
+        PLUS | MINUS => (20, 21),
         // Level 5: * / %
-        STAR | SLASH | PERCENT => (10, 11),
-        // Level 4: ** (right-associative)
-        STAR2 => (9, 8),
+        STAR | SLASH | PERCENT => (22, 23),
+        // Level 4: ** (right-associative: left_bp > right_bp)
+        STAR2 => (25, 24),
         // Level 3: as (cast)
-        KW_AS => (6, 7),
+        KW_AS => (26, 27),
         _ => return None,
     };
     Some(bp)
+}
+
+/// Check if an operator is a comparison operator (non-associative).
+fn is_comparison_op(op: SyntaxKind) -> bool {
+    matches!(op, EQ2 | BANG_EQ | LT | LT_EQ | GT | GT_EQ)
+}
+
+/// Returns the operators valid after a comparison (next precedence level down).
+/// These are the lower-precedence operators that can follow a comparison.
+fn expected_after_comparison(bp: u8) -> Vec<&'static str> {
+    match bp {
+        8 => vec!["'&&'", "'||'", "'?'"],   // After == != (BP 8)
+        10 => vec!["'&&'", "'||'", "'=='", "'!='", "'?'"],  // After < > <= >= (BP 10)
+        _ => vec!["an operator"],
+    }
 }
 
 /// Prefix binding power for unary operators.
@@ -142,6 +160,17 @@ impl Parser<'_, '_> {
                 if l_bp < min_bp {
                     break;
                 }
+
+                // Check for non-associative operator chaining (e.g., 1 == 2 == 3)
+                // With equal binding powers, l_bp == r_bp for comparison operators.
+                // If min_bp equals l_bp and this is a comparison, it means we're
+                // trying to chain comparisons, which is not allowed.
+                if l_bp == r_bp && l_bp == min_bp && is_comparison_op(op) {
+                    let expected_tokens = expected_after_comparison(l_bp);
+                    self.error_unexpected(op, &expected_tokens);
+                    break;
+                }
+
                 lhs = self.parse_infix_expr(lhs, op, r_bp, opts)?;
                 continue;
             }
@@ -619,7 +648,7 @@ mod tests {
         parser.parse_expr();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -706,7 +735,7 @@ mod tests {
         parser.parse_expr();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         assert!(!parse.errors().is_empty(), "expected error for self::");
         assert!(
             parse.errors().iter().any(|e| e.message.contains("expected '.'")),
@@ -755,19 +784,19 @@ mod tests {
         check_expr("1 + 2 * 3", expect![[r#"
                 ROOT@0..9
                   BINARY_EXPR@0..9
-                    BINARY_EXPR@0..5
-                      LITERAL@0..1
-                        INTEGER@0..1 "1"
-                      WHITESPACE@1..2 " "
-                      PLUS@2..3 "+"
-                      WHITESPACE@3..4 " "
+                    LITERAL@0..1
+                      INTEGER@0..1 "1"
+                    WHITESPACE@1..2 " "
+                    PLUS@2..3 "+"
+                    WHITESPACE@3..4 " "
+                    BINARY_EXPR@4..9
                       LITERAL@4..5
                         INTEGER@4..5 "2"
-                    WHITESPACE@5..6 " "
-                    STAR@6..7 "*"
-                    WHITESPACE@7..8 " "
-                    LITERAL@8..9
-                      INTEGER@8..9 "3"
+                      WHITESPACE@5..6 " "
+                      STAR@6..7 "*"
+                      WHITESPACE@7..8 " "
+                      LITERAL@8..9
+                        INTEGER@8..9 "3"
             "#]]);
     }
 
@@ -1141,7 +1170,7 @@ mod tests {
         parser.parse_expr();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         if !parse.errors().is_empty() {
             for err in parse.errors() {
                 eprintln!("error at {:?}: {}", err.range, err.message);
@@ -1217,5 +1246,71 @@ mod tests {
                     PATH_EXPR@12..13
                       IDENT@12..13 "e"
             "#]]);
+    }
+
+    // =========================================================================
+    // Non-Associative Operator Chaining (should produce errors)
+    // =========================================================================
+
+    fn parse_expr_for_test(input: &str) -> Parse {
+        let (tokens, _) = lex(input);
+        let mut parser = Parser::new(input, &tokens);
+        let root = parser.start();
+        parser.parse_expr();
+        parser.skip_trivia();
+        root.complete(&mut parser, ROOT);
+        parser.finish(vec![])
+    }
+
+    #[test]
+    fn parse_expr_chained_eq_is_error() {
+        // Chained == is not allowed: 1 == 2 == 3
+        let parse = parse_expr_for_test("1 == 2 == 3");
+        assert!(
+            !parse.errors().is_empty(),
+            "expected error for chained ==, got none"
+        );
+        assert!(
+            parse.errors().iter().any(|e| e.message.contains("'&&'") || e.message.contains("expected")),
+            "expected error message about valid operators, got: {:?}",
+            parse.errors()
+        );
+    }
+
+    #[test]
+    fn parse_expr_chained_neq_is_error() {
+        // Chained != is not allowed: 1 != 2 != 3
+        let parse = parse_expr_for_test("1 != 2 != 3");
+        assert!(
+            !parse.errors().is_empty(),
+            "expected error for chained !=, got none"
+        );
+    }
+
+    #[test]
+    fn parse_expr_chained_lt_is_error() {
+        // Chained < is not allowed: 1 < 2 < 3
+        let parse = parse_expr_for_test("1 < 2 < 3");
+        assert!(
+            !parse.errors().is_empty(),
+            "expected error for chained <, got none"
+        );
+    }
+
+    #[test]
+    fn parse_expr_chained_gt_is_error() {
+        // Chained > is not allowed: 1 > 2 > 3
+        let parse = parse_expr_for_test("1 > 2 > 3");
+        assert!(
+            !parse.errors().is_empty(),
+            "expected error for chained >, got none"
+        );
+    }
+
+    #[test]
+    fn parse_expr_comparison_with_logical_is_ok() {
+        // Comparison followed by logical is allowed: 1 == 2 && 3 == 4
+        check_expr_no_errors("1 == 2 && 3 == 4");
+        check_expr_no_errors("1 < 2 || 3 > 4");
     }
 }
