@@ -211,9 +211,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         self.current_function = Some(function);
 
         // Construct the header of the function.
-        // If a function is a program function, generate an Aleo `function`,
-        // if it is a standard function generate an Aleo `closure`,
-        // otherwise, it is an inline function, in which case a function should not be generated.
+        // If a function is an entry point, generate an Aleo `function`,
+        // if it is a standard fn generate an Aleo `closure`,
+        // though it may already have been inlined.
         let function_name = match function.variant {
             Variant::FinalFn => return None,
             Variant::Script => panic!("script should not appear in native code"),

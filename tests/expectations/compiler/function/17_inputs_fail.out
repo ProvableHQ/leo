@@ -12,17 +12,3 @@ Error [ETYC0372168]: The entry `baz` has 17 input parameters, which exceeds the 
      |        ^^^
      |
      = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
-Error [ETYC0372168]: The final fn `baz_finalize` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:20:10
-     |
-  20 | final fn baz_finalize(
-     |          ^^^^^^^^^^^^
-     |
-     = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
-Error [ETYC0372168]: The fn `foo` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:27:4
-     |
-  27 | fn foo(
-     |    ^^^
-     |
-     = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.

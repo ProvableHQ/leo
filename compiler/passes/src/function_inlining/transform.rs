@@ -30,7 +30,7 @@ pub struct TransformVisitor<'a> {
     pub program: Symbol,
     /// A map to provide faster lookup of functions.
     pub function_map: IndexMap<Location, Function>,
-    /// Whether or not we are currently traversing an async function block.
+    /// Whether or not we are currently traversing a block that's executed onchain (either final block or final fn block).
     pub is_onchain: bool,
 }
 

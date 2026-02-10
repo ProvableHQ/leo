@@ -38,7 +38,7 @@ pub struct DestructuringVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// A mapping between variables and tuple elements.
     pub tuples: IndexMap<Symbol, Vec<Identifier>>,
-    /// Whether or not we are currently traversing an async function block.
+    /// Whether or not we are currently traversing a function block that's executed onchain (either a final block or a final fn block).
     pub is_onchain: bool,
 }
 

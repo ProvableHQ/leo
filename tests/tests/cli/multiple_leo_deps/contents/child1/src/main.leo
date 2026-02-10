@@ -6,10 +6,10 @@ program child1.aleo {
         f1: field
     }
 
-    transition main(b: u32) -> u32 {
+    fn main(b: u32) -> u32 {
         return grandchild.aleo/main(b);
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

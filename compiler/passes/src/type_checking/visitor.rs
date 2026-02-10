@@ -1625,7 +1625,7 @@ impl TypeCheckingVisitor<'_> {
             }
         }
 
-        // Ensure that, if the function has generic const paramaters, then it must be an `inline`.
+        // Ensure that `@no_inline` is not used on functions with generic const parameters.
         if !function.const_parameters.is_empty()
             && function.annotations.iter().any(|a| a.identifier.name == sym::no_inline)
         {
@@ -1665,7 +1665,9 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Ensure there aren't too many inputs
-        if function.input.len() > self.limits.max_inputs {
+        if (function.variant.is_entry() || function.variant.is_finalize())
+            && function.input.len() > self.limits.max_inputs
+        {
             self.state.handler.emit_err(TypeCheckerError::function_has_too_many_inputs(
                 function.variant,
                 function.identifier,
@@ -1715,15 +1717,15 @@ impl TypeCheckingVisitor<'_> {
 
             // This unwrap works since we assign to `variant` above.
             match self.scope_state.variant.unwrap() {
-                // If the function is a transition function, then check that the parameter mode is not a constant.
+                // If the function is an entry point, then check that the parameter mode is not a constant.
                 Variant::EntryPoint if input.mode() == Mode::Constant => {
                     self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input.span()))
                 }
-                // If the function is standard function or inline, then check that the parameters do not have an associated mode.
+                // If the function is a standard function, then check that the parameters do not have an associated mode.
                 Variant::Fn if input.mode() != Mode::None => {
                     self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input.span()))
                 }
-                // If the function is an async function, then check that the input parameter is not constant or private.
+                // If the function is run onchain, then check that the input parameter is not constant or private.
                 Variant::Finalize | Variant::FinalFn if matches!(input.mode(), Mode::Constant | Mode::Private) => {
                     self.emit_err(TypeCheckerError::async_function_input_must_be_public(input.span()));
                 }
@@ -1731,7 +1733,8 @@ impl TypeCheckingVisitor<'_> {
             }
 
             if matches!(table_type, Type::Future(..)) {
-                // Future parameters may only appear in async functions.
+                // Future parameters may only appear in onchain functions.
+                // TODO: we may want to relax this
                 if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)) {
                     self.emit_err(TypeCheckerError::no_future_parameters(input.span()));
                 }

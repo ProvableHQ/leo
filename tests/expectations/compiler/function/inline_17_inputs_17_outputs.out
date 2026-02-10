@@ -1,7 +1,4 @@
-Error [ETYC0372168]: The fn `baz` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:2:4
-     |
-   2 | fn baz(
-     |    ^^^
-     |
-     = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
+program test.aleo;
+
+function baz_caller:
+    output 0u8 as u8.private;

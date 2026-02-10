@@ -201,7 +201,6 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
         // NOTE - for an external function like this, we really only need to attach the finalizer
         // for the use of `assert_simple_async_transition_call` in the static analyzer.
         // In principle that could be handled differently.
-        // FIXME
         if input.has_final_output() {
             // This matches the logic in the disassembler.
             let name = Symbol::intern(&format!("finalize/{}", input.name()));

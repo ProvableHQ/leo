@@ -1011,12 +1011,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             _ => {}
         }
 
-        // Check that the call is not to an external `inline` function.
-        if func.variant == Variant::Fn && callee_program != self.scope_state.program_name.unwrap() {
-            self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
-        }
-
-        // Make sure we're not calling a non-inline from an async block
+        // Make sure we're not calling an entry point or finalize from a final block
         if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn) {
             // FIXME better error
             self.emit_err(TypeCheckerError::can_only_call_inline_function("an async block", input.span));

@@ -507,15 +507,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             })
         });
 
-        // Make sure that async transitions call finalize.
-        // FIXME
-        // if self.scope_state.variant == Some(Variant::EntryPoint)
-        //     && !self.scope_state.has_called_finalize
-        //     && !self.scope_state.already_contains_an_async_block
-        // {
-        //     self.emit_err(TypeCheckerError::missing_async_operation_in_async_transition(function.span));
-        // }
-
         self.scope_state.reset();
     }
 
@@ -618,11 +609,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {
-        // Must not be an inline function
-        if input.variant == Variant::Fn {
-            self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
-        }
-
         // Create future stubs.
         if input.variant == Variant::Finalize {
             let finalize_input_map = &mut self.async_function_input_types;
