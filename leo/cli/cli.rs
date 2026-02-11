@@ -99,6 +99,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoBuild,
     },
+    #[clap(about = "Generate ABI from an Aleo bytecode file")]
+    Abi {
+        #[clap(flatten)]
+        command: LeoAbi,
+    },
     #[clap(about = "Debug the current package via the interpreter")]
     Debug {
         #[clap(flatten)]
@@ -149,6 +154,7 @@ impl Commands {
             Commands::Devnode { .. } => "devnode",
             Commands::Query { .. } => "query",
             Commands::Build { .. } => "build",
+            Commands::Abi { .. } => "abi",
             Commands::Debug { .. } => "debug",
             Commands::Add { .. } => "add",
             Commands::Remove { .. } => "remove",
@@ -231,6 +237,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Account { command } => command.try_execute(context)?,
         Commands::New { command } => command.try_execute(context)?,
         Commands::Build { command } => command.try_execute(context)?,
+        Commands::Abi { command } => command.try_execute(context)?,
         Commands::Debug { command } => command.try_execute(context)?,
         Commands::Query { command } => {
             let result = command.execute(context)?;

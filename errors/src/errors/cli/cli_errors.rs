@@ -342,6 +342,13 @@ create_messages!(
     }
 
     @backtraced
+    failed_to_parse_aleo_file {
+        args: (name: impl Display, error: impl Display),
+        msg: format!("Failed to parse Aleo program '{name}'.\nError: {error}"),
+        help: Some("Ensure the file contains valid Aleo bytecode.".to_string()),
+    }
+
+    @backtraced
     custom {
         args: (msg: impl Display),
         msg: format!("{msg}"),
