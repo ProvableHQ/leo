@@ -1,26 +1,4 @@
-{
-  "Literal": {
-    "span": {
-      "lo": 0,
-      "hi": 6
-    },
-    "id": 0,
-    "variant": {
-      "Group": "1"
-    }
-  }
-}
+1group
 
-{
-  "Literal": {
-    "span": {
-      "lo": 7,
-      "hi": 14
-    },
-    "id": 1,
-    "variant": {
-      "Group": "-1"
-    }
-  }
-}
+-1group
 
