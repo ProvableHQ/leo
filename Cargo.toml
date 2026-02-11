@@ -150,6 +150,7 @@ which              = "8.0"
 
 [dependencies]
 # leo dependencies
+leo-abi           = { workspace = true }
 leo-ast           = { workspace = true }
 leo-compiler      = { workspace = true }
 leo-disassembler  = { workspace = true }

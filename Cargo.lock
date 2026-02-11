@@ -2233,6 +2233,7 @@ dependencies = [
  "indexmap",
  "is-terminal",
  "itertools",
+ "leo-abi",
  "leo-ast",
  "leo-compiler",
  "leo-disassembler",
