@@ -1,12 +1,12 @@
-program test.aleo
-  {
 struct Data{
 value:u64,
 }
+program test.aleo
+  {
     mapping store:field  =>Data;
 
 
-  transition save(d:Data){
+  fn save(d:Data){
 
 return;
 }

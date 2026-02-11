@@ -1,14 +1,14 @@
 
-// Ensure Future types are correctly found through
+// Ensure Final types are correctly found through
 // two layers of dependencies.
 
-program dependent.aleo {
-    async function finalize(x: u8) {
-        assert_eq(1u8, 1u8);
-    }
+final fn finalize(x: u8) {
+    assert_eq(1u8, 1u8);
+}
 
-    async transition t1() -> Future {
-        let f: Future = finalize(1u8);
+program dependent.aleo {
+    fn t1() -> Final {
+        let f: Final = final { finalize(1u8); };
         return f;
     }
 }
@@ -17,14 +17,14 @@ program dependent.aleo {
 
 import dependent.aleo;
 
-program dependent2.aleo {
-    async function finalize(f: Future) {
-        f.await();
-    }
+final fn finalize(f: Final) {
+    f.run();
+}
 
-    async transition t1() -> Future {
-        let f: Future = dependent.aleo/t1();
-        return finalize(f);
+program dependent2.aleo {
+    fn t1() -> Final {
+        let f: Final = dependent.aleo/t1();
+        return final { finalize(f); };
     }
 }
 
@@ -32,14 +32,13 @@ program dependent2.aleo {
 
 import dependent2.aleo;
 
-program test.aleo {
-    async function finalize(f: Future) {
-        f.await();
-    }
+final fn finalize(f: Final) {
+    f.run();
+}
 
-    async transition t1() -> Future {
-        let f: Future = dependent2.aleo/t1();
-        assert_eq(1u8, f.0.0);
-        return finalize(f);
+program test.aleo {
+    fn t1() -> Final {
+        let f: Final = dependent2.aleo/t1();
+        return final { finalize(f); };
     }
 }

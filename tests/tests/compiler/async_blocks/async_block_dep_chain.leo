@@ -1,12 +1,12 @@
 
-// Ensure Future types are correctly found through
+// Ensure Final types are correctly found through
 // two layers of dependencies.
 
 program dependent.aleo {
-    async transition t1() -> Future {
+    fn t1() -> Final {
         let x = 1u8;
         let y = 2u16;
-        let f: Future = async {
+        let f: Final = final {
             assert_eq(x, 1u8);
             assert_eq(y, 2u16);
         };
@@ -19,9 +19,9 @@ program dependent.aleo {
 import dependent.aleo;
 
 program dependent2.aleo {
-    async transition t1() -> Future {
-        let f: Future = dependent.aleo/t1();
-        return async { f.await(); };
+    fn t1() -> Final {
+        let f: Final = dependent.aleo/t1();
+        return final { f.run(); };
     }
 }
 
@@ -30,10 +30,8 @@ program dependent2.aleo {
 import dependent2.aleo;
 
 program test.aleo {
-    async transition t1() -> Future {
-        let f: Future = dependent2.aleo/t1();
-        assert_eq(1u8, f.0.0);
-        assert_eq(1u16, f.0.1);
-        return async { f.await(); };
+    fn t1() -> Final {
+        let f: Final = dependent2.aleo/t1();
+        return final { f.run(); };
     }
 }

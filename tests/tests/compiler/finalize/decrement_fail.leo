@@ -2,11 +2,12 @@
 program test.aleo {
     mapping amounts: address => u128;
 
-    async transition decrease_self(amount: u128) -> Future {
-        return finalize_dec(self.caller, amount);
+    fn decrease_self(amount: u128) -> Final {
+        let caller = self.caller;
+        return final { finalize_dec(caller, amount); };
     }
+}
 
-    async function finalize_dec(addr: address, amount: u128) {
-        decrement(amounts, addr, amount);
-    }
+final fn finalize_dec(addr: address, amount: u128) {
+    decrement(amounts, addr, amount);
 }

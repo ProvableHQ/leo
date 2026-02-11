@@ -1,3 +1,3 @@
 
-program test.aleo {
-    function f(mut a: u8) {}}
+program test.aleo {}
+fn f(mut a: u8) {}

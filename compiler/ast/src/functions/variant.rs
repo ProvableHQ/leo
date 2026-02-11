@@ -27,30 +27,19 @@ use std::fmt;
 #[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Variant {
     #[default]
-    Inline,
-    Function,
-    Transition,
-    AsyncTransition,
-    AsyncFunction,
+    Fn,
+    FinalFn,
+    EntryPoint,
+    Finalize,
     /// `script` can only appear in test files, and is used for
     /// tests which are interpreted rather than run on snarkvm using a Ledger and VM.
     Script,
 }
 
 impl Variant {
-    /// Returns true if the variant is async.
-    pub fn is_async(self) -> bool {
-        matches!(self, Variant::AsyncFunction | Variant::AsyncTransition)
-    }
-
-    /// Returns true if the variant is a transition.
-    pub fn is_transition(self) -> bool {
-        matches!(self, Variant::Transition | Variant::AsyncTransition)
-    }
-
-    /// Returns true if the variant is a function.
-    pub fn is_function(self) -> bool {
-        matches!(self, Variant::AsyncFunction | Variant::Function)
+    /// Returns true if the variant is an entry point.
+    pub fn is_entry(self) -> bool {
+        matches!(self, Variant::EntryPoint)
     }
 
     /// Is this a `script`?
@@ -58,20 +47,22 @@ impl Variant {
         matches!(self, Variant::Script)
     }
 
-    /// Returns true if the variant is an async function.
-    pub fn is_async_function(self) -> bool {
-        matches!(self, Variant::AsyncFunction)
+    pub fn is_finalize(self) -> bool {
+        matches!(self, Variant::Finalize)
+    }
+
+    pub fn is_onchain(self) -> bool {
+        matches!(self, Variant::Finalize | Variant::FinalFn)
     }
 }
 
 impl fmt::Display for Variant {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Inline => write!(f, "inline"),
-            Self::Function => write!(f, "function"),
-            Self::Transition => write!(f, "transition"),
-            Self::AsyncTransition => write!(f, "async transition"),
-            Self::AsyncFunction => write!(f, "async function"),
+            Self::FinalFn => write!(f, "final fn"),
+            Self::Fn => write!(f, "fn"),
+            Self::EntryPoint => write!(f, "entry"),
+            Self::Finalize => write!(f, "finalize"),
             Self::Script => write!(f, "script"),
         }
     }

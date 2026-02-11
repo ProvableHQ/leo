@@ -4,14 +4,14 @@ program credits.aleo {
         amount: u64,
     }
 
-    async transition transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Future) {
-        let f: Future = finalize();
+    fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Final) {
+        let f: Final = final { finalize(); };
         return (input, f);
     }
+}
 
-    async function finalize() {
-        assert_eq(1u8, 1u8);
-    }
+final fn finalize() {
+    assert_eq(1u8, 1u8);
 }
 
 // --- Next Program --- //
@@ -19,15 +19,15 @@ program credits.aleo {
 import credits.aleo;
 
 program test_credits.aleo {
-    async transition send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Future) {
-        let start: (credits.aleo/credits, Future) = credits.aleo/transfer_private_to_public(input, self.address, amount);
+    fn send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Final) {
+        let start: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input, self.address, amount);
         let after: (u8, credits.aleo/credits) = (1u8, start.0);
-        let start_2: Future = start.1;
+        let start_2: Final = start.1;
         return (
             after.1, 
-            async {
-                start.1.await();
-                start_2.await();
+            final {
+                start.1.run();
+                start_2.run();
             }
         );
     }

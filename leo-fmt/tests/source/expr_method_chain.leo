@@ -1,17 +1,17 @@
+    struct Wrapper   {
+                inner  :  u64,
+	}
+
 program test.aleo
   {
 	mapping balances  :  address
 	    =>  u64;
 
-    struct Wrapper   {
-                inner  :  u64,
-	}
-
-  async transition deposit(
+  fn deposit(
             public sender
                 :  address  ,
     public amount
-        :  u64  )  ->  Future  {
+        :  u64  )  ->  Final  {
 	    let bal  :  u64  =  balances.get(
                             sender
                                 );
@@ -32,7 +32,7 @@ balances.remove(
             ;
         }
 
-	function use_special(
+	fn use_special(
 	        )  ->  address  {
 let caller  :  address  =  self.caller
     ;
@@ -48,7 +48,7 @@ let caller  :  address  =  self.caller
 	                    caller  ;
 }
 
-      function access_chain(
+      fn access_chain(
             w  :  Wrapper  ,
 	    arr  :  [u64;  3]  ,
     tup  :  (u64,  u64)

@@ -91,12 +91,15 @@ impl Pass for TypeChecking {
             .map(|(loc, _)| loc.clone())
             .chain(state.symbol_table.iter_structs().map(|(loc, _)| loc.clone()))
             .collect();
-        let function_names = state.symbol_table.iter_functions().map(|(loc, _)| loc.clone()).collect();
+        let function_names: IndexSet<leo_ast::Location> =
+            state.symbol_table.iter_functions().map(|(loc, _)| loc.clone()).collect();
 
         let ast = std::mem::take(&mut state.ast);
 
         // Initialize the composite graph with all the composites in the program.
         state.composite_graph = CompositeGraph::new(composite_names);
+        // Reinitialize the call counts
+        state.call_count = function_names.iter().cloned().map(|n| (n, 0)).collect();
         // Initialize the call graph with all the functions in the program.
         state.call_graph = CallGraph::new(function_names);
 

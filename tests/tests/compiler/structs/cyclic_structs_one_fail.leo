@@ -1,6 +1,6 @@
 
-program test.aleo {
-    struct Foo {
-        foo: Foo,
-    }
+struct Foo {
+    foo: Foo,
 }
+
+program test.aleo { }

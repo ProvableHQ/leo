@@ -16,13 +16,30 @@
 
 use super::DeadCodeEliminatingVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor, UpgradeVariant};
+use leo_ast::{AstReconstructor, Constructor, Function, Location, ProgramReconstructor, UpgradeVariant};
 use leo_errors::StaticAnalyzerError;
 
 impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
         self.program_name = input.program_id.name.name;
-        input.functions = input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect();
+        input.functions = input
+            .functions
+            .into_iter()
+            .filter(|(name, fun)| {
+                use leo_ast::Variant::*;
+                let location = Location::new(self.program_name, vec![*name]);
+                let call_count = *self.state.call_count.get(&location).unwrap();
+
+                match fun.variant {
+                    Fn => call_count > 0,
+                    FinalFn => false,
+                    EntryPoint | Finalize | Script => true,
+                }
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .map(|(i, f)| (i, self.reconstruct_function(f)))
+            .collect();
         input.constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
         input
     }

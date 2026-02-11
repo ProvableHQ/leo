@@ -45,6 +45,7 @@ Examples:
 ```rust
 // Single pass with typical prelude
 (new_pass_runner, [
+    (ForceInlineConversion, ()),
     (GlobalVarsCollection, ()),
     (PathResolution, ()),
     (GlobalItemsCollection, ()),
@@ -54,6 +55,7 @@ Examples:
 
 // Multiple passes run sequentially
 (multi_pass_runner, [
+    (ForceInlineConversion, ()),
     (GlobalVarsCollection, ()),
     (PathResolution, ()),
     (GlobalItemsCollection, ()),

@@ -1,28 +1,14 @@
-Error [ETYC0372168]: The transition `bar` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:3:16
+Error [ETYC0372168]: The entry `bar` has 17 input parameters, which exceeds the allowed limit of 16.
+    --> compiler-test:3:8
      |
-   3 |     transition bar(
-     |                ^^^
-     |
-     = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
-Error [ETYC0372168]: The async transition `baz` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:11:22
-     |
-  11 |     async transition baz(
-     |                      ^^^
+   3 |     fn bar(
+     |        ^^^
      |
      = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
-Error [ETYC0372168]: The async function `baz_finalize` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:19:20
+Error [ETYC0372168]: The entry `baz` has 17 input parameters, which exceeds the allowed limit of 16.
+    --> compiler-test:11:8
      |
-  19 |     async function baz_finalize(
-     |                    ^^^^^^^^^^^^
-     |
-     = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
-Error [ETYC0372168]: The function `foo` has 17 input parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:25:14
-     |
-  25 |     function foo(
-     |              ^^^
+  11 |     fn baz(
+     |        ^^^
      |
      = Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.

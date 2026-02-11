@@ -56,8 +56,8 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
 
     /// Flattens a function's body
     fn reconstruct_function(&mut self, function: Function) -> Function {
-        // Set when the function is an async function.
-        self.is_async = function.variant.is_async_function();
+        // Set when the function is an on-chain function (Finalize or FinalFn).
+        self.is_onchain = function.variant.is_onchain();
 
         // Flatten the function body.
         let mut block = self.reconstruct_block(function.block).0;
@@ -92,8 +92,8 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
 
     /// Flattens a constructor's body.
     fn reconstruct_constructor(&mut self, constructor: Constructor) -> Constructor {
-        // A constructor is always async.
-        self.is_async = true;
+        // A constructor is always run onchain.
+        self.is_onchain = true;
 
         // Flatten the function body.
         let mut block = self.reconstruct_block(constructor.block).0;

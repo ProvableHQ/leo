@@ -1408,4 +1408,11 @@ create_messages!(
         msg: format!("Assignment to storage variables of another program is not allowed. You can only modify storage declared in the current program."),
         help: None,
     }
+
+    @formatted
+    no_inline_not_allowed_on_final_fn {
+        args: (),
+        msg: format!("`@no_inline` is not allowed on `final fn` functions because they must always be inlined."),
+        help: None,
+    }
 );

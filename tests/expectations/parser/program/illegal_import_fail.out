@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected 'import', 'program' -- found 'stub'
+Error [EPAR0370005]: expected '@', 'struct', 'final', 'const', 'fn', 'import', 'program', 'script' -- found 'stub'
     --> test:2:1
      |
    2 | stub credits.aleo {

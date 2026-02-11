@@ -9,7 +9,7 @@ program test.aleo {
         balance: u64,
     }
 
-    transition main() -> u32 {
+    fn main() -> u32 {
         return 0u32;
     }
 }

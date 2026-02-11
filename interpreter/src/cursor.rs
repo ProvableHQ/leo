@@ -1089,7 +1089,7 @@ impl Cursor {
 
                 let span = intr.span();
 
-                if let Intrinsic::FutureAwait = intrinsic {
+                if let Intrinsic::FinalRun = intrinsic {
                     let value = self.pop_value()?;
                     let Some(asyncs) = value.as_future() else {
                         halt!(span, "Invalid value for await: {value}");
@@ -1137,7 +1137,7 @@ impl Cursor {
                 } else {
                     halt!(intr.span(), "Unknown intrinsic {}", intr.name);
                 };
-                assert!(intrinsic == Intrinsic::FutureAwait);
+                assert!(intrinsic == Intrinsic::FinalRun);
                 Some(Value::make_unit())
             }
 
@@ -1190,8 +1190,6 @@ impl Cursor {
                     if let Some(program) = maybe_program {
                         (program, self.to_absolute_path(&call.function.segments()))
                     } else {
-                        dbg!(&call.function);
-                        dbg!(self.current_program());
                         halt!(call.span, "No current program");
                     }
                 };
@@ -1423,7 +1421,7 @@ impl Cursor {
             Element::DelayedCall(gid) if step == 0 => {
                 match self.lookup_function(gid.program, &gid.path).expect("function should exist") {
                     FunctionVariant::Leo(function) => {
-                        assert!(function.variant == Variant::AsyncFunction);
+                        assert!(function.variant == Variant::Finalize);
                         let len = self.values.len();
                         let values: Vec<Value> = self.values.drain(len - function.input.len()..).collect();
                         self.contexts.push(
@@ -1520,12 +1518,12 @@ impl Cursor {
         };
         match function_variant {
             FunctionVariant::Leo(function) => {
-                let caller = if matches!(function.variant, Variant::Transition | Variant::AsyncTransition) {
+                let caller = if matches!(function.variant, Variant::EntryPoint) {
                     self.new_caller()
                 } else {
                     self.signer.clone()
                 };
-                if self.really_async && function.variant == Variant::AsyncFunction {
+                if self.really_async && function.variant == Variant::Finalize {
                     // Don't actually run the call now.
                     let async_ex = AsyncExecution::AsyncFunctionCall {
                         function: Location::new(function_program, function_path.to_vec()),
@@ -1533,7 +1531,7 @@ impl Cursor {
                     };
                     self.values.push(vec![async_ex].into());
                 } else {
-                    let is_async = function.variant == Variant::AsyncFunction;
+                    let is_async = function.variant == Variant::Finalize;
                     self.contexts.push(function_path, function_program, caller, is_async, HashMap::new());
                     // Treat const generic parameters as regular inputs
                     let param_names = function

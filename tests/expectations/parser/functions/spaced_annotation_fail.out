@@ -1,4 +1,4 @@
 Error [EPAR0370005]: expected an identifier, 'program' -- found ' '
-    --> test:3:6
+    --> test:3:2
      |
-   3 |     @ test
+   3 | @ test

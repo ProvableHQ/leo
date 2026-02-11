@@ -1,6 +1,6 @@
 program test.aleo
     {
-	function main(  ){
+	fn main(  ){
 
             let arr  :  [u64;  3]  =  [
                 1u64  ,

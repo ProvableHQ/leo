@@ -9,7 +9,7 @@ program test.aleo {
         amount: u64,
     }
 
-    transition main(owner: address, a: u64) -> Token {
+    fn main(owner: address, a: u64) -> Token {
         let amount: u64 = a * a;
         return Token {
             amount,

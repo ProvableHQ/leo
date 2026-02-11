@@ -1,103 +1,104 @@
 struct import
 
-program test.aleo {
-    struct ;
+struct ;
 
-    struct .
+struct .
 
 
-    struct ,
+struct ,
 
-    struct *
+struct *
 
-    struct +
+struct +
 
-    struct -
+struct -
 
-    struct /
+struct /
 
-    struct [
+struct [
 
-    struct ]
+struct ]
 
-    struct {
+struct {
 
-    struct }
+struct }
 
-    struct (
+struct (
 
-    struct )
+struct )
 
-    struct :
+struct :
 
-    struct ::
+struct ::
 
-    struct ?
+struct ?
 
-    struct _
+struct _
 
-    struct =
+struct =
 
-    struct ==
+struct ==
 
-    struct !
+struct !
 
-    struct !=
+struct !=
 
-    struct >
+struct >
 
-    struct >=
+struct >=
 
-    struct <
+struct <
 
-    struct <=
+struct <=
 
-    struct >
+struct >
 
-    struct ..
+struct ..
 
-    struct as
+struct as
 
-    struct const
+struct const
 
-    struct let
+struct let
 
-    struct for
+struct for
 
-    struct if
+struct if
 
-    struct else
+struct else
 
-    struct i8
+struct i8
 
-    struct i16
+struct i16
 
-    struct i32
+struct i32
 
-    struct i64
+struct i64
 
-    struct i128
+struct i128
 
-    struct u8
+struct u8
 
-    struct u16
+struct u16
 
-    struct u32
+struct u32
 
-    struct u64
+struct u64
 
-    struct u128
+struct u128
 
-    struct &
+struct &
 
-    struct return
+struct return
 
-    struct self
+struct self
 
-    struct Self
+struct Self
 
-    struct true
+struct true
 
-    struct false
+struct false
 
-    struct 0}
+struct 0
+
+program test.aleo {}

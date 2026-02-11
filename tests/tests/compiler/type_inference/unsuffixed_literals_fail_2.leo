@@ -1,5 +1,5 @@
 program test.aleo {
-    transition foo() {
+    fn foo() {
         let t0 = (1, 2);
         let t1: u32 = (1, 2);
         let t2_0 = (1, 2).0;

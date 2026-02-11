@@ -3,8 +3,3 @@ Error [ETYC0372013]: Composite initialization expression for `Foo` is missing me
      |
    9 |         let a: Foo = Foo { y: 0u32 };
      |                      ^^^^^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
-     |
-   2 | program test.aleo {
-     |         ^^^^^^^^^

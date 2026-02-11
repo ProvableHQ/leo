@@ -1,6 +1,6 @@
 
 program child.aleo {
-    transition t() {}
+    fn t() {}
 }
 
  // --- Next Program --- //
@@ -8,11 +8,11 @@ program child.aleo {
 import child.aleo;
 
 program parent.aleo {
-    async transition foo() -> Future {
-        let future: Future = finalize_foo();
+    fn foo() -> Final {
+        let future: Final = final { finalize_foo(); };
         child.aleo/t();
         return future;
     }
-
-    async function finalize_foo() {}
 }
+
+final fn finalize_foo() {}

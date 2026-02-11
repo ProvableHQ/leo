@@ -8,5 +8,5 @@ program test.aleo {
         owner: address
     }
 
-    transition foo() {}
+    fn foo() {}
 }

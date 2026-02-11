@@ -5,7 +5,7 @@ program test0.aleo {
         x: bool,
     }
 
-    transition foo() -> R {
+    fn foo() -> R {
         return R {
             owner: self.signer,
             x: true,
@@ -21,7 +21,7 @@ program test1.aleo {
     // and an assignment will be converted to a ternary, so this won't work.
     // As of commit 314d56a9e3626418e8a953ecb81f595555716459 this caused
     // a compiler panic.
-    transition bar(x: bool) -> test0.aleo/R {
+    fn bar(x: bool) -> test0.aleo/R {
         let r1: test0.aleo/R = test0.aleo/foo();
         if x {
             r1 = test0.aleo/foo();
@@ -29,7 +29,7 @@ program test1.aleo {
         return r1;
     }
 
-    transition bar2(x: bool) -> test0.aleo/R {
+    fn bar2(x: bool) -> test0.aleo/R {
         let tupl: (test0.aleo/R, test0.aleo/R) = (test0.aleo/foo(), test0.aleo/foo());
         if x {
             // This should fail - external record assignment in narrower conditional scope.
@@ -42,7 +42,7 @@ program test1.aleo {
         return tupl.0;
     }
 
-    transition bar3(x: bool) -> test0.aleo/R {
+    fn bar3(x: bool) -> test0.aleo/R {
         let r: test0.aleo/R = test0.aleo/foo();
         // This should fail.
         r.x = x;
@@ -54,7 +54,7 @@ program test1.aleo {
         return r;
     }
 
-    transition bar4() -> test0.aleo/R {
+    fn bar4() -> test0.aleo/R {
         let r: test0.aleo/R = test0.aleo/foo();
         for i: u8 in 0u8..4u8 {
             // This should pass - it's an external record assignment but

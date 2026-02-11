@@ -1,10 +1,10 @@
 
-program test.aleo {
-    async function bar() {
-        let x: u32 = block.timestamp;
-    }
+final fn bar() {
+    let x: u32 = block.timestamp;
+}
 
-    async transition foo() -> Future {
-        return bar();
+program test.aleo {
+    fn foo() -> Final {
+        return final { bar(); };
     }
 }

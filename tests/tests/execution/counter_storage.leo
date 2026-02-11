@@ -27,14 +27,14 @@ private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 program test.aleo {
     storage counter: u32;
 
-    async transition initialize() -> Future {
-        return async {
+    fn initialize() -> Final {
+        return final {
             counter = 0;
         };
     }
 
-    async transition increment() -> Future {
-        return async {
+    fn increment() -> Final {
+        return final {
             let old_counter_value = counter.unwrap_or(0);
             counter = old_counter_value + 1u32;
             assert(counter.unwrap() == old_counter_value + 1u32);
@@ -42,6 +42,6 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 

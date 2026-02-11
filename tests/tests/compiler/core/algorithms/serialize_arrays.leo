@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {
     // Test serialization of arrays (non-raw and raw)
-    transition main() -> (
+    fn main() -> (
         bool, bool, bool, bool,  // Sample bits from array serialization
         bool, bool, bool, bool,  // More array samples
         bool, bool, bool, bool,  // Raw serialization samples

@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected '{' -- found 'finalize'
     --> test_0:1:7
      |
-   1 | async finalize(foo);
+   1 | final finalize(foo);
      |       ^^^^^^^^

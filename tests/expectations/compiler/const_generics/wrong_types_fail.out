@@ -1,18 +1,18 @@
 Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
-    --> compiler-test:4:30
+    --> compiler-test:4:22
      |
-   4 |     transition main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
-     |                              ^^^^
+   4 |     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
+     |                      ^^^^
 Error [ETYC0372140]: Composite type expected `1` const args, but got `0`
-    --> compiler-test:4:40
+    --> compiler-test:4:32
      |
-   4 |     transition main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
-     |                                        ^^^
+   4 |     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
+     |                                ^^^
 Error [ETYC0372140]: Composite type expected `1` const args, but got `2`
-    --> compiler-test:4:52
+    --> compiler-test:4:44
      |
-   4 |     transition main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
-     |                                                    ^^^
+   4 |     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
+     |                                            ^^^
 Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
     --> compiler-test:5:23
      |

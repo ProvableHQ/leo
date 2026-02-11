@@ -1,18 +1,23 @@
 program invalid_optional_types.aleo {
     // Tuples cannot be optional
-    transition tuple_optional_type() {
+    fn tuple_optional_type() {
         let a: (u8, u8)? = (1u8, 2u8); // ERROR: Tuples cannot be optional just yet
     }
 
-    // Future cannot be optional
-    async transition future_optional_type() {
-        let fut: Future? = finalize(); // ERROR: Future? is not allowed
+    fn sig_or_address_type(s_: signature, a_: address) {
+        let s: signature? = s_;
+        let a: address? = a_;
     }
 
-    // Dummy future-returning function
-    async function finalize() {
+    // Final cannot be optional
+    fn future_optional_type() {
+        let fut: Final? = final { finalize(); }; // ERROR: Final? is not allowed
     }
-
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
+
+// Dummy future-returning function
+final fn finalize() {
+}
+

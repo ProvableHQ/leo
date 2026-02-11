@@ -107,13 +107,19 @@ impl FunctionStub {
         self.name() == sym::main
     }
 
+    /// Returns `true` if any output of the function is a `Final`
+    pub fn has_final_output(&self) -> bool {
+        self.output.iter().any(|o| matches!(o.type_, Type::Future(_)))
+    }
+
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.variant {
-            Variant::Inline => write!(f, "inline ")?,
+            Variant::FinalFn => write!(f, "final fn ")?,
+            Variant::Finalize => write!(f, "finalize ")?,
             Variant::Script => write!(f, "script ")?,
-            Variant::Function | Variant::AsyncFunction => write!(f, "function ")?,
-            Variant::Transition | Variant::AsyncTransition => write!(f, "transition ")?,
+            Variant::Fn => write!(f, "fn ")?,
+            Variant::EntryPoint => write!(f, "entry ")?,
         }
         write!(f, "{}", self.identifier)?;
 
@@ -205,10 +211,7 @@ impl FunctionStub {
 
         Self {
             annotations: Vec::new(),
-            variant: match function.finalize_logic().is_some() {
-                true => Variant::AsyncTransition,
-                false => Variant::Transition,
-            },
+            variant: Variant::EntryPoint,
             identifier: Identifier::from(function.name()),
             input: function
                 .inputs()
@@ -285,7 +288,7 @@ impl FunctionStub {
     pub fn from_finalize<N: Network>(function: &FunctionCore<N>, key_name: Symbol, program: Symbol) -> Self {
         Self {
             annotations: Vec::new(),
-            variant: Variant::AsyncFunction,
+            variant: Variant::Finalize,
             identifier: Identifier::new(key_name, Default::default()),
             input: function
                 .finalize_logic()
@@ -341,7 +344,7 @@ impl FunctionStub {
         };
         Self {
             annotations: Vec::new(),
-            variant: Variant::Function,
+            variant: Variant::Fn,
             identifier: Identifier::from(closure.name()),
             input: closure
                 .inputs()

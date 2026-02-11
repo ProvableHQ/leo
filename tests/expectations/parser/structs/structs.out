@@ -8,16 +8,16 @@
         "name": {
           "name": "comma_separators",
           "span": {
-            "lo": 8,
-            "hi": 24
+            "lo": 141,
+            "hi": 157
           },
           "id": 26
         },
         "network": {
           "name": "aleo",
           "span": {
-            "lo": 25,
-            "hi": 29
+            "lo": 158,
+            "hi": 162
           },
           "id": 27
         }
@@ -30,8 +30,8 @@
             "identifier": {
               "name": "Foo1",
               "span": {
-                "lo": 43,
-                "hi": 47
+                "lo": 7,
+                "hi": 11
               },
               "id": 5
             },
@@ -42,8 +42,8 @@
                 "identifier": {
                   "name": "y",
                   "span": {
-                    "lo": 58,
-                    "hi": 59
+                    "lo": 18,
+                    "hi": 19
                   },
                   "id": 3
                 },
@@ -51,16 +51,16 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 58,
-                  "hi": 63
+                  "lo": 18,
+                  "hi": 23
                 },
                 "id": 4
               }
             ],
             "is_record": false,
             "span": {
-              "lo": 36,
-              "hi": 69
+              "lo": 0,
+              "hi": 25
             },
             "id": 6
           }
@@ -71,8 +71,8 @@
             "identifier": {
               "name": "Foo2",
               "span": {
-                "lo": 81,
-                "hi": 85
+                "lo": 33,
+                "hi": 37
               },
               "id": 11
             },
@@ -81,8 +81,8 @@
                 "identifier": {
                   "name": "N",
                   "span": {
-                    "lo": 88,
-                    "hi": 89
+                    "lo": 40,
+                    "hi": 41
                   },
                   "id": 9
                 },
@@ -90,8 +90,8 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 88,
-                  "hi": 94
+                  "lo": 40,
+                  "hi": 46
                 },
                 "id": 10
               }
@@ -102,8 +102,8 @@
                 "identifier": {
                   "name": "y",
                   "span": {
-                    "lo": 106,
-                    "hi": 107
+                    "lo": 54,
+                    "hi": 55
                   },
                   "id": 7
                 },
@@ -111,16 +111,16 @@
                   "Integer": "U8"
                 },
                 "span": {
-                  "lo": 106,
-                  "hi": 111
+                  "lo": 54,
+                  "hi": 59
                 },
                 "id": 8
               }
             ],
             "is_record": false,
             "span": {
-              "lo": 74,
-              "hi": 117
+              "lo": 26,
+              "hi": 61
             },
             "id": 12
           }
@@ -131,8 +131,8 @@
             "identifier": {
               "name": "Foo3",
               "span": {
-                "lo": 129,
-                "hi": 133
+                "lo": 69,
+                "hi": 73
               },
               "id": 24
             },
@@ -141,8 +141,8 @@
                 "identifier": {
                   "name": "N",
                   "span": {
-                    "lo": 136,
-                    "hi": 137
+                    "lo": 76,
+                    "hi": 77
                   },
                   "id": 18
                 },
@@ -150,8 +150,8 @@
                   "Integer": "U32"
                 },
                 "span": {
-                  "lo": 136,
-                  "hi": 142
+                  "lo": 76,
+                  "hi": 82
                 },
                 "id": 19
               },
@@ -159,15 +159,15 @@
                 "identifier": {
                   "name": "M",
                   "span": {
-                    "lo": 144,
-                    "hi": 145
+                    "lo": 84,
+                    "hi": 85
                   },
                   "id": 20
                 },
                 "type_": "Address",
                 "span": {
-                  "lo": 144,
-                  "hi": 154
+                  "lo": 84,
+                  "hi": 94
                 },
                 "id": 21
               },
@@ -175,15 +175,15 @@
                 "identifier": {
                   "name": "N",
                   "span": {
-                    "lo": 156,
-                    "hi": 157
+                    "lo": 96,
+                    "hi": 97
                   },
                   "id": 22
                 },
                 "type_": "Signature",
                 "span": {
-                  "lo": 156,
-                  "hi": 168
+                  "lo": 96,
+                  "hi": 108
                 },
                 "id": 23
               }
@@ -194,8 +194,8 @@
                 "identifier": {
                   "name": "z",
                   "span": {
-                    "lo": 180,
-                    "hi": 181
+                    "lo": 116,
+                    "hi": 117
                   },
                   "id": 13
                 },
@@ -207,15 +207,15 @@
                       "identifier": {
                         "name": "Foo2",
                         "span": {
-                          "lo": 183,
-                          "hi": 187
+                          "lo": 119,
+                          "hi": 123
                         },
                         "id": 14
                       },
                       "target": "Unresolved",
                       "span": {
-                        "lo": 183,
-                        "hi": 187
+                        "lo": 119,
+                        "hi": 123
                       },
                       "id": 16
                     },
@@ -223,8 +223,8 @@
                       {
                         "Literal": {
                           "span": {
-                            "lo": 190,
-                            "hi": 191
+                            "lo": 126,
+                            "hi": 127
                           },
                           "id": 15,
                           "variant": {
@@ -236,16 +236,16 @@
                   }
                 },
                 "span": {
-                  "lo": 180,
-                  "hi": 192
+                  "lo": 116,
+                  "hi": 128
                 },
                 "id": 17
               }
             ],
             "is_record": false,
             "span": {
-              "lo": 122,
-              "hi": 199
+              "lo": 62,
+              "hi": 131
             },
             "id": 25
           }
@@ -258,12 +258,12 @@
           "main",
           {
             "annotations": [],
-            "variant": "Transition",
+            "variant": "EntryPoint",
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 216,
-                "hi": 220
+                "lo": 172,
+                "hi": 176
               },
               "id": 0
             },
@@ -274,14 +274,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 223,
-                "hi": 230
+                "lo": 179,
+                "hi": 186
               },
               "id": 1
             },
             "span": {
-              "lo": 205,
-              "hi": 230
+              "lo": 169,
+              "hi": 186
             },
             "id": 2
           }
@@ -290,7 +290,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 232
+        "hi": 188
       }
     }
   }

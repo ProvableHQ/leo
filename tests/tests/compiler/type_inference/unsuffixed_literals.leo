@@ -1,5 +1,5 @@
 program test.aleo {
-    transition defs_and_unary_ops() {
+    fn defs_and_unary_ops() {
         let a0: u8 = 0;
         let a1: u16 = 0;
         let a2: u32 = 0;
@@ -302,7 +302,7 @@ program test.aleo {
         let w9: i128 = 1i128.shr_wrapped(1u32);
     }
 
-    transition unary_ops() {
+    fn unary_ops() {
         let b0: i8 = -1.abs();
         let b1: i16 = -1.abs_wrapped();
         let b2: field = 0.double();

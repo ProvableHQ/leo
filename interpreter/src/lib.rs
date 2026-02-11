@@ -184,7 +184,7 @@ pub fn find_and_run_tests(
 
         assert!(function.input.is_empty(), "Type checking should ensure test functions have no inputs.");
 
-        if function.variant.is_transition() {
+        if function.variant.is_entry() {
             // It's a native test; just store it and move on.
             let private_key = annotation.map.get(&private_key_symbol).cloned();
             native_test_functions.push(TestFunction {

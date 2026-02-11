@@ -1,5 +1,5 @@
 Error [ECMP0376008]: This loop bound could not be determined at compile time.
-    --> compiler-test:10:28
+    --> compiler-test:9:28
      |
-  10 |         for i:u64 in 0u64..amount {
+   9 |         for i:u64 in 0u64..amount {
      |                            ^^^^^^

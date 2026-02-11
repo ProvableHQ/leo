@@ -54,17 +54,15 @@
 
 use crate::Pass;
 
+use analysis::AnalysisVisitor;
 use indexmap::IndexMap;
-use leo_ast::ProgramReconstructor as _;
+use leo_ast::{ProgramReconstructor, ProgramVisitor};
 use leo_errors::Result;
 use leo_span::Symbol;
+use transform::TransformVisitor;
 
-mod ast;
-
-mod program;
-
-mod visitor;
-use visitor::*;
+mod analysis;
+mod transform;
 
 pub struct FunctionInlining;
 
@@ -75,13 +73,19 @@ impl Pass for FunctionInlining {
     const NAME: &str = "FunctionInlining";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        // Phase 1: Analysis - collect functions that ought always be inlined
+        let mut analyzer = AnalysisVisitor::new();
+        analyzer.visit_program(&state.ast.ast);
+
+        // Phase 2: Transformation - convert Function to Inline where needed
         let mut ast = std::mem::take(&mut state.ast);
-        let mut visitor = FunctionInliningVisitor {
+        let mut visitor = TransformVisitor {
             state,
             reconstructed_functions: Vec::new(),
             program: Symbol::intern(""),
             function_map: IndexMap::new(),
-            is_async: false,
+            is_onchain: false,
+            always_inline: analyzer.functions_to_inline,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err()?;

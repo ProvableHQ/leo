@@ -1,10 +1,10 @@
 Error [EPAR0370021]: The type of `tokens` has no associated function `get` that takes 2 argument(s).
-    --> compiler-test:17:9
+    --> compiler-test:18:5
      |
-  17 |         tokens.get(true, true);
-     |         ^^^^^^^^^^^^^^^^^^^^^^
+  18 |     tokens.get(true, true);
+     |     ^^^^^^^^^^^^^^^^^^^^^^
 Error [EPAR0370021]: The type of `amounts` has no associated function `get` that takes 0 argument(s).
-    --> compiler-test:19:9
+    --> compiler-test:20:5
      |
-  19 |         amounts.get();
-     |         ^^^^^^^^^^^^^
+  20 |     amounts.get();
+     |     ^^^^^^^^^^^^^

@@ -1,5 +1,5 @@
 program parent.aleo {
-    transition foo() -> u32 {
+    fn foo() -> u32 {
         return dep::X;
     }
 }
@@ -8,6 +8,6 @@ program parent.aleo {
 
 const X: u32 = 10;
 
-// --- Next Module: transition.leo --- //
+// --- Next Module: program.leo --- //
 
 const Y: u32 = 20;

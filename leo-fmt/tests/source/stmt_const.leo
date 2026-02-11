@@ -1,6 +1,6 @@
 program test.aleo
         {
-	function main(
+	fn main(
 	    )  ->  u64   {
 const X  :u64
         =  100u64

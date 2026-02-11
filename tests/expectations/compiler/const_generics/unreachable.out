@@ -9,8 +9,3 @@ function main2:
 
 finalize main2:
     assert.eq true true;
-
-closure bar:
-    input r0 as field;
-    assert.eq true true;
-    output r0 as field;

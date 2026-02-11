@@ -1,21 +1,20 @@
 
 program child.aleo {
-    async transition foo() -> Future {
-        return finalize_foo(0u32);
+    fn foo() -> Final {
+        return final { finalize_foo(0u32); };
     }
-
-    async function finalize_foo(x: u32) {
-        assert_eq(1u32, 1u32);
-    }
-
-    async transition boo() -> (u32, Future) {
-        return (1u32, finalize_boo(0u32));
-    }
-
-    async function finalize_boo(x: u32) {
-        assert_eq(1u32, 1u32);
+    fn boo() -> (u32, Final) {
+        return (1u32, final { finalize_boo(0u32); });
     }
  }
+
+final fn finalize_foo(x: u32) {
+    assert_eq(1u32, 1u32);
+}
+
+final fn finalize_boo(x: u32) {
+    assert_eq(1u32, 1u32);
+}
 
 // --- Next Program --- //
 
@@ -23,17 +22,17 @@ import child.aleo;
 
 program parent.aleo {
 
-    async transition foo() -> Future {
-        let f0: Future = child.aleo/foo();
+    fn foo() -> Final {
+        let f0: Final = child.aleo/foo();
 
         child.aleo/foo();
 
         child.aleo/boo();
 
-        return finalize_foo(f0);
+        return final { finalize_foo(f0); };
     }
+}
 
-    async function finalize_foo(f0: Future) {
-        f0.await();
-    }
+final fn finalize_foo(f0: Final) {
+    f0.run();
 }

@@ -13,7 +13,7 @@ input = ["12345field", "0group", "10scalar", "101u32", "51i32"]
 
 
 program test_casts.aleo {
-    transition do_casts(a: field, b: group, c: scalar, d: u32, e: i32) -> (
+    fn do_casts(a: field, b: group, c: scalar, d: u32, e: i32) -> (
         field,
         field,
         field,
@@ -40,5 +40,5 @@ program test_casts.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

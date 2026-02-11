@@ -28,7 +28,6 @@ use leo_ast::{
     Node as _,
     ProgramReconstructor,
     Type,
-    Variant,
 };
 
 use indexmap::IndexMap;
@@ -145,11 +144,6 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             .reconstructed_functions
             .get(input_call.function.expect_global_location())
             .expect("Callee should already be reconstructed (post-order traversal).");
-
-        // Proceed only if the function variant is `inline`.
-        if !matches!(callee_fn.variant, Variant::Inline) {
-            return (input_call.into(), Default::default());
-        }
 
         // Generate a unique name for the monomorphized function based on const arguments.
         //

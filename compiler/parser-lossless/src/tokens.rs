@@ -109,7 +109,7 @@ pub enum Token {
     // We need to special case `group::abc` and `signature::abc` as otherwise these are keywords.
     #[regex(r"group::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
     #[regex(r"signature::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
-    #[regex(r"Future::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
+    #[regex(r"Final::[a-zA-Z][a-zA-Z0-9_]*", |_| IdVariants::Path)]
     IdVariants(IdVariants),
 
     // Address literals should have exactly 58 characters, but we lex other lengths
@@ -300,22 +300,22 @@ pub enum Token {
     Constructor,
     #[token("else")]
     Else,
-    #[token("Fn")]
+    #[token("fn")]
     Fn,
+    #[token("Fn")]
+    FnUpper,
     #[token("for")]
     For,
-    #[token("function")]
-    Function,
-    #[token("Future")]
-    Future,
+    #[token("final")]
+    Final,
+    #[token("Final")]
+    FinalUpper,
     #[token("if")]
     If,
     #[token("import")]
     Import,
     #[token("in")]
     In,
-    #[token("inline")]
-    Inline,
     #[token("let")]
     Let,
     #[token("mapping")]
@@ -336,8 +336,6 @@ pub enum Token {
     Script,
     #[token("self")]
     SelfLower,
-    #[token("transition")]
-    Transition,
 
     // Unicode bidirectional control characters are a potential risk in
     // source. We detect them so we can report them as an error.
@@ -455,10 +453,10 @@ impl Token {
             "Constant" => "'constant'",
             "Constructor" => "'constructor'",
             "Else" => "'else'",
-            "Fn" => "'Fn'",
+            "FnUpper" => "'Fn'",
             "For" => "'for'",
-            "Function" => "'function'",
-            "Future" => "'future'",
+            "Fn" => "'fn'",
+            "Final" => "'final'",
             "If" => "'if'",
             "Import" => "'import'",
             "In" => "'in'",
@@ -473,7 +471,6 @@ impl Token {
             "Return" => "'return'",
             "Script" => "'script'",
             "SelfLower" => "'self'",
-            "Transition" => "'transition'",
 
             "Never" => return None,
 

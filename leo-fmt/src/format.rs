@@ -99,7 +99,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         SyntaxKind::Expression(ExpressionKind::Tuple) => format_tuple_expr(node, out),
         SyntaxKind::Expression(ExpressionKind::Parenthesized) => format_parenthesized(node, out),
         SyntaxKind::Expression(ExpressionKind::Repeat) => format_repeat_expr(node, out),
-        SyntaxKind::Expression(ExpressionKind::Async) => format_async_expr(node, out),
+        SyntaxKind::Expression(ExpressionKind::Final) => format_final_expr(node, out),
         SyntaxKind::Expression(ExpressionKind::Intrinsic) => format_intrinsic(node, out),
         SyntaxKind::Expression(ExpressionKind::SpecialAccess) => format_special_access(node, out),
         SyntaxKind::Expression(ExpressionKind::Unit) => out.write("()"),
@@ -258,7 +258,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
         match &child.kind {
             SyntaxKind::Annotation => {}
             SyntaxKind::Token => match child.text {
-                "async" | "function" | "transition" | "inline" | "constructor" => {
+                "final" | "fn" | "constructor" => {
                     out.write(child.text);
                     out.space();
                 }
@@ -1211,8 +1211,8 @@ fn format_repeat_expr(node: &SyntaxNode, out: &mut Output) {
     out.write("]");
 }
 
-fn format_async_expr(node: &SyntaxNode, out: &mut Output) {
-    out.write("async");
+fn format_final_expr(node: &SyntaxNode, out: &mut Output) {
+    out.write("final");
     out.space();
     for child in &node.children {
         if let SyntaxKind::Statement(StatementKind::Block) = &child.kind {

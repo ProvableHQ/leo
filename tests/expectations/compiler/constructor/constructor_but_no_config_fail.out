@@ -1,8 +1,8 @@
 Error [ETYC0372156]: A constructor must have exactly one of the following annotations: `@admin`, `@checksum`, `@custom`, or `@noupgrade`.
     --> compiler-test:4:5
      |
-   4 |     async constructor() {
-     |     ^^^^^^^^^^^^^^^^^^^^^
+   4 |     constructor() {
+     |     ^^^^^^^^^^^^^^^
    5 |         assert_eq(true, true);
      |         ^^^^^^^^^^^^^^^^^^^^^^
    6 |     }

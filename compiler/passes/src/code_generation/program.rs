@@ -83,28 +83,26 @@ impl<'a> CodeGeneratingVisitor<'a> {
             .functions
             .iter()
             .filter_map(|(_symbol, function)| {
-                if function.variant != Variant::AsyncFunction {
+                if function.variant != Variant::Finalize {
                     let mut aleo_function = self.visit_function(function);
 
                     // Attach the associated finalize to async transitions.
-                    if function.variant == Variant::AsyncTransition {
+                    if let Some(finalize) = &self
+                        .state
+                        .symbol_table
+                        .lookup_function(
+                            this_program,
+                            &Location::new(
+                                self.program_id.unwrap().name.name,
+                                vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
+                            ),
+                        )
+                        .unwrap()
+                        .clone()
+                        .finalizer
+                    {
                         // Set state variables.
                         self.finalize_caller = Some(function.identifier.name);
-                        // Generate code for the associated finalize function.
-                        let finalize = &self
-                            .state
-                            .symbol_table
-                            .lookup_function(
-                                this_program,
-                                &Location::new(
-                                    this_program,
-                                    vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
-                                ),
-                            )
-                            .unwrap()
-                            .clone()
-                            .finalizer
-                            .unwrap();
                         // Write the finalize string.
                         let [finalize_name] = &finalize.location.path[..] else {
                             panic!("finalize location must have a single-segment path at this stage of compilation");
@@ -213,15 +211,15 @@ impl<'a> CodeGeneratingVisitor<'a> {
         self.current_function = Some(function);
 
         // Construct the header of the function.
-        // If a function is a program function, generate an Aleo `function`,
-        // if it is a standard function generate an Aleo `closure`,
-        // otherwise, it is an inline function, in which case a function should not be generated.
+        // If a function is an entry point, generate an Aleo `function`,
+        // if it is a standard fn generate an Aleo `closure`,
+        // though it may already have been inlined.
         let function_name = match function.variant {
-            Variant::Inline => return None,
+            Variant::FinalFn => return None,
             Variant::Script => panic!("script should not appear in native code"),
-            Variant::Transition | Variant::AsyncTransition => function.identifier.to_string(),
-            Variant::Function => function.identifier.to_string(),
-            Variant::AsyncFunction => self.finalize_caller.unwrap().to_string(),
+            Variant::EntryPoint => function.identifier.to_string(),
+            Variant::Fn => function.identifier.to_string(),
+            Variant::Finalize => self.finalize_caller.unwrap().to_string(),
         };
 
         let mut futures = futures.iter();
@@ -253,10 +251,8 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     self.variable_mapping.insert(input.identifier.name, AleoExpr::Reg(register_num.clone()));
                     // Note that this unwrap is safe because we set the variant at the beginning of the function.
                     let visibility = match (self.variant.unwrap(), input.mode) {
-                        (Variant::AsyncTransition, Mode::None) | (Variant::Transition, Mode::None) => {
-                            Some(AleoVisibility::Private)
-                        }
-                        (Variant::AsyncFunction, Mode::None) => Some(AleoVisibility::Public),
+                        (Variant::EntryPoint, Mode::None) => Some(AleoVisibility::Private),
+                        (Variant::Finalize, Mode::None) => Some(AleoVisibility::Public),
                         (_, mode) => AleoVisibility::maybe_from(mode),
                     };
                     // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
@@ -284,7 +280,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
         //  Construct and append the function body.
         let mut statements = self.visit_block(&function.block);
-        if matches!(self.variant.unwrap(), Variant::Function | Variant::AsyncFunction)
+        if matches!(self.variant.unwrap(), Variant::Fn | Variant::Finalize)
             && statements.iter().all(|stm| matches!(stm, AleoStmt::Output(..)))
         {
             // There are no real instructions, which is invalid in Aleo, so
@@ -293,12 +289,12 @@ impl<'a> CodeGeneratingVisitor<'a> {
         }
 
         match function.variant {
-            Variant::Inline | Variant::Script => None,
-            Variant::Transition | Variant::AsyncTransition => {
+            Variant::FinalFn | Variant::Script => None,
+            Variant::EntryPoint => {
                 Some(AleoFunctional::Function(AleoFunction { name: function_name, inputs, statements, finalize: None })) // finalize added by caller
             }
-            Variant::Function => Some(AleoFunctional::Closure(AleoClosure { name: function_name, inputs, statements })),
-            Variant::AsyncFunction => {
+            Variant::Fn => Some(AleoFunctional::Closure(AleoClosure { name: function_name, inputs, statements })),
+            Variant::Finalize => {
                 Some(AleoFunctional::Finalize(AleoFinalize { caller_name: function_name, inputs, statements }))
             }
         }
@@ -312,7 +308,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // Initialize the state of `self` with the appropriate values before visiting `constructor`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
-        self.variant = Some(Variant::AsyncFunction);
+        self.variant = Some(Variant::Finalize);
         // TODO: Figure out a better way to initialize.
         self.variable_mapping.insert(sym::SelfLower, AleoExpr::Reg(AleoReg::Self_));
         self.variable_mapping.insert(sym::block, AleoExpr::Reg(AleoReg::Block));

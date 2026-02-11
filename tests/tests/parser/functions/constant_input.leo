@@ -1,4 +1,3 @@
 
-program test.aleo {
-    function x(constant x: u8) -> u8 {}
-}
+program test.aleo {}
+fn x(constant x: u8) -> u8 {}

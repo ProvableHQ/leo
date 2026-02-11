@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected '=', ':' -- found 'x'
-    --> test:4:17
+    --> test:4:13
      |
-   4 |         let mut x = 0;
-     |                 ^
+   4 |     let mut x = 0;
+     |             ^

@@ -3,10 +3,10 @@ program grandchild.aleo {
         owner: address,
     }
 
-    transition main(b: u32) -> u32 {
+    fn main(b: u32) -> u32 {
         return b;
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

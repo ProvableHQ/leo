@@ -19,7 +19,7 @@ input = ["[8u32, 7u32, 6u32, 5u32, 4u32, 3u32, 2u32, 1u32]"]
 
 program bubble_sort.aleo {
     // This is largely to test array assignments.
-    transition sort(xs: [u32; 8]) -> public [u32; 8] {
+    fn sort(xs: [u32; 8]) -> public [u32; 8] {
         for i: u8 in 0u8..7u8 {
             for j: u8 in 0u8..7u8-i {
                 if xs[j+1u8] < xs[j] {
@@ -33,5 +33,5 @@ program bubble_sort.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

@@ -1,4 +1,3 @@
-
 program test.aleo {
     record move {
         owner: address,
@@ -10,7 +9,7 @@ program test.aleo {
     }
 
     // Returns new move record owned by the opponent.
-    transition create_move(
+    fn create_move(
         // The move record created by the opponent.
         move_record: move,
         // The u64 representation of incoming_fire_coordinate, the bitstring fire coordinate to send to the opponent.
@@ -33,7 +32,7 @@ program test.aleo {
 
     // Returns the move record owned by the opponent.
     // Note, this move record contains dummy fire coordinates and previous hit or miss.
-    transition start_game(player_2: address) -> move {
+    fn start_game(player_2: address) -> move {
         return move {
             owner: player_2,
             incoming_fire_coordinate: 0u64,

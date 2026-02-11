@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {
     // Test all Keccak and SHA3 raw hash variants
-    transition main(input: u64) -> (
+    fn main(input: u64) -> (
         field, scalar, address, u128,  // Keccak256 raw
         field, group, i64,              // Keccak384 raw
         field, scalar, u32,             // Keccak512 raw

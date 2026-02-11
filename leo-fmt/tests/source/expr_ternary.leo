@@ -1,6 +1,6 @@
 program test.aleo
 {
-	function main(  a  :  u64  ,
+	fn main(  a  :  u64  ,
 	        b
 	            :  u64  )  ->  u64  {
 

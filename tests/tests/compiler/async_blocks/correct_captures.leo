@@ -1,14 +1,15 @@
+const X: u32 = 5;
+
 program test.aleo {
-    const X: u32 = 5;
     mapping map: u32 => u32;
 
-    async transition foo(p: u32, q: u8) -> Future {
+    fn foo(p: u32, q: u8) -> Final {
         let x = 5u32;
         let y = (1u32, 2u8, 3u16);
         let w = (1u32, true);
         let z = [1u8; 3];
         let (t1, t2) = (6u32, 8u8);
-        let f = async {
+        let f = final {
             let w2 = w;
             let sum1 = x + y.0 + (y.1 as u32) + (z[0] as u32) + (z[2] as u32) + w.0 + w2.0;
             let y2 = y;

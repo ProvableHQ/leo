@@ -60,7 +60,7 @@ pub fn generate(aleo: &ast::AleoProgram) -> abi::Program {
     let transitions = aleo
         .functions
         .iter()
-        .filter(|(_, f)| f.variant.is_transition())
+        .filter(|(_, f)| f.variant.is_entry())
         .map(|(_, f)| convert_function_stub(f, &record_names))
         .collect();
 
@@ -75,7 +75,7 @@ pub fn generate(aleo: &ast::AleoProgram) -> abi::Program {
 /// Converts a function stub to a transition for ABI.
 fn convert_function_stub(function: &ast::FunctionStub, record_names: &HashSet<Symbol>) -> abi::Transition {
     let name = function.identifier.name.to_string();
-    let is_async = function.variant.is_async();
+    let is_async = function.has_final_output();
     let inputs = function.input.iter().map(|i| convert_input(i, record_names)).collect();
     let outputs = function.output.iter().map(|o| convert_output(o, record_names)).collect();
     abi::Transition { name, is_async, inputs, outputs }

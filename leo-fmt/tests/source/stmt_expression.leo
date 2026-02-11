@@ -1,6 +1,6 @@
 program test.aleo
     {
-	transition main(
+	fn main(
             item
                 :  u64
     )  {

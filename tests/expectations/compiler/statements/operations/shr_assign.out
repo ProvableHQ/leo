@@ -9,13 +9,3 @@ function unsigned:
     shr r4 r2 into r5;
     shr r5 r3 into r6;
     output r6 as u8.private;
-
-closure signed:
-    input r0 as i8;
-    input r1 as u8;
-    input r2 as u16;
-    input r3 as u32;
-    shr r0 r1 into r4;
-    shr r4 r2 into r5;
-    shr r5 r3 into r6;
-    output r6 as i8;

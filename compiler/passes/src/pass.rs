@@ -16,7 +16,8 @@
 
 use crate::{Assigner, SymbolTable, TypeTable};
 
-use leo_ast::{Ast, CallGraph, CompositeGraph, NetworkName, NodeBuilder};
+use indexmap::IndexMap;
+use leo_ast::{Ast, CallGraph, CompositeGraph, Location, NetworkName, NodeBuilder};
 use leo_errors::{Handler, LeoWarning, Result};
 
 use std::{collections::HashSet, rc::Rc};
@@ -40,6 +41,8 @@ pub struct CompilerState {
     pub composite_graph: CompositeGraph,
     /// A graph of which functions call each other.
     pub call_graph: CallGraph,
+    /// How many times a given function is called.
+    pub call_count: IndexMap<Location, usize>,
     /// A set of the warnings collected. This is used to make sure we don't emit the same exact warning twice.
     pub warnings: HashSet<LeoWarning>,
     /// Is this a test program?

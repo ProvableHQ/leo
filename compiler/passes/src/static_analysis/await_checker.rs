@@ -20,6 +20,7 @@ use leo_errors::StaticAnalyzerWarning;
 use leo_span::{Span, Symbol};
 
 // TODO: Could optimize by removing duplicate paths (if set of futures is the same).
+#[derive(Debug)]
 pub struct AwaitChecker {
     /// All possible subsets of futures that must be awaited.
     pub(crate) to_await: Vec<ConditionalTreeNode>,

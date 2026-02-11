@@ -1,20 +1,19 @@
 
 program test.aleo {
-    async transition foo(public a: u8) -> (u8, Future) {
-        async finalize_foo(a);
+    fn foo(public a: u8) -> (u8, Final) {
+        final finalize_foo(a);
         return a + a;
     }
-
-    async function finalize_foo(private a: u8) -> u8 {
-        return a * a;
-    }
-
-    async transition bar(public a: u8) -> (u8, Future) {
-        async finalize_bar(a);
+    fn bar(public a: u8) -> (u8, Final) {
+        final finalize_bar(a);
         return a + a;
     }
+}
 
-    async function finalize_bar(a: u8) -> private u8 {
-        return a * a;
-    }
+final fn finalize_foo(private a: u8) -> u8 {
+    return a * a;
+}
+
+final fn finalize_bar(a: u8) -> private u8 {
+    return a * a;
 }

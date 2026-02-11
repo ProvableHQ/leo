@@ -1,5 +1,5 @@
 program test.aleo{
-	function main(  a  :  u64  )  ->  u64  {
+	fn main(  a  :  u64  )  ->  u64  {
 
             let neg  :  u64  =  -  a;
 

@@ -3,7 +3,7 @@ program test.aleo {
 
     storage vec: [u32];
 
-    transition foo() {
+    fn foo() {
         x = 1;
         let y = x;
         vec.push(1);

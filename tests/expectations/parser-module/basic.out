@@ -119,12 +119,12 @@
       "foo",
       {
         "annotations": [],
-        "variant": "Inline",
+        "variant": "Fn",
         "identifier": {
           "name": "foo",
           "span": {
-            "lo": 86,
-            "hi": 89
+            "lo": 82,
+            "hi": 85
           },
           "id": 0
         },
@@ -135,14 +135,14 @@
         "block": {
           "statements": [],
           "span": {
-            "lo": 92,
-            "hi": 94
+            "lo": 88,
+            "hi": 90
           },
           "id": 1
         },
         "span": {
           "lo": 79,
-          "hi": 94
+          "hi": 90
         },
         "id": 2
       }
@@ -160,8 +160,8 @@
         "place": {
           "name": "X",
           "span": {
-            "lo": 111,
-            "hi": 112
+            "lo": 107,
+            "hi": 108
           },
           "id": 18
         },
@@ -171,8 +171,8 @@
         "value": {
           "Literal": {
             "span": {
-              "lo": 120,
-              "hi": 121
+              "lo": 116,
+              "hi": 117
             },
             "id": 19,
             "variant": {
@@ -181,8 +181,8 @@
           }
         },
         "span": {
-          "lo": 105,
-          "hi": 122
+          "lo": 101,
+          "hi": 118
         },
         "id": 20
       }
@@ -193,8 +193,8 @@
         "place": {
           "name": "Y",
           "span": {
-            "lo": 207,
-            "hi": 208
+            "lo": 199,
+            "hi": 200
           },
           "id": 21
         },
@@ -204,8 +204,8 @@
         "value": {
           "Literal": {
             "span": {
-              "lo": 216,
-              "hi": 217
+              "lo": 208,
+              "hi": 209
             },
             "id": 22,
             "variant": {
@@ -214,8 +214,8 @@
           }
         },
         "span": {
-          "lo": 201,
-          "hi": 218
+          "lo": 193,
+          "hi": 210
         },
         "id": 23
       }
@@ -226,8 +226,8 @@
         "place": {
           "name": "Z",
           "span": {
-            "lo": 241,
-            "hi": 242
+            "lo": 229,
+            "hi": 230
           },
           "id": 24
         },
@@ -237,8 +237,8 @@
         "value": {
           "Literal": {
             "span": {
-              "lo": 250,
-              "hi": 251
+              "lo": 238,
+              "hi": 239
             },
             "id": 25,
             "variant": {
@@ -247,8 +247,8 @@
           }
         },
         "span": {
-          "lo": 235,
-          "hi": 252
+          "lo": 223,
+          "hi": 240
         },
         "id": 26
       }
@@ -261,8 +261,8 @@
         "identifier": {
           "name": "Foo",
           "span": {
-            "lo": 130,
-            "hi": 133
+            "lo": 126,
+            "hi": 129
           },
           "id": 10
         },
@@ -273,8 +273,8 @@
             "identifier": {
               "name": "x",
               "span": {
-                "lo": 136,
-                "hi": 137
+                "lo": 132,
+                "hi": 133
               },
               "id": 6
             },
@@ -282,8 +282,8 @@
               "Integer": "U32"
             },
             "span": {
-              "lo": 136,
-              "hi": 142
+              "lo": 132,
+              "hi": 138
             },
             "id": 7
           },
@@ -292,8 +292,8 @@
             "identifier": {
               "name": "y",
               "span": {
-                "lo": 144,
-                "hi": 145
+                "lo": 140,
+                "hi": 141
               },
               "id": 8
             },
@@ -301,16 +301,16 @@
               "Integer": "U32"
             },
             "span": {
-              "lo": 144,
-              "hi": 150
+              "lo": 140,
+              "hi": 146
             },
             "id": 9
           }
         ],
         "is_record": false,
         "span": {
-          "lo": 123,
-          "hi": 153
+          "lo": 119,
+          "hi": 149
         },
         "id": 11
       }
@@ -321,8 +321,8 @@
         "identifier": {
           "name": "Bar",
           "span": {
-            "lo": 177,
-            "hi": 180
+            "lo": 169,
+            "hi": 172
           },
           "id": 16
         },
@@ -333,8 +333,8 @@
             "identifier": {
               "name": "x",
               "span": {
-                "lo": 183,
-                "hi": 184
+                "lo": 175,
+                "hi": 176
               },
               "id": 12
             },
@@ -342,8 +342,8 @@
               "Integer": "U32"
             },
             "span": {
-              "lo": 183,
-              "hi": 189
+              "lo": 175,
+              "hi": 181
             },
             "id": 13
           },
@@ -352,8 +352,8 @@
             "identifier": {
               "name": "y",
               "span": {
-                "lo": 191,
-                "hi": 192
+                "lo": 183,
+                "hi": 184
               },
               "id": 14
             },
@@ -361,16 +361,16 @@
               "Integer": "U32"
             },
             "span": {
-              "lo": 191,
-              "hi": 197
+              "lo": 183,
+              "hi": 189
             },
             "id": 15
           }
         ],
         "is_record": false,
         "span": {
-          "lo": 170,
-          "hi": 200
+          "lo": 162,
+          "hi": 192
         },
         "id": 17
       }
@@ -381,12 +381,12 @@
       "foo",
       {
         "annotations": [],
-        "variant": "Inline",
+        "variant": "Fn",
         "identifier": {
           "name": "foo",
           "span": {
-            "lo": 161,
-            "hi": 164
+            "lo": 153,
+            "hi": 156
           },
           "id": 0
         },
@@ -397,14 +397,14 @@
         "block": {
           "statements": [],
           "span": {
-            "lo": 167,
-            "hi": 169
+            "lo": 159,
+            "hi": 161
           },
           "id": 1
         },
         "span": {
-          "lo": 154,
-          "hi": 169
+          "lo": 150,
+          "hi": 161
         },
         "id": 2
       }
@@ -413,12 +413,12 @@
       "bar",
       {
         "annotations": [],
-        "variant": "Inline",
+        "variant": "Fn",
         "identifier": {
           "name": "bar",
           "span": {
-            "lo": 226,
-            "hi": 229
+            "lo": 214,
+            "hi": 217
           },
           "id": 3
         },
@@ -429,14 +429,14 @@
         "block": {
           "statements": [],
           "span": {
-            "lo": 232,
-            "hi": 234
+            "lo": 220,
+            "hi": 222
           },
           "id": 4
         },
         "span": {
-          "lo": 219,
-          "hi": 234
+          "lo": 211,
+          "hi": 222
         },
         "id": 5
       }
