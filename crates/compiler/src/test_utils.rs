@@ -110,7 +110,7 @@ pub fn parse(
 /// `(source, path)` pairs using the MODULE_DELIMITER protocol.
 ///
 /// Shared by both `whole_compile` and `parse`.
-fn split_modules(source: &str) -> (String, Vec<(String, PathBuf)>) {
+pub fn split_modules(source: &str) -> (String, Vec<(String, PathBuf)>) {
     // Fast path — no modules at all
     if !source.contains(MODULE_DELIMITER) {
         return (source.to_string(), Vec::new());

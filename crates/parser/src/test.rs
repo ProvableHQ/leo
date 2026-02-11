@@ -122,9 +122,9 @@ fn parse_statement_tests() {
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
     let result =
-        crate::parse_ast(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
+        crate::parse_program(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
     let ast = handler.extend_if_error(result)?;
-    Ok(format!("{}\n", ast.ast))
+    Ok(format!("{}\n", ast))
 }
 
 fn runner_parser_test(test: &str) -> String {

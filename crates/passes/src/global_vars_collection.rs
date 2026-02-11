@@ -46,6 +46,7 @@ use leo_ast::{
     AleoProgram,
     AstVisitor,
     ConstDeclaration,
+    Library,
     Location,
     Mapping,
     Module,
@@ -172,7 +173,25 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
                 self.parents = parents.clone();
                 self.visit_aleo_program(program);
             }
+            Stub::FromLibrary { library, parents } => {
+                self.parents = parents.clone();
+                self.visit_library(library);
+            }
         }
+    }
+
+    fn visit_library(&mut self, input: &Library) {
+        self.program_name = input.name;
+
+        // Update the `imports` map in the symbol table.
+        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
+
+        self.state.symbol_table.add_as_library(self.program_name);
+
+        input.modules.values().for_each(|module| self.visit_module(module));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {

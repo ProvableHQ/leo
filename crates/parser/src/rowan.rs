@@ -1709,6 +1709,38 @@ impl<'a> ConversionContext<'a> {
         Ok(())
     }
 
+    /// Collect a single library item (function, struct/record, const, interface) into the given vectors.
+    fn collect_library_item(
+        &self,
+        item: &SyntaxNode,
+        is_in_program_block: bool,
+        functions: &mut Vec<(Symbol, leo_ast::Function)>,
+        composites: &mut Vec<(Symbol, leo_ast::Composite)>,
+        consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
+        interfaces: &mut Vec<(Symbol, leo_ast::Interface)>,
+    ) -> Result<()> {
+        match item.kind() {
+            FUNCTION_DEF | FINAL_FN_DEF => {
+                let func = self.to_function(item, is_in_program_block)?;
+                functions.push((func.identifier.name, func));
+            }
+            STRUCT_DEF | RECORD_DEF => {
+                let composite = self.to_composite(item)?;
+                composites.push((composite.identifier.name, composite));
+            }
+            GLOBAL_CONST => {
+                let global_const = self.to_global_const(item)?;
+                consts.push((global_const.place.name, global_const));
+            }
+            INTERFACE_DEF => {
+                let interface = self.to_interface(item)?;
+                interfaces.push((interface.identifier.name, interface));
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
     /// Convert a syntax node to a module.
     fn to_module(&self, node: &SyntaxNode, program_name: Symbol, path: Vec<Symbol>) -> Result<leo_ast::Module> {
         // Module nodes are ROOT nodes containing items (functions, structs, consts, interfaces)
@@ -1849,6 +1881,45 @@ impl<'a> ConversionContext<'a> {
             modules: indexmap::IndexMap::new(),
             stubs: indexmap::IndexMap::new(),
             program_scopes: vec![(program_name.name, program_scope)].into_iter().collect(),
+        })
+    }
+
+    /// Convert a syntax node to a library (`lib.leo` file).
+    fn to_library(&self, name: Symbol, node: &SyntaxNode) -> Result<leo_ast::Library> {
+        // The main file contains imports and a program declaration
+        let mut imports = indexmap::IndexMap::new();
+        let mut functions = Vec::new();
+        let mut composites = Vec::new();
+        let mut consts = Vec::new();
+        let mut interfaces = Vec::new();
+
+        for child in children(node) {
+            match child.kind() {
+                IMPORT => {
+                    let (name, span) = self.import_to_name(&child)?;
+                    imports.insert(name, span);
+                }
+                _ => {
+                    self.collect_program_item(
+                        &child,
+                        false,
+                        &mut functions,
+                        &mut composites,
+                        &mut consts,
+                        &mut interfaces,
+                    )?;
+                }
+            }
+        }
+
+        Ok(leo_ast::Library {
+            name,
+            modules: indexmap::IndexMap::new(),
+            imports,
+            consts,
+            composites,
+            functions,
+            interfaces,
         })
     }
 
@@ -2580,7 +2651,7 @@ pub fn parse_module(
 }
 
 /// Parses a complete program with its modules into a Program AST.
-pub fn parse(
+pub fn parse_program(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &SourceFile,
@@ -2631,15 +2702,56 @@ pub fn parse(
     Ok(program)
 }
 
-/// Creates a new AST from a given file path and source code text.
-pub fn parse_ast(
+/// Parses a complete library with its modules into a Library AST.
+pub fn parse_library(
     handler: Handler,
     node_builder: &NodeBuilder,
+    library_name: Symbol,
     source: &SourceFile,
     modules: &[std::rc::Rc<SourceFile>],
-    network: NetworkName,
-) -> Result<leo_ast::Ast> {
-    Ok(leo_ast::Ast::new(parse(handler, node_builder, source, modules, network)?))
+    _network: NetworkName,
+) -> Result<leo_ast::Library> {
+    // Parse `lib.leo` library file
+    let parse = leo_parser_rowan::parse_file(&source.src);
+    let main_context = conversion_context(
+        &handler,
+        node_builder,
+        parse.lex_errors(),
+        parse.errors(),
+        source.absolute_start,
+        source.src.len() as u32,
+    );
+    let mut library = main_context.to_library(library_name, &parse.syntax())?;
+
+    // Determine the root directory of the `lib.leo` file (for module resolution)
+    let root_dir = match &source.name {
+        FileName::Real(path) => path.parent().map(|p| p.to_path_buf()),
+        _ => None,
+    };
+
+    for module in modules {
+        let module_parse = leo_parser_rowan::parse_module_entry(&module.src);
+        let module_context = conversion_context(
+            &handler,
+            node_builder,
+            module_parse.lex_errors(),
+            module_parse.errors(),
+            module.absolute_start,
+            module.src.len() as u32,
+        );
+
+        if let Some(key) = compute_module_key(&module.name, root_dir.as_deref()) {
+            for segment in &key {
+                if symbol_is_keyword(*segment) {
+                    return Err(ParserError::keyword_used_as_module_name(key.iter().format("::"), segment).into());
+                }
+            }
+            let module_ast = module_context.to_module(&module_parse.syntax(), library_name, key.clone())?;
+            library.modules.insert(key, module_ast);
+        }
+    }
+
+    Ok(library)
 }
 
 // =============================================================================

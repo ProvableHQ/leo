@@ -165,6 +165,16 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.module_name = parent_module;
     }
 
+    fn visit_library(&mut self, input: &Library) {
+        // Set the scope state.
+        self.scope_state.program_name = Some(input.name);
+
+        input.modules.values().for_each(|module| self.visit_module(module));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+    }
+
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
         // Set the scope state.
         self.scope_state.program_name = Some(input.stub_id.name.name);

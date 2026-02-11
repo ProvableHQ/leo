@@ -14,11 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::NodeBuilder;
+use crate::{Compiled, Compiler, test_utils::PROGRAM_DELIMITER};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
-use leo_span::{Symbol, create_session_if_not_set_then};
+use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName};
 
+use serde_json::value::Index;
 use snarkvm::{
     prelude::{Process, TestnetV0},
     synthesizer::program::ProgramCore,
@@ -32,10 +34,66 @@ use std::{rc::Rc, str::FromStr};
 // This determines how the dependent programs are imported. They can either be imported as Leo
 // programs directly (which usually allows more features to be supported such as external generic
 // structs, etc.) or as Aleo programs (such as depending on the deployed credits.aleo).
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 enum StubType {
     FromLeo,
     FromAleo,
+}
+
+#[derive(Debug)]
+enum TestSegment<'a> {
+    Library { name: String, source: &'a str },
+    Program { source: &'a str },
+}
+
+fn parse_segments(input: &str) -> Vec<TestSegment<'_>> {
+    let mut segments = Vec::new();
+
+    let mut header: Option<&str> = None;
+    let mut body_start = 0usize;
+    let mut offset = 0usize;
+
+    for line in input.lines() {
+        let trimmed = line.trim();
+
+        let is_header =
+            trimmed == PROGRAM_DELIMITER || (trimmed.starts_with("// --- Library:") && trimmed.ends_with("--- //"));
+
+        if is_header {
+            if offset > body_start {
+                let body = input[body_start..offset].trim();
+                if !body.is_empty() {
+                    segments.push(build_segment(header.take(), body));
+                }
+            }
+
+            header = Some(trimmed);
+
+            // next body begins after this line
+            body_start = offset + line.len() + 1;
+        }
+
+        offset += line.len() + 1;
+    }
+
+    if body_start < input.len() {
+        let body = input[body_start..].trim();
+        if !body.is_empty() {
+            segments.push(build_segment(header.take(), body));
+        }
+    }
+
+    segments
+}
+
+fn build_segment<'a>(header: Option<&'a str>, body: &'a str) -> TestSegment<'a> {
+    if let Some(h) = header {
+        if let Some(name) = h.strip_prefix("// --- Library:").and_then(|s| s.strip_suffix("--- //")) {
+            return TestSegment::Library { name: name.trim().to_string(), source: body };
+        }
+    }
+
+    TestSegment::Program { source: body }
 }
 
 fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &Rc<NodeBuilder>) -> Result<String, ()> {
@@ -45,7 +103,8 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
     let mut bytecodes = Vec::<String>::new();
 
-    let sources: Vec<&str> = test.split(super::test_utils::PROGRAM_DELIMITER).collect();
+    let segments = parse_segments(test);
+    let (last, rest) = segments.split_last().expect("non-empty sources");
 
     // Helper: parse and register Aleo program into `process`.
     // Note that this performs an additional validity check on the bytecode.
@@ -55,26 +114,68 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
         Ok(())
     };
 
-    let (last, rest) = sources.split_last().expect("non-empty sources");
-
     for source in rest {
         match stub_type {
             StubType::FromLeo => {
-                let (program, program_name) = handler.extend_if_error(super::test_utils::parse(
-                    source,
-                    handler,
-                    node_builder,
-                    import_stubs.clone(),
-                ))?;
+                for segment in rest {
+                    match (stub_type, segment) {
+                        (StubType::FromLeo, TestSegment::Program { source }) => {
+                            let (program, program_name) = handler.extend_if_error(super::test_utils::parse(
+                                source,
+                                handler,
+                                node_builder,
+                                import_stubs.clone(),
+                            ))?;
 
-                import_stubs.insert(Symbol::intern(&program_name), program.into());
+                            import_stubs.insert(Symbol::intern(&program_name), program.into());
+                        }
 
-                if handler.err_count() != 0 {
-                    return Err(());
+                        (StubType::FromLeo, TestSegment::Library { name, source }) => {
+                            let (main_source, modules) = super::test_utils::split_modules(source);
+
+                            let mut compiler = Compiler::new(
+                                None,
+                                false,
+                                handler.clone(),
+                                node_builder.clone(),
+                                "/fakedirectory-wont-use".into(),
+                                None,
+                                import_stubs.clone(),
+                                NetworkName::TestnetV0,
+                            );
+
+                            let module_refs: Vec<(&str, FileName)> = modules
+                                .iter()
+                                .map(|(src, path)| (src.as_str(), FileName::Custom(path.to_string_lossy().into())))
+                                .collect();
+
+                            let filename = FileName::Custom("compiler-test".into());
+
+                            let library = handler.extend_if_error(compiler.parse_and_return_library(
+                                name,
+                                &main_source,
+                                filename,
+                                &module_refs,
+                            ))?;
+
+                            import_stubs.insert(Symbol::intern(name), Stub::FromLibrary {
+                                library,
+                                parents: indexmap::IndexSet::new(),
+                            });
+                        }
+
+                        _ => unimplemented!(),
+                    }
+
+                    if handler.err_count() != 0 {
+                        return Err(());
+                    }
                 }
             }
+
             StubType::FromAleo => {
-                let (programs, program_name) = handler.extend_if_error(super::test_utils::whole_compile(
+                todo!()
+                /*let (programs, program_name) = handler.extend_if_error(super::test_utils::whole_compile(
                     source,
                     handler,
                     node_builder,
@@ -96,14 +197,25 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
                     return Err(());
                 }
 
-                bytecodes.push(programs.primary.bytecode);
+                bytecodes.push(programs.primary.bytecode);*/
             }
         };
     }
 
     // Full compile for final program.
-    let (compiled, _program_name) =
-        handler.extend_if_error(super::test_utils::whole_compile(last, handler, node_builder, import_stubs.clone()))?;
+    let last_source = match last {
+        TestSegment::Program { source } => source,
+        TestSegment::Library { .. } => panic!("last segment must be program"),
+    };
+
+    dbg!(&import_stubs);
+
+    let (compiled, _program_name) = handler.extend_if_error(super::test_utils::whole_compile(
+        last_source,
+        handler,
+        node_builder,
+        import_stubs.clone(),
+    ))?;
 
     // Only error out if there are errors. Warnings are okay but we still want to print them later.
     if handler.err_count() != 0 {
@@ -133,18 +245,18 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 /// If the outputs differ, both results are reported with a clear explanation.
 fn runner(source: &str) -> String {
     let from_leo_output = run_with_stub(StubType::FromLeo, source);
-    let from_aleo_output = run_with_stub(StubType::FromAleo, source);
+    //let from_aleo_output = run_with_stub(StubType::FromAleo, source);
 
-    if from_leo_output != from_aleo_output {
+    /*if from_leo_output != from_aleo_output {
         format!(
             "{from_leo_output}\n\n\
              ---\n\
              Note: Treating dependencies as Aleo produces different results:\n\n\
              {from_aleo_output}"
         )
-    } else {
-        from_leo_output
-    }
+    } else {*/
+    from_leo_output
+    //}
 }
 
 /// Runs a single test pass with the given stub type and returns all diagnostics

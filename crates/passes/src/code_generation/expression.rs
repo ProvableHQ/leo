@@ -339,9 +339,16 @@ impl CodeGeneratingVisitor<'_> {
                 AleoType::Record { name: record_name.to_string(), program: None }
             } else {
                 // foo; // no visibility for structs
-                let struct_name = Self::legalize_path(&composite_location.path)
-                    .expect("path format cannot be legalized at this point");
-                if program == this_program_name {
+                let struct_name = Self::legalize_path(
+                    if program == self.program_id.unwrap().name.name || !self.state.symbol_table.is_library(program) {
+                        None
+                    } else {
+                        Some(program)
+                    },
+                    &composite_location.path,
+                )
+                .expect("path format cannot be legalized at this point");
+                if program == this_program_name || self.state.symbol_table.is_library(program) {
                     AleoType::Ident { name: struct_name.to_string() }
                 } else {
                     AleoType::Location { program: program.to_string(), name: struct_name.to_string() }
@@ -507,11 +514,10 @@ impl CodeGeneratingVisitor<'_> {
 
         // Need to determine the program the function originated from as well as if the function has a finalize block.
         let call_instruction = if caller_program != callee_program {
-            // All external functions must be defined as stubs.
-            assert!(
-                self.program.stubs.get(&callee_program).is_some(),
-                "Type checking guarantees that imported and stub programs are present."
-            );
+            let Some(stub) = self.program.stubs.get(&callee_program) else {
+                // All external functions must be defined as stubs.
+                panic!("Type checking guarantees that imported and stub programs are present.");
+            };
 
             let [function_name] = &function_location.path[..] else {
                 panic!("paths to external functions can only have a single segment at this stage.")

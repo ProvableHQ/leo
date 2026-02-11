@@ -15,8 +15,19 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{AstReconstructor, Location, Module, Program, ProgramReconstructor, ProgramScope, Statement, Variant};
-use leo_span::sym;
+use leo_ast::{
+    AstReconstructor,
+    Library,
+    Location,
+    Module,
+    Program,
+    ProgramReconstructor,
+    ProgramScope,
+    Statement,
+    Stub,
+    Variant,
+};
+use leo_span::{Symbol, sym};
 
 impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
@@ -33,8 +44,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_composite = self.reconstruct_composite(composite);
                 // Store the reconstructed composite for inclusion in the output scope.
-                self.reconstructed_composites
-                    .insert(Location::new(self.program, loc.path.clone()), reconstructed_composite);
+                self.reconstructed_composites.insert(loc.clone(), reconstructed_composite);
             }
         }
 
@@ -64,16 +74,12 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 self.function_map
                     .get(location)
                     .map(|f| {
-                        matches!(
-                            f.variant,
-                             Variant::EntryPoint
-                        ) | (f.variant == Variant::Fn && f.const_parameters.is_empty())
+                        matches!(f.variant, Variant::EntryPoint)
+                            | (f.variant == Variant::Fn && f.const_parameters.is_empty())
                     })
                     .unwrap_or(false)
             })
-            .unwrap() // This unwrap is safe because the type checker guarantees an acyclic graph.
-            .into_iter()
-            .filter(|location| location.program == self.program).collect::<Vec<_>>();
+            .unwrap(); // This unwrap is safe because the type checker guarantees an acyclic graph.
 
         for function_name in &order {
             // Reconstruct functions in post-order.
@@ -156,9 +162,46 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         }
     }
 
-    fn reconstruct_program(&mut self, input: Program) -> Program {
-        let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        Library {
+            name: input.name,
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
+            imports: input.imports,
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+            composites: self
+                .reconstructed_composites
+                .iter()
+                .filter_map(|(loc, c)| {
+                    // Only consider composites defined at program scope within the same program.
+                    loc.path
+                        .split_last()
+                        .filter(|(_, rest)| rest.is_empty() && loc.program == input.name)
+                        .map(|(last, _)| (*last, c.clone()))
+                })
+                .collect(),
+            functions: self
+                .reconstructed_functions
+                .iter()
+                .filter_map(|(loc, f)| {
+                    // Only consider functions defined at program scope within the same program.
+                    loc.path
+                        .split_last()
+                        .filter(|(_, rest)| rest.is_empty() && loc.program == input.name)
+                        .map(|(last, _)| (*last, f.clone()))
+                })
+                .collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+        }
+    }
 
+    fn reconstruct_program(&mut self, input: Program) -> Program {
         // Set up for the next program.
         // This is likely to change when we support cross-program monomorphization.
         self.composite_map.clear();
@@ -205,15 +248,64 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 self.composite_map.insert(Location::new(self.program, full_name), f);
             });
 
+        input.stubs.iter().for_each(|(name, stub)| match stub {
+            Stub::FromLibrary { library, .. } => {
+                library
+                    .modules
+                    .iter()
+                    .flat_map(|(module_path, m)| {
+                        m.functions.iter().map(move |(name, f)| {
+                            let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
+                            (Location::new(library.name, path), f.clone())
+                        })
+                    })
+                    .chain(
+                        library
+                            .functions
+                            .iter()
+                            .map(move |(name, f)| (Location::new(library.name, vec![*name]), f.clone())),
+                    )
+                    .for_each(|(location, f)| {
+                        self.function_map.insert(location, f);
+                    });
+            }
+            _ => {}
+        });
+
+        input.stubs.iter().for_each(|(name, stub)| match stub {
+            Stub::FromLibrary { library, .. } => {
+                library
+                    .modules
+                    .iter()
+                    .flat_map(|(module_path, m)| {
+                        m.composites.iter().map(move |(name, f)| {
+                            let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
+                            (Location::new(library.name, path), f.clone())
+                        })
+                    })
+                    .chain(
+                        library
+                            .composites
+                            .iter()
+                            .map(move |(name, f)| (Location::new(library.name, vec![*name]), f.clone())),
+                    )
+                    .for_each(|(location, f)| {
+                        self.composite_map.insert(location, f);
+                    });
+            }
+            _ => {}
+        });
+
+        let program_scopes =
+            input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
+
+        let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
+
         // Reconstruct prrogram scopes first then reconstruct the modules after `self.reconstructed_composites`
         // and `self.reconstructed_functions` have been populated.
         Program {
             stubs,
-            program_scopes: input
-                .program_scopes
-                .into_iter()
-                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
-                .collect(),
+            program_scopes,
             modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
             ..input
         }
@@ -229,7 +321,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 .filter_map(|(loc, c)| {
                     loc.path
                         .split_last()
-                        .filter(|(_, rest)| *rest == input.path && loc.program == self.program)
+                        .filter(|(_, rest)| *rest == input.path && loc.program == input.program_name)
                         .map(|(last, _)| (*last, c.clone()))
                 })
                 .collect(),
@@ -240,7 +332,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 .filter_map(|(loc, f)| {
                     loc.path
                         .split_last()
-                        .filter(|(_, rest)| *rest == input.path && loc.program == self.program)
+                        .filter(|(_, rest)| *rest == input.path && loc.program == input.program_name)
                         .map(|(last, _)| (*last, f.clone()))
                 })
                 .collect(),

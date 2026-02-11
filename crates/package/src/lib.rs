@@ -92,6 +92,8 @@ pub const SOURCE_DIRECTORY: &str = "src";
 
 pub const MAIN_FILENAME: &str = "main.leo";
 
+pub const LIB_FILENAME: &str = "lib.leo";
+
 pub const IMPORTS_DIRECTORY: &str = "build/imports";
 
 pub const OUTPUTS_DIRECTORY: &str = "outputs";
@@ -111,7 +113,8 @@ pub const MAX_PROGRAM_SIZE: usize =
 pub type Edition = u16;
 
 fn symbol(name: &str) -> Result<Symbol> {
-    name.strip_suffix(".aleo").map(Symbol::intern).ok_or_else(|| PackageError::invalid_network_name(name).into())
+    let name = name.strip_suffix(".aleo").unwrap_or(name);
+    Ok(Symbol::intern(name))
 }
 
 /// Is this a valid name for an Aleo program?

@@ -24,7 +24,7 @@ use leo_ast::{AleoProgram, FunctionStub, Identifier, NetworkName, NodeBuilder, P
 use leo_compiler::{Compiler, CompilerOptions};
 use leo_errors::Handler;
 use leo_package::{Package, ProgramData};
-use leo_parser::parse_ast;
+use leo_parser::parse_program;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
@@ -105,17 +105,17 @@ fn parse_interface_stub(program_name: Symbol, source: &Path, source_dir: &Path) 
         .collect::<Vec<_>>();
     let node_builder = NodeBuilder::default();
 
-    let program = match parse_ast(Handler::default(), &node_builder, &source_file, &module_source_files, BENCH_NETWORK)
-    {
-        Ok(ast) => ast.ast,
-        Err(err) => {
-            return Err(format!(
-                "failed to parse dependency {}.aleo interface source {}: {err}",
-                program_name,
-                source.display()
-            ));
-        }
-    };
+    let program =
+        match parse_program(Handler::default(), &node_builder, &source_file, &module_source_files, BENCH_NETWORK) {
+            Ok(ast) => ast,
+            Err(err) => {
+                return Err(format!(
+                    "failed to parse dependency {}.aleo interface source {}: {err}",
+                    program_name,
+                    source.display()
+                ));
+            }
+        };
 
     // Extract the single program scope.
     let scope = match program.program_scopes.values().next() {

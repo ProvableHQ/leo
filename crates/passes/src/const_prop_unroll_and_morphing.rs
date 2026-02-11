@@ -43,7 +43,8 @@ impl Pass for ConstPropUnrollAndMorphing {
     fn do_pass(input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         const LARGE_LOOP_BOUND: usize = 1024usize;
 
-        for _ in 0..LARGE_LOOP_BOUND {
+        for i in 0..LARGE_LOOP_BOUND {
+            println!("before iteration i: {}", state.ast);
             let loop_unroll_output = Unrolling::do_pass((), state)?;
 
             let const_prop_output = ConstPropagation::do_pass((), state)?;

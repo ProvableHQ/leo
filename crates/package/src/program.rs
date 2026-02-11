@@ -54,6 +54,7 @@ pub struct Program {
     pub dependencies: IndexSet<Dependency>,
     pub is_local: bool,
     pub is_test: bool,
+    pub is_library: bool,
 }
 
 impl Program {
@@ -77,6 +78,7 @@ impl Program {
             dependencies,
             is_local: true,
             is_test: false,
+            is_library: false,
         })
     }
 
@@ -101,7 +103,10 @@ impl Program {
             UtilError::util_file_io_error(format_args!("Failed to read directory {}", source_directory.display()), e)
         })?;
 
-        let source_path = source_directory.join(MAIN_FILENAME);
+        let source_path = {
+            let main_path = source_directory.join(MAIN_FILENAME);
+            if main_path.exists() { main_path } else { source_directory.join(LIB_FILENAME) }
+        };
 
         Ok(Program {
             name,
@@ -115,6 +120,7 @@ impl Program {
                 .collect::<Result<IndexSet<_>, _>>()?,
             is_local: true,
             is_test: false,
+            is_library: !source_directory.join(MAIN_FILENAME).exists(),
         })
     }
 
@@ -156,6 +162,7 @@ impl Program {
             dependencies,
             is_local: true,
             is_test: true,
+            is_library: false,
         })
     }
 
@@ -276,6 +283,7 @@ impl Program {
             dependencies,
             is_local: false,
             is_test: false,
+            is_library: false,
         })
     }
 }

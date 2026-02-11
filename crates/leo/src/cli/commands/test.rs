@@ -103,7 +103,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
             network,
         );
 
-        let ast = compiler.parse_from_directory(source, &source_dir);
+        let ast = compiler.parse_program_from_directory(source, &source_dir);
         let ast = match ast {
             Ok(ast) => ast,
             Err(_) => continue,

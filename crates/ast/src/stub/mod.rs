@@ -19,7 +19,7 @@
 pub mod function_stub;
 pub use function_stub::*;
 
-use crate::{Composite, ConstDeclaration, Identifier, Indent, Mapping, NodeID, Program, ProgramId};
+use crate::{Composite, ConstDeclaration, Identifier, Indent, Library, Mapping, NodeID, Program, ProgramId};
 use indexmap::IndexSet;
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -27,7 +27,7 @@ use std::fmt;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Stub {
-    /// A dependency that is a Leo program parsed into an AST.
+    /// A dependency that is a Leo program.
     FromLeo {
         program: Program,
         parents: IndexSet<Symbol>, // These are the names of all the programs that import this dependency.
@@ -35,6 +35,11 @@ pub enum Stub {
     /// A dependency that is an Aleo program.
     FromAleo {
         program: AleoProgram,
+        parents: IndexSet<Symbol>, // These are the names of all the programs that import this dependency.
+    },
+    /// A dependency that is a Leo library.
+    FromLibrary {
+        library: Library,
         parents: IndexSet<Symbol>, // These are the names of all the programs that import this dependency.
     },
 }
@@ -45,6 +50,7 @@ impl Stub {
         match self {
             Stub::FromLeo { program, .. } => Box::new(program.imports.keys()),
             Stub::FromAleo { program, .. } => Box::new(program.imports.iter().map(|id| &id.name.name)),
+            Stub::FromLibrary { library, .. } => Box::new(library.imports.keys()),
         }
     }
 
@@ -52,10 +58,15 @@ impl Stub {
     /// imported by this parent.
     pub fn add_parent(&mut self, parent: Symbol) {
         match self {
-            Stub::FromLeo { parents, .. } | Stub::FromAleo { parents, .. } => {
+            Stub::FromLeo { parents, .. } | Stub::FromAleo { parents, .. } | Stub::FromLibrary { parents, .. } => {
                 parents.insert(parent);
             }
         }
+    }
+
+    /// Does this `Stub` represent a library?
+    pub fn is_library(&self) -> bool {
+        matches!(self, Self::FromLibrary { .. })
     }
 }
 
@@ -64,6 +75,7 @@ impl fmt::Display for Stub {
         match self {
             Stub::FromLeo { program, .. } => write!(f, "{program}"),
             Stub::FromAleo { program, .. } => write!(f, "{program}"),
+            Stub::FromLibrary { library, .. } => write!(f, "{library}"),
         }
     }
 }

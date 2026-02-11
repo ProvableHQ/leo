@@ -16,7 +16,16 @@
 
 use super::DeadCodeEliminatingVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, Location, ProgramReconstructor, UpgradeVariant};
+use leo_ast::{
+    AstReconstructor,
+    Constructor,
+    Function,
+    Library,
+    Location,
+    ProgramReconstructor,
+    Statement,
+    UpgradeVariant,
+};
 use leo_errors::StaticAnalyzerError;
 
 impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
@@ -42,6 +51,26 @@ impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
             .collect();
         input.constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
         input
+    }
+
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        self.program_name = input.name;
+        Library {
+            name: input.name,
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
+            imports: input.imports,
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+            composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+        }
     }
 
     fn reconstruct_function(&mut self, mut input: Function) -> Function {

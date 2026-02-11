@@ -75,7 +75,10 @@ impl Pass for FunctionInlining {
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         // Phase 1: Analysis - collect functions that ought always be inlined
         let mut analyzer = AnalysisVisitor::new();
-        analyzer.visit_program(&state.ast.ast);
+        match &state.ast {
+            leo_ast::Ast::Program(program) => analyzer.visit_program(&program),
+            leo_ast::Ast::Library(_) => unreachable!("expected Program AST"),
+        };
 
         // Phase 2: Transformation - convert Function to Inline where needed
         let mut ast = std::mem::take(&mut state.ast);
@@ -87,7 +90,10 @@ impl Pass for FunctionInlining {
             is_onchain: false,
             always_inline: analyzer.functions_to_inline,
         };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+        ast = match ast {
+            leo_ast::Ast::Program(program) => leo_ast::Ast::Program(visitor.reconstruct_program(program)),
+            leo_ast::Ast::Library(_) => unreachable!("expected Program AST"),
+        };
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())

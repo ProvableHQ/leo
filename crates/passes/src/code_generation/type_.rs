@@ -45,9 +45,16 @@ impl CodeGeneratingVisitor<'_> {
                 let composite_location = composite.path.expect_global_location();
                 let this_program_name = self.program_id.unwrap().name.name;
                 let program_name = composite_location.program;
-                let composite_name = Self::legalize_path(&composite_location.path)
-                    .expect("path format cannot be legalized at this point");
-                if program_name == this_program_name {
+                let composite_name = Self::legalize_path(
+                    if this_program_name == program_name || !self.state.symbol_table.is_library(program_name) {
+                        None
+                    } else {
+                        Some(program_name)
+                    },
+                    &composite_location.path,
+                )
+                .expect("path format cannot be legalized at this point");
+                if program_name == this_program_name || self.state.symbol_table.is_library(program_name) {
                     AleoType::Ident { name: composite_name.to_string() }
                 } else {
                     AleoType::Location { program: program_name.to_string(), name: composite_name.to_string() }

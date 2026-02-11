@@ -248,6 +248,10 @@ fn is_record(comp_ty: &ast::CompositeType, ctx: &Ctx) -> bool {
                 .flat_map(|scope| scope.composites.iter())
                 .find(|(sym, _)| *sym == name)
                 .map(|(_, c)| c.is_record),
+
+            ast::Stub::FromLibrary { library, .. } => {
+                library.composites.iter().find(|(sym, _)| *sym == name).map(|(_, c)| c.is_record)
+            }
         };
         if let Some(is_record) = found {
             return is_record;

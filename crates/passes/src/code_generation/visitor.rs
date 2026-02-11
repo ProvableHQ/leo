@@ -114,6 +114,7 @@ impl CodeGeneratingVisitor<'_> {
                         }
                         None
                     }
+                    leo_ast::Stub::FromLibrary { .. } => None, // Is this enough?
                 }
             })
             .collect();
@@ -146,7 +147,7 @@ impl CodeGeneratingVisitor<'_> {
     /// # Returns
     /// - `Some(String)`: A valid Leo identifier.
     /// - `None`: If the path is invalid or cannot be legalized.
-    pub(crate) fn legalize_path(path: &[Symbol]) -> Option<String> {
+    pub(crate) fn legalize_path(program: Option<Symbol>, path: &[Symbol]) -> Option<String> {
         /// Checks if a string is a legal Leo identifier: [a-zA-Z][a-zA-Z0-9_]*
         fn is_legal_identifier(s: &str) -> bool {
             let mut chars = s.chars();
@@ -156,15 +157,22 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         /// Generates a hashed Leo identifier from the full path, using the given base segment.
-        fn generate_hashed_name(path: &[Symbol], base: &str) -> String {
+        ///
+        /// If `program` is provided, it is included in the hash input to ensure
+        /// uniqueness across programs.
+        fn generate_hashed_name(program: Option<Symbol>, path: &[Symbol], base: &str) -> String {
             use base62::encode;
             use sha2::{Digest, Sha256};
             use std::fmt::Write;
 
             let full_path = path.iter().format("::").to_string();
 
+            // === New behavior ===
+            // If a program name is provided, incorporate it into the hash input.
+            let hash_input = if let Some(program) = program { format!("{program}::{full_path}") } else { full_path };
+
             let mut hasher = Sha256::new();
-            hasher.update(full_path.as_bytes());
+            hasher.update(hash_input.as_bytes());
             let hash = hasher.finalize();
 
             let hash_number = u64::from_be_bytes(hash[..8].try_into().unwrap());
@@ -187,7 +195,11 @@ impl CodeGeneratingVisitor<'_> {
 
         // === Case 1: Single, legal identifier ===
         if path.len() == 1 && is_legal_identifier(&last) {
-            return Some(last);
+            if program.is_some() {
+                return Some(generate_hashed_name(program, path, &last));
+            } else {
+                return Some(last);
+            }
         }
 
         // === Case 2: Storage-generated identifiers ===
@@ -205,19 +217,13 @@ impl CodeGeneratingVisitor<'_> {
         // ```
         // where hash_len = 11.
         if let Some(prefix) = last.strip_suffix("__len__") {
-            // "some_very_long_storage_variable__len__"
-            //  - Keep at most 13 chars from the prefix
-            //  - Produces something like: "some_very_lon__len__CpUbpLTf1Ow"
             let truncated_prefix = &prefix[..13.min(prefix.len())];
-            return Some(generate_hashed_name(path, &(truncated_prefix.to_owned() + "__len")));
+            return Some(generate_hashed_name(program, path, &(truncated_prefix.to_owned() + "__len")));
         }
 
         if let Some(prefix) = last.strip_suffix("__") {
-            // "some_very_long_storage_variable__"
-            //  - Keep at most 18 chars from the prefix
-            //  - Produces something like: "some_very_long_sto__Hn1pThQeV3"
             let truncated_prefix = &prefix[..18.min(prefix.len())];
-            return Some(generate_hashed_name(path, &(truncated_prefix.to_owned() + "__")));
+            return Some(generate_hashed_name(program, path, &(truncated_prefix.to_owned() + "__")));
         }
 
         // === Case 3: Matches special form like `path::to::Name::[3, 4]` ===
@@ -227,7 +233,7 @@ impl CodeGeneratingVisitor<'_> {
             let ident = captures.get(1)?.as_str();
 
             // The produced name here will be of the form: `<last>__AYMqiUeJeQN`.
-            return Some(generate_hashed_name(path, ident));
+            return Some(generate_hashed_name(program, path, ident));
         }
 
         // === Case 4: Matches special form like `path::to::Name?` (last always ends with `?`) ===
@@ -237,7 +243,7 @@ impl CodeGeneratingVisitor<'_> {
             //
             // The produced name here will be of the form: `Optional__JZCpIGdQvEZ`.
             // The suffix after the `__` cannot conflict with the suffix in case 2 because of the `?`
-            return Some(generate_hashed_name(path, "Optional"));
+            return Some(generate_hashed_name(program, path, "Optional"));
         }
 
         // Last segment is neither legal nor matches special pattern

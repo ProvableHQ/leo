@@ -323,10 +323,18 @@ pub trait ProgramVisitor: AstVisitor {
 
     fn visit_aleo_program(&mut self, _input: &AleoProgram) {}
 
+    fn visit_library(&mut self, input: &Library) {
+        input.modules.values().for_each(|module| self.visit_module(module));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+    }
+
     fn visit_stub(&mut self, input: &Stub) {
         match input {
             Stub::FromLeo { program, .. } => self.visit_program(program),
             Stub::FromAleo { program, .. } => self.visit_aleo_program(program),
+            Stub::FromLibrary { library, .. } => self.visit_library(library),
         }
     }
 

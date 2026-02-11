@@ -63,7 +63,10 @@ impl Pass for CommonSubexpressionEliminating {
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let mut ast = std::mem::take(&mut state.ast);
         let mut visitor = CommonSubexpressionEliminatingVisitor { state, scopes: Default::default() };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+        ast = match ast {
+            leo_ast::Ast::Program(program) => leo_ast::Ast::Program(visitor.reconstruct_program(program)),
+            leo_ast::Ast::Library(_) => unreachable!("expected Program AST"),
+        };
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())

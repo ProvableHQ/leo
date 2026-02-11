@@ -20,6 +20,15 @@ use leo_ast::{Type, *};
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 
 impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
+    fn visit_library(&mut self, input: &Library) {
+        self.current_program = input.name;
+
+        input.modules.values().for_each(|module| self.visit_module(module));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+    }
+
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set the current program name.
         self.current_program = input.program_id.name.name;

@@ -45,6 +45,9 @@ use indent_display::*;
 
 pub mod const_eval;
 
+mod library;
+pub use self::library::*;
+
 mod mapping;
 pub use self::mapping::*;
 
@@ -76,50 +79,81 @@ use leo_errors::{AstError, Result};
 /// The abstract syntax tree (AST) for a Leo program.
 ///
 /// The [`Ast`] type represents a Leo program as a series of recursive data types.
-/// These data types form a tree that begins from a [`Program`] type root.
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct Ast {
-    pub ast: Program,
+/// These data types form a tree that begins from either a [`Program`] or [`Library`] root.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Ast {
+    Program(Program),
+    Library(Library),
+}
+
+impl std::fmt::Display for Ast {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Ast::Program(program) => write!(f, "{}", program),
+            Ast::Library(library) => write!(f, "{}", library),
+        }
+    }
+}
+
+impl Default for Ast {
+    fn default() -> Self {
+        Ast::Program(Program::default())
+    }
 }
 
 impl Ast {
     /// Creates a new AST from a given program tree.
     pub fn new(program: Program) -> Self {
-        Self { ast: program }
+        Self::Program(program)
     }
 
     /// Returns a reference to the inner program AST representation.
+    ///
+    /// Panics if this AST is a `Library`.
     pub fn as_repr(&self) -> &Program {
-        &self.ast
+        match self {
+            Self::Program(program) => program,
+            Self::Library(_) => panic!("called `as_repr()` on a Library AST"),
+        }
     }
 
+    /// Consumes the AST and returns the inner program representation.
+    ///
+    /// Panics if this AST is a `Library`.
     pub fn into_repr(self) -> Program {
-        self.ast
+        match self {
+            Self::Program(program) => program,
+            Self::Library(_) => panic!("called `into_repr()` on a Library AST"),
+        }
     }
 
-    /// Serializes the ast into a JSON string.
+    /*
+    /// Serializes the AST into a JSON string.
     pub fn to_json_string(&self) -> Result<String> {
-        Ok(serde_json::to_string_pretty(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
+        serde_json::to_string_pretty(self).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))
     }
 
-    // Converts the ast into a JSON value.
-    // Note that there is no corresponding `from_json_value` function
-    // since we modify JSON values leaving them unable to be converted
-    // back into Programs.
+    /// Converts the AST into a JSON value.
+    ///
+    /// Note that there is no corresponding `from_json_value` function
+    /// since we modify JSON values, leaving them unable to be converted
+    /// back into ASTs.
     pub fn to_json_value(&self) -> Result<serde_json::Value> {
-        Ok(serde_json::to_value(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
+        serde_json::to_value(self).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))
     }
 
-    /// Serializes the ast into a JSON file.
+    /// Serializes the AST into a JSON file.
     pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
         path.push(file_name);
+
         let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
+
         let writer = std::io::BufWriter::new(file);
-        Ok(serde_json::to_writer_pretty(writer, &self.ast)
-            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
+
+        serde_json::to_writer_pretty(writer, self).map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))
     }
 
-    /// Serializes the ast into a JSON value and removes keys from object mappings before writing to a file.
+    /// Serializes the AST into a JSON value and removes keys from object mappings before writing to a file.
     pub fn to_json_file_without_keys(
         &self,
         mut path: std::path::PathBuf,
@@ -127,39 +161,44 @@ impl Ast {
         excluded_keys: &[&str],
     ) -> Result<()> {
         path.push(file_name);
+
         let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
+
         let writer = std::io::BufWriter::new(file);
 
-        let mut value = self.to_json_value().unwrap();
+        let mut value = self.to_json_value()?;
         for key in excluded_keys {
             value = remove_key_from_json(value, key);
         }
         value = normalize_json_value(value);
 
         Ok(serde_json::to_writer_pretty(writer, &value)
-            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
+            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e)))
     }
 
-    /// Deserializes the JSON string into a ast.
+    /// Deserializes the JSON string into an AST.
     pub fn from_json_string(json: &str) -> Result<Self> {
-        let ast: Program = serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e))?;
-        Ok(Self { ast })
+        Ok(serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e)))
     }
 
-    /// Deserializes the JSON string into a ast from a file.
+    /// Deserializes the JSON string into an AST from a file.
     pub fn from_json_file(path: std::path::PathBuf) -> Result<Self> {
         let data = std::fs::read_to_string(&path).map_err(|e| AstError::failed_to_read_json_file(&path, &e))?;
+
         Self::from_json_string(&data)
-    }
+    }*/
 }
 
 impl AsRef<Program> for Ast {
     fn as_ref(&self) -> &Program {
-        &self.ast
+        match self {
+            Ast::Program(program) => program,
+            Ast::Library(_) => panic!("called `AsRef<Program>` on a Library AST"),
+        }
     }
 }
 
-/// Helper function to recursively filter keys from AST JSON
+/// Helper function to recursively filter keys from AST JSON.
 pub fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
     match value {
         serde_json::Value::Object(map) => serde_json::Value::Object(
@@ -172,16 +211,18 @@ pub fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::
     }
 }
 
-/// Helper function to normalize AST JSON into a form compatible with tgc.
-/// This function will traverse the original JSON value and produce a new
-/// one under the following rules:
-/// 1. Remove empty object mappings from JSON arrays
-/// 2. If there are two elements in a JSON array and one is an empty object
-///    mapping and the other is not, then lift up the one that isn't
+/// Helper function to normalize AST JSON into a form compatible with TGC.
+///
+/// This function traverses the original JSON value and produces a new one under the following rules:
+///
+/// 1. Remove empty object mappings from JSON arrays.
+/// 2. If a JSON array contains exactly two elements and one is an empty object
+///    mapping while the other is not, lift the non-empty element.
 pub fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
     match value {
         serde_json::Value::Array(vec) => {
             let orig_length = vec.len();
+
             let mut new_vec: Vec<serde_json::Value> = vec
                 .into_iter()
                 .filter(|v| !matches!(v, serde_json::Value::Object(map) if map.is_empty()))

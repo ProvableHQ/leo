@@ -1,0 +1,25 @@
+program with_lib.aleo;
+
+struct Foo:
+    x as u32;
+
+struct Foo__HNWIgHp4BWP:
+    x as u32;
+
+function main:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    cast 42u32 into r2 as Foo;
+    cast 99u32 into r3 as Foo__HNWIgHp4BWP;
+    mul r0 r0 into r4;
+    add 141u32 r4 into r5;
+    add r5 1806u32 into r6;
+    add r6 1764u32 into r7;
+    add r7 r2.x into r8;
+    add r8 r3.x into r9;
+    output r9 as u32.private;
+    output r2 as Foo.private;
+    output r3 as Foo__HNWIgHp4BWP.private;
+
+constructor:
+    assert.eq edition 0u16;
