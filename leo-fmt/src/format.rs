@@ -152,6 +152,18 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                     format_node(&n, out);
                     prev_was_import = false;
                     had_output = true;
+                } else if kind == ERROR {
+                    let text = n.text().to_string();
+                    let text = text.trim();
+                    if !text.is_empty() {
+                        if had_output {
+                            out.ensure_newline();
+                        }
+                        out.write(text);
+                        out.newline();
+                        prev_was_import = false;
+                        had_output = true;
+                    }
                 }
             }
         }
@@ -179,7 +191,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                     ci += 1;
                 }
                 item_group_count += 1;
-            } else if is_program_item_non_annotation(k) {
+            } else if is_program_item_non_annotation(k) || k == ERROR {
                 item_group_count += 1;
                 ci += 1;
             } else {
@@ -266,6 +278,21 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                             out.insert_newline_at_mark();
                         }
                     });
+                    saw_linebreak = false;
+                } else if kind == ERROR {
+                    let text = n.text().to_string();
+                    let text = text.trim();
+                    if !text.is_empty() {
+                        out.indented(|out| {
+                            out.write(text);
+                            out.newline();
+                            out.set_mark();
+                            item_group_idx += 1;
+                            if item_group_idx < item_group_count {
+                                out.insert_newline_at_mark();
+                            }
+                        });
+                    }
                     saw_linebreak = false;
                 }
             }
@@ -839,7 +866,7 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
 
     // Check if block has any statements or comments (content worth indenting)
     let has_content = elems.iter().any(|e| match e {
-        SyntaxElement::Node(n) => is_statement(n.kind()),
+        SyntaxElement::Node(n) => is_statement(n.kind()) || n.kind() == ERROR,
         SyntaxElement::Token(t) => matches!(t.kind(), COMMENT_LINE | COMMENT_BLOCK),
     });
 
@@ -889,6 +916,15 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                     SyntaxElement::Node(n) if after_lbrace && is_statement(n.kind()) => {
                         out.ensure_newline();
                         format_node(n, out);
+                        saw_linebreak = false;
+                    }
+                    SyntaxElement::Node(n) if after_lbrace && n.kind() == ERROR => {
+                        let text = n.text().to_string();
+                        let text = text.trim();
+                        if !text.is_empty() {
+                            out.ensure_newline();
+                            out.write(text);
+                        }
                         saw_linebreak = false;
                     }
                     _ => {}
