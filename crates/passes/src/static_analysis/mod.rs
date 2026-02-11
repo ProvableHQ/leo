@@ -40,6 +40,7 @@ impl Pass for StaticAnalyzing {
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
+
         let mut visitor = StaticAnalyzingVisitor {
             state,
             await_checker: AwaitChecker::new(),
@@ -47,9 +48,17 @@ impl Pass for StaticAnalyzing {
             variant: None,
             non_async_external_call_seen: false,
         };
-        visitor.visit_program(ast.as_repr());
+
+        ast.visit(
+            |program| visitor.visit_program(program),
+            |_library| {
+                // no-op for libraries
+            },
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
+
         Ok(())
     }
 }

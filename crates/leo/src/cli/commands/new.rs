@@ -23,15 +23,8 @@ use leo_package::Package;
 pub struct LeoNew {
     #[clap(name = "NAME", help = "Set package name")]
     pub(crate) name: String,
-    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet")]
-    pub(crate) network: String,
-    #[clap(
-        short = 'e',
-        long,
-        help = "Endpoint to retrieve network state from.",
-        default_value = "http://localhost:3030"
-    )]
-    pub(crate) endpoint: String,
+    #[clap(long, help = "Create the package as a library instead of a program")]
+    pub(crate) library: bool,
 }
 
 impl Command for LeoNew {
@@ -54,7 +47,7 @@ impl Command for LeoNew {
         std::env::set_current_dir(&package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
 
-        let full_path = Package::initialize(&self.name, &package_path)?;
+        let full_path = Package::initialize(&self.name, &package_path, self.library)?;
 
         println!("Created program {} at `{}`.", self.name.bold(), full_path.display());
 

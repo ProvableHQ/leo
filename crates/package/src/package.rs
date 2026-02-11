@@ -53,6 +53,9 @@ pub struct Package {
 
     /// The manifest file of this package.
     pub manifest: Manifest,
+
+    /// The dependency graph of the package.
+    pub dep_graph: DiGraph<Symbol>,
 }
 
 impl Package {
@@ -77,20 +80,30 @@ impl Package {
     }
 
     /// Create a Leo package by the name `package_name` in a subdirectory of `path`.
-    pub fn initialize<P: AsRef<Path>>(package_name: &str, path: P) -> Result<PathBuf> {
-        Self::initialize_impl(package_name, path.as_ref())
+    pub fn initialize<P: AsRef<Path>>(package_name: &str, path: P, is_library: bool) -> Result<PathBuf> {
+        Self::initialize_impl(package_name, path.as_ref(), is_library)
     }
 
-    fn initialize_impl(package_name: &str, path: &Path) -> Result<PathBuf> {
-        let package_name =
-            if package_name.ends_with(".aleo") { package_name.to_string() } else { format!("{package_name}.aleo") };
+    fn initialize_impl(package_name: &str, path: &Path, is_library: bool) -> Result<PathBuf> {
+        let package_name = if is_library {
+            if !crate::is_valid_library_name(package_name) {
+                return Err(CliError::invalid_package_name("library", package_name).into());
+            }
 
-        if !crate::is_valid_aleo_name(&package_name) {
-            return Err(CliError::invalid_program_name(package_name).into());
-        }
+            package_name.to_string()
+        } else {
+            let program_name =
+                if package_name.ends_with(".aleo") { package_name.to_string() } else { format!("{package_name}.aleo") };
+
+            if !crate::is_valid_program_name(&program_name) {
+                return Err(CliError::invalid_package_name("program", &program_name).into());
+            }
+
+            program_name
+        };
 
         let path = path.canonicalize().map_err(|e| PackageError::failed_path(path.display(), e))?;
-        let full_path = path.join(package_name.strip_suffix(".aleo").unwrap());
+        let full_path = path.join(package_name.strip_suffix(".aleo").unwrap_or(&package_name));
 
         // Verify that there is no existing directory at the path.
         if full_path.exists() {
@@ -107,16 +120,14 @@ impl Package {
         std::env::set_current_dir(&full_path)
             .map_err(|e| PackageError::failed_to_initialize_package(&package_name, &full_path, e))?;
 
-        // Create the gitignore file.
+        // Create .gitignore
         const GITIGNORE_TEMPLATE: &str = ".env\n*.avm\n*.prover\n*.verifier\noutputs/\n";
-
         const GITIGNORE_FILENAME: &str = ".gitignore";
 
         let gitignore_path = full_path.join(GITIGNORE_FILENAME);
-
         std::fs::write(gitignore_path, GITIGNORE_TEMPLATE).map_err(PackageError::io_error_gitignore_file)?;
 
-        // Create the manifest.
+        // Create manifest
         let manifest = Manifest {
             program: package_name.clone(),
             version: "0.1.0".to_string(),
@@ -128,33 +139,43 @@ impl Package {
         };
 
         let manifest_path = full_path.join(MANIFEST_FILENAME);
-
         manifest.write_to_file(manifest_path)?;
 
-        // Create the source directory.
+        // Create src/
         let source_path = full_path.join(SOURCE_DIRECTORY);
 
         std::fs::create_dir(&source_path)
             .map_err(|e| PackageError::failed_to_create_source_directory(source_path.display(), e))?;
 
-        // Create the main.leo file.
-        let main_path = source_path.join(MAIN_FILENAME);
+        let name_no_aleo = package_name.strip_suffix(".aleo").unwrap_or(&package_name);
 
-        let name_no_aleo = package_name.strip_suffix(".aleo").unwrap();
+        if is_library {
+            // Create empty lib.leo
+            let lib_path = source_path.join("lib.leo");
 
-        std::fs::write(&main_path, main_template(name_no_aleo))
-            .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e))?;
+            std::fs::write(&lib_path, "").map_err(|e| {
+                UtilError::util_file_io_error(format_args!("Failed to write `{}`", lib_path.display()), e)
+            })?;
+        } else {
+            // Create main.leo
+            let main_path = source_path.join(MAIN_FILENAME);
 
-        // Create the tests directory.
-        let tests_path = full_path.join(TESTS_DIRECTORY);
+            std::fs::write(&main_path, main_template(name_no_aleo)).map_err(|e| {
+                UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e)
+            })?;
 
-        std::fs::create_dir(&tests_path)
-            .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
+            // Create tests directory
+            let tests_path = full_path.join(TESTS_DIRECTORY);
 
-        let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
-        std::fs::write(&test_file_path, test_template(name_no_aleo)).map_err(|e| {
-            UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
-        })?;
+            std::fs::create_dir(&tests_path)
+                .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
+
+            let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
+
+            std::fs::write(&test_file_path, test_template(name_no_aleo)).map_err(|e| {
+                UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
+            })?;
+        }
 
         Ok(full_path)
     }
@@ -272,7 +293,7 @@ impl Package {
 
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
-        let programs: Vec<Program> = if build_graph {
+        let (programs, digraph) = if build_graph {
             let home_path = home_path.canonicalize().map_err(|err| map_err(home_path, err))?;
 
             let mut map: IndexMap<Symbol, (Dependency, Program)> = IndexMap::new();
@@ -322,12 +343,15 @@ impl Package {
             let ordered_dependency_symbols =
                 digraph.post_order().map_err(|_| UtilError::circular_dependency_error())?;
 
-            ordered_dependency_symbols.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect()
+            (
+                ordered_dependency_symbols.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect(),
+                digraph,
+            )
         } else {
-            Vec::new()
+            (Vec::new(), DiGraph::default())
         };
 
-        Ok(Package { base_directory: path, programs, manifest })
+        Ok(Package { base_directory: path, programs, manifest, dep_graph: digraph })
     }
 
     #[allow(clippy::too_many_arguments)]

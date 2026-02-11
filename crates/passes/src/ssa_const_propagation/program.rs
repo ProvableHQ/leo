@@ -20,7 +20,7 @@ use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor, Pro
 
 impl ProgramReconstructor for SsaConstPropagationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
 
         ProgramScope {
             program_id: input.program_id,

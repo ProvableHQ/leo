@@ -1,0 +1,2 @@
+const MAGIC: u32 = 42u32;
+const DOUBLE_MAGIC: u32 = MAGIC + MAGIC;

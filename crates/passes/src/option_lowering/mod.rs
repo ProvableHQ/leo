@@ -90,7 +90,7 @@ impl Pass for OptionLowering {
     const NAME: &str = "OptionLowering";
 
     fn do_pass(input: TypeCheckingInput, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
         let mut visitor = OptionLoweringVisitor {
             state,
             program: Symbol::intern(""),
@@ -99,7 +99,12 @@ impl Pass for OptionLowering {
             new_structs: IndexMap::new(),
             reconstructed_composites: IndexMap::new(),
         };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.reconstruct_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
 

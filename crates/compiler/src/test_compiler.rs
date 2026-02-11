@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::NodeBuilder;
+use leo_ast::{NodeBuilder, Stub};
 use leo_disassembler::disassemble_from_str;
 use leo_errors::{BufferEmitter, Handler, LeoError};
 use leo_span::{Symbol, create_session_if_not_set_then};
@@ -38,6 +38,16 @@ enum StubType {
     FromAleo,
 }
 
+/// Runs a compiler test by compiling a sequence of stub programs followed by a final program.
+///
+/// The input string may contain multiple sources separated by `PROGRAM_DELIMITER`, where earlier
+/// entries represent dependencies and the final entry is the program under test. Dependencies are
+/// compiled either as Leo stubs or Aleo bytecode depending on `stub_type`, then registered into a
+/// `Process` to validate correctness and linking behavior.
+///
+/// Library dependencies are parsed separately and tracked so their parent relationships can be
+/// reconstructed for the final program. The function returns all resulting bytecodes concatenated
+/// in source order using the same delimiter.
 fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &Rc<NodeBuilder>) -> Result<String, ()> {
     let mut process = Process::<TestnetV0>::load().unwrap();
 
@@ -60,45 +70,103 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
     for source in rest {
         match stub_type {
             StubType::FromLeo => {
-                let (program, program_name) = handler.extend_if_error(super::test_utils::parse(
-                    source,
-                    handler,
-                    node_builder,
-                    import_stubs.clone(),
-                ))?;
+                if let Some((library_name, library_source)) = super::test_utils::extract_library_header(source) {
+                    // Handle library dependencies (always Leo dependencies).
+                    let library = handler.extend_if_error(super::test_utils::parse_library(
+                        &library_name,
+                        library_source,
+                        handler,
+                        node_builder,
+                    ))?;
 
-                import_stubs.insert(Symbol::intern(&program_name), program.into());
+                    import_stubs.insert(Symbol::intern(&library_name), library.into());
+                } else {
+                    // Handle program dependencies. Treat them as Leo direct dependencies.
+                    let (program, program_name) = handler.extend_if_error(super::test_utils::parse_program(
+                        source,
+                        handler,
+                        node_builder,
+                        import_stubs.clone(),
+                    ))?;
+
+                    import_stubs.insert(Symbol::intern(&program_name), program.into());
+                }
 
                 if handler.err_count() != 0 {
                     return Err(());
                 }
             }
+
             StubType::FromAleo => {
-                let (programs, program_name) = handler.extend_if_error(super::test_utils::whole_compile(
-                    source,
-                    handler,
-                    node_builder,
-                    import_stubs.clone(),
-                ))?;
+                if let Some((library_name, library_source)) = super::test_utils::extract_library_header(source) {
+                    // Handle library dependencies (always Leo dependencies).
+                    let library = handler.extend_if_error(super::test_utils::parse_library(
+                        &library_name,
+                        library_source,
+                        handler,
+                        node_builder,
+                    ))?;
 
-                // Parse the bytecode as an Aleo program.
-                // Note that this function checks that the bytecode is well-formed.
-                add_aleo_program(&programs.primary.bytecode)?;
+                    import_stubs.insert(Symbol::intern(&library_name), library.into());
+                } else {
+                    // Handle program dependencies. Treat them as Aleo dependencies by fully compiling them individually first.
 
-                let program = handler.extend_if_error(
-                    disassemble_from_str::<TestnetV0>(&program_name, &programs.primary.bytecode)
-                        .map_err(|err| err.into()),
-                )?;
+                    // Before compiling, register this program as a parent of all known libraries
+                    // so that library constants are visible during compilation.
+                    let program_name_for_parents =
+                        handler.extend_if_error(super::test_utils::extract_program_name(source, handler))?;
+                    let program_symbol = Symbol::intern(&program_name_for_parents);
+                    for stub in import_stubs.values_mut() {
+                        if stub.is_library() {
+                            stub.add_parent(program_symbol);
+                        }
+                    }
 
-                import_stubs.insert(Symbol::intern(&program_name), program.into());
+                    let (programs, program_name) = handler.extend_if_error(super::test_utils::whole_compile(
+                        source,
+                        handler,
+                        node_builder,
+                        import_stubs.clone(),
+                    ))?;
 
-                if handler.err_count() != 0 {
-                    return Err(());
+                    // Parse the bytecode as an Aleo program.
+                    // Note that this function checks that the bytecode is well-formed.
+                    add_aleo_program(&programs.primary.bytecode)?;
+
+                    let program = handler.extend_if_error(
+                        disassemble_from_str::<TestnetV0>(&program_name, &programs.primary.bytecode)
+                            .map_err(|err| err.into()),
+                    )?;
+
+                    import_stubs.insert(Symbol::intern(&program_name), program.into());
+
+                    if handler.err_count() != 0 {
+                        return Err(());
+                    }
+
+                    bytecodes.push(programs.primary.bytecode);
                 }
-
-                bytecodes.push(programs.primary.bytecode);
             }
         };
+    }
+
+    // Extract the name of the final program so we can treat it as a parent.
+    let final_program_name = handler.extend_if_error(super::test_utils::extract_program_name(last, handler))?;
+    let final_symbol = Symbol::intern(&final_program_name);
+
+    // Populate parents for libraries: parents come after them in the stub order
+    {
+        let symbols: Vec<Symbol> = import_stubs.keys().copied().collect();
+
+        for (i, symbol) in symbols.iter().enumerate() {
+            if let Some(Stub::FromLibrary { parents, .. }) = import_stubs.get_mut(symbol) {
+                // Parents that appear later in the stub order
+                parents.extend(symbols[i + 1..].iter().copied());
+
+                // The final program also depends on earlier libraries
+                parents.insert(final_symbol);
+            }
+        }
     }
 
     // Full compile for final program.

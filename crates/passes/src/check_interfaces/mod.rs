@@ -38,10 +38,20 @@ impl Pass for CheckInterfaces {
 
     fn do_pass(_: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
+
         let mut visitor = CheckInterfacesVisitor::new(state);
-        visitor.visit_program(ast.as_repr());
+
+        // Explicitly handle both variants; library is a no-op for now
+        ast.visit(
+            |program| visitor.visit_program(program),
+            |_library| {
+                // no-op for library
+            },
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
+
         Ok(())
     }
 }

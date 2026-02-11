@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID, Type};
+use crate::{Identifier, Node, NodeID, ProgramId, Type};
 
-use leo_span::{Span, Symbol};
+use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{Mapping as MappingCore, Network};
@@ -38,11 +38,11 @@ pub struct Mapping {
 }
 
 impl Mapping {
-    pub fn from_snarkvm<N: Network>(mapping: &MappingCore<N>, program: Symbol) -> Self {
+    pub fn from_snarkvm<N: Network>(mapping: &MappingCore<N>, program_id: ProgramId) -> Self {
         Self {
             identifier: Identifier::from(mapping.name()),
-            key_type: Type::from_snarkvm(mapping.key().plaintext_type(), program),
-            value_type: Type::from_snarkvm(mapping.value().plaintext_type(), program),
+            key_type: Type::from_snarkvm(mapping.key().plaintext_type(), program_id),
+            value_type: Type::from_snarkvm(mapping.value().plaintext_type(), program_id),
             span: Default::default(),
             id: Default::default(),
         }

@@ -19,7 +19,7 @@
 pub mod function_stub;
 pub use function_stub::*;
 
-use crate::{Composite, ConstDeclaration, Identifier, Indent, Mapping, NodeID, Program, ProgramId};
+use crate::{Composite, ConstDeclaration, Identifier, Indent, Library, Mapping, NodeID, Program, ProgramId};
 use indexmap::IndexSet;
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -27,7 +27,7 @@ use std::fmt;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Stub {
-    /// A dependency that is a Leo program parsed into an AST.
+    /// A dependency that is a Leo program.
     FromLeo {
         program: Program,
         parents: IndexSet<Symbol>, // These are the names of all the programs that import this dependency.
@@ -37,14 +37,32 @@ pub enum Stub {
         program: AleoProgram,
         parents: IndexSet<Symbol>, // These are the names of all the programs that import this dependency.
     },
+    /// A dependency that is a Leo library.
+    FromLibrary {
+        library: Library,
+        parents: IndexSet<Symbol>, // These are the names of all the programs that import this dependency.
+    },
 }
 
 impl Stub {
-    /// Returns the programs that this stub imports.
-    pub fn imports(&self) -> Box<dyn Iterator<Item = &Symbol> + '_> {
+    /// Returns the programs that this stub imports using explicit `import`s. Note that library
+    /// imports are implicit so they do not show up in this returned iterator.
+    pub fn explicit_imports(&self) -> Box<dyn Iterator<Item = (Symbol, Span)> + '_> {
         match self {
-            Stub::FromLeo { program, .. } => Box::new(program.imports.keys()),
-            Stub::FromAleo { program, .. } => Box::new(program.imports.iter().map(|id| &id.name.name)),
+            Stub::FromLeo { program, .. } => Box::new(program.imports.iter().map(|(sym, id)| (*sym, id.span()))),
+            Stub::FromAleo { program, .. } => {
+                Box::new(program.imports.iter().map(|id| (id.as_symbol(), Span::default())))
+            }
+            Stub::FromLibrary { .. } => Box::new(std::iter::empty()),
+        }
+    }
+
+    /// Returns the set of parent symbols for this stub.
+    pub fn parents(&self) -> &IndexSet<Symbol> {
+        match self {
+            Stub::FromLeo { parents, .. } => parents,
+            Stub::FromAleo { parents, .. } => parents,
+            Stub::FromLibrary { parents, .. } => parents,
         }
     }
 
@@ -52,10 +70,25 @@ impl Stub {
     /// imported by this parent.
     pub fn add_parent(&mut self, parent: Symbol) {
         match self {
-            Stub::FromLeo { parents, .. } | Stub::FromAleo { parents, .. } => {
+            Stub::FromLeo { parents, .. } | Stub::FromAleo { parents, .. } | Stub::FromLibrary { parents, .. } => {
                 parents.insert(parent);
             }
         }
+    }
+
+    /// Does this `Stub` represent a Leo program?
+    pub fn is_leo_program(&self) -> bool {
+        matches!(self, Self::FromLeo { .. })
+    }
+
+    /// Does this `Stub` represent an Aleo program?
+    pub fn is_aleo_program(&self) -> bool {
+        matches!(self, Self::FromAleo { .. })
+    }
+
+    /// Does this `Stub` represent a library?
+    pub fn is_library(&self) -> bool {
+        matches!(self, Self::FromLibrary { .. })
     }
 }
 
@@ -64,6 +97,7 @@ impl fmt::Display for Stub {
         match self {
             Stub::FromLeo { program, .. } => write!(f, "{program}"),
             Stub::FromAleo { program, .. } => write!(f, "{program}"),
+            Stub::FromLibrary { library, .. } => write!(f, "{library}"),
         }
     }
 }
@@ -77,6 +111,12 @@ impl From<Program> for Stub {
 impl From<AleoProgram> for Stub {
     fn from(program: AleoProgram) -> Self {
         Stub::FromAleo { program, parents: IndexSet::new() }
+    }
+}
+
+impl From<Library> for Stub {
+    fn from(library: Library) -> Self {
+        Stub::FromLibrary { library, parents: IndexSet::new() }
     }
 }
 

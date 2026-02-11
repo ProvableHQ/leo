@@ -21,7 +21,7 @@
 //! and lossless syntax trees.
 
 mod rowan;
-pub use rowan::{parse, parse_ast, parse_expression, parse_module, parse_statement};
+pub use rowan::{parse_expression, parse_library, parse_module, parse_program, parse_statement};
 
 #[cfg(test)]
 mod test;

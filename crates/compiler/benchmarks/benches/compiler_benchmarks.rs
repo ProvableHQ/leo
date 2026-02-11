@@ -51,7 +51,7 @@ fn single_source(name: &str) -> FixtureData {
 fn prepare_compiler(fixture: &FixtureData) -> Compiler {
     let module_refs = fixture.module_refs();
     let mut compiler = create_compiler(fixture);
-    compiler.parse(&fixture.source, fixture.filename.clone(), &module_refs).expect("parse");
+    compiler.parse_program(&fixture.source, fixture.filename.clone(), &module_refs).expect("parse");
     compiler.add_import_stubs().expect("add_import_stubs");
     compiler
 }
@@ -134,7 +134,7 @@ fn bench_frontend_case(c: &mut Criterion, bench_name: &str, fixture: &FixtureDat
     c.bench_function(bench_name, |b| {
         b.iter(|| {
             let mut compiler = create_compiler(fixture);
-            compiler.parse(&fixture.source, filename.clone(), &module_refs).expect("parse");
+            compiler.parse_program(&fixture.source, filename.clone(), &module_refs).expect("parse");
             compiler.add_import_stubs().expect("add_import_stubs");
             compiler.frontend_passes().expect("frontend_passes");
         });
@@ -168,7 +168,7 @@ fn bench_dependency_chain(c: &mut Criterion) {
             group.bench_function(BenchmarkId::from_parameter(format!("{depth:02}_{package_name}")), |b| {
                 b.iter(|| {
                     let mut compiler = create_compiler(&fixture);
-                    compiler.parse(&fixture.source, filename.clone(), &module_refs).expect("parse");
+                    compiler.parse_program(&fixture.source, filename.clone(), &module_refs).expect("parse");
                     compiler.add_import_stubs().expect("add_import_stubs");
                     compiler.frontend_passes().expect("frontend_passes");
                 });
@@ -199,7 +199,7 @@ fn bench_individual_passes(c: &mut Criterion) {
             let module_refs = fixture.module_refs();
             b.iter(|| {
                 let mut compiler = create_parse_only_compiler(&fixture);
-                compiler.parse(&fixture.source, filename.clone(), &module_refs).expect("parse");
+                compiler.parse_program(&fixture.source, filename.clone(), &module_refs).expect("parse");
             });
         });
 

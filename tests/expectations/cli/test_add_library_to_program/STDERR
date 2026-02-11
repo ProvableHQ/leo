@@ -1,0 +1,4 @@
+--- leo add actual_lib.aleo --local (should fail: dep is a library, not a program) ---
+Error [ECLI0377045]: `actual_lib.aleo` ends with `.aleo` but the package at `../actual_lib` is a library, not a program.
+
+--- leo add actual_lib --local (should succeed: auto-detected as library) ---

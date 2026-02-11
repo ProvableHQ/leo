@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+cd ambiguous_pkg || exit 1
+
+echo "--- leo build (should fail: both main.leo and lib.leo exist) ---" | tee /dev/stderr
+
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

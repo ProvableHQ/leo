@@ -1,0 +1,4 @@
+--- leo build (should fail: both main.leo and lib.leo exist) ---
+Error [EPAK0375059]: Source directory 'TMPDIR/contents/ambiguous_pkg/src' contains both 'main.leo' and 'lib.leo'. A package must be either a program or a library, not both.
+     |
+     = Remove either the program entry file or the library entry file.

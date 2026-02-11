@@ -1,0 +1,182 @@
+--- 1. leo add with no source flag (should fail) ---
+no source exit code: 2
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}
+--- 2. leo add with multiple flags (should fail) ---
+multiple flags exit code: 2
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}
+--- 3. leo add --network (should succeed) ---
+       Leo ✅ Added network dependency `credits.aleo`.
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}
+--- 4. leo add --local (should succeed) ---
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}
+--- 5. leo add --local (should succeed) ---
+       Leo ✅ Added local dependency `my_lib` at path `../my_lib`.
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    },
+    {
+      "name": "my_lib",
+      "location": "local",
+      "path": "../my_lib",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}
+--- 6. leo add overwrite existing dep (should succeed) ---
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    },
+    {
+      "name": "my_lib",
+      "location": "local",
+      "path": "../my_lib",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}
+--- 7. leo add --dev (should succeed) ---
+       Leo ✅ Added network dependency `dev_dep.aleo`.
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    },
+    {
+      "name": "my_lib",
+      "location": "local",
+      "path": "../my_lib",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": [
+    {
+      "name": "dev_dep.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ]
+}
+--- 8. leo remove library dep by bare name (should succeed) ---
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ],
+  "dev_dependencies": [
+    {
+      "name": "dev_dep.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ]
+}
+--- 9. leo remove program dep by bare name (should succeed) ---
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ],
+  "dev_dependencies": [
+    {
+      "name": "dev_dep.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ]
+}
+--- 10. leo remove non-existent dep (should fail) ---

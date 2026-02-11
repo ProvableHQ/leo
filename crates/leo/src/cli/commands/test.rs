@@ -106,7 +106,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
             network,
         );
 
-        let ast = compiler.parse_from_directory(source, &source_dir);
+        let ast = compiler.parse_program_from_directory(source, &source_dir);
         let ast = match ast {
             Ok(ast) => ast,
             Err(_) => continue,
@@ -125,7 +125,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
                     continue;
                 }
 
-                let qualified = format!("{program_name}.aleo/{}", function.identifier);
+                let qualified = format!("{program_name}/{}", function.identifier);
                 if !match_str.is_empty() && !qualified.contains(match_str) {
                     continue;
                 }
@@ -152,17 +152,20 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
 }
 
 fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
+    if package.programs.last().map(|p| p.is_library).unwrap_or(false) {
+        return Err(CliError::custom("`leo test` is not supported for library packages.").into());
+    }
+
     // Get the private key.
     let _private_key = PrivateKey::<TestnetV0>::from_str(TEST_PRIVATE_KEY)?;
 
     let network = command.env_override.network.unwrap_or(NetworkName::TestnetV0);
     let test_functions = discover_test_functions(&package, &command.test_name, network)?;
 
-    let program_name = package.manifest.program.strip_suffix(".aleo").unwrap();
-    let program_name_symbol = Symbol::intern(program_name);
+    let program_name_symbol = Symbol::intern(&package.manifest.program);
     let build_directory = package.build_directory();
 
-    let credits = Symbol::intern("credits");
+    let credits = Symbol::intern("credits.aleo");
 
     // Get bytecode and name for all programs, either directly or from the filesystem if they were compiled.
     let programs: Vec<run::Program> = package
@@ -173,6 +176,10 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
             if program.name == credits {
                 return None;
             }
+            // Libraries have no bytecode — their consts are inlined into the main program.
+            if program.is_library {
+                return None;
+            }
             let bytecode = match &program.data {
                 ProgramData::Bytecode(c) => c.clone(),
                 ProgramData::SourcePath { .. } => {
@@ -180,7 +187,7 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
                     let aleo_path = if program.name == program_name_symbol {
                         build_directory.join("main.aleo")
                     } else {
-                        package.imports_directory().join(format!("{}.aleo", program.name))
+                        package.imports_directory().join(format!("{}", program.name))
                     };
                     fs::read_to_string(&aleo_path)
                         .unwrap_or_else(|e| panic!("Failed to read Aleo file at {}: {}", aleo_path.display(), e))

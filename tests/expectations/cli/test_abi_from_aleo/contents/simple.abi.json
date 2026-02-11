@@ -117,7 +117,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "simple"
+                "program": "simple.aleo"
               }
             }
           },
@@ -132,7 +132,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "simple"
+                "program": "simple.aleo"
               }
             }
           },
@@ -151,7 +151,7 @@
               "path": [
                 "Token"
               ],
-              "program": "simple"
+              "program": "simple.aleo"
             }
           },
           "mode": "None"
@@ -164,7 +164,7 @@
               "path": [
                 "Token"
               ],
-              "program": "simple"
+              "program": "simple.aleo"
             }
           },
           "mode": "None"

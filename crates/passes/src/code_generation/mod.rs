@@ -17,7 +17,7 @@
 use crate::{CompiledPrograms, Pass};
 
 use itertools::Itertools;
-use leo_ast::{Mode, ProgramId};
+use leo_ast::{Ast, Mode, ProgramId};
 use leo_errors::Result;
 
 use std::fmt::Display;
@@ -61,7 +61,12 @@ impl Pass for CodeGenerating {
             composite_mapping: Default::default(),
             global_mapping: Default::default(),
             variant: None,
-            program: &state.ast.ast,
+            program: match &state.ast {
+                Ast::Program(p) => p,
+                Ast::Library(_) => {
+                    return Ok(Default::default()); // no-op for libraries
+                }
+            },
             program_id: None,
             finalize_caller: None,
             next_label: 0,
@@ -87,7 +92,7 @@ impl Display for AleoProgram {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.imports
             .iter()
-            .map(|program_name| format!("import {program_name}.aleo;"))
+            .map(|program_name| format!("import {program_name};"))
             .chain(std::iter::once(format!("program {};\n", self.program_id)))
             .chain(self.data_types.iter().map(ToString::to_string))
             .chain(self.mappings.iter().map(ToString::to_string))
@@ -591,13 +596,13 @@ pub enum AleoType {
 impl Display for AleoType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Future { name, program } => write!(f, "{program}.aleo/{name}.future"),
-            Self::Record { name, program: Some(program_name) } => write!(f, "{program_name}.aleo/{name}.record"),
+            Self::Future { name, program } => write!(f, "{program}/{name}.future"),
+            Self::Record { name, program: Some(program_name) } => write!(f, "{program_name}/{name}.record"),
             Self::Record { name, program: None } => write!(f, "{name}.record"),
             Self::GroupX => write!(f, "group.x"),
             Self::GroupY => write!(f, "group.y"),
             Self::Ident { name } => write!(f, "{name}"),
-            Self::Location { program, name } => write!(f, "{program}.aleo/{name}"),
+            Self::Location { program, name } => write!(f, "{program}/{name}"),
             Self::Address => write!(f, "address"),
             Self::Boolean => write!(f, "boolean"),
             Self::Field => write!(f, "field"),

@@ -106,7 +106,7 @@ This structure ensures that **adding a new compiler pass test is minimal**:
 use crate::*;
 use leo_ast::NetworkName;
 use leo_errors::{BufferEmitter, Handler};
-use leo_parser::parse_ast;
+use leo_parser::parse_program;
 use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
 use serial_test::serial;
 use std::rc::Rc;
@@ -254,14 +254,14 @@ macro_rules! make_runner {
             create_session_if_not_set_then(|_| {
                 let mut state = CompilerState { handler: handler.clone(), node_builder: Rc::clone(&node_builder), ..Default::default() };
 
-                state.ast = match handler.extend_if_error(parse_ast(
+                state.ast = match handler.extend_if_error(parse_program(
                     handler.clone(),
                     &state.node_builder,
                     &with_session_globals(|s| s.source_map.new_source(source, FileName::Custom("test".into()))),
                     &[],
                     NetworkName::TestnetV0,
                 )) {
-                    Ok(ast) => ast,
+                    Ok(ast) => leo_ast::Ast::Program(ast),
                     Err(()) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
                 };
 
@@ -273,7 +273,7 @@ macro_rules! make_runner {
                 )*
 
                 // Success: return AST with any warnings
-                format!("{}{}", buf.extract_warnings(), state.ast.ast)
+                format!("{}{}", buf.extract_warnings(), state.ast)
             })
         }
     };

@@ -6,8 +6,14 @@ xxx::xxx
 
 XXX::YYY::ZZZ
 
+Self::pp::qq
+
+foo.aleo/bar
+
+foo / bar
+
 Error [EPAR0370047]: expected '.' -- found '::'
-    --> test_4:1:5
+    --> test_7:1:5
      |
    1 | self::y
      |     ^^

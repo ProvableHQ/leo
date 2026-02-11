@@ -1,0 +1,3 @@
+--- leo add --local (add lib dep to program) ---
+--- leo build (should succeed) ---
+--- bytecode (should NOT contain 'import my_lib') ---

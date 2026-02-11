@@ -113,7 +113,14 @@ impl Pass for TypeChecking {
             limits: input,
             async_block_id: None,
         };
-        visitor.visit_program(ast.as_repr());
+
+        ast.visit(
+            |program| visitor.visit_program(program),
+            |_library| {
+                // no-op for libraries
+            },
+        );
+
         visitor.state.handler.last_err()?;
 
         // Remove unused composites from the composite graph.

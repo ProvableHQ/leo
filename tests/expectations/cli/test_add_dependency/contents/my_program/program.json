@@ -1,0 +1,23 @@
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ],
+  "dev_dependencies": [
+    {
+      "name": "dev_dep.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    }
+  ]
+}

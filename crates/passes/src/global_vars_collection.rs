@@ -46,6 +46,7 @@ use leo_ast::{
     AleoProgram,
     AstVisitor,
     ConstDeclaration,
+    Library,
     Location,
     Mapping,
     Module,
@@ -75,7 +76,14 @@ impl Pass for GlobalVarsCollection {
             module: vec![],
             parents: IndexSet::new(),
         };
-        visitor.visit_program(ast.as_repr());
+
+        ast.visit(
+            |program| visitor.visit_program(program),
+            |_library| {
+                // no-op for libraries
+            },
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())
@@ -125,7 +133,7 @@ impl AstVisitor for GlobalVarsCollectionVisitor<'_> {
 impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set current program name
-        self.program_name = input.program_id.name.name;
+        self.program_name = input.program_id.as_symbol();
 
         // Update the `imports` map in the symbol table.
         self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
@@ -172,11 +180,26 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
                 self.parents = parents.clone();
                 self.visit_aleo_program(program);
             }
+            Stub::FromLibrary { library, parents } => {
+                self.parents = parents.clone();
+                self.visit_library(library);
+            }
         }
     }
 
+    fn visit_library(&mut self, input: &Library) {
+        self.program_name = input.name;
+
+        // Update the `imports` map in the symbol table.
+        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
+
+        self.state.symbol_table.add_as_library(self.program_name);
+
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+    }
+
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
-        self.program_name = input.stub_id.name.name;
+        self.program_name = input.stub_id.as_symbol();
 
         // Update the `imports` map in the symbol table.
         self.state.symbol_table.add_imported_by(self.program_name, &self.parents);

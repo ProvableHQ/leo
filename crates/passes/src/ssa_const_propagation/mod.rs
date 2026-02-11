@@ -44,14 +44,19 @@ impl Pass for SsaConstPropagation {
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         // Run the pass in a loop until no changes are made.
         for _ in 0..1024 {
-            let mut ast = std::mem::take(&mut state.ast);
+            let ast = std::mem::take(&mut state.ast);
             let mut visitor = SsaConstPropagationVisitor {
                 state,
                 program: Symbol::intern(""),
                 constants: Default::default(),
                 changed: false,
             };
-            ast.ast = visitor.reconstruct_program(ast.ast);
+
+            let ast = ast.map(
+                |program| visitor.reconstruct_program(program),
+                |library| library, // no-op for libraries
+            );
+
             visitor.state.handler.last_err()?;
             visitor.state.ast = ast;
 

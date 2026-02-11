@@ -1,0 +1,30 @@
+--- 1. leo add with no source flag (should fail) ---
+error: the following required arguments were not provided:
+  <--local <LOCAL>|--network|--edition <EDITION>>
+
+Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>> <NAME>
+
+For more information, try '--help'.
+--- 2. leo add with multiple flags (should fail) ---
+error: the argument '--network' cannot be used with '--local <LOCAL>'
+
+Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>> <NAME>
+
+For more information, try '--help'.
+--- 3. leo add --network (should succeed) ---
+--- 4. leo add --local (should succeed) ---
+Error [ECLI0377045]: Could not read `../some_local/program.json` — is `../some_local` a valid Leo package?
+
+--- 5. leo add --local (should succeed) ---
+--- 6. leo add overwrite existing dep (should succeed) ---
+Error [ECLI0377045]: Could not read `../credits/program.json` — is `../credits` a valid Leo package?
+
+--- 7. leo add --dev (should succeed) ---
+--- 8. leo remove library dep by bare name (should succeed) ---
+       Leo ✅ Successfully removed the local dependency my_lib with path ../my_lib.
+--- 9. leo remove program dep by bare name (should succeed) ---
+Error [EPAK0375046]: The dependency program `some_local.aleo` was not found among the manifest's dependencies.
+
+--- 10. leo remove non-existent dep (should fail) ---
+Error [EPAK0375046]: The dependency program `nonexistent.aleo` was not found among the manifest's dependencies.
+

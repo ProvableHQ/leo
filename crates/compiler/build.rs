@@ -40,7 +40,7 @@ fn main() {
     {
         let path = entry.path();
         let rel = path.strip_prefix(&tests_dir).unwrap();
-        let fn_name = format!("execution_{}", rel.to_string_lossy().replace(['/', '.'], "_"));
+        let fn_name = format!("execution_{}", rel.to_string_lossy().replace(['/', '\\', '.'], "_"));
 
         out.push_str(&format!(
             r#"

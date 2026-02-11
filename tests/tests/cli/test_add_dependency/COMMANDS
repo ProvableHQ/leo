@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+cd my_program || exit 1
+
+echo "--- 1. leo add with no source flag (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add some_dep
+echo "no source exit code: $?"
+cat program.json
+
+echo "--- 2. leo add with multiple flags (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add some_dep --network --local ../some_path
+echo "multiple flags exit code: $?"
+cat program.json
+
+echo "--- 3. leo add --network (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add --network credits
+cat program.json
+
+echo "--- 4. leo add --local (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add some_local --local ../some_local
+cat program.json
+
+echo "--- 5. leo add --local (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add my_lib --local ../my_lib
+cat program.json
+
+echo "--- 6. leo add overwrite existing dep (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add credits --local ../credits
+cat program.json
+
+echo "--- 7. leo add --dev (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add --dev --network dev_dep
+cat program.json
+
+echo "--- 8. leo remove library dep by bare name (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check remove my_lib
+cat program.json
+
+echo "--- 9. leo remove program dep by bare name (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check remove some_local
+cat program.json
+
+echo "--- 10. leo remove non-existent dep (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check remove nonexistent || true

@@ -72,8 +72,17 @@ impl Command for LeoRemove {
         if self.all {
             *dependencies = Vec::new();
         } else {
-            let name =
-                self.name.map(|name| if name.ends_with(".aleo") { name } else { format!("{name}.aleo") }).unwrap();
+            // Accept both `math_lib` and `math_lib.aleo` on the command line.
+            // Program deps are stored with `.aleo`; library deps are stored without it.
+            // Match whichever form appears in the manifest.
+            let raw = self.name.unwrap();
+            let alt =
+                if raw.ends_with(".aleo") { raw.trim_end_matches(".aleo").to_string() } else { format!("{raw}.aleo") };
+            let name = dependencies
+                .iter()
+                .find_map(|dep| if dep.name == raw || dep.name == alt { Some(dep.name.clone()) } else { None })
+                .unwrap_or(alt); // fall back to the .aleo form for the error message
+
             let original_len = dependencies.len();
             for dependency in dependencies.iter() {
                 if dependency.name == name {

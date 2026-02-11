@@ -13,6 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+use crate::ProgramId;
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -22,8 +23,7 @@ use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Location {
-    /// The program name. e.g. `credits`.
-    /// Note. This does not include the `.aleo` network suffix.
+    /// The program name. e.g. `credits.aleo` or `my_library`.
     pub program: Symbol,
     /// The absolute path to the item that this `Location` points to.
     pub path: Vec<Symbol>,
@@ -37,14 +37,14 @@ impl Location {
 
 impl Display for Location {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}.aleo/{}", self.program, self.path.iter().format("::"))
+        write!(f, "{}/{}", self.program, self.path.iter().format("::"))
     }
 }
 
 impl<N: Network> From<Locator<N>> for Location {
     fn from(locator: Locator<N>) -> Self {
         Location {
-            program: Symbol::intern(&locator.program_id().name().to_string()),
+            program: ProgramId::from(locator.program_id()).as_symbol(),
             path: vec![Symbol::intern(&locator.resource().to_string())],
         }
     }

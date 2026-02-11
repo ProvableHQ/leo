@@ -39,7 +39,7 @@ impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
     /// components have gone through transformation.
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         // Set the current program context
-        self.current_program = input.program_id.name.name;
+        self.current_program = input.program_id.as_symbol();
 
         // Reconstruct all functions and store them temporarily. This process also populates
         // `new_async_functions`.

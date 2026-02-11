@@ -25,6 +25,7 @@ use leo_ast::{
     Function,
     FunctionStub,
     Input,
+    Library,
     Member,
     Module,
     Output,
@@ -35,19 +36,36 @@ use leo_ast::{
 
 impl ProgramReconstructor for PathResolutionVisitor<'_> {
     fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
+        self.program = input.stub_id.as_symbol();
         AleoProgram {
             imports: input.imports,
             stub_id: input.stub_id,
             consts: input.consts,
-            composites: input.composites,
+            composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
             mappings: input.mappings,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
             span: input.span,
         }
     }
 
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        self.program = input.name;
+
+        Library {
+            name: input.name,
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+        }
+    }
+
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
 
         // This is the default implementation.
         ProgramScope {

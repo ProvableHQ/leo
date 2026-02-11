@@ -1,0 +1,45 @@
+--- leo add --local (should succeed) ---
+       Leo ✅ Added local dependency `base_lib` at path `../base_lib`.
+--- leo add --network on a library (should fail) ---
+add network to library exit code: 213
+--- leo build (should succeed) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+--- leo run (should fail) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+run exit code: 213
+--- leo execute (should fail) ---
+execute exit code: 213
+--- leo deploy (should fail) ---
+deploy exit code: 213
+--- leo test (should fail) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+test exit code: 213
+--- leo upgrade (should fail) ---
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+upgrade exit code: 213
+--- leo clean on library (should succeed) ---
+clean exit code: 0
+--- leo run with library dep (should succeed) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'program_using_lib.aleo'
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo     The program checksum is: '[86u8, 217u8, 255u8, 231u8, 41u8, 239u8, 85u8, 168u8, 115u8, 159u8, 206u8, 101u8, 87u8, 132u8, 55u8, 19u8, 88u8, 121u8, 28u8, 27u8, 19u8, 151u8, 169u8, 2u8, 26u8, 92u8, 58u8, 254u8, 31u8, 190u8, 12u8, 24u8]'.
+       Leo     Program size: 0.17 KB / 500.00 KB
+       Leo ✅ Compiled 'program_using_lib.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+
+➕Adding programs to the VM in the following order:
+  - program_using_lib.aleo (local)
+
+➡️  Output
+
+ • 43u32
+       Leo        Leo 

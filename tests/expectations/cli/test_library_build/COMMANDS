@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+echo "--- leo add --local (add lib dep to program) ---" | tee /dev/stderr
+
+cd my_program || exit 1
+${LEO_BIN} --disable-update-check add my_lib --local ../my_lib
+
+echo "--- leo build (should succeed) ---" | tee /dev/stderr
+
+${LEO_BIN} --disable-update-check build
+
+echo "--- bytecode (should NOT contain 'import my_lib') ---" | tee /dev/stderr
+
+cat build/main.aleo

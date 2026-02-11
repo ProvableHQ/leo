@@ -42,7 +42,7 @@ impl StorageLoweringVisitor<'_> {
             let ident = Identifier::new(sym, self.state.node_builder.next_id());
             let mut p = Path::from(ident);
 
-            if let Some(program) = path.user_program().filter(|p| p.name != self.program) {
+            if let Some(program) = path.user_program().filter(|p| p.as_symbol() != self.program) {
                 p = p.with_user_program(*program);
             }
 
@@ -214,7 +214,7 @@ impl StorageLoweringVisitor<'_> {
 
                     // Attach user program only if it's present and different from current
                     if let Some(user_program) = path.user_program()
-                        && user_program.name != self.program
+                        && user_program.as_symbol() != self.program
                     {
                         base_path = base_path.with_user_program(*user_program);
                     }

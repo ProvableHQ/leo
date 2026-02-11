@@ -1,0 +1,8 @@
+--- add lib_b as dependency of lib_a ---
+       Leo ✅ Added local dependency `lib_b` at path `../lib_b`.
+--- add lib_a as dependency of lib_b (creates cycle) ---
+       Leo ✅ Added local dependency `lib_a` at path `../lib_a`.
+--- leo build lib_a (should fail: circular dependency) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+build exit code: 100

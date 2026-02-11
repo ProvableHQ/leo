@@ -248,6 +248,8 @@ fn is_record(comp_ty: &ast::CompositeType, ctx: &Ctx) -> bool {
                 .flat_map(|scope| scope.composites.iter())
                 .find(|(sym, _)| *sym == name)
                 .map(|(_, c)| c.is_record),
+
+            ast::Stub::FromLibrary { .. } => None,
         };
         if let Some(is_record) = found {
             return is_record;
@@ -288,7 +290,7 @@ pub fn prune_non_interface_types(program: &mut abi::Program) {
     let mut used_types: HashSet<abi::Path> = HashSet::new();
 
     // Extract program name without .aleo suffix for comparison
-    let program_name = program.program.strip_suffix(".aleo").unwrap_or(&program.program);
+    let program_name = &program.program;
 
     // Phase 1: Collect from interface items
     for transition in &program.transitions {

@@ -127,7 +127,7 @@ impl ProgramScopeConsumer for SsaFormingVisitor<'_> {
     type Output = ProgramScope;
 
     fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output {
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
         ProgramScope {
             program_id: input.program_id,
             parents: input.parents,
@@ -166,7 +166,7 @@ impl StubConsumer for SsaFormingVisitor<'_> {
     fn consume_stub(&mut self, input: Stub) -> Self::Output {
         match input {
             Stub::FromLeo { program, .. } => self.consume_program(program).into(),
-            Stub::FromAleo { .. } => input,
+            Stub::FromAleo { .. } | Stub::FromLibrary { .. } => input,
         }
     }
 }

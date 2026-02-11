@@ -271,7 +271,7 @@ impl WriteTransformingFiller<'_> {
         }
         for (_, scope) in program.program_scopes.iter() {
             for (_, function) in scope.functions.iter() {
-                self.0.program = scope.program_id.name.name;
+                self.0.program = scope.program_id.as_symbol();
                 self.visit_block(&function.block);
             }
         }

@@ -1,0 +1,21 @@
+--- leo add --local (add lib dep to program) ---
+       Leo ✅ Added local dependency `my_lib` at path `../my_lib`.
+--- leo build (should succeed) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'my_program.aleo'
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[171u8, 183u8, 139u8, 18u8, 243u8, 22u8, 24u8, 14u8, 163u8, 35u8, 58u8, 129u8, 221u8, 133u8, 125u8, 156u8, 181u8, 62u8, 243u8, 26u8, 146u8, 143u8, 8u8, 110u8, 162u8, 66u8, 191u8, 125u8, 94u8, 4u8, 134u8, 86u8]'.
+       Leo     Program size: 0.11 KB / 500.00 KB
+       Leo ✅ Compiled 'my_program.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+--- bytecode (should NOT contain 'import my_lib') ---
+program my_program.aleo;
+
+function main:
+    output 126u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

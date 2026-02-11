@@ -32,7 +32,7 @@ use leo_span::Symbol;
 
 impl ProgramReconstructor for StorageLoweringVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
 
         let storage_variables = input
             .storage_variables

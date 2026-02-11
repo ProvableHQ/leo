@@ -153,7 +153,7 @@
               "path": [
                 "Point"
               ],
-              "program": "abi_test"
+              "program": "abi_test.aleo"
             }
           }
         },
@@ -164,7 +164,7 @@
               "path": [
                 "Point"
               ],
-              "program": "abi_test"
+              "program": "abi_test.aleo"
             }
           }
         }
@@ -257,7 +257,7 @@
           "path": [
             "Point"
           ],
-          "program": "abi_test"
+          "program": "abi_test.aleo"
         }
       }
     },
@@ -297,7 +297,7 @@
             "path": [
               "Point"
             ],
-            "program": "abi_test"
+            "program": "abi_test.aleo"
           }
         }
       }
@@ -498,7 +498,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "abi_test"
+                "program": "abi_test.aleo"
               }
             }
           },
@@ -513,7 +513,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "abi_test"
+                "program": "abi_test.aleo"
               }
             }
           },
@@ -533,7 +533,7 @@
                 "path": [
                   "Rectangle"
                 ],
-                "program": "abi_test"
+                "program": "abi_test.aleo"
               }
             }
           },
@@ -548,7 +548,7 @@
                 "path": [
                   "Rectangle"
                 ],
-                "program": "abi_test"
+                "program": "abi_test.aleo"
               }
             }
           },
@@ -655,7 +655,7 @@
               "path": [
                 "Token"
               ],
-              "program": "abi_test"
+              "program": "abi_test.aleo"
             }
           },
           "mode": "None"
@@ -715,7 +715,7 @@
               "path": [
                 "Token"
               ],
-              "program": "abi_test"
+              "program": "abi_test.aleo"
             }
           },
           "mode": "None"
@@ -734,7 +734,7 @@
                 "path": [
                   "AllPrimitives"
                 ],
-                "program": "abi_test"
+                "program": "abi_test.aleo"
               }
             }
           },
@@ -749,7 +749,7 @@
                 "path": [
                   "AllPrimitives"
                 ],
-                "program": "abi_test"
+                "program": "abi_test.aleo"
               }
             }
           },
@@ -770,7 +770,7 @@
                   "utils",
                   "Vector3"
                 ],
-                "program": "abi_test"
+                "program": "abi_test.aleo"
               }
             }
           },
@@ -786,7 +786,7 @@
                   "utils",
                   "Vector3"
                 ],
-                "program": "abi_test"
+                "program": "abi_test.aleo"
               }
             }
           },

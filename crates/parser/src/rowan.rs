@@ -289,34 +289,36 @@ impl<'a> ConversionContext<'a> {
     fn type_locator_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_LOCATOR);
 
-        // Extract program and type name from IDENT tokens.
+        // Extract IDENT tokens for program and type name
         let mut idents = tokens(node).filter(|t| t.kind() == IDENT);
+
         if let (Some(program_token), Some(name_token)) = (idents.next(), idents.next()) {
-            let program = self.to_identifier(&program_token);
-            let type_name = self.to_identifier(&name_token);
-            let span = Span::new(program.span.lo, type_name.span.hi);
-            let path = leo_ast::Path::new(Some(program), Vec::new(), type_name, span, self.builder.next_id());
+            // Convert program token into Identifier
+            let program_ident = self.to_identifier(&program_token);
+            let type_ident = self.to_identifier(&name_token);
+
+            // Find KW_ALEO in the tokens — required
+            let kw_aleo_token =
+                tokens(node).find(|t| t.kind() == KW_ALEO).expect("TYPE_LOCATOR should contain `aleo` keyword");
+
+            let network_ident = leo_ast::Identifier {
+                name: Symbol::intern("aleo"),
+                span: self.token_span(&kw_aleo_token),
+                id: self.builder.next_id(),
+            };
+
+            // ProgramId always has network
+            let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
+
+            let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
+            let path = leo_ast::Path::new(Some(program_id), Vec::new(), type_ident, path_span, self.builder.next_id());
 
             // Extract const arguments from CONST_ARG_LIST child node
             let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
-
-            return Ok(leo_ast::CompositeType { path, const_arguments }.into());
+            Ok(leo_ast::CompositeType { path, const_arguments }.into())
+        } else {
+            panic!("TYPE_LOCATOR should contain both a program and type identifier: {:?}", node.text())
         }
-
-        // program.aleo without /Type — single IDENT before `.aleo`
-        let text = node.text().to_string();
-        if text.ends_with(".aleo") {
-            let program_str = text.trim_end_matches(".aleo").trim();
-            let span = self.content_span(node);
-
-            let program = leo_ast::Identifier { name: Symbol::intern(program_str), span, id: self.builder.next_id() };
-
-            // Just the program name, no type - this is a program ID reference
-            let path = leo_ast::Path::new(Some(program), Vec::new(), program, span, self.builder.next_id());
-            return Ok(leo_ast::CompositeType { path, const_arguments: Vec::new() }.into());
-        }
-
-        panic!("TYPE_LOCATOR should contain .aleo: {:?}", text);
     }
 
     /// Convert a TYPE_PATH node to a Type.
@@ -1170,9 +1172,24 @@ impl<'a> ConversionContext<'a> {
         let program_token = idents.next().expect("locator should have program IDENT");
         let name_token = idents.next().expect("locator should have name IDENT");
 
-        let program = self.to_identifier(&program_token);
+        // Convert program token into Identifier
+        let program_ident = self.to_identifier(&program_token);
+
+        // Detect `KW_ALEO` — required
+        let kw_aleo_token = tokens(node).find(|t| t.kind() == KW_ALEO).expect("locator should have `aleo` keyword");
+
+        let network_ident = leo_ast::Identifier {
+            name: Symbol::intern("aleo"),
+            span: self.token_span(&kw_aleo_token),
+            id: self.builder.next_id(),
+        };
+
+        // Wrap into ProgramId — network is never None
+        let program = leo_ast::ProgramId { name: program_ident, network: network_ident };
+
+        // Name identifier (type name)
         let name = self.to_identifier(&name_token);
-        let path_span = Span::new(program.span.lo, name.span.hi);
+        let path_span = Span::new(program.name.span.lo, name.span.hi);
 
         Ok(leo_ast::Path::new(Some(program), Vec::new(), name, path_span, self.builder.next_id()))
     }
@@ -1709,6 +1726,37 @@ impl<'a> ConversionContext<'a> {
         Ok(())
     }
 
+    /// Collect a single library item (just a const for now) into the given vectors.
+    fn collect_library_item(
+        &self,
+        item: &SyntaxNode,
+        consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
+    ) -> Result<()> {
+        if item.kind() == GLOBAL_CONST {
+            let global_const = self.to_global_const(item)?;
+            consts.push((global_const.place.name, global_const));
+        } else if matches!(
+            item.kind(),
+            FUNCTION_DEF
+                | FINAL_FN_DEF
+                | STRUCT_DEF
+                | RECORD_DEF
+                | INTERFACE_DEF
+                | MAPPING_DEF
+                | STORAGE_DEF
+                | CONSTRUCTOR_DEF
+                | PROGRAM_DECL
+                | IMPORT
+        ) {
+            let span = self.to_span(item);
+            self.handler.emit_err(ParserError::custom("Only `const` declarations are allowed in a library.", span));
+        } else {
+            // Other node kinds (e.g. ERROR nodes from CST-level parse failures) are
+            // already reported by the rowan parser; nothing to do here.
+        }
+        Ok(())
+    }
+
     /// Convert a syntax node to a module.
     fn to_module(&self, node: &SyntaxNode, program_name: Symbol, path: Vec<Symbol>) -> Result<leo_ast::Module> {
         // Module nodes are ROOT nodes containing items (functions, structs, consts, interfaces)
@@ -1766,8 +1814,8 @@ impl<'a> ConversionContext<'a> {
         for child in children(node) {
             match child.kind() {
                 IMPORT => {
-                    let (name, span) = self.import_to_name(&child)?;
-                    imports.insert(name, span);
+                    let program_id = self.import_to_program_id(&child)?;
+                    imports.insert(program_id.as_symbol(), program_id);
                 }
                 PROGRAM_DECL => {
                     if program_name.is_some() {
@@ -1831,8 +1879,10 @@ impl<'a> ConversionContext<'a> {
         // Sort functions: entry points first
         functions.sort_by_key(|func| if func.1.variant.is_entry() { 0u8 } else { 1u8 });
 
+        let program_id = leo_ast::ProgramId { name: program_name, network };
+        let program_id_as_symbol = program_id.as_symbol();
         let program_scope = leo_ast::ProgramScope {
-            program_id: leo_ast::ProgramId { name: program_name, network },
+            program_id,
             parents,
             consts,
             composites,
@@ -1848,33 +1898,56 @@ impl<'a> ConversionContext<'a> {
             imports,
             modules: indexmap::IndexMap::new(),
             stubs: indexmap::IndexMap::new(),
-            program_scopes: vec![(program_name.name, program_scope)].into_iter().collect(),
+            program_scopes: vec![(program_id_as_symbol, program_scope)].into_iter().collect(),
         })
     }
 
-    /// Extract name and span from an IMPORT node.
-    fn import_to_name(&self, node: &SyntaxNode) -> Result<(Symbol, Span)> {
+    /// Convert a syntax node to a library (`lib.leo` file).
+    fn to_library(&self, name: Symbol, node: &SyntaxNode) -> Result<leo_ast::Library> {
+        // A library file contains only top-level `const` declarations.
+        let mut consts = Vec::new();
+
+        for child in children(node) {
+            self.collect_library_item(&child, &mut consts)?;
+        }
+
+        Ok(leo_ast::Library { name, consts })
+    }
+
+    /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.
+    fn import_to_program_id(&self, node: &SyntaxNode) -> Result<leo_ast::ProgramId> {
         debug_assert_eq!(node.kind(), IMPORT);
         let span = self.to_span(node);
 
-        // Import format: import name.aleo;
-        // Find the IDENT token
-        let name = match tokens(node).find(|t| t.kind() == IDENT) {
-            Some(name_token) => Symbol::intern(name_token.text()),
+        // Extract the first IDENT as the program name
+        let program_name_text = match tokens(node).find(|t| t.kind() == IDENT) {
+            Some(name_token) => name_token.text().to_string(),
             None => {
                 self.emit_unexpected_str("import name", node.text(), span);
-                Symbol::intern("_error")
+                "_error".to_string()
             }
         };
 
-        // Validate the network suffix is `.aleo`.
+        // Check if KW_ALEO exists in tokens
+        let network_span = tokens(node).find(|t| t.kind() == KW_ALEO).map(|t| self.token_span(&t)).unwrap_or(span); // fallback span if missing
+
+        let program_id = leo_ast::ProgramId {
+            name: leo_ast::Identifier { name: Symbol::intern(&program_name_text), span, id: self.builder.next_id() },
+            network: leo_ast::Identifier {
+                name: Symbol::intern("aleo"),
+                span: network_span,
+                id: self.builder.next_id(),
+            },
+        };
+
+        // Extra validation: if no KW_ALEO token but there is some invalid network, emit error
         if tokens(node).all(|t| t.kind() != KW_ALEO)
             && let Some(net_token) = find_invalid_network(node)
         {
             self.handler.emit_err(ParserError::invalid_network(self.token_span(&net_token)));
         }
 
-        Ok((name, span))
+        Ok(program_id)
     }
 
     /// Extract program name and network from a PROGRAM_DECL node.
@@ -2608,7 +2681,7 @@ pub fn parse_module(
 }
 
 /// Parses a complete program with its modules into a Program AST.
-pub fn parse(
+pub fn parse_program(
     handler: Handler,
     node_builder: &NodeBuilder,
     source: &SourceFile,
@@ -2659,15 +2732,26 @@ pub fn parse(
     Ok(program)
 }
 
-/// Creates a new AST from a given file path and source code text.
-pub fn parse_ast(
+/// Parses a complete library into a Library AST.
+pub fn parse_library(
     handler: Handler,
     node_builder: &NodeBuilder,
+    library_name: Symbol,
     source: &SourceFile,
-    modules: &[std::rc::Rc<SourceFile>],
-    network: NetworkName,
-) -> Result<leo_ast::Ast> {
-    Ok(leo_ast::Ast::new(parse(handler, node_builder, source, modules, network)?))
+    _network: NetworkName,
+) -> Result<leo_ast::Library> {
+    // Parse `lib.leo` library file
+    let parse = leo_parser_rowan::parse_file(&source.src);
+    let main_context = conversion_context(
+        &handler,
+        node_builder,
+        parse.lex_errors(),
+        parse.errors(),
+        source.absolute_start,
+        source.src.len() as u32,
+    );
+
+    main_context.to_library(library_name, &parse.syntax())
 }
 
 // =============================================================================

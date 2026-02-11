@@ -1,0 +1,5 @@
+--- add lib_b as dependency of lib_a ---
+--- add lib_a as dependency of lib_b (creates cycle) ---
+--- leo build lib_a (should fail: circular dependency) ---
+Error [EUTL03710004]: Circular dependency detected
+
