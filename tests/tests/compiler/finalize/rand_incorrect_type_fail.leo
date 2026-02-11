@@ -4,7 +4,7 @@ program test.aleo {
     mapping values: scalar => group;
 
     fn foo() -> Final {
-        return finalize_foo();
+        return final { finalize_foo(); };
     }
 }
 

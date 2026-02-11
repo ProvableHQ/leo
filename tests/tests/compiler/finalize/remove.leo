@@ -4,7 +4,8 @@ program test.aleo {
     mapping balances: address => u32;
 
     fn foo() -> Final {
-        return finalize_foo(self.caller);
+        let caller = self.caller;
+        return final { finalize_foo(caller); };
     }
 }
 

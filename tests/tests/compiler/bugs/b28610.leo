@@ -4,7 +4,8 @@ program b28610.aleo {
     }
 
     fn foo() -> Final {
-        return bar(self.signer);
+        let signer = self.signer;
+        return final { bar(signer); };
     }
 }
 

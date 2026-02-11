@@ -1,13 +1,3 @@
-Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:6:15
-     |
-   6 |        return adder(a, b);
-     |               ^^^^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:8:16
-     |
-   8 |         return subber(a, b);
-     |                ^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

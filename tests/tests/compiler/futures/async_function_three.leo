@@ -8,7 +8,7 @@ final fn finalize(x: u8) {
 
 program dependent.aleo {
     fn t1() -> Final {
-        let f: Final = finalize(1u8);
+        let f: Final = final { finalize(1u8); };
         return f;
     }
 }
@@ -24,7 +24,7 @@ final fn finalize(f: Final) {
 program dependent2.aleo {
     fn t1() -> Final {
         let f: Final = dependent.aleo/t1();
-        return finalize(f);
+        return final { finalize(f); };
     }
 }
 
@@ -39,7 +39,6 @@ final fn finalize(f: Final) {
 program test.aleo {
     fn t1() -> Final {
         let f: Final = dependent2.aleo/t1();
-        assert_eq(1u8, f.0.0);
-        return finalize(f);
+        return final { finalize(f); };
     }
 }

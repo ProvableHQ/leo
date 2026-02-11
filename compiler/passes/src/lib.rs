@@ -47,9 +47,6 @@ pub use disambiguate::*;
 mod flattening;
 pub use flattening::*;
 
-mod force_inline_conversion;
-pub use force_inline_conversion::*;
-
 mod function_inlining;
 pub use function_inlining::*;
 

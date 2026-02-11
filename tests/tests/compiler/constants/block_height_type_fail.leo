@@ -4,6 +4,6 @@ final fn bar() {
 
 program test.aleo {
     fn foo() -> Final {
-        return bar();
+        return final { bar(); };
     }
 }

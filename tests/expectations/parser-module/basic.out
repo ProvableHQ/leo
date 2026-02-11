@@ -119,7 +119,7 @@
       "foo",
       {
         "annotations": [],
-        "variant": "Inline",
+        "variant": "Fn",
         "identifier": {
           "name": "foo",
           "span": {
@@ -381,7 +381,7 @@
       "foo",
       {
         "annotations": [],
-        "variant": "Inline",
+        "variant": "Fn",
         "identifier": {
           "name": "foo",
           "span": {
@@ -413,7 +413,7 @@
       "bar",
       {
         "annotations": [],
-        "variant": "Inline",
+        "variant": "Fn",
         "identifier": {
           "name": "bar",
           "span": {

@@ -2,7 +2,7 @@ program test.aleo {
     mapping foo: u32 => u32;
     fn main_inner(public a: u32, b: u32) -> (u32, Final) {
         let c: u32 = a + b;
-        let f: Final = finalize();
+        let f: Final = final { finalize(); };
         return (c, f);
     }
 }
@@ -18,7 +18,7 @@ program basic.aleo {
     fn main(public a: u32, b: u32) -> (u32, Final) {
         let c: u32 = a + b;
         let (d, f1): (u32, Final) = test.aleo/main_inner(1u32, 1u32);
-        let f:Final = finalize(c, f1);
+        let f:Final = final { finalize(c, f1); };
         return (c,f);
     }
 }

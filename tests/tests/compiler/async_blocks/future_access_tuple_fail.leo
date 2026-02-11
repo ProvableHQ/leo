@@ -5,7 +5,7 @@ program credits.aleo {
     }
 
     fn transfer_private_to_public(input: credits, addr: address, amount:u64) -> (credits, Final) {
-        let f: Final = finalize();
+        let f: Final = final { finalize(); };
         return (input, f);
     }
 }

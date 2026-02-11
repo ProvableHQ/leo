@@ -4,7 +4,7 @@ program relay.aleo {
 
     fn send(addr: address) -> Final {
         let a: u32 = relay.aleo/users;
-        return finalize_send(addr);
+        return final { finalize_send(addr); };
     }
 }
 

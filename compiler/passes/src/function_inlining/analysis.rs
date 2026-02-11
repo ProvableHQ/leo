@@ -26,20 +26,13 @@ pub struct AnalysisVisitor {
     current_variant: Option<Variant>,
     /// Whether we're currently inside a constructor
     in_constructor: bool,
-    /// Whether we're currently inside an async block.
-    in_async_block: bool,
     /// Functions called from functions, inline, constructors or async blocks.
     pub functions_to_inline: IndexSet<Vec<Symbol>>,
 }
 
 impl AnalysisVisitor {
     pub fn new() -> Self {
-        Self {
-            current_variant: None,
-            in_async_block: false,
-            in_constructor: false,
-            functions_to_inline: IndexSet::new(),
-        }
+        Self { current_variant: None, in_constructor: false, functions_to_inline: IndexSet::new() }
     }
 }
 
@@ -51,8 +44,7 @@ impl AstVisitor for AnalysisVisitor {
         // Extract the function path segments
         let callee_path = input.function.segments();
 
-        if matches!(self.current_variant, Some(Variant::AsyncFunction | Variant::Inline | Variant::Function))
-            || self.in_async_block
+        if matches!(self.current_variant, Some(Variant::Finalize | Variant::FinalFn | Variant::Fn))
             || self.in_constructor
         {
             self.functions_to_inline.insert(callee_path.clone());
@@ -66,11 +58,8 @@ impl AstVisitor for AnalysisVisitor {
         });
     }
 
-    fn visit_async(&mut self, input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        let was_in_async = self.in_async_block;
-        self.in_async_block = true;
-        self.visit_block(&input.block);
-        self.in_async_block = was_in_async;
+    fn visit_async(&mut self, _input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        panic!("Async blocks should no longer exist at this point in compilation");
     }
 
     fn visit_err(&mut self, _input: &ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {

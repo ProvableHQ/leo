@@ -3,11 +3,13 @@ program child.aleo {
     mapping count: address => field;
 
     fn foo() -> Final {
-        return finalize_foo(self.caller);
+        let caller = self.caller;
+        return final { finalize_foo(caller); };
     }
 
     fn boo() -> Final {
-        return finalize_boo(self.caller);
+        let caller = self.caller;
+        return final { finalize_boo(caller); };
     }
  }
 

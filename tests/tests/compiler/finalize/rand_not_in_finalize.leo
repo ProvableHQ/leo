@@ -5,7 +5,7 @@ program test.aleo {
 
     fn foo() -> Final {
         let a: scalar = ChaCha::rand_scalar();
-        return finalize_foo(a);
+        return final { finalize_foo(a); };
     }
 }
 

@@ -15,7 +15,7 @@ program finalize.aleo {
     fn value() {}
 
     fn output() -> Final {
-        return finalize();
+        return final { finalize(); };
     }
 
     fn main(f: Foo) -> Foo {

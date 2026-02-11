@@ -22,7 +22,7 @@ program test.aleo {
         msg_array: [u32; 2],
         msg_array2: [u64; 4]
     ) -> Final {
-        return finalize(sig, addr, addr_eth, digest, msg_u32, msg_u64, msg_u128, msg_array, msg_array2);
+        return final { finalize(sig, addr, addr_eth, digest, msg_u32, msg_u64, msg_u128, msg_array, msg_array2); };
     }
 }
 

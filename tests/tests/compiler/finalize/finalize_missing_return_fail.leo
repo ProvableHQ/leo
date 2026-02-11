@@ -4,7 +4,7 @@ program test.aleo {
     mapping account: address => u64;
 
     fn mint_public(public receiver: address, public amount: u64) -> Final {
-        return fin_mint(receiver, amount);
+        return final { fin_mint(receiver, amount); };
     }
 }
 

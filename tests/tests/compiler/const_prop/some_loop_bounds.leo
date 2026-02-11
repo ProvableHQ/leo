@@ -14,6 +14,6 @@ final fn foo() {
 program test.aleo {
     mapping m: u32 => u32;
     fn main() -> Final {
-        return foo();
+        return final { foo(); };
     }
 }

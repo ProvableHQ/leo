@@ -72,7 +72,7 @@ program basic_bank.aleo {
         // Compute the hash of the token owner.
         let hash: field = BHP256::hash_to_field(token.owner);
 
-        return (remaining, finalize_deposit(hash, amount));
+        return (remaining, final { finalize_deposit(hash, amount); });
     }
 
     // Returns a new Token containing the amount of money withdrawn.
@@ -92,7 +92,7 @@ program basic_bank.aleo {
             amount: total,
         };
 
-        return (token, finalize_withdraw(hash, amount));
+        return (token, final { finalize_withdraw(hash, amount); });
     }
 
 }

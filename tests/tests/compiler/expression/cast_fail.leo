@@ -14,7 +14,7 @@ program test.aleo {
         // Cannot cast a tuple.
         let e: (field, field) = (a, a);
         let f: field = e as field;
-        return finalize_main(a);
+        return final { finalize_main(a); };
     }
 }
 

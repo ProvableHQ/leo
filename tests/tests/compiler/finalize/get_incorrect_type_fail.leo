@@ -9,7 +9,8 @@ program test.aleo {
     mapping tokens: address => Token;
 
     fn decrease_self(amount: u128) -> Final {
-        return finalize_decrease_self(self.caller, amount);
+        let caller = self.caller;
+        return final { finalize_decrease_self(caller, amount); };
     }
 }
 

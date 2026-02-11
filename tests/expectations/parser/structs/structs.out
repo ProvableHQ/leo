@@ -258,7 +258,7 @@
           "main",
           {
             "annotations": [],
-            "variant": "Transition",
+            "variant": "EntryPoint",
             "identifier": {
               "name": "main",
               "span": {

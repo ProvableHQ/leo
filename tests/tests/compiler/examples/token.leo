@@ -57,7 +57,7 @@ program token.aleo {
     // The function `mint_public` issues the specified token amount for the token receiver publicly on the network.
     fn mint_public(public receiver: address, public amount: u64) -> Final {
         // Mint the tokens publicly by invoking the computation on-chain.
-        return finalize_mint_public(receiver, amount);
+        return final { finalize_mint_public(receiver, amount); };
     }
     // The function `mint_private` initializes a new record with the specified amount of tokens for the receiver.
     fn mint_private(receiver: address, amount: u64) -> token {
@@ -70,7 +70,8 @@ program token.aleo {
     /* Transfer */
     fn transfer_public(public receiver: address, public amount: u64) -> Final {
         // Transfer the tokens publicly, by invoking the computation on-chain.
-        return finalize_tr_public(self.caller, receiver, amount);
+        let caller = self.caller;
+        return final { finalize_tr_public(caller, receiver, amount); };
     }
     // The function `transfer_private` sends the specified token amount to the token receiver from the specified token record.
     fn transfer_private(sender: token, receiver: address, amount: u64) -> (token, token) {
@@ -111,7 +112,7 @@ program token.aleo {
 
         // Output the sender's change record.
         // Increment the token amount publicly for the token receiver.
-        return (remaining, finalize_tr_private_to_public(receiver, amount));
+        return (remaining, final { finalize_tr_private_to_public(receiver, amount); });
     }
     // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
     // This function preserves privacy for the receiver's record, however it publicly reveals the caller and the specified token amount.
@@ -124,6 +125,7 @@ program token.aleo {
 
         // Output the receiver's record.
         // Decrement the token amount of the caller publicly.
-        return (transferred, finalize_tr_public_to_private(self.caller, amount));
+        let caller = self.caller;
+        return (transferred, final { finalize_tr_public_to_private(caller, amount); });
     }
 }

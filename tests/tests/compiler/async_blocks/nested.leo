@@ -29,7 +29,6 @@ program test.aleo {
     fn main(a:u32)-> (u32, Final) {
         let (y,f): (test_dep.aleo/yeets, Final) = test_dep.aleo/main_dep(10u32);
         let (y2,f2): (test_dep.aleo/yeets, Final) = test_dep.aleo/main_dep(1u32);
-        let val:u32 = f.0;
         let b = 1u32;
         // captures `b` then `f` then `f2`
         let f3: Final = final {
@@ -42,12 +41,10 @@ program test.aleo {
                 Mapping::set(ayo, 1u32, 1u32);
             }
 
-            let total: u32 = f.0 + f2.0;
-            Mapping::set(ayo, 1u32, total);
+            Mapping::set(ayo, 1u32, a);
         };
 
-        let total: u32 = f.0 + f2.0 + 1u32;
-        return (total + val + f.0*2u32, f3);
+        return (a, f3);
     }
 }
 
@@ -77,8 +74,7 @@ import test_dep.aleo;
 program big_wrapper.aleo {
     fn main(public a: u32, b: u32) -> (u32, Final){
         let (val, f): (u32, Final) = wrapper.aleo/main(10u32, 10u32);
-        let f2:Final = finalize_main(f);
-        return (f2.0.0.1.0, f2);
+        return (val, final { finalize_main(f); });
     }
 }
 

@@ -31,7 +31,7 @@
           "inf",
           {
             "annotations": [],
-            "variant": "Function",
+            "variant": "Fn",
             "identifier": {
               "name": "inf",
               "span": {
@@ -116,7 +116,7 @@
           "main",
           {
             "annotations": [],
-            "variant": "Function",
+            "variant": "Fn",
             "identifier": {
               "name": "main",
               "span": {

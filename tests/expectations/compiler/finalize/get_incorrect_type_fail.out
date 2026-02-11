@@ -4,22 +4,22 @@ Error [ETYC0372031]: A mapping's value cannot be a record
    9 |     mapping tokens: address => Token;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `address` but type `bool` was found.
-    --> compiler-test:17:26
+    --> compiler-test:18:26
      |
-  17 |     Mapping::get(tokens, true);
+  18 |     Mapping::get(tokens, true);
      |                          ^^^^
 Error [ETYC0372117]: Expected type `address` but type `bool` was found.
-    --> compiler-test:18:16
+    --> compiler-test:19:16
      |
-  18 |     tokens.get(true);
+  19 |     tokens.get(true);
      |                ^^^^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:19:27
+    --> compiler-test:20:27
      |
-  19 |     Mapping::get(amounts, 1u8);
+  20 |     Mapping::get(amounts, 1u8);
      |                           ^^^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:20:17
+    --> compiler-test:21:17
      |
-  20 |     amounts.get(1u8);
+  21 |     amounts.get(1u8);
      |                 ^^^

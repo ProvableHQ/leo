@@ -62,7 +62,7 @@ program test.aleo {
     }
 
     fn f_record() -> (R, Final) {
-        let fut: Final = f_finalize(1u8);
+        let fut: Final = final { f_finalize(1u8); };
         let r: R = R {
             owner: self.signer,
             x: 1u8,

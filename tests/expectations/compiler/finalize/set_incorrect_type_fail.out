@@ -1,40 +1,40 @@
 Error [ETYC0372117]: Expected type `test.aleo/Token` but type `u128` was found.
-    --> compiler-test:17:32
+    --> compiler-test:18:32
      |
-  17 |     Mapping::set(tokens, addr, amount);
+  18 |     Mapping::set(tokens, addr, amount);
      |                                ^^^^^^
 Error [ETYC0372117]: Expected type `test.aleo/Token` but type `u128` was found.
-    --> compiler-test:18:22
+    --> compiler-test:19:22
      |
-  18 |     tokens.set(addr, amount);
+  19 |     tokens.set(addr, amount);
      |                      ^^^^^^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:19:27
+    --> compiler-test:20:27
      |
-  19 |     Mapping::set(amounts, 1u8, amount);
+  20 |     Mapping::set(amounts, 1u8, amount);
      |                           ^^^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:20:17
+    --> compiler-test:21:17
      |
-  20 |     amounts.set(1u8, amount);
+  21 |     amounts.set(1u8, amount);
      |                 ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:21:33
+    --> compiler-test:22:33
      |
-  21 |     Mapping::set(amounts, addr, 1u8);
+  22 |     Mapping::set(amounts, addr, 1u8);
      |                                 ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:22:23
+    --> compiler-test:23:23
      |
-  22 |     amounts.set(addr, 1u8);
+  23 |     amounts.set(addr, 1u8);
      |                       ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:23:66
+    --> compiler-test:24:66
      |
-  23 |     Mapping::set(tokens, addr, Token { owner_addr: addr, amount: 1u8 });
+  24 |     Mapping::set(tokens, addr, Token { owner_addr: addr, amount: 1u8 });
      |                                                                  ^^^
 Error [ETYC0372117]: Expected type `u128` but type `u8` was found.
-    --> compiler-test:24:56
+    --> compiler-test:25:56
      |
-  24 |     tokens.set(addr, Token { owner_addr: addr, amount: 1u8 });
+  25 |     tokens.set(addr, Token { owner_addr: addr, amount: 1u8 });
      |                                                        ^^^

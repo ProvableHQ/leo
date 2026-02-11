@@ -4,7 +4,7 @@ program const_generics.aleo {
     }
 
     fn main2() -> Final {
-        return foo();
+        return final { foo(); };
     }
 }
 

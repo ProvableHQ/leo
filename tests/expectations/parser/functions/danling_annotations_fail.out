@@ -48,7 +48,7 @@
                 "id": 1
               }
             ],
-            "variant": "Function",
+            "variant": "Fn",
             "identifier": {
               "name": "test",
               "span": {

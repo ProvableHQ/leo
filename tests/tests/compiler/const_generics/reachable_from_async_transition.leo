@@ -1,6 +1,6 @@
 program const_generics.aleo {
     fn foo() -> (field, Final) {
-        let f = bar();
+        let f = final { bar(); };
         return (abc::[0](), f);
     }
 }

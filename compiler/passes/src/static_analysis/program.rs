@@ -46,12 +46,12 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         // Set `non_async_external_call_seen` to false.
         self.non_async_external_call_seen = false;
 
-        if matches!(self.variant, Some(Variant::AsyncFunction) | Some(Variant::AsyncTransition)) {
+        if self.variant.is_some_and(|v| v.is_onchain()) | function.has_final_output() {
             super::future_checker::future_check_function(function, &self.state.type_table, &self.state.handler);
         }
 
         // If the function is an async function, initialize the await checker.
-        if self.variant == Some(Variant::AsyncFunction) {
+        if self.variant.is_some_and(|v| v.is_onchain()) {
             // Initialize the list of input futures. Each one must be awaited before the end of the function.
             self.await_checker.set_futures(
                 function
@@ -67,7 +67,7 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         self.visit_block(&function.block);
 
         // Check that all futures were awaited exactly once.
-        if self.variant == Some(Variant::AsyncFunction) {
+        if self.variant.is_some_and(|v| v.is_onchain()) {
             // Throw error if not all futures awaits even appear once.
             if !self.await_checker.static_to_await.is_empty() {
                 self.emit_err(StaticAnalyzerError::future_awaits_missing(

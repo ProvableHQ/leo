@@ -32,7 +32,8 @@ program zero_program.aleo {
   mapping counts: address => u64;
 
   fn c() -> Final {
-    return finalize_c(self.signer);
+    let signer = self.signer;
+    return final { finalize_c(signer); };
   }
 
   @noupgrade
@@ -53,7 +54,8 @@ program one_program.aleo {
   mapping counts: address => u64;
 
   fn d() -> Final {
-    return finalize_d(self.signer);
+    let signer = self.signer;
+    return final { finalize_d(signer); };
   }
 
   @noupgrade
@@ -82,7 +84,8 @@ program two_program.aleo {
   fn b() -> Final {
     let f0: Final = zero_program.aleo/c();
     let f1: Final = one_program.aleo/d();
-    return finalize_b(f0, f1, self.signer);
+    let signer = self.signer;
+    return final { finalize_b(f0, f1, signer); };
   }
 
   @noupgrade
@@ -114,7 +117,8 @@ program three_program.aleo {
     let f0: Final = two_program.aleo/b();
     let f1: Final = one_program.aleo/d();
     let f2: Final = zero_program.aleo/c();
-    return finalize_e(f0, f1, f2, self.signer);
+    let signer = self.signer;
+    return final { finalize_e(f0, f1, f2, signer); };
   }
 
   @noupgrade
@@ -143,7 +147,8 @@ program four_program.aleo {
   fn a() -> Final {
     let f0: Final = two_program.aleo/b();
     let f1: Final = three_program.aleo/e();
-    return finalize_a(f0, f1, self.signer);
+    let signer = self.signer;
+    return final { finalize_a(f0, f1, signer); };
   }
 
   @noupgrade

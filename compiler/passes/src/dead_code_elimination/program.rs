@@ -31,9 +31,9 @@ impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
                 let call_count = *self.state.call_count.get(&location).unwrap();
 
                 match fun.variant {
-                    Function => call_count > 0,
-                    Inline => false,
-                    Transition | AsyncTransition | AsyncFunction | Script => true,
+                    Fn => call_count > 0,
+                    FinalFn => false,
+                    EntryPoint | Finalize | Script => true,
                 }
             })
             .collect::<Vec<_>>()

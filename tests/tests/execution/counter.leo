@@ -46,11 +46,13 @@ program test.aleo {
     mapping counter: address => u64;
 
     fn dubble() -> Final {
-        return finalize_dubble(self.caller);
+        let caller = self.caller;
+        return final { finalize_dubble(caller); };
     }
 
     fn unsafe_increment() -> Final {
-        return finalize_unsafe_increment(self.caller);
+        let caller = self.caller;
+        return final { finalize_unsafe_increment(caller); };
     }
 
     @noupgrade

@@ -31,7 +31,7 @@
           "mint",
           {
             "annotations": [],
-            "variant": "Transition",
+            "variant": "EntryPoint",
             "identifier": {
               "name": "mint",
               "span": {
@@ -126,7 +126,7 @@
                 "id": 9
               }
             ],
-            "variant": "Function",
+            "variant": "Fn",
             "identifier": {
               "name": "foo",
               "span": {
@@ -189,7 +189,7 @@
                 "id": 15
               }
             ],
-            "variant": "Function",
+            "variant": "Fn",
             "identifier": {
               "name": "test",
               "span": {
@@ -252,7 +252,7 @@
                 "id": 21
               }
             ],
-            "variant": "Function",
+            "variant": "Fn",
             "identifier": {
               "name": "foo",
               "span": {

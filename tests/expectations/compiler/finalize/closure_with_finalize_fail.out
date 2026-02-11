@@ -10,13 +10,11 @@ Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or
      |
    7 |     return finalize_bar(a, b);
      |            ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372101]: Can only make an async call from an async transition.
+Error [ETYC0372003]: Expected type `Future<Fn()>` but type `u8` was found
     --> compiler-test:7:12
      |
    7 |     return finalize_bar(a, b);
      |            ^^^^^^^^^^^^^^^^^^
-     |
-     = Move the async call inside of the async transition block.
 Error [ETYC0372106]: An async function is not allowed to return a value.
     --> compiler-test:14:1
      |
@@ -35,18 +33,18 @@ Error [ETYC0372110]: Only `async transition` can return a future.
      |                                                   ^^^^^
      |
      = Use an `async transition` instead.
+Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
+    --> compiler-test:20:12
+     |
+  20 |     return final { finalize_mint(receiver, amount); };
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Try moving this `async` block into an `async` transition or a script function.
 Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:20:12
+    --> compiler-test:20:20
      |
-  20 |     return finalize_mint(receiver, amount);
-     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372101]: Can only make an async call from an async transition.
-    --> compiler-test:20:12
-     |
-  20 |     return finalize_mint(receiver, amount);
-     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move the async call inside of the async transition block.
+  20 |     return final { finalize_mint(receiver, amount); };
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

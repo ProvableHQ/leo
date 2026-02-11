@@ -2,7 +2,7 @@ program test.aleo {
     mapping foo: u32 => u32;
 
     fn main_inner(public a: u32, public b: u32) -> Final {
-        return finalize(a, b);
+        return final { finalize(a, b); };
     }
     fn baz(a: u32, b: u32) -> u32 {
         return a + b;
@@ -31,7 +31,7 @@ program basic.aleo {
         let sum3: u32 = test.aleo/baz(a, b);
         assert_eq(sum3, 1u32);
 
-        let f:Final = finalize(f1, f2);
+        let f:Final = final { finalize(f1, f2); };
         return f;
     }
 }

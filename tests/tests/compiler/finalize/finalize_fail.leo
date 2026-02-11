@@ -4,13 +4,13 @@ program test.aleo {
     mapping values: u8 => u8;
 
     fn mint_public(public receiver: address, public amount: u64) -> Final {
-        return finalize_mint_public(receiver, amount);
+        return final { finalize_mint_public(receiver, amount); };
     }
     fn public_adder(public a: u8, public b: u8) -> Final {
-        return finalize_public_adder(a, b);
+        return final { finalize_public_adder(a, b); };
     }
     fn finalize_no_params() -> Final {
-        return finalize_no_params();
+        return final { finalize_no_params(); };
     }
 }
 
