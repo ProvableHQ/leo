@@ -222,7 +222,7 @@ mod validate {
                 );
 
                 let result = compiler
-                    .parse(&source, FileName::Custom(name.into()), &[])
+                    .parse_program(&source, FileName::Custom(name.into()), &[])
                     .and_then(|_| compiler.intermediate_passes().map(|_| ()));
 
                 if let Err(e) = result {

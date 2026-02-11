@@ -33,6 +33,9 @@ pub struct SymbolTable {
     /// Maps a program to the list of programs it imports
     imports: IndexMap<Symbol, IndexSet<Symbol>>,
 
+    /// Names of all the external libraries
+    pub libraries: IndexSet<Symbol>,
+
     /// Functions indexed by location.
     functions: IndexMap<Location, FunctionSymbol>,
 
@@ -40,7 +43,7 @@ pub struct SymbolTable {
     records: IndexMap<Location, Composite>,
 
     /// Structs indexed by a path.
-    structs: IndexMap<Location, Composite>,
+    pub structs: IndexMap<Location, Composite>,
 
     /// Interfaces indexed by a path.
     interfaces: IndexMap<Location, Interface>,
@@ -175,6 +178,14 @@ impl SymbolTable {
     /// Returns an iterator over all import relationships.
     pub fn iter_imports(&self) -> impl Iterator<Item = (&Symbol, &IndexSet<Symbol>)> {
         self.imports.iter()
+    }
+
+    pub fn add_as_library(&mut self, library: Symbol) {
+        self.libraries.insert(library);
+    }
+
+    pub fn is_library(&self, name: Symbol) -> bool {
+        self.libraries.contains(&name)
     }
 
     /// Check if `target` program is visible from `current` program.

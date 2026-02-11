@@ -20,6 +20,7 @@ use leo_ast::{
     ConstParameter,
     Function,
     Input,
+    Library,
     Location,
     Module,
     Output,
@@ -27,6 +28,7 @@ use leo_ast::{
     ProgramReconstructor,
     ProgramScope,
     Statement,
+    Stub,
 };
 use leo_span::Symbol;
 
@@ -54,6 +56,31 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
             }
         }
 
+        for (_, stub) in &input.stubs {
+            match stub {
+                Stub::FromLibrary { library, .. } => {
+                    self.program = library.name;
+                    for (_, c) in &library.composites {
+                        let new_composite = self.reconstruct_composite(c.clone());
+                        self.reconstructed_composites
+                            .insert(Location::new(library.name, vec![new_composite.name()]), new_composite);
+                    }
+
+                    for (module_path, module) in &library.modules {
+                        self.program = module.program_name;
+                        for (_, c) in &module.composites {
+                            let full_name =
+                                module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
+                            let new_composite = self.reconstruct_composite(c.clone());
+                            self.reconstructed_composites
+                                .insert(Location::new(module.program_name, full_name), new_composite.clone());
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+
         // Now we're ready to reconstruct everything else.
         Program {
             modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
@@ -64,6 +91,26 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                 .into_iter()
                 .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
                 .collect(),
+        }
+    }
+
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        self.program = input.name;
+        Library {
+            name: input.name,
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
+            imports: input.imports,
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+            composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
         }
     }
 
@@ -129,7 +176,7 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
                 .filter_map(|(loc, c)| {
                     loc.path
                         .split_last()
-                        .filter(|(_, rest)| *rest == input.path && loc.program == slf.program)
+                        .filter(|(_, rest)| *rest == input.path && loc.program == input.program_name)
                         .map(|(last, _)| (*last, c.clone()))
                 })
                 .collect(),

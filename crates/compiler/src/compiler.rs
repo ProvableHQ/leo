@@ -21,7 +21,7 @@
 use crate::{AstSnapshots, CompilerOptions};
 
 pub use leo_ast::{Ast, Program};
-use leo_ast::{NetworkName, NodeBuilder, Stub};
+use leo_ast::{Library, NetworkName, NodeBuilder, Stub};
 use leo_errors::{CompilerError, Handler, Result};
 use leo_passes::*;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
@@ -77,7 +77,7 @@ impl Compiler {
         self.state.network
     }
 
-    pub fn parse(&mut self, source: &str, filename: FileName, modules: &[(&str, FileName)]) -> Result<()> {
+    pub fn parse_program(&mut self, source: &str, filename: FileName, modules: &[(&str, FileName)]) -> Result<()> {
         // Register the source in the source map.
         let source_file = with_session_globals(|s| s.source_map.new_source(source, filename.clone()));
 
@@ -88,7 +88,7 @@ impl Compiler {
             .collect::<Vec<_>>();
 
         // Use the parser to construct the abstract syntax tree (ast).
-        self.state.ast = leo_parser::parse_ast(
+        let program = leo_parser::parse_program(
             self.state.handler.clone(),
             &self.state.node_builder,
             &source_file,
@@ -98,7 +98,7 @@ impl Compiler {
 
         // Check that the name of its program scope matches the expected name.
         // Note that parsing enforces that there is exactly one program scope in a file.
-        let program_scope = self.state.ast.ast.program_scopes.values().next().unwrap();
+        let program_scope = program.program_scopes.values().next().unwrap();
         if let Some(program_name) = &self.program_name {
             if program_name != &program_scope.program_id.name.to_string() {
                 return Err(CompilerError::program_name_should_match_file_name(
@@ -120,6 +120,8 @@ impl Compiler {
             self.program_name = Some(program_scope.program_id.name.to_string());
         }
 
+        self.state.ast = Ast::Program(program);
+
         if self.compiler_options.initial_ast {
             self.write_ast_to_json("initial.json")?;
             self.write_ast("initial.ast")?;
@@ -136,9 +138,41 @@ impl Compiler {
         modules: &[(&str, FileName)],
     ) -> Result<Program> {
         // Parse the program.
-        self.parse(source, filename, modules)?;
+        self.parse_program(source, filename, modules)?;
 
-        Ok(self.state.ast.ast.clone())
+        match &self.state.ast {
+            Ast::Program(program) => Ok(program.clone()),
+            Ast::Library(_) => unreachable!("expected Program AST"),
+        }
+    }
+
+    pub fn parse_library(
+        &mut self,
+        library_name: Symbol,
+        source: &str,
+        filename: FileName,
+        modules: &[(&str, FileName)],
+    ) -> Result<()> {
+        // Register the source in the source map.
+        let source_file = with_session_globals(|s| s.source_map.new_source(source, filename.clone()));
+
+        // Register the sources of all the modules in the source map.
+        let modules = modules
+            .iter()
+            .map(|(source, filename)| with_session_globals(|s| s.source_map.new_source(source, filename.clone())))
+            .collect::<Vec<_>>();
+
+        // Use the parser to construct the abstract syntax tree (ast).
+        self.state.ast = Ast::Library(leo_parser::parse_library(
+            self.state.handler.clone(),
+            &self.state.node_builder,
+            library_name,
+            &source_file,
+            &modules,
+            self.state.network,
+        )?);
+
+        Ok(())
     }
 
     /// Returns a new Leo compiler.
@@ -207,12 +241,11 @@ impl Compiler {
     pub fn intermediate_passes(&mut self) -> Result<(leo_abi::Program, IndexMap<String, leo_abi::Program>)> {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
-        self.frontend_passes()?;
-
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
 
         // Generate ABIs after monomorphization to capture concrete types.
         // Const generic structs are resolved to their monomorphized versions.
+
         let abis = self.generate_abi();
 
         self.do_pass::<StorageLowering>(type_checking_config.clone())?;
@@ -254,20 +287,24 @@ impl Compiler {
     /// Returns `(primary_abi, import_abis)` where `import_abis` maps program
     /// names to their ABIs.
     fn generate_abi(&self) -> (leo_abi::Program, IndexMap<String, leo_abi::Program>) {
-        // Generate primary ABI (pruning happens inside generate).
-        let primary_abi = leo_abi::generate(&self.state.ast.ast);
+        let program = match &self.state.ast {
+            Ast::Program(program) => program,
+            Ast::Library(_) => unreachable!("expected Program AST"),
+        };
 
-        // Generate import ABIs from stubs.
-        let import_abis: IndexMap<String, leo_abi::Program> = self
-            .state
-            .ast
-            .ast
+        // Generate primary ABI (pruning happens inside generate).
+        let primary_abi = leo_abi::generate(program);
+
+        // Generate import ABIs from stubs (ignore libraries).
+        let import_abis: IndexMap<String, leo_abi::Program> = program
             .stubs
             .iter()
+            .filter(|(_, stub)| !matches!(stub, Stub::FromLibrary { .. }))
             .map(|(name, stub)| {
                 let abi = match stub {
                     Stub::FromLeo { program, .. } => leo_abi::generate(program),
                     Stub::FromAleo { program, .. } => leo_abi::aleo::generate(program),
+                    Stub::FromLibrary { .. } => unreachable!("filtered out"),
                 };
                 (name.to_string(), abi)
             })
@@ -292,9 +329,12 @@ impl Compiler {
     /// * `Err(CompilerError)` if any stage of the pipeline fails.
     pub fn compile(&mut self, source: &str, filename: FileName, modules: &Vec<(&str, FileName)>) -> Result<Compiled> {
         // Parse the program.
-        self.parse(source, filename, modules)?;
+        self.parse_program(source, filename, modules)?;
         // Merge the stubs into the AST.
         self.add_import_stubs()?;
+        // `leo check` passes
+        self.frontend_passes()?;
+
         // Run the intermediate compiler stages, which also generates ABIs.
         let (primary_abi, import_abis) = self.intermediate_passes()?;
         // Run code generation.
@@ -318,6 +358,15 @@ impl Compiler {
             .collect();
 
         Ok(Compiled { primary, imports })
+    }
+
+    pub fn check(&mut self, source: &str, filename: FileName, modules: &Vec<(&str, FileName)>) -> Result<()> {
+        // Parse the program.
+        self.parse_program(source, filename, modules)?;
+        // Merge the stubs into the AST.
+        self.add_import_stubs()?;
+        // `leo check` passes
+        self.frontend_passes()
     }
 
     /// Reads the main source file and all module files in the same directory tree.
@@ -381,8 +430,24 @@ impl Compiler {
         self.compile(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)
     }
 
+    /// Compiles a program from a source file and its associated module files in the same directory tree.
+    pub fn check_from_directory(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+    ) -> Result<()> {
+        let (source, modules_owned) = Self::read_sources_and_modules(&entry_file_path, &source_directory)?;
+
+        // Convert owned module sources into temporary (&str, FileName) tuples.
+        let module_refs: Vec<(&str, FileName)> =
+            modules_owned.iter().map(|(src, fname)| (src.as_str(), fname.clone())).collect();
+
+        // Compile the main source along with all collected modules.
+        self.check(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)
+    }
+
     /// Parses a program from a source file and its associated module files in the same directory tree.
-    pub fn parse_from_directory(
+    pub fn parse_program_from_directory(
         &mut self,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
@@ -394,34 +459,45 @@ impl Compiler {
             modules_owned.iter().map(|(src, fname)| (src.as_str(), fname.clone())).collect();
 
         // Parse the main source along with all collected modules.
-        self.parse(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)?;
-        Ok(self.state.ast.ast.clone())
+        self.parse_program(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)?;
+
+        match &self.state.ast {
+            Ast::Program(program) => Ok(program.clone()),
+            Ast::Library(_) => unreachable!("expected Program AST"),
+        }
+    }
+
+    /// Parses a program from a source file and its associated module files in the same directory tree.
+    pub fn parse_library_from_directory(
+        &mut self,
+        library_name: Symbol,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+    ) -> Result<Library> {
+        let (source, modules_owned) = Self::read_sources_and_modules(&entry_file_path, &source_directory)?;
+
+        // Convert owned module sources into temporary (&str, FileName) tuples.
+        let module_refs: Vec<(&str, FileName)> =
+            modules_owned.iter().map(|(src, fname)| (src.as_str(), fname.clone())).collect();
+
+        // Parse the main source along with all collected modules.
+        self.parse_library(library_name, &source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)?;
+
+        match &self.state.ast {
+            Ast::Library(library) => Ok(library.clone()),
+            Ast::Program(_) => unreachable!("expected Library AST"),
+        }
     }
 
     /// Writes the AST to a JSON file.
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
-        // Remove `Span`s if they are not enabled.
-        if self.compiler_options.ast_spans_enabled {
-            self.state.ast.to_json_file(
-                self.output_directory.clone(),
-                &format!("{}.{file_suffix}", self.program_name.as_ref().unwrap()),
-            )?;
-        } else {
-            self.state.ast.to_json_file_without_keys(
-                self.output_directory.clone(),
-                &format!("{}.{file_suffix}", self.program_name.as_ref().unwrap()),
-                &["_span", "span"],
-            )?;
-        }
+        // TODO
         Ok(())
     }
 
     /// Writes the AST to a file (Leo syntax, not JSON).
     fn write_ast(&self, file_suffix: &str) -> Result<()> {
-        let filename = format!("{}.{file_suffix}", self.program_name.as_ref().unwrap());
-        let full_filename = self.output_directory.join(&filename);
-        let contents = self.state.ast.ast.to_string();
-        fs::write(&full_filename, contents).map_err(|e| CompilerError::failed_ast_file(full_filename.display(), e))?;
+        // TODO
         Ok(())
     }
 
@@ -440,16 +516,22 @@ impl Compiler {
     /// * `Ok(())` if all imports are successfully resolved and stubs are collected.
     /// * `Err(CompilerError)` if any imported program cannot be found.
     pub fn add_import_stubs(&mut self) -> Result<()> {
+        // Borrow imports depending on the AST root.
+        let imports = match &self.state.ast {
+            Ast::Program(program) => &program.imports,
+            Ast::Library(library) => &library.imports,
+        };
+
         // Track which programs we've already processed.
         let mut explored = IndexSet::<Symbol>::new();
 
-        // Initialize the exploration queue with the main program’s direct imports.
-        let mut to_explore: Vec<Symbol> = self.state.ast.ast.imports.keys().cloned().collect();
+        // Initialize the exploration queue with the root’s direct imports.
+        let mut to_explore: Vec<Symbol> = imports.keys().cloned().collect();
 
         // If this is a named program, set the main program as the parent of its direct imports.
         if let Some(main_program_name) = self.program_name.clone() {
             let main_symbol = Symbol::intern(&main_program_name);
-            for import in self.state.ast.ast.imports.keys() {
+            for import in imports.keys() {
                 if let Some(child_stub) = self.import_stubs.get_mut(import) {
                     child_stub.add_parent(main_symbol);
                 }
@@ -466,7 +548,7 @@ impl Compiler {
                 return Err(CompilerError::imported_program_not_found(
                     self.program_name.as_ref().unwrap(),
                     import_symbol,
-                    self.state.ast.ast.imports[&import_symbol],
+                    imports[&import_symbol],
                 )
                 .into());
             };
@@ -484,14 +566,18 @@ impl Compiler {
             }
         }
 
-        // Iterate in the order of `import_stubs` to make sure they
-        // stay topologically sorted.
-        self.state.ast.ast.stubs = self
-            .import_stubs
-            .iter()
-            .filter(|(symbol, _stub)| explored.contains(*symbol))
-            .map(|(symbol, stub)| (*symbol, stub.clone()))
-            .collect();
+        // Only Programs store stubs on the AST.
+        if let Ast::Program(program) = &mut self.state.ast {
+            // Iterate in the order of `import_stubs` to make sure they
+            // stay topologically sorted.
+            program.stubs = self
+                .import_stubs
+                .iter()
+                .filter(|(symbol, _)| explored.contains(*symbol))
+                .map(|(symbol, stub)| (*symbol, stub.clone()))
+                .collect();
+        }
+
         Ok(())
     }
 }

@@ -54,7 +54,10 @@ impl Pass for CodeGenerating {
             composite_mapping: Default::default(),
             global_mapping: Default::default(),
             variant: None,
-            program: &state.ast.ast,
+            program: match &state.ast {
+                leo_ast::Ast::Program(program) => &program,
+                leo_ast::Ast::Library(_) => unreachable!("expected Program AST"),
+            },
             program_id: None,
             finalize_caller: None,
             next_label: 0,

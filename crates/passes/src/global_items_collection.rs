@@ -42,6 +42,7 @@ use leo_ast::{
     Function,
     FunctionStub,
     Interface,
+    Library,
     Location,
     Mapping,
     MappingType,
@@ -191,6 +192,15 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
         {
             self.state.handler.emit_err(err);
         }
+    }
+
+    fn visit_library(&mut self, input: &Library) {
+        self.program_name = input.name;
+
+        input.modules.values().for_each(|module| self.visit_module(module));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+        input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {

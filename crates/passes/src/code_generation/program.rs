@@ -41,7 +41,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
     pub fn visit_program(&mut self, input: &'a Program) -> AleoProgram {
         // Dependencies of the program. Already arranged in post order by Retriever module.
 
-        let imports = input.stubs.iter().map(|(program_name, _)| program_name.to_string()).collect();
+        let imports = input
+            .stubs
+            .iter()
+            .filter_map(|(program_name, stub)| if stub.is_library() { None } else { Some(program_name.to_string()) })
+            .collect();
 
         // Retrieve the program scope.
         // Note that type checking guarantees that there is exactly one program scope.
@@ -57,14 +61,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let this_program = self.program_id.unwrap().name.name;
 
         let lookup = |loc: &Location| {
-            if loc.program == this_program {
-                self.state
-                    .symbol_table
-                    .lookup_struct(this_program, loc)
-                    .or_else(|| self.state.symbol_table.lookup_record(this_program, loc))
-            } else {
-                None
-            }
+            self.state
+                .symbol_table
+                .lookup_struct(this_program, loc)
+                .or_else(|| self.state.symbol_table.lookup_record(this_program, loc))
         };
 
         // Add each `struct` or `record` in the post-ordering and produce an Aleo struct or record.
@@ -144,8 +144,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
         self.composite_mapping.insert(loc.clone(), false); // todo: private by default here.
 
         // todo: check if this is safe from name conflicts.
-        let name = Self::legalize_path(&loc.path)
-            .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", loc.path.iter().join("::")));
+        let name = Self::legalize_path(
+            if loc.program == self.program_id.unwrap().name.name { None } else { Some(loc.program) },
+            &loc.path,
+        )
+        .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", loc.path.iter().join("::")));
 
         // Construct and append the record variables.
         let fields = struct_
@@ -378,7 +381,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
     }
 
     fn visit_mapping(&mut self, mapping: &'a Mapping) -> AleoMapping {
-        let legalized_mapping_name = Self::legalize_path(&[mapping.identifier.name]);
+        let legalized_mapping_name = Self::legalize_path(None, &[mapping.identifier.name]);
         // Create the prefix of the mapping string, e.g. `mapping foo:`.
         let name = legalized_mapping_name
             .clone()

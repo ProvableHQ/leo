@@ -141,6 +141,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     let imports_directory = package.imports_directory();
     let source_directory = package.source_directory();
     let main_source_path = source_directory.join("main.leo");
+    let lib_source_path = source_directory.join("lib.leo");
 
     for dir in [&outputs_directory, &build_directory, &imports_directory] {
         std::fs::create_dir_all(dir).map_err(|err| {
@@ -250,20 +251,47 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         std::fs::write(&abi_path, abi_json).map_err(CliError::failed_to_write_abi)?;
                         tracing::info!("✅ Generated ABI at '{BUILD_DIRECTORY}/{ABI_FILENAME}'.");
                     }
+                } else if source == &lib_source_path {
+                    // Just parse the library for now. More to come later.
+                    parse_leo_source_directory_library(
+                        source,
+                        &source_dir,
+                        program.name,
+                        &handler,
+                        &node_builder,
+                        command.options.clone(),
+                        network,
+                    )?;
                 }
 
-                // Parse intermediate dependencies only.
-                let leo_program = parse_leo_source_directory(
-                    source,
-                    &source_dir,
-                    program.name,
-                    &handler,
-                    &node_builder,
-                    command.options.clone(),
-                    network,
-                )?;
-
-                stubs.insert(program.name, leo_program.into());
+                if program.is_library {
+                    // Parse intermediate dependencies only.
+                    let leo_library = parse_leo_source_directory_library(
+                        source,
+                        &source_dir,
+                        program.name,
+                        &handler,
+                        &node_builder,
+                        command.options.clone(),
+                        network,
+                    )?;
+                    stubs.insert(program.name, Stub::FromLibrary {
+                        library: leo_library,
+                        parents: indexmap::IndexSet::new(),
+                    });
+                } else {
+                    // Parse intermediate dependencies only.
+                    let leo_program = parse_leo_source_directory(
+                        source,
+                        &source_dir,
+                        program.name,
+                        &handler,
+                        &node_builder,
+                        command.options.clone(),
+                        network,
+                    )?;
+                    stubs.insert(program.name, leo_program.into());
+                }
             }
         }
     }
@@ -395,7 +423,7 @@ fn parse_leo_source_directory(
     );
 
     // Parse the Leo program into an AST.
-    compiler.parse_from_directory(entry_file_path, source_directory)
+    compiler.parse_program_from_directory(entry_file_path, source_directory)
 }
 
 /// Validates compiled Aleo bytecode by loading all programs into a snarkVM `Process`.
@@ -430,4 +458,30 @@ fn validate_compiled_programs_inner<N: snarkvm::prelude::Network>(
     }
 
     Ok(())
+}
+
+/// Parses a Leo file into an AST without generating bytecode.
+fn parse_leo_source_directory_library(
+    entry_file_path: &Path,
+    source_directory: &Path,
+    library_name: Symbol,
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+    options: BuildOptions,
+    network: NetworkName,
+) -> Result<leo_ast::Library> {
+    // Create a new instance of the Leo compiler.
+    let mut compiler = Compiler::new(
+        Some(library_name.to_string()),
+        false,
+        handler.clone(),
+        Rc::clone(node_builder),
+        std::path::PathBuf::default(),
+        Some(options.into()),
+        IndexMap::new(),
+        network,
+    );
+
+    // Parse the Leo program into an AST.
+    compiler.parse_library_from_directory(library_name, entry_file_path, source_directory)
 }

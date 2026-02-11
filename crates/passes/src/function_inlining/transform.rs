@@ -88,8 +88,11 @@ impl ProgramReconstructor for TransformVisitor<'_> {
         let functions = core::mem::take(&mut self.reconstructed_functions)
             .iter()
             .filter_map(|(loc, f)| {
-                // Only consider functions defined at program scope. The rest are not relevant since they should all
-                // have been inlined by now.
+                // Only consider functions defined at program scope and in the current program.
+                if loc.program != self.program {
+                    return None;
+                }
+
                 loc.path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, f.clone()))
             })
             .collect();
@@ -168,6 +171,30 @@ impl ProgramReconstructor for TransformVisitor<'_> {
                 self.function_map.insert(location, f);
             });
 
+        input.stubs.iter().for_each(|(name, stub)| match stub {
+            Stub::FromLibrary { library, .. } => {
+                library
+                    .modules
+                    .iter()
+                    .flat_map(|(module_path, m)| {
+                        m.functions.iter().map(move |(name, f)| {
+                            let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
+                            (Location::new(library.name, path), f.clone())
+                        })
+                    })
+                    .chain(
+                        library
+                            .functions
+                            .iter()
+                            .map(move |(name, f)| (Location::new(library.name, vec![*name]), f.clone())),
+                    )
+                    .for_each(|(location, f)| {
+                        self.function_map.insert(location, f);
+                    });
+            }
+            _ => {}
+        });
+
         // Reconstruct program scopes. Inline functions defined in modules will be traversed
         // using the call graph and reconstructed in the right order.
         let program_scopes =
@@ -186,10 +213,14 @@ impl ProgramReconstructor for TransformVisitor<'_> {
                         (name, Stub::FromLeo { program: processed_program, parents })
                     }
                     // FromAleo stubs don't have Leo AST, so nothing to inline
-                    other @ Stub::FromAleo { .. } => (name, other),
+                    other @ Stub::FromAleo { .. } | other @ Stub::FromLibrary { .. } => (name, other),
                 }
             })
             .collect();
+
+        let libraries = self.state.symbol_table.libraries.clone();
+
+        libraries.iter().for_each(|lib| self.state.symbol_table.add_import(self.program, *lib));
 
         Program { program_scopes, stubs, ..input }
     }
@@ -202,9 +233,9 @@ impl AstReconstructor for TransformVisitor<'_> {
     /* Expressions */
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // Type checking guarantees that only functions local to the program scope can be inlined.
-        if input.function.expect_global_location().program != self.program {
-            return (input.into(), Default::default());
-        }
+        //if input.function.expect_global_location().program != self.program {
+        //    return (input.into(), Default::default());
+        //}
 
         // Lookup the reconstructed callee function.
         // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
@@ -224,6 +255,9 @@ impl AstReconstructor for TransformVisitor<'_> {
             Variant::FinalFn => true,
             // Always inline module functions
             _ if function_location.program == self.program && function_location.path.len() > 1 => true,
+
+            // Always inline library functions
+            _ if self.state.symbol_table.is_library(function_location.program) => true,
 
             // Respect @no_inline for other variants
             _ if callee.annotations.iter().any(|a| a.identifier.name == sym::no_inline) => false,
@@ -278,7 +312,7 @@ impl AstReconstructor for TransformVisitor<'_> {
 
             // Run SSA formation on the inlined block and rename definitions. Renaming is necessary to avoid shadowing variables.
             let mut inlined_statements =
-                SsaFormingVisitor::new(self.state, SsaFormingInput { rename_defs: true }, self.program)
+                SsaFormingVisitor::new(self.state, SsaFormingInput { rename_defs: true }, function_location.program)
                     .consume_block(reconstructed_block);
 
             // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.

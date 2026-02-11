@@ -25,6 +25,7 @@ use leo_ast::{
     Function,
     FunctionStub,
     Input,
+    Library,
     Member,
     Module,
     Output,
@@ -43,6 +44,27 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
             mappings: input.mappings,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
             span: input.span,
+        }
+    }
+
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        self.program = input.name;
+
+        Library {
+            name: input.name,
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
+            imports: input.imports,
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+            composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
         }
     }
 

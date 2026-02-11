@@ -92,7 +92,10 @@ impl Pass for Monomorphization {
             unresolved_composite_types: Vec::new(),
             changed: false,
         };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+        ast = match ast {
+            leo_ast::Ast::Program(program) => leo_ast::Ast::Program(visitor.reconstruct_program(program)),
+            leo_ast::Ast::Library(_) => unreachable!("expected Program AST"),
+        };
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
 

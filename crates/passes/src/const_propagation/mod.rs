@@ -75,7 +75,10 @@ impl Pass for ConstPropagation {
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
         };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+        ast = match ast {
+            leo_ast::Ast::Program(program) => leo_ast::Ast::Program(visitor.reconstruct_program(program)),
+            leo_ast::Ast::Library(_) => unreachable!("expected Program AST"),
+        };
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(ConstPropagationOutput {

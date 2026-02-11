@@ -25,6 +25,8 @@ use leo_ast::{
     Function,
     FunctionConsumer,
     Identifier,
+    Library,
+    LibraryConsumer,
     Member,
     Module,
     ModuleConsumer,
@@ -167,6 +169,26 @@ impl StubConsumer for SsaFormingVisitor<'_> {
         match input {
             Stub::FromLeo { program, .. } => self.consume_program(program).into(),
             Stub::FromAleo { .. } => input,
+            Stub::FromLibrary { library, parents } => {
+                Stub::FromLibrary { library: self.consume_library(library), parents }
+            }
+        }
+    }
+}
+
+impl LibraryConsumer for SsaFormingVisitor<'_> {
+    type Output = Library;
+
+    fn consume_library(&mut self, input: Library) -> Self::Output {
+        self.program = input.name;
+        Library {
+            name: input.name,
+            modules: input.modules.into_iter().map(|(path, module)| (path, self.consume_module(module))).collect(),
+            imports: input.imports,
+            consts: input.consts,
+            composites: input.composites.into_iter().map(|(i, s)| (i, self.consume_composite(s))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+            interfaces: input.interfaces,
         }
     }
 }
