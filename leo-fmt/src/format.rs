@@ -17,599 +17,552 @@
 //! Formatting logic for Leo source code.
 
 use crate::output::Output;
-use leo_parser_lossless::{ExpressionKind, IntegerLiteralKind, LiteralKind, StatementKind, SyntaxKind, SyntaxNode};
-
-/// Returns true if this operator token requires surrounding spaces.
-fn is_spaced_operator(text: &str) -> bool {
-    matches!(
-        text,
-        // Binary arithmetic
-        "+" | "-" | "*" | "/" | "%" | "**" |
-        // Binary logical
-        "&&" | "||" |
-        // Binary bitwise
-        "&" | "|" | "^" | "<<" | ">>" |
-        // Binary comparison
-        "<" | ">" | "<=" | ">=" | "==" | "!=" |
-        // Assignment (simple and compound)
-        "=" | "+=" | "-=" | "*=" | "/=" | "%=" | "**=" |
-        "<<=" | ">>=" | "&=" | "|=" | "^=" | "&&=" | "||=" |
-        // Range
-        ".."
-    )
-}
+use leo_parser_rowan::{
+    SyntaxElement,
+    SyntaxKind::{self, *},
+    SyntaxNode,
+    SyntaxToken,
+};
 
 /// Format any syntax node.
 pub fn format_node(node: &SyntaxNode, out: &mut Output) {
-    match &node.kind {
+    match node.kind() {
         // Top-level
-        SyntaxKind::MainContents => format_main(node, out),
-        SyntaxKind::ProgramDeclaration => format_program(node, out),
-        SyntaxKind::ModuleContents => format_module_contents(node, out),
+        ROOT => format_root(node, out),
+        PROGRAM_DECL => format_program(node, out),
 
         // Declarations
-        SyntaxKind::Function | SyntaxKind::Constructor => format_function(node, out),
-        SyntaxKind::CompositeDeclaration => format_composite(node, out),
-        SyntaxKind::Import => format_import(node, out),
-        SyntaxKind::Mapping => format_mapping(node, out),
-        SyntaxKind::Storage => format_storage(node, out),
-        SyntaxKind::GlobalConst => format_global_const(node, out),
-        SyntaxKind::Annotation => format_annotation(node, out),
-        SyntaxKind::AnnotationList => format_annotation_list(node, out),
-        SyntaxKind::AnnotationMember => format_annotation_member(node, out),
-        SyntaxKind::ParameterList => format_parameter_list(node, out),
-        SyntaxKind::Parameter => format_parameter(node, out),
-        SyntaxKind::FunctionOutputs => format_function_outputs(node, out),
-        SyntaxKind::FunctionOutput => format_function_output(node, out),
-        SyntaxKind::ConstParameter => format_const_parameter(node, out),
-        SyntaxKind::ConstParameterList => format_const_parameter_list(node, out),
-        SyntaxKind::ConstArgumentList => format_const_argument_list(node, out),
-        SyntaxKind::CompositeMemberDeclarationList => format_composite_member_list(node, out),
-        SyntaxKind::CompositeMemberDeclaration => format_composite_member(node, out),
+        FUNCTION_DEF | CONSTRUCTOR_DEF => format_function(node, out),
+        STRUCT_DEF | RECORD_DEF => format_composite(node, out),
+        IMPORT => format_import(node, out),
+        MAPPING_DEF => format_mapping(node, out),
+        STORAGE_DEF => format_storage(node, out),
+        GLOBAL_CONST => format_global_const(node, out),
+        ANNOTATION => format_annotation(node, out),
+        PARAM_LIST => format_parameter_list(node, out),
+        PARAM => format_parameter(node, out),
+        RETURN_TYPE => format_return_type(node, out),
+        CONST_PARAM => format_const_parameter(node, out),
+        CONST_PARAM_LIST => format_const_parameter_list(node, out),
+        CONST_ARG_LIST => format_const_argument_list(node, out),
+        STRUCT_MEMBER => format_struct_member(node, out),
 
         // Statements
-        SyntaxKind::Statement(StatementKind::Block) => format_block(node, out),
-        SyntaxKind::Statement(StatementKind::Return) => format_return(node, out),
-        SyntaxKind::Statement(StatementKind::Definition) => format_definition(node, out),
-        SyntaxKind::Statement(StatementKind::Const) => format_const_stmt(node, out),
-        SyntaxKind::Statement(StatementKind::Assign) => format_assign(node, out),
-        SyntaxKind::Statement(StatementKind::Conditional) => format_conditional(node, out),
-        SyntaxKind::Statement(StatementKind::Iteration) => format_iteration(node, out),
-        SyntaxKind::Statement(StatementKind::Assert) => format_assert(node, out, "assert"),
-        SyntaxKind::Statement(StatementKind::AssertEq) => format_assert_eq(node, out),
-        SyntaxKind::Statement(StatementKind::AssertNeq) => format_assert_neq(node, out),
-        SyntaxKind::Statement(StatementKind::Expression) => format_expr_stmt(node, out),
+        BLOCK => format_block(node, out),
+        RETURN_STMT => format_return(node, out),
+        LET_STMT => format_definition(node, out),
+        CONST_STMT => format_const_stmt(node, out),
+        ASSIGN_STMT => format_assign(node, out),
+        IF_STMT => format_conditional(node, out),
+        FOR_STMT => format_iteration(node, out),
+        ASSERT_STMT => format_assert(node, out),
+        ASSERT_EQ_STMT => format_assert_pair(node, out, "assert_eq"),
+        ASSERT_NEQ_STMT => format_assert_pair(node, out, "assert_neq"),
+        EXPR_STMT => format_expr_stmt(node, out),
 
         // Expressions
-        SyntaxKind::Expression(ExpressionKind::Literal(_)) => format_literal(node, out),
-        SyntaxKind::Expression(ExpressionKind::Call) => format_call(node, out),
-        SyntaxKind::Expression(ExpressionKind::Binary) => format_binary(node, out),
-        SyntaxKind::Expression(ExpressionKind::Path) => format_path(node, out),
-        SyntaxKind::Expression(ExpressionKind::Unary) => format_unary(node, out),
-        SyntaxKind::Expression(ExpressionKind::Ternary) => format_ternary(node, out),
-        SyntaxKind::Expression(ExpressionKind::MethodCall) => format_method_call(node, out),
-        SyntaxKind::Expression(ExpressionKind::AssociatedFunctionCall) => format_assoc_call(node, out),
-        SyntaxKind::Expression(ExpressionKind::AssociatedConstant) => format_assoc_const(node, out),
-        SyntaxKind::Expression(ExpressionKind::Composite) => format_composite_expr(node, out),
-        SyntaxKind::Expression(ExpressionKind::ArrayAccess) => format_array_access(node, out),
-        SyntaxKind::Expression(ExpressionKind::TupleAccess) => format_tuple_access(node, out),
-        SyntaxKind::Expression(ExpressionKind::MemberAccess) => format_member_access(node, out),
-        SyntaxKind::Expression(ExpressionKind::Cast) => format_cast(node, out),
-        SyntaxKind::Expression(ExpressionKind::Array) => format_array_expr(node, out),
-        SyntaxKind::Expression(ExpressionKind::Tuple) => format_tuple_expr(node, out),
-        SyntaxKind::Expression(ExpressionKind::Parenthesized) => format_parenthesized(node, out),
-        SyntaxKind::Expression(ExpressionKind::Repeat) => format_repeat_expr(node, out),
-        SyntaxKind::Expression(ExpressionKind::Async) => format_async_expr(node, out),
-        SyntaxKind::Expression(ExpressionKind::Intrinsic) => format_intrinsic(node, out),
-        SyntaxKind::Expression(ExpressionKind::SpecialAccess) => format_special_access(node, out),
-        SyntaxKind::Expression(ExpressionKind::Unit) => out.write("()"),
-        SyntaxKind::CompositeMemberInitializer => format_composite_member_init(node, out),
+        LITERAL => format_literal(node, out),
+        CALL_EXPR => format_call(node, out),
+        BINARY_EXPR => format_binary(node, out),
+        PATH_EXPR => format_path(node, out),
+        UNARY_EXPR => format_unary(node, out),
+        TERNARY_EXPR => format_ternary(node, out),
+        FIELD_EXPR => format_field_expr(node, out),
+        INDEX_EXPR => format_index_expr(node, out),
+        CAST_EXPR => format_cast(node, out),
+        ARRAY_EXPR => format_array_expr(node, out),
+        TUPLE_EXPR => format_tuple_expr(node, out),
+        PAREN_EXPR => format_parenthesized(node, out),
+        STRUCT_EXPR => format_struct_expr(node, out),
+        STRUCT_FIELD_INIT => format_struct_field_init(node, out),
+        ASYNC_EXPR => format_async_expr(node, out),
+        LOCATOR_EXPR => format_locator_expr(node, out),
+
+        // Patterns
+        IDENT_PATTERN => format_ident_pattern(node, out),
+        TUPLE_PATTERN => format_tuple_pattern(node, out),
+        WILDCARD_PATTERN => out.write("_"),
 
         // Types
-        SyntaxKind::Type(_) => format_type(node, out),
+        k if is_type_node(k) => format_type(node, out),
 
-        // Trivia
-        SyntaxKind::Whitespace | SyntaxKind::Linebreak => {}
-        SyntaxKind::CommentLine => {
-            out.space();
-            out.write(node.text.trim_end());
-            out.newline();
+        // Error nodes: emit the original text verbatim to avoid corrupting broken code.
+        ERROR => {
+            out.write(node.text().to_string().trim());
         }
-        SyntaxKind::CommentBlock => {
-            out.space();
-            out.write(node.text);
-        }
-        SyntaxKind::Token => {
-            out.write(node.text);
-            emit_trivia(&node.children, out);
+
+        _other => {
+            #[cfg(debug_assertions)]
+            eprintln!("[leo-fmt] unhandled node kind: {_other:?}");
         }
     }
 }
 
-/// Emit comments from a token's trailing trivia children.
-///
-/// Uses linebreaks in the trivia to distinguish trailing comments (same line)
-/// from standalone comments (own line). Whitespace trivia is ignored since
-/// the formatter controls all spacing.
-fn emit_trivia(children: &[SyntaxNode], out: &mut Output) {
-    let mut saw_linebreak = false;
-    for child in children {
-        match child.kind {
-            SyntaxKind::Linebreak => {
-                saw_linebreak = true;
-            }
-            SyntaxKind::CommentLine => {
-                if saw_linebreak {
-                    // Standalone comment — goes on its own line
-                    out.ensure_newline();
-                } else {
-                    // Trailing comment — stays on same line
-                    out.space();
-                }
-                out.write(child.text.trim_end());
-                out.newline();
-                saw_linebreak = false;
-            }
-            SyntaxKind::CommentBlock => {
-                if saw_linebreak {
-                    out.ensure_newline();
-                } else {
-                    out.space();
-                }
-                out.write(child.text);
-                saw_linebreak = false;
-            }
-            _ => {}
-        }
-    }
-}
+// =============================================================================
+// Top-level
+// =============================================================================
 
-fn format_main(node: &SyntaxNode, out: &mut Output) {
+fn format_root(node: &SyntaxNode, out: &mut Output) {
     let mut prev_was_import = false;
-    for child in &node.children {
-        let is_import = matches!(child.kind, SyntaxKind::Import);
-        if prev_was_import && !is_import {
-            out.newline();
+    let mut had_output = false;
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                COMMENT_LINE => {
+                    if had_output {
+                        out.ensure_newline();
+                    }
+                    out.write(tok.text().trim_end());
+                    out.newline();
+                    had_output = true;
+                }
+                COMMENT_BLOCK => {
+                    if had_output {
+                        out.ensure_newline();
+                    }
+                    out.write(tok.text());
+                    had_output = true;
+                }
+                _ => {} // skip WHITESPACE, LINEBREAK, etc.
+            },
+            SyntaxElement::Node(n) => {
+                let kind = n.kind();
+                if kind == IMPORT {
+                    format_import(&n, out);
+                    prev_was_import = true;
+                    had_output = true;
+                } else if kind == PROGRAM_DECL {
+                    if prev_was_import {
+                        out.newline();
+                    }
+                    format_program(&n, out);
+                    prev_was_import = false;
+                    had_output = true;
+                } else if kind == ANNOTATION {
+                    if prev_was_import {
+                        out.newline();
+                    }
+                    format_annotation(&n, out);
+                    prev_was_import = false;
+                    had_output = true;
+                } else if is_program_item(kind) {
+                    if prev_was_import {
+                        out.newline();
+                    }
+                    format_node(&n, out);
+                    prev_was_import = false;
+                    had_output = true;
+                } else if kind == ERROR {
+                    let text = n.text().to_string();
+                    let text = text.trim();
+                    if !text.is_empty() {
+                        if had_output {
+                            out.ensure_newline();
+                        }
+                        out.write(text);
+                        out.newline();
+                        prev_was_import = false;
+                        had_output = true;
+                    }
+                }
+            }
         }
-        format_node(child, out);
-        prev_was_import = is_import;
     }
-}
-
-fn is_program_item(kind: &SyntaxKind) -> bool {
-    matches!(
-        kind,
-        SyntaxKind::Function
-            | SyntaxKind::Constructor
-            | SyntaxKind::CompositeDeclaration
-            | SyntaxKind::Mapping
-            | SyntaxKind::Storage
-            | SyntaxKind::GlobalConst
-    )
 }
 
 fn format_program(node: &SyntaxNode, out: &mut Output) {
-    let item_count = node.children.iter().filter(|c| is_program_item(&c.kind)).count();
-    let mut item_idx = 0;
+    let elems = elements(node);
 
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "program" => {
-                out.write("program");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == "{" => {
-                out.space();
-                out.write("{");
-                if item_count > 0 {
-                    out.newline();
+    // Count "item groups" — an annotation followed by a declaration counts as one group
+    // with the declaration. Standalone annotations also count.
+    let children: Vec<_> = node.children().collect();
+    let mut item_group_count = 0;
+    {
+        let mut ci = 0;
+        while ci < children.len() {
+            let k = children[ci].kind();
+            if k == ANNOTATION {
+                // Skip contiguous annotations
+                while ci < children.len() && children[ci].kind() == ANNOTATION {
+                    ci += 1;
                 }
-                // Emit comments after opening brace (before first item).
-                out.indented(|out| {
-                    emit_trivia(&child.children, out);
-                });
+                // The following item is part of the same group
+                if ci < children.len() && is_program_item_non_annotation(children[ci].kind()) {
+                    ci += 1;
+                }
+                item_group_count += 1;
+            } else if is_program_item_non_annotation(k) || k == ERROR {
+                item_group_count += 1;
+                ci += 1;
+            } else {
+                ci += 1;
             }
-            SyntaxKind::Token if child.text == "}" => {
-                out.write("}");
-                out.newline();
+        }
+    }
+
+    // Write "program name.aleo {"
+    out.write("program");
+    out.space();
+
+    // Write the program ID tokens (name.aleo) between KW_PROGRAM and L_BRACE
+    let prog_idx = find_token_index(&elems, KW_PROGRAM).unwrap_or(0);
+    let lbrace_idx = find_token_index(&elems, L_BRACE).unwrap_or(elems.len());
+    for elem in elems[prog_idx + 1..lbrace_idx].iter() {
+        if let SyntaxElement::Token(tok) = elem {
+            let k = tok.kind();
+            if k != WHITESPACE && k != LINEBREAK {
+                out.write(tok.text());
             }
-            SyntaxKind::Token => out.write(child.text),
-            kind if is_program_item(kind) => {
-                out.indented(|out| {
-                    format_node(child, out);
-                    item_idx += 1;
-                    if item_idx < item_count {
-                        out.insert_newline_at_mark();
+        }
+    }
+
+    out.space();
+    out.write("{");
+    if item_group_count > 0 {
+        out.newline();
+    }
+
+    // Iterate children_with_tokens to handle items and comments in order
+    let mut item_group_idx = 0;
+    let mut after_lbrace = false;
+    let mut saw_linebreak = false;
+
+    for elem in &elems {
+        match elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                L_BRACE => {
+                    after_lbrace = true;
+                }
+                R_BRACE => {}
+                LINEBREAK => {
+                    saw_linebreak = true;
+                }
+                WHITESPACE => {}
+                COMMENT_LINE if after_lbrace => {
+                    out.indented(|out| {
+                        if saw_linebreak {
+                            out.ensure_newline();
+                        } else {
+                            out.space();
+                        }
+                        out.write(tok.text().trim_end());
+                        out.newline();
+                    });
+                    saw_linebreak = false;
+                }
+                COMMENT_BLOCK if after_lbrace => {
+                    out.indented(|out| {
+                        if saw_linebreak {
+                            out.ensure_newline();
+                        } else {
+                            out.space();
+                        }
+                        out.write(tok.text());
+                    });
+                    saw_linebreak = false;
+                }
+                _ => {}
+            },
+            SyntaxElement::Node(n) if after_lbrace => {
+                let kind = n.kind();
+                if kind == ANNOTATION {
+                    out.indented(|out| {
+                        format_annotation(n, out);
+                    });
+                    saw_linebreak = false;
+                } else if is_program_item_non_annotation(kind) {
+                    out.indented(|out| {
+                        format_node(n, out);
+                        item_group_idx += 1;
+                        if item_group_idx < item_group_count {
+                            out.insert_newline_at_mark();
+                        }
+                    });
+                    saw_linebreak = false;
+                } else if kind == ERROR {
+                    let text = n.text().to_string();
+                    let text = text.trim();
+                    if !text.is_empty() {
+                        out.indented(|out| {
+                            out.write(text);
+                            out.newline();
+                            out.set_mark();
+                            item_group_idx += 1;
+                            if item_group_idx < item_group_count {
+                                out.insert_newline_at_mark();
+                            }
+                        });
                     }
-                });
-            }
-            _ => {}
-        }
-    }
-}
-
-fn format_module_contents(node: &SyntaxNode, out: &mut Output) {
-    let item_count = node.children.iter().filter(|c| is_program_item(&c.kind)).count();
-    let mut item_idx = 0;
-
-    for child in &node.children {
-        match &child.kind {
-            kind if is_program_item(kind) => {
-                format_node(child, out);
-                item_idx += 1;
-                if item_idx < item_count {
-                    out.insert_newline_at_mark();
+                    saw_linebreak = false;
                 }
             }
             _ => {}
         }
     }
+
+    out.write("}");
+    out.newline();
 }
+
+fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
+    matches!(kind, FUNCTION_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | MAPPING_DEF | STORAGE_DEF | GLOBAL_CONST)
+}
+
+// =============================================================================
+// Declarations
+// =============================================================================
 
 fn format_function(node: &SyntaxNode, out: &mut Output) {
-    // Annotations first
-    for child in &node.children {
-        if matches!(child.kind, SyntaxKind::Annotation) {
-            format_node(child, out);
-        }
-    }
-    // Then the rest
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Annotation => {}
-            SyntaxKind::Token => match child.text {
-                "async" | "function" | "transition" | "inline" | "constructor" => {
-                    out.write(child.text);
-                    out.space();
+    // Emit leading comments (trivia that appears before the first keyword)
+    emit_leading_comments(node, out);
+
+    // Emit keywords: async, function/transition/inline/script/constructor, name
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_ASYNC | KW_FUNCTION | KW_TRANSITION | KW_INLINE | KW_SCRIPT | KW_CONSTRUCTOR => {
+                        out.write(tok.text());
+                        out.space();
+                    }
+                    IDENT => {
+                        out.write(tok.text());
+                    }
+                    COLON_COLON => {
+                        // Part of const params, handled by CONST_PARAM_LIST
+                    }
+                    ARROW => {
+                        out.space();
+                        out.write("->");
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
+                    _ => {}
                 }
-                "->" => {
-                    out.space();
-                    out.write("->");
-                    out.space();
-                }
-                _ => out.write(child.text),
-            },
-            SyntaxKind::ParameterList => format_parameter_list(child, out),
-            SyntaxKind::FunctionOutputs => format_function_outputs(child, out),
-            SyntaxKind::Statement(StatementKind::Block) => {
-                out.space();
-                format_block(child, out);
             }
-            _ => format_node(child, out),
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                match k {
+                    PARAM_LIST => format_parameter_list(&n, out),
+                    CONST_PARAM_LIST => format_const_parameter_list(&n, out),
+                    RETURN_TYPE => format_return_type(&n, out),
+                    BLOCK => {
+                        out.space();
+                        format_block(&n, out);
+                    }
+                    k if is_type_node(k) => {
+                        // Single return type (not wrapped in RETURN_TYPE)
+                        format_type(&n, out);
+                    }
+                    _ => {}
+                }
+            }
         }
     }
     out.ensure_newline();
 }
 
 fn format_annotation(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::AnnotationList => format_annotation_list(child, out),
-            _ => {}
+    let has_paren = has_token(node, L_PAREN);
+
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    AT => out.write("@"),
+                    L_PAREN => out.write("("),
+                    R_PAREN => out.write(")"),
+                    COMMA => {
+                        out.write(",");
+                        out.space();
+                    }
+                    EQ => {
+                        out.space();
+                        out.write("=");
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => {
+                        if has_paren || k == IDENT || k.is_keyword() {
+                            out.write(tok.text());
+                        }
+                    }
+                }
+            }
+            SyntaxElement::Node(_) => {}
         }
     }
     out.newline();
 }
 
 fn format_composite(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "struct" || child.text == "record" => {
-                out.write(child.text);
-                out.space();
+    let elems = elements(node);
+    let rbrace_idx = find_last_token_index(&elems, R_BRACE);
+
+    // Emit leading comments
+    emit_leading_comments(node, out);
+
+    // Write keyword and name
+    for elem in &elems {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_STRUCT | KW_RECORD => {
+                        out.write(tok.text());
+                        out.space();
+                    }
+                    IDENT => {
+                        out.write(tok.text());
+                        out.space();
+                    }
+                    COLON_COLON => {
+                        // Handled by CONST_PARAM_LIST
+                    }
+                    L_BRACE => {
+                        out.write("{");
+                        out.newline();
+                    }
+                    R_BRACE => {}
+                    COMMA => {}
+                    WHITESPACE | LINEBREAK => {}
+                    _ => {}
+                }
             }
-            SyntaxKind::Token => {
-                // Identifier
-                out.write(child.text);
-                out.space();
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                match k {
+                    CONST_PARAM_LIST => format_const_parameter_list(n, out),
+                    STRUCT_MEMBER => {
+                        out.indented(|out| {
+                            format_struct_member(n, out);
+                            out.write(",");
+                        });
+                        out.newline();
+                    }
+                    _ => {}
+                }
             }
-            SyntaxKind::CompositeMemberDeclarationList => {
-                format_composite_member_list(child, out);
-            }
-            _ => {}
         }
+    }
+    out.write("}");
+    out.set_mark();
+    // Emit comments after closing brace
+    if let Some(idx) = rbrace_idx {
+        emit_comments_after(&elems, idx, out);
     }
     out.ensure_newline();
 }
 
-fn format_composite_member_list(node: &SyntaxNode, out: &mut Output) {
-    let members: Vec<_> =
-        node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::CompositeMemberDeclaration)).collect();
-
-    let close_brace = node.children.iter().find(|c| c.kind == SyntaxKind::Token && c.text == "}");
-
-    out.write("{");
-    out.newline();
-    for member in &members {
-        out.indented(|out| {
-            format_composite_member(member, out);
-            out.write(",");
-        });
-        out.newline();
-    }
-    out.write("}");
-    out.set_mark();
-    // Emit comments that trail after the closing brace (between items).
-    if let Some(brace) = close_brace {
-        emit_trivia(&brace.children, out);
-    }
-}
-
-fn format_composite_member(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
+fn format_struct_member(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    COMMA => {} // handled by parent
+                    KW_PUBLIC | KW_PRIVATE | KW_CONSTANT => {
+                        out.write(tok.text());
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
             }
-            SyntaxKind::Token if child.text == "," => {} // handled by parent
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
             _ => {}
         }
     }
 }
 
 fn format_import(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "import" => {
-                out.write("import");
-                out.space();
+    out.write("import");
+    out.space();
+
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_IMPORT | WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
+                    SEMICOLON => {
+                        write_semicolon_with_comments(node, out);
+                    }
+                    _ => out.write(tok.text()),
+                }
             }
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                emit_trivia(&child.children, out);
-            }
-            SyntaxKind::Token => out.write(child.text),
-            _ => {}
+            SyntaxElement::Node(_) => {}
         }
     }
-    out.newline();
+    out.ensure_newline();
 }
 
 fn format_mapping(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "mapping" => {
-                out.write("mapping");
-                out.space();
+    emit_leading_comments(node, out);
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_MAPPING => {
+                        out.write("mapping");
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    FAT_ARROW => {
+                        out.space();
+                        out.write("=>");
+                        out.space();
+                    }
+                    SEMICOLON => {
+                        write_semicolon_with_comments(node, out);
+                    }
+                    WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
+                    _ => out.write(tok.text()),
+                }
             }
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == "=>" => {
-                out.space();
-                out.write("=>");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                out.set_mark();
-                emit_trivia(&child.children, out);
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
             _ => {}
         }
     }
     out.ensure_newline();
 }
 
-fn format_parameter(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == "public" || child.text == "private" || child.text == "constant" => {
-                out.write(child.text);
-                out.space();
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
-            _ => {}
-        }
-    }
-}
-
-fn format_function_outputs(node: &SyntaxNode, out: &mut Output) {
-    let has_paren = node.children.iter().any(|c| c.kind == SyntaxKind::Token && c.text == "(");
-    if has_paren {
-        let outputs: Vec<_> = node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::FunctionOutput)).collect();
-        out.write("(");
-        for (i, child) in outputs.iter().enumerate() {
-            format_function_output(child, out);
-            if i < outputs.len() - 1 {
-                out.write(",");
-                out.space();
-            }
-        }
-        out.write(")");
-    } else {
-        for child in &node.children {
-            if matches!(child.kind, SyntaxKind::FunctionOutput) {
-                format_function_output(child, out);
-            }
-        }
-    }
-}
-
-fn format_function_output(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "public" || child.text == "private" || child.text == "constant" => {
-                out.write(child.text);
-                out.space();
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
-            _ => {}
-        }
-    }
-}
-
-fn format_type(node: &SyntaxNode, out: &mut Output) {
-    if !node.text.is_empty() {
-        out.write(node.text);
-        return;
-    }
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == "," => {
-                out.write(",");
-                out.space();
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
-            _ => format_node(child, out),
-        }
-    }
-}
-
-fn format_block(node: &SyntaxNode, out: &mut Output) {
-    let open_brace = node.children.iter().find(|c| c.kind == SyntaxKind::Token && c.text == "{");
-    let has_stmts = node.children.iter().any(|c| matches!(c.kind, SyntaxKind::Statement(_)));
-    let has_open_comments = open_brace
-        .map(|b| b.children.iter().any(|c| matches!(c.kind, SyntaxKind::CommentLine | SyntaxKind::CommentBlock)))
-        .unwrap_or(false);
-
-    out.write("{");
-    if has_stmts || has_open_comments {
-        out.newline();
-        out.indented(|out| {
-            // Emit comments attached as trivia to the opening brace.
-            if let Some(brace) = open_brace {
-                emit_trivia(&brace.children, out);
-            }
-            for child in &node.children {
-                if matches!(child.kind, SyntaxKind::Statement(_)) {
-                    format_node(child, out);
-                    out.ensure_newline();
+fn format_storage(node: &SyntaxNode, out: &mut Output) {
+    emit_leading_comments(node, out);
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_STORAGE => {
+                        out.write("storage");
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    SEMICOLON => {
+                        write_semicolon_with_comments(node, out);
+                    }
+                    WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
+                    _ => out.write(tok.text()),
                 }
             }
-        });
-    }
-    out.write("}");
-    out.set_mark();
-    // Emit comments that trail after the closing brace (between items).
-    let close_brace = node.children.iter().find(|c| c.kind == SyntaxKind::Token && c.text == "}");
-    if let Some(brace) = close_brace {
-        emit_trivia(&brace.children, out);
-    }
-}
-
-fn format_return(node: &SyntaxNode, out: &mut Output) {
-    out.write("return");
-    let has_expr = node.children.iter().any(|c| matches!(c.kind, SyntaxKind::Expression(_)));
-    if has_expr {
-        out.space();
-    }
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "return" => {}
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                emit_trivia(&child.children, out);
-            }
-            SyntaxKind::Expression(_) => format_node(child, out),
-            _ => {}
-        }
-    }
-}
-
-fn format_literal(node: &SyntaxNode, out: &mut Output) {
-    if !node.text.is_empty() {
-        out.write(node.text);
-    }
-    // Suffix is encoded in the kind, not the text
-    if let SyntaxKind::Expression(ExpressionKind::Literal(lit)) = &node.kind {
-        let suffix = match lit {
-            LiteralKind::Integer(int) => match int {
-                IntegerLiteralKind::U8 => "u8",
-                IntegerLiteralKind::U16 => "u16",
-                IntegerLiteralKind::U32 => "u32",
-                IntegerLiteralKind::U64 => "u64",
-                IntegerLiteralKind::U128 => "u128",
-                IntegerLiteralKind::I8 => "i8",
-                IntegerLiteralKind::I16 => "i16",
-                IntegerLiteralKind::I32 => "i32",
-                IntegerLiteralKind::I64 => "i64",
-                IntegerLiteralKind::I128 => "i128",
-            },
-            LiteralKind::Field => "field",
-            LiteralKind::Group => "group",
-            LiteralKind::Scalar => "scalar",
-            LiteralKind::Address
-            | LiteralKind::Boolean
-            | LiteralKind::String
-            | LiteralKind::None
-            | LiteralKind::Unsuffixed => "",
-        };
-        out.write(suffix);
-    }
-}
-
-fn format_call(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "," => {
-                out.write(",");
-                out.space();
-            }
-            SyntaxKind::Token => out.write(child.text),
-            _ => format_node(child, out),
-        }
-    }
-}
-
-/// Binary expressions have the structure: [lhs, operator, rhs].
-fn format_binary(node: &SyntaxNode, out: &mut Output) {
-    let children: Vec<_> = node.children.iter().collect();
-    format_node(children[0], out);
-    out.space();
-    out.write(children[1].text);
-    out.space();
-    format_node(children[2], out);
-}
-
-fn format_path(node: &SyntaxNode, out: &mut Output) {
-    if !node.text.is_empty() {
-        out.write(node.text);
-    } else {
-        for child in &node.children {
-            format_node(child, out);
-        }
-    }
-}
-
-// --- Storage and Global Const ---
-
-fn format_storage(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "storage" => {
-                out.write("storage");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                out.set_mark();
-                emit_trivia(&child.children, out);
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
             _ => {}
         }
     }
@@ -617,102 +570,147 @@ fn format_storage(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_global_const(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "const" => {
-                out.write("const");
-                out.space();
+    emit_leading_comments(node, out);
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_CONST => {
+                        out.write("const");
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    EQ => {
+                        out.space();
+                        out.write("=");
+                        out.space();
+                    }
+                    SEMICOLON => {
+                        write_semicolon_with_comments(node, out);
+                    }
+                    WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
+                    _ => out.write(tok.text()),
+                }
             }
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                if is_type_node(k) {
+                    format_type(&n, out);
+                } else if is_expression(k) {
+                    format_node(&n, out);
+                }
             }
-            SyntaxKind::Token if child.text == "=" => {
-                out.space();
-                out.write("=");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                out.set_mark();
-                emit_trivia(&child.children, out);
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
-            SyntaxKind::Expression(_) => format_node(child, out),
-            _ => {}
         }
     }
     out.ensure_newline();
 }
 
-// --- Annotations ---
+// =============================================================================
+// Parameters and return types
+// =============================================================================
 
-fn format_annotation_list(node: &SyntaxNode, out: &mut Output) {
-    let members: Vec<_> = node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::AnnotationMember)).collect();
+fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
+    let params: Vec<_> = node.children().filter(|c| c.kind() == PARAM).collect();
 
     out.write("(");
-    for (i, child) in members.iter().enumerate() {
-        format_annotation_member(child, out);
-        if i < members.len() - 1 {
+    for (i, param) in params.iter().enumerate() {
+        format_parameter(param, out);
+        if i < params.len() - 1 {
             out.write(",");
+            // Emit any trailing comments after this comma
+            emit_inline_comments_after_param(node, param, out);
             out.space();
         }
     }
     out.write(")");
 }
 
-fn format_annotation_member(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "=" => {
-                out.space();
-                out.write("=");
-                out.space();
+fn format_parameter(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    KW_PUBLIC | KW_PRIVATE | KW_CONSTANT => {
+                        out.write(tok.text());
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
             }
-            SyntaxKind::Token => out.write(child.text),
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
             _ => {}
         }
     }
 }
 
-// --- Const Parameters and Arguments ---
-
-fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
-    let params: Vec<_> =
-        node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::Parameter | SyntaxKind::FunctionOutput)).collect();
-
-    out.write("(");
-    for (i, child) in params.iter().enumerate() {
-        format_node(child, out);
-        if i < params.len() - 1 {
-            out.write(",");
-            out.space();
+fn format_return_type(node: &SyntaxNode, out: &mut Output) {
+    // RETURN_TYPE wraps tuple return types: (vis Type, vis Type, ...)
+    // Iterate children_with_tokens and emit them preserving structure.
+    // We use the COMMA tokens from the tree to know where to place commas.
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    L_PAREN => out.write("("),
+                    R_PAREN => out.write(")"),
+                    COMMA => {
+                        out.write(",");
+                        out.space();
+                    }
+                    KW_PUBLIC | KW_PRIVATE | KW_CONSTANT => {
+                        out.write(tok.text());
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
+            }
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            _ => {}
         }
     }
-    out.write(")");
 }
 
 fn format_const_parameter(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
             }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
             _ => {}
         }
     }
 }
 
 fn format_const_parameter_list(node: &SyntaxNode, out: &mut Output) {
-    let params: Vec<_> = node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::ConstParameter)).collect();
+    let params: Vec<_> = node.children().filter(|c| c.kind() == CONST_PARAM).collect();
 
     out.write("::[");
-    for (i, child) in params.iter().enumerate() {
-        format_const_parameter(child, out);
+    for (i, param) in params.iter().enumerate() {
+        format_const_parameter(param, out);
         if i < params.len() - 1 {
             out.write(",");
             out.space();
@@ -722,12 +720,11 @@ fn format_const_parameter_list(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
-    let args: Vec<_> =
-        node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::Expression(_) | SyntaxKind::Type(_))).collect();
+    let args: Vec<_> = node.children().filter(|c| is_type_node(c.kind()) || is_expression(c.kind())).collect();
 
     out.write("::[");
-    for (i, child) in args.iter().enumerate() {
-        format_node(child, out);
+    for (i, arg) in args.iter().enumerate() {
+        format_node(arg, out);
         if i < args.len() - 1 {
             out.write(",");
             out.space();
@@ -736,123 +733,321 @@ fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
     out.write("]");
 }
 
-// --- Statement Formatters ---
+// =============================================================================
+// Types
+// =============================================================================
+
+fn format_type(node: &SyntaxNode, out: &mut Output) {
+    match node.kind() {
+        TYPE_PATH => format_type_path(node, out),
+        TYPE_ARRAY => format_type_array(node, out),
+        TYPE_TUPLE => format_type_tuple(node, out),
+        TYPE_FUTURE => format_type_future(node, out),
+        TYPE_MAPPING => format_type_mapping(node, out),
+        TYPE_OPTIONAL => format_type_optional(node, out),
+        _ => {}
+    }
+}
+
+fn format_type_path(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) => {
+                if n.kind() == CONST_ARG_LIST {
+                    format_const_argument_list(&n, out);
+                } else {
+                    format_node(&n, out);
+                }
+            }
+        }
+    }
+}
+
+fn format_type_array(node: &SyntaxNode, out: &mut Output) {
+    out.write("[");
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    L_BRACKET | R_BRACKET => {}
+                    SEMICOLON => {
+                        out.write(";");
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
+            }
+            SyntaxElement::Node(n) => {
+                if is_type_node(n.kind()) {
+                    format_type(&n, out);
+                } else if is_expression(n.kind()) {
+                    format_node(&n, out);
+                }
+            }
+        }
+    }
+    out.write("]");
+}
+
+fn format_type_tuple(node: &SyntaxNode, out: &mut Output) {
+    let types: Vec<_> = node.children().filter(|c| is_type_node(c.kind())).collect();
+
+    out.write("(");
+    for (i, ty) in types.iter().enumerate() {
+        format_type(ty, out);
+        if i < types.len() - 1 {
+            out.write(",");
+            out.space();
+        }
+    }
+    out.write(")");
+}
+
+fn format_type_future(node: &SyntaxNode, out: &mut Output) {
+    // Future or Future<Fn(...) -> ...>
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            _ => {}
+        }
+    }
+}
+
+fn format_type_mapping(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            _ => {}
+        }
+    }
+}
+
+fn format_type_optional(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            _ => {}
+        }
+    }
+}
+
+// =============================================================================
+// Statements
+// =============================================================================
+
+fn format_block(node: &SyntaxNode, out: &mut Output) {
+    let elems = elements(node);
+
+    // Check if block has any statements or comments (content worth indenting)
+    let has_content = elems.iter().any(|e| match e {
+        SyntaxElement::Node(n) => is_statement(n.kind()) || n.kind() == ERROR,
+        SyntaxElement::Token(t) => matches!(t.kind(), COMMENT_LINE | COMMENT_BLOCK),
+    });
+
+    out.write("{");
+    if has_content {
+        out.newline();
+        out.indented(|out| {
+            // Iterate all children_with_tokens to emit statements and comments.
+            // Comments appear as sibling tokens in rowan. We use LINEBREAK to
+            // determine if a comment is trailing (same line as previous stmt)
+            // or standalone (own line).
+            let mut after_lbrace = false;
+            let mut saw_linebreak = false;
+
+            for elem in &elems {
+                match elem {
+                    SyntaxElement::Token(tok) => match tok.kind() {
+                        L_BRACE => {
+                            after_lbrace = true;
+                        }
+                        R_BRACE => {}
+                        LINEBREAK => {
+                            saw_linebreak = true;
+                        }
+                        WHITESPACE => {}
+                        COMMENT_LINE if after_lbrace => {
+                            if saw_linebreak {
+                                out.ensure_newline();
+                            } else {
+                                out.space();
+                            }
+                            out.write(tok.text().trim_end());
+                            out.newline();
+                            saw_linebreak = false;
+                        }
+                        COMMENT_BLOCK if after_lbrace => {
+                            if saw_linebreak {
+                                out.ensure_newline();
+                            } else {
+                                out.space();
+                            }
+                            out.write(tok.text());
+                            saw_linebreak = false;
+                        }
+                        _ => {}
+                    },
+                    SyntaxElement::Node(n) if after_lbrace && is_statement(n.kind()) => {
+                        out.ensure_newline();
+                        format_node(n, out);
+                        saw_linebreak = false;
+                    }
+                    SyntaxElement::Node(n) if after_lbrace && n.kind() == ERROR => {
+                        let text = n.text().to_string();
+                        let text = text.trim();
+                        if !text.is_empty() {
+                            out.ensure_newline();
+                            out.write(text);
+                        }
+                        saw_linebreak = false;
+                    }
+                    _ => {}
+                }
+            }
+            out.ensure_newline();
+        });
+    }
+    out.write("}");
+    out.set_mark();
+    // Emit comments after closing brace (at parent level)
+    if let Some(idx) = find_last_token_index(&elems, R_BRACE) {
+        emit_comments_after(&elems, idx, out);
+    }
+}
+
+fn format_return(node: &SyntaxNode, out: &mut Output) {
+    out.write("return");
+
+    for child in node.children() {
+        if is_expression(child.kind()) {
+            out.space();
+            format_node(&child, out);
+        }
+    }
+
+    write_semicolon_with_comments(node, out);
+}
 
 fn format_definition(node: &SyntaxNode, out: &mut Output) {
     out.write("let");
     out.space();
 
-    let has_paren = node.children.iter().any(|c| c.kind == SyntaxKind::Token && c.text == "(");
-
-    if has_paren {
-        // Tuple destructuring: let (a, b) = expr;
-        let mut in_parens = false;
-        for child in &node.children {
-            match &child.kind {
-                SyntaxKind::Token if child.text == "let" => {}
-                SyntaxKind::Token if child.text == "(" => {
-                    out.write("(");
-                    in_parens = true;
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_LET | WHITESPACE | LINEBREAK => {}
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    EQ => {
+                        out.space();
+                        out.write("=");
+                        out.space();
+                    }
+                    SEMICOLON => {
+                        write_semicolon_with_comments(node, out);
+                    }
+                    _ => {}
                 }
-                SyntaxKind::Token if child.text == ")" => {
-                    out.write(")");
-                    in_parens = false;
-                }
-                SyntaxKind::Token if child.text == "," && in_parens => {
-                    out.write(",");
-                    out.space();
-                }
-                SyntaxKind::Token if child.text == ":" => {
-                    out.write(":");
-                    out.space();
-                }
-                SyntaxKind::Token if child.text == "=" => {
-                    out.space();
-                    out.write("=");
-                    out.space();
-                }
-                SyntaxKind::Token if child.text == ";" => {
-                    out.write(";");
-                    emit_trivia(&child.children, out);
-                }
-                SyntaxKind::Token if in_parens => {
-                    out.write(child.text);
-                }
-                SyntaxKind::Token => out.write(child.text),
-                SyntaxKind::Type(_) => format_type(child, out),
-                SyntaxKind::Expression(_) => format_node(child, out),
-                _ => {}
             }
-        }
-    } else {
-        // Simple: let x = expr; or let x: T = expr;
-        for child in &node.children {
-            match &child.kind {
-                SyntaxKind::Token if child.text == "let" => {}
-                SyntaxKind::Token if child.text == ":" => {
-                    out.write(":");
-                    out.space();
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                if is_type_node(k) {
+                    format_type(&n, out);
+                } else if is_expression(k) || matches!(k, IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN) {
+                    format_node(&n, out);
                 }
-                SyntaxKind::Token if child.text == "=" => {
-                    out.space();
-                    out.write("=");
-                    out.space();
-                }
-                SyntaxKind::Token if child.text == ";" => {
-                    out.write(";");
-                    emit_trivia(&child.children, out);
-                }
-                SyntaxKind::Token => out.write(child.text),
-                SyntaxKind::Type(_) => format_type(child, out),
-                SyntaxKind::Expression(_) => format_node(child, out),
-                _ => {}
             }
         }
     }
 }
 
 fn format_const_stmt(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "const" => {
-                out.write("const");
-                out.space();
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_CONST => {
+                        out.write("const");
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    EQ => {
+                        out.space();
+                        out.write("=");
+                        out.space();
+                    }
+                    SEMICOLON => {
+                        write_semicolon_with_comments(node, out);
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => {}
+                }
             }
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                if is_type_node(k) {
+                    format_type(&n, out);
+                } else if is_expression(k) {
+                    format_node(&n, out);
+                }
             }
-            SyntaxKind::Token if child.text == "=" => {
-                out.space();
-                out.write("=");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                emit_trivia(&child.children, out);
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
-            SyntaxKind::Expression(_) => format_node(child, out),
-            _ => {}
         }
     }
 }
 
 fn format_assign(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if is_spaced_operator(child.text) => {
-                out.space();
-                out.write(child.text);
-                out.space();
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k == WHITESPACE || k == LINEBREAK {
+                    // skip
+                } else if is_assignment_op(k) {
+                    out.space();
+                    out.write(tok.text());
+                    out.space();
+                } else if k == SEMICOLON {
+                    write_semicolon_with_comments(node, out);
+                } else {
+                    out.write(tok.text());
+                }
             }
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                emit_trivia(&child.children, out);
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) => format_node(child, out),
+            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
             _ => {}
         }
     }
@@ -860,322 +1055,326 @@ fn format_assign(node: &SyntaxNode, out: &mut Output) {
 
 fn format_conditional(node: &SyntaxNode, out: &mut Output) {
     let mut first_block = true;
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "if" => {
-                out.write("if");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == "else" => {
-                out.space();
-                out.write("else");
-                out.space();
-            }
-            SyntaxKind::Expression(_) => format_node(child, out),
-            SyntaxKind::Statement(StatementKind::Block) => {
-                if first_block {
-                    out.space();
-                    first_block = false;
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_IF => {
+                        out.write("if");
+                        out.space();
+                    }
+                    KW_ELSE => {
+                        out.space();
+                        out.write("else");
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => {}
                 }
-                format_block(child, out);
             }
-            SyntaxKind::Statement(StatementKind::Conditional) => {
-                // else if chain
-                format_conditional(child, out);
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                if is_expression(k) {
+                    format_node(&n, out);
+                } else if k == BLOCK {
+                    if first_block {
+                        out.space();
+                        first_block = false;
+                    }
+                    format_block(&n, out);
+                } else if k == IF_STMT {
+                    format_conditional(&n, out);
+                }
             }
-            _ => {}
         }
     }
 }
 
 fn format_iteration(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "for" => {
-                out.write("for");
-                out.space();
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_FOR => {
+                        out.write("for");
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    KW_IN => {
+                        out.space();
+                        out.write("in");
+                        out.space();
+                    }
+                    DOT_DOT => {
+                        out.write("..");
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
             }
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                if is_type_node(k) {
+                    format_type(&n, out);
+                } else if is_expression(k) {
+                    format_node(&n, out);
+                } else if k == BLOCK {
+                    out.space();
+                    format_block(&n, out);
+                }
             }
-            SyntaxKind::Token if child.text == "in" => {
-                out.space();
-                out.write("in");
-                out.space();
-            }
-            SyntaxKind::Token if child.text == ".." => {
-                out.write("..");
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Type(_) => format_type(child, out),
-            SyntaxKind::Expression(_) => format_node(child, out),
-            SyntaxKind::Statement(StatementKind::Block) => {
-                out.space();
-                format_block(child, out);
-            }
-            _ => {}
         }
     }
 }
 
-fn format_assert(node: &SyntaxNode, out: &mut Output, keyword: &str) {
-    out.write(keyword);
-    out.write("(");
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token
-                if child.text == keyword || child.text == "(" || child.text == ")" || child.text == ";" => {}
-            SyntaxKind::Expression(_) => format_node(child, out),
-            _ => {}
+fn format_assert(node: &SyntaxNode, out: &mut Output) {
+    out.write("assert(");
+
+    for child in node.children() {
+        if is_expression(child.kind()) {
+            format_node(&child, out);
         }
     }
-    out.write(");");
-    if let Some(semi) = node.children.iter().find(|c| c.kind == SyntaxKind::Token && c.text == ";") {
-        emit_trivia(&semi.children, out);
-    }
-}
 
-fn format_assert_eq(node: &SyntaxNode, out: &mut Output) {
-    format_assert_pair(node, out, "assert_eq");
-}
-
-fn format_assert_neq(node: &SyntaxNode, out: &mut Output) {
-    format_assert_pair(node, out, "assert_neq");
+    out.write(")");
+    write_semicolon_with_comments(node, out);
 }
 
 fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
     out.write(keyword);
     out.write("(");
-    let mut first = true;
-    for child in &node.children {
-        if matches!(child.kind, SyntaxKind::Expression(_)) {
-            if !first {
-                out.write(",");
-                out.space();
-            }
-            format_node(child, out);
-            first = false;
+
+    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    for (i, expr) in exprs.iter().enumerate() {
+        format_node(expr, out);
+        if i < exprs.len() - 1 {
+            out.write(",");
+            out.space();
         }
     }
-    out.write(");");
-    if let Some(semi) = node.children.iter().find(|c| c.kind == SyntaxKind::Token && c.text == ";") {
-        emit_trivia(&semi.children, out);
-    }
+
+    out.write(")");
+    write_semicolon_with_comments(node, out);
 }
 
 fn format_expr_stmt(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == ";" => {
-                out.write(";");
-                emit_trivia(&child.children, out);
+    for child in node.children() {
+        if is_expression(child.kind()) {
+            format_node(&child, out);
+        }
+    }
+
+    write_semicolon_with_comments(node, out);
+}
+
+// =============================================================================
+// Expressions
+// =============================================================================
+
+fn format_literal(node: &SyntaxNode, out: &mut Output) {
+    // LITERAL wraps a single token (INTEGER, STRING, ADDRESS_LIT, KW_TRUE, etc.)
+    // In rowan, the suffix is already included in the token text (e.g. "42u64")
+    for elem in node.children_with_tokens() {
+        if let SyntaxElement::Token(tok) = elem {
+            let k = tok.kind();
+            if k != WHITESPACE && k != LINEBREAK {
+                out.write(tok.text());
             }
-            SyntaxKind::Expression(_) => format_node(child, out),
-            _ => {}
         }
     }
 }
 
-// --- Expression Formatters ---
+fn format_call(node: &SyntaxNode, out: &mut Output) {
+    // CALL_EXPR: callee_node, L_PAREN, [args separated by COMMA], R_PAREN
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    L_PAREN => out.write("("),
+                    R_PAREN => out.write(")"),
+                    COMMA => {
+                        out.write(",");
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
+            }
+            SyntaxElement::Node(n) => format_node(&n, out),
+        }
+    }
+}
+
+fn format_binary(node: &SyntaxNode, out: &mut Output) {
+    // BINARY_EXPR: lhs, operator_token, rhs (with trivia interleaved)
+    let children: Vec<_> = node.children().collect();
+    if children.len() == 2 {
+        let op_token =
+            node.children_with_tokens().find(|e| matches!(e, SyntaxElement::Token(t) if is_binary_op(t.kind())));
+
+        format_node(&children[0], out);
+        out.space();
+        if let Some(SyntaxElement::Token(tok)) = op_token {
+            out.write(tok.text());
+        }
+        out.space();
+        format_node(&children[1], out);
+    } else {
+        // Malformed binary expression — emit children verbatim
+        for child in &children {
+            format_node(child, out);
+        }
+    }
+}
+
+fn format_path(node: &SyntaxNode, out: &mut Output) {
+    // PATH_EXPR: IDENT, [COLON_COLON, IDENT]*, [COLON_COLON, CONST_ARG_LIST]
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) => {
+                if n.kind() == CONST_ARG_LIST {
+                    format_const_argument_list(&n, out);
+                } else {
+                    format_node(&n, out);
+                }
+            }
+        }
+    }
+}
 
 fn format_unary(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) => format_node(child, out),
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
             _ => {}
         }
     }
 }
 
 fn format_ternary(node: &SyntaxNode, out: &mut Output) {
-    let exprs: Vec<_> = node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::Expression(_))).collect();
+    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
     if exprs.len() >= 3 {
-        format_node(exprs[0], out);
+        format_node(&exprs[0], out);
         out.space();
         out.write("?");
         out.space();
-        format_node(exprs[1], out);
+        format_node(&exprs[1], out);
         out.space();
         out.write(":");
         out.space();
-        format_node(exprs[2], out);
+        format_node(&exprs[2], out);
     }
 }
 
-fn format_method_call(node: &SyntaxNode, out: &mut Output) {
-    let mut after_dot = false;
-    let mut in_args = false;
-
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "." => {
-                out.write(".");
-                after_dot = true;
-            }
-            SyntaxKind::Token if child.text == "(" => {
-                out.write("(");
-                in_args = true;
-            }
-            SyntaxKind::Token if child.text == ")" => {
-                out.write(")");
-                in_args = false;
-            }
-            SyntaxKind::Token if child.text == "," => {
-                out.write(",");
-                out.space();
-            }
-            SyntaxKind::Token if after_dot && !in_args => {
-                out.write(child.text);
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) if !in_args => {
-                format_node(child, out);
-            }
-            SyntaxKind::Expression(_) => {
-                format_node(child, out);
-            }
-            _ => {}
-        }
-    }
-}
-
-fn format_assoc_call(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "," => {
-                out.write(",");
-                out.space();
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::ConstArgumentList => format_const_argument_list(child, out),
-            SyntaxKind::Expression(_) => format_node(child, out),
-            _ => {}
-        }
-    }
-}
-
-fn format_assoc_const(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        if let SyntaxKind::Token = &child.kind {
-            out.write(child.text);
-        }
-    }
-}
-
-fn format_composite_expr(node: &SyntaxNode, out: &mut Output) {
-    let inits: Vec<_> =
-        node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::CompositeMemberInitializer)).collect();
-
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "{" => {
-                out.space();
-                out.write("{");
-                if !inits.is_empty() {
-                    out.space();
-                    // Format all initializers inline
-                    for (i, init) in inits.iter().enumerate() {
-                        format_composite_member_init(init, out);
-                        if i < inits.len() - 1 {
-                            out.write(",");
-                            out.space();
-                        }
-                    }
-                    out.space();
+fn format_field_expr(node: &SyntaxNode, out: &mut Output) {
+    // FIELD_EXPR: base_node, DOT, IDENT|INTEGER|keyword
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
                 }
             }
-            SyntaxKind::Token if child.text == "}" => {
-                out.write("}");
+            SyntaxElement::Node(n) => format_node(&n, out),
+        }
+    }
+}
+
+fn format_index_expr(node: &SyntaxNode, out: &mut Output) {
+    // INDEX_EXPR: base_node, L_BRACKET, index_expr, R_BRACKET
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
             }
-            SyntaxKind::Token if child.text == "," => {} // handled above with initializers
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::ConstArgumentList => format_const_argument_list(child, out),
-            SyntaxKind::CompositeMemberInitializer => {} // handled above
-            _ => {}
-        }
-    }
-}
-
-fn format_composite_member_init(node: &SyntaxNode, out: &mut Output) {
-    let has_colon = node.children.iter().any(|c| c.kind == SyntaxKind::Token && c.text == ":");
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == ":" => {
-                out.write(":");
-                out.space();
-            }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) if has_colon => format_node(child, out),
-            _ => {}
-        }
-    }
-}
-
-fn format_array_access(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "[" || child.text == "]" => out.write(child.text),
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) => format_node(child, out),
-            _ => {}
-        }
-    }
-}
-
-fn format_tuple_access(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) => format_node(child, out),
-            _ => {}
-        }
-    }
-}
-
-fn format_member_access(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) => format_node(child, out),
+            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
             _ => {}
         }
     }
 }
 
 fn format_cast(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "as" => {
-                out.space();
-                out.write("as");
-                out.space();
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    KW_AS => {
+                        out.space();
+                        out.write("as");
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
             }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) => format_node(child, out),
-            SyntaxKind::Type(_) => format_type(child, out),
-            _ => {}
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                if is_expression(k) {
+                    format_node(&n, out);
+                } else if is_type_node(k) {
+                    format_type(&n, out);
+                }
+            }
         }
     }
 }
 
 fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
-    let exprs: Vec<_> = node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::Expression(_))).collect();
+    // ARRAY_EXPR handles both [a, b, c] and [x; n] (repeat)
+    let has_semi = has_token(node, SEMICOLON);
 
-    out.write("[");
-    for (i, expr) in exprs.iter().enumerate() {
-        format_node(expr, out);
-        if i < exprs.len() - 1 {
-            out.write(",");
+    if has_semi {
+        // Repeat expression: [value; count]
+        let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+        out.write("[");
+        if exprs.len() >= 2 {
+            format_node(&exprs[0], out);
+            out.write(";");
             out.space();
+            format_node(&exprs[1], out);
         }
+        out.write("]");
+    } else {
+        // Array literal: [a, b, c]
+        let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+        out.write("[");
+        for (i, expr) in exprs.iter().enumerate() {
+            format_node(expr, out);
+            if i < exprs.len() - 1 {
+                out.write(",");
+                out.space();
+            }
+        }
+        out.write("]");
     }
-    out.write("]");
 }
 
 fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
-    let exprs: Vec<_> = node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::Expression(_))).collect();
+    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
 
     out.write("(");
     for (i, expr) in exprs.iter().enumerate() {
@@ -1184,61 +1383,391 @@ fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
             out.write(",");
             out.space();
         }
+    }
+    // Single-element tuples need a trailing comma to distinguish from PAREN_EXPR.
+    if exprs.len() == 1 {
+        out.write(",");
     }
     out.write(")");
 }
 
 fn format_parenthesized(node: &SyntaxNode, out: &mut Output) {
     out.write("(");
-    for child in &node.children {
-        if let SyntaxKind::Expression(_) = &child.kind {
-            format_node(child, out);
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK && k != L_PAREN && k != R_PAREN {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
+            _ => {}
         }
     }
     out.write(")");
 }
 
-fn format_repeat_expr(node: &SyntaxNode, out: &mut Output) {
-    let exprs: Vec<_> = node.children.iter().filter(|c| matches!(c.kind, SyntaxKind::Expression(_))).collect();
+fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
+    let inits: Vec<_> = node.children().filter(|c| c.kind() == STRUCT_FIELD_INIT).collect();
+    let elems = elements(node);
 
-    out.write("[");
-    if exprs.len() >= 2 {
-        format_node(exprs[0], out);
-        out.write(";");
-        out.space();
-        format_node(exprs[1], out);
-    }
-    out.write("]");
-}
-
-fn format_async_expr(node: &SyntaxNode, out: &mut Output) {
-    out.write("async");
-    out.space();
-    for child in &node.children {
-        if let SyntaxKind::Statement(StatementKind::Block) = &child.kind {
-            format_block(child, out);
+    // Write everything before L_BRACE (struct path/name)
+    let lbrace_idx = find_token_index(&elems, L_BRACE).unwrap_or(elems.len());
+    for elem in elems[..lbrace_idx].iter() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) => {
+                if n.kind() == CONST_ARG_LIST {
+                    format_const_argument_list(n, out);
+                }
+            }
         }
     }
-}
 
-fn format_intrinsic(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        match &child.kind {
-            SyntaxKind::Token if child.text == "," => {
+    out.space();
+    out.write("{");
+    if !inits.is_empty() {
+        out.space();
+        for (i, init) in inits.iter().enumerate() {
+            format_struct_field_init(init, out);
+            if i < inits.len() - 1 {
                 out.write(",");
                 out.space();
             }
-            SyntaxKind::Token => out.write(child.text),
-            SyntaxKind::Expression(_) => format_node(child, out),
+        }
+        out.space();
+    }
+    out.write("}");
+}
+
+fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
+    let has_colon = has_token(node, COLON);
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    COLON => {
+                        out.write(":");
+                        out.space();
+                    }
+                    IDENT => out.write(tok.text()),
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
+            }
+            SyntaxElement::Node(n) if has_colon && is_expression(n.kind()) => format_node(&n, out),
             _ => {}
         }
     }
 }
 
-fn format_special_access(node: &SyntaxNode, out: &mut Output) {
-    for child in &node.children {
-        if let SyntaxKind::Token = &child.kind {
-            out.write(child.text);
+fn format_async_expr(node: &SyntaxNode, out: &mut Output) {
+    out.write("async");
+    out.space();
+    for child in node.children() {
+        if child.kind() == BLOCK {
+            format_block(&child, out);
         }
     }
+}
+
+fn format_locator_expr(node: &SyntaxNode, out: &mut Output) {
+    // LOCATOR_EXPR: IDENT.aleo/IDENT[::CONST_ARG_LIST]
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) => {
+                if n.kind() == CONST_ARG_LIST {
+                    format_const_argument_list(&n, out);
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+// Patterns
+// =============================================================================
+
+fn format_ident_pattern(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        if let SyntaxElement::Token(tok) = elem {
+            let k = tok.kind();
+            if k != WHITESPACE && k != LINEBREAK {
+                out.write(tok.text());
+            }
+        }
+    }
+}
+
+fn format_tuple_pattern(node: &SyntaxNode, out: &mut Output) {
+    let patterns: Vec<_> =
+        node.children().filter(|c| matches!(c.kind(), IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN)).collect();
+
+    out.write("(");
+    for (i, pat) in patterns.iter().enumerate() {
+        format_node(pat, out);
+        if i < patterns.len() - 1 {
+            out.write(",");
+            out.space();
+        }
+    }
+    out.write(")");
+}
+
+// =============================================================================
+// Comment handling
+// =============================================================================
+
+/// Emit comments found among children_with_tokens, starting after `start_idx`.
+///
+/// Uses linebreaks to distinguish trailing comments (same line) from standalone
+/// comments (own line). WHITESPACE and LINEBREAK tokens are skipped since the
+/// formatter controls all spacing.
+fn emit_comments_after(elems: &[SyntaxElement], start_idx: usize, out: &mut Output) {
+    let mut saw_linebreak = false;
+    for elem in elems.iter().skip(start_idx + 1) {
+        match elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                LINEBREAK => {
+                    saw_linebreak = true;
+                }
+                COMMENT_LINE => {
+                    if saw_linebreak {
+                        out.ensure_newline();
+                    } else {
+                        out.space();
+                    }
+                    out.write(tok.text().trim_end());
+                    out.newline();
+                    saw_linebreak = false;
+                }
+                COMMENT_BLOCK => {
+                    if saw_linebreak {
+                        out.ensure_newline();
+                    } else {
+                        out.space();
+                    }
+                    out.write(tok.text());
+                    saw_linebreak = false;
+                }
+                WHITESPACE => {}
+                _ => break,
+            },
+            SyntaxElement::Node(_) => break,
+        }
+    }
+}
+
+/// Emit leading comment tokens that appear before the first non-trivia token in a node.
+/// In rowan, `skip_trivia()` in the parser causes leading trivia (including comments)
+/// to be consumed into item nodes. We need to emit these before the structural content.
+fn emit_leading_comments(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        match &elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                COMMENT_LINE => {
+                    out.write(tok.text().trim_end());
+                    out.newline();
+                }
+                COMMENT_BLOCK => {
+                    out.write(tok.text());
+                    out.newline();
+                }
+                WHITESPACE | LINEBREAK => {}
+                _ => break, // Stop at first structural token
+            },
+            SyntaxElement::Node(_) => break, // Stop at first child node
+        }
+    }
+}
+
+/// Emit inline comments that appear after a child node within its parent.
+/// Scans sibling elements after `child` (past the COMMA) and emits any comments
+/// found before the next structural element.
+fn emit_inline_comments_after_param(parent: &SyntaxNode, child: &SyntaxNode, out: &mut Output) {
+    let mut past_child = false;
+    let mut past_comma = false;
+    for elem in parent.children_with_tokens() {
+        if !past_child {
+            if let SyntaxElement::Node(n) = &elem
+                && n.text_range() == child.text_range()
+            {
+                past_child = true;
+            }
+            continue;
+        }
+        if !past_comma {
+            if matches!(&elem, SyntaxElement::Token(t) if t.kind() == COMMA) {
+                past_comma = true;
+            }
+            continue;
+        }
+        match &elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                COMMENT_LINE => {
+                    out.space();
+                    out.write(tok.text().trim_end());
+                    out.newline();
+                }
+                COMMENT_BLOCK => {
+                    out.space();
+                    out.write(tok.text());
+                }
+                WHITESPACE | LINEBREAK => {}
+                _ => break,
+            },
+            SyntaxElement::Node(_) => break,
+        }
+    }
+}
+
+/// Write a semicolon and emit any trailing comments that follow it.
+fn write_semicolon_with_comments(node: &SyntaxNode, out: &mut Output) {
+    out.write(";");
+    out.set_mark();
+    let elems = elements(node);
+    if let Some(idx) = find_token_index(&elems, SEMICOLON) {
+        emit_comments_after(&elems, idx, out);
+    }
+}
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+fn is_statement(kind: SyntaxKind) -> bool {
+    matches!(
+        kind,
+        BLOCK
+            | RETURN_STMT
+            | LET_STMT
+            | CONST_STMT
+            | ASSIGN_STMT
+            | IF_STMT
+            | FOR_STMT
+            | ASSERT_STMT
+            | ASSERT_EQ_STMT
+            | ASSERT_NEQ_STMT
+            | EXPR_STMT
+    )
+}
+
+fn is_program_item(kind: SyntaxKind) -> bool {
+    matches!(
+        kind,
+        FUNCTION_DEF
+            | CONSTRUCTOR_DEF
+            | STRUCT_DEF
+            | RECORD_DEF
+            | MAPPING_DEF
+            | STORAGE_DEF
+            | GLOBAL_CONST
+            | ANNOTATION
+    )
+}
+
+fn is_type_node(kind: SyntaxKind) -> bool {
+    matches!(kind, TYPE_PATH | TYPE_ARRAY | TYPE_TUPLE | TYPE_OPTIONAL | TYPE_FUTURE | TYPE_MAPPING)
+}
+
+fn is_expression(kind: SyntaxKind) -> bool {
+    matches!(
+        kind,
+        LITERAL
+            | CALL_EXPR
+            | BINARY_EXPR
+            | PATH_EXPR
+            | UNARY_EXPR
+            | TERNARY_EXPR
+            | FIELD_EXPR
+            | INDEX_EXPR
+            | CAST_EXPR
+            | ARRAY_EXPR
+            | TUPLE_EXPR
+            | STRUCT_EXPR
+            | PAREN_EXPR
+            | ASYNC_EXPR
+            | LOCATOR_EXPR
+    )
+}
+
+fn is_assignment_op(kind: SyntaxKind) -> bool {
+    matches!(
+        kind,
+        EQ | PLUS_EQ
+            | MINUS_EQ
+            | STAR_EQ
+            | SLASH_EQ
+            | PERCENT_EQ
+            | STAR2_EQ
+            | AMP2_EQ
+            | PIPE2_EQ
+            | AMP_EQ
+            | PIPE_EQ
+            | CARET_EQ
+            | SHL_EQ
+            | SHR_EQ
+    )
+}
+
+fn is_binary_op(kind: SyntaxKind) -> bool {
+    matches!(
+        kind,
+        PLUS | MINUS
+            | STAR
+            | SLASH
+            | PERCENT
+            | STAR2
+            | EQ2
+            | BANG_EQ
+            | LT
+            | LT_EQ
+            | GT
+            | GT_EQ
+            | AMP2
+            | PIPE2
+            | AMP
+            | PIPE
+            | CARET
+            | SHL
+            | SHR
+    )
+}
+
+/// Collect all children_with_tokens() as a Vec for indexed access.
+fn elements(node: &SyntaxNode) -> Vec<SyntaxElement> {
+    node.children_with_tokens().collect()
+}
+
+/// Get the first child token with a given kind.
+fn first_token(node: &SyntaxNode, kind: SyntaxKind) -> Option<SyntaxToken> {
+    node.children_with_tokens().filter_map(|e| e.into_token()).find(|t| t.kind() == kind)
+}
+
+/// Check if a node has a child token of a given kind.
+fn has_token(node: &SyntaxNode, kind: SyntaxKind) -> bool {
+    first_token(node, kind).is_some()
+}
+
+/// Find the index of a token with a given kind.
+fn find_token_index(elems: &[SyntaxElement], kind: SyntaxKind) -> Option<usize> {
+    elems.iter().position(|e| matches!(e, SyntaxElement::Token(t) if t.kind() == kind))
+}
+
+/// Find the last index of a token with a given kind.
+fn find_last_token_index(elems: &[SyntaxElement], kind: SyntaxKind) -> Option<usize> {
+    elems.iter().rposition(|e| matches!(e, SyntaxElement::Token(t) if t.kind() == kind))
 }

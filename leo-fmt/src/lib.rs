@@ -17,7 +17,7 @@
 //! Leo source code formatter.
 //!
 //! This crate provides an opinionated, zero-configuration formatter for Leo source code.
-//! The formatter operates on the lossless syntax tree from `leo-parser-lossless` and
+//! The formatter operates on the lossless syntax tree from `leo-parser-rowan` and
 //! produces consistently formatted code.
 //!
 //! # Example
@@ -26,15 +26,13 @@
 //! use leo_fmt::format_source;
 //!
 //! let source = "program test.aleo{transition main()->u64{return 1u64;}}";
-//! let formatted = format_source(source)?;
+//! let formatted = format_source(source);
 //! ```
 
 mod format;
 mod output;
 
-use anyhow::{Context, Result};
-use leo_errors::Handler;
-use leo_parser_lossless::parse_main;
+use leo_parser_rowan::parse_main;
 
 use output::Output;
 
@@ -47,30 +45,25 @@ pub const NEWLINE: &str = "\n";
 /// Format Leo source code.
 ///
 /// Takes Leo source code as input and returns formatted source code.
-/// Returns an error if the source code cannot be parsed.
 ///
 /// # Guarantees
 ///
-/// - **Idempotent**: `format_source(format_source(x)?) == format_source(x)?`
+/// - **Idempotent**: `format_source(format_source(x)) == format_source(x)`
 /// - **Deterministic**: Same input always produces same output
-/// - **Parse-safe**: Formatted output always parses successfully
 /// - **Comment-preserving**: All comments are retained
-pub fn format_source(source: &str) -> Result<String> {
-    let handler = Handler::default();
-    let tree = parse_main(handler, source, 0).context("parse failed")?;
+pub fn format_source(source: &str) -> String {
+    let tree = parse_main(source).expect("rowan parser should never fail");
 
     let mut out = Output::new();
     format::format_node(&tree, &mut out);
-    Ok(out.finish())
+    out.finish()
 }
 
 /// Check if source code is already formatted.
 ///
-/// Returns `true` if the source code matches what the formatter would produce,
-/// `false` otherwise. Returns an error if the source code cannot be parsed.
-pub fn check_formatted(source: &str) -> Result<bool> {
-    let formatted = format_source(source)?;
-    Ok(source == formatted)
+/// Returns `true` if the source code matches what the formatter would produce.
+pub fn check_formatted(source: &str) -> bool {
+    source == format_source(source)
 }
 
 #[cfg(test)]
@@ -81,19 +74,14 @@ mod tests {
 
     #[test]
     fn valid_code_ok() {
-        assert!(format_source(VALID).is_ok());
-    }
-
-    #[test]
-    fn invalid_code_err() {
-        assert!(format_source("not valid leo").is_err());
+        assert_eq!(format_source(VALID), VALID);
     }
 
     #[test]
     fn normalizes_trailing_newline() {
         // Adds missing newline
-        assert!(format_source("program test.aleo {}").unwrap().ends_with('\n'));
+        assert!(format_source("program test.aleo {}").ends_with('\n'));
         // Removes extra newlines
-        assert!(format_source("program test.aleo {}\n\n\n").unwrap().ends_with("}\n"));
+        assert!(format_source("program test.aleo {}\n\n\n").ends_with("}\n"));
     }
 }

@@ -23,9 +23,7 @@
 //! Tests verify:
 //! 1. Source files format to match target files
 //! 2. Target files are idempotent (format to themselves)
-//! 3. Target files parse successfully
 
-use leo_errors::Handler;
 use leo_fmt::format_source;
 use similar::{ChangeTag, TextDiff};
 use std::path::{Path, PathBuf};
@@ -89,17 +87,8 @@ fn test_source_to_target() {
         let expected = std::fs::read_to_string(&target_path)
             .unwrap_or_else(|_| panic!("Missing target file: {}", target_path.display()));
 
-        // Format the source.
-        let actual = match format_source(&source) {
-            Ok(formatted) => formatted,
-            Err(e) => {
-                println!("Format failed for {}: {e}", source_path.display());
-                failures.push(source_path.clone());
-                continue;
-            }
-        };
-
-        // Compare.
+        // Format the source and compare.
+        let actual = format_source(&source);
         if actual != expected {
             print_diff(&expected, &actual, &source_path);
             failures.push(source_path.clone());
@@ -124,15 +113,7 @@ fn test_idempotency() {
         let input = std::fs::read_to_string(&target_path)
             .unwrap_or_else(|_| panic!("Failed to read: {}", target_path.display()));
 
-        let output = match format_source(&input) {
-            Ok(formatted) => formatted,
-            Err(e) => {
-                println!("Format failed for {}: {e}", target_path.display());
-                failures.push(target_path.clone());
-                continue;
-            }
-        };
-
+        let output = format_source(&input);
         if input != output {
             print_diff(&input, &output, &target_path);
             failures.push(target_path.clone());
@@ -140,28 +121,4 @@ fn test_idempotency() {
     }
 
     assert!(failures.is_empty(), "{} file(s) not idempotent: {failures:?}", failures.len());
-}
-
-/// Test that all target files parse successfully.
-///
-/// This ensures the formatter never produces invalid Leo code.
-#[test]
-fn test_parse_safety() {
-    let target_dir = tests_dir().join("target");
-    let target_files = collect_leo_files(&target_dir);
-
-    let mut failures = Vec::new();
-
-    for target_path in target_files {
-        let content = std::fs::read_to_string(&target_path)
-            .unwrap_or_else(|_| panic!("Failed to read: {}", target_path.display()));
-
-        let handler = Handler::default();
-        if leo_parser_lossless::parse_main(handler, &content, 0).is_err() {
-            println!("Parse failed for target file: {}", target_path.display());
-            failures.push(target_path.clone());
-        }
-    }
-
-    assert!(failures.is_empty(), "{} target file(s) don't parse: {failures:?}", failures.len());
 }

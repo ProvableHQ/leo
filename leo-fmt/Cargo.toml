@@ -17,9 +17,7 @@ license = "GPL-3.0"
 edition = "2024"
 
 [dependencies]
-leo-errors          = { workspace = true }
-leo-parser-lossless = { workspace = true }
-anyhow              = { workspace = true }
+leo-parser-rowan    = { workspace = true }
 
 [dev-dependencies]
 similar             = { version = "2.6" }
