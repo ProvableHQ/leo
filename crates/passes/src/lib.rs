@@ -99,6 +99,7 @@ mod write_transforming;
 pub use write_transforming::*;
 
 /// The result of code generation for a Leo program.
+#[derive(Default)]
 pub struct CompiledPrograms {
     /// The generated Aleo bytecode for the primary program.
     pub primary_bytecode: String,
@@ -107,6 +108,7 @@ pub struct CompiledPrograms {
 }
 
 /// Bytecode for a single program.
+#[derive(Default)]
 pub struct Bytecode {
     /// The name of the program.
     pub program_name: String,

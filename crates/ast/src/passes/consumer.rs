@@ -177,6 +177,12 @@ pub trait ProgramConsumer {
     fn consume_program(&mut self, input: Program) -> Self::Output;
 }
 
+/// A Consumer trait for a library in the AST.
+pub trait LibraryConsumer {
+    type Output;
+    fn consume_library(&mut self, input: Library) -> Self::Output;
+}
+
 /// A Consumer trait for a stub in the AST.
 pub trait StubConsumer {
     type Output;

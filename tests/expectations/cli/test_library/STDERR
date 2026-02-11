@@ -1,0 +1,22 @@
+--- leo add --local (should succeed) ---
+--- leo add --network on a library (should fail) ---
+Error [ECLI0377045]: A library package can only depend on other libraries. Use `--local <path>` to add a library dependency.
+
+--- leo build (should succeed) ---
+--- leo run (should fail) ---
+Error [ECLI0377045]: Cannot run a library package. Only programs can be run.
+
+--- leo execute (should fail) ---
+Error [ECLI0377045]: Cannot execute a library package. Only programs can be executed.
+
+--- leo deploy (should fail) ---
+Error [ECLI0377045]: Cannot deploy a library package. Only programs can be deployed.
+
+--- leo test (should fail) ---
+Error [ECLI0377045]: `leo test` is not supported for library packages.
+
+--- leo upgrade (should fail) ---
+Error [ECLI0377045]: `leo upgrade` is not supported for library packages.
+
+--- leo clean on library (should succeed) ---
+--- leo run with library dep (should succeed) ---

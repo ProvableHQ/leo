@@ -21,7 +21,7 @@ use super::UnrollingVisitor;
 impl ProgramReconstructor for UnrollingVisitor<'_> {
     fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
         // Set the current program.
-        self.program = input.stub_id.name.name;
+        self.program = input.stub_id.as_symbol();
         AleoProgram {
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
             ..input
@@ -30,7 +30,7 @@ impl ProgramReconstructor for UnrollingVisitor<'_> {
 
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         // Set the current program.
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
         ProgramScope {
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),

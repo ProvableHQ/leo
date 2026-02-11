@@ -1,0 +1,7 @@
+program collision.aleo;
+
+function foo:
+    output 201u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

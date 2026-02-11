@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+cd top_lib || exit 1
+
+echo "--- leo add --local (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add base_lib --local ../base_lib
+
+echo "--- leo add --network on a library (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add credits --network
+echo "add network to library exit code: $?"
+
+echo "--- leo build (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check build
+
+echo "--- leo run (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check run main
+echo "run exit code: $?"
+
+echo "--- leo execute (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check execute main --network testnet --endpoint http://localhost:3030 --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH --yes
+echo "execute exit code: $?"
+
+echo "--- leo deploy (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check deploy --network testnet --endpoint http://localhost:3030 --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH --yes
+echo "deploy exit code: $?"
+
+echo "--- leo test (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check test
+echo "test exit code: $?"
+
+echo "--- leo upgrade (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check upgrade --network testnet
+echo "upgrade exit code: $?"
+
+echo "--- leo clean on library (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check clean
+echo "clean exit code: $?"
+
+echo "--- leo run with library dep (should succeed) ---" | tee /dev/stderr
+cd ../program_using_lib || exit 1
+${LEO_BIN} --disable-update-check run main 1u32
+${LEO_BIN} --disable-update-check clean

@@ -143,8 +143,9 @@ fn handle_synthesize<A: Aleo>(
             .programs
             .iter()
             .clone()
+            .filter(|program| !program.is_library)
             .map(|program| {
-                let program_id = ProgramID::<A::Network>::from_str(&format!("{}.aleo", program.name))
+                let program_id = ProgramID::<A::Network>::from_str(&format!("{}", program.name))
                     .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
                 match &program.data {
                     ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), program.edition)),
@@ -153,7 +154,7 @@ fn handle_synthesize<A: Aleo>(
                         let bytecode_path = if source.as_path() == source_directory.join("main.leo") {
                             build_directory.join("main.aleo")
                         } else {
-                            imports_directory.join(format!("{}.aleo", program.name))
+                            imports_directory.join(format!("{}", program.name))
                         };
                         // Fetch the bytecode.
                         let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {

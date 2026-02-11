@@ -61,9 +61,15 @@ impl Pass for CommonSubexpressionEliminating {
     const NAME: &str = "CommonSubexpressionEliminating";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
+
         let mut visitor = CommonSubexpressionEliminatingVisitor { state, scopes: Default::default() };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.reconstruct_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())

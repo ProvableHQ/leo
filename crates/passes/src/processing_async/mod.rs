@@ -77,7 +77,7 @@ impl Pass for ProcessingAsync {
     const NAME: &str = "ProcessingAsync";
 
     fn do_pass(input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
         let mut visitor = ProcessingAsyncVisitor {
             state,
             max_inputs: input.max_inputs,
@@ -86,7 +86,12 @@ impl Pass for ProcessingAsync {
             new_async_functions: Vec::new(),
             modified: false,
         };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.reconstruct_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
 

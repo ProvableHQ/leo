@@ -43,7 +43,7 @@ impl CodeGeneratingVisitor<'_> {
             Type::Identifier(id) => AleoType::Ident { name: id.to_string() },
             Type::Composite(composite) => {
                 let composite_location = composite.path.expect_global_location();
-                let this_program_name = self.program_id.unwrap().name.name;
+                let this_program_name = self.program_id.unwrap().as_symbol();
                 let program_name = composite_location.program;
                 let composite_name = Self::legalize_path(&composite_location.path)
                     .expect("path format cannot be legalized at this point");
@@ -87,7 +87,7 @@ impl CodeGeneratingVisitor<'_> {
         // If the type is a record, handle it separately.
         if let Type::Composite(composite) = type_ {
             let composite_location = composite.path.expect_global_location();
-            let this_program_name = self.program_id.unwrap().name.name;
+            let this_program_name = self.program_id.unwrap().as_symbol();
             let program_name = composite_location.program;
             if self.state.symbol_table.lookup_record(this_program_name, composite_location).is_some() {
                 let [record_name] = &composite_location.path[..] else {

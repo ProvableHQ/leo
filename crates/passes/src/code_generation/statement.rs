@@ -147,7 +147,7 @@ impl CodeGeneratingVisitor<'_> {
                     operand.clone(),
                     AleoType::Future {
                         name: self.current_function.unwrap().identifier.to_string(),
-                        program: self.program_id.unwrap().name.to_string(),
+                        program: self.program_id.unwrap().as_symbol().to_string(),
                     },
                     None,
                 ));

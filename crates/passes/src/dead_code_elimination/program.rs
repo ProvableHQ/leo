@@ -21,7 +21,7 @@ use leo_errors::StaticAnalyzerError;
 
 impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
-        self.program_name = input.program_id.name.name;
+        self.program_name = input.program_id.as_symbol();
         input.functions = input
             .functions
             .into_iter()

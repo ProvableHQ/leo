@@ -40,8 +40,12 @@ use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 impl<'a> CodeGeneratingVisitor<'a> {
     pub fn visit_program(&mut self, input: &'a Program) -> AleoProgram {
         // Dependencies of the program. Already arranged in post order by Retriever module.
-
-        let imports = input.stubs.iter().map(|(program_name, _)| program_name.to_string()).collect();
+        // Ignore library stubs since they are compile-time only entities.
+        let imports = input
+            .stubs
+            .iter()
+            .filter_map(|(program_name, stub)| if stub.is_library() { None } else { Some(program_name.to_string()) })
+            .collect();
 
         // Retrieve the program scope.
         // Note that type checking guarantees that there is exactly one program scope.
@@ -54,7 +58,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // Note that the unwrap is safe since type checking guarantees that the composite dependency graph is acyclic.
         let order = self.state.composite_graph.post_order().unwrap();
 
-        let this_program = self.program_id.unwrap().name.name;
+        let this_program = self.program_id.unwrap().as_symbol();
 
         let lookup = |loc: &Location| {
             if loc.program == this_program {
@@ -93,7 +97,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                         .lookup_function(
                             this_program,
                             &Location::new(
-                                self.program_id.unwrap().name.name,
+                                self.program_id.unwrap().as_symbol(),
                                 vec![function.identifier.name], // Guaranteed to live in program scope, not in any submodule
                             ),
                         )
@@ -234,7 +238,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     return None;
                 }
                 let register_num = self.next_register();
-                let current_program = self.program_id.unwrap().name.name;
+                let current_program = self.program_id.unwrap().as_symbol();
 
                 // Track all internal record inputs.
                 if let Type::Composite(comp) = &input.type_ {
@@ -331,7 +335,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
 
             UpgradeVariant::Checksum { mapping, key, .. } => {
                 let map_name = if mapping.program
-                    == self.program_id.expect("Program ID should be set before traversing the program").name.name
+                    == self.program_id.expect("Program ID should be set before traversing the program").as_symbol()
                 {
                     let [mapping_name] = &mapping.path[..] else {
                         panic!("Mappings are only allowed in the top level program at this stage");
@@ -384,7 +388,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
             .clone()
             .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", mapping.identifier));
 
-        let program = self.program_id.unwrap().name.name;
+        let program = self.program_id.unwrap().as_symbol();
 
         // Helper to construct the string associated with the type.
         let create_type = |type_: &Type| {

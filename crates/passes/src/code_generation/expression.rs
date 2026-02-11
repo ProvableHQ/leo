@@ -93,7 +93,7 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_path(&mut self, input: &Path) -> AleoExpr {
-        let program = self.program_id.unwrap().name.name;
+        let program = self.program_id.unwrap().as_symbol();
         if let Some(name) = input.try_local_symbol() {
             // If the path points to a local symbol, look for the corresponding variable in `self.variable_mapping`
             self.variable_mapping.get(&name).expect("guaranteed by pass pipeline.").clone()
@@ -105,7 +105,7 @@ impl CodeGeneratingVisitor<'_> {
                 // the global variable.
                 AleoExpr::RawName(name)
             } else {
-                AleoExpr::RawName(location.program.to_string() + ".aleo/" + &name)
+                AleoExpr::RawName(location.program.to_string() + "/" + &name)
             }
         } else {
             panic!("path must be resolved by now.")
@@ -329,7 +329,7 @@ impl CodeGeneratingVisitor<'_> {
         // Lookup struct or record.
         let composite_location = input.path.expect_global_location();
         let program = composite_location.program;
-        let this_program_name = self.program_id.unwrap().name.name;
+        let this_program_name = self.program_id.unwrap().as_symbol();
         let composite_type = if let Some(is_record) = self.composite_mapping.get(composite_location) {
             if *is_record {
                 // record.private;
@@ -461,7 +461,7 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_call(&mut self, input: &CallExpression) -> (AleoExpr, Vec<AleoStmt>) {
         let function_location = input.function.expect_global_location();
-        let caller_program = self.program_id.expect("Calls only appear within programs.").name.name;
+        let caller_program = self.program_id.expect("Calls only appear within programs.").as_symbol();
         let callee_program = function_location.program;
         let func_symbol = self
             .state
@@ -516,7 +516,7 @@ impl CodeGeneratingVisitor<'_> {
             let [function_name] = &function_location.path[..] else {
                 panic!("paths to external functions can only have a single segment at this stage.")
             };
-            AleoStmt::Call(format!("{}.aleo/{}", callee_program, function_name), arguments, destinations.clone())
+            AleoStmt::Call(format!("{}/{}", callee_program, function_name), arguments, destinations.clone())
         } else if func_symbol.function.variant.is_finalize() {
             AleoStmt::Async(self.current_function.unwrap().identifier.to_string(), arguments, destinations.clone())
         } else {
@@ -835,7 +835,7 @@ impl CodeGeneratingVisitor<'_> {
             }
 
             Type::Composite(comp_ty) => {
-                let current_program = self.program_id.unwrap().name.name;
+                let current_program = self.program_id.unwrap().as_symbol();
                 // We need to cast the old struct or record's members into the new one.
                 let composite_location = comp_ty.path.expect_global_location();
                 let comp = self

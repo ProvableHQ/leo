@@ -1,0 +1,6 @@
+--- leo add --local bad_lib ---
+       Leo ✅ Added local dependency `bad_lib` at path `../bad_lib`.
+--- leo build (should fail: library has parse error) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+build exit code: 83

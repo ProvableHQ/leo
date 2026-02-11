@@ -24,12 +24,12 @@ use crate::{
     MappingType,
     OptionalType,
     Path,
+    ProgramId,
     TupleType,
     VectorType,
 };
 
 use itertools::Itertools;
-use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
     LiteralType,
@@ -223,27 +223,27 @@ impl Type {
         }
     }
 
-    pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Symbol) -> Self {
+    pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program_id: ProgramId) -> Self {
         match t {
             Literal(lit) => (*lit).into(),
             Struct(s) => Type::Composite(CompositeType {
                 path: {
                     let ident = Identifier::from(s);
-                    Path::from(ident).to_global(Location::new(program, vec![ident.name]))
+                    Path::from(ident).to_global(Location::new(program_id.as_symbol(), vec![ident.name]))
                 },
                 const_arguments: Vec::new(),
             }),
             ExternalStruct(l) => Type::Composite(CompositeType {
                 path: {
-                    let external_program = Identifier::from(l.program_id().name());
+                    let external_program = ProgramId::from(l.program_id());
                     let name = Identifier::from(l.resource());
                     Path::from(name)
                         .with_user_program(external_program)
-                        .to_global(Location::new(external_program.name, vec![name.name]))
+                        .to_global(Location::new(external_program.as_symbol(), vec![name.name]))
                 },
                 const_arguments: Vec::new(),
             }),
-            Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
+            Array(array) => Type::Array(ArrayType::from_snarkvm(array, program_id)),
         }
     }
 

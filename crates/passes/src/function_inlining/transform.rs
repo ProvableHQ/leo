@@ -51,7 +51,7 @@ impl<'a> TransformVisitor<'a> {
 impl ProgramReconstructor for TransformVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         // Set the program name.
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
 
         // Get the post-order ordering of the call graph.
         // Note that the post-order always contains all nodes in the call graph.
@@ -185,8 +185,10 @@ impl ProgramReconstructor for TransformVisitor<'_> {
                         let processed_program = self.reconstruct_program(program);
                         (name, Stub::FromLeo { program: processed_program, parents })
                     }
-                    // FromAleo stubs don't have Leo AST, so nothing to inline
+                    // FromAleo stubs don't have Leo AST, so nothing to inline.
                     other @ Stub::FromAleo { .. } => (name, other),
+                    // Similarly, nothing to do for libraries.
+                    other @ Stub::FromLibrary { .. } => (name, other),
                 }
             })
             .collect();

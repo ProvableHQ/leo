@@ -30,7 +30,7 @@ use leo_ast::{
 impl ProgramReconstructor for FlatteningVisitor<'_> {
     /// Flattens a program scope.
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
         ProgramScope {
             program_id: input.program_id,
             parents: input.parents.into_iter().map(|(s, t)| (s, self.reconstruct_type(t).0)).collect(),

@@ -41,7 +41,11 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
 
     fn reconstruct_composite_type(&mut self, mut input: CompositeType) -> (Type, Self::AdditionalOutput) {
         if !input.path.is_resolved() {
-            input.path = input.path.resolve_as_global_in_module(self.program, self.module.clone());
+            input.path = input.path.resolve_as_global_in_module(
+                self.program,
+                &self.state.symbol_table.get_imports(&self.program),
+                self.module.clone(),
+            );
         }
         (
             Type::Composite(CompositeType {
@@ -66,7 +70,11 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         if !input.function.is_resolved() {
-            input.function = input.function.resolve_as_global_in_module(self.program, self.module.clone());
+            input.function = input.function.resolve_as_global_in_module(
+                self.program,
+                &self.state.symbol_table.get_imports(&self.program),
+                self.module.clone(),
+            );
         }
         (
             CallExpression {
@@ -90,7 +98,11 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         if !input.path.is_resolved() {
-            input.path = input.path.resolve_as_global_in_module(self.program, self.module.clone());
+            input.path = input.path.resolve_as_global_in_module(
+                self.program,
+                &self.state.symbol_table.get_imports(&self.program),
+                self.module.clone(),
+            );
         }
         (
             CompositeExpression {
@@ -122,9 +134,17 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
 
         if has_qualifier {
             // paths with qualifiers must refer to a global.
-            input = input.resolve_as_global_in_module(self.program, self.module.clone());
+            input = input.resolve_as_global_in_module(
+                self.program,
+                &self.state.symbol_table.get_imports(&self.program),
+                self.module.clone(),
+            );
         } else {
-            let potentially_global = input.clone().resolve_as_global_in_module(self.program, self.module.clone());
+            let potentially_global = input.clone().resolve_as_global_in_module(
+                self.program,
+                &self.state.symbol_table.get_imports(&self.program),
+                self.module.clone(),
+            );
 
             if self
                 .state

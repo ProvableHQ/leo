@@ -458,4 +458,24 @@ create_messages!(
         msg: format!("Cannot find path `{path}`: {err}."),
         help: None,
     }
+    @backtraced
+    invalid_entry_file {
+        args: (path: impl Display, main_filename: impl Display, lib_filename: impl Display),
+        msg: format!(
+            "No valid entry file found in '{}'. Expected either '{}' or '{}'.",
+            path, main_filename, lib_filename
+        ),
+        help: Some("Ensure that your source directory contains either a main program file or a library file.".to_string()),
+    }
+
+    /// For when a package contains both main.leo and lib.leo, which is ambiguous.
+    @backtraced
+    ambiguous_entry_file {
+        args: (path: impl Display, main_filename: impl Display, lib_filename: impl Display),
+        msg: format!(
+            "Source directory '{}' contains both '{}' and '{}'. A package must be either a program or a library, not both.",
+            path, main_filename, lib_filename
+        ),
+        help: Some("Remove either the program entry file or the library entry file.".to_string()),
+    }
 );

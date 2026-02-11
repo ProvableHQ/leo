@@ -31,7 +31,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         input.stubs.iter().for_each(|(symbol, stub)| {
             if let Stub::FromAleo { program, .. } = stub {
                 // Check that naming and ordering is consistent.
-                if symbol != &program.stub_id.name.name {
+                if symbol != &program.stub_id.as_symbol() {
                     self.emit_err(TypeCheckerError::stub_name_mismatch(
                         symbol,
                         program.stub_id.name,
@@ -51,10 +51,10 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
-        let program_name = input.program_id.name;
+        let program_name = input.program_id.as_symbol();
 
         // Set the current program name.
-        self.scope_state.program_name = Some(program_name.name);
+        self.scope_state.program_name = Some(program_name);
 
         // Collect a map from record names to their spans
         let record_info: BTreeMap<String, leo_span::Span> = input
@@ -165,9 +165,16 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.module_name = parent_module;
     }
 
+    fn visit_library(&mut self, input: &Library) {
+        // Set the scope state.
+        self.scope_state.program_name = Some(input.name);
+
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+    }
+
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
         // Set the scope state.
-        self.scope_state.program_name = Some(input.stub_id.name.name);
+        self.scope_state.program_name = Some(input.stub_id.as_symbol());
         self.scope_state.is_stub = true;
 
         // Cannot have constant declarations in stubs.

@@ -1,0 +1,4 @@
+program simple.aleo;
+
+function foo:
+    output 572u32 as u32.private;

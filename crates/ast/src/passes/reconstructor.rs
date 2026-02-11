@@ -570,11 +570,28 @@ pub trait ProgramReconstructor: AstReconstructor {
         }
     }
 
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        Library {
+            name: input.name,
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+        }
+    }
+
     fn reconstruct_stub(&mut self, input: Stub) -> Stub {
         match input {
             Stub::FromLeo { program, parents } => Stub::FromLeo { program: self.reconstruct_program(program), parents },
             Stub::FromAleo { program, parents } => {
                 Stub::FromAleo { program: self.reconstruct_aleo_program(program), parents }
+            }
+            Stub::FromLibrary { library, parents } => {
+                Stub::FromLibrary { library: self.reconstruct_library(library), parents }
             }
         }
     }

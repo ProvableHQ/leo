@@ -30,8 +30,11 @@ pub use symbols::*;
 /// Scopes are indexed by the NodeID of the function, block, or iteration.
 #[derive(Debug, Default)]
 pub struct SymbolTable {
-    /// Maps a program to the list of programs it imports
+    /// Maps a program to the list of programs it imports. This also includes implicit imports, i.e. libraries.
     imports: IndexMap<Symbol, IndexSet<Symbol>>,
+
+    /// Names of all the external libraries
+    libraries: IndexSet<Symbol>,
 
     /// Functions indexed by location.
     functions: IndexMap<Location, FunctionSymbol>,
@@ -162,9 +165,9 @@ impl SymbolTable {
         }
     }
 
-    /// Returns all programs imported by a given program.
-    pub fn get_imports(&self, program: &Symbol) -> Option<&IndexSet<Symbol>> {
-        self.imports.get(program)
+    /// Returns all programs imported by a given program. This also includes implicit imports, i.e. libraries.
+    pub fn get_imports(&self, program: &Symbol) -> IndexSet<Symbol> {
+        self.imports.get(program).cloned().unwrap_or_default()
     }
 
     /// Returns a mutable reference to the set of imports for a given program.
@@ -177,12 +180,23 @@ impl SymbolTable {
         self.imports.iter()
     }
 
+    /// Adds a library to the symbol table.
+    pub fn add_as_library(&mut self, library: Symbol) {
+        self.libraries.insert(library);
+    }
+
+    /// Checks if a given `Symbol` is the name of an available library.
+    pub fn is_library(&self, name: Symbol) -> bool {
+        self.libraries.contains(&name)
+    }
+
     /// Check if `target` program is visible from `current` program.
     fn is_visible(&self, current: Symbol, target: &Symbol) -> bool {
         current == *target || self.imports.get(&current).map(|imports| imports.contains(target)).unwrap_or(false)
     }
 
     /// Returns the transitive closure of imports for a given program.
+    /// Libraries are excluded because they are compile-time only and should not appear in bytecode.
     pub fn get_transitive_imports(&self, program: &Symbol) -> IndexSet<Symbol> {
         let mut ordered = IndexSet::new();
         let mut seen = IndexSet::new();
@@ -193,6 +207,7 @@ impl SymbolTable {
             }
         }
 
+        ordered.retain(|sym| !self.libraries.contains(sym));
         ordered
     }
 

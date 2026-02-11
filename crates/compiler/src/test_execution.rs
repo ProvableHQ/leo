@@ -16,7 +16,7 @@
 
 use crate::run;
 
-use leo_ast::NodeBuilder;
+use leo_ast::{NodeBuilder, Stub};
 use leo_errors::{BufferEmitter, Handler, Result};
 use leo_span::{Symbol, create_session_if_not_set_then};
 
@@ -55,9 +55,36 @@ fn execution_run_test(
 
     // Parse-only for intermediate programs.
     for source in rest {
-        let (program, program_name) = super::test_utils::parse(source, handler, node_builder, import_stubs.clone())?;
+        if let Some((library_name, library_source)) = super::test_utils::extract_library_header(source) {
+            // Handle library dependencies.
+            let library = super::test_utils::parse_library(&library_name, library_source, handler, node_builder)?;
 
-        import_stubs.insert(Symbol::intern(&program_name), program.into());
+            import_stubs.insert(Symbol::intern(&library_name), library.into());
+        } else {
+            let (program, program_name) =
+                super::test_utils::parse_program(source, handler, node_builder, import_stubs.clone())?;
+
+            import_stubs.insert(Symbol::intern(&program_name), program.into());
+        }
+    }
+
+    // Extract the name of the final program so we can treat it as a parent.
+    let final_program_name = super::test_utils::extract_program_name(last, handler)?;
+    let final_symbol = Symbol::intern(&final_program_name);
+
+    // Populate parents for libraries: parents come after them in the stub order.
+    {
+        let symbols: Vec<Symbol> = import_stubs.keys().copied().collect();
+
+        for (i, symbol) in symbols.iter().enumerate() {
+            if let Some(Stub::FromLibrary { parents, .. }) = import_stubs.get_mut(symbol) {
+                // Parents that appear later in the stub order.
+                parents.extend(symbols[i + 1..].iter().copied());
+
+                // The final program also depends on earlier libraries.
+                parents.insert(final_symbol);
+            }
+        }
     }
 
     // Full compile for the final program.

@@ -77,7 +77,7 @@ impl Pass for Monomorphization {
     const NAME: &str = "Monomorphization";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
         let mut visitor = MonomorphizationVisitor {
             state,
             program: Symbol::intern(""),
@@ -92,7 +92,12 @@ impl Pass for Monomorphization {
             unresolved_composite_types: Vec::new(),
             changed: false,
         };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.reconstruct_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
 

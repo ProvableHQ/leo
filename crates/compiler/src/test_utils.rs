@@ -16,7 +16,7 @@
 
 use crate::{Compiled, Compiler};
 
-use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
+use leo_ast::{Library, NetworkName, NodeBuilder, Program, Stub};
 use leo_errors::{Handler, LeoError};
 use leo_span::{Symbol, source_map::FileName};
 
@@ -77,7 +77,7 @@ pub fn whole_compile(
 /// - returns the parsed `Program` and the program's name.
 ///
 /// Used for intermediate programs that are imported by the final one.
-pub fn parse(
+pub fn parse_program(
     source: &str,
     handler: &Handler,
     node_builder: &Rc<NodeBuilder>,
@@ -101,9 +101,34 @@ pub fn parse(
         modules.iter().map(|(src, path)| (src.as_str(), FileName::Custom(path.to_string_lossy().into()))).collect();
 
     let filename = FileName::Custom("compiler-test".into());
-    let program = compiler.parse_and_return_ast(&main_source, filename, &module_refs)?;
+    let program = compiler.parse_and_return_program(&main_source, filename, &module_refs)?;
 
     Ok((program, compiler.program_name.unwrap()))
+}
+
+/// Parses a Leo library from the given source for use in compiler tests.
+///
+/// This constructs a temporary `Compiler` instance with a minimal configuration
+/// and delegates to `parse_and_return_library` to produce the `Library` AST.
+pub fn parse_library(
+    library_name: &str,
+    source: &str,
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+) -> Result<Library, LeoError> {
+    let mut compiler = Compiler::new(
+        None,
+        /* is_test */ false,
+        handler.clone(),
+        node_builder.clone(),
+        "/fakedirectory-wont-use".into(),
+        None,
+        IndexMap::new(),
+        NetworkName::TestnetV0,
+    );
+
+    let filename = FileName::Custom("compiler-test".into());
+    compiler.parse_and_return_library(library_name, source, filename)
 }
 
 /// Splits a single source string into a main source and a list of module
@@ -150,4 +175,37 @@ fn split_modules(source: &str) -> (String, Vec<(String, PathBuf)>) {
     }
 
     (main_source, modules)
+}
+
+/// Extracts the program name from a Leo source string.
+///
+/// This parses the source using the test parser pipeline and returns the
+/// program identifier declared in the program scope.
+pub fn extract_program_name(source: &str, handler: &Handler) -> Result<String, LeoError> {
+    let (_program, program_name) =
+        parse_program(source, handler, &Rc::new(NodeBuilder::default()), indexmap::IndexMap::new())?;
+    Ok(program_name)
+}
+
+/// Extracts a test library header of the form `// --- library: NAME --- //`.
+///
+/// If present, returns the library name together with the remaining source
+/// after the header. Otherwise returns `None`.
+pub fn extract_library_header(source: &str) -> Option<(String, &str)> {
+    let mut offset = 0;
+
+    for line in source.lines() {
+        let trimmed = line.trim();
+
+        if trimmed.starts_with("// --- library:") && trimmed.ends_with("--- //") {
+            let name = trimmed.trim_start_matches("// --- library:").trim_end_matches("--- //").trim().to_string();
+
+            let rest = &source[offset + line.len()..].trim_start_matches('\n');
+            return Some((name, rest));
+        }
+
+        offset += line.len() + 1; // advance past line + newline
+    }
+
+    None
 }

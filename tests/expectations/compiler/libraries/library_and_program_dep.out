@@ -1,0 +1,21 @@
+program helper.aleo;
+
+function scale:
+    input r0 as u32.private;
+    mul r0 3u32 into r1;
+    output r1 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import helper.aleo;
+program main.aleo;
+
+function compute:
+    input r0 as u32.private;
+    call helper.aleo/scale r0 into r1;
+    add r1 7u32 into r2;
+    output r2 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

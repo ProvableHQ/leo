@@ -92,6 +92,8 @@ pub const SOURCE_DIRECTORY: &str = "src";
 
 pub const MAIN_FILENAME: &str = "main.leo";
 
+pub const LIB_FILENAME: &str = "lib.leo";
+
 pub const IMPORTS_DIRECTORY: &str = "build/imports";
 
 pub const OUTPUTS_DIRECTORY: &str = "outputs";
@@ -110,27 +112,50 @@ pub const MAX_PROGRAM_SIZE: usize =
 /// Edition 0 is the initial deployment, and increments with each upgrade.
 pub type Edition = u16;
 
+/// Converts a valid program or library name into a `Symbol`.
+///
+/// Names must either end with `.aleo` or contain no periods; otherwise an error is returned.
 fn symbol(name: &str) -> Result<Symbol> {
-    name.strip_suffix(".aleo").map(Symbol::intern).ok_or_else(|| PackageError::invalid_network_name(name).into())
+    if name.ends_with(".aleo") || !name.contains('.') {
+        Ok(Symbol::intern(name))
+    } else {
+        Err(PackageError::invalid_network_name(name).into())
+    }
 }
 
-/// Is this a valid name for an Aleo program?
+/// Checks whether a string is a valid Aleo program name.
 ///
-/// Namely, it must be of the format "xxx.aleo" where `xxx` is nonempty,
-/// consist solely of ASCII alphanumeric characters and underscore, and
-/// begin with a letter.
-pub fn is_valid_aleo_name(name: &str) -> bool {
+/// A valid program name must end with `.aleo` and the base name (without the
+/// suffix) must satisfy Aleo package naming rules.
+pub fn is_valid_program_name(name: &str) -> bool {
     let Some(rest) = name.strip_suffix(".aleo") else {
+        tracing::error!("Program names must end with `.aleo`.");
         return false;
     };
 
+    is_valid_package_name(rest)
+}
+
+/// Checks whether a string is a valid Aleo library name.
+///
+/// Library names must satisfy Aleo package naming rules but do not require
+/// a `.aleo` suffix.
+pub fn is_valid_library_name(name: &str) -> bool {
+    is_valid_package_name(name)
+}
+
+/// Checks whether a string satisfies general Aleo package naming rules.
+///
+/// Names must be nonempty, start with a letter, contain only ASCII alphanumeric
+/// characters or underscores, avoid reserved keywords, and not contain "aleo".
+fn is_valid_package_name(name: &str) -> bool {
     // Check that the name is nonempty.
-    if rest.is_empty() {
+    if name.is_empty() {
         tracing::error!("Aleo names must be nonempty");
         return false;
     }
 
-    let first = rest.chars().next().unwrap();
+    let first = name.chars().next().unwrap();
 
     // Check that the first character is not an underscore.
     if first == '_' {
@@ -144,14 +169,14 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
         return false;
     }
 
-    // Iterate and check that the name is valid.
-    if rest.chars().any(|c| !c.is_ascii_alphanumeric() && c != '_') {
-        tracing::error!("Aleo names must can only contain ASCII alphanumeric characters and underscores.");
+    // Check valid characters.
+    if name.chars().any(|c| !c.is_ascii_alphanumeric() && c != '_') {
+        tracing::error!("Aleo names can only contain ASCII alphanumeric characters and underscores.");
         return false;
     }
 
-    // Check that the name is not a SnarkVM reserved keyword
-    if reserved_keywords().any(|kw| kw == rest) {
+    // Check reserved keywords.
+    if reserved_keywords().any(|kw| kw == name) {
         tracing::error!(
             "Aleo names cannot be a SnarkVM reserved keyword. Reserved keywords are: {}.",
             reserved_keywords().collect::<Vec<_>>().join(", ")
@@ -159,9 +184,9 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
         return false;
     }
 
-    // Check that the name does not contain `aleo`
-    if rest.contains("aleo") {
-        tracing::error!("Aleo names cannot contain the keyword `aleo`.",);
+    // Disallow "aleo"
+    if name.contains("aleo") {
+        tracing::error!("Aleo names cannot contain the keyword `aleo`.");
         return false;
     }
 

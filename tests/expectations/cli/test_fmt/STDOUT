@@ -1,3 +1,4 @@
+--- fmt program ---
 Diff in SOURCE_DIRECTORY/main.leo:1:
 -struct Coordinates{
 -      x:u64,
@@ -31,3 +32,11 @@ Diff in SOURCE_DIRECTORY/main.leo:1:
 +    @noupgrade
 +    constructor() {}
  }
+--- fmt library ---
+Diff in SOURCE_DIRECTORY/lib.leo:1:
+-const BASE:u32=10u32;
+-const DOUBLE :u32=  BASE * 2u32;
+-const TRIPLE: u32=BASE  *3u32  ;
++const BASE: u32 = 10u32;
++const DOUBLE: u32 = BASE * 2u32;
++const TRIPLE: u32 = BASE * 3u32;

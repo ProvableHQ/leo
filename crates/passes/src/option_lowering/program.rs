@@ -37,11 +37,11 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
 
         // Reconstruct all composites first and keep track of them in `self.reconstructed_composites`.
         for (_, scope) in &input.program_scopes {
-            self.program = scope.program_id.name.name;
+            self.program = scope.program_id.as_symbol();
             for (_, c) in &scope.composites {
                 let new_composite = self.reconstruct_composite(c.clone());
                 self.reconstructed_composites
-                    .insert(Location::new(scope.program_id.name.name, vec![new_composite.name()]), new_composite);
+                    .insert(Location::new(scope.program_id.as_symbol(), vec![new_composite.name()]), new_composite);
             }
         }
         for (module_path, module) in &input.modules {
@@ -68,7 +68,7 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
     }
 
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
 
         let mut program = ProgramScope {
             consts: input

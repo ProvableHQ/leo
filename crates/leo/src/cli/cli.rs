@@ -469,6 +469,53 @@ mod tests {
             run_with_args(run).expect("Failed to execute `leo run`");
         });
     }
+
+    #[test]
+    #[serial]
+    fn new_library_test() {
+        let temp_dir = temp_dir();
+        let lib_name = "my_test_lib";
+        let lib_directory = temp_dir.join(lib_name);
+
+        // Clean up from any previous run.
+        if lib_directory.exists() {
+            std::fs::remove_dir_all(&lib_directory).unwrap();
+        }
+
+        // Run `leo new --library my_test_lib`.
+        let new_cmd = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::New {
+                command: crate::cli::commands::LeoNew { name: lib_name.to_string(), library: true },
+            },
+            path: Some(lib_directory.clone()),
+            home: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new_cmd).expect("Failed to execute `leo new --library`");
+        });
+
+        // Verify the directory was created.
+        assert!(lib_directory.exists(), "Library directory should exist");
+
+        // Verify src/lib.leo exists (not main.leo).
+        let src_dir = lib_directory.join("src");
+        assert!(src_dir.join("lib.leo").exists(), "src/lib.leo should exist");
+        assert!(!src_dir.join("main.leo").exists(), "src/main.leo should NOT exist for a library");
+
+        // Verify the manifest has the library name (no .aleo suffix).
+        let manifest_path = lib_directory.join(leo_package::MANIFEST_FILENAME);
+        let manifest = leo_package::Manifest::read_from_file(&manifest_path).unwrap();
+        assert_eq!(manifest.program, lib_name, "Manifest program name should be the bare library name");
+
+        // Best-effort cleanup. On Windows the directory may still be held open briefly
+        // by the OS, so we ignore errors here rather than failing an otherwise-passing test.
+        let _ = std::fs::remove_dir_all(&lib_directory);
+    }
 }
 
 #[cfg(test)]
@@ -476,9 +523,6 @@ mod test_helpers {
     use crate::cli::{CLI, DependencySource, LeoAdd, LeoNew, cli::Commands, run_with_args};
     use leo_span::create_session_if_not_set_then;
     use std::path::Path;
-
-    const NETWORK: &str = "testnet";
-    const ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";
@@ -495,13 +539,7 @@ mod test_helpers {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: name.to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: name.to_string(), library: false } },
             path: Some(project_directory.clone()),
             home: None,
         };
@@ -618,13 +656,7 @@ function external_nested_function:
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "grandparent".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "grandparent".to_string(), library: false } },
             path: Some(grandparent_directory.clone()),
             home: None,
         };
@@ -634,13 +666,7 @@ function external_nested_function:
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "parent".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "parent".to_string(), library: false } },
             path: Some(parent_directory.clone()),
             home: None,
         };
@@ -650,13 +676,7 @@ function external_nested_function:
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "child".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "child".to_string(), library: false } },
             path: Some(child_directory.clone()),
             home: None,
         };
@@ -788,13 +808,7 @@ program child.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "outer".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "outer".to_string(), library: false } },
             path: Some(outer_directory.clone()),
             home: None,
         };
@@ -804,13 +818,7 @@ program child.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "inner_1".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "inner_1".to_string(), library: false } },
             path: Some(inner_1_directory.clone()),
             home: None,
         };
@@ -820,13 +828,7 @@ program child.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "inner_2".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "inner_2".to_string(), library: false } },
             path: Some(inner_2_directory.clone()),
             home: None,
         };
@@ -963,13 +965,7 @@ program inner_2.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "outer_2".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "outer_2".to_string(), library: false } },
             path: Some(outer_directory.clone()),
             home: None,
         };
@@ -979,13 +975,7 @@ program inner_2.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "inner_1".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "inner_1".to_string(), library: false } },
             path: Some(inner_1_directory.clone()),
             home: None,
         };
@@ -995,13 +985,7 @@ program inner_2.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New {
-                command: LeoNew {
-                    name: "inner_2".to_string(),
-                    network: NETWORK.to_string(),
-                    endpoint: ENDPOINT.to_string(),
-                },
-            },
+            command: Commands::New { command: LeoNew { name: "inner_2".to_string(), library: false } },
             path: Some(inner_2_directory.clone()),
             home: None,
         };

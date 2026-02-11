@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+echo "--- add lib_b as dependency of lib_a ---" | tee /dev/stderr
+
+cd lib_a || exit 1
+${LEO_BIN} --disable-update-check add lib_b --local ../lib_b
+
+echo "--- add lib_a as dependency of lib_b (creates cycle) ---" | tee /dev/stderr
+
+cd ../lib_b || exit 1
+${LEO_BIN} --disable-update-check add lib_a --local ../lib_a
+
+echo "--- leo build lib_a (should fail: circular dependency) ---" | tee /dev/stderr
+
+cd ../lib_a || exit 1
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

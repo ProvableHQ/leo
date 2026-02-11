@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+cd my_program || exit 1
+
+echo "--- leo add --local bad_lib ---" | tee /dev/stderr
+
+${LEO_BIN} --disable-update-check add bad_lib --local ../bad_lib
+
+echo "--- leo build (should fail: library has parse error) ---" | tee /dev/stderr
+
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

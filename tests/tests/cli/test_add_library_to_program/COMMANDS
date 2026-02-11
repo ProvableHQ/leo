@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+cd my_program || exit 1
+
+echo "--- leo add actual_lib.aleo --local (should fail: dep is a library, not a program) ---" | tee /dev/stderr
+
+${LEO_BIN} --disable-update-check add actual_lib.aleo --local ../actual_lib
+echo "add exit code: $?"
+
+echo "--- leo add actual_lib --local (should succeed: auto-detected as library) ---" | tee /dev/stderr
+
+${LEO_BIN} --disable-update-check add actual_lib --local ../actual_lib

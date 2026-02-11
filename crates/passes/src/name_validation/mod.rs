@@ -39,9 +39,15 @@ impl Pass for NameValidation {
 
     fn do_pass(_: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         let mut visitor = NameValidationVisitor { handler: &mut state.handler };
-        visitor.visit_program(state.ast.as_repr());
-        state.handler.last_err()?;
 
+        state.ast.visit(
+            |program| visitor.visit_program(program),
+            |_library| {
+                // no-op for libraries
+            },
+        );
+
+        state.handler.last_err()?;
         Ok(())
     }
 }

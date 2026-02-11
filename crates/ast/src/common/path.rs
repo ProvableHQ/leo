@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Location, Node, NodeID, simple_node_impl};
+use crate::{Expression, Identifier, Location, Node, NodeID, ProgramId, simple_node_impl};
 
 use leo_span::{Span, Symbol};
 
+use indexmap::IndexSet;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::{fmt, hash::Hash};
@@ -26,7 +27,7 @@ use std::{fmt, hash::Hash};
 #[derive(Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Path {
     /// The program this path belongs to, if set by the user
-    user_program: Option<Identifier>,
+    user_program: Option<ProgramId>,
 
     /// The qualifying namespace segments written by the user, excluding the item itself.
     /// e.g., in `foo::bar::baz`, this would be `[foo, bar]`.
@@ -63,7 +64,7 @@ impl Path {
     /// - `span`: The source code span for this path.
     /// - `id`: The node ID.
     pub fn new(
-        user_program: Option<Identifier>,
+        user_program: Option<ProgramId>,
         qualifier: Vec<Identifier>,
         identifier: Identifier,
         span: Span,
@@ -93,12 +94,12 @@ impl Path {
     }
 
     /// Returns the optional program identifier.
-    pub fn user_program(&self) -> Option<&Identifier> {
+    pub fn user_program(&self) -> Option<&ProgramId> {
         self.user_program.as_ref()
     }
 
     /// Returns `self` after setting it `user_program` field to `user_program`.
-    pub fn with_user_program(mut self, user_program: Identifier) -> Self {
+    pub fn with_user_program(mut self, user_program: ProgramId) -> Self {
         self.user_program = Some(user_program);
         self
     }
@@ -131,7 +132,7 @@ impl Path {
     /// 3. None (unresolved or local)
     pub fn program(&self) -> Option<Symbol> {
         if let Some(id) = &self.user_program {
-            return Some(id.name);
+            return Some(id.as_symbol());
         }
 
         match &self.target {
@@ -215,35 +216,79 @@ impl Path {
         Self { user_program, qualifier, identifier, target, span, id }
     }
 
-    /// Resolves this path as a global path using the current module context.
+    /// Resolves this path as a global path within the current module context.
     ///
-    /// This method constructs an absolute global `Location` by combining:
-    ///   1) the current module path,
-    ///   2) any user-written qualifier segments, and
-    ///   3) the final identifier.
+    /// This function converts a user-written path into a fully qualified
+    /// [`PathTarget::Global`] by determining which program the path belongs to
+    /// and constructing the corresponding module path.
     ///
-    /// The resolution only affects the `target` field and preserves
-    /// the original user-written syntax of the path.
-    pub fn resolve_as_global_in_module<I>(self, program: Symbol, current_module: I) -> Self
+    /// Resolution follows two main cases:
+    ///
+    /// 1. **External library access**
+    ///    If the path does not explicitly specify a program (`user_program` is `None`)
+    ///    and the first qualifier segment matches a known external library name,
+    ///    that segment is interpreted as the target program. The remaining qualifier
+    ///    segments and identifier form the path inside that program.
+    ///
+    /// 2. **Local or explicitly-qualified program access**
+    ///    Otherwise, the path is resolved relative to the current module context.
+    ///    The final location is constructed by combining:
+    ///      - the current module path,
+    ///      - any user-written qualifier segments, and
+    ///      - the final identifier.
+    ///
+    /// If the user explicitly wrote a program (via `user_program`), it overrides
+    /// the default `program` parameter. Otherwise, the current program is used.
+    ///
+    /// Importantly, this transformation **does not modify the user-written syntax**
+    /// (`user_program`, `qualifier`, `identifier`). It only determines the internal
+    /// `target` used during later compilation stages.
+    pub fn resolve_as_global_in_module<I>(
+        self,
+        program: Symbol,
+        external_libs: &IndexSet<Symbol>,
+        current_module: I,
+    ) -> Self
     where
         I: IntoIterator<Item = Symbol>,
     {
         let Path { user_program, qualifier, identifier, span, id, .. } = self;
 
-        let mut path: Vec<Symbol> = Vec::new();
+        // Case 1: The path starts with a known external library name and the user
+        // did not explicitly specify a program. In this situation we interpret
+        // the first qualifier segment as the program name.
+        if let Some(first) = qualifier.first()
+            && user_program.is_none()
+            && external_libs.contains(&first.name)
+        {
+            // Build the path within the external library by skipping the
+            // first qualifier (the library name itself).
+            let mut path: Vec<Symbol> = qualifier.iter().skip(1).map(|id| id.name).collect();
+            path.push(identifier.name);
 
-        // 1. Current module
-        path.extend(current_module);
+            let target = PathTarget::Global(Location { program: first.name, path });
 
-        // 2. User-written qualifier
-        path.extend(qualifier.iter().map(|id| id.name));
+            Self { user_program: None, qualifier, identifier, target, span, id }
+        } else {
+            // Case 2: Resolve relative to the current module.
+            //
+            // Construct the path by concatenating:
+            //   current_module + user qualifier + identifier.
+            let mut path: Vec<Symbol> = Vec::new();
+            path.extend(current_module);
+            path.extend(qualifier.iter().map(|id| id.name));
+            path.push(identifier.name);
 
-        // 3. Final identifier
-        path.push(identifier.name);
+            // Determine which program this location belongs to:
+            //   - use the explicitly written program if provided
+            //   - otherwise fall back to the current program.
+            let target = PathTarget::Global(Location {
+                program: user_program.map(|id| id.as_symbol()).unwrap_or(program),
+                path,
+            });
 
-        let target = PathTarget::Global(Location { program: user_program.map(|id| id.name).unwrap_or(program), path });
-
-        Self { user_program, qualifier, identifier, target, span, id }
+            Self { user_program, qualifier, identifier, target, span, id }
+        }
     }
 }
 
@@ -253,12 +298,12 @@ impl fmt::Display for Path {
         let program: Option<Symbol> = self
             .user_program
             .as_ref()
-            .map(|id| id.name) // Convert Identifier -> Symbol
+            .map(|id| id.as_symbol()) // Convert Identifier -> Symbol
             .or_else(|| self.try_global_location().map(|global| global.program));
 
         // Program prefix
         if let Some(program) = program {
-            write!(f, "{}.aleo/", program)?;
+            write!(f, "{}/", program)?;
         }
 
         // Qualifiers

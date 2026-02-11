@@ -1,0 +1,7 @@
+program complex_expr.aleo;
+
+function compute:
+    output 35u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

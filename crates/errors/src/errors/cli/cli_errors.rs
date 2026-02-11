@@ -335,9 +335,9 @@ create_messages!(
     }
 
     @backtraced
-    invalid_program_name {
-        args: (name: impl Display),
-        msg: format!("Invalid program name `{name}`"),
+    invalid_package_name {
+        args: (kind: impl Display, name: impl Display),
+        msg: format!("Invalid {kind} name `{name}`"),
         help: None,
     }
 

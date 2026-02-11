@@ -119,6 +119,13 @@ impl Command for LeoExecute {
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+        // Libraries cannot be executed.
+        if let Some(package) = &input
+            && package.programs.last().is_some_and(|p| p.is_library)
+        {
+            return Err(CliError::custom("Cannot execute a library package. Only programs can be executed.").into());
+        }
+
         // Get the network, accounting for overrides.
         let network = get_network(&self.env_override.network)?;
         // Handle each network with the appropriate parameterization.
@@ -189,7 +196,7 @@ fn handle_execute<A: Aleo>(
         None => match &package {
             Some(package) => (
                 format!(
-                    "{}.aleo",
+                    "{}",
                     package.programs.last().expect("There must be at least one program in a Leo package").name
                 ),
                 command.name,
@@ -222,8 +229,9 @@ fn handle_execute<A: Aleo>(
             .programs
             .iter()
             .clone()
+            .filter(|program| !program.is_library)
             .map(|program| {
-                let program_id = ProgramID::<A::Network>::from_str(&format!("{}.aleo", program.name))
+                let program_id = ProgramID::<A::Network>::from_str(&format!("{}", program.name))
                     .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
                 match &program.data {
                     ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), program.edition)),
@@ -232,7 +240,7 @@ fn handle_execute<A: Aleo>(
                         let bytecode_path = if source.as_path() == source_directory.join("main.leo") {
                             build_directory.join("main.aleo")
                         } else {
-                            imports_directory.join(format!("{}.aleo", program.name))
+                            imports_directory.join(format!("{}", program.name))
                         };
                         // Fetch the bytecode.
                         let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {

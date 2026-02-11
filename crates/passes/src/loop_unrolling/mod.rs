@@ -45,12 +45,18 @@ impl Pass for Unrolling {
     const NAME: &str = "Unrolling";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
         let mut visitor =
             UnrollingVisitor { state, program: Symbol::intern(""), loop_not_unrolled: None, loop_unrolled: false };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.reconstruct_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
+
         Ok(UnrollingOutput { loop_not_unrolled: visitor.loop_not_unrolled, loop_unrolled: visitor.loop_unrolled })
     }
 }

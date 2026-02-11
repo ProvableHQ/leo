@@ -21,7 +21,7 @@ use leo_span::sym;
 impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         // Set the current program name from the input.
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
 
         // We first reconstruct all composites. Composite fields can instantiate other generic composites that we need to handle
         // first. We'll then address composite expressions and other compoiste type instantiations.
