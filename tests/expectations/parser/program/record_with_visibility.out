@@ -55,7 +55,6 @@
                 "id": 1
               }
             ],
-            "external": null,
             "is_record": true,
             "span": {
               "lo": 25,

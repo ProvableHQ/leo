@@ -115,6 +115,8 @@ bool ~
 
 address ~
 
+signature ~
+
 char ~
 
 input ~

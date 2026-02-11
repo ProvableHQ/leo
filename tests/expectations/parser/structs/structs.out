@@ -8,18 +8,18 @@
         "name": {
           "name": "comma_separators",
           "span": {
-            "lo": 127,
-            "hi": 143
+            "lo": 141,
+            "hi": 157
           },
-          "id": 24
+          "id": 26
         },
         "network": {
           "name": "aleo",
           "span": {
-            "lo": 144,
-            "hi": 148
+            "lo": 158,
+            "hi": 162
           },
-          "id": 25
+          "id": 27
         }
       },
       "consts": [],
@@ -57,7 +57,6 @@
                 "id": 4
               }
             ],
-            "external": null,
             "is_record": false,
             "span": {
               "lo": 0,
@@ -118,7 +117,6 @@
                 "id": 8
               }
             ],
-            "external": null,
             "is_record": false,
             "span": {
               "lo": 26,
@@ -136,7 +134,7 @@
                 "lo": 69,
                 "hi": 73
               },
-              "id": 22
+              "id": 24
             },
             "const_parameters": [
               {
@@ -172,6 +170,22 @@
                   "hi": 94
                 },
                 "id": 21
+              },
+              {
+                "identifier": {
+                  "name": "N",
+                  "span": {
+                    "lo": 96,
+                    "hi": 97
+                  },
+                  "id": 22
+                },
+                "type_": "Signature",
+                "span": {
+                  "lo": 96,
+                  "hi": 108
+                },
+                "id": 23
               }
             ],
             "members": [
@@ -180,8 +194,8 @@
                 "identifier": {
                   "name": "z",
                   "span": {
-                    "lo": 102,
-                    "hi": 103
+                    "lo": 116,
+                    "hi": 117
                   },
                   "id": 13
                 },
@@ -193,15 +207,15 @@
                       "identifier": {
                         "name": "Foo2",
                         "span": {
-                          "lo": 105,
-                          "hi": 109
+                          "lo": 119,
+                          "hi": 123
                         },
                         "id": 14
                       },
                       "target": "Unresolved",
                       "span": {
-                        "lo": 105,
-                        "hi": 109
+                        "lo": 119,
+                        "hi": 123
                       },
                       "id": 16
                     },
@@ -209,8 +223,8 @@
                       {
                         "Literal": {
                           "span": {
-                            "lo": 112,
-                            "hi": 113
+                            "lo": 126,
+                            "hi": 127
                           },
                           "id": 15,
                           "variant": {
@@ -222,19 +236,18 @@
                   }
                 },
                 "span": {
-                  "lo": 102,
-                  "hi": 114
+                  "lo": 116,
+                  "hi": 128
                 },
                 "id": 17
               }
             ],
-            "external": null,
             "is_record": false,
             "span": {
               "lo": 62,
-              "hi": 117
+              "hi": 131
             },
-            "id": 23
+            "id": 25
           }
         ]
       ],
@@ -249,8 +262,8 @@
             "identifier": {
               "name": "main",
               "span": {
-                "lo": 158,
-                "hi": 162
+                "lo": 172,
+                "hi": 176
               },
               "id": 0
             },
@@ -261,14 +274,14 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 165,
-                "hi": 172
+                "lo": 179,
+                "hi": 186
               },
               "id": 1
             },
             "span": {
-              "lo": 155,
-              "hi": 172
+              "lo": 169,
+              "hi": 186
             },
             "id": 2
           }
@@ -277,7 +290,7 @@
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 174
+        "hi": 188
       }
     }
   }

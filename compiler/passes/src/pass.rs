@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ use indexmap::IndexMap;
 use leo_ast::{Ast, CallGraph, CompositeGraph, Location, NetworkName, NodeBuilder};
 use leo_errors::{Handler, LeoWarning, Result};
 
-use std::collections::HashSet;
+use std::{collections::HashSet, rc::Rc};
 
 /// Contains data shared by many compiler passes.
 #[derive(Default)]
@@ -32,7 +32,7 @@ pub struct CompilerState {
     /// Maps node IDs to types.
     pub type_table: TypeTable,
     /// Creates incrementing node IDs.
-    pub node_builder: NodeBuilder,
+    pub node_builder: Rc<NodeBuilder>,
     /// Creates unique symbols and definitions.
     pub assigner: Assigner,
     /// Contains data about the variables and other entities in the program.

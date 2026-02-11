@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -99,7 +99,6 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             Expression::Err(err) => self.reconstruct_err(err, &()),
             Expression::Path(path) => self.reconstruct_path(path, &()),
             Expression::Literal(value) => self.reconstruct_literal(value, &()),
-            Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
@@ -144,7 +143,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // Look up the already reconstructed function by name.
         let callee_fn = self
             .reconstructed_functions
-            .get(&input_call.function.expect_global_location().path)
+            .get(input_call.function.expect_global_location())
             .expect("Callee should already be reconstructed (post-order traversal).");
 
         // Proceed only if the function variant is `inline`.
@@ -165,7 +164,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
 
         // Check if the new callee name is not already present in `reconstructed_functions`. This ensures that we do not
         // add a duplicate definition for the same function.
-        if self.reconstructed_functions.get(&new_callee_path.expect_global_location().path).is_none() {
+        if self.reconstructed_functions.get(new_callee_path.expect_global_location()).is_none() {
             // Build mapping from const parameters to const argument values.
             let const_param_map: IndexMap<_, _> = callee_fn
                 .const_parameters
@@ -201,10 +200,10 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             function.id = self.state.node_builder.next_id();
 
             // Keep track of the new function in case other functions need it.
-            self.reconstructed_functions.insert(new_callee_path.expect_global_location().path.clone(), function);
+            self.reconstructed_functions.insert(new_callee_path.expect_global_location().clone(), function);
 
             // Now keep track of the function we just monomorphized
-            self.monomorphized_functions.insert(input_call.function.expect_global_location().path.clone());
+            self.monomorphized_functions.insert(input_call.function.expect_global_location().clone());
         }
 
         // At this stage, we know that we're going to modify the program

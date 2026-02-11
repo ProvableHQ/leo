@@ -9,6 +9,7 @@ program foo.aleo {
         g: ()?,
         h: scalar?,
         i: field?,
+        j: signature?,
     ) {
 
     }

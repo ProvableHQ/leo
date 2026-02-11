@@ -34,7 +34,7 @@ program test.aleo {
 
 final fn finish(public a: u64, b: address) {
     CheatCode::print_mapping(Yo);
-    CheatCode::print_mapping(test_dep.aleo/account);
+    CheatCode::print_mapping(test_dep.aleo/Yo);
     CheatCode::set_block_height(1u64);
     CheatCode::set_block_height(a);
     CheatCode::set_block_timestamp(1u32);

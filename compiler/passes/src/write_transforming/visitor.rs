@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -310,8 +310,8 @@ impl WriteTransformingFiller<'_> {
                         .0
                         .state
                         .symbol_table
-                        .lookup_struct(&composite_location.path)
-                        .or_else(|| self.0.state.symbol_table.lookup_record(composite_location))
+                        .lookup_struct(self.0.program, composite_location)
+                        .or_else(|| self.0.state.symbol_table.lookup_record(self.0.program, composite_location))
                         .unwrap();
                     composite
                         .members

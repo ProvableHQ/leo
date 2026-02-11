@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -163,11 +163,13 @@ pub fn evaluate_intrinsic(
             _ => crate::halt_no_span2!("expected array for deserialization"),
         };
         let get_struct_fail = |_: &SvmIdentifier| anyhow::bail!("structs are not supported");
+        let get_external_struct_fail = |_: &SvmLocator| anyhow::bail!("structs are not supported");
         let value = snarkvm::synthesizer::program::evaluate_deserialize(
             variant,
             &bits,
             &type_.to_snarkvm()?,
             &get_struct_fail,
+            &get_external_struct_fail,
         )?;
         Ok(value.into())
     };
@@ -219,8 +221,7 @@ pub fn evaluate_intrinsic(
         }
         Intrinsic::CheatCodePrintMapping => {
             let (program, name) = match &arguments[0] {
-                Expression::Path(id) => (None, id.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             if let Some(mapping) = helper.lookup_mapping(program, name) {
@@ -257,8 +258,7 @@ pub fn evaluate_intrinsic(
         Intrinsic::MappingGet => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).expect_tc(span)?.clone()
@@ -267,8 +267,7 @@ pub fn evaluate_intrinsic(
             let value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_set(program, name, key, value).expect_tc(span)?;
@@ -278,8 +277,7 @@ pub fn evaluate_intrinsic(
             let use_value = helper.pop_value().expect_tc(span)?;
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).unwrap_or(use_value)
@@ -287,8 +285,7 @@ pub fn evaluate_intrinsic(
         Intrinsic::MappingRemove => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_remove(program, name, &key).expect_tc(span)?;
@@ -297,8 +294,7 @@ pub fn evaluate_intrinsic(
         Intrinsic::MappingContains => {
             let key = helper.pop_value().expect_tc(span)?;
             let (program, name) = match &arguments[0] {
-                Expression::Path(path) => (None, path.identifier().name),
-                Expression::Locator(locator) => (Some(locator.program.name.name), locator.name),
+                Expression::Path(path) => (path.program(), path.identifier().name),
                 _ => tc_fail2!(),
             };
             helper.mapping_get(program, name, &key).is_some().into()

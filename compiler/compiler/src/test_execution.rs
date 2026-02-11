@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,18 +16,14 @@
 
 use crate::run;
 
-use leo_disassembler::disassemble_from_str;
+use leo_ast::NodeBuilder;
 use leo_errors::{BufferEmitter, Handler, Result};
 use leo_span::{Symbol, create_session_if_not_set_then};
 
-use snarkvm::prelude::TestnetV0;
-
 use indexmap::IndexMap;
 use itertools::Itertools as _;
-use serial_test::serial;
-use std::fmt::Write as _;
 
-type CurrentNetwork = TestnetV0;
+use std::{fmt::Write as _, rc::Rc};
 
 // Execution test configuration.
 #[derive(Debug)]
@@ -43,23 +39,40 @@ impl Default for Config {
     }
 }
 
-fn execution_run_test(config: &Config, cases: &[run::Case], handler: &Handler) -> Result<String> {
+fn execution_run_test(
+    config: &Config,
+    cases: &[run::Case],
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+) -> Result<String> {
     let mut import_stubs = IndexMap::new();
 
     let mut ledger_config = run::Config { seed: config.seed, start_height: config.start_height, programs: Vec::new() };
 
-    let mut requires_ledger = false;
+    // We assume config.sources is non-empty.
+    let (last, rest) = config.sources.split_last().expect("non-empty sources");
 
-    // Compile each source file.
-    for source in &config.sources {
-        let (bytecode, name) = super::test_utils::whole_compile(source, handler, import_stubs.clone())?;
-        requires_ledger = bytecode.contains("async");
+    // Parse-only for intermediate programs.
+    for source in rest {
+        let (program, program_name) = super::test_utils::parse(source, handler, node_builder, import_stubs.clone())?;
 
-        let stub = disassemble_from_str::<CurrentNetwork>(&name, &bytecode)?;
-        import_stubs.insert(Symbol::intern(&name), stub);
-
-        ledger_config.programs.push(run::Program { bytecode, name });
+        import_stubs.insert(Symbol::intern(&program_name), program.into());
     }
+
+    // Full compile for the final program.
+    let (compiled, program_name) = super::test_utils::whole_compile(last, handler, node_builder, import_stubs.clone())?;
+
+    // Add imports.
+    let mut requires_ledger = false;
+    for import in &compiled.imports {
+        requires_ledger |= import.bytecode.contains("async");
+        ledger_config.programs.push(run::Program { bytecode: import.bytecode.clone(), name: import.name.clone() });
+    }
+
+    // Add main program.
+    let primary_bytecode = compiled.primary.bytecode.clone();
+    requires_ledger |= primary_bytecode.contains("async");
+    ledger_config.programs.push(run::Program { bytecode: primary_bytecode, name: program_name });
 
     let mut result = ledger_config
         .programs
@@ -95,6 +108,7 @@ fn execution_run_test(config: &Config, cases: &[run::Case], handler: &Handler) -
 fn execution_runner(source: &str) -> String {
     let buf = BufferEmitter::new();
     let handler = Handler::new(buf.clone());
+    let node_builder = Rc::new(NodeBuilder::default());
 
     let mut config = Config::default();
     let mut cases = Vec::<run::Case>::new();
@@ -124,7 +138,7 @@ fn execution_runner(source: &str) -> String {
     // Split the sources and add them to the config.
     config.sources = source.split(super::test_utils::PROGRAM_DELIMITER).map(|s| s.trim().to_string()).collect();
 
-    create_session_if_not_set_then(|_| match execution_run_test(&config, &cases, &handler) {
+    create_session_if_not_set_then(|_| match execution_run_test(&config, &cases, &handler, &node_builder) {
         Ok(s) => s,
         Err(e) => {
             format!("Error while running execution tests:\n{e}\n\nErrors:\n{}", buf.extract_errs())
@@ -132,8 +146,7 @@ fn execution_runner(source: &str) -> String {
     })
 }
 
-#[test]
-#[serial]
-fn test_execution() {
-    leo_test_framework::run_tests("execution", execution_runner);
+#[cfg(test)]
+mod execution_tests {
+    include!(concat!(env!("OUT_DIR"), "/execution_tests.rs"));
 }

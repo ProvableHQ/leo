@@ -11,7 +11,7 @@
             "lo": 8,
             "hi": 11
           },
-          "id": 24
+          "id": 26
         },
         "network": {
           "name": "aleo",
@@ -19,7 +19,7 @@
             "lo": 12,
             "hi": 16
           },
-          "id": 25
+          "id": 27
         }
       },
       "consts": [],
@@ -293,6 +293,27 @@
                   "hi": 201
                 },
                 "id": 21
+              },
+              {
+                "identifier": {
+                  "name": "j",
+                  "span": {
+                    "lo": 211,
+                    "hi": 212
+                  },
+                  "id": 22
+                },
+                "mode": "None",
+                "type_": {
+                  "Optional": {
+                    "inner": "Signature"
+                  }
+                },
+                "span": {
+                  "lo": 211,
+                  "hi": 224
+                },
+                "id": 23
               }
             ],
             "output": [],
@@ -300,23 +321,23 @@
             "block": {
               "statements": [],
               "span": {
-                "lo": 209,
-                "hi": 217
+                "lo": 232,
+                "hi": 240
               },
-              "id": 22
+              "id": 24
             },
             "span": {
               "lo": 23,
-              "hi": 217
+              "hi": 240
             },
-            "id": 23
+            "id": 25
           }
         ]
       ],
       "constructor": null,
       "span": {
         "lo": 0,
-        "hi": 219
+        "hi": 242
       }
     }
   }

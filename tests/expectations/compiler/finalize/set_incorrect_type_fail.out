@@ -1,9 +1,9 @@
-Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
+Error [ETYC0372117]: Expected type `test.aleo/Token` but type `u128` was found.
     --> compiler-test:17:32
      |
   17 |     Mapping::set(tokens, addr, amount);
      |                                ^^^^^^
-Error [ETYC0372117]: Expected type `Token` but type `u128` was found.
+Error [ETYC0372117]: Expected type `test.aleo/Token` but type `u128` was found.
     --> compiler-test:18:22
      |
   18 |     tokens.set(addr, amount);

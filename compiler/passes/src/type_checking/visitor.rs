@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@ pub struct TypeCheckingVisitor<'a> {
     /// Mapping from async function name to the names of async transition callers.
     pub async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
-    pub used_composites: IndexSet<Vec<Symbol>>,
+    pub used_composites: IndexSet<Location>,
     /// So we can check if we exceed limits on array size, number of mappings, or number of functions.
     pub limits: TypeCheckingInput,
     /// For detecting the error `TypeCheckerError::async_cannot_assign_outside_conditional`.
@@ -87,9 +87,7 @@ impl TypeCheckingVisitor<'_> {
     /// Emits an error if the two given types are not equal.
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !t1.eq_flat_relaxed(t2) => {
-                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
-            }
+            (Some(t1), Some(t2)) if !t1.eq_user(t2) => self.emit_err(TypeCheckerError::type_should_be(t1, t2, span)),
             (Some(type_), None) | (None, Some(type_)) => {
                 self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
             }
@@ -114,8 +112,7 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
-        let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
-        if actual != &Type::Err && !actual.can_coerce_to(expected, &is_record) {
+        if actual != &Type::Err && !actual.can_coerce_to(expected) {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
         }
@@ -471,6 +468,17 @@ impl TypeCheckingVisitor<'_> {
         // Define a regex to match valid program IDs.
         let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
 
+        fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
+            bail!("structs are not supported")
+        }
+
+        let current_program = self.scope_state.program_name.unwrap();
+        // Returns true if the given expression is a local path in the current program.
+        let is_local_path = |expr: &Expression| -> bool {
+            matches!(expr, Expression::Path(path)
+        if path.program().is_none() || path.program() == Some(current_program))
+        };
+
         // Check that the arguments are of the correct type.
         match intrinsic {
             Intrinsic::Commit(variant, type_) => {
@@ -495,12 +503,21 @@ impl TypeCheckingVisitor<'_> {
                     let input_type = &arguments[0].0;
                     // Get the size in bits.
                     let size_in_bits = match self.state.network {
-                        NetworkName::TestnetV0 => input_type
-                            .size_in_bits::<TestnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
-                        NetworkName::MainnetV0 => input_type
-                            .size_in_bits::<MainnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
-                        NetworkName::CanaryV0 => input_type
-                            .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
+                            variant.is_raw(),
+                            &struct_not_supported,
+                            &struct_not_supported,
+                        ),
+                        NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
+                            variant.is_raw(),
+                            &struct_not_supported,
+                            &struct_not_supported,
+                        ),
+                        NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
+                            variant.is_raw(),
+                            &struct_not_supported,
+                            &struct_not_supported,
+                        ),
                     };
                     if let Ok(size_in_bits) = size_in_bits {
                         // Check that the size in bits is a multiple of 8.
@@ -642,12 +659,21 @@ impl TypeCheckingVisitor<'_> {
                     let input_type = &arguments[2].0;
                     // Get the size in bits.
                     let size_in_bits = match self.state.network {
-                        NetworkName::TestnetV0 => input_type
-                            .size_in_bits::<TestnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
-                        NetworkName::MainnetV0 => input_type
-                            .size_in_bits::<MainnetV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
-                        NetworkName::CanaryV0 => input_type
-                            .size_in_bits::<CanaryV0, _>(variant.is_raw(), |_| bail!("structs are not supported")),
+                        NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
+                            variant.is_raw(),
+                            &struct_not_supported,
+                            &struct_not_supported,
+                        ),
+                        NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
+                            variant.is_raw(),
+                            &struct_not_supported,
+                            &struct_not_supported,
+                        ),
+                        NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
+                            variant.is_raw(),
+                            &struct_not_supported,
+                            &struct_not_supported,
+                        ),
                     };
                     if let Ok(size_in_bits) = size_in_bits {
                         // Check that the size in bits is a multiple of 8.
@@ -665,103 +691,108 @@ impl TypeCheckingVisitor<'_> {
                 Type::Boolean
             }
             Intrinsic::MappingGet => {
-                if let Type::Mapping(MappingType { value, .. }) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Mapping::get", true, function_span);
+                let (map_ty, map_expr) = &arguments[0];
 
-                    *value.clone()
-                } else {
-                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
-                }
-            }
-            Intrinsic::VectorGet => {
-                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Vector::get", true, function_span);
+                let Type::Mapping(MappingType { value, .. }) = map_ty else {
+                    self.assert_vector_or_mapping_type(map_ty, map_expr.span());
+                    return Type::Err;
+                };
 
-                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
-                } else {
-                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
-                }
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Mapping::get", true, function_span);
+
+                *value.clone()
             }
             Intrinsic::MappingSet => {
-                if let Type::Mapping(_) = &arguments[0].0 {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Mapping::set", true, function_span);
+                let (map_ty, map_expr) = &arguments[0];
 
-                    Type::Unit
-                } else {
-                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
-                }
-            }
-            Intrinsic::VectorSet => {
-                if arguments[0].0.is_vector() {
-                    // Check that the operation is invoked in a `finalize` or `async` block.
-                    self.check_access_allowed("Vector::set", true, function_span);
+                let Type::Mapping(_) = map_ty else {
+                    self.assert_vector_or_mapping_type(map_ty, map_expr.span());
+                    return Type::Err;
+                };
 
-                    Type::Unit
-                } else {
-                    self.assert_vector_or_mapping_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Mapping::set", true, function_span);
+
+                // Argument 0 must be a local path (cannot modify external mappings).
+                if !is_local_path(map_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "set",
+                        "mapping",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
+
+                Type::Unit
             }
             Intrinsic::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::get_or_use", true, function_span);
-                // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
-                let Type::Mapping(mapping_type) = &arguments[0].0 else {
-                    // We will have already handled the error in the assertion.
+                let (map_ty, map_expr) = &arguments[0];
+
+                // Check that the first argument is a mapping.
+                self.assert_mapping_type(map_ty, map_expr.span());
+
+                let Type::Mapping(MappingType { key, value, .. }) = map_ty else {
+                    // We already handled the error in the assertion.
                     return Type::Err;
                 };
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
-                // Check that the third argument matches the value type of the mapping.
-                self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1.span());
+                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
 
-                mapping_type.value.deref().clone()
+                // Check that the third argument matches the value type of the mapping.
+                self.assert_type(&arguments[2].0, value, arguments[2].1.span());
+
+                value.deref().clone()
             }
             Intrinsic::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::remove", true, function_span);
-                // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
-                let Type::Mapping(mapping_type) = &arguments[0].0 else {
-                    // We will have already handled the error in the assertion.
+                let (map_ty, map_expr) = &arguments[0];
+
+                // Check that the first argument is a mapping.
+                self.assert_mapping_type(map_ty, map_expr.span());
+
+                let Type::Mapping(MappingType { key, .. }) = map_ty else {
+                    // We already handled the error in the assertion.
                     return Type::Err;
                 };
 
-                // Cannot modify external mappings.
-                if mapping_type.program != self.scope_state.program_name.unwrap() {
-                    self.state
-                        .handler
-                        .emit_err(TypeCheckerError::cannot_modify_external_mapping("remove", function_span));
+                // Argument 0 must be a local path (cannot modify external mappings).
+                if !is_local_path(map_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "remove",
+                        "mapping",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
+                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
 
                 Type::Unit
             }
             Intrinsic::MappingContains => {
                 // Check that the operation is invoked in a `finalize` block.
                 self.check_access_allowed("Mapping::contains", true, function_span);
-                // Check that the first argument is a mapping.
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
 
-                let Type::Mapping(mapping_type) = &arguments[0].0 else {
-                    // We will have already handled the error in the assertion.
+                let (map_ty, map_expr) = &arguments[0];
+
+                // Check that the first argument is a mapping.
+                self.assert_mapping_type(map_ty, map_expr.span());
+
+                let Type::Mapping(MappingType { key, .. }) = map_ty else {
+                    // We already handled the error in the assertion.
                     return Type::Err;
                 };
 
                 // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1.span());
+                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
 
                 Type::Boolean
             }
@@ -787,59 +818,148 @@ impl TypeCheckingVisitor<'_> {
                     _ => Type::Err,
                 }
             }
+            Intrinsic::VectorGet => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                    self.assert_vector_or_mapping_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                };
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Vector::get", true, function_span);
+
+                Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+            }
+            Intrinsic::VectorSet => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                if !vec_ty.is_vector() {
+                    self.assert_vector_or_mapping_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                }
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Vector::set", true, function_span);
+
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "set",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
+                }
+
+                Type::Unit
+            }
             Intrinsic::VectorPush => {
+                let (vec_ty, vec_expr) = &arguments[0];
+                let (val_ty, val_expr) = &arguments[1];
+
+                // First argument must be a vector.
+                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                    self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                };
+
+                // Value being pushed must match element type.
+                self.assert_type(val_ty, element_type, val_expr.span());
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::push", true, function_span);
 
-                // Check that the first argument is a vector
-                match &arguments[0].0 {
-                    Type::Vector(VectorType { element_type }) => {
-                        // Ensure that the element type and the type of the value to push are the same
-                        self.assert_type(&arguments[1].0, element_type, arguments[1].1.span());
-                        Type::Unit
-                    }
-                    _ => {
-                        self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
-                        Type::Err
-                    }
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "push",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
+
+                Type::Unit
             }
             Intrinsic::VectorLen => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::len", true, function_span);
 
-                if arguments[0].0.is_vector() {
+                if vec_ty.is_vector() {
                     Type::Integer(IntegerType::U32)
                 } else {
-                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
+                    self.assert_vector_type(vec_ty, vec_expr.span());
                     Type::Err
                 }
             }
             Intrinsic::VectorPop => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::pop", true, function_span);
 
-                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
-                } else {
-                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
+                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                    self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                };
+
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "pop",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
+
+                Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
             }
             Intrinsic::VectorSwapRemove => {
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::swap_remove", true, function_span);
 
-                if let Type::Vector(VectorType { element_type }) = &arguments[0].0 {
-                    *element_type.clone()
-                } else {
-                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
+                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                    self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                };
+
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "swap_remove",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
                 }
+
+                *element_type.clone()
             }
             Intrinsic::VectorClear => {
-                if arguments[0].0.is_vector() {
-                    Type::Unit
-                } else {
-                    self.assert_vector_type(&arguments[0].0, arguments[0].1.span());
-                    Type::Err
+                let (vec_ty, vec_expr) = &arguments[0];
+
+                if !vec_ty.is_vector() {
+                    self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
                 }
+
+                // Argument 0 must be a local path (cannot modify external vectors).
+                if !is_local_path(vec_expr) {
+                    self.state.handler.emit_err(TypeCheckerError::cannot_modify_external_container(
+                        "clear",
+                        "vector",
+                        function_span,
+                    ));
+                    return Type::Err;
+                }
+
+                Type::Unit
             }
             Intrinsic::GroupToXCoordinate | Intrinsic::GroupToYCoordinate => {
                 // Check that the first argument is a group.
@@ -970,13 +1090,13 @@ impl TypeCheckingVisitor<'_> {
                 // Get the size in bits.
                 let size_in_bits = match self.state.network {
                     NetworkName::TestnetV0 => {
-                        input_type.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        input_type.size_in_bits::<TestnetV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
                     }
                     NetworkName::MainnetV0 => {
-                        input_type.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        input_type.size_in_bits::<MainnetV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
                     }
                     NetworkName::CanaryV0 => {
-                        input_type.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        input_type.size_in_bits::<CanaryV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
                     }
                 };
 
@@ -1017,13 +1137,13 @@ impl TypeCheckingVisitor<'_> {
                 // Get the size in bits.
                 let size_in_bits = match self.state.network {
                     NetworkName::TestnetV0 => {
-                        type_.size_in_bits::<TestnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        type_.size_in_bits::<TestnetV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
                     }
                     NetworkName::MainnetV0 => {
-                        type_.size_in_bits::<MainnetV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        type_.size_in_bits::<MainnetV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
                     }
                     NetworkName::CanaryV0 => {
-                        type_.size_in_bits::<CanaryV0, _>(is_raw, |_| bail!("structs are not supported"))
+                        type_.size_in_bits::<CanaryV0, _, _>(is_raw, &struct_not_supported, &struct_not_supported)
                     }
                 };
 
@@ -1256,7 +1376,6 @@ impl TypeCheckingVisitor<'_> {
             | Type::Mapping(_)
             | Type::Optional(_)
             | Type::String
-            | Type::Signature
             | Type::Tuple(_)
             | Type::Vector(_) => true,
 
@@ -1296,7 +1415,8 @@ impl TypeCheckingVisitor<'_> {
             | Type::Group
             | Type::Integer(_)
             | Type::Numeric
-            | Type::Scalar => false,
+            | Type::Scalar
+            | Type::Signature => false,
         }
     }
 
@@ -1479,7 +1599,7 @@ impl TypeCheckingVisitor<'_> {
                         .iter()
                         .flat_map(|caller| {
                             let caller = Location::new(caller.program, caller.path.clone());
-                            self.state.symbol_table.lookup_function(&caller)
+                            self.state.symbol_table.lookup_function(self.scope_state.program_name.unwrap(), &caller)
                         })
                         .flat_map(|fn_symbol| fn_symbol.finalizer.clone())
                 })
@@ -1686,7 +1806,6 @@ impl TypeCheckingVisitor<'_> {
     /// or, if they're both futures, set any member of `lhs` that isn't
     /// equal to the equivalent member of `rhs` to `Type::Err`.
     fn merge_types(&self, lhs: &mut Type, rhs: &Type) {
-        let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
         if let Type::Future(f1) = lhs {
             if let Type::Future(f2) = rhs {
                 for (i, type_) in f2.inputs.iter().enumerate() {
@@ -1699,7 +1818,7 @@ impl TypeCheckingVisitor<'_> {
             } else {
                 *lhs = Type::Err;
             }
-        } else if !lhs.eq_user(rhs, &is_record) {
+        } else if !lhs.eq_user(rhs) {
             *lhs = Type::Err;
         }
     }
@@ -1707,13 +1826,14 @@ impl TypeCheckingVisitor<'_> {
     /// Wrapper around lookup_struct and lookup_record that additionally records all structs and records that are
     /// used in the program.
     pub fn lookup_composite(&mut self, loc: &Location) -> Option<Composite> {
-        let record_comp = self.state.symbol_table.lookup_record(loc);
-        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(&loc.path));
+        let current_program = self.scope_state.program_name.unwrap();
+        let record_comp = self.state.symbol_table.lookup_record(current_program, loc);
+        let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(current_program, loc));
         // Record the usage.
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.
             if !s.is_record || Some(loc.program) == self.scope_state.program_name {
-                self.used_composites.insert(loc.path.clone());
+                self.used_composites.insert(loc.clone());
             }
         }
         comp.cloned()
@@ -1772,7 +1892,7 @@ impl TypeCheckingVisitor<'_> {
             let this_program = self.scope_state.program_name.unwrap();
             let composite_location = typ.path.expect_global_location();
             composite_location.program != this_program
-                && self.state.symbol_table.lookup_record(composite_location).is_some()
+                && self.state.symbol_table.lookup_record(this_program, composite_location).is_some()
         } else {
             false
         }

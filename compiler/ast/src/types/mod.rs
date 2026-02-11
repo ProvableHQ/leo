@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,8 +17,8 @@
 mod array;
 pub use array::*;
 
-mod composite_type;
-pub use composite_type::*;
+mod composite;
+pub use composite::*;
 
 mod future;
 pub use future::*;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -421,6 +421,7 @@ impl Cursor {
                         );
                         (value, destination)
                     }
+                    CastType::Plaintext(PlaintextType::ExternalStruct(_)) => todo!(),
                     CastType::Record(record_name) => {
                         let name = Symbol::intern(&record_name.to_string());
                         let path = vec![name];

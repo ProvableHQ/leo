@@ -1,0 +1,66 @@
+{
+  "program": "test_json_program.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [
+    {
+      "name": "expected_checksum",
+      "key": {
+        "Primitive": "Boolean"
+      },
+      "value": {
+        "Array": {
+          "element": {
+            "Primitive": {
+              "UInt": "U8"
+            }
+          },
+          "length": 32
+        }
+      }
+    }
+  ],
+  "storage_variables": [],
+  "transitions": [
+    {
+      "name": "main",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Public"
+        },
+        {
+          "name": "b",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

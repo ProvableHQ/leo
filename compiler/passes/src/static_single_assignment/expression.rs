@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -29,7 +29,6 @@ use leo_ast::{
     ExpressionConsumer,
     IntrinsicExpression,
     Literal,
-    LocatorExpression,
     MemberAccess,
     Path,
     RepeatExpression,
@@ -175,8 +174,8 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         let composite_definition: &Composite = self
             .state
             .symbol_table
-            .lookup_record(composite_location)
-            .or_else(|| self.state.symbol_table.lookup_struct(&composite_location.path))
+            .lookup_record(self.program, composite_location)
+            .or_else(|| self.state.symbol_table.lookup_struct(self.program, composite_location))
             .expect("Type checking guarantees this definition exists.");
 
         // Initialize the list of reordered members.
@@ -220,11 +219,6 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     /// Consumes and returns the literal without making any modifications.
     fn consume_literal(&mut self, input: Literal) -> Self::Output {
         (input.into(), Default::default())
-    }
-
-    /// Consumes and returns the locator expression without making any modifications
-    fn consume_locator(&mut self, input: LocatorExpression) -> Self::Output {
-        (input.into(), Vec::new())
     }
 
     fn consume_repeat(&mut self, input: RepeatExpression) -> Self::Output {

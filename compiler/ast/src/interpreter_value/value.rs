@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -43,6 +43,7 @@ use snarkvm::prelude::{
 pub(crate) use snarkvm::prelude::{
     Identifier as SvmIdentifierParam,
     Literal as SvmLiteralParam,
+    Locator as SvmLocatorParam,
     Plaintext,
     Signature as SvmSignature,
     TestnetV0,
@@ -61,6 +62,7 @@ pub(crate) type ProgramID = ProgramIDParam<CurrentNetwork>;
 pub(crate) type SvmPlaintext = Plaintext<CurrentNetwork>;
 pub(crate) type SvmLiteral = SvmLiteralParam<CurrentNetwork>;
 pub(crate) type SvmIdentifier = SvmIdentifierParam<CurrentNetwork>;
+pub(crate) type SvmLocator = SvmLocatorParam<CurrentNetwork>;
 pub(crate) type Group = SvmGroup<CurrentNetwork>;
 pub(crate) type Field = SvmField<CurrentNetwork>;
 pub(crate) type Scalar = SvmScalar<CurrentNetwork>;
@@ -301,6 +303,13 @@ macro_rules! impl_from_literal {
 
 impl_from_literal! {
     Field; Group; Scalar; Address;
+}
+
+impl From<snarkvm::prelude::Signature<CurrentNetwork>> for Value {
+    fn from(s: snarkvm::prelude::Signature<CurrentNetwork>) -> Self {
+        let literal: SvmLiteral = s.into();
+        ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(literal, Default::default()))).into()
+    }
 }
 
 impl TryFrom<Value> for snarkvm::prelude::Signature<CurrentNetwork> {
@@ -828,7 +837,7 @@ impl Value {
         span: Span,
         node_builder: &NodeBuilder,
         ty: &Type,
-        struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+        struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
     ) -> Option<Expression> {
         use crate::{Literal, TupleExpression, UnitExpression};
 
@@ -877,7 +886,7 @@ fn plaintext_to_expression(
     span: Span,
     node_builder: &NodeBuilder,
     ty: &Type,
-    struct_lookup: &dyn Fn(&[Symbol]) -> Vec<(Symbol, Type)>,
+    struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
 ) -> Option<Expression> {
     use crate::{ArrayExpression, CompositeExpression, CompositeFieldInitializer, Identifier, IntegerType, Literal};
 
@@ -901,12 +910,6 @@ fn plaintext_to_expression(
                 s.truncate(s.len() - 5);
                 Literal::group(s, span, id).into()
             }
-            SvmLiteralParam::Scalar(scalar) => {
-                let mut s = scalar.to_string();
-                // Strip off the `scalar` suffix.
-                s.truncate(s.len() - 6);
-                Literal::scalar(s, span, id).into()
-            }
             SvmLiteralParam::I8(int) => Literal::integer(IntegerType::I8, (**int).to_string(), span, id).into(),
             SvmLiteralParam::I16(int) => Literal::integer(IntegerType::I16, (**int).to_string(), span, id).into(),
             SvmLiteralParam::I32(int) => Literal::integer(IntegerType::I32, (**int).to_string(), span, id).into(),
@@ -917,15 +920,23 @@ fn plaintext_to_expression(
             SvmLiteralParam::U32(int) => Literal::integer(IntegerType::U32, (**int).to_string(), span, id).into(),
             SvmLiteralParam::U64(int) => Literal::integer(IntegerType::U64, (**int).to_string(), span, id).into(),
             SvmLiteralParam::U128(int) => Literal::integer(IntegerType::U128, (**int).to_string(), span, id).into(),
-            SvmLiteralParam::Signature(..) => todo!(),
+            SvmLiteralParam::Scalar(scalar) => {
+                let mut s = scalar.to_string();
+                // Strip off the `scalar` suffix.
+                s.truncate(s.len() - 6);
+                Literal::scalar(s, span, id).into()
+            }
+            SvmLiteralParam::Signature(signature) => {
+                Literal::address(signature.to_string(), span, node_builder.next_id()).into()
+            }
             SvmLiteralParam::String(..) => return None,
         },
         Plaintext::Struct(index_map, ..) => {
             let Type::Composite(composite_type) = ty else {
                 return None;
             };
-            let symbols = &composite_type.path.expect_global_location().path;
-            let iter_members = struct_lookup(symbols);
+            let composite_location = &composite_type.path.expect_global_location();
+            let iter_members = struct_lookup(composite_location);
             CompositeExpression {
                 span,
                 id,

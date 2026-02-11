@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -117,7 +117,6 @@ pub trait AstVisitor {
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
-            Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access(access, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
@@ -210,10 +209,6 @@ pub trait AstVisitor {
     }
 
     fn visit_literal(&mut self, _input: &Literal, _additional: &Self::AdditionalInput) -> Self::Output {
-        Default::default()
-    }
-
-    fn visit_locator(&mut self, _input: &LocatorExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
@@ -326,6 +321,15 @@ pub trait ProgramVisitor: AstVisitor {
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }
 
+    fn visit_aleo_program(&mut self, _input: &AleoProgram) {}
+
+    fn visit_stub(&mut self, input: &Stub) {
+        match input {
+            Stub::FromLeo { program, .. } => self.visit_program(program),
+            Stub::FromAleo { program, .. } => self.visit_aleo_program(program),
+        }
+    }
+
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
@@ -341,12 +345,6 @@ pub trait ProgramVisitor: AstVisitor {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
-    }
-
-    fn visit_stub(&mut self, _input: &Stub) {}
-
-    fn visit_import(&mut self, input: &Program) {
-        self.visit_program(input)
     }
 
     fn visit_composite(&mut self, input: &Composite) {

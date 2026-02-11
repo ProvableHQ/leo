@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -109,6 +109,7 @@ use leo_errors::{BufferEmitter, Handler};
 use leo_parser::parse_ast;
 use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
 use serial_test::serial;
+use std::rc::Rc;
 
 /// Table of all compiler passes and their runner names.
 /// Each entry is a tuple of `(runner_name, [(pass_struct, input), ...])`
@@ -267,9 +268,10 @@ macro_rules! make_runner {
         fn $runner_name(source: &str) -> String {
             let buf = BufferEmitter::new();
             let handler = Handler::new(buf.clone());
+            let node_builder = Rc::new(leo_ast::NodeBuilder::default());
 
             create_session_if_not_set_then(|_| {
-                let mut state = CompilerState { handler: handler.clone(), ..Default::default() };
+                let mut state = CompilerState { handler: handler.clone(), node_builder: Rc::clone(&node_builder), ..Default::default() };
 
                 state.ast = match handler.extend_if_error(parse_ast(
                     handler.clone(),

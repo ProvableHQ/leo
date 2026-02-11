@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -110,7 +110,6 @@ impl AstReconstructor for RemoveUnreachableVisitor<'_> {
                 *return_seen |= self.has_return;
                 res
             })
-            .filter_map(Some)
             .collect();
         (Block { statements: statements_with_first_return_only, span: input.span, id: input.id }, Default::default())
     }

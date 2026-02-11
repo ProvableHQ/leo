@@ -1,7 +1,7 @@
 program inline_no_shadowing.aleo {
     fn main(a: u32, b: u32) -> u32 {
-        let first: u32 = square(a);
-        let second: u32 = square(b);
+        let first: u32 = inline_no_shadowing.aleo/square(a);
+        let second: u32 = inline_no_shadowing.aleo/square(b);
         return first + second;
     }
 }

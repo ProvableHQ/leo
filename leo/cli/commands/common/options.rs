@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -237,6 +237,7 @@ pub fn get_consensus_version(
         Some(10) => Ok(ConsensusVersion::V10),
         Some(11) => Ok(ConsensusVersion::V11),
         Some(12) => Ok(ConsensusVersion::V12),
+        Some(13) => Ok(ConsensusVersion::V13),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -318,6 +319,7 @@ pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
         10 => ConsensusVersion::V10,
         11 => ConsensusVersion::V11,
         12 => ConsensusVersion::V12,
+        13 => ConsensusVersion::V13,
         _ => panic!("Invalid consensus version: {index}"),
     }
 }
@@ -434,6 +436,6 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V12); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V13); // If this fails, update the test and any code that matches on `ConsensusVersion`.
     }
 }

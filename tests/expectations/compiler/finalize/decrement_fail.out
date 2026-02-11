@@ -1,4 +1,4 @@
-Error [ETYC0372005]: Unknown function `decrement`
+Error [ETYC0372005]: Unknown function `test.aleo/decrement`
     --> compiler-test:11:5
      |
   11 |     decrement(amounts, addr, amount);

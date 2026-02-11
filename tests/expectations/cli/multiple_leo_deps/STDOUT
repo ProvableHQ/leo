@@ -1,0 +1,11 @@
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+       Leo     9 statements before dead code elimination.
+       Leo     9 statements after dead code elimination.
+       Leo     The program checksum is: '[215u8, 203u8, 66u8, 86u8, 222u8, 65u8, 57u8, 252u8, 117u8, 231u8, 155u8, 25u8, 45u8, 60u8, 202u8, 131u8, 149u8, 90u8, 30u8, 208u8, 156u8, 22u8, 227u8, 204u8, 30u8, 127u8, 166u8, 190u8, 70u8, 12u8, 210u8, 133u8]'.
+       Leo     Program size: 0.29 KB / 97.66 KB
+       Leo ✅ Compiled 'parent.aleo' into Aleo instructions.
+       Leo     Import 'grandchild.aleo': checksum = '[9u8, 161u8, 225u8, 109u8, 140u8, 240u8, 34u8, 110u8, 197u8, 113u8, 9u8, 64u8, 14u8, 115u8, 105u8, 222u8, 56u8, 193u8, 21u8, 198u8, 195u8, 22u8, 18u8, 168u8, 64u8, 22u8, 193u8, 208u8, 158u8, 7u8, 94u8, 0u8]'
+       Leo     Import 'child1.aleo': checksum = '[117u8, 228u8, 47u8, 107u8, 194u8, 194u8, 148u8, 143u8, 21u8, 99u8, 243u8, 112u8, 125u8, 105u8, 203u8, 69u8, 238u8, 73u8, 77u8, 220u8, 25u8, 81u8, 154u8, 247u8, 197u8, 230u8, 203u8, 180u8, 234u8, 50u8, 73u8, 16u8]'
+       Leo     Import 'child2.aleo': checksum = '[198u8, 70u8, 203u8, 134u8, 248u8, 126u8, 166u8, 195u8, 11u8, 174u8, 43u8, 87u8, 169u8, 255u8, 198u8, 41u8, 185u8, 18u8, 154u8, 42u8, 108u8, 95u8, 21u8, 225u8, 85u8, 180u8, 75u8, 105u8, 197u8, 145u8, 148u8, 8u8]'
+       Leo ✅ Generated ABI at 'build/abi.json'.

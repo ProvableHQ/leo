@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,6 +17,7 @@
 use super::PathResolutionVisitor;
 use crate::{VariableSymbol, VariableType};
 use leo_ast::{
+    AleoProgram,
     AstReconstructor,
     Composite,
     ConstParameter,
@@ -30,12 +31,11 @@ use leo_ast::{
     ProgramReconstructor,
     ProgramScope,
     Statement,
-    Stub,
 };
 
 impl ProgramReconstructor for PathResolutionVisitor<'_> {
-    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
-        Stub {
+    fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
+        AleoProgram {
             imports: input.imports,
             stub_id: input.stub_id,
             consts: input.consts,

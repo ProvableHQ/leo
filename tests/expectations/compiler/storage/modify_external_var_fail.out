@@ -1,0 +1,5 @@
+Error [EPAR0370005]: expected '}', '@', 'record', 'constructor', 'fn', 'mapping', 'storage' -- found 'async'
+    --> compiler-test:4:5
+     |
+   4 |     async transition init() -> Future {
+     |     ^^^^^

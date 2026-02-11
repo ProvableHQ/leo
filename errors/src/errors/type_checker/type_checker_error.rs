@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -862,11 +862,20 @@ create_messages!(
         msg: "The output of an async function must be assigned to a `Future` type..".to_string(),
         help: None,
     }
+
     @formatted
-    cannot_modify_external_mapping {
-        args: (operation: impl Display),
-        msg: format!("Cannot use operation `{operation}` on external mapping."),
-        help: Some("The only valid operations on external mappings are contains, get, and get_or_use.".to_string()),
+    cannot_modify_external_container {
+        args: (operation: impl Display, kind: impl Display),
+        msg: format!("Cannot use operation `{operation}` on external {kind}s."),
+        help: Some(format!("The only valid operations on external {kind}s are {}.",
+            if kind.to_string() == "vector" {
+                "`get` and `len`"
+            } else if kind.to_string() == "mapping" {
+                "`contains`, `get`, and `get_or_use`"
+            } else {
+                panic!("no other kinds expected here")
+            }
+        )),
     }
 
     @formatted
@@ -1384,4 +1393,19 @@ create_messages!(
         help: None,
     }
 
+    @formatted
+    cannot_instantiate_external_record  {
+        args: (loc: impl Display),
+        msg: format!(
+            "Cannot create external record `{loc}`. Records can only be created in the program that they are defined in",
+        ),
+        help: None,
+    }
+
+    @formatted
+    cannot_modify_external_storage_variable {
+        args: (),
+        msg: format!("Assignment to storage variables of another program is not allowed. You can only modify storage declared in the current program."),
+        help: None,
+    }
 );

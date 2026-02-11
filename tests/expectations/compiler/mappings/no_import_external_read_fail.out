@@ -1,4 +1,4 @@
-Error [ETYC0372005]: Unknown variable `users`
+Error [ETYC0372005]: Unknown variable `registry.aleo/users`
     --> compiler-test:10:31
      |
   10 |     let a:bool = Mapping::get(registry.aleo/users, addr);

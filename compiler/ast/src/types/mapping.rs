@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,6 @@
 
 use crate::Type;
 
-use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -25,7 +24,6 @@ use std::fmt;
 pub struct MappingType {
     pub key: Box<Type>,
     pub value: Box<Type>,
-    pub program: Symbol,
 }
 
 impl fmt::Display for MappingType {

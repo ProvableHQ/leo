@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -22,19 +22,7 @@ use crossterm::event::{self, Event, KeyCode, KeyModifiers};
 use ratatui::{
     Frame,
     Terminal,
-    prelude::{
-        Buffer,
-        Constraint,
-        CrosstermBackend,
-        Direction,
-        Layout,
-        Line,
-        Modifier,
-        Rect,
-        Span,
-        Style,
-        Stylize as _,
-    },
+    prelude::{Buffer, Constraint, CrosstermBackend, Direction, Layout, Line, Modifier, Rect, Span, Style},
     text::Text,
     widgets::{Block, Paragraph, Widget},
 };

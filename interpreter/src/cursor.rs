@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -445,7 +445,6 @@ impl Cursor {
                 | Expression::Cast(..)
                 | Expression::Err(..)
                 | Expression::Literal(..)
-                | Expression::Locator(..)
                 | Expression::Repeat(..)
                 | Expression::Composite(..)
                 | Expression::Ternary(..)
@@ -1274,7 +1273,6 @@ impl Cursor {
                 Some(self.lookup(&self.to_absolute_path(&path.segments())).expect_tc(path.span())?)
             }
             Expression::Literal(literal) if step == 0 => Some(literal_to_value(literal, expected_ty)?),
-            Expression::Locator(_locator) => todo!(),
             Expression::Composite(composite) if step == 0 => {
                 let members = self
                     .composites

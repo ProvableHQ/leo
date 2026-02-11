@@ -1,0 +1,5 @@
+Error [EPAR0370005]: expected '}', '@', 'record', 'constructor', 'fn', 'mapping', 'storage' -- found 'transition'
+    --> compiler-test:3:5
+     |
+   3 |     transition main(r: R) { 
+     |     ^^^^^^^^^^

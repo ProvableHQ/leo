@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,8 @@
 
 use crate::{AleoConstructor, AleoExpr, AleoReg, CompilerState};
 
-use leo_ast::{Function, Program, ProgramId, Variant};
+use crate::{Bytecode, CompiledPrograms};
+use leo_ast::{Function, Location, Program, ProgramId, Variant};
 use leo_span::Symbol;
 
 use snarkvm::prelude::Network;
@@ -34,13 +35,11 @@ pub struct CodeGeneratingVisitor<'a> {
     /// Mapping of local variables to registers.
     /// Because these are local, we can identify them using only a `Symbol` (i.e. a path is not necessary here).
     pub variable_mapping: IndexMap<Symbol, AleoExpr>,
-    /// Mapping of composite names to a tuple containing metadata associated with the name.
-    /// The first element of the tuple indicate whether the composite is a record or not.
-    pub composite_mapping: IndexMap<Vec<Symbol>, bool>,
+    /// Mapping of composites to a Boolean indicate whether the composite is a record or not.
+    /// A composite here is identified by its `Location`.
+    pub composite_mapping: IndexMap<Location, bool>,
     /// Mapping of global identifiers to their associated names.
-    /// Because we only allow mappings in the top level program scope at this stage, we can identify them using only a
-    /// `Symbol` (i.e. a path is not necessary here currently).
-    pub global_mapping: IndexMap<Symbol, AleoExpr>,
+    pub global_mapping: IndexMap<Location, String>,
     /// The variant of the function we are currently traversing.
     pub variant: Option<Variant>,
     /// A reference to program. This is needed to look up external programs.
@@ -71,6 +70,59 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(actual: &AleoConstructor) ->
 }
 
 impl CodeGeneratingVisitor<'_> {
+    pub(crate) fn visit_package(&mut self) -> CompiledPrograms {
+        let import_bytecodes = self
+            .state
+            .ast
+            .as_repr()
+            .stubs
+            .values()
+            .filter_map(|stub| {
+                match stub {
+                    leo_ast::Stub::FromLeo { program, .. } => {
+                        let program_name = program
+                            .program_scopes
+                            .first()
+                            .expect("programs must have a single program scope at this time.")
+                            .0;
+
+                        // Get transitive imports for this program
+                        let transitive_imports = self
+                            .state
+                            .symbol_table
+                            .get_transitive_imports(program_name)
+                            .into_iter()
+                            .map(|sym| sym.to_string())
+                            .collect::<Vec<_>>();
+
+                        // Generate this stub’s Aleo program text
+                        let mut bytecode = self.visit_program(program);
+                        bytecode.imports.extend(transitive_imports);
+
+                        Some(Bytecode { program_name: program_name.to_string(), bytecode: bytecode.to_string() })
+                    }
+                    leo_ast::Stub::FromAleo { program, .. } => {
+                        // Nothing to return here because the bytecode is already computed.
+                        // However, we still need to collect global items into the appropriate mappings.
+                        for (name, _) in &program.mappings {
+                            self.global_mapping
+                                .insert(Location::new(program.stub_id.name.name, vec![*name]), name.to_string());
+                        }
+                        for (name, leo_ast::Composite { is_record, .. }) in &program.composites {
+                            self.composite_mapping
+                                .insert(Location::new(program.stub_id.name.name, vec![*name]), *is_record);
+                        }
+                        None
+                    }
+                }
+            })
+            .collect();
+
+        let primary_bytecode = self.visit_program(self.state.ast.as_repr()).to_string();
+
+        CompiledPrograms { primary_bytecode, import_bytecodes }
+    }
+
     pub(crate) fn next_register(&mut self) -> AleoReg {
         self.next_register += 1;
         AleoReg::R(self.next_register - 1)

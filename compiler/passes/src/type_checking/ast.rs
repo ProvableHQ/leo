@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::VariableType;
+use crate::{BlockToFunctionRewriter, VariableType};
 
 use leo_ast::{
     Type::{Future, Tuple},
@@ -26,68 +26,96 @@ use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
 
+#[derive(Clone, Debug)]
+pub struct AssignTargetInfo {
+    pub ty: Type,
+    pub kind: AssignTargetKind,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum AssignTargetKind {
+    Local,
+    Storage,
+    ExternalStorage,
+    Err,
+}
+
 impl TypeCheckingVisitor<'_> {
-    // Returns the type of the RHS of an assign statement. Also returns whether the RHS is a storage location.
-    // For now, the only possible storage location to assign to is a `Path` to a storage variable name.
-    pub fn visit_expression_assign(&mut self, input: &Expression) -> (Type, bool) {
-        let (ty, is_storage) = match input {
-            Expression::ArrayAccess(array_access) => {
-                (self.visit_array_access_general(array_access, true, &None), false)
-            }
+    /// Returns information about an expression when used as the LHS of an assignment.
+    ///
+    /// Specifically, this function returns an `AssignTargetInfo` containing:
+    /// - the type of the expression (`ty`),
+    /// - the kind of assignment target (`Local`, `Storage`, `ExternalStorage`, or `Err`).
+    ///
+    /// Supported LHS expressions include:
+    /// - `Path` (variables),
+    /// - `ArrayAccess`,
+    /// - `MemberAccess`,
+    /// - `TupleAccess`.
+    ///
+    /// This function also performs static checks for:
+    /// - invalid assignment targets (anything other than the supported LHS expressions),
+    /// - assignments to external records or tuples in disallowed scopes,
+    /// - reassignment of `Future` or `Mapping` types,
+    ///
+    /// It also updates the type table with the expression’s type.
+    pub fn visit_expression_assign(&mut self, input: &Expression) -> AssignTargetInfo {
+        let assign_target_info = match input {
+            Expression::ArrayAccess(array_access) => AssignTargetInfo {
+                ty: self.visit_array_access_general(array_access, true, &None),
+                kind: AssignTargetKind::Local,
+            },
             Expression::Path(path) if path.qualifier().is_empty() => self.visit_path_assign(path),
-            Expression::MemberAccess(member_access) => {
-                (self.visit_member_access_general(member_access, true, &None), false)
-            }
-            Expression::TupleAccess(tuple_access) => {
-                (self.visit_tuple_access_general(tuple_access, true, &None), false)
-            }
+            Expression::MemberAccess(member_access) => AssignTargetInfo {
+                ty: self.visit_member_access_general(member_access, true, &None),
+                kind: AssignTargetKind::Local,
+            },
+            Expression::TupleAccess(tuple_access) => AssignTargetInfo {
+                ty: self.visit_tuple_access_general(tuple_access, true, &None),
+                kind: AssignTargetKind::Local,
+            },
             _ => {
                 self.emit_err(TypeCheckerError::invalid_assignment_target(input, input.span()));
-                (Type::Err, false)
+                AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err }
             }
         };
 
-        // Prohibit assignment to an external record in a narrower conditional scope.
-        let external_record = self.is_external_record(&ty);
-        let external_record_tuple =
-            matches!(&ty, Type::Tuple(tuple) if tuple.elements().iter().any(|ty| self.is_external_record(ty)));
-
-        if external_record || external_record_tuple {
-            let Expression::Path(path) = input else {
-                // This is not valid Leo and will have triggered an error elsewhere.
-                return (Type::Err, false);
-            };
-
-            if !self.symbol_in_conditional_scope(path.identifier().name) {
-                if external_record {
-                    self.emit_err(TypeCheckerError::assignment_to_external_record_cond(&ty, input.span()));
-                } else {
-                    // Note that this will cover both assigning to a tuple variable and assigning to a member of a tuple.
-                    self.emit_err(TypeCheckerError::assignment_to_external_record_tuple_cond(&ty, input.span()));
-                }
+        // Check external record assignment
+        if let Expression::Path(path) = input
+            && !self.symbol_in_conditional_scope(path.identifier().name)
+            && (self.is_external_record(&assign_target_info.ty)
+                || matches!(&assign_target_info.ty, Type::Tuple(tuple) if tuple.elements().iter().any(|ty| self.is_external_record(ty))))
+        {
+            if self.is_external_record(&assign_target_info.ty) {
+                self.emit_err(TypeCheckerError::assignment_to_external_record_cond(
+                    &assign_target_info.ty,
+                    input.span(),
+                ));
+            } else {
+                // Note that this will cover both assigning to a tuple variable and assigning to a member of a tuple.
+                self.emit_err(TypeCheckerError::assignment_to_external_record_tuple_cond(
+                    &assign_target_info.ty,
+                    input.span(),
+                ));
             }
         }
 
-        // Prohibit reassignment of futures.
-        if let Type::Future(..) = ty {
-            self.emit_err(TypeCheckerError::cannot_reassign_future_variable(input, input.span()));
-        }
-
-        // Prohibit reassignment of mappings.
-        if let Type::Mapping(_) = ty {
-            self.emit_err(TypeCheckerError::cannot_reassign_mapping(input, input.span()));
+        // Prohibit reassignment of futures or mappings
+        match &assign_target_info.ty {
+            Type::Future(..) => self.emit_err(TypeCheckerError::cannot_reassign_future_variable(input, input.span())),
+            Type::Mapping(_) => self.emit_err(TypeCheckerError::cannot_reassign_mapping(input, input.span())),
+            _ => {}
         }
 
         // Add the expression and its associated type to the type table.
-        self.state.type_table.insert(input.id(), ty.clone());
-
-        (ty, is_storage)
+        self.state.type_table.insert(input.id(), assign_target_info.ty.clone());
+        assign_target_info
     }
 
     pub fn visit_array_access_general(&mut self, input: &ArrayAccess, assign: bool, expected: &Option<Type>) -> Type {
         // Check that the expression is an array.
         let this_type = if assign {
-            self.visit_expression_assign(&input.array).0
+            self.visit_expression_assign(&input.array).ty
         } else {
             self.visit_expression(&input.array, &None)
         };
@@ -128,7 +156,7 @@ impl TypeCheckingVisitor<'_> {
 
     pub fn visit_member_access_general(&mut self, input: &MemberAccess, assign: bool, expected: &Option<Type>) -> Type {
         let ty = if assign {
-            self.visit_expression_assign(&input.inner).0
+            self.visit_expression_assign(&input.inner).ty
         } else {
             self.visit_expression(&input.inner, &None)
         };
@@ -175,7 +203,7 @@ impl TypeCheckingVisitor<'_> {
 
     pub fn visit_tuple_access_general(&mut self, input: &TupleAccess, assign: bool, expected: &Option<Type>) -> Type {
         let this_type = if assign {
-            self.visit_expression_assign(&input.tuple).0
+            self.visit_expression_assign(&input.tuple).ty
         } else {
             self.visit_expression(&input.tuple, &None)
         };
@@ -233,23 +261,35 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    // Returns the type of the RHS of an assign statement if it's a `Path`.
-    // Also returns whether the RHS is a storage location.
-    pub fn visit_path_assign(&mut self, input: &Path) -> (Type, bool) {
-        // Lookup the variable in the symbol table and retrieve its type.
-        let Some(var) = self.state.symbol_table.lookup_path(input) else {
+    /// Returns information about a `Path` expression when used as the LHS of an assignment.
+    ///
+    /// Specifically, returns:
+    /// - the type of the variable,
+    /// - the kind of assignment target (`Local`, `Storage`, `ExternalStorage`, or `Err`).
+    ///
+    /// This also performs static checks for:
+    /// - assignments to constants,
+    /// - assignments to storage vectors (invalid),
+    /// - assignments in async functions or async blocks outside the allowed conditional scope,
+    /// - assignments to variables outside an async block’s scope.
+    pub fn visit_path_assign(&mut self, input: &Path) -> AssignTargetInfo {
+        let current_program = self.scope_state.program_name.unwrap();
+
+        // Lookup the variable in the symbol table
+        let Some(var) = self.state.symbol_table.lookup_path(current_program, input) else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span));
-            return (Type::Err, false);
+            return AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err };
         };
 
         let ty = var.type_.expect("must be known by now").clone();
+
         // Cannot assign to storage vectors
         if ty.is_vector() {
             self.emit_err(TypeCheckerError::invalid_assignment_target(input, input.span()));
-            return (Type::Err, false);
+            return AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err };
         }
 
-        // If the variable exists, then check that it is not a constant.
+        // Check that variable is not a constant or constant input
         match &var.declaration {
             VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(input, var.span)),
             VariableType::ConstParameter => {
@@ -258,35 +298,42 @@ impl TypeCheckingVisitor<'_> {
             VariableType::Input(Mode::Constant) => {
                 self.emit_err(TypeCheckerError::cannot_assign_to_const_input(input, var.span))
             }
-            VariableType::Storage => return (ty.clone(), true),
+            VariableType::Storage => {
+                // Determine if this storage variable belongs to another program
+                let kind = if input.user_program().is_some() {
+                    AssignTargetKind::ExternalStorage
+                } else {
+                    AssignTargetKind::Storage
+                };
+                return AssignTargetInfo { ty, kind };
+            }
             VariableType::Mut | VariableType::Input(_) => {}
         }
 
-        // If the variable exists and it's in an async function, then check that it is in the current conditional scope.
+        // Ensure assignment is allowed in async function conditional scopes
         if self.scope_state.variant.unwrap().is_async_function()
             && !self.symbol_in_conditional_scope(input.identifier().name)
         {
             self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "function", var.span));
         }
 
-        // Similarly, if the variable exists and it's in an async block, then check that it is in the current conditional scope.
+        // Ensure assignment is allowed in async block conditional scopes
         if self.async_block_id.is_some() && !self.symbol_in_conditional_scope(input.identifier().name) {
             self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "block", var.span));
         }
 
+        // If inside an async block, cannot assign to variables outside the block or its ancestors
         if let Some(async_block_id) = self.async_block_id
             && !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.identifier().name)
         {
-            // If we're inside an async block (i.e. in the scope of its block or one if its child scopes) and if
-            // we're trying to assign to a variable that is not local to the block (or its child scopes), then we
-            // should error out.
             self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(
                 input.identifier().name,
                 input.span,
             ));
         }
 
-        (ty.clone(), false)
+        // Default: assignment to a local variable
+        AssignTargetInfo { ty, kind: AssignTargetKind::Local }
     }
 
     /// Infers the type of an expression, but returns Type::Err and emits an error if the result is Type::Numeric.
@@ -352,6 +399,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 self.visit_expression(argument, &Some(expected.type_().clone()));
             }
         } else if !input.const_arguments.is_empty() {
+            // This handles erroring out on all non-structs
             self.emit_err(TypeCheckerError::unexpected_const_args(input, input.path.span));
         }
     }
@@ -370,7 +418,6 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
-            Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
@@ -545,6 +592,23 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // This scope now already has an async block
         self.scope_state.already_contains_an_async_block = true;
 
+        // Here we convert the async block to an async function using the helper
+        // `BlockToFunctionRewriter`. We do not actually replace anything in the original AST. We
+        // just inspect how the async block would look like as an async function in order to
+        // populate the map `async_function_input_types`.
+        let mut block_to_function_rewriter =
+            BlockToFunctionRewriter::new(self.state, self.scope_state.program_name.unwrap());
+        let (new_function, _) =
+            block_to_function_rewriter.rewrite_block(&input.block, Symbol::intern("unused"), Variant::AsyncFunction);
+        let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
+        self.async_function_input_types.insert(
+            Location::new(self.scope_state.program_name.unwrap(), vec![Symbol::intern(&format!(
+                "finalize/{}",
+                self.scope_state.function.unwrap(),
+            ))]),
+            input_types,
+        );
+
         // Step out of the async block
         self.async_block_id = None;
 
@@ -555,10 +619,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_binary(&mut self, input: &BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         let assert_same_type = |slf: &Self, t1: &Type, t2: &Type| -> Type {
-            let is_record = |loc: &Location| slf.state.symbol_table.lookup_record(loc).is_some();
             if t1 == &Type::Err || t2 == &Type::Err {
                 Type::Err
-            } else if !t1.eq_user(t2, &is_record) {
+            } else if !t1.eq_user(t2) {
                 slf.emit_err(TypeCheckerError::operation_types_mismatch(input.op, t1, t2, input.span()));
                 Type::Err
             } else {
@@ -951,11 +1014,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        let current_program = self.scope_state.program_name.unwrap();
         let callee_location = input.function.expect_global_location();
         let callee_program = callee_location.program;
         let callee_path = callee_location.path.clone();
 
-        let Some(func_symbol) = self.state.symbol_table.lookup_function(callee_location) else {
+        let Some(func_symbol) = self.state.symbol_table.lookup_function(current_program, callee_location) else {
             self.emit_err(TypeCheckerError::unknown_sym("function", input.function.clone(), input.function.span()));
             return Type::Err;
         };
@@ -1170,7 +1234,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.state
                 .symbol_table
                 .attach_finalizer(
-                    Location::new(callee_program, caller_path),
+                    Location::new(callee_program, caller_path.clone()),
                     Location::new(callee_program, callee_path.clone()),
                     input_futures,
                     inferred_finalize_inputs.clone(),
@@ -1187,10 +1251,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
             // Update ret to reflect fully inferred future type.
             ret = Type::Future(FutureType::new(
-                inferred_finalize_inputs,
+                inferred_finalize_inputs.clone(),
                 Some(Location::new(callee_program, callee_path.clone())),
                 true,
             ));
+
+            self.async_function_input_types.insert(
+                Location::new(callee_program, vec![Symbol::intern(&format!(
+                    "finalize/{}",
+                    caller_path.last().unwrap()
+                ))]),
+                inferred_finalize_inputs.clone(),
+            );
 
             // Type check in case the expected type is known.
             self.assert_and_return_type(ret.clone(), expected, input.span());
@@ -1232,7 +1304,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         input: &CompositeExpression,
         additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        let composite = self.lookup_composite(input.path.expect_global_location()).clone();
+        let composite_location = input.path.expect_global_location();
+        let composite = self.lookup_composite(composite_location).clone();
         let Some(composite) = composite else {
             self.emit_err(TypeCheckerError::unknown_sym("struct or record", input.path.clone(), input.path.span()));
             return Type::Err;
@@ -1253,8 +1326,6 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.visit_expression(argument, &Some(expected.type_().clone()));
         }
 
-        // Note that it is sufficient for the `program` to be `None` as composite types can only be initialized
-        // in the program in which they are defined.
         let type_ =
             Type::Composite(CompositeType { path: input.path.clone(), const_arguments: input.const_arguments.clone() });
         self.maybe_assert_type(&type_, additional, input.path.span());
@@ -1274,12 +1345,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     None => {
                         // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`.
                         // Therefore, lookup a local or a global in the symbol table with the member name.
+                        let current_program = self.scope_state.program_name.unwrap();
                         let var = self.state.symbol_table.lookup_local(actual.identifier.name).or_else(|| {
                             self.state
                                 .symbol_table
-                                .lookup_global(&Location::new(self.scope_state.program_name.unwrap(), vec![
-                                    actual.identifier.name,
-                                ]))
+                                .lookup_global(
+                                    current_program,
+                                    &Location::new(current_program, vec![actual.identifier.name]),
+                                )
                                 .cloned()
                         });
 
@@ -1311,6 +1384,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         if composite.is_record {
+            // Ensure that we're not instantating an external record
+            if composite_location.program != self.scope_state.program_name.unwrap() {
+                self.state
+                    .handler
+                    .emit_err(TypeCheckerError::cannot_instantiate_external_record(composite_location, input.span()));
+            }
+
             // First, ensure that the current scope is not an async function. Records should not be instantiated in
             // async functions
             if self.scope_state.variant == Some(Variant::AsyncFunction) {
@@ -1347,7 +1427,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_path(&mut self, input: &Path, expected: &Self::AdditionalInput) -> Self::Output {
-        let var = self.state.symbol_table.lookup_path(input);
+        let current_program = self.scope_state.program_name.unwrap();
+        let var = self.state.symbol_table.lookup_path(current_program, input);
 
         if let Some(var) = var {
             let ty = var.type_.expect("must be known at this point");
@@ -1377,8 +1458,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             LiteralVariant::Address(..) => Type::Address,
             LiteralVariant::Boolean(..) => Type::Boolean,
             LiteralVariant::Field(..) => Type::Field,
-            LiteralVariant::Scalar(..) => Type::Scalar,
-            LiteralVariant::String(..) => Type::String,
+            LiteralVariant::Group(s) => {
+                let trimmed = s.trim_start_matches('-').trim_start_matches('0');
+                if !trimmed.is_empty()
+                    && format!("{trimmed}group")
+                        .parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>()
+                        .is_err()
+                {
+                    self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span));
+                }
+                Type::Group
+            }
             LiteralVariant::Integer(kind, string) => match kind {
                 IntegerType::U8 => parse_and_return!(u8, IntegerType::U8, string, "u8"),
                 IntegerType::U16 => parse_and_return!(u16, IntegerType::U16, string, "u16"),
@@ -1391,17 +1481,20 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 IntegerType::I64 => parse_and_return!(i64, IntegerType::I64, string, "i64"),
                 IntegerType::I128 => parse_and_return!(i128, IntegerType::I128, string, "i128"),
             },
-            LiteralVariant::Group(s) => {
-                let trimmed = s.trim_start_matches('-').trim_start_matches('0');
-                if !trimmed.is_empty()
-                    && format!("{trimmed}group")
-                        .parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>()
-                        .is_err()
-                {
-                    self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span));
+            LiteralVariant::None => {
+                if let Some(ty @ Type::Optional(_)) = expected {
+                    ty.clone()
+                } else if let Some(ty) = expected {
+                    self.emit_err(TypeCheckerError::none_found_non_optional(format!("{ty}"), span));
+                    Type::Err
+                } else {
+                    self.emit_err(TypeCheckerError::could_not_determine_type(format!("{input}"), span));
+                    Type::Err
                 }
-                Type::Group
             }
+            LiteralVariant::Scalar(..) => Type::Scalar,
+            LiteralVariant::Signature(..) => Type::Signature,
+            LiteralVariant::String(..) => Type::String,
             LiteralVariant::Unsuffixed(_) => match expected {
                 Some(ty @ Type::Integer(_) | ty @ Type::Field | ty @ Type::Group | ty @ Type::Scalar) => {
                     self.check_numeric_literal(input, ty);
@@ -1430,35 +1523,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 }
                 None => Type::Numeric,
             },
-            LiteralVariant::None => {
-                if let Some(ty @ Type::Optional(_)) = expected {
-                    ty.clone()
-                } else if let Some(ty) = expected {
-                    self.emit_err(TypeCheckerError::none_found_non_optional(format!("{ty}"), span));
-                    Type::Err
-                } else {
-                    self.emit_err(TypeCheckerError::could_not_determine_type(format!("{input}"), span));
-                    Type::Err
-                }
-            }
         };
 
         self.maybe_assert_type(&type_, expected, span);
 
         type_
-    }
-
-    fn visit_locator(&mut self, input: &LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        let maybe_var =
-            self.state.symbol_table.lookup_global(&Location::new(input.program.name.name, vec![input.name])).cloned();
-        if let Some(var) = maybe_var {
-            let ty = var.type_.expect("must be known at this point");
-            self.maybe_assert_type(&ty, expected, input.span());
-            ty
-        } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
-            Type::Err
-        }
     }
 
     fn visit_ternary(&mut self, input: &TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
@@ -1503,16 +1572,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             )
         };
 
-        let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
-
         let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
-        } else if !t1.can_coerce_to(&t2, &is_record) && !t2.can_coerce_to(&t1, &is_record) {
+        } else if !t1.can_coerce_to(&t2) && !t2.can_coerce_to(&t1) {
             self.emit_err(TypeCheckerError::ternary_branch_mismatch(t1, t2, input.span()));
             Type::Err
         } else if let Some(expected) = expected {
             expected.clone()
-        } else if t1.can_coerce_to(&t2, &is_record) {
+        } else if t1.can_coerce_to(&t2) {
             t2
         } else {
             t1
@@ -1752,33 +1819,39 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let t1 = self.visit_expression_reject_numeric(left, &None);
                 let t2 = self.visit_expression_reject_numeric(right, &None);
 
-                let is_record = |loc: &Location| self.state.symbol_table.lookup_record(loc).is_some();
-                if t1 != Type::Err && t2 != Type::Err && !t1.eq_user(&t2, &is_record) {
+                if t1 != Type::Err && t2 != Type::Err && !t1.eq_user(&t2) {
                     let op =
                         if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
-                    self.emit_err(TypeCheckerError::operation_types_mismatch(op, t1, t2, input.span()));
+                    self.emit_err(TypeCheckerError::operation_types_mismatch(op, &t1, &t2, input.span()));
                 }
             }
         }
     }
 
     fn visit_assign(&mut self, input: &AssignStatement) {
-        let (lhs_type, is_storage) = self.visit_expression_assign(&input.place);
+        let assign_target_info = self.visit_expression_assign(&input.place);
         let value = &input.value;
 
-        if lhs_type == Type::Err {
+        if assign_target_info.kind == AssignTargetKind::Err {
             self.visit_expression(value, &None);
             return;
         }
 
-        if is_storage && !lhs_type.is_vector() && !lhs_type.is_mapping() {
+        if assign_target_info.kind == AssignTargetKind::Storage
+            && !assign_target_info.ty.is_vector()
+            && !assign_target_info.ty.is_mapping()
+        {
             self.check_access_allowed("storage write", true, input.place.span())
         }
 
-        let expected_rhs_ty = match (is_storage, value.is_none_expr(), &lhs_type) {
-            (true, false, Type::Optional(OptionalType { inner })) => {
+        if assign_target_info.kind == AssignTargetKind::ExternalStorage {
+            self.emit_err(TypeCheckerError::cannot_modify_external_storage_variable(input.span()));
+        }
+
+        let expected_rhs_ty = match (&assign_target_info.kind, value.is_none_expr(), &assign_target_info.ty) {
+            (AssignTargetKind::Storage, false, Type::Optional(OptionalType { inner })) => {
                 // For storage variables that are being assigned to a value other than `none` where
-                // the `lhs_type` is an optional, we want the expected type to be the wrapped type
+                // assign_target_info.ty` is an optional, we want the expected type to be the wrapped type
                 // in that optional. For example:
                 // ```leo
                 // storage x: u8; // actually optional
@@ -1796,7 +1869,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             _ => {
                 // Fore everything else, just proceed as normal.
-                Some(lhs_type)
+                Some(assign_target_info.ty)
             }
         };
 
@@ -2048,10 +2121,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let caller_path =
             self.scope_state.module_name.iter().cloned().chain(std::iter::once(caller_name)).collect::<Vec<Symbol>>();
 
+        let current_program = self.scope_state.program_name.unwrap();
+
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(&Location::new(self.scope_state.program_name.unwrap(), caller_path.clone()))
+            .lookup_function(current_program, &Location::new(current_program, caller_path.clone()))
             .expect("The symbol table creator should already have visited all functions.");
 
         let mut return_type = func_symbol.function.output_type.clone();
@@ -2059,7 +2134,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = Future(FutureType::new(
                 if let Some(finalizer) = &func_symbol.finalizer { finalizer.inferred_inputs.clone() } else { vec![] },
-                Some(Location::new(self.scope_state.program_name.unwrap(), caller_path)),
+                Some(Location::new(current_program, caller_path)),
                 true,
             ));
 

@@ -1,8 +1,8 @@
 Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
-    --> compiler-test:14:25
+    --> compiler-test:14:31
      |
   14 |         let f3: Final = final {
-     |                         ^^^^^^^
+     |                               ^
   15 |             // f.run();
      |             ^^^^^^^^^^^
   16 |             if b == 1u32 {

@@ -1,0 +1,5 @@
+Error [EPAR0370005]: expected '}', '@', 'record', 'constructor', 'fn', 'mapping', 'storage' -- found 'struct'
+    --> compiler-test:2:5
+     |
+   2 |     struct Point {
+     |     ^^^^^^

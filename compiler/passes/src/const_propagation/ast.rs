@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -61,7 +61,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Err(err) => self.reconstruct_err(err, &()),
             Expression::Path(path) => self.reconstruct_path(path, &()),
             Expression::Literal(value) => self.reconstruct_literal(value, &()),
-            Expression::Locator(locator) => self.reconstruct_locator(locator, &()),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
@@ -389,7 +388,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         // Then handle global consts.
         if let Some(location) = input.try_global_location()
-            && let Some(expression) = self.state.symbol_table.lookup_global_const(location)
+            && let Some(expression) = self.state.symbol_table.lookup_global_const(self.program, location)
         {
             let (expression, opt_value) = self.reconstruct_expression(expression, &());
             if opt_value.is_some() {
@@ -429,14 +428,6 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         } else {
             (input.into(), None)
         }
-    }
-
-    fn reconstruct_locator(
-        &mut self,
-        input: leo_ast::LocatorExpression,
-        _additional: &(),
-    ) -> (Expression, Self::AdditionalOutput) {
-        (input.into(), Default::default())
     }
 
     fn reconstruct_tuple(
@@ -565,7 +556,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     self.program,
                     self.module.iter().copied().chain(std::iter::once(input.place.name)).collect::<Vec<_>>(),
                 );
-                if self.state.symbol_table.lookup_global_const(&location).is_none() {
+                if self.state.symbol_table.lookup_global_const(self.program, &location).is_none() {
                     // It wasn't already evaluated - insert it and record that we've made a change.
                     self.state.symbol_table.insert_global_const(location, expr.clone());
                     self.changed = true;

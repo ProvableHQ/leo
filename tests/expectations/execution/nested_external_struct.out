@@ -1,0 +1,9 @@
+Error while running execution tests:
+Error [EPAR0370005]: expected '}', '@', 'record', 'constructor', 'fn', 'mapping', 'storage' -- found 'struct'
+    --> compiler-test:12:5
+     |
+  12 |     struct Foo {
+     |     ^^^^^^
+
+
+Errors:

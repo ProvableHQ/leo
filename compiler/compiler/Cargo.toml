@@ -17,69 +17,39 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies.leo-ast]
-workspace = true
-
-[dependencies.leo-errors]
-workspace = true
-
-[dependencies.leo-passes]
-workspace = true
-
-[dependencies.leo-parser]
-workspace = true
-
-[dependencies.leo-span]
-workspace = true
-
-[dependencies.anyhow]
-workspace = true
-
-[dependencies.aleo-std]
-workspace = true
-
-[dependencies.aleo-std-storage]
-version = "1.0"
-
-[dependencies.rand_chacha]
-workspace = true
-
-[dependencies.rayon]
-workspace = true
-
-[dependencies.snarkvm]
-workspace = true
-
-[dependencies.indexmap]
-workspace = true
-
-[dependencies.serde_json]
-workspace = true
-
-[dependencies.walkdir]
-workspace = true
-
-[dev-dependencies.leo-disassembler]
-path = "../../utils/disassembler"
-
-[dev-dependencies.leo-test-framework]
-workspace = true
-
-[dev-dependencies.itertools]
-workspace = true
-
-[dev-dependencies.snarkvm]
-workspace = true
-
-[dev-dependencies.serde]
-workspace = true
-
-[dev-dependencies.regex]
-workspace = true
-
-[dev-dependencies.serial_test]
-workspace = true
-
 [features]
 default = [ ]
 ci_skip = [ "leo-ast/ci_skip" ]
+
+[dependencies]
+# leo dependencies
+leo-abi           = { workspace = true }
+leo-ast           = { workspace = true }
+leo-errors        = { workspace = true }
+leo-passes        = { workspace = true }
+leo-parser        = { workspace = true }
+leo-span          = { workspace = true }
+# third party dependencies
+aleo-std          = { workspace = true }
+aleo-std-storage  = { workspace = true }
+anyhow            = { workspace = true }
+indexmap          = { workspace = true }
+rand_chacha       = { workspace = true }
+rayon             = { workspace = true }
+snarkvm           = { workspace = true }
+serde_json        = { workspace = true }
+walkdir           = { workspace = true }
+
+[dev-dependencies]
+# leo dependencies
+leo-disassembler  = { workspace = true }
+leo-test-framework= { workspace = true }
+# third party dependencies
+itertools         = { workspace = true }
+regex             = { workspace = true }
+serde             = { workspace = true }
+serial_test       = { workspace = true }
+snarkvm           = { workspace = true }
+
+[build-dependencies]
+walkdir           = { workspace = true }

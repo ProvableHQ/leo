@@ -12,7 +12,7 @@ Error [ETYC0372162]: The field `flags` in this record has type `[bool?; 4]`, whi
      |         ^^^^^^^^^^^^^^^^^
      |
      = Records cannot have fields that are optional or contain optionals. Consider moving the optionality outside the record.
-Error [ETYC0372162]: The field `inner` in this record has type `InnerStruct`, which is or contains an optional type.
+Error [ETYC0372162]: The field `inner` in this record has type `record_with_optional_fields.aleo/InnerStruct`, which is or contains an optional type.
     --> compiler-test:20:9
      |
   20 |         inner: InnerStruct, // ERROR: contains optional via nested struct
