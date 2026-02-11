@@ -1,37 +1,3 @@
-{
-  "modules": {},
-  "imports": {},
-  "stubs": {},
-  "program_scopes": {
-    "test": {
-      "program_id": {
-        "name": {
-          "name": "test",
-          "span": {
-            "lo": 120,
-            "hi": 124
-          },
-          "id": 0
-        },
-        "network": {
-          "name": "aleo",
-          "span": {
-            "lo": 125,
-            "hi": 129
-          },
-          "id": 1
-        }
-      },
-      "consts": [],
-      "composites": [],
-      "mappings": [],
-      "storage_variables": [],
-      "functions": [],
-      "constructor": null,
-      "span": {
-        "lo": 0,
-        "hi": 193
-      }
-    }
-  }
+program test.aleo {
 }
+

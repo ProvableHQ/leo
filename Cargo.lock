@@ -2299,8 +2299,6 @@ dependencies = [
  "leo-parser-rowan",
  "leo-span",
  "leo-test-framework",
- "serde",
- "serde_json",
  "serial_test",
  "snarkvm",
 ]

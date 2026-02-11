@@ -18,11 +18,10 @@ use leo_ast::{NetworkName, NodeBuilder};
 use leo_errors::{BufferEmitter, Handler, LeoError};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName, with_session_globals};
 
-use serde::Serialize;
 use serial_test::serial;
-use std::fmt::Write as _;
+use std::fmt::{Display, Write as _};
 
-fn run_parse_many_test<T: Serialize>(
+fn run_parse_many_test<T: Display>(
     test: &str,
     handler: &Handler,
     test_index: usize,
@@ -31,14 +30,11 @@ fn run_parse_many_test<T: Serialize>(
     let source_map =
         with_session_globals(|s| s.source_map.new_source(test, FileName::Custom(format!("test_{test_index}"))));
     let result = parse(handler.clone(), &Default::default(), &source_map.src, source_map.absolute_start);
-    let serializable = handler.extend_if_error(result)?;
-    let value = serde_json::to_value(&serializable).expect("Serialization failure");
-    let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");
-    s.push('\n');
-    Ok(s)
+    let displayable = handler.extend_if_error(result)?;
+    Ok(format!("{displayable}\n"))
 }
 
-fn runner_parse_many_test<'a, T: Serialize>(
+fn runner_parse_many_test<'a, T: Display>(
     tests: impl Iterator<Item = &'a str>,
     parse: fn(Handler, &NodeBuilder, &str, u32) -> Result<T, LeoError>,
 ) -> String {
@@ -128,10 +124,7 @@ fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let result =
         crate::parse_ast(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
     let ast = handler.extend_if_error(result)?;
-    let value = serde_json::to_value(&ast.ast).expect("Serialization failure");
-    let mut s = serde_json::to_string_pretty(&value).expect("string conversion failure");
-    s.push('\n');
-    Ok(s)
+    Ok(format!("{}\n", ast.ast))
 }
 
 fn runner_parser_test(test: &str) -> String {
