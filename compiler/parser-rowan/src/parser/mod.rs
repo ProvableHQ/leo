@@ -444,12 +444,7 @@ impl<'t, 's> Parser<'t, 's> {
     pub fn error(&mut self, message: String) {
         let pos = TextSize::new(self.byte_offset as u32);
         let found_text = if !self.at_eof() { Some(self.current_text().to_string()) } else { None };
-        self.errors.push(ParseError {
-            message,
-            range: TextRange::empty(pos),
-            found: found_text,
-            expected: vec![],
-        });
+        self.errors.push(ParseError { message, range: TextRange::empty(pos), found: found_text, expected: vec![] });
     }
 
     /// Record an "unexpected token" error with explicit expected tokens.
@@ -458,7 +453,7 @@ impl<'t, 's> Parser<'t, 's> {
     /// a ParserError::unexpected instead of ParserError::custom.
     /// The `found_kind` parameter should be the SyntaxKind of the unexpected token.
     pub fn error_unexpected(&mut self, found_kind: SyntaxKind, expected: &[&str]) {
-        // Find the actual position of the found token (skipping trivia).
+        // Find the actual position and length of the found token (skipping trivia).
         let mut pos_offset = self.byte_offset;
         let mut token_pos = self.pos;
         while token_pos < self.tokens.len() {
@@ -470,14 +465,22 @@ impl<'t, 's> Parser<'t, 's> {
             token_pos += 1;
         }
 
-        let pos = TextSize::new(pos_offset as u32);
-        // For 'found', use the user_friendly_name but strip surrounding quotes
-        // since the error formatter (ParserError::unexpected) adds its own quotes.
-        let name = found_kind.user_friendly_name();
-        let found_text = name.trim_matches('\'').to_string();
+        let start = TextSize::new(pos_offset as u32);
+        // Include the token length so the error span covers the found token.
+        let token_len = if token_pos < self.tokens.len() { self.tokens[token_pos].len as u32 } else { 0 };
+        let end = TextSize::new(pos_offset as u32 + token_len);
+        // For 'found', use the actual token text for identifiers and numbers
+        // (since "an identifier" is less helpful than showing the actual name).
+        // For other tokens, use user_friendly_name with quotes stripped.
+        let found_text = if matches!(found_kind, IDENT | INTEGER) && token_pos < self.tokens.len() {
+            let len = self.tokens[token_pos].len as usize;
+            self.source[pos_offset..pos_offset + len].to_string()
+        } else {
+            found_kind.user_friendly_name().trim_matches('\'').to_string()
+        };
         self.errors.push(ParseError {
             message: format!("expected {}", expected.join(", ")),
-            range: TextRange::empty(pos),
+            range: TextRange::new(start, end),
             found: Some(found_text),
             expected: expected.iter().map(|s| s.to_string()).collect(),
         });
@@ -516,6 +519,20 @@ impl<'t, 's> Parser<'t, 's> {
 
         // Record error with the span of consumed tokens
         self.error_span(message.to_string(), start);
+    }
+
+    /// Skip tokens until a recovery point, wrapping them in an ERROR node.
+    /// Unlike `error_recover`, this does not emit an error message (useful when
+    /// the caller has already reported the error).
+    pub fn recover(&mut self, recovery: &[SyntaxKind]) {
+        self.start_node(ERROR);
+        if self.at_any(recovery) && !self.at(R_BRACE) && !self.at_eof() {
+            self.bump_any();
+        }
+        while !self.at_eof() && !self.at_any(recovery) {
+            self.bump_any();
+        }
+        self.finish_node();
     }
 
     /// Create an ERROR node containing the current token.

@@ -44,6 +44,27 @@ impl TypeOpts {
 }
 
 impl Parser<'_, '_> {
+    /// Primitive type keywords allowed in cast expressions.
+    pub const PRIMITIVE_TYPE_KINDS: &'static [crate::syntax_kind::SyntaxKind] = &[
+        KW_ADDRESS,
+        KW_BOOL,
+        KW_FIELD,
+        KW_GROUP,
+        KW_SCALAR,
+        KW_SIGNATURE,
+        KW_STRING,
+        KW_I8,
+        KW_I16,
+        KW_I32,
+        KW_I64,
+        KW_I128,
+        KW_U8,
+        KW_U16,
+        KW_U32,
+        KW_U64,
+        KW_U128,
+    ];
+
     /// Parse a type expression.
     ///
     /// Returns `None` if the current token cannot start a type.
@@ -89,26 +110,12 @@ impl Parser<'_, '_> {
 
     /// Check if the current token is a primitive type keyword.
     fn at_primitive_type(&self) -> bool {
-        matches!(
-            self.current(),
-            KW_ADDRESS
-                | KW_BOOL
-                | KW_FIELD
-                | KW_GROUP
-                | KW_SCALAR
-                | KW_SIGNATURE
-                | KW_STRING
-                | KW_I8
-                | KW_I16
-                | KW_I32
-                | KW_I64
-                | KW_I128
-                | KW_U8
-                | KW_U16
-                | KW_U32
-                | KW_U64
-                | KW_U128
-        )
+        Self::PRIMITIVE_TYPE_KINDS.contains(&self.current())
+    }
+
+    /// Parse a cast type (primitive types only, matching the LALRPOP grammar).
+    pub fn parse_cast_type(&mut self) -> Option<CompletedMarker> {
+        if self.at_primitive_type() { self.parse_primitive_type() } else { None }
     }
 
     /// Parse a primitive type keyword.

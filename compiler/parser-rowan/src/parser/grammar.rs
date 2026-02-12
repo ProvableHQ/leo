@@ -43,6 +43,12 @@ pub fn parse_expression_entry(source: &str) -> Parse {
 
     let root = parser.start();
     parser.parse_expr();
+    // Report error for any remaining non-error tokens after the expression.
+    // Skip ERROR tokens as those are already reported by the lexer.
+    if !parser.at_eof() && !parser.at(ERROR) {
+        let expected: Vec<&str> = Parser::EXPR_CONTINUATION.iter().map(|k| k.user_friendly_name()).collect();
+        parser.error_unexpected(parser.current(), &expected);
+    }
     root.complete(&mut parser, ROOT);
 
     parser.finish(lex_errors)
@@ -67,6 +73,10 @@ pub fn parse_statement_entry(source: &str) -> Parse {
 
     let root = parser.start();
     parser.parse_stmt();
+    // Report error for any remaining non-error tokens after the statement.
+    if !parser.at_eof() && !parser.at(ERROR) {
+        parser.error_unexpected(parser.current(), &[]);
+    }
     root.complete(&mut parser, ROOT);
 
     parser.finish(lex_errors)

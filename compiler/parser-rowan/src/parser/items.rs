@@ -30,6 +30,23 @@ use crate::syntax_kind::SyntaxKind::{self, *};
 impl Parser<'_, '_> {
     /// Recovery set for struct/record fields.
     const FIELD_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_BRACE, KW_PUBLIC, KW_PRIVATE, KW_CONSTANT];
+    /// Tokens that can start a module-level item (for error recovery).
+    const MODULE_ITEM_RECOVERY: &'static [SyntaxKind] = &[KW_CONST, KW_STRUCT, KW_INLINE, AT, KW_ASYNC];
+    /// Expected items within a `program { ... }` block.
+    const PROGRAM_ITEM_EXPECTED: &'static [SyntaxKind] = &[
+        R_BRACE,
+        AT,
+        KW_RECORD,
+        KW_STRUCT,
+        KW_ASYNC,
+        KW_CONST,
+        KW_FUNCTION,
+        KW_INLINE,
+        KW_MAPPING,
+        KW_STORAGE,
+        KW_SCRIPT,
+        KW_TRANSITION,
+    ];
     /// Recovery set for return type parsing.
     const RETURN_TYPE_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_PAREN, L_BRACE];
 
@@ -67,7 +84,9 @@ impl Parser<'_, '_> {
                     }
                 }
                 _ => {
-                    self.error_and_bump("expected `import`, `program`, or module item at top level");
+                    self.error_recover("expected `import`, `program`, or module item at top level", &[
+                        KW_IMPORT, KW_PROGRAM, KW_CONST, KW_STRUCT, KW_INLINE, AT,
+                    ]);
                 }
             }
         }
@@ -85,22 +104,19 @@ impl Parser<'_, '_> {
             }
 
             if self.parse_module_item().is_none() {
-                self.error_and_bump("expected `const`, `struct`, or `inline` in module");
+                self.error_recover("expected `const`, `struct`, or `inline` in module", Self::MODULE_ITEM_RECOVERY);
             }
         }
     }
 
     /// Parse a single module-level item: `const`, `struct`, or `inline fn`.
+    ///
+    /// Annotations are handled inside each item parser.
     fn parse_module_item(&mut self) -> Option<CompletedMarker> {
-        // Handle annotations
-        while self.at(AT) {
-            self.parse_annotation();
-        }
-
         match self.current() {
             KW_CONST => self.parse_global_const(),
             KW_STRUCT => self.parse_struct_def(),
-            KW_INLINE => self.parse_function_or_constructor(),
+            AT | KW_INLINE => self.parse_function_or_constructor(),
             _ => None,
         }
     }
@@ -130,8 +146,8 @@ impl Parser<'_, '_> {
         // Parse program items
         while !self.at(R_BRACE) && !self.at_eof() {
             if self.parse_program_item().is_none() {
-                // Error recovery
-                self.error_recover("expected program item", ITEM_RECOVERY);
+                // Error was already reported by parse_program_item; just recover.
+                self.recover(ITEM_RECOVERY);
             }
         }
 
@@ -152,20 +168,15 @@ impl Parser<'_, '_> {
     }
 
     /// Parse a single program item (struct, record, mapping, function, etc.)
+    ///
+    /// Annotations (`@foo`) are parsed as the first step and become children
+    /// of the resulting item node rather than siblings.
     fn parse_program_item(&mut self) -> Option<CompletedMarker> {
-        // Note: Don't skip trivia here - let item parsers include leading whitespace
-
-        // Check for annotations first
-        let has_annotations = self.at(AT);
-        if has_annotations {
-            // Parse annotations
-            while self.at(AT) {
-                self.parse_annotation();
-            }
-        }
-
-        // Parse the item
+        // For annotated items, dispatch to function_or_constructor since
+        // annotations are only valid on functions/transitions in program blocks.
+        // The function parser handles annotations internally.
         match self.current() {
+            AT => self.parse_function_or_constructor(),
             KW_STRUCT => self.parse_struct_def(),
             KW_RECORD => self.parse_record_def(),
             KW_MAPPING => self.parse_mapping_def(),
@@ -173,7 +184,8 @@ impl Parser<'_, '_> {
             KW_CONST => self.parse_global_const(),
             KW_FUNCTION | KW_TRANSITION | KW_INLINE | KW_SCRIPT | KW_ASYNC => self.parse_function_or_constructor(),
             _ => {
-                self.error(format!("expected program item, found {:?}", self.current()));
+                let expected: Vec<&str> = Self::PROGRAM_ITEM_EXPECTED.iter().map(|k| k.user_friendly_name()).collect();
+                self.error_unexpected(self.current(), &expected);
                 None
             }
         }
@@ -184,35 +196,67 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // @
 
-        self.skip_trivia();
-        // Accept identifiers and keywords as annotation names
-        // (e.g. `@program`, `@test`, `@noupgrade`).
-        if self.at(IDENT) || self.current().is_keyword() {
+        // Reject space between `@` and the annotation name (e.g. `@ test`).
+        if self.current_including_trivia().is_trivia() {
+            self.error_unexpected(self.current(), &["an identifier", "'program'"]);
+            self.skip_trivia();
+            // Still consume the name for recovery.
+            if self.at(IDENT) || self.current().is_keyword() {
+                self.bump_any();
+            }
+        } else if self.at(IDENT) || self.current().is_keyword() {
+            // Accept identifiers and keywords as annotation names
+            // (e.g. `@program`, `@test`, `@noupgrade`).
             self.bump_any();
         } else {
             self.error("expected annotation name".to_string());
         }
 
-        // Optional parenthesized arguments.
-        // Consume all tokens between parens, supporting arbitrary content
-        // like `@checksum(mapping = "...", key = "...")`.
+        // Optional parenthesized arguments: `(key = "value", ...)`.
+        // Annotation members must be `identifier = "string"` separated by commas.
         if self.eat(L_PAREN) {
-            let mut depth: u32 = 1;
-            while !self.at_eof() && depth > 0 {
-                if self.at(L_PAREN) {
-                    depth += 1;
-                } else if self.at(R_PAREN) {
-                    depth -= 1;
-                    if depth == 0 {
+            if !self.at(R_PAREN) {
+                self.parse_annotation_member();
+                while self.eat(COMMA) {
+                    if self.at(R_PAREN) {
                         break;
                     }
+                    self.parse_annotation_member();
                 }
-                self.bump_any();
+            }
+            // Reject trailing content before `)` (e.g. `oops` in `@foo(k = "v" oops)`).
+            if !self.at(R_PAREN) && !self.at_eof() {
+                self.error_unexpected(self.current(), &["')'", "','"]);
+                // Recovery: skip to closing paren.
+                while !self.at(R_PAREN) && !self.at_eof() {
+                    self.bump_any();
+                }
             }
             self.expect(R_PAREN);
         }
 
         m.complete(self, ANNOTATION);
+    }
+
+    /// Parse a single annotation member: `key = "value"`.
+    fn parse_annotation_member(&mut self) {
+        // Key must be an identifier, `address`, or `mapping`.
+        if self.at(IDENT) || self.at(KW_ADDRESS) || self.at(KW_MAPPING) {
+            self.bump_any();
+        } else {
+            self.error_unexpected(self.current(), &["an identifier", "')'", "'address", "'mapping'"]);
+            // Recovery: skip to `,` or `)`.
+            while !self.at(COMMA) && !self.at(R_PAREN) && !self.at_eof() {
+                self.bump_any();
+            }
+            return;
+        }
+        self.expect(EQ);
+        if self.at(STRING) {
+            self.bump_any();
+        } else {
+            self.error("expected string literal for annotation value".to_string());
+        }
     }
 
     /// Parse a struct definition: `struct Name { field: Type, ... }`
@@ -391,9 +435,15 @@ impl Parser<'_, '_> {
     }
 
     /// Parse a function definition.
-    /// Parse function, transition, inline, or async variants
+    /// Parse function, transition, inline, or async variants.
+    /// Annotations are parsed as children of the function node.
     fn parse_function_or_constructor(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
+
+        // Parse leading annotations as children of this function node.
+        while self.at(AT) {
+            self.parse_annotation();
+        }
 
         // Optional async keyword
         self.eat(KW_ASYNC);

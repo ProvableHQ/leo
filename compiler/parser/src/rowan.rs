@@ -32,7 +32,7 @@ use snarkvm::prelude::{Address, TestnetV0};
 
 use leo_ast::{NetworkName, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result};
-use leo_parser_rowan::{SyntaxKind, SyntaxKind::*, SyntaxNode, SyntaxToken};
+use leo_parser_rowan::{SyntaxElement, SyntaxKind, SyntaxKind::*, SyntaxNode, SyntaxToken};
 use leo_span::{
     Span,
     Symbol,
@@ -86,6 +86,33 @@ impl<'a> ConversionContext<'a> {
         }
     }
 
+    /// Validate an identifier, checking for double underscores and length.
+    fn validate_identifier(&self, ident: &leo_ast::Identifier) {
+        const MAX_IDENTIFIER_LEN: usize = 31;
+        let name = &ident.name;
+        let text = format!("{name}");
+        if text.len() > MAX_IDENTIFIER_LEN {
+            self.handler.emit_err(ParserError::identifier_too_long(&text, text.len(), MAX_IDENTIFIER_LEN, ident.span));
+        }
+        if text.contains("__") {
+            self.handler.emit_err(ParserError::identifier_cannot_contain_double_underscore(&text, ident.span));
+        }
+    }
+
+    /// Validate an identifier in a definition position (struct field, variable,
+    /// function name, etc.). In addition to the general identifier checks, this
+    /// rejects identifiers that start with `_` or that are reserved keywords.
+    fn validate_definition_identifier(&self, ident: &leo_ast::Identifier) {
+        self.validate_identifier(ident);
+        let text = format!("{}", ident.name);
+        if text.starts_with('_') {
+            self.handler.emit_err(ParserError::identifier_cannot_start_with_underscore(ident.span));
+        }
+        if symbol_is_keyword(ident.name) {
+            self.handler.emit_err(ParserError::unexpected_str("an identifier", &text, ident.span));
+        }
+    }
+
     // =========================================================================
     // Type Conversions
     // =========================================================================
@@ -103,12 +130,7 @@ impl<'a> ConversionContext<'a> {
                 panic!("TYPE_MAPPING should be handled in storage context")
             }
             ERROR => {
-                // Error recovery: return Err type for ERROR nodes
-                self.handler.emit_err(ParserError::unexpected_str(
-                    "valid type",
-                    node.text().to_string(),
-                    self.to_span(node),
-                ));
+                // Parse errors already emitted by emit_parse_errors().
                 leo_ast::Type::Err
             }
             kind => panic!("unexpected type node kind: {:?}", kind),
@@ -169,25 +191,24 @@ impl<'a> ConversionContext<'a> {
 
         // Regular path: collect identifiers and const generic args
         let mut path_components = Vec::new();
-        let mut const_arguments = Vec::new();
         let span = self.to_span(node);
 
+        // Collect IDENT tokens that are direct children of TYPE_PATH (not inside CONST_ARG_LIST)
         for token in tokens(node) {
             match token.kind() {
                 IDENT => {
                     path_components.push(self.to_identifier(&token));
                 }
-                INTEGER => {
-                    // Const generic argument
-                    let expr = self.integer_token_to_expression(&token)?;
-                    const_arguments.push(expr);
-                }
-                // Skip punctuation
-                COLON_COLON | L_BRACKET | R_BRACKET | LT | GT | DOT | COMMA => {}
+                // Skip punctuation and keywords
+                COLON_COLON | L_BRACKET | R_BRACKET | LT | GT | DOT | COMMA | INTEGER => {}
                 KW_ALEO => {}
+                kind if kind.is_keyword() || kind.is_trivia() => {}
                 kind => panic!("unexpected token in TYPE_PATH: {:?}", kind),
             }
         }
+
+        // Extract const arguments from CONST_ARG_LIST child node
+        let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
 
         // The last component is the type name, rest are path segments
         let name = path_components.pop().expect("TYPE_PATH should have at least one identifier");
@@ -220,24 +241,29 @@ impl<'a> ConversionContext<'a> {
 
     /// Extract the array length expression from a TYPE_ARRAY node.
     fn array_length_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
-        // Find tokens after the semicolon
-        let mut found_semicolon = false;
-        for token in tokens(node) {
-            if token.kind() == SEMICOLON {
-                found_semicolon = true;
-                continue;
+        // Find the semicolon position, then look for the length expression after it.
+        let semicolon_end = tokens(node).find(|t| t.kind() == SEMICOLON).map(|t| t.text_range().end());
+
+        if let Some(semi_end) = semicolon_end {
+            // First, check child expression nodes after the semicolon (e.g. LITERAL, PATH_EXPR).
+            for child in node.children() {
+                if child.text_range().start() >= semi_end && is_expression_kind(child.kind()) {
+                    return self.to_expression(&child);
+                }
             }
-            if found_semicolon {
-                match token.kind() {
-                    INTEGER => return self.integer_token_to_expression(&token),
-                    IDENT => {
-                        // Const generic name - wrap as a Path expression
-                        let ident = self.to_identifier(&token);
-                        let span = ident.span;
-                        let path = leo_ast::Path::new(None, Vec::new(), ident, span, self.builder.next_id());
-                        return Ok(leo_ast::Expression::Path(path));
+            // Fall back to direct tokens after the semicolon (INTEGER, IDENT).
+            for token in tokens(node) {
+                if token.text_range().start() >= semi_end {
+                    match token.kind() {
+                        INTEGER => return self.integer_token_to_expression(&token),
+                        IDENT => {
+                            let ident = self.to_identifier(&token);
+                            let span = ident.span;
+                            let path = leo_ast::Path::new(None, Vec::new(), ident, span, self.builder.next_id());
+                            return Ok(leo_ast::Expression::Path(path));
+                        }
+                        _ => continue,
                     }
-                    _ => continue,
                 }
             }
         }
@@ -382,20 +408,13 @@ impl<'a> ConversionContext<'a> {
                 if let Some(inner) = children(node).find(|n| is_expression_kind(n.kind())) {
                     self.to_expression(&inner)?
                 } else {
-                    // No valid expression found - likely parse error
-                    self.handler.emit_err(ParserError::unexpected_str(
-                        "valid expression",
-                        node.text().to_string(),
-                        span,
-                    ));
+                    // Parse errors already emitted by emit_parse_errors().
                     leo_ast::ErrExpression { span, id }.into()
                 }
             }
-            // Error recovery: return ErrExpression for ERROR nodes
-            ERROR => {
-                self.handler.emit_err(ParserError::unexpected_str("valid expression", node.text().to_string(), span));
-                leo_ast::ErrExpression { span, id }.into()
-            }
+            // Error recovery: return ErrExpression for ERROR nodes.
+            // Parse errors already emitted by emit_parse_errors().
+            ERROR => leo_ast::ErrExpression { span, id }.into(),
             kind => panic!("unexpected expression kind: {:?}", kind),
         };
 
@@ -573,6 +592,32 @@ impl<'a> ConversionContext<'a> {
         Ok(leo_ast::UnaryExpression { receiver, op, span, id }.into())
     }
 
+    /// Extract type parameters and const arguments from a CONST_ARG_LIST child, if present.
+    ///
+    /// In the rowan CST, `CONST_ARG_LIST` children are either type nodes (for
+    /// intrinsic type parameters like `Deserialize::[u32]`) or expression nodes
+    /// (for const generic arguments like `Foo::[N]`).
+    fn extract_const_arg_list(
+        &self,
+        node: &SyntaxNode,
+    ) -> Result<(Vec<(leo_ast::Type, Span)>, Vec<leo_ast::Expression>)> {
+        let mut type_parameters = Vec::new();
+        let mut const_arguments = Vec::new();
+        if let Some(arg_list) = children(node).find(|n| n.kind() == CONST_ARG_LIST) {
+            for child in children(&arg_list) {
+                if is_type_kind(child.kind()) {
+                    let span = self.to_span(&child);
+                    let ty = self.to_type(&child)?;
+                    type_parameters.push((ty, span));
+                } else if is_expression_kind(child.kind()) {
+                    let expr = self.to_expression(&child)?;
+                    const_arguments.push(expr);
+                }
+            }
+        }
+        Ok((type_parameters, const_arguments))
+    }
+
     /// Convert a CALL_EXPR node to a CallExpression.
     fn call_expr_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
         debug_assert_eq!(node.kind(), CALL_EXPR);
@@ -598,7 +643,26 @@ impl<'a> ConversionContext<'a> {
             .map(|n| self.to_expression(&n))
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::CallExpression { function, const_arguments: Vec::new(), arguments, span, id }.into())
+        // Extract type parameters and const arguments from CONST_ARG_LIST.
+        // In the rowan CST, CONST_ARG_LIST is a child of the PATH_EXPR callee node.
+        let (type_parameters, const_arguments) = self.extract_const_arg_list(&callee_node)?;
+
+        // If the path has exactly one qualifier (e.g. `group::to_x_coordinate`),
+        // try to canonicalize to an intrinsic.
+        if function.user_program().is_none() && function.qualifier().len() == 1 {
+            let module = function.qualifier()[0].name;
+            let name = function.identifier().name;
+            if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(module, name) {
+                return Ok(
+                    leo_ast::IntrinsicExpression { name: intrinsic_name, type_parameters, arguments, span, id }.into()
+                );
+            }
+            self.handler
+                .emit_err(ParserError::custom(format!("Unknown associated function: {}::{}", module, name), span));
+            return Ok(leo_ast::ErrExpression { span, id }.into());
+        }
+
+        Ok(leo_ast::CallExpression { function, const_arguments, arguments, span, id }.into())
     }
 
     /// Convert a method call (CALL_EXPR with FIELD_EXPR callee) to the appropriate expression.
@@ -657,83 +721,68 @@ impl<'a> ConversionContext<'a> {
             }
         }
 
-        // Check for mapping/vector intrinsics
-        if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(sym::Mapping, method_name.name) {
+        // Check for known intrinsic method calls.
+        // Ordering follows the lossless parser (conversions.rs):
+        // 1. Specific intrinsics (signature, Future, Optional)
+        // 2. Unresolved `.get()`/`.set()` (deferred to type checker)
+        // 3. Vector/Mapping methods
+        let method = method_name.name;
+        let all_args = || std::iter::once(receiver.clone()).chain(args.clone()).collect::<Vec<_>>();
+
+        // Known module-specific intrinsics matched by name and arg count.
+        let intrinsic_name = match args.len() {
+            2 => leo_ast::Intrinsic::convert_path_symbols(sym::signature, method),
+            0 => leo_ast::Intrinsic::convert_path_symbols(sym::Future, method)
+                .or_else(|| leo_ast::Intrinsic::convert_path_symbols(sym::Optional, method)),
+            1 => leo_ast::Intrinsic::convert_path_symbols(sym::Optional, method),
+            _ => None,
+        };
+        if let Some(intrinsic_name) = intrinsic_name {
             return Ok(leo_ast::IntrinsicExpression {
                 name: intrinsic_name,
                 type_parameters: Vec::new(),
-                arguments: std::iter::once(receiver).chain(args).collect(),
+                arguments: all_args(),
                 span,
                 id,
             }
             .into());
         }
 
-        if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(sym::Vector, method_name.name) {
-            return Ok(leo_ast::IntrinsicExpression {
-                name: intrinsic_name,
-                type_parameters: Vec::new(),
-                arguments: std::iter::once(receiver).chain(args).collect(),
-                span,
-                id,
-            }
-            .into());
-        }
-
-        if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(sym::Future, method_name.name) {
-            return Ok(leo_ast::IntrinsicExpression {
-                name: intrinsic_name,
-                type_parameters: Vec::new(),
-                arguments: std::iter::once(receiver).chain(args).collect(),
-                span,
-                id,
-            }
-            .into());
-        }
-
-        if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(sym::Optional, method_name.name) {
-            return Ok(leo_ast::IntrinsicExpression {
-                name: intrinsic_name,
-                type_parameters: Vec::new(),
-                arguments: std::iter::once(receiver).chain(args).collect(),
-                span,
-                id,
-            }
-            .into());
-        }
-
-        if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(sym::signature, method_name.name) {
-            return Ok(leo_ast::IntrinsicExpression {
-                name: intrinsic_name,
-                type_parameters: Vec::new(),
-                arguments: std::iter::once(receiver).chain(args).collect(),
-                span,
-                id,
-            }
-            .into());
-        }
-
-        // Handle unresolved get/set for mappings
-        if method_name.name == sym::get && args.len() == 1 {
+        // Unresolved `.get()` / `.set()` — the receiver type is unknown at
+        // parse time, so defer resolution to the type checker.
+        if method == sym::get && args.len() == 1 {
             return Ok(leo_ast::IntrinsicExpression {
                 name: Symbol::intern("__unresolved_get"),
                 type_parameters: Vec::new(),
-                arguments: std::iter::once(receiver).chain(args).collect(),
+                arguments: all_args(),
+                span,
+                id,
+            }
+            .into());
+        }
+        if method == sym::set && args.len() == 2 {
+            return Ok(leo_ast::IntrinsicExpression {
+                name: Symbol::intern("__unresolved_set"),
+                type_parameters: Vec::new(),
+                arguments: all_args(),
                 span,
                 id,
             }
             .into());
         }
 
-        if method_name.name == sym::set && args.len() == 2 {
-            return Ok(leo_ast::IntrinsicExpression {
-                name: Symbol::intern("__unresolved_set"),
-                type_parameters: Vec::new(),
-                arguments: std::iter::once(receiver).chain(args).collect(),
-                span,
-                id,
+        // Remaining Vector/Mapping method intrinsics.
+        for module in [sym::Vector, sym::Mapping] {
+            if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(module, method) {
+                return Ok(leo_ast::IntrinsicExpression {
+                    name: intrinsic_name,
+                    type_parameters: Vec::new(),
+                    arguments: all_args(),
+                    span,
+                    id,
+                }
+                .into());
             }
-            .into());
         }
 
         // Unknown method call - emit error
@@ -759,8 +808,14 @@ impl<'a> ConversionContext<'a> {
             return Ok(leo_ast::ErrExpression { span, id }.into());
         };
 
-        // Get the field name or tuple index (token after DOT)
-        let field_token = match tokens(node).filter(|t| matches!(t.kind(), IDENT | INTEGER)).last() {
+        // Get the field name or tuple index (token after DOT).
+        // Field names can be identifiers or keywords (e.g. `self.address`).
+        let dot_pos = tokens(node).find(|t| t.kind() == DOT).map(|t| t.text_range().end());
+        let field_token = match dot_pos.and_then(|pos| {
+            tokens(node)
+                .filter(|t| t.text_range().start() >= pos)
+                .find(|t| t.kind() == IDENT || t.kind() == INTEGER || t.kind().is_keyword())
+        }) {
             Some(token) => token,
             None => {
                 self.handler.emit_err(ParserError::unexpected_str(
@@ -816,7 +871,12 @@ impl<'a> ConversionContext<'a> {
                 }
             }
 
-            let name = self.to_identifier(&field_token);
+            // Field token may be an identifier or keyword (e.g. `self.address`).
+            let name = leo_ast::Identifier {
+                name: Symbol::intern(field_token.text()),
+                span: self.token_span(&field_token),
+                id: self.builder.next_id(),
+            };
             Ok(leo_ast::MemberAccess { inner, name, span, id }.into())
         }
     }
@@ -990,7 +1050,10 @@ impl<'a> ConversionContext<'a> {
             .map(|n| self.struct_field_init_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::CompositeExpression { path, const_arguments: Vec::new(), members, span, id }.into())
+        // Extract const arguments from CONST_ARG_LIST.
+        let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
+
+        Ok(leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into())
     }
 
     /// Extract a Path from a STRUCT_EXPR node's name tokens.
@@ -1065,7 +1128,39 @@ impl<'a> ConversionContext<'a> {
     /// Convert a PATH_EXPR node to an Expression.
     fn path_expr_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
         debug_assert_eq!(node.kind(), PATH_EXPR);
+        let text = node.text().to_string();
+
+        // Check for program ID reference: name.aleo (without /Type suffix).
+        // The rowan parser creates PATH_EXPR for these, but the AST represents
+        // them as MemberAccess (e.g. `hello.aleo` -> MemberAccess { inner: hello, name: aleo }).
+        if text.ends_with(".aleo") && !text.contains('/') {
+            let span = self.to_span(node);
+            let id = self.builder.next_id();
+            let program_str = text.trim_end_matches(".aleo");
+            let inner = leo_ast::Expression::Path(leo_ast::Path::new(
+                None,
+                Vec::new(),
+                leo_ast::Identifier { name: Symbol::intern(program_str), span, id: self.builder.next_id() },
+                span,
+                self.builder.next_id(),
+            ));
+            let name = leo_ast::Identifier { name: Symbol::intern("aleo"), span, id: self.builder.next_id() };
+            return Ok(leo_ast::MemberAccess { inner, name, span, id }.into());
+        }
+
         let path = self.path_expr_to_path(node)?;
+
+        // Reject standalone `_ident` in expression context -- these are only
+        // valid as the start of intrinsic calls (e.g. `_self_caller()`).
+        if path.user_program().is_none() && path.qualifier().is_empty() {
+            let name_text = format!("{}", path.identifier().name);
+            if name_text.starts_with('_') {
+                let span = self.to_span(node);
+                self.handler.emit_err(ParserError::identifier_cannot_start_with_underscore(span));
+                return Ok(leo_ast::ErrExpression { span, id: self.builder.next_id() }.into());
+            }
+        }
+
         Ok(leo_ast::Expression::Path(path))
     }
 
@@ -1113,37 +1208,63 @@ impl<'a> ConversionContext<'a> {
         // Regular path: collect identifiers
         let mut path_components = Vec::new();
         for token in tokens(node) {
-            if token.kind() == IDENT {
-                path_components.push(self.to_identifier(&token));
-            }
-            // Also handle self keyword
-            if token.kind() == KW_SELF {
-                path_components.push(leo_ast::Identifier {
-                    name: sym::SelfLower,
-                    span: self.token_span(&token),
-                    id: self.builder.next_id(),
-                });
-            }
-            if token.kind() == KW_BLOCK {
-                path_components.push(leo_ast::Identifier {
-                    name: sym::block,
-                    span: self.token_span(&token),
-                    id: self.builder.next_id(),
-                });
-            }
-            if token.kind() == KW_NETWORK {
-                path_components.push(leo_ast::Identifier {
-                    name: sym::network,
-                    span: self.token_span(&token),
-                    id: self.builder.next_id(),
-                });
+            match token.kind() {
+                IDENT => {
+                    let text = token.text();
+                    // The lexer produces single IDENT tokens for associated function
+                    // paths like "group::to_x_coordinate" or "signature::verify".
+                    // Split these on "::" to build the correct path components.
+                    if text.contains("::") {
+                        let token_span = self.token_span(&token);
+                        let mut offset = token_span.lo;
+                        for (i, segment) in text.split("::").enumerate() {
+                            if i > 0 {
+                                offset += 2; // skip "::"
+                            }
+                            let seg_span = Span::new(offset, offset + segment.len() as u32);
+                            path_components.push(leo_ast::Identifier {
+                                name: Symbol::intern(segment),
+                                span: seg_span,
+                                id: self.builder.next_id(),
+                            });
+                            offset += segment.len() as u32;
+                        }
+                    } else {
+                        path_components.push(self.to_identifier(&token));
+                    }
+                }
+                KW_SELF => {
+                    path_components.push(leo_ast::Identifier {
+                        name: sym::SelfLower,
+                        span: self.token_span(&token),
+                        id: self.builder.next_id(),
+                    });
+                }
+                KW_BLOCK => {
+                    path_components.push(leo_ast::Identifier {
+                        name: sym::block,
+                        span: self.token_span(&token),
+                        id: self.builder.next_id(),
+                    });
+                }
+                KW_NETWORK => {
+                    path_components.push(leo_ast::Identifier {
+                        name: sym::network,
+                        span: self.token_span(&token),
+                        id: self.builder.next_id(),
+                    });
+                }
+                _ => {}
             }
         }
 
-        let name = path_components.pop().unwrap_or_else(|| {
-            // If no components found, check for keywords that may have been parsed differently
-            panic!("PATH_EXPR should have at least one identifier: {:?}", node.text())
-        });
+        let name = match path_components.pop() {
+            Some(name) => name,
+            None => {
+                self.handler.emit_err(ParserError::unexpected_str("identifier in path", node.text().to_string(), span));
+                leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
+            }
+        };
         Ok(leo_ast::Path::new(None, path_components, name, span, self.builder.next_id()))
     }
 
@@ -1232,11 +1353,7 @@ impl<'a> ConversionContext<'a> {
                 if let Some(inner) = children(node).find(|n| is_statement_kind(n.kind())) {
                     self.to_statement(&inner)?
                 } else {
-                    self.handler.emit_err(ParserError::unexpected_str(
-                        "valid statement",
-                        node.text().to_string(),
-                        span,
-                    ));
+                    // Parse errors already emitted by emit_parse_errors().
                     leo_ast::ExpressionStatement {
                         expression: leo_ast::ErrExpression { span, id: self.builder.next_id() }.into(),
                         span,
@@ -1245,17 +1362,14 @@ impl<'a> ConversionContext<'a> {
                     .into()
                 }
             }
-            // Error recovery: emit error and return empty expression statement for ERROR nodes
-            ERROR => {
-                self.handler.emit_err(ParserError::unexpected_str("valid statement", node.text().to_string(), span));
-                // Return an expression statement with an ErrExpression
-                leo_ast::ExpressionStatement {
-                    expression: leo_ast::ErrExpression { span, id: self.builder.next_id() }.into(),
-                    span,
-                    id,
-                }
-                .into()
+            // Error recovery for ERROR nodes.
+            // Parse errors already emitted by emit_parse_errors().
+            ERROR => leo_ast::ExpressionStatement {
+                expression: leo_ast::ErrExpression { span, id: self.builder.next_id() }.into(),
+                span,
+                id,
             }
+            .into(),
             kind => panic!("unexpected statement kind: {:?}", kind),
         };
 
@@ -1335,6 +1449,7 @@ impl<'a> ConversionContext<'a> {
                         leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
                     }
                 };
+                self.validate_definition_identifier(&ident);
                 Ok(leo_ast::DefinitionPlace::Single(ident))
             }
             TUPLE_PATTERN => {
@@ -1346,7 +1461,7 @@ impl<'a> ConversionContext<'a> {
                             let span = self.to_span(&n);
                             leo_ast::Identifier { name: Symbol::intern("_"), span, id: self.builder.next_id() }
                         } else {
-                            match tokens(&n).find(|t| t.kind() == IDENT) {
+                            let ident = match tokens(&n).find(|t| t.kind() == IDENT) {
                                 Some(token) => self.to_identifier(&token),
                                 None => {
                                     let span = self.to_span(&n);
@@ -1361,7 +1476,9 @@ impl<'a> ConversionContext<'a> {
                                         id: self.builder.next_id(),
                                     }
                                 }
-                            }
+                            };
+                            self.validate_definition_identifier(&ident);
+                            ident
                         }
                     })
                     .collect();
@@ -1776,8 +1893,15 @@ impl<'a> ConversionContext<'a> {
             }
         }
 
-        let program_name = program_name.expect("program should have name");
-        let network = network.expect("program should have network");
+        let span = self.to_span(node);
+        let Some(program_name) = program_name else {
+            self.handler.emit_err(ParserError::missing_program_scope(span));
+            return Err(ParserError::missing_program_scope(span).into());
+        };
+        let Some(network) = network else {
+            self.handler.emit_err(ParserError::missing_program_scope(span));
+            return Err(ParserError::missing_program_scope(span).into());
+        };
 
         // Sort functions: transitions first
         functions.sort_by_key(|func| if func.1.variant.is_transition() { 0u8 } else { 1u8 });
@@ -1817,18 +1941,28 @@ impl<'a> ConversionContext<'a> {
     /// Extract program name and network from a PROGRAM_DECL node.
     fn program_decl_to_name(&self, node: &SyntaxNode) -> Result<(leo_ast::Identifier, leo_ast::Identifier)> {
         debug_assert_eq!(node.kind(), PROGRAM_DECL);
-        let _span = self.to_span(node);
+        let span = self.to_span(node);
 
         // Program format: program name.aleo { ... }
         // Find IDENT (name) and KW_ALEO (network)
-        let name_token = tokens(node).find(|t| t.kind() == IDENT).expect("program should have name");
-        let program_name = self.to_identifier(&name_token);
+        let program_name = match tokens(node).find(|t| t.kind() == IDENT) {
+            Some(name_token) => self.to_identifier(&name_token),
+            None => {
+                self.handler.emit_err(ParserError::unexpected_str("program name", node.text().to_string(), span));
+                leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
+            }
+        };
 
-        let aleo_token = tokens(node).find(|t| t.kind() == KW_ALEO).expect("program should have .aleo");
-        let network = leo_ast::Identifier {
-            name: Symbol::intern("aleo"),
-            span: self.token_span(&aleo_token),
-            id: self.builder.next_id(),
+        let network = match tokens(node).find(|t| t.kind() == KW_ALEO) {
+            Some(aleo_token) => leo_ast::Identifier {
+                name: Symbol::intern("aleo"),
+                span: self.token_span(&aleo_token),
+                id: self.builder.next_id(),
+            },
+            None => {
+                self.handler.emit_err(ParserError::unexpected_str(".aleo network", node.text().to_string(), span));
+                leo_ast::Identifier { name: Symbol::intern("aleo"), span, id: self.builder.next_id() }
+            }
         };
 
         Ok((program_name, network))
@@ -1865,8 +1999,14 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Get function name
-        let name_token = tokens(node).filter(|t| t.kind() == IDENT).next().expect("function should have name");
-        let identifier = self.to_identifier(&name_token);
+        let identifier = match tokens(node).find(|t| t.kind() == IDENT) {
+            Some(name_token) => self.to_identifier(&name_token),
+            None => {
+                self.handler.emit_err(ParserError::unexpected_str("function name", node.text().to_string(), span));
+                leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
+            }
+        };
+        self.validate_identifier(&identifier);
 
         // Get const parameters if any
         let const_parameters = children(node)
@@ -1882,12 +2022,26 @@ impl<'a> ConversionContext<'a> {
             .transpose()?
             .unwrap_or_default();
 
-        // Get return type
-        let output_type = children(node)
-            .find(|n| is_type_kind(n.kind()))
-            .map(|n| self.to_type(&n))
-            .transpose()?
-            .unwrap_or(leo_ast::Type::Unit);
+        // Get return type and build output declarations.
+        //
+        // Two structures are possible:
+        // - Single return: FUNCTION_DEF > ... ARROW [KW_PUBLIC|KW_PRIVATE|KW_CONSTANT]? TYPE_* BLOCK
+        // - Tuple return:  FUNCTION_DEF > ... ARROW RETURN_TYPE(L_PAREN [vis TYPE_*]+ R_PAREN) BLOCK
+        let (output, output_type) = if let Some(return_type_node) = children(node).find(|n| n.kind() == RETURN_TYPE) {
+            // Tuple return type.
+            self.return_type_to_outputs(&return_type_node)?
+        } else if let Some(type_node) = children(node).find(|n| is_type_kind(n.kind())) {
+            // Single return type (direct child of FUNCTION_DEF).
+            let type_ = self.to_type(&type_node)?;
+            // Check for visibility keyword before the type node.
+            let mode = self.return_mode_before(node, &type_node);
+            let type_span = self.to_span(&type_node);
+            let output =
+                vec![leo_ast::Output { mode, type_: type_.clone(), span: type_span, id: self.builder.next_id() }];
+            (output, type_)
+        } else {
+            (Vec::new(), leo_ast::Type::Unit)
+        };
 
         // Get block
         let block = children(node)
@@ -1902,12 +2056,76 @@ impl<'a> ConversionContext<'a> {
             identifier,
             const_parameters,
             input,
-            output: Vec::new(), // Output declarations (filled in later if needed)
+            output,
             output_type,
             block,
             span,
             id,
         })
+    }
+
+    /// Extract the visibility mode keyword that precedes a type node within a parent.
+    ///
+    /// Scans tokens of the parent, looking for a visibility keyword that
+    /// appears immediately before the type node's text range.
+    fn return_mode_before(&self, parent: &SyntaxNode, type_node: &SyntaxNode) -> leo_ast::Mode {
+        let type_start = type_node.text_range().start();
+        let mut mode = leo_ast::Mode::None;
+        for token in tokens(parent) {
+            let token_end = token.text_range().end();
+            if token_end > type_start {
+                break;
+            }
+            match token.kind() {
+                KW_PUBLIC => mode = leo_ast::Mode::Public,
+                KW_PRIVATE => mode = leo_ast::Mode::Private,
+                KW_CONSTANT => mode = leo_ast::Mode::Constant,
+                _ => {}
+            }
+        }
+        mode
+    }
+
+    /// Convert a RETURN_TYPE node (tuple return) to (Vec<Output>, Type).
+    fn return_type_to_outputs(&self, node: &SyntaxNode) -> Result<(Vec<leo_ast::Output>, leo_ast::Type)> {
+        debug_assert_eq!(node.kind(), RETURN_TYPE);
+
+        // RETURN_TYPE contains: L_PAREN [vis? TYPE_*]+ R_PAREN
+        // Iterate children, tracking the last-seen visibility keyword.
+        let mut outputs = Vec::new();
+        let mut current_mode = leo_ast::Mode::None;
+
+        for child in node.children_with_tokens() {
+            match &child {
+                SyntaxElement::Token(token) if !token.kind().is_trivia() => match token.kind() {
+                    KW_PUBLIC => current_mode = leo_ast::Mode::Public,
+                    KW_PRIVATE => current_mode = leo_ast::Mode::Private,
+                    KW_CONSTANT => current_mode = leo_ast::Mode::Constant,
+                    COMMA | L_PAREN | R_PAREN => {}
+                    _ => {}
+                },
+                SyntaxElement::Node(child_node) if is_type_kind(child_node.kind()) => {
+                    let type_ = self.to_type(child_node)?;
+                    let type_span = self.to_span(child_node);
+                    outputs.push(leo_ast::Output {
+                        mode: current_mode,
+                        type_,
+                        span: type_span,
+                        id: self.builder.next_id(),
+                    });
+                    current_mode = leo_ast::Mode::None;
+                }
+                _ => {}
+            }
+        }
+
+        let output_type = match outputs.len() {
+            0 => leo_ast::Type::Unit,
+            1 => outputs[0].type_.clone(),
+            _ => leo_ast::TupleType::new(outputs.iter().map(|o| o.type_.clone()).collect()).into(),
+        };
+
+        Ok((outputs, output_type))
     }
 
     /// Convert an ANNOTATION node to an Annotation.
@@ -1916,8 +2134,12 @@ impl<'a> ConversionContext<'a> {
         let span = self.to_span(node);
         let id = self.builder.next_id();
 
-        let name_token = tokens(node).find(|t| t.kind() == IDENT).expect("annotation should have name");
-        let identifier = self.to_identifier(&name_token);
+        // Annotation names can be identifiers or keywords (e.g. @program, @test).
+        let name_token =
+            tokens(node).find(|t| t.kind() == IDENT || t.kind().is_keyword()).expect("annotation should have name");
+        let name = Symbol::intern(name_token.text());
+        let name_span = self.token_span(&name_token);
+        let identifier = leo_ast::Identifier { name, span: name_span, id: self.builder.next_id() };
 
         // TODO: Parse annotation arguments if needed
         Ok(leo_ast::Annotation { identifier, map: indexmap::IndexMap::new(), span, id })
@@ -1948,12 +2170,23 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Get name
-        let name_token = tokens(node).find(|t| t.kind() == IDENT).expect("param should have name");
-        let identifier = self.to_identifier(&name_token);
+        let identifier = match tokens(node).find(|t| t.kind() == IDENT) {
+            Some(name_token) => self.to_identifier(&name_token),
+            None => {
+                self.handler.emit_err(ParserError::unexpected_str("parameter name", node.text().to_string(), span));
+                leo_ast::Identifier { name: Symbol::intern("_error"), span, id: self.builder.next_id() }
+            }
+        };
+        self.validate_identifier(&identifier);
 
         // Get type
-        let type_node = children(node).find(|n| is_type_kind(n.kind())).expect("param should have type");
-        let type_ = self.to_type(&type_node)?;
+        let type_ = match children(node).find(|n| is_type_kind(n.kind())) {
+            Some(type_node) => self.to_type(&type_node)?,
+            None => {
+                self.handler.emit_err(ParserError::unexpected_str("parameter type", node.text().to_string(), span));
+                leo_ast::Type::Err
+            }
+        };
 
         Ok(leo_ast::Input { identifier, mode, type_, span, id })
     }
@@ -1990,6 +2223,14 @@ impl<'a> ConversionContext<'a> {
         // Get name
         let name_token = tokens(node).find(|t| t.kind() == IDENT).expect("composite should have name");
         let identifier = self.to_identifier(&name_token);
+        self.validate_identifier(&identifier);
+
+        // Get const parameters if any
+        let const_parameters = children(node)
+            .find(|n| n.kind() == CONST_PARAM_LIST)
+            .map(|n| self.to_const_parameters(&n))
+            .transpose()?
+            .unwrap_or_default();
 
         // Get members
         let members = children(node)
@@ -1997,7 +2238,7 @@ impl<'a> ConversionContext<'a> {
             .map(|n| self.struct_member_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::Composite { identifier, const_parameters: Vec::new(), members, is_record, span, id })
+        Ok(leo_ast::Composite { identifier, const_parameters, members, is_record, span, id })
     }
 
     /// Convert a STRUCT_MEMBER node to a Member.
@@ -2018,6 +2259,7 @@ impl<'a> ConversionContext<'a> {
         // Get name
         let name_token = tokens(node).find(|t| t.kind() == IDENT).expect("member should have name");
         let identifier = self.to_identifier(&name_token);
+        self.validate_identifier(&identifier);
 
         // Get type
         let type_node = children(node).find(|n| is_type_kind(n.kind())).expect("member should have type");
@@ -2035,6 +2277,7 @@ impl<'a> ConversionContext<'a> {
         // Get name
         let name_token = tokens(node).find(|t| t.kind() == IDENT).expect("global const should have name");
         let place = self.to_identifier(&name_token);
+        self.validate_definition_identifier(&place);
 
         // Get type
         let type_node = children(node).find(|n| is_type_kind(n.kind())).expect("global const should have type");
@@ -2180,13 +2423,20 @@ fn emit_parse_errors(
     errors: &[leo_parser_rowan::ParseError],
     start_pos: u32,
     source_len: u32,
+    has_lex_errors: bool,
 ) {
     use std::collections::HashSet;
 
     // Track emitted error ranges to prevent duplicate errors at the same location
     let mut emitted_ranges: HashSet<(u32, u32)> = HashSet::new();
+    let mut count = 0;
+    let max_errors = 10;
 
     for error in errors {
+        if count >= max_errors {
+            break;
+        }
+
         let span = safe_error_span(error, start_pos, source_len);
         let range_key = (span.lo, span.hi);
 
@@ -2194,19 +2444,26 @@ fn emit_parse_errors(
         if emitted_ranges.contains(&range_key) {
             continue;
         }
+
+        // When there are lex errors, skip parse errors at EOF since
+        // they are secondary effects of the lex failure.
+        if has_lex_errors && span.lo == span.hi && span.hi == start_pos + source_len {
+            continue;
+        }
+
         emitted_ranges.insert(range_key);
 
         // Use ParserError::unexpected if we have structured found/expected info
         if let Some(found) = &error.found {
-            if !error.expected.is_empty() {
-                let expected_str = error.expected.join(", ");
-                handler.emit_err(ParserError::unexpected(found, expected_str, span));
-                continue;
-            }
+            let expected_str = error.expected.join(", ");
+            handler.emit_err(ParserError::unexpected(found, expected_str, span));
+            count += 1;
+            continue;
         }
 
         // Fall back to custom error for unstructured errors
         handler.emit_err(ParserError::custom(&error.message, span));
+        count += 1;
     }
 }
 
@@ -2225,7 +2482,7 @@ pub fn parse_expression(
     emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
 
     // Report parse errors to the handler
-    emit_parse_errors(&handler, parse.errors(), start_pos, source_len);
+    emit_parse_errors(&handler, parse.errors(), start_pos, source_len, !parse.lex_errors().is_empty());
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
     conversion_context.to_expression(&parse.syntax())
@@ -2246,7 +2503,7 @@ pub fn parse_statement(
     emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
 
     // Report parse errors to the handler
-    emit_parse_errors(&handler, parse.errors(), start_pos, source_len);
+    emit_parse_errors(&handler, parse.errors(), start_pos, source_len, !parse.lex_errors().is_empty());
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
     conversion_context.to_statement(&parse.syntax())
@@ -2269,7 +2526,7 @@ pub fn parse_module(
     emit_lex_errors(&handler, parse.lex_errors(), start_pos, source_len);
 
     // Report parse errors to the handler
-    emit_parse_errors(&handler, parse.errors(), start_pos, source_len);
+    emit_parse_errors(&handler, parse.errors(), start_pos, source_len, !parse.lex_errors().is_empty());
 
     let conversion_context = ConversionContext::new(&handler, node_builder, start_pos);
     conversion_context.to_module(&parse.syntax(), program_name, path)
@@ -2291,7 +2548,7 @@ pub fn parse(
     emit_lex_errors(&handler, parse.lex_errors(), source.absolute_start, source_len);
 
     // Report parse errors to the handler
-    emit_parse_errors(&handler, parse.errors(), source.absolute_start, source_len);
+    emit_parse_errors(&handler, parse.errors(), source.absolute_start, source_len, !parse.lex_errors().is_empty());
 
     // Create context with the main file's start position
     let main_context = ConversionContext::new(&handler, node_builder, source.absolute_start);
@@ -2312,7 +2569,13 @@ pub fn parse(
         emit_lex_errors(&handler, module_parse.lex_errors(), module.absolute_start, module_len);
 
         // Report parse errors for each module
-        emit_parse_errors(&handler, module_parse.errors(), module.absolute_start, module_len);
+        emit_parse_errors(
+            &handler,
+            module_parse.errors(),
+            module.absolute_start,
+            module_len,
+            !module_parse.lex_errors().is_empty(),
+        );
 
         if let Some(key) = compute_module_key(&module.name, root_dir.as_deref()) {
             // Ensure no module uses a keyword in its name

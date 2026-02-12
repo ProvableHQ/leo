@@ -75,8 +75,8 @@ fn is_comparison_op(op: SyntaxKind) -> bool {
 /// These are the lower-precedence operators that can follow a comparison.
 fn expected_after_comparison(bp: u8) -> Vec<&'static str> {
     match bp {
-        8 => vec!["'&&'", "'||'", "'?'"],   // After == != (BP 8)
-        10 => vec!["'&&'", "'||'", "'=='", "'!='", "'?'"],  // After < > <= >= (BP 10)
+        8 => vec!["'&&'", "'||'", "'?'"],                  // After == != (BP 8)
+        10 => vec!["'&&'", "'||'", "'=='", "'!='", "'?'"], // After < > <= >= (BP 10)
         _ => vec!["an operator"],
     }
 }
@@ -123,6 +123,36 @@ impl ExprOpts {
 // =============================================================================
 
 impl Parser<'_, '_> {
+    /// Tokens that may follow a complete expression (binary/postfix operators).
+    pub const EXPR_CONTINUATION: &'static [SyntaxKind] = &[
+        AMP2,
+        PIPE2,
+        AMP,
+        PIPE,
+        CARET,
+        EQ2,
+        BANG_EQ,
+        LT,
+        LT_EQ,
+        GT,
+        GT_EQ,
+        PLUS,
+        MINUS,
+        STAR,
+        SLASH,
+        STAR2,
+        PERCENT,
+        SHL,
+        SHR,
+        L_PAREN,
+        L_BRACKET,
+        L_BRACE,
+        DOT,
+        COLON_COLON,
+        QUESTION,
+        KW_AS,
+    ];
+
     /// Parse an expression.
     pub fn parse_expr(&mut self) -> Option<CompletedMarker> {
         self.parse_expr_with_opts(ExprOpts::default())
@@ -229,10 +259,11 @@ impl Parser<'_, '_> {
         let m = lhs.precede(self);
         self.bump_any(); // operator
 
-        // Handle cast specially - parse type instead of expression
+        // Handle cast specially - only primitive types are allowed after 'as'.
         if op == KW_AS {
-            if self.parse_type().is_none() {
-                self.error("expected type after 'as'".to_string());
+            if self.parse_cast_type().is_none() {
+                let expected: Vec<&str> = Self::PRIMITIVE_TYPE_KINDS.iter().map(|k| k.user_friendly_name()).collect();
+                self.error_unexpected(self.current(), &expected);
             }
             return Some(m.complete(self, CAST_EXPR));
         }
@@ -360,7 +391,23 @@ impl Parser<'_, '_> {
             KW_ASYNC => self.parse_async_block_expr(),
 
             _ => {
-                self.error(format!("expected expression, found {:?}", self.current()));
+                self.error_unexpected(self.current(), &[
+                    "an identifier",
+                    "a program id",
+                    "an address literal",
+                    "an integer literal",
+                    "a static string",
+                    "'!'",
+                    "'-'",
+                    "'('",
+                    "'['",
+                    "'true'",
+                    "'false'",
+                    "'async'",
+                    "'block'",
+                    "'network'",
+                    "'self'",
+                ]);
                 None
             }
         }
@@ -1182,8 +1229,21 @@ mod tests {
 
     #[test]
     fn parse_expr_call_const_generic_simple() {
-        // Function call with const generic integer arg
-        check_expr_no_errors("foo::[5]()");
+        // Function call with const generic integer arg: CONST_ARG_LIST is inside PATH_EXPR.
+        check_expr("foo::[5]()", expect![[r#"
+                ROOT@0..10
+                  CALL_EXPR@0..10
+                    PATH_EXPR@0..8
+                      IDENT@0..3 "foo"
+                      COLON_COLON@3..5 "::"
+                      CONST_ARG_LIST@5..8
+                        L_BRACKET@5..6 "["
+                        LITERAL@6..7
+                          INTEGER@6..7 "5"
+                        R_BRACKET@7..8 "]"
+                    L_PAREN@8..9 "("
+                    R_PAREN@9..10 ")"
+            "#]]);
     }
 
     #[test]
@@ -1200,8 +1260,29 @@ mod tests {
 
     #[test]
     fn parse_expr_struct_lit_const_generic() {
-        // Struct literal with const generic arg
-        check_expr_no_errors("Foo::[8u32] { arr: x }");
+        // Struct literal with const generic arg: CONST_ARG_LIST is inside STRUCT_EXPR.
+        check_expr("Foo::[8u32] { arr: x }", expect![[r#"
+                ROOT@0..22
+                  STRUCT_EXPR@0..22
+                    IDENT@0..3 "Foo"
+                    COLON_COLON@3..5 "::"
+                    CONST_ARG_LIST@5..11
+                      L_BRACKET@5..6 "["
+                      LITERAL@6..10
+                        INTEGER@6..10 "8u32"
+                      R_BRACKET@10..11 "]"
+                    WHITESPACE@11..12 " "
+                    L_BRACE@12..13 "{"
+                    STRUCT_FIELD_INIT@13..21
+                      WHITESPACE@13..14 " "
+                      IDENT@14..17 "arr"
+                      COLON@17..18 ":"
+                      WHITESPACE@18..19 " "
+                      PATH_EXPR@19..21
+                        IDENT@19..20 "x"
+                        WHITESPACE@20..21 " "
+                    R_BRACE@21..22 "}"
+            "#]]);
     }
 
     #[test]
@@ -1266,10 +1347,7 @@ mod tests {
     fn parse_expr_chained_eq_is_error() {
         // Chained == is not allowed: 1 == 2 == 3
         let parse = parse_expr_for_test("1 == 2 == 3");
-        assert!(
-            !parse.errors().is_empty(),
-            "expected error for chained ==, got none"
-        );
+        assert!(!parse.errors().is_empty(), "expected error for chained ==, got none");
         assert!(
             parse.errors().iter().any(|e| e.message.contains("'&&'") || e.message.contains("expected")),
             "expected error message about valid operators, got: {:?}",
@@ -1281,30 +1359,21 @@ mod tests {
     fn parse_expr_chained_neq_is_error() {
         // Chained != is not allowed: 1 != 2 != 3
         let parse = parse_expr_for_test("1 != 2 != 3");
-        assert!(
-            !parse.errors().is_empty(),
-            "expected error for chained !=, got none"
-        );
+        assert!(!parse.errors().is_empty(), "expected error for chained !=, got none");
     }
 
     #[test]
     fn parse_expr_chained_lt_is_error() {
         // Chained < is not allowed: 1 < 2 < 3
         let parse = parse_expr_for_test("1 < 2 < 3");
-        assert!(
-            !parse.errors().is_empty(),
-            "expected error for chained <, got none"
-        );
+        assert!(!parse.errors().is_empty(), "expected error for chained <, got none");
     }
 
     #[test]
     fn parse_expr_chained_gt_is_error() {
         // Chained > is not allowed: 1 > 2 > 3
         let parse = parse_expr_for_test("1 > 2 > 3");
-        assert!(
-            !parse.errors().is_empty(),
-            "expected error for chained >, got none"
-        );
+        assert!(!parse.errors().is_empty(), "expected error for chained >, got none");
     }
 
     #[test]
@@ -1312,5 +1381,49 @@ mod tests {
         // Comparison followed by logical is allowed: 1 == 2 && 3 == 4
         check_expr_no_errors("1 == 2 && 3 == 4");
         check_expr_no_errors("1 < 2 || 3 > 4");
+    }
+
+    // =========================================================================
+    // Associated function calls (type keyword :: function)
+    // =========================================================================
+
+    #[test]
+    fn parse_expr_group_associated_fn() {
+        // The lexer produces a single IDENT token for "group::to_x_coordinate"
+        // via the PathSpecial regex pattern.
+        check_expr("group::to_x_coordinate(a)", expect![[r#"
+                ROOT@0..25
+                  CALL_EXPR@0..25
+                    PATH_EXPR@0..22
+                      IDENT@0..22 "group::to_x_coordinate"
+                    L_PAREN@22..23 "("
+                    PATH_EXPR@23..24
+                      IDENT@23..24 "a"
+                    R_PAREN@24..25 ")"
+            "#]]);
+    }
+
+    #[test]
+    fn parse_expr_signature_associated_fn() {
+        // The lexer produces a single IDENT token for "signature::verify"
+        // via the PathSpecial regex pattern.
+        check_expr("signature::verify(s, a, v)", expect![[r#"
+                ROOT@0..26
+                  CALL_EXPR@0..26
+                    PATH_EXPR@0..17
+                      IDENT@0..17 "signature::verify"
+                    L_PAREN@17..18 "("
+                    PATH_EXPR@18..19
+                      IDENT@18..19 "s"
+                    COMMA@19..20 ","
+                    WHITESPACE@20..21 " "
+                    PATH_EXPR@21..22
+                      IDENT@21..22 "a"
+                    COMMA@22..23 ","
+                    WHITESPACE@23..24 " "
+                    PATH_EXPR@24..25
+                      IDENT@24..25 "v"
+                    R_PAREN@25..26 ")"
+            "#]]);
     }
 }
