@@ -18,8 +18,7 @@
 //! execute its COMMAND file, comparing the output and resulting directory
 //! structure to the corresponding directory in `tests/expectations/cli`.
 //!
-//! It relies on a snarkOS with the `test_network` feature and uses `leo devnet`
-//! to start a local devnet using snarkOS.
+//! It uses an instance of `leo devnode`.
 
 #[cfg(unix)]
 use std::os::unix::process::CommandExt;
@@ -34,10 +33,7 @@ use std::{
 };
 
 use anyhow::anyhow;
-use serial_test::serial;
-use snarkvm::prelude::ConsensusVersion;
-
-const VALIDATOR_COUNT: usize = 4usize;
+use snarkvm::prelude::{ConsensusVersion, Network};
 
 struct Test {
     test_directory: PathBuf,
@@ -45,37 +41,74 @@ struct Test {
     mismatch_directory: PathBuf,
 }
 
-fn find_tests() -> Vec<Test> {
-    let cli_test_directory: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "tests", "cli"].iter().collect::<PathBuf>();
-    let cli_expectation_directory: PathBuf =
-        [env!("CARGO_MANIFEST_DIR"), "tests", "expectations", "cli"].iter().collect::<PathBuf>();
-    let mismatch_directory: PathBuf =
-        [env!("CARGO_MANIFEST_DIR"), "tests", "mismatches", "cli"].iter().collect::<PathBuf>();
-
-    let filter_string = env::var("TEST_FILTER").unwrap_or_default();
-
-    let mut tests = Vec::new();
-
-    for entry in cli_test_directory
-        .read_dir()
-        .unwrap_or_else(|e| panic!("Failed to read directory {}: {e}", cli_test_directory.display()))
-    {
-        let entry = entry.unwrap_or_else(|e| panic!("Failed to read directory {}: {e}", cli_test_directory.display()));
-        let path = entry.path().canonicalize().expect("Failed to canonicalize");
-
-        let path_str = path.to_str().unwrap_or_else(|| panic!("Path not unicode: {}", path.display()));
-
-        if !path_str.contains(&filter_string) {
-            continue;
-        }
-
-        let expectation_directory = cli_expectation_directory.join(path.file_name().unwrap());
-        let mismatch_directory = mismatch_directory.join(path.file_name().unwrap());
-
-        tests.push(Test { test_directory: path, expectation_directory, mismatch_directory })
+/// Runs a single CLI integration test in isolation.
+///
+/// Sets up a temporary test environment, executes the test COMMANDS,
+/// compares outputs against expectations, and reports mismatches.
+/// Intended to be invoked by generated per-test `#[test]` functions.
+fn run_single_cli_test(test_directory: &Path) {
+    if !cfg!(target_family = "unix") {
+        return;
     }
 
-    tests
+    let cli_expectation_directory: PathBuf =
+        [env!("CARGO_MANIFEST_DIR"), "tests", "expectations", "cli"].iter().collect();
+
+    let mismatch_directory: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "mismatches", "cli"].iter().collect();
+
+    let test = Test {
+        test_directory: test_directory.to_path_buf(),
+        expectation_directory: cli_expectation_directory.join(test_directory.file_name().unwrap()),
+        mismatch_directory: mismatch_directory.join(test_directory.file_name().unwrap()),
+    };
+
+    let rewrite_expectations = !std::env::var("REWRITE_EXPECTATIONS").unwrap_or_default().trim().is_empty();
+
+    let mut devnode_process = run_leo_devnode().expect("devnode");
+    wait_for_devnode();
+
+    let test_result = run_test(&test, rewrite_expectations);
+
+    #[cfg(unix)]
+    unsafe {
+        // Kill the entire process group: devnode_process + all its children
+        let _ = libc::killpg(devnode_process.id() as i32, libc::SIGTERM);
+    }
+
+    let _ = devnode_process.wait();
+
+    if let Some(err) = test_result {
+        panic!("FAILED: {}\n{}", test_directory.display(), err);
+    }
+}
+
+/// Blocks until the local Leo devnode is ready to accept requests.
+///
+/// Polls the devnode HTTP endpoint until it becomes reachable, then waits
+/// for the network to reach the required consensus height. This ensures
+/// CLI tests start only after the devnode is fully initialized.
+fn wait_for_devnode() {
+    let height_url = "http://localhost:3030/testnet/block/height/latest";
+    let start = std::time::Instant::now();
+    let timeout = std::time::Duration::from_secs(300);
+
+    loop {
+        match leo_package::fetch_from_network_plain(height_url) {
+            Ok(_) => break,
+            Err(_) if start.elapsed() < timeout => {
+                std::thread::sleep(std::time::Duration::from_secs(1));
+            }
+            Err(e) => panic!("{e}"),
+        }
+    }
+
+    loop {
+        let height = current_height().expect("this should work now that the devnode is ready.");
+        if snarkvm::prelude::TestnetV0::CONSENSUS_VERSION(height as u32).unwrap() == ConsensusVersion::latest() {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(200));
+    }
 }
 
 struct CwdRaii {
@@ -220,114 +253,6 @@ fn filter_json_file(data: &str) -> String {
 
 const BINARY_PATH: &str = env!("CARGO_BIN_EXE_leo");
 
-#[test]
-#[serial]
-fn integration_tests() {
-    if !cfg!(target_family = "unix") {
-        println!("Skipping CLI integration tests (they only run on unix systems).");
-        return;
-    }
-
-    let rewrite_expectations = !env::var("REWRITE_EXPECTATIONS").unwrap_or_default().trim().is_empty();
-
-    let directory = tempfile::TempDir::new().expect("Failed to create temporary directory.");
-    remove_all_in_dir(directory.path()).expect("Should be able to remove.");
-
-    let _raii = CwdRaii::cwd(directory.path());
-
-    let mut devnet_process = run_leo_devnet(VALIDATOR_COUNT).expect("OK");
-
-    // Wait for snarkos to start listening on port 3030.
-    let height_url = "http://localhost:3030/testnet/block/height/latest";
-    let start = std::time::Instant::now();
-    let timeout = std::time::Duration::from_secs(300);
-
-    loop {
-        match leo_package::fetch_from_network_plain(height_url) {
-            Ok(_) => {
-                break;
-            }
-            Err(_) if start.elapsed() < timeout => {
-                std::thread::sleep(std::time::Duration::from_secs(1));
-            }
-            Err(e) => {
-                let snarkos_path: PathBuf =
-                    which::which("snarkos").unwrap_or_else(|_| panic!("Cannot find snarkos path.")); // fallback for CI
-
-                let version_output = Command::new(&snarkos_path)
-                    .arg("--version")
-                    .output()
-                    .map(|output| {
-                        let stdout = String::from_utf8_lossy(&output.stdout);
-                        let stderr = String::from_utf8_lossy(&output.stderr);
-
-                        if output.status.success() {
-                            stdout.trim().to_string()
-                        } else {
-                            format!(
-                                "failed to get version (status {}): stdout: `{}`, stderr: `{}`",
-                                output.status,
-                                stdout.trim(),
-                                stderr.trim()
-                            )
-                        }
-                    })
-                    .unwrap_or_else(|err| format!("failed to execute snarkos --version: {err}"));
-
-                panic!(
-                    "{} (version: {}) did not start within {timeout:?}: {e}.",
-                    snarkos_path.display(),
-                    version_output
-                )
-            }
-        }
-    }
-
-    // Wait until the appropriate block height.
-    loop {
-        let height = current_height().expect("net");
-        if height > ConsensusVersion::latest() as usize {
-            break;
-        }
-        // Avoid rate limits.
-        std::thread::sleep(std::time::Duration::from_millis(200));
-    }
-
-    let tests = find_tests();
-    let mut passed = Vec::new();
-    let mut failed = Vec::new();
-    for test in tests.into_iter() {
-        if let Some(err) = run_test(&test, rewrite_expectations) {
-            failed.push((test, err));
-        } else {
-            passed.push(test);
-        }
-    }
-
-    #[cfg(unix)]
-    unsafe {
-        // Kill the entire process group: devnet_process + all its children
-        libc::killpg(devnet_process.id() as i32, libc::SIGTERM);
-    }
-
-    // Wait to reap the main devnet_process (avoid zombie)
-    let _ = devnet_process.wait();
-
-    if failed.is_empty() {
-        println!("CLI Integration tests: All {} tests passed.", passed.len());
-    } else {
-        println!("CLI Integration tests: {}/{} tests failed.", failed.len(), failed.len() + passed.len());
-        for (test, err) in &failed {
-            println!(
-                "FAILED: {}; produced files written to {}\nERROR: {err}",
-                test.test_directory.file_name().unwrap().display(),
-                test.mismatch_directory.display()
-            );
-        }
-        panic!()
-    }
-}
-
 fn copy_recursively(src: &Path, dst: &Path) -> io::Result<()> {
     if !dst.exists() {
         fs::create_dir_all(dst)?;
@@ -418,67 +343,39 @@ fn collect_files(base: &Path) -> io::Result<HashSet<PathBuf>> {
     Ok(files)
 }
 
-fn remove_all_in_dir(dir: &Path) -> io::Result<()> {
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
-
-        if path.is_dir() {
-            fs::remove_dir_all(path)?;
-        } else {
-            fs::remove_file(path)?;
-        }
-    }
-    Ok(())
-}
-
-/// Starts a Leo devnet for integration testing purposes.
+/// Starts a Leo devnode for integration testing purposes.
 ///
-/// This function launches a local devnet using the Leo CLI with snarkOS as the backend.
-/// The devnet is configured specifically for testing with predefined consensus heights
-/// and validators.
-fn run_leo_devnet(num_validators: usize) -> io::Result<Child> {
-    // Locate the path to the snarkOS binary using the `which` crate
-    let snarkos_path: PathBuf = which::which("snarkos").unwrap_or_else(|_| panic!("Cannot find snarkos path.")); // fallback for CI
-    assert!(snarkos_path.exists(), "snarkos binary not found at {snarkos_path:?}");
+/// This function launches a local devnode using the Leo CLI.
+fn run_leo_devnode() -> io::Result<Child> {
+    let mut leo_devnode_cmd = Command::new(BINARY_PATH);
 
-    // Create a new command using the Leo binary (defined by BINARY_PATH constant)
-    let mut leo_devnet_cmd = Command::new(BINARY_PATH);
-
-    let consensus_heights: String =
-        (0..ConsensusVersion::latest() as usize).map(|n| n.to_string()).collect::<Vec<_>>().join(",");
-
-    // Configure the Leo devnet command with all necessary arguments
-    leo_devnet_cmd.arg("devnet")
-        .arg("-y")
-        .arg("--snarkos")
-        .arg(&snarkos_path)
-        .arg("--snarkos-features")
-        .arg("test_network") // Use test network configuration
-        .arg("--num-validators")
-        .arg(num_validators.to_string())
-        .arg("--consensus-heights")             // Define consensus heights for testing
-        .arg(&consensus_heights)
-        .arg("--clear-storage")
+    leo_devnode_cmd
+        .arg("devnode")
+        .arg("start")
+        .arg("--private-key")
+        .arg("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
         .stdout(Stdio::null())
         .stderr(Stdio::null());
 
     // On Unix systems, configure the child process to be its own process group leader
-    // This allows us to later kill the entire process group (parent + all children)
-    // which is important for properly cleaning up the devnet and all its validator processes
     #[cfg(unix)]
     unsafe {
-        leo_devnet_cmd.pre_exec(|| {
+        leo_devnode_cmd.pre_exec(|| {
             libc::setpgid(0, 0); // make child its own process group leader
             Ok(())
         });
     }
 
-    leo_devnet_cmd.spawn()
+    leo_devnode_cmd.spawn()
 }
 
 fn current_height() -> Result<usize, anyhow::Error> {
     let height_url = "http://localhost:3030/testnet/block/height/latest".to_string();
     let height_str = leo_package::fetch_from_network_plain(&height_url)?;
     height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
+}
+
+#[cfg(test)]
+mod cli_tests {
+    include!(concat!(env!("OUT_DIR"), "/cli_tests.rs"));
 }
