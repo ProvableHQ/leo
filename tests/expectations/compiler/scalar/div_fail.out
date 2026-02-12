@@ -8,7 +8,7 @@ Error [ETYC0372117]: Expected a field or integer but type `scalar` was found.
      |
    2 |     return a / b; // division not supported for scalar types.
      |                ^
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point.
     --> compiler-test:4:9
      |
    4 | program test.aleo {}

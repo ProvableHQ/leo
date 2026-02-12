@@ -1,4 +1,4 @@
-Error [ETYC0372143]: Only `inline` functions can have generic const parameters.
+Error [ETYC0372143]: Only inlined functions can have generic const parameters.
     --> compiler-test:2:4
      |
    2 | fn foo1::[N: u32](x: u32) -> u32 {

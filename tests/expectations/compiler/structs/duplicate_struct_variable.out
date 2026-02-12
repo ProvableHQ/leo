@@ -37,7 +37,7 @@ Error [ETYC0372015]: Struct field `host` is already declared.
    ...
   36 |       host: field,
      |       ^^^^^^^^^^^ struct field already declared
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point.
     --> compiler-test:1:9
      |
    1 | program test.aleo {}

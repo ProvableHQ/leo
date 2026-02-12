@@ -6,7 +6,7 @@ Error [ETYC0372030]: A struct or record cannot contain another record.
      |
      = Remove the record `test.aleo/Token` from `Foo`.
 Error [ETYC0372058]: Cyclic dependency between composites: `test.aleo/Token` --> `test.aleo/Foo` --> `test.aleo/Token`
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point.
     --> compiler-test:7:9
      |
    7 | program test.aleo {
