@@ -60,8 +60,7 @@ impl Command for Start {
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         let rt = tokio::runtime::Runtime::new().unwrap();
-        let _ = rt.block_on(async { start_devnode(self).await });
-        Ok(())
+        rt.block_on(async { start_devnode(self).await })
     }
 }
 
@@ -90,8 +89,15 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     // Fetch the private key from the command line or an environment variable.
     let private_key = match command.env_override.private_key {
         Some(key) => key,
-        None => std::env::var("PRIVATE_KEY")
-            .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?,
+        None => std::env::var("PRIVATE_KEY").map_err(|e| {
+            CliError::custom(format!(
+                "
+Failed to load `PRIVATE_KEY` from the environment: {e}
+Please either:
+1. Use the --private-key flag: `leo devnode start --private-key <PRIVATE_KEY>`
+2. Set the PRIVATE_KEY environment variable"
+            ))
+        })?,
     };
     // Initialize the ledger - use spawn_blocking for the blocking load operation.
     let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
