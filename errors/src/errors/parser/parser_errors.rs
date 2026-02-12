@@ -505,17 +505,18 @@ create_messages!(
         help: Some("Move this type declaration to the top level, before the `program` block.".to_string()),
     }
 
+    // Unused
     @formatted
     only_transitions_allowed_in_program_block {
         args: (variant: impl Display),
-        msg: format!("Only transitions can be declared inside the `program` block, found `{variant}`."),
-        help: Some("Move helper functions outside the `program` block. Only entry points (transitions) belong inside.".to_string()),
+        msg: format!("Only entry points can be declared inside the `program` block, found `{variant}`."),
+        help: Some("Move helper functions outside the `program` block. Only entry points belong inside.".to_string()),
     }
 
     @formatted
     transitions_must_be_in_program_block {
         args: (),
-        msg: "Transitions must be declared inside the `program` block.",
-        help: Some("Move this transition into the `program` block. Transitions are entry points and must be part of the program's public interface.".to_string()),
+        msg: "Entry points must be declared inside the `program` block.",
+        help: Some("Move this function into the `program` block to make it an entry point.".to_string()),
     }
 );

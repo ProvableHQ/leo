@@ -280,7 +280,7 @@ impl TypeCheckingVisitor<'_> {
         // Ensure assignment is allowed in async function conditional scopes
         if self.scope_state.variant.unwrap().is_onchain() && !self.symbol_in_conditional_scope(input.identifier().name)
         {
-            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "function", var.span));
+            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "fn", var.span));
         }
 
         // Ensure assignment is allowed in async block conditional scopes
@@ -997,10 +997,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         match self.scope_state.variant.unwrap() {
             Variant::Finalize if !matches!(func.variant, Variant::FinalFn | Variant::Fn) => self.emit_err(
                 // FIXME: better error
-                TypeCheckerError::can_only_call_inline_function("a `function`, `inline`, or `constructor`", input.span),
+                TypeCheckerError::can_only_call_inline_function("a regular function or constructor", input.span),
             ),
             Variant::Fn if !matches!(func.variant, Variant::Fn) => self.emit_err(
-                TypeCheckerError::can_only_call_inline_function("a `function`, `inline`, or `constructor`", input.span),
+                TypeCheckerError::can_only_call_inline_function("a regular function or constructor", input.span),
             ),
             Variant::EntryPoint
                 if matches!(func.variant, Variant::EntryPoint)
@@ -1014,7 +1014,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Make sure we're not calling an entry point or finalize from a final block
         if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn) {
             // FIXME better error
-            self.emit_err(TypeCheckerError::can_only_call_inline_function("an async block", input.span));
+            self.emit_err(TypeCheckerError::can_only_call_inline_function("a final block", input.span));
         }
 
         // Async functions return a single future.
@@ -1161,7 +1161,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         if func.variant.is_entry() && self.scope_state.variant == Some(Variant::EntryPoint) {
             if self.scope_state.has_called_finalize {
-                self.emit_err(TypeCheckerError::external_call_after_async("function call", input.span));
+                self.emit_err(TypeCheckerError::external_call_after_async("fn call", input.span));
             }
 
             if self.scope_state.already_contains_an_async_block {
@@ -1360,9 +1360,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // First, ensure that the current scope is not an async function. Records should not be instantiated in
             // async functions
             if matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)) {
-                self.state
-                    .handler
-                    .emit_err(TypeCheckerError::records_not_allowed_inside_async("function", input.span()));
+                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_async("fn", input.span()));
             }
 
             // Similarly, ensure that the current scope is not an async block. Records should not be instantiated in
@@ -2058,7 +2056,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
 
             if slf.scope_state.has_called_finalize {
-                slf.emit_err(TypeCheckerError::loop_body_contains_async("function call", input.span()));
+                slf.emit_err(TypeCheckerError::loop_body_contains_async("fn call", input.span()));
             }
 
             if slf.scope_state.already_contains_an_async_block {

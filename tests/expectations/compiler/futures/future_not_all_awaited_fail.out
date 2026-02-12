@@ -1,4 +1,4 @@
-Error [ESAZ0374001]: The following futures were never awaited: f4
+Error [ESAZ0374001]: The following Finals were never run: f4
     --> compiler-test:18:1
      |
   18 | final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
@@ -16,7 +16,7 @@ Error [ESAZ0374001]: The following futures were never awaited: f4
   24 | }
      | ^
      |
-     = Ex: for `f: Future` call `f.await()` to await a future.
+     = Ex: for `f: Final` call `f.run()` to run a Final.
 Warning [WSAZ0374003]: The future `f1` is not awaited in the order in which they were passed in to the `async` function.
     --> compiler-test:19:5
      |

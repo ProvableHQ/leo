@@ -1,4 +1,4 @@
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
+Error [ETYC0372057]: Only entry point functions can have a record as input or output.
     --> compiler-test:12:34
      |
   12 | fn mint(r0: address, r1: u64) -> Token {
@@ -14,7 +14,7 @@ Error [ETYC0372013]: Composite initialization expression for `Token` is missing 
      |         ^^^^^^^^^^^
   16 |     };
      |     ^
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point.
     --> compiler-test:2:9
      |
    2 | program test.aleo {
