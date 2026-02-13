@@ -59,6 +59,10 @@ pub enum Intrinsic {
     // Schnorr signature verification.
     SignatureVerify,
 
+    // Snark proof verification.
+    SnarkVerify,
+    SnarkVerifyBatch,
+
     FutureAwait,
 
     ProgramChecksum,
@@ -632,6 +636,8 @@ impl Intrinsic {
             sym::_program_owner => Self::ProgramOwner,
 
             sym::_signature_verify => Self::SignatureVerify,
+            sym::_snark_verify => Self::SnarkVerify,
+            sym::_snark_verify_batch => Self::SnarkVerifyBatch,
             sym::_future_await => Self::FutureAwait,
 
             sym::_serialize_to_bits => Self::Serialize(SerializeVariant::ToBits),
@@ -1156,6 +1162,8 @@ impl Intrinsic {
             (sym::ECDSA, sym::verify_sha3_512_raw)    => sym::_ecdsa_verify_sha3_512_raw,
             (sym::ECDSA, sym::verify_sha3_512_eth)    => sym::_ecdsa_verify_sha3_512_eth,
 
+            (sym::Snark, sym::verify) => sym::_snark_verify,
+            (sym::Snark, sym::verify_batch) => sym::_snark_verify_batch,
 
             (sym::Mapping, sym::get_or_use) => sym::_mapping_get_or_use,
             (sym::Mapping, sym::remove) => sym::_mapping_remove,
@@ -1236,6 +1244,7 @@ impl Intrinsic {
             Self::GroupToYCoordinate => 1,
 
             Self::SignatureVerify => 3,
+            Self::SnarkVerify | Self::SnarkVerifyBatch => 4,
             Self::FutureAwait => 1,
 
             Self::ProgramChecksum => 1,
@@ -1272,7 +1281,9 @@ impl Intrinsic {
             | Intrinsic::VectorLen
             | Intrinsic::VectorClear
             | Intrinsic::VectorPop
-            | Intrinsic::VectorSwapRemove => true,
+            | Intrinsic::VectorSwapRemove
+            | Intrinsic::SnarkVerify
+            | Intrinsic::SnarkVerifyBatch => true,
             Intrinsic::Commit(_, _)
             | Intrinsic::Hash(_, _)
             | Intrinsic::OptionalUnwrap
@@ -1353,6 +1364,8 @@ impl Intrinsic {
             | Intrinsic::BlockTimestamp
             | Intrinsic::NetworkId
             | Intrinsic::SignatureVerify
+            | Intrinsic::SnarkVerify
+            | Intrinsic::SnarkVerifyBatch
             | Intrinsic::Serialize(_)
             | Intrinsic::Deserialize(_, _) => true,
         }

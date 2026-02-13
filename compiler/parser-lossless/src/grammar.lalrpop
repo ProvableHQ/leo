@@ -273,8 +273,8 @@ Expr0: SyntaxNode<'a> = {
                 (
                     "BHP256" | "BHP512" |"BHP768" | "BHP1024" | "ChaCha" | "Keccak256" | "Keccak384" | "Keccak512" |
                     "Pedersen64" | "Pedersen128" | "Poseidon2" | "Poseidon4" | "Poseidon8" | "SHA3_256" | "SHA3_384" |
-                    "SHA3_512" | "Mapping" | "Program" | "signature" | "Future" | "CheatCode" | "group" | "ECDSA" | 
-                    "Serialize" | "Deserialize",
+                    "SHA3_512" | "Mapping" | "Program" | "signature" | "Future" | "CheatCode" | "group" | "ECDSA" |
+                    "Serialize" | "Deserialize" | "Snark",
                     _
                 )
             )
