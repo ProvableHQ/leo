@@ -74,6 +74,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoExecute,
     },
+    #[clap(name = "fmt", about = "Format Leo source files")]
+    Fmt {
+        #[clap(flatten)]
+        command: LeoFormat,
+    },
     #[clap(about = "Deploy a program")]
     Deploy {
         #[clap(flatten)]
@@ -98,6 +103,11 @@ enum Commands {
     Build {
         #[clap(flatten)]
         command: LeoBuild,
+    },
+    #[clap(about = "Generate ABI from an Aleo bytecode file")]
+    Abi {
+        #[clap(flatten)]
+        command: LeoAbi,
     },
     #[clap(about = "Debug the current package via the interpreter")]
     Debug {
@@ -144,11 +154,13 @@ impl Commands {
             Commands::Run { .. } => "run",
             Commands::Test { .. } => "test",
             Commands::Execute { .. } => "execute",
+            Commands::Fmt { .. } => "fmt",
             Commands::Deploy { .. } => "deploy",
             Commands::Devnet { .. } => "devnet",
             Commands::Devnode { .. } => "devnode",
             Commands::Query { .. } => "query",
             Commands::Build { .. } => "build",
+            Commands::Abi { .. } => "abi",
             Commands::Debug { .. } => "debug",
             Commands::Add { .. } => "add",
             Commands::Remove { .. } => "remove",
@@ -231,6 +243,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Account { command } => command.try_execute(context)?,
         Commands::New { command } => command.try_execute(context)?,
         Commands::Build { command } => command.try_execute(context)?,
+        Commands::Abi { command } => command.try_execute(context)?,
         Commands::Debug { command } => command.try_execute(context)?,
         Commands::Query { command } => {
             let result = command.execute(context)?;
@@ -239,6 +252,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         }
         Commands::Clean { command } => command.try_execute(context)?,
         Commands::Deploy { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
+        Commands::Fmt { command } => command.try_execute(context)?,
         Commands::Devnet { command } => command.try_execute(context)?,
         Commands::Devnode { command } => command.try_execute(context)?,
         Commands::Run { command } => command_output = Some(JsonOutput::Run(command.execute(context)?)),

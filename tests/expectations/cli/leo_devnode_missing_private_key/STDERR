@@ -1,0 +1,6 @@
+Error [ECLI0377045]: 
+Failed to load `PRIVATE_KEY` from the environment: environment variable not found
+Please either:
+1. Use the --private-key flag: `leo devnode start --private-key <PRIVATE_KEY>`
+2. Set the PRIVATE_KEY environment variable
+

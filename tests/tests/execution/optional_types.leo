@@ -153,7 +153,7 @@ program all_types.aleo {
         return sum; // 100 + 200 + 300 + 50 = 650
     }
 
-    // --- Section 9: Optionals with address, group, field, scalar, signature ---
+    // --- Section 9: Optionals with group, field, and scalar ---
     transition optional_misc_primitive_types() -> (group, field, scalar) {
         let gr: group? = 0;
         let fl: field? = 1;
@@ -196,6 +196,43 @@ program all_types.aleo {
         let val4 = wrapper.inner.val.unwrap();
 
         // Just return one of the addresses to satisfy return type
+        return (val1, val2, val3, val4);
+    }
+
+    // --- Section 11: Optionals with Signature ---
+    struct SigStruct { a: signature, b: signature? }
+    struct InnerSig { val: signature? }
+    struct WrapperSig { inner: InnerSig }
+    transition optional_signature() -> (signature, signature, signature, signature)
+    {
+        let sig: signature =
+            sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj;
+
+        // Case 1: Direct optional signature
+        let a: signature? = none;
+        let b: signature? = sig;
+        let val1 = b.unwrap_or(a.unwrap_or(sig));
+
+        // Case 2: Struct containing signature + optional signature
+        let s = SigStruct {
+            a: sig,
+            b: none
+        };
+        let val2 = s.b.unwrap_or(s.a);
+
+        // Case 3: Optional struct containing signature
+        let s_opt: SigStruct? = SigStruct {
+            a: sig,
+            b: none
+        };
+        let val3 = s_opt.unwrap().a;
+
+        // Case 4: Nested struct with optional signature
+        let wrapper = WrapperSig {
+            inner: InnerSig { val: sig }
+        };
+        let val4 = wrapper.inner.val.unwrap();
+
         return (val1, val2, val3, val4);
     }
 

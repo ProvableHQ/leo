@@ -37,6 +37,4 @@ snarkvm             = { workspace = true }
 # leo dependencies
 leo-test-framework  = { workspace = true }
 # third party dependencies
-serde               = { workspace = true }
-serde_json          = { workspace = true }
 serial_test         = { workspace = true }

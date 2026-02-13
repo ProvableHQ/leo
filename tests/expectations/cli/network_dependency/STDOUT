@@ -66,7 +66,7 @@ Once it is deployed, it CANNOT be changed.
   - fee transaction ID: 'XXXXXX'
     (use this to check for rejected transactions)
 
-🔄 Searching up to 20 blocks to confirm transaction (this may take several seconds)...
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
 Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Deployment confirmed!
@@ -142,7 +142,7 @@ Once it is deployed, it CANNOT be changed.
   - fee transaction ID: 'XXXXXX'
     (use this to check for rejected transactions)
 
-🔄 Searching up to 20 blocks to confirm transaction (this may take several seconds)...
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
 Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Deployment confirmed!
@@ -212,7 +212,7 @@ Attempting to determine the consensus version from the latest block height at ht
   - fee transaction ID: 'XXXXXX'
     (use this to check for rejected transactions)
 
-🔄 Searching up to 20 blocks to confirm transaction (this may take several seconds)...
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
 Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Execution confirmed!
