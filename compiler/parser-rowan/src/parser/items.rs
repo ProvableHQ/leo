@@ -69,6 +69,9 @@ impl Parser<'_, '_> {
                 break;
             }
 
+            // Clear error state so each top-level item gets fresh error reporting.
+            self.erroring = false;
+
             match self.current() {
                 KW_IMPORT => {
                     self.parse_import();
@@ -84,9 +87,8 @@ impl Parser<'_, '_> {
                     }
                 }
                 _ => {
-                    self.error_recover("expected `import`, `program`, or module item at top level", &[
-                        KW_IMPORT, KW_PROGRAM, KW_CONST, KW_STRUCT, KW_INLINE, AT,
-                    ]);
+                    self.error("expected `import`, `program`, or module item at top level".to_string());
+                    self.recover(&[KW_IMPORT, KW_PROGRAM, KW_CONST, KW_STRUCT, KW_INLINE, AT]);
                 }
             }
         }
@@ -103,8 +105,12 @@ impl Parser<'_, '_> {
                 break;
             }
 
+            // Clear error state so each module item gets fresh error reporting.
+            self.erroring = false;
+
             if self.parse_module_item().is_none() {
-                self.error_recover("expected `const`, `struct`, or `inline` in module", Self::MODULE_ITEM_RECOVERY);
+                self.error("expected `const`, `struct`, or `inline` in module".to_string());
+                self.recover(Self::MODULE_ITEM_RECOVERY);
             }
         }
     }
@@ -145,6 +151,8 @@ impl Parser<'_, '_> {
 
         // Parse program items
         while !self.at(R_BRACE) && !self.at_eof() {
+            // Clear error state so each item gets fresh error reporting.
+            self.erroring = false;
             if self.parse_program_item().is_none() {
                 // Error was already reported by parse_program_item; just recover.
                 self.recover(ITEM_RECOVERY);
@@ -348,9 +356,16 @@ impl Parser<'_, '_> {
 
             m.complete(self, STRUCT_MEMBER);
 
-            // Optional comma
+            // Comma or end of fields.
             if !self.eat(COMMA) {
-                break;
+                // If we're at `}` or EOF, the field list is done.
+                // Otherwise, there's a missing comma — report it and continue
+                // so we can parse more fields rather than cascading.
+                if !self.at(R_BRACE) && !self.at_eof() {
+                    self.error("expected ','".to_string());
+                    // Clear erroring so the next field can report its own errors.
+                    self.erroring = false;
+                }
             }
         }
     }

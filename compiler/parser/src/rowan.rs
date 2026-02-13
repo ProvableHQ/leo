@@ -2320,6 +2320,19 @@ fn emit_parse_errors(
 
         emitted_ranges.insert(range_key);
 
+        // Detect EOF errors: the found token is empty or "end of file", or the
+        // span sits at/past the end of source.
+        let is_eof_error = match &error.found {
+            Some(f) => f.is_empty() || f == "end of file",
+            None => false,
+        } || (span.lo == span.hi && span.hi >= start_pos + source_len);
+
+        if is_eof_error {
+            handler.emit_err(ParserError::unexpected_eof(span));
+            count += 1;
+            continue;
+        }
+
         // Use ParserError::unexpected if we have structured found/expected info
         if let Some(found) = &error.found {
             if error.expected.is_empty() {

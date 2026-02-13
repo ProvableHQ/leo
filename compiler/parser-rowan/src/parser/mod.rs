@@ -45,9 +45,9 @@ pub struct ParseError {
     pub message: String,
     /// The source range where the error occurred.
     ///
-    /// For "expected X" errors, this is typically a zero-length range at the
-    /// error position. For recovery errors, this spans the tokens wrapped in
-    /// the ERROR node.
+    /// For "expected X" errors, this covers the found token so that
+    /// diagnostic carets underline it. For recovery errors, this spans the
+    /// tokens wrapped in the ERROR node.
     pub range: TextRange,
     /// The token that was found (for "expected X, found Y" errors).
     pub found: Option<String>,
@@ -331,6 +331,27 @@ impl<'t, 's> Parser<'t, 's> {
         ""
     }
 
+    /// Get the `TextRange` covering the current non-trivia token.
+    ///
+    /// Walks past trivia to find the next meaningful token and returns its
+    /// range. At EOF, returns a zero-length range at the current byte offset.
+    fn current_token_range(&self) -> TextRange {
+        let mut pos = self.pos;
+        let mut offset = self.byte_offset;
+        while pos < self.tokens.len() {
+            let token = &self.tokens[pos];
+            if !token.kind.is_trivia() {
+                let start = TextSize::new(offset as u32);
+                let end = TextSize::new(offset as u32 + token.len as u32);
+                return TextRange::new(start, end);
+            }
+            offset += token.len as usize;
+            pos += 1;
+        }
+        let pos = TextSize::new(offset as u32);
+        TextRange::empty(pos)
+    }
+
     // =========================================================================
     // Token Consumption
     // =========================================================================
@@ -435,10 +456,9 @@ impl<'t, 's> Parser<'t, 's> {
             if !self.erroring {
                 let found_text = self.current_text().to_string();
                 let expected_name = kind.user_friendly_name();
-                let pos = TextSize::new(self.byte_offset as u32);
                 self.errors.push(ParseError {
                     message: format!("expected {}", expected_name),
-                    range: TextRange::empty(pos),
+                    range: self.current_token_range(),
                     found: Some(found_text),
                     expected: vec![expected_name.to_string()],
                 });
@@ -448,14 +468,18 @@ impl<'t, 's> Parser<'t, 's> {
         }
     }
 
-    /// Record a parse error at the current position (zero-length range).
+    /// Record a parse error at the current position.
     pub fn error(&mut self, message: String) {
         if self.erroring {
             return;
         }
-        let pos = TextSize::new(self.byte_offset as u32);
         let found_text = if !self.at_eof() { Some(self.current_text().to_string()) } else { None };
-        self.errors.push(ParseError { message, range: TextRange::empty(pos), found: found_text, expected: vec![] });
+        self.errors.push(ParseError {
+            message,
+            range: self.current_token_range(),
+            found: found_text,
+            expected: vec![],
+        });
         self.erroring = true;
     }
 
@@ -468,34 +492,24 @@ impl<'t, 's> Parser<'t, 's> {
         if self.erroring {
             return;
         }
-        // Find the actual position and length of the found token (skipping trivia).
-        let mut pos_offset = self.byte_offset;
-        let mut token_pos = self.pos;
-        while token_pos < self.tokens.len() {
-            let kind = self.tokens[token_pos].kind;
-            if !kind.is_trivia() {
-                break;
-            }
-            pos_offset += self.tokens[token_pos].len as usize;
-            token_pos += 1;
-        }
-
-        let start = TextSize::new(pos_offset as u32);
-        // Include the token length so the error span covers the found token.
-        let token_len = if token_pos < self.tokens.len() { self.tokens[token_pos].len as u32 } else { 0 };
-        let end = TextSize::new(pos_offset as u32 + token_len);
+        let range = self.current_token_range();
         // For 'found', use the actual token text for identifiers and numbers
         // (since "an identifier" is less helpful than showing the actual name).
         // For other tokens, use user_friendly_name with quotes stripped.
-        let found_text = if matches!(found_kind, IDENT | INTEGER) && token_pos < self.tokens.len() {
-            let len = self.tokens[token_pos].len as usize;
-            self.source[pos_offset..pos_offset + len].to_string()
+        let found_text = if matches!(found_kind, IDENT | INTEGER) {
+            let start = u32::from(range.start()) as usize;
+            let end = u32::from(range.end()) as usize;
+            if start < end && end <= self.source.len() {
+                self.source[start..end].to_string()
+            } else {
+                found_kind.user_friendly_name().trim_matches('\'').to_string()
+            }
         } else {
             found_kind.user_friendly_name().trim_matches('\'').to_string()
         };
         self.errors.push(ParseError {
             message: format!("expected {}", expected.join(", ")),
-            range: TextRange::new(start, end),
+            range,
             found: Some(found_text),
             expected: expected.iter().map(|s| s.to_string()).collect(),
         });
@@ -532,7 +546,16 @@ impl<'t, 's> Parser<'t, 's> {
             self.bump_any();
         }
 
-        while !self.at_eof() && !self.at_any(recovery) {
+        // Skip tokens until recovery point, treating balanced brace pairs
+        // as a unit so we don't stop at an inner `}`.
+        let mut brace_depth: u32 = 0;
+        while !self.at_eof() {
+            match self.current() {
+                L_BRACE => brace_depth += 1,
+                R_BRACE if brace_depth > 0 => brace_depth -= 1,
+                kind if brace_depth == 0 && recovery.contains(&kind) => break,
+                _ => {}
+            }
             self.bump_any();
         }
         self.finish_node();
@@ -547,12 +570,23 @@ impl<'t, 's> Parser<'t, 's> {
     /// Skip tokens until a recovery point, wrapping them in an ERROR node.
     /// Unlike `error_recover`, this does not emit an error message (useful when
     /// the caller has already reported the error).
+    ///
+    /// Balanced brace pairs (`{ ... }`) encountered during recovery are
+    /// consumed as a unit so that we don't stop at an inner `}` that belongs
+    /// to a nested block.
     pub fn recover(&mut self, recovery: &[SyntaxKind]) {
         self.start_node(ERROR);
         if self.at_any(recovery) && !self.at(R_BRACE) && !self.at_eof() {
             self.bump_any();
         }
-        while !self.at_eof() && !self.at_any(recovery) {
+        let mut brace_depth: u32 = 0;
+        while !self.at_eof() {
+            match self.current() {
+                L_BRACE => brace_depth += 1,
+                R_BRACE if brace_depth > 0 => brace_depth -= 1,
+                kind if brace_depth == 0 && recovery.contains(&kind) => break,
+                _ => {}
+            }
             self.bump_any();
         }
         self.finish_node();
@@ -873,7 +907,7 @@ mod tests {
                 p.expect(SEMICOLON);
                 p.finish_node();
             },
-            expect![[r#"0..0:expected ';'"#]],
+            expect![[r#"0..3:expected ';'"#]],
         );
     }
 

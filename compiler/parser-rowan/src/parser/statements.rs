@@ -255,9 +255,19 @@ impl Parser<'_, '_> {
 
         // Parse statements until }
         while !self.at(R_BRACE) && !self.at_eof() {
+            let had_error = self.erroring;
+            // Clear error state at each loop iteration so errors from the
+            // previous statement don't suppress errors in the next one.
+            self.erroring = false;
             if self.parse_stmt().is_none() {
                 // Error recovery: skip to next statement boundary
                 self.error_recover("expected statement", STMT_RECOVERY);
+            } else if self.erroring && !had_error {
+                // The statement parsed but encountered errors and left
+                // unconsumed tokens. Skip to the next semicolon or
+                // statement boundary to prevent cascading errors.
+                self.recover(&[SEMICOLON, R_BRACE]);
+                self.eat(SEMICOLON);
             }
         }
 
