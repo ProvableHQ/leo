@@ -350,7 +350,7 @@ fn validate_integer_digits(text: &str, offset: usize, errors: &mut Vec<LexError>
         .unwrap_or(text);
 
     // Determine the radix and get the digit part
-    let (digits, radix, prefix_len): (&str, u32, usize) = if let Some(s) = num_part.strip_prefix("0x") {
+    let (digits, radix, _prefix_len): (&str, u32, usize) = if let Some(s) = num_part.strip_prefix("0x") {
         (s, 16, 2)
     } else if let Some(s) = num_part.strip_prefix("0X") {
         (s, 16, 2)

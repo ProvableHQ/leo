@@ -124,8 +124,11 @@ impl Parser<'_, '_> {
             return None;
         }
 
+        // Skip trivia before starting the node so leading whitespace
+        // isn't captured inside the TYPE_PATH.
+        self.skip_trivia();
         let m = self.start();
-        self.bump_any();
+        self.bump_raw();
         Some(m.complete(self, TYPE_PATH))
     }
 
