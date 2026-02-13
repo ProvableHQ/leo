@@ -69,10 +69,11 @@ impl Command for LeoDevnode {
 
 // A helper function to handle the Devnode command based on the subcommand provided.
 fn handle_devnode(devnode_command: LeoDevnode, context: Context) -> Result<<LeoDevnode as Command>::Output> {
+    let private_key = devnode_command.env_override.private_key;
     match devnode_command.command {
         DevnodeCommands::Start { command } => {
             tracing::info!("Starting the Devnode server...");
-            command.apply(context, ())
+            command.apply(context, private_key)
         }
         DevnodeCommands::Advance { command } => command.apply(context, ()),
     }

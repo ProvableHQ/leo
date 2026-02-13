@@ -41,13 +41,11 @@ pub struct Start {
     /// Enable manual block creation mode.
     #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
     pub(crate) manual_block_creation: bool,
-    /// Environment override options.
-    #[clap(flatten)]
-    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for Start {
-    type Input = ();
+    /// The private key, resolved from the parent command's `EnvOptions`.
+    type Input = Option<String>;
     type Output = ();
 
     fn log_span(&self) -> Span {
@@ -55,17 +53,17 @@ impl Command for Start {
     }
 
     fn prelude(&self, _context: Context) -> Result<Self::Input> {
-        Ok(())
+        Ok(None)
     }
 
-    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context, private_key: Self::Input) -> Result<Self::Output> {
         let rt = tokio::runtime::Runtime::new().unwrap();
-        rt.block_on(async { start_devnode(self).await })
+        rt.block_on(async { start_devnode(self, private_key).await })
     }
 }
 
 // This command initializes a local development node that is pre-populated with test accounts.
-pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::Output> {
+async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()> {
     // Initialize the logger.
     println!("Starting the Devnode server...");
     initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
@@ -87,7 +85,7 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
     // Fetch the private key from the command line or an environment variable.
-    let private_key = match command.env_override.private_key {
+    let private_key = match private_key {
         Some(key) => key,
         None => std::env::var("PRIVATE_KEY").map_err(|e| {
             CliError::custom(format!(
