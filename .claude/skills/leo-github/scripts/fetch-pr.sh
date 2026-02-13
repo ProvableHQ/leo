@@ -18,6 +18,7 @@ NC='\033[0m'
 log_info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+escape_sed() { printf '%s' "$1" | sed 's/[|&\\/]/\\&/g'; }
 
 # Parse arguments
 FORCE=0
@@ -66,10 +67,6 @@ gh pr view "$NUM" --json title,body,author,state,headRefName,baseRefName,additio
 log_info "Fetching changed files..."
 gh pr view "$NUM" --json files --jq '.files[] | "\(.additions)+/\(.deletions)- \(.path)"' > "$WS/files-pr-$NUM.txt"
 
-# Detect affected crates
-log_info "Detecting affected crates..."
-"$SCRIPT_DIR/detect-crates.sh" "$NUM"
-
 # Commits (paginated)
 log_info "Fetching commits..."
 gh api "repos/$OWNER/$REPO/pulls/$NUM/commits" --paginate | \
@@ -109,21 +106,18 @@ AUTHOR=$(jq -r .author.login "$WS/context-pr-$NUM.json")
 BRANCH=$(jq -r .headRefName "$WS/context-pr-$NUM.json")
 STATS=$(jq -r '"\(.additions)+/\(.deletions)-/\(.changedFiles) files"' "$WS/context-pr-$NUM.json")
 CI_STATUS=$(jq -r 'if length == 0 then "none" else [.[] | "\(.name):\(.conclusion // .state)"] | join(", ") end' "$WS/checks-pr-$NUM.json")
-CRATES=$(cat "$WS/crates-pr-$NUM.txt" 2>/dev/null || echo "none detected")
-
-sed -e "s/{{NUM}}/$NUM/g" \
-    -e "s/{{TITLE}}/$TITLE/g" \
-    -e "s/{{AUTHOR}}/$AUTHOR/g" \
-    -e "s/{{BRANCH}}/$BRANCH/g" \
-    -e "s/{{STATS}}/$STATS/g" \
-    -e "s/{{UNRESOLVED}}/$UNRESOLVED_COUNT/g" \
-    -e "s/{{TOTAL}}/$TOTAL_THREADS/g" \
-    -e "s/{{RESOLVED}}/$RESOLVED_COUNT/g" \
-    -e "s/{{CI_STATUS}}/$CI_STATUS/g" \
-    -e "s/{{CRATES}}/$CRATES/g" \
+sed -e "s|{{NUM}}|$(escape_sed "$NUM")|g" \
+    -e "s|{{TITLE}}|$(escape_sed "$TITLE")|g" \
+    -e "s|{{AUTHOR}}|$(escape_sed "$AUTHOR")|g" \
+    -e "s|{{BRANCH}}|$(escape_sed "$BRANCH")|g" \
+    -e "s|{{STATS}}|$(escape_sed "$STATS")|g" \
+    -e "s|{{UNRESOLVED}}|$(escape_sed "$UNRESOLVED_COUNT")|g" \
+    -e "s|{{TOTAL}}|$(escape_sed "$TOTAL_THREADS")|g" \
+    -e "s|{{RESOLVED}}|$(escape_sed "$RESOLVED_COUNT")|g" \
+    -e "s|{{CI_STATUS}}|$(escape_sed "$CI_STATUS")|g" \
     "$TEMPLATE_DIR/state-pr.md" > "$WS/state-pr-$NUM.md"
 
 log_info "=== PR #$NUM ready ==="
 ls -la "$WS"/*pr*"$NUM"* 2>/dev/null || true
 echo ""
-log_info "Files fetched: context, files, crates, commits, comments, checks, threads, unresolved, resolved, linked-issues, state"
+log_info "Files fetched: context, files, commits, comments, checks, threads, unresolved, resolved, linked-issues, state"

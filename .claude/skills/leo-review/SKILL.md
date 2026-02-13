@@ -34,204 +34,63 @@ SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../leo-github" && pwd)"
 
 ## 1. Load Context
 
-Ensure PR context exists:
-
 ```bash
 if [[ ! -f "$WS/state-pr-$PR.md" ]]; then
-  echo "Context missing. Fetching PR #$PR..."
   "$SKILL_DIR/scripts/fetch-pr.sh" "$PR"
 fi
 ```
 
-Read initial state:
-
-```bash
-cat "$WS/state-pr-$PR.md"
-cat "$WS/files-pr-$PR.txt"
-cat "$WS/crates-pr-$PR.txt" 2>/dev/null || echo "No crates detected"
-```
+Read: `$WS/state-pr-$PR.md`, `$WS/files-pr-$PR.txt`
 
 ## 2. Triage by Risk
 
-Categorize changed files:
+Categorize changed files by risk:
+- **HIGH**: passes/ (code_generation, type_checking, flattening), parser/, ast/types/, span/
+- **MEDIUM**: ast/ (non-types), compiler/, interpreter/, errors/
+- **LOW**: test-framework/, package/, docs, tests
 
-| Risk | Directories | Rationale |
-|------|-------------|-----------|
-| **HIGH** | `compiler/passes/` (especially code_generation, type_checking, flattening), `compiler/ast/types/`, `compiler/parser/`, `compiler/parser-lossless/` | Core compiler logic, can produce wrong code or reject valid programs |
-| **MEDIUM** | `compiler/ast/`, `compiler/compiler/`, `interpreter/`, `errors/` | Can cause program failures, bad error messages |
-| **LOW** | `test-framework/`, `leo/package/`, docs, tests | Support code, lower blast radius |
+Update `$WS/state-pr-$PR.md` with risk assessment.
 
-Count files per risk level and update `$WS/state-pr-$PR.md`.
-
-**For large PRs (30+ files):** Focus on HIGH risk areas first. Consider parallel analysis.
+**For large PRs (30+ files):** Focus HIGH risk areas first. Use parallel subagents by category (passes, AST/parser, other).
 
 ## 3. Understand Intent
 
-Before diving into code, answer:
-
-1. **What problem does this PR solve?**
-   - Read PR description: `jq -r .body "$WS/context-pr-$PR.json"`
-   - Check linked issues: `cat "$WS/linked-issues-pr-$PR.txt"`
-
-2. **What compiler invariants must hold?**
-   - Span preservation?
-   - NodeID assignment?
-   - Pass ordering?
-
-3. **What could go wrong?**
-   - Edge cases (zero, empty, max)?
-   - Type system holes?
-   - Code generation correctness?
+Before diving into code:
+1. Read PR description: `jq -r .body "$WS/context-pr-$PR.json"`
+2. Check linked issues: `cat "$WS/linked-issues-pr-$PR.txt"`
+3. What compiler invariants must hold?
+4. What could go wrong?
 
 ## 4. Analyze Code
 
-### For small/medium PRs (< 30 files)
+**Small/medium PRs (< 30 files):** Sequential. For each HIGH/MEDIUM risk file — read full file, trace logic, check boundaries, write findings to state file, release from memory.
 
-Sequential analysis. For each HIGH/MEDIUM risk file:
+**Large PRs (30+ HIGH/MEDIUM files):** Spawn parallel Task subagents by category (passes, AST/parser, other). Each reads assigned files, applies AGENTS.md checklists, returns findings table.
 
-1. **Read the full file** (not just diff) for context
-2. **Trace the logic** step-by-step
-3. **Check boundaries**: zero, empty, max, overflow
-4. **Write findings to `$WS/state-pr-$PR.md` immediately**
-5. **Release file from working memory** and move on
+Apply **AGENTS.md Review Checklist** (Correctness, Compiler-Specific, Memory & Performance, Security) to each file.
 
-Fetch diffs selectively:
-```bash
-gh pr diff $PR -- path/to/file.rs
-```
+## 5. Validate
 
-### For large PRs (30+ HIGH/MEDIUM files)
-
-Use **parallel subagents** for faster analysis:
-
-**Spawn Task subagents by category:**
-
-```
-Use the Task tool to spawn parallel subagents:
-
-Task 1 (Passes): Analyze files in compiler/passes/
-  - Check: Pass ordering, code generation, type checking, flattening
-  - Return: Findings table
-
-Task 2 (AST/Parser): Analyze files in compiler/ast/, compiler/parser/, compiler/parser-lossless/
-  - Check: Node types, span preservation, NodeID assignment, grammar correctness
-  - Return: Findings table
-
-Task 3 (Other): Analyze files in compiler/compiler/, interpreter/, errors/
-  - Check: Orchestration, error handling, runtime correctness
-  - Return: Findings table
-```
-
-Each subagent should:
-- Read assigned files completely
-- Apply relevant checks from section 4.1
-- Return findings in table format
-- Note anything requiring cross-file analysis
-
-Merge results into `$WS/state-pr-$PR.md`.
-
-### 4.1 Review Checklist
-
-**Correctness:**
-- [ ] Logic traced step-by-step
-- [ ] Boundary conditions handled: zero, empty, max, off-by-one
-- [ ] Error handling correct; no panics in production paths
-- [ ] AST transformations preserve semantics
-
-**Compiler-Specific:**
-- [ ] Spans preserved through transformations for error reporting
-- [ ] NodeIDs assigned correctly for new nodes
-- [ ] Pass ordering dependencies respected
-- [ ] Generated Aleo instructions are valid
-
-**Memory & Performance:**
-- [ ] No unnecessary allocations in hot paths
-- [ ] Pre-allocation with `with_capacity` where size known
-- [ ] No unnecessary `.clone()` — prefer references
-- [ ] Iterators used efficiently; no intermediate collections
-
-**Security:**
-- [ ] Input validation at trust boundaries
-- [ ] No information leakage in error messages
-- [ ] Fail-closed (reject on uncertainty)
-
-## 5. Verify Build
-
-```bash
-"$SKILL_DIR/scripts/cargo-validate.sh"
-```
-
-Or selectively:
-```bash
-CRATES=$(cat "$WS/crates-pr-$PR.txt")
-for crate in $CRATES; do
-  cargo check -p "$crate"
-  cargo clippy -p "$crate" -- -D warnings
-  cargo test -p "$crate"
-done
-```
-
-For parser changes:
-```bash
-cargo test -p leo-parser
-cargo test -p leo-parser-lossless
-```
+Validate affected crates per AGENTS.md.
 
 ## 6. Report
 
-Re-read `$WS/state-pr-$PR.md` to compile findings.
-
-**Output findings table:**
+Update `$WS/state-pr-$PR.md` with findings:
 
 | Sev | Location | Issue | Suggested Fix |
 |-----|----------|-------|---------------|
-| BLOCKER | path/file.rs:42 | Unchecked overflow in... | Use checked_add or saturating_add |
-| BUG | path/file.rs:100 | Missing bounds check | Add length validation |
-| ISSUE | path/file.rs:200 | Inefficient clone | Use reference instead |
-| NIT | path/file.rs:300 | Inconsistent naming | Rename to match convention |
 
-**Severity guide:**
-- **BLOCKER** — Must fix before merge. Correctness/security issue.
-- **BUG** — Should fix. Likely causes problems.
-- **ISSUE** — Quality concern. Consider fixing.
-- **NIT** — Style/preference. Optional.
+**Severity:** BLOCKER (must fix), BUG (should fix), ISSUE (consider), NIT (optional).
 
-**Final recommendation:**
-- **Approve** — No blockers, code is sound
-- **Request changes** — Blockers or bugs require attention
-- **Needs discussion** — Design concerns to resolve
+**Recommendation:** Approve, Request changes, or Needs discussion.
 
-## 7. Handoff (if changes needed)
+## 7. Handoff
 
 If requesting changes, create handoff for `/leo-fix-pr`:
 
 ```bash
-TEMPLATE_DIR="$SKILL_DIR/templates"
-sed -e "s/{{NUM}}/$PR/g" "$TEMPLATE_DIR/handoff.md" > "$WS/handoff-pr-$PR.md"
+sed -e "s/{{NUM}}/$PR/g" "$SKILL_DIR/templates/handoff.md" > "$WS/handoff-pr-$PR.md"
 ```
-
-Then edit `$WS/handoff-pr-$PR.md` to fill in the required fixes table.
-
-## Deep Analysis Techniques
-
-### Trace Compilation
-1. Start from source code input
-2. Follow through lexer -> parser -> AST construction
-3. Track each pass transformation
-4. Verify output instructions match input semantics
-
-### Enumerate Failure Modes
-For each operation, ask:
-- What if input is empty/malformed?
-- What if types don't match?
-- What if identifiers collide?
-- What if limits are exceeded?
-
-### Check Invariants
-- AST nodes always have valid spans
-- Type annotations consistent after type checking
-- No unresolved identifiers after name resolution
-- All loops unrolled after loop unrolling pass
 
 ## Common Vulnerability Patterns in Leo
 

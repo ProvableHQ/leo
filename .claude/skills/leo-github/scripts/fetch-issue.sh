@@ -18,6 +18,7 @@ NC='\033[0m'
 log_info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+escape_sed() { printf '%s' "$1" | sed 's/[|&\\/]/\\&/g'; }
 
 # Parse arguments
 FORCE=0
@@ -138,14 +139,13 @@ AUTHOR=$(jq -r .author "$WS/context-issue-$NUM.json")
 STATE=$(jq -r .state "$WS/context-issue-$NUM.json")
 BODY=$(jq -r '.body[0:500]' "$WS/context-issue-$NUM.json")
 
-# Escape special chars for sed
-BODY_ESCAPED=$(echo "$BODY" | sed 's/[&/\]/\\&/g' | tr '\n' ' ')
+BODY_ESCAPED=$(echo "$BODY" | tr '\n' ' ')
 
-sed -e "s/{{NUM}}/$NUM/g" \
-    -e "s/{{TITLE}}/$TITLE/g" \
-    -e "s/{{AUTHOR}}/$AUTHOR/g" \
-    -e "s/{{STATE}}/$STATE/g" \
-    -e "s|{{BODY}}|$BODY_ESCAPED|g" \
+sed -e "s|{{NUM}}|$(escape_sed "$NUM")|g" \
+    -e "s|{{TITLE}}|$(escape_sed "$TITLE")|g" \
+    -e "s|{{AUTHOR}}|$(escape_sed "$AUTHOR")|g" \
+    -e "s|{{STATE}}|$(escape_sed "$STATE")|g" \
+    -e "s|{{BODY}}|$(escape_sed "$BODY_ESCAPED")|g" \
     "$TEMPLATE_DIR/state-issue.md" > "$WS/state-issue-$NUM.md"
 
 log_info "=== Issue #$NUM ready ==="

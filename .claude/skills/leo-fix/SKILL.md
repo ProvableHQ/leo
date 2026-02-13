@@ -29,54 +29,32 @@ SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../leo-github" && pwd)"
 
 ## 1. Load Context
 
-Ensure issue context is loaded. If missing or stale, fetch it first:
-
 ```bash
 if [[ ! -f "$WS/state-issue-$ISSUE.md" ]]; then
-  echo "Context missing. Fetching issue #$ISSUE..."
   "$SKILL_DIR/scripts/fetch-issue.sh" "$ISSUE"
 fi
 ```
 
-Review the context:
-
-```bash
-cat "$WS/state-issue-$ISSUE.md"
-echo "--- Recent comments ---"
-cat "$WS/comments-issue-$ISSUE.jsonl" | jq -r '"[\(.author.login)]: \(.body[0:150])..."' | head -10
-```
+Review: `$WS/state-issue-$ISSUE.md` and recent comments.
 
 ## 2. Investigate
 
-Search for related code:
-
-```bash
-# Search for relevant terms from the issue
-git grep -n "relevant_term" -- "*.rs" | head -30
-```
-
-Answer these questions:
+Search for related code. Answer:
 1. Can you reproduce the issue?
 2. What is the expected vs actual behavior?
 3. Where does the code path go wrong?
 4. What are the edge cases?
 
-**Update `$WS/state-issue-$ISSUE.md`** with:
-- Root cause analysis
-- Relevant code locations
-- Evidence/reproduction steps
+**Where to look:**
+- Parser bugs → `compiler/parser-lossless/` (grammar), `compiler/parser/` (AST conversion)
+- Type errors → type-checking pass in `compiler/passes/`
+- Code generation bugs → `compiler/passes/code_generation/`
+- Pass ordering → `compiler/compiler/src/compiler.rs` (`intermediate_passes`)
+- Span bugs → trace span preservation through transformations
+
+Update `$WS/state-issue-$ISSUE.md` with root cause analysis, relevant code locations, and evidence.
 
 **Think hard. Do not proceed until you can explain the root cause.**
-
-### Investigation Hints
-
-When investigating Leo issues:
-
-- **Parser bugs**: Check `compiler/parser-lossless/` grammar (`leo.lalrpop`), `compiler/parser/` AST conversion
-- **Type errors**: Check type-checking pass, AST type nodes
-- **Code generation bugs**: Check `compiler/passes/code_generation/`, Aleo instruction output
-- **Pass ordering issues**: Check `compiler/compiler/src/run.rs` pass sequence
-- **Span bugs**: Check span preservation through transformations
 
 ## 3. Plan (APPROVAL REQUIRED)
 
@@ -94,63 +72,28 @@ Present a concrete plan:
 
 ## 4. Implement (TDD)
 
-### 4.1 Establish baseline
+### 4.1 Write failing test first
 
-Detect affected crates and verify current state:
+Create a test that reproduces the issue and covers edge cases.
 
 ```bash
-CRATES=$(cat "$WS/crates-pr-$ISSUE.txt" 2>/dev/null || echo "")
-
-# Run baseline checks
-for crate in $CRATES; do
-  cargo check -p "$crate"
-  cargo clippy -p "$crate" -- -D warnings
-  cargo test -p "$crate" --lib
-done
+cargo test -p <crate> test_issue_NNNN -- --nocapture  # Verify it fails
 ```
 
-### 4.2 Write failing test first
-
-Create a test that:
-- Reproduces the issue
-- Will pass once the fix is applied
-- Covers edge cases identified in investigation
-
-```rust
-#[test]
-fn test_issue_NNNN_description() {
-    // Setup
-    // Action
-    // Assert expected behavior
-}
-```
-
-Verify the test fails:
-```bash
-cargo test -p <crate> test_issue_NNNN -- --nocapture
-```
-
-For parser/compiler tests with expectation files:
-```bash
-REWRITE_EXPECTATIONS=1 cargo test -p leo-parser  # Update expectations
-TEST_FILTER=test_name cargo test                  # Run specific test
-```
-
-### 4.3 Implement minimal fix
+### 4.2 Implement minimal fix
 
 - Match existing code style
 - Make the smallest change that fixes the issue
-- Add comments explaining non-obvious changes
 
-### 4.4 Verify test passes
+### 4.3 Verify
 
 ```bash
-cargo test -p <crate> test_issue_NNNN -- --nocapture
+cargo test -p <crate> test_issue_NNNN -- --nocapture  # Verify it passes
 ```
 
-### 4.5 Log progress
+### 4.4 Log progress
 
-Update `$WS/state-issue-$ISSUE.md` with:
+Update `$WS/state-issue-$ISSUE.md`:
 
 | Action | Result |
 |--------|--------|
@@ -160,24 +103,9 @@ Update `$WS/state-issue-$ISSUE.md` with:
 
 ## 5. Final Validation
 
-Run full validation on affected crates:
-
-```bash
-cargo check -p <crate>
-cargo clippy -p <crate> -- -D warnings
-cargo +nightly fmt --check
-cargo test -p <crate>
-```
-
-Or use the validation script:
-
-```bash
-"$SKILL_DIR/scripts/cargo-validate.sh" $CRATES
-```
+Validate affected crates per AGENTS.md.
 
 ## 6. Report
-
-Summarize the fix:
 
 ```
 **Issue**: #$ISSUE — [title]
@@ -190,11 +118,3 @@ Summarize the fix:
 ```
 
 **Do not commit unless explicitly asked.**
-
-## Risk Assessment
-
-| Risk | Areas |
-|------|-------|
-| HIGH | passes/ (code_generation, type_checking, flattening), ast/types, parser |
-| MEDIUM | ast/, compiler/, interpreter/, errors/ |
-| LOW | test-framework/, package/, docs |

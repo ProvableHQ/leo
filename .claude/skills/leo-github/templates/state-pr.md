@@ -4,7 +4,6 @@
 **Stats:** {{STATS}}
 **Review:** {{UNRESOLVED}} unresolved / {{TOTAL}} total ({{RESOLVED}} resolved)
 **CI:** {{CI_STATUS}}
-**Crates:** {{CRATES}}
 
 ## Risk Assessment
 
