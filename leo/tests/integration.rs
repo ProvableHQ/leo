@@ -160,6 +160,10 @@ fn run_test(test: &Test, force_rewrite: bool, port: u16) -> Option<String> {
     fs::write(&stderr_path, filter_stderr(stderr_utf8).as_bytes()).expect("Failed to write STDERR");
 
     if force_rewrite {
+        // Remove stale expectation directory so files deleted between runs don't linger.
+        if test.expectation_directory.exists() {
+            fs::remove_dir_all(&test.expectation_directory).expect("Failed to remove old expectation directory.");
+        }
         copy_recursively(test_context_directory.path(), &test.expectation_directory)
             .expect("Failed to copy directory.");
         None
