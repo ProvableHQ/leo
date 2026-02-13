@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected an identifier, '(' -- found 'constructor'
+Error [EPAR0370047]: expected pattern
     --> test:7:13
      |
    7 |         let constructor: u32 = 42u32;

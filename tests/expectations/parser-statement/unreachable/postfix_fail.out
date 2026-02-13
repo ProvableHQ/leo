@@ -1,9 +1,9 @@
-Error [EPAR0370005]: expected  -- found ';'
+Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', '::', '?', 'as', ';' -- found ';'
     --> test_0:1:11
      |
    1 | let x = a;;
      |           ^
-Error [EPAR0370005]: expected an identifier, an integer literal -- found ';'
+Error [EPAR0370047]: expected field name or tuple index
     --> test_1:1:11
      |
    1 | let x = a.;
@@ -23,7 +23,7 @@ Error [EPAR0370005]: expected ';' -- found ']'
      |
    1 | let x = a];
      |          ^
-Error [EPAR0370005]: expected an identifier, '}' -- found ';'
+Error [EPAR0370047]: expected field name
     --> test_5:1:11
      |
    1 | let x = a{;
@@ -58,7 +58,7 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | let x = a==;
      |            ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found '!'
+Error [EPAR0370005]: expected ';' -- found '!'
     --> test_12:1:10
      |
    1 | let x = a!;
@@ -93,7 +93,7 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | let x = a>;
      |           ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found '..'
+Error [EPAR0370005]: expected ';' -- found '..'
     --> test_19:1:10
      |
    1 | let x = a..;

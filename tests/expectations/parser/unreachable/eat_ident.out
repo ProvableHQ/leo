@@ -1,5 +1,50 @@
-Error [EPAR0370005]: expected 'import', 'program' -- found 'struct'
-    --> test:1:1
+Error [EPAR0370047]: expected struct name
+    --> test:1:8
      |
    1 | struct import
-     | ^^^^^^
+     |        ^^^^^^
+Error [EPAR0370047]: expected struct name
+    --> test:4:12
+     |
+   4 |     struct ;
+     |            ^
+Error [EPAR0370047]: expected struct name
+    --> test:6:12
+     |
+   6 |     struct .
+     |            ^
+Error [EPAR0370047]: expected struct name
+    --> test:9:12
+     |
+   9 |     struct ,
+     |            ^
+Error [EPAR0370047]: expected struct name
+    --> test:11:12
+     |
+  11 |     struct *
+     |            ^
+Error [EPAR0370047]: expected struct name
+    --> test:13:12
+     |
+  13 |     struct +
+     |            ^
+Error [EPAR0370047]: expected struct name
+    --> test:15:12
+     |
+  15 |     struct -
+     |            ^
+Error [EPAR0370047]: expected struct name
+    --> test:17:12
+     |
+  17 |     struct /
+     |            ^
+Error [EPAR0370047]: expected struct name
+    --> test:19:12
+     |
+  19 |     struct [
+     |            ^
+Error [EPAR0370047]: expected struct name
+    --> test:21:12
+     |
+  21 |     struct ]
+     |            ^

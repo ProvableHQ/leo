@@ -3,3 +3,18 @@ Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'f
      |
    5 |     } finalize {
      |       ^^^^^^^^
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'storage', 'script', 'transition' -- found 'finalize'
+    --> test:11:7
+     |
+  11 |     } finalize() {
+     |       ^^^^^^^^
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'storage', 'script', 'transition' -- found 'finalie'
+    --> test:17:7
+     |
+  17 |     } finalie() {
+     |       ^^^^^^^
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'storage', 'script', 'transition' -- found 'finalize'
+    --> test:23:7
+     |
+  23 |     } finalize main() floo {
+     |       ^^^^^^^^
