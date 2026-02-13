@@ -671,6 +671,30 @@ impl CodeGeneratingVisitor<'_> {
                     );
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
+                Intrinsic::SnarkVerify => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::SnarkVerify(
+                        SnarkVerifyVariant::Varuna,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        args[3].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Intrinsic::SnarkVerifyBatch => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::SnarkVerify(
+                        SnarkVerifyVariant::VarunaBatch,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        args[3].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
                 Intrinsic::FutureAwait => {
                     let instruction = AleoStmt::Await(args[0].clone());
                     (None, vec![instruction])

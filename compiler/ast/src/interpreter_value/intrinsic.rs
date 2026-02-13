@@ -209,6 +209,9 @@ pub fn evaluate_intrinsic(
         Intrinsic::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
         Intrinsic::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
         Intrinsic::SignatureVerify => doschnorr(helper)?,
+        Intrinsic::SnarkVerify | Intrinsic::SnarkVerifyBatch => {
+            return Ok(None); // Cannot evaluate at compile time
+        }
         Intrinsic::Serialize(variant) => doserialize(helper, variant)?,
         Intrinsic::Deserialize(variant, type_) => dodeserialize(helper, variant, type_)?,
         Intrinsic::GroupToXCoordinate => {

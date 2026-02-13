@@ -690,6 +690,182 @@ impl TypeCheckingVisitor<'_> {
 
                 Type::Boolean
             }
+            Intrinsic::SnarkVerify => {
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Snark::verify", true, function_span);
+
+                // arg0: [u8; N] — verifying key (1D byte array)
+                let Type::Array(vk_arr) = &arguments[0].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        "a [u8; N]",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                if matches!(vk_arr.element_type(), Type::Array(..)) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        "a [u8; N]",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                }
+                self.assert_type(vk_arr.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+
+                // arg1: u8 — varuna version
+                self.assert_type(&arguments[1].0, &Type::Integer(IntegerType::U8), arguments[1].1.span());
+
+                // arg2: [field; N] — public inputs (1D field array)
+                let Type::Array(inputs_arr) = &arguments[2].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "a [field; N]",
+                        arguments[2].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                if matches!(inputs_arr.element_type(), Type::Array(..)) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "a [field; N]",
+                        arguments[2].1.span(),
+                    ));
+                    return Type::Err;
+                }
+                self.assert_type(inputs_arr.element_type(), &Type::Field, arguments[2].1.span());
+
+                // arg3: [u8; N] — proof (1D byte array)
+                let Type::Array(proof_arr) = &arguments[3].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[3].0,
+                        "a [u8; N]",
+                        arguments[3].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                if matches!(proof_arr.element_type(), Type::Array(..)) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[3].0,
+                        "a [u8; N]",
+                        arguments[3].1.span(),
+                    ));
+                    return Type::Err;
+                }
+                self.assert_type(proof_arr.element_type(), &Type::Integer(IntegerType::U8), arguments[3].1.span());
+
+                Type::Boolean
+            }
+            Intrinsic::SnarkVerifyBatch => {
+                // Check that the operation is invoked in a `finalize` or `async` block.
+                self.check_access_allowed("Snark::verify_batch", true, function_span);
+
+                // arg0: [[u8; N]; M] — verifying keys (2D byte array)
+                let Type::Array(vks_outer) = &arguments[0].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        "a [[u8; N]; M]",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                let Type::Array(vks_inner) = vks_outer.element_type() else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        "a [[u8; N]; M]",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(vks_inner.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+
+                // arg1: u8 — varuna version
+                self.assert_type(&arguments[1].0, &Type::Integer(IntegerType::U8), arguments[1].1.span());
+
+                // arg2: [[[field; N]; M]; K] — public inputs (3D field array)
+                let Type::Array(inputs_d1) = &arguments[2].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "a [[[field; N]; M]; K]",
+                        arguments[2].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                let Type::Array(inputs_d2) = inputs_d1.element_type() else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "a [[[field; N]; M]; K]",
+                        arguments[2].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                let Type::Array(inputs_d3) = inputs_d2.element_type() else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "a [[[field; N]; M]; K]",
+                        arguments[2].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                self.assert_type(inputs_d3.element_type(), &Type::Field, arguments[2].1.span());
+
+                // Validate dimension match: num_vks (M) must equal num_circuits (K).
+                if let (Some(num_vks), Some(num_circuits)) = (vks_outer.length.as_u32(), inputs_d1.length.as_u32()) {
+                    if num_vks != num_circuits {
+                        self.emit_err(TypeCheckerError::custom(
+                            format!(
+                                "The number of verifying keys ({num_vks}) must match the number of circuits in the inputs ({num_circuits})."
+                            ),
+                            arguments[0].1.span(),
+                        ));
+                    }
+
+                    // Validate snarkVM limits.
+                    const MAX_SNARK_VERIFY_CIRCUITS: u32 = 32;
+                    const MAX_SNARK_VERIFY_INSTANCES: u32 = 128;
+
+                    if num_circuits > MAX_SNARK_VERIFY_CIRCUITS {
+                        self.emit_err(TypeCheckerError::array_too_large(
+                            num_circuits,
+                            MAX_SNARK_VERIFY_CIRCUITS,
+                            arguments[2].1.span(),
+                        ));
+                    }
+
+                    if let Some(instances_per_circuit) = inputs_d2.length.as_u32() {
+                        let total_instances = num_circuits.saturating_mul(instances_per_circuit);
+                        if total_instances > MAX_SNARK_VERIFY_INSTANCES {
+                            self.emit_err(TypeCheckerError::array_too_large(
+                                total_instances,
+                                MAX_SNARK_VERIFY_INSTANCES,
+                                arguments[2].1.span(),
+                            ));
+                        }
+                    }
+                }
+
+                // arg3: [u8; N] — proof (1D byte array)
+                let Type::Array(proof_arr) = &arguments[3].0 else {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[3].0,
+                        "a [u8; N]",
+                        arguments[3].1.span(),
+                    ));
+                    return Type::Err;
+                };
+                // Reject nested arrays — proof must be strictly 1D.
+                if matches!(proof_arr.element_type(), Type::Array(..)) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[3].0,
+                        "a [u8; N]",
+                        arguments[3].1.span(),
+                    ));
+                    return Type::Err;
+                }
+                self.assert_type(proof_arr.element_type(), &Type::Integer(IntegerType::U8), arguments[3].1.span());
+
+                Type::Boolean
+            }
             Intrinsic::MappingGet => {
                 let (map_ty, map_expr) = &arguments[0];
 
