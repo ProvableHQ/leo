@@ -86,9 +86,13 @@ impl Parser<'_, '_> {
             self.error("expected identifier".to_string());
         }
 
-        // Type annotation (required for const)
-        self.expect(COLON);
-        if self.parse_type().is_none() {
+        // Type annotation (required for const).
+        // If ':' is missing but '=' follows, skip the type to avoid cascading.
+        if self.expect(COLON) {
+            if self.parse_type().is_none() {
+                self.error_recover("expected type", TYPE_RECOVERY);
+            }
+        } else if !self.at(EQ) && self.parse_type().is_none() {
             self.error_recover("expected type", TYPE_RECOVERY);
         }
 

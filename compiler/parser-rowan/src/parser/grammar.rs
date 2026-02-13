@@ -42,10 +42,13 @@ pub fn parse_expression_entry(source: &str) -> Parse {
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
+    let errors_before = parser.error_count();
     parser.parse_expr();
     // Report error for any remaining non-error tokens after the expression.
     // Skip ERROR tokens as those are already reported by the lexer.
-    if !parser.at_eof() && !parser.at(ERROR) {
+    // Don't add trailing-token errors if errors already occurred during parsing,
+    // since leftover tokens are a secondary effect of error recovery.
+    if !parser.at_eof() && !parser.at(ERROR) && parser.error_count() == errors_before {
         let expected: Vec<&str> = Parser::EXPR_CONTINUATION.iter().map(|k| k.user_friendly_name()).collect();
         parser.error_unexpected(parser.current(), &expected);
     }
@@ -72,10 +75,15 @@ pub fn parse_statement_entry(source: &str) -> Parse {
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
+    let errors_before = parser.error_count();
     parser.parse_stmt();
-    // Report error for any remaining non-error tokens after the statement.
-    if !parser.at_eof() && !parser.at(ERROR) {
-        parser.error_unexpected(parser.current(), &[]);
+    // Report error for any remaining non-error tokens after the statement,
+    // but only if no errors were already emitted during parsing. If errors
+    // occurred, leftover tokens are a secondary effect of error recovery.
+    if !parser.at_eof() && !parser.at(ERROR) && parser.error_count() == errors_before {
+        let mut expected: Vec<&str> = Parser::EXPR_CONTINUATION.iter().map(|k| k.user_friendly_name()).collect();
+        expected.push("';'");
+        parser.error_unexpected(parser.current(), &expected);
     }
     root.complete(&mut parser, ROOT);
 

@@ -213,6 +213,11 @@ pub struct Parser<'t, 's> {
     brace_depth: u32,
     /// Nesting depth of brackets (for delimiter recovery).
     bracket_depth: u32,
+    /// Whether the parser is currently in an error state.
+    ///
+    /// When `true`, subsequent errors are suppressed until recovery completes.
+    /// This prevents cascading errors from a single syntactic mistake.
+    erroring: bool,
 }
 
 impl<'t, 's> Parser<'t, 's> {
@@ -228,6 +233,7 @@ impl<'t, 's> Parser<'t, 's> {
             paren_depth: 0,
             brace_depth: 0,
             bracket_depth: 0,
+            erroring: false,
         }
     }
 
@@ -351,6 +357,8 @@ impl<'t, 's> Parser<'t, 's> {
             R_BRACE => self.brace_depth = self.brace_depth.saturating_sub(1),
             L_BRACKET => self.bracket_depth += 1,
             R_BRACKET => self.bracket_depth = self.bracket_depth.saturating_sub(1),
+            // Lex error tokens enter error state to suppress cascade parse errors.
+            ERROR => self.erroring = true,
             _ => {}
         }
 
@@ -424,27 +432,31 @@ impl<'t, 's> Parser<'t, 's> {
         if self.eat(kind) {
             true
         } else {
-            let found = self.current();
-            let found_text = self.current_text().to_string();
-            let expected_name = kind.user_friendly_name();
-            let pos = TextSize::new(self.byte_offset as u32);
-            self.errors.push(ParseError {
-                message: format!("expected {}", expected_name),
-                range: TextRange::empty(pos),
-                found: Some(found_text),
-                expected: vec![expected_name.to_string()],
-            });
-            // Also store the SyntaxKind for the found token
-            let _ = found; // Mark as intentionally unused for now
+            if !self.erroring {
+                let found_text = self.current_text().to_string();
+                let expected_name = kind.user_friendly_name();
+                let pos = TextSize::new(self.byte_offset as u32);
+                self.errors.push(ParseError {
+                    message: format!("expected {}", expected_name),
+                    range: TextRange::empty(pos),
+                    found: Some(found_text),
+                    expected: vec![expected_name.to_string()],
+                });
+                self.erroring = true;
+            }
             false
         }
     }
 
     /// Record a parse error at the current position (zero-length range).
     pub fn error(&mut self, message: String) {
+        if self.erroring {
+            return;
+        }
         let pos = TextSize::new(self.byte_offset as u32);
         let found_text = if !self.at_eof() { Some(self.current_text().to_string()) } else { None };
         self.errors.push(ParseError { message, range: TextRange::empty(pos), found: found_text, expected: vec![] });
+        self.erroring = true;
     }
 
     /// Record an "unexpected token" error with explicit expected tokens.
@@ -453,6 +465,9 @@ impl<'t, 's> Parser<'t, 's> {
     /// a ParserError::unexpected instead of ParserError::custom.
     /// The `found_kind` parameter should be the SyntaxKind of the unexpected token.
     pub fn error_unexpected(&mut self, found_kind: SyntaxKind, expected: &[&str]) {
+        if self.erroring {
+            return;
+        }
         // Find the actual position and length of the found token (skipping trivia).
         let mut pos_offset = self.byte_offset;
         let mut token_pos = self.pos;
@@ -484,16 +499,21 @@ impl<'t, 's> Parser<'t, 's> {
             found: Some(found_text),
             expected: expected.iter().map(|s| s.to_string()).collect(),
         });
+        self.erroring = true;
     }
 
     /// Record a parse error spanning from `start` to the current position.
     fn error_span(&mut self, message: String, start: usize) {
+        if self.erroring {
+            return;
+        }
         self.errors.push(ParseError {
             message,
             range: TextRange::new(TextSize::new(start as u32), TextSize::new(self.byte_offset as u32)),
             found: None,
             expected: vec![],
         });
+        self.erroring = true;
     }
 
     /// Wrap unexpected tokens in an ERROR node until we reach a recovery point.
@@ -519,6 +539,9 @@ impl<'t, 's> Parser<'t, 's> {
 
         // Record error with the span of consumed tokens
         self.error_span(message.to_string(), start);
+
+        // Recovery complete — allow new errors for the next construct.
+        self.erroring = false;
     }
 
     /// Skip tokens until a recovery point, wrapping them in an ERROR node.
@@ -533,6 +556,9 @@ impl<'t, 's> Parser<'t, 's> {
             self.bump_any();
         }
         self.finish_node();
+
+        // Recovery complete — allow new errors for the next construct.
+        self.erroring = false;
     }
 
     /// Create an ERROR node containing the current token.
@@ -543,6 +569,9 @@ impl<'t, 's> Parser<'t, 's> {
         self.bump_any();
         self.finish_node();
         self.error_span(message.to_string(), start);
+
+        // Consumed the bad token — allow new errors for the next construct.
+        self.erroring = false;
     }
 
     // =========================================================================
@@ -595,6 +624,11 @@ impl<'t, 's> Parser<'t, 's> {
     // =========================================================================
     // Completion
     // =========================================================================
+
+    /// Get the current number of accumulated parse errors.
+    pub fn error_count(&self) -> usize {
+        self.errors.len()
+    }
 
     /// Finish parsing and return the parse result.
     pub fn finish(self, lex_errors: Vec<LexError>) -> Parse {
