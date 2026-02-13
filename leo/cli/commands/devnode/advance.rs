@@ -24,8 +24,6 @@ pub struct Advance {
     pub num_blocks: u32,
     #[clap(long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
     pub(crate) socket_addr: String,
-    #[clap(flatten)]
-    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for Advance {
