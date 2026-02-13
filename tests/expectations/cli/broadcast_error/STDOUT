@@ -1,3 +1,4 @@
+       Leo 🔨 Compiling 'broadcast_error.leo'
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
        Leo     The program checksum is: '[65u8, 89u8, 187u8, 94u8, 189u8, 162u8, 9u8, 5u8, 82u8, 113u8, 145u8, 228u8, 159u8, 225u8, 53u8, 52u8, 194u8, 213u8, 69u8, 110u8, 78u8, 244u8, 159u8, 99u8, 80u8, 151u8, 122u8, 38u8, 220u8, 73u8, 200u8, 114u8]'.
@@ -9,6 +10,7 @@
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🛠️  Deployment Plan Summary
 ──────────────────────────────────────────────
@@ -26,6 +28,9 @@ Attempting to determine the consensus version from the latest block height at ht
   • Transaction(s) will NOT be printed to the console.
   • Transaction(s) will NOT be saved to a file.
   • Transaction(s) will be broadcast to http://localhost:3030
+
+⚠️ Warnings:
+  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the deployment may fail
 ──────────────────────────────────────────────
 
 
@@ -69,6 +74,7 @@ Once it is deployed, it CANNOT be changed.
 Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Deployment confirmed!
+       Leo 🔨 Compiling 'broadcast_error.leo'
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
        Leo     The program checksum is: '[65u8, 89u8, 187u8, 94u8, 189u8, 162u8, 9u8, 5u8, 82u8, 113u8, 145u8, 228u8, 159u8, 225u8, 53u8, 52u8, 194u8, 213u8, 69u8, 110u8, 78u8, 244u8, 159u8, 99u8, 80u8, 151u8, 122u8, 38u8, 220u8, 73u8, 200u8, 114u8]'.
@@ -80,6 +86,7 @@ Transaction accepted.
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🛠️  Deployment Plan Summary
 ──────────────────────────────────────────────
@@ -100,6 +107,7 @@ Attempting to determine the consensus version from the latest block height at ht
 
 ⚠️ Warnings:
   • The program 'broadcast_error.aleo' already exists on the network. Please use `leo upgrade` instead.
+  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the deployment may fail
 ──────────────────────────────────────────────
 
 
