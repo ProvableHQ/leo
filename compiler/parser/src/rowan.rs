@@ -1809,7 +1809,21 @@ impl<'a> ConversionContext<'a> {
                 id: self.builder.next_id(),
             },
             None => {
-                self.emit_unexpected_str(".aleo network", node.text().to_string(), span);
+                // Check for an invalid network identifier (e.g. `program test.eth`).
+                // The second IDENT after the DOT would be the invalid network name.
+                let mut saw_dot = false;
+                let invalid_network = tokens(node).find(|t| {
+                    if t.kind() == DOT {
+                        saw_dot = true;
+                        return false;
+                    }
+                    saw_dot && t.kind() == IDENT
+                });
+                if let Some(net_token) = invalid_network {
+                    self.handler.emit_err(ParserError::invalid_network(self.token_span(&net_token)));
+                } else {
+                    self.emit_unexpected_str(".aleo network", node.text().to_string(), span);
+                }
                 leo_ast::Identifier { name: Symbol::intern("aleo"), span, id: self.builder.next_id() }
             }
         };

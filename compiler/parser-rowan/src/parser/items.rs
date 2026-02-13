@@ -49,6 +49,25 @@ impl Parser<'_, '_> {
     ];
     /// Recovery set for return type parsing.
     const RETURN_TYPE_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_PAREN, L_BRACE];
+    /// Recovery set for struct/record name errors — skip to the next item or block boundary.
+    const STRUCT_NAME_RECOVERY: &'static [SyntaxKind] = &[
+        L_BRACE,
+        R_BRACE,
+        SEMICOLON,
+        KW_IMPORT,
+        KW_PROGRAM,
+        KW_CONST,
+        KW_STRUCT,
+        KW_RECORD,
+        KW_FUNCTION,
+        KW_TRANSITION,
+        KW_INLINE,
+        KW_MAPPING,
+        KW_STORAGE,
+        KW_SCRIPT,
+        AT,
+        KW_ASYNC,
+    ];
 
     /// Parse a complete file.
     ///
@@ -169,7 +188,15 @@ impl Parser<'_, '_> {
         if self.at(IDENT) {
             self.bump_any(); // name
             self.expect(DOT);
-            self.expect(KW_ALEO);
+            if !self.eat(KW_ALEO) {
+                if self.at(IDENT) {
+                    // Consume the invalid network identifier — the AST converter
+                    // will emit a specific `invalid_network` error (EPAR0370028).
+                    self.bump_any();
+                } else {
+                    self.error("expected 'aleo'".to_string());
+                }
+            }
         } else {
             self.error("expected program name".to_string());
         }
@@ -278,6 +305,8 @@ impl Parser<'_, '_> {
             self.bump_any();
         } else {
             self.error("expected struct name".to_string());
+            self.recover(Self::STRUCT_NAME_RECOVERY);
+            return Some(m.complete(self, ERROR));
         }
 
         // Optional const generic parameters: ::[N: u32]
@@ -305,6 +334,8 @@ impl Parser<'_, '_> {
             self.bump_any();
         } else {
             self.error("expected record name".to_string());
+            self.recover(Self::STRUCT_NAME_RECOVERY);
+            return Some(m.complete(self, ERROR));
         }
 
         // Optional const generic parameters: ::[N: u32]
