@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -45,8 +45,6 @@ pub struct Composite {
     pub const_parameters: Vec<ConstParameter>,
     /// The fields, constant variables, and functions of this composite.
     pub members: Vec<Member>,
-    /// The external program the composite is defined in.
-    pub external: Option<Symbol>,
     /// Was this a `record Foo { ... }`?
     /// If so, it wasn't a composite.
     pub is_record: bool,
@@ -58,7 +56,7 @@ pub struct Composite {
 
 impl PartialEq for Composite {
     fn eq(&self, other: &Self) -> bool {
-        self.identifier == other.identifier && self.external == other.external
+        self.identifier == other.identifier
     }
 }
 
@@ -70,43 +68,37 @@ impl Composite {
         self.identifier.name
     }
 
-    pub fn from_external_record<N: Network>(input: &RecordType<N>, external_program: Symbol) -> Self {
+    pub fn from_external_record<N: Network>(input: &RecordType<N>, program: Symbol) -> Self {
+        let mut members = Vec::with_capacity(input.entries().len() + 1);
+        members.push(Member {
+            mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
+            identifier: Identifier::new(Symbol::intern("owner"), Default::default()),
+            type_: Type::Address,
+            span: Default::default(),
+            id: Default::default(),
+        });
+        members.extend(input.entries().iter().map(|(id, entry)| Member {
+            mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
+            identifier: Identifier::from(id),
+            type_: match entry {
+                Public(t) => Type::from_snarkvm(t, program),
+                Private(t) => Type::from_snarkvm(t, program),
+                Constant(t) => Type::from_snarkvm(t, program),
+            },
+            span: Default::default(),
+            id: Default::default(),
+        }));
         Self {
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),
-            members: [
-                vec![Member {
-                    mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
-                    identifier: Identifier::new(Symbol::intern("owner"), Default::default()),
-                    type_: Type::Address,
-                    span: Default::default(),
-                    id: Default::default(),
-                }],
-                input
-                    .entries()
-                    .iter()
-                    .map(|(id, entry)| Member {
-                        mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
-                        identifier: Identifier::from(id),
-                        type_: match entry {
-                            Public(t) => Type::from_snarkvm(t, None),
-                            Private(t) => Type::from_snarkvm(t, None),
-                            Constant(t) => Type::from_snarkvm(t, None),
-                        },
-                        span: Default::default(),
-                        id: Default::default(),
-                    })
-                    .collect_vec(),
-            ]
-            .concat(),
-            external: Some(external_program),
+            members,
             is_record: true,
             span: Default::default(),
             id: Default::default(),
         }
     }
 
-    pub fn from_snarkvm<N: Network>(input: &StructType<N>) -> Self {
+    pub fn from_snarkvm<N: Network>(input: &StructType<N>, program: Symbol) -> Self {
         Self {
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),
@@ -116,12 +108,11 @@ impl Composite {
                 .map(|(id, type_)| Member {
                     mode: Mode::None,
                     identifier: Identifier::from(id),
-                    type_: Type::from_snarkvm(type_, None),
+                    type_: Type::from_snarkvm(type_, program),
                     span: Default::default(),
                     id: Default::default(),
                 })
                 .collect(),
-            external: None,
             is_record: false,
             span: Default::default(),
             id: Default::default(),

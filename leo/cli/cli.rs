@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -74,6 +74,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoExecute,
     },
+    #[clap(name = "fmt", about = "Format Leo source files")]
+    Fmt {
+        #[clap(flatten)]
+        command: LeoFormat,
+    },
     #[clap(about = "Deploy a program")]
     Deploy {
         #[clap(flatten)]
@@ -84,6 +89,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoDevnet,
     },
+    #[clap(about = "Run a local devnode")]
+    Devnode {
+        #[clap(flatten)]
+        command: LeoDevnode,
+    },
     #[clap(about = "Query live data from the Aleo network")]
     Query {
         #[clap(flatten)]
@@ -93,6 +103,11 @@ enum Commands {
     Build {
         #[clap(flatten)]
         command: LeoBuild,
+    },
+    #[clap(about = "Generate ABI from an Aleo bytecode file")]
+    Abi {
+        #[clap(flatten)]
+        command: LeoAbi,
     },
     #[clap(about = "Debug the current package via the interpreter")]
     Debug {
@@ -139,10 +154,13 @@ impl Commands {
             Commands::Run { .. } => "run",
             Commands::Test { .. } => "test",
             Commands::Execute { .. } => "execute",
+            Commands::Fmt { .. } => "fmt",
             Commands::Deploy { .. } => "deploy",
             Commands::Devnet { .. } => "devnet",
+            Commands::Devnode { .. } => "devnode",
             Commands::Query { .. } => "query",
             Commands::Build { .. } => "build",
+            Commands::Abi { .. } => "abi",
             Commands::Debug { .. } => "debug",
             Commands::Add { .. } => "add",
             Commands::Remove { .. } => "remove",
@@ -194,7 +212,10 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     // Initialize the `.env` file.
     dotenvy::dotenv().ok();
 
-    if !quiet {
+    // Skip logger initialization for devnode -- it uses it's own logger.
+    let is_devnode = matches!(&cli.command, Commands::Devnode { .. });
+
+    if !quiet && !is_devnode {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match cli.debug {
             false => 1,
@@ -222,6 +243,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Account { command } => command.try_execute(context)?,
         Commands::New { command } => command.try_execute(context)?,
         Commands::Build { command } => command.try_execute(context)?,
+        Commands::Abi { command } => command.try_execute(context)?,
         Commands::Debug { command } => command.try_execute(context)?,
         Commands::Query { command } => {
             let result = command.execute(context)?;
@@ -230,7 +252,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         }
         Commands::Clean { command } => command.try_execute(context)?,
         Commands::Deploy { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
+        Commands::Fmt { command } => command.try_execute(context)?,
         Commands::Devnet { command } => command.try_execute(context)?,
+        Commands::Devnode { command } => command.try_execute(context)?,
         Commands::Run { command } => command_output = Some(JsonOutput::Run(command.execute(context)?)),
         Commands::Test { command } => command_output = Some(JsonOutput::Test(command.execute(context)?)),
         Commands::Execute { command } => command_output = Some(JsonOutput::Execute(command.execute(context)?)),
@@ -809,14 +833,10 @@ program child.aleo {
         };
 
         // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
-        let outer_program = "import inner_1.aleo;
+        let outer_program = "
+import inner_1.aleo;
 import inner_2.aleo;
 program outer.aleo {
-
-    struct ex_struct {
-        arg1: u32,
-        arg2: u32,
-    }
 
     record inner_1_record {
         owner: address,
@@ -825,17 +845,19 @@ program outer.aleo {
         arg3: u32,
     }
 
-    transition inner_1_main(public a: u32, b: u32) -> (inner_1.aleo/inner_1_record, inner_2.aleo/inner_1_record, inner_1_record) {
-        let c: ex_struct = ex_struct {arg1: 1u32, arg2: 1u32};
+    transition inner_1_main(public a: u32, b: u32) -> (inner_1.aleo/inner_1_record, inner_2.aleo/inner_2_record, inner_1_record) {
+        let c: inner_1.aleo/ex_struct = inner_1.aleo/ex_struct {arg1: 1u32, arg2: 1u32};
         let rec_1:inner_1.aleo/inner_1_record = inner_1.aleo/inner_1_main(1u32,1u32, c);
-        let rec_2:inner_2.aleo/inner_1_record = inner_2.aleo/inner_1_main(1u32,1u32);
+        let rec_2:inner_2.aleo/inner_2_record = inner_2.aleo/inner_2_main(1u32,1u32);
         return (rec_1, rec_2, inner_1_record {owner: aleo14tnetva3xfvemqyg5ujzvr0qfcaxdanmgjx2wsuh2xrpvc03uc9s623ps7, arg1: 1u32, arg2: 1u32, arg3: 1u32});
     }
 
     @noupgrade
     async constructor() {}
-}";
-        let inner_1_program = "program inner_1.aleo {
+}
+            ";
+        let inner_1_program = "
+program inner_1.aleo {
     mapping inner_1_mapping: u32 => u32;
     record inner_1_record {
         owner: address,
@@ -854,16 +876,18 @@ program outer.aleo {
 
     @noupgrade
     async constructor() {}
-}";
-        let inner_2_program = "program inner_2.aleo {
+}
+";
+        let inner_2_program = "
+program inner_2.aleo {
     mapping inner_2_mapping: u32 => u32;
-    record inner_1_record {
+    record inner_2_record {
         owner: address,
         val: u32,
     }
-    transition inner_1_main(public a: u32, b: u32) -> inner_1_record {
+    transition inner_2_main(public a: u32, b: u32) -> inner_2_record {
         let c: u32 = a + b;
-        return inner_1_record {
+        return inner_2_record {
             owner: self.caller,
             val: a,
         };
@@ -871,7 +895,8 @@ program outer.aleo {
 
     @noupgrade
     async constructor() {}
-}";
+}
+        ";
         // Add dependencies `outer/program.json`
         let add_outer_dependency_1 = CLI {
             debug: false,
@@ -1006,14 +1031,15 @@ program outer_2.aleo {
         owner: address,
         a: u32,
     }
+    
     transition main(public a: u32, b: u32) -> (inner_2.aleo/Yoo, Hello) {
-        let d: Foo = inner_1.aleo/main(1u32,1u32);
-        let e: u32 = inner_1.aleo/main_2(Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}});
+        let d: inner_1.aleo/Foo = inner_1.aleo/main(1u32,1u32);
+        let e: u32 = inner_1.aleo/main_2(inner_1.aleo/Foo {a: a, b: b, c: inner_1.aleo/Boo {a:1u32, b:1u32}});
         let f: Boo = Boo {a:1u32, b:1u32};
-        let g: Foo = inner_2.aleo/main(1u32, 1u32);
+        let g: inner_2.aleo/Foo = inner_2.aleo/main(1u32, 1u32);
         inner_2.aleo/Yo_Consumer(inner_2.aleo/Yo());
         let h: inner_2.aleo/Yoo = inner_2.aleo/Yo();
-        let i: Goo = inner_2.aleo/Goo_creator();
+        let i: inner_2.aleo/Goo = inner_2.aleo/Goo_creator();
         let j: Hello = Hello {owner: self.signer, a:1u32};
 
         return (h, j);

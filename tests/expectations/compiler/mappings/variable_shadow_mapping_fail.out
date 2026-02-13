@@ -6,8 +6,3 @@ Error [EAST0372017]: The name `m` is defined multiple times.
    ...
    6 |           let m: u8 = 1u8;
      |               ^ `m` redefined here
-Error [ETYC0372117]: Expected type `u8` but type `(u8 => u8)` was found.
-    --> compiler-test:7:16
-     |
-   7 |         return m;
-     |                ^

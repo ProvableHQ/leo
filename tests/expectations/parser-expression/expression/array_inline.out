@@ -1,24 +1,6 @@
-{
-  "Array": {
-    "elements": [],
-    "span": {
-      "lo": 0,
-      "hi": 2
-    },
-    "id": 0
-  }
-}
+[]
 
-{
-  "Array": {
-    "elements": [],
-    "span": {
-      "lo": 3,
-      "hi": 6
-    },
-    "id": 0
-  }
-}
+[]
 
 Error [EPAR0370005]: expected ']' -- found ','
     --> test_2:1:3

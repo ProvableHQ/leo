@@ -1,4 +1,4 @@
-Error [ETYC0372058]: Cyclic dependency between composites: `Bar` --> `Baz` --> `Bar`
+Error [ETYC0372058]: Cyclic dependency between composites: `test.aleo/Bar` --> `test.aleo/Baz` --> `test.aleo/Bar`
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

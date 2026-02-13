@@ -5,13 +5,13 @@ Error [ETYC0372110]: Only `async transition` can return a future.
      |                                   ^^^^^^
      |
      = Use an `async transition` instead.
-Error [ETYC0372111]: The async function `finish` does not exist.
+Error [ETYC0372111]: The async function `test.aleo/finish` does not exist.
     --> compiler-test:5:12
      |
    5 |     return finish(a, b);
      |            ^^^^^^^^^^^^
      |
-     = Ensure that `finish` is defined as an async function in the current program.
+     = Ensure that `test.aleo/finish` is defined as an async function in the current program.
 Error [ETYC0372088]: An `async` transition must contain at least one async operation — either a call to an `async` function or an `async` block.
     --> compiler-test:8:3
      |

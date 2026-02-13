@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -95,7 +95,15 @@
 //! Mapping::set(counter__, false, old + 1u32)
 //! ```
 
-use crate::{Pass, PathResolution, SymbolTable, SymbolTableCreation, TypeChecking, TypeCheckingInput};
+use crate::{
+    GlobalItemsCollection,
+    GlobalVarsCollection,
+    Pass,
+    PathResolution,
+    SymbolTable,
+    TypeChecking,
+    TypeCheckingInput,
+};
 
 use leo_ast::ProgramReconstructor as _;
 use leo_errors::Result;
@@ -128,8 +136,9 @@ impl Pass for StorageLowering {
         // We need to recreate the symbol table and run type checking again because this pass may introduce new mappings
         // and new statements and expressions.
         visitor.state.symbol_table = SymbolTable::default();
+        GlobalVarsCollection::do_pass((), state)?;
         PathResolution::do_pass((), state)?;
-        SymbolTableCreation::do_pass((), state)?;
+        GlobalItemsCollection::do_pass((), state)?;
         TypeChecking::do_pass(input.clone(), state)?;
 
         Ok(())

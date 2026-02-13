@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+${LEO_BIN} fmt --check || true
+${LEO_BIN} fmt
+${LEO_BIN} fmt --check

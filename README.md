@@ -1,6 +1,6 @@
-<!--p align="center">
-     <img width="1412" src="https://cdn.aleo.org/leo/banner.png">
-</p-->
+<p align="center">
+    <img alt="leo" width="1412" src=".resources/leo-banner.png">
+</p>
 
 <h1 align="center">The Leo Programming Language</h1>
 

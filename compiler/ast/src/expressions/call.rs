@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_span::Symbol;
 
 use itertools::Itertools as _;
 
@@ -28,8 +27,6 @@ pub struct CallExpression {
     pub const_arguments: Vec<Expression>,
     /// Expressions for the arguments passed to the function's parameters.
     pub arguments: Vec<Expression>,
-    /// The name of the parent program call, e.g.`bar` in `bar.aleo`.
-    pub program: Option<Symbol>,
     /// Span of the entire call `function(arguments)`.
     pub span: Span,
     /// The ID of the node.

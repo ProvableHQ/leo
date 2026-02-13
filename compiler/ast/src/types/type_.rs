@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@ use crate::{
     FutureType,
     Identifier,
     IntegerType,
+    Location,
     MappingType,
     OptionalType,
     Path,
@@ -132,18 +133,17 @@ impl Type {
             (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_user(&right.element_type),
             (Type::Composite(left), Type::Composite(right)) => {
                 // If either composite still has const generic arguments, treat them as equal.
-                // Type checking will run again after monomorphization.
                 if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
                     return true;
                 }
 
-                // Two composite types are the same if their programs and their _absolute_ paths match.
-                (left.program == right.program)
-                    && match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                        (Some(l), Some(r)) => l == r,
-                        _ => false,
-                    }
+                // Two composite types are the same if their global locations match.
+                match (&left.path.try_global_location(), &right.path.try_global_location()) {
+                    (Some(l), Some(r)) => l == r,
+                    _ => false,
+                }
             }
+
             (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
                 .inputs()
@@ -204,11 +204,11 @@ impl Type {
                     return true;
                 }
 
-                // Two composite types are the same if their _absolute_ paths match.
+                // Two composite types are the same if their global paths match.
                 // If the absolute paths are not available, then we really can't compare the two
                 // types and we just return `false` to be conservative.
-                match (&left.path.try_absolute_path(), &right.path.try_absolute_path()) {
-                    (Some(l), Some(r)) => l == r,
+                match (&left.path.try_global_location(), &right.path.try_global_location()) {
+                    (Some(l), Some(r)) => l.path == r.path,
                     _ => false,
                 }
             }
@@ -223,19 +223,27 @@ impl Type {
         }
     }
 
-    pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Option<Symbol>) -> Self {
+    pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Symbol) -> Self {
         match t {
             Literal(lit) => (*lit).into(),
             Struct(s) => Type::Composite(CompositeType {
                 path: {
                     let ident = Identifier::from(s);
-                    Path::from(ident).with_absolute_path(Some(vec![ident.name]))
+                    Path::from(ident).to_global(Location::new(program, vec![ident.name]))
                 },
                 const_arguments: Vec::new(),
-                program,
+            }),
+            ExternalStruct(l) => Type::Composite(CompositeType {
+                path: {
+                    let external_program = Identifier::from(l.program_id().name());
+                    let name = Identifier::from(l.resource());
+                    Path::from(name)
+                        .with_user_program(external_program)
+                        .to_global(Location::new(external_program.name, vec![name.name]))
+                },
+                const_arguments: Vec::new(),
             }),
             Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
-            ExternalStruct(_) => unimplemented!("External structs are not yet supported"),
         }
     }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -153,6 +153,7 @@ impl Cursor {
             Operand::Checksum(_) => todo!(),
             Operand::Edition(_) => todo!(),
             Operand::ProgramOwner(_) => todo!(),
+            Operand::AleoGenerator | Operand::AleoGeneratorPowers(_) => todo!(),
         }
     }
 
@@ -164,6 +165,8 @@ impl Cursor {
         let Some(Frame { step, .. }) = self.frames.last() else {
             panic!("frame expected");
         };
+
+        let program = self.contexts.current_program().expect("there should be a program");
 
         macro_rules! unary {
             ($svm_op: expr, $op: ident) => {{
@@ -208,7 +211,7 @@ impl Cursor {
             ($hash: expr, $variant: expr) => {{
                 // Note. The only supported output types of a `hash` function are literals or bit arrays.
                 let intrinsic =
-                    Intrinsic::Hash($variant, Type::from_snarkvm::<TestnetV0>($hash.destination_type(), None));
+                    Intrinsic::Hash($variant, Type::from_snarkvm::<TestnetV0>($hash.destination_type(), program));
                 let operand_value = self.operand_value(&$hash.operands()[0]);
                 self.values.push(operand_value);
                 let value = interpreter_value::evaluate_intrinsic(self, intrinsic, &[], Span::default())?;
@@ -262,7 +265,7 @@ impl Cursor {
             ($deserialize: expr, $variant: expr) => {{
                 let intrinsic = Intrinsic::Deserialize(
                     $variant,
-                    Type::from_snarkvm::<TestnetV0>($deserialize.destination_type(), None),
+                    Type::from_snarkvm::<TestnetV0>($deserialize.destination_type(), program),
                 );
                 let operand_value = self.operand_value(&$deserialize.operands()[0]);
                 self.values.push(operand_value);
@@ -297,7 +300,6 @@ impl Cursor {
                 return Ok(());
             }
             Async(async_) if *step == 0 => {
-                let program = self.contexts.current_program().expect("there should be a program");
                 let name = snarkvm_identifier_to_symbol(async_.function_name());
                 let arguments: Vec<Value> = async_.operands().iter().map(|op| self.operand_value(op)).collect();
                 if self.really_async {
@@ -416,16 +418,12 @@ impl Cursor {
                         let operands = cast.operands().iter().map(|op| self.operand_value(op));
                         let value = Value::make_struct(
                             struct_type.keys().cloned().zip(operands),
-                            self.current_program().unwrap(),
-                            vec![name],
+                            Location::new(self.current_program().unwrap(), vec![name]),
                         );
                         (value, destination)
                     }
-                    CastType::Plaintext(PlaintextType::ExternalStruct(_)) => {
-                        unimplemented!("External struct casts are not yet supported")
-                    }
+                    CastType::Plaintext(PlaintextType::ExternalStruct(_)) => todo!(),
                     CastType::Record(record_name) => {
-                        let program = self.current_program().unwrap();
                         let name = Symbol::intern(&record_name.to_string());
                         let path = vec![name];
                         let record_type = self.records.get(&(program, path.clone())).expect("record type should exist");
@@ -579,6 +577,7 @@ impl Cursor {
             DeserializeBitsRaw(deserialize_bits_raw) => {
                 deserialize_function!(deserialize_bits_raw, DeserializeVariant::FromBitsRaw)
             }
+            SnarkVerify(_) | SnarkVerifyBatch(_) => todo!("snark_verify is not yet supported in the interpreter"),
         };
 
         self.set_register(destination, value);

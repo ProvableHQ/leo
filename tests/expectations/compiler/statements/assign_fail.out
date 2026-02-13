@@ -1,4 +1,4 @@
-Error [ETYC0372000]: Invalid assignment target: x::y.
+Error [ETYC0372000]: Invalid assignment target: test.aleo/x::y.
     --> compiler-test:4:9
      |
    4 |         x::y = y;
@@ -61,14 +61,14 @@ Error [ETYC0372000]: Invalid assignment target: (x, x, x).
      |         ^^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
-Error [ETYC0372000]: Invalid assignment target: x { x: y, y: z }.
+Error [ETYC0372000]: Invalid assignment target: test.aleo/x { x: y }.
     --> compiler-test:22:9
      |
-  22 |         x {x: y, y: z} = y;
-     |         ^^^^^^^^^^^^^^
+  22 |         x {x: y } = y;
+     |         ^^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
-Error [ETYC0372000]: Invalid assignment target: x().
+Error [ETYC0372000]: Invalid assignment target: test.aleo/x().
     --> compiler-test:24:9
      |
   24 |         x() = y;

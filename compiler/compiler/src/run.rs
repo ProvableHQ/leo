@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -37,14 +37,15 @@ use leo_errors::Result;
 use aleo_std_storage::StorageMode;
 use anyhow::anyhow;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
-use rayon::prelude::*;
 use serde_json;
 use snarkvm::{
     circuit::AleoTestnetV0,
     prelude::{
         Address,
+        Block,
         ConsensusVersion,
         Execution,
+        FromBytes,
         Identifier,
         Ledger,
         Network,
@@ -194,7 +195,7 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
         .collect::<Result<Vec<_>>>()?;
 
     let outcomes: Vec<EvaluationOutcome> = cases
-        .par_iter()
+        .iter()
         .map(|case| {
             let rng = &mut ChaCha20Rng::seed_from_u64(config.seed);
 
@@ -285,11 +286,9 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
     // Store all of the non-genesis blocks created during set up.
     let mut blocks = Vec::new();
 
-    // Initialize a `VM` and construct the genesis block. This should always succeed.
-    let genesis_block = VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(0).unwrap())
-        .unwrap()
-        .genesis_beacon(&genesis_private_key, &mut rng)
-        .unwrap();
+    // Load the genesis block.
+    let genesis_block =
+        Block::from_bytes_le(include_bytes!("../../../resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?;
 
     // Initialize a `Ledger`. This should always succeed.
     let ledger =
@@ -352,7 +351,6 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
     let mut indexed_ledgers = vec![(0, ledger)];
     indexed_ledgers.extend(
         (1..case_sets.len())
-            .into_par_iter()
             .map(|i| {
                 // Initialize a `Ledger`. This should always succeed.
                 let l = Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(
@@ -372,7 +370,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
 
     // For each of the case sets, run the cases sequentially.
     let results = indexed_ledgers
-        .into_par_iter()
+        .into_iter()
         .map(|(index, ledger)| {
             // Get the cases for this ledger.
             let cases = &case_sets[index];
@@ -475,13 +473,9 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                 let result = execute_output.unwrap().and_then(|(transaction, response)| {
                     verified = ledger.vm().check_transaction(&transaction, None, &mut rng).is_ok();
                     execution = Some(transaction.clone());
-                    let block = ledger.prepare_advance_to_next_beacon_block(
-                        &private_key,
-                        vec![],
-                        vec![],
-                        vec![transaction],
-                        &mut rng,
-                    )?;
+                    let block = ledger
+                        .prepare_advance_to_next_beacon_block(&private_key, vec![], vec![], vec![transaction], &mut rng)
+                        .map_err(|e| anyhow::anyhow!("{e}"))?;
                     status =
                         match (block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == 1) {
                             (false, _) => ExecutionStatus::Aborted,

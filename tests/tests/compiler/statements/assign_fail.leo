@@ -19,7 +19,7 @@ program test.aleo {
 
         (x, x, x) = y;
 
-        x {x: y, y: z} = y;
+        x {x: y } = y;
 
         x() = y;
 

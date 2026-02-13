@@ -295,60 +295,65 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | address ~
      | ^^^^^^^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'signature'
+    --> test_58:1:1
+     |
+   1 | signature ~
+     | ^^^^^^^^^
 Error [EPAR0370050]: Could not lex the following content: `~`.
 
-    --> test_58:1:6
+    --> test_59:1:6
      |
    1 | char ~
      |      ^
 Error [EPAR0370050]: Could not lex the following content: `~`.
 
-    --> test_59:1:7
+    --> test_60:1:7
      |
    1 | input ~
      |       ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'constant'
-    --> test_60:1:1
+    --> test_61:1:1
      |
    1 | constant
      | ^^^^^^^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'else'
-    --> test_61:1:1
+    --> test_62:1:1
      |
    1 | else
      | ^^^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'for'
-    --> test_62:1:1
+    --> test_63:1:1
      |
    1 | for
      | ^^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'function'
-    --> test_63:1:1
+    --> test_64:1:1
      |
    1 | function
      | ^^^^^^^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'if'
-    --> test_64:1:1
+    --> test_65:1:1
      |
    1 | if
      | ^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'in'
-    --> test_65:1:1
+    --> test_66:1:1
      |
    1 | in
      | ^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'let'
-    --> test_66:1:1
+    --> test_67:1:1
      |
    1 | let
      | ^^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '&'
-    --> test_67:1:1
+    --> test_68:1:1
      |
    1 | &
      | ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'return'
-    --> test_68:1:1
+    --> test_69:1:1
      |
    1 | return
      | ^^^^^^

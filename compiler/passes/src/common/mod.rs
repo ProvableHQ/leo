@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,11 +17,17 @@
 mod assigner;
 pub use assigner::*;
 
+mod block_to_function_rewriter;
+pub use block_to_function_rewriter::*;
+
 mod rename_table;
 pub use rename_table::*;
 
 mod replacer;
 pub use replacer::*;
+
+mod symbol_access_collector;
+pub use symbol_access_collector::*;
 
 mod symbol_table;
 pub use symbol_table::*;

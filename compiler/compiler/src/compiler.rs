@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,8 +20,8 @@
 
 use crate::{AstSnapshots, CompilerOptions};
 
-pub use leo_ast::Ast;
-use leo_ast::{NetworkName, Stub};
+pub use leo_ast::{Ast, Program};
+use leo_ast::{NetworkName, NodeBuilder, Stub};
 use leo_errors::{CompilerError, Handler, Result};
 use leo_passes::*;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
@@ -30,10 +30,29 @@ use std::{
     ffi::OsStr,
     fs,
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
 use indexmap::{IndexMap, IndexSet};
 use walkdir::WalkDir;
+
+/// A single compiled program with its bytecode and ABI.
+pub struct CompiledProgram {
+    /// The program name (without `.aleo` suffix).
+    pub name: String,
+    /// The generated Aleo bytecode.
+    pub bytecode: String,
+    /// The ABI describing the program's public interface.
+    pub abi: leo_abi::Program,
+}
+
+/// The result of compiling a Leo program.
+pub struct Compiled {
+    /// The primary program that was compiled.
+    pub primary: CompiledProgram,
+    /// Compiled programs for imports.
+    pub imports: Vec<CompiledProgram>,
+}
 
 /// The primary entry point of the Leo compiler.
 pub struct Compiler {
@@ -103,19 +122,39 @@ impl Compiler {
         Ok(())
     }
 
+    /// Simple wrapper around `parse` that also returns the AST.
+    pub fn parse_and_return_ast(
+        &mut self,
+        source: &str,
+        filename: FileName,
+        modules: &[(&str, FileName)],
+    ) -> Result<Program> {
+        // Parse the program.
+        self.parse(source, filename, modules)?;
+
+        Ok(self.state.ast.ast.clone())
+    }
+
     /// Returns a new Leo compiler.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         expected_program_name: Option<String>,
         is_test: bool,
         handler: Handler,
+        node_builder: Rc<NodeBuilder>,
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
         network: NetworkName,
     ) -> Self {
         Self {
-            state: CompilerState { handler, is_test, network, ..Default::default() },
+            state: CompilerState {
+                handler,
+                node_builder: Rc::clone(&node_builder),
+                is_test,
+                network,
+                ..Default::default()
+            },
             output_directory,
             program_name: expected_program_name,
             compiler_options: compiler_options.unwrap_or_default(),
@@ -142,14 +181,20 @@ impl Compiler {
     }
 
     /// Runs the compiler stages.
-    pub fn intermediate_passes(&mut self) -> Result<()> {
+    ///
+    /// Returns the generated ABIs (primary and imports), which are captured
+    /// immediately after monomorphisation to ensure all types are resolved,
+    /// but not yet lowered.
+    pub fn intermediate_passes(&mut self) -> Result<(leo_abi::Program, IndexMap<String, leo_abi::Program>)> {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
         self.do_pass::<NameValidation>(())?;
 
+        self.do_pass::<GlobalVarsCollection>(())?;
+
         self.do_pass::<PathResolution>(())?;
 
-        self.do_pass::<SymbolTableCreation>(())?;
+        self.do_pass::<GlobalItemsCollection>(())?;
 
         self.do_pass::<TypeChecking>(type_checking_config.clone())?;
 
@@ -160,6 +205,10 @@ impl Compiler {
         self.do_pass::<StaticAnalyzing>(())?;
 
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
+
+        // Generate ABIs after monomorphization to capture concrete types.
+        // Const generic structs are resolved to their monomorphized versions.
+        let abis = self.generate_abi();
 
         self.do_pass::<StorageLowering>(type_checking_config.clone())?;
 
@@ -194,7 +243,34 @@ impl Compiler {
         self.statements_before_dce = output.statements_before;
         self.statements_after_dce = output.statements_after;
 
-        Ok(())
+        Ok(abis)
+    }
+
+    /// Generates ABIs for the primary program and all imports.
+    ///
+    /// Returns `(primary_abi, import_abis)` where `import_abis` maps program
+    /// names to their ABIs.
+    fn generate_abi(&self) -> (leo_abi::Program, IndexMap<String, leo_abi::Program>) {
+        // Generate primary ABI (pruning happens inside generate).
+        let primary_abi = leo_abi::generate(&self.state.ast.ast);
+
+        // Generate import ABIs from stubs.
+        let import_abis: IndexMap<String, leo_abi::Program> = self
+            .state
+            .ast
+            .ast
+            .stubs
+            .iter()
+            .map(|(name, stub)| {
+                let abi = match stub {
+                    Stub::FromLeo { program, .. } => leo_abi::generate(program),
+                    Stub::FromAleo { program, .. } => leo_abi::aleo::generate(program),
+                };
+                (name.to_string(), abi)
+            })
+            .collect();
+
+        (primary_abi, import_abis)
     }
 
     /// Compiles a program from a given source string and a list of module sources.
@@ -209,45 +285,57 @@ impl Compiler {
     ///
     /// # Returns
     ///
-    /// * `Ok(String)` containing the generated bytecode if compilation succeeds.
+    /// * `Ok(CompiledPrograms)` containing the generated bytecode and ABI if compilation succeeds.
     /// * `Err(CompilerError)` if any stage of the pipeline fails.
-    pub fn compile(&mut self, source: &str, filename: FileName, modules: &Vec<(&str, FileName)>) -> Result<String> {
+    pub fn compile(&mut self, source: &str, filename: FileName, modules: &Vec<(&str, FileName)>) -> Result<Compiled> {
         // Parse the program.
         self.parse(source, filename, modules)?;
         // Merge the stubs into the AST.
         self.add_import_stubs()?;
-        // Run the intermediate compiler stages.
-        self.intermediate_passes()?;
+        // Run the intermediate compiler stages, which also generates ABIs.
+        let (primary_abi, import_abis) = self.intermediate_passes()?;
         // Run code generation.
-        let bytecode = CodeGenerating::do_pass((), &mut self.state)?;
-        Ok(bytecode.to_string())
+        let bytecodes = CodeGenerating::do_pass((), &mut self.state)?;
+
+        // Build the primary compiled program.
+        let primary = CompiledProgram {
+            name: self.program_name.clone().unwrap(),
+            bytecode: bytecodes.primary_bytecode,
+            abi: primary_abi,
+        };
+
+        // Build compiled programs for imports, looking up ABIs by name.
+        let imports: Vec<CompiledProgram> = bytecodes
+            .import_bytecodes
+            .into_iter()
+            .map(|bc| {
+                let abi = import_abis.get(&bc.program_name).expect("ABI should exist for all imports").clone();
+                CompiledProgram { name: bc.program_name, bytecode: bc.bytecode, abi }
+            })
+            .collect();
+
+        Ok(Compiled { primary, imports })
     }
 
-    /// Compiles a program from a source file and its associated module files in the same directory tree.
+    /// Reads the main source file and all module files in the same directory tree.
     ///
-    /// This method reads the main source file and collects all other source files under the same
-    /// root directory (excluding the main file itself). It assumes a modular structure where additional
-    /// source files are compiled as modules, with deeper files (submodules) compiled first.
+    /// This helper walks all `.leo` files under `source_directory` (excluding the main file itself),
+    /// reads their contents, and returns:
+    /// - The main file’s source as a `String`.
+    /// - A vector of module tuples `(String, FileName)` suitable for compilation or parsing.
     ///
     /// # Arguments
     ///
-    /// * `source_file_path` - A path to the main source file to compile. It must have a parent directory,
-    ///   which is used as the root for discovering additional module files.
+    /// * `entry_file_path` - The main source file.
+    /// * `source_directory` - The directory root for discovering `.leo` module files.
     ///
-    /// # Returns
+    /// # Errors
     ///
-    /// * `Ok(String)` containing the compiled output if successful.
-    /// * `Err(CompilerError)` if reading the main file fails or a compilation error occurs.
-    ///
-    /// # Panics
-    ///
-    /// * If the provided source file has no parent directory.
-    /// * If any discovered module file cannot be read (marked as a TODO).
-    pub fn compile_from_directory(
-        &mut self,
+    /// Returns `Err(CompilerError)` if reading any file fails.
+    fn read_sources_and_modules(
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
-    ) -> Result<String> {
+    ) -> Result<(String, Vec<(String, FileName)>)> {
         // Read the contents of the main source file.
         let source = fs::read_to_string(&entry_file_path)
             .map_err(|e| CompilerError::file_read_error(entry_file_path.as_ref().display().to_string(), e))?;
@@ -263,24 +351,48 @@ impl Compiler {
             })
             .collect::<Vec<_>>();
 
-        let mut module_sources = Vec::new(); // Keep Strings alive for valid borrowing
-        let mut modules = Vec::new(); // Parsed (source, filename) tuples for compilation
-
-        // Read all module files and store their contents
+        // Read all module files and pair with FileName immediately
+        let mut modules = Vec::new();
         for file in &files {
-            let source = fs::read_to_string(file.path())
+            let module_source = fs::read_to_string(file.path())
                 .map_err(|e| CompilerError::file_read_error(file.path().display().to_string(), e))?;
-            module_sources.push(source); // Keep the String alive
+            modules.push((module_source, FileName::Real(file.path().into())));
         }
 
-        // Create tuples of (&str, FileName) for the compiler
-        for (i, file) in files.iter().enumerate() {
-            let source = &module_sources[i]; // Borrow from the alive String
-            modules.push((&source[..], FileName::Real(file.path().into())));
-        }
+        Ok((source, modules))
+    }
 
-        // Compile the main source along with all collected modules
-        self.compile(&source, FileName::Real(entry_file_path.as_ref().into()), &modules)
+    /// Compiles a program from a source file and its associated module files in the same directory tree.
+    pub fn compile_from_directory(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+    ) -> Result<Compiled> {
+        let (source, modules_owned) = Self::read_sources_and_modules(&entry_file_path, &source_directory)?;
+
+        // Convert owned module sources into temporary (&str, FileName) tuples.
+        let module_refs: Vec<(&str, FileName)> =
+            modules_owned.iter().map(|(src, fname)| (src.as_str(), fname.clone())).collect();
+
+        // Compile the main source along with all collected modules.
+        self.compile(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)
+    }
+
+    /// Parses a program from a source file and its associated module files in the same directory tree.
+    pub fn parse_from_directory(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+    ) -> Result<Program> {
+        let (source, modules_owned) = Self::read_sources_and_modules(&entry_file_path, &source_directory)?;
+
+        // Convert owned module sources into temporary (&str, FileName) tuples.
+        let module_refs: Vec<(&str, FileName)> =
+            modules_owned.iter().map(|(src, fname)| (src.as_str(), fname.clone())).collect();
+
+        // Parse the main source along with all collected modules.
+        self.parse(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)?;
+        Ok(self.state.ast.ast.clone())
     }
 
     /// Writes the AST to a JSON file.
@@ -310,27 +422,62 @@ impl Compiler {
         Ok(())
     }
 
-    /// Merge the imported stubs which are dependencies of the current program into the AST
-    /// in topological order.
+    /// Resolves and registers all import stubs for the current program.
+    ///
+    /// This method performs a graph traversal over the program’s import relationships to:
+    /// 1. Establish parent–child relationships between stubs based on imports.
+    /// 2. Collect all reachable stubs in traversal order.
+    /// 3. Store the explored stubs back into `self.state.ast.ast.stubs`.
+    ///
+    /// The traversal starts from the imports of the main program and recursively follows
+    /// their transitive dependencies. Any missing stub during traversal results in an error.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(())` if all imports are successfully resolved and stubs are collected.
+    /// * `Err(CompilerError)` if any imported program cannot be found.
     pub fn add_import_stubs(&mut self) -> Result<()> {
+        // Track which programs we've already processed.
         let mut explored = IndexSet::<Symbol>::new();
+
+        // Initialize the exploration queue with the main program’s direct imports.
         let mut to_explore: Vec<Symbol> = self.state.ast.ast.imports.keys().cloned().collect();
 
-        while let Some(import) = to_explore.pop() {
-            explored.insert(import);
-            if let Some(stub) = self.import_stubs.get(&import) {
-                for new_import_id in stub.imports.iter() {
-                    if !explored.contains(&new_import_id.name.name) {
-                        to_explore.push(new_import_id.name.name);
-                    }
+        // If this is a named program, set the main program as the parent of its direct imports.
+        if let Some(main_program_name) = self.program_name.clone() {
+            let main_symbol = Symbol::intern(&main_program_name);
+            for import in self.state.ast.ast.imports.keys() {
+                if let Some(child_stub) = self.import_stubs.get_mut(import) {
+                    child_stub.add_parent(main_symbol);
                 }
-            } else {
+            }
+        }
+
+        // Traverse the import graph breadth-first, collecting dependencies.
+        while let Some(import_symbol) = to_explore.pop() {
+            // Mark this import as explored.
+            explored.insert(import_symbol);
+
+            // Look up the corresponding stub.
+            let Some(stub) = self.import_stubs.get(&import_symbol) else {
                 return Err(CompilerError::imported_program_not_found(
                     self.program_name.as_ref().unwrap(),
-                    import,
-                    self.state.ast.ast.imports[&import],
+                    import_symbol,
+                    self.state.ast.ast.imports[&import_symbol],
                 )
                 .into());
+            };
+
+            for child_symbol in stub.imports().cloned().collect::<Vec<_>>() {
+                // Record parent relationship.
+                if let Some(child_stub) = self.import_stubs.get_mut(&child_symbol) {
+                    child_stub.add_parent(import_symbol);
+                }
+
+                // Schedule child for exploration if not yet visited.
+                if explored.insert(child_symbol) {
+                    to_explore.push(child_symbol);
+                }
             }
         }
 

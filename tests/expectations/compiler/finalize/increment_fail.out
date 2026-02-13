@@ -1,4 +1,4 @@
-Error [ETYC0372005]: Unknown function `increment`
+Error [ETYC0372005]: Unknown function `test.aleo/increment`
     --> compiler-test:10:9
      |
   10 |         increment(amounts, addr, amount);

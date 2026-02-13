@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -86,14 +86,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     // Get the type of the expression.
                     let type_ = self.state.type_table.get(&id)?;
                     // Construct a new path for this identifier.
-                    let p = Path::new(
-                        Vec::new(),
-                        Identifier::new(*name, self.state.node_builder.next_id()),
-                        true,
-                        Some(vec![*name]),
-                        path.span(),
-                        self.state.node_builder.next_id(),
-                    );
+                    let p = Path::from(Identifier::new(*name, self.state.node_builder.next_id())).to_local();
                     // Assign the type of the path.
                     self.state.type_table.insert(p.id(), type_);
                     // This path is mapped to some name already, so replace it.
@@ -113,7 +106,6 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::Call(_)
             | Expression::Cast(_)
             | Expression::Err(_)
-            | Expression::Locator(_)
             | Expression::MemberAccess(_)
             | Expression::Repeat(_)
             | Expression::Composite(_)
@@ -193,9 +185,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
 
             Expression::Intrinsic(intrinsic) => {
                 for arg in &mut intrinsic.arguments {
-                    if !matches!(arg, Expression::Locator(_)) {
-                        self.try_atom(arg)?;
-                    }
+                    self.try_atom(arg)?;
                 }
                 return Some((expression, false));
             }
@@ -240,7 +230,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
 
             Expression::TupleAccess(_) => panic!("Tuple access expressions should not exist in this pass."),
 
-            Expression::Locator(_) | Expression::Async(_) | Expression::Err(_) | Expression::Unit(_) => {
+            Expression::Async(_) | Expression::Err(_) | Expression::Unit(_) => {
                 return Some((expression, false));
             }
         };
@@ -257,9 +247,9 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     // We were defining a new variable, whose right hand side is already defined, so map
                     // this variable to the previous variable.
                     self.scopes.last_mut().unwrap().expressions.insert(Atom::Path(vec![place]).into(), name);
-                    return Some((identifier.into(), true));
+                    return Some((Path::from(identifier).to_local().into(), true));
                 }
-                return Some((identifier.into(), false));
+                return Some((Path::from(identifier).to_local().into(), false));
             }
         }
 

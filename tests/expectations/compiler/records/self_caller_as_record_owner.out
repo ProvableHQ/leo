@@ -1,11 +1,11 @@
-Warning [WTYC0372004]: `self.caller` used as the owner of record `Token`
+Warning [WTYC0372004]: `self.caller` used as the owner of record `test0.aleo/Token`
     --> compiler-test:8:20
      |
    8 |             owner: self.caller,
      |                    ^^^^^^^^^^^
      |
      = `self.caller` may refer to a program address, which cannot spend records.
-Warning [WTYC0372004]: `self.caller` used as the owner of record `Token`
+Warning [WTYC0372004]: `self.caller` used as the owner of record `test0.aleo/Token`
     --> compiler-test:14:20
      |
   14 |             owner: self.caller,

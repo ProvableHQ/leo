@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -48,21 +48,21 @@ impl TypeCheckingInput {
     pub fn new(network: NetworkName) -> Self {
         let (max_array_elements, max_mappings, max_functions, max_inputs, max_outputs) = match network {
             NetworkName::MainnetV0 => (
-                MainnetV0::MAX_ARRAY_ELEMENTS,
+                MainnetV0::LATEST_MAX_ARRAY_ELEMENTS(),
                 MainnetV0::MAX_MAPPINGS,
                 MainnetV0::MAX_FUNCTIONS,
                 MainnetV0::MAX_INPUTS,
                 MainnetV0::MAX_OUTPUTS,
             ),
             NetworkName::TestnetV0 => (
-                TestnetV0::MAX_ARRAY_ELEMENTS,
+                TestnetV0::LATEST_MAX_ARRAY_ELEMENTS(),
                 TestnetV0::MAX_MAPPINGS,
                 TestnetV0::MAX_FUNCTIONS,
                 TestnetV0::MAX_INPUTS,
                 TestnetV0::MAX_OUTPUTS,
             ),
             NetworkName::CanaryV0 => (
-                CanaryV0::MAX_ARRAY_ELEMENTS,
+                CanaryV0::LATEST_MAX_ARRAY_ELEMENTS(),
                 CanaryV0::MAX_MAPPINGS,
                 CanaryV0::MAX_FUNCTIONS,
                 CanaryV0::MAX_INPUTS,
@@ -88,8 +88,8 @@ impl Pass for TypeChecking {
         let composite_names = state
             .symbol_table
             .iter_records()
-            .map(|(loc, _)| loc.path.clone())
-            .chain(state.symbol_table.iter_structs().map(|(name, _)| name.clone()))
+            .map(|(loc, _)| loc.clone())
+            .chain(state.symbol_table.iter_structs().map(|(loc, _)| loc.clone()))
             .collect();
         let function_names = state.symbol_table.iter_functions().map(|(loc, _)| loc.clone()).collect();
 

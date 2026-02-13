@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -24,26 +24,24 @@ pub enum IdVariants {
     Intrinsic,
     Path,
     ProgramId,
-    Locator,
 }
 
 fn id_variant(lex: &mut logos::Lexer<Token>) -> IdVariants {
     // Use LazyLock to not recompile these regexes every time.
-    static REGEX_LOCATOR: LazyLock<regex::Regex> =
-        LazyLock::new(|| regex::Regex::new(r"^\.aleo/[a-zA-Z][a-zA-Z0-9_]*").unwrap());
+    static REGEX_PATH: LazyLock<regex::Regex> = LazyLock::new(|| {
+        regex::Regex::new(
+            r"^(?:\.aleo/[a-zA-Z][a-zA-Z0-9_]*)(?:(?:::[a-zA-Z][a-zA-Z0-9_]*)+)?|^(?:::[a-zA-Z][a-zA-Z0-9_]*)+",
+        )
+        .unwrap()
+    });
     static REGEX_PROGRAM_ID: LazyLock<regex::Regex> = LazyLock::new(|| regex::Regex::new(r"^\.aleo\b").unwrap());
-    static REGEX_PATH: LazyLock<regex::Regex> =
-        LazyLock::new(|| regex::Regex::new(r"^(?:::[a-zA-Z][a-zA-Z0-9_]*)+").unwrap());
 
-    if let Some(found) = REGEX_LOCATOR.find(lex.remainder()) {
+    if let Some(found) = REGEX_PATH.find(lex.remainder()) {
         lex.bump(found.len());
-        IdVariants::Locator
+        IdVariants::Path
     } else if let Some(found) = REGEX_PROGRAM_ID.find(lex.remainder()) {
         lex.bump(found.len());
         IdVariants::ProgramId
-    } else if let Some(found) = REGEX_PATH.find(lex.remainder()) {
-        lex.bump(found.len());
-        IdVariants::Path
     } else if lex.remainder().starts_with("_") {
         IdVariants::Intrinsic
     } else {

@@ -1,26 +1,4 @@
-{
-  "Literal": {
-    "span": {
-      "lo": 0,
-      "hi": 4
-    },
-    "id": 0,
-    "variant": {
-      "Boolean": true
-    }
-  }
-}
+true
 
-{
-  "Literal": {
-    "span": {
-      "lo": 5,
-      "hi": 10
-    },
-    "id": 0,
-    "variant": {
-      "Boolean": false
-    }
-  }
-}
+false
 

@@ -9,4 +9,3 @@ function food:
 constructor:
     get foo[0u8] into r0;
     assert.eq r0 0u8;
-

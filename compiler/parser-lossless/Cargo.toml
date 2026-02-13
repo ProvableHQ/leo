@@ -17,25 +17,16 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies.leo-span]
-workspace = true
+[dependencies]
+# leo dependencies
+leo-errors      = { workspace = true }
+leo-span        = { workspace = true }
+# third party dependencies
+itertools       = { workspace = true }
+lalrpop-util    = { workspace = true }
+logos           = { workspace = true }
+regex           = { workspace = true }
 
-[dependencies.leo-errors]
-workspace = true
-
-[dependencies.itertools]
-workspace = true
-
-[dependencies.lalrpop-util]
-version = "0.21.0"
-features = [ "unicode" ]
-
-[dependencies.logos]
-version = "0.15.0"
-
-[dependencies.regex]
-workspace = true
-
-[build-dependencies.lalrpop]
-version = "0.22.2"
-default-features = false
+[build-dependencies]
+# third party dependencies
+lalrpop = { workspace = true }

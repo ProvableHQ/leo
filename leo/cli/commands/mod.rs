@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -13,6 +13,9 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+mod abi;
+pub use abi::LeoAbi;
 
 mod add;
 pub use add::{DependencySource, LeoAdd};
@@ -39,8 +42,14 @@ use deploy::{Task, print_deployment_plan, print_deployment_stats};
 mod devnet;
 pub use devnet::LeoDevnet;
 
+mod devnode;
+pub use devnode::LeoDevnode;
+
 mod execute;
 pub use execute::LeoExecute;
+
+mod format;
+pub use format::LeoFormat;
 
 pub mod query;
 pub use query::LeoQuery;

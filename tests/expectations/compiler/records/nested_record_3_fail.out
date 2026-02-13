@@ -4,7 +4,7 @@ Error [ETYC0372030]: A struct or record cannot contain another record.
   10 |         bar: Foo,
      |         ^^^
      |
-     = Remove the record `Foo` from `Bar`.
+     = Remove the record `test.aleo/Foo` from `Bar`.
 Error [ETYC0372083]: A program must have at least one transition function.
     --> compiler-test:2:9
      |

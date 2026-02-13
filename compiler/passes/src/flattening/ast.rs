@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -101,16 +101,14 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                 &as_identifier(input.if_false),
             ),
             Type::Composite(if_true_type) => {
+                let composite_location = if_true_type.path.expect_global_location();
                 // Get the composite definitions.
-                let program = if_true_type.program.unwrap_or(self.program);
                 let composite_path = if_true_type.path.clone();
                 let if_true_type = self
                     .state
                     .symbol_table
-                    .lookup_struct(&composite_path.absolute_path())
-                    .or_else(|| {
-                        self.state.symbol_table.lookup_record(&Location::new(program, composite_path.absolute_path()))
-                    })
+                    .lookup_struct(self.program, composite_location)
+                    .or_else(|| self.state.symbol_table.lookup_record(self.program, composite_location))
                     .expect("This definition should exist")
                     .clone();
 
@@ -199,7 +197,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             // that led to this assertion.
             let not_guard = UnaryExpression {
                 op: UnaryOperation::Not,
-                receiver: Path::from(guard).into_absolute().into(),
+                receiver: Path::from(guard).to_local().into(),
                 span: Default::default(),
                 id: {
                     // Create a new node ID for the unary expression.
@@ -212,12 +210,12 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             .into();
             let (identifier, statement) = self.unique_simple_definition(not_guard);
             statements.push(statement);
-            guards.push(Path::from(identifier).into_absolute().into());
+            guards.push(Path::from(identifier).to_local().into());
         }
 
         // We also need to guard against early returns.
         if let Some((guard, guard_statements)) = self.construct_early_return_guard() {
-            guards.push(Path::from(guard).into_absolute().into());
+            guards.push(Path::from(guard).to_local().into());
             statements.extend(guard_statements);
         }
 
@@ -245,7 +243,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
                 self.state.type_table.insert(binary.id, Type::Boolean);
                 let (identifier, statement) = self.unique_simple_definition(binary.into());
                 statements.push(statement);
-                Path::from(identifier).into_absolute().into()
+                Path::from(identifier).to_local().into()
             }
         };
 
@@ -263,7 +261,7 @@ impl AstReconstructor for FlatteningVisitor<'_> {
             self.state.type_table.insert(binary.id(), Type::Boolean);
             let (identifier, statement) = self.unique_simple_definition(binary.into());
             statements.push(statement);
-            expression = Path::from(identifier).into_absolute().into();
+            expression = Path::from(identifier).to_local().into();
         }
 
         let assert_statement = AssertStatement { variant: AssertVariant::Assert(expression), ..input }.into();

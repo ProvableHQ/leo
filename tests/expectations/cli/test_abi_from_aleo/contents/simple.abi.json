@@ -1,0 +1,175 @@
+{
+  "program": "simple.aleo",
+  "structs": [
+    {
+      "path": [
+        "Point"
+      ],
+      "fields": [
+        {
+          "name": "x",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        },
+        {
+          "name": "y",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "path": [
+        "Token"
+      ],
+      "fields": [
+        {
+          "name": "owner",
+          "ty": {
+            "Primitive": "Address"
+          },
+          "mode": "Public"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Primitive": {
+              "UInt": "U64"
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    }
+  ],
+  "mappings": [
+    {
+      "name": "balances",
+      "key": {
+        "Primitive": "Address"
+      },
+      "value": {
+        "Primitive": {
+          "UInt": "U64"
+        }
+      }
+    }
+  ],
+  "storage_variables": [],
+  "transitions": [
+    {
+      "name": "add_numbers",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        },
+        {
+          "name": "arg2",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    },
+    {
+      "name": "get_point",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "simple"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "simple"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    },
+    {
+      "name": "get_token",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Record": {
+              "path": [
+                "Token"
+              ],
+              "program": "simple"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Record": {
+              "path": [
+                "Token"
+              ],
+              "program": "simple"
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

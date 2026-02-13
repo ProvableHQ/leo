@@ -5,34 +5,34 @@ program test.aleo {
     mapping group_val__: bool => group;
     async transition initialize() -> Future<Fn()> {
         return async {
-            _mapping_set(::flag__, false, true);
-            _mapping_set(::scalar_val__, false, 1);
-            _mapping_set(::field_val__, false, 42);
-            _mapping_set(::group_val__, false, 0);
+            _mapping_set(test.aleo/flag__, false, true);
+            _mapping_set(test.aleo/scalar_val__, false, 1);
+            _mapping_set(test.aleo/field_val__, false, 42);
+            _mapping_set(test.aleo/group_val__, false, 0);
         };
     }
     async transition to_none() -> Future<Fn()> {
         return async {
-            _mapping_remove(::flag__, false);
-            _mapping_remove(::scalar_val__, false);
-            _mapping_remove(::field_val__, false);
-            _mapping_remove(::group_val__, false);
+            _mapping_remove(test.aleo/flag__, false);
+            _mapping_remove(test.aleo/scalar_val__, false);
+            _mapping_remove(test.aleo/field_val__, false);
+            _mapping_remove(test.aleo/group_val__, false);
         };
     }
     async transition check1() -> Future<Fn()> {
         return async {
-            assert(_optional_unwrap(_mapping_contains(::flag__, false) ? _mapping_get_or_use(::flag__, false, false) : none) == true);
-            assert(_optional_unwrap(_mapping_contains(::scalar_val__, false) ? _mapping_get_or_use(::scalar_val__, false, 0scalar) : none) == 1);
-            assert(_optional_unwrap(_mapping_contains(::field_val__, false) ? _mapping_get_or_use(::field_val__, false, 0field) : none) == 42);
-            assert(_optional_unwrap(_mapping_contains(::group_val__, false) ? _mapping_get_or_use(::group_val__, false, 0group) : none) == 0);
+            assert(_optional_unwrap(_mapping_contains(test.aleo/flag__, false) ? _mapping_get_or_use(test.aleo/flag__, false, false) : none) == true);
+            assert(_optional_unwrap(_mapping_contains(test.aleo/scalar_val__, false) ? _mapping_get_or_use(test.aleo/scalar_val__, false, 0scalar) : none) == 1);
+            assert(_optional_unwrap(_mapping_contains(test.aleo/field_val__, false) ? _mapping_get_or_use(test.aleo/field_val__, false, 0field) : none) == 42);
+            assert(_optional_unwrap(_mapping_contains(test.aleo/group_val__, false) ? _mapping_get_or_use(test.aleo/group_val__, false, 0group) : none) == 0);
         };
     }
     async transition check2() -> Future<Fn()> {
         return async {
-            assert(_optional_unwrap_or(_mapping_contains(::flag__, false) ? _mapping_get_or_use(::flag__, false, false) : none, false) == true);
-            assert(_optional_unwrap_or(_mapping_contains(::scalar_val__, false) ? _mapping_get_or_use(::scalar_val__, false, 0scalar) : none, 0) == 1);
-            assert(_optional_unwrap_or(_mapping_contains(::field_val__, false) ? _mapping_get_or_use(::field_val__, false, 0field) : none, 0) == 42);
-            assert(_optional_unwrap_or(_mapping_contains(::group_val__, false) ? _mapping_get_or_use(::group_val__, false, 0group) : none, 0) == 0);
+            assert(_optional_unwrap_or(_mapping_contains(test.aleo/flag__, false) ? _mapping_get_or_use(test.aleo/flag__, false, false) : none, false) == true);
+            assert(_optional_unwrap_or(_mapping_contains(test.aleo/scalar_val__, false) ? _mapping_get_or_use(test.aleo/scalar_val__, false, 0scalar) : none, 0) == 1);
+            assert(_optional_unwrap_or(_mapping_contains(test.aleo/field_val__, false) ? _mapping_get_or_use(test.aleo/field_val__, false, 0field) : none, 0) == 42);
+            assert(_optional_unwrap_or(_mapping_contains(test.aleo/group_val__, false) ? _mapping_get_or_use(test.aleo/group_val__, false, 0group) : none, 0) == 0);
         };
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -60,7 +60,7 @@ impl ArrayType {
         }
     }
 
-    pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program: Option<Symbol>) -> Self {
+    pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program: Symbol) -> Self {
         Self {
             element_type: Box::new(Type::from_snarkvm(array_type.next_element_type(), program)),
             length: Box::new(Expression::Literal(Literal {

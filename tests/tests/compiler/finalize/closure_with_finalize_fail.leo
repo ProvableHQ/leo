@@ -1,5 +1,7 @@
 
 program test.aleo {
+    mapping account: address => u64;
+
     function foo(a: u8, b: u8) -> Future {
         return finalize_bar(a, b);
     }

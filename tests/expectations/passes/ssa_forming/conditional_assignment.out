@@ -3,10 +3,10 @@ program test.aleo {
         let result$#2 = 0u32;
         if condition$$1 {
             let $var$3 = 1u32;
-            let result$#4 = x$$0 + ::$var$3;
+            let result$#4 = x$$0 + $var$3;
         } else {
             let $var$5 = 2u32;
-            let result$#6 = x$$0 + ::$var$5;
+            let result$#6 = x$$0 + $var$5;
         }
         let result$7 = condition$$1 ? result$#4 : result$#6;
         return result$7;

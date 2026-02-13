@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -32,6 +32,7 @@ use leo_ast::{
     Identifier,
     IterationStatement,
     Node,
+    Path,
     ReturnStatement,
     Statement,
     StatementConsumer,
@@ -86,7 +87,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
             // Then assign a new unique name to the left-hand-side of the assignment.
             // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
             // We really expect `path` to refer to a local variable so we only care about the result of `identifier().name`.
-            let new_place = self.rename_identifier(path.identifier());
+            let new_place = self.rename_identifier(*path.identifier());
 
             statements.push(self.simple_definition(new_place, value));
             statements
@@ -184,7 +185,7 @@ impl StatementConsumer for SsaFormingVisitor<'_> {
                     let id = *table
                         .lookup_id(&name)
                         .unwrap_or_else(|| panic!("Symbol {name} should exist in the rename table."));
-                    Identifier { name, span: Default::default(), id }.into()
+                    Path::from(Identifier { name, span: Default::default(), id }).to_local().into()
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.

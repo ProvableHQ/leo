@@ -1,0 +1,50 @@
+program child1.aleo;
+
+struct Boo:
+    a as u32;
+    b as u32;
+
+struct Foo:
+    c as Boo;
+
+struct Coo:
+    x as u32;
+    y as u32;
+
+function main_2:
+    input r0 as Foo.private;
+    output r0.c as Boo.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child1.aleo;
+program external_structs.aleo;
+
+struct Foo:
+    c as child1.aleo/Foo;
+
+function main:
+    cast 1u32 1u32 into r0 as child1.aleo/Boo;
+    cast r0 into r1 as child1.aleo/Foo;
+    call child1.aleo/main_2 r1 into r2;
+    cast r1 into r3 as Foo;
+    cast 0u32 0u32 into r4 as child1.aleo/Coo;
+    output r0 as child1.aleo/Boo.private;
+    output r1 as child1.aleo/Foo.private;
+    output r2 as child1.aleo/Boo.private;
+    output r3 as Foo.private;
+    output r4 as child1.aleo/Coo.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: ({a: 1u32, b: 1u32}, {c: {
+  a: 1u32,
+  b: 1u32
+}}, {a: 1u32, b: 1u32}, {c: {
+  c: {
+    a: 1u32,
+    b: 1u32
+  }
+}}, {x: 0u32, y: 0u32})

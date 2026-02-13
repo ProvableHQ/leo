@@ -1,4 +1,4 @@
-Error [ETYC0372005]: Unknown function `finalize_mint_public`
+Error [ETYC0372005]: Unknown function `test.aleo/finalize_mint_public`
     --> compiler-test:7:16
      |
    7 |         return finalize_mint_public(receiver, amount);

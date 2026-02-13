@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -23,8 +23,16 @@
 //! AST nodes. The publicly exposed functions such as `parse_expression`
 //! and `parse_statement` can be called without reference to the lossless
 //! parser to complete the entire parsing task.
+//!
+//! When the `rowan` feature is enabled, the rowan-based parser is available
+//! as an alternative implementation (currently stubbed).
 
 use itertools::Itertools as _;
+
+// Re-export the rowan-based parser when the feature is enabled.
+// TODO: Integrate this as the primary parser once implementation is complete.
+#[cfg(feature = "rowan")]
+pub use leo_parser_rowan;
 
 use leo_ast::{NetworkName, NodeBuilder};
 use leo_errors::{Handler, ParserError, Result};

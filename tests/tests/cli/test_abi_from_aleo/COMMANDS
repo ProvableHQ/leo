@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+echo "=== simple.aleo ==="
+${LEO_BIN} --disable-update-check abi simple.aleo
+
+echo ""
+echo "=== simple.aleo with --output ==="
+${LEO_BIN} --disable-update-check abi simple.aleo -o simple.abi.json
+cat simple.abi.json
+
+echo ""
+echo "=== comprehensive.aleo ==="
+${LEO_BIN} --disable-update-check abi comprehensive.aleo

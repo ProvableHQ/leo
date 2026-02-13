@@ -18,7 +18,7 @@ Error [ETYC0372166]: array is an invalid storage type
      |
    4 |     storage vector_of_empty_array: [[u8; 0]];
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372000]: Invalid assignment target: vector_of_empty_array.
+Error [ETYC0372000]: Invalid assignment target: empty_storage_type.aleo/vector_of_empty_array.
     --> compiler-test:14:9
      |
   14 |         vector_of_empty_array = [];

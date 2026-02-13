@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2025 Provable Inc.
+// Copyright (C) 2019-2026 Provable Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -94,7 +94,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
         // Look up the expression in the tuple map.
         match self.tuples.get(&path.identifier().name).and_then(|tuple_names| tuple_names.get(input.index.value())) {
-            Some(id) => (Path::from(*id).into_absolute().into(), Default::default()),
+            Some(id) => (Path::from(*id).to_local().into(), Default::default()),
             None => {
                 if !matches!(self.state.type_table.get(&path.id), Some(Type::Future(_))) {
                     panic!("Type checking guarantees that all tuple accesses are declared and indices are valid.");
@@ -154,7 +154,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
                     self.state.type_table.insert(place.id(), Type::Boolean);
 
-                    Expression::Path(Path::from(place).into_absolute())
+                    Expression::Path(Path::from(place).to_local())
                 };
 
                 // These will be the `elements` of our resulting tuple.
@@ -189,7 +189,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     );
 
                     statements.push(definition);
-                    elements.push(Path::from(identifier).into_absolute().into());
+                    elements.push(Path::from(identifier).to_local().into());
                 }
 
                 let expr: Expression =
@@ -284,8 +284,8 @@ impl AstReconstructor for DestructuringVisitor<'_> {
             // Again, make an assignment for each identifier.
             for (&identifier, &rhs_identifier) in identifiers.iter().zip_eq(rhs_identifiers) {
                 let stmt = AssignStatement {
-                    place: Path::from(identifier).into_absolute().into(),
-                    value: Path::from(rhs_identifier).into_absolute().into(),
+                    place: Path::from(identifier).to_local().into(),
+                    value: Path::from(rhs_identifier).to_local().into(),
                     id: self.state.node_builder.next_id(),
                     span: Default::default(),
                 }
@@ -318,7 +318,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     // This is the corresponding variable name of the member we're assigning to.
                     let identifier = tuple_ids[access.index.value()];
 
-                    *place = Path::from(identifier).into_absolute().into();
+                    *place = Path::from(identifier).to_local().into();
 
                     return (assign.into(), statements);
                 }
@@ -398,7 +398,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
                         type_: Some(ty.clone()),
-                        value: Expression::Path(Path::from(*rhs_identifier).into_absolute()),
+                        value: Expression::Path(Path::from(*rhs_identifier).to_local()),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }
@@ -482,7 +482,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     let stmt = DefinitionStatement {
                         place: Single(identifier),
                         type_: None,
-                        value: Expression::Path(Path::from(*rhs_identifier).into_absolute()),
+                        value: Expression::Path(Path::from(*rhs_identifier).to_local()),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     }

@@ -1,0 +1,37 @@
+# Copyright (C) 2019-2026 Provable Inc.
+# This file is part of the Leo library.
+
+# The Leo library is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# The Leo library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+[package]
+name = "leo-parser-rowan"
+version = "3.4.0"
+authors = ["The Leo Team <leo@provable.com>"]
+description = "Rowan-based lossless parser for Leo"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+license = "GPL-3.0"
+edition = "2024"
+
+[features]
+default = []
+
+[dependencies]
+leo-errors = { workspace = true }
+leo-span = { workspace = true }
+rowan = { workspace = true }
+logos = { workspace = true }
+
+[dev-dependencies]
+expect-test = { workspace = true }

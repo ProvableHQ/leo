@@ -25,6 +25,7 @@ import test_dep.aleo;
 
 program test.aleo {
     mapping account: address => u64;
+    mapping Yo: u32 => u32;
 
     async transition main(public a: u64) -> Future {
         return finish(a);
@@ -32,7 +33,7 @@ program test.aleo {
 
     async function finish(public a: u64, b: address) {
         CheatCode::print_mapping(Yo);
-        CheatCode::print_mapping(test_dep.aleo/account);
+        CheatCode::print_mapping(test.aleo/account);
         CheatCode::set_block_height(1u64);
         CheatCode::set_block_height(a);
         CheatCode::set_block_timestamp(1u32);

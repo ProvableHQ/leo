@@ -1,0 +1,30 @@
+[package]
+name = "leo-abi"
+version = "3.4.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "ABI generation for Leo programs"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+[dependencies.leo-abi-types]
+workspace = true
+
+[dependencies.leo-ast]
+workspace = true
+
+[dependencies.leo-span]
+workspace = true
+
+[dependencies.indexmap]
+workspace = true

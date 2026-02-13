@@ -1,0 +1,6 @@
+Error [ECLI0377034]: Failed to broadcast transaction:
+   Failed to deploy 'broadcast_error.aleo'
+   Endpoint: http://localhost:3030/testnet/transaction/broadcast
+   Status:   500 Internal Server Error
+   Response: Invalid transaction — Program ID 'broadcast_error.aleo' is already deployed
+

@@ -4,4 +4,3 @@ function foo:
 
 constructor:
     assert.eq true true;
-
