@@ -1,5 +1,6 @@
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
        Leo 🔨 Compiling 'complex.leo'
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.

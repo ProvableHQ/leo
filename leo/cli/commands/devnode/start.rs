@@ -28,6 +28,7 @@ use crate::cli::commands::devnode::rest::Rest;
 
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
+#[group(id = "start_args")]
 pub struct Start {
     /// Verbosity level for logging (0-2).
     #[clap(short = 'v', long, help = "devnode verbosity (0-2)", default_value = "2")]
@@ -113,8 +114,8 @@ Please either:
     if !command.manual_block_creation {
         println!("Advancing the Devnode to the latest consensus version");
         let last_height = TEST_CONSENSUS_VERSION_HEIGHTS.last().unwrap().1;
-        // Call the REST API to advance the ledger by one block.
-        let client = reqwest::blocking::Client::new();
+        // Call the REST API to advance the ledger.
+        let client = reqwest::Client::new();
 
         let payload = json!({
             "num_blocks": last_height,
@@ -124,7 +125,8 @@ Please either:
             .post(format!("http://{}/testnet/block/create", command.socket_addr))
             .header("Content-Type", "application/json")
             .json(&payload)
-            .send();
+            .send()
+            .await;
     }
     // Prevent main from exiting.
     std::future::pending::<()>().await;

@@ -1,5 +1,6 @@
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
 
@@ -11,8 +12,11 @@
  • 3u32
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+
 1 / 1 tests passed.
 PASSED: test_main.aleo/test_addition
+
 
 ➕ Adding programs to the VM in the following order:
   - test_json_program.aleo (local)
@@ -30,11 +34,11 @@ PASSED: test_main.aleo/test_addition
     - Non-Zero Entries in C: 16949
     - Circuit ID: XXXXXX
 
+
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🛠️  Deployment Plan Summary
 ──────────────────────────────────────────────
@@ -52,9 +56,6 @@ Attempting to determine the consensus version from the latest block height at ht
   • Transaction(s) will NOT be printed to the console.
   • Transaction(s) will NOT be saved to a file.
   • Transaction(s) will be broadcast to http://localhost:3030
-
-⚠️ Warnings:
-  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the deployment may fail
 ──────────────────────────────────────────────
 
 
@@ -102,11 +103,11 @@ Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Deployment confirmed!
 
+
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
@@ -130,9 +131,6 @@ Attempting to determine the consensus version from the latest block height at ht
   - Transaction will NOT be printed to the console.
   - Transaction will NOT be saved to a file.
   - Transaction will be broadcast to http://localhost:3030
-
-⚠️ Warnings:
-  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the execution may fail
 ──────────────────────────────────────────────
 
 
@@ -187,11 +185,11 @@ constructor:
 
 
 
+
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🛠️  Deployment Plan Summary
 ──────────────────────────────────────────────
@@ -209,9 +207,6 @@ Attempting to determine the consensus version from the latest block height at ht
   • Transaction(s) will NOT be printed to the console.
   • Transaction(s) will NOT be saved to a file.
   • Transaction(s) will be broadcast to http://localhost:3030
-
-⚠️ Warnings:
-  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the deployment may fail
 ──────────────────────────────────────────────
 
 Loaded the following programs into the VM:

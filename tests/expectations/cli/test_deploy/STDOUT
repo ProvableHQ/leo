@@ -1,3 +1,4 @@
+
        Leo 🔨 Compiling 'some_sample_leo_program.leo'
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
@@ -10,7 +11,6 @@
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🛠️  Deployment Plan Summary
 ──────────────────────────────────────────────
@@ -28,9 +28,6 @@ Attempting to determine the consensus version from the latest block height at ht
   • Transaction(s) will NOT be printed to the console.
   • Transaction(s) will NOT be saved to a file.
   • Transaction(s) will be broadcast to http://localhost:3030
-
-⚠️ Warnings:
-  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the deployment may fail
 ──────────────────────────────────────────────
 
 

@@ -263,6 +263,7 @@ fn compile_leo_source_directory(
     stubs: IndexMap<Symbol, Stub>,
     network: NetworkName,
 ) -> Result<Compiled> {
+    println!();
     tracing::info!("🔨 Compiling '{program_name}.leo'");
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(

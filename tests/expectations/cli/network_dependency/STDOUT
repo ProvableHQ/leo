@@ -1,4 +1,5 @@
 DEPLOYMENT 1
+
        Leo 🔨 Compiling 'test_program1.leo'
        Leo     1 statements before dead code elimination.
        Leo     1 statements after dead code elimination.
@@ -11,7 +12,6 @@ DEPLOYMENT 1
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🛠️  Deployment Plan Summary
 ──────────────────────────────────────────────
@@ -29,9 +29,6 @@ Attempting to determine the consensus version from the latest block height at ht
   • Transaction(s) will NOT be printed to the console.
   • Transaction(s) will NOT be saved to a file.
   • Transaction(s) will be broadcast to http://localhost:3030
-
-⚠️ Warnings:
-  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the deployment may fail
 ──────────────────────────────────────────────
 
 
@@ -76,6 +73,7 @@ Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Deployment confirmed!
 DEPLOYMENT 2
+
        Leo 🔨 Compiling 'test_program2.leo'
        Leo     3 statements before dead code elimination.
        Leo     3 statements after dead code elimination.
@@ -88,7 +86,6 @@ DEPLOYMENT 2
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🛠️  Deployment Plan Summary
 ──────────────────────────────────────────────
@@ -110,9 +107,6 @@ Attempting to determine the consensus version from the latest block height at ht
   • Transaction(s) will NOT be printed to the console.
   • Transaction(s) will NOT be saved to a file.
   • Transaction(s) will be broadcast to http://localhost:3030
-
-⚠️ Warnings:
-  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the deployment may fail
 ──────────────────────────────────────────────
 
 
@@ -157,6 +151,7 @@ Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Deployment confirmed!
 EXECUTION
+
        Leo 🔨 Compiling 'test_program2.leo'
        Leo     3 statements before dead code elimination.
        Leo     3 statements after dead code elimination.
@@ -169,7 +164,6 @@ EXECUTION
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
@@ -193,9 +187,6 @@ Attempting to determine the consensus version from the latest block height at ht
   - Transaction will NOT be printed to the console.
   - Transaction will NOT be saved to a file.
   - Transaction will be broadcast to http://localhost:3030
-
-⚠️ Warnings:
-  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the execution may fail
 ──────────────────────────────────────────────
 
 

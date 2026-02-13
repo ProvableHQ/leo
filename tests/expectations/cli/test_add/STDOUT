@@ -1,6 +1,7 @@
        Leo ✅ Added network dependency `credits.aleo` from network `true`.
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
        Leo 🔨 Compiling 'some_sample_leo_program.leo'
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
@@ -8,6 +9,7 @@
        Leo     Program size: 0.18 KB / 97.66 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
+
        Leo 🔨 Compiling 'some_sample_leo_program.leo'
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
@@ -20,7 +22,6 @@
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
-⚠️ Warning: Expected consensus version 13 but found 14 at http://localhost:3030
 
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
@@ -46,7 +47,6 @@ Attempting to determine the consensus version from the latest block height at ht
   - Transaction will NOT be broadcast to the network.
 
 ⚠️ Warnings:
-  • Expected consensus version 13 but found 14 at http://localhost:3030. In some cases, the execution may fail
 ──────────────────────────────────────────────
 
 
