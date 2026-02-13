@@ -68,6 +68,7 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 only_testnet = [ ]
+rowan = [ "leo-compiler/rowan", "leo-interpreter/rowan" ]
 
 [workspace.dependencies]
 # leo dependencies
