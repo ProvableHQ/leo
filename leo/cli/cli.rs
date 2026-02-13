@@ -74,6 +74,11 @@ enum Commands {
         #[clap(flatten)]
         command: LeoExecute,
     },
+    #[clap(name = "fmt", about = "Format Leo source files")]
+    Fmt {
+        #[clap(flatten)]
+        command: LeoFormat,
+    },
     #[clap(about = "Deploy a program")]
     Deploy {
         #[clap(flatten)]
@@ -149,6 +154,7 @@ impl Commands {
             Commands::Run { .. } => "run",
             Commands::Test { .. } => "test",
             Commands::Execute { .. } => "execute",
+            Commands::Fmt { .. } => "fmt",
             Commands::Deploy { .. } => "deploy",
             Commands::Devnet { .. } => "devnet",
             Commands::Devnode { .. } => "devnode",
@@ -246,6 +252,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         }
         Commands::Clean { command } => command.try_execute(context)?,
         Commands::Deploy { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
+        Commands::Fmt { command } => command.try_execute(context)?,
         Commands::Devnet { command } => command.try_execute(context)?,
         Commands::Devnode { command } => command.try_execute(context)?,
         Commands::Run { command } => command_output = Some(JsonOutput::Run(command.execute(context)?)),

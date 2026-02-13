@@ -197,6 +197,10 @@ fn filter_stdout(data: &str) -> String {
             "",
         ),
         (Regex::new(r"  • The program '[A-Za-z0-9_]+\.aleo' does not exist on the network.*\n").unwrap(), ""),
+        // Strip ANSI color codes from `leo fmt --check` diff output.
+        (Regex::new(r"\x1b\[[0-9;]*m").unwrap(), ""),
+        // `leo fmt --check` outputs absolute paths in diff headers which include temp directories.
+        (Regex::new(r"Diff in .*?([^/]+\.leo)").unwrap(), "Diff in SOURCE_DIRECTORY/$1"),
     ];
 
     let mut cow = Cow::Borrowed(data);

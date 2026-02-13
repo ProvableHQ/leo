@@ -322,9 +322,12 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
-                    KW_ASYNC | KW_FUNCTION | KW_TRANSITION | KW_INLINE | KW_SCRIPT | KW_CONSTRUCTOR => {
+                    KW_ASYNC | KW_FUNCTION | KW_TRANSITION | KW_INLINE | KW_SCRIPT => {
                         out.write(tok.text());
                         out.space();
+                    }
+                    KW_CONSTRUCTOR => {
+                        out.write(tok.text());
                     }
                     IDENT => {
                         out.write(tok.text());

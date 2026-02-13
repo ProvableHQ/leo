@@ -33,18 +33,14 @@ rust-version = "1.92.0"
 members = [
   "compiler/abi",
   "compiler/abi-types",
-  "compiler/abi",
-  "compiler/abi-types",
   "compiler/ast",
   "compiler/compiler",
   "compiler/parser-lossless",
-  "compiler/parser-rowan",
   "compiler/parser-rowan",
   "compiler/parser",
   "compiler/passes",
   "compiler/span",
   "errors",
-  "leo-fmt",
   "leo-fmt",
   "interpreter",
   "leo/package",
@@ -129,6 +125,7 @@ rowan              = "0.16"
 rpassword          = "7.4"
 scoped-tls         = "1.0"
 self_update        = { version = "0.42", features = [ "archive-zip", "compression-zip-deflate" ] }
+similar            = "2.6"
 serde              = { version = "1.0", features = [ "derive", "rc" ] }
 serde_json         = { version = "1.0", features = [ "preserve_order" ] }
 serial_test        = "3.1"
@@ -155,6 +152,7 @@ leo-ast           = { workspace = true }
 leo-compiler      = { workspace = true }
 leo-disassembler  = { workspace = true }
 leo-errors        = { workspace = true }
+leo-fmt           = { workspace = true }
 leo-interpreter   = { workspace = true }
 leo-package       = { workspace = true }
 leo-span          = { workspace = true }
@@ -190,6 +188,7 @@ self_update        = { workspace = true }
 serde              = { workspace = true }
 serde_json         = { workspace = true }
 serial_test        = { workspace = true }
+similar            = { workspace = true }
 sha2               = { workspace = true }
 snarkvm            = { workspace = true }
 sys-info           = { workspace = true }
