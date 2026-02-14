@@ -106,7 +106,7 @@ fn generate_cli_tests() {
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let tests_dir = manifest_dir.join("tests/tests/cli");
 
-    let mut out = String::new();
+    let mut out = String::from("use serial_test::serial;\n");
 
     for entry in fs::read_dir(&tests_dir).unwrap() {
         let entry = entry.unwrap();
@@ -122,6 +122,7 @@ fn generate_cli_tests() {
         out.push_str(&format!(
             r#"
 #[test]
+#[serial]
 fn {fn_name}() {{
     crate::run_single_cli_test(
         std::path::Path::new(r"{path}")

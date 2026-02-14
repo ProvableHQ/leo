@@ -2,7 +2,7 @@
 
 LEO_BIN=${1}
 PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
-COMMON_OPTS="-y --disable-update-check --broadcast --network testnet --endpoint http://localhost:3030 --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12"
+COMMON_OPTS="-y --disable-update-check --broadcast --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12"
 
 cd test_program1 || exit 1
 echo "DEPLOYMENT 1"
