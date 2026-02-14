@@ -26,50 +26,68 @@ use crate::{lexer::lex, syntax_kind::SyntaxKind::*};
 ///
 /// This handles imports followed by a program declaration.
 pub fn parse_file(source: &str) -> Parse {
-    let (tokens, _lex_errors) = lex(source);
+    let (tokens, lex_errors) = lex(source);
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
     parser.parse_file_items();
     root.complete(&mut parser, ROOT);
 
-    parser.finish()
+    parser.finish(lex_errors)
 }
 
 /// Parse a single expression.
 pub fn parse_expression_entry(source: &str) -> Parse {
-    let (tokens, _lex_errors) = lex(source);
+    let (tokens, lex_errors) = lex(source);
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
+    let errors_before = parser.error_count();
     parser.parse_expr();
+    // Report error for any remaining non-error tokens after the expression.
+    // Skip ERROR tokens as those are already reported by the lexer.
+    // Don't add trailing-token errors if errors already occurred during parsing,
+    // since leftover tokens are a secondary effect of error recovery.
+    if !parser.at_eof() && !parser.at(ERROR) && parser.error_count() == errors_before {
+        let expected: Vec<&str> = Parser::EXPR_CONTINUATION.iter().map(|k| k.user_friendly_name()).collect();
+        parser.error_unexpected(parser.current(), &expected);
+    }
     root.complete(&mut parser, ROOT);
 
-    parser.finish()
+    parser.finish(lex_errors)
 }
 
 /// Parse module contents (const, struct, inline declarations only).
 pub fn parse_module_entry(source: &str) -> Parse {
-    let (tokens, _lex_errors) = lex(source);
+    let (tokens, lex_errors) = lex(source);
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
     parser.parse_module_items();
     root.complete(&mut parser, ROOT);
 
-    parser.finish()
+    parser.finish(lex_errors)
 }
 
 /// Parse a single statement.
 pub fn parse_statement_entry(source: &str) -> Parse {
-    let (tokens, _lex_errors) = lex(source);
+    let (tokens, lex_errors) = lex(source);
     let mut parser = Parser::new(source, &tokens);
 
     let root = parser.start();
+    let errors_before = parser.error_count();
     parser.parse_stmt();
+    // Report error for any remaining non-error tokens after the statement,
+    // but only if no errors were already emitted during parsing. If errors
+    // occurred, leftover tokens are a secondary effect of error recovery.
+    if !parser.at_eof() && !parser.at(ERROR) && parser.error_count() == errors_before {
+        let mut expected: Vec<&str> = Parser::EXPR_CONTINUATION.iter().map(|k| k.user_friendly_name()).collect();
+        expected.push("';'");
+        parser.error_unexpected(parser.current(), &expected);
+    }
     root.complete(&mut parser, ROOT);
 
-    parser.finish()
+    parser.finish(lex_errors)
 }
 
 #[cfg(test)]

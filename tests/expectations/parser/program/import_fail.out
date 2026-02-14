@@ -1,5 +1,7 @@
-Error [EPAR0370005]: expected a program id -- found 'hello'
-    --> test:1:8
-     |
-   1 | import hello.leo;
-     |        ^^^^^
+import hello.aleo;
+program test.aleo {
+    function main() {
+        let x: u8 = 1u8;
+    }
+}
+

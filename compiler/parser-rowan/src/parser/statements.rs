@@ -86,9 +86,13 @@ impl Parser<'_, '_> {
             self.error("expected identifier".to_string());
         }
 
-        // Type annotation (required for const)
-        self.expect(COLON);
-        if self.parse_type().is_none() {
+        // Type annotation (required for const).
+        // If ':' is missing but '=' follows, skip the type to avoid cascading.
+        if self.expect(COLON) {
+            if self.parse_type().is_none() {
+                self.error_recover("expected type", TYPE_RECOVERY);
+            }
+        } else if !self.at(EQ) && self.parse_type().is_none() {
             self.error_recover("expected type", TYPE_RECOVERY);
         }
 
@@ -251,9 +255,19 @@ impl Parser<'_, '_> {
 
         // Parse statements until }
         while !self.at(R_BRACE) && !self.at_eof() {
+            let had_error = self.erroring;
+            // Clear error state at each loop iteration so errors from the
+            // previous statement don't suppress errors in the next one.
+            self.erroring = false;
             if self.parse_stmt().is_none() {
                 // Error recovery: skip to next statement boundary
                 self.error_recover("expected statement", STMT_RECOVERY);
+            } else if self.erroring && !had_error {
+                // The statement parsed but encountered errors and left
+                // unconsumed tokens. Skip to the next semicolon or
+                // statement boundary to prevent cascading errors.
+                self.recover(&[SEMICOLON, R_BRACE]);
+                self.eat(SEMICOLON);
             }
         }
 
@@ -362,7 +376,7 @@ mod tests {
         parser.parse_stmt();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }

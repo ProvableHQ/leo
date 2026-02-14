@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected 'import', 'program' -- found 'stub'
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
     --> test:2:1
      |
    2 | stub credits.aleo {

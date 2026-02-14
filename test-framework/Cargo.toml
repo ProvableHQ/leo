@@ -23,4 +23,5 @@ no_parallel = []
 [dependencies]
 # third party dependencies
 rayon   = { workspace = true }
+similar = { workspace = true }
 walkdir = { workspace = true }

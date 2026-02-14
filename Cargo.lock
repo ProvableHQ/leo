@@ -2368,6 +2368,7 @@ name = "leo-test-framework"
 version = "3.4.0"
 dependencies = [
  "rayon",
+ "similar",
  "walkdir",
 ]
 

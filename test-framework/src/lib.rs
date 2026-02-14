@@ -19,6 +19,7 @@
 #[cfg(not(feature = "no_parallel"))]
 use rayon::prelude::*;
 
+use similar::{ChangeTag, TextDiff};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -28,6 +29,24 @@ use walkdir::WalkDir;
 enum TestFailure {
     Panicked(String),
     Mismatch { got: String, expected: String },
+}
+
+/// Print a unified diff between expected and actual content.
+fn print_diff(expected: &str, actual: &str) {
+    let diff = TextDiff::from_lines(expected, actual);
+    let has_changes = diff.iter_all_changes().any(|c| c.tag() != ChangeTag::Equal);
+    if !has_changes {
+        return;
+    }
+    for change in diff.iter_all_changes() {
+        let sign = match change.tag() {
+            ChangeTag::Delete => "-",
+            ChangeTag::Insert => "+",
+            ChangeTag::Equal => " ",
+        };
+        eprint!("{sign}{change}");
+    }
+    eprintln!();
 }
 
 /// Pulls tests from `category`, running them through the `runner` and
@@ -146,7 +165,8 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
             match test_failure {
                 TestFailure::Panicked(s) => eprintln!("Rust panic:\n{s}"),
                 TestFailure::Mismatch { got, expected } => {
-                    eprintln!("\ngot:\n{got}\nexpected:\n{expected}\n")
+                    eprintln!("Diff (expected -> got):");
+                    print_diff(expected, got);
                 }
             }
         }
@@ -219,7 +239,8 @@ pub fn run_single_test(category: &str, path: &Path, runner: fn(&str) -> String) 
 
                 if output != expected {
                     eprintln!("FAILURE: {}:", path.display());
-                    eprintln!("\ngot:\n{output}\nexpected:\n{expected}\n");
+                    eprintln!("Diff (expected -> got):");
+                    print_diff(&expected, &output);
                     panic!("Test failed: {}", path.display());
                 }
             }

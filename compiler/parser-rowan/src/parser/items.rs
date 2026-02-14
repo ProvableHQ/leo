@@ -30,8 +30,44 @@ use crate::syntax_kind::SyntaxKind::{self, *};
 impl Parser<'_, '_> {
     /// Recovery set for struct/record fields.
     const FIELD_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_BRACE, KW_PUBLIC, KW_PRIVATE, KW_CONSTANT];
+    /// Tokens that can start a module-level item (for error recovery).
+    const MODULE_ITEM_RECOVERY: &'static [SyntaxKind] = &[KW_CONST, KW_STRUCT, KW_INLINE, AT, KW_ASYNC];
+    /// Expected items within a `program { ... }` block.
+    const PROGRAM_ITEM_EXPECTED: &'static [SyntaxKind] = &[
+        R_BRACE,
+        AT,
+        KW_RECORD,
+        KW_STRUCT,
+        KW_ASYNC,
+        KW_CONST,
+        KW_FUNCTION,
+        KW_INLINE,
+        KW_MAPPING,
+        KW_STORAGE,
+        KW_SCRIPT,
+        KW_TRANSITION,
+    ];
     /// Recovery set for return type parsing.
     const RETURN_TYPE_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_PAREN, L_BRACE];
+    /// Recovery set for struct/record name errors — skip to the next item or block boundary.
+    const STRUCT_NAME_RECOVERY: &'static [SyntaxKind] = &[
+        L_BRACE,
+        R_BRACE,
+        SEMICOLON,
+        KW_IMPORT,
+        KW_PROGRAM,
+        KW_CONST,
+        KW_STRUCT,
+        KW_RECORD,
+        KW_FUNCTION,
+        KW_TRANSITION,
+        KW_INLINE,
+        KW_MAPPING,
+        KW_STORAGE,
+        KW_SCRIPT,
+        AT,
+        KW_ASYNC,
+    ];
 
     /// Parse a complete file.
     ///
@@ -52,6 +88,9 @@ impl Parser<'_, '_> {
                 break;
             }
 
+            // Clear error state so each top-level item gets fresh error reporting.
+            self.erroring = false;
+
             match self.current() {
                 KW_IMPORT => {
                     self.parse_import();
@@ -67,7 +106,8 @@ impl Parser<'_, '_> {
                     }
                 }
                 _ => {
-                    self.error_and_bump("expected `import`, `program`, or module item at top level");
+                    self.error("expected `import`, `program`, or module item at top level".to_string());
+                    self.recover(&[KW_IMPORT, KW_PROGRAM, KW_CONST, KW_STRUCT, KW_INLINE, AT]);
                 }
             }
         }
@@ -84,23 +124,24 @@ impl Parser<'_, '_> {
                 break;
             }
 
+            // Clear error state so each module item gets fresh error reporting.
+            self.erroring = false;
+
             if self.parse_module_item().is_none() {
-                self.error_and_bump("expected `const`, `struct`, or `inline` in module");
+                self.error("expected `const`, `struct`, or `inline` in module".to_string());
+                self.recover(Self::MODULE_ITEM_RECOVERY);
             }
         }
     }
 
     /// Parse a single module-level item: `const`, `struct`, or `inline fn`.
+    ///
+    /// Annotations are handled inside each item parser.
     fn parse_module_item(&mut self) -> Option<CompletedMarker> {
-        // Handle annotations
-        while self.at(AT) {
-            self.parse_annotation();
-        }
-
         match self.current() {
             KW_CONST => self.parse_global_const(),
             KW_STRUCT => self.parse_struct_def(),
-            KW_INLINE => self.parse_function_or_constructor(),
+            AT | KW_INLINE => self.parse_function_or_constructor(),
             _ => None,
         }
     }
@@ -129,9 +170,11 @@ impl Parser<'_, '_> {
 
         // Parse program items
         while !self.at(R_BRACE) && !self.at_eof() {
+            // Clear error state so each item gets fresh error reporting.
+            self.erroring = false;
             if self.parse_program_item().is_none() {
-                // Error recovery
-                self.error_recover("expected program item", ITEM_RECOVERY);
+                // Error was already reported by parse_program_item; just recover.
+                self.recover(ITEM_RECOVERY);
             }
         }
 
@@ -145,27 +188,30 @@ impl Parser<'_, '_> {
         if self.at(IDENT) {
             self.bump_any(); // name
             self.expect(DOT);
-            self.expect(KW_ALEO);
+            if !self.eat(KW_ALEO) {
+                if self.at(IDENT) {
+                    // Consume the invalid network identifier — the AST converter
+                    // will emit a specific `invalid_network` error (EPAR0370028).
+                    self.bump_any();
+                } else {
+                    self.error("expected 'aleo'".to_string());
+                }
+            }
         } else {
             self.error("expected program name".to_string());
         }
     }
 
     /// Parse a single program item (struct, record, mapping, function, etc.)
+    ///
+    /// Annotations (`@foo`) are parsed as the first step and become children
+    /// of the resulting item node rather than siblings.
     fn parse_program_item(&mut self) -> Option<CompletedMarker> {
-        // Note: Don't skip trivia here - let item parsers include leading whitespace
-
-        // Check for annotations first
-        let has_annotations = self.at(AT);
-        if has_annotations {
-            // Parse annotations
-            while self.at(AT) {
-                self.parse_annotation();
-            }
-        }
-
-        // Parse the item
+        // For annotated items, dispatch to function_or_constructor since
+        // annotations are only valid on functions/transitions in program blocks.
+        // The function parser handles annotations internally.
         match self.current() {
+            AT => self.parse_function_or_constructor(),
             KW_STRUCT => self.parse_struct_def(),
             KW_RECORD => self.parse_record_def(),
             KW_MAPPING => self.parse_mapping_def(),
@@ -173,7 +219,8 @@ impl Parser<'_, '_> {
             KW_CONST => self.parse_global_const(),
             KW_FUNCTION | KW_TRANSITION | KW_INLINE | KW_SCRIPT | KW_ASYNC => self.parse_function_or_constructor(),
             _ => {
-                self.error(format!("expected program item, found {:?}", self.current()));
+                let expected: Vec<&str> = Self::PROGRAM_ITEM_EXPECTED.iter().map(|k| k.user_friendly_name()).collect();
+                self.error_unexpected(self.current(), &expected);
                 None
             }
         }
@@ -184,35 +231,67 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // @
 
-        self.skip_trivia();
-        // Accept identifiers and keywords as annotation names
-        // (e.g. `@program`, `@test`, `@noupgrade`).
-        if self.at(IDENT) || self.current().is_keyword() {
+        // Reject space between `@` and the annotation name (e.g. `@ test`).
+        if self.current_including_trivia().is_trivia() {
+            self.error_unexpected(self.current(), &["an identifier", "'program'"]);
+            self.skip_trivia();
+            // Still consume the name for recovery.
+            if self.at(IDENT) || self.current().is_keyword() {
+                self.bump_any();
+            }
+        } else if self.at(IDENT) || self.current().is_keyword() {
+            // Accept identifiers and keywords as annotation names
+            // (e.g. `@program`, `@test`, `@noupgrade`).
             self.bump_any();
         } else {
             self.error("expected annotation name".to_string());
         }
 
-        // Optional parenthesized arguments.
-        // Consume all tokens between parens, supporting arbitrary content
-        // like `@checksum(mapping = "...", key = "...")`.
+        // Optional parenthesized arguments: `(key = "value", ...)`.
+        // Annotation members must be `identifier = "string"` separated by commas.
         if self.eat(L_PAREN) {
-            let mut depth: u32 = 1;
-            while !self.at_eof() && depth > 0 {
-                if self.at(L_PAREN) {
-                    depth += 1;
-                } else if self.at(R_PAREN) {
-                    depth -= 1;
-                    if depth == 0 {
+            if !self.at(R_PAREN) {
+                self.parse_annotation_member();
+                while self.eat(COMMA) {
+                    if self.at(R_PAREN) {
                         break;
                     }
+                    self.parse_annotation_member();
                 }
-                self.bump_any();
+            }
+            // Reject trailing content before `)` (e.g. `oops` in `@foo(k = "v" oops)`).
+            if !self.at(R_PAREN) && !self.at_eof() {
+                self.error_unexpected(self.current(), &["')'", "','"]);
+                // Recovery: skip to closing paren.
+                while !self.at(R_PAREN) && !self.at_eof() {
+                    self.bump_any();
+                }
             }
             self.expect(R_PAREN);
         }
 
         m.complete(self, ANNOTATION);
+    }
+
+    /// Parse a single annotation member: `key = "value"`.
+    fn parse_annotation_member(&mut self) {
+        // Key must be an identifier, `address`, or `mapping`.
+        if self.at(IDENT) || self.at(KW_ADDRESS) || self.at(KW_MAPPING) {
+            self.bump_any();
+        } else {
+            self.error_unexpected(self.current(), &["an identifier", "')'", "'address", "'mapping'"]);
+            // Recovery: skip to `,` or `)`.
+            while !self.at(COMMA) && !self.at(R_PAREN) && !self.at_eof() {
+                self.bump_any();
+            }
+            return;
+        }
+        self.expect(EQ);
+        if self.at(STRING) {
+            self.bump_any();
+        } else {
+            self.error("expected string literal for annotation value".to_string());
+        }
     }
 
     /// Parse a struct definition: `struct Name { field: Type, ... }`
@@ -226,6 +305,8 @@ impl Parser<'_, '_> {
             self.bump_any();
         } else {
             self.error("expected struct name".to_string());
+            self.recover(Self::STRUCT_NAME_RECOVERY);
+            return Some(m.complete(self, ERROR));
         }
 
         // Optional const generic parameters: ::[N: u32]
@@ -253,6 +334,8 @@ impl Parser<'_, '_> {
             self.bump_any();
         } else {
             self.error("expected record name".to_string());
+            self.recover(Self::STRUCT_NAME_RECOVERY);
+            return Some(m.complete(self, ERROR));
         }
 
         // Optional const generic parameters: ::[N: u32]
@@ -272,7 +355,8 @@ impl Parser<'_, '_> {
     /// Parse struct/record fields.
     fn parse_struct_fields(&mut self) {
         while !self.at(R_BRACE) && !self.at_eof() {
-            // Start marker first so leading whitespace is inside the field node
+            // Skip trivia before starting marker so member span starts at identifier
+            self.skip_trivia();
             let m = self.start();
 
             // Check for visibility modifier
@@ -303,9 +387,16 @@ impl Parser<'_, '_> {
 
             m.complete(self, STRUCT_MEMBER);
 
-            // Optional comma
+            // Comma or end of fields.
             if !self.eat(COMMA) {
-                break;
+                // If we're at `}` or EOF, the field list is done.
+                // Otherwise, there's a missing comma — report it and continue
+                // so we can parse more fields rather than cascading.
+                if !self.at(R_BRACE) && !self.at_eof() {
+                    self.error("expected ','".to_string());
+                    // Clear erroring so the next field can report its own errors.
+                    self.erroring = false;
+                }
             }
         }
     }
@@ -390,9 +481,15 @@ impl Parser<'_, '_> {
     }
 
     /// Parse a function definition.
-    /// Parse function, transition, inline, or async variants
+    /// Parse function, transition, inline, or async variants.
+    /// Annotations are parsed as children of the function node.
     fn parse_function_or_constructor(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
+
+        // Parse leading annotations as children of this function node.
+        while self.at(AT) {
+            self.parse_annotation();
+        }
 
         // Optional async keyword
         self.eat(KW_ASYNC);
@@ -551,7 +648,7 @@ mod tests {
         let root = parser.start();
         parser.parse_file_items();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -562,7 +659,7 @@ mod tests {
         let root = parser.start();
         parser.parse_file_items();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         if !parse.errors().is_empty() {
             for err in parse.errors() {
                 eprintln!("error at {:?}: {}", err.range, err.message);
@@ -634,16 +731,16 @@ mod tests {
                       IDENT@27..32 "Point"
                       WHITESPACE@32..33 " "
                       L_BRACE@33..34 "{"
-                      STRUCT_MEMBER@34..41
-                        WHITESPACE@34..35 " "
+                      WHITESPACE@34..35 " "
+                      STRUCT_MEMBER@35..41
                         IDENT@35..36 "x"
                         COLON@36..37 ":"
                         WHITESPACE@37..38 " "
                         TYPE_PATH@38..41
                           KW_U32@38..41 "u32"
                       COMMA@41..42 ","
-                      STRUCT_MEMBER@42..49
-                        WHITESPACE@42..43 " "
+                      WHITESPACE@42..43 " "
+                      STRUCT_MEMBER@43..49
                         IDENT@43..44 "y"
                         COLON@44..45 ":"
                         WHITESPACE@45..46 " "
@@ -679,16 +776,16 @@ mod tests {
                       IDENT@27..32 "Token"
                       WHITESPACE@32..33 " "
                       L_BRACE@33..34 "{"
-                      STRUCT_MEMBER@34..49
-                        WHITESPACE@34..35 " "
+                      WHITESPACE@34..35 " "
+                      STRUCT_MEMBER@35..49
                         IDENT@35..40 "owner"
                         COLON@40..41 ":"
                         WHITESPACE@41..42 " "
                         TYPE_PATH@42..49
                           KW_ADDRESS@42..49 "address"
                       COMMA@49..50 ","
-                      STRUCT_MEMBER@50..62
-                        WHITESPACE@50..51 " "
+                      WHITESPACE@50..51 " "
+                      STRUCT_MEMBER@51..62
                         IDENT@51..57 "amount"
                         COLON@57..58 ":"
                         WHITESPACE@58..59 " "

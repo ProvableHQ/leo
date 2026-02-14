@@ -3,3 +3,8 @@ Error [EPAR0370005]: expected ':' -- found 'a'
      |
    3 |     function f(mut a: u8) {}}
      |                    ^
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'async', 'const', 'function', 'inline', 'mapping', 'storage', 'script', 'transition' -- found ':'
+    --> test:3:21
+     |
+   3 |     function f(mut a: u8) {}}
+     |                     ^

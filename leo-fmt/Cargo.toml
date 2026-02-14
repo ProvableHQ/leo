@@ -20,5 +20,5 @@ edition = "2024"
 leo-parser-rowan    = { workspace = true }
 
 [dev-dependencies]
-similar             = { version = "2.6" }
+similar             = { workspace = true }
 walkdir             = { workspace = true }
