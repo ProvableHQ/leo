@@ -485,7 +485,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         // The buffer is initially roughly sized to hold a `transfer_public`.
         // Most transactions will be smaller and this reduces unnecessary allocations.
         let buffer = Vec::with_capacity(3000);
-        if tx.write_le(LimitedWriter::new(buffer, N::MAX_TRANSACTION_SIZE)).is_err() {
+        if tx.write_le(LimitedWriter::new(buffer, N::LATEST_MAX_TRANSACTION_SIZE())).is_err() {
             return Err(RestError::bad_request(anyhow!("Transaction size exceeds the byte limit")));
         }
 
@@ -541,21 +541,25 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             let ledger = rest.ledger.clone();
             // Wrap blocking operations in spawn_blocking
             let new_block = tokio::task::spawn_blocking(move || {
-                ledger.prepare_advance_to_next_beacon_block(
-                    &private_key,
-                    vec![],
-                    vec![],
-                    vec![tx],
-                    &mut rand::thread_rng(),
-                )
+                ledger
+                    .prepare_advance_to_next_beacon_block(
+                        &private_key,
+                        vec![],
+                        vec![],
+                        vec![tx],
+                        &mut rand::thread_rng(),
+                    )
+                    .map_err(|e| anyhow!("{e}"))
             })
             .await
             .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
 
             // Advance to the next block.
-            tokio::task::spawn_blocking(move || rest.ledger.advance_to_next_block(&new_block))
-                .await
-                .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
+            tokio::task::spawn_blocking(move || {
+                rest.ledger.advance_to_next_block(&new_block).map_err(|e| anyhow!("{e}"))
+            })
+            .await
+            .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
             return Ok((StatusCode::OK, ErasedJson::new(tx_id)));
         }
 

@@ -132,7 +132,7 @@ serial_test        = "3.1"
 sha2               = "0.10"
 # We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
 # TODO: update `rev` to an actual snarkVM tag when available.
-snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", tag = "testnet-v4.5.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets" ] }
+snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "b0dd5c5", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"

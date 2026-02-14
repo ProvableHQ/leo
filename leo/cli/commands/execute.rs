@@ -350,8 +350,11 @@ fn handle_execute<A: Aleo>(
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
 
         // Generate the authorization.
-        let authorization =
-            vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
+        let authorization = vm
+            .process()
+            .read()
+            .authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)
+            .map_err(|e| anyhow::anyhow!("{e}"))?;
 
         // Get the state root.
         let state_root = query.current_state_root()?;
@@ -365,17 +368,19 @@ fn handle_execute<A: Aleo>(
         // Generate the fee authorization.
         let id = authorization.to_execution_id()?;
         let fee_authorization = match record {
-            None => {
-                vm.authorize_fee_public(&private_key, base_fee.unwrap_or(cost), priority_fee.unwrap_or(0), id, rng)?
-            }
-            Some(record) => vm.authorize_fee_private(
-                &private_key,
-                record,
-                base_fee.unwrap_or(cost),
-                priority_fee.unwrap_or(0),
-                id,
-                rng,
-            )?,
+            None => vm
+                .authorize_fee_public(&private_key, base_fee.unwrap_or(cost), priority_fee.unwrap_or(0), id, rng)
+                .map_err(|e| anyhow::anyhow!("{e}"))?,
+            Some(record) => vm
+                .authorize_fee_private(
+                    &private_key,
+                    record,
+                    base_fee.unwrap_or(cost),
+                    priority_fee.unwrap_or(0),
+                    id,
+                    rng,
+                )
+                .map_err(|e| anyhow::anyhow!("{e}"))?,
         };
 
         // Create a fee transition without a proof.
@@ -385,22 +390,24 @@ fn handle_execute<A: Aleo>(
         let transaction = Transaction::from_execution(execution, Some(fee))?;
 
         // Evaluate the transaction to get the response.
-        let response = vm.process().read().evaluate::<A>(authorization)?;
+        let response = vm.process().read().evaluate::<A>(authorization).map_err(|e| anyhow::anyhow!("{e}"))?;
 
         ("transaction", Box::new(transaction), response)
     } else {
         println!("\n⚙️ Executing {program_name}/{function_name}...");
 
         // Generate the transaction and get the response.
-        let (transaction, response) = vm.execute_with_response(
-            &private_key,
-            (&program_name, &function_name),
-            inputs.iter(),
-            record,
-            priority_fee.unwrap_or(0),
-            Some(&query),
-            rng,
-        )?;
+        let (transaction, response) = vm
+            .execute_with_response(
+                &private_key,
+                (&program_name, &function_name),
+                inputs.iter(),
+                record,
+                priority_fee.unwrap_or(0),
+                Some(&query),
+                rng,
+            )
+            .map_err(|e| anyhow::anyhow!("{e}"))?;
         ("transaction", Box::new(transaction), response)
     };
 

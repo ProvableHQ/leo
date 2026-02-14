@@ -1156,6 +1156,16 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::FutureAwait => Type::Unit,
             Intrinsic::GroupGen => Type::Group,
+            Intrinsic::AleoGenerator => Type::Group,
+            Intrinsic::AleoGeneratorPowers => Type::Array(ArrayType::new(
+                Type::Group,
+                Expression::Literal(Literal::integer(
+                    IntegerType::U32,
+                    "251".to_string(),
+                    Default::default(),
+                    Default::default(),
+                )),
+            )),
             Intrinsic::ProgramChecksum => {
                 // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];

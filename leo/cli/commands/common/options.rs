@@ -238,6 +238,7 @@ pub fn get_consensus_version(
         Some(11) => Ok(ConsensusVersion::V11),
         Some(12) => Ok(ConsensusVersion::V12),
         Some(13) => Ok(ConsensusVersion::V13),
+        Some(14) => Ok(ConsensusVersion::V14),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -320,6 +321,7 @@ pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
         11 => ConsensusVersion::V11,
         12 => ConsensusVersion::V12,
         13 => ConsensusVersion::V13,
+        14 => ConsensusVersion::V14,
         _ => panic!("Invalid consensus version: {index}"),
     }
 }

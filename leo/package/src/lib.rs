@@ -103,7 +103,8 @@ pub const ABI_FILENAME: &str = "abi.json";
 pub const TESTS_DIRECTORY: &str = "tests";
 
 /// Maximum allowed program size in bytes.
-pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
+pub const MAX_PROGRAM_SIZE: usize =
+    <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE.last().unwrap().1;
 
 /// The edition of a deployed program on the Aleo network.
 /// Edition 0 is the initial deployment, and increments with each upgrade.

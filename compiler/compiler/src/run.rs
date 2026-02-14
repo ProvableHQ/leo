@@ -473,13 +473,9 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                 let result = execute_output.unwrap().and_then(|(transaction, response)| {
                     verified = ledger.vm().check_transaction(&transaction, None, &mut rng).is_ok();
                     execution = Some(transaction.clone());
-                    let block = ledger.prepare_advance_to_next_beacon_block(
-                        &private_key,
-                        vec![],
-                        vec![],
-                        vec![transaction],
-                        &mut rng,
-                    )?;
+                    let block = ledger
+                        .prepare_advance_to_next_beacon_block(&private_key, vec![], vec![], vec![transaction], &mut rng)
+                        .map_err(|e| anyhow::anyhow!("{e}"))?;
                     status =
                         match (block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == 1) {
                             (false, _) => ExecutionStatus::Aborted,

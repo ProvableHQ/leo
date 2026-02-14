@@ -56,6 +56,11 @@ pub enum Intrinsic {
     GroupToYCoordinate,
     GroupGen,
 
+    // Aleo group generator constant.
+    AleoGenerator,
+    // Aleo precomputed generator powers array ([group; 251]).
+    AleoGeneratorPowers,
+
     // Schnorr signature verification.
     SignatureVerify,
 
@@ -110,6 +115,8 @@ impl Intrinsic {
             sym::_deserialize_from_bits => Self::Deserialize(DeserializeVariant::FromBits, type_parameters[0].0.clone()),
             sym::_deserialize_from_bits_raw => Self::Deserialize(DeserializeVariant::FromBitsRaw, type_parameters[0].0.clone()),
             sym::_group_gen => Self::GroupGen,
+            sym::_aleo_generator => Self::AleoGenerator,
+            sym::_aleo_generator_powers => Self::AleoGeneratorPowers,
             sym::_chacha_rand_address => Self::ChaChaRand(LiteralType::Address),
             sym::_chacha_rand_bool    => Self::ChaChaRand(LiteralType::Boolean),
             sym::_chacha_rand_field   => Self::ChaChaRand(LiteralType::Field),
@@ -1199,6 +1206,10 @@ impl Intrinsic {
             (sym::CheatCode, sym::set_block_height) => sym::_cheat_code_set_block_height,
             (sym::CheatCode, sym::set_block_timestamp) => sym::_cheat_code_set_block_timestamp,
             (sym::CheatCode, sym::set_signer) => sym::_cheat_code_set_signer,
+
+            (sym::Aleo, sym::generator) => sym::_aleo_generator,
+            (sym::Aleo, sym::generator_powers) => sym::_aleo_generator_powers,
+
             _ => return None,
         })
     }
@@ -1208,6 +1219,8 @@ impl Intrinsic {
         match self {
             Self::ChaChaRand(_) => 0,
             Self::GroupGen => 0,
+            Self::AleoGenerator => 0,
+            Self::AleoGeneratorPowers => 0,
             Self::SelfAddress => 0,
             Self::SelfCaller => 0,
             Self::SelfChecksum => 0,
@@ -1291,6 +1304,8 @@ impl Intrinsic {
             | Intrinsic::GroupToXCoordinate
             | Intrinsic::GroupToYCoordinate
             | Intrinsic::GroupGen
+            | Intrinsic::AleoGenerator
+            | Intrinsic::AleoGeneratorPowers
             | Intrinsic::SelfAddress
             | Intrinsic::SelfCaller
             | Intrinsic::SelfChecksum
@@ -1353,6 +1368,8 @@ impl Intrinsic {
             | Intrinsic::GroupToXCoordinate
             | Intrinsic::GroupToYCoordinate
             | Intrinsic::GroupGen
+            | Intrinsic::AleoGenerator
+            | Intrinsic::AleoGeneratorPowers
             | Intrinsic::SelfAddress
             | Intrinsic::SelfCaller
             | Intrinsic::SelfChecksum

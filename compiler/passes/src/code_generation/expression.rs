@@ -649,6 +649,8 @@ impl CodeGeneratingVisitor<'_> {
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
                 Intrinsic::GroupGen => (Some(AleoExpr::RawName("group::GEN".into())), vec![]),
+                Intrinsic::AleoGenerator => (Some(AleoExpr::RawName("aleo::GENERATOR".into())), vec![]),
+                Intrinsic::AleoGeneratorPowers => (Some(AleoExpr::RawName("aleo::GENERATOR_POWERS".into())), vec![]),
                 Intrinsic::ChaChaRand(type_) => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::RandChacha(dest_reg.clone(), type_.into());
