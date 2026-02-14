@@ -649,6 +649,8 @@ impl CodeGeneratingVisitor<'_> {
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
                 Intrinsic::GroupGen => (Some(AleoExpr::RawName("group::GEN".into())), vec![]),
+                Intrinsic::AleoGenerator => (Some(AleoExpr::RawName("aleo::GENERATOR".into())), vec![]),
+                Intrinsic::AleoGeneratorPowers => (Some(AleoExpr::RawName("aleo::GENERATOR_POWERS".into())), vec![]),
                 Intrinsic::ChaChaRand(type_) => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::RandChacha(dest_reg.clone(), type_.into());
@@ -667,6 +669,30 @@ impl CodeGeneratingVisitor<'_> {
                         args[0].clone(),
                         args[1].clone(),
                         args[2].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Intrinsic::SnarkVerify => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::SnarkVerify(
+                        SnarkVerifyVariant::Varuna,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        args[3].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Intrinsic::SnarkVerifyBatch => {
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::SnarkVerify(
+                        SnarkVerifyVariant::VarunaBatch,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        args[3].clone(),
                         dest_reg.clone(),
                     );
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
@@ -699,24 +725,24 @@ impl CodeGeneratingVisitor<'_> {
                     // Get the instruction variant.
                     let is_raw = matches!(variant, SerializeVariant::ToBitsRaw);
                     // Get the size in bits of the input type.
-                    fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
-                        bail!("structs are not supported")
+                    fn composite_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
+                        bail!("composites are not supported")
                     }
                     let size_in_bits = match self.state.network {
                         NetworkName::TestnetV0 => input_type.size_in_bits::<TestnetV0, _, _>(
                             is_raw,
-                            &struct_not_supported,
-                            &struct_not_supported,
+                            &composite_not_supported,
+                            &composite_not_supported,
                         ),
                         NetworkName::MainnetV0 => input_type.size_in_bits::<MainnetV0, _, _>(
                             is_raw,
-                            &struct_not_supported,
-                            &struct_not_supported,
+                            &composite_not_supported,
+                            &composite_not_supported,
                         ),
                         NetworkName::CanaryV0 => input_type.size_in_bits::<CanaryV0, _, _>(
                             is_raw,
-                            &struct_not_supported,
-                            &struct_not_supported,
+                            &composite_not_supported,
+                            &composite_not_supported,
                         ),
                     }
                     .expect("TYC guarantees that all types have a valid size in bits");

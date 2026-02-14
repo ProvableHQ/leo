@@ -18,5 +18,5 @@ status: success
 output: true
 status: success
 output: true
-status: failed: Failed to evaluate instruction (assert.eq r2 true;): 'assert.eq' failed: 'false' is not equal to 'true' (should be equal)
+status: failed: Stack evaluation failed: Instruction (assert.eq r2 true;) at index 2 failed: 'assert.eq' failed: 'false' is not equal to 'true' (should be equal)
 output: ()

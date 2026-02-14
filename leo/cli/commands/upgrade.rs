@@ -362,21 +362,29 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                     deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
                 // Authorize the fee.
                 let fee_authorization = match record {
-                    Some(record) => vm.process().read().authorize_fee_private::<A, _>(
-                        &private_key,
-                        record,
-                        minimum_deployment_cost,
-                        priority_fee.unwrap_or(0),
-                        deployment_id,
-                        rng,
-                    )?,
-                    None => vm.process().read().authorize_fee_public::<A, _>(
-                        &private_key,
-                        minimum_deployment_cost,
-                        priority_fee.unwrap_or(0),
-                        deployment_id,
-                        rng,
-                    )?,
+                    Some(record) => vm
+                        .process()
+                        .read()
+                        .authorize_fee_private::<A, _>(
+                            &private_key,
+                            record,
+                            minimum_deployment_cost,
+                            priority_fee.unwrap_or(0),
+                            deployment_id,
+                            rng,
+                        )
+                        .map_err(|e| anyhow::anyhow!("{e}"))?,
+                    None => vm
+                        .process()
+                        .read()
+                        .authorize_fee_public::<A, _>(
+                            &private_key,
+                            minimum_deployment_cost,
+                            priority_fee.unwrap_or(0),
+                            deployment_id,
+                            rng,
+                        )
+                        .map_err(|e| anyhow::anyhow!("{e}"))?,
                 };
 
                 // Get the state root.
