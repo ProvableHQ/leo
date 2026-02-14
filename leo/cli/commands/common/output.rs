@@ -59,7 +59,7 @@ impl CostBreakdown {
         }
     }
 
-    fn microcredits_to_credits(microcredits: u64) -> f64 {
+    pub(crate) fn microcredits_to_credits(microcredits: u64) -> f64 {
         microcredits as f64 / 1_000_000.0
     }
 }

@@ -21,6 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
+use rand::CryptoRng;
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
 use snarkvm::{
@@ -37,12 +38,18 @@ use snarkvm::{
         Program,
         ProgramID,
         ProgramOwner,
+        Rng,
         TestnetV0,
         VM,
         VerifyingKey,
+        cost_in_microcredits_v1,
+        cost_in_microcredits_v2,
+        cost_in_microcredits_v3,
         deployment_cost,
+        execution_cost_for_authorization,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
+    synthesizer::program::StackTrait,
 };
 
 use colored::*;
@@ -394,6 +401,8 @@ Once it is deployed, it CANNOT be changed.
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
                 // Get the deployment.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+                // Add the program to the VM before calculating function costs.
+                vm.process().write().add_program(&program)?;
                 // Compute and print the deployment stats.
                 let stats = print_deployment_stats(
                     &vm,
@@ -403,7 +412,9 @@ Once it is deployed, it CANNOT be changed.
                     consensus_version,
                     bytecode_size,
                 )?;
-                // Save the transaction.
+                // Print per-function cost breakdown.
+                print_function_costs(&vm, deployment, consensus_version, rng)?;
+                // Save the transaction and stats.
                 transactions.push((id, transaction));
                 all_stats.push(stats);
             }
@@ -417,7 +428,7 @@ Once it is deployed, it CANNOT be changed.
             }
         }
 
-        // Add the program to the VM.
+        // Add the program to the VM (idempotent; ensures skipped programs are available for later imports).
         vm.process().write().add_program(&program)?;
     }
 
@@ -753,4 +764,110 @@ pub(crate) fn print_deployment_stats<N: Network>(
     println!("{}", "──────────────────────────────────────────────".dimmed());
 
     Ok(stats)
+}
+
+/// Per-function cost information for a deployed program.
+struct FunctionCost {
+    name: String,
+    num_variables: u64,
+    num_constraints: u64,
+    finalize_cost: u64,
+    execution_cost: Option<u64>,
+}
+
+/// Calculate per-function costs for a deployment.
+fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
+    vm: &VM<N, ConsensusMemory<N>>,
+    deployment: &Deployment<N>,
+    consensus_version: ConsensusVersion,
+    rng: &mut R,
+) -> Result<Vec<FunctionCost>> {
+    // Get the stack for the program.
+    let stack = vm.process().read().get_stack(deployment.program().id())?;
+
+    let mut function_costs = Vec::new();
+
+    for (function_name, (vk, _)) in deployment.verifying_keys() {
+        let name = function_name.to_string();
+        let num_variables = vk.num_variables();
+        let num_constraints = vk.circuit_info.num_constraints as u64;
+
+        // Compute the finalize cost based on the consensus version.
+        let finalize_cost = if consensus_version >= ConsensusVersion::V10 {
+            cost_in_microcredits_v3(&stack, function_name)?
+        } else if consensus_version >= ConsensusVersion::V2 {
+            cost_in_microcredits_v2(&stack, function_name)?
+        } else {
+            cost_in_microcredits_v1(&stack, function_name)?
+        };
+
+        // Sample inputs and attempt authorization to estimate execution cost (best-effort).
+        let private_key = PrivateKey::new(rng)?;
+        let address = Address::try_from(&private_key)?;
+        let input_types = deployment.program().get_function(function_name)?.input_types();
+        let inputs = input_types
+            .into_iter()
+            .map(|ty| {
+                stack
+                    .sample_value(&address, &ty.into(), rng)
+                    .map_err(|e| CliError::custom(format!("Failed to sample value: {e}")).into())
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let execution_cost =
+            match vm.authorize(&private_key, deployment.program().id(), function_name, inputs.iter(), rng) {
+                Err(_) => None,
+                Ok(authorization) => {
+                    Some(execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?.0)
+                }
+            };
+
+        function_costs.push(FunctionCost { name, num_variables, num_constraints, finalize_cost, execution_cost });
+    }
+
+    Ok(function_costs)
+}
+
+/// Print per-function cost breakdown for a deployment.
+pub(crate) fn print_function_costs<N: Network, R: Rng + CryptoRng>(
+    vm: &VM<N, ConsensusMemory<N>>,
+    deployment: &Deployment<N>,
+    consensus_version: ConsensusVersion,
+    rng: &mut R,
+) -> Result<()> {
+    use colored::*;
+    use num_format::{Locale, ToFormattedString};
+
+    let function_costs = calculate_function_costs(vm, deployment, consensus_version, rng)?;
+
+    for fc in &function_costs {
+        println!("\n{}", format!("  Function '{}'", fc.name).bold());
+        println!("    {:24}{}", "Variables:".cyan(), fc.num_variables.to_formatted_string(&Locale::en).yellow());
+        println!("    {:24}{}", "Constraints:".cyan(), fc.num_constraints.to_formatted_string(&Locale::en).yellow());
+        if let Some(execution_cost) = fc.execution_cost {
+            println!(
+                "    {:24}{:.6}",
+                "Total Execution Cost:".cyan(),
+                CostBreakdown::microcredits_to_credits(execution_cost)
+            );
+            println!(
+                "    {:24}{:.6}",
+                "|- Finalize Cost:".cyan(),
+                CostBreakdown::microcredits_to_credits(fc.finalize_cost)
+            );
+            println!(
+                "    {:24}{:.6}",
+                "|- Storage Cost:".cyan(),
+                CostBreakdown::microcredits_to_credits(execution_cost.saturating_sub(fc.finalize_cost))
+            );
+        } else {
+            println!("    {:24}{}", "Total Execution Cost:".cyan(), "Undetermined".dimmed());
+            println!(
+                "    {:24}{:.6}",
+                "|- Finalize Cost:".cyan(),
+                CostBreakdown::microcredits_to_credits(fc.finalize_cost)
+            );
+        }
+    }
+
+    Ok(())
 }

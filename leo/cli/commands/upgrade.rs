@@ -398,6 +398,8 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                     .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
                 // Get the deployment.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+                // Add the program to the VM before calculating function costs.
+                vm.process().write().add_program(&program)?;
                 // Compute and print the deployment stats.
                 let stats = print_deployment_stats(
                     &vm,
@@ -407,6 +409,8 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                     consensus_version,
                     bytecode_size,
                 )?;
+                // Print per-function cost breakdown.
+                print_function_costs(&vm, deployment, consensus_version, rng)?;
                 // Validate the deployment limits.
                 validate_deployment_limits(deployment, &id, &network)?;
                 // Save the transaction and stats.
@@ -414,7 +418,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 all_stats.push(stats);
             }
         }
-        // Add the program to the VM.
+        // Add the program to the VM (idempotent; ensures skipped programs are available for later imports).
         if let Err(e) = vm.process().write().add_program(&program) {
             warn_and_confirm(&format!("Failed to add program {id} to the VM. Error: {e}"), command.extra.yes)?;
         }
