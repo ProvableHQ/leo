@@ -27,7 +27,7 @@ use leo_ast::{
 };
 
 use snarkvm::{
-    prelude::{Identifier, LiteralType, PlaintextType, Register, TestnetV0},
+    prelude::{Identifier, LiteralType, Network, PlaintextType, Register, TestnetV0},
     synthesizer::{
         Command,
         Instruction,
@@ -153,7 +153,15 @@ impl Cursor {
             Operand::Checksum(_) => todo!(),
             Operand::Edition(_) => todo!(),
             Operand::ProgramOwner(_) => todo!(),
-            Operand::AleoGenerator | Operand::AleoGeneratorPowers(_) => todo!(),
+            Operand::AleoGenerator => Value::generator(),
+            // Resolve aleo::GENERATOR_POWERS: full array or single indexed element.
+            Operand::AleoGeneratorPowers(index) => {
+                let powers = <TestnetV0 as Network>::g_powers();
+                match index {
+                    Some(idx) => powers[**idx as usize].into(),
+                    None => Value::make_array(powers.iter().copied().map(Value::from)),
+                }
+            }
         }
     }
 

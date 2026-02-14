@@ -303,6 +303,13 @@ pub fn evaluate_intrinsic(
             helper.mapping_get(program, name, &key).is_some().into()
         }
         Intrinsic::GroupGen => Value::generator(),
+        Intrinsic::AleoGenerator => Value::generator(),
+        Intrinsic::AleoGeneratorPowers => {
+            // Not evaluated at compile time. Constant folding would inline all 251 group literals,
+            // bloating program size. Code generation emits the `aleo::GENERATOR_POWERS` operand
+            // instead, letting the VM resolve the values from its built-in table.
+            return Ok(None);
+        }
         Intrinsic::OptionalUnwrap => {
             // TODO
             return Ok(None);

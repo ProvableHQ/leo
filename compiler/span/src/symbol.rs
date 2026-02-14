@@ -145,6 +145,8 @@ symbols! {
     GEN,
 
     // intrinsics
+    _aleo_generator,
+    _aleo_generator_powers,
     _group_gen,
     _chacha_rand_address,
     _chacha_rand_bool,
@@ -675,6 +677,7 @@ symbols! {
 
 
     // core functions
+    Aleo,
     BHP256,
     BHP512,
     BHP768,
@@ -685,6 +688,8 @@ symbols! {
     commit_to_group,
     contains,
     ECDSA,
+    generator,
+    generator_powers,
     get,
     get_or_use,
     hash_to_address,

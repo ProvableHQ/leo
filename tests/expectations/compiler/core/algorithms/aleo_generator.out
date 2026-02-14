@@ -1,0 +1,17 @@
+program test.aleo;
+
+function test_generator:
+    output 1540945439182663264862696551825005342995406165131907382295858612069623286213group as group.private;
+
+function test_generator_powers:
+    output aleo::GENERATOR_POWERS as [group; 251u32].private;
+
+function test_generator_powers_indexed:
+    output aleo::GENERATOR_POWERS[0u32] as group.private;
+
+function test_in_finalize:
+    async test_in_finalize into r0;
+    output r0 as test.aleo/test_in_finalize.future;
+
+finalize test_in_finalize:
+    assert.eq 1540945439182663264862696551825005342995406165131907382295858612069623286213group aleo::GENERATOR_POWERS[0u32];

@@ -1031,6 +1031,11 @@ impl Cursor {
                         None
                     }
                     Intrinsic::GroupGen => Some(Value::generator()),
+                    Intrinsic::AleoGenerator => Some(Value::generator()),
+                    Intrinsic::AleoGeneratorPowers => {
+                        let powers = <TestnetV0 as Network>::g_powers();
+                        Some(Value::make_array(powers.iter().copied().map(Value::from)))
+                    }
                     Intrinsic::SelfSigner => Some(self.signer.clone()),
                     Intrinsic::SelfCaller => {
                         if let Some(function_context) = self.contexts.last() {
