@@ -21,7 +21,7 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Execution, Itertools, Network, Program, execution_cost};
+use snarkvm::prelude::{Execution, Itertools, Network, Program, execution_cost, execution_cost_for_authorization};
 
 use clap::Parser;
 use colored::*;
@@ -269,7 +269,7 @@ fn handle_execute<A: Aleo>(
         command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
 
     // Get the first fee option.
-    let (_, priority_fee, record) =
+    let (base_fee, priority_fee, record) =
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
@@ -342,17 +342,46 @@ fn handle_execute<A: Aleo>(
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
-    // Execute the program and produce a transaction.
+    // Authorize the execution (cheap compared to proof generation).
     println!("\n⚙️ Executing {program_name}/{function_name}...");
-    let (transaction, response) = vm.execute_with_response(
-        &private_key,
-        (&program_name, &function_name),
-        inputs.iter(),
-        record,
-        priority_fee.unwrap_or(0),
-        Some(&query),
-        rng,
-    )?;
+    let authorization = vm.authorize(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
+
+    // Estimate and display execution cost before proof generation.
+    let (estimated_cost, _) =
+        execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?;
+    print_estimated_execution_cost(estimated_cost, priority_fee);
+
+    // Determine if a fee is required.
+    let is_fee_required = !(authorization.is_split() || authorization.is_upgrade());
+    let is_priority_fee_declared = priority_fee.unwrap_or(0) > 0;
+
+    // Build fee authorization using the estimated cost.
+    let fee_authorization = if is_fee_required || is_priority_fee_declared {
+        let execution_id = authorization.to_execution_id()?;
+        Some(match record {
+            None => vm.authorize_fee_public(
+                &private_key,
+                base_fee.unwrap_or(estimated_cost),
+                priority_fee.unwrap_or(0),
+                execution_id,
+                rng,
+            )?,
+            Some(record) => vm.authorize_fee_private(
+                &private_key,
+                record,
+                base_fee.unwrap_or(estimated_cost),
+                priority_fee.unwrap_or(0),
+                execution_id,
+                rng,
+            )?,
+        })
+    } else {
+        None
+    };
+
+    // Execute with the existing authorization (no re-authorization).
+    let (transaction, response) =
+        vm.execute_authorization_with_response(authorization, fee_authorization, Some(&query), rng)?;
 
     // Compute and print the execution stats.
     let stats = print_execution_stats::<A::Network>(
@@ -587,6 +616,28 @@ fn compute_execution_stats<N: Network>(
     let (_, (storage_cost, exec_cost)) = execution_cost(&vm.process().read(), execution, consensus_version)?;
 
     Ok(ExecutionStats { cost: CostBreakdown::for_execution(storage_cost, exec_cost, priority_fee.unwrap_or(0)) })
+}
+
+/// Print estimated execution cost before proof generation.
+fn print_estimated_execution_cost(estimated_cost: u64, priority_fee: Option<u64>) {
+    use colored::*;
+    let priority = priority_fee.unwrap_or(0);
+    println!("\n{}", "💰 Estimated Execution Cost".bold());
+    println!("{}", "──────────────────────────────────────────────".dimmed());
+    println!(
+        "  {:24}{:.6} credits",
+        "Estimated Base Cost:".cyan(),
+        CostBreakdown::microcredits_to_credits(estimated_cost),
+    );
+    if priority > 0 {
+        println!("  {:24}{:.6} credits", "Priority Fee:".cyan(), CostBreakdown::microcredits_to_credits(priority),);
+    }
+    println!(
+        "  {:24}{:.6} credits",
+        "Estimated Total:".cyan(),
+        CostBreakdown::microcredits_to_credits(estimated_cost + priority),
+    );
+    println!("{}", "──────────────────────────────────────────────".dimmed());
 }
 
 /// Pretty-print execution statistics.

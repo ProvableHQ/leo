@@ -327,13 +327,17 @@ fn handle_upgrade<N: Network>(
                 consensus_version,
                 bytecode_size,
             )?;
+            // Add the program to the VM before calculating function costs.
+            vm.process().write().add_program(&program)?;
+            // Print per-function cost breakdown.
+            print_function_costs(&vm, deployment, consensus_version, rng)?;
             // Validate the deployment limits.
             validate_deployment_limits(deployment, &id, &network)?;
             // Save the transaction and stats.
             transactions.push((id, transaction));
             all_stats.push(stats);
         }
-        // Add the program to the VM.
+        // Add the program to the VM (idempotent; ensures skipped programs are available for later imports).
         vm.process().write().add_program(&program)?;
     }
 
