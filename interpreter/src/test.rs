@@ -182,10 +182,11 @@ fn test_interpreter() {
 
 #[test]
 fn cast_lossy_advances_instruction_index() {
-    let tempdir = tempfile::tempdir().expect("tempdir");
+    create_session_if_not_set_then(|_| {
+        let tempdir = tempfile::tempdir().expect("tempdir");
 
-    // Minimal Aleo program with a single cast.lossy instruction in a function.
-    let aleo_source = r"program test_castlossy.aleo;
+        // Minimal Aleo program with a single cast.lossy instruction in a function.
+        let aleo_source = r"program test_castlossy.aleo;
 
 function cast_lossy_test:
     input r0 as field.private;
@@ -193,51 +194,52 @@ function cast_lossy_test:
     output r1 as u8.private;
 ";
 
-    let filename = tempdir.path().join("test_castlossy.aleo");
-    fs::write(&filename, aleo_source).expect("write failed");
+        let filename = tempdir.path().join("test_castlossy.aleo");
+        fs::write(&filename, aleo_source).expect("write failed");
 
-    let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
+        let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
 
-    let leo_files: [(PathBuf, Vec<PathBuf>); 0] = [];
-    let aleo_files = [filename.clone()];
+        let leo_files: [(PathBuf, Vec<PathBuf>); 0] = [];
+        let aleo_files = [filename.clone()];
 
-    let mut interpreter = Interpreter::new(
-        &leo_files,
-        &aleo_files,
-        private_key.to_string(),
-        0,
-        chrono::Utc::now().timestamp(),
-        NetworkName::TestnetV0,
-    )
-    .expect("creating interpreter");
+        let mut interpreter = Interpreter::new(
+            &leo_files,
+            &aleo_files,
+            private_key.to_string(),
+            0,
+            chrono::Utc::now().timestamp(),
+            NetworkName::TestnetV0,
+        )
+        .expect("creating interpreter");
 
-    let program = Symbol::intern("test_castlossy");
-    let function = Symbol::intern("cast_lossy_test");
+        let program = Symbol::intern("test_castlossy");
+        let function = Symbol::intern("cast_lossy_test");
 
-    // Single field argument value.
-    let arg = Value::from_str("1field").expect("parse field literal");
+        // Single field argument value.
+        let arg = Value::from_str("1field").expect("parse field literal");
 
-    interpreter
-        .cursor
-        .do_call(program, &[function], std::iter::once(arg), false, Span::default())
-        .expect("do_call failed");
+        interpreter
+            .cursor
+            .do_call(program, &[function], std::iter::once(arg), false, Span::default())
+            .expect("do_call failed");
 
-    // Ensure we have an AleoExecution frame on top of the stack.
-    assert!(matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. })));
+        // Ensure we have an AleoExecution frame on top of the stack.
+        assert!(matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. })));
 
-    // Step through Aleo execution a few times at most; with a single cast.lossy
-    // instruction, the frame must be popped quickly if the instruction index advances.
-    let mut steps = 0usize;
-    while matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. }))
-        && steps < 10
-    {
-        interpreter.cursor.step_aleo().expect("step_aleo failed");
-        steps += 1;
-    }
+        // Step through Aleo execution a few times at most; with a single cast.lossy
+        // instruction, the frame must be popped quickly if the instruction index advances.
+        let mut steps = 0usize;
+        while matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. }))
+            && steps < 10
+        {
+            interpreter.cursor.step_aleo().expect("step_aleo failed");
+            steps += 1;
+        }
 
-    assert!(steps <= 2, "CastLossy should complete in at most a couple of steps, got {steps}");
-    assert!(
-        !matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. })),
-        "AleoExecution frame should be popped after executing CastLossy-only function",
-    );
+        assert!(steps <= 2, "CastLossy should complete in at most a couple of steps, got {steps}");
+        assert!(
+            !matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. })),
+            "AleoExecution frame should be popped after executing CastLossy-only function",
+        );
+    })
 }
