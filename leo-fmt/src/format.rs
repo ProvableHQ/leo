@@ -16,6 +16,7 @@
 
 //! Formatting logic for Leo source code.
 
+use crate::LINE_WIDTH;
 use crate::output::Output;
 use leo_parser_rowan::{
     SyntaxElement,
@@ -620,17 +621,37 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
 fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
     let params: Vec<_> = node.children().filter(|c| c.kind() == PARAM).collect();
 
-    out.write("(");
-    for (i, param) in params.iter().enumerate() {
-        format_parameter(param, out);
-        if i < params.len() - 1 {
-            out.write(",");
-            // Emit any trailing comments after this comma
-            emit_inline_comments_after_param(node, param, out);
-            out.space();
+    let param_strings: Vec<String> = params.iter().map(|p| format_node_to_string(p)).collect();
+    let col = out.current_column();
+
+    if fits_on_one_line(col, "(", ")", &param_strings) {
+        // Single-line: (param1, param2)
+        out.write("(");
+        for (i, param) in params.iter().enumerate() {
+            format_parameter(param, out);
+            if i < params.len() - 1 {
+                out.write(",");
+                emit_inline_comments_after_param(node, param, out);
+                out.space();
+            }
         }
+        out.write(")");
+    } else {
+        // Multi-line: wrap each param on its own line
+        out.write("(");
+        out.newline();
+        out.indented(|out| {
+            for (i, param) in params.iter().enumerate() {
+                format_parameter(param, out);
+                out.write(",");
+                if i < params.len() - 1 {
+                    emit_inline_comments_after_param(node, param, out);
+                }
+                out.newline();
+            }
+        });
+        out.write(")");
     }
-    out.write(")");
 }
 
 fn format_parameter(node: &SyntaxNode, out: &mut Output) {
@@ -659,9 +680,44 @@ fn format_parameter(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_return_type(node: &SyntaxNode, out: &mut Output) {
-    // RETURN_TYPE wraps tuple return types: (vis Type, vis Type, ...)
-    // Iterate children_with_tokens and emit them preserving structure.
-    // We use the COMMA tokens from the tree to know where to place commas.
+    // First try single-line
+    let single_line = format_return_type_to_string(node);
+    let col = out.current_column();
+
+    if col + single_line.len() <= LINE_WIDTH {
+        out.write(&single_line);
+    } else {
+        // Multi-line: wrap tuple return type entries
+        // Only tuple return types (with L_PAREN) get wrapped
+        if has_token(node, L_PAREN) {
+            // Collect return type entries: each is a sequence of visibility + type tokens/nodes
+            // between commas. We format them individually.
+            let entries = collect_return_type_entries(node);
+
+            out.write("(");
+            out.newline();
+            out.indented(|out| {
+                for entry in &entries {
+                    out.write(entry);
+                    out.write(",");
+                    out.newline();
+                }
+            });
+            out.write(")");
+        } else {
+            // Non-tuple — just emit inline
+            out.write(&single_line);
+        }
+    }
+}
+
+fn format_return_type_to_string(node: &SyntaxNode) -> String {
+    let mut out = Output::new();
+    format_return_type_inline(node, &mut out);
+    out.into_raw()
+}
+
+fn format_return_type_inline(node: &SyntaxNode, out: &mut Output) {
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -685,6 +741,58 @@ fn format_return_type(node: &SyntaxNode, out: &mut Output) {
             _ => {}
         }
     }
+}
+
+/// Collect the entries of a tuple return type as formatted strings.
+/// Each entry is e.g. "public u64" or "field".
+fn collect_return_type_entries(node: &SyntaxNode) -> Vec<String> {
+    let mut entries = Vec::new();
+    let mut current = String::new();
+    let mut in_tuple = false;
+
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    L_PAREN => {
+                        in_tuple = true;
+                    }
+                    R_PAREN => {
+                        let trimmed = current.trim().to_string();
+                        if !trimmed.is_empty() {
+                            entries.push(trimmed);
+                        }
+                        current.clear();
+                    }
+                    COMMA if in_tuple => {
+                        let trimmed = current.trim().to_string();
+                        if !trimmed.is_empty() {
+                            entries.push(trimmed);
+                        }
+                        current.clear();
+                    }
+                    KW_PUBLIC | KW_PRIVATE | KW_CONSTANT if in_tuple => {
+                        current.push_str(tok.text());
+                        current.push(' ');
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ if in_tuple => {
+                        current.push_str(tok.text());
+                    }
+                    _ => {}
+                }
+            }
+            SyntaxElement::Node(n) if is_type_node(n.kind()) && in_tuple => {
+                let mut tmp = Output::new();
+                format_type(&n, &mut tmp);
+                current.push_str(&tmp.into_raw());
+            }
+            _ => {}
+        }
+    }
+
+    entries
 }
 
 fn format_const_parameter(node: &SyntaxNode, out: &mut Output) {
@@ -1150,19 +1258,39 @@ fn format_assert(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
-    out.write(keyword);
-    out.write("(");
-
     let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
-    for (i, expr) in exprs.iter().enumerate() {
-        format_node(expr, out);
-        if i < exprs.len() - 1 {
-            out.write(",");
-            out.space();
-        }
-    }
+    let expr_strings: Vec<String> = exprs.iter().map(|e| format_node_to_string(e)).collect();
+    let col = out.current_column();
+    let prefix = format!("{keyword}(");
 
-    out.write(")");
+    if fits_on_one_line(col, &prefix, ");", &expr_strings) {
+        // Single-line: assert_eq(a, b);
+        out.write(keyword);
+        out.write("(");
+        for (i, expr) in exprs.iter().enumerate() {
+            format_node(expr, out);
+            if i < exprs.len() - 1 {
+                out.write(",");
+                out.space();
+            }
+        }
+        out.write(")");
+    } else {
+        // Multi-line (no trailing comma — fixed arity)
+        out.write(keyword);
+        out.write("(");
+        out.newline();
+        out.indented(|out| {
+            for (i, expr) in exprs.iter().enumerate() {
+                format_node(expr, out);
+                if i < exprs.len() - 1 {
+                    out.write(",");
+                }
+                out.newline();
+            }
+        });
+        out.write(")");
+    }
     write_semicolon_with_comments(node, out);
 }
 
@@ -1195,6 +1323,62 @@ fn format_literal(node: &SyntaxNode, out: &mut Output) {
 
 fn format_call(node: &SyntaxNode, out: &mut Output) {
     // CALL_EXPR: callee_node, L_PAREN, [args separated by COMMA], R_PAREN
+    let col = out.current_column();
+    let single_line = format_call_inline(node);
+
+    if col + single_line.len() <= LINE_WIDTH {
+        // Fits on one line — write the pre-formatted string directly
+        out.write(&single_line);
+    } else {
+        // Wrap: write callee, then wrap args
+        let elems = elements(node);
+        let lparen_idx = find_token_index(&elems, L_PAREN).unwrap_or(elems.len());
+
+        // Write callee (everything before L_PAREN)
+        for elem in elems[..lparen_idx].iter() {
+            match elem {
+                SyntaxElement::Token(tok) => {
+                    let k = tok.kind();
+                    if k != WHITESPACE && k != LINEBREAK {
+                        out.write(tok.text());
+                    }
+                }
+                SyntaxElement::Node(n) => format_node(n, out),
+            }
+        }
+
+        // Collect args (expression nodes after L_PAREN)
+        let args: Vec<_> = elems[lparen_idx..]
+            .iter()
+            .filter_map(|e| {
+                if let SyntaxElement::Node(n) = e {
+                    if is_expression(n.kind()) { Some(n.clone()) } else { None }
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        out.write("(");
+        out.newline();
+        out.indented(|out| {
+            for (i, arg) in args.iter().enumerate() {
+                format_node(&arg, out);
+                out.write(",");
+                if i < args.len() - 1 {
+                    out.newline();
+                }
+            }
+            out.newline();
+        });
+        out.write(")");
+    }
+}
+
+/// Format a call expression as a single-line string (no wrapping).
+/// Used for measurement to avoid infinite recursion with format_node_to_string.
+fn format_call_inline(node: &SyntaxNode) -> String {
+    let mut out = Output::new();
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1210,9 +1394,10 @@ fn format_call(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) => format_node(&n, out),
+            SyntaxElement::Node(n) => format_node(&n, &mut out),
         }
     }
+    out.into_raw()
 }
 
 fn format_binary(node: &SyntaxNode, out: &mut Output) {
@@ -1351,7 +1536,7 @@ fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
     let has_semi = has_token(node, SEMICOLON);
 
     if has_semi {
-        // Repeat expression: [value; count]
+        // Repeat expression: [value; count] — never wraps
         let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
         out.write("[");
         if exprs.len() >= 2 {
@@ -1364,7 +1549,44 @@ fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
     } else {
         // Array literal: [a, b, c]
         let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
-        out.write("[");
+        let expr_strings: Vec<String> = exprs.iter().map(|e| format_node_to_string(e)).collect();
+        let col = out.current_column();
+
+        if fits_on_one_line(col, "[", "]", &expr_strings) {
+            out.write("[");
+            for (i, expr) in exprs.iter().enumerate() {
+                format_node(expr, out);
+                if i < exprs.len() - 1 {
+                    out.write(",");
+                    out.space();
+                }
+            }
+            out.write("]");
+        } else {
+            out.write("[");
+            out.newline();
+            out.indented(|out| {
+                for expr in &exprs {
+                    format_node(expr, out);
+                    out.write(",");
+                    out.newline();
+                }
+            });
+            out.write("]");
+        }
+    }
+}
+
+fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
+    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+
+    // For single-element tuples, the trailing comma is mandatory (suffix includes it)
+    let suffix = if exprs.len() == 1 { ",)" } else { ")" };
+    let expr_strings: Vec<String> = exprs.iter().map(|e| format_node_to_string(e)).collect();
+    let col = out.current_column();
+
+    if fits_on_one_line(col, "(", suffix, &expr_strings) {
+        out.write("(");
         for (i, expr) in exprs.iter().enumerate() {
             format_node(expr, out);
             if i < exprs.len() - 1 {
@@ -1372,26 +1594,22 @@ fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
                 out.space();
             }
         }
-        out.write("]");
-    }
-}
-
-fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
-    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
-
-    out.write("(");
-    for (i, expr) in exprs.iter().enumerate() {
-        format_node(expr, out);
-        if i < exprs.len() - 1 {
+        if exprs.len() == 1 {
             out.write(",");
-            out.space();
         }
+        out.write(")");
+    } else {
+        out.write("(");
+        out.newline();
+        out.indented(|out| {
+            for expr in &exprs {
+                format_node(expr, out);
+                out.write(",");
+                out.newline();
+            }
+        });
+        out.write(")");
     }
-    // Single-element tuples need a trailing comma to distinguish from PAREN_EXPR.
-    if exprs.len() == 1 {
-        out.write(",");
-    }
-    out.write(")");
 }
 
 fn format_parenthesized(node: &SyntaxNode, out: &mut Output) {
@@ -1433,9 +1651,19 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
         }
     }
 
-    out.space();
-    out.write("{");
-    if !inits.is_empty() {
+    if inits.is_empty() {
+        out.space();
+        out.write("{}");
+        return;
+    }
+
+    let init_strings: Vec<String> = inits.iter().map(|i| format_node_to_string(i)).collect();
+    let col = out.current_column();
+
+    if fits_on_one_line(col, " { ", " }", &init_strings) {
+        // Single-line: Name { x: 1, y: 2 }
+        out.space();
+        out.write("{");
         out.space();
         for (i, init) in inits.iter().enumerate() {
             format_struct_field_init(init, out);
@@ -1445,8 +1673,21 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
             }
         }
         out.space();
+        out.write("}");
+    } else {
+        // Multi-line: Name {\n    x: 1,\n    y: 2,\n}
+        out.space();
+        out.write("{");
+        out.newline();
+        out.indented(|out| {
+            for init in &inits {
+                format_struct_field_init(init, out);
+                out.write(",");
+                out.newline();
+            }
+        });
+        out.write("}");
     }
-    out.write("}");
 }
 
 fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
@@ -1645,6 +1886,29 @@ fn write_semicolon_with_comments(node: &SyntaxNode, out: &mut Output) {
     if let Some(idx) = find_token_index(&elems, SEMICOLON) {
         emit_comments_after(&elems, idx, out);
     }
+}
+
+// =============================================================================
+// Line-width measurement helpers
+// =============================================================================
+
+/// Format a node into a temporary buffer and return the result as a string.
+fn format_node_to_string(node: &SyntaxNode) -> String {
+    let mut out = Output::new();
+    format_node(node, &mut out);
+    out.into_raw()
+}
+
+/// Check if a delimited list fits on one line.
+///
+/// Computes: `col + prefix.len() + joined_items(", ") + suffix.len() <= LINE_WIDTH`
+fn fits_on_one_line(col: usize, prefix: &str, suffix: &str, items: &[String]) -> bool {
+    let items_len: usize = if items.is_empty() {
+        0
+    } else {
+        items.iter().map(|s| s.len()).sum::<usize>() + (items.len() - 1) * 2 // ", " between items
+    };
+    col + prefix.len() + items_len + suffix.len() <= LINE_WIDTH
 }
 
 // =============================================================================

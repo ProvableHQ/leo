@@ -125,6 +125,26 @@ impl Output {
         self.dedent();
     }
 
+    /// Return the current column (0-based character offset from the last newline).
+    ///
+    /// When `at_line_start` is true, the pending indentation hasn't been emitted
+    /// yet, so we return `depth * INDENT.len()`.
+    pub fn current_column(&self) -> usize {
+        if self.at_line_start {
+            return self.depth * INDENT.len();
+        }
+        match self.buf.rfind('\n') {
+            Some(pos) => self.buf.len() - pos - 1,
+            None => self.buf.len(),
+        }
+    }
+
+    /// Consume the buffer and return the raw string without trailing-newline
+    /// normalization. Used by measurement helpers.
+    pub fn into_raw(self) -> String {
+        self.buf
+    }
+
     /// Consume the buffer and return the final formatted string.
     ///
     /// Ensures the output ends with exactly one trailing newline.
@@ -209,6 +229,64 @@ mod tests {
         out.dedent();
         out.write("x");
         assert_eq!(out.finish(), "x\n");
+    }
+
+    #[test]
+    fn current_column_basic() {
+        // Fresh output: at_line_start with depth 0 → col 0
+        let out = Output::new();
+        assert_eq!(out.current_column(), 0);
+
+        // After writing text
+        let mut out = Output::new();
+        out.write("hello");
+        assert_eq!(out.current_column(), 5);
+
+        // After writing text and a space
+        let mut out = Output::new();
+        out.write("ab");
+        out.space();
+        out.write("cd");
+        assert_eq!(out.current_column(), 5); // "ab cd"
+    }
+
+    #[test]
+    fn current_column_after_newline() {
+        // After newline, at_line_start is true, depth is 0 → col 0
+        let mut out = Output::new();
+        out.write("hello");
+        out.newline();
+        assert_eq!(out.current_column(), 0);
+
+        // After newline with indent depth 1 → col 4
+        let mut out = Output::new();
+        out.indent();
+        out.write("hello");
+        out.newline();
+        assert_eq!(out.current_column(), 4);
+
+        // After newline with indent depth 2 → col 8
+        let mut out = Output::new();
+        out.indent();
+        out.indent();
+        out.newline();
+        assert_eq!(out.current_column(), 8);
+    }
+
+    #[test]
+    fn current_column_with_indentation() {
+        // Indented write: "    hello" → col 9
+        let mut out = Output::new();
+        out.indent();
+        out.write("hello");
+        assert_eq!(out.current_column(), 9); // 4 spaces + 5 chars
+    }
+
+    #[test]
+    fn into_raw_returns_buffer() {
+        let mut out = Output::new();
+        out.write("hello");
+        assert_eq!(out.into_raw(), "hello");
     }
 
     #[test]

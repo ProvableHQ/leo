@@ -42,6 +42,9 @@ pub const INDENT: &str = "    ";
 /// Newline character.
 pub const NEWLINE: &str = "\n";
 
+/// Maximum line width before wrapping.
+pub const LINE_WIDTH: usize = 100;
+
 /// Format Leo source code.
 ///
 /// Takes Leo source code as input and returns formatted source code.
