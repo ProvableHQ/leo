@@ -1439,16 +1439,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when a slice length cannot be determined.
-    @formatted
-    slice_length_unknown {
-        args: (),
-        msg: format!(
-            "Cannot determine the length of the slice. Slice bounds must be compile-time constants.",
-        ),
-        help: Some("Use literal values or const expressions for slice bounds.".to_string()),
-    }
-
     /// For when array concatenation element types do not match.
     @formatted
     array_concat_element_mismatch {

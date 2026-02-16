@@ -242,6 +242,75 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
     }
 
+    fn reconstruct_slice(
+        &mut self,
+        input: leo_ast::SliceExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        let span = input.span();
+        let id = input.id();
+        let array_id = input.array.id();
+        let (array, array_opt) = self.reconstruct_expression(input.array, &());
+        let start_expr = input.start.map(|e| self.reconstruct_expression(e, &()));
+        let end_expr = input.end.map(|(incl, e)| (incl, self.reconstruct_expression(e, &())));
+
+        let ty = self.state.type_table.get(&array_id);
+        let Some(Type::Array(arr_ty)) = &ty else {
+            panic!("Type checking guaranteed that this is an array.");
+        };
+
+        let start_val = match &start_expr {
+            Some((expr, _)) => expr.as_u32(),
+            None => Some(0),
+        };
+        let end_val = match &end_expr {
+            Some((inclusive, (expr, _))) => expr.as_u32().map(|v| if *inclusive { v + 1 } else { v }),
+            None => arr_ty.length.as_u32(),
+        };
+
+        if let (Some(start), Some(end)) = (start_val, end_val)
+            && end >= start
+        {
+            // If the array value is known, extract the sub-array directly.
+            if let Some(array_value) = array_opt {
+                let slice_values: Vec<_> = (start..end)
+                    .map(|i| array_value.array_index(i as usize).expect("Type checking verified bounds.").clone())
+                    .collect();
+                let value = Value::make_array(slice_values.iter().cloned());
+                let expr = self.value_to_expression(&value, span, id).expect(VALUE_ERROR);
+                return (expr, Some(value));
+            }
+
+            // Otherwise expand arr[start..end] into [arr[start], ..., arr[end-1]].
+            let elem_type = arr_ty.element_type().clone();
+            let mut elements = Vec::with_capacity((end - start) as usize);
+            for i in start..end {
+                let index = Expression::Literal(Literal::integer(
+                    IntegerType::U32,
+                    i.to_string(),
+                    span,
+                    self.state.node_builder.next_id(),
+                ));
+                let access = ArrayAccess { array: array.clone(), index, span, id: self.state.node_builder.next_id() };
+                self.state.type_table.insert(access.id, elem_type.clone());
+                elements.push(Expression::ArrayAccess(Box::new(access)));
+            }
+
+            let array_expr = ArrayExpression { elements, span, id };
+            return (Expression::Array(array_expr), None);
+        }
+
+        self.slice_bounds_not_evaluated = Some(span);
+        let reconstructed = SliceExpression {
+            array,
+            start: start_expr.map(|(e, _)| e),
+            end: end_expr.map(|(incl, (e, _))| (incl, e)),
+            span,
+            id,
+        };
+        (reconstructed.into(), None)
+    }
+
     fn reconstruct_repeat(
         &mut self,
         input: leo_ast::RepeatExpression,

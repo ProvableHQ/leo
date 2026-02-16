@@ -1,7 +1,6 @@
-Error [ETYC0372176]: Cannot determine the length of the slice. Slice bounds must be compile-time constants.
-    --> compiler-test:8:16
-     |
-   8 |         return a[START..END];
-     |                ^^^^^^^^^^^^^
-     |
-     = Use literal values or const expressions for slice bounds.
+program test.aleo;
+
+function foo:
+    input r0 as [u32; 8u32].private;
+    cast r0[1u32] r0[2u32] r0[3u32] into r1 as [u32; 3u32];
+    output r1 as [u32; 3u32].private;

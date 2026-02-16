@@ -38,6 +38,8 @@ pub struct ConstPropagationOutput {
     pub array_length_not_evaluated: Option<Span>,
     /// A repeat expression count which was not able to be evaluated.
     pub repeat_count_not_evaluated: Option<Span>,
+    /// A slice bound which was not able to be evaluated.
+    pub slice_bounds_not_evaluated: Option<Span>,
 }
 
 /// A pass to perform const propagation and folding.
@@ -74,6 +76,7 @@ impl Pass for ConstPropagation {
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
+            slice_bounds_not_evaluated: None,
         };
         ast.ast = visitor.reconstruct_program(ast.ast);
         visitor.state.handler.last_err()?;
@@ -84,6 +87,7 @@ impl Pass for ConstPropagation {
             array_index_not_evaluated: visitor.array_index_not_evaluated,
             array_length_not_evaluated: visitor.array_length_not_evaluated,
             repeat_count_not_evaluated: visitor.repeat_count_not_evaluated,
+            slice_bounds_not_evaluated: visitor.slice_bounds_not_evaluated,
         })
     }
 }
@@ -99,6 +103,7 @@ impl<'a> ConstPropagationVisitor<'a> {
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
+            slice_bounds_not_evaluated: None,
         }
     }
 }

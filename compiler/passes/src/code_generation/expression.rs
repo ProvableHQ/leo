@@ -458,7 +458,10 @@ impl CodeGeneratingVisitor<'_> {
         let array_operand = array_operand.expect("Trying to slice an empty expression");
 
         // Get the start index - should be a literal by now (resolved during const propagation).
-        let start = input.start.as_ref().and_then(|e| e.as_u32()).unwrap_or(0) as usize;
+        let start = match &input.start {
+            Some(e) => e.as_u32().expect("Slice start must be a literal by codegen phase") as usize,
+            None => 0,
+        };
 
         // Get the result array type. The type checker has already computed the correct length.
         let Some(Type::Array(result_array_type)) = self.state.type_table.get(&input.id) else {
@@ -478,7 +481,7 @@ impl CodeGeneratingVisitor<'_> {
         // Construct the destination register.
         let dest_reg = self.next_register();
 
-        let array_type = Self::visit_type(&Type::Array(result_array_type.clone()));
+        let array_type = self.visit_type(&Type::Array(result_array_type.clone()));
 
         let array_instruction = AleoStmt::Cast(AleoExpr::Tuple(expression_operands), dest_reg.clone(), array_type);
 

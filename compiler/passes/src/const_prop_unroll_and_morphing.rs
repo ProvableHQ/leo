@@ -82,6 +82,10 @@ impl Pass for ConstPropUnrollAndMorphing {
                     return Err(CompilerError::repeat_count_not_evaluated(not_evaluated_span).into());
                 }
 
+                if let Some(not_evaluated_span) = const_prop_output.slice_bounds_not_evaluated {
+                    return Err(CompilerError::slice_bounds_not_evaluated(not_evaluated_span).into());
+                }
+
                 if let Some(not_evaluated_span) = const_prop_output.array_length_not_evaluated {
                     return Err(CompilerError::array_length_not_evaluated(not_evaluated_span).into());
                 }

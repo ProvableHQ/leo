@@ -574,10 +574,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Compute the slice length.
         let slice_len = match (&input.end, array_len) {
             (Some((inclusive, end_expr)), _) => {
-                if let Some(end) = end_expr.as_u32() {
-                    let end = if *inclusive { end + 1 } else { end };
+                if let Some(raw_end) = end_expr.as_u32() {
+                    let end = if *inclusive { raw_end + 1 } else { raw_end };
                     if end < start {
-                        self.emit_err(TypeCheckerError::slice_range_invalid(start, end, input.span()));
+                        self.emit_err(TypeCheckerError::slice_range_invalid(start, raw_end, input.span()));
                         return Type::Err;
                     }
                     Some(end - start)
@@ -613,8 +613,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
             Type::Array(ArrayType::new(element_type, len_expr))
         } else {
-            // If we can't determine the length, emit an error.
-            self.emit_err(TypeCheckerError::slice_length_unknown(input.span()));
+            // Bounds not yet resolvable (e.g. const variables not yet propagated).
+            // Return Type::Err silently; the fixed-point loop will retry after const prop.
             return Type::Err;
         };
 
