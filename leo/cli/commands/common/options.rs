@@ -438,6 +438,6 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V13); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V14); // If this fails, update the test and any code that matches on `ConsensusVersion`.
     }
 }
