@@ -1,4 +1,4 @@
-Error [ETYC0372114]: A struct cannot contain a future.
+Error [ETYC0372114]: A struct cannot contain a Final.
     --> compiler-test:3:5
      |
    3 |     member: Final,
@@ -13,7 +13,7 @@ Error [ETYC0372031]: A mapping's value cannot be a future
      |
    7 |     mapping x: Final => Final;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372115]: An array cannot have a future as an element type.
+Error [ETYC0372115]: An array cannot have a Final as an element type.
     --> compiler-test:10:9
      |
   10 |         let an_array: [Final; 1] = [future];

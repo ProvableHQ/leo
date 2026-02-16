@@ -24,17 +24,17 @@ create_messages!(
     code_prefix: "SAZ",
 
     @formatted
-    some_paths_do_not_await_all_futures {
+    some_paths_do_not_run_all_finals {
         args: (num_total_paths: impl Display, num_unawaited_paths: impl Display),
-        msg: format!("Not all paths through the function await all futures. {num_unawaited_paths}/{num_total_paths} paths contain at least one future that is never awaited."),
-        help: Some("Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
+        msg: format!("Not all paths through the function run all Finals. {num_unawaited_paths}/{num_total_paths} paths contain at least one Final that is never run."),
+        help: Some("Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
     }
 
     @formatted
-    some_paths_contain_duplicate_future_awaits {
+    some_paths_contain_duplicate_final_runs {
         args: (num_total_paths: impl Display, num_duplicate_await_paths: impl Display),
-        msg: format!("Some paths through the function contain duplicate future awaits. {num_duplicate_await_paths}/{num_total_paths} paths contain at least one future that is awaited more than once."),
-        help: Some("Look at the times `.await()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
+        msg: format!("Some paths through the function contain duplicate Final runs. {num_duplicate_await_paths}/{num_total_paths} paths contain at least one Final that is run more than once."),
+        help: Some("Look at the times `.run()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
     }
 
     @formatted
@@ -45,9 +45,9 @@ create_messages!(
     }
 
     @formatted
-    future_not_awaited_in_order {
+    final_not_awaited_in_order {
         args: (future_name: impl Display),
-        msg: format!("The future `{}` is not awaited in the order in which they were passed in to the `async` function.", future_name),
-        help: Some("While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
+        msg: format!("The Final `{}` is not run in the order in which they were passed in to the function.", future_name),
+        help: Some("While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
     }
 );

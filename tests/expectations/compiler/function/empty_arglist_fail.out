@@ -1,4 +1,4 @@
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:10:9
      |
   10 | program test.aleo {}

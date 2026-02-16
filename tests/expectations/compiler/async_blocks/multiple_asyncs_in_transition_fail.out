@@ -1,28 +1,28 @@
-Error [ETYC0372150]: A transition function cannot contain more than one `async` block.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:4:18
      |
    4 |         let f2 = final { foo(); };
      |                  ^^^^^^^^^^^^^^^^
      |
-     = Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition.
-Error [ETYC0372150]: A transition function cannot contain more than one `async` block.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:9:18
      |
    9 |         let f2 = final {};
      |                  ^^^^^^^^
      |
-     = Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition.
-Error [ETYC0372150]: A transition function cannot contain more than one `async` block.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:14:18
      |
   14 |         let f2 = final { foo(); };
      |                  ^^^^^^^^^^^^^^^^
      |
-     = Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition.
-Error [ETYC0372150]: A transition function cannot contain more than one `async` block.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:19:18
      |
   19 |         let f2 = final {};
      |                  ^^^^^^^^
      |
-     = Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.

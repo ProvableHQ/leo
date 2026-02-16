@@ -8,7 +8,7 @@ Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was
      |
    7 |     return x > sender;
      |                ^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo { }

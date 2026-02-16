@@ -1,7 +1,7 @@
-Error [ETYC0372102]: External transition calls must appear before the local async block.
+Error [ETYC0372102]: External calls must appear before the local final block.
     --> compiler-test:8:9
      |
    8 |         child.aleo/t();
      |         ^^^^^^^^^^^^^^
      |
-     = Reorder your code so the external transition call happens before the local async block.
+     = Reorder your code so the external entry point fn call happens before the local final block.

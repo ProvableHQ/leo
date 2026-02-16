@@ -10,7 +10,7 @@ Error [ETYC0372118]: Received different types `u32` and `bool` for the arms of a
      |                   ^^^^^^^^^^^^^^
      |
      = Make both branches the same type.
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:1:9
      |
    1 | program test.aleo {}

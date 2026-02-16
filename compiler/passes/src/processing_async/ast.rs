@@ -35,7 +35,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
 
         // Ensure we're not trying to capture too many variables.
         if function.input.len() > self.max_inputs {
-            self.state.handler.emit_err(leo_errors::StaticAnalyzerError::async_block_capturing_too_many_vars(
+            self.state.handler.emit_err(leo_errors::StaticAnalyzerError::final_block_capturing_too_many_vars(
                 function.input.len(),
                 self.max_inputs,
                 input.span,

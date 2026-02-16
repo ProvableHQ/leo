@@ -29,7 +29,7 @@ Error [ETYC0372016]: Record variable `amount` is already declared.
   22 |
   23 |           amount: u64,
      |           ^^^^^^^^^^^ record variable already declared
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

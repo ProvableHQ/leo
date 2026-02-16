@@ -33,7 +33,7 @@ Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
      |
   17 |     for i: (u8, u16) in 0u8..2u8 {}
      |                              ^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

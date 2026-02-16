@@ -132,7 +132,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // TODO: Need similar checks for composites (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
         if transition_count > self.limits.max_functions {
-            self.emit_err(TypeCheckerError::too_many_transitions(
+            self.emit_err(TypeCheckerError::too_many_entry_points(
                 self.limits.max_functions,
                 input.program_id.name.span + input.program_id.network.span,
             ));
@@ -140,7 +140,9 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // Check that each program has at least one transition function.
         // This is a snarkvm requirement.
         else if transition_count == 0 {
-            self.emit_err(TypeCheckerError::no_transitions(input.program_id.name.span + input.program_id.network.span));
+            self.emit_err(TypeCheckerError::no_entry_points(
+                input.program_id.name.span + input.program_id.network.span,
+            ));
         }
     }
 
@@ -280,7 +282,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                         identifier.span,
                     ));
                 } else if matches!(type_, Type::Future(..)) {
-                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_future(
+                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_final(
                         if input.is_record { "record" } else { "struct" },
                         identifier.span,
                     ));

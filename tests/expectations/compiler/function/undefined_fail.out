@@ -3,7 +3,7 @@ Error [ETYC0372005]: Unknown function `test.aleo/my_function`
      |
    3 |     my_function();
      |     ^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:7:9
      |
    7 | program test.aleo {}
