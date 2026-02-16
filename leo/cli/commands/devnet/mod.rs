@@ -25,6 +25,9 @@ mod windows_kill_tree;
 mod shutdown;
 use shutdown::*;
 
+mod clean;
+use clean::*;
+
 mod utilities;
 use utilities::*;
 
@@ -36,7 +39,6 @@ use itertools::Itertools;
 use parking_lot::Mutex;
 use std::{
     env,
-    ffi::OsStr,
     path::{Path, PathBuf},
     process::{Child, Command as StdCommand, Stdio},
     sync::Arc,
@@ -53,9 +55,44 @@ use leo_ast::NetworkName;
 /// A high REST RPS (requests per second) for snarkOS devnets.
 const REST_RPS: &str = "999999999";
 
-/// Launch a local devnet (validators + clients) using snarkOS.
+/// Manage a local devnet.
 #[derive(Parser, Debug)]
 pub struct LeoDevnet {
+    #[clap(subcommand)]
+    pub command: DevnetCommands,
+}
+
+#[derive(Parser, Debug)]
+pub enum DevnetCommands {
+    #[clap(about = "Start a local devnet")]
+    Start(LeoDevnetStart),
+    #[clap(about = "Clean devnet storage (ledgers, node data, logs)")]
+    Clean(LeoDevnetClean),
+}
+
+impl Command for LeoDevnet {
+    type Input = ();
+    type Output = ();
+
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "LeoDevnet")
+    }
+
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
+        Ok(())
+    }
+
+    fn apply(self, cx: Context, _: Self::Input) -> Result<Self::Output> {
+        match self.command {
+            DevnetCommands::Start(cmd) => cmd.execute(cx),
+            DevnetCommands::Clean(cmd) => cmd.execute(cx),
+        }
+    }
+}
+
+/// Launch a local devnet (validators + clients) using snarkOS.
+#[derive(Parser, Debug)]
+pub struct LeoDevnetStart {
     #[clap(long, help = "Number of validators", default_value = "4")]
     pub(crate) num_validators: usize,
     #[clap(long, help = "Number of clients", default_value = "2")]
@@ -64,8 +101,6 @@ pub struct LeoDevnet {
     pub(crate) network: NetworkName,
     #[clap(long, help = "Ledger / log root directory", default_value = "./")]
     pub(crate) storage: String,
-    #[clap(long, help = "Clear existing ledgers before start")]
-    pub(crate) clear_storage: bool,
     #[clap(long, help = "Path to snarkOS binary. If it does not exist, set `--install` to build it at this path.")]
     pub(crate) snarkos: PathBuf,
     #[clap(long, help = "Required features for snarkOS (e.g. `test_network`)", value_delimiter = ',')]
@@ -87,14 +122,18 @@ pub struct LeoDevnet {
     pub(crate) verbosity: u8,
     #[clap(long, short = 'y', help = "Skip confirmation prompts and proceed with the devnet startup")]
     pub(crate) yes: bool,
+    #[clap(long, help = "Base REST port for validators (each node uses base + dev_index)")]
+    pub(crate) rest_port: Option<u16>,
+    #[clap(long, help = "Remove existing devnet storage before starting")]
+    pub(crate) clear_storage: bool,
 }
 
-impl Command for LeoDevnet {
+impl Command for LeoDevnetStart {
     type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "LeoDevnet")
+        tracing::span!(tracing::Level::INFO, "LeoDevnetStart")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
@@ -106,7 +145,7 @@ impl Command for LeoDevnet {
     }
 }
 
-impl LeoDevnet {
+impl LeoDevnetStart {
     /// Handle the actual devnet startup logic.
     fn handle_apply(&self) -> AnyhowResult<()> {
         //───────────────────────────────────────────────────────────────────
@@ -179,7 +218,6 @@ impl LeoDevnet {
         } else {
             println!("  • Consensus heights: default (based on your snarkOS binary)");
         }
-        println!("  • Clear storage: {}", if self.clear_storage { "yes" } else { "no" });
         println!("  • Verbosity: {}", self.verbosity);
         println!("  • tmux: {}", if self.tmux { "yes" } else { "no" });
 
@@ -254,6 +292,19 @@ impl LeoDevnet {
         // Resolve the storage directory to its canonical form.
         let storage =
             canonicalize(&storage).with_context(|| format!("Failed to resolve storage path: {}", self.storage))?;
+
+        // Optionally clear previous devnet artifacts before starting.
+        if self.clear_storage {
+            let artifacts = find_devnet_artifacts(&storage)?;
+            for dir in &artifacts {
+                std::fs::remove_dir_all(dir)?;
+                println!("  Removed {}", dir.display());
+            }
+            if !artifacts.is_empty() {
+                println!("Cleared {} existing storage directories.", artifacts.len());
+            }
+        }
+
         // Create the log directory inside the storage directory.
         let log_dir = {
             let ts = Local::now().format(".logs-%Y-%m-%d-%H-%M-%S").to_string();
@@ -263,30 +314,7 @@ impl LeoDevnet {
         };
 
         //───────────────────────────────────────────────────────────────────
-        // 4. (Optional) ledger cleanup
-        //───────────────────────────────────────────────────────────────────
-        if self.clear_storage {
-            println!("🧹  Cleaning ledgers …");
-            let mut cleaners = Vec::new();
-            for idx in 0..self.num_validators {
-                cleaners.push(clean_snarkos(&snarkos, self.network as usize, "validator", idx, storage.as_path())?);
-            }
-            for idx in 0..self.num_clients {
-                cleaners.push(clean_snarkos(
-                    &snarkos,
-                    self.network as usize,
-                    "client",
-                    idx + self.num_validators,
-                    storage.as_path(),
-                )?);
-            }
-            for mut c in cleaners {
-                c.wait()?;
-            }
-        }
-
-        //───────────────────────────────────────────────────────────────────
-        // 5. Spawn nodes (tmux **or** background)
+        // 4. Spawn nodes (tmux **or** background)
         //───────────────────────────────────────────────────────────────────
 
         #[allow(clippy::too_many_arguments)]
@@ -299,6 +327,7 @@ impl LeoDevnet {
             log_file: &Path,
             metrics_port: Option<u16>,
             storage: &Path,
+            rest_port: Option<u16>,
         ) -> Vec<String> {
             let mut base = vec![
                 "start".to_string(),
@@ -316,8 +345,14 @@ impl LeoDevnet {
                 "--verbosity".to_string(),
                 verbosity.to_string(),
                 "--ledger-storage".to_string(),
-                storage.to_str().unwrap().to_string(),
+                storage.join(format!("ledger-{idx}")).to_str().unwrap().to_string(),
+                "--node-data-storage".to_string(),
+                storage.join(format!("node-data-{idx}")).to_str().unwrap().to_string(),
             ];
+            if let Some(port) = rest_port {
+                // Override the default REST port (3030 + dev_index) for each node.
+                base.extend(["--rest".into(), format!("0.0.0.0:{}", port + idx as u16)]);
+            }
             match role {
                 "validator" => {
                     base.extend(
@@ -394,6 +429,7 @@ impl LeoDevnet {
                         log_file.as_path(),
                         Some(metrics_port),
                         &storage,
+                        self.rest_port,
                     ))
                     .collect::<Vec<_>>()
                     .join(" ");
@@ -421,6 +457,7 @@ impl LeoDevnet {
                         log_file.as_path(),
                         None,
                         &storage,
+                        self.rest_port,
                     ))
                     .collect::<Vec<_>>()
                     .join(" ");
@@ -481,6 +518,7 @@ impl LeoDevnet {
                             &log_file,
                             Some(9000 + idx as u16),
                             &storage,
+                            self.rest_port,
                         ));
                         c
                     },
@@ -506,6 +544,7 @@ impl LeoDevnet {
                             &log_file,
                             None,
                             &storage,
+                            self.rest_port,
                         ));
                         c
                     },

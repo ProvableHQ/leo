@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LEO_BIN=${1}
+SNARKOS=${LEO_TEST_SNARKOS_PATH:-$(which snarkos 2>/dev/null || echo "")}
+if [ -z "$SNARKOS" ]; then
+    echo "Error: snarkos not found. Set LEO_TEST_SNARKOS_PATH or install snarkos on PATH." >&2
+    exit 1
+fi
+STORAGE=$(mktemp -d)
+# The test framework injects LEO_DEVNET_REST_PORT with a free port range.
+PORT=${LEO_DEVNET_REST_PORT}
+PID=""
+
+cleanup() {
+    [ -n "$PID" ] && kill "$PID" 2>/dev/null && wait "$PID" 2>/dev/null
+    rm -rf "$STORAGE"
+}
+trap cleanup EXIT
+
+$LEO_BIN --disable-update-check devnet start \
+    --snarkos "$SNARKOS" \
+    --num-clients 0 \
+    --rest-port "$PORT" \
+    --storage "$STORAGE" \
+    --clear-storage \
+    --yes \
+    --verbosity 0 \
+    >/dev/null 2>"$STORAGE/leo-devnet.log" &
+PID=$!
+
+# Poll until the first validator reaches block height 10.
+ENDPOINT="http://127.0.0.1:${PORT}/testnet/block/height/latest"
+DEADLINE=$((SECONDS + 300))
+REACHED=false
+while [ $SECONDS -lt $DEADLINE ]; do
+    if ! kill -0 "$PID" 2>/dev/null; then
+        echo "Leo devnet process died unexpectedly" >&2
+        cat "$STORAGE/leo-devnet.log" >&2
+        echo "Leo devnet failed"
+        exit 1
+    fi
+    if HEIGHT=$(curl -sf "$ENDPOINT") && [ "$HEIGHT" -ge 10 ] 2>/dev/null; then
+        REACHED=true
+        break
+    fi
+    sleep 5
+done
+
+if [ "$REACHED" = false ]; then
+    echo "Leo devnet timed out (PORT=$PORT)" >&2
+    cat "$STORAGE/leo-devnet.log" >&2
+    echo "Leo devnet timed out"
+    exit 1
+fi
+
+echo "Leo devnet is producing blocks"
+
+# Stop the devnet.
+kill "$PID" 2>/dev/null && wait "$PID" 2>/dev/null
+PID=""
+
+# Clean devnet storage and report.
+$LEO_BIN --disable-update-check devnet clean --storage "$STORAGE" --yes >/dev/null 2>&1
+echo "Leo devnet clean succeeded"

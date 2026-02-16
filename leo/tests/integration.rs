@@ -46,6 +46,18 @@ fn find_free_port() -> u16 {
     std::net::TcpListener::bind("127.0.0.1:0").expect("Failed to bind to port 0").local_addr().unwrap().port()
 }
 
+/// Finds a base port where `count` consecutive ports are all available.
+fn find_free_port_range(count: u16) -> u16 {
+    for _ in 0..100 {
+        let base = find_free_port();
+        let all_free = (1..count).all(|offset| std::net::TcpListener::bind(("127.0.0.1", base + offset)).is_ok());
+        if all_free {
+            return base;
+        }
+    }
+    panic!("Could not find {count} consecutive free ports");
+}
+
 /// Runs a single CLI integration test in isolation.
 ///
 /// Sets up a temporary test environment, executes the test COMMANDS,
@@ -55,6 +67,10 @@ fn run_single_cli_test(test_directory: &Path) {
     if !cfg!(target_family = "unix") {
         return;
     }
+
+    // Tests that manage their own infrastructure can place a SKIP_DEVNODE marker file
+    // in their directory to prevent the framework from starting an unused devnode.
+    let skip_devnode = test_directory.join("SKIP_DEVNODE").exists();
 
     let cli_expectation_directory: PathBuf =
         [env!("CARGO_MANIFEST_DIR"), "tests", "expectations", "cli"].iter().collect();
@@ -69,19 +85,29 @@ fn run_single_cli_test(test_directory: &Path) {
 
     let rewrite_expectations = !std::env::var("REWRITE_EXPECTATIONS").unwrap_or_default().trim().is_empty();
 
+    // Only start devnode for tests that don't manage their own infrastructure.
     let port = find_free_port();
-    let mut devnode_process = run_leo_devnode(port).expect("devnode");
-    wait_for_devnode(port);
+    let mut devnode_process = if !skip_devnode {
+        let process = run_leo_devnode(port).expect("devnode");
+        wait_for_devnode(port);
+        Some(process)
+    } else {
+        None
+    };
 
     let test_result = run_test(&test, rewrite_expectations, port);
 
     #[cfg(unix)]
-    unsafe {
-        // Kill the entire process group: devnode_process + all its children
-        let _ = libc::killpg(devnode_process.id() as i32, libc::SIGTERM);
+    if let Some(ref devnode_process) = devnode_process {
+        unsafe {
+            // Kill the entire process group: devnode_process + all its children
+            let _ = libc::killpg(devnode_process.id() as i32, libc::SIGTERM);
+        }
     }
 
-    let _ = devnode_process.wait();
+    if let Some(ref mut process) = devnode_process {
+        let _ = process.wait();
+    }
 
     if let Some(err) = test_result {
         panic!("FAILED: {}\n{}", test_directory.display(), err);
@@ -149,6 +175,7 @@ fn run_test(test: &Test, force_rewrite: bool, port: u16) -> Option<String> {
     let output = Command::new(&commands_path)
         .arg(BINARY_PATH)
         .env("LEO_DEVNODE_PORT", port.to_string())
+        .env("LEO_DEVNET_REST_PORT", find_free_port_range(4).to_string())
         .output()
         .expect("Failed to execute COMMANDS");
 
