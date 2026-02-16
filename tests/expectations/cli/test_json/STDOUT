@@ -1,5 +1,6 @@
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
 
@@ -11,8 +12,11 @@
  • 3u32
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+
 1 / 1 tests passed.
 PASSED: test_main.aleo/test_addition
+
 
 ➕ Adding programs to the VM in the following order:
   - test_json_program.aleo (local)
@@ -29,6 +33,7 @@ PASSED: test_main.aleo/test_addition
     - Non-Zero Entries in B: 46449
     - Non-Zero Entries in C: 16949
     - Circuit ID: XXXXXX
+
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
@@ -97,6 +102,7 @@ Once it is deployed, it CANNOT be changed.
 Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Deployment confirmed!
+
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
@@ -176,6 +182,7 @@ constructor:
     get expected_checksum[true] into r0;
     assert.eq checksum r0;
     position end;
+
 
 
 

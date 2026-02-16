@@ -41,6 +41,11 @@ struct Test {
     mismatch_directory: PathBuf,
 }
 
+/// Finds an available TCP port by binding to port 0.
+fn find_free_port() -> u16 {
+    std::net::TcpListener::bind("127.0.0.1:0").expect("Failed to bind to port 0").local_addr().unwrap().port()
+}
+
 /// Runs a single CLI integration test in isolation.
 ///
 /// Sets up a temporary test environment, executes the test COMMANDS,
@@ -64,10 +69,11 @@ fn run_single_cli_test(test_directory: &Path) {
 
     let rewrite_expectations = !std::env::var("REWRITE_EXPECTATIONS").unwrap_or_default().trim().is_empty();
 
-    let mut devnode_process = run_leo_devnode().expect("devnode");
-    wait_for_devnode();
+    let port = find_free_port();
+    let mut devnode_process = run_leo_devnode(port).expect("devnode");
+    wait_for_devnode(port);
 
-    let test_result = run_test(&test, rewrite_expectations);
+    let test_result = run_test(&test, rewrite_expectations, port);
 
     #[cfg(unix)]
     unsafe {
@@ -87,13 +93,13 @@ fn run_single_cli_test(test_directory: &Path) {
 /// Polls the devnode HTTP endpoint until it becomes reachable, then waits
 /// for the network to reach the required consensus height. This ensures
 /// CLI tests start only after the devnode is fully initialized.
-fn wait_for_devnode() {
-    let height_url = "http://localhost:3030/testnet/block/height/latest";
+fn wait_for_devnode(port: u16) {
+    let height_url = format!("http://127.0.0.1:{port}/testnet/block/height/latest");
     let start = std::time::Instant::now();
     let timeout = std::time::Duration::from_secs(300);
 
     loop {
-        match leo_package::fetch_from_network_plain(height_url) {
+        match leo_package::fetch_from_network_plain(&height_url) {
             Ok(_) => break,
             Err(_) if start.elapsed() < timeout => {
                 std::thread::sleep(std::time::Duration::from_secs(1));
@@ -103,7 +109,7 @@ fn wait_for_devnode() {
     }
 
     loop {
-        let height = current_height().expect("this should work now that the devnode is ready.");
+        let height = current_height(port).expect("this should work now that the devnode is ready.");
         if snarkvm::prelude::TestnetV0::CONSENSUS_VERSION(height as u32).unwrap() == ConsensusVersion::latest() {
             break;
         }
@@ -129,7 +135,7 @@ impl Drop for CwdRaii {
     }
 }
 
-fn run_test(test: &Test, force_rewrite: bool) -> Option<String> {
+fn run_test(test: &Test, force_rewrite: bool, port: u16) -> Option<String> {
     let test_context_directory = tempfile::TempDir::new().expect("Failed to create temporary directory.");
 
     copy_recursively(&test.test_directory, test_context_directory.path()).expect("Failed to copy test directory.");
@@ -140,7 +146,11 @@ fn run_test(test: &Test, force_rewrite: bool) -> Option<String> {
 
     let commands_path = test_context_directory.path().join("COMMANDS");
 
-    let output = Command::new(&commands_path).arg(BINARY_PATH).output().expect("Failed to execute COMMANDS");
+    let output = Command::new(&commands_path)
+        .arg(BINARY_PATH)
+        .env("LEO_DEVNODE_PORT", port.to_string())
+        .output()
+        .expect("Failed to execute COMMANDS");
 
     let stdout_path = test_context_directory.path().join("STDOUT");
     let stdout_utf8 = std::str::from_utf8(&output.stdout).expect("stdout should be utf8");
@@ -150,6 +160,10 @@ fn run_test(test: &Test, force_rewrite: bool) -> Option<String> {
     fs::write(&stderr_path, filter_stderr(stderr_utf8).as_bytes()).expect("Failed to write STDERR");
 
     if force_rewrite {
+        // Remove stale expectation directory so files deleted between runs don't linger.
+        if test.expectation_directory.exists() {
+            fs::remove_dir_all(&test.expectation_directory).expect("Failed to remove old expectation directory.");
+        }
         copy_recursively(test_context_directory.path(), &test.expectation_directory)
             .expect("Failed to copy directory.");
         None
@@ -201,6 +215,8 @@ fn filter_stdout(data: &str) -> String {
         (Regex::new(r"\x1b\[[0-9;]*m").unwrap(), ""),
         // `leo fmt --check` outputs absolute paths in diff headers which include temp directories.
         (Regex::new(r"Diff in .*?([^/]+\.leo)").unwrap(), "Diff in SOURCE_DIRECTORY/$1"),
+        // Normalize dynamic devnode ports back to 3030 for stable expectations.
+        (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
     ];
 
     let mut cow = Cow::Borrowed(data);
@@ -218,12 +234,18 @@ fn filter_stderr(data: &str) -> String {
     use regex::Regex;
     use std::borrow::Cow;
 
-    // Match `-->` followed by any path, capture only the filename with line/col
-    let path_regex = Regex::new(r"-->\s+.*?/([^/]+\.leo:\d+:\d+)").unwrap();
+    let regexes = [
+        // Match `-->` followed by any path, capture only the filename with line/col
+        (Regex::new(r"-->\s+.*?/([^/]+\.leo:\d+:\d+)").unwrap(), "--> SOURCE_DIRECTORY/$1"),
+        // Normalize dynamic devnode ports back to 3030 for stable expectations.
+        (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
+    ];
 
     let mut cow = Cow::Borrowed(data);
-    if let Cow::Owned(s) = path_regex.replace_all(&cow, "--> SOURCE_DIRECTORY/$1") {
-        cow = Cow::Owned(s);
+    for (regex, replacement) in regexes {
+        if let Cow::Owned(s) = regex.replace_all(&cow, replacement) {
+            cow = Cow::Owned(s);
+        }
     }
 
     cow.into_owned()
@@ -243,6 +265,8 @@ fn filter_json_file(data: &str) -> String {
         (Regex::new(r#""circuit_id":\s*"[a-fA-F0-9]+""#).unwrap(), r#""circuit_id": "XXXXXX""#),
         (Regex::new(r#""prover_size":\s*[0-9]+"#).unwrap(), r#""prover_size": 0"#),
         (Regex::new(r#""verifier_size":\s*[0-9]+"#).unwrap(), r#""verifier_size": 0"#),
+        // Normalize dynamic devnode ports back to 3030 for stable expectations.
+        (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
     ];
 
     let mut cow = Cow::Borrowed(data);
@@ -349,13 +373,15 @@ fn collect_files(base: &Path) -> io::Result<HashSet<PathBuf>> {
 
 /// Starts a Leo devnode for integration testing purposes.
 ///
-/// This function launches a local devnode using the Leo CLI.
-fn run_leo_devnode() -> io::Result<Child> {
+/// This function launches a local devnode using the Leo CLI on the given port.
+fn run_leo_devnode(port: u16) -> io::Result<Child> {
     let mut leo_devnode_cmd = Command::new(BINARY_PATH);
 
     leo_devnode_cmd
         .arg("devnode")
         .arg("start")
+        .arg("--socket-addr")
+        .arg(format!("127.0.0.1:{port}"))
         .arg("--private-key")
         .arg("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
         .stdout(Stdio::null())
@@ -373,8 +399,8 @@ fn run_leo_devnode() -> io::Result<Child> {
     leo_devnode_cmd.spawn()
 }
 
-fn current_height() -> Result<usize, anyhow::Error> {
-    let height_url = "http://localhost:3030/testnet/block/height/latest".to_string();
+fn current_height(port: u16) -> Result<usize, anyhow::Error> {
+    let height_url = format!("http://127.0.0.1:{port}/testnet/block/height/latest");
     let height_str = leo_package::fetch_from_network_plain(&height_url)?;
     height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
 }
