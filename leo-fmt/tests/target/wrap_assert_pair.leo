@@ -1,14 +1,16 @@
 program test.aleo {
-    function main() {
+    transition main(public a: u64, public b: u64) {
         assert_eq(a, b);
+        let expected_first_balance: u64 = a + b;
+        let computed_second_balance: u64 = a * 2u64;
         assert_eq(
-            some_very_long_variable_name_that_is_really_long,
-            another_very_long_variable_name_for_comparison
+            expected_first_balance + computed_second_balance,
+            computed_second_balance + expected_first_balance
         );
-        assert_neq(x, y);
+        assert_neq(a, 0u64);
         assert_neq(
-            first_extremely_long_identifier_name,
-            second_extremely_long_identifier_name_for_testing
+            expected_first_balance * computed_second_balance,
+            computed_second_balance * expected_first_balance
         );
     }
 }

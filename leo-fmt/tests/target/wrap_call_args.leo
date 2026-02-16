@@ -1,18 +1,18 @@
 program test.aleo {
-    function add(a: u64, b: u64) -> u64 {
-        return a + b;
+    function compute_sum(first: u64, second: u64, third: u64) -> u64 {
+        return first + second + third;
     }
 
-    function main() -> u64 {
-        let short: u64 = add(1u64, 2u64);
-        let long_result: field = BHP256::hash_to_field(
-            some_very_long_variable_name_that_pushes_over_the_limit + another_value,
+    transition main(public a: u64, public b: u64) -> u64 {
+        let short: u64 = compute_sum(a, b, a);
+        let first_value: u64 = a * 2u64;
+        let second_value: u64 = b * 3u64;
+        let third_value: u64 = a + b;
+        let long: u64 = compute_sum(
+            first_value + second_value,
+            second_value + third_value,
+            third_value + first_value,
         );
-        let another: u64 = some_module::some_very_long_function_name(
-            first_argument_value,
-            second_argument_value,
-            third_argument_value,
-        );
-        return short;
+        return short + long;
     }
 }

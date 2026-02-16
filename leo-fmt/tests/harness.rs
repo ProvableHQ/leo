@@ -122,3 +122,94 @@ fn test_idempotency() {
 
     assert!(failures.is_empty(), "{} file(s) not idempotent: {failures:?}", failures.len());
 }
+
+// =============================================================================
+// Compilation validation (feature-gated)
+// =============================================================================
+
+/// Validate that target files pass Leo type checking.
+///
+/// Runs parse + intermediate passes (name validation, type checking, static
+/// analysis) on each target file whose name starts with a given prefix.
+/// Stops before code generation. Catches issues like undeclared variables,
+/// type mismatches, and invalid syntax that the formatter's rowan parser
+/// wouldn't flag.
+///
+/// Run with: `cargo test -p leo-fmt --features validate -- validate_targets_compile`
+#[cfg(feature = "validate")]
+fn check_targets(prefix: &str) {
+    use leo_ast::{NetworkName, NodeBuilder};
+    use leo_compiler::Compiler;
+    use leo_errors::{BufferEmitter, Handler};
+    use leo_span::{create_session_if_not_set_then, source_map::FileName};
+    use std::rc::Rc;
+
+    let target_dir = tests_dir().join("target");
+    let target_files = collect_leo_files(&target_dir);
+
+    // Must wrap ALL compilations in a single session to avoid
+    // scoped thread-local panics between files.
+    create_session_if_not_set_then(|_| {
+        let mut failures = Vec::new();
+
+        for target_path in &target_files {
+            let name = target_path.file_stem().unwrap().to_str().unwrap();
+
+            if !name.starts_with(prefix) {
+                continue;
+            }
+
+            let source = std::fs::read_to_string(target_path)
+                .unwrap_or_else(|_| panic!("Failed to read: {}", target_path.display()));
+
+            // Fresh handler per file so errors don't accumulate.
+            let buf = BufferEmitter::new();
+            let handler = Handler::new(buf.clone());
+            let node_builder = Rc::new(NodeBuilder::default());
+
+            let mut compiler = Compiler::new(
+                None,
+                false,
+                handler.clone(),
+                node_builder,
+                "/tmp".into(),
+                None,
+                indexmap::IndexMap::new(),
+                NetworkName::TestnetV0,
+            );
+
+            let filename = FileName::Custom(name.into());
+
+            // Parse and run type checking (no code generation).
+            let result = compiler
+                .parse(&source, filename, &vec![])
+                .and_then(|_| compiler.intermediate_passes().map(|_| ()));
+
+            if let Err(e) = result {
+                let errors = buf.extract_errs();
+                println!("\n=== TYPE CHECK ERROR: {} ===", target_path.display());
+                println!("{e}");
+                if !errors.is_empty() {
+                    println!("{errors}");
+                }
+                println!("=== END ===\n");
+                failures.push(target_path.clone());
+            }
+        }
+
+        assert!(
+            failures.is_empty(),
+            "{} file(s) failed type checking: {failures:?}",
+            failures.len()
+        );
+    });
+}
+
+/// Validate that wrap_* target files pass Leo type checking.
+///
+/// Run with: `cargo test -p leo-fmt --features validate -- validate_targets_compile`
+#[cfg(feature = "validate")]
+#[test]
+fn validate_targets_compile() {
+    check_targets("wrap_");
+}
