@@ -2176,7 +2176,6 @@ dependencies = [
 name = "leo-fmt"
 version = "3.4.0"
 dependencies = [
- "indexmap",
  "leo-ast",
  "leo-compiler",
  "leo-errors",
