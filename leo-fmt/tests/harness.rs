@@ -140,21 +140,18 @@ fn test_idempotency() {
 fn check_targets(prefix: &str) {
     use leo_ast::{NetworkName, NodeBuilder};
     use leo_compiler::Compiler;
-    use leo_errors::{BufferEmitter, Handler};
+    use leo_errors::Handler;
     use leo_span::{create_session_if_not_set_then, source_map::FileName};
     use std::rc::Rc;
 
     let target_dir = tests_dir().join("target");
     let target_files = collect_leo_files(&target_dir);
 
-    // Must wrap ALL compilations in a single session to avoid
-    // scoped thread-local panics between files.
     create_session_if_not_set_then(|_| {
         let mut failures = Vec::new();
 
         for target_path in &target_files {
             let name = target_path.file_stem().unwrap().to_str().unwrap();
-
             if !name.starts_with(prefix) {
                 continue;
             }
@@ -162,46 +159,31 @@ fn check_targets(prefix: &str) {
             let source = std::fs::read_to_string(target_path)
                 .unwrap_or_else(|_| panic!("Failed to read: {}", target_path.display()));
 
-            // Fresh handler per file so errors don't accumulate.
-            let buf = BufferEmitter::new();
-            let handler = Handler::new(buf.clone());
-            let node_builder = Rc::new(NodeBuilder::default());
-
+            let (handler, _buf) = Handler::new_with_buf();
             let mut compiler = Compiler::new(
                 None,
                 false,
-                handler.clone(),
-                node_builder,
+                handler,
+                Rc::new(NodeBuilder::default()),
                 "/tmp".into(),
                 None,
-                indexmap::IndexMap::new(),
+                Default::default(),
                 NetworkName::TestnetV0,
             );
 
-            let filename = FileName::Custom(name.into());
-
-            // Parse and run type checking (no code generation).
             let result = compiler
-                .parse(&source, filename, &vec![])
+                .parse(&source, FileName::Custom(name.into()), &vec![])
                 .and_then(|_| compiler.intermediate_passes().map(|_| ()));
 
             if let Err(e) = result {
-                let errors = buf.extract_errs();
                 println!("\n=== TYPE CHECK ERROR: {} ===", target_path.display());
                 println!("{e}");
-                if !errors.is_empty() {
-                    println!("{errors}");
-                }
                 println!("=== END ===\n");
                 failures.push(target_path.clone());
             }
         }
 
-        assert!(
-            failures.is_empty(),
-            "{} file(s) failed type checking: {failures:?}",
-            failures.len()
-        );
+        assert!(failures.is_empty(), "{} file(s) failed type checking: {failures:?}", failures.len());
     });
 }
 

@@ -23,7 +23,6 @@ validate = [
   "dep:leo-ast",
   "dep:leo-errors",
   "dep:leo-span",
-  "dep:indexmap",
 ]
 
 [dependencies]
@@ -32,7 +31,6 @@ leo-compiler        = { workspace = true, optional = true }
 leo-ast             = { workspace = true, optional = true }
 leo-errors          = { workspace = true, optional = true }
 leo-span            = { workspace = true, optional = true }
-indexmap             = { workspace = true, optional = true }
 
 [dev-dependencies]
 similar             = { version = "2.6" }
