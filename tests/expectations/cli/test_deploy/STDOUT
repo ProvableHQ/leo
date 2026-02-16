@@ -58,6 +58,11 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            1.924443
 ──────────────────────────────────────────────
 
+  Function 'main'
+    Total Execution Cost:   0.001334
+    |- Finalize Cost:       0.000000
+    |- Storage Cost:        0.001334
+
 📡 Broadcasting deployment for some_sample_leo_program.aleo...
 💰Your current public balance is XXXXXX credits.
 

@@ -86,16 +86,33 @@ impl fmt::Display for CostBreakdown {
     }
 }
 
+/// Per-function cost information for a deployed program.
+#[derive(Serialize, Clone, Default)]
+pub struct FunctionCostStats {
+    pub name: String,
+    pub finalize_cost: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub storage_cost: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub execution_cost: Option<u64>,
+}
+
 /// Statistics for a deployed program.
 #[derive(Serialize, Clone, Default)]
 pub struct DeploymentStats {
     pub program_size_bytes: usize,
     pub max_program_size_bytes: usize,
-    pub total_variables: u64,
-    pub total_constraints: u64,
-    pub max_variables: u64,
-    pub max_constraints: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_variables: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_constraints: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_variables: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_constraints: Option<u64>,
     pub cost: CostBreakdown,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub function_costs: Vec<FunctionCostStats>,
 }
 
 impl fmt::Display for DeploymentStats {
@@ -110,26 +127,36 @@ impl fmt::Display for DeploymentStats {
             self.program_size_bytes as f64 / 1024.0,
             self.max_program_size_bytes as f64 / 1024.0
         )?;
-        writeln!(
-            f,
-            "  {:22}{}",
-            "Total Variables:".cyan(),
-            self.total_variables.to_formatted_string(&Locale::en).yellow()
-        )?;
-        writeln!(
-            f,
-            "  {:22}{}",
-            "Total Constraints:".cyan(),
-            self.total_constraints.to_formatted_string(&Locale::en).yellow()
-        )?;
-        writeln!(f, "  {:22}{}", "Max Variables:".cyan(), self.max_variables.to_formatted_string(&Locale::en).green())?;
-        writeln!(
-            f,
-            "  {:22}{}",
-            "Max Constraints:".cyan(),
-            self.max_constraints.to_formatted_string(&Locale::en).green()
-        )?;
-        writeln!(f)?;
+        if let Some(total_variables) = self.total_variables {
+            writeln!(
+                f,
+                "  {:22}{}",
+                "Total Variables:".cyan(),
+                total_variables.to_formatted_string(&Locale::en).yellow()
+            )?;
+        }
+        if let Some(total_constraints) = self.total_constraints {
+            writeln!(
+                f,
+                "  {:22}{}",
+                "Total Constraints:".cyan(),
+                total_constraints.to_formatted_string(&Locale::en).yellow()
+            )?;
+        }
+        if let Some(max_variables) = self.max_variables {
+            writeln!(f, "  {:22}{}", "Max Variables:".cyan(), max_variables.to_formatted_string(&Locale::en).green())?;
+        }
+        if let Some(max_constraints) = self.max_constraints {
+            writeln!(
+                f,
+                "  {:22}{}",
+                "Max Constraints:".cyan(),
+                max_constraints.to_formatted_string(&Locale::en).green()
+            )?;
+        }
+        if self.total_variables.is_some() || self.total_constraints.is_some() {
+            writeln!(f)?;
+        }
         write!(f, "{}", self.cost)
     }
 }

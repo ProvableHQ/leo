@@ -358,8 +358,8 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 // Construct the owner.
                 let owner = ProgramOwner::new(&private_key, deployment_id, rng)?;
 
-                // Construct the fee authorization.
-                let (minimum_deployment_cost, _) =
+                // Construct the fee authorization and capture cost breakdown.
+                let (minimum_deployment_cost, (storage_cost_val, synthesis_cost, constructor_cost, namespace_cost)) =
                     deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
                 // Authorize the fee.
                 let fee_authorization = match record {
@@ -386,10 +386,33 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 // Create a fee transition without a proof.
                 let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
 
+                // Add the program to the VM before calculating function costs.
+                vm.process().write().add_program(&program)?;
+                // Compute deployment stats (circuit fields are None since VKs are placeholders).
+                let mut stats = DeploymentStats {
+                    program_size_bytes: bytecode_size,
+                    max_program_size_bytes: N::MAX_PROGRAM_SIZE,
+                    total_variables: None,
+                    total_constraints: None,
+                    max_variables: None,
+                    max_constraints: None,
+                    cost: CostBreakdown::for_deployment(
+                        storage_cost_val,
+                        synthesis_cost,
+                        namespace_cost,
+                        constructor_cost,
+                        priority_fee.unwrap_or(0),
+                    ),
+                    function_costs: Vec::new(),
+                };
+                print_deployment_stats(&id.to_string(), &stats);
+                // Print per-function cost breakdown and store in stats.
+                stats.function_costs = print_function_costs(&vm, &deployment, consensus_version, rng)?;
                 // Create the transaction.
                 let transaction = Transaction::from_deployment(owner, deployment, fee)?;
-                // Add the transaction to the transactions vector.
+                // Add the transaction and stats.
                 transactions.push((id, transaction));
+                all_stats.push(stats);
             } else {
                 println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
                 // Generate the transaction.
@@ -401,16 +424,11 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 // Add the program to the VM before calculating function costs.
                 vm.process().write().add_program(&program)?;
                 // Compute and print the deployment stats.
-                let stats = print_deployment_stats(
-                    &vm,
-                    &id.to_string(),
-                    deployment,
-                    priority_fee,
-                    consensus_version,
-                    bytecode_size,
-                )?;
-                // Print per-function cost breakdown.
-                print_function_costs(&vm, deployment, consensus_version, rng)?;
+                let mut stats =
+                    compute_deployment_stats(&vm, deployment, priority_fee, consensus_version, bytecode_size)?;
+                print_deployment_stats(&id.to_string(), &stats);
+                // Print per-function cost breakdown and store in stats.
+                stats.function_costs = print_function_costs(&vm, deployment, consensus_version, rng)?;
                 // Validate the deployment limits.
                 validate_deployment_limits(deployment, &id, &network)?;
                 // Save the transaction and stats.

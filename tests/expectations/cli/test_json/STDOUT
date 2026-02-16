@@ -89,6 +89,11 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            1.996643
 ──────────────────────────────────────────────
 
+  Function 'main'
+    Total Execution Cost:   0.001328
+    |- Finalize Cost:       0.000000
+    |- Storage Cost:        0.001328
+
 📡 Broadcasting deployment for test_json_program.aleo...
 💰Your current public balance is XXXXXX credits.
 
@@ -138,6 +143,12 @@ Attempting to determine the consensus version from the latest block height at ht
   - test_json_program.aleo (local)
 
 ⚙️ Executing test_json_program.aleo/main...
+
+💰 Estimated Execution Cost
+──────────────────────────────────────────────
+  Estimated Base Cost:    0.001328 credits
+  Estimated Total:        0.001328 credits
+──────────────────────────────────────────────
 
 📊 Execution Summary for test_json_program.aleo
 ──────────────────────────────────────────────
@@ -232,6 +243,11 @@ Loaded the following programs into the VM:
   Priority Fee:         0.000000
   Total Fee:            1.996643
 ──────────────────────────────────────────────
+
+  Function 'main'
+    Total Execution Cost:   0.001328
+    |- Finalize Cost:       0.000000
+    |- Storage Cost:        0.001328
 📡 Broadcasting upgrade for test_json_program.aleo...
 💰Your current public balance is XXXXXX credits.
 
