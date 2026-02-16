@@ -1,7 +1,7 @@
 
 program test.aleo {
-    transition foo(a: [bool; 513]) -> bool {
-        let bar = [false; 513];
+    transition foo(a: [bool; 2049]) -> bool {
+        let bar = [false; 2049];
         return true;
     }
 }
