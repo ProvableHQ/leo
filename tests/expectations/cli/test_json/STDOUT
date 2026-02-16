@@ -35,7 +35,7 @@ PASSED: test_main.aleo/test_addition
     - Circuit ID: XXXXXX
 
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -47,7 +47,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1s3ws5tra87fjycnjrws...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  13
+  Consensus Version:  14
 
 📦 Deployment Tasks:
   • test_json_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -74,7 +74,7 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for test_json_program.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.37 KB / 97.66 KB
+  Program Size:         0.37 KB / 500.00 KB
   Total Variables:      17,276
   Total Constraints:    12,927
   Max Variables:        XXXXXX
@@ -104,7 +104,7 @@ Transaction accepted.
 ✅ Deployment confirmed!
 
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -116,7 +116,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1s3ws5tra87fjycnjrws...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  13
+  Consensus Version:  14
 
 🎯 Execution Target:
   Program:        test_json_program.aleo
@@ -186,7 +186,7 @@ constructor:
 
 
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -198,7 +198,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1s3ws5tra87fjycnjrws...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  13
+  Consensus Version:  14
 
 📦 Deployment Tasks:
   • test_json_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -218,7 +218,7 @@ Loaded the following programs into the VM:
 
 📊 Deployment Summary for test_json_program.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.37 KB / 97.66 KB
+  Program Size:         0.37 KB / 500.00 KB
   Total Variables:      17,276
   Total Constraints:    12,927
   Max Variables:        XXXXXX
