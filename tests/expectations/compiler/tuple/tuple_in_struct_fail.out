@@ -8,7 +8,7 @@ Error [ETYC0372050]: A struct cannot contain a tuple.
      |
    9 |     mems: (A, A)
      |     ^^^^
-Error [ETYC0372083]: A program must have at least one entry point.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {}

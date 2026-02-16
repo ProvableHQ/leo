@@ -1,4 +1,4 @@
-Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
+Warning [WSAZ0374000]: Not all paths through the function run all Finals. 2/4 paths contain at least one Final that is never run.
     --> compiler-test:16:1
      |
   16 | final fn finalize_main(f: Final, f2: Final, a: u32) {
@@ -28,7 +28,7 @@ Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4
   29 | }
      | ^
      |
-     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+     = Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
 program test_dep.aleo;
 
 record yeets:

@@ -28,22 +28,22 @@ Error [ENV03711000]: `owner` is an invalid struct member name. A struct member c
      |
    6 |     owner: u32,
      |     ^^^^^
-Error [ENV03711000]: `value` is an invalid entry point name. A entry point cannot be called "value".
+Error [ENV03711000]: `value` is an invalid entry point fn name. A entry point fn cannot be called "value".
     --> compiler-test:15:8
      |
   15 |     fn value() {}
      |        ^^^^^
-Error [ENV03711000]: `output` is an invalid entry point name. A entry point cannot be called "output".
+Error [ENV03711000]: `output` is an invalid entry point fn name. A entry point fn cannot be called "output".
     --> compiler-test:17:8
      |
   17 |     fn output() -> Final {
      |        ^^^^^^
-Error [ENV03711000]: `key` is an invalid helper function name. A helper function cannot be called "key".
+Error [ENV03711000]: `key` is an invalid regular fn name. A regular fn cannot be called "key".
     --> compiler-test:28:4
      |
   28 | fn key() {}
      |    ^^^
-Error [ENV03711000]: `value` is an invalid helper function name. A helper function cannot be called "value".
+Error [ENV03711000]: `value` is an invalid regular fn name. A regular fn cannot be called "value".
     --> compiler-test:29:4
      |
   29 | fn value() {}

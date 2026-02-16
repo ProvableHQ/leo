@@ -1,24 +1,24 @@
-Error [ETYC0372043]: Cannot call a local entry point from an entry point.
+Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
     --> compiler-test:24:16
      |
   24 |         return six(n);
      |                ^^^^^^
-Error [ETYC0372043]: Cannot call a local entry point from an entry point.
+Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
     --> compiler-test:28:16
      |
   28 |         return seven(n) + eight(n);
      |                ^^^^^^^^
-Error [ETYC0372043]: Cannot call a local entry point from an entry point.
+Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
     --> compiler-test:28:27
      |
   28 |         return seven(n) + eight(n);
      |                           ^^^^^^^^
-Error [ETYC0372043]: Cannot call a local entry point from an entry point.
+Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
     --> compiler-test:32:16
      |
   32 |         return five(n);
      |                ^^^^^^^
-Error [ETYC0372043]: Cannot call a local entry point from an entry point.
+Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
     --> compiler-test:36:16
      |
   36 |         return five(n);

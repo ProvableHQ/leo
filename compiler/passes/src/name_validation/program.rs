@@ -65,8 +65,8 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
     fn visit_function(&mut self, function: &Function) {
         use Variant::*;
         match function.variant {
-            EntryPoint => self.is_not_keyword(function.identifier, "entry point", &[]),
-            Fn => self.is_not_keyword(function.identifier, "helper function", &[]),
+            EntryPoint => self.is_not_keyword(function.identifier, "entry point fn", &[]),
+            Fn => self.is_not_keyword(function.identifier, "regular fn", &[]),
             FinalFn | Finalize | Script => {}
         }
     }
@@ -74,8 +74,8 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
     fn visit_function_stub(&mut self, input: &FunctionStub) {
         use Variant::*;
         match input.variant {
-            EntryPoint => self.is_not_keyword(input.identifier, "entry point", &[]),
-            Fn => self.is_not_keyword(input.identifier, "helper function", &[]),
+            EntryPoint => self.is_not_keyword(input.identifier, "entry point fn", &[]),
+            Fn => self.is_not_keyword(input.identifier, "regular fn", &[]),
             FinalFn | Finalize | Script => {}
         }
     }

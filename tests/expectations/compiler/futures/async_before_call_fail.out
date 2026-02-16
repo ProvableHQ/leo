@@ -4,4 +4,4 @@ Error [ETYC0372102]: External calls must appear before the local final block.
    8 |         child.aleo/t();
      |         ^^^^^^^^^^^^^^
      |
-     = Reorder your code so the external entry point call happens before the local final block.
+     = Reorder your code so the external entry point fn call happens before the local final block.

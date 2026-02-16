@@ -1,4 +1,4 @@
-Error [ETYC0372035]: Loop body contains a final block expression.
+Error [ETYC0372035]: Loop body contains a final context.
     --> compiler-test:7:9
      |
    7 |         for j in 0u32..2u32 {
@@ -8,7 +8,7 @@ Error [ETYC0372035]: Loop body contains a final block expression.
    9 |         }
      |         ^
      |
-     = Remove the final block expression.
+     = Remove the final context.
 Error [ETYC0372151]: `final` blocks are not allowed inside conditional blocks.
     --> compiler-test:14:21
      |
@@ -16,24 +16,24 @@ Error [ETYC0372151]: `final` blocks are not allowed inside conditional blocks.
      |                     ^^^^^^^^
      |
      = Refactor your code to move the `final` block outside of the conditional block.
-Error [ETYC0372148]: `final` blocks are only allowed inside an entry point returning `Final` or a script function.
+Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
     --> compiler-test:20:13
      |
   20 |     let f = final {};
      |             ^^^^^^^^
      |
-     = Try moving this `final` block into an entry point or a script function.
-Error [ETYC0372148]: `final` blocks are only allowed inside an entry point returning `Final` or a script function.
+     = Try moving this `final` block into an entry point fn or a script function.
+Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
     --> compiler-test:24:13
      |
   24 |     let f = final {};
      |             ^^^^^^^^
      |
-     = Try moving this `final` block into an entry point or a script function.
-Error [ETYC0372148]: `final` blocks are only allowed inside an entry point returning `Final` or a script function.
+     = Try moving this `final` block into an entry point fn or a script function.
+Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
     --> compiler-test:28:13
      |
   28 |     let f = final {};
      |             ^^^^^^^^
      |
-     = Try moving this `final` block into an entry point or a script function.
+     = Try moving this `final` block into an entry point fn or a script function.

@@ -12,7 +12,7 @@ Error [ETYC0372171]: A struct must have at least one member of non-zero size.
      |     ^^^^^^^^^^^
    8 | }
      | ^
-Error [ETYC0372083]: A program must have at least one entry point.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {}

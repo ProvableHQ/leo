@@ -9,13 +9,13 @@ Error [ETYC0372106]: A final fn is not allowed to return a value.
      | ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
-Error [ETYC0372110]: Only entry points can return a Final.
+Error [ETYC0372110]: Only entry point fns can return a Final.
     --> compiler-test:10:24
      |
   10 | final fn finalize() -> Final {
      |                        ^^^^^
      |
-     = Move this function inside the `program` block to make it an entry point.
+     = Move this function inside the `program` block to make it an entry point fn.
 Error [ETYC0372036]: Function must return a value.
     --> compiler-test:10:1
      |

@@ -58,7 +58,7 @@ Error [ETYC0372034]: `Mapping::get` must be inside a `final fn` or a `final` blo
      |
   16 |     Mapping::get(values, 0u8);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one entry point.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

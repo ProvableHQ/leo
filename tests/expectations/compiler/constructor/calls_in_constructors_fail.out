@@ -1,4 +1,4 @@
-Error [ETYC0372042]: Only regular functions can be called from a regular function or constructor.
+Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
     --> compiler-test:12:9
      |
   12 |         bar();

@@ -12,7 +12,7 @@ Error [ETYC0372025]: Cannot reach the following statement.
      |     ^^^^^^^^^^^^^^
      |
      = Remove the unreachable code.
-Error [ETYC0372083]: A program must have at least one entry point.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {}

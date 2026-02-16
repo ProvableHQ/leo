@@ -4,4 +4,4 @@ Error [ETYC0372109]: Cannot re-assign to `try_get_token` from a conditional scop
   14 |     let try_get_token: TokenInfo = Mapping::get_or_use(
      |         ^^^^^^^^^^^^^
      |
-     = This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in on-chain functions.
+     = This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in final fns.

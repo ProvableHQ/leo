@@ -1322,7 +1322,7 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the array element type is valid.
                 match array_type.element_type() {
                     // Array elements cannot be futures.
-                    Type::Future(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_future(span)),
+                    Type::Future(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_final(span)),
                     // Array elements cannot be tuples.
                     Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
                     // Array elements cannot be records.
@@ -1586,7 +1586,7 @@ impl TypeCheckingVisitor<'_> {
         if matches!(self.scope_state.variant, Some(Variant::Finalize)) && !self.scope_state.is_stub {
             // Async functions are not allowed to return values.
             if !function.output.is_empty() {
-                self.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
+                panic!("Finalize is not allowed to return values");
             }
 
             // Iterator over the `finalize` member (type Finalizer) of each async transition that calls
@@ -1618,10 +1618,7 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
             } else {
-                self.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
-                    function.identifier.name,
-                    function.span(),
-                ));
+                panic!("Finalize is never called by entry point.");
             }
         }
 
@@ -1642,7 +1639,7 @@ impl TypeCheckingVisitor<'_> {
         if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {
             // final functions are not allowed to return values.
             if !function.output.is_empty() {
-                self.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
+                self.emit_err(TypeCheckerError::final_fn_cannot_return_value(function.span()));
             }
         }
 
@@ -1719,7 +1716,7 @@ impl TypeCheckingVisitor<'_> {
             match self.scope_state.variant.unwrap() {
                 // If the function is an entry point, then check that the parameter mode is not a constant.
                 Variant::EntryPoint if input.mode() == Mode::Constant => {
-                    self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input.span()))
+                    self.emit_err(TypeCheckerError::entry_point_fn_inputs_cannot_be_const(input.span()))
                 }
                 // If the function is a standard function, then check that the parameters do not have an associated mode.
                 Variant::Fn if input.mode() != Mode::None => {
@@ -1727,7 +1724,7 @@ impl TypeCheckingVisitor<'_> {
                 }
                 // If the function is run onchain, then check that the input parameter is not constant or private.
                 Variant::Finalize | Variant::FinalFn if matches!(input.mode(), Mode::Constant | Mode::Private) => {
-                    self.emit_err(TypeCheckerError::async_function_input_must_be_public(input.span()));
+                    self.emit_err(TypeCheckerError::final_fn_input_must_be_public(input.span()));
                 }
                 _ => {} // Do nothing.
             }
@@ -1736,7 +1733,7 @@ impl TypeCheckingVisitor<'_> {
                 // Future parameters may only appear in onchain functions.
                 // TODO: we may want to relax this
                 if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)) {
-                    self.emit_err(TypeCheckerError::no_future_parameters(input.span()));
+                    self.emit_err(TypeCheckerError::no_final_parameters(input.span()));
                 }
             }
 
@@ -1802,13 +1799,13 @@ impl TypeCheckingVisitor<'_> {
                 && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
                     || (index == function.output.len() - 1 && !matches!(function_output.type_, Type::Future(_))))
             {
-                self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
+                self.emit_err(TypeCheckerError::entry_point_fn_final_invalid_output(function_output.span));
             }
             // If the function is not an async transition, then it cannot have a future as output.
             if !matches!(self.scope_state.variant, Some(Variant::EntryPoint) | Some(Variant::Script))
                 && matches!(function_output.type_, Type::Future(_))
             {
-                self.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
+                self.emit_err(TypeCheckerError::only_entry_point_can_return_final(function_output.span));
             }
         });
 
@@ -1891,7 +1888,7 @@ impl TypeCheckingVisitor<'_> {
         }
         // Case 2: Operation is not a finalize op, and we're inside an `async` block.
         else if self.async_block_id.is_some() && !finalize_op {
-            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_async_block(name, span));
+            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_final_block(name, span));
         }
         // Case 3: Operation *is* a finalize op, but we're *not* inside an async context.
         else if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::Script | Variant::FinalFn))

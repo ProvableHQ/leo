@@ -1,28 +1,28 @@
-Error [ETYC0372150]: An entry point cannot contain more than one `final` block.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:4:18
      |
    4 |         let f2 = final { foo(); };
      |                  ^^^^^^^^^^^^^^^^
      |
-     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point.
-Error [ETYC0372150]: An entry point cannot contain more than one `final` block.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:9:18
      |
    9 |         let f2 = final {};
      |                  ^^^^^^^^
      |
-     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point.
-Error [ETYC0372150]: An entry point cannot contain more than one `final` block.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:14:18
      |
   14 |         let f2 = final { foo(); };
      |                  ^^^^^^^^^^^^^^^^
      |
-     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point.
-Error [ETYC0372150]: An entry point cannot contain more than one `final` block.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:19:18
      |
   19 |         let f2 = final {};
      |                  ^^^^^^^^
      |
-     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
