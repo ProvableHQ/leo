@@ -1,5 +1,5 @@
 program test.aleo{
-	function main(  ){
+	transition main(  ){
 
 let a  :u8  =  1u8;
                     let b:u16=2u16;

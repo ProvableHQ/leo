@@ -3,7 +3,7 @@ program test.aleo   {
   x  :u64  ,
             y  :  u64  }
 
-    function main(  )  ->  Point   {
+    transition main(  )  ->  Point   {
 
 let p  :Point  =  Point  {   x  :  1u64  ,
         y  :  2u64   }  ;

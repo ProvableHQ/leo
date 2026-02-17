@@ -1,5 +1,5 @@
 program test.aleo {
-    function main(a: u64, b: u64) {
+    transition main(a: u64, b: u64) {
         assert(a > 0u64);
         assert(b > 0u64);
         assert_eq(a, b);

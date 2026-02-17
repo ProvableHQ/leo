@@ -1,5 +1,5 @@
 program test.aleo{
-	function main(  )  ->  u64  {
+	transition main(  )  ->  u64  {
             let sum  :  u64
                 =  0u64
                     ;

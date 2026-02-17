@@ -1,15 +1,23 @@
 program test.aleo
     {
+    function process(  a  :  u64  ,
+                    b  :  u64  ,
+                        c  :  u64  )
+                            {
+    assert(  a  >
+        0u64  )  ;  }
+
 	transition main(
             item
                 :  u64
     )  {
-    Mapping::set(  balances  ,
-                    self.caller  ,
+    process(  item  ,
+                    item  ,
                         item  )
                             ;
-	    Mapping::get(  balances  ,
-        self.caller  )
+	    process(  item  ,
+        1u64  ,
+            2u64  )
             ;
     }
 }

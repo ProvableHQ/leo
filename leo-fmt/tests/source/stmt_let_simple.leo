@@ -1,5 +1,5 @@
 program test.aleo   {
-	function main(  )  {
+	transition main(  )  {
             let x  =  5u64;
     let    y
             =  10u64;

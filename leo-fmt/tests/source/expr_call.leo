@@ -2,7 +2,10 @@ program test.aleo   {
 	function add(   a  :  u64  ,
 	    b  :  u64  )  ->  u64  {  return   a  +  b  ;  }
 
-    function main(
+    function to_field(
+	    a  :  u64  )  ->  field  {  return  a  as  field  ;  }
+
+    transition main(
             )  ->  u64   {
 
 let x
@@ -16,19 +19,10 @@ let x
 
 
 	    let hash
-	        :field  =  BHP256::hash_to_field(
+	        :field  =  to_field(
 	                1u64  )  ;
-
-let mapped
-    :   u64=Mapping::get(
-    balances
-        ,
-                self.caller
-    )  ;
 
             return
                 x  ;
     }
-
-	mapping balances  :  address  =>  u64  ;
 }

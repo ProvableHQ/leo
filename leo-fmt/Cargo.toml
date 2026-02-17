@@ -16,8 +16,21 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
+[features]
+default = []
+validate = [
+  "dep:leo-compiler",
+  "dep:leo-ast",
+  "dep:leo-errors",
+  "dep:leo-span",
+]
+
 [dependencies]
 leo-parser-rowan    = { workspace = true }
+leo-compiler        = { workspace = true, optional = true }
+leo-ast             = { workspace = true, optional = true }
+leo-errors          = { workspace = true, optional = true }
+leo-span            = { workspace = true, optional = true }
 
 [dev-dependencies]
 similar             = { version = "2.6" }
