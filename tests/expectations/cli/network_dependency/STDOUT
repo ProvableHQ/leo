@@ -57,12 +57,12 @@ Once it is deployed, it CANNOT be changed.
   Constructor:          0.002000
   Priority Fee:         0.000000
   Total Fee:            1.897896
-──────────────────────────────────────────────
 
   Function 'main'
     Total Execution Cost:   0.001283
     |- Finalize Cost:       0.000000
-    |- Storage Cost:        0.001283
+    |- Proof Cost:          0.001283
+──────────────────────────────────────────────
 
 📡 Broadcasting deployment for test_program1.aleo...
 💰Your current public balance is XXXXXX credits.
@@ -140,12 +140,12 @@ Once it is deployed, it CANNOT be changed.
   Constructor:          0.002000
   Priority Fee:         0.000000
   Total Fee:            1.954701
-──────────────────────────────────────────────
 
   Function 'main'
     Total Execution Cost:   0.001994
     |- Finalize Cost:       0.000000
-    |- Storage Cost:        0.001994
+    |- Proof Cost:          0.001994
+──────────────────────────────────────────────
 
 📡 Broadcasting deployment for test_program2.aleo...
 💰Your current public balance is XXXXXX credits.
@@ -206,13 +206,7 @@ Attempting to determine the consensus version from the latest block height at ht
 
 ⚙️ Executing test_program2.aleo/main...
 
-💰 Estimated Execution Cost
-──────────────────────────────────────────────
-  Estimated Base Cost:    0.001994 credits
-  Estimated Total:        0.001994 credits
-──────────────────────────────────────────────
-
-📊 Execution Summary for test_program2.aleo
+📊 Execution Cost Summary for test_program2.aleo
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.001994

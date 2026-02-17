@@ -12,15 +12,10 @@
   ],
   "transaction_id": "XXXXXX",
   "stats": {
-    "cost": {
-      "storage": 1328,
-      "namespace": null,
-      "synthesis": null,
-      "constructor": null,
-      "execution": 0,
-      "priority": 0,
-      "total": 1328
-    }
+    "storage_cost": 1328,
+    "execution_cost": 0,
+    "priority_fee": 0,
+    "total_cost": 1328
   },
   "broadcast": {
     "fee_id": "XXXXXX",

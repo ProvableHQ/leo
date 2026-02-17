@@ -346,7 +346,7 @@ fn handle_execute<A: Aleo>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Generate the execution and fee transitions without proofs if specified.
-    let (output_name, output, response) = if command.skip_execute_proof {
+    let (output_name, output, response, stats) = if command.skip_execute_proof {
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
 
         // Generate the authorization.
@@ -354,9 +354,9 @@ fn handle_execute<A: Aleo>(
             vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
 
         // Estimate and display execution cost before proof generation.
-        let (estimated_cost, _) =
+        let (_estimated_cost, (est_storage, est_exec)) =
             execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?;
-        print_estimated_execution_cost(estimated_cost, priority_fee);
+        let stats = print_execution_cost_summary(&program_name, est_storage, est_exec, priority_fee);
 
         // Get the state root.
         let state_root = query.current_state_root()?;
@@ -364,7 +364,7 @@ fn handle_execute<A: Aleo>(
         // Create an execution without the proof.
         let execution = Execution::from(authorization.transitions().values().cloned(), state_root, None)?;
 
-        // Calculate the cost.
+        // Calculate the actual cost for fee authorization.
         let (cost, _) = execution_cost(&vm.process().read(), &execution, consensus_version)?;
 
         // Generate the fee authorization.
@@ -392,7 +392,7 @@ fn handle_execute<A: Aleo>(
         // Evaluate the transaction to get the response.
         let response = vm.process().read().evaluate::<A>(authorization)?;
 
-        ("transaction", Box::new(transaction), response)
+        ("transaction", Box::new(transaction), response, stats)
     } else {
         println!("\n⚙️ Executing {program_name}/{function_name}...");
 
@@ -400,9 +400,9 @@ fn handle_execute<A: Aleo>(
         let authorization = vm.authorize(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
 
         // Estimate and display execution cost before proof generation.
-        let (estimated_cost, _) =
+        let (estimated_cost, (est_storage, est_exec)) =
             execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?;
-        print_estimated_execution_cost(estimated_cost, priority_fee);
+        let stats = print_execution_cost_summary(&program_name, est_storage, est_exec, priority_fee);
 
         // Determine if a fee is required.
         let is_fee_required = !(authorization.is_split() || authorization.is_upgrade());
@@ -435,19 +435,10 @@ fn handle_execute<A: Aleo>(
         // Execute with the existing authorization (no re-authorization).
         let (transaction, response) =
             vm.execute_authorization_with_response(authorization, fee_authorization, Some(&query), rng)?;
-        ("transaction", Box::new(transaction), response)
+        ("transaction", Box::new(transaction), response, stats)
     };
 
     let transaction = output.clone();
-
-    // Compute and print the execution stats.
-    let stats = print_execution_stats::<A::Network>(
-        &vm,
-        &program_name,
-        transaction.execution().expect("Expected execution"),
-        priority_fee,
-        consensus_version,
-    )?;
 
     // Print the transaction.
     // If the `print` option is set, print the execution transaction to the console.
@@ -667,56 +658,23 @@ fn print_execution_plan<N: Network>(
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
 
-/// Compute execution statistics.
-fn compute_execution_stats<N: Network>(
-    vm: &VM<N, ConsensusMemory<N>>,
-    execution: &Execution<N>,
-    priority_fee: Option<u64>,
-    consensus_version: ConsensusVersion,
-) -> Result<ExecutionStats> {
-    let (_, (storage_cost, exec_cost)) = execution_cost(&vm.process().read(), execution, consensus_version)?;
-
-    Ok(ExecutionStats { cost: CostBreakdown::for_execution(storage_cost, exec_cost, priority_fee.unwrap_or(0)) })
-}
-
-/// Print estimated execution cost before proof generation.
-fn print_estimated_execution_cost(estimated_cost: u64, priority_fee: Option<u64>) {
-    use colored::*;
-    let priority = priority_fee.unwrap_or(0);
-    println!("\n{}", "💰 Estimated Execution Cost".bold());
-    println!("{}", "──────────────────────────────────────────────".dimmed());
-    println!(
-        "  {:24}{:.6} credits",
-        "Estimated Base Cost:".cyan(),
-        CostBreakdown::microcredits_to_credits(estimated_cost),
-    );
-    if priority > 0 {
-        println!("  {:24}{:.6} credits", "Priority Fee:".cyan(), CostBreakdown::microcredits_to_credits(priority),);
-    }
-    println!(
-        "  {:24}{:.6} credits",
-        "Estimated Total:".cyan(),
-        CostBreakdown::microcredits_to_credits(estimated_cost + priority),
-    );
-    println!("{}", "──────────────────────────────────────────────".dimmed());
-}
-
-/// Pretty-print execution statistics.
-fn print_execution_stats<N: Network>(
-    vm: &VM<N, ConsensusMemory<N>>,
+/// Print execution cost summary and return stats for JSON output.
+fn print_execution_cost_summary(
     program_name: &str,
-    execution: &Execution<N>,
+    storage_cost: u64,
+    execution_cost: u64,
     priority_fee: Option<u64>,
-    consensus_version: ConsensusVersion,
-) -> Result<ExecutionStats> {
+) -> ExecutionStats {
     use colored::*;
 
-    let stats = compute_execution_stats(vm, execution, priority_fee, consensus_version)?;
+    let priority = priority_fee.unwrap_or(0);
+    let total = storage_cost + execution_cost + priority;
+    let stats = ExecutionStats { storage_cost, execution_cost, priority_fee: priority, total_cost: total };
 
-    println!("\n{} {}", "📊 Execution Summary for".bold(), program_name.bold());
+    println!("\n{} {}", "📊 Execution Cost Summary for".bold(), program_name.bold());
     println!("{}", "──────────────────────────────────────────────".dimmed());
     print!("{stats}");
     println!("{}", "──────────────────────────────────────────────".dimmed());
 
-    Ok(stats)
+    stats
 }

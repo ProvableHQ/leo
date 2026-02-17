@@ -363,7 +363,7 @@ Once it is deployed, it CANNOT be changed.
                 let owner = ProgramOwner::new(&private_key, deployment_id, rng)?;
 
                 // Construct the fee authorization and capture cost breakdown.
-                let (minimum_deployment_cost, (storage_cost_val, synthesis_cost, constructor_cost, namespace_cost)) =
+                let (minimum_deployment_cost, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
                     deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
                 // Authorize the fee.
                 let fee_authorization = match record {
@@ -392,26 +392,25 @@ Once it is deployed, it CANNOT be changed.
 
                 // Add the program to the VM before calculating function costs.
                 vm.process().write().add_program(&program)?;
-                // Compute deployment stats (circuit fields are None since VKs are placeholders).
-                let mut stats = DeploymentStats {
+                // Compute the deployment stats (circuit fields are None since VKs are placeholders).
+                let priority = priority_fee.unwrap_or(0);
+                let function_costs = calculate_function_costs(&vm, &deployment, consensus_version, rng)?;
+                let stats = DeploymentStats {
                     program_size_bytes: bytecode_size,
                     max_program_size_bytes: N::MAX_PROGRAM_SIZE,
                     total_variables: None,
                     total_constraints: None,
                     max_variables: None,
                     max_constraints: None,
-                    cost: CostBreakdown::for_deployment(
-                        storage_cost_val,
-                        synthesis_cost,
-                        namespace_cost,
-                        constructor_cost,
-                        priority_fee.unwrap_or(0),
-                    ),
-                    function_costs: Vec::new(),
+                    storage_cost,
+                    synthesis_cost,
+                    namespace_cost,
+                    constructor_cost,
+                    priority_fee: priority,
+                    total_cost: storage_cost + synthesis_cost + namespace_cost + constructor_cost + priority,
+                    function_costs,
                 };
-                print_deployment_stats(&id.to_string(), &stats);
-                // Print per-function cost breakdown and store in stats.
-                stats.function_costs = print_function_costs(&vm, &deployment, consensus_version, rng)?;
+                print_deployment_summary(&id.to_string(), &stats);
                 // Create the transaction.
                 let transaction = Transaction::from_deployment(owner, deployment, fee)?;
                 // Add the transaction and stats.
@@ -426,28 +425,27 @@ Once it is deployed, it CANNOT be changed.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
                 // Add the program to the VM before calculating function costs.
                 vm.process().write().add_program(&program)?;
-                // Compute and print the deployment stats.
-                let mut stats =
-                    compute_deployment_stats(&vm, deployment, priority_fee, consensus_version, bytecode_size)?;
-                print_deployment_stats(&id.to_string(), &stats);
-                // Print per-function cost breakdown and store in stats.
-                stats.function_costs = print_function_costs(&vm, deployment, consensus_version, rng)?;
+                // Compute the deployment stats.
+                let stats =
+                    compute_deployment_stats(&vm, deployment, priority_fee, consensus_version, bytecode_size, rng)?;
+                print_deployment_summary(&id.to_string(), &stats);
                 // Save the transaction and stats.
                 transactions.push((id, transaction));
                 all_stats.push(stats);
             }
 
             if !command.skip_deploy_certificate {
-                for (program_id, transaction) in transactions.iter() {
-                    // Validate the deployment limits.
-                    let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-                    validate_deployment_limits(deployment, program_id, &network)?;
-                }
+                // Validate the deployment limits for the current transaction.
+                let (program_id, transaction) = transactions.last().expect("Transaction was just pushed");
+                let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
+                validate_deployment_limits(deployment, program_id, &network)?;
             }
         }
 
-        // Add the program to the VM (idempotent; ensures skipped programs are available for later imports).
-        vm.process().write().add_program(&program)?;
+        // Add the program to the VM. This ensures skipped programs are available for later imports.
+        if let Err(e) = vm.process().write().add_program(&program) {
+            tracing::debug!("Program {id} already in VM: {e}");
+        }
     }
 
     // If the `print` option is set, print the deployment transaction to the console.
@@ -733,18 +731,22 @@ pub(crate) fn print_deployment_plan<N: Network>(
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
 }
 
-/// Compute deployment statistics.
-pub(crate) fn compute_deployment_stats<N: Network>(
+/// Compute deployment statistics, including per-function cost estimation.
+pub(crate) fn compute_deployment_stats<N: Network, R: Rng + CryptoRng>(
     vm: &VM<N, ConsensusMemory<N>>,
     deployment: &Deployment<N>,
     priority_fee: Option<u64>,
     consensus_version: ConsensusVersion,
     bytecode_size: usize,
+    rng: &mut R,
 ) -> Result<DeploymentStats> {
     let variables = deployment.num_combined_variables()?;
     let constraints = deployment.num_combined_constraints()?;
     let (_, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
         deployment_cost(&vm.process().read(), deployment, consensus_version)?;
+    let priority = priority_fee.unwrap_or(0);
+
+    let function_costs = calculate_function_costs(vm, deployment, consensus_version, rng)?;
 
     Ok(DeploymentStats {
         program_size_bytes: bytecode_size,
@@ -753,19 +755,18 @@ pub(crate) fn compute_deployment_stats<N: Network>(
         total_constraints: Some(constraints),
         max_variables: Some(N::MAX_DEPLOYMENT_VARIABLES),
         max_constraints: Some(N::MAX_DEPLOYMENT_CONSTRAINTS),
-        cost: CostBreakdown::for_deployment(
-            storage_cost,
-            synthesis_cost,
-            namespace_cost,
-            constructor_cost,
-            priority_fee.unwrap_or(0),
-        ),
-        function_costs: Vec::new(),
+        storage_cost,
+        synthesis_cost,
+        namespace_cost,
+        constructor_cost,
+        priority_fee: priority,
+        total_cost: storage_cost + synthesis_cost + namespace_cost + constructor_cost + priority,
+        function_costs,
     })
 }
 
-/// Pretty-print deployment statistics.
-pub(crate) fn print_deployment_stats(program_id: &str, stats: &DeploymentStats) {
+/// Pretty-print deployment summary, including per-function costs.
+pub(crate) fn print_deployment_summary(program_id: &str, stats: &DeploymentStats) {
     use colored::*;
 
     println!("\n{} {}", "📊 Deployment Summary for".bold(), program_id.bold());
@@ -775,7 +776,7 @@ pub(crate) fn print_deployment_stats(program_id: &str, stats: &DeploymentStats) 
 }
 
 /// Calculate per-function costs for a deployment.
-fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
+pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
     vm: &VM<N, ConsensusMemory<N>>,
     deployment: &Deployment<N>,
     consensus_version: ConsensusVersion,
@@ -785,6 +786,10 @@ fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
     let stack = vm.process().read().get_stack(deployment.program().id())?;
 
     let mut function_costs = Vec::new();
+
+    // Generate a single throwaway key for input sampling across all functions.
+    let sample_key = PrivateKey::new(rng)?;
+    let sample_address = Address::try_from(&sample_key)?;
 
     for (function_name, _) in deployment.verifying_keys() {
         let name = function_name.to_string();
@@ -799,72 +804,29 @@ fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
         };
 
         // Sample inputs and attempt authorization to estimate execution cost (best-effort).
-        let private_key = PrivateKey::new(rng)?;
-        let address = Address::try_from(&private_key)?;
         let input_types = deployment.program().get_function(function_name)?.input_types();
         let inputs = input_types
             .into_iter()
             .map(|ty| {
                 stack
-                    .sample_value(&address, &ty.into(), rng)
+                    .sample_value(&sample_address, &ty.into(), rng)
                     .map_err(|e| CliError::custom(format!("Failed to sample value: {e}")).into())
             })
             .collect::<Result<Vec<_>>>()?;
         let execution_cost =
-            match vm.authorize(&private_key, deployment.program().id(), function_name, inputs.iter(), rng) {
-                Err(_) => None,
+            match vm.authorize(&sample_key, deployment.program().id(), function_name, inputs.iter(), rng) {
+                Err(e) => {
+                    tracing::debug!("Could not estimate execution cost for '{name}': {e}");
+                    None
+                }
                 Ok(authorization) => {
                     Some(execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?.0)
                 }
             };
 
-        let storage_cost = execution_cost.map(|ec| ec.saturating_sub(finalize_cost));
+        let proof_cost = execution_cost.map(|ec| ec.saturating_sub(finalize_cost));
 
-        function_costs.push(FunctionCostStats { name, finalize_cost, storage_cost, execution_cost });
-    }
-
-    Ok(function_costs)
-}
-
-/// Print per-function cost breakdown for a deployment.
-pub(crate) fn print_function_costs<N: Network, R: Rng + CryptoRng>(
-    vm: &VM<N, ConsensusMemory<N>>,
-    deployment: &Deployment<N>,
-    consensus_version: ConsensusVersion,
-    rng: &mut R,
-) -> Result<Vec<FunctionCostStats>> {
-    use colored::*;
-
-    let function_costs = calculate_function_costs(vm, deployment, consensus_version, rng)?;
-
-    for fc in &function_costs {
-        println!("\n{}", format!("  Function '{}'", fc.name).bold());
-        if let Some(execution_cost) = fc.execution_cost {
-            println!(
-                "    {:24}{:.6}",
-                "Total Execution Cost:".cyan(),
-                CostBreakdown::microcredits_to_credits(execution_cost)
-            );
-            println!(
-                "    {:24}{:.6}",
-                "|- Finalize Cost:".cyan(),
-                CostBreakdown::microcredits_to_credits(fc.finalize_cost)
-            );
-            if let Some(storage_cost) = fc.storage_cost {
-                println!(
-                    "    {:24}{:.6}",
-                    "|- Storage Cost:".cyan(),
-                    CostBreakdown::microcredits_to_credits(storage_cost)
-                );
-            }
-        } else {
-            println!("    {:24}{}", "Total Execution Cost:".cyan(), "Undetermined".dimmed());
-            println!(
-                "    {:24}{:.6}",
-                "|- Finalize Cost:".cyan(),
-                CostBreakdown::microcredits_to_credits(fc.finalize_cost)
-            );
-        }
+        function_costs.push(FunctionCostStats { name, finalize_cost, proof_cost, execution_cost });
     }
 
     Ok(function_costs)
