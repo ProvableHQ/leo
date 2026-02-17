@@ -1,12 +1,16 @@
        Leo ✅ Added network dependency `credits.aleo` from network `true`.
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'some_sample_leo_program.leo'
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
        Leo     The program checksum is: '[208u8, 46u8, 107u8, 120u8, 67u8, 35u8, 254u8, 232u8, 167u8, 173u8, 0u8, 130u8, 249u8, 123u8, 65u8, 159u8, 169u8, 93u8, 168u8, 232u8, 33u8, 125u8, 49u8, 130u8, 118u8, 142u8, 183u8, 31u8, 60u8, 106u8, 136u8, 65u8]'.
        Leo     Program size: 0.18 KB / 97.66 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
+
+       Leo 🔨 Compiling 'some_sample_leo_program.leo'
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
        Leo     The program checksum is: '[208u8, 46u8, 107u8, 120u8, 67u8, 35u8, 254u8, 232u8, 167u8, 173u8, 0u8, 130u8, 249u8, 123u8, 65u8, 159u8, 169u8, 93u8, 168u8, 232u8, 33u8, 125u8, 49u8, 130u8, 118u8, 142u8, 183u8, 31u8, 60u8, 106u8, 136u8, 65u8]'.

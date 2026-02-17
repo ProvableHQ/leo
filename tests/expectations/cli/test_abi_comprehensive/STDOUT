@@ -1,5 +1,7 @@
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'abi_test.leo'
        Leo     35 statements before dead code elimination.
        Leo     35 statements after dead code elimination.
        Leo     The program checksum is: '[196u8, 172u8, 159u8, 168u8, 104u8, 254u8, 246u8, 176u8, 180u8, 143u8, 224u8, 75u8, 243u8, 122u8, 139u8, 98u8, 135u8, 5u8, 245u8, 102u8, 238u8, 231u8, 49u8, 59u8, 200u8, 176u8, 230u8, 159u8, 224u8, 79u8, 185u8, 61u8]'.
