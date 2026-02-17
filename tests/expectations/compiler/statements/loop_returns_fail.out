@@ -1,35 +1,35 @@
 Error [ETYC0372026]: Loop body contains a return statement or always returns.
-    --> compiler-test:5:9
+    --> compiler-test:5:5
      |
-   5 |         for i: u32 in 0u32..9u32 {
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
-   6 |             return false;
-     |             ^^^^^^^^^^^^^
-   7 |         }
-     |         ^
+   5 |     for i: u32 in 0u32..9u32 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   6 |         return false;
+     |         ^^^^^^^^^^^^^
+   7 |     }
+     |     ^
      |
      = Remove the code in the loop body that always returns.
 Error [ETYC0372026]: Loop body contains a return statement or always returns.
-    --> compiler-test:9:9
+    --> compiler-test:9:5
      |
-   9 |         for i: u32 in 0u32..9u32 {
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |             if (x == 0u32) {
-     |             ^^^^^^^^^^^^^^^^
-  11 |                 return false;
-     |                 ^^^^^^^^^^^^^
-  12 |             } else {
-     |             ^^^^^^^^
-  13 |                 return true;
-     |                 ^^^^^^^^^^^^
-  14 |             }
-     |             ^
-  15 |         }
+   9 |     for i: u32 in 0u32..9u32 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |         if (x == 0u32) {
+     |         ^^^^^^^^^^^^^^^^
+  11 |             return false;
+     |             ^^^^^^^^^^^^^
+  12 |         } else {
+     |         ^^^^^^^^
+  13 |             return true;
+     |             ^^^^^^^^^^^^
+  14 |         }
      |         ^
+  15 |     }
+     |     ^
      |
      = Remove the code in the loop body that always returns.
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
-   2 | program test.aleo {
+   2 | program test.aleo {}
      |         ^^^^^^^^^

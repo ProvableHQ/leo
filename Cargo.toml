@@ -253,3 +253,12 @@ incremental = false
 debug = false
 debug-assertions = false
 codegen-units = 32 # HIGH codegen parallelism speeds compile (default is usually 16)
+
+[profile.dev.package.lalrpop]
+opt-level = 3
+
+[profile.test.package.lalrpop]
+opt-level = 3
+
+[profile.release.package.lalrpop]
+opt-level = 3

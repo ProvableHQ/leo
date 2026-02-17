@@ -31,11 +31,11 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         // Convert the block into a function and a function call.
         let mut block_to_function_rewriter = BlockToFunctionRewriter::new(self.state, self.current_program);
         let (function, call_to_finalize) =
-            block_to_function_rewriter.rewrite_block(&input.block, finalize_fn_name, Variant::AsyncFunction);
+            block_to_function_rewriter.rewrite_block(&input.block, finalize_fn_name, Variant::Finalize);
 
         // Ensure we're not trying to capture too many variables.
         if function.input.len() > self.max_inputs {
-            self.state.handler.emit_err(leo_errors::StaticAnalyzerError::async_block_capturing_too_many_vars(
+            self.state.handler.emit_err(leo_errors::StaticAnalyzerError::final_block_capturing_too_many_vars(
                 function.input.len(),
                 self.max_inputs,
                 input.span,

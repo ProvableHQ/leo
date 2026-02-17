@@ -3,14 +3,14 @@ namespace: Compile
 expectation: Pass
 */
 
-program test.aleo {
-    struct Point {
-        x: u64,
-        y: u64,
-    }
+struct Point {
+    x: u64,
+    y: u64,
+}
 
+program test.aleo {
     // Test all Pedersen and Poseidon raw hash variants
-    transition main(input: u64) -> (
+    fn main(input: u64) -> (
         field, group, scalar, address,  // Pedersen64 raw
         field, group, scalar, u128,     // Pedersen128 raw
         field, group, scalar, address,  // Poseidon2 raw

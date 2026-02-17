@@ -3,13 +3,13 @@ namespace: Compile
 expectation: Fail
 */
 
-program test.aleo {
-    struct Message {
-        data: u32,
-    }
+struct Message {
+    data: u32,
+}
 
+program test.aleo {
     // Test serialize/deserialize with various type errors
-    transition test_deserialize_wrong_sizes() -> (u32, field, scalar, address, [u8; 4]) {
+    fn test_deserialize_wrong_sizes() -> (u32, field, scalar, address, [u8; 4]) {
         // Fail: u32 raw requires 32 bits, providing 64
         let u32_wrong: [bool; 64] = [true; 64];
         let u32_result: u32 = Deserialize::from_bits_raw::[u32](u32_wrong);
@@ -34,7 +34,7 @@ program test.aleo {
     }
 
     // Test non-raw deserialize with raw-sized arrays
-    transition test_nonraw_with_raw_size() -> u32 {
+    fn test_nonraw_with_raw_size() -> u32 {
         // Fail: u32 non-raw requires 58 bits (with metadata), providing only 32 (raw size)
         let wrong_bits: [bool; 32] = [true; 32];
         let result: u32 = Deserialize::from_bits::[u32](wrong_bits);

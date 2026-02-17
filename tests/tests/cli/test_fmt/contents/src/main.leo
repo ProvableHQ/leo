@@ -1,12 +1,12 @@
-program ugly_program.aleo{
 struct Coordinates{
       x:u64,
   y  :  u64,
           z :u64,
 }
 
+program ugly_program.aleo{
 
-transition add(  public a :u32,b:    u32  )->u32{
+fn add(  public a :u32,b:    u32  )->u32{
 let c :u32=a   +b;
           let d:u32 =  c *   2u32 ;
     return d ;
@@ -15,5 +15,5 @@ let c :u32=a   +b;
      mapping balances: address=>u64;
 
   @noupgrade
-    async constructor(  ){}
+    constructor(  ){}
 }

@@ -112,7 +112,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         let mut transition_count = 0;
         for (_, function) in input.functions.iter() {
             self.visit_function(function);
-            if function.variant.is_transition() {
+            if function.variant.is_entry() {
                 transition_count += 1;
             }
         }
@@ -132,7 +132,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // TODO: Need similar checks for composites (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
         if transition_count > self.limits.max_functions {
-            self.emit_err(TypeCheckerError::too_many_transitions(
+            self.emit_err(TypeCheckerError::too_many_entry_points(
                 self.limits.max_functions,
                 input.program_id.name.span + input.program_id.network.span,
             ));
@@ -140,7 +140,9 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // Check that each program has at least one transition function.
         // This is a snarkvm requirement.
         else if transition_count == 0 {
-            self.emit_err(TypeCheckerError::no_transitions(input.program_id.name.span + input.program_id.network.span));
+            self.emit_err(TypeCheckerError::no_entry_points(
+                input.program_id.name.span + input.program_id.network.span,
+            ));
         }
     }
 
@@ -280,7 +282,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                         identifier.span,
                     ));
                 } else if matches!(type_, Type::Future(..)) {
-                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_future(
+                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_final(
                         if input.is_record { "record" } else { "struct" },
                         identifier.span,
                     ));
@@ -414,7 +416,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the function's annotations are valid.
         for annotation in function.annotations.iter() {
-            if !matches!(annotation.identifier.name, sym::test | sym::should_fail) {
+            if !matches!(annotation.identifier.name, sym::test | sym::should_fail | sym::no_inline | sym::inline) {
                 self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
             }
         }
@@ -469,10 +471,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        if has_test
-            && !self.scope_state.variant.unwrap().is_script()
-            && !self.scope_state.variant.unwrap().is_transition()
-        {
+        if has_test && !self.scope_state.variant.unwrap().is_script() && !self.scope_state.variant.unwrap().is_entry() {
             self.emit_err(TypeCheckerError::annotation_error(
                 format_args!("Annotation @test may appear only on scripts and transitions"),
                 get(sym::test).span,
@@ -501,12 +500,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 // Query helper function to type check function parameters and outputs.
                 slf.check_function_signature(function, false);
 
-                if function.variant == Variant::Function && function.input.is_empty() {
-                    slf.emit_err(TypeCheckerError::empty_function_arglist(function.span));
-                } else if function.variant == Variant::Function && function.input.iter().all(|i| i.type_.is_empty()) {
-                    slf.emit_err(TypeCheckerError::empty_function_args(function.span));
-                }
-
                 slf.visit_block(&function.block);
 
                 // If the function has a return type, then check that it has a return.
@@ -515,14 +508,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 }
             })
         });
-
-        // Make sure that async transitions call finalize.
-        if self.scope_state.variant == Some(Variant::AsyncTransition)
-            && !self.scope_state.has_called_finalize
-            && !self.scope_state.already_contains_an_async_block
-        {
-            self.emit_err(TypeCheckerError::missing_async_operation_in_async_transition(function.span));
-        }
 
         self.scope_state.reset();
     }
@@ -533,7 +518,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // Set the scope state before traversing the constructor.
         self.scope_state.function = Some(sym::constructor);
         // Note: We set the variant to `AsyncFunction` since constructors have similar semantics.
-        self.scope_state.variant = Some(Variant::AsyncFunction);
+        self.scope_state.variant = Some(Variant::Finalize);
         self.scope_state.is_constructor = true;
 
         // Get the upgrade variant.
@@ -626,13 +611,8 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {
-        // Must not be an inline function
-        if input.variant == Variant::Inline {
-            self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
-        }
-
         // Create future stubs.
-        if input.variant == Variant::AsyncFunction {
+        if input.variant == Variant::Finalize {
             let finalize_input_map = &mut self.async_function_input_types;
             let resolved_inputs: Vec<Type> = input
                 .input

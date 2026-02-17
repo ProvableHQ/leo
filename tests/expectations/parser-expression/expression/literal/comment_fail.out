@@ -10,7 +10,7 @@ Error [EPAR0370050]: Could not lex the following content: `/*`.
      |
    1 | /* test
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '/'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/'
     --> test_2:1:1
      |
    1 | / /
@@ -21,7 +21,7 @@ Error [EPAR0370050]: Could not lex the following content: `/*`.
      |
    1 | /*/
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '*'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '*'
     --> test_4:1:1
      |
    1 | */
@@ -32,7 +32,7 @@ Error [EPAR0370050]: Could not lex the following content: `🦀`.
      |
    1 | 🦀**/
      | ^^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '/'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/'
     --> test_6:1:1
      |
    1 | /🦀*/
@@ -55,7 +55,7 @@ Error [EPAR0370050]: Could not lex the following content: `/*`.
      |
    1 | /*🦀
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'async', 'block', 'network', 'self' -- found '/*/*/'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/*/*/'
     --> test_10:1:1
      |
    1 | /*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*

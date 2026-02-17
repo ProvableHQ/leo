@@ -1,14 +1,14 @@
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:8:18
+Error [ETYC0372057]: Only entry point fns can have a record as input or output.
+    --> compiler-test:9:8
      |
-   8 |     function foo(a: credits) -> u8 {
-     |                  ^^^^^^^^^^
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:12:41
+   9 | fn foo(a: credits) -> u8 {
+     |        ^^^^^^^^^^
+Error [ETYC0372057]: Only entry point fns can have a record as input or output.
+    --> compiler-test:13:31
      |
-  12 |     function boo(a: address, b: u64) -> credits {
-     |                                         ^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+  13 | fn boo(a: address, b: u64) -> credits {
+     |                               ^^^^^^^
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

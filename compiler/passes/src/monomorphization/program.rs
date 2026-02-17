@@ -66,8 +66,8 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                     .map(|f| {
                         matches!(
                             f.variant,
-                            Variant::AsyncTransition | Variant::Transition | Variant::Function | Variant::Script
-                        )
+                             Variant::EntryPoint | Variant::Script
+                        ) | (f.variant == Variant::Fn && f.const_parameters.is_empty())
                     })
                     .unwrap_or(false)
             })
@@ -117,7 +117,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Move reconstructed functions into the final `ProgramScope`.
         // Make sure to place transitions before all the other functions.
         let (transitions, mut non_transitions): (Vec<_>, Vec<_>) =
-            self.reconstructed_functions.clone().into_iter().partition(|(_, f)| f.variant.is_transition());
+            self.reconstructed_functions.clone().into_iter().partition(|(_, f)| f.variant.is_entry());
 
         let mut all_functions = transitions;
         all_functions.append(&mut non_transitions);

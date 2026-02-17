@@ -99,6 +99,11 @@ impl Function {
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
+
+    /// Returns `true` if any output of the function is a `Final`
+    pub fn has_final_output(&self) -> bool {
+        self.output.iter().any(|o| matches!(o.type_, Type::Future(_)))
+    }
 }
 
 impl From<FunctionStub> for Function {
@@ -131,11 +136,10 @@ impl fmt::Display for Function {
         }
 
         match self.variant {
-            Variant::Inline => write!(f, "inline ")?,
-            Variant::Function => write!(f, "function ")?,
-            Variant::AsyncFunction => write!(f, "async function ")?,
-            Variant::Transition => write!(f, "transition ")?,
-            Variant::AsyncTransition => write!(f, "async transition ")?,
+            Variant::FinalFn => write!(f, "final fn ")?,
+            Variant::Fn => write!(f, "fn ")?,
+            Variant::Finalize => write!(f, "finalize ")?,
+            Variant::EntryPoint => write!(f, "fn ")?,
             Variant::Script => write!(f, "script ")?,
         }
 

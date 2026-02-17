@@ -1,10 +1,10 @@
 
-program test.aleo {
-    function x(x: u32, public y: i32) -> u8 {
-        return 0u8;
-    }
+program test.aleo {}
 
-    function x(public x: u32, y: i32) -> u8 {
-        return 0u8;
-    }
+fn x(x: u32, public y: i32) -> u8 {
+    return 0u8;
+}
+
+fn x(public x: u32, y: i32) -> u8 {
+    return 0u8;
 }

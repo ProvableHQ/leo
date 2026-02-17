@@ -1,21 +1,21 @@
 Error [ESAZ0374004]: The call to mid.aleo/mid will result in failed executions on-chain.
-    --> compiler-test:8:26
+    --> compiler-test:8:25
      |
-   8 |         let f1: Future = mid.aleo/mid(0u32);
-     |                          ^^^^^^^^^^^^^^^^^^
+   8 |         let f1: Final = mid.aleo/mid(0u32);
+     |                         ^^^^^^^^^^^^^^^^^^
      |
-     = There is a subtle error that occurs if an async transition call follows a non-async transition call, and the async call returns a `Future` that itself takes a `Future` as an input. See See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+     = There is a subtle error that occurs if an entry point fn returning Final follows a non-Final entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
 Error [ESAZ0374004]: The call to mid.aleo/mid will result in failed executions on-chain.
-    --> compiler-test:9:26
+    --> compiler-test:9:25
      |
-   9 |         let f2: Future = mid.aleo/mid(1u32);
-     |                          ^^^^^^^^^^^^^^^^^^
+   9 |         let f2: Final = mid.aleo/mid(1u32);
+     |                         ^^^^^^^^^^^^^^^^^^
      |
-     = There is a subtle error that occurs if an async transition call follows a non-async transition call, and the async call returns a `Future` that itself takes a `Future` as an input. See See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+     = There is a subtle error that occurs if an entry point fn returning Final follows a non-Final entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
 Error [ESAZ0374004]: The call to mid.aleo/mid will result in failed executions on-chain.
-    --> compiler-test:17:26
+    --> compiler-test:17:25
      |
-  17 |         let f2: Future = mid.aleo/mid(1u32);
-     |                          ^^^^^^^^^^^^^^^^^^
+  17 |         let f2: Final = mid.aleo/mid(1u32);
+     |                         ^^^^^^^^^^^^^^^^^^
      |
-     = There is a subtle error that occurs if an async transition call follows a non-async transition call, and the async call returns a `Future` that itself takes a `Future` as an input. See See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+     = There is a subtle error that occurs if an entry point fn returning Final follows a non-Final entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.

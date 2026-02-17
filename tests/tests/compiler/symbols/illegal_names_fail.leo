@@ -7,5 +7,5 @@ program fooaleobar.aleo {
         daleo: u32,
     }
 
-    transition foo () {}
+    fn foo () {}
 }

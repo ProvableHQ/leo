@@ -15,7 +15,7 @@ program test.aleo {
 
         // The function `mint_public` issues the specified token amount
  // for the token receiver publicly on the network.
-    async transition mint_public(  public receiver:address ,  public amount:u64  )->Future{
+    fn mint_public(  public receiver:address ,  public amount:u64  )->Final{
     return finalize_mint(  receiver  ,  amount  );
     }
 
@@ -29,7 +29,7 @@ program test.aleo {
     // This function is public and both the sender and receiver
 
       // are visible on-chain.
-        async transition transfer_public(  public receiver:address  ,  public amount:u64  )->Future{
+        fn transfer_public(  public receiver:address  ,  public amount:u64  )->Final{
         // Compute the change amount.
     // This `sub` operation is safe, and the proof will fail
                      // if an overflow occurs.

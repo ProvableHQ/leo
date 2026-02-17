@@ -75,8 +75,8 @@ impl Parser<'_, '_> {
             L_PAREN => self.parse_tuple_type(),
             // Array or Vector: [T; N] or [T]
             L_BRACKET => self.parse_array_or_vector_type(),
-            // Future: Future or Future<...>
-            KW_FUTURE => self.parse_future_type(),
+            // Final: Final or Final<...>
+            KW_FINAL_UPPER => self.parse_future_type(),
             // Mapping type (storage context): mapping key => value
             KW_MAPPING => self.parse_mapping_type(),
             // Primitive type keywords
@@ -185,9 +185,9 @@ impl Parser<'_, '_> {
         self.parse_expr();
     }
 
-    /// Parse a Future type: `Future` or `Future<fn(T1, T2) -> R>`.
+    /// Parse a Final type: `Final` or `Final<fn(T1, T2) -> R>`.
     fn parse_future_type(&mut self) -> Option<CompletedMarker> {
-        if !self.at(KW_FUTURE) {
+        if !self.at(KW_FINAL_UPPER) {
             return None;
         }
 
@@ -197,7 +197,7 @@ impl Parser<'_, '_> {
         // Check for explicit Future signature: Future<fn(T) -> R>
         if self.eat(LT) {
             // Parse fn(...) -> R
-            self.expect(KW_FN);
+            self.expect(KW_FN_UPPER);
             self.expect(L_PAREN);
 
             // Parse parameter types
@@ -221,7 +221,7 @@ impl Parser<'_, '_> {
             self.expect(GT);
         }
 
-        Some(m.complete(self, TYPE_FUTURE))
+        Some(m.complete(self, TYPE_FINAL))
     }
 
     /// Parse a mapping type: `mapping key => value`.
@@ -785,52 +785,52 @@ mod tests {
     // =========================================================================
 
     #[test]
-    fn parse_type_future_simple() {
-        check_type("Future", expect![[r#"
-                ROOT@0..6
-                  TYPE_FUTURE@0..6
-                    KW_FUTURE@0..6 "Future"
+    fn parse_type_final_simple() {
+        check_type("Final", expect![[r#"
+                ROOT@0..5
+                  TYPE_FINAL@0..5
+                    KW_FINAL_UPPER@0..5 "Final"
             "#]]);
     }
 
     #[test]
-    fn parse_type_future_explicit() {
-        check_type("Future<Fn(u32) -> field>", expect![[r#"
-                ROOT@0..24
-                  TYPE_FUTURE@0..24
-                    KW_FUTURE@0..6 "Future"
-                    LT@6..7 "<"
-                    KW_FN@7..9 "Fn"
-                    L_PAREN@9..10 "("
-                    TYPE_PATH@10..13
-                      KW_U32@10..13 "u32"
-                    R_PAREN@13..14 ")"
-                    WHITESPACE@14..15 " "
-                    ARROW@15..17 "->"
-                    WHITESPACE@17..18 " "
-                    TYPE_PATH@18..23
-                      KW_FIELD@18..23 "field"
-                    GT@23..24 ">"
+    fn parse_type_final_explicit() {
+        check_type("Final<Fn(u32) -> field>", expect![[r#"
+                ROOT@0..23
+                  TYPE_FINAL@0..23
+                    KW_FINAL_UPPER@0..5 "Final"
+                    LT@5..6 "<"
+                    KW_FN_UPPER@6..8 "Fn"
+                    L_PAREN@8..9 "("
+                    TYPE_PATH@9..12
+                      KW_U32@9..12 "u32"
+                    R_PAREN@12..13 ")"
+                    WHITESPACE@13..14 " "
+                    ARROW@14..16 "->"
+                    WHITESPACE@16..17 " "
+                    TYPE_PATH@17..22
+                      KW_FIELD@17..22 "field"
+                    GT@22..23 ">"
             "#]]);
     }
 
     #[test]
-    fn parse_type_future_no_params() {
-        check_type("Future<Fn() -> ()>", expect![[r#"
-                ROOT@0..18
-                  TYPE_FUTURE@0..18
-                    KW_FUTURE@0..6 "Future"
-                    LT@6..7 "<"
-                    KW_FN@7..9 "Fn"
-                    L_PAREN@9..10 "("
-                    R_PAREN@10..11 ")"
-                    WHITESPACE@11..12 " "
-                    ARROW@12..14 "->"
-                    WHITESPACE@14..15 " "
-                    TYPE_TUPLE@15..17
-                      L_PAREN@15..16 "("
-                      R_PAREN@16..17 ")"
-                    GT@17..18 ">"
+    fn parse_type_final_no_params() {
+        check_type("Final<Fn() -> ()>", expect![[r#"
+                ROOT@0..17
+                  TYPE_FINAL@0..17
+                    KW_FINAL_UPPER@0..5 "Final"
+                    LT@5..6 "<"
+                    KW_FN_UPPER@6..8 "Fn"
+                    L_PAREN@8..9 "("
+                    R_PAREN@9..10 ")"
+                    WHITESPACE@10..11 " "
+                    ARROW@11..13 "->"
+                    WHITESPACE@13..14 " "
+                    TYPE_TUPLE@14..16
+                      L_PAREN@14..15 "("
+                      R_PAREN@15..16 ")"
+                    GT@16..17 ">"
             "#]]);
     }
 

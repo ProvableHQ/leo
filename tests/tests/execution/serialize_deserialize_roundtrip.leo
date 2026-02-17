@@ -75,7 +75,7 @@ input = ["[10u32, 20u32, 30u32, 40u32]"]
 program test.aleo {
     mapping results: u8 => bool;
 
-    transition test_u8_rt(value: u8) -> public bool {
+    fn test_u8_rt(value: u8) -> public bool {
         let bits: [bool; 34] = Serialize::to_bits(value);
         let reconstructed: u8 = Deserialize::from_bits::[u8](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -87,7 +87,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_u16_rt(value: u16) -> public bool {
+    fn test_u16_rt(value: u16) -> public bool {
         let bits: [bool; 42] = Serialize::to_bits(value);
         let reconstructed: u16 = Deserialize::from_bits::[u16](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -99,7 +99,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_u32_rt(value: u32) -> public bool {
+    fn test_u32_rt(value: u32) -> public bool {
         let bits: [bool; 58] = Serialize::to_bits(value);
         let reconstructed: u32 = Deserialize::from_bits::[u32](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -111,7 +111,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_u64_rt(value: u64) -> public bool {
+    fn test_u64_rt(value: u64) -> public bool {
         let bits: [bool; 90] = Serialize::to_bits(value);
         let reconstructed: u64 = Deserialize::from_bits::[u64](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -123,7 +123,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_u128_rt(value: u128) -> public bool {
+    fn test_u128_rt(value: u128) -> public bool {
         let bits: [bool; 154] = Serialize::to_bits(value);
         let reconstructed: u128 = Deserialize::from_bits::[u128](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -135,7 +135,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_i8_rt(value: i8) -> public bool {
+    fn test_i8_rt(value: i8) -> public bool {
         let bits: [bool; 34] = Serialize::to_bits(value);
         let reconstructed: i8 = Deserialize::from_bits::[i8](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -147,7 +147,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_i16_rt(value: i16) -> public bool {
+    fn test_i16_rt(value: i16) -> public bool {
         let bits: [bool; 42] = Serialize::to_bits(value);
         let reconstructed: i16 = Deserialize::from_bits::[i16](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -159,7 +159,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_i32_rt(value: i32) -> public bool {
+    fn test_i32_rt(value: i32) -> public bool {
         let bits: [bool; 58] = Serialize::to_bits(value);
         let reconstructed: i32 = Deserialize::from_bits::[i32](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -171,7 +171,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_i64_rt(value: i64) -> public bool {
+    fn test_i64_rt(value: i64) -> public bool {
         let bits: [bool; 90] = Serialize::to_bits(value);
         let reconstructed: i64 = Deserialize::from_bits::[i64](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -183,7 +183,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_i128_rt(value: i128) -> public bool {
+    fn test_i128_rt(value: i128) -> public bool {
         let bits: [bool; 154] = Serialize::to_bits(value);
         let reconstructed: i128 = Deserialize::from_bits::[i128](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -195,7 +195,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_field_rt(value: field) -> public bool {
+    fn test_field_rt(value: field) -> public bool {
         let bits: [bool; 279] = Serialize::to_bits(value);
         let reconstructed: field = Deserialize::from_bits::[field](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -207,7 +207,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_group_rt(value: group) -> public bool {
+    fn test_group_rt(value: group) -> public bool {
         let bits: [bool; 279] = Serialize::to_bits(value);
         let reconstructed: group = Deserialize::from_bits::[group](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -219,7 +219,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_scalar_rt(value: scalar) -> public bool {
+    fn test_scalar_rt(value: scalar) -> public bool {
         let bits: [bool; 277] = Serialize::to_bits(value);
         let reconstructed: scalar = Deserialize::from_bits::[scalar](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -231,7 +231,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_address_rt(value: address) -> public bool {
+    fn test_address_rt(value: address) -> public bool {
         let bits: [bool; 279] = Serialize::to_bits(value);
         let reconstructed: address = Deserialize::from_bits::[address](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -243,7 +243,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_bool_rt(value: bool) -> public bool {
+    fn test_bool_rt(value: bool) -> public bool {
         let bits: [bool; 27] = Serialize::to_bits(value);
         let reconstructed: bool = Deserialize::from_bits::[bool](bits);
         let matches_non_raw: bool = value == reconstructed;
@@ -255,7 +255,7 @@ program test.aleo {
         return matches_non_raw && matches_raw;
     }
 
-    transition test_array_rt(value: [u32; 4]) -> public bool {
+    fn test_array_rt(value: [u32; 4]) -> public bool {
         let bits: [bool; 330] = Serialize::to_bits(value);
         let reconstructed: [u32; 4] = Deserialize::from_bits::[[u32; 4]](bits);
         let matches_non_raw: bool =
@@ -276,5 +276,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

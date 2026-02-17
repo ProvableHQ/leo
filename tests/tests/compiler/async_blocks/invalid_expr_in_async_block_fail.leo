@@ -1,6 +1,6 @@
 program test.aleo {
-    async transition t1() {
-        let f1 = async {
+    fn t1() {
+        let f1 = final {
             let s = self.signer;
             let c = self.caller;
         };

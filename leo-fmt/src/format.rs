@@ -75,7 +75,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         PAREN_EXPR => format_parenthesized(node, out),
         STRUCT_EXPR => format_struct_expr(node, out),
         STRUCT_FIELD_INIT => format_struct_field_init(node, out),
-        ASYNC_EXPR => format_async_expr(node, out),
+        FINAL_EXPR => format_final_expr(node, out),
         LOCATOR_EXPR => format_locator_expr(node, out),
 
         // Patterns
@@ -316,13 +316,13 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
     // Emit leading comments (trivia that appears before the first keyword)
     emit_leading_comments(node, out);
 
-    // Emit keywords: async, function/transition/inline/script/constructor, name
+    // Emit keywords: final, fn/script/constructor, name
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
-                    KW_ASYNC | KW_FUNCTION | KW_TRANSITION | KW_INLINE | KW_SCRIPT => {
+                    KW_FINAL | KW_FN | KW_SCRIPT => {
                         out.write(tok.text());
                         out.space();
                     }
@@ -745,7 +745,7 @@ fn format_type(node: &SyntaxNode, out: &mut Output) {
         TYPE_PATH => format_type_path(node, out),
         TYPE_ARRAY => format_type_array(node, out),
         TYPE_TUPLE => format_type_tuple(node, out),
-        TYPE_FUTURE => format_type_future(node, out),
+        TYPE_FINAL => format_type_future(node, out),
         TYPE_MAPPING => format_type_mapping(node, out),
         TYPE_OPTIONAL => format_type_optional(node, out),
         _ => {}
@@ -1471,8 +1471,8 @@ fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
     }
 }
 
-fn format_async_expr(node: &SyntaxNode, out: &mut Output) {
-    out.write("async");
+fn format_final_expr(node: &SyntaxNode, out: &mut Output) {
+    out.write("final");
     out.space();
     for child in node.children() {
         if child.kind() == BLOCK {
@@ -1683,7 +1683,7 @@ fn is_program_item(kind: SyntaxKind) -> bool {
 }
 
 fn is_type_node(kind: SyntaxKind) -> bool {
-    matches!(kind, TYPE_PATH | TYPE_ARRAY | TYPE_TUPLE | TYPE_OPTIONAL | TYPE_FUTURE | TYPE_MAPPING)
+    matches!(kind, TYPE_PATH | TYPE_ARRAY | TYPE_TUPLE | TYPE_OPTIONAL | TYPE_FINAL | TYPE_MAPPING)
 }
 
 fn is_expression(kind: SyntaxKind) -> bool {
@@ -1702,7 +1702,7 @@ fn is_expression(kind: SyntaxKind) -> bool {
             | TUPLE_EXPR
             | STRUCT_EXPR
             | PAREN_EXPR
-            | ASYNC_EXPR
+            | FINAL_EXPR
             | LOCATOR_EXPR
     )
 }

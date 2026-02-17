@@ -17,8 +17,8 @@ input = ["1u64", "2u64"]
 */
 
 program cond_exec_in_finalize.aleo {
-    async transition f(a: u64, b: u64) -> Future {
-        return async {
+    fn f(a: u64, b: u64) -> Final {
+        return final {
             if (b == 0u64) {
               assert_eq(b, 0u64);
             } else {
@@ -28,5 +28,5 @@ program cond_exec_in_finalize.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

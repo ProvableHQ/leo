@@ -1,0 +1,15 @@
+program test.aleo;
+
+closure add_no_inline:
+    input r0 as u32;
+    input r1 as u32;
+    add r0 r1 into r2;
+    output r2 as u32;
+
+function main:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    call add_no_inline r0 r1 into r3;
+    output r2 as u32.private;
+    output r3 as u32.private;

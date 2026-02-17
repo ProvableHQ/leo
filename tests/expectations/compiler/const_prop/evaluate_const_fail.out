@@ -1,5 +1,5 @@
 Error [ECMP0376007]: The value of this const could not be determined at compile time.
-    --> compiler-test:10:13
+    --> compiler-test:7:9
      |
-  10 |             const SOME: u32 = a + 1u32;
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   7 |         const SOME: u32 = a + 1u32;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^

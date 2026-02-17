@@ -1,5 +1,5 @@
 program test.aleo {
-    transition main() {
+    fn main() {
         // Overflow examples for unsigned integers
         let a0: u8 = 256;
         let a1 = 1u8 + 256;

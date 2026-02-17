@@ -1,5 +1,4 @@
 
-program test.aleo {
-    @ test
-    function test() -> u8 {}
-}
+program test.aleo {}
+@ test
+fn test() -> u8 {}

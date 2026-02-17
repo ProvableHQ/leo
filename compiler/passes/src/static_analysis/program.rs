@@ -46,12 +46,12 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         // Set `non_async_external_call_seen` to false.
         self.non_async_external_call_seen = false;
 
-        if matches!(self.variant, Some(Variant::AsyncFunction) | Some(Variant::AsyncTransition)) {
+        if self.variant.is_some_and(|v| v.is_onchain()) | function.has_final_output() {
             super::future_checker::future_check_function(function, &self.state.type_table, &self.state.handler);
         }
 
         // If the function is an async function, initialize the await checker.
-        if self.variant == Some(Variant::AsyncFunction) {
+        if self.variant.is_some_and(|v| v.is_onchain()) {
             // Initialize the list of input futures. Each one must be awaited before the end of the function.
             self.await_checker.set_futures(
                 function
@@ -67,10 +67,10 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         self.visit_block(&function.block);
 
         // Check that all futures were awaited exactly once.
-        if self.variant == Some(Variant::AsyncFunction) {
+        if self.variant.is_some_and(|v| v.is_onchain()) {
             // Throw error if not all futures awaits even appear once.
             if !self.await_checker.static_to_await.is_empty() {
-                self.emit_err(StaticAnalyzerError::future_awaits_missing(
+                self.emit_err(StaticAnalyzerError::final_runs_missing(
                     self.await_checker
                         .static_to_await
                         .clone()
@@ -93,7 +93,7 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
 
                 // Throw error if there does not exist a path in which all futures are awaited exactly once.
                 if num_perfect == 0 {
-                    self.emit_err(StaticAnalyzerError::no_path_awaits_all_futures_exactly_once(
+                    self.emit_err(StaticAnalyzerError::no_path_runs_all_finals_exactly_once(
                         self.await_checker.to_await.len(),
                         function.span(),
                     ));
@@ -101,7 +101,7 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
 
                 // Throw warning if not all futures are awaited in some paths.
                 if num_paths_unawaited > 0 {
-                    self.emit_warning(StaticAnalyzerWarning::some_paths_do_not_await_all_futures(
+                    self.emit_warning(StaticAnalyzerWarning::some_paths_do_not_run_all_finals(
                         self.await_checker.to_await.len(),
                         num_paths_unawaited,
                         function.span(),
@@ -110,7 +110,7 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
 
                 // Throw warning if some futures are awaited more than once in some paths.
                 if num_paths_duplicate_awaited > 0 {
-                    self.emit_warning(StaticAnalyzerWarning::some_paths_contain_duplicate_future_awaits(
+                    self.emit_warning(StaticAnalyzerWarning::some_paths_contain_duplicate_final_runs(
                         self.await_checker.to_await.len(),
                         num_paths_duplicate_awaited,
                         function.span(),

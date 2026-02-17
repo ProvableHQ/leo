@@ -1,7 +1,7 @@
 program unary_ops_unsuffixed.aleo {
     
     // Test negate with unsuffixed literals
-    transition test_negate_unsuffixed() -> u8 {
+    fn test_negate_unsuffixed() -> u8 {
         let a: i8? = -5;
         let b: i16? = -100;
         let c: i32? = -1000;
@@ -12,7 +12,7 @@ program unary_ops_unsuffixed.aleo {
     }
     
     // Test not with unsuffixed literals
-    transition test_not_unsuffixed() -> u8 {
+    fn test_not_unsuffixed() -> u8 {
         let a: bool? = !true;
         let b: bool? = !false;
         let c: u8? = !5;
@@ -21,7 +21,7 @@ program unary_ops_unsuffixed.aleo {
     }
     
     // Test abs with unsuffixed negative literals
-    transition test_abs_unsuffixed() -> u8 {
+    fn test_abs_unsuffixed() -> u8 {
         let a: i8? = (-5).abs();
         let b: i16? = (-100).abs();
         let c: i32? = (-1000).abs();
@@ -29,14 +29,14 @@ program unary_ops_unsuffixed.aleo {
     }
     
     // Test abs_wrapped with unsuffixed literals
-    transition test_abs_wrapped_unsuffixed() -> u8 {
+    fn test_abs_wrapped_unsuffixed() -> u8 {
         let a: i8? = (-127).abs_wrapped();
         let b: i16? = (-32767).abs_wrapped();
         return 42u8;
     }
     
     // Test field operations with unsuffixed literals
-    transition test_field_ops_unsuffixed() -> u8 {
+    fn test_field_ops_unsuffixed() -> u8 {
         let a: field? = (5).double();
         let b: field? = (5).inv();
         let c: field? = (5).square();
@@ -45,7 +45,7 @@ program unary_ops_unsuffixed.aleo {
     }
     
     // Test nested unary operations
-    transition test_nested_unary_unsuffixed() -> u8 {
+    fn test_nested_unary_unsuffixed() -> u8 {
         let a: i8? = -(-5);
         let b: bool? = !!true;
         let c: u8? = !!5;
@@ -53,7 +53,7 @@ program unary_ops_unsuffixed.aleo {
     }
     
     // Test unary in expression context
-    transition test_unary_in_expression() -> u8 {
+    fn test_unary_in_expression() -> u8 {
         let a: i8? = -5 + 3;
         let b: i8? = (-10) * 2;
         let c: bool? = !true && false;

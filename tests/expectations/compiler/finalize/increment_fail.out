@@ -1,5 +1,5 @@
 Error [ETYC0372005]: Unknown function `test.aleo/increment`
-    --> compiler-test:10:9
+    --> compiler-test:12:5
      |
-  10 |         increment(amounts, addr, amount);
-     |         ^^^^^^^^^
+  12 |     increment(amounts, addr, amount);
+     |     ^^^^^^^^^

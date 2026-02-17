@@ -1,5 +1,5 @@
 program test.aleo{
-	function main(   a  :  u64  ,
+	fn main(   a  :  u64  ,
 	        b  :  u64   )  {
 
             assert(  a  >  0u64  )

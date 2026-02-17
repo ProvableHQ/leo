@@ -151,7 +151,7 @@ impl<'a> ConversionContext<'a> {
                 leo_ast::CompositeType { path, const_arguments }.into()
             }
             TypeKind::Field => leo_ast::Type::Field,
-            TypeKind::Future => {
+            TypeKind::Final => {
                 if node.children.len() == 1 {
                     leo_ast::FutureType::default().into()
                 } else {
@@ -555,7 +555,7 @@ impl<'a> ConversionContext<'a> {
                     leo_ast::ErrExpression { span, id }.into()
                 }
             }
-            ExpressionKind::Async => {
+            ExpressionKind::Final => {
                 let [_a, block] = &node.children[..] else {
                     panic!("Can't happen");
                 };
@@ -744,8 +744,8 @@ impl<'a> ConversionContext<'a> {
                         id,
                     }
                     .into()
-                } else if let (0, Some(name @ sym::_future_await)) =
-                    (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Future, name.name))
+                } else if let (0, Some(name @ sym::_final_run)) =
+                    (args.len(), leo_ast::Intrinsic::convert_path_symbols(sym::Final, name.name))
                 {
                     leo_ast::IntrinsicExpression {
                         name,
@@ -1070,7 +1070,7 @@ impl<'a> ConversionContext<'a> {
         Ok(leo_ast::Annotation { identifier: name, map, span: node.span, id: self.builder.next_id() })
     }
 
-    fn to_function(&self, node: &SyntaxNode<'_>) -> Result<leo_ast::Function> {
+    fn to_function(&self, node: &SyntaxNode<'_>, is_in_program_block: bool) -> Result<leo_ast::Function> {
         assert_eq!(node.kind, SyntaxKind::Function);
 
         let annotations = node
@@ -1080,21 +1080,9 @@ impl<'a> ConversionContext<'a> {
             .map(|child| self.to_annotation(child))
             .collect::<Result<Vec<_>>>()?;
         let async_index = annotations.len();
-        let is_async = node.children[async_index].text == "async";
+        let is_final = node.children[async_index].text == "final";
 
-        let function_variant_index = if is_async { async_index + 1 } else { async_index };
-
-        // The behavior here matches the old parser - "inline" and "script" may be marked async,
-        // but async is ignored. Presumably we should fix this but it's theoretically a breaking change.
-        let variant = match (is_async, node.children[function_variant_index].text) {
-            (true, "function") => leo_ast::Variant::AsyncFunction,
-            (false, "function") => leo_ast::Variant::Function,
-            (_, "inline") => leo_ast::Variant::Inline,
-            (_, "script") => leo_ast::Variant::Script,
-            (true, "transition") => leo_ast::Variant::AsyncTransition,
-            (false, "transition") => leo_ast::Variant::Transition,
-            _ => panic!("Can't happen"),
-        };
+        let function_variant_index = if is_final { async_index + 1 } else { async_index };
 
         let name = &node.children[function_variant_index + 1];
         let id = self.to_identifier(name);
@@ -1152,6 +1140,16 @@ impl<'a> ConversionContext<'a> {
                 .map(to_output)
                 .collect::<Result<Vec<_>>>()?,
             _ => Vec::new(),
+        };
+
+        let variant = if is_in_program_block {
+            leo_ast::Variant::EntryPoint
+        } else if node.children[function_variant_index].text == "script" {
+            leo_ast::Variant::Script
+        } else if is_final {
+            leo_ast::Variant::FinalFn
+        } else {
+            leo_ast::Variant::Fn
         };
 
         Ok(leo_ast::Function::new(
@@ -1280,13 +1278,13 @@ impl<'a> ConversionContext<'a> {
             .iter()
             .filter(|child| matches!(child.kind, SyntaxKind::Function))
             .map(|child| {
-                let function = self.to_function(child)?;
+                let function = self.to_function(child, false)?;
                 Ok((function.identifier.name, function))
             })
             .collect::<Result<Vec<_>>>()?;
         // Passes like type checking expect transitions to come first.
         // Irrelevant for modules at the moment.
-        functions.sort_by_key(|func| if func.1.variant.is_transition() { 0u8 } else { 1u8 });
+        functions.sort_by_key(|func| if func.1.variant.is_entry() { 0u8 } else { 1u8 });
 
         let composites = node
             .children
@@ -1324,31 +1322,63 @@ impl<'a> ConversionContext<'a> {
             })
             .collect::<IndexMap<_, _>>();
 
-        let program_node = node.children.last().unwrap();
-
-        let mut functions = program_node
+        let program_nodes = node
             .children
             .iter()
-            .filter(|child| matches!(child.kind, SyntaxKind::Function))
-            .map(|child| {
-                let function = self.to_function(child)?;
-                Ok((function.identifier.name, function))
-            })
-            .collect::<Result<Vec<_>>>()?;
-        // Passes like type checking expect transitions to come first.
-        functions.sort_by_key(|func| if func.1.variant.is_transition() { 0u8 } else { 1u8 });
+            .filter(|child| matches!(child.kind, SyntaxKind::ProgramDeclaration))
+            .collect::<Vec<_>>();
+        if program_nodes.is_empty() {
+            // FIXME: better error handling if missing program declaration
+            return Err(ParserError::missing_program_declaration(Span::new(0, 0)).into());
+        }
+        if program_nodes.len() > 1 {
+            for program_node in &program_nodes {
+                self.handler.emit_err(ParserError::multiple_program_declarations(program_node.span));
+            }
+        }
+        let program_node = program_nodes[0];
 
-        let composites = program_node
-            .children
-            .iter()
-            .filter(|child| matches!(child.kind, SyntaxKind::CompositeDeclaration))
-            .map(|child| {
-                let composite = self.to_composite(child)?;
-                Ok((composite.identifier.name, composite))
-            })
-            .collect::<Result<Vec<_>>>()?;
+        let functions =
+            // Passes like type checking expect transitions to come first.
+            // 
+            // Entry points inside the program block
+            program_node
+                .children
+                .iter()
+                .filter(|child| matches!(child.kind, SyntaxKind::Function))
+                .map(|child| {
+                    let function = self.to_function(child, true)?;
+                    Ok((function.identifier.name, function))
+                })
+                .chain(
+                    // functions at the top level
+                    node.children
+                        .iter()
+                        .filter(|child| matches!(child.kind, SyntaxKind::Function))
+                        .map(|child| {
+                            let function = self.to_function(child, false)?;
+                            Ok((function.identifier.name, function))
+                        })
+                )
+                .collect::<Result<Vec<_>>>()?;
 
-        let consts = program_node
+        let composites =
+            // composites at the top level (structs)
+            program_node
+                .children
+                .iter()
+                .filter(|child| matches!(child.kind, SyntaxKind::CompositeDeclaration))
+                .chain(
+                    // composites in the program declaration (records)
+                    node.children.iter().filter(|child| matches!(child.kind, SyntaxKind::CompositeDeclaration))
+                )
+                .map(|child| {
+                    let composite = self.to_composite(child)?;
+                    Ok((composite.identifier.name, composite))
+                })
+                .collect::<Result<Vec<_>>>()?;
+
+        let consts = node
             .children
             .iter()
             .filter(|child| matches!(child.kind, SyntaxKind::GlobalConst))

@@ -27,6 +27,16 @@ input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Container {
+    id: u8,
+    point: Point, // non-optional now
+}
+
 program none_cases.aleo {
     //
     // ────────────────────────────────────────────────────────────────
@@ -40,23 +50,13 @@ program none_cases.aleo {
     storage points: [Point; 2];
     storage container: Container;
 
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Container {
-        id: u8,
-        point: Point, // non-optional now
-    }
-
     //
     // ────────────────────────────────────────────────────────────────
     // Integers none behavior
     // ────────────────────────────────────────────────────────────────
     //
-    async transition integers_none_behavior() -> Future {
-        return async {
+    fn integers_none_behavior() -> Final {
+        return final {
             assert(counter_u32 == none);
             assert(counter_u32.unwrap_or(99) == 99);
 
@@ -74,8 +74,8 @@ program none_cases.aleo {
     // Primitive none behavior
     // ────────────────────────────────────────────────────────────────
     //
-    async transition primitives_none_behavior() -> Future {
-        return async {
+    fn primitives_none_behavior() -> Final {
+        return final {
             assert(flag == none);
             assert(flag.unwrap_or(true) == true);
 
@@ -103,8 +103,8 @@ program none_cases.aleo {
     // Arrays with none elements (local only)
     // ────────────────────────────────────────────────────────────────
     //
-    async transition arrays_none_behavior() -> Future {
-        return async {
+    fn arrays_none_behavior() -> Final {
+        return final {
             let arr: [u32?; 3] = [none, 2, none];
             assert(arr[0].unwrap_or(9) == 9);
             assert(arr[1].unwrap_or(0) == 2);
@@ -127,8 +127,8 @@ program none_cases.aleo {
     // Structs with local optionals
     // ────────────────────────────────────────────────────────────────
     //
-    async transition structs_none_behavior() -> Future {
-        return async {
+    fn structs_none_behavior() -> Final {
+        return final {
             // Local optional struct
             let c: Container? = none;
             assert(c == none);
@@ -149,5 +149,5 @@ program none_cases.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

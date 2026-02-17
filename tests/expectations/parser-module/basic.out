@@ -12,7 +12,7 @@ module  {
 
 
 module  {
-    inline foo() {
+    fn foo() {
     }
 }
 
@@ -29,9 +29,9 @@ module  {
         x: u32,
         y: u32,
     }
-    inline foo() {
+    fn foo() {
     }
-    inline bar() {
+    fn bar() {
     }
 }
 

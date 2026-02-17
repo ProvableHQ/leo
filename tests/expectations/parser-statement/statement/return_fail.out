@@ -8,7 +8,7 @@ Error [EPAR0370003]: unexpected EOF
      |
    1 | return 5
      |        ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ';', 'true', 'false', 'async', 'block', 'network', 'self' -- found 'if'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', ';', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'if'
     --> test_2:2:1
      |
    2 | if x {}

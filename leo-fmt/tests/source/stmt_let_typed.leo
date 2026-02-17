@@ -1,6 +1,6 @@
 program test.aleo
     {
-	function main(  )   {
+	fn main(  )   {
 let x  :  u64
         =  5u64
             ;

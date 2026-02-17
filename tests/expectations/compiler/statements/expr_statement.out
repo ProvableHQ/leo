@@ -1,13 +1,8 @@
 program test.aleo;
 
-closure foo:
-    input r0 as u8;
-    input r1 as u8;
-    assert.eq r0 r1;
-
 function main:
     input r0 as u8.private;
     input r1 as u8.private;
-    call foo r0 r1;
+    assert.eq r0 r1;
     add r0 r1 into r2;
     output r2 as u8.private;

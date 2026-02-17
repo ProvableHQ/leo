@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {
     // Test deserialization of arrays (non-raw and raw)
-    transition main() -> (
+    fn main() -> (
         u8, u8, u8, u8,      // Deserialized [u8; 4] values
         u32, u32,            // Deserialized [u32; 2] values
         u8, u8, u8, u8,      // Raw deserialized [u8; 4] values

@@ -1,19 +1,19 @@
 
-program test.aleo {
-    struct One {
-        two: Two,
-    }
+program test.aleo {}
 
-    struct Two {
-        three: Three,
-        four: Four,
-    }
+struct One {
+    two: Two,
+}
 
-    struct Three {
-        one: One,
-    }
+struct Two {
+    three: Three,
+    four: Four,
+}
 
-    struct Four {
-        one: One,
-    }
+struct Three {
+    one: One,
+}
+
+struct Four {
+    one: One,
 }

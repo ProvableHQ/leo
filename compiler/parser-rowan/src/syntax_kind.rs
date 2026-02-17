@@ -101,8 +101,8 @@ pub enum SyntaxKind {
     KW_STRING,
     /// `record`
     KW_RECORD,
-    /// `Future`
-    KW_FUTURE,
+    /// `Final`
+    KW_FINAL_UPPER,
     /// `i8`
     KW_I8,
     /// `i16`
@@ -147,16 +147,12 @@ pub enum SyntaxKind {
     KW_CONST,
     /// `constant`
     KW_CONSTANT,
-    /// `function`
-    KW_FUNCTION,
-    /// `transition`
-    KW_TRANSITION,
-    /// `inline`
-    KW_INLINE,
-    /// `async`
-    KW_ASYNC,
-    /// `Fn`
+    /// `final`
+    KW_FINAL,
+    /// `fn`
     KW_FN,
+    /// `Fn`
+    KW_FN_UPPER,
     /// `struct`
     KW_STRUCT,
     /// `constructor`
@@ -454,7 +450,7 @@ pub enum SyntaxKind {
     /// Repeat expression: `[0u8; 32]`
     REPEAT_EXPR,
     /// Async expression: `async foo()`
-    ASYNC_EXPR,
+    FINAL_EXPR,
     /// Associated function call: `Foo::bar()`
     ASSOC_FN_EXPR,
     /// Associated constant: `Foo::BAR`
@@ -479,8 +475,8 @@ pub enum SyntaxKind {
     TYPE_TUPLE,
     /// Optional type: `u32?` (Future feature)
     TYPE_OPTIONAL,
-    /// Future type: `Future<Foo>`
-    TYPE_FUTURE,
+    /// Final type: `Final<Foo>`
+    TYPE_FINAL,
     /// Mapping type in storage.
     TYPE_MAPPING,
 
@@ -522,7 +518,7 @@ impl SyntaxKind {
                 | KW_SIGNATURE
                 | KW_STRING
                 | KW_RECORD
-                | KW_FUTURE
+                | KW_FINAL_UPPER
                 | KW_I8
                 | KW_I16
                 | KW_I32
@@ -541,11 +537,9 @@ impl SyntaxKind {
                 | KW_LET
                 | KW_CONST
                 | KW_CONSTANT
-                | KW_FUNCTION
-                | KW_TRANSITION
-                | KW_INLINE
-                | KW_ASYNC
                 | KW_FN
+                | KW_FINAL
+                | KW_FN_UPPER
                 | KW_STRUCT
                 | KW_CONSTRUCTOR
                 | KW_PROGRAM
@@ -577,7 +571,7 @@ impl SyntaxKind {
                 | KW_SCALAR
                 | KW_SIGNATURE
                 | KW_STRING
-                | KW_FUTURE
+                | KW_FINAL_UPPER
                 | KW_I8
                 | KW_I16
                 | KW_I32
@@ -691,7 +685,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     KW_SIGNATURE,
     KW_STRING,
     KW_RECORD,
-    KW_FUTURE,
+    KW_FINAL_UPPER,
     KW_I8,
     KW_I16,
     KW_I32,
@@ -710,11 +704,9 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     KW_LET,
     KW_CONST,
     KW_CONSTANT,
-    KW_FUNCTION,
-    KW_TRANSITION,
-    KW_INLINE,
-    KW_ASYNC,
+    KW_FINAL,
     KW_FN,
+    KW_FN_UPPER,
     KW_STRUCT,
     KW_CONSTRUCTOR,
     KW_PROGRAM,
@@ -833,7 +825,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     PAREN_EXPR,
     LITERAL,
     REPEAT_EXPR,
-    ASYNC_EXPR,
+    FINAL_EXPR,
     ASSOC_FN_EXPR,
     ASSOC_CONST_EXPR,
     LOCATOR_EXPR,
@@ -844,7 +836,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     TYPE_ARRAY,
     TYPE_TUPLE,
     TYPE_OPTIONAL,
-    TYPE_FUTURE,
+    TYPE_FINAL,
     TYPE_MAPPING,
     ARG_LIST,
     NAME_REF,
@@ -903,7 +895,7 @@ mod tests {
     #[test]
     fn is_keyword() {
         assert!(KW_LET.is_keyword());
-        assert!(KW_FUNCTION.is_keyword());
+        assert!(KW_FN.is_keyword());
         assert!(KW_TRUE.is_keyword());
         assert!(!IDENT.is_keyword());
         assert!(!PLUS.is_keyword());

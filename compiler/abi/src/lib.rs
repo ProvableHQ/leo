@@ -71,7 +71,7 @@ pub fn generate(ast: &ast::Program) -> abi::Program {
     let transitions = scope
         .functions
         .iter()
-        .filter(|(_, f)| f.variant.is_transition())
+        .filter(|(_, f)| f.variant.is_entry())
         .map(|(_, f)| convert_transition(f, &ctx))
         .collect();
 
@@ -130,7 +130,7 @@ fn convert_storage_type(ty: &ast::Type) -> abi::StorageType {
 
 fn convert_transition(function: &ast::Function, ctx: &Ctx) -> abi::Transition {
     let name = function.identifier.name.to_string();
-    let is_async = function.variant.is_async();
+    let is_async = function.has_final_output();
     let inputs = function.input.iter().map(|i| convert_input(i, ctx)).collect();
     let outputs = function.output.iter().map(|o| convert_output(o, ctx)).collect();
     abi::Transition { name, is_async, inputs, outputs }

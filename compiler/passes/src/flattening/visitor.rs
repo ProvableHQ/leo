@@ -108,7 +108,7 @@ pub struct FlatteningVisitor<'a> {
     pub program: Symbol,
 
     /// Whether the function is an async function.
-    pub is_async: bool,
+    pub is_onchain: bool,
 }
 
 impl FlatteningVisitor<'_> {

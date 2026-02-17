@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: bool, x: u8, y: u8) {
+    fn main(a: bool, x: u8, y: u8) {
         x::y = y;
 
         5u8 = y;

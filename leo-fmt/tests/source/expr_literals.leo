@@ -1,5 +1,6 @@
 program test.aleo{
-	function main(  ){
+}
+	fn main(  ){
 
 let a  :u8  =  1u8;
                     let b:u16=2u16;
@@ -28,4 +29,3 @@ let l  :scalar=1scalar;
 let o:address  =aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9;
 
 	}
-}

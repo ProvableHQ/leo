@@ -1,12 +1,40 @@
 
 // The 'vote.leo' program.
+
+
+// Proposal details
+struct ProposalInfo {
+    title: field,
+    content: field,
+    proposer: address,
+}
+
+// Create a new proposal in the "tickets" mapping.
+final fn finalize_propose(public id: field) {
+    Mapping::set(tickets, id, 0u64);
+}
+
+// Create a new ticket on a proposal in the "tickets" mapping.
+final fn finalize_new_ticket(public pid: field) {
+    let current: u64 = Mapping::get_or_use(tickets, pid, 0u64);
+    Mapping::set(tickets, pid, current + 1u64);
+}
+
+final fn finalize_agree(public pid: field) {
+    // Publicly increment the number of agree votes.
+    let current: u64 = Mapping::get_or_use(agree_votes, pid, 0u64);
+    Mapping::set(agree_votes, pid, current + 1u64);
+}
+
+final fn finalize_disagree(pid: field) {
+    // Publicly increment the number of disagree votes.
+    let current: u64 = Mapping::get_or_use(disagree_votes, pid, 0u64);
+    Mapping::set(disagree_votes, pid, current + 1u64);
+}
+
 program vote.aleo {
-    // Proposal details
-    struct ProposalInfo {
-        title: field,
-        content: field,
-        proposer: address,
-    }
+    // Save proposal info in public storage.
+    mapping proposals: field => ProposalInfo;
 
     // Proposal record records proposal info publicly
     record Proposal {
@@ -14,9 +42,6 @@ program vote.aleo {
         id: field,
         info: ProposalInfo,
     }
-
-    // Save proposal info in public storage.
-    mapping proposals: field => ProposalInfo;
 
     // Privacy tickets to vote
     record Ticket {
@@ -32,7 +57,7 @@ program vote.aleo {
     mapping disagree_votes: field => u64;
 
     // Propose a new proposal to vote on.
-    async transition propose(public info: ProposalInfo) -> (Proposal, Future) {
+    fn propose(public info: ProposalInfo) -> (Proposal, Final) {
         // Authenticate proposer.
         assert_eq(self.signer, info.proposer);
 
@@ -42,47 +67,27 @@ program vote.aleo {
 
         // Return a new record for the proposal.
         // Finalize the proposal id.
-        return (Proposal { owner: self.signer, id, info }, finalize_propose(id));
+        return (Proposal { owner: self.signer, id, info }, final { finalize_propose(id); });
     }
-    // Create a new proposal in the "tickets" mapping.
-    async function finalize_propose(public id: field) {
-        Mapping::set(tickets, id, 0u64);
-    }
-
     // Create a new ticket to vote with.
-    async transition new_ticket(
+    fn new_ticket(
         public pid: field,
         public voter: address,
-    ) -> (Ticket, Future) {
+    ) -> (Ticket, Final) {
 
         // Finalize the proposal id for the ticket.
-        return (Ticket { owner: voter, pid }, finalize_new_ticket(pid));
+        return (Ticket { owner: voter, pid }, final { finalize_new_ticket(pid); });
     }
-    // Create a new ticket on a proposal in the "tickets" mapping.
-    async function finalize_new_ticket(public pid: field) {
-        let current: u64 = Mapping::get_or_use(tickets, pid, 0u64);
-        Mapping::set(tickets, pid, current + 1u64);
-    }
-
     // Vote privately to agree with a proposal.
-    async transition agree(ticket: Ticket) -> Future {
+    fn agree(ticket: Ticket) -> Final {
         // Finalize this vote.
-        return finalize_agree(ticket.pid);
+        let pid = ticket.pid;
+        return final { finalize_agree(pid); };
     }
-    async function finalize_agree(public pid: field) {
-        // Publicly increment the number of agree votes.
-        let current: u64 = Mapping::get_or_use(agree_votes, pid, 0u64);
-        Mapping::set(agree_votes, pid, current + 1u64);
-    }
-
     // Vote privately to disagree with a proposal.
-    async transition disagree(ticket: Ticket) -> Future {
+    fn disagree(ticket: Ticket) -> Final {
         // Finalize this vote.
-        return finalize_disagree(ticket.pid);
-    }
-    async function finalize_disagree(pid: field) {
-        // Publicly increment the number of disagree votes.
-        let current: u64 = Mapping::get_or_use(disagree_votes, pid, 0u64);
-        Mapping::set(disagree_votes, pid, current + 1u64);
+        let pid = ticket.pid;
+        return final { finalize_disagree(pid); };
     }
 }

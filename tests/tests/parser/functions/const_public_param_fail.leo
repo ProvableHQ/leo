@@ -1,9 +1,10 @@
 
-program test.aleo {
-    function x(x: u32, const public y: i32) {
-        return 0;
-    }
+program test.aleo {}
 
-    function x(constant public x: u32, y: i32) {
-        return 0;
-    }}
+fn x(x: u32, const public y: i32) {
+    return 0;
+}
+
+fn x(constant public x: u32, y: i32) {
+    return 0;
+}

@@ -1,8 +1,8 @@
 program test.aleo {
     mapping map: u32 => u32;
-    async transition main() -> (u32, Future) {
+    fn main() -> (u32, Final) {
         let x = 5u32;
-        let f = async {
+        let f = final {
             map.set(0u32, 42u32);
             assert(map.get(0u32) == 42u32);
             map.set(1u32, map.get(0u32) + x);
@@ -18,7 +18,7 @@ program test.aleo {
         // Ensures that that the async block is actually executed (including the asserts).
         // This is technically illegal since `await` is not allowed in a transition. However, for testing purposes, this
         // seems fine for now. We should improve this when we have better testing infra for the interpreter
-        f.await();
+        f.run();
 
         assert(x == 7); // x should still have its value update outside the async block
         return (x, f);

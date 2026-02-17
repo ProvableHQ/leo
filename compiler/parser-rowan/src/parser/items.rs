@@ -61,7 +61,7 @@ impl Parser<'_, '_> {
                 }
                 // Module-level items at top level (for module files and
                 // multi-section test files with `// --- Next Module:` separators).
-                KW_CONST | KW_STRUCT | KW_INLINE | AT => {
+                KW_CONST | KW_STRUCT | KW_FN | KW_FINAL | AT => {
                     if self.parse_module_item().is_none() {
                         self.error_and_bump("expected module item");
                     }
@@ -100,7 +100,7 @@ impl Parser<'_, '_> {
         match self.current() {
             KW_CONST => self.parse_global_const(),
             KW_STRUCT => self.parse_struct_def(),
-            KW_INLINE => self.parse_function_or_constructor(),
+            KW_FN | KW_FINAL => self.parse_function_or_constructor(),
             _ => None,
         }
     }
@@ -171,7 +171,7 @@ impl Parser<'_, '_> {
             KW_MAPPING => self.parse_mapping_def(),
             KW_STORAGE => self.parse_storage_def(),
             KW_CONST => self.parse_global_const(),
-            KW_FUNCTION | KW_TRANSITION | KW_INLINE | KW_SCRIPT | KW_ASYNC => self.parse_function_or_constructor(),
+            KW_FN | KW_FINAL => self.parse_function_or_constructor(),
             _ => {
                 self.error(format!("expected program item, found {:?}", self.current()));
                 None
@@ -395,11 +395,11 @@ impl Parser<'_, '_> {
         let m = self.start();
 
         // Optional async keyword
-        self.eat(KW_ASYNC);
+        self.eat(KW_FINAL);
 
         // Dispatch based on what follows
         match self.current() {
-            KW_FUNCTION | KW_TRANSITION | KW_INLINE | KW_SCRIPT => {
+            KW_FN => {
                 self.parse_function_body();
                 Some(m.complete(self, FUNCTION_DEF))
             }
@@ -418,8 +418,8 @@ impl Parser<'_, '_> {
     /// Parse function body (after async/function keyword marker started)
     fn parse_function_body(&mut self) {
         // Function keyword (function, transition, or inline)
-        if !self.eat(KW_FUNCTION) && !self.eat(KW_TRANSITION) && !self.eat(KW_INLINE) && !self.eat(KW_SCRIPT) {
-            self.error("expected function, transition, inline, or script".to_string());
+        if !self.eat(KW_FN) {
+            self.error("expected fn".to_string());
         }
 
         // Function name
@@ -743,9 +743,9 @@ mod tests {
 
     #[test]
     fn parse_function() {
-        check_file("program test.aleo { function add(a: u32, b: u32) -> u32 { return a + b; } }", expect![[r#"
-                ROOT@0..75
-                  PROGRAM_DECL@0..75
+        check_file("program test.aleo { fn add(a: u32, b: u32) -> u32 { return a + b; } }", expect![[r#"
+                ROOT@0..69
+                  PROGRAM_DECL@0..69
                     KW_PROGRAM@0..7 "program"
                     WHITESPACE@7..8 " "
                     IDENT@8..12 "test"
@@ -753,78 +753,121 @@ mod tests {
                     KW_ALEO@13..17 "aleo"
                     WHITESPACE@17..18 " "
                     L_BRACE@18..19 "{"
-                    FUNCTION_DEF@19..73
+                    FUNCTION_DEF@19..67
                       WHITESPACE@19..20 " "
-                      KW_FUNCTION@20..28 "function"
-                      WHITESPACE@28..29 " "
-                      IDENT@29..32 "add"
-                      PARAM_LIST@32..48
-                        L_PAREN@32..33 "("
-                        PARAM@33..39
-                          IDENT@33..34 "a"
-                          COLON@34..35 ":"
-                          WHITESPACE@35..36 " "
-                          TYPE_PATH@36..39
-                            KW_U32@36..39 "u32"
-                        COMMA@39..40 ","
-                        PARAM@40..47
-                          WHITESPACE@40..41 " "
-                          IDENT@41..42 "b"
-                          COLON@42..43 ":"
-                          WHITESPACE@43..44 " "
-                          TYPE_PATH@44..47
-                            KW_U32@44..47 "u32"
-                        R_PAREN@47..48 ")"
-                      WHITESPACE@48..49 " "
-                      ARROW@49..51 "->"
-                      WHITESPACE@51..52 " "
-                      TYPE_PATH@52..55
-                        KW_U32@52..55 "u32"
-                      BLOCK@55..73
-                        WHITESPACE@55..56 " "
-                        L_BRACE@56..57 "{"
-                        WHITESPACE@57..58 " "
-                        RETURN_STMT@58..71
-                          KW_RETURN@58..64 "return"
-                          WHITESPACE@64..65 " "
-                          BINARY_EXPR@65..70
-                            PATH_EXPR@65..67
-                              IDENT@65..66 "a"
-                              WHITESPACE@66..67 " "
-                            PLUS@67..68 "+"
-                            WHITESPACE@68..69 " "
-                            PATH_EXPR@69..70
-                              IDENT@69..70 "b"
-                          SEMICOLON@70..71 ";"
-                        WHITESPACE@71..72 " "
-                        R_BRACE@72..73 "}"
-                    WHITESPACE@73..74 " "
-                    R_BRACE@74..75 "}"
+                      KW_FN@20..22 "fn"
+                      WHITESPACE@22..23 " "
+                      IDENT@23..26 "add"
+                      PARAM_LIST@26..42
+                        L_PAREN@26..27 "("
+                        PARAM@27..33
+                          IDENT@27..28 "a"
+                          COLON@28..29 ":"
+                          WHITESPACE@29..30 " "
+                          TYPE_PATH@30..33
+                            KW_U32@30..33 "u32"
+                        COMMA@33..34 ","
+                        PARAM@34..41
+                          WHITESPACE@34..35 " "
+                          IDENT@35..36 "b"
+                          COLON@36..37 ":"
+                          WHITESPACE@37..38 " "
+                          TYPE_PATH@38..41
+                            KW_U32@38..41 "u32"
+                        R_PAREN@41..42 ")"
+                      WHITESPACE@42..43 " "
+                      ARROW@43..45 "->"
+                      WHITESPACE@45..46 " "
+                      TYPE_PATH@46..49
+                        KW_U32@46..49 "u32"
+                      BLOCK@49..67
+                        WHITESPACE@49..50 " "
+                        L_BRACE@50..51 "{"
+                        WHITESPACE@51..52 " "
+                        RETURN_STMT@52..65
+                          KW_RETURN@52..58 "return"
+                          WHITESPACE@58..59 " "
+                          BINARY_EXPR@59..64
+                            PATH_EXPR@59..61
+                              IDENT@59..60 "a"
+                              WHITESPACE@60..61 " "
+                            PLUS@61..62 "+"
+                            WHITESPACE@62..63 " "
+                            PATH_EXPR@63..64
+                              IDENT@63..64 "b"
+                          SEMICOLON@64..65 ";"
+                        WHITESPACE@65..66 " "
+                        R_BRACE@66..67 "}"
+                    WHITESPACE@67..68 " "
+                    R_BRACE@68..69 "}"
             "#]]);
     }
 
+    #[test]
+    fn parse_final_function() {
+        check_file("program test.aleo { } final fn foo() { assert_eq(1u64, 1u64); }", expect![[r#"
+                ROOT@0..63
+                  PROGRAM_DECL@0..21
+                    KW_PROGRAM@0..7 "program"
+                    WHITESPACE@7..8 " "
+                    IDENT@8..12 "test"
+                    DOT@12..13 "."
+                    KW_ALEO@13..17 "aleo"
+                    WHITESPACE@17..18 " "
+                    L_BRACE@18..19 "{"
+                    WHITESPACE@19..20 " "
+                    R_BRACE@20..21 "}"
+                  WHITESPACE@21..22 " "
+                  FUNCTION_DEF@22..63
+                    KW_FINAL@22..27 "final"
+                    WHITESPACE@27..28 " "
+                    KW_FN@28..30 "fn"
+                    WHITESPACE@30..31 " "
+                    IDENT@31..34 "foo"
+                    PARAM_LIST@34..36
+                      L_PAREN@34..35 "("
+                      R_PAREN@35..36 ")"
+                    WHITESPACE@36..37 " "
+                    BLOCK@37..63
+                      L_BRACE@37..38 "{"
+                      WHITESPACE@38..39 " "
+                      ASSERT_EQ_STMT@39..61
+                        KW_ASSERT_EQ@39..48 "assert_eq"
+                        L_PAREN@48..49 "("
+                        LITERAL@49..53
+                          INTEGER@49..53 "1u64"
+                        COMMA@53..54 ","
+                        WHITESPACE@54..55 " "
+                        LITERAL@55..59
+                          INTEGER@55..59 "1u64"
+                        R_PAREN@59..60 ")"
+                        SEMICOLON@60..61 ";"
+                      WHITESPACE@61..62 " "
+                      R_BRACE@62..63 "}"
+            "#]]);
+    }
     // =========================================================================
     // Const Generic Parameters (Declarations)
     // =========================================================================
 
     #[test]
     fn parse_function_const_generic_single() {
-        check_file_no_errors("program test.aleo { function foo::[N: u32]() {} }");
+        check_file_no_errors("program test.aleo { fn foo::[N: u32]() {} }");
     }
 
     #[test]
     fn parse_function_const_generic_multi() {
-        check_file_no_errors("program test.aleo { inline bar::[N: u32, M: u32](arr: u32) -> u32 { return 0u32; } }");
+        check_file_no_errors("program test.aleo { fn bar::[N: u32, M: u32](arr: u32) -> u32 { return 0u32; } }");
     }
 
     #[test]
     fn parse_function_const_generic_empty() {
-        check_file_no_errors("program test.aleo { inline baz::[]() {} }");
+        check_file_no_errors("program test.aleo { fn baz::[]() {} }");
     }
 
     #[test]
-    fn parse_async_transition_const_generic() {
-        check_file_no_errors("program test.aleo { async transition t::[N: u32]() -> Future { return async {}; } }");
+    fn parse_final_entry_const_generic() {
+        check_file_no_errors("program test.aleo { fn t::[N: u32]() -> Final { return final {}; } }");
     }
 
     #[test]
@@ -845,9 +888,9 @@ mod tests {
 
     #[test]
     fn parse_transition() {
-        check_file("program test.aleo { transition main(public x: u32) { } }", expect![[r#"
-                ROOT@0..56
-                  PROGRAM_DECL@0..56
+        check_file("program test.aleo { fn main(public x: u32) { } }", expect![[r#"
+                ROOT@0..48
+                  PROGRAM_DECL@0..48
                     KW_PROGRAM@0..7 "program"
                     WHITESPACE@7..8 " "
                     IDENT@8..12 "test"
@@ -855,29 +898,29 @@ mod tests {
                     KW_ALEO@13..17 "aleo"
                     WHITESPACE@17..18 " "
                     L_BRACE@18..19 "{"
-                    FUNCTION_DEF@19..54
+                    FUNCTION_DEF@19..46
                       WHITESPACE@19..20 " "
-                      KW_TRANSITION@20..30 "transition"
-                      WHITESPACE@30..31 " "
-                      IDENT@31..35 "main"
-                      PARAM_LIST@35..50
-                        L_PAREN@35..36 "("
-                        PARAM@36..49
-                          KW_PUBLIC@36..42 "public"
-                          WHITESPACE@42..43 " "
-                          IDENT@43..44 "x"
-                          COLON@44..45 ":"
-                          WHITESPACE@45..46 " "
-                          TYPE_PATH@46..49
-                            KW_U32@46..49 "u32"
-                        R_PAREN@49..50 ")"
-                      WHITESPACE@50..51 " "
-                      BLOCK@51..54
-                        L_BRACE@51..52 "{"
-                        WHITESPACE@52..53 " "
-                        R_BRACE@53..54 "}"
-                    WHITESPACE@54..55 " "
-                    R_BRACE@55..56 "}"
+                      KW_FN@20..22 "fn"
+                      WHITESPACE@22..23 " "
+                      IDENT@23..27 "main"
+                      PARAM_LIST@27..42
+                        L_PAREN@27..28 "("
+                        PARAM@28..41
+                          KW_PUBLIC@28..34 "public"
+                          WHITESPACE@34..35 " "
+                          IDENT@35..36 "x"
+                          COLON@36..37 ":"
+                          WHITESPACE@37..38 " "
+                          TYPE_PATH@38..41
+                            KW_U32@38..41 "u32"
+                        R_PAREN@41..42 ")"
+                      WHITESPACE@42..43 " "
+                      BLOCK@43..46
+                        L_BRACE@43..44 "{"
+                        WHITESPACE@44..45 " "
+                        R_BRACE@45..46 "}"
+                    WHITESPACE@46..47 " "
+                    R_BRACE@47..48 "}"
             "#]]);
     }
 }

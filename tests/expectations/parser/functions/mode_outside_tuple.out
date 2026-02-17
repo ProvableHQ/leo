@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected an identifier -- found '('
-    --> test:3:15
+    --> test:3:7
      |
-   3 |     transition(a: u8) -> public (u8, u8) {
-     |               ^
+   3 |     fn(a: u8) -> public (u8, u8) {
+     |       ^

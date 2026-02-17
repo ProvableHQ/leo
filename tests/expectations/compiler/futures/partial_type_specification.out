@@ -1,36 +1,34 @@
-Warning [WSAZ0374000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.
-    --> compiler-test:17:5
+Warning [WSAZ0374000]: Not all paths through the function run all Finals. 2/4 paths contain at least one Final that is never run.
+    --> compiler-test:16:1
      |
-  17 |     async function finalize_main(f: Future, f2: Future, a: u32) {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  18 |         // f.await();
-     |         ^^^^^^^^^^^^^
-  19 |         if a == 1u32 {
+  16 | final fn finalize_main(f: Final, f2: Final, a: u32) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  17 |     // f.run();
+     |     ^^^^^^^^^^^
+  18 |     if a == 1u32 {
+     |     ^^^^^^^^^^^^^^
+  19 |         Final::run(f);
      |         ^^^^^^^^^^^^^^
-  20 |             Future::await(f);
-     |             ^^^^^^^^^^^^^^^^^
-  21 |             f2.await();
-     |             ^^^^^^^^^^^
-  22 |         }
-     |         ^
-  23 | 
-  24 |         if a == 2u32 {
-     |         ^^^^^^^^^^^^^^
-  25 |             //f2.await();
-     |             ^^^^^^^^^^^^^
-  26 |             Mapping::set(ayo, 1u32, 1u32);
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  27 |         }
-     |         ^
-  28 | 
-  29 |         let total: u32 = f.0 + f2.0;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  30 |         Mapping::set(ayo, 1u32, total);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  31 |     }
+  20 |         f2.run();
+     |         ^^^^^^^^^
+  21 |     }
      |     ^
+  22 | 
+  23 |     if a == 2u32 {
+     |     ^^^^^^^^^^^^^^
+  24 |         //f2.run();
+     |         ^^^^^^^^^^^
+  25 |         Mapping::set(ayo, 1u32, 1u32);
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  26 |     }
+     |     ^
+  27 | 
+  28 |     Mapping::set(ayo, 1u32, a);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  29 | }
+     | ^
      |
-     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+     = Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
 program test_dep.aleo;
 
 record yeets:
@@ -43,16 +41,15 @@ mapping Yo:
 
 function main_dep:
     input r0 as u32.private;
-    async main_dep r0 1u32 into r1;
+    async main_dep r0 into r1;
     cast self.signer 1u32 into r2 as yeets.record;
     output r2 as yeets.record;
     output r1 as test_dep.aleo/main_dep.future;
 
 finalize main_dep:
     input r0 as u32.public;
-    input r1 as u32.public;
-    set r1 into Yo[r0];
-    add r0 r1 into r2;
+    set 1u32 into Yo[r0];
+    add r0 1u32 into r1;
 
 function main_dep_2:
     input r0 as u32.private;
@@ -75,34 +72,25 @@ function main:
     input r0 as u32.private;
     call test_dep.aleo/main_dep 10u32 into r1 r2;
     call test_dep.aleo/main_dep 1u32 into r3 r4;
-    async main r2 r4 1u32 into r5;
-    add r2[0u32] r4[0u32] into r6;
-    add r6 1u32 into r7;
-    add r7 r2[0u32] into r8;
-    mul r2[0u32] 2u32 into r9;
-    add r8 r9 into r10;
-    output r10 as u32.private;
+    async main r2 r4 into r5;
+    output r0 as u32.private;
     output r5 as test.aleo/main.future;
 
 finalize main:
     input r0 as test_dep.aleo/main_dep.future;
     input r1 as test_dep.aleo/main_dep.future;
-    input r2 as u32.public;
-    is.eq r2 1u32 into r3;
-    branch.eq r3 false to end_then_0_0;
+    branch.eq true false to end_then_0_0;
     await r0;
     await r1;
     branch.eq true true to end_otherwise_0_1;
     position end_then_0_0;
     position end_otherwise_0_1;
-    is.eq r2 2u32 into r4;
-    branch.eq r4 false to end_then_0_2;
+    branch.eq false false to end_then_0_2;
     set 1u32 into ayo[1u32];
     branch.eq true true to end_otherwise_0_3;
     position end_then_0_2;
     position end_otherwise_0_3;
-    add r0[0u32] r1[0u32] into r5;
-    set r5 into ayo[1u32];
+    set 1u32 into ayo[1u32];
 // --- Next Program --- //
 import test_dep.aleo;
 import test.aleo;
@@ -136,7 +124,7 @@ function main:
     input r1 as u32.private;
     call wrapper.aleo/main 10u32 10u32 into r2 r3;
     async main r3 into r4;
-    output r4[0u32][0u32][0u32][0u32] as u32.private;
+    output r1 as u32.private;
     output r4 as big_wrapper.aleo/main.future;
 
 finalize main:

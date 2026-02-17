@@ -1,15 +1,15 @@
 
 program test.aleo {
-    @foo
-    @bar
-    @baz
-    function foo() -> u8 {}
-
-    transition mint() -> u8 {}
-
-    @test
-    function test() -> u8 {}
-
-    @program
-    function foo() -> u8 {}
+    fn mint() -> u8 {}
 }
+
+@foo
+@bar
+@baz
+fn foo() -> u8 {}
+
+@test
+fn test() -> u8 {}
+
+@program
+fn foo() -> u8 {}

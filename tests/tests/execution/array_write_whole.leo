@@ -37,7 +37,7 @@ input = ["true", "true", "true"]
 */
 
 program test.aleo {
-    transition some_assignments(public a: bool, public b: bool, public c: bool) -> public [[u32; 2]; 2] {
+    fn some_assignments(public a: bool, public b: bool, public c: bool) -> public [[u32; 2]; 2] {
         let arr: [[u32; 2]; 2] = [[1u32, 2u32], [3u32, 4u32]];
         if a {
             arr[0u8][0u8] = 10u32;
@@ -56,5 +56,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

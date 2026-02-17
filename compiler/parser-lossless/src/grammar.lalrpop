@@ -66,13 +66,13 @@ Type3: SyntaxNode<'a> = {
         SyntaxNode::new(TypeKind::Array, [l, t, s, i, r])
     },
 
-    <WithTrivia<Future>> => {
-        SyntaxNode::new(TypeKind::Future, [<>])
+    <WithTrivia<FinalUpper>> => {
+        SyntaxNode::new(TypeKind::Final, [<>])
     },
 
-    <fut:WithTrivia<Future>> <l:WithTrivia<Lt>> <f:WithTrivia<Fn>> <lparen:WithTrivia<LeftParen>>
+    <fut:WithTrivia<FinalUpper>> <l:WithTrivia<Lt>> <f:WithTrivia<FnUpper>> <lparen:WithTrivia<LeftParen>>
     <ts:CommaMaybe<Type>> <rparen:WithTrivia<RightParen>> <r:WithTrivia<Gt>> => {
-        SyntaxNode::new(TypeKind::Future, [fut, l, f, lparen].into_iter().chain(ts).chain([rparen, r]))
+        SyntaxNode::new(TypeKind::Final, [fut, l, f, lparen].into_iter().chain(ts).chain([rparen, r]))
     },
 }
 
@@ -273,7 +273,7 @@ Expr0: SyntaxNode<'a> = {
                 (
                     "BHP256" | "BHP512" |"BHP768" | "BHP1024" | "ChaCha" | "Keccak256" | "Keccak384" | "Keccak512" |
                     "Pedersen64" | "Pedersen128" | "Poseidon2" | "Poseidon4" | "Poseidon8" | "SHA3_256" | "SHA3_384" |
-                    "SHA3_512" | "Mapping" | "Program" | "signature" | "Future" | "CheatCode" | "group" | "ECDSA" | 
+                    "SHA3_512" | "Mapping" | "Program" | "signature" | "Final" | "CheatCode" | "group" | "ECDSA" | 
                     "Serialize" | "Deserialize",
                     _
                 )
@@ -339,8 +339,8 @@ Expr0: SyntaxNode<'a> = {
     },
 
     // async block.
-    <a:WithTrivia<Async>> <b:BlockStatement> => {
-        SyntaxNode::new(ExpressionKind::Async, [a, b])
+    <a:WithTrivia<Final>> <b:BlockStatement> => {
+        SyntaxNode::new(ExpressionKind::Final, [a, b])
     }
 }
 
@@ -656,13 +656,6 @@ ParameterList: SyntaxNode<'a> = {
     },
 }
 
-FunctionKind: LalrToken<'a> = {
-    Function,
-    Inline,
-    Script,
-    Transition,
-}
-
 FunctionOutput: SyntaxNode<'a> = {
     <p:WithTrivia<PrivacyKeyword>?> <t:Type> => {
         SyntaxNode::new(SyntaxKind::FunctionOutput, p.into_iter().chain([t]))
@@ -711,25 +704,47 @@ Annotation: SyntaxNode<'a> = {
 
 // Items.
 
-FunctionDeclarationMacro<FunctionKindKind>: SyntaxNode<'a> = {
+FnDeclaration: SyntaxNode<'a> = {
      // With a return type.
-    <anns:(Annotation)*> <a:WithTrivia<Async>?> <k:WithTrivia<FunctionKindKind>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
-        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain(a).chain([k, name]).chain(c).chain([p, arrow, t, b]))
+    <anns:(Annotation)*> <k:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([k, name]).chain(c).chain([p, arrow, t, b]))
     },
 
     // No return type.
-    <anns:(Annotation)*> <a:WithTrivia<Async>?> <k:WithTrivia<FunctionKindKind>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
-        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain(a).chain([k, name]).chain(c).chain([p, b]))
+    <anns:(Annotation)*> <k:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([k, name]).chain(c).chain([p, b]))
     },
 }
 
-InlineDeclaration: SyntaxNode<'a> = FunctionDeclarationMacro<Inline>;
 
-FunctionDeclaration: SyntaxNode<'a> = FunctionDeclarationMacro<FunctionKind>;
+ScriptDeclaration: SyntaxNode<'a> = {
+     // With a return type.
+    <anns:(Annotation)*> <k:WithTrivia<Script>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([k, name]).chain(c).chain([p, arrow, t, b]))
+    },
+
+    // No return type.
+    <anns:(Annotation)*> <k:WithTrivia<Script>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([k, name]).chain(c).chain([p, b]))
+    },
+}
+
+
+FinalFnDeclaration: SyntaxNode<'a> = {
+     // With a return type.
+    <anns:(Annotation)*> <ko:WithTrivia<Final>> <kf:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <arrow:WithTrivia<Arrow>> <t:FunctionOutputs> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([ko, kf, name]).chain(c).chain([p, arrow, t, b]))
+    },
+
+    // No return type.
+    <anns:(Annotation)*> <ko:WithTrivia<Final>> <kf:WithTrivia<Fn>> <name:WithTrivia<CheckedIdentifier>> <c:(<ConstParameterList>)?> <p:ParameterList> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Function, anns.into_iter().chain([ko, kf, name]).chain(c).chain([p, b]))
+    },
+}
 
 ConstructorDeclaration: SyntaxNode<'a> = {
-    <anns:(Annotation)*> <a:WithTrivia<Async>> <c:WithTrivia<Constructor>> <l:WithTrivia<LeftParen>> <r:WithTrivia<RightParen>> <b:BlockStatement> => {
-        SyntaxNode::new(SyntaxKind::Constructor, anns.into_iter().chain([a, c, l, r, b]))
+    <anns:(Annotation)*> <c:WithTrivia<Constructor>> <l:WithTrivia<LeftParen>> <r:WithTrivia<RightParen>> <b:BlockStatement> => {
+        SyntaxNode::new(SyntaxKind::Constructor, anns.into_iter().chain([c, l, r, b]))
     },
 }
 
@@ -782,23 +797,30 @@ StorageDeclaration: SyntaxNode<'a> = {
     }
 }
 
-Item: SyntaxNode<'a> = {
+ProgramItem: SyntaxNode<'a> = {
     ConstructorDeclaration,
-    FunctionDeclaration,
-    GlobalConst,
+    FnDeclaration,
+    RecordDeclaration,
     MappingDeclaration,
     StorageDeclaration,
-    RecordDeclaration,
+}
+
+TopLevelItem: SyntaxNode<'a> = {
+    ProgramDeclaration,
+    FnDeclaration,
+    ScriptDeclaration,
+    FinalFnDeclaration,
+    GlobalConst,
     StructDeclaration,
 }
 
 ProgramDeclaration: SyntaxNode<'a> = {
-    <p:WithTrivia<Program>> <pid:WithTrivia<ProgramId>> <l:WithTrivia<LeftCurly>> <is:Item*> <r:WithTrivia<RightCurly>> => {
+    <p:WithTrivia<Program>> <pid:WithTrivia<ProgramId>> <l:WithTrivia<LeftCurly>> <is:ProgramItem*> <r:WithTrivia<RightCurly>> => {
         SyntaxNode::new(SyntaxKind::ProgramDeclaration, [p, pid, l].into_iter().chain(is).chain([r]))
     },
 
     // For error reporting purposes we catch attempts to declare programs with networks other than `.aleo`.
-    <p:WithTrivia<Program>> <name:NoTrivia<Identifier>> <d:NoTrivia<Dot>> <net:WithTrivia<Identifier>> <l:WithTrivia<LeftCurly>> <is:Item*> <r:WithTrivia<RightCurly>> => {
+    <p:WithTrivia<Program>> <name:NoTrivia<Identifier>> <d:NoTrivia<Dot>> <net:WithTrivia<Identifier>> <l:WithTrivia<LeftCurly>> <is:ProgramItem*> <r:WithTrivia<RightCurly>> => {
         handler.emit_err(ParserError::invalid_network(net.span));
         SyntaxNode::new(SyntaxKind::ProgramDeclaration, [p, name, d, net, l].into_iter().chain(is).chain([r]))
     },
@@ -811,13 +833,13 @@ ImportDeclaration: SyntaxNode<'a> = {
 }
 
 pub MainContents: SyntaxNode<'a> = {
-    <ns:Nonsemantic*> <is:ImportDeclaration*> <p:ProgramDeclaration> => {
-        SyntaxNode::new(SyntaxKind::MainContents, ns.into_iter().chain(is).chain([p]))
+    <ns:Nonsemantic*> <is:ImportDeclaration*> <t:TopLevelItem+> => {
+        SyntaxNode::new(SyntaxKind::MainContents, ns.into_iter().chain(is).chain(t))
     },
 }
 
 ModuleItem: SyntaxNode<'a> = {
-    InlineDeclaration,
+    FnDeclaration,
     GlobalConst,
     StructDeclaration,
 }
@@ -932,20 +954,19 @@ extern {
         Assert => LalrToken { token: Token::Assert, .. },
         AssertEq => LalrToken { token: Token::AssertEq, .. },
         AssertNeq => LalrToken { token: Token::AssertNeq, .. },
-        Async => LalrToken { token: Token::Async, .. },
+        Final => LalrToken { token: Token::Final, .. },
         Block => LalrToken { token: Token::Block, .. },
         Const => LalrToken { token: Token::Const, .. },
         Constant => LalrToken { token: Token::Constant, .. },
         Constructor => LalrToken { token: Token::Constructor, .. },
         Else => LalrToken { token: Token::Else, .. },
         Fn => LalrToken { token: Token::Fn, .. },
+        FnUpper => LalrToken { token: Token::FnUpper, .. },
         For => LalrToken { token: Token::For, .. },
-        Function => LalrToken { token: Token::Function, .. },
-        Future => LalrToken { token: Token::Future, .. },
+        FinalUpper => LalrToken { token: Token::FinalUpper, .. },
         If => LalrToken { token: Token::If, .. },
         Import => LalrToken { token: Token::Import, .. },
         In => LalrToken { token: Token::In, .. },
-        Inline => LalrToken { token: Token::Inline, .. },
         Let => LalrToken { token: Token::Let, .. },
         Mapping => LalrToken { token: Token::Mapping, .. },
         Storage => LalrToken { token: Token::Storage, .. },
@@ -956,7 +977,6 @@ extern {
         Return => LalrToken { token: Token::Return, .. },
         Script => LalrToken { token: Token::Script, .. },
         SelfLower => LalrToken { token: Token::SelfLower, .. },
-        Transition => LalrToken { token: Token::Transition, .. },
 
         Never => LalrToken { token: Token::Never, .. },
     }

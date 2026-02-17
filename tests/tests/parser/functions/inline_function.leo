@@ -1,6 +1,5 @@
 
-program test.aleo {
-    inline foo(x: u32, y: i32) -> u32 {
-        return 0u32;
-    }
+program test.aleo {}
+fn foo(x: u32, y: i32) -> u32 {
+    return 0u32;
 }
