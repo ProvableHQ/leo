@@ -2,7 +2,7 @@ program test.aleo   {
     fn compute(   a  :  u64  )  ->  u64    {
   let x  :  u64  =  a  *  2u64  ;
           return x  ;
-                // end of function
+                // end of fn
         }
 
 fn empty_with_comment(  )  {

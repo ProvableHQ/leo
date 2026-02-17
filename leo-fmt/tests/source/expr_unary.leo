@@ -1,11 +1,11 @@
 program test.aleo{
-	fn main(  a  :  u64  )  ->  u64  {
+	fn main(  a  :  i64  )  ->  i64  {
 
-            let neg  :  u64  =  -  a;
+            let neg  :  i64  =  -  a;
 
     let not  :  bool  =  !  true;
 
-let double_neg  :  u64  =
+let double_neg  :  i64  =
         -  -  a;
 
 	    return neg  ;

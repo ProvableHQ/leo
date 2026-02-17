@@ -1,5 +1,4 @@
 program test.aleo{
-}
 	fn main(  ){
 
 let a  :u8  =  1u8;
@@ -29,3 +28,4 @@ let l  :scalar=1scalar;
 let o:address  =aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9;
 
 	}
+}

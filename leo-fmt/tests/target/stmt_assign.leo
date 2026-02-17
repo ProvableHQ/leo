@@ -7,6 +7,6 @@ program test.aleo {
         x *= 3u64;
         x /= 2u64;
         x %= 3u64;
-        x **= 2u64;
+        x **= 2u32;
     }
 }

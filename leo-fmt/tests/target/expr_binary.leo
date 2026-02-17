@@ -5,7 +5,7 @@ program test.aleo {
         let prod: u64 = a * b;
         let quot: u64 = a / b;
         let rem: u64 = a % b;
-        let pow: u64 = a ** 2u64;
+        let pow: u64 = a ** 2u32;
         let lt: bool = a < b;
         let gt: bool = a > b;
         let le: bool = a <= b;

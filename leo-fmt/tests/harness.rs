@@ -122,3 +122,81 @@ fn test_idempotency() {
 
     assert!(failures.is_empty(), "{} file(s) not idempotent: {failures:?}", failures.len());
 }
+
+// =============================================================================
+// Compilation validation (feature-gated)
+// =============================================================================
+
+/// Files that are expected to fail type checking (error recovery tests,
+/// import tests, empty programs, annotated functions).
+#[cfg(feature = "validate")]
+const SKIP_VALIDATION: &[&str] = &[
+    "error_recovery_item",
+    "error_recovery_stmt",
+    "import_single",
+    "import_multiple",
+    "empty_program",
+    "function_annotated",
+];
+
+/// Validate that target files pass Leo type checking.
+///
+/// Runs parse + intermediate passes (name validation, type checking, static
+/// analysis) on each target file, skipping files in SKIP_VALIDATION.
+/// Stops before code generation. Catches issues like undeclared variables,
+/// type mismatches, and invalid syntax that the formatter's rowan parser
+/// wouldn't flag.
+///
+/// Run with: `cargo test -p leo-fmt --features validate -- validate_targets_compile`
+#[cfg(feature = "validate")]
+#[test]
+fn validate_targets_compile() {
+    use leo_ast::{NetworkName, NodeBuilder};
+    use leo_compiler::Compiler;
+    use leo_errors::Handler;
+    use leo_span::{create_session_if_not_set_then, source_map::FileName};
+    use std::rc::Rc;
+
+    let target_dir = tests_dir().join("target");
+    let target_files = collect_leo_files(&target_dir);
+
+    create_session_if_not_set_then(|_| {
+        let mut failures = Vec::new();
+
+        for target_path in &target_files {
+            let name = target_path.file_stem().unwrap().to_str().unwrap();
+            if SKIP_VALIDATION.contains(&name) {
+                continue;
+            }
+
+            let source = std::fs::read_to_string(target_path)
+                .unwrap_or_else(|_| panic!("Failed to read: {}", target_path.display()));
+
+            let (handler, buf) = Handler::new_with_buf();
+            let mut compiler = Compiler::new(
+                None,
+                false,
+                handler,
+                Rc::new(NodeBuilder::default()),
+                "/tmp".into(),
+                None,
+                Default::default(),
+                NetworkName::TestnetV0,
+            );
+
+            let result = compiler
+                .parse(&source, FileName::Custom(name.into()), &[])
+                .and_then(|_| compiler.intermediate_passes().map(|_| ()));
+
+            if let Err(e) = result {
+                println!("\n=== TYPE CHECK ERROR: {} ===", target_path.display());
+                println!("{e}");
+                println!("{}", buf.extract_errs());
+                println!("=== END ===\n");
+                failures.push(target_path.clone());
+            }
+        }
+
+        assert!(failures.is_empty(), "{} file(s) failed type checking: {failures:?}", failures.len());
+    });
+}

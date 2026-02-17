@@ -1,6 +1,10 @@
 program test.aleo {
+    fn process(a: u64, b: u64, c: u64) {
+        assert(a > 0u64);
+    }
+
     fn main(item: u64) {
-        Mapping::set(balances, self.caller, item);
-        Mapping::get(balances, self.caller);
+        process(item, item, item);
+        process(item, 1u64, 2u64);
     }
 }

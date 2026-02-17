@@ -16,7 +16,7 @@ let prod
             ;
 
 let pow: u64=a  **
-    2u64;
+    2u32;
     let lt: bool =  a
         <b;
 let gt
