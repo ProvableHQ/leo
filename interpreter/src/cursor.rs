@@ -446,6 +446,7 @@ impl Cursor {
                 | Expression::Err(..)
                 | Expression::Literal(..)
                 | Expression::Repeat(..)
+                | Expression::Slice(..)
                 | Expression::Composite(..)
                 | Expression::Ternary(..)
                 | Expression::Tuple(..)
@@ -1006,6 +1007,44 @@ impl Cursor {
                     expr,
                     count_resolved.as_u32().expect_tc(repeat.span())? as usize,
                 )))
+            }
+            Expression::Slice(slice) if step == 0 => {
+                // Push expressions for start, end, and array
+                if let Some(start) = &slice.start {
+                    push!()(start, &None);
+                }
+                if let Some((_, end)) = &slice.end {
+                    push!()(end, &None);
+                }
+                push!()(&slice.array, &None);
+                None
+            }
+            Expression::Slice(slice) if step == 1 => {
+                let array = self.pop_value()?;
+                let end = if slice.end.is_some() {
+                    let end_val = self.pop_value()?;
+                    let end_resolved =
+                        end_val.resolve_if_unsuffixed(&Some(Type::Integer(leo_ast::IntegerType::U32)), slice.span())?;
+                    let end_u32 = end_resolved.as_u32().expect_tc(slice.span())?;
+                    if slice.end.as_ref().unwrap().0 {
+                        // Inclusive: add 1
+                        Some(end_u32 + 1)
+                    } else {
+                        Some(end_u32)
+                    }
+                } else {
+                    None
+                };
+                let start = if slice.start.is_some() {
+                    let start_val = self.pop_value()?;
+                    let start_resolved = start_val
+                        .resolve_if_unsuffixed(&Some(Type::Integer(leo_ast::IntegerType::U32)), slice.span())?;
+                    start_resolved.as_u32().expect_tc(slice.span())? as usize
+                } else {
+                    0
+                };
+                let end = end.map(|e| e as usize);
+                Some(array.array_slice(start, end).expect_tc(slice.span())?)
             }
             Expression::Intrinsic(intr) if step == 0 => {
                 let intrinsic = if intr.name == Symbol::intern("__unresolved_get") {

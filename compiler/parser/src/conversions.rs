@@ -465,6 +465,60 @@ impl<'a> ConversionContext<'a> {
                 leo_ast::ArrayAccess { array, index, span, id }.into()
             }
 
+            ExpressionKind::SliceBoth => {
+                // arr[start..end] or arr[start..=end]
+                let [array, _left, start, op, end, _right] = &node.children[..] else {
+                    panic!("Can't happen");
+                };
+
+                let array = self.to_expression(array)?;
+                let start = Some(self.to_expression(start)?);
+                let inclusive = op.text == "..=";
+                let end_expr = self.to_expression(end)?;
+                let end = Some((inclusive, end_expr));
+
+                leo_ast::SliceExpression { array, start, end, span, id }.into()
+            }
+
+            ExpressionKind::SliceFirst => {
+                // arr[start..]
+                let [array, _left, start, _op, _right] = &node.children[..] else {
+                    panic!("Can't happen");
+                };
+
+                let array = self.to_expression(array)?;
+                let start = Some(self.to_expression(start)?);
+                let end = None;
+
+                leo_ast::SliceExpression { array, start, end, span, id }.into()
+            }
+
+            ExpressionKind::SliceLast => {
+                // arr[..end] or arr[..=end]
+                let [array, _left, op, end, _right] = &node.children[..] else {
+                    panic!("Can't happen");
+                };
+
+                let array = self.to_expression(array)?;
+                let start = None;
+                let inclusive = op.text == "..=";
+                let end_expr = self.to_expression(end)?;
+                let end = Some((inclusive, end_expr));
+
+                leo_ast::SliceExpression { array, start, end, span, id }.into()
+            }
+
+            ExpressionKind::SliceNone => {
+                // arr[..]
+                let [array, _left, _op, _right] = &node.children[..] else {
+                    panic!("Can't happen");
+                };
+
+                let array = self.to_expression(array)?;
+
+                leo_ast::SliceExpression { array, start: None, end: None, span, id }.into()
+            }
+
             ExpressionKind::Intrinsic => {
                 let name = Symbol::intern(node.children[0].text);
 

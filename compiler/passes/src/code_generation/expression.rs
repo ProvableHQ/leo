@@ -38,6 +38,7 @@ use leo_ast::{
     Path,
     ProgramId,
     RepeatExpression,
+    SliceExpression,
     TernaryExpression,
     TupleExpression,
     Type,
@@ -77,6 +78,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Cast(expr) => some_expr(self.visit_cast(expr)),
             Expression::Composite(expr) => some_expr(self.visit_composite_init(expr)),
             Expression::Repeat(expr) => some_expr(self.visit_repeat(expr)),
+            Expression::Slice(expr) => some_expr(self.visit_slice(expr)),
             Expression::Ternary(expr) => some_expr(self.visit_ternary(expr)),
             Expression::Tuple(expr) => some_expr(self.visit_tuple(expr)),
             Expression::Unary(expr) => some_expr(self.visit_unary(expr)),
@@ -191,6 +193,21 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_binary(&mut self, input: &BinaryExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        // Array concatenation should be resolved during const propagation.
+        // If we reach code generation with an Add on arrays, something went wrong.
+        if matches!(input.op, BinaryOperation::Add) {
+            let left_type = self.state.type_table.get(&input.left.id());
+            let right_type = self.state.type_table.get(&input.right.id());
+            assert!(
+                !matches!(left_type, Some(Type::Array(_))),
+                "Array concatenation should be resolved before code generation"
+            );
+            assert!(
+                !matches!(right_type, Some(Type::Array(_))),
+                "Array concatenation should be resolved before code generation"
+            );
+        }
+
         let (left, left_instructions) = self.visit_expression(&input.left);
         let (right, right_instructions) = self.visit_expression(&input.right);
         let left = left.expect("Trying to operate on an empty expression");
@@ -427,6 +444,44 @@ impl CodeGeneratingVisitor<'_> {
             panic!("All types should be known at this phase of compilation");
         };
         let array_type = self.visit_type(&array_type);
+
+        let array_instruction = AleoStmt::Cast(AleoExpr::Tuple(expression_operands), dest_reg.clone(), array_type);
+
+        // Concatenate the instructions.
+        operand_instructions.push(array_instruction);
+
+        (AleoExpr::Reg(dest_reg), operand_instructions)
+    }
+
+    fn visit_slice(&mut self, input: &SliceExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let (array_operand, mut operand_instructions) = self.visit_expression(&input.array);
+        let array_operand = array_operand.expect("Trying to slice an empty expression");
+
+        // Get the start index - should be a literal by now (resolved during const propagation).
+        let start = match &input.start {
+            Some(e) => e.as_u32().expect("Slice start must be a literal by codegen phase") as usize,
+            None => 0,
+        };
+
+        // Get the result array type. The type checker has already computed the correct length.
+        let Some(Type::Array(result_array_type)) = self.state.type_table.get(&input.id) else {
+            panic!("All types should be known at this phase of compilation");
+        };
+        let result_len =
+            result_array_type.length.as_u32().expect("slice length should be known at this point") as usize;
+
+        // Compute the end index from start + result_len.
+        let end = start + result_len;
+
+        // Construct the expression operands by indexing into the array.
+        let expression_operands = (start..end)
+            .map(|i| AleoExpr::ArrayAccess(Box::new(array_operand.clone()), Box::new(AleoExpr::U32(i as u32))))
+            .collect::<Vec<_>>();
+
+        // Construct the destination register.
+        let dest_reg = self.next_register();
+
+        let array_type = self.visit_type(&Type::Array(result_array_type.clone()));
 
         let array_instruction = AleoStmt::Cast(AleoExpr::Tuple(expression_operands), dest_reg.clone(), array_type);
 

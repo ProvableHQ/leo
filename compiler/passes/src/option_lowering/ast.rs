@@ -99,6 +99,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             Expression::Literal(e) => self.reconstruct_literal(e, additional),
             Expression::MemberAccess(e) => self.reconstruct_member_access(*e, additional),
             Expression::Repeat(e) => self.reconstruct_repeat(*e, additional),
+            Expression::Slice(e) => self.reconstruct_slice(*e, additional),
             Expression::Ternary(e) => self.reconstruct_ternary(*e, additional),
             Expression::Tuple(e) => self.reconstruct_tuple(e, additional),
             Expression::TupleAccess(e) => self.reconstruct_tuple_access(*e, additional),

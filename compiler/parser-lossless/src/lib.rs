@@ -161,6 +161,10 @@ pub enum ExpressionKind {
     MethodCall,
     Parenthesized,
     Repeat,
+    SliceBoth,
+    SliceFirst,
+    SliceLast,
+    SliceNone,
     Intrinsic,
     SpecialAccess, // TODO: fold into Intrinsic
     Composite,

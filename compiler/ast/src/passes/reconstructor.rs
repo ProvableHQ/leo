@@ -133,6 +133,7 @@ pub trait AstReconstructor {
             Expression::Literal(value) => self.reconstruct_literal(value, additional),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, additional),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, additional),
+            Expression::Slice(slice) => self.reconstruct_slice(*slice, additional),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, additional),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, additional),
@@ -186,6 +187,25 @@ pub trait AstReconstructor {
             RepeatExpression {
                 expr: self.reconstruct_expression(input.expr, &Default::default()).0,
                 count: self.reconstruct_expression(input.count, &Default::default()).0,
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_slice(
+        &mut self,
+        input: SliceExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            SliceExpression {
+                array: self.reconstruct_expression(input.array, &Default::default()).0,
+                start: input.start.map(|start| self.reconstruct_expression(start, &Default::default()).0),
+                end: input
+                    .end
+                    .map(|(inclusive, end)| (inclusive, self.reconstruct_expression(end, &Default::default()).0)),
                 ..input
             }
             .into(),

@@ -1,0 +1,5 @@
+Error [ETYC0372176]: Invalid slice range: start index `5` is greater than or equal to end index `2`. Slices must contain at least one element.
+    --> compiler-test:5:16
+     |
+   5 |         return a[5..=2];
+     |                ^^^^^^^^

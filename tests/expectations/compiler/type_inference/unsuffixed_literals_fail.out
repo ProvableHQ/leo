@@ -75,7 +75,7 @@ Error [ETYC0372004]: Could not determine the type of `1`
      |                  ^
      |
      = Consider using explicit type annotations.
-Error [ETYC0372117]: Expected a field, group, scalar, or integer but type `bool` was found.
+Error [ETYC0372117]: Expected a field, group, scalar, integer, or array but type `bool` was found.
     --> compiler-test:13:22
      |
   13 |         let c0 = 1 + true;

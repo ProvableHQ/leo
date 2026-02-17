@@ -1408,4 +1408,45 @@ create_messages!(
         msg: format!("Assignment to storage variables of another program is not allowed. You can only modify storage declared in the current program."),
         help: None,
     }
+
+    /// For when slicing is applied to a non-array type.
+    @formatted
+    expected_array_type {
+        args: (found: impl Display),
+        msg: format!(
+            "Expected an array type, found `{found}`.",
+        ),
+        help: Some("Slice expressions can only be applied to arrays.".to_string()),
+    }
+
+    /// For when a slice range is invalid (e.g., start >= end).
+    @formatted
+    slice_range_invalid {
+        args: (start: impl Display, end: impl Display),
+        msg: format!(
+            "Invalid slice range: start index `{start}` is greater than or equal to end index `{end}`. Slices must contain at least one element.",
+        ),
+        help: None,
+    }
+
+    /// For when a slice is out of bounds.
+    @formatted
+    slice_out_of_bounds {
+        args: (start: impl Display, end: impl Display, length: impl Display),
+        msg: format!(
+            "Slice range [{start}..{end}] is out of bounds for array of length `{length}`.",
+        ),
+        help: None,
+    }
+
+    /// For when array concatenation element types do not match.
+    @formatted
+    array_concat_element_mismatch {
+        args: (left: impl Display, right: impl Display),
+        msg: format!(
+            "Cannot concatenate arrays with different element types: `{left}` and `{right}`.",
+        ),
+        help: Some("Both arrays must have the same element type for concatenation.".to_string()),
+    }
+
 );

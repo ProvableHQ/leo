@@ -1,0 +1,5 @@
+Error [ETYC0372177]: Slice range [5..10] is out of bounds for array of length `8`.
+    --> compiler-test:5:16
+     |
+   5 |         return a[5..10];
+     |                ^^^^^^^^

@@ -357,6 +357,28 @@ Expr1<S>: SyntaxNode<'a> = {
     <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <index:Expr> <r:WithTrivia<RightSquare>> => {
         SyntaxNode::new(ExpressionKind::ArrayAccess, [x, l, index, r])
     },
+    // Slice with both bounds: arr[start..end] or arr[start..=end]
+    <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <start:Expr> <op:WithTrivia<DotDot>> <end:Expr> <r:WithTrivia<RightSquare>> => {
+        SyntaxNode::new(ExpressionKind::SliceBoth, [x, l, start, op, end, r])
+    },
+    <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <start:Expr> <op:WithTrivia<DotDotEq>> <end:Expr> <r:WithTrivia<RightSquare>> => {
+        SyntaxNode::new(ExpressionKind::SliceBoth, [x, l, start, op, end, r])
+    },
+    // Slice with only start: arr[start..]
+    <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <start:Expr> <op:WithTrivia<DotDot>> <r:WithTrivia<RightSquare>> => {
+        SyntaxNode::new(ExpressionKind::SliceFirst, [x, l, start, op, r])
+    },
+    // Slice with only end: arr[..end] or arr[..=end]
+    <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <op:WithTrivia<DotDot>> <end:Expr> <r:WithTrivia<RightSquare>> => {
+        SyntaxNode::new(ExpressionKind::SliceLast, [x, l, op, end, r])
+    },
+    <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <op:WithTrivia<DotDotEq>> <end:Expr> <r:WithTrivia<RightSquare>> => {
+        SyntaxNode::new(ExpressionKind::SliceLast, [x, l, op, end, r])
+    },
+    // Slice with neither: arr[..] (slice entire array)
+    <x:Expr1<S>> <l:WithTrivia<LeftSquare>> <op:WithTrivia<DotDot>> <r:WithTrivia<RightSquare>> => {
+        SyntaxNode::new(ExpressionKind::SliceNone, [x, l, op, r])
+    },
     // Member access.
     <x:Expr1<S>> <d:WithTrivia<Dot>> <i:WithTrivia<Identifier>> => {
         SyntaxNode::new(ExpressionKind::MemberAccess, [x, d, i])
@@ -893,6 +915,7 @@ extern {
         Comma => LalrToken { token: Token::Comma, .. },
         Dot => LalrToken { token: Token::Dot, .. },
         DotDot => LalrToken { token: Token::DotDot, .. },
+        DotDotEq => LalrToken { token: Token::DotDotEq, .. },
         Semicolon => LalrToken { token: Token::Semicolon, .. },
         Colon => LalrToken { token: Token::Colon, .. },
         DoubleColon => LalrToken{ token: Token::DoubleColon, .. },

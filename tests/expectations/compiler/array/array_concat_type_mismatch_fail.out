@@ -1,0 +1,7 @@
+Error [ETYC0372178]: Cannot concatenate arrays with different element types: `u32` and `u8`.
+    --> compiler-test:5:16
+     |
+   5 |         return a + b;
+     |                ^^^^^
+     |
+     = Both arrays must have the same element type for concatenation.

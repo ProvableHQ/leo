@@ -1,0 +1,19 @@
+program test.aleo;
+
+function foo:
+    input r0 as [u32; 2u32].private;
+    input r1 as [u32; 2u32].private;
+    cast r0[0u32] r0[1u32] r1[0u32] r1[1u32] into r2 as [u32; 4u32];
+    output r2 as [u32; 4u32].private;
+
+function flatten:
+    input r0 as [[boolean; 2u32]; 2u32].private;
+    cast r0[0u32][0u32] r0[0u32][1u32] r0[1u32][0u32] r0[1u32][1u32] into r1 as [boolean; 4u32];
+    assert.eq r1 r1;
+    output r1 as [boolean; 4u32].private;
+
+function concat_different_sizes:
+    input r0 as [u8; 3u32].private;
+    input r1 as [u8; 2u32].private;
+    cast r0[0u32] r0[1u32] r0[2u32] r1[0u32] r1[1u32] into r2 as [u8; 5u32];
+    output r2 as [u8; 5u32].private;
