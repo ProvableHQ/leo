@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn parse_module_inline_fn() {
-        check_module_no_errors("inline helper() -> u32 { return 0u32; }");
+        check_module_no_errors("fn helper() -> u32 { return 0u32; }");
     }
 
     #[test]
@@ -151,7 +151,7 @@ mod tests {
         check_module_no_errors(
             "const X: u32 = 3;\n\
              struct Data { values: u32, }\n\
-             inline helper() -> u32 { return 0u32; }",
+             fn helper() -> u32 { return 0u32; }",
         );
     }
 
@@ -172,7 +172,7 @@ mod tests {
         // Multi-section test files: program block followed by module items.
         let source = "\
 program test.aleo {
-    transition foo() -> u32 { return 0u32; }
+    fn foo() -> u32 { return 0u32; }
 }
 
 // --- Next Module: dep.leo --- //

@@ -327,8 +327,8 @@ impl Parser<'_, '_> {
             KW_BLOCK => self.parse_block_access(),
             KW_NETWORK => self.parse_network_access(),
 
-            // Async block expression: `async { ... }`
-            KW_ASYNC => self.parse_async_block_expr(),
+            // Async block expression: `final { ... }`
+            KW_FINAL => self.parse_final_block_expr(),
 
             _ => {
                 self.error(format!("expected expression, found {:?}", self.current()));
@@ -588,15 +588,15 @@ impl Parser<'_, '_> {
         Some(m.complete(self, PATH_EXPR))
     }
 
-    /// Parse an async block expression: `async { stmts }`.
-    fn parse_async_block_expr(&mut self) -> Option<CompletedMarker> {
+    /// Parse an async block expression: `final { stmts }`.
+    fn parse_final_block_expr(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
-        self.bump_any(); // async
+        self.bump_any(); // final
         self.skip_trivia();
         if self.parse_block().is_none() {
             self.error("expected block after 'async'".to_string());
         }
-        Some(m.complete(self, ASYNC_EXPR))
+        Some(m.complete(self, FINAL_EXPR))
     }
 }
 

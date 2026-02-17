@@ -1,5 +1,7 @@
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'parent.leo'
        Leo     9 statements before dead code elimination.
        Leo     9 statements after dead code elimination.
        Leo     The program checksum is: '[215u8, 203u8, 66u8, 86u8, 222u8, 65u8, 57u8, 252u8, 117u8, 231u8, 155u8, 25u8, 45u8, 60u8, 202u8, 131u8, 149u8, 90u8, 30u8, 208u8, 156u8, 22u8, 227u8, 204u8, 30u8, 127u8, 166u8, 190u8, 70u8, 12u8, 210u8, 133u8]'.

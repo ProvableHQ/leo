@@ -1,52 +1,8 @@
-{
-  "Literal": {
-    "span": {
-      "lo": 0,
-      "hi": 63
-    },
-    "id": 0,
-    "variant": {
-      "Address": "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9"
-    }
-  }
-}
+aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9
 
-{
-  "Literal": {
-    "span": {
-      "lo": 64,
-      "hi": 74
-    },
-    "id": 0,
-    "variant": {
-      "Address": "hello.aleo"
-    }
-  }
-}
+hello.aleo
 
-{
-  "Literal": {
-    "span": {
-      "lo": 75,
-      "hi": 86
-    },
-    "id": 0,
-    "variant": {
-      "Address": "fooooo.aleo"
-    }
-  }
-}
+fooooo.aleo
 
-{
-  "Literal": {
-    "span": {
-      "lo": 87,
-      "hi": 95
-    },
-    "id": 0,
-    "variant": {
-      "Address": "bar.aleo"
-    }
-  }
-}
+bar.aleo
 

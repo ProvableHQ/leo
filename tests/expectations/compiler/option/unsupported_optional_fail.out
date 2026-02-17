@@ -10,7 +10,7 @@ Error [ETYC0372117]: Expected (u8, u8)? but type `(u8, u8)` was found.
      |
    4 |         let a: (u8, u8)? = (1u8, 2u8); // ERROR: Tuples cannot be optional just yet
      |                            ^^^^^^^^^^
-Error [ETYC0372160]: The type `Future<Fn()>` cannot be wrapped in an optional.
+Error [ETYC0372160]: The type `Final<Fn()>` cannot be wrapped in an optional.
     --> compiler-test:14:9
      |
   14 |         let fut: Final? = final { finalize(); }; // ERROR: Final? is not allowed

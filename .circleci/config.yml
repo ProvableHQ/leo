@@ -1,10 +1,5 @@
 version: 2.1
 
-parameters:
-  snarkos-rev:
-    type: string
-    default: "c0b9a20d2a8aa6811e3ce93826ed489b59ab9bf3" # testnet-v4.5.1
-
 # Notes
 # - `sccache` was removed because it doesn't actually provide much benefit in CI. Lots of cache misses.
 # - https://github.com/Swatinem/rust-cache?tab=readme-ov-file#cache-details provides guidance on which directories to cache.
@@ -18,7 +13,6 @@ parameters:
 # TODO:
 #  - The cache size can accumulate as the dependencies get upgraded. Ideally you want some pruning before the cache gets persisted.
 #    See swatinem/rust-cache for a sensible approach. Unfortunately, we'd have to build this for CircleCI.
-
 
 orbs:
   windows: circleci/windows@5.1.0
@@ -78,43 +72,6 @@ commands:
                 cargo generate-lockfile
             }
             cargo install cargo-mtime
-
-  install-snarkos:
-    description: "Install snarkOS (Linux/macOS)"
-    steps:
-      - restore_cache:
-          keys:
-            - snarkos-install-{{ arch }}-<< pipeline.parameters.snarkos-rev >>
-
-      - run:
-          name: Install snarkOS
-          command: |
-            set -euo pipefail
-            BIN="$HOME/.cargo/snarkos-<< pipeline.parameters.snarkos-rev >>/bin/snarkos"
-
-            if [ -f "$BIN" ] && [ -x "$BIN" ]; then
-                echo "Using cached snarkOS"
-                mkdir -p "$HOME/.cargo/bin"
-                ln -sf "$BIN" "$HOME/.cargo/bin/snarkos"
-                snarkos --version
-                exit 0
-            fi
-
-            rm -f "$HOME/.cargo/bin/snarkos"
-            git clone https://github.com/ProvableHQ/snarkOS.git
-            cd snarkOS
-            git checkout << pipeline.parameters.snarkos-rev >>
-            cargo install --path . --features test_network --locked --force \
-              --root "$HOME/.cargo/snarkos-<< pipeline.parameters.snarkos-rev >>"
-            cd ..
-            rm -rf snarkOS
-            ln -sf "$BIN" "$HOME/.cargo/bin/snarkos"
-            snarkos --version
-
-      - save_cache:
-          key: snarkos-install-{{ arch }}-<< pipeline.parameters.snarkos-rev >>
-          paths:
-            - ~/.cargo/snarkos-<< pipeline.parameters.snarkos-rev >>
 
   build-and-test:
     description: "Build and run tests"
@@ -219,11 +176,6 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
-      - install-snarkos
-      - run:
-          name: Verify SnarkOS installation
-          command: |
-            snarkos --version
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
@@ -244,22 +196,6 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
-      - run:
-          name: Install snarkos dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              build-essential \
-              clang \
-              libssl-dev \
-              llvm \
-              lld \
-              pkg-config
-      - install-snarkos
-      - run:
-          name: Verify SnarkOS installation
-          command: |
-            snarkos --version
       - run:
             name: Update Submodules
             command: git submodule update --init --recursive

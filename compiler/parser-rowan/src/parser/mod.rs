@@ -533,21 +533,8 @@ pub const STMT_RECOVERY: &[SyntaxKind] =
     &[KW_LET, KW_CONST, KW_RETURN, KW_IF, KW_FOR, KW_ASSERT, KW_ASSERT_EQ, KW_ASSERT_NEQ, L_BRACE, R_BRACE, SEMICOLON];
 
 /// Tokens that can start a top-level item (for recovery).
-pub const ITEM_RECOVERY: &[SyntaxKind] = &[
-    KW_IMPORT,
-    KW_PROGRAM,
-    KW_FUNCTION,
-    KW_TRANSITION,
-    KW_INLINE,
-    KW_STRUCT,
-    KW_RECORD,
-    KW_MAPPING,
-    KW_STORAGE,
-    KW_CONST,
-    KW_ASYNC,
-    AT,
-    R_BRACE,
-];
+pub const ITEM_RECOVERY: &[SyntaxKind] =
+    &[KW_IMPORT, KW_PROGRAM, KW_FN, KW_STRUCT, KW_RECORD, KW_MAPPING, KW_STORAGE, KW_CONST, KW_FINAL, AT, R_BRACE];
 
 /// Tokens that indicate we should stop expression recovery.
 pub const EXPR_RECOVERY: &[SyntaxKind] = &[
@@ -1113,7 +1100,7 @@ mod tests {
 
     #[test]
     fn recover_malformed_function_missing_params() {
-        let parse = parse_file("program test.aleo { function foo { } }");
+        let parse = parse_file("program test.aleo { fn foo { } }");
         assert!(!parse.errors().is_empty(), "should have errors");
         let tree = format!("{:#?}", parse.syntax());
         assert!(tree.contains("PROGRAM_DECL"), "tree should have PROGRAM_DECL");
@@ -1122,7 +1109,7 @@ mod tests {
 
     #[test]
     fn recover_malformed_function_missing_body() {
-        let parse = parse_file("program test.aleo { function foo() }");
+        let parse = parse_file("program test.aleo { fn foo() }");
         assert!(!parse.errors().is_empty(), "should have errors");
         let tree = format!("{:#?}", parse.syntax());
         assert!(tree.contains("PROGRAM_DECL"), "tree should have PROGRAM_DECL");
@@ -1149,7 +1136,7 @@ mod tests {
     fn recover_multiple_errors_in_function() {
         let parse = parse_file(
             r#"program test.aleo {
-                function foo() {
+                fn foo() {
                     let x = ;
                     let y: = 1;
                     return x +;

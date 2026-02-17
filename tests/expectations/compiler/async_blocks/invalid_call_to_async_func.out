@@ -1,4 +1,4 @@
-Error [ETYC0372003]: Expected type `Future<Fn()>` but type `()` was found
+Error [ETYC0372003]: Expected type `Final<Fn()>` but type `()` was found
     --> compiler-test:3:16
      |
    3 |         return bar();

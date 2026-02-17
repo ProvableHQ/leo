@@ -86,6 +86,10 @@ struct AddrStruct { a: address, b: address? }
 struct InnerAddr { val: address? }
 struct WrapperAddr { inner: InnerAddr }
 
+struct SigStruct { a: signature, b: signature? }
+struct InnerSig { val: signature? }
+struct WrapperSig { inner: InnerSig }
+
 program all_types.aleo {
     // --- Section 1: Basic Optionals and Inference ---
     fn optional_basic_primitives() -> u32 {
@@ -201,10 +205,7 @@ program all_types.aleo {
     }
 
     // --- Section 11: Optionals with Signature ---
-    struct SigStruct { a: signature, b: signature? }
-    struct InnerSig { val: signature? }
-    struct WrapperSig { inner: InnerSig }
-    transition optional_signature() -> (signature, signature, signature, signature)
+    fn optional_signature() -> (signature, signature, signature, signature)
     {
         let sig: signature =
             sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj;

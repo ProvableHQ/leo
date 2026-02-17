@@ -62,7 +62,7 @@ impl fmt::Display for LiteralVariant {
             Self::Integer(type_, value) => write!(f, "{value}{type_}"),
             Self::None => write!(f, "none"),
             Self::Scalar(scalar) => write!(f, "{scalar}scalar"),
-            Self::Signature(signature) => write!(f, "sign{signature}"),
+            Self::Signature(signature) => write!(f, "{signature}"),
             Self::String(string) => write!(f, "\"{string}\""),
             Self::Unsuffixed(value) => write!(f, "{value}"),
         }

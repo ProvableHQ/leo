@@ -10,7 +10,7 @@ Error [ETYC0372042]: Only regular fns can be called from a regular function or c
      |
    7 |     return finalize_bar(a, b);
      |            ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372003]: Expected type `Future<Fn()>` but type `u8` was found
+Error [ETYC0372003]: Expected type `Final<Fn()>` but type `u8` was found
     --> compiler-test:7:12
      |
    7 |     return finalize_bar(a, b);

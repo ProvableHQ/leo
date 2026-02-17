@@ -19,13 +19,12 @@ use serde_json::json;
 
 // Advance the Devnode ledger by a specified number of blocks.
 #[derive(Parser, Debug)]
+#[group(id = "advance_args")]
 pub struct Advance {
     #[clap(help = "The number of blocks to advance the ledger by", default_value = "1")]
     pub num_blocks: u32,
     #[clap(long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
     pub(crate) socket_addr: String,
-    #[clap(flatten)]
-    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for Advance {

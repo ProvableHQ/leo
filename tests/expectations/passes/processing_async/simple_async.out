@@ -1,6 +1,6 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    fn main(x: u32, y: u32) -> Future<Fn()> {
+    fn main(x: u32, y: u32) -> Final<Fn()> {
         return test.aleo/main$0(x, y);
     }
 }

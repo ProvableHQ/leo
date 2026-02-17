@@ -272,7 +272,6 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         "signature" => KW_SIGNATURE,
         "string" => KW_STRING,
         "record" => KW_RECORD,
-        "Future" => KW_FUTURE,
         "i8" => KW_I8,
         "i16" => KW_I16,
         "i32" => KW_I32,
@@ -293,11 +292,10 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         "let" => KW_LET,
         "const" => KW_CONST,
         "constant" => KW_CONSTANT,
-        "function" => KW_FUNCTION,
-        "transition" => KW_TRANSITION,
-        "inline" => KW_INLINE,
-        "async" => KW_ASYNC,
-        "Fn" => KW_FN,
+        "final" => KW_FINAL,
+        "Final" => KW_FINAL_UPPER,
+        "fn" => KW_FN,
+        "Fn" => KW_FN_UPPER,
         "struct" => KW_STRUCT,
         "constructor" => KW_CONSTRUCTOR,
         // Program structure keywords
@@ -532,10 +530,10 @@ mod tests {
 
     #[test]
     fn lex_keywords() {
-        check_lex("let function if return true false", expect![[r#"
+        check_lex("let fn if return true false", expect![[r#"
             KW_LET "let"
             WHITESPACE " "
-            KW_FUNCTION "function"
+            KW_FN "fn"
             WHITESPACE " "
             KW_IF "if"
             WHITESPACE " "
@@ -822,8 +820,8 @@ mod tests {
 
     #[test]
     fn lex_function_definition() {
-        check_lex("function add(x: u32) -> u32 {", expect![[r#"
-            KW_FUNCTION "function"
+        check_lex("fn add(x: u32) -> u32 {", expect![[r#"
+            KW_FN "fn"
             WHITESPACE " "
             IDENT "add"
             L_PAREN "("

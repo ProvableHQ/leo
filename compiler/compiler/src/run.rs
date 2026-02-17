@@ -42,8 +42,10 @@ use snarkvm::{
     circuit::AleoTestnetV0,
     prelude::{
         Address,
+        Block,
         ConsensusVersion,
         Execution,
+        FromBytes,
         Identifier,
         Ledger,
         Network,
@@ -284,11 +286,9 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
     // Store all of the non-genesis blocks created during set up.
     let mut blocks = Vec::new();
 
-    // Initialize a `VM` and construct the genesis block. This should always succeed.
-    let genesis_block = VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(0).unwrap())
-        .unwrap()
-        .genesis_beacon(&genesis_private_key, &mut rng)
-        .unwrap();
+    // Load the genesis block.
+    let genesis_block =
+        Block::from_bytes_le(include_bytes!("../../../resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?;
 
     // Initialize a `Ledger`. This should always succeed.
     let ledger =

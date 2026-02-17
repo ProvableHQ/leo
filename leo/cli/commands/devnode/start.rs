@@ -28,6 +28,7 @@ use crate::cli::commands::devnode::rest::Rest;
 
 // Command for starting the Devnode server.
 #[derive(Parser, Debug)]
+#[group(id = "start_args")]
 pub struct Start {
     /// Verbosity level for logging (0-2).
     #[clap(short = 'v', long, help = "devnode verbosity (0-2)", default_value = "2")]
@@ -41,13 +42,11 @@ pub struct Start {
     /// Enable manual block creation mode.
     #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
     pub(crate) manual_block_creation: bool,
-    /// Environment override options.
-    #[clap(flatten)]
-    pub(crate) env_override: EnvOptions,
 }
 
 impl Command for Start {
-    type Input = ();
+    /// The private key, resolved from the parent command's `EnvOptions`.
+    type Input = Option<String>;
     type Output = ();
 
     fn log_span(&self) -> Span {
@@ -55,18 +54,17 @@ impl Command for Start {
     }
 
     fn prelude(&self, _context: Context) -> Result<Self::Input> {
-        Ok(())
+        Ok(None)
     }
 
-    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context, private_key: Self::Input) -> Result<Self::Output> {
         let rt = tokio::runtime::Runtime::new().unwrap();
-        let _ = rt.block_on(async { start_devnode(self).await });
-        Ok(())
+        rt.block_on(async { start_devnode(self, private_key).await })
     }
 }
 
 // This command initializes a local development node that is pre-populated with test accounts.
-pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::Output> {
+async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()> {
     // Initialize the logger.
     println!("Starting the Devnode server...");
     initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
@@ -83,15 +81,22 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
         })?)?
     } else {
         // This genesis block is stored in $TMPDIR when running snarkos start --dev 0 --dev-num-validators N
-        Block::from_bytes_le(include_bytes!("./rest/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
+        Block::from_bytes_le(include_bytes!("../../../../resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
     // Fetch the private key from the command line or an environment variable.
-    let private_key = match command.env_override.private_key {
+    let private_key = match private_key {
         Some(key) => key,
-        None => std::env::var("PRIVATE_KEY")
-            .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?,
+        None => std::env::var("PRIVATE_KEY").map_err(|e| {
+            CliError::custom(format!(
+                "
+Failed to load `PRIVATE_KEY` from the environment: {e}
+Please either:
+1. Use the --private-key flag: `leo devnode start --private-key <PRIVATE_KEY>`
+2. Set the PRIVATE_KEY environment variable"
+            ))
+        })?,
     };
     // Initialize the ledger - use spawn_blocking for the blocking load operation.
     let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
@@ -109,8 +114,8 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
     if !command.manual_block_creation {
         println!("Advancing the Devnode to the latest consensus version");
         let last_height = TEST_CONSENSUS_VERSION_HEIGHTS.last().unwrap().1;
-        // Call the REST API to advance the ledger by one block.
-        let client = reqwest::blocking::Client::new();
+        // Call the REST API to advance the ledger.
+        let client = reqwest::Client::new();
 
         let payload = json!({
             "num_blocks": last_height,
@@ -120,7 +125,8 @@ pub(crate) async fn start_devnode(command: Start) -> Result<<Start as Command>::
             .post(format!("http://{}/testnet/block/create", command.socket_addr))
             .header("Content-Type", "application/json")
             .json(&payload)
-            .send();
+            .send()
+            .await;
     }
     // Prevent main from exiting.
     std::future::pending::<()>().await;
