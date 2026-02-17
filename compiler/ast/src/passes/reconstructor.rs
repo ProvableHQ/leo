@@ -362,8 +362,7 @@ pub trait AstReconstructor {
                 condition: self.reconstruct_expression(input.condition, &Default::default()).0,
                 if_true: self.reconstruct_expression(input.if_true, &Default::default()).0,
                 if_false: self.reconstruct_expression(input.if_false, &Default::default()).0,
-                span: input.span,
-                id: input.id,
+                ..input
             }
             .into(),
             Default::default(),
@@ -466,8 +465,7 @@ pub trait AstReconstructor {
         (
             Block {
                 statements: input.statements.into_iter().map(|s| self.reconstruct_statement(s).0).collect(),
-                span: input.span,
-                id: input.id,
+                ..input
             },
             Default::default(),
         )
@@ -654,18 +652,12 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             output_type: self.reconstruct_type(input.output_type).0,
             block: self.reconstruct_block(input.block).0,
-            span: input.span,
-            id: input.id,
+            ..input
         }
     }
 
     fn reconstruct_constructor(&mut self, input: Constructor) -> Constructor {
-        Constructor {
-            annotations: input.annotations,
-            block: self.reconstruct_block(input.block).0,
-            span: input.span,
-            id: input.id,
-        }
+        Constructor { annotations: input.annotations, block: self.reconstruct_block(input.block).0, ..input }
     }
 
     fn reconstruct_function_stub(&mut self, input: FunctionStub) -> FunctionStub {
