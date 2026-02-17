@@ -84,7 +84,7 @@ enum Commands {
         #[clap(flatten)]
         command: LeoDeploy,
     },
-    #[clap(about = "Manage a local devnet")]
+    #[clap(about = "Run a local devnet")]
     Devnet {
         #[clap(flatten)]
         command: LeoDevnet,

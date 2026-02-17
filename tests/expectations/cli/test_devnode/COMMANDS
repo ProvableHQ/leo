@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LEO_BIN=${1}
+# The framework provides LEO_DEVNODE_PORT, but since we use SKIP_DEVNODE
+# we start our own devnode on that port.
+PORT=${LEO_DEVNODE_PORT}
+PID=""
+
+cleanup() {
+    if [ -n "$PID" ]; then
+        kill "$PID" 2>/dev/null && wait "$PID" 2>/dev/null || true
+    fi
+}
+trap cleanup EXIT
+
+# Start devnode on the allocated port.
+$LEO_BIN --disable-update-check devnode start \
+    --socket-addr "127.0.0.1:${PORT}" \
+    --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH \
+    &
+PID=$!
+
+# Wait for devnode to become responsive.
+DEADLINE=$((SECONDS + 60))
+while [ $SECONDS -lt $DEADLINE ]; do
+    if curl -sf "http://127.0.0.1:${PORT}/testnet/block/height/latest" >/dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
+
+# Verify the devnode is reachable.
+HEIGHT=$(curl -sf "http://127.0.0.1:${PORT}/testnet/block/height/latest")
+if [ -z "$HEIGHT" ]; then
+    echo "Leo devnode failed to start"
+    exit 1
+fi
+echo "Leo devnode started"
+
+# Advance the ledger by 5 blocks.
+$LEO_BIN --disable-update-check devnode advance 5 \
+    --socket-addr "127.0.0.1:${PORT}"
+
+# Verify the height increased.
+NEW_HEIGHT=$(curl -sf "http://127.0.0.1:${PORT}/testnet/block/height/latest")
+if [ "$NEW_HEIGHT" -gt "$HEIGHT" ]; then
+    echo "Leo devnode advance succeeded"
+else
+    echo "Leo devnode advance failed (height did not increase)"
+    exit 1
+fi
