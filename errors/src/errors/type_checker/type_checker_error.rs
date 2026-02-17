@@ -1419,12 +1419,12 @@ create_messages!(
         help: Some("Slice expressions can only be applied to arrays.".to_string()),
     }
 
-    /// For when a slice range is invalid (e.g., start > end).
+    /// For when a slice range is invalid (e.g., start >= end).
     @formatted
     slice_range_invalid {
         args: (start: impl Display, end: impl Display),
         msg: format!(
-            "Invalid slice range: start index `{start}` is greater than end index `{end}`.",
+            "Invalid slice range: start index `{start}` is greater than or equal to end index `{end}`. Slices must contain at least one element.",
         ),
         help: None,
     }

@@ -1,0 +1,5 @@
+Error [ECMP0376015]: This slice bound could not be determined at compile time.
+    --> compiler-test:5:16
+     |
+   5 |         return a[start..end];
+     |                ^^^^^^^^^^^^^

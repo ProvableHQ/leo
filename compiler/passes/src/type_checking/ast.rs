@@ -557,16 +557,24 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Type check the start expression if present.
         if let Some(start) = &input.start {
-            self.visit_expression_infer_default_u32(start);
+            let ty = self.visit_expression_infer_default_u32(start);
+            self.assert_int_type(&ty, start.span());
         }
 
         // Type check the end expression if present.
         if let Some((_, end)) = &input.end {
-            self.visit_expression_infer_default_u32(end);
+            let ty = self.visit_expression_infer_default_u32(end);
+            self.assert_int_type(&ty, end.span());
         }
 
-        // Get the start index (default 0).
-        let start = input.start.as_ref().and_then(|e| e.as_u32()).unwrap_or(0);
+        // Get the start index (default 0). If start is present but not resolvable, defer.
+        let start = match &input.start {
+            Some(e) => match e.as_u32() {
+                Some(v) => v,
+                None => return Type::Err,
+            },
+            None => 0,
+        };
 
         // Get the original array length if known.
         let array_len = if let Type::Array(array_ty) = &array_type { array_ty.length.as_u32() } else { None };
@@ -576,7 +584,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             (Some((inclusive, end_expr)), _) => {
                 if let Some(raw_end) = end_expr.as_u32() {
                     let end = if *inclusive { raw_end + 1 } else { raw_end };
-                    if end < start {
+                    if end <= start {
                         self.emit_err(TypeCheckerError::slice_range_invalid(start, raw_end, input.span()));
                         return Type::Err;
                     }
@@ -587,7 +595,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             (None, Some(arr_len)) => {
                 // Slice to end of array.
-                if start > arr_len {
+                if start >= arr_len {
                     self.emit_err(TypeCheckerError::slice_range_invalid(start, arr_len, input.span()));
                     return Type::Err;
                 }
