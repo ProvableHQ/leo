@@ -309,62 +309,103 @@ impl TypeCheckingVisitor<'_> {
             }
 
             Intrinsic::MappingGet => {
-                let [container, key_or_index] = arguments else { panic!("number of arguments is already checked") };
+                let [container, key] = arguments else { panic!("number of arguments is already checked") };
 
                 let container_ty = self.visit_expression(container, &None);
 
-                // Key type depends on container type
-                let key_or_index_ty = if let Type::Mapping(MappingType { ref key, .. }) = container_ty {
-                    self.visit_expression(key_or_index, &Some(*key.clone()))
+                // Key type is obtained from the mapping type. Otherwise, don't do anything. Error
+                // emission is deferred.
+                let key_ty = if let Type::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
+                    self.visit_expression(key, &Some(*key_ty.clone()))
                 } else {
-                    self.visit_expression(key_or_index, &None)
+                    self.visit_expression(key, &None)
                 };
 
-                vec![(container_ty, container), (key_or_index_ty, key_or_index)]
-            }
-
-            Intrinsic::VectorGet => {
-                let [container, key_or_index] = arguments else { panic!("number of arguments is already checked") };
-
-                let container_ty = self.visit_expression(container, &None);
-
-                // Key type depends on container type
-                let key_or_index_ty = self.visit_expression_infer_default_u32(key_or_index);
-
-                vec![(container_ty, container), (key_or_index_ty, key_or_index)]
+                vec![(container_ty, container), (key_ty, key)]
             }
 
             Intrinsic::MappingSet => {
-                let [container, key_or_index, val] = arguments else {
-                    panic!("number of arguments is already checked")
-                };
+                let [container, key, val] = arguments else { panic!("number of arguments is already checked") };
 
                 let container_ty = self.visit_expression(container, &None);
 
-                let key_or_index_ty = match container_ty {
-                    Type::Vector(_) => self.visit_expression_infer_default_u32(key_or_index),
-                    Type::Mapping(MappingType { ref key, .. }) => {
-                        self.visit_expression(key_or_index, &Some(*key.clone()))
-                    }
-                    _ => self.visit_expression(key_or_index, &None),
-                };
+                let (key_ty, val_ty) =
+                    if let Type::Mapping(MappingType { key: ref key_ty, value: ref value_ty, .. }) = container_ty {
+                        (
+                            self.visit_expression(key, &Some(*key_ty.clone())),
+                            self.visit_expression(val, &Some(*value_ty.clone())),
+                        )
+                    } else {
+                        (self.visit_expression(key, &None), self.visit_expression(val, &None))
+                    };
 
-                let val_ty = if let Type::Mapping(MappingType { ref value, .. }) = container_ty {
-                    self.visit_expression(val, &Some(*value.clone()))
-                } else {
-                    self.visit_expression(val, &None)
-                };
-
-                vec![(container_ty, container), (key_or_index_ty, key_or_index), (val_ty, val)]
+                vec![(container_ty, container), (key_ty, key), (val_ty, val)]
             }
-            Intrinsic::VectorSet => {
-                let [container, key_or_index, val] = arguments else {
-                    panic!("number of arguments is already checked")
-                };
+
+            Intrinsic::MappingGetOrUse => {
+                let [container, key, default] = arguments else { panic!("number of arguments is already checked") };
 
                 let container_ty = self.visit_expression(container, &None);
 
-                let key_or_index_ty = self.visit_expression_infer_default_u32(key_or_index);
+                let (key_ty, default_ty) =
+                    if let Type::Mapping(MappingType { key: ref key_ty, value: ref value_ty, .. }) = container_ty {
+                        (
+                            self.visit_expression(key, &Some(*key_ty.clone())),
+                            self.visit_expression(default, &Some(*value_ty.clone())),
+                        )
+                    } else {
+                        (self.visit_expression(key, &None), self.visit_expression(default, &None))
+                    };
+
+                vec![(container_ty, container), (key_ty, key), (default_ty, default)]
+            }
+
+            Intrinsic::MappingRemove => {
+                let [container, key] = arguments else { panic!("number of arguments is already checked") };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                let key_ty = if let Type::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
+                    self.visit_expression(key, &Some(*key_ty.clone()))
+                } else {
+                    self.visit_expression(key, &None)
+                };
+
+                vec![(container_ty, container), (key_ty, key)]
+            }
+
+            Intrinsic::MappingContains => {
+                let [container, key] = arguments else { panic!("number of arguments is already checked") };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                let key_ty = if let Type::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
+                    self.visit_expression(key, &Some(*key_ty.clone()))
+                } else {
+                    self.visit_expression(key, &None)
+                };
+
+                vec![(container_ty, container), (key_ty, key)]
+            }
+
+            Intrinsic::VectorGet => {
+                let [container, index] = arguments else { panic!("number of arguments is already checked") };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                // Indices default to `u32` when numeric.
+                let index_ty = self.visit_expression_infer_default_u32(index);
+
+                vec![(container_ty, container), (index_ty, index)]
+            }
+
+            Intrinsic::VectorSet => {
+                let [container, index, val] = arguments else { panic!("number of arguments is already checked") };
+
+                let container_ty = self.visit_expression(container, &None);
+
+                // Indices default to `u32` when numeric.
+                let index_ty = self.visit_expression_infer_default_u32(index);
 
                 let val_ty = if let Type::Vector(VectorType { ref element_type }) = container_ty {
                     self.visit_expression(val, &Some(*element_type.clone()))
@@ -372,7 +413,7 @@ impl TypeCheckingVisitor<'_> {
                     self.visit_expression(val, &None)
                 };
 
-                vec![(container_ty, container), (key_or_index_ty, key_or_index), (val_ty, val)]
+                vec![(container_ty, container), (index_ty, index), (val_ty, val)]
             }
 
             Intrinsic::VectorPush => {
@@ -382,7 +423,7 @@ impl TypeCheckingVisitor<'_> {
                 let vec_ty = self.visit_expression(vec, &None);
 
                 // Type-check value against vector element type
-                let val_ty = if let Type::Vector(VectorType { element_type }) = &vec_ty {
+                let val_ty = if let Type::Vector(VectorType { ref element_type }) = vec_ty {
                     self.visit_expression(val, &Some(*element_type.clone()))
                 } else {
                     self.visit_expression(val, &None)
@@ -694,7 +735,7 @@ impl TypeCheckingVisitor<'_> {
                 let (map_ty, map_expr) = &arguments[0];
 
                 let Type::Mapping(MappingType { value, .. }) = map_ty else {
-                    self.assert_vector_or_mapping_type(map_ty, map_expr.span());
+                    self.assert_mapping_type(map_ty, map_expr.span());
                     return Type::Err;
                 };
 
@@ -707,7 +748,7 @@ impl TypeCheckingVisitor<'_> {
                 let (map_ty, map_expr) = &arguments[0];
 
                 let Type::Mapping(_) = map_ty else {
-                    self.assert_vector_or_mapping_type(map_ty, map_expr.span());
+                    self.assert_mapping_type(map_ty, map_expr.span());
                     return Type::Err;
                 };
 
@@ -735,16 +776,10 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the first argument is a mapping.
                 self.assert_mapping_type(map_ty, map_expr.span());
 
-                let Type::Mapping(MappingType { key, value, .. }) = map_ty else {
+                let Type::Mapping(MappingType { value, .. }) = map_ty else {
                     // We already handled the error in the assertion.
                     return Type::Err;
                 };
-
-                // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
-
-                // Check that the third argument matches the value type of the mapping.
-                self.assert_type(&arguments[2].0, value, arguments[2].1.span());
 
                 value.deref().clone()
             }
@@ -757,7 +792,7 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the first argument is a mapping.
                 self.assert_mapping_type(map_ty, map_expr.span());
 
-                let Type::Mapping(MappingType { key, .. }) = map_ty else {
+                let Type::Mapping(_) = map_ty else {
                     // We already handled the error in the assertion.
                     return Type::Err;
                 };
@@ -772,9 +807,6 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 }
 
-                // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
-
                 Type::Unit
             }
             Intrinsic::MappingContains => {
@@ -786,13 +818,10 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the first argument is a mapping.
                 self.assert_mapping_type(map_ty, map_expr.span());
 
-                let Type::Mapping(MappingType { key, .. }) = map_ty else {
+                let Type::Mapping(_) = map_ty else {
                     // We already handled the error in the assertion.
                     return Type::Err;
                 };
-
-                // Check that the second argument matches the key type of the mapping.
-                self.assert_type(&arguments[1].0, key, arguments[1].1.span());
 
                 Type::Boolean
             }

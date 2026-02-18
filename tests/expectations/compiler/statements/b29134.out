@@ -1,0 +1,46 @@
+program child.aleo;
+
+mapping foo:
+    key as u32.public;
+    value as u32.public;
+
+function bar:
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+mapping f:
+    key as u32.public;
+    value as u32.public;
+
+function set_test:
+    async set_test into r0;
+    output r0 as parent.aleo/set_test.future;
+
+finalize set_test:
+    set 0u32 into f[0u32];
+    set 0u32 into f[1u32];
+
+function get_test:
+    async get_test into r0;
+    output r0 as parent.aleo/get_test.future;
+
+finalize get_test:
+    get child.aleo/foo[0u32] into r0;
+    is.eq r0 42u32 into r1;
+    assert.eq r1 true;
+    get child.aleo/foo[1u32] into r2;
+    is.eq r2 42u32 into r3;
+    assert.eq r3 true;
+
+function get_or_use_test:
+    async get_or_use_test into r0;
+    output r0 as parent.aleo/get_or_use_test.future;
+
+finalize get_or_use_test:
+    get.or_use child.aleo/foo[0u32] 42u32 into r0;
+    is.eq r0 42u32 into r1;
+    assert.eq r1 true;
+    get.or_use child.aleo/foo[1u32] 42u32 into r2;
+    is.eq r2 42u32 into r3;
+    assert.eq r3 true;
