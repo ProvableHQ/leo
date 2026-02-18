@@ -30,7 +30,7 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         let order = self
             .state
             .call_graph
-            .post_order()
+            .post_order_with_filter(|location| location.program == self.program)
             .unwrap()
             .into_iter()
             .filter_map(|location| (location.program == self.program).then_some(location.path))
@@ -118,6 +118,8 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
     }
 
     fn reconstruct_program(&mut self, input: Program) -> Program {
+        let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
+
         // Populate `self.function_map` using the functions in the program scopes and the modules
         input
             .modules
@@ -141,6 +143,7 @@ impl ProgramReconstructor for FunctionInliningVisitor<'_> {
         // modules will be traversed using the call graph and reconstructed in the right order, so
         // no need to reconstruct the modules explicitly.
         Program {
+            stubs,
             program_scopes: input
                 .program_scopes
                 .into_iter()
