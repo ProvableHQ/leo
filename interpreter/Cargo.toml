@@ -17,10 +17,6 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[features]
-default = []
-rowan = [ "leo-parser/rowan" ]
-
 [dependencies]
 # leo dependencies
 leo-ast       = { workspace = true }

@@ -35,7 +35,6 @@ members = [
   "compiler/abi-types",
   "compiler/ast",
   "compiler/compiler",
-  "compiler/parser-lossless",
   "compiler/parser-rowan",
   "compiler/parser",
   "compiler/passes",
@@ -64,7 +63,6 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 only_testnet = [ ]
-rowan = [ "leo-compiler/rowan", "leo-interpreter/rowan" ]
 
 [workspace.dependencies]
 # leo dependencies
@@ -78,7 +76,6 @@ leo-fmt             = { path = "./leo-fmt",                   version = "=3.4.0"
 leo-interpreter     = { path = "./interpreter",               version = "=3.4.0" }
 leo-package         = { path = "./leo/package",               version = "=3.4.0" }
 leo-parser          = { path = "./compiler/parser",           version = "=3.4.0" }
-leo-parser-lossless = { path = "./compiler/parser-lossless",  version = "=3.4.0" }
 leo-parser-rowan    = { path = "./compiler/parser-rowan",     version = "=3.4.0" }
 leo-passes          = { path = "./compiler/passes",           version = "=3.4.0" }
 leo-span            = { path = "./compiler/span",             version = "=3.4.0" }

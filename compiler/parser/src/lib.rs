@@ -17,25 +17,10 @@
 //! The Leo parser.
 //!
 //! This crate provides parsing functionality for Leo source code, converting
-//! it into the Leo AST. Two parser implementations are available:
-//!
-//! - **Default (LALRPOP-based)**: Uses `leo-parser-lossless` with LALRPOP.
-//! - **Rowan-based** (feature `rowan`): Uses `leo-parser-rowan` for IDE-grade
-//!   error recovery and lossless syntax trees.
-//!
-//! The `rowan` feature flag switches between implementations. When enabled,
-//! the rowan-based parser completely replaces the LALRPOP-based one.
+//! it into the Leo AST. Uses `leo-parser-rowan` for IDE-grade error recovery
+//! and lossless syntax trees.
 
-// Feature-gated parser implementations.
-
-#[cfg(not(feature = "rowan"))]
-mod lossless;
-#[cfg(not(feature = "rowan"))]
-pub use lossless::{parse, parse_ast, parse_expression, parse_module, parse_statement};
-
-#[cfg(feature = "rowan")]
 mod rowan;
-#[cfg(feature = "rowan")]
 pub use rowan::{parse, parse_ast, parse_expression, parse_module, parse_statement};
 
 #[cfg(test)]

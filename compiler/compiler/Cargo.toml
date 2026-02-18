@@ -20,7 +20,6 @@ edition = "2024"
 [features]
 default = [ ]
 ci_skip = [ "leo-ast/ci_skip" ]
-rowan = [ "leo-parser/rowan" ]
 
 [dependencies]
 # leo dependencies

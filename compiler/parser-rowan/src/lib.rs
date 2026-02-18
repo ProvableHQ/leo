@@ -17,8 +17,7 @@
 //! Rowan-based lossless syntax tree and parser for Leo.
 //!
 //! This crate provides a lossless parser using the rowan library, designed for
-//! IDE-grade error recovery. It will eventually replace the LALRPOP-based
-//! parser in `leo-parser-lossless`.
+//! IDE-grade error recovery.
 
 mod lexer;
 mod parser;
