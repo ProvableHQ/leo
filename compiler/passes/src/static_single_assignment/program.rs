@@ -130,11 +130,13 @@ impl ProgramScopeConsumer for SsaFormingVisitor<'_> {
         self.program = input.program_id.name.name;
         ProgramScope {
             program_id: input.program_id,
+            parent: input.parent,
             consts: input.consts,
             composites: input.composites.into_iter().map(|(i, s)| (i, self.consume_composite(s))).collect(),
             mappings: input.mappings,
             storage_variables: input.storage_variables,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+            interfaces: input.interfaces,
             constructor: input.constructor.map(|c| self.consume_constructor(c)),
             span: input.span,
         }
@@ -179,6 +181,7 @@ impl ModuleConsumer for SsaFormingVisitor<'_> {
             program_name: self.program,
             composites: input.composites.into_iter().map(|(i, s)| (i, self.consume_composite(s))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+            interfaces: input.interfaces,
             consts: input.consts,
         }
     }

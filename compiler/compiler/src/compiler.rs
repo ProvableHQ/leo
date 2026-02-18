@@ -196,6 +196,8 @@ impl Compiler {
 
         self.do_pass::<GlobalItemsCollection>(())?;
 
+        self.do_pass::<CheckInterfaces>(())?;
+
         self.do_pass::<TypeChecking>(type_checking_config.clone())?;
 
         self.do_pass::<Disambiguate>(())?;

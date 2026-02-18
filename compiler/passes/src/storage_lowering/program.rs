@@ -53,6 +53,7 @@ impl ProgramReconstructor for StorageLoweringVisitor<'_> {
 
         ProgramScope {
             program_id: input.program_id,
+            parent: input.parent,
             consts: input
                 .consts
                 .into_iter()
@@ -65,6 +66,7 @@ impl ProgramReconstructor for StorageLoweringVisitor<'_> {
             mappings,
             storage_variables,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
         }

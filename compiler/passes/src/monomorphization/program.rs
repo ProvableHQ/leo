@@ -125,6 +125,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
+            parent: input.parent,
             composites: self
                 .reconstructed_composites
                 .iter()
@@ -148,6 +149,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                         .map(|(last, _)| (*last, f.clone()))
                 })
                 .collect(),
+            interfaces: input.interfaces,
             constructor,
             consts,
             span: input.span,

@@ -33,14 +33,38 @@ impl Parser<'_, '_> {
     /// Tokens that can start a module-level item (for error recovery).
     const MODULE_ITEM_RECOVERY: &'static [SyntaxKind] = &[KW_CONST, KW_STRUCT, KW_FN, KW_FINAL, AT];
     /// Expected items within a `program { ... }` block.
-    const PROGRAM_ITEM_EXPECTED: &'static [SyntaxKind] =
-        &[R_BRACE, AT, KW_RECORD, KW_STRUCT, KW_FN, KW_FINAL, KW_CONST, KW_MAPPING, KW_STORAGE, KW_SCRIPT];
+    const PROGRAM_ITEM_EXPECTED: &'static [SyntaxKind] = &[
+        R_BRACE,
+        AT,
+        KW_RECORD,
+        KW_STRUCT,
+        KW_FN,
+        KW_FINAL,
+        KW_CONST,
+        KW_MAPPING,
+        KW_STORAGE,
+        KW_SCRIPT,
+        KW_INTERFACE,
+    ];
     /// Recovery set for return type parsing.
     const RETURN_TYPE_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_PAREN, L_BRACE];
     /// Recovery set for struct/record name errors — skip to the next item or block boundary.
     const STRUCT_NAME_RECOVERY: &'static [SyntaxKind] = &[
-        L_BRACE, R_BRACE, SEMICOLON, KW_IMPORT, KW_PROGRAM, KW_CONST, KW_STRUCT, KW_RECORD, KW_FN, KW_FINAL,
-        KW_MAPPING, KW_STORAGE, KW_SCRIPT, AT,
+        L_BRACE,
+        R_BRACE,
+        SEMICOLON,
+        KW_IMPORT,
+        KW_PROGRAM,
+        KW_CONST,
+        KW_STRUCT,
+        KW_RECORD,
+        KW_FN,
+        KW_FINAL,
+        KW_MAPPING,
+        KW_STORAGE,
+        KW_SCRIPT,
+        KW_INTERFACE,
+        AT,
     ];
 
     /// Consume an optional visibility modifier keyword (`public`, `private`, or `constant`).
@@ -93,9 +117,12 @@ impl Parser<'_, '_> {
                         self.error_and_bump("expected module item");
                     }
                 }
+                KW_INTERFACE => {
+                    self.parse_interface_def();
+                }
                 _ => {
                     self.error("expected `import`, `program`, or module item at top level");
-                    self.recover(&[KW_IMPORT, KW_PROGRAM, KW_CONST, KW_STRUCT, KW_FN, KW_FINAL, AT]);
+                    self.recover(&[KW_IMPORT, KW_PROGRAM, KW_CONST, KW_STRUCT, KW_FN, KW_FINAL, KW_INTERFACE, AT]);
                 }
             }
         }
@@ -146,13 +173,23 @@ impl Parser<'_, '_> {
         Some(m.complete(self, IMPORT))
     }
 
-    /// Parse a program declaration: `program name.aleo { ... }`
+    /// Parse a program declaration: `program name.aleo [: InterfaceName] { ... }`
     fn parse_program_decl(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
         self.bump_any(); // program
 
         // Parse program ID: name.aleo
         self.parse_program_id();
+
+        // Optional parent interface: `: InterfaceName`
+        if self.eat(COLON) {
+            self.skip_trivia();
+            if self.at(IDENT) {
+                self.bump_any();
+            } else {
+                self.error("expected interface name");
+            }
+        }
 
         self.expect(L_BRACE);
 
@@ -206,6 +243,7 @@ impl Parser<'_, '_> {
             KW_STORAGE => self.parse_storage_def(),
             KW_CONST => self.parse_global_const(),
             KW_FN | KW_FINAL | KW_SCRIPT | KW_CONSTRUCTOR => self.parse_function_or_constructor(),
+            KW_INTERFACE => self.parse_interface_def(),
             _ => {
                 let expected: Vec<&str> = Self::PROGRAM_ITEM_EXPECTED.iter().map(|k| k.user_friendly_name()).collect();
                 self.error_unexpected(self.current(), &expected);
@@ -620,6 +658,108 @@ impl Parser<'_, '_> {
             _ => PARAM,
         };
         m.complete(self, kind);
+    }
+
+    // =========================================================================
+    // Interface Parsing
+    // =========================================================================
+
+    /// Parse an interface definition: `interface Name [: Parent] { fn_prototypes... }`
+    fn parse_interface_def(&mut self) -> Option<CompletedMarker> {
+        let m = self.start();
+        self.bump_any(); // interface
+
+        // Name
+        self.skip_trivia();
+        if self.at(IDENT) {
+            self.bump_any();
+        } else {
+            self.error("expected interface name");
+        }
+
+        // Optional parent: `: ParentName`
+        if self.eat(COLON) {
+            self.skip_trivia();
+            if self.at(IDENT) {
+                self.bump_any();
+            } else {
+                self.error("expected parent interface name");
+            }
+        }
+
+        // Interface body
+        self.expect(L_BRACE);
+        while !self.at(R_BRACE) && !self.at_eof() {
+            self.erroring = false;
+            if !self.parse_interface_item() {
+                self.error_and_bump("expected function or record prototype");
+            }
+        }
+        self.expect(R_BRACE);
+
+        Some(m.complete(self, INTERFACE_DEF))
+    }
+
+    /// Parse an interface item: function prototype or record prototype
+    fn parse_interface_item(&mut self) -> bool {
+        match self.current() {
+            KW_FN => {
+                self.parse_fn_prototype();
+                true
+            }
+            KW_RECORD => {
+                self.parse_record_prototype();
+                true
+            }
+            _ => false,
+        }
+    }
+
+    /// Parse function prototype: `fn name(...) [-> Type];`
+    fn parse_fn_prototype(&mut self) -> Option<CompletedMarker> {
+        let m = self.start();
+        self.bump_any(); // fn
+
+        // Name
+        self.skip_trivia();
+        if self.at(IDENT) {
+            self.bump_any();
+        } else {
+            self.error("expected function name");
+        }
+
+        // Optional const generic parameters: ::[N: u32]
+        if self.at(COLON_COLON) && self.nth(1) == L_BRACKET {
+            self.bump_any(); // ::
+            self.parse_const_param_list();
+        }
+
+        // Parameters
+        self.parse_param_list();
+
+        // Return type
+        if self.eat(ARROW) {
+            self.parse_return_type();
+        }
+
+        self.expect(SEMICOLON);
+        Some(m.complete(self, FN_PROTOTYPE_DEF))
+    }
+
+    /// Parse record prototype: `record Name;`
+    fn parse_record_prototype(&mut self) -> Option<CompletedMarker> {
+        let m = self.start();
+        self.bump_any(); // record
+
+        self.skip_trivia();
+        if self.at(IDENT) {
+            self.bump_any();
+        } else {
+            self.error("expected record name");
+        }
+
+        self.expect(SEMICOLON);
+        Some(m.complete(self, RECORD_PROTOTYPE_DEF))
     }
 }
 

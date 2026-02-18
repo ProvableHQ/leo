@@ -157,6 +157,8 @@ pub enum SyntaxKind {
     KW_STRUCT,
     /// `constructor`
     KW_CONSTRUCTOR,
+    /// `interface`
+    KW_INTERFACE,
 
     // ==========================================================================
     // Keywords - Program Structure
@@ -371,6 +373,12 @@ pub enum SyntaxKind {
     STORAGE_DEF,
     /// Global constant definition.
     GLOBAL_CONST,
+    /// Interface declaration.
+    INTERFACE_DEF,
+    /// Function prototype (in interface).
+    FN_PROTOTYPE_DEF,
+    /// Record prototype (in interface).
+    RECORD_PROTOTYPE_DEF,
 
     // ==========================================================================
     // Composite Nodes - Function Parts
@@ -580,6 +588,7 @@ impl SyntaxKind {
                 | KW_FN_UPPER
                 | KW_STRUCT
                 | KW_CONSTRUCTOR
+                | KW_INTERFACE
                 | KW_PROGRAM
                 | KW_IMPORT
                 | KW_MAPPING
@@ -835,6 +844,7 @@ impl SyntaxKind {
             KW_FN_UPPER => "'Fn'",
             KW_STRUCT => "'struct'",
             KW_CONSTRUCTOR => "'constructor'",
+            KW_INTERFACE => "'interface'",
 
             // Program structure keywords
             KW_PROGRAM => "'program'",
@@ -981,6 +991,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     KW_FN_UPPER,
     KW_STRUCT,
     KW_CONSTRUCTOR,
+    KW_INTERFACE,
     KW_PROGRAM,
     KW_IMPORT,
     KW_MAPPING,
@@ -1066,6 +1077,9 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     MAPPING_DEF,
     STORAGE_DEF,
     GLOBAL_CONST,
+    INTERFACE_DEF,
+    FN_PROTOTYPE_DEF,
+    RECORD_PROTOTYPE_DEF,
     ANNOTATION,
     ANNOTATION_PAIR,
     PARAM,

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Composite, Expression, Function, Location, NodeBuilder, NodeID, Path, Type};
+use leo_ast::{Composite, Expression, Function, Interface, Location, NodeBuilder, NodeID, Path, Type};
 use leo_errors::{AstError, Color, Label, LeoError, Result};
 use leo_span::{Span, Symbol};
 
@@ -41,6 +41,9 @@ pub struct SymbolTable {
 
     /// Structs indexed by a path.
     structs: IndexMap<Location, Composite>,
+
+    /// Interfaces indexed by a path.
+    interfaces: IndexMap<Location, Interface>,
 
     /// Consts that have been successfully evaluated.
     global_consts: IndexMap<Location, Expression>,
@@ -245,6 +248,11 @@ impl SymbolTable {
         self.functions.iter()
     }
 
+    /// Iterator over all the interfaces in this program.
+    pub fn iter_interfaces(&self) -> impl Iterator<Item = (&Location, &Interface)> {
+        self.interfaces.iter()
+    }
+
     /// Access a struct by this location if it exists and is accessible from program named `current_program`.
     pub fn lookup_struct(&self, current_program: Symbol, loc: &Location) -> Option<&Composite> {
         if self.is_visible(current_program, &loc.program) { self.structs.get(loc) } else { None }
@@ -258,6 +266,11 @@ impl SymbolTable {
     /// Access a function by this name if it exists and is accessible from program named `current_program`.
     pub fn lookup_function(&self, current_program: Symbol, location: &Location) -> Option<&FunctionSymbol> {
         if self.is_visible(current_program, &location.program) { self.functions.get(location) } else { None }
+    }
+
+    /// Access an interface by this name if it exists and is accessible from program named `current_program`.
+    pub fn lookup_interface(&self, current_program: Symbol, location: &Location) -> Option<&Interface> {
+        if self.is_visible(current_program, &location.program) { self.interfaces.get(location) } else { None }
     }
 
     /// Attempts to look up a variable by a path from program named `current_program`.
@@ -470,6 +483,13 @@ impl SymbolTable {
     pub fn insert_function(&mut self, location: Location, function: Function) -> Result<()> {
         self.check_shadow_global(&location, function.identifier.span)?;
         self.functions.insert(location, FunctionSymbol { function, finalizer: None });
+        Ok(())
+    }
+
+    /// Insert an interface at this location.
+    pub fn insert_interface(&mut self, location: Location, int: Interface) -> Result<()> {
+        self.check_shadow_global(&location, int.identifier.span)?;
+        self.interfaces.insert(location, int);
         Ok(())
     }
 

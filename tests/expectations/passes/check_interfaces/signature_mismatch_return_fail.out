@@ -1,0 +1,15 @@
+Error [ECHI03712004]: Function `convert` does not match the signature required by interface `Converter`.
+Expected:
+fn convert(value: u64) -> u32
+Found:
+fn convert(value: u64) -> u64
+    --> test:9:5
+     |
+   9 |     fn convert(value: u64) -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |         return value;
+     |         ^^^^^^^^^^^^^
+  11 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.

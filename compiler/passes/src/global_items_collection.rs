@@ -41,6 +41,7 @@ use leo_ast::{
     ConstDeclaration,
     Function,
     FunctionStub,
+    Interface,
     Location,
     Mapping,
     MappingType,
@@ -117,6 +118,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+        input.interfaces.iter().for_each(|(_, c)| self.visit_interface(c));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
         }
@@ -176,6 +178,15 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
         if let Err(err) =
             self.state.symbol_table.insert_function(Location::new(self.program_name, full_name), input.clone())
+        {
+            self.state.handler.emit_err(err);
+        }
+    }
+
+    fn visit_interface(&mut self, input: &Interface) {
+        let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
+        if let Err(err) =
+            self.state.symbol_table.insert_interface(Location::new(self.program_name, full_name), input.clone())
         {
             self.state.handler.emit_err(err);
         }

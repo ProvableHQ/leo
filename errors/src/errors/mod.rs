@@ -60,6 +60,10 @@ pub use self::type_checker::*;
 mod name_validation;
 pub use self::name_validation::*;
 
+/// Contains the Check Interfaces error definitions.
+mod check_interfaces;
+pub use self::check_interfaces::*;
+
 /// Contains the Utils error definitions.
 mod utils;
 pub use self::utils::*;
@@ -94,6 +98,9 @@ pub enum LeoError {
     /// Represents a Name Validation Error in a Leo Error.
     #[error(transparent)]
     NameValidationError(#[from] NameValidationError),
+    /// Represents a Check Interfaces Error in a Leo Error.
+    #[error(transparent)]
+    CheckInterfacesError(#[from] CheckInterfacesError),
     /// Represents a Loop Unroller Error in a Leo Error.
     #[error(transparent)]
     LoopUnrollerError(#[from] LoopUnrollerError),
@@ -126,6 +133,7 @@ impl LeoError {
             StaticAnalyzerError(error) => error.error_code(),
             TypeCheckerError(error) => error.error_code(),
             NameValidationError(error) => error.error_code(),
+            CheckInterfacesError(error) => error.error_code(),
             LoopUnrollerError(error) => error.error_code(),
             FlattenError(error) => error.error_code(),
             UtilError(error) => error.error_code(),
@@ -148,6 +156,7 @@ impl LeoError {
             StaticAnalyzerError(error) => error.exit_code(),
             TypeCheckerError(error) => error.exit_code(),
             NameValidationError(error) => error.exit_code(),
+            CheckInterfacesError(error) => error.exit_code(),
             LoopUnrollerError(error) => error.exit_code(),
             FlattenError(error) => error.exit_code(),
             UtilError(error) => error.exit_code(),

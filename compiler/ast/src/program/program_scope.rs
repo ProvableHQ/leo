@@ -16,7 +16,17 @@
 
 //! A Leo program scope consists of const, composite, function, and mapping definitions.
 
-use crate::{Composite, ConstDeclaration, Constructor, Function, Indent, Mapping, ProgramId, StorageVariable};
+use crate::{
+    Composite,
+    ConstDeclaration,
+    Constructor,
+    Function,
+    Indent,
+    Interface,
+    Mapping,
+    ProgramId,
+    StorageVariable,
+};
 
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -27,6 +37,8 @@ use std::fmt;
 pub struct ProgramScope {
     /// The program id of the program scope.
     pub program_id: ProgramId,
+    /// The interface this program inherits from, if any
+    pub parent: Option<Symbol>,
     /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of composite definitions.
@@ -37,6 +49,8 @@ pub struct ProgramScope {
     pub storage_variables: Vec<(Symbol, StorageVariable)>,
     /// A vector of function definitions.
     pub functions: Vec<(Symbol, Function)>,
+    /// A vector of interface definitions.
+    pub interfaces: Vec<(Symbol, Interface)>,
     /// An optional constructor.
     pub constructor: Option<Constructor>,
     /// The span associated with the program scope.

@@ -369,6 +369,20 @@ pub trait ProgramVisitor: AstVisitor {
         self.visit_block(&input.block);
     }
 
+    fn visit_interface(&mut self, input: &Interface) {
+        input.functions.iter().for_each(|(_, f)| self.visit_function_prototype(f));
+        input.records.iter().for_each(|(_, r)| self.visit_record_prototype(r));
+    }
+
+    fn visit_function_prototype(&mut self, input: &FunctionPrototype) {
+        input.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
+        input.input.iter().for_each(|input| self.visit_type(&input.type_));
+        input.output.iter().for_each(|output| self.visit_type(&output.type_));
+        self.visit_type(&input.output_type);
+    }
+
+    fn visit_record_prototype(&mut self, _input: &RecordPrototype) {}
+
     fn visit_constructor(&mut self, input: &Constructor) {
         self.visit_block(&input.block);
     }

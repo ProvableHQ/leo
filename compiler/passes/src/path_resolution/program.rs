@@ -52,6 +52,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
         // This is the default implementation.
         ProgramScope {
             program_id: input.program_id,
+            parent: input.parent,
             consts: input
                 .consts
                 .into_iter()
@@ -68,6 +69,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
                 .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
                 .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
         }
@@ -80,6 +82,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
             path: input.path,
             composites: input.composites.into_iter().map(|(i, c)| (i, slf.reconstruct_composite(c))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, slf.reconstruct_interface(int))).collect(),
             consts: input
                 .consts
                 .into_iter()
