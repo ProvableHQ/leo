@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected an identifier -- found '('
+Error [EPAR0370047]: expected function name
     --> test:3:7
      |
    3 |     fn(a: u8) -> public (u8, u8) {

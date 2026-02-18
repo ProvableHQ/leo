@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected an identifier, an integer literal -- found '-'
+Error [EPAR0370047]: expected field name or tuple index
     --> compiler-test:7:20
      |
    7 |     return (t.0, t.-1); // Index `t.-1` is invalid.

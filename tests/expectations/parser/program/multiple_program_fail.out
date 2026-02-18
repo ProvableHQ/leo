@@ -1,19 +1,4 @@
 Error [EPAR0370055]: A Leo program can only have one `program` declaration.
-    --> test:1:1
-     |
-   1 | program test1.aleo {
-     | ^^^^^^^^^^^^^^^^^^^^
-   2 |     fn foo() -> u32 {
-     |     ^^^^^^^^^^^^^^^^^
-   3 |         return 0u32;
-     |         ^^^^^^^^^^^^
-   4 |     }
-     |     ^
-   5 | }
-     | ^
-     |
-     = Remove the duplicate `program` block. Only one is allowed per program.
-Error [EPAR0370055]: A Leo program can only have one `program` declaration.
     --> test:7:1
      |
    7 | program test2.aleo {

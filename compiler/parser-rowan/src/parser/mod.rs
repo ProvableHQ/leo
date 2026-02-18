@@ -28,7 +28,7 @@ mod types;
 
 use crate::{
     SyntaxNode,
-    lexer::Token,
+    lexer::{LexError, Token},
     syntax_kind::{SyntaxKind, SyntaxKind::*},
 };
 pub use grammar::{parse_expression_entry, parse_file, parse_module_entry, parse_statement_entry};
@@ -45,10 +45,14 @@ pub struct ParseError {
     pub message: String,
     /// The source range where the error occurred.
     ///
-    /// For "expected X" errors, this is typically a zero-length range at the
-    /// error position. For recovery errors, this spans the tokens wrapped in
-    /// the ERROR node.
+    /// For "expected X" errors, this covers the found token so that
+    /// diagnostic carets underline it. For recovery errors, this spans the
+    /// tokens wrapped in the ERROR node.
     pub range: TextRange,
+    /// The token that was found (for "expected X, found Y" errors).
+    pub found: Option<String>,
+    /// The list of expected tokens (for structured error messages).
+    pub expected: Vec<String>,
 }
 
 /// The result of a parse operation.
@@ -61,6 +65,8 @@ pub struct Parse {
     green: GreenNode,
     /// Errors encountered during parsing.
     errors: Vec<ParseError>,
+    /// Errors encountered during lexing.
+    lex_errors: Vec<LexError>,
 }
 
 impl Parse {
@@ -74,14 +80,19 @@ impl Parse {
         &self.errors
     }
 
+    /// Get the lexer errors.
+    pub fn lex_errors(&self) -> &[LexError] {
+        &self.lex_errors
+    }
+
     /// Check if the parse was successful (no errors).
     pub fn is_ok(&self) -> bool {
-        self.errors.is_empty()
+        self.errors.is_empty() && self.lex_errors.is_empty()
     }
 
     /// Convert to a Result, returning the syntax node on success or errors on failure.
     pub fn ok(self) -> Result<SyntaxNode, Vec<ParseError>> {
-        if self.errors.is_empty() { Ok(self.syntax()) } else { Err(self.errors) }
+        if self.errors.is_empty() && self.lex_errors.is_empty() { Ok(self.syntax()) } else { Err(self.errors) }
     }
 }
 
@@ -168,7 +179,6 @@ impl CompletedMarker {
     }
 
     /// Get the kind of the completed node.
-    #[allow(unused)]
     pub fn kind(&self) -> SyntaxKind {
         self.kind
     }
@@ -196,12 +206,11 @@ pub struct Parser<'t, 's> {
     builder: GreenNodeBuilder<'static>,
     /// Accumulated parse errors.
     errors: Vec<ParseError>,
-    /// Nesting depth of parentheses (for delimiter recovery).
-    paren_depth: u32,
-    /// Nesting depth of braces (for delimiter recovery).
-    brace_depth: u32,
-    /// Nesting depth of brackets (for delimiter recovery).
-    bracket_depth: u32,
+    /// Whether the parser is currently in an error state.
+    ///
+    /// When `true`, subsequent errors are suppressed until recovery completes.
+    /// This prevents cascading errors from a single syntactic mistake.
+    erroring: bool,
 }
 
 impl<'t, 's> Parser<'t, 's> {
@@ -214,9 +223,7 @@ impl<'t, 's> Parser<'t, 's> {
             byte_offset: 0,
             builder: GreenNodeBuilder::new(),
             errors: Vec::new(),
-            paren_depth: 0,
-            brace_depth: 0,
-            bracket_depth: 0,
+            erroring: false,
         }
     }
 
@@ -284,7 +291,6 @@ impl<'t, 's> Parser<'t, 's> {
     }
 
     /// Get the text of the current token.
-    #[allow(unused)]
     pub fn current_text(&self) -> &'s str {
         if self.pos >= self.tokens.len() {
             return "";
@@ -293,25 +299,25 @@ impl<'t, 's> Parser<'t, 's> {
         &self.source[self.byte_offset..self.byte_offset + len]
     }
 
-    /// Get the text of the nth token (skipping trivia).
-    #[allow(unused)]
-    pub fn nth_text(&self, n: usize) -> &'s str {
+    /// Get the `TextRange` covering the current non-trivia token.
+    ///
+    /// Walks past trivia to find the next meaningful token and returns its
+    /// range. At EOF, returns a zero-length range at the current byte offset.
+    fn current_token_range(&self) -> TextRange {
         let mut pos = self.pos;
         let mut offset = self.byte_offset;
-        let mut count = 0;
-
         while pos < self.tokens.len() {
             let token = &self.tokens[pos];
             if !token.kind.is_trivia() {
-                if count == n {
-                    return &self.source[offset..offset + token.len as usize];
-                }
-                count += 1;
+                let start = TextSize::new(offset as u32);
+                let end = TextSize::new(offset as u32 + token.len);
+                return TextRange::new(start, end);
             }
             offset += token.len as usize;
             pos += 1;
         }
-        ""
+        let pos = TextSize::new(offset as u32);
+        TextRange::empty(pos)
     }
 
     // =========================================================================
@@ -324,23 +330,15 @@ impl<'t, 's> Parser<'t, 's> {
     }
 
     /// Consume the current token without skipping trivia first.
-    ///
-    /// Also tracks delimiter depth for recovery purposes.
     fn bump_raw(&mut self) {
         if self.pos >= self.tokens.len() {
             return;
         }
         let token = &self.tokens[self.pos];
 
-        // Track delimiter depth for recovery
-        match token.kind {
-            L_PAREN => self.paren_depth += 1,
-            R_PAREN => self.paren_depth = self.paren_depth.saturating_sub(1),
-            L_BRACE => self.brace_depth += 1,
-            R_BRACE => self.brace_depth = self.brace_depth.saturating_sub(1),
-            L_BRACKET => self.bracket_depth += 1,
-            R_BRACKET => self.bracket_depth = self.bracket_depth.saturating_sub(1),
-            _ => {}
+        // Lex error tokens enter error state to suppress cascade parse errors.
+        if token.kind == ERROR {
+            self.erroring = true;
         }
 
         let text = &self.source[self.byte_offset..self.byte_offset + token.len as usize];
@@ -413,23 +411,81 @@ impl<'t, 's> Parser<'t, 's> {
         if self.eat(kind) {
             true
         } else {
-            self.error(format!("expected {:?}", kind));
+            if !self.erroring {
+                let found_text = self.current_text().to_string();
+                let expected_name = kind.user_friendly_name();
+                self.errors.push(ParseError {
+                    message: format!("expected {}", expected_name),
+                    range: self.current_token_range(),
+                    found: Some(found_text),
+                    expected: vec![expected_name.to_string()],
+                });
+                self.erroring = true;
+            }
             false
         }
     }
 
-    /// Record a parse error at the current position (zero-length range).
-    pub fn error(&mut self, message: String) {
-        let pos = TextSize::new(self.byte_offset as u32);
-        self.errors.push(ParseError { message, range: TextRange::empty(pos) });
+    /// Record a parse error at the current position.
+    pub fn error(&mut self, message: impl std::fmt::Display) {
+        if self.erroring {
+            return;
+        }
+        let found_text = if !self.at_eof() { Some(self.current_text().to_string()) } else { None };
+        self.errors.push(ParseError {
+            message: message.to_string(),
+            range: self.current_token_range(),
+            found: found_text,
+            expected: vec![],
+        });
+        self.erroring = true;
+    }
+
+    /// Record an "unexpected token" error with explicit expected tokens.
+    ///
+    /// This sets both `found` and `expected` fields, allowing rowan.rs to emit
+    /// a ParserError::unexpected instead of ParserError::custom.
+    /// The `found_kind` parameter should be the SyntaxKind of the unexpected token.
+    pub fn error_unexpected(&mut self, found_kind: SyntaxKind, expected: &[&str]) {
+        if self.erroring {
+            return;
+        }
+        let range = self.current_token_range();
+        // For 'found', use the actual token text for identifiers and numbers
+        // (since "an identifier" is less helpful than showing the actual name).
+        // For other tokens, use user_friendly_name with quotes stripped.
+        let found_text = if matches!(found_kind, IDENT | INTEGER) {
+            let start = u32::from(range.start()) as usize;
+            let end = u32::from(range.end()) as usize;
+            if start < end && end <= self.source.len() {
+                self.source[start..end].to_string()
+            } else {
+                found_kind.user_friendly_name().trim_matches('\'').to_string()
+            }
+        } else {
+            found_kind.user_friendly_name().trim_matches('\'').to_string()
+        };
+        self.errors.push(ParseError {
+            message: format!("expected {}", expected.join(", ")),
+            range,
+            found: Some(found_text),
+            expected: expected.iter().map(|s| s.to_string()).collect(),
+        });
+        self.erroring = true;
     }
 
     /// Record a parse error spanning from `start` to the current position.
-    fn error_span(&mut self, message: String, start: usize) {
+    fn error_span(&mut self, message: impl std::fmt::Display, start: usize) {
+        if self.erroring {
+            return;
+        }
         self.errors.push(ParseError {
-            message,
+            message: message.to_string(),
             range: TextRange::new(TextSize::new(start as u32), TextSize::new(self.byte_offset as u32)),
+            found: None,
+            expected: vec![],
         });
+        self.erroring = true;
     }
 
     /// Wrap unexpected tokens in an ERROR node until we reach a recovery point.
@@ -440,21 +496,51 @@ impl<'t, 's> Parser<'t, 's> {
     pub fn error_recover(&mut self, message: &str, recovery: &[SyntaxKind]) {
         let start = self.byte_offset;
         self.start_node(ERROR);
-
-        // If we're already at a recovery token, consume it to ensure progress.
-        // This prevents infinite loops when a recovery token (like SEMICOLON)
-        // can't start the expected construct (like a statement).
-        if self.at_any(recovery) && !self.at(R_BRACE) && !self.at_eof() {
-            self.bump_any();
-        }
-
-        while !self.at_eof() && !self.at_any(recovery) {
-            self.bump_any();
-        }
+        self.skip_to_recovery(recovery);
         self.finish_node();
 
         // Record error with the span of consumed tokens
-        self.error_span(message.to_string(), start);
+        self.error_span(message, start);
+
+        // Recovery complete — allow new errors for the next construct.
+        self.erroring = false;
+    }
+
+    /// Skip tokens until a recovery point, wrapping them in an ERROR node.
+    /// Unlike `error_recover`, this does not emit an error message (useful when
+    /// the caller has already reported the error).
+    ///
+    /// Balanced brace pairs (`{ ... }`) encountered during recovery are
+    /// consumed as a unit so that we don't stop at an inner `}` that belongs
+    /// to a nested block.
+    pub fn recover(&mut self, recovery: &[SyntaxKind]) {
+        self.start_node(ERROR);
+        self.skip_to_recovery(recovery);
+        self.finish_node();
+
+        // Recovery complete — allow new errors for the next construct.
+        self.erroring = false;
+    }
+
+    /// Skip tokens until we reach a recovery point or EOF.
+    ///
+    /// If already at a recovery token (other than `}`), consumes it to ensure
+    /// progress. Balanced brace pairs are consumed as a unit so that we don't
+    /// stop at an inner `}` that belongs to a nested block.
+    fn skip_to_recovery(&mut self, recovery: &[SyntaxKind]) {
+        if self.at_any(recovery) && !self.at(R_BRACE) && !self.at_eof() {
+            self.bump_any();
+        }
+        let mut brace_depth: u32 = 0;
+        while !self.at_eof() {
+            match self.current() {
+                L_BRACE => brace_depth += 1,
+                R_BRACE if brace_depth > 0 => brace_depth -= 1,
+                kind if brace_depth == 0 && recovery.contains(&kind) => break,
+                _ => {}
+            }
+            self.bump_any();
+        }
     }
 
     /// Create an ERROR node containing the current token.
@@ -464,63 +550,24 @@ impl<'t, 's> Parser<'t, 's> {
         self.start_node(ERROR);
         self.bump_any();
         self.finish_node();
-        self.error_span(message.to_string(), start);
-    }
+        self.error_span(message, start);
 
-    // =========================================================================
-    // Delimiter Tracking
-    // =========================================================================
-
-    /// Get the current parenthesis nesting depth.
-    #[allow(unused)]
-    pub fn paren_depth(&self) -> u32 {
-        self.paren_depth
-    }
-
-    /// Get the current brace nesting depth.
-    #[allow(unused)]
-    pub fn brace_depth(&self) -> u32 {
-        self.brace_depth
-    }
-
-    /// Get the current bracket nesting depth.
-    #[allow(unused)]
-    pub fn bracket_depth(&self) -> u32 {
-        self.bracket_depth
-    }
-
-    /// Skip tokens until we reach a balanced closing delimiter at depth 0.
-    ///
-    /// This is useful for recovering from errors inside parenthesized expressions,
-    /// blocks, or array literals. It consumes tokens while tracking delimiter
-    /// depth, stopping when the matching close delimiter would bring us back to
-    /// the starting depth.
-    ///
-    /// Returns true if a balanced delimiter was found, false if EOF was reached.
-    #[allow(unused)]
-    pub fn skip_to_balanced(&mut self, open: SyntaxKind, close: SyntaxKind) -> bool {
-        let mut depth: u32 = 1;
-        while !self.at_eof() && depth > 0 {
-            if self.at(open) {
-                depth += 1;
-            } else if self.at(close) {
-                depth -= 1;
-                if depth == 0 {
-                    return true;
-                }
-            }
-            self.bump_any();
-        }
-        false
+        // Consumed the bad token — allow new errors for the next construct.
+        self.erroring = false;
     }
 
     // =========================================================================
     // Completion
     // =========================================================================
 
+    /// Get the current number of accumulated parse errors.
+    pub fn error_count(&self) -> usize {
+        self.errors.len()
+    }
+
     /// Finish parsing and return the parse result.
-    pub fn finish(self) -> Parse {
-        Parse { green: self.builder.finish(), errors: self.errors }
+    pub fn finish(self, lex_errors: Vec<LexError>) -> Parse {
+        Parse { green: self.builder.finish(), errors: self.errors, lex_errors }
     }
 }
 
@@ -529,15 +576,15 @@ impl<'t, 's> Parser<'t, 's> {
 // =============================================================================
 
 /// Tokens that can start a statement (for recovery).
-pub const STMT_RECOVERY: &[SyntaxKind] =
+pub(crate) const STMT_RECOVERY: &[SyntaxKind] =
     &[KW_LET, KW_CONST, KW_RETURN, KW_IF, KW_FOR, KW_ASSERT, KW_ASSERT_EQ, KW_ASSERT_NEQ, L_BRACE, R_BRACE, SEMICOLON];
 
 /// Tokens that can start a top-level item (for recovery).
-pub const ITEM_RECOVERY: &[SyntaxKind] =
+pub(crate) const ITEM_RECOVERY: &[SyntaxKind] =
     &[KW_IMPORT, KW_PROGRAM, KW_FN, KW_STRUCT, KW_RECORD, KW_MAPPING, KW_STORAGE, KW_CONST, KW_FINAL, AT, R_BRACE];
 
 /// Tokens that indicate we should stop expression recovery.
-pub const EXPR_RECOVERY: &[SyntaxKind] = &[
+pub(crate) const EXPR_RECOVERY: &[SyntaxKind] = &[
     SEMICOLON,
     COMMA,
     R_PAREN,
@@ -554,10 +601,11 @@ pub const EXPR_RECOVERY: &[SyntaxKind] = &[
 ];
 
 /// Tokens for recovering inside type parsing.
-pub const TYPE_RECOVERY: &[SyntaxKind] = &[COMMA, GT, R_BRACKET, R_PAREN, L_BRACE, R_BRACE, EQ, SEMICOLON, ARROW];
+pub(crate) const TYPE_RECOVERY: &[SyntaxKind] =
+    &[COMMA, GT, R_BRACKET, R_PAREN, L_BRACE, R_BRACE, EQ, SEMICOLON, ARROW];
 
 /// Tokens for recovering inside parameter lists.
-pub const PARAM_RECOVERY: &[SyntaxKind] = &[COMMA, R_PAREN, L_BRACE, ARROW];
+pub(crate) const PARAM_RECOVERY: &[SyntaxKind] = &[COMMA, R_PAREN, L_BRACE, ARROW];
 
 #[cfg(test)]
 mod tests {
@@ -570,7 +618,7 @@ mod tests {
         let (tokens, _) = lex(input);
         let mut parser = Parser::new(input, &tokens);
         parse_fn(&mut parser);
-        let parse = parser.finish();
+        let parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -580,7 +628,7 @@ mod tests {
         let (tokens, _) = lex(input);
         let mut parser = Parser::new(input, &tokens);
         parse_fn(&mut parser);
-        let parse = parser.finish();
+        let parse = parser.finish(vec![]);
         let output = parse
             .errors()
             .iter()
@@ -670,7 +718,7 @@ mod tests {
                 p.start_node(PAREN_EXPR);
                 p.eat(L_PAREN);
                 p.skip_trivia();
-                p.start_node(NAME_REF);
+                p.start_node(PATH_EXPR);
                 p.bump();
                 p.finish_node();
                 p.eat(R_PAREN);
@@ -681,7 +729,7 @@ mod tests {
             ROOT@0..3
               PAREN_EXPR@0..3
                 L_PAREN@0..1 "("
-                NAME_REF@1..2
+                PATH_EXPR@1..2
                   IDENT@1..2 "a"
                 R_PAREN@2..3 ")"
         "#]],
@@ -696,30 +744,30 @@ mod tests {
                 p.start_node(ROOT);
                 p.skip_trivia();
                 let checkpoint = p.checkpoint();
-                p.start_node(LITERAL);
+                p.start_node(LITERAL_INT);
                 p.bump();
                 p.finish_node();
                 p.skip_trivia();
                 p.start_node_at(checkpoint, BINARY_EXPR);
                 p.bump();
                 p.skip_trivia();
-                p.start_node(LITERAL);
+                p.start_node(LITERAL_INT);
                 p.bump();
                 p.finish_node();
                 p.finish_node();
                 p.finish_node();
             },
             expect![[r#"
-            ROOT@0..5
-              BINARY_EXPR@0..5
-                LITERAL@0..1
-                  INTEGER@0..1 "1"
-                WHITESPACE@1..2 " "
-                PLUS@2..3 "+"
-                WHITESPACE@3..4 " "
-                LITERAL@4..5
-                  INTEGER@4..5 "2"
-        "#]],
+                ROOT@0..5
+                  BINARY_EXPR@0..5
+                    LITERAL_INT@0..1
+                      INTEGER@0..1 "1"
+                    WHITESPACE@1..2 " "
+                    PLUS@2..3 "+"
+                    WHITESPACE@3..4 " "
+                    LITERAL_INT@4..5
+                      INTEGER@4..5 "2"
+            "#]],
         );
     }
 
@@ -748,7 +796,7 @@ mod tests {
                 p.expect(SEMICOLON);
                 p.finish_node();
             },
-            expect![[r#"0..0:expected SEMICOLON"#]],
+            expect![[r#"0..3:expected ';'"#]],
         );
     }
 
@@ -882,7 +930,7 @@ mod tests {
                 // Parse LHS
                 let lhs_m = p.start();
                 p.bump(); // 1
-                let lhs = lhs_m.complete(p, LITERAL);
+                let lhs = lhs_m.complete(p, LITERAL_INT);
 
                 p.skip_trivia();
 
@@ -895,22 +943,22 @@ mod tests {
                 // Parse RHS
                 let rhs_m = p.start();
                 p.bump(); // 2
-                rhs_m.complete(p, LITERAL);
+                rhs_m.complete(p, LITERAL_INT);
 
                 bin_m.complete(p, BINARY_EXPR);
                 root.complete(p, ROOT);
             },
             expect![[r#"
-            ROOT@0..5
-              BINARY_EXPR@0..5
-                LITERAL@0..1
-                  INTEGER@0..1 "1"
-                WHITESPACE@1..2 " "
-                PLUS@2..3 "+"
-                WHITESPACE@3..4 " "
-                LITERAL@4..5
-                  INTEGER@4..5 "2"
-        "#]],
+                ROOT@0..5
+                  BINARY_EXPR@0..5
+                    LITERAL_INT@0..1
+                      INTEGER@0..1 "1"
+                    WHITESPACE@1..2 " "
+                    PLUS@2..3 "+"
+                    WHITESPACE@3..4 " "
+                    LITERAL_INT@4..5
+                      INTEGER@4..5 "2"
+            "#]],
         );
     }
 
@@ -925,7 +973,7 @@ mod tests {
                 p.skip_trivia();
                 let name = p.start();
                 p.bump();
-                name.complete(p, NAME_REF);
+                name.complete(p, PATH_EXPR);
                 p.eat(R_PAREN);
                 paren.complete(p, PAREN_EXPR);
                 root.complete(p, ROOT);
@@ -934,7 +982,7 @@ mod tests {
             ROOT@0..3
               PAREN_EXPR@0..3
                 L_PAREN@0..1 "("
-                NAME_REF@1..2
+                PATH_EXPR@1..2
                   IDENT@1..2 "a"
                 R_PAREN@2..3 ")"
         "#]],
@@ -959,7 +1007,7 @@ mod tests {
         let root = parser.start();
         parser.parse_file_items();
         root.complete(&mut parser, ROOT);
-        parser.finish()
+        parser.finish(vec![])
     }
 
     /// Helper to parse a statement and return both tree and errors.
@@ -970,7 +1018,7 @@ mod tests {
         parser.parse_stmt();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        parser.finish()
+        parser.finish(vec![])
     }
 
     #[test]

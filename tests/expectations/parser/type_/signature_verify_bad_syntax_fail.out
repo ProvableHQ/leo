@@ -3,3 +3,38 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    4 |         let a: bool = signature.verify(s, a, v);
      |                       ^^^^^^^^^
+Error [EPAR0370005]: expected ';' -- found ','
+    --> test:4:41
+     |
+   4 |         let a: bool = signature.verify(s, a, v);
+     |                                         ^
+Error [EPAR0370005]: expected ')' -- found ','
+    --> test:5:17
+     |
+   5 |         assert(a, b);
+     |                 ^
+Error [EPAR0370047]: expected parameter name
+    --> test:13:12
+     |
+  13 |     fn foo(signature: field) -> u8 {
+     |            ^^^^^^^^^
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script' -- found ':'
+    --> test:13:21
+     |
+  13 |     fn foo(signature: field) -> u8 {
+     |                     ^
+Error [EPAR0370047]: expected function name
+    --> test:17:8
+     |
+  17 |     fn signature(foo: field) -> u8 {
+     |        ^^^^^^^^^
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script' -- found '('
+    --> test:17:17
+     |
+  17 |     fn signature(foo: field) -> u8 {
+     |                 ^
+Error [EPAR0370021]: The type of `s` has no associated function `verify` that takes 3 argument(s).
+    --> test:9:23
+     |
+   9 |         let b: bool = s.verify(a, a, v);
+     |                       ^^^^^^^^^^^^^^^^^

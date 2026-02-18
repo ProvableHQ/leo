@@ -1,14 +1,39 @@
-Error [EPAR0370021]: The type of `tokens` has no associated function `set` that takes 3 argument(s).
+Error [ETYC0372031]: A mapping's value cannot be a record
+    --> compiler-test:9:5
+     |
+   9 |     mapping tokens: address => Token;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372147]: Invalid expression in a final block. `self.caller` cannot be used directly here
+    --> compiler-test:12:47
+     |
+  12 |         return final { finalize_decrease_self(self.caller, amount); };
+     |                                               ^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `3` args, but got `4`
+    --> compiler-test:17:5
+     |
+  17 |     Mapping::set(tokens, addr, amount, 1u128);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `3` args, but got `4`
     --> compiler-test:18:5
      |
   18 |     tokens.set(addr, amount, 1u128);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370021]: The type of `amounts` has no associated function `set` that takes 1 argument(s).
+Error [ETYC0372006]: Call expected `3` args, but got `2`
+    --> compiler-test:19:5
+     |
+  19 |     Mapping::set(amounts, 1u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `3` args, but got `2`
     --> compiler-test:20:5
      |
   20 |     amounts.set(1u8);
      |     ^^^^^^^^^^^^^^^^
-Error [EPAR0370021]: The type of `amounts` has no associated function `set` that takes 0 argument(s).
+Error [ETYC0372006]: Call expected `3` args, but got `1`
+    --> compiler-test:21:5
+     |
+  21 |     Mapping::set(amounts);
+     |     ^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `3` args, but got `1`
     --> compiler-test:22:5
      |
   22 |     amounts.set();

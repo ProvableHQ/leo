@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found '('
-    --> test:3:17
+Error [EPAR0370009]: unexpected string: expected '100u8', found 'identifier in path'
+    --> test:3:12
      |
    3 |     return 100u8(0u8);
-     |                 ^
+     |            ^^^^^

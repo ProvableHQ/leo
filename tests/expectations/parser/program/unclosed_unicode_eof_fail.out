@@ -4,3 +4,14 @@ Error [EPAR0370050]: Could not lex the following content: `'`.
      |
    4 |         let d: char = '\u}
      |                       ^
+Error [EPAR0370050]: Could not lex the following content: `\`.
+
+    --> test:4:24
+     |
+   4 |         let d: char = '\u}
+     |                        ^
+Error [EPAR0370005]: expected ';' -- found '}'
+    --> test:4:26
+     |
+   4 |         let d: char = '\u}
+     |                          ^

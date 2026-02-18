@@ -1,5 +1,10 @@
-Error [EPAR0370005]: expected an identifier -- found '1'
+Error [EPAR0370047]: expected pattern
     --> compiler-test:4:10
      |
    4 |     let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);
-     |          ^
+     |          ^^^^^^^
+Error [EPAR0370047]: expected pattern
+    --> compiler-test:4:18
+     |
+   4 |     let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);
+     |                  ^^^^^^^

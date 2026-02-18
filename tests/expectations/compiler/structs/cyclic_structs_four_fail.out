@@ -1,5 +1,35 @@
-Error [EPAR0370005]: expected ';' -- found ','
+Error [EPAR0370047]: expected ';' for array type, found ','
     --> compiler-test:9:14
      |
    9 |     baz: [Baz, 2],
+     |              ^
+Error [EPAR0370047]: expected ';' for array type, found ','
+    --> compiler-test:13:14
+     |
+  13 |     bar: [Bar, 3],
+     |              ^
+Error [EPAR0370047]: expected ';' for array type, found ','
+    --> compiler-test:17:14
+     |
+  17 |     two: [Two, 2],
+     |              ^
+Error [EPAR0370047]: expected ';' for array type, found ','
+    --> compiler-test:21:18
+     |
+  21 |     three: [Three, 3],
+     |                  ^
+Error [EPAR0370047]: expected ';' for array type, found ','
+    --> compiler-test:22:16
+     |
+  22 |     four: [Four, 4],
+     |                ^
+Error [EPAR0370047]: expected ';' for array type, found ','
+    --> compiler-test:26:14
+     |
+  26 |     one: [One, 1],
+     |              ^
+Error [EPAR0370047]: expected ';' for array type, found ','
+    --> compiler-test:30:14
+     |
+  30 |     one: [One, 1],
      |              ^

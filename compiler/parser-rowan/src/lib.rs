@@ -25,7 +25,7 @@ mod parser;
 mod syntax_kind;
 
 use leo_errors::Result;
-pub use lexer::{LexError, Token, lex};
+pub use lexer::{LexError, LexErrorKind, Token, lex};
 pub use parser::{
     Parse,
     ParseError,
@@ -35,6 +35,7 @@ pub use parser::{
     parse_module_entry,
     parse_statement_entry,
 };
+pub use rowan::TextRange;
 pub use syntax_kind::{SyntaxKind, syntax_kind_from_raw};
 
 /// The Leo language type for rowan.

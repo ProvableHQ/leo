@@ -1,5 +1,5 @@
-Error [ETYC0372143]: Only inlined functions can have generic const parameters.
-    --> compiler-test:2:4
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
+    --> compiler-test:9:1
      |
-   2 | fn foo1::[N: u32](x: u32) -> u32 {
-     |    ^^^^
+   9 | script baz::[N: u32]()  { }
+     | ^^^^^^

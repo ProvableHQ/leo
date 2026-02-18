@@ -1,5 +1,10 @@
-Error [EPAR0370005]: expected '@', 'struct', 'final', 'const', 'fn', 'program', 'script' -- found 'stub'
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
     --> test:7:1
      |
    7 | stub credits.aleo {
      | ^^^^
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
+    --> test:49:1
+     |
+  49 | finalize foo() {
+     | ^^^^^^^^

@@ -32,7 +32,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         PROGRAM_DECL => format_program(node, out),
 
         // Declarations
-        FUNCTION_DEF | CONSTRUCTOR_DEF => format_function(node, out),
+        FUNCTION_DEF | FINAL_FN_DEF | SCRIPT_DEF | CONSTRUCTOR_DEF => format_function(node, out),
         STRUCT_DEF | RECORD_DEF => format_composite(node, out),
         IMPORT => format_import(node, out),
         MAPPING_DEF => format_mapping(node, out),
@@ -40,43 +40,51 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         GLOBAL_CONST => format_global_const(node, out),
         ANNOTATION => format_annotation(node, out),
         PARAM_LIST => format_parameter_list(node, out),
-        PARAM => format_parameter(node, out),
+        PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT => format_parameter(node, out),
         RETURN_TYPE => format_return_type(node, out),
         CONST_PARAM => format_const_parameter(node, out),
         CONST_PARAM_LIST => format_const_parameter_list(node, out),
         CONST_ARG_LIST => format_const_argument_list(node, out),
-        STRUCT_MEMBER => format_struct_member(node, out),
+        STRUCT_MEMBER | STRUCT_MEMBER_PUBLIC | STRUCT_MEMBER_PRIVATE | STRUCT_MEMBER_CONSTANT => {
+            format_struct_member(node, out)
+        }
 
         // Statements
         BLOCK => format_block(node, out),
         RETURN_STMT => format_return(node, out),
         LET_STMT => format_definition(node, out),
         CONST_STMT => format_const_stmt(node, out),
-        ASSIGN_STMT => format_assign(node, out),
+        ASSIGN_STMT | COMPOUND_ASSIGN_STMT => format_assign(node, out),
         IF_STMT => format_conditional(node, out),
-        FOR_STMT => format_iteration(node, out),
+        FOR_STMT | FOR_INCLUSIVE_STMT => format_iteration(node, out),
         ASSERT_STMT => format_assert(node, out),
         ASSERT_EQ_STMT => format_assert_pair(node, out, "assert_eq"),
         ASSERT_NEQ_STMT => format_assert_pair(node, out, "assert_neq"),
         EXPR_STMT => format_expr_stmt(node, out),
 
         // Expressions
-        LITERAL => format_literal(node, out),
+        k if k.is_literal_node() => format_literal(node, out),
         CALL_EXPR => format_call(node, out),
+        METHOD_CALL_EXPR => format_method_call(node, out),
         BINARY_EXPR => format_binary(node, out),
-        PATH_EXPR => format_path(node, out),
+        PATH_EXPR | PATH_LOCATOR_EXPR | PROGRAM_REF_EXPR => format_path(node, out),
+        SELF_EXPR => out.write("self"),
+        BLOCK_KW_EXPR => out.write("block"),
+        NETWORK_KW_EXPR => out.write("network"),
         UNARY_EXPR => format_unary(node, out),
         TERNARY_EXPR => format_ternary(node, out),
         FIELD_EXPR => format_field_expr(node, out),
+        TUPLE_ACCESS_EXPR => format_tuple_access(node, out),
         INDEX_EXPR => format_index_expr(node, out),
         CAST_EXPR => format_cast(node, out),
         ARRAY_EXPR => format_array_expr(node, out),
+        REPEAT_EXPR => format_repeat_expr(node, out),
         TUPLE_EXPR => format_tuple_expr(node, out),
         PAREN_EXPR => format_parenthesized(node, out),
-        STRUCT_EXPR => format_struct_expr(node, out),
+        STRUCT_EXPR | STRUCT_LOCATOR_EXPR => format_struct_expr(node, out),
         STRUCT_FIELD_INIT => format_struct_field_init(node, out),
+        STRUCT_FIELD_SHORTHAND => format_struct_field_shorthand(node, out),
         FINAL_EXPR => format_final_expr(node, out),
-        LOCATOR_EXPR => format_locator_expr(node, out),
 
         // Patterns
         IDENT_PATTERN => format_ident_pattern(node, out),
@@ -173,32 +181,9 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
 fn format_program(node: &SyntaxNode, out: &mut Output) {
     let elems = elements(node);
 
-    // Count "item groups" — an annotation followed by a declaration counts as one group
-    // with the declaration. Standalone annotations also count.
-    let children: Vec<_> = node.children().collect();
-    let mut item_group_count = 0;
-    {
-        let mut ci = 0;
-        while ci < children.len() {
-            let k = children[ci].kind();
-            if k == ANNOTATION {
-                // Skip contiguous annotations
-                while ci < children.len() && children[ci].kind() == ANNOTATION {
-                    ci += 1;
-                }
-                // The following item is part of the same group
-                if ci < children.len() && is_program_item_non_annotation(children[ci].kind()) {
-                    ci += 1;
-                }
-                item_group_count += 1;
-            } else if is_program_item_non_annotation(k) || k == ERROR {
-                item_group_count += 1;
-                ci += 1;
-            } else {
-                ci += 1;
-            }
-        }
-    }
+    // Count item groups (annotations are nested inside function/constructor nodes).
+    let item_group_count =
+        node.children().filter(|c| is_program_item_non_annotation(c.kind()) || c.kind() == ERROR).count();
 
     // Write "program name.aleo {"
     out.write("program");
@@ -265,12 +250,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
             },
             SyntaxElement::Node(n) if after_lbrace => {
                 let kind = n.kind();
-                if kind == ANNOTATION {
-                    out.indented(|out| {
-                        format_annotation(n, out);
-                    });
-                    saw_linebreak = false;
-                } else if is_program_item_non_annotation(kind) {
+                if is_program_item_non_annotation(kind) {
                     out.indented(|out| {
                         format_node(n, out);
                         item_group_idx += 1;
@@ -305,7 +285,18 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
-    matches!(kind, FUNCTION_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | MAPPING_DEF | STORAGE_DEF | GLOBAL_CONST)
+    matches!(
+        kind,
+        FUNCTION_DEF
+            | FINAL_FN_DEF
+            | SCRIPT_DEF
+            | CONSTRUCTOR_DEF
+            | STRUCT_DEF
+            | RECORD_DEF
+            | MAPPING_DEF
+            | STORAGE_DEF
+            | GLOBAL_CONST
+    )
 }
 
 // =============================================================================
@@ -347,6 +338,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Node(n) => {
                 let k = n.kind();
                 match k {
+                    ANNOTATION => format_annotation(&n, out),
                     PARAM_LIST => format_parameter_list(&n, out),
                     CONST_PARAM_LIST => format_const_parameter_list(&n, out),
                     RETURN_TYPE => format_return_type(&n, out),
@@ -390,6 +382,23 @@ fn format_annotation(node: &SyntaxNode, out: &mut Output) {
                     _ => {
                         if has_paren || k == IDENT || k.is_keyword() {
                             out.write(tok.text());
+                        }
+                    }
+                }
+            }
+            SyntaxElement::Node(n) if n.kind() == ANNOTATION_PAIR => {
+                // Write annotation pair tokens: key = "value"
+                for pair_elem in n.children_with_tokens() {
+                    if let SyntaxElement::Token(t) = pair_elem {
+                        let k = t.kind();
+                        match k {
+                            EQ => {
+                                out.space();
+                                out.write("=");
+                                out.space();
+                            }
+                            WHITESPACE | LINEBREAK => {}
+                            _ => out.write(t.text()),
                         }
                     }
                 }
@@ -438,7 +447,7 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
                 let k = n.kind();
                 match k {
                     CONST_PARAM_LIST => format_const_parameter_list(n, out),
-                    STRUCT_MEMBER => {
+                    STRUCT_MEMBER | STRUCT_MEMBER_PUBLIC | STRUCT_MEMBER_PRIVATE | STRUCT_MEMBER_CONSTANT => {
                         out.indented(|out| {
                             format_struct_member(n, out);
                             out.write(",");
@@ -618,7 +627,8 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
 // =============================================================================
 
 fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
-    let params: Vec<_> = node.children().filter(|c| c.kind() == PARAM).collect();
+    let params: Vec<_> =
+        node.children().filter(|c| matches!(c.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT)).collect();
 
     out.write("(");
     for (i, param) in params.iter().enumerate() {
@@ -742,13 +752,43 @@ fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
 
 fn format_type(node: &SyntaxNode, out: &mut Output) {
     match node.kind() {
+        TYPE_PRIMITIVE => format_type_primitive(node, out),
+        TYPE_LOCATOR => format_type_locator(node, out),
         TYPE_PATH => format_type_path(node, out),
         TYPE_ARRAY => format_type_array(node, out),
+        TYPE_VECTOR => format_type_vector(node, out),
         TYPE_TUPLE => format_type_tuple(node, out),
         TYPE_FINAL => format_type_future(node, out),
         TYPE_MAPPING => format_type_mapping(node, out),
         TYPE_OPTIONAL => format_type_optional(node, out),
         _ => {}
+    }
+}
+
+fn format_type_primitive(node: &SyntaxNode, out: &mut Output) {
+    // Just write the keyword token text.
+    if let Some(tok) = node.children_with_tokens().find_map(|e| e.into_token().filter(|t| !t.kind().is_trivia())) {
+        out.write(tok.text());
+    }
+}
+
+fn format_type_locator(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) => {
+                if n.kind() == CONST_ARG_LIST {
+                    format_const_argument_list(&n, out);
+                } else {
+                    format_node(&n, out);
+                }
+            }
+        }
     }
 }
 
@@ -791,11 +831,27 @@ fn format_type_array(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Node(n) => {
                 if is_type_node(n.kind()) {
                     format_type(&n, out);
+                } else if n.kind() == ARRAY_LENGTH {
+                    for child in n.children_with_tokens() {
+                        match child {
+                            SyntaxElement::Node(inner) if is_expression(inner.kind()) => format_node(&inner, out),
+                            SyntaxElement::Token(tok) if !tok.kind().is_trivia() => out.write(tok.text()),
+                            _ => {}
+                        }
+                    }
                 } else if is_expression(n.kind()) {
                     format_node(&n, out);
                 }
             }
         }
+    }
+    out.write("]");
+}
+
+fn format_type_vector(node: &SyntaxNode, out: &mut Output) {
+    out.write("[");
+    if let Some(elem_type) = node.children().find(|c| is_type_node(c.kind())) {
+        format_type(&elem_type, out);
     }
     out.write("]");
 }
@@ -1181,7 +1237,7 @@ fn format_expr_stmt(node: &SyntaxNode, out: &mut Output) {
 // =============================================================================
 
 fn format_literal(node: &SyntaxNode, out: &mut Output) {
-    // LITERAL wraps a single token (INTEGER, STRING, ADDRESS_LIT, KW_TRUE, etc.)
+    // Literal nodes wrap a single token (INTEGER, STRING, ADDRESS_LIT, KW_TRUE, etc.)
     // In rowan, the suffix is already included in the token text (e.g. "42u64")
     for elem in node.children_with_tokens() {
         if let SyntaxElement::Token(tok) = elem {
@@ -1195,6 +1251,28 @@ fn format_literal(node: &SyntaxNode, out: &mut Output) {
 
 fn format_call(node: &SyntaxNode, out: &mut Output) {
     // CALL_EXPR: callee_node, L_PAREN, [args separated by COMMA], R_PAREN
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    L_PAREN => out.write("("),
+                    R_PAREN => out.write(")"),
+                    COMMA => {
+                        out.write(",");
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ => out.write(tok.text()),
+                }
+            }
+            SyntaxElement::Node(n) => format_node(&n, out),
+        }
+    }
+}
+
+fn format_method_call(node: &SyntaxNode, out: &mut Output) {
+    // METHOD_CALL_EXPR: receiver, DOT, method_name, L_PAREN, [args], R_PAREN
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1289,7 +1367,22 @@ fn format_ternary(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_field_expr(node: &SyntaxNode, out: &mut Output) {
-    // FIELD_EXPR: base_node, DOT, IDENT|INTEGER|keyword
+    // FIELD_EXPR: base_node, DOT, IDENT|keyword
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) => format_node(&n, out),
+        }
+    }
+}
+
+fn format_tuple_access(node: &SyntaxNode, out: &mut Output) {
+    // TUPLE_ACCESS_EXPR: base_node, DOT, INTEGER
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1347,33 +1440,30 @@ fn format_cast(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
-    // ARRAY_EXPR handles both [a, b, c] and [x; n] (repeat)
-    let has_semi = has_token(node, SEMICOLON);
-
-    if has_semi {
-        // Repeat expression: [value; count]
-        let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
-        out.write("[");
-        if exprs.len() >= 2 {
-            format_node(&exprs[0], out);
-            out.write(";");
+    // ARRAY_EXPR: [a, b, c]
+    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    out.write("[");
+    for (i, expr) in exprs.iter().enumerate() {
+        format_node(expr, out);
+        if i < exprs.len() - 1 {
+            out.write(",");
             out.space();
-            format_node(&exprs[1], out);
         }
-        out.write("]");
-    } else {
-        // Array literal: [a, b, c]
-        let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
-        out.write("[");
-        for (i, expr) in exprs.iter().enumerate() {
-            format_node(expr, out);
-            if i < exprs.len() - 1 {
-                out.write(",");
-                out.space();
-            }
-        }
-        out.write("]");
     }
+    out.write("]");
+}
+
+fn format_repeat_expr(node: &SyntaxNode, out: &mut Output) {
+    // REPEAT_EXPR: [value; count]
+    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    out.write("[");
+    if exprs.len() >= 2 {
+        format_node(&exprs[0], out);
+        out.write(";");
+        out.space();
+        format_node(&exprs[1], out);
+    }
+    out.write("]");
 }
 
 fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
@@ -1412,7 +1502,8 @@ fn format_parenthesized(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
-    let inits: Vec<_> = node.children().filter(|c| c.kind() == STRUCT_FIELD_INIT).collect();
+    let inits: Vec<_> =
+        node.children().filter(|c| matches!(c.kind(), STRUCT_FIELD_INIT | STRUCT_FIELD_SHORTHAND)).collect();
     let elems = elements(node);
 
     // Write everything before L_BRACE (struct path/name)
@@ -1438,7 +1529,7 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
     if !inits.is_empty() {
         out.space();
         for (i, init) in inits.iter().enumerate() {
-            format_struct_field_init(init, out);
+            format_node(init, out);
             if i < inits.len() - 1 {
                 out.write(",");
                 out.space();
@@ -1450,7 +1541,6 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
-    let has_colon = has_token(node, COLON);
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1465,9 +1555,15 @@ fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if has_colon && is_expression(n.kind()) => format_node(&n, out),
+            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
             _ => {}
         }
+    }
+}
+
+fn format_struct_field_shorthand(node: &SyntaxNode, out: &mut Output) {
+    if let Some(tok) = node.children_with_tokens().find_map(|e| e.into_token().filter(|t| t.kind() == IDENT)) {
+        out.write(tok.text());
     }
 }
 
@@ -1477,25 +1573,6 @@ fn format_final_expr(node: &SyntaxNode, out: &mut Output) {
     for child in node.children() {
         if child.kind() == BLOCK {
             format_block(&child, out);
-        }
-    }
-}
-
-fn format_locator_expr(node: &SyntaxNode, out: &mut Output) {
-    // LOCATOR_EXPR: IDENT.aleo/IDENT[::CONST_ARG_LIST]
-    for elem in node.children_with_tokens() {
-        match elem {
-            SyntaxElement::Token(tok) => {
-                let k = tok.kind();
-                if k != WHITESPACE && k != LINEBREAK {
-                    out.write(tok.text());
-                }
-            }
-            SyntaxElement::Node(n) => {
-                if n.kind() == CONST_ARG_LIST {
-                    format_const_argument_list(&n, out);
-                }
-            }
         }
     }
 }
@@ -1659,8 +1736,10 @@ fn is_statement(kind: SyntaxKind) -> bool {
             | LET_STMT
             | CONST_STMT
             | ASSIGN_STMT
+            | COMPOUND_ASSIGN_STMT
             | IF_STMT
             | FOR_STMT
+            | FOR_INCLUSIVE_STMT
             | ASSERT_STMT
             | ASSERT_EQ_STMT
             | ASSERT_NEQ_STMT
@@ -1672,6 +1751,8 @@ fn is_program_item(kind: SyntaxKind) -> bool {
     matches!(
         kind,
         FUNCTION_DEF
+            | FINAL_FN_DEF
+            | SCRIPT_DEF
             | CONSTRUCTOR_DEF
             | STRUCT_DEF
             | RECORD_DEF
@@ -1683,28 +1764,47 @@ fn is_program_item(kind: SyntaxKind) -> bool {
 }
 
 fn is_type_node(kind: SyntaxKind) -> bool {
-    matches!(kind, TYPE_PATH | TYPE_ARRAY | TYPE_TUPLE | TYPE_OPTIONAL | TYPE_FINAL | TYPE_MAPPING)
+    matches!(
+        kind,
+        TYPE_PRIMITIVE
+            | TYPE_LOCATOR
+            | TYPE_PATH
+            | TYPE_ARRAY
+            | TYPE_VECTOR
+            | TYPE_TUPLE
+            | TYPE_OPTIONAL
+            | TYPE_FINAL
+            | TYPE_MAPPING
+    )
 }
 
 fn is_expression(kind: SyntaxKind) -> bool {
-    matches!(
-        kind,
-        LITERAL
-            | CALL_EXPR
-            | BINARY_EXPR
-            | PATH_EXPR
-            | UNARY_EXPR
-            | TERNARY_EXPR
-            | FIELD_EXPR
-            | INDEX_EXPR
-            | CAST_EXPR
-            | ARRAY_EXPR
-            | TUPLE_EXPR
-            | STRUCT_EXPR
-            | PAREN_EXPR
-            | FINAL_EXPR
-            | LOCATOR_EXPR
-    )
+    kind.is_literal_node()
+        || matches!(
+            kind,
+            CALL_EXPR
+                | METHOD_CALL_EXPR
+                | BINARY_EXPR
+                | PATH_EXPR
+                | PATH_LOCATOR_EXPR
+                | PROGRAM_REF_EXPR
+                | SELF_EXPR
+                | BLOCK_KW_EXPR
+                | NETWORK_KW_EXPR
+                | UNARY_EXPR
+                | TERNARY_EXPR
+                | FIELD_EXPR
+                | TUPLE_ACCESS_EXPR
+                | INDEX_EXPR
+                | CAST_EXPR
+                | ARRAY_EXPR
+                | REPEAT_EXPR
+                | TUPLE_EXPR
+                | STRUCT_EXPR
+                | STRUCT_LOCATOR_EXPR
+                | PAREN_EXPR
+                | FINAL_EXPR
+        )
 }
 
 fn is_assignment_op(kind: SyntaxKind) -> bool {

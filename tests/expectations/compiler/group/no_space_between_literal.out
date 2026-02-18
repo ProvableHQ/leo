@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found 'group'
+Error [EPAR0370005]: expected ';' -- found 'group'
     --> compiler-test:5:20
      |
    5 |   let g: group = 1 group;

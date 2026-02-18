@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected an identifier -- found 'constructor'
+Error [EPAR0370047]: expected function name
     --> test:2:8
      |
    2 |     fn constructor(x: u8) -> u8 {

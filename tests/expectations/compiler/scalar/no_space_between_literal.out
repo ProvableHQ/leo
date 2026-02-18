@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found 'scalar'
+Error [EPAR0370005]: expected ';' -- found 'scalar'
     --> compiler-test:4:13
      |
    4 |   let f = 1 scalar;

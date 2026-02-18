@@ -1,5 +1,10 @@
-Error [EPAR0370005]: expected '=', ':' -- found 'x'
+Error [EPAR0370005]: expected '=' -- found 'x'
     --> test:4:13
      |
    4 |     let mut x = 0;
+     |             ^
+Error [EPAR0370005]: expected '=' -- found 'y'
+    --> test:5:13
+     |
+   5 |     let mut y = 0; // recovery witness
      |             ^

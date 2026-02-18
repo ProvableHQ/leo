@@ -3,16 +3,6 @@ Error [ENV03711000]: `finalize` is an invalid program name. A program cannot be 
      |
    9 | program finalize.aleo {
      |         ^^^^^^^^
-Error [ENV03711000]: `value` is an invalid record name. A record cannot be called "value".
-    --> compiler-test:10:12
-     |
-  10 |     record value {
-     |            ^^^^^
-Error [ENV03711000]: `value` is an invalid record member name. A record member cannot be called "value".
-    --> compiler-test:11:9
-     |
-  11 |         value: u32,
-     |         ^^^^^
 Error [ENV03711000]: `value` is an invalid struct member name. A struct member cannot be called "value".
     --> compiler-test:2:5
      |
@@ -28,6 +18,16 @@ Error [ENV03711000]: `owner` is an invalid struct member name. A struct member c
      |
    6 |     owner: u32,
      |     ^^^^^
+Error [ENV03711000]: `value` is an invalid record name. A record cannot be called "value".
+    --> compiler-test:10:12
+     |
+  10 |     record value {
+     |            ^^^^^
+Error [ENV03711000]: `value` is an invalid record member name. A record member cannot be called "value".
+    --> compiler-test:11:9
+     |
+  11 |         value: u32,
+     |         ^^^^^
 Error [ENV03711000]: `value` is an invalid entry point fn name. A entry point fn cannot be called "value".
     --> compiler-test:15:8
      |

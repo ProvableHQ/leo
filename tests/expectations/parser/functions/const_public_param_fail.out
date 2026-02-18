@@ -1,5 +1,10 @@
-Error [EPAR0370005]: expected an identifier, ')', 'constant', 'private', 'public' -- found 'const'
+Error [EPAR0370047]: expected parameter name
     --> test:4:14
      |
    4 | fn x(x: u32, const public y: i32) {
      |              ^^^^^
+Error [EPAR0370047]: expected parameter name
+    --> test:8:15
+     |
+   8 | fn x(constant public x: u32, y: i32) {
+     |               ^^^^^^

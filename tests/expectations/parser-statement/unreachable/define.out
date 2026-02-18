@@ -1,189 +1,199 @@
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found ';'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
     --> test_0:1:1
      |
    1 | ; x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '.'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '.'
     --> test_1:1:1
      |
    1 | . x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'import'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'import'
     --> test_2:1:1
      |
    1 | import x = 10u8;
      | ^^^^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found ','
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
     --> test_3:1:1
      |
    1 | , x = 10u8;
      | ^
-Error [EPAR0370005]: expected ']', ',', ';' -- found '='
+Error [EPAR0370005]: expected ']' -- found '='
     --> test_4:1:5
      |
    1 | [ x = 10u8;
      |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found ']'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ']'
     --> test_5:1:1
      |
    1 | ] x = 10u8;
      | ^
 Error [EPAR0370003]: unexpected EOF
-    --> test_6:1:11
+    --> test_6:1:12
      |
    1 | { x = 10u8;
-     |           ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '}'
+     |            ^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '}'
     --> test_7:1:1
      |
    1 | } x = 10u8;
      | ^
-Error [EPAR0370005]: expected ')', ',' -- found '='
+Error [EPAR0370005]: expected ')' -- found '='
     --> test_8:1:5
      |
    1 | ( x = 10u8;
      |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found ')'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ')'
     --> test_9:1:1
      |
    1 | ) x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found ':'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ':'
     --> test_10:1:1
      |
    1 | : x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '::'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '::'
     --> test_11:1:1
      |
    1 | :: x = 10u8;
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '?'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '?'
     --> test_12:1:1
      |
    1 | ? x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '_'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '_'
     --> test_13:1:1
      |
    1 | _ x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '='
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '='
     --> test_14:1:1
      |
    1 | = x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '=='
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '=='
     --> test_15:1:1
      |
    1 | == x = 10u8;
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '!='
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '!='
     --> test_16:1:1
      |
    1 | != x = 10u8;
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '>'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '>'
     --> test_17:1:1
      |
    1 | > x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '>='
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '>='
     --> test_18:1:1
      |
    1 | >= x = 10u8;
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '<'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '<'
     --> test_19:1:1
      |
    1 | < x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '<='
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '<='
     --> test_20:1:1
      |
    1 | <= x = 10u8;
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '>'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '>'
     --> test_21:1:1
      |
    1 | > x = 10u8;
      | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '..'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
     --> test_22:1:1
      |
    1 | .. x = 10u8;
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'as'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'as'
     --> test_23:1:1
      |
    1 | as x = 10u8;
      | ^^
-Error [EPAR0370005]: expected ':', 'in' -- found '='
+Error [EPAR0370005]: expected 'in' -- found '='
     --> test_24:1:7
      |
    1 | for x = 10u8;
      |       ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', '::', '?', 'as' -- found '='
+Error [EPAR0370047]: expected '..' or '..='
+    --> test_24:1:13
+     |
+   1 | for x = 10u8;
+     |             ^
+Error [EPAR0370003]: unexpected EOF
+    --> test_24:1:14
+     |
+   1 | for x = 10u8;
+     |              ^
+Error [EPAR0370047]: expected {
     --> test_25:1:6
      |
    1 | if x = 10u8;
      |      ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'else'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'else'
     --> test_26:1:1
      |
    1 | else x = 10u8;
      | ^^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'i8'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i8'
     --> test_27:1:1
      |
    1 | i8 x = 10u8;
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'i16'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i16'
     --> test_28:1:1
      |
    1 | i16 x = 10u8;
      | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'i32'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i32'
     --> test_29:1:1
      |
    1 | i32 x = 10u8;
      | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'i64'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i64'
     --> test_30:1:1
      |
    1 | i64 x = 10u8;
      | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'i128'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i128'
     --> test_31:1:1
      |
    1 | i128 x = 10u8;
      | ^^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'u8'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u8'
     --> test_32:1:1
      |
    1 | u8 x = 10u8;
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'u16'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u16'
     --> test_33:1:1
      |
    1 | u16 x = 10u8;
      | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'u32'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u32'
     --> test_34:1:1
      |
    1 | u32 x = 10u8;
      | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'u64'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u64'
     --> test_35:1:1
      |
    1 | u64 x = 10u8;
      | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found 'u128'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u128'
     --> test_36:1:1
      |
    1 | u128 x = 10u8;
      | ^^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', '{', 'true', 'false', 'assert', 'assert_eq', 'assert_neq', 'final', 'block', 'const', 'for', 'if', 'let', 'network', 'return', 'self' -- found '&'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '&'
     --> test_37:1:1
      |
    1 | & x = 10u8;
@@ -193,27 +203,27 @@ Error [EPAR0370005]: expected ';' -- found '='
      |
    1 | return x = 10u8;
      |          ^
-Error [EPAR0370005]: expected '.' -- found 'x'
+Error [EPAR0370005]: expected ';' -- found 'x'
     --> test_39:1:6
      |
    1 | self x = 10u8;
      |      ^
-Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'x'
+Error [EPAR0370005]: expected ';' -- found 'x'
     --> test_40:1:6
      |
    1 | Self x = 10u8;
      |      ^
-Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'x'
+Error [EPAR0370005]: expected ';' -- found 'x'
     --> test_41:1:6
      |
    1 | true x = 10u8;
      |      ^
-Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'x'
+Error [EPAR0370005]: expected ';' -- found 'x'
     --> test_42:1:7
      |
    1 | false x = 10u8;
      |       ^
-Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found 'x'
+Error [EPAR0370005]: expected ';' -- found 'x'
     --> test_43:1:3
      |
    1 | 0 x = 10u8;

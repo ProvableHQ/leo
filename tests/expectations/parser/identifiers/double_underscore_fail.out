@@ -1,3 +1,8 @@
+Error [EPAR0370005]: expected '=' -- found '_leading_double_underscore'
+    --> test:20:14
+     |
+  20 |         let __leading_double_underscore: bool = false;
+     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [EPAR0370046]: Identifier My__Struct cannot contain a double underscore `__`
     --> test:1:8
      |
@@ -38,8 +43,10 @@ Error [EPAR0370046]: Identifier trailing_double_underscore__ cannot contain a do
      |
   16 |         let trailing_double_underscore__: bool = true;
      |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370005]: expected an identifier, '(' -- found '_'
-    --> test:20:13
+Error [EPAR0370053]: Identifiers cannot start with an underscore.
+    --> test:20:14
      |
   20 |         let __leading_double_underscore: bool = false;
-     |             ^
+     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Identifiers must start with a letter.

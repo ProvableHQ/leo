@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '}', '@', 'record', 'constructor', 'fn', 'mapping', 'storage' -- found 'circuit'
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script' -- found 'circuit'
     --> test:4:5
      |
    4 |     circuit Foo {
