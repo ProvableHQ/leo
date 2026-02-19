@@ -1,6 +1,6 @@
 program test.aleo
   {
-	function main(  ){
+	transition main(  ){
 
 let x  :  u64  =
         5u64
@@ -23,7 +23,7 @@ x  /=
                         ;
         x%=  3u64  ;
 
-	x  **=  2u64  ;
+	x  **=  2u32  ;
 
 }
 }

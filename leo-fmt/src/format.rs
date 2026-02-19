@@ -16,12 +16,11 @@
 
 //! Formatting logic for Leo source code.
 
-use crate::output::Output;
+use crate::{LINE_WIDTH, output::Output};
 use leo_parser_rowan::{
     SyntaxElement,
     SyntaxKind::{self, *},
     SyntaxNode,
-    SyntaxToken,
 };
 
 /// Format any syntax node.
@@ -333,7 +332,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
                         out.write(tok.text());
                     }
                     COLON_COLON => {
-                        // Part of const params, handled by CONST_PARAM_LIST
+                        out.write("::");
                     }
                     ARROW => {
                         out.space();
@@ -363,6 +362,11 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
             }
         }
     }
+    // Check next sibling for stolen trailing comments
+    if let Some(next) = node.next_sibling() {
+        emit_stolen_trailing_comments(&next, out);
+    }
+    out.set_mark();
     out.ensure_newline();
 }
 
@@ -407,7 +411,8 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
     // Emit leading comments
     emit_leading_comments(node, out);
 
-    // Write keyword and name
+    // Write keyword, name, and body
+    let mut after_lbrace = false;
     for elem in &elems {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -417,19 +422,34 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
                         out.write(tok.text());
                         out.space();
                     }
-                    IDENT => {
+                    IDENT if !after_lbrace => {
                         out.write(tok.text());
                         out.space();
                     }
                     COLON_COLON => {
-                        // Handled by CONST_PARAM_LIST
+                        out.write("::");
                     }
                     L_BRACE => {
                         out.write("{");
                         out.newline();
+                        after_lbrace = true;
                     }
                     R_BRACE => {}
                     COMMA => {}
+                    // Emit comments that are direct children of the struct body
+                    // (e.g. block comments after the last member's comma).
+                    COMMENT_LINE if after_lbrace => {
+                        out.indented(|out| {
+                            out.write(tok.text().trim_end());
+                        });
+                        out.newline();
+                    }
+                    COMMENT_BLOCK if after_lbrace => {
+                        out.indented(|out| {
+                            out.write(tok.text());
+                        });
+                        out.newline();
+                    }
                     WHITESPACE | LINEBREAK => {}
                     _ => {}
                 }
@@ -442,6 +462,10 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
                         out.indented(|out| {
                             format_struct_member(n, out);
                             out.write(",");
+                            // Emit stolen trailing comments from next member
+                            if let Some(next) = n.next_sibling() {
+                                emit_stolen_trailing_comments(&next, out);
+                            }
                         });
                         out.newline();
                     }
@@ -451,19 +475,35 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
         }
     }
     out.write("}");
-    out.set_mark();
     // Emit comments after closing brace
     if let Some(idx) = rbrace_idx {
         emit_comments_after(&elems, idx, out);
     }
+    // Check next sibling for stolen trailing comments
+    if let Some(next) = node.next_sibling() {
+        emit_stolen_trailing_comments(&next, out);
+    }
+    out.set_mark();
     out.ensure_newline();
 }
 
 fn format_struct_member(node: &SyntaxNode, out: &mut Output) {
+    // Emit leading comments (the parser attaches comments as leading trivia
+    // of the next token, so STRUCT_MEMBER may start with comments).
+    emit_leading_comments(node, out);
+
+    // Skip leading trivia (already handled above), then format the member.
+    let mut past_leading_trivia = false;
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
+                if !past_leading_trivia {
+                    match k {
+                        WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => continue,
+                        _ => past_leading_trivia = true,
+                    }
+                }
                 match k {
                     COLON => {
                         out.write(":");
@@ -479,7 +519,10 @@ fn format_struct_member(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if is_type_node(n.kind()) => {
+                past_leading_trivia = true;
+                format_type(&n, out);
+            }
             _ => {}
         }
     }
@@ -620,17 +663,37 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
 fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
     let params: Vec<_> = node.children().filter(|c| c.kind() == PARAM).collect();
 
-    out.write("(");
-    for (i, param) in params.iter().enumerate() {
-        format_parameter(param, out);
-        if i < params.len() - 1 {
-            out.write(",");
-            // Emit any trailing comments after this comma
-            emit_inline_comments_after_param(node, param, out);
-            out.space();
+    let param_strings: Vec<String> = params.iter().map(format_node_to_string).collect();
+    let col = out.current_column();
+
+    if fits_on_one_line(col, "(", ")", &param_strings) {
+        // Single-line: (param1, param2)
+        out.write("(");
+        for (i, param) in params.iter().enumerate() {
+            format_parameter(param, out);
+            if i < params.len() - 1 {
+                out.write(",");
+                emit_inline_comments_after_param(node, param, out);
+                out.space();
+            }
         }
+        out.write(")");
+    } else {
+        // Multi-line: wrap each param on its own line
+        out.write("(");
+        out.newline();
+        out.indented(|out| {
+            for (i, param) in params.iter().enumerate() {
+                format_parameter(param, out);
+                out.write(",");
+                if i < params.len() - 1 {
+                    emit_inline_comments_after_param(node, param, out);
+                }
+                out.newline();
+            }
+        });
+        out.write(")");
     }
-    out.write(")");
 }
 
 fn format_parameter(node: &SyntaxNode, out: &mut Output) {
@@ -659,9 +722,44 @@ fn format_parameter(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_return_type(node: &SyntaxNode, out: &mut Output) {
-    // RETURN_TYPE wraps tuple return types: (vis Type, vis Type, ...)
-    // Iterate children_with_tokens and emit them preserving structure.
-    // We use the COMMA tokens from the tree to know where to place commas.
+    // First try single-line
+    let single_line = format_return_type_to_string(node);
+    let col = out.current_column();
+
+    if col + single_line.len() <= LINE_WIDTH {
+        out.write(&single_line);
+    } else {
+        // Multi-line: wrap tuple return type entries
+        // Only tuple return types (with L_PAREN) get wrapped
+        if has_token(node, L_PAREN) {
+            // Collect return type entries: each is a sequence of visibility + type tokens/nodes
+            // between commas. We format them individually.
+            let entries = collect_return_type_entries(node);
+
+            out.write("(");
+            out.newline();
+            out.indented(|out| {
+                for entry in &entries {
+                    out.write(entry);
+                    out.write(",");
+                    out.newline();
+                }
+            });
+            out.write(")");
+        } else {
+            // Non-tuple — just emit inline
+            out.write(&single_line);
+        }
+    }
+}
+
+fn format_return_type_to_string(node: &SyntaxNode) -> String {
+    let mut out = Output::new();
+    format_return_type_inline(node, &mut out);
+    out.into_raw()
+}
+
+fn format_return_type_inline(node: &SyntaxNode, out: &mut Output) {
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -685,6 +783,58 @@ fn format_return_type(node: &SyntaxNode, out: &mut Output) {
             _ => {}
         }
     }
+}
+
+/// Collect the entries of a tuple return type as formatted strings.
+/// Each entry is e.g. "public u64" or "field".
+fn collect_return_type_entries(node: &SyntaxNode) -> Vec<String> {
+    let mut entries = Vec::new();
+    let mut current = String::new();
+    let mut in_tuple = false;
+
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    L_PAREN => {
+                        in_tuple = true;
+                    }
+                    R_PAREN => {
+                        let trimmed = current.trim().to_string();
+                        if !trimmed.is_empty() {
+                            entries.push(trimmed);
+                        }
+                        current.clear();
+                    }
+                    COMMA if in_tuple => {
+                        let trimmed = current.trim().to_string();
+                        if !trimmed.is_empty() {
+                            entries.push(trimmed);
+                        }
+                        current.clear();
+                    }
+                    KW_PUBLIC | KW_PRIVATE | KW_CONSTANT if in_tuple => {
+                        current.push_str(tok.text());
+                        current.push(' ');
+                    }
+                    WHITESPACE | LINEBREAK => {}
+                    _ if in_tuple => {
+                        current.push_str(tok.text());
+                    }
+                    _ => {}
+                }
+            }
+            SyntaxElement::Node(n) if is_type_node(n.kind()) && in_tuple => {
+                let mut tmp = Output::new();
+                format_type(&n, &mut tmp);
+                current.push_str(&tmp.into_raw());
+            }
+            _ => {}
+        }
+    }
+
+    entries
 }
 
 fn format_const_parameter(node: &SyntaxNode, out: &mut Output) {
@@ -711,7 +861,7 @@ fn format_const_parameter(node: &SyntaxNode, out: &mut Output) {
 fn format_const_parameter_list(node: &SyntaxNode, out: &mut Output) {
     let params: Vec<_> = node.children().filter(|c| c.kind() == CONST_PARAM).collect();
 
-    out.write("::[");
+    out.write("[");
     for (i, param) in params.iter().enumerate() {
         format_const_parameter(param, out);
         if i < params.len() - 1 {
@@ -725,7 +875,7 @@ fn format_const_parameter_list(node: &SyntaxNode, out: &mut Output) {
 fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
     let args: Vec<_> = node.children().filter(|c| is_type_node(c.kind()) || is_expression(c.kind())).collect();
 
-    out.write("::[");
+    out.write("[");
     for (i, arg) in args.iter().enumerate() {
         format_node(arg, out);
         if i < args.len() - 1 {
@@ -1150,18 +1300,34 @@ fn format_assert(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
+    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    let expr_strings: Vec<String> = exprs.iter().map(format_node_to_string).collect();
+
     out.write(keyword);
     out.write("(");
+    let col = out.current_column();
 
-    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
-    for (i, expr) in exprs.iter().enumerate() {
-        format_node(expr, out);
-        if i < exprs.len() - 1 {
-            out.write(",");
-            out.space();
+    if fits_on_one_line(col, "", ");", &expr_strings) {
+        for (i, expr) in exprs.iter().enumerate() {
+            format_node(expr, out);
+            if i < exprs.len() - 1 {
+                out.write(",");
+                out.space();
+            }
         }
+    } else {
+        // Multi-line (no trailing comma — fixed arity)
+        out.newline();
+        out.indented(|out| {
+            for (i, expr) in exprs.iter().enumerate() {
+                format_node(expr, out);
+                if i < exprs.len() - 1 {
+                    out.write(",");
+                }
+                out.newline();
+            }
+        });
     }
-
     out.write(")");
     write_semicolon_with_comments(node, out);
 }
@@ -1195,6 +1361,59 @@ fn format_literal(node: &SyntaxNode, out: &mut Output) {
 
 fn format_call(node: &SyntaxNode, out: &mut Output) {
     // CALL_EXPR: callee_node, L_PAREN, [args separated by COMMA], R_PAREN
+    let col = out.current_column();
+    let single_line = format_call_inline(node);
+
+    if col + single_line.len() <= LINE_WIDTH {
+        // Fits on one line — write the pre-formatted string directly
+        out.write(&single_line);
+    } else {
+        // Wrap: write callee, then wrap args
+        let elems = elements(node);
+        let lparen_idx = find_token_index(&elems, L_PAREN).unwrap_or(elems.len());
+
+        // Write callee (everything before L_PAREN)
+        for elem in elems[..lparen_idx].iter() {
+            match elem {
+                SyntaxElement::Token(tok) => {
+                    let k = tok.kind();
+                    if k != WHITESPACE && k != LINEBREAK {
+                        out.write(tok.text());
+                    }
+                }
+                SyntaxElement::Node(n) => format_node(n, out),
+            }
+        }
+
+        // Collect args (expression nodes after L_PAREN)
+        let args: Vec<_> = elems[lparen_idx..]
+            .iter()
+            .filter_map(|e| {
+                if let SyntaxElement::Node(n) = e {
+                    if is_expression(n.kind()) { Some(n.clone()) } else { None }
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        out.write("(");
+        out.newline();
+        out.indented(|out| {
+            for arg in &args {
+                format_node(arg, out);
+                out.write(",");
+                out.newline();
+            }
+        });
+        out.write(")");
+    }
+}
+
+/// Format a call expression as a single-line string (no wrapping).
+/// Used for measurement to avoid infinite recursion with format_node_to_string.
+fn format_call_inline(node: &SyntaxNode) -> String {
+    let mut out = Output::new();
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1210,9 +1429,10 @@ fn format_call(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) => format_node(&n, out),
+            SyntaxElement::Node(n) => format_node(&n, &mut out),
         }
     }
+    out.into_raw()
 }
 
 fn format_binary(node: &SyntaxNode, out: &mut Output) {
@@ -1351,7 +1571,7 @@ fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
     let has_semi = has_token(node, SEMICOLON);
 
     if has_semi {
-        // Repeat expression: [value; count]
+        // Repeat expression: [value; count] — never wraps
         let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
         out.write("[");
         if exprs.len() >= 2 {
@@ -1364,34 +1584,34 @@ fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
     } else {
         // Array literal: [a, b, c]
         let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
-        out.write("[");
-        for (i, expr) in exprs.iter().enumerate() {
-            format_node(expr, out);
-            if i < exprs.len() - 1 {
-                out.write(",");
-                out.space();
-            }
-        }
-        out.write("]");
+        format_wrapping_list(out, "[", "]", &exprs, true);
     }
 }
 
 fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
     let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
 
-    out.write("(");
-    for (i, expr) in exprs.iter().enumerate() {
-        format_node(expr, out);
-        if i < exprs.len() - 1 {
-            out.write(",");
-            out.space();
-        }
-    }
-    // Single-element tuples need a trailing comma to distinguish from PAREN_EXPR.
     if exprs.len() == 1 {
-        out.write(",");
+        // Single-element tuples need a trailing comma to distinguish from PAREN_EXPR.
+        let item_string = format_node_to_string(&exprs[0]);
+        let col = out.current_column();
+        if fits_on_one_line(col, "(", ",)", &[item_string]) {
+            out.write("(");
+            format_node(&exprs[0], out);
+            out.write(",)");
+        } else {
+            out.write("(");
+            out.newline();
+            out.indented(|out| {
+                format_node(&exprs[0], out);
+                out.write(",");
+                out.newline();
+            });
+            out.write(")");
+        }
+    } else {
+        format_wrapping_list(out, "(", ")", &exprs, true);
     }
-    out.write(")");
 }
 
 fn format_parenthesized(node: &SyntaxNode, out: &mut Output) {
@@ -1433,20 +1653,13 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
         }
     }
 
-    out.space();
-    out.write("{");
-    if !inits.is_empty() {
+    if inits.is_empty() {
         out.space();
-        for (i, init) in inits.iter().enumerate() {
-            format_struct_field_init(init, out);
-            if i < inits.len() - 1 {
-                out.write(",");
-                out.space();
-            }
-        }
-        out.space();
+        out.write("{}");
+        return;
     }
-    out.write("}");
+
+    format_wrapping_list(out, " { ", " }", &inits, true);
 }
 
 fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
@@ -1577,22 +1790,61 @@ fn emit_comments_after(elems: &[SyntaxElement], start_idx: usize, out: &mut Outp
 /// Emit leading comment tokens that appear before the first non-trivia token in a node.
 /// In rowan, `skip_trivia()` in the parser causes leading trivia (including comments)
 /// to be consumed into item nodes. We need to emit these before the structural content.
+///
+/// Comments that appear before any LINEBREAK in the leading trivia are "stolen"
+/// trailing comments from the previous item (on the same line as the previous
+/// item's closing token). These are skipped here and should be handled by the
+/// previous item's formatter via `emit_stolen_trailing_comments`.
 fn emit_leading_comments(node: &SyntaxNode, out: &mut Output) {
+    let mut saw_linebreak = false;
     for elem in node.children_with_tokens() {
         match &elem {
             SyntaxElement::Token(tok) => match tok.kind() {
-                COMMENT_LINE => {
+                LINEBREAK => {
+                    saw_linebreak = true;
+                }
+                COMMENT_LINE if saw_linebreak => {
                     out.write(tok.text().trim_end());
                     out.newline();
                 }
-                COMMENT_BLOCK => {
+                COMMENT_BLOCK if saw_linebreak => {
                     out.write(tok.text());
                     out.newline();
                 }
-                WHITESPACE | LINEBREAK => {}
+                // Inline comment before any linebreak — stolen trailing comment
+                // from the previous item. Skip it here.
+                COMMENT_LINE | COMMENT_BLOCK => {}
+                WHITESPACE => {}
                 _ => break, // Stop at first structural token
             },
             SyntaxElement::Node(_) => break, // Stop at first child node
+        }
+    }
+}
+
+/// Emit "stolen" trailing comments from a node's leading trivia.
+///
+/// The parser consumes trailing comments (e.g. `// foo` after a semicolon)
+/// into the next item's node as leading trivia. This function detects such
+/// comments (those appearing before any LINEBREAK) and emits them inline
+/// so they stay on the previous item's line.
+fn emit_stolen_trailing_comments(node: &SyntaxNode, out: &mut Output) {
+    for elem in node.children_with_tokens() {
+        match &elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                LINEBREAK => break,
+                COMMENT_LINE => {
+                    out.space();
+                    out.write(tok.text().trim_end());
+                }
+                COMMENT_BLOCK => {
+                    out.space();
+                    out.write(tok.text());
+                }
+                WHITESPACE => {}
+                _ => break,
+            },
+            SyntaxElement::Node(_) => break,
         }
     }
 }
@@ -1638,13 +1890,83 @@ fn emit_inline_comments_after_param(parent: &SyntaxNode, child: &SyntaxNode, out
 }
 
 /// Write a semicolon and emit any trailing comments that follow it.
+///
+/// Also checks the next sibling node for "stolen" trailing comments that
+/// the parser consumed into the following item's leading trivia.
 fn write_semicolon_with_comments(node: &SyntaxNode, out: &mut Output) {
     out.write(";");
-    out.set_mark();
     let elems = elements(node);
     if let Some(idx) = find_token_index(&elems, SEMICOLON) {
         emit_comments_after(&elems, idx, out);
     }
+    // Check next sibling for stolen trailing comments
+    if let Some(next) = node.next_sibling() {
+        emit_stolen_trailing_comments(&next, out);
+    }
+    out.set_mark();
+}
+
+// =============================================================================
+// Line-width measurement helpers
+// =============================================================================
+
+/// Format a comma-separated list of nodes, wrapping to multiple lines if needed.
+///
+/// Single-line: `{open}item1, item2{close}`
+/// Multi-line (trailing spaces stripped from `open`, leading from `close`):
+/// ```text
+/// {open}
+///     item1,
+///     item2,
+/// {close}
+/// ```
+fn format_wrapping_list(out: &mut Output, open: &str, close: &str, items: &[SyntaxNode], multi_trailing_comma: bool) {
+    let item_strings: Vec<String> = items.iter().map(format_node_to_string).collect();
+    let col = out.current_column();
+
+    if fits_on_one_line(col, open, close, &item_strings) {
+        out.write(open);
+        for (i, item) in items.iter().enumerate() {
+            format_node(item, out);
+            if i < items.len() - 1 {
+                out.write(",");
+                out.space();
+            }
+        }
+        out.write(close);
+    } else {
+        out.write(open.trim_end());
+        out.newline();
+        out.indented(|out| {
+            for (i, item) in items.iter().enumerate() {
+                format_node(item, out);
+                if multi_trailing_comma || i < items.len() - 1 {
+                    out.write(",");
+                }
+                out.newline();
+            }
+        });
+        out.write(close.trim_start());
+    }
+}
+
+/// Format a node into a temporary buffer and return the result as a string.
+fn format_node_to_string(node: &SyntaxNode) -> String {
+    let mut out = Output::new();
+    format_node(node, &mut out);
+    out.into_raw()
+}
+
+/// Check if a delimited list fits on one line.
+///
+/// Computes: `col + prefix.len() + joined_items(", ") + suffix.len() <= LINE_WIDTH`
+fn fits_on_one_line(col: usize, prefix: &str, suffix: &str, items: &[String]) -> bool {
+    let items_len: usize = if items.is_empty() {
+        0
+    } else {
+        items.iter().map(|s| s.len()).sum::<usize>() + (items.len() - 1) * 2 // ", " between items
+    };
+    col + prefix.len() + items_len + suffix.len() <= LINE_WIDTH
 }
 
 // =============================================================================
@@ -1755,14 +2077,9 @@ fn elements(node: &SyntaxNode) -> Vec<SyntaxElement> {
     node.children_with_tokens().collect()
 }
 
-/// Get the first child token with a given kind.
-fn first_token(node: &SyntaxNode, kind: SyntaxKind) -> Option<SyntaxToken> {
-    node.children_with_tokens().filter_map(|e| e.into_token()).find(|t| t.kind() == kind)
-}
-
 /// Check if a node has a child token of a given kind.
 fn has_token(node: &SyntaxNode, kind: SyntaxKind) -> bool {
-    first_token(node, kind).is_some()
+    node.children_with_tokens().any(|e| matches!(e, SyntaxElement::Token(t) if t.kind() == kind))
 }
 
 /// Find the index of a token with a given kind.

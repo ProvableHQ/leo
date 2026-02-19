@@ -1,5 +1,5 @@
 program test.aleo {
-    function compute(a: u64,b: u64) -> u64 {
+    transition compute(a: u64,b: u64) -> u64 {
 
         let sum: u64  =a
         +   b;
@@ -16,7 +16,7 @@ let prod
             ;
 
 let pow: u64=a  **
-    2u64;
+    2u32;
     let lt: bool =  a
         <b;
 let gt

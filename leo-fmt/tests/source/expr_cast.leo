@@ -1,5 +1,5 @@
 program test.aleo   {
-	function main(   a
+	transition main(   a
 	        :  u64  )  ->  u32  {
 
 let b  :  u32

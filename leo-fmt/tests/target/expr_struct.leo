@@ -4,7 +4,7 @@ program test.aleo {
         y: u64,
     }
 
-    function main() -> Point {
+    transition main() -> Point {
         let p: Point = Point { x: 1u64, y: 2u64 };
         let q: Point = Point { x: p.x, y: p.y };
         return p;

@@ -2176,7 +2176,11 @@ dependencies = [
 name = "leo-fmt"
 version = "3.4.0"
 dependencies = [
+ "leo-ast",
+ "leo-compiler",
+ "leo-errors",
  "leo-parser-rowan",
+ "leo-span",
  "similar",
  "walkdir",
 ]

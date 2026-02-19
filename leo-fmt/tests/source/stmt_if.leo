@@ -1,15 +1,17 @@
 program test.aleo{
-	function main(  a
+	transition main(  a
 	        :  u64  )  ->  u64   {
-            if  a  >  5u64  {  return
-                1u64  ;  }
+        let result  :  u64  =
+                0u64  ;
+            if  a  >  5u64  {  result
+                =  1u64  ;  }
     if a  <  3u64
 	{
-                    return
+                    result  =
                         2u64  ;
-        }
-if a  ==  4u64  {  return 3u64  ;  }  else  {  return
-        4u64  ;  }
+        }  else  {
+    result  =  3u64
+        ;  }
 	    if a  >10u64{
             return 5u64
                 ;
@@ -18,7 +20,7 @@ if a  ==  4u64  {  return 3u64  ;  }  else  {  return
 	{  return
 	    6u64  ;  }
             else  {
-    return 7u64
+    return result
         ;
         }
     }
