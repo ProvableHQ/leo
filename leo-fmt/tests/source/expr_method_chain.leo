@@ -1,11 +1,11 @@
+    struct Wrapper   {
+                inner  :  u64,
+	}
+
 program test.aleo
   {
 	mapping balances  :  address
 	    =>  u64;
-
-    struct Wrapper   {
-                inner  :  u64,
-	}
 
   fn deposit(
             public amount
@@ -14,11 +14,30 @@ program test.aleo
 	        ;
         let signer  :  address
     =  self.signer;
-            return finalize_deposit(
+            return final  {  finalize_deposit(
     caller  ,
-        amount  )
-            ;
+        amount  )  ;
+            }
         }
+
+      fn access_chain(
+            w  :  Wrapper  ,
+	    arr  :  [u64;  3]  ,
+    x  :  u64  ,
+        y  :  u64
+        )  ->  u64   {
+        let a  :  u64  =  w.inner
+            ;
+let b  :  u64
+                =  arr[  0u32  ]  ;
+        let tup  :  (u64,  u64)  =  (  x  ,  y  )  ;
+	    let c  :  u64  =  tup.0
+	        ;
+            let d  :  u64  =  tup.1;
+    return
+        a  ;
+  }
+}
 
   final fn finalize_deposit(
     sender  :  address  ,
@@ -51,22 +70,3 @@ balances.remove(
         block.timestamp
             ;
     }
-
-      fn access_chain(
-            w  :  Wrapper  ,
-	    arr  :  [u64;  3]  ,
-    x  :  u64  ,
-        y  :  u64
-        )  ->  u64   {
-        let a  :  u64  =  w.inner
-            ;
-let b  :  u64
-                =  arr[  0u32  ]  ;
-        let tup  :  (u64,  u64)  =  (  x  ,  y  )  ;
-	    let c  :  u64  =  tup.0
-	        ;
-            let d  :  u64  =  tup.1;
-    return
-        a  ;
-  }
-}

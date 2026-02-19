@@ -4,6 +4,7 @@ fn compute(a: u64, b: u64) -> u64 {
     assert(y > 0u64); // must be positive
     return y; // return result
 }
+
 program test.aleo {
     fn check(a: u64, b: u64) -> bool {
         let result: bool = a >= b; // compare values

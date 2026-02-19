@@ -1,8 +1,8 @@
-program test.aleo {
-    fn compute_sum(first: u64, second: u64, third: u64) -> u64 {
-        return first + second + third;
-    }
+fn compute_sum(first: u64, second: u64, third: u64) -> u64 {
+    return first + second + third;
+}
 
+program test.aleo {
     fn main(public a: u64, public b: u64) -> u64 {
         let short: u64 = compute_sum(a, b, a);
         let first_value: u64 = a * 2u64;

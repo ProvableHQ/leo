@@ -1,3 +1,9 @@
+	fn get_pair(
+	        n  :  u64  )  ->  (  u64  ,  u64  )   {
+            return (  n  ,
+    n  )
+        ;
+    }
 program test.aleo
   {
 	fn main(  )   {
@@ -11,12 +17,5 @@ program test.aleo
 let (  p  ,  q  )  :  (  u64  ,  u64  )  =  (
         3u64  ,
         4u64  )  ;
-    }
-
-	fn get_pair(
-	        n  :  u64  )  ->  (  u64  ,  u64  )   {
-            return (  n  ,
-    n  )
-        ;
     }
 }

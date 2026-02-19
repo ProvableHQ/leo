@@ -1,5 +1,3 @@
-program test.aleo
-    {
 	struct TransferInfo  {
     sender_amount  :u64  ,
                 receiver_amount  :  u64  ,
@@ -10,6 +8,8 @@ return sender_amount  -  receiver_amount  -
     transfer_fee  +  bonus_amount
         ;  }
 
+program test.aleo
+    {
     fn transfer(  public  sender_amount  :  u64  ,  public  receiver_amount  :  u64  ,  private  transfer_fee  :  u64  ,  private  is_valid  :  bool  )  ->  u64  {
 let bonus_amount
     :  u64  =  sender_amount  +

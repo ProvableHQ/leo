@@ -1,7 +1,7 @@
-program test.aleo{
 struct Point  {  x:u64,
     y  :  u64  }
 
+program test.aleo{
 	fn main(  )  ->  u64   {
 
                 let arr  :[u64;3]  =  [1u64  ,  2u64  ,  3u64];

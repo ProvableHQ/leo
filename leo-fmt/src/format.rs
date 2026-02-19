@@ -38,7 +38,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         STORAGE_DEF => format_storage(node, out),
         GLOBAL_CONST => format_global_const(node, out),
         ANNOTATION => format_annotation(node, out),
-        PARAM_LIST => format_parameter_list(node, out),
+        PARAM_LIST => format_parameter_list(node, out, 0),
         PARAM => format_parameter(node, out),
         RETURN_TYPE => format_return_type(node, out),
         CONST_PARAM => format_const_parameter(node, out),
@@ -102,66 +102,158 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
 // =============================================================================
 
 fn format_root(node: &SyntaxNode, out: &mut Output) {
-    let mut prev_was_import = false;
+    // Count "item groups" for blank-line insertion between top-level items.
+    // Consecutive imports count as one group. An annotation followed by a
+    // declaration counts as one group with the declaration.
+    let children: Vec<_> = node.children().collect();
+    let mut item_group_count = 0;
+    {
+        let mut ci = 0;
+        let mut seen_import = false;
+        while ci < children.len() {
+            let k = children[ci].kind();
+            if k == IMPORT {
+                if !seen_import {
+                    item_group_count += 1;
+                    seen_import = true;
+                }
+                ci += 1;
+            } else if k == ANNOTATION {
+                seen_import = false;
+                // Skip contiguous annotations
+                while ci < children.len() && children[ci].kind() == ANNOTATION {
+                    ci += 1;
+                }
+                // The following item is part of the same group
+                if ci < children.len() {
+                    let nk = children[ci].kind();
+                    if nk == PROGRAM_DECL || is_program_item_non_annotation(nk) {
+                        ci += 1;
+                    }
+                }
+                item_group_count += 1;
+            } else if k == PROGRAM_DECL || is_program_item_non_annotation(k) || k == ERROR {
+                seen_import = false;
+                item_group_count += 1;
+                ci += 1;
+            } else {
+                ci += 1;
+            }
+        }
+    }
+
+    let mut item_group_idx = 0;
+    let mut in_import_group = false;
     let mut had_output = false;
+    let mut saw_linebreak = false;
+
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => match tok.kind() {
                 COMMENT_LINE => {
                     if had_output {
-                        out.ensure_newline();
+                        if saw_linebreak {
+                            out.ensure_newline();
+                        } else {
+                            out.space();
+                        }
                     }
                     out.write(tok.text().trim_end());
                     out.newline();
                     had_output = true;
+                    saw_linebreak = false;
                 }
                 COMMENT_BLOCK => {
                     if had_output {
-                        out.ensure_newline();
+                        if saw_linebreak {
+                            out.ensure_newline();
+                        } else {
+                            out.space();
+                        }
                     }
                     out.write(tok.text());
                     had_output = true;
+                    saw_linebreak = false;
                 }
-                _ => {} // skip WHITESPACE, LINEBREAK, etc.
+                LINEBREAK => {
+                    saw_linebreak = true;
+                }
+                _ => {} // skip WHITESPACE, etc.
             },
             SyntaxElement::Node(n) => {
                 let kind = n.kind();
                 if kind == IMPORT {
                     format_import(&n, out);
-                    prev_was_import = true;
+                    if !in_import_group {
+                        in_import_group = true;
+                    }
                     had_output = true;
+                    saw_linebreak = false;
                 } else if kind == PROGRAM_DECL {
-                    if prev_was_import {
-                        out.newline();
+                    if in_import_group {
+                        // End the import group
+                        item_group_idx += 1;
+                        if item_group_idx < item_group_count {
+                            out.insert_newline_at_mark();
+                        }
+                        in_import_group = false;
                     }
                     format_program(&n, out);
-                    prev_was_import = false;
+                    item_group_idx += 1;
+                    if item_group_idx < item_group_count {
+                        out.insert_newline_at_mark();
+                    }
                     had_output = true;
+                    saw_linebreak = false;
                 } else if kind == ANNOTATION {
-                    if prev_was_import {
-                        out.newline();
+                    if in_import_group {
+                        item_group_idx += 1;
+                        if item_group_idx < item_group_count {
+                            out.insert_newline_at_mark();
+                        }
+                        in_import_group = false;
                     }
                     format_annotation(&n, out);
-                    prev_was_import = false;
                     had_output = true;
-                } else if is_program_item(kind) {
-                    if prev_was_import {
-                        out.newline();
+                    saw_linebreak = false;
+                } else if is_program_item_non_annotation(kind) {
+                    if in_import_group {
+                        item_group_idx += 1;
+                        if item_group_idx < item_group_count {
+                            out.insert_newline_at_mark();
+                        }
+                        in_import_group = false;
                     }
                     format_node(&n, out);
-                    prev_was_import = false;
+                    item_group_idx += 1;
+                    if item_group_idx < item_group_count {
+                        out.insert_newline_at_mark();
+                    }
                     had_output = true;
+                    saw_linebreak = false;
                 } else if kind == ERROR {
                     let text = n.text().to_string();
                     let text = text.trim();
                     if !text.is_empty() {
+                        if in_import_group {
+                            item_group_idx += 1;
+                            if item_group_idx < item_group_count {
+                                out.insert_newline_at_mark();
+                            }
+                            in_import_group = false;
+                        }
                         if had_output {
                             out.ensure_newline();
                         }
                         out.write(text);
                         out.newline();
-                        prev_was_import = false;
+                        out.set_mark();
+                        item_group_idx += 1;
+                        if item_group_idx < item_group_count {
+                            out.insert_newline_at_mark();
+                        }
                         had_output = true;
+                        saw_linebreak = false;
                     }
                 }
             }
@@ -301,6 +393,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
 
     out.write("}");
     out.newline();
+    out.set_mark();
 }
 
 fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
@@ -311,9 +404,33 @@ fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
 // Declarations
 // =============================================================================
 
+/// Compute the length of content after the parameter list on the same line:
+/// ` -> ReturnType` + ` {` (or just ` {` if no return type).
+fn fn_trailing_len(node: &SyntaxNode) -> usize {
+    // " {" for the opening brace
+    let mut len = 2;
+    // " -> ReturnType" if present
+    for child in node.children() {
+        let k = child.kind();
+        if k == RETURN_TYPE {
+            let rt = format_return_type_to_string(&child);
+            len += 4 + rt.len(); // " -> " + type
+            break;
+        } else if is_type_node(k) {
+            let rt = format_node_to_string(&child);
+            len += 4 + rt.len(); // " -> " + type
+            break;
+        }
+    }
+    len
+}
+
 fn format_function(node: &SyntaxNode, out: &mut Output) {
     // Emit leading comments (trivia that appears before the first keyword)
     emit_leading_comments(node, out);
+
+    // Compute trailing length after param list (return type + " {") for wrapping decisions
+    let trailing_len = fn_trailing_len(node);
 
     // Emit keywords: final, fn/script/constructor, name
     for elem in node.children_with_tokens() {
@@ -346,7 +463,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Node(n) => {
                 let k = n.kind();
                 match k {
-                    PARAM_LIST => format_parameter_list(&n, out),
+                    PARAM_LIST => format_parameter_list(&n, out, trailing_len),
                     CONST_PARAM_LIST => format_const_parameter_list(&n, out),
                     RETURN_TYPE => format_return_type(&n, out),
                     BLOCK => {
@@ -660,13 +777,13 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
 // Parameters and return types
 // =============================================================================
 
-fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
+fn format_parameter_list(node: &SyntaxNode, out: &mut Output, trailing_len: usize) {
     let params: Vec<_> = node.children().filter(|c| c.kind() == PARAM).collect();
 
     let param_strings: Vec<String> = params.iter().map(format_node_to_string).collect();
     let col = out.current_column();
 
-    if fits_on_one_line(col, "(", ")", &param_strings) {
+    if fits_on_one_line(col, "(", ")", &param_strings, trailing_len) {
         // Single-line: (param1, param2)
         out.write("(");
         for (i, param) in params.iter().enumerate() {
@@ -1307,7 +1424,7 @@ fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
     out.write("(");
     let col = out.current_column();
 
-    if fits_on_one_line(col, "", ");", &expr_strings) {
+    if fits_on_one_line(col, "", ");", &expr_strings, 0) {
         for (i, expr) in exprs.iter().enumerate() {
             format_node(expr, out);
             if i < exprs.len() - 1 {
@@ -1595,7 +1712,7 @@ fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
         // Single-element tuples need a trailing comma to distinguish from PAREN_EXPR.
         let item_string = format_node_to_string(&exprs[0]);
         let col = out.current_column();
-        if fits_on_one_line(col, "(", ",)", &[item_string]) {
+        if fits_on_one_line(col, "(", ",)", &[item_string], 0) {
             out.write("(");
             format_node(&exprs[0], out);
             out.write(",)");
@@ -1924,7 +2041,7 @@ fn format_wrapping_list(out: &mut Output, open: &str, close: &str, items: &[Synt
     let item_strings: Vec<String> = items.iter().map(format_node_to_string).collect();
     let col = out.current_column();
 
-    if fits_on_one_line(col, open, close, &item_strings) {
+    if fits_on_one_line(col, open, close, &item_strings, 0) {
         out.write(open);
         for (i, item) in items.iter().enumerate() {
             format_node(item, out);
@@ -1959,14 +2076,17 @@ fn format_node_to_string(node: &SyntaxNode) -> String {
 
 /// Check if a delimited list fits on one line.
 ///
-/// Computes: `col + prefix.len() + joined_items(", ") + suffix.len() <= LINE_WIDTH`
-fn fits_on_one_line(col: usize, prefix: &str, suffix: &str, items: &[String]) -> bool {
+/// Computes: `col + prefix.len() + joined_items(", ") + suffix.len() + trailing <= LINE_WIDTH`
+///
+/// `trailing` accounts for content that follows the list on the same line
+/// (e.g. return type and opening brace after a parameter list).
+fn fits_on_one_line(col: usize, prefix: &str, suffix: &str, items: &[String], trailing: usize) -> bool {
     let items_len: usize = if items.is_empty() {
         0
     } else {
         items.iter().map(|s| s.len()).sum::<usize>() + (items.len() - 1) * 2 // ", " between items
     };
-    col + prefix.len() + items_len + suffix.len() <= LINE_WIDTH
+    col + prefix.len() + items_len + suffix.len() + trailing <= LINE_WIDTH
 }
 
 // =============================================================================
@@ -1987,20 +2107,6 @@ fn is_statement(kind: SyntaxKind) -> bool {
             | ASSERT_EQ_STMT
             | ASSERT_NEQ_STMT
             | EXPR_STMT
-    )
-}
-
-fn is_program_item(kind: SyntaxKind) -> bool {
-    matches!(
-        kind,
-        FUNCTION_DEF
-            | CONSTRUCTOR_DEF
-            | STRUCT_DEF
-            | RECORD_DEF
-            | MAPPING_DEF
-            | STORAGE_DEF
-            | GLOBAL_CONST
-            | ANNOTATION
     )
 }
 

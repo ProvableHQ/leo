@@ -1,10 +1,10 @@
-program test.aleo
-    {
 	fn compute_sum(  first  :  u64  ,  second  :u64  ,  third  :  u64  )  ->  u64  {
         return  first  +
             second  +  third
                 ;  }
 
+program test.aleo
+    {
     fn main(   public   a  :  u64  ,
                 public  b  :  u64  )  ->  u64  {
 

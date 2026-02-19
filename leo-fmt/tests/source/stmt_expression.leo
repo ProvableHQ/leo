@@ -1,5 +1,3 @@
-program test.aleo
-    {
     fn process(  a  :  u64  ,
                     b  :  u64  ,
                         c  :  u64  )
@@ -7,6 +5,8 @@ program test.aleo
     assert(  a  >
         0u64  )  ;  }
 
+program test.aleo
+    {
 	fn main(
             item
                 :  u64

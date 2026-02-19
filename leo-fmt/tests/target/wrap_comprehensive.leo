@@ -1,19 +1,19 @@
+struct TransferInfo {
+    sender_amount: u64,
+    receiver_amount: u64,
+    transfer_fee: u64,
+}
+
+fn compute_remaining(
+    sender_amount: u64,
+    receiver_amount: u64,
+    transfer_fee: u64,
+    bonus_amount: u64,
+) -> u64 {
+    return sender_amount - receiver_amount - transfer_fee + bonus_amount;
+}
+
 program test.aleo {
-    struct TransferInfo {
-        sender_amount: u64,
-        receiver_amount: u64,
-        transfer_fee: u64,
-    }
-
-    fn compute_remaining(
-        sender_amount: u64,
-        receiver_amount: u64,
-        transfer_fee: u64,
-        bonus_amount: u64,
-    ) -> u64 {
-        return sender_amount - receiver_amount - transfer_fee + bonus_amount;
-    }
-
     fn transfer(
         public sender_amount: u64,
         public receiver_amount: u64,
