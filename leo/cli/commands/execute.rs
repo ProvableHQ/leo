@@ -315,13 +315,9 @@ fn handle_execute<A: Aleo>(
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
 
-    // Remove version suffixes from the endpoint.
-    let re = regex::Regex::new(r"v\d+$").unwrap();
-    let query_endpoint = re.replace(&endpoint, "").to_string();
-
     // Specify the query.
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
-        query_endpoint
+        endpoint
             .parse::<Uri>()
             .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
