@@ -13,7 +13,5 @@ program ugly_program.aleo {
     mapping balances: address => u64;
 
     @noupgrade
-    constructor(  ){
-
-}
+    constructor() {}
 }

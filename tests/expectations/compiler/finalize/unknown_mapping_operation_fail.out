@@ -1,5 +1,5 @@
-Error [EPAR0370047]: Unknown associated function: Mapping::has_key
+Error [ETYC0372005]: Unknown function `test.aleo/Mapping::has_key`
     --> compiler-test:12:26
      |
   12 |      let has_key: bool = Mapping::has_key(account, receiver);
-     |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |                          ^^^^^^^^^^^^^^^^

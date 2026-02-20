@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected an identifier, ')', 'constant', 'private', 'public' -- found 'const'
+Error [EPAR0370047]: expected parameter name
     --> test:3:6
      |
    3 | fn x(const x: u8) -> u8 {}

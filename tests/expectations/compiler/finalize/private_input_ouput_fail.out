@@ -1,5 +1,10 @@
-Error [EPAR0370005]: expected '{' -- found 'finalize_foo'
+Error [EPAR0370047]: expected {
     --> compiler-test:4:15
      |
    4 |         final finalize_foo(a);
+     |               ^^^^^^^^^^^^
+Error [EPAR0370047]: expected {
+    --> compiler-test:8:15
+     |
+   8 |         final finalize_bar(a);
      |               ^^^^^^^^^^^^

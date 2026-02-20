@@ -1,5 +1,15 @@
-Error [EPAR0370005]: expected '}', '@', 'record', 'constructor', 'fn', 'mapping', 'storage' -- found 'mappin'
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script' -- found 'mappin'
     --> test:3:5
      |
    3 |     mappin balances: address => u128;
      |     ^^^^^^
+Error [EPAR0370005]: expected '=>' -- found '->'
+    --> test:5:22
+     |
+   5 |     mapping foo: bar -> baz;
+     |                      ^^
+Error [EPAR0370005]: expected ':' -- found 'bar'
+    --> test:7:17
+     |
+   7 |     mapping foo bar => baz;
+     |                 ^^^

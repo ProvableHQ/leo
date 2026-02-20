@@ -1,5 +1,24 @@
-Error [EPAR0370005]: expected '}', ',' -- found ';'
+Error [EPAR0370047]: expected ','
     --> test:8:10
      |
    8 |     x: u8;
      |          ^
+Error [EPAR0370047]: expected field name
+    --> test:8:10
+     |
+   8 |     x: u8;
+     |          ^
+   9 |     y: u8
+     |     ^^^^^
+Error [EPAR0370047]: expected ','
+    --> test:13:10
+     |
+  13 |     x: u8;
+     |          ^
+Error [EPAR0370047]: expected field name
+    --> test:13:10
+     |
+  13 |     x: u8;
+     |          ^
+  14 |     y: u8;
+     |     ^^^^^^

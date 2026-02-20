@@ -1,9 +1,29 @@
-Error [EPAR0370021]: The type of `tokens` has no associated function `get` that takes 2 argument(s).
+Error [ETYC0372031]: A mapping's value cannot be a record
+    --> compiler-test:9:5
+     |
+   9 |     mapping tokens: address => Token;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372147]: Invalid expression in a final block. `self.caller` cannot be used directly here
+    --> compiler-test:12:47
+     |
+  12 |         return final { finalize_decrease_self(self.caller, amount); };
+     |                                               ^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `3`
+    --> compiler-test:17:5
+     |
+  17 |     Mapping::get(tokens, true, true);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `3`
     --> compiler-test:18:5
      |
   18 |     tokens.get(true, true);
      |     ^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370021]: The type of `amounts` has no associated function `get` that takes 0 argument(s).
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:19:5
+     |
+  19 |     Mapping::get(amounts);
+     |     ^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
     --> compiler-test:20:5
      |
   20 |     amounts.get();

@@ -1,5 +1,20 @@
-Error [EPAR0370005]: expected '@', 'struct', 'final', 'const', 'fn', 'program', 'script' -- found 'finalize'
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
     --> test:3:3
      |
    3 | } finalize {
+     |   ^^^^^^^^
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
+    --> test:9:3
+     |
+   9 | } finalize() {
+     |   ^^^^^^^^
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
+    --> test:15:3
+     |
+  15 | } finalie() {
+     |   ^^^^^^^
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
+    --> test:21:3
+     |
+  21 | } finalize main() floo {
      |   ^^^^^^^^

@@ -22,6 +22,7 @@
 
 use crate::{SyntaxKind, SyntaxKind::*};
 use logos::Logos;
+use rowan::{TextRange, TextSize};
 
 /// A token produced by the lexer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -32,19 +33,32 @@ pub struct Token {
     pub len: u32,
 }
 
+/// The kind of lexer error, carrying any structured data needed for diagnostics.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LexErrorKind {
+    /// A digit was invalid for the given radix (e.g. `9` in an octal literal).
+    InvalidDigit { digit: char, radix: u32, token: String },
+    /// A token could not be lexed at all.
+    CouldNotLex { content: String },
+    /// A Unicode bidi override code point was encountered.
+    BidiOverride,
+}
+
 /// An error encountered during lexing.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LexError {
-    /// The byte offset where the error occurred.
-    pub offset: usize,
-    /// A description of the error.
-    pub message: String,
+    /// The text range where the error occurred.
+    pub range: TextRange,
+    /// Structured error kind.
+    pub kind: LexErrorKind,
 }
 
 /// Callback for parsing block comments.
 ///
 /// Block comments can't be matched with a simple regex due to the need to find
 /// the closing `*/`. This also detects bidi override characters for security.
+/// Always returns true to produce a token; unterminated comments are detected
+/// by checking if the slice ends with `*/` in the lex() function.
 fn comment_block(lex: &mut logos::Lexer<LogosToken>) -> bool {
     let mut last_asterisk = false;
     for (index, c) in lex.remainder().char_indices() {
@@ -101,11 +115,12 @@ enum LogosToken {
 
     // Integer literals with various radixes
     // The regex includes type suffixes (u8, i32, field, etc.) to lex as a single token.
-    // Hex/octal/binary literals use uppercase for hex digits to avoid ambiguity with suffixes.
-    #[regex(r"0x[0-9A-F_]+([ui](8|16|32|64|128)|field|group|scalar)?")]
-    #[regex(r"0o[0-7_]+([ui](8|16|32|64|128)|field|group|scalar)?")]
-    #[regex(r"0b[01_]+([ui](8|16|32|64|128)|field|group|scalar)?")]
-    #[regex(r"[0-9][0-9_]*([ui](8|16|32|64|128)|field|group|scalar)?")]
+    // We use permissive patterns that allow invalid digits (e.g., G in hex) so we can
+    // report specific validation errors rather than failing to lex.
+    #[regex(r"0x[0-9A-Za-z_]+([ui](8|16|32|64|128)|field|group|scalar)?", priority = 3)]
+    #[regex(r"0o[0-9A-Za-z_]+([ui](8|16|32|64|128)|field|group|scalar)?", priority = 3)]
+    #[regex(r"0b[0-9A-Za-z_]+([ui](8|16|32|64|128)|field|group|scalar)?", priority = 3)]
+    #[regex(r"[0-9][0-9A-Za-z_]*([ui](8|16|32|64|128)|field|group|scalar)?")]
     Integer,
 
     #[regex(r#""[^"]*""#)]
@@ -186,6 +201,8 @@ enum LogosToken {
     Arrow,
     #[token("=>")]
     FatArrow,
+    #[token("..=")]
+    DotDotEq,
     #[token("..")]
     DotDot,
     #[token("::")]
@@ -320,6 +337,64 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
     }
 }
 
+/// Strip integer type suffix from a string, returning the numeric part.
+fn strip_int_suffix(s: &str) -> Option<&str> {
+    // Check for integer type suffixes (longest first to match correctly)
+    let suffixes = ["u128", "i128", "u64", "i64", "u32", "i32", "u16", "i16", "u8", "i8"];
+    for suffix in suffixes {
+        if let Some(prefix) = s.strip_suffix(suffix) {
+            return Some(prefix);
+        }
+    }
+    None
+}
+
+/// Validate integer literal digits for the appropriate radix.
+/// Adds errors to the error vector if invalid digits are found.
+fn validate_integer_digits(text: &str, offset: usize, errors: &mut Vec<LexError>) {
+    // Strip type suffix if present (field, group, scalar, or integer types)
+    let num_part = text
+        .strip_suffix("field")
+        .or_else(|| text.strip_suffix("group"))
+        .or_else(|| text.strip_suffix("scalar"))
+        .or_else(|| strip_int_suffix(text))
+        .unwrap_or(text);
+
+    // Determine the radix and get the digit part
+    let (digits, radix, _prefix_len): (&str, u32, usize) = if let Some(s) = num_part.strip_prefix("0x") {
+        (s, 16, 2)
+    } else if let Some(s) = num_part.strip_prefix("0X") {
+        (s, 16, 2)
+    } else if let Some(s) = num_part.strip_prefix("0o") {
+        (s, 8, 2)
+    } else if let Some(s) = num_part.strip_prefix("0O") {
+        (s, 8, 2)
+    } else if let Some(s) = num_part.strip_prefix("0b") {
+        (s, 2, 2)
+    } else if let Some(s) = num_part.strip_prefix("0B") {
+        (s, 2, 2)
+    } else {
+        // Decimal - no prefix
+        (num_part, 10, 0)
+    };
+
+    // Find the first invalid digit
+    for (_, c) in digits.char_indices() {
+        if c == '_' {
+            continue; // Underscores are allowed
+        }
+        if !c.is_digit(radix) {
+            // Found an invalid digit - span covers the entire numeric part (like LALRPOP)
+            let error_end = offset + num_part.len();
+            errors.push(LexError {
+                range: TextRange::new(TextSize::new(offset as u32), TextSize::new(error_end as u32)),
+                kind: LexErrorKind::InvalidDigit { digit: c, radix, token: num_part.to_string() },
+            });
+            return; // Only report the first invalid digit
+        }
+    }
+}
+
 /// Lex the given source text into a sequence of tokens.
 ///
 /// Returns a vector of tokens and any errors encountered. Even if errors
@@ -340,7 +415,21 @@ pub fn lex(source: &str) -> (Vec<Token>, Vec<LexError>) {
                 LogosToken::Whitespace => WHITESPACE,
                 LogosToken::Linebreak => LINEBREAK,
                 LogosToken::CommentLine => COMMENT_LINE,
-                LogosToken::CommentBlock => COMMENT_BLOCK,
+                LogosToken::CommentBlock => {
+                    // Check if block comment was properly terminated
+                    if !slice.ends_with("*/") {
+                        let preview_len = slice.len().min(10);
+                        let preview = &slice[..preview_len];
+                        errors.push(LexError {
+                            range: TextRange::new(
+                                TextSize::new(span.start as u32),
+                                TextSize::new((span.start + 2) as u32), // Just the /*
+                            ),
+                            kind: LexErrorKind::CouldNotLex { content: preview.to_string() },
+                        });
+                    }
+                    COMMENT_BLOCK
+                }
 
                 // Literals
                 LogosToken::AddressLiteral => ADDRESS_LIT,
@@ -377,6 +466,7 @@ pub fn lex(source: &str) -> (Vec<Token>, Vec<LexError>) {
                 LogosToken::BitXorAssign => CARET_EQ,
                 LogosToken::Arrow => ARROW,
                 LogosToken::FatArrow => FAT_ARROW,
+                LogosToken::DotDotEq => DOT_DOT_EQ,
                 LogosToken::DotDot => DOT_DOT,
                 LogosToken::ColonColon => COLON_COLON,
 
@@ -412,17 +502,25 @@ pub fn lex(source: &str) -> (Vec<Token>, Vec<LexError>) {
                 // Security: bidi characters
                 LogosToken::Bidi => {
                     errors.push(LexError {
-                        offset: span.start,
-                        message: "Unicode bidirectional override character detected".to_string(),
+                        range: TextRange::new(TextSize::new(span.start as u32), TextSize::new(span.end as u32)),
+                        kind: LexErrorKind::BidiOverride,
                     });
                     ERROR
                 }
             },
             Err(()) => {
-                errors.push(LexError { offset: span.start, message: format!("unexpected character: {:?}", slice) });
+                errors.push(LexError {
+                    range: TextRange::new(TextSize::new(span.start as u32), TextSize::new(span.end as u32)),
+                    kind: LexErrorKind::CouldNotLex { content: slice.to_string() },
+                });
                 ERROR
             }
         };
+
+        // Validate integer literal digits for the appropriate radix
+        if kind == INTEGER {
+            validate_integer_digits(slice, span.start, &mut errors);
+        }
 
         tokens.push(Token { kind, len });
     }
@@ -454,7 +552,11 @@ mod tests {
     /// Helper to check that lexing produces expected errors.
     fn check_lex_errors(input: &str, expect: Expect) {
         let (_tokens, errors) = lex(input);
-        let output = errors.iter().map(|e| format!("{}:{}", e.offset, e.message)).collect::<Vec<_>>().join("\n");
+        let output = errors
+            .iter()
+            .map(|e| format!("{}..{}:{:?}", u32::from(e.range.start()), u32::from(e.range.end()), e.kind))
+            .collect::<Vec<_>>()
+            .join("\n");
         expect.assert_eq(&output);
     }
 
@@ -912,6 +1014,77 @@ mod tests {
 
     #[test]
     fn lex_error_unknown_char() {
-        check_lex_errors("hello $ world", expect![[r#"6:unexpected character: "$""#]]);
+        check_lex_errors("hello $ world", expect![[r#"6..7:CouldNotLex { content: "$" }"#]]);
+    }
+
+    #[test]
+    fn lex_invalid_hex_digit() {
+        let (tokens, errors) = lex("0xGAu32");
+        assert_eq!(tokens.len(), 2); // INTEGER + EOF
+        assert!(!errors.is_empty());
+        assert!(matches!(errors[0].kind, LexErrorKind::InvalidDigit { digit: 'G', radix: 16, .. }));
+    }
+
+    #[test]
+    fn lex_invalid_octal_digit() {
+        let (_, errors) = lex("0o9u32");
+        assert!(!errors.is_empty());
+        assert!(matches!(errors[0].kind, LexErrorKind::InvalidDigit { digit: '9', radix: 8, .. }));
+    }
+
+    #[test]
+    fn lex_invalid_binary_digit() {
+        let (_, errors) = lex("0b2u32");
+        assert!(!errors.is_empty());
+        assert!(matches!(errors[0].kind, LexErrorKind::InvalidDigit { digit: '2', radix: 2, .. }));
+    }
+
+    #[test]
+    fn lex_valid_hex_is_ok() {
+        let (_, errors) = lex("0xDEADBEEFu64");
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn lex_invalid_hex_lowercase() {
+        // Lowercase hex digits beyond f are invalid
+        let (_, errors) = lex("0xghu32");
+        assert!(!errors.is_empty());
+        assert!(matches!(errors[0].kind, LexErrorKind::InvalidDigit { digit: 'g', radix: 16, .. }));
+    }
+
+    #[test]
+    fn lex_bidi_override_error() {
+        let (_, errors) = lex("let x\u{202E} = 1;");
+        assert!(!errors.is_empty());
+        assert!(matches!(errors[0].kind, LexErrorKind::BidiOverride));
+    }
+
+    #[test]
+    fn lex_unclosed_block_comment() {
+        let (tokens, errors) = lex("/* unclosed");
+        assert!(!errors.is_empty());
+        assert!(matches!(errors[0].kind, LexErrorKind::CouldNotLex { .. }));
+        // Should still produce a COMMENT_BLOCK token
+        assert!(tokens.iter().any(|t| t.kind == COMMENT_BLOCK));
+    }
+
+    #[test]
+    fn lex_nested_comment_not_supported() {
+        // Leo doesn't support nested comments - the first */ closes the comment
+        let (tokens, errors) = lex("/* outer /* inner */");
+        // No errors - the first */ terminates the comment
+        assert!(errors.is_empty());
+        // The "outer /* inner " part is the comment, then "*/" closes it
+        // But actually let's check what happens...
+        // "/* outer /* inner */" - this finds the first */ which is at position 18
+        // So the comment is "/* outer /* inner */" which IS terminated
+        assert!(tokens.iter().any(|t| t.kind == COMMENT_BLOCK));
+    }
+
+    #[test]
+    fn lex_closed_comment_ok() {
+        let (_, errors) = lex("/* closed */");
+        assert!(errors.is_empty());
     }
 }

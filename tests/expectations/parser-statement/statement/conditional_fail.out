@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '{', 'if' -- found 'let'
+Error [EPAR0370047]: expected {
     --> test_0:1:17
      |
    1 | if true {} else let x = 2;

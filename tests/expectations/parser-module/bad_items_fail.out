@@ -1,29 +1,24 @@
-Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'let'
+Error [EPAR0370047]: expected `const`, `struct`, or `fn` in module
     --> test_0:1:1
      |
    1 | let x: u32 = 0;
      | ^^^
-Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'final'
-    --> test_4:1:1
-     |
-   1 | final fn foo() {}
-     | ^^^^^
-Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'record'
+Error [EPAR0370047]: expected `const`, `struct`, or `fn` in module
     --> test_5:1:1
      |
    1 | record Foo {}
      | ^^^^^^
-Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'mapping'
+Error [EPAR0370047]: expected `const`, `struct`, or `fn` in module
     --> test_6:1:1
      |
    1 | mapping Map
      | ^^^^^^^
-Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found 'program'
+Error [EPAR0370047]: expected `const`, `struct`, or `fn` in module
     --> test_7:1:1
      |
    1 | program foo.aleo {}
      | ^^^^^^^
-Error [EPAR0370005]: expected '@', 'struct', 'const', 'fn' -- found '{'
+Error [EPAR0370047]: expected `const`, `struct`, or `fn` in module
     --> test_8:1:1
      |
    1 | {

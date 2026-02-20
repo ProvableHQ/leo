@@ -1,5 +1,10 @@
-Error [EPAR0370005]: expected '@', 'struct', 'final', 'const', 'fn', 'import', 'program', 'script' -- found 'stub'
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
     --> test:2:1
      |
    2 | stub credits.aleo {
      | ^^^^
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script' -- found 'import'
+    --> test:7:5
+     |
+   7 |     import hello.aleo;
+     |     ^^^^^^

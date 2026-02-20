@@ -1,5 +1,10 @@
-Error [EPAR0370005]: expected an identifier, '(', '[', 'address, 'bool', 'field', 'group', 'scalar', 'signature', a string, 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '='
+Error [EPAR0370047]: expected type
     --> compiler-test:30:30
      |
   30 |                    let swap: = arr[j];
      |                              ^
+Error [EPAR0370003]: unexpected EOF
+    --> compiler-test:40:1
+     |
+
+     | ^

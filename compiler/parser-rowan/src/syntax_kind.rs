@@ -221,6 +221,8 @@ pub enum SyntaxKind {
     DOT,
     /// `..`
     DOT_DOT,
+    /// `..=`
+    DOT_DOT_EQ,
     /// `;`
     SEMICOLON,
     /// `:`
@@ -345,6 +347,10 @@ pub enum SyntaxKind {
     // ==========================================================================
     /// Function definition.
     FUNCTION_DEF,
+    /// Final function definition: `final fn ...`
+    FINAL_FN_DEF,
+    /// Script definition: `script ...`
+    SCRIPT_DEF,
     /// Constructor definition.
     CONSTRUCTOR_DEF,
     /// Struct definition.
@@ -353,6 +359,12 @@ pub enum SyntaxKind {
     RECORD_DEF,
     /// Struct member declaration.
     STRUCT_MEMBER,
+    /// Public struct member: `public name: Type`
+    STRUCT_MEMBER_PUBLIC,
+    /// Private struct member: `private name: Type`
+    STRUCT_MEMBER_PRIVATE,
+    /// Constant struct member: `constant name: Type`
+    STRUCT_MEMBER_CONSTANT,
     /// Mapping definition.
     MAPPING_DEF,
     /// Storage definition.
@@ -365,8 +377,16 @@ pub enum SyntaxKind {
     // ==========================================================================
     /// Annotation: `@foo`
     ANNOTATION,
+    /// Annotation key-value pair: `key = "value"`
+    ANNOTATION_PAIR,
     /// Parameter in a function signature.
     PARAM,
+    /// Public parameter: `public name: Type`
+    PARAM_PUBLIC,
+    /// Private parameter: `private name: Type`
+    PARAM_PRIVATE,
+    /// Constant parameter: `constant name: Type`
+    PARAM_CONSTANT,
     /// Parameter list: `(a: u32, b: u32)`
     PARAM_LIST,
     /// Function output type.
@@ -377,6 +397,8 @@ pub enum SyntaxKind {
     CONST_PARAM_LIST,
     /// Const generic argument list.
     CONST_ARG_LIST,
+    /// Array length expression wrapper in `[T; N]`.
+    ARRAY_LENGTH,
 
     // ==========================================================================
     // Composite Nodes - Statements
@@ -391,10 +413,14 @@ pub enum SyntaxKind {
     EXPR_STMT,
     /// Assignment statement: `x = ...;`
     ASSIGN_STMT,
+    /// Compound assignment statement: `x += ...;`, `x -= ...;`, etc.
+    COMPOUND_ASSIGN_STMT,
     /// If statement: `if ... { } else { }`
     IF_STMT,
     /// For loop: `for i in 0..10 { }`
     FOR_STMT,
+    /// Inclusive for loop: `for i in 0..=10 { }`
+    FOR_INCLUSIVE_STMT,
     /// Block: `{ ... }`
     BLOCK,
     /// Assert statement: `assert(...);`
@@ -439,38 +465,62 @@ pub enum SyntaxKind {
     TUPLE_EXPR,
     /// Struct literal: `Foo { a: 1, b: 2 }`
     STRUCT_EXPR,
+    /// Struct locator literal: `program.aleo/Type { a: 1, b: 2 }`
+    STRUCT_LOCATOR_EXPR,
     /// Struct field initializer: `a: 1`
     STRUCT_FIELD_INIT,
+    /// Struct field shorthand: `{ x }` (equivalent to `{ x: x }`)
+    STRUCT_FIELD_SHORTHAND,
     /// Path expression: `foo::bar`
     PATH_EXPR,
+    /// Path locator expression: `program.aleo/function`
+    PATH_LOCATOR_EXPR,
+    /// Program reference expression: `name.aleo` (without `/Type` suffix).
+    PROGRAM_REF_EXPR,
+    /// Self expression: `self`
+    SELF_EXPR,
+    /// Block keyword expression: `block`
+    BLOCK_KW_EXPR,
+    /// Network keyword expression: `network`
+    NETWORK_KW_EXPR,
     /// Parenthesized expression: `(a + b)`
     PAREN_EXPR,
-    /// Literal expression (wraps INTEGER, STRING, ADDRESS_LIT, or keywords).
-    LITERAL,
+    /// Field literal: `42field`
+    LITERAL_FIELD,
+    /// Group literal: `42group`
+    LITERAL_GROUP,
+    /// Scalar literal: `42scalar`
+    LITERAL_SCALAR,
+    /// Integer literal: `42u32`, `42` (unsuffixed)
+    LITERAL_INT,
+    /// String literal: `"hello"`
+    LITERAL_STRING,
+    /// Address literal: `aleo1...`
+    LITERAL_ADDRESS,
+    /// Boolean literal: `true`, `false`
+    LITERAL_BOOL,
+    /// None literal: `none`
+    LITERAL_NONE,
     /// Repeat expression: `[0u8; 32]`
     REPEAT_EXPR,
     /// Async expression: `async foo()`
     FINAL_EXPR,
-    /// Associated function call: `Foo::bar()`
-    ASSOC_FN_EXPR,
-    /// Associated constant: `Foo::BAR`
-    ASSOC_CONST_EXPR,
-    /// Locator expression: `foo.aleo/bar`
-    LOCATOR_EXPR,
     /// Tuple access: `a.0`
     TUPLE_ACCESS_EXPR,
-    /// Intrinsic expression: `_foo()`
-    INTRINSIC_EXPR,
-    /// Unit expression: `()`
-    UNIT_EXPR,
 
     // ==========================================================================
     // Composite Nodes - Types
     // ==========================================================================
-    /// Named/path type: `u32`, `Foo`, `foo::Bar`
+    /// Named/path type: `Foo`, `foo::Bar`
     TYPE_PATH,
+    /// Primitive type: `u32`, `bool`, `field`, etc.
+    TYPE_PRIMITIVE,
+    /// Locator type: `program.aleo/Type`
+    TYPE_LOCATOR,
     /// Array type: `[u32; 10]`
     TYPE_ARRAY,
+    /// Vector type: `[u32]`
+    TYPE_VECTOR,
     /// Tuple type: `(u32, u32)`
     TYPE_TUPLE,
     /// Optional type: `u32?` (Future feature)
@@ -479,18 +529,6 @@ pub enum SyntaxKind {
     TYPE_FINAL,
     /// Mapping type in storage.
     TYPE_MAPPING,
-
-    // ==========================================================================
-    // Composite Nodes - Other
-    // ==========================================================================
-    /// Argument list: `(a, b, c)`
-    ARG_LIST,
-    /// Name reference (identifier in expression context).
-    NAME_REF,
-    /// Name definition (identifier in binding context).
-    NAME,
-    /// Visibility modifier: `public`, `private`
-    VISIBILITY,
 
     // Sentinel for bounds checking (must be last)
     #[doc(hidden)]
@@ -590,6 +628,87 @@ impl SyntaxKind {
         matches!(self, INTEGER | STRING | ADDRESS_LIT | KW_TRUE | KW_FALSE | KW_NONE)
     }
 
+    /// Check if this is a literal node kind.
+    pub fn is_literal_node(self) -> bool {
+        matches!(
+            self,
+            LITERAL_FIELD
+                | LITERAL_GROUP
+                | LITERAL_SCALAR
+                | LITERAL_INT
+                | LITERAL_STRING
+                | LITERAL_ADDRESS
+                | LITERAL_BOOL
+                | LITERAL_NONE
+        )
+    }
+
+    /// Check if this is a type node kind.
+    pub fn is_type(self) -> bool {
+        matches!(
+            self,
+            TYPE_PRIMITIVE
+                | TYPE_LOCATOR
+                | TYPE_PATH
+                | TYPE_ARRAY
+                | TYPE_VECTOR
+                | TYPE_TUPLE
+                | TYPE_OPTIONAL
+                | TYPE_FINAL
+                | TYPE_MAPPING
+        )
+    }
+
+    /// Check if this is an expression node kind.
+    pub fn is_expression(self) -> bool {
+        self.is_literal_node()
+            || matches!(
+                self,
+                BINARY_EXPR
+                    | UNARY_EXPR
+                    | CALL_EXPR
+                    | METHOD_CALL_EXPR
+                    | FIELD_EXPR
+                    | TUPLE_ACCESS_EXPR
+                    | INDEX_EXPR
+                    | CAST_EXPR
+                    | TERNARY_EXPR
+                    | ARRAY_EXPR
+                    | REPEAT_EXPR
+                    | TUPLE_EXPR
+                    | STRUCT_EXPR
+                    | STRUCT_LOCATOR_EXPR
+                    | PATH_EXPR
+                    | PATH_LOCATOR_EXPR
+                    | PROGRAM_REF_EXPR
+                    | SELF_EXPR
+                    | BLOCK_KW_EXPR
+                    | NETWORK_KW_EXPR
+                    | PAREN_EXPR
+                    | FINAL_EXPR
+            )
+    }
+
+    /// Check if this is a statement node kind.
+    pub fn is_statement(self) -> bool {
+        matches!(
+            self,
+            LET_STMT
+                | CONST_STMT
+                | RETURN_STMT
+                | EXPR_STMT
+                | ASSIGN_STMT
+                | COMPOUND_ASSIGN_STMT
+                | IF_STMT
+                | FOR_STMT
+                | FOR_INCLUSIVE_STMT
+                | BLOCK
+                | ASSERT_STMT
+                | ASSERT_EQ_STMT
+                | ASSERT_NEQ_STMT
+        )
+    }
+
     /// Check if this is a punctuation token.
     pub fn is_punctuation(self) -> bool {
         matches!(
@@ -603,6 +722,7 @@ impl SyntaxKind {
                 | COMMA
                 | DOT
                 | DOT_DOT
+                | DOT_DOT_EQ
                 | SEMICOLON
                 | COLON
                 | COLON_COLON
@@ -652,6 +772,158 @@ impl SyntaxKind {
                 | SHL
                 | SHR
         )
+    }
+
+    /// Returns a user-friendly name for this token kind, suitable for error messages.
+    pub fn user_friendly_name(self) -> &'static str {
+        match self {
+            // Special
+            ERROR => "an error",
+            EOF => "end of file",
+
+            // Trivia
+            WHITESPACE | LINEBREAK => "whitespace",
+            COMMENT_LINE | COMMENT_BLOCK => "a comment",
+
+            // Literals
+            INTEGER => "an integer literal",
+            STRING => "a static string",
+            ADDRESS_LIT => "an address literal",
+
+            // Identifiers
+            IDENT => "an identifier",
+
+            // Boolean literals
+            KW_TRUE => "'true'",
+            KW_FALSE => "'false'",
+            KW_NONE => "'none'",
+
+            // Type keywords
+            KW_ADDRESS => "'address'",
+            KW_BOOL => "'bool'",
+            KW_FIELD => "'field'",
+            KW_GROUP => "'group'",
+            KW_SCALAR => "'scalar'",
+            KW_SIGNATURE => "'signature'",
+            KW_STRING => "'string'",
+            KW_RECORD => "'record'",
+            KW_FINAL_UPPER => "'Final'",
+            KW_I8 => "'i8'",
+            KW_I16 => "'i16'",
+            KW_I32 => "'i32'",
+            KW_I64 => "'i64'",
+            KW_I128 => "'i128'",
+            KW_U8 => "'u8'",
+            KW_U16 => "'u16'",
+            KW_U32 => "'u32'",
+            KW_U64 => "'u64'",
+            KW_U128 => "'u128'",
+
+            // Control flow keywords
+            KW_IF => "'if'",
+            KW_ELSE => "'else'",
+            KW_FOR => "'for'",
+            KW_IN => "'in'",
+            KW_RETURN => "'return'",
+
+            // Declaration keywords
+            KW_LET => "'let'",
+            KW_CONST => "'const'",
+            KW_CONSTANT => "'constant'",
+            KW_FINAL => "'final'",
+            KW_FN => "'fn'",
+            KW_FN_UPPER => "'Fn'",
+            KW_STRUCT => "'struct'",
+            KW_CONSTRUCTOR => "'constructor'",
+
+            // Program structure keywords
+            KW_PROGRAM => "'program'",
+            KW_IMPORT => "'import'",
+            KW_MAPPING => "'mapping'",
+            KW_STORAGE => "'storage'",
+            KW_NETWORK => "'network'",
+            KW_ALEO => "'aleo'",
+            KW_SCRIPT => "'script'",
+            KW_BLOCK => "'block'",
+
+            // Visibility and assertion keywords
+            KW_PUBLIC => "'public'",
+            KW_PRIVATE => "'private'",
+            KW_AS => "'as'",
+            KW_SELF => "'self'",
+            KW_ASSERT => "'assert'",
+            KW_ASSERT_EQ => "'assert_eq'",
+            KW_ASSERT_NEQ => "'assert_neq'",
+
+            // Delimiters
+            L_PAREN => "'('",
+            R_PAREN => "')'",
+            L_BRACKET => "'['",
+            R_BRACKET => "']'",
+            L_BRACE => "'{'",
+            R_BRACE => "'}'",
+
+            // Separators
+            COMMA => "','",
+            DOT => "'.'",
+            DOT_DOT => "'..'",
+            DOT_DOT_EQ => "'..='",
+            SEMICOLON => "';'",
+            COLON => "':'",
+            COLON_COLON => "'::'",
+            QUESTION => "'?'",
+            ARROW => "'->'",
+            FAT_ARROW => "'=>'",
+            UNDERSCORE => "'_'",
+            AT => "'@'",
+
+            // Assignment operators
+            EQ => "'='",
+            PLUS_EQ => "'+='",
+            MINUS_EQ => "'-='",
+            STAR_EQ => "'*='",
+            SLASH_EQ => "'/='",
+            PERCENT_EQ => "'%='",
+            STAR2_EQ => "'**='",
+            AMP2_EQ => "'&&='",
+            PIPE2_EQ => "'||='",
+            AMP_EQ => "'&='",
+            PIPE_EQ => "'|='",
+            CARET_EQ => "'^='",
+            SHL_EQ => "'<<='",
+            SHR_EQ => "'>>='",
+
+            // Arithmetic operators
+            PLUS => "'+'",
+            MINUS => "'-'",
+            STAR => "'*'",
+            SLASH => "'/'",
+            PERCENT => "'%'",
+            STAR2 => "'**'",
+
+            // Comparison operators
+            EQ2 => "'=='",
+            BANG_EQ => "'!='",
+            LT => "'<'",
+            LT_EQ => "'<='",
+            GT => "'>'",
+            GT_EQ => "'>='",
+
+            // Logical operators
+            AMP2 => "'&&'",
+            PIPE2 => "'||'",
+            BANG => "'!'",
+
+            // Bitwise operators
+            AMP => "'&'",
+            PIPE => "'|'",
+            CARET => "'^'",
+            SHL => "'<<'",
+            SHR => "'>>'",
+
+            // Composite nodes - these shouldn't appear in "expected" messages typically
+            _ => "a token",
+        }
     }
 }
 
@@ -733,6 +1005,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     COMMA,
     DOT,
     DOT_DOT,
+    DOT_DOT_EQ,
     SEMICOLON,
     COLON,
     COLON_COLON,
@@ -781,27 +1054,39 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     MAIN_CONTENTS,
     MODULE_CONTENTS,
     FUNCTION_DEF,
+    FINAL_FN_DEF,
+    SCRIPT_DEF,
     CONSTRUCTOR_DEF,
     STRUCT_DEF,
     RECORD_DEF,
     STRUCT_MEMBER,
+    STRUCT_MEMBER_PUBLIC,
+    STRUCT_MEMBER_PRIVATE,
+    STRUCT_MEMBER_CONSTANT,
     MAPPING_DEF,
     STORAGE_DEF,
     GLOBAL_CONST,
     ANNOTATION,
+    ANNOTATION_PAIR,
     PARAM,
+    PARAM_PUBLIC,
+    PARAM_PRIVATE,
+    PARAM_CONSTANT,
     PARAM_LIST,
     RETURN_TYPE,
     CONST_PARAM,
     CONST_PARAM_LIST,
     CONST_ARG_LIST,
+    ARRAY_LENGTH,
     LET_STMT,
     CONST_STMT,
     RETURN_STMT,
     EXPR_STMT,
     ASSIGN_STMT,
+    COMPOUND_ASSIGN_STMT,
     IF_STMT,
     FOR_STMT,
+    FOR_INCLUSIVE_STMT,
     BLOCK,
     ASSERT_STMT,
     ASSERT_EQ_STMT,
@@ -820,28 +1105,36 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     ARRAY_EXPR,
     TUPLE_EXPR,
     STRUCT_EXPR,
+    STRUCT_LOCATOR_EXPR,
     STRUCT_FIELD_INIT,
+    STRUCT_FIELD_SHORTHAND,
     PATH_EXPR,
+    PATH_LOCATOR_EXPR,
+    PROGRAM_REF_EXPR,
+    SELF_EXPR,
+    BLOCK_KW_EXPR,
+    NETWORK_KW_EXPR,
     PAREN_EXPR,
-    LITERAL,
+    LITERAL_FIELD,
+    LITERAL_GROUP,
+    LITERAL_SCALAR,
+    LITERAL_INT,
+    LITERAL_STRING,
+    LITERAL_ADDRESS,
+    LITERAL_BOOL,
+    LITERAL_NONE,
     REPEAT_EXPR,
     FINAL_EXPR,
-    ASSOC_FN_EXPR,
-    ASSOC_CONST_EXPR,
-    LOCATOR_EXPR,
     TUPLE_ACCESS_EXPR,
-    INTRINSIC_EXPR,
-    UNIT_EXPR,
     TYPE_PATH,
+    TYPE_PRIMITIVE,
+    TYPE_LOCATOR,
     TYPE_ARRAY,
+    TYPE_VECTOR,
     TYPE_TUPLE,
     TYPE_OPTIONAL,
     TYPE_FINAL,
     TYPE_MAPPING,
-    ARG_LIST,
-    NAME_REF,
-    NAME,
-    VISIBILITY,
     __LAST,
 ];
 

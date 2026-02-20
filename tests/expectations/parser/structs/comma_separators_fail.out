@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected '}', ',', '?' -- found 'y'
+Error [EPAR0370047]: expected ','
     --> test:9:5
      |
    9 |     y: u8

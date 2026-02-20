@@ -25,7 +25,7 @@
 //! - Expression statements
 //! - Blocks
 
-use super::{CompletedMarker, EXPR_RECOVERY, Parser, STMT_RECOVERY, TYPE_RECOVERY, expressions::ExprOpts};
+use super::{CompletedMarker, EXPR_RECOVERY, Parser, STMT_RECOVERY, expressions::ExprOpts};
 use crate::syntax_kind::{SyntaxKind, SyntaxKind::*};
 
 impl Parser<'_, '_> {
@@ -60,7 +60,7 @@ impl Parser<'_, '_> {
 
         // Optional type annotation
         if self.eat(COLON) && self.parse_type().is_none() {
-            self.error_recover("expected type", TYPE_RECOVERY);
+            self.error("expected type");
         }
 
         // Initializer
@@ -83,13 +83,17 @@ impl Parser<'_, '_> {
         if self.at(IDENT) {
             self.bump_any();
         } else {
-            self.error("expected identifier".to_string());
+            self.error("expected identifier");
         }
 
-        // Type annotation (required for const)
-        self.expect(COLON);
-        if self.parse_type().is_none() {
-            self.error_recover("expected type", TYPE_RECOVERY);
+        // Type annotation (required for const).
+        // If ':' is missing but '=' follows, skip the type to avoid cascading.
+        if self.expect(COLON) {
+            if self.parse_type().is_none() {
+                self.error("expected type");
+            }
+        } else if !self.at(EQ) && self.parse_type().is_none() {
+            self.error("expected type");
         }
 
         // Initializer
@@ -158,23 +162,31 @@ impl Parser<'_, '_> {
         if self.at(IDENT) {
             self.bump_any();
         } else {
-            self.error("expected loop variable".to_string());
+            self.error("expected loop variable");
         }
 
         // Optional type annotation
         if self.eat(COLON) && self.parse_type().is_none() {
-            self.error_recover("expected type", TYPE_RECOVERY);
+            self.error("expected type");
         }
 
         // in keyword
         self.expect(KW_IN);
 
-        // Range: lo..hi
+        // Range: lo..hi or lo..=hi
         // Disallow struct literals so `IDENT {` parses as range + block body.
         if self.parse_expr_with_opts(ExprOpts::no_struct()).is_none() {
             self.error_recover("expected range start", EXPR_RECOVERY);
         }
-        if self.eat(DOT_DOT) && self.parse_expr_with_opts(ExprOpts::no_struct()).is_none() {
+        let inclusive = if self.eat(DOT_DOT) {
+            false
+        } else if self.eat(DOT_DOT_EQ) {
+            true
+        } else {
+            self.error("expected '..' or '..='");
+            false
+        };
+        if self.parse_expr_with_opts(ExprOpts::no_struct()).is_none() {
             self.error_recover("expected range end", EXPR_RECOVERY);
         }
 
@@ -183,7 +195,8 @@ impl Parser<'_, '_> {
             self.error_recover("expected block", STMT_RECOVERY);
         }
 
-        Some(m.complete(self, FOR_STMT))
+        let kind = if inclusive { FOR_INCLUSIVE_STMT } else { FOR_STMT };
+        Some(m.complete(self, kind))
     }
 
     /// Parse an assert statement: `assert(cond);`
@@ -193,7 +206,7 @@ impl Parser<'_, '_> {
 
         self.expect(L_PAREN);
         if self.parse_expr().is_none() {
-            self.error_recover("expected expression", EXPR_RECOVERY);
+            self.error("expected expression");
         }
         self.expect(R_PAREN);
 
@@ -208,11 +221,11 @@ impl Parser<'_, '_> {
 
         self.expect(L_PAREN);
         if self.parse_expr().is_none() {
-            self.error_recover("expected first expression", EXPR_RECOVERY);
+            self.error("expected first expression");
         }
         self.expect(COMMA);
         if self.parse_expr().is_none() {
-            self.error_recover("expected second expression", EXPR_RECOVERY);
+            self.error("expected second expression");
         }
         self.expect(R_PAREN);
 
@@ -227,11 +240,11 @@ impl Parser<'_, '_> {
 
         self.expect(L_PAREN);
         if self.parse_expr().is_none() {
-            self.error_recover("expected first expression", EXPR_RECOVERY);
+            self.error("expected first expression");
         }
         self.expect(COMMA);
         if self.parse_expr().is_none() {
-            self.error_recover("expected second expression", EXPR_RECOVERY);
+            self.error("expected second expression");
         }
         self.expect(R_PAREN);
 
@@ -244,16 +257,26 @@ impl Parser<'_, '_> {
         let m = self.start();
 
         if !self.eat(L_BRACE) {
-            self.error("expected {".to_string());
+            self.error("expected {");
             m.abandon(self);
             return None;
         }
 
         // Parse statements until }
         while !self.at(R_BRACE) && !self.at_eof() {
+            let had_error = self.erroring;
+            // Clear error state at each loop iteration so errors from the
+            // previous statement don't suppress errors in the next one.
+            self.erroring = false;
             if self.parse_stmt().is_none() {
                 // Error recovery: skip to next statement boundary
                 self.error_recover("expected statement", STMT_RECOVERY);
+            } else if self.erroring && !had_error {
+                // The statement parsed but encountered errors and left
+                // unconsumed tokens. Skip to the next semicolon or
+                // statement boundary to prevent cascading errors.
+                self.recover(&[SEMICOLON, R_BRACE]);
+                self.eat(SEMICOLON);
             }
         }
 
@@ -290,19 +313,8 @@ impl Parser<'_, '_> {
     fn current_assign_op(&self) -> Option<SyntaxKind> {
         match self.current() {
             EQ => Some(ASSIGN_STMT),
-            PLUS_EQ => Some(ASSIGN_STMT),
-            MINUS_EQ => Some(ASSIGN_STMT),
-            STAR_EQ => Some(ASSIGN_STMT),
-            SLASH_EQ => Some(ASSIGN_STMT),
-            PERCENT_EQ => Some(ASSIGN_STMT),
-            STAR2_EQ => Some(ASSIGN_STMT),
-            AMP_EQ => Some(ASSIGN_STMT),
-            PIPE_EQ => Some(ASSIGN_STMT),
-            CARET_EQ => Some(ASSIGN_STMT),
-            SHL_EQ => Some(ASSIGN_STMT),
-            SHR_EQ => Some(ASSIGN_STMT),
-            AMP2_EQ => Some(ASSIGN_STMT),
-            PIPE2_EQ => Some(ASSIGN_STMT),
+            PLUS_EQ | MINUS_EQ | STAR_EQ | SLASH_EQ | PERCENT_EQ | STAR2_EQ | AMP_EQ | PIPE_EQ | CARET_EQ | SHL_EQ
+            | SHR_EQ | AMP2_EQ | PIPE2_EQ => Some(COMPOUND_ASSIGN_STMT),
             _ => None,
         }
     }
@@ -362,7 +374,7 @@ mod tests {
         parser.parse_stmt();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -374,41 +386,41 @@ mod tests {
     #[test]
     fn parse_stmt_let_simple() {
         check_stmt("let x = 1;", expect![[r#"
-                ROOT@0..10
-                  LET_STMT@0..10
-                    KW_LET@0..3 "let"
-                    WHITESPACE@3..4 " "
-                    IDENT_PATTERN@4..5
-                      IDENT@4..5 "x"
-                    WHITESPACE@5..6 " "
-                    EQ@6..7 "="
-                    WHITESPACE@7..8 " "
-                    LITERAL@8..9
-                      INTEGER@8..9 "1"
-                    SEMICOLON@9..10 ";"
-            "#]]);
+            ROOT@0..10
+              LET_STMT@0..10
+                KW_LET@0..3 "let"
+                WHITESPACE@3..4 " "
+                IDENT_PATTERN@4..5
+                  IDENT@4..5 "x"
+                WHITESPACE@5..6 " "
+                EQ@6..7 "="
+                WHITESPACE@7..8 " "
+                LITERAL_INT@8..9
+                  INTEGER@8..9 "1"
+                SEMICOLON@9..10 ";"
+        "#]]);
     }
 
     #[test]
     fn parse_stmt_let_typed() {
         check_stmt("let x: u32 = 42;", expect![[r#"
-                ROOT@0..16
-                  LET_STMT@0..16
-                    KW_LET@0..3 "let"
-                    WHITESPACE@3..4 " "
-                    IDENT_PATTERN@4..5
-                      IDENT@4..5 "x"
-                    COLON@5..6 ":"
-                    WHITESPACE@6..7 " "
-                    TYPE_PATH@7..10
-                      KW_U32@7..10 "u32"
-                    WHITESPACE@10..11 " "
-                    EQ@11..12 "="
-                    WHITESPACE@12..13 " "
-                    LITERAL@13..15
-                      INTEGER@13..15 "42"
-                    SEMICOLON@15..16 ";"
-            "#]]);
+            ROOT@0..16
+              LET_STMT@0..16
+                KW_LET@0..3 "let"
+                WHITESPACE@3..4 " "
+                IDENT_PATTERN@4..5
+                  IDENT@4..5 "x"
+                COLON@5..6 ":"
+                WHITESPACE@6..7 " "
+                TYPE_PRIMITIVE@7..10
+                  KW_U32@7..10 "u32"
+                WHITESPACE@10..11 " "
+                EQ@11..12 "="
+                WHITESPACE@12..13 " "
+                LITERAL_INT@13..15
+                  INTEGER@13..15 "42"
+                SEMICOLON@15..16 ";"
+        "#]]);
     }
 
     #[test]
@@ -443,22 +455,22 @@ mod tests {
     #[test]
     fn parse_stmt_const() {
         check_stmt("const MAX: u32 = 100;", expect![[r#"
-                ROOT@0..21
-                  CONST_STMT@0..21
-                    KW_CONST@0..5 "const"
-                    WHITESPACE@5..6 " "
-                    IDENT@6..9 "MAX"
-                    COLON@9..10 ":"
-                    WHITESPACE@10..11 " "
-                    TYPE_PATH@11..14
-                      KW_U32@11..14 "u32"
-                    WHITESPACE@14..15 " "
-                    EQ@15..16 "="
-                    WHITESPACE@16..17 " "
-                    LITERAL@17..20
-                      INTEGER@17..20 "100"
-                    SEMICOLON@20..21 ";"
-            "#]]);
+            ROOT@0..21
+              CONST_STMT@0..21
+                KW_CONST@0..5 "const"
+                WHITESPACE@5..6 " "
+                IDENT@6..9 "MAX"
+                COLON@9..10 ":"
+                WHITESPACE@10..11 " "
+                TYPE_PRIMITIVE@11..14
+                  KW_U32@11..14 "u32"
+                WHITESPACE@14..15 " "
+                EQ@15..16 "="
+                WHITESPACE@16..17 " "
+                LITERAL_INT@17..20
+                  INTEGER@17..20 "100"
+                SEMICOLON@20..21 ";"
+        "#]]);
     }
 
     // =========================================================================
@@ -468,14 +480,14 @@ mod tests {
     #[test]
     fn parse_stmt_return_value() {
         check_stmt("return 42;", expect![[r#"
-                ROOT@0..10
-                  RETURN_STMT@0..10
-                    KW_RETURN@0..6 "return"
-                    WHITESPACE@6..7 " "
-                    LITERAL@7..9
-                      INTEGER@7..9 "42"
-                    SEMICOLON@9..10 ";"
-            "#]]);
+            ROOT@0..10
+              RETURN_STMT@0..10
+                KW_RETURN@0..6 "return"
+                WHITESPACE@6..7 " "
+                LITERAL_INT@7..9
+                  INTEGER@7..9 "42"
+                SEMICOLON@9..10 ";"
+        "#]]);
     }
 
     #[test]
@@ -495,33 +507,33 @@ mod tests {
     #[test]
     fn parse_stmt_assign() {
         check_stmt("x = 1;", expect![[r#"
-                ROOT@0..6
-                  ASSIGN_STMT@0..6
-                    PATH_EXPR@0..2
-                      IDENT@0..1 "x"
-                      WHITESPACE@1..2 " "
-                    EQ@2..3 "="
-                    WHITESPACE@3..4 " "
-                    LITERAL@4..5
-                      INTEGER@4..5 "1"
-                    SEMICOLON@5..6 ";"
-            "#]]);
+            ROOT@0..6
+              ASSIGN_STMT@0..6
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                EQ@2..3 "="
+                WHITESPACE@3..4 " "
+                LITERAL_INT@4..5
+                  INTEGER@4..5 "1"
+                SEMICOLON@5..6 ";"
+        "#]]);
     }
 
     #[test]
     fn parse_stmt_assign_add() {
         check_stmt("x += 1;", expect![[r#"
-                ROOT@0..7
-                  ASSIGN_STMT@0..7
-                    PATH_EXPR@0..2
-                      IDENT@0..1 "x"
-                      WHITESPACE@1..2 " "
-                    PLUS_EQ@2..4 "+="
-                    WHITESPACE@4..5 " "
-                    LITERAL@5..6
-                      INTEGER@5..6 "1"
-                    SEMICOLON@6..7 ";"
-            "#]]);
+            ROOT@0..7
+              COMPOUND_ASSIGN_STMT@0..7
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                PLUS_EQ@2..4 "+="
+                WHITESPACE@4..5 " "
+                LITERAL_INT@5..6
+                  INTEGER@5..6 "1"
+                SEMICOLON@6..7 ";"
+        "#]]);
     }
 
     // =========================================================================
@@ -576,25 +588,25 @@ mod tests {
     #[test]
     fn parse_stmt_for() {
         check_stmt("for i in 0..10 { }", expect![[r#"
-                ROOT@0..18
-                  FOR_STMT@0..18
-                    KW_FOR@0..3 "for"
-                    WHITESPACE@3..4 " "
-                    IDENT@4..5 "i"
-                    WHITESPACE@5..6 " "
-                    KW_IN@6..8 "in"
-                    WHITESPACE@8..9 " "
-                    LITERAL@9..10
-                      INTEGER@9..10 "0"
-                    DOT_DOT@10..12 ".."
-                    LITERAL@12..14
-                      INTEGER@12..14 "10"
-                    BLOCK@14..18
-                      WHITESPACE@14..15 " "
-                      L_BRACE@15..16 "{"
-                      WHITESPACE@16..17 " "
-                      R_BRACE@17..18 "}"
-            "#]]);
+            ROOT@0..18
+              FOR_STMT@0..18
+                KW_FOR@0..3 "for"
+                WHITESPACE@3..4 " "
+                IDENT@4..5 "i"
+                WHITESPACE@5..6 " "
+                KW_IN@6..8 "in"
+                WHITESPACE@8..9 " "
+                LITERAL_INT@9..10
+                  INTEGER@9..10 "0"
+                DOT_DOT@10..12 ".."
+                LITERAL_INT@12..14
+                  INTEGER@12..14 "10"
+                BLOCK@14..18
+                  WHITESPACE@14..15 " "
+                  L_BRACE@15..16 "{"
+                  WHITESPACE@16..17 " "
+                  R_BRACE@17..18 "}"
+        "#]]);
     }
 
     // =========================================================================
@@ -640,24 +652,24 @@ mod tests {
     #[test]
     fn parse_stmt_block() {
         check_stmt("{ let x = 1; }", expect![[r#"
-                ROOT@0..14
-                  BLOCK@0..14
-                    L_BRACE@0..1 "{"
-                    WHITESPACE@1..2 " "
-                    LET_STMT@2..12
-                      KW_LET@2..5 "let"
-                      WHITESPACE@5..6 " "
-                      IDENT_PATTERN@6..7
-                        IDENT@6..7 "x"
-                      WHITESPACE@7..8 " "
-                      EQ@8..9 "="
-                      WHITESPACE@9..10 " "
-                      LITERAL@10..11
-                        INTEGER@10..11 "1"
-                      SEMICOLON@11..12 ";"
-                    WHITESPACE@12..13 " "
-                    R_BRACE@13..14 "}"
-            "#]]);
+            ROOT@0..14
+              BLOCK@0..14
+                L_BRACE@0..1 "{"
+                WHITESPACE@1..2 " "
+                LET_STMT@2..12
+                  KW_LET@2..5 "let"
+                  WHITESPACE@5..6 " "
+                  IDENT_PATTERN@6..7
+                    IDENT@6..7 "x"
+                  WHITESPACE@7..8 " "
+                  EQ@8..9 "="
+                  WHITESPACE@9..10 " "
+                  LITERAL_INT@10..11
+                    INTEGER@10..11 "1"
+                  SEMICOLON@11..12 ";"
+                WHITESPACE@12..13 " "
+                R_BRACE@13..14 "}"
+        "#]]);
     }
 
     #[test]
@@ -672,5 +684,349 @@ mod tests {
                       R_PAREN@4..5 ")"
                     SEMICOLON@5..6 ";"
             "#]]);
+    }
+
+    // =========================================================================
+    // Wildcard and Mixed Patterns (2a)
+    // =========================================================================
+
+    #[test]
+    fn parse_stmt_let_wildcard() {
+        check_stmt("let _ = 1;", expect![[r#"
+            ROOT@0..10
+              LET_STMT@0..10
+                KW_LET@0..3 "let"
+                WHITESPACE@3..4 " "
+                WILDCARD_PATTERN@4..5
+                  UNDERSCORE@4..5 "_"
+                WHITESPACE@5..6 " "
+                EQ@6..7 "="
+                WHITESPACE@7..8 " "
+                LITERAL_INT@8..9
+                  INTEGER@8..9 "1"
+                SEMICOLON@9..10 ";"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_let_tuple_wildcard() {
+        check_stmt("let (_, x) = pair;", expect![[r#"
+            ROOT@0..18
+              LET_STMT@0..18
+                KW_LET@0..3 "let"
+                WHITESPACE@3..4 " "
+                TUPLE_PATTERN@4..10
+                  L_PAREN@4..5 "("
+                  WILDCARD_PATTERN@5..6
+                    UNDERSCORE@5..6 "_"
+                  COMMA@6..7 ","
+                  WHITESPACE@7..8 " "
+                  IDENT_PATTERN@8..9
+                    IDENT@8..9 "x"
+                  R_PAREN@9..10 ")"
+                WHITESPACE@10..11 " "
+                EQ@11..12 "="
+                WHITESPACE@12..13 " "
+                PATH_EXPR@13..17
+                  IDENT@13..17 "pair"
+                SEMICOLON@17..18 ";"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Else-if Chains (2b)
+    // =========================================================================
+
+    #[test]
+    fn parse_stmt_if_else_if() {
+        check_stmt("if a { } else if b { } else { }", expect![[r#"
+            ROOT@0..31
+              IF_STMT@0..31
+                KW_IF@0..2 "if"
+                WHITESPACE@2..3 " "
+                PATH_EXPR@3..5
+                  IDENT@3..4 "a"
+                  WHITESPACE@4..5 " "
+                BLOCK@5..8
+                  L_BRACE@5..6 "{"
+                  WHITESPACE@6..7 " "
+                  R_BRACE@7..8 "}"
+                WHITESPACE@8..9 " "
+                KW_ELSE@9..13 "else"
+                IF_STMT@13..31
+                  WHITESPACE@13..14 " "
+                  KW_IF@14..16 "if"
+                  WHITESPACE@16..17 " "
+                  PATH_EXPR@17..19
+                    IDENT@17..18 "b"
+                    WHITESPACE@18..19 " "
+                  BLOCK@19..22
+                    L_BRACE@19..20 "{"
+                    WHITESPACE@20..21 " "
+                    R_BRACE@21..22 "}"
+                  WHITESPACE@22..23 " "
+                  KW_ELSE@23..27 "else"
+                  BLOCK@27..31
+                    WHITESPACE@27..28 " "
+                    L_BRACE@28..29 "{"
+                    WHITESPACE@29..30 " "
+                    R_BRACE@30..31 "}"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_if_else_if_chain() {
+        check_stmt("if a { } else if b { } else if c { } else { }", expect![[r#"
+            ROOT@0..45
+              IF_STMT@0..45
+                KW_IF@0..2 "if"
+                WHITESPACE@2..3 " "
+                PATH_EXPR@3..5
+                  IDENT@3..4 "a"
+                  WHITESPACE@4..5 " "
+                BLOCK@5..8
+                  L_BRACE@5..6 "{"
+                  WHITESPACE@6..7 " "
+                  R_BRACE@7..8 "}"
+                WHITESPACE@8..9 " "
+                KW_ELSE@9..13 "else"
+                IF_STMT@13..45
+                  WHITESPACE@13..14 " "
+                  KW_IF@14..16 "if"
+                  WHITESPACE@16..17 " "
+                  PATH_EXPR@17..19
+                    IDENT@17..18 "b"
+                    WHITESPACE@18..19 " "
+                  BLOCK@19..22
+                    L_BRACE@19..20 "{"
+                    WHITESPACE@20..21 " "
+                    R_BRACE@21..22 "}"
+                  WHITESPACE@22..23 " "
+                  KW_ELSE@23..27 "else"
+                  IF_STMT@27..45
+                    WHITESPACE@27..28 " "
+                    KW_IF@28..30 "if"
+                    WHITESPACE@30..31 " "
+                    PATH_EXPR@31..33
+                      IDENT@31..32 "c"
+                      WHITESPACE@32..33 " "
+                    BLOCK@33..36
+                      L_BRACE@33..34 "{"
+                      WHITESPACE@34..35 " "
+                      R_BRACE@35..36 "}"
+                    WHITESPACE@36..37 " "
+                    KW_ELSE@37..41 "else"
+                    BLOCK@41..45
+                      WHITESPACE@41..42 " "
+                      L_BRACE@42..43 "{"
+                      WHITESPACE@43..44 " "
+                      R_BRACE@44..45 "}"
+        "#]]);
+    }
+
+    // =========================================================================
+    // For Loop with Typed Variable (2c)
+    // =========================================================================
+
+    #[test]
+    fn parse_stmt_for_typed() {
+        check_stmt("for i: u32 in 0..10 { }", expect![[r#"
+            ROOT@0..23
+              FOR_STMT@0..23
+                KW_FOR@0..3 "for"
+                WHITESPACE@3..4 " "
+                IDENT@4..5 "i"
+                COLON@5..6 ":"
+                WHITESPACE@6..7 " "
+                TYPE_PRIMITIVE@7..10
+                  KW_U32@7..10 "u32"
+                WHITESPACE@10..11 " "
+                KW_IN@11..13 "in"
+                WHITESPACE@13..14 " "
+                LITERAL_INT@14..15
+                  INTEGER@14..15 "0"
+                DOT_DOT@15..17 ".."
+                LITERAL_INT@17..19
+                  INTEGER@17..19 "10"
+                BLOCK@19..23
+                  WHITESPACE@19..20 " "
+                  L_BRACE@20..21 "{"
+                  WHITESPACE@21..22 " "
+                  R_BRACE@22..23 "}"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Missing Assignment Operators (2d)
+    // =========================================================================
+
+    #[test]
+    fn parse_stmt_assign_sub() {
+        check_stmt("x -= 1;", expect![[r#"
+            ROOT@0..7
+              COMPOUND_ASSIGN_STMT@0..7
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                MINUS_EQ@2..4 "-="
+                WHITESPACE@4..5 " "
+                LITERAL_INT@5..6
+                  INTEGER@5..6 "1"
+                SEMICOLON@6..7 ";"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_assign_mul() {
+        check_stmt("x *= 2;", expect![[r#"
+            ROOT@0..7
+              COMPOUND_ASSIGN_STMT@0..7
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                STAR_EQ@2..4 "*="
+                WHITESPACE@4..5 " "
+                LITERAL_INT@5..6
+                  INTEGER@5..6 "2"
+                SEMICOLON@6..7 ";"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_assign_div() {
+        check_stmt("x /= 2;", expect![[r#"
+            ROOT@0..7
+              COMPOUND_ASSIGN_STMT@0..7
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                SLASH_EQ@2..4 "/="
+                WHITESPACE@4..5 " "
+                LITERAL_INT@5..6
+                  INTEGER@5..6 "2"
+                SEMICOLON@6..7 ";"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_assign_pow() {
+        check_stmt("x **= 2;", expect![[r#"
+            ROOT@0..8
+              COMPOUND_ASSIGN_STMT@0..8
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                STAR2_EQ@2..5 "**="
+                WHITESPACE@5..6 " "
+                LITERAL_INT@6..7
+                  INTEGER@6..7 "2"
+                SEMICOLON@7..8 ";"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_assign_bitor() {
+        check_stmt("x |= 1;", expect![[r#"
+            ROOT@0..7
+              COMPOUND_ASSIGN_STMT@0..7
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                PIPE_EQ@2..4 "|="
+                WHITESPACE@4..5 " "
+                LITERAL_INT@5..6
+                  INTEGER@5..6 "1"
+                SEMICOLON@6..7 ";"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_assign_bitand() {
+        check_stmt("x &= 1;", expect![[r#"
+            ROOT@0..7
+              COMPOUND_ASSIGN_STMT@0..7
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                AMP_EQ@2..4 "&="
+                WHITESPACE@4..5 " "
+                LITERAL_INT@5..6
+                  INTEGER@5..6 "1"
+                SEMICOLON@6..7 ";"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_assign_shl() {
+        check_stmt("x <<= 1;", expect![[r#"
+            ROOT@0..8
+              COMPOUND_ASSIGN_STMT@0..8
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                SHL_EQ@2..5 "<<="
+                WHITESPACE@5..6 " "
+                LITERAL_INT@6..7
+                  INTEGER@6..7 "1"
+                SEMICOLON@7..8 ";"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_stmt_assign_shr() {
+        check_stmt("x >>= 1;", expect![[r#"
+            ROOT@0..8
+              COMPOUND_ASSIGN_STMT@0..8
+                PATH_EXPR@0..2
+                  IDENT@0..1 "x"
+                  WHITESPACE@1..2 " "
+                SHR_EQ@2..5 ">>="
+                WHITESPACE@5..6 " "
+                LITERAL_INT@6..7
+                  INTEGER@6..7 "1"
+                SEMICOLON@7..8 ";"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Assert_neq (2e)
+    // =========================================================================
+
+    #[test]
+    fn parse_stmt_assert_neq() {
+        check_stmt("assert_neq(a, b);", expect![[r#"
+            ROOT@0..17
+              ASSERT_NEQ_STMT@0..17
+                KW_ASSERT_NEQ@0..10 "assert_neq"
+                L_PAREN@10..11 "("
+                PATH_EXPR@11..12
+                  IDENT@11..12 "a"
+                COMMA@12..13 ","
+                WHITESPACE@13..14 " "
+                PATH_EXPR@14..15
+                  IDENT@14..15 "b"
+                R_PAREN@15..16 ")"
+                SEMICOLON@16..17 ";"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Expression Statement with Args (2f)
+    // =========================================================================
+
+    #[test]
+    fn parse_stmt_expr_call() {
+        check_stmt("foo(x);", expect![[r#"
+            ROOT@0..7
+              EXPR_STMT@0..7
+                CALL_EXPR@0..6
+                  PATH_EXPR@0..3
+                    IDENT@0..3 "foo"
+                  L_PAREN@3..4 "("
+                  PATH_EXPR@4..5
+                    IDENT@4..5 "x"
+                  R_PAREN@5..6 ")"
+                SEMICOLON@6..7 ";"
+        "#]]);
     }
 }

@@ -44,6 +44,27 @@ impl TypeOpts {
 }
 
 impl Parser<'_, '_> {
+    /// Primitive type keywords allowed in cast expressions.
+    pub const PRIMITIVE_TYPE_KINDS: &'static [crate::syntax_kind::SyntaxKind] = &[
+        KW_ADDRESS,
+        KW_BOOL,
+        KW_FIELD,
+        KW_GROUP,
+        KW_SCALAR,
+        KW_SIGNATURE,
+        KW_STRING,
+        KW_I8,
+        KW_I16,
+        KW_I32,
+        KW_I64,
+        KW_I128,
+        KW_U8,
+        KW_U16,
+        KW_U32,
+        KW_U64,
+        KW_U128,
+    ];
+
     /// Parse a type expression.
     ///
     /// Returns `None` if the current token cannot start a type.
@@ -89,26 +110,12 @@ impl Parser<'_, '_> {
 
     /// Check if the current token is a primitive type keyword.
     fn at_primitive_type(&self) -> bool {
-        matches!(
-            self.current(),
-            KW_ADDRESS
-                | KW_BOOL
-                | KW_FIELD
-                | KW_GROUP
-                | KW_SCALAR
-                | KW_SIGNATURE
-                | KW_STRING
-                | KW_I8
-                | KW_I16
-                | KW_I32
-                | KW_I64
-                | KW_I128
-                | KW_U8
-                | KW_U16
-                | KW_U32
-                | KW_U64
-                | KW_U128
-        )
+        Self::PRIMITIVE_TYPE_KINDS.contains(&self.current())
+    }
+
+    /// Parse a cast type (primitive types only, matching the LALRPOP grammar).
+    pub fn parse_cast_type(&mut self) -> Option<CompletedMarker> {
+        if self.at_primitive_type() { self.parse_primitive_type() } else { None }
     }
 
     /// Parse a primitive type keyword.
@@ -117,9 +124,12 @@ impl Parser<'_, '_> {
             return None;
         }
 
+        // Skip trivia before starting the node so leading whitespace
+        // isn't captured inside the TYPE_PRIMITIVE.
+        self.skip_trivia();
         let m = self.start();
-        self.bump_any();
-        Some(m.complete(self, TYPE_PATH))
+        self.bump_raw();
+        Some(m.complete(self, TYPE_PRIMITIVE))
     }
 
     /// Parse a tuple type: `(T1, T2, ...)` or unit `()`.
@@ -167,14 +177,24 @@ impl Parser<'_, '_> {
         // Check for array length: ; N
         if self.eat(SEMICOLON) {
             // Array with explicit length: [T; N]
+            let len = self.start();
             self.parse_array_length();
+            len.complete(self, ARRAY_LENGTH);
             self.expect(R_BRACKET);
+            return Some(m.complete(self, TYPE_ARRAY));
+        }
+
+        // If we see ',' instead of ';' or ']', suggest the array syntax.
+        if self.at(COMMA) {
+            self.error("expected ';' for array type, found ','");
+            self.recover(&[R_BRACKET]);
+            self.eat(R_BRACKET);
             return Some(m.complete(self, TYPE_ARRAY));
         }
 
         // Vector: [T]
         self.expect(R_BRACKET);
-        Some(m.complete(self, TYPE_ARRAY))
+        Some(m.complete(self, TYPE_VECTOR))
     }
 
     /// Parse an array length expression.
@@ -270,7 +290,7 @@ impl Parser<'_, '_> {
                 if self.at(IDENT) {
                     self.bump_any();
                 } else {
-                    self.error("expected type name after /".to_string());
+                    self.error("expected type name after /");
                 }
             }
 
@@ -280,7 +300,7 @@ impl Parser<'_, '_> {
                 self.parse_const_generic_args_bracket();
             }
 
-            return Some(m.complete(self, TYPE_PATH));
+            return Some(m.complete(self, TYPE_LOCATOR));
         }
 
         // Check for path or const generics: Foo::Bar or Foo::[N]
@@ -296,7 +316,7 @@ impl Parser<'_, '_> {
             } else if self.at(IDENT) {
                 self.bump_any();
             } else {
-                self.error("expected identifier, [, or < after ::".to_string());
+                self.error("expected identifier, [, or < after ::");
                 break;
             }
         }
@@ -339,7 +359,7 @@ impl Parser<'_, '_> {
         if self.at(IDENT) {
             self.bump_any(); // param name
         } else {
-            self.error("expected const parameter name".to_string());
+            self.error("expected const parameter name");
         }
 
         self.expect(COLON);
@@ -367,6 +387,8 @@ impl Parser<'_, '_> {
                 if self.at(R_BRACKET) {
                     break;
                 }
+                // Clear error state so each argument gets fresh error reporting.
+                self.erroring = false;
                 self.parse_const_generic_arg();
             }
         }
@@ -400,7 +422,7 @@ impl Parser<'_, '_> {
             if self.at(IDENT) || self.at(INTEGER) {
                 self.bump_any();
             } else {
-                self.error("expected const generic argument".to_string());
+                self.error("expected const generic argument");
                 break;
             }
         }
@@ -444,7 +466,7 @@ mod tests {
         parser.parse_type();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -456,7 +478,7 @@ mod tests {
         parser.parse_type_with_opts(TypeOpts::default().allow_optional());
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         let output = format!("{:#?}", parse.syntax());
         expect.assert_eq(&output);
     }
@@ -468,82 +490,82 @@ mod tests {
     #[test]
     fn parse_type_bool() {
         check_type("bool", expect![[r#"
-                ROOT@0..4
-                  TYPE_PATH@0..4
-                    KW_BOOL@0..4 "bool"
-            "#]]);
+            ROOT@0..4
+              TYPE_PRIMITIVE@0..4
+                KW_BOOL@0..4 "bool"
+        "#]]);
     }
 
     #[test]
     fn parse_type_field() {
         check_type("field", expect![[r#"
-                ROOT@0..5
-                  TYPE_PATH@0..5
-                    KW_FIELD@0..5 "field"
-            "#]]);
+            ROOT@0..5
+              TYPE_PRIMITIVE@0..5
+                KW_FIELD@0..5 "field"
+        "#]]);
     }
 
     #[test]
     fn parse_type_group() {
         check_type("group", expect![[r#"
-                ROOT@0..5
-                  TYPE_PATH@0..5
-                    KW_GROUP@0..5 "group"
-            "#]]);
+            ROOT@0..5
+              TYPE_PRIMITIVE@0..5
+                KW_GROUP@0..5 "group"
+        "#]]);
     }
 
     #[test]
     fn parse_type_address() {
         check_type("address", expect![[r#"
-                ROOT@0..7
-                  TYPE_PATH@0..7
-                    KW_ADDRESS@0..7 "address"
-            "#]]);
+            ROOT@0..7
+              TYPE_PRIMITIVE@0..7
+                KW_ADDRESS@0..7 "address"
+        "#]]);
     }
 
     #[test]
     fn parse_type_scalar() {
         check_type("scalar", expect![[r#"
-                ROOT@0..6
-                  TYPE_PATH@0..6
-                    KW_SCALAR@0..6 "scalar"
-            "#]]);
+            ROOT@0..6
+              TYPE_PRIMITIVE@0..6
+                KW_SCALAR@0..6 "scalar"
+        "#]]);
     }
 
     #[test]
     fn parse_type_signature() {
         check_type("signature", expect![[r#"
-                ROOT@0..9
-                  TYPE_PATH@0..9
-                    KW_SIGNATURE@0..9 "signature"
-            "#]]);
+            ROOT@0..9
+              TYPE_PRIMITIVE@0..9
+                KW_SIGNATURE@0..9 "signature"
+        "#]]);
     }
 
     #[test]
     fn parse_type_string() {
         check_type("string", expect![[r#"
-                ROOT@0..6
-                  TYPE_PATH@0..6
-                    KW_STRING@0..6 "string"
-            "#]]);
+            ROOT@0..6
+              TYPE_PRIMITIVE@0..6
+                KW_STRING@0..6 "string"
+        "#]]);
     }
 
     #[test]
     fn parse_type_u32() {
         check_type("u32", expect![[r#"
-                ROOT@0..3
-                  TYPE_PATH@0..3
-                    KW_U32@0..3 "u32"
-            "#]]);
+            ROOT@0..3
+              TYPE_PRIMITIVE@0..3
+                KW_U32@0..3 "u32"
+        "#]]);
     }
 
     #[test]
     fn parse_type_i128() {
         check_type("i128", expect![[r#"
-                ROOT@0..4
-                  TYPE_PATH@0..4
-                    KW_I128@0..4 "i128"
-            "#]]);
+            ROOT@0..4
+              TYPE_PRIMITIVE@0..4
+                KW_I128@0..4 "i128"
+        "#]]);
     }
 
     // =========================================================================
@@ -563,46 +585,46 @@ mod tests {
     #[test]
     fn parse_type_tuple_single() {
         check_type("(u32)", expect![[r#"
-                ROOT@0..5
-                  TYPE_TUPLE@0..5
-                    L_PAREN@0..1 "("
-                    TYPE_PATH@1..4
-                      KW_U32@1..4 "u32"
-                    R_PAREN@4..5 ")"
-            "#]]);
+            ROOT@0..5
+              TYPE_TUPLE@0..5
+                L_PAREN@0..1 "("
+                TYPE_PRIMITIVE@1..4
+                  KW_U32@1..4 "u32"
+                R_PAREN@4..5 ")"
+        "#]]);
     }
 
     #[test]
     fn parse_type_tuple_pair() {
         check_type("(u32, field)", expect![[r#"
-                ROOT@0..12
-                  TYPE_TUPLE@0..12
-                    L_PAREN@0..1 "("
-                    TYPE_PATH@1..4
-                      KW_U32@1..4 "u32"
-                    COMMA@4..5 ","
-                    WHITESPACE@5..6 " "
-                    TYPE_PATH@6..11
-                      KW_FIELD@6..11 "field"
-                    R_PAREN@11..12 ")"
-            "#]]);
+            ROOT@0..12
+              TYPE_TUPLE@0..12
+                L_PAREN@0..1 "("
+                TYPE_PRIMITIVE@1..4
+                  KW_U32@1..4 "u32"
+                COMMA@4..5 ","
+                WHITESPACE@5..6 " "
+                TYPE_PRIMITIVE@6..11
+                  KW_FIELD@6..11 "field"
+                R_PAREN@11..12 ")"
+        "#]]);
     }
 
     #[test]
     fn parse_type_tuple_trailing_comma() {
         check_type("(u32, field,)", expect![[r#"
-                ROOT@0..13
-                  TYPE_TUPLE@0..13
-                    L_PAREN@0..1 "("
-                    TYPE_PATH@1..4
-                      KW_U32@1..4 "u32"
-                    COMMA@4..5 ","
-                    WHITESPACE@5..6 " "
-                    TYPE_PATH@6..11
-                      KW_FIELD@6..11 "field"
-                    COMMA@11..12 ","
-                    R_PAREN@12..13 ")"
-            "#]]);
+            ROOT@0..13
+              TYPE_TUPLE@0..13
+                L_PAREN@0..1 "("
+                TYPE_PRIMITIVE@1..4
+                  KW_U32@1..4 "u32"
+                COMMA@4..5 ","
+                WHITESPACE@5..6 " "
+                TYPE_PRIMITIVE@6..11
+                  KW_FIELD@6..11 "field"
+                COMMA@11..12 ","
+                R_PAREN@12..13 ")"
+        "#]]);
     }
 
     // =========================================================================
@@ -615,12 +637,13 @@ mod tests {
             ROOT@0..9
               TYPE_ARRAY@0..9
                 L_BRACKET@0..1 "["
-                TYPE_PATH@1..4
+                TYPE_PRIMITIVE@1..4
                   KW_U32@1..4 "u32"
                 SEMICOLON@4..5 ";"
-                WHITESPACE@5..6 " "
-                LITERAL@6..8
-                  INTEGER@6..8 "10"
+                ARRAY_LENGTH@5..8
+                  WHITESPACE@5..6 " "
+                  LITERAL_INT@6..8
+                    INTEGER@6..8 "10"
                 R_BRACKET@8..9 "]"
         "#]]);
     }
@@ -631,12 +654,13 @@ mod tests {
             ROOT@0..10
               TYPE_ARRAY@0..10
                 L_BRACKET@0..1 "["
-                TYPE_PATH@1..6
+                TYPE_PRIMITIVE@1..6
                   KW_FIELD@1..6 "field"
                 SEMICOLON@6..7 ";"
-                WHITESPACE@7..8 " "
-                PATH_EXPR@8..9
-                  IDENT@8..9 "N"
+                ARRAY_LENGTH@7..9
+                  WHITESPACE@7..8 " "
+                  PATH_EXPR@8..9
+                    IDENT@8..9 "N"
                 R_BRACKET@9..10 "]"
         "#]]);
     }
@@ -644,13 +668,13 @@ mod tests {
     #[test]
     fn parse_type_vector() {
         check_type("[u8]", expect![[r#"
-                ROOT@0..4
-                  TYPE_ARRAY@0..4
-                    L_BRACKET@0..1 "["
-                    TYPE_PATH@1..3
-                      KW_U8@1..3 "u8"
-                    R_BRACKET@3..4 "]"
-            "#]]);
+            ROOT@0..4
+              TYPE_VECTOR@0..4
+                L_BRACKET@0..1 "["
+                TYPE_PRIMITIVE@1..3
+                  KW_U8@1..3 "u8"
+                R_BRACKET@3..4 "]"
+        "#]]);
     }
 
     #[test]
@@ -661,17 +685,19 @@ mod tests {
                 L_BRACKET@0..1 "["
                 TYPE_ARRAY@1..9
                   L_BRACKET@1..2 "["
-                  TYPE_PATH@2..5
+                  TYPE_PRIMITIVE@2..5
                     KW_U32@2..5 "u32"
                   SEMICOLON@5..6 ";"
-                  WHITESPACE@6..7 " "
-                  LITERAL@7..8
-                    INTEGER@7..8 "3"
+                  ARRAY_LENGTH@6..8
+                    WHITESPACE@6..7 " "
+                    LITERAL_INT@7..8
+                      INTEGER@7..8 "3"
                   R_BRACKET@8..9 "]"
                 SEMICOLON@9..10 ";"
-                WHITESPACE@10..11 " "
-                LITERAL@11..12
-                  INTEGER@11..12 "2"
+                ARRAY_LENGTH@10..12
+                  WHITESPACE@10..11 " "
+                  LITERAL_INT@11..12
+                    INTEGER@11..12 "2"
                 R_BRACKET@12..13 "]"
         "#]]);
     }
@@ -683,12 +709,12 @@ mod tests {
     #[test]
     fn parse_type_optional() {
         check_type_optional("u32?", expect![[r#"
-                ROOT@0..4
-                  TYPE_OPTIONAL@0..4
-                    TYPE_PATH@0..3
-                      KW_U32@0..3 "u32"
-                    QUESTION@3..4 "?"
-            "#]]);
+            ROOT@0..4
+              TYPE_OPTIONAL@0..4
+                TYPE_PRIMITIVE@0..3
+                  KW_U32@0..3 "u32"
+                QUESTION@3..4 "?"
+        "#]]);
     }
 
     #[test]
@@ -758,26 +784,26 @@ mod tests {
     #[test]
     fn parse_type_locator() {
         check_type("credits.aleo/Token", expect![[r#"
-                ROOT@0..18
-                  TYPE_PATH@0..18
-                    IDENT@0..7 "credits"
-                    DOT@7..8 "."
-                    KW_ALEO@8..12 "aleo"
-                    SLASH@12..13 "/"
-                    IDENT@13..18 "Token"
-            "#]]);
+            ROOT@0..18
+              TYPE_LOCATOR@0..18
+                IDENT@0..7 "credits"
+                DOT@7..8 "."
+                KW_ALEO@8..12 "aleo"
+                SLASH@12..13 "/"
+                IDENT@13..18 "Token"
+        "#]]);
     }
 
     #[test]
     fn parse_type_program_id_without_type() {
         // Just program.aleo without /Type
         check_type("credits.aleo", expect![[r#"
-                ROOT@0..12
-                  TYPE_PATH@0..12
-                    IDENT@0..7 "credits"
-                    DOT@7..8 "."
-                    KW_ALEO@8..12 "aleo"
-            "#]]);
+            ROOT@0..12
+              TYPE_LOCATOR@0..12
+                IDENT@0..7 "credits"
+                DOT@7..8 "."
+                KW_ALEO@8..12 "aleo"
+        "#]]);
     }
 
     // =========================================================================
@@ -796,22 +822,22 @@ mod tests {
     #[test]
     fn parse_type_final_explicit() {
         check_type("Final<Fn(u32) -> field>", expect![[r#"
-                ROOT@0..23
-                  TYPE_FINAL@0..23
-                    KW_FINAL_UPPER@0..5 "Final"
-                    LT@5..6 "<"
-                    KW_FN_UPPER@6..8 "Fn"
-                    L_PAREN@8..9 "("
-                    TYPE_PATH@9..12
-                      KW_U32@9..12 "u32"
-                    R_PAREN@12..13 ")"
-                    WHITESPACE@13..14 " "
-                    ARROW@14..16 "->"
-                    WHITESPACE@16..17 " "
-                    TYPE_PATH@17..22
-                      KW_FIELD@17..22 "field"
-                    GT@22..23 ">"
-            "#]]);
+            ROOT@0..23
+              TYPE_FINAL@0..23
+                KW_FINAL_UPPER@0..5 "Final"
+                LT@5..6 "<"
+                KW_FN_UPPER@6..8 "Fn"
+                L_PAREN@8..9 "("
+                TYPE_PRIMITIVE@9..12
+                  KW_U32@9..12 "u32"
+                R_PAREN@12..13 ")"
+                WHITESPACE@13..14 " "
+                ARROW@14..16 "->"
+                WHITESPACE@16..17 " "
+                TYPE_PRIMITIVE@17..22
+                  KW_FIELD@17..22 "field"
+                GT@22..23 ">"
+        "#]]);
     }
 
     #[test]
@@ -841,18 +867,18 @@ mod tests {
     #[test]
     fn parse_type_mapping() {
         check_type("mapping address => u64", expect![[r#"
-                ROOT@0..22
-                  TYPE_MAPPING@0..22
-                    KW_MAPPING@0..7 "mapping"
-                    WHITESPACE@7..8 " "
-                    TYPE_PATH@8..15
-                      KW_ADDRESS@8..15 "address"
-                    WHITESPACE@15..16 " "
-                    FAT_ARROW@16..18 "=>"
-                    WHITESPACE@18..19 " "
-                    TYPE_PATH@19..22
-                      KW_U64@19..22 "u64"
-            "#]]);
+            ROOT@0..22
+              TYPE_MAPPING@0..22
+                KW_MAPPING@0..7 "mapping"
+                WHITESPACE@7..8 " "
+                TYPE_PRIMITIVE@8..15
+                  KW_ADDRESS@8..15 "address"
+                WHITESPACE@15..16 " "
+                FAT_ARROW@16..18 "=>"
+                WHITESPACE@18..19 " "
+                TYPE_PRIMITIVE@19..22
+                  KW_U64@19..22 "u64"
+        "#]]);
     }
 
     // =========================================================================
@@ -866,7 +892,7 @@ mod tests {
         parser.parse_type();
         parser.skip_trivia();
         root.complete(&mut parser, ROOT);
-        let parse: Parse = parser.finish();
+        let parse: Parse = parser.finish(vec![]);
         if !parse.errors().is_empty() {
             for err in parse.errors() {
                 eprintln!("error at {:?}: {}", err.range, err.message);
@@ -914,5 +940,138 @@ mod tests {
     fn parse_type_locator_const_generic() {
         // Locator + const generic args
         check_type_no_errors("child.aleo/Bar::[4]");
+    }
+
+    // =========================================================================
+    // Nested Tuple Types (4a)
+    // =========================================================================
+
+    #[test]
+    fn parse_type_tuple_nested() {
+        check_type("((u32, u64), bool)", expect![[r#"
+            ROOT@0..18
+              TYPE_TUPLE@0..18
+                L_PAREN@0..1 "("
+                TYPE_TUPLE@1..11
+                  L_PAREN@1..2 "("
+                  TYPE_PRIMITIVE@2..5
+                    KW_U32@2..5 "u32"
+                  COMMA@5..6 ","
+                  WHITESPACE@6..7 " "
+                  TYPE_PRIMITIVE@7..10
+                    KW_U64@7..10 "u64"
+                  R_PAREN@10..11 ")"
+                COMMA@11..12 ","
+                WHITESPACE@12..13 " "
+                TYPE_PRIMITIVE@13..17
+                  KW_BOOL@13..17 "bool"
+                R_PAREN@17..18 ")"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Optional of Composite Types (4b)
+    // =========================================================================
+
+    #[test]
+    fn parse_type_optional_array() {
+        check_type_optional("[u32; 3]?", expect![[r#"
+            ROOT@0..9
+              TYPE_OPTIONAL@0..9
+                TYPE_ARRAY@0..8
+                  L_BRACKET@0..1 "["
+                  TYPE_PRIMITIVE@1..4
+                    KW_U32@1..4 "u32"
+                  SEMICOLON@4..5 ";"
+                  ARRAY_LENGTH@5..7
+                    WHITESPACE@5..6 " "
+                    LITERAL_INT@6..7
+                      INTEGER@6..7 "3"
+                  R_BRACKET@7..8 "]"
+                QUESTION@8..9 "?"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_type_optional_tuple() {
+        check_type_optional("(u32, u64)?", expect![[r#"
+            ROOT@0..11
+              TYPE_OPTIONAL@0..11
+                TYPE_TUPLE@0..10
+                  L_PAREN@0..1 "("
+                  TYPE_PRIMITIVE@1..4
+                    KW_U32@1..4 "u32"
+                  COMMA@4..5 ","
+                  WHITESPACE@5..6 " "
+                  TYPE_PRIMITIVE@6..9
+                    KW_U64@6..9 "u64"
+                  R_PAREN@9..10 ")"
+                QUESTION@10..11 "?"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Final with Multiple Parameters (4c)
+    // =========================================================================
+
+    #[test]
+    fn parse_type_final_multi_param() {
+        check_type("Final<Fn(u32, field, group) -> (u32, u64)>", expect![[r#"
+            ROOT@0..42
+              TYPE_FINAL@0..42
+                KW_FINAL_UPPER@0..5 "Final"
+                LT@5..6 "<"
+                KW_FN_UPPER@6..8 "Fn"
+                L_PAREN@8..9 "("
+                TYPE_PRIMITIVE@9..12
+                  KW_U32@9..12 "u32"
+                COMMA@12..13 ","
+                WHITESPACE@13..14 " "
+                TYPE_PRIMITIVE@14..19
+                  KW_FIELD@14..19 "field"
+                COMMA@19..20 ","
+                WHITESPACE@20..21 " "
+                TYPE_PRIMITIVE@21..26
+                  KW_GROUP@21..26 "group"
+                R_PAREN@26..27 ")"
+                WHITESPACE@27..28 " "
+                ARROW@28..30 "->"
+                WHITESPACE@30..31 " "
+                TYPE_TUPLE@31..41
+                  L_PAREN@31..32 "("
+                  TYPE_PRIMITIVE@32..35
+                    KW_U32@32..35 "u32"
+                  COMMA@35..36 ","
+                  WHITESPACE@36..37 " "
+                  TYPE_PRIMITIVE@37..40
+                    KW_U64@37..40 "u64"
+                  R_PAREN@40..41 ")"
+                GT@41..42 ">"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Const Generic Expression Arguments (4d)
+    // =========================================================================
+
+    #[test]
+    fn parse_type_const_generic_expr_sub() {
+        check_type("Foo::[N - 1]", expect![[r#"
+            ROOT@0..12
+              TYPE_PATH@0..12
+                IDENT@0..3 "Foo"
+                COLON_COLON@3..5 "::"
+                CONST_ARG_LIST@5..12
+                  L_BRACKET@5..6 "["
+                  BINARY_EXPR@6..11
+                    PATH_EXPR@6..8
+                      IDENT@6..7 "N"
+                      WHITESPACE@7..8 " "
+                    MINUS@8..9 "-"
+                    WHITESPACE@9..10 " "
+                    LITERAL_INT@10..11
+                      INTEGER@10..11 "1"
+                  R_BRACKET@11..12 "]"
+        "#]]);
     }
 }

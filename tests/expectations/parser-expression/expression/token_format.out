@@ -4,6 +4,12 @@ Error [EPAR0370050]: Could not lex the following content: `~`.
      |
    1 | "test" ~
      |        ^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_1:1:5
+     |
+   1 | u32 ~
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u32'
     --> test_1:1:1
      |
@@ -33,12 +39,29 @@ Error [EPAR0370050]: Could not lex the following content: `~`.
      |
    1 | aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr ~
      |                                                                 ^
+Error [EPAR0370001]: invalid address literal: 'aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr'
+    --> test_5:1:1
+     |
+   1 | aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr ~
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [EPAR0370050]: Could not lex the following content: `'`.
 
     --> test_6:1:1
      |
    1 | 'h' ~
      | ^
+Error [EPAR0370050]: Could not lex the following content: `'`.
+
+    --> test_6:1:3
+     |
+   1 | 'h' ~
+     |   ^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_6:1:5
+     |
+   1 | 'h' ~
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '@'
     --> test_7:1:1
      |
@@ -96,10 +119,10 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
    1 | +
      | ^
 Error [EPAR0370003]: unexpected EOF
-    --> test_18:1:1
+    --> test_18:1:2
      |
    1 | -
-     | ^
+     |  ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '*'
     --> test_19:1:1
      |
@@ -146,20 +169,20 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
    1 | **=
      | ^^^
 Error [EPAR0370003]: unexpected EOF
-    --> test_28:1:1
+    --> test_28:1:2
      |
    1 | (
-     | ^
+     |  ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ')'
     --> test_29:1:1
      |
    1 | )
      | ^
 Error [EPAR0370003]: unexpected EOF
-    --> test_30:1:1
+    --> test_30:1:2
      |
    1 | [
-     | ^
+     |  ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ']'
     --> test_31:1:1
      |
@@ -206,10 +229,10 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
    1 | :
      | ^
 Error [EPAR0370003]: unexpected EOF
-    --> test_40:1:3
+    --> test_40:1:4
      |
    1 | h::
-     |   ^
+     |    ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '?'
     --> test_41:1:1
      |
@@ -225,76 +248,166 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | _
      | ^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_44:1:4
+     |
+   1 | u8 ~
+     |    ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u8'
     --> test_44:1:1
      |
    1 | u8 ~
      | ^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_45:1:5
+     |
+   1 | u16 ~
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u16'
     --> test_45:1:1
      |
    1 | u16 ~
      | ^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_46:1:5
+     |
+   1 | u32 ~
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u32'
     --> test_46:1:1
      |
    1 | u32 ~
      | ^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_47:1:5
+     |
+   1 | u64 ~
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u64'
     --> test_47:1:1
      |
    1 | u64 ~
      | ^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_48:1:6
+     |
+   1 | u128 ~
+     |      ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u128'
     --> test_48:1:1
      |
    1 | u128 ~
      | ^^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_49:1:4
+     |
+   1 | i8 ~
+     |    ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i8'
     --> test_49:1:1
      |
    1 | i8 ~
      | ^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_50:1:5
+     |
+   1 | i16 ~
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i16'
     --> test_50:1:1
      |
    1 | i16 ~
      | ^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_51:1:5
+     |
+   1 | i32 ~
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i32'
     --> test_51:1:1
      |
    1 | i32 ~
      | ^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_52:1:5
+     |
+   1 | i64 ~
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i64'
     --> test_52:1:1
      |
    1 | i64 ~
      | ^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_53:1:6
+     |
+   1 | i128 ~
+     |      ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i128'
     --> test_53:1:1
      |
    1 | i128 ~
      | ^^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_54:1:7
+     |
+   1 | field ~
+     |       ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'field'
     --> test_54:1:1
      |
    1 | field ~
      | ^^^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_55:1:7
+     |
+   1 | group ~
+     |       ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'group'
     --> test_55:1:1
      |
    1 | group ~
      | ^^^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_56:1:6
+     |
+   1 | bool ~
+     |      ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'bool'
     --> test_56:1:1
      |
    1 | bool ~
      | ^^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_57:1:9
+     |
+   1 | address ~
+     |         ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'address'
     --> test_57:1:1
      |
    1 | address ~
      | ^^^^^^^
+Error [EPAR0370050]: Could not lex the following content: `~`.
+
+    --> test_58:1:11
+     |
+   1 | signature ~
+     |           ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'signature'
     --> test_58:1:1
      |

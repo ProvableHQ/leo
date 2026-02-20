@@ -1,4 +1,4 @@
-Error [EPAR0370005]: expected an identifier, ')', 'constant', 'private', 'public' -- found 'let'
+Error [EPAR0370047]: expected parameter name
     --> compiler-test:7:13
      |
    7 |     fn main(let x: u8, y: bool) -> bool {

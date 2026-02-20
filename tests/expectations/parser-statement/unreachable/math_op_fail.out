@@ -1,9 +1,9 @@
-Error [EPAR0370005]: expected  -- found 'b'
+Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', '::', '?', 'as', ';' -- found 'b'
     --> test_0:1:13
      |
    1 | let x = a ; b;
      |             ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'import'
+Error [EPAR0370005]: expected ';' -- found 'import'
     --> test_1:1:11
      |
    1 | let x = a import b;
@@ -23,7 +23,7 @@ Error [EPAR0370005]: expected ';' -- found ']'
      |
    1 | let x = a ] b;
      |           ^
-Error [EPAR0370005]: expected '}', ',', ':' -- found ';'
+Error [EPAR0370005]: expected '}' -- found ';'
     --> test_5:1:14
      |
    1 | let x = a { b;
@@ -33,7 +33,7 @@ Error [EPAR0370005]: expected ';' -- found '}'
      |
    1 | let x = a } b;
      |           ^
-Error [EPAR0370005]: expected ')', ',' -- found ';'
+Error [EPAR0370005]: expected ')' -- found ';'
     --> test_7:1:14
      |
    1 | let x = a ( b;
@@ -53,7 +53,7 @@ Error [EPAR0370005]: expected ':' -- found ';'
      |
    1 | let x = a ? b;
      |              ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found '_'
+Error [EPAR0370005]: expected ';' -- found '_'
     --> test_11:1:11
      |
    1 | let x = a _ b;
@@ -63,132 +63,132 @@ Error [EPAR0370005]: expected ';' -- found '='
      |
    1 | let x = a = b;
      |           ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found '!'
+Error [EPAR0370005]: expected ';' -- found '!'
     --> test_13:1:11
      |
    1 | let x = a ! b;
      |           ^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '[', '.', ';', '?', 'as' -- found '..'
+Error [EPAR0370005]: expected ';' -- found '..'
     --> test_14:1:11
      |
    1 | let x = a .. b;
      |           ^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'const'
+Error [EPAR0370005]: expected ';' -- found 'const'
     --> test_15:1:11
      |
    1 | let x = a const b;
      |           ^^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'let'
+Error [EPAR0370005]: expected ';' -- found 'let'
     --> test_16:1:11
      |
    1 | let x = a let b;
      |           ^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'for'
+Error [EPAR0370005]: expected ';' -- found 'for'
     --> test_17:1:11
      |
    1 | let x = a for b;
      |           ^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'if'
+Error [EPAR0370005]: expected ';' -- found 'if'
     --> test_18:1:11
      |
    1 | let x = a if b;
      |           ^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'else'
+Error [EPAR0370005]: expected ';' -- found 'else'
     --> test_19:1:11
      |
    1 | let x = a else b;
      |           ^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'i8'
+Error [EPAR0370005]: expected ';' -- found 'i8'
     --> test_20:1:11
      |
    1 | let x = a i8 b;
      |           ^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'i16'
+Error [EPAR0370005]: expected ';' -- found 'i16'
     --> test_21:1:11
      |
    1 | let x = a i16 b;
      |           ^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'i32'
+Error [EPAR0370005]: expected ';' -- found 'i32'
     --> test_22:1:11
      |
    1 | let x = a i32 b;
      |           ^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'i64'
+Error [EPAR0370005]: expected ';' -- found 'i64'
     --> test_23:1:11
      |
    1 | let x = a i64 b;
      |           ^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'i128'
+Error [EPAR0370005]: expected ';' -- found 'i128'
     --> test_24:1:11
      |
    1 | let x = a i128 b;
      |           ^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'u8'
+Error [EPAR0370005]: expected ';' -- found 'u8'
     --> test_25:1:11
      |
    1 | let x = a u8 b;
      |           ^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'u16'
+Error [EPAR0370005]: expected ';' -- found 'u16'
     --> test_26:1:11
      |
    1 | let x = a u16 b;
      |           ^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'u32'
+Error [EPAR0370005]: expected ';' -- found 'u32'
     --> test_27:1:11
      |
    1 | let x = a u32 b;
      |           ^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'u64'
+Error [EPAR0370005]: expected ';' -- found 'u64'
     --> test_28:1:11
      |
    1 | let x = a u64 b;
      |           ^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'u128'
+Error [EPAR0370005]: expected ';' -- found 'u128'
     --> test_29:1:11
      |
    1 | let x = a u128 b;
      |           ^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'return'
+Error [EPAR0370005]: expected ';' -- found 'return'
     --> test_31:1:11
      |
    1 | let x = a return b;
      |           ^^^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'self'
+Error [EPAR0370005]: expected ';' -- found 'self'
     --> test_32:1:11
      |
    1 | let x = a self b;
      |           ^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'Self'
+Error [EPAR0370005]: expected ';' -- found 'Self'
     --> test_33:1:11
      |
    1 | let x = a Self b;
      |           ^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'true'
+Error [EPAR0370005]: expected ';' -- found 'true'
     --> test_34:1:11
      |
    1 | let x = a true b;
      |           ^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found 'false'
+Error [EPAR0370005]: expected ';' -- found 'false'
     --> test_35:1:11
      |
    1 | let x = a false b;
      |           ^^^^^
-Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', ';', '::', '?', 'as' -- found '0'
+Error [EPAR0370005]: expected ';' -- found '0'
     --> test_36:1:11
      |
    1 | let x = a 0 b;
      |           ^
-Error [EPAR0370005]: expected  -- found '='
+Error [EPAR0370005]: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', '::', '?', 'as', ';' -- found '='
     --> test_37:1:3
      |
    1 | x;=b;
      |   ^
-Error [EPAR0370005]: expected an identifier, an integer literal -- found '='
+Error [EPAR0370047]: expected field name or tuple index
     --> test_38:1:3
      |
    1 | x.=b;
      |   ^
-Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found ','
+Error [EPAR0370005]: expected ';' -- found ','
     --> test_39:1:2
      |
    1 | x,=b; // 43
@@ -198,26 +198,31 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | x[=b;
      |   ^
-Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found ']'
+Error [EPAR0370005]: expected ';' -- found ']'
     --> test_41:1:2
      |
    1 | x]=b;
      |  ^
-Error [EPAR0370005]: expected an identifier, '}' -- found '='
+Error [EPAR0370047]: expected field name
     --> test_42:1:3
      |
    1 | x{=b;
      |   ^
-Error [EPAR0370005]: expected '=', '&&=', '||=', '&=', '|=', '&=', '+=', '-=', '*=', '/=', '**=', '%=', '<<=', '>>=', ';' -- found '}'
+Error [EPAR0370005]: expected ';' -- found '}'
     --> test_43:1:2
      |
    1 | x}=b;
      |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', ')', '[', ',', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
     --> test_44:1:4
      |
    1 | x=(;
      |    ^
+Error [EPAR0370003]: unexpected EOF
+    --> test_44:1:5
+     |
+   1 | x=(;
+     |     ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ')'
     --> test_45:1:3
      |
@@ -253,8 +258,8 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | x<==b;
      |    ^
-Error [EPAR0370005]: expected '=', '&&', '||', '&&=', '||=', '&', '&=', '|', '|=', '^', '&=', '==', '!=', '<', '<=', '>', '>=', '+', '+=', '-', '-=', '*', '*=', '/', '/=', '**', '**=', '%', '%=', '<<', '<<=', '>>', '>>=', '[', '.', ';', '?', 'as' -- found '..'
+Error [EPAR0370005]: expected ';' -- found '..='
     --> test_52:1:2
      |
    1 | x..=b;
-     |  ^^
+     |  ^^^

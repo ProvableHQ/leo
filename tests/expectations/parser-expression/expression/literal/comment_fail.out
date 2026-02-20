@@ -4,7 +4,7 @@ Error [EPAR0370050]: Could not lex the following content: `/*`.
      |
    1 | /*
      | ^^
-Error [EPAR0370050]: Could not lex the following content: `/*`.
+Error [EPAR0370050]: Could not lex the following content: `/* test`.
 
     --> test_1:1:1
      |
@@ -15,12 +15,11 @@ Error [EPAR0370005]: expected an identifier, a program id, an address literal, a
      |
    1 | / /
      | ^
-Error [EPAR0370050]: Could not lex the following content: `/*`.
-
-    --> test_3:1:1
+Error [EPAR0370003]: unexpected EOF
+    --> test_3:1:4
      |
    1 | /*/
-     | ^^
+     |    ^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '*'
     --> test_4:1:1
      |
@@ -32,31 +31,43 @@ Error [EPAR0370050]: Could not lex the following content: `🦀`.
      |
    1 | 🦀**/
      | ^^^^
+Error [EPAR0370050]: Could not lex the following content: `🦀`.
+
+    --> test_6:1:2
+     |
+   1 | /🦀*/
+     |  ^^^
 Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/'
     --> test_6:1:1
      |
    1 | /🦀*/
      | ^
-Error [EPAR0370050]: Could not lex the following content: `/*`.
+Error [EPAR0370050]: Could not lex the following content: `/*🦀/`.
 
     --> test_7:1:1
      |
    1 | /*🦀/
      | ^^
-Error [EPAR0370050]: Could not lex the following content: `/*`.
+Error [EPAR0370050]: Could not lex the following content: `/**🦀`.
 
     --> test_8:1:1
      |
    1 | /**🦀
      | ^^
-Error [EPAR0370050]: Could not lex the following content: `/*`.
+Error [EPAR0370050]: Could not lex the following content: `/*🦀`.
 
     --> test_9:1:1
      |
    1 | /*🦀
      | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/*/*/'
-    --> test_10:1:1
+Error [EPAR0370050]: Could not lex the following content: `/*/*`.
+
+    --> test_10:1:37
      |
    1 | /*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
-     | ^^^^^
+     |                                     ^^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '*'
+    --> test_10:1:6
+     |
+   1 | /*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
+     |      ^
