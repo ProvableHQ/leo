@@ -67,7 +67,7 @@ fn run_single_cli_test(test_directory: &Path) {
         mismatch_directory: mismatch_directory.join(test_directory.file_name().unwrap()),
     };
 
-    let rewrite_expectations = !std::env::var("REWRITE_EXPECTATIONS").unwrap_or_default().trim().is_empty();
+    let rewrite_expectations = !std::env::var("UPDATE_EXPECT").unwrap_or_default().trim().is_empty();
 
     let port = find_free_port();
     let mut devnode_process = run_leo_devnode(port).expect("devnode");
