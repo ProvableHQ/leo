@@ -48,7 +48,7 @@ impl StaticAnalyzingVisitor<'_> {
         let future_variable = match future {
             Some(Expression::Path(path)) => path,
             _ => {
-                return self.emit_err(StaticAnalyzerError::invalid_await_call(span));
+                return self.emit_err(StaticAnalyzerError::invalid_run_call(span));
             }
         };
 
@@ -56,19 +56,19 @@ impl StaticAnalyzingVisitor<'_> {
         match self.state.type_table.get(&future_variable.id) {
             Some(type_) => {
                 if !matches!(type_, Type::Future(_)) {
-                    self.emit_err(StaticAnalyzerError::expected_future(type_, future_variable.span()));
+                    self.emit_err(StaticAnalyzerError::expected_final(type_, future_variable.span()));
                 }
                 // Mark the future as consumed.
                 // If the call returns true, it means that a future was not awaited in the order of the input list, emit a warning.
                 if self.await_checker.remove(&future_variable.identifier().name) {
-                    self.emit_warning(StaticAnalyzerWarning::future_not_awaited_in_order(
+                    self.emit_warning(StaticAnalyzerWarning::final_not_awaited_in_order(
                         future_variable,
                         future_variable.span(),
                     ));
                 }
             }
             None => {
-                self.emit_err(StaticAnalyzerError::expected_future(future_variable, future_variable.span()));
+                self.emit_err(StaticAnalyzerError::expected_final(future_variable, future_variable.span()));
             }
         }
     }
@@ -83,7 +83,7 @@ impl StaticAnalyzingVisitor<'_> {
             .expect("Type checking guarantees functions are present.");
 
         // If it is not an async transition, return.
-        if func_symbol.function.variant != Variant::AsyncTransition {
+        if func_symbol.function.variant != Variant::EntryPoint || !func_symbol.function.has_final_output() {
             return;
         }
 
@@ -100,7 +100,7 @@ impl StaticAnalyzingVisitor<'_> {
 
         // If the async function takes a future as an argument, emit an error.
         if async_function.function.input.iter().any(|input| matches!(input.type_(), Type::Future(..))) {
-            self.emit_err(StaticAnalyzerError::async_transition_call_with_future_argument(function_path, span));
+            self.emit_err(StaticAnalyzerError::entry_point_final_call_with_final_argument(function_path, span));
         }
     }
 }
@@ -112,7 +112,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // Check `Future::await` core functions.
-        if let Some(Intrinsic::FutureAwait) = Intrinsic::from_symbol(input.name, &input.type_parameters) {
+        if let Some(Intrinsic::FinalRun) = Intrinsic::from_symbol(input.name, &input.type_parameters) {
             self.assert_future_await(&input.arguments.first(), input.span());
         }
     }
@@ -125,7 +125,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         // If the function call is an external async transition, then for all async calls that follow a non-async call,
         // we must check that the async call is not an async function that takes a future as an argument.
         if self.non_async_external_call_seen
-            && self.variant == Some(Variant::AsyncTransition)
+            && self.variant == Some(Variant::EntryPoint)
             && callee_program != caller_program
         {
             self.assert_simple_async_transition_call(&input.function, input.span());
@@ -137,8 +137,19 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
             .lookup_function(self.current_program, input.function.expect_global_location())
             .expect("Type checking guarantees functions exist.");
 
-        if func_symbol.function.variant == Variant::Transition {
+        if func_symbol.function.variant == Variant::EntryPoint && !func_symbol.function.has_final_output() {
             self.non_async_external_call_seen = true;
+        }
+
+        // if we're passing finals to a final fn, they get run and checked there
+        if func_symbol.function.variant == Variant::FinalFn {
+            for (param, arg) in func_symbol.function.input.iter().zip(input.arguments.iter()) {
+                if matches!(param.type_, Type::Future(_))
+                    && let Expression::Path(path) = arg
+                {
+                    self.await_checker.remove(&path.identifier().name);
+                }
+            }
         }
     }
 
@@ -148,7 +159,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
 
         // Create scope for checking awaits in `then` branch of conditional.
         let current_bst_nodes: Vec<ConditionalTreeNode> =
-            match self.await_checker.create_then_scope(self.variant == Some(Variant::AsyncFunction), input.span) {
+            match self.await_checker.create_then_scope(self.variant.is_some_and(|v| v.is_onchain()), input.span) {
                 Ok(nodes) => nodes,
                 Err(warn) => return self.emit_warning(warn),
             };
@@ -158,7 +169,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
 
         // Exit scope for checking awaits in `then` branch of conditional.
         let saved_paths =
-            self.await_checker.exit_then_scope(self.variant == Some(Variant::AsyncFunction), current_bst_nodes);
+            self.await_checker.exit_then_scope(self.variant.is_some_and(|v| v.is_onchain()), current_bst_nodes);
 
         if let Some(otherwise) = &input.otherwise {
             match &**otherwise {
@@ -172,6 +183,6 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         }
 
         // Update the set of all possible BST paths.
-        self.await_checker.exit_statement_scope(self.variant == Some(Variant::AsyncFunction), saved_paths);
+        self.await_checker.exit_statement_scope(self.variant.is_some_and(|v| v.is_onchain()), saved_paths);
     }
 }

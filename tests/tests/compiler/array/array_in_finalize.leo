@@ -1,10 +1,10 @@
 
 program test.aleo {
-    async transition foo(a: [bool; 8]) -> Future {
-        return fin_foo(a);
+    fn foo(a: [bool; 8]) -> Final {
+        return final { fin_foo(a); };
     }
+}
 
-    async function fin_foo(a: [bool; 8]) {
-        assert_eq(true, true);
-    }
+final fn fin_foo(a: [bool; 8]) {
+    assert_eq(true, true);
 }

@@ -1,9 +1,10 @@
 program test.aleo {
-    async transition do_something(value: u64) -> Future {
-        return finalize(value);
+    fn do_something(value: u64) -> Final {
+        return final {
+            finalize(value);
+        };
     }
-
-    async function finalize(value: u64) {
-        return;
-    }
+}
+final fn finalize(value: u64) {
+    return;
 }

@@ -1,10 +1,10 @@
 
-program test.aleo {
-    struct Foo {
-        x: u32,
-    }
+struct Foo {
+    x: u32,
+}
 
-    transition main() {
+program test.aleo {
+    fn main() {
         let a: Foo = Foo { x: 1u32 };
         let err = a.y;
     }

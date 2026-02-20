@@ -1,5 +1,5 @@
 Error [ETYC0372117]: Expected type `u64` but type `u32` was found.
-    --> compiler-test:4:22
+    --> compiler-test:2:18
      |
-   4 |         let x: u64 = block.height;
-     |                      ^^^^^^^^^^^^
+   2 |     let x: u64 = block.height;
+     |                  ^^^^^^^^^^^^

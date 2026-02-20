@@ -24,24 +24,24 @@ create_messages!(
     code_prefix: "TYC",
 
     @formatted
-    some_paths_do_not_await_all_futures {
+    some_paths_do_not_run_all_finals {
         args: (num_total_paths: impl Display, num_unawaited_paths: impl Display),
-        msg: format!("Not all paths through the function await all futures. {num_unawaited_paths}/{num_total_paths} paths contain at least one future that is never awaited."),
-        help: Some("Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
+        msg: format!("Not all paths through the function run all Finals. {num_unawaited_paths}/{num_total_paths} paths contain at least one Final that is never run."),
+        help: Some("Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
     }
 
     @formatted
-    some_paths_contain_duplicate_future_awaits {
+    some_paths_contain_duplicate_final_runs {
         args: (num_total_paths: impl Display, num_duplicate_await_paths: impl Display),
-        msg: format!("Some paths through the function contain duplicate future awaits. {num_duplicate_await_paths}/{num_total_paths} paths contain at least one future that is awaited more than once."),
-        help: Some("Look at the times `.await()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
+        msg: format!("Some paths through the function contain duplicate Final runs. {num_duplicate_await_paths}/{num_total_paths} paths contain at least one Final that is run more than once."),
+        help: Some("Look at the times `.run()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
     }
 
     // TODO: This warning is deprecated, remove it in the future.
     @formatted
-    async_function_is_never_called_by_transition_function {
+    final_function_is_never_called_by_entry_point {
         args: (name: impl Display),
-        msg: format!("The async function `{name}` is never called by an async transition."),
+        msg: format!("The final fn `{name}` is never called by an entry point fn returning Final."),
         help: None,
     }
 

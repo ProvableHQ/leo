@@ -1,76 +1,65 @@
-Error [ETYC0372067]: This operation can only be used in an async function, an async block, or script.
-    --> compiler-test:7:9
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:8:5
      |
-   7 |         Mapping::set(values, 0u8, 1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::set` must be inside an async function or an async block.
-    --> compiler-test:7:9
+   8 |     Mapping::set(values, 0u8, 1u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::set` must be inside a `final fn` or a `final` block.
+    --> compiler-test:8:5
      |
-   7 |         Mapping::set(values, 0u8, 1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function, an async block, or script.
-    --> compiler-test:8:9
+   8 |     Mapping::set(values, 0u8, 1u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:9:5
      |
-   8 |         Mapping::get_or_use(account, self.caller, 1u64);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::get_or_use` must be inside an async function or an async block.
-    --> compiler-test:8:9
+   9 |     Mapping::get_or_use(account, self.caller, 1u64);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::get_or_use` must be inside a `final fn` or a `final` block.
+    --> compiler-test:9:5
      |
-   8 |         Mapping::get_or_use(account, self.caller, 1u64);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function, an async block, or script.
-    --> compiler-test:9:9
+   9 |     Mapping::get_or_use(account, self.caller, 1u64);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:10:5
      |
-   9 |         Mapping::get(values, 1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::get` must be inside an async function or an async block.
-    --> compiler-test:9:9
+  10 |     Mapping::get(values, 1u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::get` must be inside a `final fn` or a `final` block.
+    --> compiler-test:10:5
      |
-   9 |         Mapping::get(values, 1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function, an async block, or script.
-    --> compiler-test:13:9
+  10 |     Mapping::get(values, 1u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:14:5
      |
-  13 |         Mapping::set(values, 0u8, 1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::set` must be inside an async function or an async block.
-    --> compiler-test:13:9
+  14 |     Mapping::set(values, 0u8, 1u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::set` must be inside a `final fn` or a `final` block.
+    --> compiler-test:14:5
      |
-  13 |         Mapping::set(values, 0u8, 1u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function, an async block, or script.
-    --> compiler-test:14:9
+  14 |     Mapping::set(values, 0u8, 1u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:15:5
      |
-  14 |         Mapping::get_or_use(account, self.caller, 1u64);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::get_or_use` must be inside an async function or an async block.
-    --> compiler-test:14:9
+  15 |     Mapping::get_or_use(account, self.caller, 1u64);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::get_or_use` must be inside a `final fn` or a `final` block.
+    --> compiler-test:15:5
      |
-  14 |         Mapping::get_or_use(account, self.caller, 1u64);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in an async function, an async block, or script.
-    --> compiler-test:15:9
+  15 |     Mapping::get_or_use(account, self.caller, 1u64);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:16:5
      |
-  15 |         Mapping::get(values, 0u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::get` must be inside an async function or an async block.
-    --> compiler-test:15:9
+  16 |     Mapping::get(values, 0u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372034]: `Mapping::get` must be inside a `final fn` or a `final` block.
+    --> compiler-test:16:5
      |
-  15 |         Mapping::get(values, 0u8);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+  16 |     Mapping::get(values, 0u8);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {
      |         ^^^^^^^^^
-Warning [WTYC0372002]: The async function `finalize_finalize_no_params` is never called by an async transition.
-    --> compiler-test:18:5
-     |
-  18 |     async function finalize_finalize_no_params() {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  19 |         foo();
-     |         ^^^^^^
-  20 |         bar();
-     |         ^^^^^^
-  21 |     }
-     |     ^

@@ -5,8 +5,8 @@ program unsigned.aleo {
     storage counter_u64: u64;
     storage counter_u128: u128;
 
-    async transition initialize() -> Future {
-        return async {
+    fn initialize() -> Final {
+        return final {
             // Integers
             counter_u8 = 1;
             counter_u16 = 2;
@@ -16,8 +16,8 @@ program unsigned.aleo {
         };
     }
 
-    async transition to_none() -> Future {
-        return async {
+    fn to_none() -> Final {
+        return final {
             // Integers
             counter_u8 = none;
             counter_u16 = none;
@@ -27,8 +27,8 @@ program unsigned.aleo {
         };
     }
 
-    async transition check1() -> Future {
-        return async {
+    fn check1() -> Final {
+        return final {
             // Integers
             assert(counter_u8.unwrap() == 1);
             assert(counter_u16.unwrap() == 2);
@@ -38,8 +38,8 @@ program unsigned.aleo {
         };
     }
 
-    async transition check2() -> Future {
-        return async {
+    fn check2() -> Final {
+        return final {
             // Integers
             assert(counter_u8.unwrap_or(0) == 1);
             assert(counter_u16.unwrap_or(0) == 2);
@@ -50,5 +50,5 @@ program unsigned.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

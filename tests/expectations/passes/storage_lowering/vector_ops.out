@@ -2,14 +2,14 @@ program singleton_storage.aleo {
     mapping counter__: bool => u8;
     mapping vec__: u32 => u8;
     mapping vec__len__: bool => u32;
-    async transition push() -> Future<Fn()> {
+    fn push() -> Final<Fn()> {
         return async {
             let $len_var$0 = _mapping_get_or_use(singleton_storage.aleo/vec__len__, false, 0u32);
             _mapping_set(singleton_storage.aleo/vec__len__, false, $len_var$0 + 1u32);
             _mapping_set(singleton_storage.aleo/vec__, $len_var$0, 42u8);
         };
     }
-    async transition pop() -> Future<Fn()> {
+    fn pop() -> Final<Fn()> {
         return async {
             let $len_var$1 = _mapping_get_or_use(singleton_storage.aleo/vec__len__, false, 0u32);
             _mapping_set(singleton_storage.aleo/vec__len__, false, $len_var$1 > 0u32 ? $len_var$1.sub_wrapped(1u32) : $len_var$1);
@@ -17,19 +17,19 @@ program singleton_storage.aleo {
             assert(x != none);
         };
     }
-    async transition get() -> Future<Fn()> {
+    fn get() -> Final<Fn()> {
         return async {
             let $len_var$2 = _mapping_get_or_use(singleton_storage.aleo/vec__len__, false, 0u32);
             let x = 3u32 < $len_var$2 ? _mapping_get_or_use(singleton_storage.aleo/vec__, 3u32, 0u8) : none;
             assert(x != none);
         };
     }
-    async transition clear() -> Future<Fn()> {
+    fn clear() -> Final<Fn()> {
         return async {
             _mapping_set(singleton_storage.aleo/vec__len__, false, 0u32);
         };
     }
-    async transition swap_remove() -> Future<Fn()> {
+    fn swap_remove() -> Final<Fn()> {
         return async {
             let $len_var$3 = _mapping_get_or_use(singleton_storage.aleo/vec__len__, false, 0u32);
             assert(3u32 < $len_var$3);
@@ -40,7 +40,7 @@ program singleton_storage.aleo {
             assert(x >= 0);
         };
     }
-    async transition set() -> Future<Fn()> {
+    fn set() -> Final<Fn()> {
         return async {
             let $len_var$5 = _mapping_get_or_use(singleton_storage.aleo/vec__len__, false, 0u32);
             assert(3u32 < $len_var$5);
@@ -48,3 +48,4 @@ program singleton_storage.aleo {
         };
     }
 }
+

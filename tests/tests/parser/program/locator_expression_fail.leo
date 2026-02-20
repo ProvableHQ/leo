@@ -2,11 +2,11 @@
 program relay.aleo {
     mapping users: address => bool;
 
-    transition send(addr: address) -> Future {
+    fn send(addr: address) -> Final {
         let a: mapping = relay.aleo/users;
-        return finalize_send(addr);
+        return final { finalize_send(addr); };
     }
-    async function finalize_send(addr: address) {
-        let a:bool = Mapping::get(relay.aleo/users, addr);
-    }
+}
+final fn finalize_send(addr: address) {
+    let a:bool = Mapping::get(relay.aleo/users, addr);
 }

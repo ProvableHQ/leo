@@ -431,9 +431,9 @@ program {name}.aleo {{
     //  - @custom
     // For more information, please refer to the documentation: `https://docs.leo-lang.org/guides/upgradability`
     @noupgrade
-    async constructor() {{}}
+    constructor() {{}}
 
-    transition main(public a: u32, b: u32) -> u32 {{
+    fn main(public a: u32, b: u32) -> u32 {{
         let c: u32 = a + b;
         return c;
     }}
@@ -448,20 +448,20 @@ fn test_template(name: &str) -> String {
 import {name}.aleo;
 program test_{name}.aleo {{
     @test
-    script test_it() {{
-        let result: u32 = {name}.aleo/main(1u32, 2u32);
-        assert_eq(result, 3u32);
-    }}
-
-    @test
     @should_fail
-    transition do_nothing() {{
+    fn do_nothing() {{
         let result: u32 = {name}.aleo/main(2u32, 3u32);
         assert_eq(result, 3u32);
     }}
 
     @noupgrade
-    async constructor() {{}}
+    constructor() {{}}
+}}
+
+@test
+script test_it() {{
+    let result: u32 = {name}.aleo/main(1u32, 2u32);
+    assert_eq(result, 3u32);
 }}
 "#
     )

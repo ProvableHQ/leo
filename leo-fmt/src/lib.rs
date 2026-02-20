@@ -25,7 +25,7 @@
 //! ```ignore
 //! use leo_fmt::format_source;
 //!
-//! let source = "program test.aleo{transition main()->u64{return 1u64;}}";
+//! let source = "program test.aleo{fn main()->u64{return 1u64;}}";
 //! let formatted = format_source(source);
 //! ```
 

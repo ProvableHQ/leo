@@ -6,7 +6,7 @@ program token.aleo {
         amount:    u64,
     }
 
-    transition mint(   receiver :
+    fn mint(   receiver :
         address,    amount:u64) -> Token {
         return Token {
             owner:    receiver,
@@ -16,7 +16,7 @@ program token.aleo {
 
     $!^$$*^%# random non leo input ***
 
-    transition transfer(   sender :    Token ,
+    fn transfer(   sender :    Token ,
                 receiver :    address,    amount:u64) -> (Token, Token) {
         let difference: u64 =       sender.amount  -  amount;
         let remaining: Token =    Token {

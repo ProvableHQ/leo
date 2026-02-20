@@ -1,29 +1,29 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    async transition main_inner(public a: u32, b: u32) -> (u32, Future<Fn(u32)>) {
+    fn main_inner(public a: u32, b: u32) -> (u32, Final<Fn()>) {
         let c: u32 = a + b;
-        let f: Future<Fn(u32)> = finalize(1u32);
+        let f: Final<Fn()> = final { finalize(1u32); };
         return (c, f);
     }
+}
 
-    async function finalize(a:u32) {
-        Mapping::set(foo, a, 1u32);
-    }
+final fn finalize(a:u32) {
+    Mapping::set(foo, a, 1u32);
 }
 
 // --- Next Program --- //
 
 import test.aleo;
 program basic.aleo {
-    async transition main(public a: u32, b: u32) -> (u32, Future<Fn(u32, u32, Future<Fn(u32)>)>) {
+    fn main(public a: u32, b: u32) -> (u32, Final<Fn(u32, u32, Final<Fn()>)>) {
         let c: u32 = a + b;
-        let (d, f1): (u32, Future<Fn(u32)>) = test.aleo/main_inner(1u32, 1u32);
-        let f:Future<Fn(u32, u32, Future<Fn(u32)>)> = finalize(a, c, f1);
+        let (d, f1): (u32, Final<Fn()>) = test.aleo/main_inner(1u32, 1u32);
+        let f:Final<Fn(u32, u32, Final<Fn()>)> = final { finalize(a, c, f1); };
         return (c,f);
     }
+}
 
-    async function finalize(a: u32, b:u32, f: Future<Fn(u32)>) {
-        f.await();
-        assert_eq(a, b);
-    }
+final fn finalize(a: u32, b:u32, f: Final<Fn()>) {
+    f.run();
+    assert_eq(a, b);
 }

@@ -3,7 +3,7 @@ program test.aleo {
         is_some: bool,
         val: u32,
     }
-    transition assign_optional_from_unwrap() -> u32 {
+    fn assign_optional_from_unwrap() -> u32 {
         let a: test.aleo/"u32?" = test.aleo/"u32?" { is_some: true, val: 5u32 };
         assert(a.is_some);
         let b: test.aleo/"u32?" = test.aleo/"u32?" { is_some: true, val: a.val };
@@ -16,3 +16,4 @@ program test.aleo {
         return b.val + c.val + d.val;
     }
 }
+

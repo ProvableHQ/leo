@@ -1,5 +1,6 @@
 program test.aleo{
-        function process(  a  : u64  )  ->  u64  {
+}
+        fn process(  a  : u64  )  ->  u64  {
                         // validate input
         assert(  a  >  0u64  );
     // compute result
@@ -9,4 +10,3 @@ program test.aleo{
       // return
     return y;
         }
-}

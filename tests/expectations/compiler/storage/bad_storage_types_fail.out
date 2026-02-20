@@ -21,8 +21,8 @@ Error [ETYC0372166]: signature is an invalid storage type
 Error [ETYC0372166]: future is an invalid storage type
     --> compiler-test:6:5
      |
-   6 |     storage future_storage: Future;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   6 |     storage future_storage: Final;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: optional is an invalid storage type
     --> compiler-test:7:5
      |
@@ -61,13 +61,13 @@ Error [ETYC0372166]: signature is an invalid storage type
 Error [ETYC0372166]: future is an invalid storage type
     --> compiler-test:20:5
      |
-  20 |     storage array_future: [Future; 2];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  20 |     storage array_future: [Final; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: future is an invalid storage type
     --> compiler-test:20:5
      |
-  20 |     storage array_future: [Future; 2];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  20 |     storage array_future: [Final; 2];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: optional is an invalid storage type
     --> compiler-test:21:5
      |
@@ -116,8 +116,8 @@ Error [ETYC0372166]: signature is an invalid storage type
 Error [ETYC0372166]: future is an invalid storage type
     --> compiler-test:29:5
      |
-  29 |     storage vec_future: [Future];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  29 |     storage vec_future: [Final];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372166]: optional is an invalid storage type
     --> compiler-test:30:5
      |

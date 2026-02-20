@@ -63,26 +63,26 @@ impl AstVisitor for FutureChecker<'_> {
             Some(Type::Future(..)) if is_call | is_async_block => {
                 // A call producing a Future may appear in any of these positions.
                 if !matches!(additional, Await | Return | FunctionArgument | LastTupleLiteral | Definition) {
-                    self.emit_err(StaticAnalyzerError::misplaced_future(input.span()));
+                    self.emit_err(StaticAnalyzerError::misplaced_final(input.span()));
                 }
             }
             Some(Type::Future(..)) => {
                 // A Future expression that's not a call may appear in any of these positions.
                 if !matches!(additional, Await | Return | FunctionArgument | LastTupleLiteral | TupleAccess) {
-                    self.emit_err(StaticAnalyzerError::misplaced_future(input.span()));
+                    self.emit_err(StaticAnalyzerError::misplaced_final(input.span()));
                 }
             }
             Some(Type::Tuple(tuple)) if !matches!(tuple.elements().last(), Some(Type::Future(_))) => {}
             Some(Type::Tuple(..)) if is_call => {
                 // A call producing a Tuple ending in a Future may appear in any of these positions.
                 if !matches!(additional, Return | Definition) {
-                    self.emit_err(StaticAnalyzerError::misplaced_future(input.span()));
+                    self.emit_err(StaticAnalyzerError::misplaced_final(input.span()));
                 }
             }
             Some(Type::Tuple(..)) => {
                 // A Tuple ending in a Future that's not a call may appear in any of these positions.
                 if !matches!(additional, Return | TupleAccess) {
-                    self.emit_err(StaticAnalyzerError::misplaced_future(input.span()));
+                    self.emit_err(StaticAnalyzerError::misplaced_final(input.span()));
                 }
             }
             _ => {}
@@ -140,8 +140,7 @@ impl AstVisitor for FutureChecker<'_> {
         input: &leo_ast::IntrinsicExpression,
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        let position = if let Some(Intrinsic::FutureAwait) = Intrinsic::from_symbol(input.name, &input.type_parameters)
-        {
+        let position = if let Some(Intrinsic::FinalRun) = Intrinsic::from_symbol(input.name, &input.type_parameters) {
             Position::Await
         } else {
             Position::Misc

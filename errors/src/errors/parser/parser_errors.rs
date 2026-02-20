@@ -476,4 +476,47 @@ create_messages!(
         msg: "Identifiers cannot start with an underscore.",
         help: Some("Identifiers must start with a letter.".to_string()),
     }
+
+    @formatted
+    missing_program_declaration {
+        args: (),
+        msg: "A Leo program must have exactly one `program` declaration.",
+        help: Some("Add a `program` block to define your program's entry point fns.".to_string()),
+    }
+
+    @formatted
+    multiple_program_declarations {
+        args: (),
+        msg: "A Leo program can only have one `program` declaration.",
+        help: Some("Remove the duplicate `program` block. Only one is allowed per program.".to_string()),
+    }
+
+    @formatted
+    const_must_be_outside_program_block {
+        args: (),
+        msg: "Constant declarations must be outside the `program` block.",
+        help: Some("Move this constant declaration to the top level, before the `program` block.".to_string()),
+    }
+
+    @formatted
+    composite_must_be_outside_program_block {
+        args: (type_name: impl Display),
+        msg: format!("{type_name} declarations must be outside the `program` block."),
+        help: Some("Move this type declaration to the top level, before the `program` block.".to_string()),
+    }
+
+    // Unused
+    @formatted
+    only_entry_point_fns_allowed_in_program_block {
+        args: (variant: impl Display),
+        msg: format!("Only entry point fns can be declared inside the `program` block, found `{variant}`."),
+        help: Some("Move regular fns outside the `program` block. Only entry point fns belong inside.".to_string()),
+    }
+
+    @formatted
+    entry_points_must_be_in_program_block {
+        args: (),
+        msg: "Entry point fns must be declared inside the `program` block.",
+        help: Some("Move this function into the `program` block to make it an entry point fn.".to_string()),
+    }
 );

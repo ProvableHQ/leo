@@ -1,24 +1,24 @@
-Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:10:5
+Error [ETYC0372106]: A final fn is not allowed to return a value.
+    --> compiler-test:13:1
      |
-  10 |     async function finalize_mint_public (public receiver: address, public amount: u64) -> u64 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |         Mapping::set(account, receiver, amount);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  12 |         return amount;
-     |         ^^^^^^^^^^^^^^
-  13 |     }
-     |     ^
+  13 | final fn finalize_mint_public (public receiver: address, public amount: u64) -> u64 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |     Mapping::set(account, receiver, amount);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 |     return amount;
+     |     ^^^^^^^^^^^^^^
+  16 | }
+     | ^
      |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:17:7
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+Error [ETYC0372106]: A final fn is not allowed to return a value.
+    --> compiler-test:18:1
      |
-  17 |     } async function finalize_public_adder(a: u8, b: u8) -> public u8 {
-     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  18 |         return a + b;
-     |         ^^^^^^^^^^^^^
-  19 |     }
-     |     ^
+  18 | final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 |     return a + b;
+     |     ^^^^^^^^^^^^^
+  20 | }
+     | ^
      |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.

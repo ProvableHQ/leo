@@ -1,7 +1,7 @@
 
 program test.aleo {
 
-    transition main(a: u32, b: u32) -> bool {
+    fn main(a: u32, b: u32) -> bool {
         // unary
         let h: u32 = a.not();
 

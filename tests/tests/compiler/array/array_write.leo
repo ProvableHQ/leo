@@ -1,29 +1,34 @@
 
-program test.aleo {
-    struct S {
-        x: u8,
-        y: u32,
-    }
+struct S {
+    x: u8,
+    y: u32,
+}
 
-    transition simple_struct(a: S) -> S {
+
+struct T {
+    x: u8,
+    y: [S; 3],
+    z: S,
+}
+
+final fn f_finalize(x: u8) {
+    assert_eq(x, x);
+}
+
+program test.aleo {
+    fn simple_struct(a: S) -> S {
         a.x = 1u8;
         a.y = a.y + 2u32;
         return a;
     }
 
-    transition nested(a: [[[bool; 2]; 2]; 2]) -> [[[bool; 2]; 2]; 2] {
+    fn nested(a: [[[bool; 2]; 2]; 2]) -> [[[bool; 2]; 2]; 2] {
         a[0u8][0u8][0u8] = true;
         a[1u8][1u8] = [true, false];
         return a;
     }
 
-    struct T {
-        x: u8,
-        y: [S; 3],
-        z: S,
-    }
-
-    transition nested2(s: S, t: T) -> (S, T) {
+    fn nested2(s: S, t: T) -> (S, T) {
         s.y = s.y + 1u32;
         t.z = s;
         t.y[1u8] = s;
@@ -31,7 +36,7 @@ program test.aleo {
         return (s, t);
     }
 
-    transition with_tuples(s: S, t: T) -> (S, T) {
+    fn with_tuples(s: S, t: T) -> (S, T) {
         let st: (S, T) = (s, T { x: t.x, y: t.y, z: s});
         st.1 = t;
         st.0.x = 1u8;
@@ -39,7 +44,7 @@ program test.aleo {
         return st;
     }
 
-    transition in_conditional(t: T, x: bool) -> T {
+    fn in_conditional(t: T, x: bool) -> T {
         if x {
             t.x = 1u8;
         } else {
@@ -56,12 +61,8 @@ program test.aleo {
         x: u8,
     }
 
-    async function f_finalize(x: u8) {
-        assert_eq(x, x);
-    }
-
-    async transition f_record() -> (R, Future) {
-        let fut: Future = f_finalize(1u8);
+    fn f_record() -> (R, Final) {
+        let fut: Final = final { f_finalize(1u8); };
         let r: R = R {
             owner: self.signer,
             x: 1u8,
@@ -70,7 +71,7 @@ program test.aleo {
         return (r, fut);
     }
 
-    transition in_loops(xs: [u8; 8]) -> [u8; 8] {
+    fn in_loops(xs: [u8; 8]) -> [u8; 8] {
         for i: u8 in 0u8..7u8 {
             for j: u8 in 0u8..7u8 - i {
                 if xs[j] < xs[j+1u8] {

@@ -279,15 +279,15 @@ create_messages!(
     @formatted
     regular_function_inputs_cannot_have_modes {
         args: (),
-        msg: format!("Standard functions cannot have modes associated with their inputs."),
-        help: Some("Consider removing the mode or using the keyword `transition` instead of `function`.".to_string()),
+        msg: format!("Regular fns cannot have modes associated with their inputs."),
+        help: Some("Consider removing the mode or moving this function inside the `program` block to make it an entry point fn.".to_string()),
     }
 
     // Not currently used
     @formatted
-    async_function_input_cannot_be_private {
+    final_function_input_cannot_be_private {
         args: (),
-        msg: format!("Async functions cannot have private inputs."),
+        msg: format!("Final fns cannot have private inputs."),
         help: Some("Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
     }
 
@@ -306,9 +306,9 @@ create_messages!(
     }
 
     @formatted
-    async_function_input_must_be_public {
+    final_fn_input_must_be_public {
         args: (),
-        msg: format!("An input to an async function must be public."),
+        msg: format!("An input to an final fn must be public."),
         help: Some("Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
     }
 
@@ -316,22 +316,22 @@ create_messages!(
     @formatted
     finalize_output_mode_must_be_public {
         args: (),
-        msg: format!("An output from an async function block must be public."),
+        msg: format!("An output from a final block must be public."),
         help: Some("Use a `public` modifier to the output type declaration or remove the visibility modifier entirely.".to_string()),
     }
 
     @formatted
     invalid_operation_outside_finalize {
         args: (operation: impl Display),
-        msg: format!("`{operation}` must be inside an async function or an async block."),
+        msg: format!("`{operation}` must be inside a `final fn` or a `final` block."),
         help: None,
     }
 
     @formatted
-    loop_body_contains_async {
-        args: (kind: impl Display),
-        msg: format!("Loop body contains an async {kind}."),
-        help: Some(format!("Remove the async {kind}.")),
+    loop_body_contains_final {
+        args: (),
+        msg: format!("Loop body contains a final context."),
+        help: Some("Remove the final context.".into()),
     }
 
     @formatted
@@ -345,7 +345,7 @@ create_messages!(
     @formatted
     finalize_block_must_not_be_empty {
         args: (),
-        msg: format!("An async function call block cannot be empty."),
+        msg: format!("A final block cannot be empty."),
         help: None,
     }
 
@@ -357,9 +357,9 @@ create_messages!(
     }
 
     @formatted
-    transition_function_inputs_cannot_be_const {
+    entry_point_fn_inputs_cannot_be_const {
         args: (),
-        msg: format!("Transition functions cannot have constant inputs."),
+        msg: format!("Entry point functions cannot have constant inputs."),
         help: None,
     }
 
@@ -380,14 +380,14 @@ create_messages!(
     @formatted
     can_only_call_inline_function {
         args: (kind: impl Display),
-        msg: format!("Only `inline` can be called from {kind}."),
+        msg: format!("Only regular fns can be called from {kind}."),
         help: None,
     }
 
     @formatted
-    cannot_invoke_call_to_local_transition_function {
+    cannot_invoke_call_to_local_entry_point_fn {
         args: (),
-        msg: format!("Cannot call a local transition function from a transition function."),
+        msg: format!("Cannot call a local entry point fn from an entry point fn."),
         help: None,
     }
 
@@ -413,9 +413,9 @@ create_messages!(
     }
 
     @formatted
-    too_many_transitions {
+    too_many_entry_points {
         args: (max: impl Display),
-        msg: format!("The number of transitions exceeds the maximum. snarkVM allows up to {max} transitions within a single program."),
+        msg: format!("The number of entry point fns exceeds the maximum. snarkVM allows up to {max} entry point fns within a single program."),
         help: None,
     }
 
@@ -487,7 +487,7 @@ create_messages!(
     @formatted
     function_cannot_input_or_output_a_record {
         args: (),
-        msg: format!("Only `transition` functions can have a record as input or output."),
+        msg: format!("Only entry point fns can have a record as input or output."),
         help: None,
     }
 
@@ -518,10 +518,11 @@ create_messages!(
         help: None,
     }
 
+    // Unused
     @formatted
     cannot_call_external_inline_function {
         args: (),
-        msg: format!("Cannot call an external `inline` function."),
+        msg: format!("Cannot call an external inline function."),
         help: None,
     }
 
@@ -563,14 +564,14 @@ create_messages!(
     @formatted
     invalid_operation_inside_finalize {
         args: (operation: impl Display),
-        msg: format!("`{operation}` is not a valid operand in an async function call context."),
+        msg: format!("`{operation}` is not a valid operand in a finalization context."),
         help: None,
     }
 
     @formatted
-    operation_must_be_in_async_block_or_function {
+    operation_must_be_in_final_block_or_function {
         args: (),
-        msg: "This operation can only be used in an async function, an async block, or script.".to_string(),
+        msg: "This operation can only be used in a final fn, a final block, or script.".to_string(),
         help: None,
     }
 
@@ -621,7 +622,7 @@ create_messages!(
     @formatted
     stub_functions_must_not_be_inlines {
         args: (),
-        msg: format!("Function stubs must be transitions or functions not inlines"),
+        msg: format!("Function stubs must be entry point fns or regular fns"),
         help: None,
     }
 
@@ -663,14 +664,14 @@ create_messages!(
     @formatted
     stubs_cannot_have_non_record_structs {
         args: (),
-        msg: format!("Stubs can only have records, transitions, functions, mappings and imports -- found non-record struct"),
+        msg: format!("Stubs can only have records, entry point fns, regular fns, mappings and imports -- found non-record struct"),
         help: None,
     }
 
     @formatted
     stubs_cannot_have_const_declarations {
         args: (),
-        msg: format!("Stubs can only have records, transitions, functions, mappings and imports -- found const declaration"),
+        msg: format!("Stubs can only have records, entry point fns, regular fns, mappings and imports -- found const declaration"),
         help: None,
     }
 
@@ -682,9 +683,9 @@ create_messages!(
     }
 
     @formatted
-    no_transitions {
+    no_entry_points {
         args: (),
-        msg: "A program must have at least one transition function.".to_string(),
+        msg: "A program must have at least one entry point fn.".to_string(),
         help: None,
     }
 
@@ -703,163 +704,168 @@ create_messages!(
     }
 
     @formatted
-    async_transition_invalid_output {
+    entry_point_fn_final_invalid_output {
         args: (),
-        msg: "An async transition must return a future as the final output, and in no other position return a future.".to_string(),
-        help: Some("Example: `async transition foo() -> (u8, bool, Future) {...}`".to_string()),
+        msg: "An entry point fn returning Final must return a Final as the final output, and in no other position return a Final.".to_string(),
+        help: Some("Example: `fn foo() -> (u8, bool, Final) {...}`".to_string()),
     }
 
     @formatted
-    must_propagate_all_futures {
+    must_propagate_all_finals {
         args: (never_propagated: impl Display),
-        msg: format!("All futures generated from external transition calls must be inserted into an async function call in the order they were called. The following were never were: {never_propagated}"),
-        help: Some("Example: `async transition foo() -> Future { let a: Future = b.aleo/bar(); return await_futures(a); }`".to_string()),
+        msg: format!("All Finals generated from external calls must be inserted into a final block in the order they were called. The following were never were: {never_propagated}"),
+        help: Some("Example: `fn foo() -> Final { let a: Final = b.aleo/bar(); return final {{ a.run(); }}; }`".to_string()),
     }
 
+    // deprecated
     @formatted
-    missing_async_operation_in_async_transition {
+    missing_final_operation_in_entry_point_with_final {
         args: (),
-        msg: "An `async` transition must contain at least one async operation — either a call to an `async` function or an `async` block.".to_string(),
-        help: Some("Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`".to_string()),
+        msg: "An entry point fn returning `Final` must contain at least one finalization operation — either a call to a `final fn` or a `final` block.".to_string(),
+        help: Some("Example: `fn foo() -> Final { return final {{ /* on-chain code */ }}; }`".to_string()),
     }
 
     // TODO This error is unused. Remove it in a future version.
     @formatted
-    async_function_input_length_mismatch {
+    final_function_input_length_mismatch {
         args: (expected: impl Display, received: impl Display),
         msg: format!("Expected `{expected}` inputs, but got `{received}`"),
-        help: Some("Check that the number of arguments passed in are the same as the number in the function signature. Ex: `async function foo(a: u8, b: u8)` has two input arguments.".to_string()),
+        help: Some("Check that the number of arguments passed in are the same as the number in the function signature. Ex: `final fn foo(a: u8, b: u8)` has two input arguments.".to_string()),
     }
 
     @formatted
-    invalid_future_access {
+    invalid_final_access {
         args: (num: impl Display, len: impl Display),
         msg: format!(
-            "Cannot access argument `{num}` from future. The future only has `{len}` arguments."
+            "Cannot access argument `{num}` from Final. The Final only has `{len}` arguments."
         ),
         help: None,
     }
 
     @formatted
-    future_access_must_be_number {
+    final_access_must_be_number {
         args: (name: impl Display),
-        msg: format!("Future access must be a number not `{name}`."),
-        help: Some(" Future arguments must be addressed by their index. Ex: `f.1.3`.".to_string()),
+        msg: format!("Final access must be a number not `{name}`."),
+        help: Some(" Final arguments must be addressed by their index. Ex: `f.1.3`.".to_string()),
     }
 
     // TODO: This error is deprecated. Remove.
     @formatted
-    no_path_awaits_all_futures_exactly_once {
+    no_path_awaits_all_finals_exactly_once {
         args: (num_total_paths: impl Display),
-        msg: format!("Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."),
-        help: Some("Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures.".to_string()),
+        msg: format!("Finals must be run exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all Finals are run exactly once."),
+        help: Some("Ex: for `f: Final` call `f.run()` to run a Final. Remove duplicate Final run redundancies, and add Final runs for un-run Finals.".to_string()),
     }
 
     // TODO: This error is deprecated. Remove.
     @formatted
-    future_awaits_missing {
+    final_runs_missing {
         args: (unawaited: impl Display),
-        msg: format!("The following futures were never awaited: {unawaited}"),
-        help: Some("Ex: for `f: Future` call `f.await()` to await a future.".to_string()),
+        msg: format!("The following Finals were never run: {unawaited}"),
+        help: Some("Ex: for `f: Final` call `f.run()` to run a Final.".to_string()),
     }
 
     @formatted
-    cannot_reassign_future_variable {
+    cannot_reassign_final_variable {
         args: (var: impl Display),
-        msg: format!("Cannot reassign variable `{var}` since it has type Future."),
-        help: Some("Futures can only be defined as the result of async calls.".to_string()),
+        msg: format!("Cannot reassign variable `{var}` since it has type Final."),
+        help: Some("Finals can only be defined as the result of final fn calls or final blocks.".to_string()),
     }
 
     // TODO: This error is deprecated. Remove.
     @formatted
     invalid_await_call {
         args: (),
-        msg: "Not a valid await call.".to_string(),
-        help: Some("Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future.".to_string()),
+        msg: "Not a valid run call.".to_string(),
+        help: Some("Ex: for `f: Final` call `f.run()` to run a Final.".to_string()),
     }
 
     @formatted
-    can_only_await_one_future_at_a_time {
+    can_only_run_one_final_at_a_time {
         args: (),
-        msg: "Must await exactly one future at a time".to_string(),
-        help: Some("Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future.".to_string()),
+        msg: "Must run exactly one Final at a time".to_string(),
+        help: Some("Ex: for `f: Final` call `f.run()` to run a Final.".to_string()),
     }
 
     // TODO: This error is deprecated. Remove.
     @formatted
-    expected_future {
+    expected_final {
         args: (type_: impl Display),
-        msg: format!("Expected a future, but found `{type_}`"),
-        help: Some("Only futures can be awaited.".to_string()),
+        msg: format!("Expected a Final, but found `{type_}`"),
+        help: Some("Only Finals can be run.".to_string()),
     }
 
     @formatted
     invalid_method_call {
         args: (),
         msg: "Not a valid method call.".to_string(),
-        help: Some("For a `f: Future`, call the associated method `f.await()`.".to_string()),
+        help: Some("For a `f: Final`, call the associated method `f.run()`.".to_string()),
     }
 
+    // deprecated
     @formatted
-    async_call_in_conditional {
+    final_call_in_conditional {
         args: (),
-        msg: "Cannot call an async function in a conditional block.".to_string(),
-        help: Some("Move the async call outside of the conditional block.".to_string()),
+        msg: "Cannot call a final fn in a conditional block.".to_string(),
+        help: Some("Move the final fn call outside of the conditional block.".to_string()),
     }
 
+    // deprecated
     @formatted
-    must_call_async_function_once {
+    must_call_final_fn_once {
         args: (),
-        msg: "Must call exactly one local async function per transition function.".to_string(),
-        help: Some("Move the async call outside of the transition block.".to_string()),
+        msg: "Must call exactly one local final fn per entry point fn.".to_string(),
+        help: Some("Move the final fn call outside of the entry point fn.".to_string()),
     }
 
+    // deprecated
     @formatted
-    async_call_can_only_be_done_from_async_transition {
+    final_call_can_only_be_done_from_final_entry_point {
         args: (),
-        msg: "Can only make an async call from an async transition.".to_string(),
-        help: Some("Move the async call inside of the async transition block.".to_string()),
+        msg: "Can only call a final fn from an entry point fn returning Final.".to_string(),
+        help: Some("Move the final fn call inside an entry point fn that returns Final.".to_string()),
     }
 
     @formatted
-    external_call_after_async {
+    external_call_after_final {
         args: (kind: impl Display),
-        msg: format!("External transition calls must appear before the local async {kind}."),
-        help: Some(format!("Reorder your code so the external transition call happens before the local async {kind}.")),
+        msg: format!("External calls must appear before the local final {kind}."),
+        help: Some(format!("Reorder your code so the external entry point fn call happens before the local final {kind}.")),
     }
 
     @formatted
-    unknown_future_consumed {
-        args: (future: impl Display),
-        msg: format!("Unknown future consumed: `{future}`"),
-        help: Some("Make sure the future is defined and consumed exactly once.".to_string()),
+    unknown_final_consumed {
+        args: (fin: impl Display),
+        msg: format!("Unknown Final consumed: `{fin}`"),
+        help: Some("Make sure the Final is defined and consumed exactly once.".to_string()),
     }
 
     @formatted
-    not_all_futures_consumed {
+    not_all_finals_consumed {
         args: (unconsumed: impl Display),
-        msg: format!("Not all futures were consumed: {unconsumed}"),
-        help: Some("Make sure all futures are consumed exactly once. Consume by passing to an async function call or async block.".to_string()),
+        msg: format!("Not all Finals were consumed: {unconsumed}"),
+        help: Some("Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.".to_string()),
     }
 
     @formatted
-    async_transition_missing_future_to_return {
+    entry_point_missing_final_to_return {
         args: (),
-        msg: "An async transition must return a future.".to_string(),
-        help: Some("Call an async function or instantiate an async block inside of the async transition body so that there is a future to return.".to_string()),
+        msg: "An entry point fn returning Final must return a Final.".to_string(),
+        help: Some("Instantiate a final block inside the entry point fn body so that there is a Final to return.".to_string()),
     }
 
     @formatted
-    async_function_cannot_return_value {
+    final_fn_cannot_return_value {
         args: (),
-        msg: "An async function is not allowed to return a value.".to_string(),
-        help: Some("Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.".to_string()),
+        msg: "A final fn is not allowed to return a value.".to_string(),
+        help: Some("Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.".to_string()),
     }
 
+    // deprecated
     @formatted
-    return_type_of_finalize_function_is_future {
+    return_type_of_finalize_function_is_final {
         args: (),
-        msg: "The output of an async function must be assigned to a `Future` type..".to_string(),
+        msg: "The output of a final fn must be assigned to a `Final` type.".to_string(),
         help: None,
     }
 
@@ -879,24 +885,25 @@ create_messages!(
     }
 
     @formatted
-    async_cannot_assign_outside_conditional {
+    final_cannot_assign_outside_conditional {
         args: (variable: impl Display, kind: impl Display),
-        msg: format!("Cannot re-assign to `{variable}` from a conditional scope to an outer scope in an async {kind}."),
-        help: Some("This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in async functions.".to_string()),
+        msg: format!("Cannot re-assign to `{variable}` from a conditional scope to an outer scope in a final {kind}."),
+        help: Some("This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/ProvableHQ/ARCs) will support more complex assignments in final fns.".to_string()),
     }
 
     @formatted
-    only_async_transition_can_return_future {
+    only_entry_point_can_return_final {
         args: (),
-        msg: "Only `async transition` can return a future.".to_string(),
-        help: Some("Use an `async transition` instead.".to_string()),
+        msg: "Only entry point fns can return a Final.".to_string(),
+        help: Some("Move this function inside the `program` block to make it an entry point fn.".to_string()),
     }
 
+    // deprecated
     @formatted
-    async_function_not_found {
+    final_fn_not_found {
         args: (name: impl Display),
-        msg: format!("The async function `{name}` does not exist."),
-        help: Some(format!("Ensure that `{name}` is defined as an async function in the current program.")),
+        msg: format!("The final fn `{name}` does not exist."),
+        help: Some(format!("Ensure that `{name}` is defined as a `final fn` in the current program.")),
     }
 
     @formatted
@@ -914,23 +921,23 @@ create_messages!(
     }
 
     @formatted
-    composite_data_type_cannot_contain_future {
+    composite_data_type_cannot_contain_final {
         args: (data_type: impl Display),
-        msg: format!("A {data_type} cannot contain a future."),
+        msg: format!("A {data_type} cannot contain a Final."),
         help: None,
     }
 
     @formatted
-    array_element_cannot_be_future {
+    array_element_cannot_be_final {
         args: (),
-        msg: format!("An array cannot have a future as an element type."),
+        msg: format!("An array cannot have a Final as an element type."),
         help: None,
     }
 
     @formatted
-    no_future_parameters {
+    no_final_parameters {
         args: (),
-        msg: format!("Futures may only appear as parameters to async functions."),
+        msg: format!("Finals may only appear as parameters to final fn."),
         help: None,
     }
 
@@ -999,11 +1006,11 @@ create_messages!(
     }
 
     @formatted
-    future_error_member {
+    final_error_member {
         args: (num: impl Display),
-        msg: format!("Cannot access argument `{num}` from future."),
+        msg: format!("Cannot access argument `{num}` from Final."),
         help: Some(
-            "Ensure that the async function is not called with multiple times with incompatible types.".to_string()
+            "Ensure that the final fn is not called multiple times with incompatible types.".to_string()
         ),
     }
 
@@ -1015,9 +1022,9 @@ create_messages!(
     }
 
     @formatted
-    records_not_allowed_inside_async {
-        args: (kind: impl Display),
-        msg: format!("records cannot be instantiated in an async {kind} context."),
+    records_not_allowed_inside_final {
+        args: (),
+        msg: format!("records cannot be instantiated in a final context."),
         help: None,
     }
 
@@ -1025,7 +1032,7 @@ create_messages!(
     script_in_non_test {
         args: (func: impl Display),
         msg: format!("`script` {func} appears in a non-test program."),
-        help: Some("Move this to a test program, or replace it with a function or transition".to_string()),
+        help: Some("Move this to a test program, or replace it with a function.".to_string()),
     }
 
     @formatted
@@ -1145,7 +1152,7 @@ create_messages!(
     @formatted
     only_inline_can_have_const_generics {
         args: (),
-        msg: format!("Only `inline` functions can have generic const parameters."),
+        msg: format!("Only inlined functions can have generic const parameters."),
         help: None,
     }
 
@@ -1171,68 +1178,70 @@ create_messages!(
     }
 
     @formatted
-    invalid_operation_inside_async_block {
+    invalid_operation_inside_final_block {
         args: (operation: impl Display),
-        msg: format!("Invalid expression in an async block. `{operation}` cannot be used directly here"),
+        msg: format!("Invalid expression in a final block. `{operation}` cannot be used directly here"),
         help: None,
     }
 
     @formatted
-    illegal_async_block_location {
+    illegal_final_block_location {
         args: (),
-        msg: "`async` blocks are only allowed inside an `async` transition or a script function.".to_string(),
-        help: Some("Try moving this `async` block into an `async` transition or a script function.".to_string()),
+        msg: "`final` blocks are only allowed inside an entry point fn returning `Final` or a script function.".to_string(),
+        help: Some("Try moving this `final` block into an entry point fn or a script function.".to_string()),
+    }
+
+    // deprecated
+    @formatted
+    conflicting_final_call_and_block {
+        args: (),
+        msg: "An entry point fn cannot contain both a `final fn` call and a `final` block at the same time.".to_string(),
+        help: Some("Refactor the entry point fn to use either a `final fn` call or a `final` block, but not both.".to_string()),
     }
 
     @formatted
-    conflicting_async_call_and_block {
+    multiple_final_blocks_not_allowed {
         args: (),
-        msg: "A transition function cannot contain both an `async` function call and an `async` block at the same time.".to_string(),
-        help: Some("Refactor the transition to use either an `async` call or an `async` block, but not both.".to_string()),
+        msg: "An entry point fn cannot contain more than one `final` block.".to_string(),
+        help: Some("Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.".to_string()),
     }
 
     @formatted
-    multiple_async_blocks_not_allowed {
+    final_block_in_conditional {
         args: (),
-        msg: "A transition function cannot contain more than one `async` block.".to_string(),
-        help: Some("Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition.".to_string()),
+        msg: "`final` blocks are not allowed inside conditional blocks.".to_string(),
+        help: Some("Refactor your code to move the `final` block outside of the conditional block.".to_string()),
     }
 
     @formatted
-    async_block_in_conditional {
+    cannot_use_private_inpt_in_final_block {
         args: (),
-        msg: "`async` blocks are not allowed inside conditional blocks.".to_string(),
-        help: Some("Refactor your code to move the `async` block outside of the conditional block.".to_string()),
-    }
-
-    @formatted
-    cannot_use_private_inpt_in_async_block {
-        args: (),
-        msg: format!("`private` inputs cannot be used inside async blocks."),
+        msg: format!("`private` inputs cannot be used inside final blocks."),
         help: None,
     }
 
     @formatted
-    async_block_cannot_return {
+    final_block_cannot_return {
         args: (),
-        msg: "An `async` block cannot contain a `return` statement.".to_string(),
+        msg: "A `final` block cannot contain a `return` statement.".to_string(),
         help: None,
     }
 
+    // deprecated
     @formatted
-    invalid_async_block_future_access {
+    invalid_final_block_final_access {
         args: (),
         msg: format!(
-            "Cannot access argument from future produced by an `async` block."
+            "Cannot access argument from Final produced by a `final` block."
         ),
         help: None,
     }
 
     @formatted
-    cannot_assign_to_vars_outside_async_block {
+    cannot_assign_to_vars_outside_final_block {
         args: (input: impl Display),
         msg: format!(
-            "Cannot assign to `{input}` inside an `async` block because it was declared outside the block."
+            "Cannot assign to `{input}` inside a `final` block because it was declared outside the block."
         ),
         help: None,
     }
@@ -1276,7 +1285,7 @@ create_messages!(
         msg: format!(
             "The type `{ty}` cannot be wrapped in an optional.",
         ),
-        help: Some("Optionals cannot wrap signatures, futures, mappings, tuples, vectors, records, arrays whose \
+        help: Some("Optionals cannot wrap signatures, finals, mappings, tuples, vectors, records, arrays whose \
                     elements are optional-unsafe, or structures containing any such types.".to_string()),
     }
 
@@ -1313,10 +1322,10 @@ create_messages!(
     function_cannot_take_option_as_input {
         args: (name: impl Display, ty: impl Display),
         msg: format!(
-            "The input `{name}` has type `{ty}`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.",
+            "The input `{name}` has type `{ty}`, which is or contains an optional type and is not allowed as an input to an entry point fn.",
         ),
         help: Some(
-            "Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.".to_string()
+            "Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.".to_string()
         ),
     }
 
@@ -1324,10 +1333,10 @@ create_messages!(
     function_cannot_return_option_as_output {
         args: (ty: impl Display),
         msg: format!(
-            "This function has an output of type `{ty}`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.",
+            "This function has an output of type `{ty}`, which is or contains an optional type and is not allowed as an output of an entry point fn.",
         ),
         help: Some(
-            "Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.".to_string()
+            "Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.".to_string()
         ),
     }
 
@@ -1406,6 +1415,13 @@ create_messages!(
     cannot_modify_external_storage_variable {
         args: (),
         msg: format!("Assignment to storage variables of another program is not allowed. You can only modify storage declared in the current program."),
+        help: None,
+    }
+
+    @formatted
+    no_inline_not_allowed_on_final_fn {
+        args: (),
+        msg: format!("`@no_inline` is not allowed on `final fn` functions because they must always be inlined."),
         help: None,
     }
 );

@@ -1,11 +1,12 @@
 program test.aleo {
-    async transition main() -> bool {
-    }
-    async function finalize_main() {
-    }
-    function main() -> bool {
-    }
-    async function main(a: foo, b: bar) -> baz {
+    fn main() -> bool {
     }
 }
+    final fn finalize_main() {
+    }
+    fn main() -> bool {
+    }
+    final fn main(a: foo, b: bar) -> baz {
+    }
+
 

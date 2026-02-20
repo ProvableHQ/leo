@@ -328,7 +328,7 @@ pub fn evaluate_intrinsic(
             // TODO
             return Ok(None);
         }
-        Intrinsic::FutureAwait => panic!("await must be handled elsewhere"),
+        Intrinsic::FinalRun => panic!("await must be handled elsewhere"),
         Intrinsic::ProgramChecksum => {
             // TODO: This is a placeholder. The actual implementation should look up the program in the global context and get its checksum.
             return Ok(None);

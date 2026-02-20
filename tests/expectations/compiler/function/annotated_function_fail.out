@@ -1,25 +1,25 @@
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:3:5
+    --> compiler-test:4:1
      |
-   3 |     @test
-     |     ^^^^^
+   4 | @test
+     | ^^^^^
 Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on scripts and transitions.
-    --> compiler-test:3:5
+    --> compiler-test:4:1
      |
-   3 |     @test
-     |     ^^^^^
+   4 | @test
+     | ^^^^^
 Error [ETYC0372129]: Invalid annotation: A test procedure cannot have inputs.
-    --> compiler-test:4:18
+    --> compiler-test:5:8
      |
-   4 |     function foo(a: u8, b: u8) -> u8 {
-     |                  ^^^^^
+   5 | fn foo(a: u8, b: u8) -> u8 {
+     |        ^^^^^
 Error [ETYC0372027]: Unknown annotation: `@program`.
-    --> compiler-test:8:5
+    --> compiler-test:9:1
      |
-   8 |     @program
-     |     ^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+   9 | @program
+     | ^^^^^^^^
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
-   2 | program test.aleo {
+   2 | program test.aleo {}
      |         ^^^^^^^^^

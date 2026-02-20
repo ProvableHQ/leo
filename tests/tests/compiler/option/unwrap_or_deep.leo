@@ -1,22 +1,22 @@
+
+struct Inner {
+    val: u8?,
+}
+
+struct Wrapper {
+    arr: [Inner?; 1]?,
+}
+
+struct Container {
+    wrappers: [Wrapper?; 1]?,
+}
+
+struct Top {
+    container: Container?,
+}
+
 program unwrap_or_deep.aleo {
-
-    struct Inner {
-        val: u8?,
-    }
-
-    struct Wrapper {
-        arr: [Inner?; 1]?,
-    }
-
-    struct Container {
-        wrappers: [Wrapper?; 1]?,
-    }
-
-    struct Top {
-        container: Container?,
-    }
-
-    transition unwrap_or_deep() -> u8 {
+    fn unwrap_or_deep() -> u8 {
         // Top structure with missing values deep inside
         let top: Top = Top {
             container: Container {

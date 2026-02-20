@@ -1,4 +1,5 @@
-Error [EPAR0370050]: Could not lex the following content: `"}`.
+Error [EPAR0370050]: Could not lex the following content: `"}
+`.
 
     --> test:6:5
      |

@@ -1,18 +1,18 @@
 
-program test.aleo {
-    @foo(?, bar, ?)
-    function x() -> u8 {
-        return 1u8;
-    }
+program test.aleo {}
 
-    @bar(123) // ints not vali
-    function x() -> u8 {
-        return 2u8;
-    }
+@foo(?, bar, ?)
+fn x() -> u8 {
+    return 1u8;
+}
+
+@bar(123) // ints not vali
+fn x() -> u8 {
+    return 2u8;
+}
 
 
-    @context // recovery witness
-    function x() -> u8 {
-        return 3u8;
-    }
+@context // recovery witness
+fn x() -> u8 {
+    return 3u8;
 }

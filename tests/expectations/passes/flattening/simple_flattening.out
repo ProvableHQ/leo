@@ -1,5 +1,5 @@
 program test.aleo {
-    transition main(cond: bool, a: u32, b: u32) -> u32 {
+    fn main(cond: bool, a: u32, b: u32) -> u32 {
         let condition$0 = cond;
         {
         }
@@ -12,3 +12,4 @@ program test.aleo {
         return $ret$2;
     }
 }
+

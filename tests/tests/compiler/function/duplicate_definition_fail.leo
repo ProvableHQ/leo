@@ -1,10 +1,10 @@
 
-program test.aleo {
-    function main(y: bool) -> bool {
-        return y;
-    }
+program test.aleo {}
 
-    function main(y: bool) -> bool {
-        return y;
-    }
+fn main(y: bool) -> bool {
+    return y;
+}
+
+fn main(y: bool) -> bool {
+    return y;
 }

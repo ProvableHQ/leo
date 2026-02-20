@@ -1,20 +1,20 @@
 
 program test.aleo {
-    transition foo(a: [bool; 8]) -> bool {
+    fn foo(a: [bool; 8]) -> bool {
         return true;
     }
 
-    transition bar(a: [bool; 8]) -> [bool; 8] {
+    fn bar(a: [bool; 8]) -> [bool; 8] {
         return a;
     }
+}
 
-    function baz(a: [bool; 8]) -> bool {
-        assert(a[0u8]);
-        return true;
-    }
+fn baz(a: [bool; 8]) -> bool {
+    assert(a[0u8]);
+    return true;
+}
 
-    function qux(a: [bool; 8]) -> [bool; 8] {
-        assert(a[0u8]);
-        return a;
-    }
+fn qux(a: [bool; 8]) -> [bool; 8] {
+    assert(a[0u8]);
+    return a;
 }

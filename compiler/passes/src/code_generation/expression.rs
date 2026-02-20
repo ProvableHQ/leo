@@ -504,7 +504,7 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         // Add a register for async functions to represent the future created.
-        if func_symbol.function.variant == Variant::AsyncFunction {
+        if func_symbol.function.variant == Variant::Finalize {
             destinations.push(self.next_register());
         }
 
@@ -520,7 +520,7 @@ impl CodeGeneratingVisitor<'_> {
                 panic!("paths to external functions can only have a single segment at this stage.")
             };
             AleoStmt::Call(format!("{}.aleo/{}", callee_program, function_name), arguments, destinations.clone())
-        } else if func_symbol.function.variant.is_async() {
+        } else if func_symbol.function.variant.is_finalize() {
             AleoStmt::Async(self.current_function.unwrap().identifier.to_string(), arguments, destinations.clone())
         } else {
             AleoStmt::Call(input.function.identifier().to_string(), arguments, destinations.clone())
@@ -671,7 +671,7 @@ impl CodeGeneratingVisitor<'_> {
                     );
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
-                Intrinsic::FutureAwait => {
+                Intrinsic::FinalRun => {
                     let instruction = AleoStmt::Await(args[0].clone());
                     (None, vec![instruction])
                 }

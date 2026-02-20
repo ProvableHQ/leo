@@ -1,12 +1,13 @@
+@no_inline
+fn foo(a: bool) {
+    assert_eq(true, a);
+}
+
 program test.aleo {
-    function foo(a: bool) {
-        assert_eq(true, a);
-    }
-    
-    transition bar() {}
+    fn bar() {}
 
     @custom
-    async constructor() {
+    constructor() {
         foo(true);
         bar();
     }

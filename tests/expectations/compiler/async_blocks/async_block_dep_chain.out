@@ -28,8 +28,6 @@ program test.aleo;
 
 function t1:
     call dependent2.aleo/t1 into r0;
-    assert.eq 1u8 r0[0u32][0u32];
-    assert.eq 1u16 r0[0u32][1u32];
     async t1 r0 into r1;
     output r1 as test.aleo/t1.future;
 

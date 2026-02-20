@@ -1,0 +1,11 @@
+Error [EPAR0370027]: Missing a program scope in a Leo file.
+    --> test:1:1
+     |
+   1 | fn main() -> u32 {
+     | ^^^^^^^^^^^^^^^^^^
+   2 |     return 0u32;
+     |     ^^^^^^^^^^^^
+   3 | }
+     | ^
+     |
+     = Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.

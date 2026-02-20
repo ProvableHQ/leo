@@ -21,22 +21,22 @@ input = ["1u32"]
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
+//
+// ────────────────────────────────────────────────────────────────
+// Struct definitions
+// ────────────────────────────────────────────────────────────────
+//
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Container {
+    id: u32,
+    points: [Point; 2],
+}
+
 program vector_structs.aleo {
-    //
-    // ────────────────────────────────────────────────────────────────
-    // Struct definitions
-    // ────────────────────────────────────────────────────────────────
-    //
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Container {
-        id: u32,
-        points: [Point; 2],
-    }
-
     //
     // ────────────────────────────────────────────────────────────────
     // Storage declarations (vectors only allowed here)
@@ -51,8 +51,8 @@ program vector_structs.aleo {
     // Test 1 — Vector of primitives
     // ────────────────────────────────────────────────────────────────
     //
-    async transition test_vector_primitives_behavior(index: u32, new_value: u32) -> Future {
-        return async {
+    fn test_vector_primitives_behavior(index: u32, new_value: u32) -> Final {
+        return final {
             // Ensure empty at start
             ids.clear();
             assert(ids.len() == 0u32);
@@ -95,8 +95,8 @@ program vector_structs.aleo {
     // Test 2 — Vector of structs
     // ────────────────────────────────────────────────────────────────
     //
-    async transition test_vector_structs_behavior(idx: u32) -> Future {
-        return async {
+    fn test_vector_structs_behavior(idx: u32) -> Final {
+        return final {
             assert(points.len() == 0u32);
 
             points.push(Point { x: 1field, y: 2field });
@@ -123,8 +123,8 @@ program vector_structs.aleo {
     // Test 3 — Vector of containers (structs with arrays)
     // ────────────────────────────────────────────────────────────────
     //
-    async transition test_vector_containers_behavior(idx: u32) -> Future {
-        return async {
+    fn test_vector_containers_behavior(idx: u32) -> Final {
+        return final {
             assert(containers.len() == 0u32);
 
             let c1 = Container {
@@ -164,5 +164,5 @@ program vector_structs.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

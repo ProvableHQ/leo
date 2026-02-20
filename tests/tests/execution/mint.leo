@@ -23,7 +23,7 @@ program test.aleo {
         constant flag: bool,
     }
 
-    transition mint(owner: address, amount: u64) -> Token {
+    fn mint(owner: address, amount: u64) -> Token {
         return Token {
             owner,
             amount: amount,
@@ -32,5 +32,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
