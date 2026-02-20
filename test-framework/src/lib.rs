@@ -59,7 +59,7 @@ fn print_diff(expected: &str, actual: &str) {
 ///
 ///
 /// If no corresponding `.out` file is found in `expecations/{category}`,
-/// or if the environment variable `REWRITE_EXPECTATIONS` is set, no
+/// or if the environment variable `UPDATE_EXPECT` is set, no
 /// comparison to a previous result is done and the result of the current
 /// run is written to the file.
 pub fn run_tests(category: &str, runner: fn(&str) -> String) {
@@ -79,7 +79,7 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
     let expectations_dir = base_tests_dir.join("expectations").join(category);
 
     let filter_string = std::env::var("TEST_FILTER").unwrap_or_default();
-    let rewrite_expectations = std::env::var("REWRITE_EXPECTATIONS").is_ok();
+    let rewrite_expectations = std::env::var("UPDATE_EXPECT").is_ok();
 
     struct TestResult {
         failure: Option<TestFailure>,
@@ -203,7 +203,7 @@ pub fn run_single_test(category: &str, path: &Path, runner: fn(&str) -> String) 
     let tests_dir = base_tests_dir.join("tests").join(category);
     let expectations_dir = base_tests_dir.join("expectations").join(category);
 
-    let rewrite_expectations = std::env::var("REWRITE_EXPECTATIONS").is_ok();
+    let rewrite_expectations = std::env::var("UPDATE_EXPECT").is_ok();
 
     // Read the test file
     println!("Running: {}", path.display());
