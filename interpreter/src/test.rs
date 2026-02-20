@@ -16,10 +16,10 @@
 
 //! These tests compare interpreter runs against previous interpreter runs.
 
-use crate::{Interpreter, InterpreterAction};
+use crate::{Element, Interpreter, InterpreterAction};
 
-use leo_ast::NetworkName;
-use leo_span::create_session_if_not_set_then;
+use leo_ast::{NetworkName, interpreter_value::Value};
+use leo_span::{Span, Symbol, create_session_if_not_set_then};
 
 use snarkvm::prelude::{PrivateKey, TestnetV0};
 
@@ -178,4 +178,68 @@ fn runner_leo_test(test: &str) -> String {
 #[serial]
 fn test_interpreter() {
     leo_test_framework::run_tests("interpreter-leo", runner_leo_test);
+}
+
+#[test]
+fn cast_lossy_advances_instruction_index() {
+    create_session_if_not_set_then(|_| {
+        let tempdir = tempfile::tempdir().expect("tempdir");
+
+        // Minimal Aleo program with a single cast.lossy instruction in a function.
+        let aleo_source = r"program test_castlossy.aleo;
+
+function cast_lossy_test:
+    input r0 as field.private;
+    cast.lossy r0 into r1 as u8;
+    output r1 as u8.private;
+";
+
+        let filename = tempdir.path().join("test_castlossy.aleo");
+        fs::write(&filename, aleo_source).expect("write failed");
+
+        let private_key: PrivateKey<TestnetV0> = PrivateKey::from_str(TEST_PRIVATE_KEY).expect("should parse private key");
+
+        let leo_files: [(PathBuf, Vec<PathBuf>); 0] = [];
+        let aleo_files = [filename.clone()];
+
+        let mut interpreter = Interpreter::new(
+            &leo_files,
+            &aleo_files,
+            private_key.to_string(),
+            0,
+            chrono::Utc::now().timestamp(),
+            NetworkName::TestnetV0,
+        )
+        .expect("creating interpreter");
+
+        let program = Symbol::intern("test_castlossy");
+        let function = Symbol::intern("cast_lossy_test");
+
+        // Single field argument value.
+        let arg = Value::from_str("1field").expect("parse field literal");
+
+        interpreter
+            .cursor
+            .do_call(program, &[function], std::iter::once(arg), false, Span::default())
+            .expect("do_call failed");
+
+        // Ensure we have an AleoExecution frame on top of the stack.
+        assert!(matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. })));
+
+        // Step through Aleo execution a few times at most; with a single cast.lossy
+        // instruction, the frame must be popped quickly if the instruction index advances.
+        let mut steps = 0usize;
+        while matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. }))
+            && steps < 10
+        {
+            interpreter.cursor.step_aleo().expect("step_aleo failed");
+            steps += 1;
+        }
+
+        assert!(steps <= 2, "CastLossy should complete in at most a couple of steps, got {steps}");
+        assert!(
+            !matches!(interpreter.cursor.frames.last().map(|f| &f.element), Some(Element::AleoExecution { .. })),
+            "AleoExecution frame should be popped after executing CastLossy-only function",
+        );
+    })
 }

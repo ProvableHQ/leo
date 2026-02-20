@@ -444,6 +444,10 @@ impl Cursor {
                 }
             }
             CastLossy(cast_lossy) => {
+                let destination = cast_lossy.destinations()[0].clone();
+
+                self.increment_instruction_index();
+
                 match cast_lossy.cast_type() {
                     CastType::Plaintext(PlaintextType::Literal(literal_type)) => {
                         // This is the only variant supported for lossy casts.
@@ -451,7 +455,6 @@ impl Cursor {
                         let Some(value) = operand.cast_lossy(literal_type) else {
                             halt_no_span!("Cast failure");
                         };
-                        let destination = cast_lossy.destinations()[0].clone();
                         (value, destination)
                     }
                     _ => tc_fail!(),
