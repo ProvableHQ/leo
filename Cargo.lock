@@ -2181,6 +2181,7 @@ dependencies = [
  "leo-errors",
  "leo-parser-rowan",
  "leo-span",
+ "serde_json",
  "similar",
  "walkdir",
 ]

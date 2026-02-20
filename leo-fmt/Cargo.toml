@@ -23,6 +23,7 @@ validate = [
   "dep:leo-ast",
   "dep:leo-errors",
   "dep:leo-span",
+  "dep:serde_json",
 ]
 
 [dependencies]
@@ -31,6 +32,7 @@ leo-compiler        = { workspace = true, optional = true }
 leo-ast             = { workspace = true, optional = true }
 leo-errors          = { workspace = true, optional = true }
 leo-span            = { workspace = true, optional = true }
+serde_json          = { workspace = true, optional = true }
 
 [dev-dependencies]
 similar             = { version = "2.6" }
