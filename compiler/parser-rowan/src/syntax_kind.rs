@@ -643,6 +643,72 @@ impl SyntaxKind {
         )
     }
 
+    /// Check if this is a type node kind.
+    pub fn is_type(self) -> bool {
+        matches!(
+            self,
+            TYPE_PRIMITIVE
+                | TYPE_LOCATOR
+                | TYPE_PATH
+                | TYPE_ARRAY
+                | TYPE_VECTOR
+                | TYPE_TUPLE
+                | TYPE_OPTIONAL
+                | TYPE_FINAL
+                | TYPE_MAPPING
+        )
+    }
+
+    /// Check if this is an expression node kind.
+    pub fn is_expression(self) -> bool {
+        self.is_literal_node()
+            || matches!(
+                self,
+                BINARY_EXPR
+                    | UNARY_EXPR
+                    | CALL_EXPR
+                    | METHOD_CALL_EXPR
+                    | FIELD_EXPR
+                    | TUPLE_ACCESS_EXPR
+                    | INDEX_EXPR
+                    | CAST_EXPR
+                    | TERNARY_EXPR
+                    | ARRAY_EXPR
+                    | REPEAT_EXPR
+                    | TUPLE_EXPR
+                    | STRUCT_EXPR
+                    | STRUCT_LOCATOR_EXPR
+                    | PATH_EXPR
+                    | PATH_LOCATOR_EXPR
+                    | PROGRAM_REF_EXPR
+                    | SELF_EXPR
+                    | BLOCK_KW_EXPR
+                    | NETWORK_KW_EXPR
+                    | PAREN_EXPR
+                    | FINAL_EXPR
+            )
+    }
+
+    /// Check if this is a statement node kind.
+    pub fn is_statement(self) -> bool {
+        matches!(
+            self,
+            LET_STMT
+                | CONST_STMT
+                | RETURN_STMT
+                | EXPR_STMT
+                | ASSIGN_STMT
+                | COMPOUND_ASSIGN_STMT
+                | IF_STMT
+                | FOR_STMT
+                | FOR_INCLUSIVE_STMT
+                | BLOCK
+                | ASSERT_STMT
+                | ASSERT_EQ_STMT
+                | ASSERT_NEQ_STMT
+        )
+    }
+
     /// Check if this is a punctuation token.
     pub fn is_punctuation(self) -> bool {
         matches!(

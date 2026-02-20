@@ -92,7 +92,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         WILDCARD_PATTERN => out.write("_"),
 
         // Types
-        k if is_type_node(k) => format_type(node, out),
+        k if k.is_type() => format_type(node, out),
 
         // Error nodes: emit the original text verbatim to avoid corrupting broken code.
         ERROR => {
@@ -346,7 +346,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
                         out.space();
                         format_block(&n, out);
                     }
-                    k if is_type_node(k) => {
+                    k if k.is_type() => {
                         // Single return type (not wrapped in RETURN_TYPE)
                         format_type(&n, out);
                     }
@@ -488,7 +488,7 @@ fn format_struct_member(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -544,7 +544,7 @@ fn format_mapping(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -574,7 +574,7 @@ fn format_storage(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -611,9 +611,9 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
             }
             SyntaxElement::Node(n) => {
                 let k = n.kind();
-                if is_type_node(k) {
+                if k.is_type() {
                     format_type(&n, out);
-                } else if is_expression(k) {
+                } else if k.is_expression() {
                     format_node(&n, out);
                 }
             }
@@ -662,7 +662,7 @@ fn format_parameter(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -691,7 +691,7 @@ fn format_return_type(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -712,7 +712,7 @@ fn format_const_parameter(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -733,7 +733,7 @@ fn format_const_parameter_list(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
-    let args: Vec<_> = node.children().filter(|c| is_type_node(c.kind()) || is_expression(c.kind())).collect();
+    let args: Vec<_> = node.children().filter(|c| c.kind().is_type() || c.kind().is_expression()).collect();
 
     out.write("::[");
     for (i, arg) in args.iter().enumerate() {
@@ -829,17 +829,17 @@ fn format_type_array(node: &SyntaxNode, out: &mut Output) {
                 }
             }
             SyntaxElement::Node(n) => {
-                if is_type_node(n.kind()) {
+                if n.kind().is_type() {
                     format_type(&n, out);
                 } else if n.kind() == ARRAY_LENGTH {
                     for child in n.children_with_tokens() {
                         match child {
-                            SyntaxElement::Node(inner) if is_expression(inner.kind()) => format_node(&inner, out),
+                            SyntaxElement::Node(inner) if inner.kind().is_expression() => format_node(&inner, out),
                             SyntaxElement::Token(tok) if !tok.kind().is_trivia() => out.write(tok.text()),
                             _ => {}
                         }
                     }
-                } else if is_expression(n.kind()) {
+                } else if n.kind().is_expression() {
                     format_node(&n, out);
                 }
             }
@@ -850,14 +850,14 @@ fn format_type_array(node: &SyntaxNode, out: &mut Output) {
 
 fn format_type_vector(node: &SyntaxNode, out: &mut Output) {
     out.write("[");
-    if let Some(elem_type) = node.children().find(|c| is_type_node(c.kind())) {
+    if let Some(elem_type) = node.children().find(|c| c.kind().is_type()) {
         format_type(&elem_type, out);
     }
     out.write("]");
 }
 
 fn format_type_tuple(node: &SyntaxNode, out: &mut Output) {
-    let types: Vec<_> = node.children().filter(|c| is_type_node(c.kind())).collect();
+    let types: Vec<_> = node.children().filter(|c| c.kind().is_type()).collect();
 
     out.write("(");
     for (i, ty) in types.iter().enumerate() {
@@ -880,7 +880,7 @@ fn format_type_future(node: &SyntaxNode, out: &mut Output) {
                     out.write(tok.text());
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -895,7 +895,7 @@ fn format_type_mapping(node: &SyntaxNode, out: &mut Output) {
                     out.write(tok.text());
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -910,7 +910,7 @@ fn format_type_optional(node: &SyntaxNode, out: &mut Output) {
                     out.write(tok.text());
                 }
             }
-            SyntaxElement::Node(n) if is_type_node(n.kind()) => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
@@ -925,7 +925,7 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
 
     // Check if block has any statements or comments (content worth indenting)
     let has_content = elems.iter().any(|e| match e {
-        SyntaxElement::Node(n) => is_statement(n.kind()) || n.kind() == ERROR,
+        SyntaxElement::Node(n) => n.kind().is_statement() || n.kind() == ERROR,
         SyntaxElement::Token(t) => matches!(t.kind(), COMMENT_LINE | COMMENT_BLOCK),
     });
 
@@ -972,7 +972,7 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                         }
                         _ => {}
                     },
-                    SyntaxElement::Node(n) if after_lbrace && is_statement(n.kind()) => {
+                    SyntaxElement::Node(n) if after_lbrace && n.kind().is_statement() => {
                         out.ensure_newline();
                         format_node(n, out);
                         saw_linebreak = false;
@@ -1004,7 +1004,7 @@ fn format_return(node: &SyntaxNode, out: &mut Output) {
     out.write("return");
 
     for child in node.children() {
-        if is_expression(child.kind()) {
+        if child.kind().is_expression() {
             out.space();
             format_node(&child, out);
         }
@@ -1040,9 +1040,9 @@ fn format_definition(node: &SyntaxNode, out: &mut Output) {
             }
             SyntaxElement::Node(n) => {
                 let k = n.kind();
-                if is_type_node(k) {
+                if k.is_type() {
                     format_type(&n, out);
-                } else if is_expression(k) || matches!(k, IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN) {
+                } else if k.is_expression() || matches!(k, IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN) {
                     format_node(&n, out);
                 }
             }
@@ -1079,9 +1079,9 @@ fn format_const_stmt(node: &SyntaxNode, out: &mut Output) {
             }
             SyntaxElement::Node(n) => {
                 let k = n.kind();
-                if is_type_node(k) {
+                if k.is_type() {
                     format_type(&n, out);
-                } else if is_expression(k) {
+                } else if k.is_expression() {
                     format_node(&n, out);
                 }
             }
@@ -1106,7 +1106,7 @@ fn format_assign(node: &SyntaxNode, out: &mut Output) {
                     out.write(tok.text());
                 }
             }
-            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_expression() => format_node(&n, out),
             _ => {}
         }
     }
@@ -1134,7 +1134,7 @@ fn format_conditional(node: &SyntaxNode, out: &mut Output) {
             }
             SyntaxElement::Node(n) => {
                 let k = n.kind();
-                if is_expression(k) {
+                if k.is_expression() {
                     format_node(&n, out);
                 } else if k == BLOCK {
                     if first_block {
@@ -1179,9 +1179,9 @@ fn format_iteration(node: &SyntaxNode, out: &mut Output) {
             }
             SyntaxElement::Node(n) => {
                 let k = n.kind();
-                if is_type_node(k) {
+                if k.is_type() {
                     format_type(&n, out);
-                } else if is_expression(k) {
+                } else if k.is_expression() {
                     format_node(&n, out);
                 } else if k == BLOCK {
                     out.space();
@@ -1196,7 +1196,7 @@ fn format_assert(node: &SyntaxNode, out: &mut Output) {
     out.write("assert(");
 
     for child in node.children() {
-        if is_expression(child.kind()) {
+        if child.kind().is_expression() {
             format_node(&child, out);
         }
     }
@@ -1209,7 +1209,7 @@ fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
     out.write(keyword);
     out.write("(");
 
-    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
     for (i, expr) in exprs.iter().enumerate() {
         format_node(expr, out);
         if i < exprs.len() - 1 {
@@ -1224,7 +1224,7 @@ fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
 
 fn format_expr_stmt(node: &SyntaxNode, out: &mut Output) {
     for child in node.children() {
-        if is_expression(child.kind()) {
+        if child.kind().is_expression() {
             format_node(&child, out);
         }
     }
@@ -1345,14 +1345,14 @@ fn format_unary(node: &SyntaxNode, out: &mut Output) {
                     out.write(tok.text());
                 }
             }
-            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_expression() => format_node(&n, out),
             _ => {}
         }
     }
 }
 
 fn format_ternary(node: &SyntaxNode, out: &mut Output) {
-    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
     if exprs.len() >= 3 {
         format_node(&exprs[0], out);
         out.space();
@@ -1406,7 +1406,7 @@ fn format_index_expr(node: &SyntaxNode, out: &mut Output) {
                     out.write(tok.text());
                 }
             }
-            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_expression() => format_node(&n, out),
             _ => {}
         }
     }
@@ -1429,9 +1429,9 @@ fn format_cast(node: &SyntaxNode, out: &mut Output) {
             }
             SyntaxElement::Node(n) => {
                 let k = n.kind();
-                if is_expression(k) {
+                if k.is_expression() {
                     format_node(&n, out);
-                } else if is_type_node(k) {
+                } else if k.is_type() {
                     format_type(&n, out);
                 }
             }
@@ -1441,7 +1441,7 @@ fn format_cast(node: &SyntaxNode, out: &mut Output) {
 
 fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
     // ARRAY_EXPR: [a, b, c]
-    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
     out.write("[");
     for (i, expr) in exprs.iter().enumerate() {
         format_node(expr, out);
@@ -1455,7 +1455,7 @@ fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
 
 fn format_repeat_expr(node: &SyntaxNode, out: &mut Output) {
     // REPEAT_EXPR: [value; count]
-    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
     out.write("[");
     if exprs.len() >= 2 {
         format_node(&exprs[0], out);
@@ -1467,7 +1467,7 @@ fn format_repeat_expr(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
-    let exprs: Vec<_> = node.children().filter(|c| is_expression(c.kind())).collect();
+    let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
 
     out.write("(");
     for (i, expr) in exprs.iter().enumerate() {
@@ -1494,7 +1494,7 @@ fn format_parenthesized(node: &SyntaxNode, out: &mut Output) {
                     out.write(tok.text());
                 }
             }
-            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_expression() => format_node(&n, out),
             _ => {}
         }
     }
@@ -1555,7 +1555,7 @@ fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
                     _ => out.write(tok.text()),
                 }
             }
-            SyntaxElement::Node(n) if is_expression(n.kind()) => format_node(&n, out),
+            SyntaxElement::Node(n) if n.kind().is_expression() => format_node(&n, out),
             _ => {}
         }
     }
@@ -1728,25 +1728,6 @@ fn write_semicolon_with_comments(node: &SyntaxNode, out: &mut Output) {
 // Helpers
 // =============================================================================
 
-fn is_statement(kind: SyntaxKind) -> bool {
-    matches!(
-        kind,
-        BLOCK
-            | RETURN_STMT
-            | LET_STMT
-            | CONST_STMT
-            | ASSIGN_STMT
-            | COMPOUND_ASSIGN_STMT
-            | IF_STMT
-            | FOR_STMT
-            | FOR_INCLUSIVE_STMT
-            | ASSERT_STMT
-            | ASSERT_EQ_STMT
-            | ASSERT_NEQ_STMT
-            | EXPR_STMT
-    )
-}
-
 fn is_program_item(kind: SyntaxKind) -> bool {
     matches!(
         kind,
@@ -1761,50 +1742,6 @@ fn is_program_item(kind: SyntaxKind) -> bool {
             | GLOBAL_CONST
             | ANNOTATION
     )
-}
-
-fn is_type_node(kind: SyntaxKind) -> bool {
-    matches!(
-        kind,
-        TYPE_PRIMITIVE
-            | TYPE_LOCATOR
-            | TYPE_PATH
-            | TYPE_ARRAY
-            | TYPE_VECTOR
-            | TYPE_TUPLE
-            | TYPE_OPTIONAL
-            | TYPE_FINAL
-            | TYPE_MAPPING
-    )
-}
-
-fn is_expression(kind: SyntaxKind) -> bool {
-    kind.is_literal_node()
-        || matches!(
-            kind,
-            CALL_EXPR
-                | METHOD_CALL_EXPR
-                | BINARY_EXPR
-                | PATH_EXPR
-                | PATH_LOCATOR_EXPR
-                | PROGRAM_REF_EXPR
-                | SELF_EXPR
-                | BLOCK_KW_EXPR
-                | NETWORK_KW_EXPR
-                | UNARY_EXPR
-                | TERNARY_EXPR
-                | FIELD_EXPR
-                | TUPLE_ACCESS_EXPR
-                | INDEX_EXPR
-                | CAST_EXPR
-                | ARRAY_EXPR
-                | REPEAT_EXPR
-                | TUPLE_EXPR
-                | STRUCT_EXPR
-                | STRUCT_LOCATOR_EXPR
-                | PAREN_EXPR
-                | FINAL_EXPR
-        )
 }
 
 fn is_assignment_op(kind: SyntaxKind) -> bool {

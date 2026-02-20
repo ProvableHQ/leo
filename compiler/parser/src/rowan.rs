@@ -194,7 +194,7 @@ impl<'a> ConversionContext<'a> {
 
     /// Find a type child node or emit an error and return `Type::Err`.
     fn require_type(&self, node: &SyntaxNode, label: &str) -> Result<leo_ast::Type> {
-        match children(node).find(|n| is_type_kind(n.kind())) {
+        match children(node).find(|n| n.kind().is_type()) {
             Some(type_node) => self.to_type(&type_node),
             None => {
                 self.emit_unexpected_str(label, node.text(), self.to_span(node));
@@ -205,7 +205,7 @@ impl<'a> ConversionContext<'a> {
 
     /// Find an expression child node or emit an error and return `ErrExpression`.
     fn require_expression(&self, node: &SyntaxNode, label: &str) -> Result<leo_ast::Expression> {
-        match children(node).find(|n| is_expression_kind(n.kind())) {
+        match children(node).find(|n| n.kind().is_expression()) {
             Some(expr_node) => self.to_expression(&expr_node),
             None => {
                 let span = self.to_span(node);
@@ -260,10 +260,7 @@ impl<'a> ConversionContext<'a> {
             TYPE_TUPLE => self.type_tuple_to_type(node)?,
             TYPE_OPTIONAL => self.type_optional_to_type(node)?,
             TYPE_FINAL => self.type_final_to_type(node)?,
-            TYPE_MAPPING => {
-                // Mapping types appear in storage contexts, handled elsewhere
-                panic!("TYPE_MAPPING should be handled in storage context")
-            }
+            TYPE_MAPPING => self.type_mapping_to_type(node)?,
             ERROR => {
                 // Parse errors already emitted by emit_parse_errors().
                 leo_ast::Type::Err
@@ -357,8 +354,7 @@ impl<'a> ConversionContext<'a> {
     fn type_array_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_ARRAY);
 
-        let element_node =
-            children(node).find(|n| is_type_kind(n.kind())).expect("array type should have element type");
+        let element_node = children(node).find(|n| n.kind().is_type()).expect("array type should have element type");
         let element_type = self.to_type(&element_node)?;
         let length_expr = self.array_length_to_expression(node)?;
         Ok(leo_ast::ArrayType { element_type: Box::new(element_type), length: Box::new(length_expr) }.into())
@@ -368,8 +364,7 @@ impl<'a> ConversionContext<'a> {
     fn type_vector_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_VECTOR);
 
-        let element_node =
-            children(node).find(|n| is_type_kind(n.kind())).expect("vector type should have element type");
+        let element_node = children(node).find(|n| n.kind().is_type()).expect("vector type should have element type");
         let element_type = self.to_type(&element_node)?;
         Ok(leo_ast::VectorType { element_type: Box::new(element_type) }.into())
     }
@@ -425,7 +420,7 @@ impl<'a> ConversionContext<'a> {
         debug_assert_eq!(node.kind(), TYPE_TUPLE);
         let span = self.to_span(node);
 
-        let type_nodes: Vec<_> = children(node).filter(|n| is_type_kind(n.kind())).collect();
+        let type_nodes: Vec<_> = children(node).filter(|n| n.kind().is_type()).collect();
 
         if type_nodes.is_empty() {
             // Unit type: ()
@@ -448,7 +443,7 @@ impl<'a> ConversionContext<'a> {
     fn type_optional_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_OPTIONAL);
 
-        let inner_node = children(node).find(|n| is_type_kind(n.kind())).expect("optional type should have inner type");
+        let inner_node = children(node).find(|n| n.kind().is_type()).expect("optional type should have inner type");
 
         let inner = self.to_type(&inner_node)?;
         Ok(leo_ast::Type::Optional(leo_ast::OptionalType { inner: Box::new(inner) }))
@@ -459,7 +454,7 @@ impl<'a> ConversionContext<'a> {
         debug_assert_eq!(node.kind(), TYPE_FINAL);
 
         // Collect any type children (for Future<fn(T) -> R> syntax)
-        let type_nodes: Vec<_> = children(node).filter(|n| is_type_kind(n.kind())).collect();
+        let type_nodes: Vec<_> = children(node).filter(|n| n.kind().is_type()).collect();
 
         if type_nodes.is_empty() {
             // Simple Future with no explicit signature
@@ -470,6 +465,14 @@ impl<'a> ConversionContext<'a> {
         let types = type_nodes.iter().map(|n| self.to_type(n)).collect::<Result<Vec<_>>>()?;
 
         Ok(leo_ast::FutureType::new(types, None, true).into())
+    }
+
+    fn type_mapping_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
+        debug_assert_eq!(node.kind(), TYPE_MAPPING);
+        let mut type_nodes = children(node).filter(|n| n.kind().is_type());
+        let key = type_nodes.next().map(|n| self.to_type(&n)).transpose()?.unwrap_or(leo_ast::Type::Err);
+        let value = type_nodes.next().map(|n| self.to_type(&n)).transpose()?.unwrap_or(leo_ast::Type::Err);
+        Ok(leo_ast::Type::Mapping(leo_ast::MappingType { key: Box::new(key), value: Box::new(value) }))
     }
 
     // =========================================================================
@@ -511,7 +514,7 @@ impl<'a> ConversionContext<'a> {
             NETWORK_KW_EXPR => self.keyword_expr_to_path(node, sym::network)?,
             PAREN_EXPR => {
                 // Parenthesized expression - just unwrap
-                if let Some(inner) = children(node).find(|n| is_expression_kind(n.kind())) {
+                if let Some(inner) = children(node).find(|n| n.kind().is_expression()) {
                     self.to_expression(&inner)?
                 } else {
                     // No inner expression found - likely parse error
@@ -523,7 +526,7 @@ impl<'a> ConversionContext<'a> {
             FINAL_EXPR => self.final_expr_to_expression(node)?,
             // For ROOT nodes that wrap an expression (from parse_expression_entry)
             ROOT => {
-                if let Some(inner) = children(node).find(|n| is_expression_kind(n.kind())) {
+                if let Some(inner) = children(node).find(|n| n.kind().is_expression()) {
                     self.to_expression(&inner)?
                 } else {
                     // Parse errors already emitted by emit_parse_errors().
@@ -597,7 +600,7 @@ impl<'a> ConversionContext<'a> {
         let span = self.content_span(node);
         let id = self.builder.next_id();
 
-        let mut operands = children(node).filter(|n| is_expression_kind(n.kind()) || is_type_kind(n.kind()));
+        let mut operands = children(node).filter(|n| n.kind().is_expression() || n.kind().is_type());
 
         // Find the operator token
         let op_token = match tokens(node).find(|t| t.kind().is_operator() || t.kind() == KW_AS) {
@@ -652,7 +655,7 @@ impl<'a> ConversionContext<'a> {
         let op = if op_token.kind() == BANG { leo_ast::UnaryOperation::Not } else { leo_ast::UnaryOperation::Negate };
 
         // Get the operand
-        let Some(operand) = children(node).find(|n| is_expression_kind(n.kind())) else {
+        let Some(operand) = children(node).find(|n| n.kind().is_expression()) else {
             self.emit_unexpected_str("operand in unary expression", node.text(), span);
             return Ok(self.error_expression(span));
         };
@@ -690,11 +693,11 @@ impl<'a> ConversionContext<'a> {
         let mut const_arguments = Vec::new();
         if let Some(arg_list) = children(node).find(|n| n.kind() == CONST_ARG_LIST) {
             for child in children(&arg_list) {
-                if is_type_kind(child.kind()) {
+                if child.kind().is_type() {
                     let span = self.content_span(&child);
                     let ty = self.to_type(&child)?;
                     type_parameters.push((ty, span));
-                } else if is_expression_kind(child.kind()) {
+                } else if child.kind().is_expression() {
                     let expr = self.to_expression(&child)?;
                     const_arguments.push(expr);
                 }
@@ -721,7 +724,7 @@ impl<'a> ConversionContext<'a> {
         // Collect arguments (remaining expression children)
         let arguments = children(node)
             .skip(1)  // Skip the callee
-            .filter(|n| is_expression_kind(n.kind()))
+            .filter(|n| n.kind().is_expression())
             .map(|n| self.to_expression(&n))
             .collect::<Result<Vec<_>>>()?;
 
@@ -754,7 +757,7 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
 
         // First expression child is the receiver.
-        let mut expr_children = children(node).filter(|n| is_expression_kind(n.kind()));
+        let mut expr_children = children(node).filter(|n| n.kind().is_expression());
         let receiver = match expr_children.next() {
             Some(receiver_node) => self.to_expression(&receiver_node)?,
             None => {
@@ -833,7 +836,7 @@ impl<'a> ConversionContext<'a> {
         let span = self.content_span(node);
         let id = self.builder.next_id();
 
-        let inner = if let Some(inner_node) = children(node).find(|n| is_expression_kind(n.kind())) {
+        let inner = if let Some(inner_node) = children(node).find(|n| n.kind().is_expression()) {
             self.to_expression(&inner_node)?
         } else {
             self.emit_unexpected_str("expression in tuple access", node.text(), span);
@@ -866,7 +869,7 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
 
         // Get the inner expression and its CST kind (used for special-access dispatch).
-        let (inner, first_child_kind) = match children(node).find(|n| is_expression_kind(n.kind())) {
+        let (inner, first_child_kind) = match children(node).find(|n| n.kind().is_expression()) {
             Some(n) => {
                 let kind = n.kind();
                 (self.to_expression(&n)?, kind)
@@ -939,7 +942,7 @@ impl<'a> ConversionContext<'a> {
         let span = self.content_span(node);
         let id = self.builder.next_id();
 
-        let mut exprs = children(node).filter(|n| is_expression_kind(n.kind()));
+        let mut exprs = children(node).filter(|n| n.kind().is_expression());
 
         let array = match exprs.next() {
             Some(n) => self.to_expression(&n)?,
@@ -967,14 +970,14 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
 
         // Get the expression being cast
-        let Some(expr_node) = children(node).find(|n| is_expression_kind(n.kind())) else {
+        let Some(expr_node) = children(node).find(|n| n.kind().is_expression()) else {
             self.emit_unexpected_str("expression in cast", node.text(), span);
             return Ok(self.error_expression(span));
         };
         let expression = self.to_expression(&expr_node)?;
 
         // Get the target type
-        let Some(type_node) = children(node).find(|n| is_type_kind(n.kind())) else {
+        let Some(type_node) = children(node).find(|n| n.kind().is_type()) else {
             self.emit_unexpected_str("type in cast expression", node.text(), span);
             return Ok(self.error_expression(span));
         };
@@ -989,7 +992,7 @@ impl<'a> ConversionContext<'a> {
         let span = self.content_span(node);
         let id = self.builder.next_id();
 
-        let mut exprs = children(node).filter(|n| is_expression_kind(n.kind()));
+        let mut exprs = children(node).filter(|n| n.kind().is_expression());
 
         let condition = match exprs.next() {
             Some(n) => self.to_expression(&n)?,
@@ -1025,7 +1028,7 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
 
         let elements = children(node)
-            .filter(|n| is_expression_kind(n.kind()))
+            .filter(|n| n.kind().is_expression())
             .map(|n| self.to_expression(&n))
             .collect::<Result<Vec<_>>>()?;
 
@@ -1038,7 +1041,7 @@ impl<'a> ConversionContext<'a> {
         let span = self.content_span(node);
         let id = self.builder.next_id();
 
-        let mut exprs = children(node).filter(|n| is_expression_kind(n.kind()));
+        let mut exprs = children(node).filter(|n| n.kind().is_expression());
         let expr = match exprs.next() {
             Some(n) => self.to_expression(&n)?,
             None => {
@@ -1064,7 +1067,7 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
 
         let elements: Vec<_> = children(node)
-            .filter(|n| is_expression_kind(n.kind()))
+            .filter(|n| n.kind().is_expression())
             .map(|n| self.to_expression(&n))
             .collect::<Result<Vec<_>>>()?;
 
@@ -1189,7 +1192,7 @@ impl<'a> ConversionContext<'a> {
         let identifier = self.to_identifier(&ident_token);
 
         let expression = if node.kind() == STRUCT_FIELD_INIT {
-            children(node).find(|n| is_expression_kind(n.kind())).map(|n| self.to_expression(&n)).transpose()?
+            children(node).find(|n| n.kind().is_expression()).map(|n| self.to_expression(&n)).transpose()?
         } else {
             None
         };
@@ -1357,7 +1360,7 @@ impl<'a> ConversionContext<'a> {
             }
             // For ROOT nodes that wrap a statement (from parse_statement_entry)
             ROOT => {
-                if let Some(inner) = children(node).find(|n| is_statement_kind(n.kind())) {
+                if let Some(inner) = children(node).find(|n| n.kind().is_statement()) {
                     self.to_statement(&inner)?
                 } else {
                     // Parse errors already emitted by emit_parse_errors().
@@ -1382,7 +1385,7 @@ impl<'a> ConversionContext<'a> {
         id: leo_ast::NodeID,
         make_variant: fn(leo_ast::Expression, leo_ast::Expression) -> leo_ast::AssertVariant,
     ) -> Result<leo_ast::Statement> {
-        let mut exprs = children(node).filter(|n| is_expression_kind(n.kind()));
+        let mut exprs = children(node).filter(|n| n.kind().is_expression());
         let e0 = match exprs.next() {
             Some(expr) => self.to_expression(&expr)?,
             None => {
@@ -1407,7 +1410,7 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
 
         let statements = children(node)
-            .filter(|n| is_statement_kind(n.kind()))
+            .filter(|n| n.kind().is_statement())
             .map(|n| self.to_statement(&n))
             .collect::<Result<Vec<_>>>()?;
 
@@ -1431,7 +1434,7 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Find type annotation if present
-        let type_ = children(node).find(|n| is_type_kind(n.kind())).map(|n| self.to_type(&n)).transpose()?;
+        let type_ = children(node).find(|n| n.kind().is_type()).map(|n| self.to_type(&n)).transpose()?;
 
         let value = self.require_expression(node, "value in let statement")?;
 
@@ -1499,7 +1502,7 @@ impl<'a> ConversionContext<'a> {
 
         // Get optional expression
         let expression = children(node)
-            .find(|n| is_expression_kind(n.kind()))
+            .find(|n| n.kind().is_expression())
             .map(|n| self.to_expression(&n))
             .transpose()?
             .unwrap_or_else(|| leo_ast::UnitExpression { span, id: self.builder.next_id() }.into());
@@ -1524,7 +1527,7 @@ impl<'a> ConversionContext<'a> {
         let span = self.to_span(node);
         let id = self.builder.next_id();
 
-        let mut exprs = children(node).filter(|n| is_expression_kind(n.kind()));
+        let mut exprs = children(node).filter(|n| n.kind().is_expression());
 
         let place = match exprs.next() {
             Some(n) => self.to_expression(&n)?,
@@ -1553,7 +1556,7 @@ impl<'a> ConversionContext<'a> {
         let span = self.to_span(node);
         let id = self.builder.next_id();
 
-        let mut exprs = children(node).filter(|n| is_expression_kind(n.kind()));
+        let mut exprs = children(node).filter(|n| n.kind().is_expression());
 
         let left = match exprs.next() {
             Some(n) => self.to_expression(&n)?,
@@ -1632,10 +1635,10 @@ impl<'a> ConversionContext<'a> {
         let variable = self.require_ident(node, "variable in for statement");
 
         // Get optional type annotation
-        let type_ = children(node).find(|n| is_type_kind(n.kind())).map(|n| self.to_type(&n)).transpose()?;
+        let type_ = children(node).find(|n| n.kind().is_type()).map(|n| self.to_type(&n)).transpose()?;
 
         // Get range expressions (before and after ..)
-        let mut exprs = children(node).filter(|n| is_expression_kind(n.kind()));
+        let mut exprs = children(node).filter(|n| n.kind().is_expression());
 
         let start = match exprs.next() {
             Some(n) => self.to_expression(&n)?,
@@ -1912,7 +1915,7 @@ impl<'a> ConversionContext<'a> {
         let (output, output_type) = if let Some(return_type_node) = children(node).find(|n| n.kind() == RETURN_TYPE) {
             // Tuple return type.
             self.return_type_to_outputs(&return_type_node)?
-        } else if let Some(type_node) = children(node).find(|n| is_type_kind(n.kind())) {
+        } else if let Some(type_node) = children(node).find(|n| n.kind().is_type()) {
             // Single return type (direct child of FUNCTION_DEF).
             let type_ = self.to_type(&type_node)?;
             // Check for visibility keyword before the type node.
@@ -1985,7 +1988,7 @@ impl<'a> ConversionContext<'a> {
                         current_mode_start = Some(u32::from(token.text_range().start()) + self.start_pos);
                     }
                 }
-                SyntaxElement::Node(child_node) if is_type_kind(child_node.kind()) => {
+                SyntaxElement::Node(child_node) if child_node.kind().is_type() => {
                     let type_ = self.to_type(child_node)?;
                     let type_span = self.content_span(child_node);
                     let output_span = match current_mode_start.take() {
@@ -2167,7 +2170,7 @@ impl<'a> ConversionContext<'a> {
         let identifier = self.require_ident(node, "name in mapping");
 
         // Get key and value types
-        let mut type_nodes = children(node).filter(|n| is_type_kind(n.kind()));
+        let mut type_nodes = children(node).filter(|n| n.kind().is_type());
 
         let key_type = match type_nodes.next() {
             Some(key_node) => self.to_type(&key_node)?,
@@ -2527,64 +2530,6 @@ fn keyword_to_path_symbol(kind: SyntaxKind) -> Option<Symbol> {
         KW_FINAL_UPPER => Some(sym::Final),
         _ => None,
     }
-}
-
-/// Check if a SyntaxKind is a type node kind.
-fn is_type_kind(kind: SyntaxKind) -> bool {
-    matches!(
-        kind,
-        TYPE_PRIMITIVE | TYPE_LOCATOR | TYPE_PATH | TYPE_ARRAY | TYPE_VECTOR | TYPE_TUPLE | TYPE_OPTIONAL | TYPE_FINAL
-    )
-}
-
-/// Check if a SyntaxKind is an expression node kind.
-fn is_expression_kind(kind: SyntaxKind) -> bool {
-    kind.is_literal_node()
-        || matches!(
-            kind,
-            BINARY_EXPR
-                | UNARY_EXPR
-                | CALL_EXPR
-                | METHOD_CALL_EXPR
-                | FIELD_EXPR
-                | TUPLE_ACCESS_EXPR
-                | INDEX_EXPR
-                | CAST_EXPR
-                | TERNARY_EXPR
-                | ARRAY_EXPR
-                | REPEAT_EXPR
-                | TUPLE_EXPR
-                | STRUCT_EXPR
-                | STRUCT_LOCATOR_EXPR
-                | PATH_EXPR
-                | PATH_LOCATOR_EXPR
-                | PROGRAM_REF_EXPR
-                | SELF_EXPR
-                | BLOCK_KW_EXPR
-                | NETWORK_KW_EXPR
-                | PAREN_EXPR
-                | FINAL_EXPR
-        )
-}
-
-/// Check if a SyntaxKind is a statement node kind.
-fn is_statement_kind(kind: SyntaxKind) -> bool {
-    matches!(
-        kind,
-        LET_STMT
-            | CONST_STMT
-            | RETURN_STMT
-            | EXPR_STMT
-            | ASSIGN_STMT
-            | COMPOUND_ASSIGN_STMT
-            | IF_STMT
-            | FOR_STMT
-            | FOR_INCLUSIVE_STMT
-            | BLOCK
-            | ASSERT_STMT
-            | ASSERT_EQ_STMT
-            | ASSERT_NEQ_STMT
-    )
 }
 
 /// Check if a SyntaxKind is an assignment operator.
