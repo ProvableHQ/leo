@@ -13,7 +13,7 @@ input = ["123field", "1u8", "false"]
 
 
 program test_tuples.aleo {
-    transition do_tuples(x: field, y: u8, z: bool) -> (field, [u8; 2]) {
+    fn do_tuples(x: field, y: u8, z: bool) -> (field, [u8; 2]) {
         let t1 = (x, [y, y]);
         if z {
             t1.0 += 1;
@@ -24,5 +24,5 @@ program test_tuples.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

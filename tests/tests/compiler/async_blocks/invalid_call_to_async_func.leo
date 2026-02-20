@@ -1,10 +1,9 @@
 program test.aleo {
-    async transition foo(private a: u8) -> Future {
-        return async {
-            bar();
-        };
+    fn foo(private a: u8) -> Final {
+        return bar();
+        
     }
+}
 
-    async function bar() {
-    }
+final fn bar() {
 }

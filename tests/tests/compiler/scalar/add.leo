@@ -1,5 +1,5 @@
 
 program test.aleo {
-    transition main(a: scalar, b: scalar, c: scalar) -> bool {
+    fn main(a: scalar, b: scalar, c: scalar) -> bool {
        return a + b == c;
     }}

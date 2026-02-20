@@ -1,12 +1,12 @@
 program test.aleo {
     const a: u32 = 10u32;
-    transition main(x$$0: u32) -> u32 {
+    fn main(x$$0: u32) -> u32 {
         let $var$1 = 5u32;
         let b$#2 = test.aleo/a + 5u32;
         let $var$3 = x$$0 + b$#2;
         return $var$3;
     }
-    transition foo(x$$4: u32) -> u32 {
+    fn foo(x$$4: u32) -> u32 {
         let $var$5 = 5u32;
         let b$#6 = test.aleo/a + 5u32;
         let $var$7 = true;
@@ -32,3 +32,4 @@ program test.aleo {
         return $var$19;
     }
 }
+

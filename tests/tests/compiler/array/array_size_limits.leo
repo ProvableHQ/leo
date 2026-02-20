@@ -1,10 +1,10 @@
 
 program test.aleo {
-    transition foo(a: [bool; 1]) -> bool {
+    fn foo(a: [bool; 1]) -> bool {
         return true;
     }
 
-    transition bar(a: [bool; 32]) -> bool {
+    fn bar(a: [bool; 32]) -> bool {
         return true;
     }
 }

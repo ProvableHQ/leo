@@ -1,11 +1,11 @@
 
+struct Foo {
+    a: u8,
+}
+
 program test.aleo {
 
-    struct Foo {
-        a: u8,
-    }
-
-    transition foo2(flag: bool, a: u8, b: u8, foo: Foo, i: i8) -> u8 {
+    fn foo2(flag: bool, a: u8, b: u8, foo: Foo, i: i8) -> u8 {
         a + b;
         flag ? a : b;
         foo.a;

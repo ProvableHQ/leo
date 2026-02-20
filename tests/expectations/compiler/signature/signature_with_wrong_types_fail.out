@@ -1,30 +1,30 @@
 Error [ETYC0372117]: Expected type `signature` but type `address` was found.
-    --> compiler-test:10:45
+    --> compiler-test:9:45
      |
-  10 |         let first: bool = signature::verify(a, s, v);
+   9 |         let first: bool = signature::verify(a, s, v);
      |                                             ^
 Error [ETYC0372117]: Expected type `address` but type `signature` was found.
-    --> compiler-test:10:48
+    --> compiler-test:9:48
      |
-  10 |         let first: bool = signature::verify(a, s, v);
+   9 |         let first: bool = signature::verify(a, s, v);
      |                                                ^
 Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:11:37
+    --> compiler-test:10:37
      |
-  11 |         let second: bool = s.verify(1u8, v);
+  10 |         let second: bool = s.verify(1u8, v);
      |                                     ^^^
 Error [ETYC0372117]: Expected type `signature` but type `address` was found.
-    --> compiler-test:16:45
+    --> compiler-test:15:45
      |
-  16 |         let first: bool = signature::verify(a, v, s);
+  15 |         let first: bool = signature::verify(a, v, s);
      |                                             ^
 Error [ETYC0372117]: Expected type `address` but type `test.aleo/foo` was found.
-    --> compiler-test:16:48
+    --> compiler-test:15:48
      |
-  16 |         let first: bool = signature::verify(a, v, s);
+  15 |         let first: bool = signature::verify(a, v, s);
      |                                                ^
 Error [ETYC0372117]: Expected type `address` but type `test.aleo/foo` was found.
-    --> compiler-test:17:37
+    --> compiler-test:16:37
      |
-  17 |         let second: bool = s.verify(v, a);
+  16 |         let second: bool = s.verify(v, a);
      |                                     ^

@@ -1,7 +1,7 @@
 Error [EAST0372017]: The name `hi` is defined multiple times.
     --> compiler-test:4:13
      |
-   3 |       transition tester(hi: u8) -> u8 {
-     |                         ^^ previous definition of `hi` here
+   3 |       fn tester(hi: u8) -> u8 {
+     |                 ^^ previous definition of `hi` here
    4 |           let hi = 2u8;
      |               ^^ `hi` redefined here

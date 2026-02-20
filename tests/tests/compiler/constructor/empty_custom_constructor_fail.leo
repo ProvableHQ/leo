@@ -1,9 +1,9 @@
 program constr.aleo {
-    transition main() {
+    fn main() {
     }
 
     @custom
-    async constructor() {
+    constructor() {
         let x = self.program_owner;
     }
 }

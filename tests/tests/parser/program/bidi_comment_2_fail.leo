@@ -1,7 +1,6 @@
     /* next line starts with 2069
 ⁩*/
 
-program test.aleo {
-    function main() {
-    }
+fn main() {
 }
+program test.aleo {}

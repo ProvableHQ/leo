@@ -25,45 +25,45 @@ create_messages!(
     code_prefix: "SAZ",
 
     @formatted
-    no_path_awaits_all_futures_exactly_once {
+    no_path_runs_all_finals_exactly_once {
         args: (num_total_paths: impl Display),
-        msg: format!("Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."),
-        help: Some("Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures.".to_string()),
+        msg: format!("Finals must be run exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all Finals are run exactly once."),
+        help: Some("Ex: for `f: Final` call `f.run()` to run a Final. Remove duplicate Final run redundancies, and add Final runs for un-run Finals.".to_string()),
     }
 
     @formatted
-    future_awaits_missing {
+    final_runs_missing {
         args: (unawaited: impl Display),
-        msg: format!("The following futures were never awaited: {unawaited}"),
-        help: Some("Ex: for `f: Future` call `f.await()` to await a future.".to_string()),
+        msg: format!("The following Finals were never run: {unawaited}"),
+        help: Some("Ex: for `f: Final` call `f.run()` to run a Final.".to_string()),
     }
 
     @formatted
-    invalid_await_call {
+    invalid_run_call {
         args: (),
-        msg: "Not a valid await call.".to_string(),
-        help: Some("Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future.".to_string()),
+        msg: "Not a valid run call.".to_string(),
+        help: Some("Ex: for `f: Final` call `f.run()` to run a Final.".to_string()),
     }
 
     @formatted
-    expected_future {
+    expected_final {
         args: (type_: impl Display),
-        msg: format!("Expected a future, but found `{type_}`"),
-        help: Some("Only futures can be awaited.".to_string()),
+        msg: format!("Expected a Final, but found `{type_}`"),
+        help: Some("Only Finals can be run.".to_string()),
     }
 
     @formatted
-    async_transition_call_with_future_argument {
+    entry_point_final_call_with_final_argument {
         args: (function_name: impl Display),
         msg: format!("The call to {function_name} will result in failed executions on-chain."),
-        help: Some("There is a subtle error that occurs if an async transition call follows a non-async transition call, and the async call returns a `Future` that itself takes a `Future` as an input. See See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
+        help: Some("There is a subtle error that occurs if an entry point fn returning Final follows a non-Final entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.".to_string()),
     }
 
     @formatted
-    misplaced_future {
+    misplaced_final {
         args: (),
-        msg: "A future may not be used in this way".to_string(),
-        help: Some("Futures should be created, assigned to a variable, and consumed without being moved or reassigned.".to_string()),
+        msg: "A Final may not be used in this way".to_string(),
+        help: Some("Finals should be created, assigned to a variable, and consumed without being moved or reassigned.".to_string()),
     }
 
     @formatted
@@ -102,9 +102,9 @@ create_messages!(
     }
 
     @formatted
-    async_block_capturing_too_many_vars {
+    final_block_capturing_too_many_vars {
         args: (size: impl Display, max: impl Display),
-        msg: format!("An `async` block cannot capture more than {max} variables, found one attempting to capture {size} variables."),
+        msg: format!("A `final` block cannot capture more than {max} variables, found one attempting to capture {size} variables."),
         help: None,
     }
 

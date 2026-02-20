@@ -1,0 +1,29 @@
+program test.aleo {
+    mapping counter: address => u64;
+    async fn main(owner: address, x: u32) -> Future<Fn()> {
+        let a: u32 = outer(x);
+        return async {
+            let value: u64 = async_helper(5u64);
+            __unresolved_set(counter, owner, value);
+        };
+    }
+}
+    fn outer(x: u32) -> u32 {
+        return inner(x);
+    }
+    fn inner(x: u32) -> u32 {
+        return x + 1u32;
+    }
+    fn async_helper(x: u64) -> u64 {
+        return x * 2u64;
+    }
+    fn no_args() -> u32 {
+        return 100u32;
+    }
+    fn with_const::[N: u32](x: u32) -> u32 {
+        return x * N;
+    }
+    fn regular(x: u32) -> u32 {
+        return x;
+    }
+

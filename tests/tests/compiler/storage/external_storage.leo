@@ -1,14 +1,14 @@
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Stats {
+    values: [u32; 3],
+    active: bool,
+}
+
 program child.aleo {
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Stats {
-        values: [u32; 3],
-        active: bool,
-    }
-
     storage flag: bool;
     storage scalar_val: scalar;
     storage field_val: field;
@@ -25,8 +25,8 @@ program child.aleo {
     storage vec: [u8];
 
     // Initialize everything
-    async transition initialize() -> Future {
-        return async {
+    fn initialize() -> Final {
+        return final {
             flag = true;
             scalar_val = 1;
             field_val = 42field;
@@ -49,8 +49,8 @@ program child.aleo {
     }
 
     // Wipes all values to none
-    async transition wipe() -> Future {
-        return async {
+    fn wipe() -> Final {
+        return final {
             flag = none;
             scalar_val = none;
             field_val = none;
@@ -70,7 +70,7 @@ program child.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 
@@ -84,8 +84,8 @@ program test.aleo {
     // Case 1: Read initialized external storage
     // ────────────────────────────────────────────────────────────────
     //
-    async transition check_initialized() -> Future {
-        return async {
+    fn check_initialized() -> Final {
+        return final {
             // Primitive unwrapping
             assert(child.aleo/flag.unwrap() == true);
             assert(child.aleo/scalar_val.unwrap() == 1);
@@ -131,8 +131,8 @@ program test.aleo {
     // Case 2: After wipe(), everything becomes none
     // ────────────────────────────────────────────────────────────────
     //
-    async transition check_wiped() -> Future {
-        return async {
+    fn check_wiped() -> Final {
+        return final {
             assert(child.aleo/flag == none);
             assert(child.aleo/scalar_val == none);
             assert(child.aleo/field_val == none);
@@ -157,8 +157,8 @@ program test.aleo {
     // Case 3: unwrap_or on wiped storage
     // ────────────────────────────────────────────────────────────────
     //
-    async transition check_fallback() -> Future {
-        return async {
+    fn check_fallback() -> Final {
+        return final {
             assert(child.aleo/flag.unwrap_or(false) == false);
             assert(child.aleo/scalar_val.unwrap_or(0) == 0);
             assert(child.aleo/field_val.unwrap_or(0field) == 0field);
@@ -194,6 +194,6 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 
 }

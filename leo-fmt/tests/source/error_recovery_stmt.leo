@@ -1,5 +1,5 @@
 program token.aleo {
-    transition mint(   receiver :
+    fn mint(   receiver :
                 address,    amount:u64) -> u64 {
 let   total: u64 =       amount  +  1u64;
 

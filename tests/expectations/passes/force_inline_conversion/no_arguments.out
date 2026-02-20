@@ -1,0 +1,12 @@
+program test.aleo {
+    fn main() -> u32 {
+        return get_value() + get_empty([]);
+    }
+}
+    fn get_value() -> u32 {
+        return 42u32;
+    }
+    fn get_value(a: [u32; 0]) -> u32 {
+        return 42u32;
+    }
+

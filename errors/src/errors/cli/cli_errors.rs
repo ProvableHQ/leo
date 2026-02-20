@@ -303,14 +303,14 @@ create_messages!(
     constraint_limit_exceeded {
         args: (program: impl Display, actual: u64, limit: u64, network: impl Display),
         msg: format!("Program `{program}` has {actual} constraints, which exceeds the limit of {limit} for deployment on network {network}."),
-        help: Some("Reduce the number of constraints in the program by reducing the number of instructions in transition functions.".to_string()),
+        help: Some("Reduce the number of constraints in the program by reducing the number of instructions in entry point functions.".to_string()),
     }
 
     @backtraced
     variable_limit_exceeded {
         args: (program: impl Display, actual: u64, limit: u64, network: impl Display),
         msg: format!("Program `{program}` has {actual} variables, which exceeds the limit of {limit} for deployment on network {network}."),
-        help: Some("Reduce the number of variables in the program by reducing the number of instructions in transition functions.".to_string()),
+        help: Some("Reduce the number of variables in the program by reducing the number of instructions in entry point functions.".to_string()),
     }
 
     @backtraced

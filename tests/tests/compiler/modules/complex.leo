@@ -1,11 +1,11 @@
-program all_module_features.aleo {
-    struct Nested {
-        a: alpha::SharedName,
-        b: beta::SharedName::[beta::X],
-        c: gamma::Inner,
-    }
+struct Nested {
+    a: alpha::SharedName,
+    b: beta::SharedName::[beta::X],
+    c: gamma::Inner,
+}
 
-    transition main() -> u32 {
+program all_module_features.aleo {
+    fn main() -> u32 {
         // Constant name shadowing (alpha::X vs beta::X vs gamma::X)
         let x1 = alpha::X;
         let x2 = beta::X;
@@ -48,7 +48,7 @@ struct SharedName {
 }
 
 // Inline returning its own struct
-inline make() -> SharedName {
+fn make() -> SharedName {
     return SharedName { val: 99 };
 }
 
@@ -63,7 +63,7 @@ struct SharedName::[N: u32] {
 }
 
 // Inline using generic struct
-inline make() -> SharedName::[X] {
+fn make() -> SharedName::[X] {
     return SharedName::[X] {
         val: [5; X],
     };
@@ -80,10 +80,10 @@ struct Inner {
 }
 
 // Inline returning struct defined here
-inline make_inner(n: u32) -> Inner {
+fn make_inner(n: u32) -> Inner {
     return Inner { n };
 }
 
-inline consume_inner(inner: Inner) -> u32 {
+fn consume_inner(inner: Inner) -> u32 {
     return inner.n + X;
 }

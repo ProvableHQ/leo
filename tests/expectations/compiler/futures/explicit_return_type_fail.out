@@ -1,27 +1,27 @@
-Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:9:5
+Error [ETYC0372106]: A final fn is not allowed to return a value.
+    --> compiler-test:10:1
      |
-   9 |     async function finalize() -> Future {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |         Mapping::set(foo, 1u32, 1u32);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |     }
-     |     ^
+  10 | final fn finalize() -> Final {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |     Mapping::set(foo, 1u32, 1u32);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 | }
+     | ^
      |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-Error [ETYC0372110]: Only `async transition` can return a future.
-    --> compiler-test:9:34
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+Error [ETYC0372110]: Only entry point fns can return a Final.
+    --> compiler-test:10:24
      |
-   9 |     async function finalize() -> Future {
-     |                                  ^^^^^^
+  10 | final fn finalize() -> Final {
+     |                        ^^^^^
      |
-     = Use an `async transition` instead.
+     = Move this function inside the `program` block to make it an entry point fn.
 Error [ETYC0372036]: Function must return a value.
-    --> compiler-test:9:5
+    --> compiler-test:10:1
      |
-   9 |     async function finalize() -> Future {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |         Mapping::set(foo, 1u32, 1u32);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |     }
-     |     ^
+  10 | final fn finalize() -> Final {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |     Mapping::set(foo, 1u32, 1u32);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 | }
+     | ^

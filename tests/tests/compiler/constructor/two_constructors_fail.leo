@@ -1,13 +1,13 @@
 program test.aleo {
-    transition foo() {}
+    fn foo() {}
 
     @custom
-    async constructor() {
+    constructor() {
         assert_eq(true, true);
     }
 
     @custom
-    async constructor() {
+    constructor() {
         assert_eq(true, true);
     }
 }

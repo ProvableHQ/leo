@@ -102,7 +102,7 @@ impl TypeCheckingVisitor<'_> {
 
         // Prohibit reassignment of futures or mappings
         match &assign_target_info.ty {
-            Type::Future(..) => self.emit_err(TypeCheckerError::cannot_reassign_future_variable(input, input.span())),
+            Type::Future(..) => self.emit_err(TypeCheckerError::cannot_reassign_final_variable(input, input.span())),
             Type::Mapping(_) => self.emit_err(TypeCheckerError::cannot_reassign_mapping(input, input.span())),
             _ => {}
         }
@@ -221,41 +221,8 @@ impl TypeCheckingVisitor<'_> {
 
                 actual.clone()
             }
-            Type::Future(_) => {
-                // Get the fully inferred type.
-                let Some(Type::Future(inferred_f)) = self.state.type_table.get(&input.tuple.id()) else {
-                    // If a future type was not inferred, we will have already reported an error.
-                    return Type::Err;
-                };
-
-                if inferred_f.location.is_none() {
-                    // This generally means that the `Future` is produced by an `async` block expression and not an
-                    // `async function` function call.
-                    self.emit_err(TypeCheckerError::invalid_async_block_future_access(input.span()));
-                    return Type::Err;
-                }
-
-                let Some(actual) = inferred_f.inputs().get(input.index.value()) else {
-                    self.emit_err(TypeCheckerError::invalid_future_access(
-                        input.index.value(),
-                        inferred_f.inputs().len(),
-                        input.span(),
-                    ));
-                    return Type::Err;
-                };
-
-                // If all inferred types weren't the same, the member will be of type `Type::Err`.
-                if let Type::Err = actual {
-                    self.emit_err(TypeCheckerError::future_error_member(input.index.value(), input.span()));
-                    return Type::Err;
-                }
-
-                self.maybe_assert_type(actual, expected, input.span());
-
-                actual.clone()
-            }
             type_ => {
-                self.emit_err(TypeCheckerError::type_should_be2(type_, "a tuple or future", input.span()));
+                self.emit_err(TypeCheckerError::type_should_be2(type_, "a tuple", input.span()));
                 Type::Err
             }
         }
@@ -311,22 +278,21 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Ensure assignment is allowed in async function conditional scopes
-        if self.scope_state.variant.unwrap().is_async_function()
-            && !self.symbol_in_conditional_scope(input.identifier().name)
+        if self.scope_state.variant.unwrap().is_onchain() && !self.symbol_in_conditional_scope(input.identifier().name)
         {
-            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "function", var.span));
+            self.emit_err(TypeCheckerError::final_cannot_assign_outside_conditional(input, "fn", var.span));
         }
 
         // Ensure assignment is allowed in async block conditional scopes
         if self.async_block_id.is_some() && !self.symbol_in_conditional_scope(input.identifier().name) {
-            self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(input, "block", var.span));
+            self.emit_err(TypeCheckerError::final_cannot_assign_outside_conditional(input, "block", var.span));
         }
 
         // If inside an async block, cannot assign to variables outside the block or its ancestors
         if let Some(async_block_id) = self.async_block_id
             && !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.identifier().name)
         {
-            self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_async_block(
+            self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_final_block(
                 input.identifier().name,
                 input.span,
             ));
@@ -546,11 +512,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         };
         // Check that operation is not restricted to finalize blocks.
-        if !matches!(self.scope_state.variant, Some(Variant::AsyncFunction) | Some(Variant::Script))
+        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::Script | Variant::FinalFn))
             && self.async_block_id.is_none()
             && intrinsic.is_finalize_command()
         {
-            self.emit_err(TypeCheckerError::operation_must_be_in_async_block_or_function(input.span()));
+            self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(input.span()));
         }
 
         let return_type = self.check_intrinsic(intrinsic.clone(), &input.arguments, expected, input.span());
@@ -559,8 +525,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         self.maybe_assert_type(&return_type, expected, input.span());
 
         // Await futures here so that can use the argument variable names to lookup.
-        if intrinsic == Intrinsic::FutureAwait && input.arguments.len() != 1 {
-            self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(input.span));
+        if intrinsic == Intrinsic::FinalRun && input.arguments.len() != 1 {
+            self.emit_err(TypeCheckerError::can_only_run_one_final_at_a_time(input.span));
         }
 
         return_type
@@ -572,19 +538,19 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // A few restrictions
         if self.scope_state.is_conditional {
-            self.emit_err(TypeCheckerError::async_block_in_conditional(input.span));
+            self.emit_err(TypeCheckerError::final_block_in_conditional(input.span));
         }
 
-        if !matches!(self.scope_state.variant, Some(Variant::AsyncTransition) | Some(Variant::Script)) {
-            self.emit_err(TypeCheckerError::illegal_async_block_location(input.span));
+        if !matches!(self.scope_state.variant, Some(Variant::EntryPoint) | Some(Variant::Script)) {
+            self.emit_err(TypeCheckerError::illegal_final_block_location(input.span));
         }
 
         if self.scope_state.already_contains_an_async_block {
-            self.emit_err(TypeCheckerError::multiple_async_blocks_not_allowed(input.span));
+            self.emit_err(TypeCheckerError::multiple_final_blocks_not_allowed(input.span));
         }
 
         if self.scope_state.has_called_finalize {
-            self.emit_err(TypeCheckerError::conflicting_async_call_and_block(input.span));
+            panic!("Finalize has been called before this final block");
         }
 
         self.visit_block(&input.block);
@@ -599,7 +565,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let mut block_to_function_rewriter =
             BlockToFunctionRewriter::new(self.state, self.scope_state.program_name.unwrap());
         let (new_function, _) =
-            block_to_function_rewriter.rewrite_block(&input.block, Symbol::intern("unused"), Variant::AsyncFunction);
+            block_to_function_rewriter.rewrite_block(&input.block, Symbol::intern("unused"), Variant::Finalize);
         let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
         self.async_function_input_types.insert(
             Location::new(self.scope_state.program_name.unwrap(), vec![Symbol::intern(&format!(
@@ -1029,33 +995,33 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
         match self.scope_state.variant.unwrap() {
-            Variant::AsyncFunction | Variant::Function if !matches!(func.variant, Variant::Inline) => self.emit_err(
-                TypeCheckerError::can_only_call_inline_function("a `function`, `inline`, or `constructor`", input.span),
+            Variant::Finalize if !matches!(func.variant, Variant::FinalFn | Variant::Fn) => self.emit_err(
+                // FIXME: better error
+                TypeCheckerError::can_only_call_inline_function("a regular function or constructor", input.span),
             ),
-            Variant::Transition | Variant::AsyncTransition
-                if matches!(func.variant, Variant::Transition)
+            Variant::Fn if !matches!(func.variant, Variant::Fn) => self.emit_err(
+                TypeCheckerError::can_only_call_inline_function("a regular function or constructor", input.span),
+            ),
+            Variant::EntryPoint
+                if matches!(func.variant, Variant::EntryPoint)
                     && callee_program == self.scope_state.program_name.unwrap() =>
             {
-                self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(input.span))
+                self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_entry_point_fn(input.span))
             }
             _ => {}
         }
 
-        // Check that the call is not to an external `inline` function.
-        if func.variant == Variant::Inline && callee_program != self.scope_state.program_name.unwrap() {
-            self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
-        }
-
-        // Make sure we're not calling a non-inline from an async block
-        if self.async_block_id.is_some() && !matches!(func.variant, Variant::Inline) {
-            self.emit_err(TypeCheckerError::can_only_call_inline_function("an async block", input.span));
+        // Make sure we're not calling an entry point or finalize from a final block
+        if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn) {
+            // FIXME better error
+            self.emit_err(TypeCheckerError::can_only_call_inline_function("a final block", input.span));
         }
 
         // Async functions return a single future.
-        let mut ret = if func.variant == Variant::AsyncFunction {
+        let mut ret = if func.variant == Variant::Finalize {
             // Async functions always return futures.
             Type::Future(FutureType::new(Vec::new(), Some(callee_location.clone()), false))
-        } else if func.variant == Variant::AsyncTransition {
+        } else if func.variant == Variant::EntryPoint && func.has_final_output() {
             // Fully infer future type.
             let Some(inputs) =
                 self.async_function_input_types.get(&Location::new(callee_program, vec![Symbol::intern(&format!(
@@ -1063,8 +1029,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     input.function.identifier().name
                 ))]))
             else {
-                self.emit_err(TypeCheckerError::async_function_not_found(input.function.clone(), input.span));
-                return Type::Future(FutureType::new(Vec::new(), Some(callee_location.clone()), false));
+                panic!("Finalization not found: {} {}", input.function.clone(), input.span);
             };
 
             let future_type = Type::Future(FutureType::new(inputs.clone(), Some(callee_location.clone()), true));
@@ -1116,7 +1081,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 return Type::Err;
             }
             // Extract information about futures that are being consumed.
-            if func.variant == Variant::AsyncFunction && matches!(expected.type_(), Type::Future(_)) {
+            if func.variant == Variant::Finalize && matches!(expected.type_(), Type::Future(_)) {
                 // Consume the future.
                 let option_name = match argument {
                     Expression::Path(path) => Some(path.identifier().name),
@@ -1136,7 +1101,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                             self.scope_state.call_location = Some(future);
                         }
                         None => {
-                            self.emit_err(TypeCheckerError::unknown_future_consumed(name, argument.span()));
+                            self.emit_err(TypeCheckerError::unknown_final_consumed(name, argument.span()));
                         }
                     }
                 }
@@ -1151,12 +1116,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                                 inferred_finalize_inputs.push(ty);
                             }
                             None => {
-                                self.emit_err(TypeCheckerError::unknown_future_consumed(argument, argument.span()));
+                                self.emit_err(TypeCheckerError::unknown_final_consumed(argument, argument.span()));
                             }
                         }
                     }
                     _ => {
-                        self.emit_err(TypeCheckerError::unknown_future_consumed("unknown", argument.span()));
+                        self.emit_err(TypeCheckerError::unknown_final_consumed("unknown", argument.span()));
                     }
                 }
             } else {
@@ -1185,42 +1150,48 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let caller = Location::new(caller_program, caller_path.clone());
         let callee = Location::new(callee_program, callee_path.clone());
+        let call_count = self
+            .state
+            .call_count
+            .get_mut(&callee)
+            .expect("Call count should habe been set at the beginning of type checking");
+        *call_count += 1;
         self.state.call_graph.add_edge(caller, callee);
 
-        if func.variant.is_transition() && self.scope_state.variant == Some(Variant::AsyncTransition) {
+        if func.variant.is_entry() && self.scope_state.variant == Some(Variant::EntryPoint) {
             if self.scope_state.has_called_finalize {
-                self.emit_err(TypeCheckerError::external_call_after_async("function call", input.span));
+                panic!("External calls must appear before the finalization");
             }
 
             if self.scope_state.already_contains_an_async_block {
-                self.emit_err(TypeCheckerError::external_call_after_async("block", input.span));
+                self.emit_err(TypeCheckerError::external_call_after_final("block", input.span));
             }
         }
 
         // Propagate futures from async functions and transitions.
-        if func.variant.is_async_function() {
+        if func.variant.is_finalize() {
             // Cannot have async calls in a conditional block.
             if self.scope_state.is_conditional {
-                self.emit_err(TypeCheckerError::async_call_in_conditional(input.span));
+                panic!("Calling finalization in conditional");
             }
 
             // Can only call async functions and external async transitions from an async transition body.
-            if !matches!(self.scope_state.variant, Some(Variant::AsyncTransition) | Some(Variant::Script)) {
-                self.emit_err(TypeCheckerError::async_call_can_only_be_done_from_async_transition(input.span));
+            if !matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
+                panic!("Calling finalization outside entry point fn");
             }
 
             // Can only call an async function once in a transition function body.
             if self.scope_state.has_called_finalize {
-                self.emit_err(TypeCheckerError::must_call_async_function_once(input.span));
+                panic!("More than one finalization attached.");
             }
 
             if self.scope_state.already_contains_an_async_block {
-                self.emit_err(TypeCheckerError::conflicting_async_call_and_block(input.span));
+                panic!("Calling finalization when a final block already exists")
             }
 
             // Check that all futures consumed.
             if !self.scope_state.futures.is_empty() {
-                self.emit_err(TypeCheckerError::not_all_futures_consumed(
+                self.emit_err(TypeCheckerError::not_all_finals_consumed(
                     self.scope_state.futures.iter().map(|(f, _)| f).join(", "),
                     input.span,
                 ));
@@ -1387,16 +1358,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
             // First, ensure that the current scope is not an async function. Records should not be instantiated in
             // async functions
-            if self.scope_state.variant == Some(Variant::AsyncFunction) {
-                self.state
-                    .handler
-                    .emit_err(TypeCheckerError::records_not_allowed_inside_async("function", input.span()));
+            if matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)) {
+                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_final(input.span()));
             }
 
             // Similarly, ensure that the current scope is not an async block. Records should not be instantiated in
             // async blocks
             if self.async_block_id.is_some() {
-                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_async("block", input.span()));
+                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_final(input.span()));
             }
 
             // Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
@@ -2086,11 +2055,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
 
             if slf.scope_state.has_called_finalize {
-                slf.emit_err(TypeCheckerError::loop_body_contains_async("function call", input.span()));
+                slf.emit_err(TypeCheckerError::loop_body_contains_final(input.span()));
             }
 
             if slf.scope_state.already_contains_an_async_block {
-                slf.emit_err(TypeCheckerError::loop_body_contains_async("block expression", input.span()));
+                slf.emit_err(TypeCheckerError::loop_body_contains_final(input.span()));
             }
 
             slf.scope_state.has_return = prior_has_return;
@@ -2100,7 +2069,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_return(&mut self, input: &ReturnStatement) {
         if self.async_block_id.is_some() {
-            return self.emit_err(TypeCheckerError::async_block_cannot_return(input.span()));
+            return self.emit_err(TypeCheckerError::final_block_cannot_return(input.span()));
         }
 
         if self.scope_state.is_constructor {
@@ -2125,7 +2094,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let mut return_type = func_symbol.function.output_type.clone();
 
-        if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
+        if self.scope_state.variant == Some(Variant::EntryPoint) && self.scope_state.has_called_finalize {
             let inferred_future_type = Future(FutureType::new(
                 if let Some(finalizer) = &func_symbol.finalizer { finalizer.inferred_inputs.clone() } else { vec![] },
                 Some(Location::new(current_program, caller_path)),
@@ -2144,7 +2113,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         .collect::<Vec<Type>>(),
                 )),
                 _ => {
-                    return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
+                    return self.emit_err(TypeCheckerError::entry_point_missing_final_to_return(input.span()));
                 }
             };
 

@@ -28,18 +28,6 @@ closure adjacency_check:
     is.eq r6 0u64 into r7;
     output r7 as boolean;
 
-closure horizontal_check:
-    input r0 as u64;
-    input r1 as u64;
-    rem r0 255u64 into r2;
-    div r2 r1 into r3;
-    is.eq r3 0u64 into r4;
-    ternary r4 3u64 r3 into r5;
-    sub r5 1u64 into r6;
-    and r6 r5 into r7;
-    is.eq r7 0u64 into r8;
-    output r8 as boolean;
-
 function validate_ship:
     input r0 as u64.private;
     input r1 as u64.private;
@@ -48,11 +36,17 @@ function validate_ship:
     call bitcount r0 into r4;
     assert.eq r4 r1;
     call adjacency_check r0 r2 into r5;
-    call horizontal_check r0 r2 into r6;
-    and r5 r6 into r7;
-    call adjacency_check r0 r3 into r8;
-    or r7 r8 into r9;
-    output r9 as boolean.private;
+    rem r0 255u64 into r6;
+    div r6 r2 into r7;
+    is.eq r7 0u64 into r8;
+    ternary r8 3u64 r7 into r9;
+    sub r9 1u64 into r10;
+    and r10 r9 into r11;
+    is.eq r11 0u64 into r12;
+    and r5 r12 into r13;
+    call adjacency_check r0 r3 into r14;
+    or r13 r14 into r15;
+    output r15 as boolean.private;
 
 function create_board:
     input r0 as u64.private;

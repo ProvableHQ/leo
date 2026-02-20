@@ -1,15 +1,15 @@
 Error [ETYC0372117]: Expected a field or integer but type `scalar` was found.
-    --> compiler-test:4:16
+    --> compiler-test:2:12
      |
-   4 |         return a / b; // division not supported for scalar types.
-     |                ^
+   2 |     return a / b; // division not supported for scalar types.
+     |            ^
 Error [ETYC0372117]: Expected a field or integer but type `scalar` was found.
-    --> compiler-test:4:20
+    --> compiler-test:2:16
      |
-   4 |         return a / b; // division not supported for scalar types.
-     |                    ^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
+   2 |     return a / b; // division not supported for scalar types.
+     |                ^
+Error [ETYC0372083]: A program must have at least one entry point fn.
+    --> compiler-test:4:9
      |
-   2 | program test.aleo {
+   4 | program test.aleo {}
      |         ^^^^^^^^^

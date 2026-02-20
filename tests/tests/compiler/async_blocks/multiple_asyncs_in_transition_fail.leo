@@ -1,23 +1,23 @@
 program test.aleo {
-    async transition t1() {
-        let f1 = async {};
-        let f2 = foo();
+    fn t1() {
+        let f1 = final {};
+        let f2 = final { foo(); };
     }
 
-    async transition t2() {
-        let f1 = foo();
-        let f2 = async {};
+    fn t2() {
+        let f1 = final { foo(); };
+        let f2 = final {};
     }
 
-    async transition t3() {
-        let f1 = foo();
-        let f2 = foo();
+    fn t3() {
+        let f1 = final { foo(); };
+        let f2 = final { foo(); };
     }
 
-    async transition t4() {
-        let f1 = async {};
-        let f2 = async {};
+    fn t4() {
+        let f1 = final {};
+        let f2 = final {};
     }
-
-    async function foo() {}
 }
+
+final fn foo() {}

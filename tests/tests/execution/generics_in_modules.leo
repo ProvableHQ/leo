@@ -9,7 +9,7 @@ input = []
 */
 
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         let mat = common::use_matrix(); // Matrix with modified elements
 
         let outer = outer::OuterWrapper::[4] {
@@ -34,7 +34,7 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 
 }
 
@@ -54,7 +54,7 @@ struct WrappedMatrix::[M: u32, N: u32] {
 }
 
 // ✅ Function constructing matrix and modifying it with loop/assignment
-inline use_matrix() -> WrappedMatrix::[R, C] {
+fn use_matrix() -> WrappedMatrix::[R, C] {
     let base = Matrix::[R, C] {
         values: [[1; C]; R],
     };

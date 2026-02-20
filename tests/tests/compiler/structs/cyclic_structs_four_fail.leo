@@ -1,31 +1,31 @@
 
-program test.aleo {
-    struct Foo {
-        foo: [Foo; 1],
-    }
+program test.aleo { }
 
-    struct Bar {
-        baz: [Baz, 2],
-    }
+struct Foo {
+    foo: [Foo; 1],
+}
 
-    struct Baz {
-        bar: [Bar, 3],
-    }
+struct Bar {
+    baz: [Baz, 2],
+}
 
-    struct One {
-        two: [Two, 2],
-    }
+struct Baz {
+    bar: [Bar, 3],
+}
 
-    struct Two {
-        three: [Three, 3],
-        four: [Four, 4],
-    }
+struct One {
+    two: [Two, 2],
+}
 
-    struct Three {
-        one: [One, 1],
-    }
+struct Two {
+    three: [Three, 3],
+    four: [Four, 4],
+}
 
-    struct Four {
-        one: [One, 1],
-    }
+struct Three {
+    one: [One, 1],
+}
+
+struct Four {
+    one: [One, 1],
 }

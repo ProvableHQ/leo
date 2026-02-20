@@ -1,19 +1,19 @@
+//
+// ────────────────────────────────────────────────────────────────
+// Struct and array storage declarations
+// ────────────────────────────────────────────────────────────────
+//
+struct Point {
+    x: field,
+    y: field,
+}
+
+struct Stats {
+    values: [u32; 3],
+    active: bool,
+}
+
 program complex.aleo {
-    //
-    // ────────────────────────────────────────────────────────────────
-    // Struct and array storage declarations
-    // ────────────────────────────────────────────────────────────────
-    //
-    struct Point {
-        x: field,
-        y: field,
-    }
-
-    struct Stats {
-        values: [u32; 3],
-        active: bool,
-    }
-
     storage point: Point;
     storage points: [Point; 2];
     storage stats: Stats;
@@ -26,8 +26,8 @@ program complex.aleo {
     // Initialization
     // ────────────────────────────────────────────────────────────────
     //
-    async transition initialize() -> Future {
-        return async {
+    fn initialize() -> Final {
+        return final {
             // Structs
             point = Point { x: 1field, y: 2field };
             points = [
@@ -49,8 +49,8 @@ program complex.aleo {
     // Unset everything 
     // ────────────────────────────────────────────────────────────────
     //
-    async transition to_none() -> Future {
-        return async {
+    fn to_none() -> Final {
+        return final {
             // Integers
             point = none;
             points = none;
@@ -66,8 +66,8 @@ program complex.aleo {
     // Direct unwrap checks
     // ────────────────────────────────────────────────────────────────
     //
-    async transition check1() -> Future {
-        return async {
+    fn check1() -> Final {
+        return final {
             // Struct
             let p = point.unwrap();
             assert(p.x == 1field);
@@ -102,8 +102,8 @@ program complex.aleo {
     // unwrap_or checks (fallback behavior)
     // ────────────────────────────────────────────────────────────────
     //
-    async transition check2() -> Future {
-        return async {
+    fn check2() -> Final {
+        return final {
             // Struct
             let p = point.unwrap_or(Point { x: 0field, y: 0field });
             assert(p.x == 1field);
@@ -140,5 +140,5 @@ program complex.aleo {
     // ────────────────────────────────────────────────────────────────
     //
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

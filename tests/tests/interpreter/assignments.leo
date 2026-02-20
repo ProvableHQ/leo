@@ -12,31 +12,31 @@ input = ["12345678field", "100u8", "false"]
 */
 
 
+struct T {
+    x: field,
+    y: u8,
+    z: bool,
+}
+
+struct S {
+    x: [T; 2],
+    y: field,
+}
+
+fn transmogrify(s: S, a: field, b: field) -> S {
+    for i in 0u8..7u8 {
+        s.x[0u32].x += a;
+        s.x[1u32].x += b;
+    }
+
+    s.y += b;
+    s.x[0u32].z = !s.x[0u32].z;
+
+    return s;
+}
+
 program test_assignments.aleo {
-    struct T {
-        x: field,
-        y: u8,
-        z: bool,
-    }
-
-    struct S {
-        x: [T; 2],
-        y: field,
-    }
-
-    function transmogrify(s: S, a: field, b: field) -> S {
-        for i in 0u8..7u8 {
-            s.x[0u32].x += a;
-            s.x[1u32].x += b;
-        }
-
-        s.y += b;
-        s.x[0u32].z = !s.x[0u32].z;
-
-        return s;
-    }
-
-    transition run_transmogrify(x: field, y: u8, z: bool) -> S {
+    fn run_transmogrify(x: field, y: u8, z: bool) -> S {
         let t1 = T {
             x,
             y,
@@ -58,5 +58,5 @@ program test_assignments.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

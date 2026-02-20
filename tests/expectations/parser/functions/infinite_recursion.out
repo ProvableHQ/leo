@@ -1,10 +1,11 @@
 program test.aleo {
-    function inf() -> u8 {
+}
+    fn inf() -> u8 {
         inf();
     }
-    function main(y: bool) -> bool {
+    fn main(y: bool) -> bool {
         inf();
         return y;
     }
-}
+
 

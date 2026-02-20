@@ -20,13 +20,12 @@ function = "main"
 input = ["false", "2group", "aleo1yrmttyqs4gtm8t6dtcg2vd2mtr8p6ukmpe42cp2zm0989rmtr58q0asawh"]
 */
 
+struct foo {
+    data: field,
+}
+
 program test.aleo {
-
-    struct foo {
-        data: field,
-    }
-
-    transition main(f: bool, a: group, b: address) -> (foo, foo) {
+    fn main(f: bool, a: group, b: address) -> (foo, foo) {
         let first: foo = foo { data: a as field };
         if f {
             let second: foo = foo { data: 1field };
@@ -38,5 +37,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

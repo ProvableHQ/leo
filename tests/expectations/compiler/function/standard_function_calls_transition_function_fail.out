@@ -1,10 +1,10 @@
-Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:5:19
+Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
+    --> compiler-test:4:15
      |
-   5 |            return adder(a, b);
-     |                   ^^^^^^^^^^^
-Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:7:20
+   4 |        return adder(a, b);
+     |               ^^^^^^^^^^^
+Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
+    --> compiler-test:6:16
      |
-   7 |             return subber(a, b);
-     |                    ^^^^^^^^^^^^
+   6 |         return subber(a, b);
+     |                ^^^^^^^^^^^^

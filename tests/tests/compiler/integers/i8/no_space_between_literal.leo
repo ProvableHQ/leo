@@ -1,6 +1,6 @@
 
-program test.aleo {
-    function main(x: bool) {
-        let i = 1 i8;
-    }
+program test.aleo { }
+
+fn main(x: bool) {
+    let i = 1 i8;
 }

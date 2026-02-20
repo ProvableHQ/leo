@@ -1,19 +1,17 @@
 program dependent.aleo;
 
 function t1:
-    async t1 1u8 into r0;
+    async t1 into r0;
     output r0 as dependent.aleo/t1.future;
 
 finalize t1:
-    input r0 as u8.public;
     assert.eq 1u8 1u8;
 
 function t2:
-    async t2 1u8 into r0;
+    async t2 into r0;
     output r0 as dependent.aleo/t2.future;
 
 finalize t2:
-    input r0 as u8.public;
     assert.eq 1u8 1u8;
 // --- Next Program --- //
 import dependent.aleo;

@@ -1,10 +1,10 @@
 Error [ETYC0372008]: The value 18446744073709551616 is not a valid `u64`
-    --> compiler-test:4:22
+    --> compiler-test:4:18
      |
-   4 |         let a: u64 = 18446744073709551616u64;
-     |                      ^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+   4 |     let a: u64 = 18446744073709551616u64;
+     |                  ^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
-   2 | program test.aleo {
+   2 | program test.aleo { }
      |         ^^^^^^^^^

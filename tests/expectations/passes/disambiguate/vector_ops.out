@@ -1,35 +1,36 @@
 program singleton_storage.aleo {
-    async transition push() -> Future<Fn()> {
+    fn push() -> Final<Fn()> {
         return async {
             _vector_push(singleton_storage.aleo/vec, 42u8);
         };
     }
-    async transition pop() -> Future<Fn()> {
+    fn pop() -> Final<Fn()> {
         return async {
             let x = _vector_pop(singleton_storage.aleo/vec);
             assert(x != none);
         };
     }
-    async transition get() -> Future<Fn()> {
+    fn get() -> Final<Fn()> {
         return async {
             let x = _vector_get(singleton_storage.aleo/vec, 3u32);
             assert(x != none);
         };
     }
-    async transition clear() -> Future<Fn()> {
+    fn clear() -> Final<Fn()> {
         return async {
             _vector_clear(singleton_storage.aleo/vec);
         };
     }
-    async transition swap_remove() -> Future<Fn()> {
+    fn swap_remove() -> Final<Fn()> {
         return async {
             let x = _vector_swap_remove(singleton_storage.aleo/vec, 3u32);
             assert(x >= 0);
         };
     }
-    async transition set() -> Future<Fn()> {
+    fn set() -> Final<Fn()> {
         return async {
             _vector_set(singleton_storage.aleo/vec, 3u32, 42u8);
         };
     }
 }
+

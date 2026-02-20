@@ -261,6 +261,15 @@ impl fmt::Display for LineContents<'_> {
             }
         }
 
+        // Handle zero-length spans (e.g. EOF): emit a caret at `start`.
+        if self.start == self.end
+            && current_underline.chars().all(|c| c == ' ')
+            && self.start <= current_underline.len()
+        {
+            current_underline.truncate(self.start);
+            current_underline.push('^');
+        }
+
         // If the text didn't end in a newline, we may still
         // need to output an underline.
         let underline = current_underline.trim_end();

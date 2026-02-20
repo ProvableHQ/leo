@@ -1,0 +1,19 @@
+program child.aleo;
+
+function foo:
+    async foo into r0;
+    output r0 as child.aleo/foo.future;
+
+finalize foo:
+    assert.eq true true;
+    assert.eq false true;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function foo:
+    async foo into r0;
+    output r0 as parent.aleo/foo.future;
+
+finalize foo:
+    assert.eq true true;
