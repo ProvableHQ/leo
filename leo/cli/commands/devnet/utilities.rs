@@ -20,7 +20,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::{
     fs,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Child, Command, Stdio},
 };
 
 /// Compiles & installs snarkOS and returns the **final binary path**.
@@ -71,4 +71,19 @@ pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[S
     ensure!(snarkos_path.is_file(), "snarkOS binary not produced at {}", snarkos_path.display());
     println!("✅  Installed snarkOS ⇒ {}", snarkos_path.display());
     Ok(snarkos_path.to_path_buf())
+}
+
+/// Spawns `snarkos clean` for a single dev node, returning the child process.
+pub fn clean_snarkos(snarkos: &Path, network: usize, idx: usize, storage: &Path) -> std::io::Result<Child> {
+    Command::new(snarkos)
+        .arg("clean")
+        .arg("--network")
+        .arg(network.to_string())
+        .arg("--dev")
+        .arg(idx.to_string())
+        .arg("--path")
+        .arg(storage)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
 }

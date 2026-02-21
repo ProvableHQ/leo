@@ -25,9 +25,6 @@ mod windows_kill_tree;
 mod shutdown;
 use shutdown::*;
 
-mod clean;
-use clean::*;
-
 mod utilities;
 use utilities::*;
 
@@ -210,6 +207,7 @@ impl LeoDevnet {
         } else {
             println!("  • Consensus heights: default (based on your snarkOS binary)");
         }
+        println!("  • Clear storage: {}", if self.clear_storage { "yes" } else { "no" });
         println!("  • Verbosity: {}", self.verbosity);
         println!("  • tmux: {}", if self.tmux { "yes" } else { "no" });
 
@@ -287,13 +285,16 @@ impl LeoDevnet {
 
         // Optionally clear previous devnet artifacts before starting.
         if self.clear_storage {
-            let artifacts = find_devnet_artifacts(&storage)?;
-            for dir in &artifacts {
-                std::fs::remove_dir_all(dir)?;
-                println!("  Removed {}", dir.display());
+            println!("🧹  Cleaning ledgers …");
+            let mut cleaners = Vec::new();
+            for idx in 0..self.num_validators {
+                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, &storage)?);
             }
-            if !artifacts.is_empty() {
-                println!("Cleared {} existing storage directories.", artifacts.len());
+            for idx in 0..self.num_clients {
+                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx + self.num_validators, &storage)?);
+            }
+            for mut c in cleaners {
+                c.wait()?;
             }
         }
 
@@ -574,8 +575,17 @@ impl LeoDevnet {
         Ok(())
     }
 
-    /// Handle clean-only mode: remove devnet storage artifacts.
+    /// Handle clean-only mode: delegate to `snarkos clean` for each dev node,
+    /// then remove Leo-specific log directories.
     fn handle_clean(&self) -> AnyhowResult<()> {
+        let snarkos_path = self.snarkos.as_ref().ok_or_else(|| {
+            anyhow!("The `--snarkos` flag is required for `--clean-only`. Provide the path to the snarkOS binary.")
+        })?;
+        if !snarkos_path.exists() {
+            bail!("The snarkOS binary at `{}` does not exist.", snarkos_path.display());
+        }
+        let snarkos = canonicalize(snarkos_path)?;
+
         let storage = PathBuf::from(&self.storage);
         if !storage.exists() {
             println!("Storage path `{}` does not exist. Nothing to clean.", self.storage);
@@ -584,30 +594,38 @@ impl LeoDevnet {
         if !storage.is_dir() {
             bail!("Storage path `{}` is not a directory.", self.storage);
         }
+        let storage = canonicalize(&storage)?;
 
-        let dirs_to_remove = find_devnet_artifacts(&storage)?;
-
-        if dirs_to_remove.is_empty() {
-            println!("No devnet storage found in `{}`.", self.storage);
-            return Ok(());
-        }
-
-        println!("Found {} devnet storage directories in `{}`:", dirs_to_remove.len(), self.storage);
-        for dir in &dirs_to_remove {
-            println!("  • {}", dir.display());
-        }
-
-        if !confirm("\nRemove these directories?", self.yes)? {
+        let total_nodes = self.num_validators + self.num_clients;
+        if !confirm(&format!("\nClean devnet storage for {total_nodes} nodes in `{}`?", self.storage), self.yes)? {
             println!("Aborted.");
             return Ok(());
         }
 
-        for dir in &dirs_to_remove {
-            std::fs::remove_dir_all(dir)?;
-            println!("  Removed {}", dir.display());
+        println!("🧹  Cleaning ledgers …");
+        let mut cleaners = Vec::new();
+        for idx in 0..self.num_validators {
+            cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, &storage)?);
         }
-        println!("Cleaned {} directories.", dirs_to_remove.len());
+        for idx in 0..self.num_clients {
+            cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx + self.num_validators, &storage)?);
+        }
+        for mut c in cleaners {
+            c.wait()?;
+        }
 
+        // Remove Leo-specific log directories that snarkOS does not manage.
+        for entry in std::fs::read_dir(&storage)? {
+            let entry = entry?;
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+            if entry.file_type()?.is_dir() && name.starts_with(".logs-") {
+                std::fs::remove_dir_all(entry.path())?;
+                println!("  Removed {}", entry.path().display());
+            }
+        }
+
+        println!("Cleaned devnet storage.");
         Ok(())
     }
 

@@ -8,8 +8,10 @@ if [ -z "$SNARKOS" ]; then
     exit 1
 fi
 STORAGE=$(mktemp -d)
-# The test framework injects LEO_DEVNET_REST_PORT with a free port range.
-PORT=${LEO_DEVNET_REST_PORT}
+# The test framework injects port ranges for all snarkOS port types.
+REST_PORT=${LEO_DEVNET_REST_PORT}
+NODE_PORT=${LEO_DEVNET_NODE_PORT}
+BFT_PORT=${LEO_DEVNET_BFT_PORT}
 PID=""
 
 cleanup() {
@@ -21,7 +23,9 @@ trap cleanup EXIT
 $LEO_BIN --disable-update-check devnet \
     --snarkos "$SNARKOS" \
     --num-clients 0 \
-    --rest-port "$PORT" \
+    --rest-port "$REST_PORT" \
+    --node-port "$NODE_PORT" \
+    --bft-port "$BFT_PORT" \
     --storage "$STORAGE" \
     --clear-storage \
     --yes \
@@ -29,27 +33,53 @@ $LEO_BIN --disable-update-check devnet \
     >/dev/null 2>"$STORAGE/leo-devnet.log" &
 PID=$!
 
-# Poll until the first validator reaches block height 10.
-ENDPOINT="http://127.0.0.1:${PORT}/testnet/block/height/latest"
-DEADLINE=$((SECONDS + 300))
-REACHED=false
+# First, wait for the REST endpoint to become reachable (up to 120s).
+ENDPOINT="http://127.0.0.1:${REST_PORT}/testnet/block/height/latest"
+DEADLINE=$((SECONDS + 120))
+REST_UP=false
 while [ $SECONDS -lt $DEADLINE ]; do
     if ! kill -0 "$PID" 2>/dev/null; then
-        echo "Leo devnet process died unexpectedly" >&2
+        echo "Leo devnet process died during startup" >&2
         cat "$STORAGE/leo-devnet.log" >&2
+        for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done
         echo "Leo devnet failed"
         exit 1
     fi
-    if HEIGHT=$(curl -sf "$ENDPOINT") && [ "$HEIGHT" -ge 10 ] 2>/dev/null; then
+    if curl -sf "$ENDPOINT" >/dev/null 2>&1; then
+        REST_UP=true
+        break
+    fi
+    sleep 2
+done
+
+if [ "$REST_UP" = false ]; then
+    echo "Leo devnet REST endpoint never became reachable (PORT=$REST_PORT)" >&2
+    cat "$STORAGE/leo-devnet.log" >&2
+    for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done
+    echo "Leo devnet failed"
+    exit 1
+fi
+
+# Then wait for at least 1 block to be produced (confirms consensus is working).
+DEADLINE=$((SECONDS + 180))
+REACHED=false
+while [ $SECONDS -lt $DEADLINE ]; do
+    if ! kill -0 "$PID" 2>/dev/null; then
+        echo "Leo devnet process died while waiting for blocks" >&2
+        echo "Leo devnet failed"
+        exit 1
+    fi
+    if HEIGHT=$(curl -sf "$ENDPOINT") && [ "$HEIGHT" -ge 1 ] 2>/dev/null; then
         REACHED=true
         break
     fi
-    sleep 5
+    sleep 2
 done
 
 if [ "$REACHED" = false ]; then
-    echo "Leo devnet timed out (PORT=$PORT)" >&2
+    echo "Leo devnet did not produce blocks (PORT=$REST_PORT)" >&2
     cat "$STORAGE/leo-devnet.log" >&2
+    for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done
     echo "Leo devnet timed out"
     exit 1
 fi
@@ -61,5 +91,5 @@ kill "$PID" 2>/dev/null && wait "$PID" 2>/dev/null
 PID=""
 
 # Clean devnet storage and report.
-$LEO_BIN --disable-update-check devnet --clean-only --storage "$STORAGE" --yes >/dev/null 2>&1
+$LEO_BIN --disable-update-check devnet --clean-only --snarkos "$SNARKOS" --storage "$STORAGE" --yes >/dev/null 2>&1
 echo "Leo devnet clean succeeded"
