@@ -209,6 +209,9 @@ pub fn evaluate_intrinsic(
         Intrinsic::Hash(hash_variant, type_) => dohash(helper, hash_variant, type_)?,
         Intrinsic::ECDSAVerify(ecdsa_variant) => doecdsa(helper, ecdsa_variant)?,
         Intrinsic::SignatureVerify => doschnorr(helper)?,
+        Intrinsic::SnarkVerify | Intrinsic::SnarkVerifyBatch => {
+            return Ok(None); // Cannot evaluate at compile time
+        }
         Intrinsic::Serialize(variant) => doserialize(helper, variant)?,
         Intrinsic::Deserialize(variant, type_) => dodeserialize(helper, variant, type_)?,
         Intrinsic::GroupToXCoordinate => {
@@ -300,6 +303,13 @@ pub fn evaluate_intrinsic(
             helper.mapping_get(program, name, &key).is_some().into()
         }
         Intrinsic::GroupGen => Value::generator(),
+        Intrinsic::AleoGenerator => Value::generator(),
+        Intrinsic::AleoGeneratorPowers => {
+            // Not evaluated at compile time. Constant folding would inline all 251 group literals,
+            // bloating program size. Code generation emits the `aleo::GENERATOR_POWERS` operand
+            // instead, letting the VM resolve the values from its built-in table.
+            return Ok(None);
+        }
         Intrinsic::OptionalUnwrap => {
             // TODO
             return Ok(None);

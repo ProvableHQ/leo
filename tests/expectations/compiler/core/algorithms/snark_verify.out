@@ -1,0 +1,23 @@
+program test.aleo;
+
+function main:
+    input r0 as [u8; 128u32].private;
+    input r1 as u8.private;
+    input r2 as [field; 4u32].private;
+    input r3 as [u8; 256u32].private;
+    input r4 as [[u8; 128u32]; 2u32].private;
+    input r5 as [[[field; 4u32]; 3u32]; 2u32].private;
+    async main r0 r1 r2 r3 r4 r5 into r6;
+    output r6 as test.aleo/main.future;
+
+finalize main:
+    input r0 as [u8; 128u32].public;
+    input r1 as u8.public;
+    input r2 as [field; 4u32].public;
+    input r3 as [u8; 256u32].public;
+    input r4 as [[u8; 128u32]; 2u32].public;
+    input r5 as [[[field; 4u32]; 3u32]; 2u32].public;
+    snark.verify r0 r1 r2 r3 into r6;
+    snark.verify.batch r4 r1 r5 r3 into r7;
+    assert.eq r6 r6;
+    assert.eq r7 r7;

@@ -380,31 +380,31 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1c7pcaqwdydrp5re5gqsy4r50043savrstqwndmlekjdlfrmdhyzs9a7dpm",
+      "id": "au1yh72rjl0vydk0c9t62eysj63sczt9vct0vclxplwywlx7urwuqxspmaudu",
       "program": "vector_structs.aleo",
       "function": "test_vector_primitives_behavior",
       "inputs": [
         {
           "type": "private",
-          "id": "5852206278757247955567185688995490731094595502602706197923395395686775975077field",
-          "value": "ciphertext1qyqqwc72mgt7zq3dfjwkadxxevxg7yu3qxecaqdul75zrfw634lhjrq5jny0m"
+          "id": "5156754680577411643362092361092055113830149709822718422203321594898071365371field",
+          "value": "ciphertext1qyqrwm5ggtjev8e4dw9enndgc8urdyp9e0xp0watzvvdftp9q6r35qcdcyyyw"
         },
         {
           "type": "private",
-          "id": "805141962083512958997719928157316087078175642289369069670211093585311578710field",
-          "value": "ciphertext1qyq0v2f2ueh7d9sw3qnrmkxcm55850j3pdzkw6evakslysmt0x7u6pq2w4gtp"
+          "id": "1897094634372537740984916529586433881247906939128686434465776716296258103114field",
+          "value": "ciphertext1qyqv33k5z5cp0n9qxfe0vespttttcxlvat6dd5mkhhsm8sz88xysurst7xaq7"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "1346687637447732924371405587002975488123261593421903767383196364703707802291field",
+          "id": "4227449250778747849651864977952236241255585378548441482535622865381962613870field",
           "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_primitives_behavior,\n  arguments: [\n    1u32,\n    25u32\n  ]\n}"
         }
       ],
-      "tpk": "4325020224465758641520401598240299553124287099346104334521547223039735784337group",
-      "tcm": "3693494123809887159890076402421748215328803214604135605369352884207804712230field",
-      "scm": "6118091813699558155705569970645220095016527493104810729650285635730864767800field"
+      "tpk": "7816036750434580342388964897203000919873237595589438089172469410233413326769group",
+      "tcm": "3680718118111371187976527099902057095227877390803968582953024685436349492693field",
+      "scm": "1240638551432663381681957707965300717905720772288366450456059082573718207802field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

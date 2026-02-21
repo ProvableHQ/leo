@@ -61,7 +61,7 @@ pub struct LeoUpgrade {
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
     pub(crate) extra: ExtraOptions,
-    #[clap(long, help = "Skips the upgrade of any program that contains one of the given substrings.", value_delimiter = ',', num_args = 1..)]
+    #[clap(long, help = "Skips the upgrade of any program that contains one of the given substrings.")]
     pub(crate) skip: Vec<String>,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
@@ -260,35 +260,34 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
 
     // Load all the programs from the network into the VM.
-    let mut programs_and_editions = Vec::with_capacity(program_ids.len());
-    for id in &program_ids {
-        // Load the program from the network.
-        let Ok(program) = leo_package::Program::fetch(
-            Symbol::intern(&id.name().to_string()),
-            None,
-            context.home()?,
-            network,
-            &endpoint,
-            true,
-        ) else {
-            warn_and_confirm(&format!("Failed to fetch program {id} from the network."), command.extra.yes)?;
-            continue;
-        };
+    let programs_and_editions = program_ids
+        .iter()
+        .map(|id| {
+            // Load the program from the network.
+            let program = leo_package::Program::fetch(
+                Symbol::intern(&id.name().to_string()),
+                None,
+                context.home()?,
+                network,
+                &endpoint,
+                true,
+            )?;
+            let ProgramData::Bytecode(bytecode) = program.data else {
+                panic!("Expected bytecode when fetching a remote program");
+            };
+            // Parse the program bytecode.
+            let bytecode = Program::<N>::from_str(&bytecode)
+                .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+            // Return the bytecode and edition.
+            // Program::fetch should always set the edition after a successful fetch.
+            let edition = program.edition.expect("Edition should be set after successful fetch");
+            Ok((bytecode, edition))
+        })
+        .collect::<Result<Vec<_>>>()?;
 
-        let ProgramData::Bytecode(bytecode) = program.data else {
-            panic!("Expected bytecode when fetching a remote program");
-        };
-        // Parse the program bytecode.
-        let bytecode =
-            Program::<N>::from_str(&bytecode).map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
-        // Append the bytecode and edition.
-        // Program::fetch should always set the edition after a successful fetch.
-        let edition = program.edition.expect("Edition should be set after successful fetch");
-        programs_and_editions.push((bytecode, edition));
-    }
     // Check for programs that violate edition/constructor requirements.
     check_edition_constructor_requirements(&programs_and_editions, consensus_version, "upgrade")?;
-    // Add the programs to the VM.
+
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Print the programs and their editions in the VM.
@@ -363,21 +362,29 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                     deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
                 // Authorize the fee.
                 let fee_authorization = match record {
-                    Some(record) => vm.process().read().authorize_fee_private::<A, _>(
-                        &private_key,
-                        record,
-                        minimum_deployment_cost,
-                        priority_fee.unwrap_or(0),
-                        deployment_id,
-                        rng,
-                    )?,
-                    None => vm.process().read().authorize_fee_public::<A, _>(
-                        &private_key,
-                        minimum_deployment_cost,
-                        priority_fee.unwrap_or(0),
-                        deployment_id,
-                        rng,
-                    )?,
+                    Some(record) => vm
+                        .process()
+                        .read()
+                        .authorize_fee_private::<A, _>(
+                            &private_key,
+                            record,
+                            minimum_deployment_cost,
+                            priority_fee.unwrap_or(0),
+                            deployment_id,
+                            rng,
+                        )
+                        .map_err(|e| anyhow::anyhow!("{e}"))?,
+                    None => vm
+                        .process()
+                        .read()
+                        .authorize_fee_public::<A, _>(
+                            &private_key,
+                            minimum_deployment_cost,
+                            priority_fee.unwrap_or(0),
+                            deployment_id,
+                            rng,
+                        )
+                        .map_err(|e| anyhow::anyhow!("{e}"))?,
                 };
 
                 // Get the state root.
@@ -415,9 +422,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
             }
         }
         // Add the program to the VM.
-        if let Err(e) = vm.process().write().add_program(&program) {
-            warn_and_confirm(&format!("Failed to add program {id} to the VM. Error: {e}"), command.extra.yes)?;
-        }
+        vm.process().write().add_program(&program)?;
     }
 
     // If the `print` option is set, print the deployment transaction to the console.

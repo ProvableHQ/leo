@@ -114,7 +114,7 @@ Please either:
     if !command.manual_block_creation {
         println!("Advancing the Devnode to the latest consensus version");
         let last_height = TEST_CONSENSUS_VERSION_HEIGHTS.last().unwrap().1;
-        // Call the REST API to advance the ledger.
+        // Call the REST API to advance the ledger by one block.
         let client = reqwest::Client::new();
 
         let payload = json!({

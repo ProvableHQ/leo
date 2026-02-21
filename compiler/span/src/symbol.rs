@@ -145,6 +145,8 @@ symbols! {
     GEN,
 
     // intrinsics
+    _aleo_generator,
+    _aleo_generator_powers,
     _group_gen,
     _chacha_rand_address,
     _chacha_rand_bool,
@@ -651,6 +653,8 @@ symbols! {
     _program_edition,
     _program_owner,
     _signature_verify,
+    _snark_verify,
+    _snark_verify_batch,
     _final_run,
     _serialize_to_bits,
     _serialize_to_bits_raw,
@@ -673,6 +677,7 @@ symbols! {
 
 
     // core functions
+    Aleo,
     BHP256,
     BHP512,
     BHP768,
@@ -683,6 +688,8 @@ symbols! {
     commit_to_group,
     contains,
     ECDSA,
+    generator,
+    generator_powers,
     get,
     get_or_use,
     hash_to_address,
@@ -747,9 +754,11 @@ symbols! {
     SHA3_256,
     SHA3_384,
     SHA3_512,
+    Snark,
     to_x_coordinate,
     to_y_coordinate,
     verify,
+    verify_batch,
     verify_digest,
     verify_digest_eth,
     verify_keccak256,

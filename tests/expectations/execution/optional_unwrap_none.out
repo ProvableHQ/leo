@@ -26,7 +26,7 @@ function unwrap_struct_field_none:
 
 constructor:
     assert.eq edition 0u16;
-status: failed: Any { .. }
+status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq r0.is_some true;) at index 1 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
 output: ()
-status: failed: Any { .. }
+status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq r1.val.is_some true;) at index 2 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
 output: ()
