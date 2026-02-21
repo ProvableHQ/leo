@@ -36,7 +36,6 @@ use itertools::Itertools;
 use parking_lot::Mutex;
 use std::{
     env,
-    ffi::OsStr,
     path::{Path, PathBuf},
     process::{Child, Command as StdCommand, Stdio},
     sync::Arc,
@@ -53,7 +52,7 @@ use leo_ast::NetworkName;
 /// A high REST RPS (requests per second) for snarkOS devnets.
 const REST_RPS: &str = "999999999";
 
-/// Launch a local devnet (validators + clients) using snarkOS.
+/// Launch and manage a local devnet (validators + clients) using snarkOS.
 #[derive(Parser, Debug)]
 pub struct LeoDevnet {
     #[clap(long, help = "Number of validators", default_value = "4")]
@@ -64,10 +63,8 @@ pub struct LeoDevnet {
     pub(crate) network: NetworkName,
     #[clap(long, help = "Ledger / log root directory", default_value = "./")]
     pub(crate) storage: String,
-    #[clap(long, help = "Clear existing ledgers before start")]
-    pub(crate) clear_storage: bool,
     #[clap(long, help = "Path to snarkOS binary. If it does not exist, set `--install` to build it at this path.")]
-    pub(crate) snarkos: PathBuf,
+    pub(crate) snarkos: Option<PathBuf>,
     #[clap(long, help = "Required features for snarkOS (e.g. `test_network`)", value_delimiter = ',')]
     pub(crate) snarkos_features: Vec<String>,
     #[clap(long, help = "Required version for snarkOS (e.g. `4.1.0`). Defaults to latest version on `crates.io`.")]
@@ -87,6 +84,18 @@ pub struct LeoDevnet {
     pub(crate) verbosity: u8,
     #[clap(long, short = 'y', help = "Skip confirmation prompts and proceed with the devnet startup")]
     pub(crate) yes: bool,
+    #[clap(long, help = "Base REST port (each node uses base + dev_index)")]
+    pub(crate) rest_port: Option<u16>,
+    #[clap(long, help = "Base node port (each node uses base + dev_index)")]
+    pub(crate) node_port: Option<u16>,
+    #[clap(long, help = "Base BFT port (each node uses base + dev_index)")]
+    pub(crate) bft_port: Option<u16>,
+    #[clap(long, help = "Base metrics port (each validator uses base + dev_index)")]
+    pub(crate) metrics_port: Option<u16>,
+    #[clap(long, help = "Remove existing devnet storage before starting")]
+    pub(crate) clear_storage: bool,
+    #[clap(long, help = "Only clean devnet storage (ledgers, node data, logs) without starting")]
+    pub(crate) clean_only: bool,
 }
 
 impl Command for LeoDevnet {
@@ -102,16 +111,29 @@ impl Command for LeoDevnet {
     }
 
     fn apply(self, _cx: Context, _: Self::Input) -> Result<Self::Output> {
-        self.handle_apply().map_err(|e| CliError::custom(format!("Failed to start devnet: {e}")).into())
+        self.handle_apply().map_err(|e| CliError::custom(format!("Failed to run devnet command: {e}")).into())
     }
 }
 
 impl LeoDevnet {
-    /// Handle the actual devnet startup logic.
+    /// Handle the actual devnet logic.
     fn handle_apply(&self) -> AnyhowResult<()> {
+        //───────────────────────────────────────────────────────────────────
+        // Clean-only mode: just remove storage artifacts and exit.
+        //───────────────────────────────────────────────────────────────────
+        if self.clean_only {
+            return self.handle_clean();
+        }
+
         //───────────────────────────────────────────────────────────────────
         // 0. Guard rails
         //───────────────────────────────────────────────────────────────────
+        let snarkos_path = self.snarkos.as_ref().ok_or_else(|| {
+            anyhow!(
+                "The `--snarkos` flag is required when starting a devnet. Use `--clean-only` to only clean storage."
+            )
+        })?;
+
         if cfg!(windows) && self.tmux {
             bail!("tmux mode is not available on Windows – remove `--tmux`.");
         }
@@ -132,30 +154,36 @@ impl LeoDevnet {
             bail!("The number of validators must be at least 4.");
         }
 
-        // Resolve the snarkOS path to its canonical form.
+        // Validate port ranges won't overflow with the number of nodes.
+        let total_nodes = self.num_validators + self.num_clients;
+        Self::validate_port_range("--rest-port", self.rest_port, total_nodes)?;
+        Self::validate_port_range("--node-port", self.node_port, total_nodes)?;
+        Self::validate_port_range("--bft-port", self.bft_port, total_nodes)?;
+        Self::validate_port_range("--metrics-port", self.metrics_port, self.num_validators)?;
 
+        // Resolve the snarkOS path to its canonical form.
         if self.install {
             // If installing, make sure we can write to a file at the path.
-            if let Some(parent) = self.snarkos.parent()
+            if let Some(parent) = snarkos_path.parent()
                 && !parent.exists()
             {
                 std::fs::create_dir_all(parent)
                     .with_context(|| format!("Failed to create directory for binary: {}", parent.display()))?;
             }
-            std::fs::write(&self.snarkos, [0u8]).with_context(|| {
-                format!("Failed to write to path {} for snarkos installation", self.snarkos.display())
+            std::fs::write(snarkos_path, [0u8]).with_context(|| {
+                format!("Failed to write to path {} for snarkos installation", snarkos_path.display())
             })?;
         } else {
             // If not installing, ensure the snarkOS binary exists at the provided path.
-            if !self.snarkos.exists() {
+            if !snarkos_path.exists() {
                 bail!(
                     "The snarkOS binary at `{}` does not exist. Please provide a valid path or use `--install`.",
-                    self.snarkos.display()
+                    snarkos_path.display()
                 );
             }
         };
-        let snarkos = canonicalize(&self.snarkos)
-            .with_context(|| format!("Failed to resolve snarkOS path: {}", self.snarkos.display()))?;
+        let snarkos = canonicalize(snarkos_path)
+            .with_context(|| format!("Failed to resolve snarkOS path: {}", snarkos_path.display()))?;
 
         // Confirm with the user the options they provided.
         println!("🔧  Starting devnet with the following options:");
@@ -254,6 +282,22 @@ impl LeoDevnet {
         // Resolve the storage directory to its canonical form.
         let storage =
             canonicalize(&storage).with_context(|| format!("Failed to resolve storage path: {}", self.storage))?;
+
+        // Optionally clear previous devnet artifacts before starting.
+        if self.clear_storage {
+            println!("🧹  Cleaning ledgers …");
+            let mut cleaners = Vec::new();
+            for idx in 0..self.num_validators {
+                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, &storage)?);
+            }
+            for idx in 0..self.num_clients {
+                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx + self.num_validators, &storage)?);
+            }
+            for mut c in cleaners {
+                c.wait()?;
+            }
+        }
+
         // Create the log directory inside the storage directory.
         let log_dir = {
             let ts = Local::now().format(".logs-%Y-%m-%d-%H-%M-%S").to_string();
@@ -263,30 +307,7 @@ impl LeoDevnet {
         };
 
         //───────────────────────────────────────────────────────────────────
-        // 4. (Optional) ledger cleanup
-        //───────────────────────────────────────────────────────────────────
-        if self.clear_storage {
-            println!("🧹  Cleaning ledgers …");
-            let mut cleaners = Vec::new();
-            for idx in 0..self.num_validators {
-                cleaners.push(clean_snarkos(&snarkos, self.network as usize, "validator", idx, storage.as_path())?);
-            }
-            for idx in 0..self.num_clients {
-                cleaners.push(clean_snarkos(
-                    &snarkos,
-                    self.network as usize,
-                    "client",
-                    idx + self.num_validators,
-                    storage.as_path(),
-                )?);
-            }
-            for mut c in cleaners {
-                c.wait()?;
-            }
-        }
-
-        //───────────────────────────────────────────────────────────────────
-        // 5. Spawn nodes (tmux **or** background)
+        // 4. Spawn nodes (tmux **or** background)
         //───────────────────────────────────────────────────────────────────
 
         #[allow(clippy::too_many_arguments)]
@@ -297,8 +318,13 @@ impl LeoDevnet {
             num_validators: usize,
             idx: usize,
             log_file: &Path,
+            storage: &Path,
+            rest_port: Option<u16>,
+            node_port: Option<u16>,
+            bft_port: Option<u16>,
             metrics_port: Option<u16>,
         ) -> Vec<String> {
+            let idx_u16 = idx as u16;
             let mut base = vec![
                 "start".to_string(),
                 "--nodisplay".to_string(),
@@ -314,14 +340,28 @@ impl LeoDevnet {
                 log_file.to_str().unwrap().to_string(),
                 "--verbosity".to_string(),
                 verbosity.to_string(),
+                "--ledger-storage".to_string(),
+                storage.join(format!("ledger-{idx}")).to_str().unwrap().to_string(),
+                "--node-data-storage".to_string(),
+                storage.join(format!("node-data-{idx}")).to_str().unwrap().to_string(),
             ];
+            if let Some(port) = rest_port {
+                // Port overflow is validated upfront in handle_apply.
+                base.extend(["--rest".into(), format!("0.0.0.0:{}", port + idx_u16)]);
+            }
+            if let Some(port) = node_port {
+                base.extend(["--node".into(), format!("0.0.0.0:{}", port + idx_u16)]);
+            }
+            if let Some(port) = bft_port {
+                base.extend(["--bft".into(), format!("0.0.0.0:{}", port + idx_u16)]);
+            }
             match role {
                 "validator" => {
                     base.extend(
                         ["--allow-external-peers", "--validator", "--no-dev-txs"].into_iter().map(String::from),
                     );
-                    if let Some(p) = metrics_port {
-                        base.extend(["--metrics".into(), "--metrics-ip".into(), format!("0.0.0.0:{p}")]);
+                    if let Some(port) = metrics_port {
+                        base.extend(["--metrics".into(), "--metrics-ip".into(), format!("0.0.0.0:{}", port + idx_u16)]);
                     }
                 }
                 "client" => base.push("--client".into()),
@@ -380,7 +420,6 @@ impl LeoDevnet {
                         .status()?;
                 }
                 let log_file = log_dir.join(format!("{window_name}.log"));
-                let metrics_port = 9000 + idx as u16;
                 let cmd = std::iter::once(snarkos.to_string_lossy().into_owned())
                     .chain(build_args(
                         "validator",
@@ -389,7 +428,11 @@ impl LeoDevnet {
                         self.num_validators,
                         idx,
                         log_file.as_path(),
-                        Some(metrics_port),
+                        &storage,
+                        self.rest_port,
+                        self.node_port,
+                        self.bft_port,
+                        self.metrics_port,
                     ))
                     .collect::<Vec<_>>()
                     .join(" ");
@@ -415,6 +458,10 @@ impl LeoDevnet {
                         self.num_validators,
                         dev_idx,
                         log_file.as_path(),
+                        &storage,
+                        self.rest_port,
+                        self.node_port,
+                        self.bft_port,
                         None,
                     ))
                     .collect::<Vec<_>>()
@@ -474,7 +521,11 @@ impl LeoDevnet {
                             self.num_validators,
                             idx,
                             &log_file,
-                            Some(9000 + idx as u16),
+                            &storage,
+                            self.rest_port,
+                            self.node_port,
+                            self.bft_port,
+                            self.metrics_port,
                         ));
                         c
                     },
@@ -498,6 +549,10 @@ impl LeoDevnet {
                             self.num_validators,
                             dev_idx,
                             &log_file,
+                            &storage,
+                            self.rest_port,
+                            self.node_port,
+                            self.bft_port,
                             None,
                         ));
                         c
@@ -517,6 +572,71 @@ impl LeoDevnet {
         let _ = rx_shutdown.recv();
         manager.lock().shutdown_all(Duration::from_secs(30));
 
+        Ok(())
+    }
+
+    /// Handle clean-only mode: delegate to `snarkos clean` for each dev node,
+    /// then remove Leo-specific log directories.
+    fn handle_clean(&self) -> AnyhowResult<()> {
+        let snarkos_path = self.snarkos.as_ref().ok_or_else(|| {
+            anyhow!("The `--snarkos` flag is required for `--clean-only`. Provide the path to the snarkOS binary.")
+        })?;
+        if !snarkos_path.exists() {
+            bail!("The snarkOS binary at `{}` does not exist.", snarkos_path.display());
+        }
+        let snarkos = canonicalize(snarkos_path)?;
+
+        let storage = PathBuf::from(&self.storage);
+        if !storage.exists() {
+            println!("Storage path `{}` does not exist. Nothing to clean.", self.storage);
+            return Ok(());
+        }
+        if !storage.is_dir() {
+            bail!("Storage path `{}` is not a directory.", self.storage);
+        }
+        let storage = canonicalize(&storage)?;
+
+        let total_nodes = self.num_validators + self.num_clients;
+        if !confirm(&format!("\nClean devnet storage for {total_nodes} nodes in `{}`?", self.storage), self.yes)? {
+            println!("Aborted.");
+            return Ok(());
+        }
+
+        println!("🧹  Cleaning ledgers …");
+        let mut cleaners = Vec::new();
+        for idx in 0..self.num_validators {
+            cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, &storage)?);
+        }
+        for idx in 0..self.num_clients {
+            cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx + self.num_validators, &storage)?);
+        }
+        for mut c in cleaners {
+            c.wait()?;
+        }
+
+        // Remove Leo-specific log directories that snarkOS does not manage.
+        for entry in std::fs::read_dir(&storage)? {
+            let entry = entry?;
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+            if entry.file_type()?.is_dir() && name.starts_with(".logs-") {
+                std::fs::remove_dir_all(entry.path())?;
+                println!("  Removed {}", entry.path().display());
+            }
+        }
+
+        println!("Cleaned devnet storage.");
+        Ok(())
+    }
+
+    /// Validate that `base_port + count` doesn't overflow u16.
+    fn validate_port_range(flag: &str, base: Option<u16>, count: usize) -> AnyhowResult<()> {
+        if let Some(port) = base {
+            let max_idx = count.saturating_sub(1) as u16;
+            if port.checked_add(max_idx).is_none() {
+                bail!("{flag} {port} + {max_idx} nodes exceeds the maximum port number (65535).");
+            }
+        }
         Ok(())
     }
 }

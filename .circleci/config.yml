@@ -73,6 +73,24 @@ commands:
             }
             cargo install cargo-mtime
 
+  install-snarkos:
+    description: "Download latest stable snarkOS release binary"
+    steps:
+      - run:
+          name: Install snarkOS
+          command: |
+            TAG=$(curl -sSf https://api.github.com/repos/ProvableHQ/snarkOS/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+            case "$(uname -s)-$(uname -m)" in
+              Linux-x86_64)  TRIPLE="x86_64-unknown-linux-gnu" ;;
+              Darwin-*)      TRIPLE="aarch64-apple-darwin" ;;
+              *) echo "Unsupported platform, skipping"; exit 0 ;;
+            esac
+            mkdir -p "$HOME/.local/bin"
+            curl -sSfL "https://github.com/ProvableHQ/snarkOS/releases/download/${TAG}/aleo-${TAG}-${TRIPLE}.zip" -o /tmp/snarkos.zip
+            unzip -o /tmp/snarkos.zip -d "$HOME/.local/bin"
+            chmod +x "$HOME/.local/bin/snarkos"
+            echo "export PATH=$HOME/.local/bin:\$PATH" >> "$BASH_ENV"
+
   build-and-test:
     description: "Build and run tests"
     parameters:
@@ -176,6 +194,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
+      - install-snarkos
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
@@ -196,6 +215,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
+      - install-snarkos
       - run:
             name: Update Submodules
             command: git submodule update --init --recursive
