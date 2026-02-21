@@ -16,15 +16,20 @@
         "total_constraints": 12927,
         "max_variables": 2097152,
         "max_constraints": 2097152,
-        "cost": {
-          "storage": 956000,
-          "namespace": 1000000,
-          "synthesis": 30203,
-          "constructor": 10440,
-          "execution": null,
-          "priority": 0,
-          "total": 1996643
-        }
+        "storage_cost": 956000,
+        "namespace_cost": 1000000,
+        "synthesis_cost": 30203,
+        "constructor_cost": 10440,
+        "priority_fee": 0,
+        "total_cost": 1996643,
+        "function_costs": [
+          {
+            "name": "main",
+            "finalize_cost": 0,
+            "proof_cost": 1328,
+            "execution_cost": 1328
+          }
+        ]
       }
     }
   ]
