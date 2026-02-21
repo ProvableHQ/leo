@@ -96,11 +96,13 @@ impl ProgramReconstructor for TransformVisitor<'_> {
 
         ProgramScope {
             program_id: input.program_id,
+            parent: input.parent,
             composites: input.composites,
             mappings: input.mappings,
             storage_variables: input.storage_variables,
             constructor,
             functions,
+            interfaces: input.interfaces,
             consts: input.consts,
             span: input.span,
         }

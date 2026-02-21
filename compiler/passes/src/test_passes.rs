@@ -235,6 +235,12 @@ macro_rules! compiler_passes {
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
             ]),
+            (check_interfaces_runner, [
+                (GlobalVarsCollection, ()),
+                (PathResolution, ()),
+                (GlobalItemsCollection, ()),
+                (CheckInterfaces, ()),
+            ]),
         }
     };
 }

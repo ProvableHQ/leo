@@ -75,6 +75,7 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
                 path: input.path,
                 composites: input.composites.into_iter().map(|(i, c)| (i, slf.reconstruct_composite(c))).collect(),
                 functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
+                interfaces: input.interfaces.into_iter().map(|(i, int)| (i, slf.reconstruct_interface(int))).collect(),
             }
         })
     }

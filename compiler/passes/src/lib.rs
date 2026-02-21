@@ -95,6 +95,9 @@ pub use type_checking::*;
 mod name_validation;
 pub use name_validation::*;
 
+mod check_interfaces;
+pub use check_interfaces::*;
+
 mod write_transforming;
 pub use write_transforming::*;
 

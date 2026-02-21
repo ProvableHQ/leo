@@ -1,0 +1,41 @@
+Error [ECHI03712004]: Function `foo` does not match the signature required by interface `AbstractProgram`.
+Expected:
+fn foo() -> u64
+Found:
+fn foo() -> u32
+    --> compiler-test:11:5
+     |
+  11 |     fn foo() -> u32 {
+     |     ^^^^^^^^^^^^^^^^^
+  12 |         return 0;
+     |         ^^^^^^^^^
+  13 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+Error [ECHI03712004]: Function `bar` does not match the signature required by interface `AbstractProgram`.
+Expected:
+fn bar(a: u64) -> ()
+Found:
+fn bar(b: u64) -> ()
+    --> compiler-test:14:5
+     |
+  14 |     fn bar(b: u64) {
+     |     ^^^^^^^^^^^^^^^^
+  15 |         return 0;
+     |         ^^^^^^^^^
+  16 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+Error [ECHI03712004]: Function `baz` does not match the signature required by interface `AbstractProgram`.
+Expected:
+fn baz(a: u64, b: u8, c: u32) -> Final<Fn()>
+Found:
+fn baz(a: u32, b: u8, c: u32) -> ()
+    --> compiler-test:17:5
+     |
+  17 |     fn baz(a: u32, b: u8, c: u32) {}
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.

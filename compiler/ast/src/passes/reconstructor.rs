@@ -582,6 +582,7 @@ pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         ProgramScope {
             program_id: input.program_id,
+            parent: input.parent,
             consts: input
                 .consts
                 .into_iter()
@@ -598,6 +599,7 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
                 .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
         }
@@ -617,7 +619,60 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
         }
+    }
+
+    fn reconstruct_interface(&mut self, input: Interface) -> Interface {
+        Interface {
+            identifier: input.identifier,
+            parent: input.parent,
+            span: input.span,
+            id: input.id,
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_prototype(f))).collect(),
+            records: input.records.into_iter().map(|(i, f)| (i, self.reconstruct_record_prototype(f))).collect(),
+        }
+    }
+
+    fn reconstruct_function_prototype(&mut self, input: FunctionPrototype) -> FunctionPrototype {
+        FunctionPrototype {
+            annotations: input.annotations,
+            identifier: input.identifier,
+            const_parameters: input
+                .const_parameters
+                .iter()
+                .map(|param| {
+                    let mut param = param.clone();
+                    param.type_ = self.reconstruct_type(param.type_).0;
+                    param
+                })
+                .collect(),
+            input: input
+                .input
+                .iter()
+                .map(|input| {
+                    let mut input = input.clone();
+                    input.type_ = self.reconstruct_type(input.type_).0;
+                    input
+                })
+                .collect(),
+            output: input
+                .output
+                .iter()
+                .map(|output| {
+                    let mut output = output.clone();
+                    output.type_ = self.reconstruct_type(output.type_).0;
+                    output
+                })
+                .collect(),
+            output_type: self.reconstruct_type(input.output_type).0,
+            span: input.span,
+            id: input.id,
+        }
+    }
+
+    fn reconstruct_record_prototype(&mut self, input: RecordPrototype) -> RecordPrototype {
+        RecordPrototype { identifier: input.identifier, span: input.span, id: input.id }
     }
 
     fn reconstruct_function(&mut self, input: Function) -> Function {

@@ -129,6 +129,13 @@ pub trait FunctionConsumer {
     fn consume_function(&mut self, input: Function) -> Self::Output;
 }
 
+/// A Consumer trait for interfaces in the AST.
+pub trait InterfaceConsumer {
+    type Output;
+
+    fn consume_interface(&mut self, input: Interface) -> Self::Output;
+}
+
 /// A Consumer trait for constructors in the AST.
 pub trait ConstructorConsumer {
     type Output;

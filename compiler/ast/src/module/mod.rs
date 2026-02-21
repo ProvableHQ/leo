@@ -23,8 +23,9 @@
 //! - A list of constant declarations (`consts`)
 //! - A list of composite type definitions (`composites`)
 //! - A list of function definitions (`functions`)
+//! - A list of interface definitions (`interfaces`)
 
-use crate::{Composite, ConstDeclaration, Function, Indent};
+use crate::{Composite, ConstDeclaration, Function, Indent, Interface};
 
 use leo_span::Symbol;
 
@@ -46,6 +47,8 @@ pub struct Module {
     pub composites: Vec<(Symbol, Composite)>,
     /// A vector of function definitions.
     pub functions: Vec<(Symbol, Function)>,
+    /// A vector of interface definitions.
+    pub interfaces: Vec<(Symbol, Interface)>,
 }
 
 impl fmt::Display for Module {

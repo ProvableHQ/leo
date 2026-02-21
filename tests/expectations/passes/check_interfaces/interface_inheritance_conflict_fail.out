@@ -1,0 +1,13 @@
+Error [ECHI03712001]: Interface `Derived` has a conflicting definition for `process` inherited from `Base`. Members with the same name must have identical signatures.
+    --> test:7:1
+     |
+   7 | interface Derived : Base {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 |     // Conflicting: same name, different return type
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 |     fn process(x: u64) -> u32;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 | }
+     | ^
+     |
+     = Ensure both interfaces define the same signature for this member, or rename one of them.

@@ -315,6 +315,7 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         "Fn" => KW_FN_UPPER,
         "struct" => KW_STRUCT,
         "constructor" => KW_CONSTRUCTOR,
+        "interface" => KW_INTERFACE,
         // Program structure keywords
         "program" => KW_PROGRAM,
         "import" => KW_IMPORT,

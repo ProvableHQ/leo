@@ -51,6 +51,7 @@ impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
 
         ProgramScope {
             program_id: input.program_id,
+            parent: input.parent,
             composites: input.composites.into_iter().map(|(id, def)| (id, self.reconstruct_composite(def))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
             storage_variables: input
@@ -59,6 +60,7 @@ impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
                 .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
                 .collect(),
             functions: reconstructed_functions,
+            interfaces: input.interfaces.into_iter().map(|(id, int)| (id, self.reconstruct_interface(int))).collect(),
             constructor: input.constructor,
             consts: input
                 .consts

@@ -1674,7 +1674,7 @@ impl<'a> ConversionContext<'a> {
     // Item/Program Conversions
     // =========================================================================
 
-    /// Collect a single program item (function, struct/record, const) into the given vectors.
+    /// Collect a single program item (function, struct/record, const, interface) into the given vectors.
     fn collect_program_item(
         &self,
         item: &SyntaxNode,
@@ -1682,6 +1682,7 @@ impl<'a> ConversionContext<'a> {
         functions: &mut Vec<(Symbol, leo_ast::Function)>,
         composites: &mut Vec<(Symbol, leo_ast::Composite)>,
         consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
+        interfaces: &mut Vec<(Symbol, leo_ast::Interface)>,
     ) -> Result<()> {
         match item.kind() {
             FUNCTION_DEF | FINAL_FN_DEF | SCRIPT_DEF => {
@@ -1696,6 +1697,10 @@ impl<'a> ConversionContext<'a> {
                 let global_const = self.to_global_const(item)?;
                 consts.push((global_const.place.name, global_const));
             }
+            INTERFACE_DEF => {
+                let interface = self.to_interface(item)?;
+                interfaces.push((interface.identifier.name, interface));
+            }
             _ => {}
         }
         Ok(())
@@ -1703,25 +1708,40 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a syntax node to a module.
     fn to_module(&self, node: &SyntaxNode, program_name: Symbol, path: Vec<Symbol>) -> Result<leo_ast::Module> {
-        // Module nodes are ROOT nodes containing items (functions, structs, consts)
+        // Module nodes are ROOT nodes containing items (functions, structs, consts, interfaces)
         let mut functions = Vec::new();
         let mut composites = Vec::new();
         let mut consts = Vec::new();
+        let mut interfaces = Vec::new();
 
         for child in children(node) {
             if child.kind() == PROGRAM_DECL {
                 for item in children(&child) {
-                    self.collect_program_item(&item, true, &mut functions, &mut composites, &mut consts)?;
+                    self.collect_program_item(
+                        &item,
+                        true,
+                        &mut functions,
+                        &mut composites,
+                        &mut consts,
+                        &mut interfaces,
+                    )?;
                 }
             } else {
-                self.collect_program_item(&child, false, &mut functions, &mut composites, &mut consts)?;
+                self.collect_program_item(
+                    &child,
+                    false,
+                    &mut functions,
+                    &mut composites,
+                    &mut consts,
+                    &mut interfaces,
+                )?;
             }
         }
 
         // Sort functions: entry points first
         functions.sort_by_key(|func| if func.1.variant.is_entry() { 0u8 } else { 1u8 });
 
-        Ok(leo_ast::Module { program_name, path, consts, composites, functions })
+        Ok(leo_ast::Module { program_name, path, consts, composites, functions, interfaces })
     }
 
     /// Convert a syntax node to a program (main file).
@@ -1734,8 +1754,11 @@ impl<'a> ConversionContext<'a> {
         let mut mappings = Vec::new();
         let mut storage_variables = Vec::new();
         let mut constructors = Vec::new();
+        let mut interfaces = Vec::new();
         let mut program_name = None;
         let mut network = None;
+        let mut parent = None;
+        let mut span = None;
 
         for child in children(node) {
             match child.kind() {
@@ -1748,14 +1771,23 @@ impl<'a> ConversionContext<'a> {
                         self.handler.emit_err(ParserError::multiple_program_declarations(self.non_trivia_span(&child)));
                         continue;
                     }
-                    // Extract program name and network
-                    let (pname, pnetwork) = self.program_decl_to_name(&child)?;
+                    // Extract program name, network, and optional parent interface
+                    let (pname, pnetwork, pparent) = self.program_decl_to_name_with_parent(&child)?;
                     program_name = Some(pname);
                     network = Some(pnetwork);
+                    parent = pparent;
+                    span = Some(self.to_span(&child));
 
                     // Process items inside program decl
                     for item in children(&child) {
-                        self.collect_program_item(&item, true, &mut functions, &mut composites, &mut consts)?;
+                        self.collect_program_item(
+                            &item,
+                            true,
+                            &mut functions,
+                            &mut composites,
+                            &mut consts,
+                            &mut interfaces,
+                        )?;
                         match item.kind() {
                             MAPPING_DEF => {
                                 let mapping = self.to_mapping(&item)?;
@@ -1773,7 +1805,14 @@ impl<'a> ConversionContext<'a> {
                     }
                 }
                 _ => {
-                    self.collect_program_item(&child, false, &mut functions, &mut composites, &mut consts)?;
+                    self.collect_program_item(
+                        &child,
+                        false,
+                        &mut functions,
+                        &mut composites,
+                        &mut consts,
+                        &mut interfaces,
+                    )?;
                 }
             }
         }
@@ -1782,9 +1821,8 @@ impl<'a> ConversionContext<'a> {
             return Err(ParserError::custom("A program can only have one constructor.", extra.span).into());
         }
 
-        let span = self.to_span(node);
-        let (Some(program_name), Some(network)) = (program_name, network) else {
-            return Err(ParserError::missing_program_scope(span).into());
+        let (Some(program_name), Some(network), Some(span)) = (program_name, network, span) else {
+            return Err(ParserError::missing_program_scope(self.to_span(node)).into());
         };
 
         // Sort functions: entry points first
@@ -1792,13 +1830,15 @@ impl<'a> ConversionContext<'a> {
 
         let program_scope = leo_ast::ProgramScope {
             program_id: leo_ast::ProgramId { name: program_name, network },
+            parent,
             consts,
             composites,
             mappings,
             storage_variables,
             functions,
+            interfaces,
             constructor: constructors.pop(),
-            span: self.to_span(node),
+            span,
         };
 
         Ok(leo_ast::Program {
@@ -1860,6 +1900,33 @@ impl<'a> ConversionContext<'a> {
         };
 
         Ok((program_name, network))
+    }
+
+    /// Extract program name, network, and optional parent interface from a PROGRAM_DECL node.
+    fn program_decl_to_name_with_parent(
+        &self,
+        node: &SyntaxNode,
+    ) -> Result<(leo_ast::Identifier, leo_ast::Identifier, Option<Symbol>)> {
+        let (program_name, network) = self.program_decl_to_name(node)?;
+
+        // Check for parent interface: `program name.aleo : InterfaceName { ... }`
+        // Look for COLON token followed by an IDENT
+        let parent = {
+            let toks: Vec<_> = tokens(node).collect();
+            let mut found_colon = false;
+            let mut parent_sym = None;
+            for tok in toks {
+                if tok.kind() == COLON {
+                    found_colon = true;
+                } else if found_colon && tok.kind() == IDENT {
+                    parent_sym = Some(Symbol::intern(tok.text()));
+                    break;
+                }
+            }
+            parent_sym
+        };
+
+        Ok((program_name, network, parent))
     }
 
     /// Collect all ANNOTATION children from a node.
@@ -2214,6 +2281,112 @@ impl<'a> ConversionContext<'a> {
         let block = self.require_block(node, span)?;
 
         Ok(leo_ast::Constructor { annotations, block, span, id })
+    }
+
+    // =========================================================================
+    // Interface Conversions
+    // =========================================================================
+
+    /// Convert an INTERFACE_DEF node to an Interface.
+    fn to_interface(&self, node: &SyntaxNode) -> Result<leo_ast::Interface> {
+        debug_assert_eq!(node.kind(), INTERFACE_DEF);
+        let span = self.to_span(node);
+
+        // Get interface name (first IDENT)
+        let identifier = self.require_ident(node, "interface name");
+
+        // Check for parent interface after COLON
+        // Format: `interface Name : ParentName { ... }`
+        let parent = {
+            let toks: Vec<_> = tokens(node).collect();
+            let mut found_colon = false;
+            let mut parent_sym = None;
+            for tok in toks {
+                if tok.kind() == COLON {
+                    found_colon = true;
+                } else if found_colon && tok.kind() == IDENT {
+                    parent_sym = Some(Symbol::intern(tok.text()));
+                    break;
+                }
+            }
+            parent_sym
+        };
+
+        let mut functions = Vec::new();
+        let mut records = Vec::new();
+
+        for child in children(node) {
+            match child.kind() {
+                FN_PROTOTYPE_DEF => {
+                    let proto = self.to_function_prototype(&child)?;
+                    functions.push((proto.identifier.name, proto));
+                }
+                RECORD_PROTOTYPE_DEF => {
+                    let proto = self.to_record_prototype(&child)?;
+                    records.push((proto.identifier.name, proto));
+                }
+                _ => {}
+            }
+        }
+
+        Ok(leo_ast::Interface { identifier, parent, span, id: self.builder.next_id(), functions, records })
+    }
+
+    /// Convert an FN_PROTOTYPE_DEF node to a FunctionPrototype.
+    fn to_function_prototype(&self, node: &SyntaxNode) -> Result<leo_ast::FunctionPrototype> {
+        debug_assert_eq!(node.kind(), FN_PROTOTYPE_DEF);
+        let span = self.to_span(node);
+
+        let identifier = self.require_ident(node, "function name");
+
+        // Collect const generic parameters
+        let const_parameters = self.extract_const_parameters(node)?;
+
+        // Collect input parameters
+        let input = children(node)
+            .find(|n| n.kind() == PARAM_LIST)
+            .map(|n| self.param_list_to_inputs(&n))
+            .transpose()?
+            .unwrap_or_default();
+
+        // Get return type and build output declarations.
+        // Same logic as to_function but for prototypes (no block)
+        let output = if let Some(return_type_node) = children(node).find(|n| n.kind() == RETURN_TYPE) {
+            // Tuple return type.
+            self.return_type_to_outputs(&return_type_node)?.0
+        } else if let Some(type_node) = children(node).find(|n| n.kind().is_type()) {
+            // Single return type (direct child of FN_PROTOTYPE_DEF).
+            let type_ = self.to_type(&type_node)?;
+            // Check for visibility keyword before the type node.
+            let (mode, mode_start) = self.return_mode_before(node, &type_node);
+            let type_span = self.content_span(&type_node);
+            let output_span = match mode_start {
+                Some(start) => Span::new(start, type_span.hi),
+                None => type_span,
+            };
+            vec![leo_ast::Output { mode, type_, span: output_span, id: self.builder.next_id() }]
+        } else {
+            Vec::new()
+        };
+
+        Ok(leo_ast::FunctionPrototype::new(
+            vec![], // annotations (not supported in prototypes)
+            identifier,
+            const_parameters,
+            input,
+            output,
+            span,
+            self.builder.next_id(),
+        ))
+    }
+
+    /// Convert a RECORD_PROTOTYPE_DEF node to a RecordPrototype.
+    fn to_record_prototype(&self, node: &SyntaxNode) -> Result<leo_ast::RecordPrototype> {
+        debug_assert_eq!(node.kind(), RECORD_PROTOTYPE_DEF);
+        let span = self.to_span(node);
+        let identifier = self.require_ident(node, "record name");
+
+        Ok(leo_ast::RecordPrototype { identifier, span, id: self.builder.next_id() })
     }
 }
 
