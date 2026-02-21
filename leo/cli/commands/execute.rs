@@ -345,19 +345,22 @@ fn handle_execute<A: Aleo>(
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
-    // Generate the execution and fee transitions without proofs if specified.
-    let (output_name, output, response, stats) = if command.skip_execute_proof {
+    // Generate the authorization (the method differs based on skip_execute_proof).
+    let authorization = if command.skip_execute_proof {
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
+        vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?
+    } else {
+        println!("\n⚙️ Executing {program_name}/{function_name}...");
+        vm.authorize(&private_key, &program_name, &function_name, inputs.iter(), rng)?
+    };
 
-        // Generate the authorization.
-        let authorization =
-            vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
+    // Estimate and display execution cost.
+    let (estimated_cost, (est_storage, est_exec)) =
+        execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?;
+    let stats = print_execution_cost_summary(&program_name, est_storage, est_exec, priority_fee);
 
-        // Estimate and display execution cost before proof generation.
-        let (_estimated_cost, (est_storage, est_exec)) =
-            execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?;
-        let stats = print_execution_cost_summary(&program_name, est_storage, est_exec, priority_fee);
-
+    // Generate the transaction (the method differs based on skip_execute_proof).
+    let (output_name, output, response) = if command.skip_execute_proof {
         // Get the state root.
         let state_root = query.current_state_root()?;
 
@@ -392,18 +395,8 @@ fn handle_execute<A: Aleo>(
         // Evaluate the transaction to get the response.
         let response = vm.process().read().evaluate::<A>(authorization)?;
 
-        ("transaction", Box::new(transaction), response, stats)
+        ("transaction", Box::new(transaction), response)
     } else {
-        println!("\n⚙️ Executing {program_name}/{function_name}...");
-
-        // Authorize the execution (cheap compared to proof generation).
-        let authorization = vm.authorize(&private_key, &program_name, &function_name, inputs.iter(), rng)?;
-
-        // Estimate and display execution cost before proof generation.
-        let (estimated_cost, (est_storage, est_exec)) =
-            execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?;
-        let stats = print_execution_cost_summary(&program_name, est_storage, est_exec, priority_fee);
-
         // Determine if a fee is required.
         let is_fee_required = !(authorization.is_split() || authorization.is_upgrade());
         let is_priority_fee_declared = priority_fee.unwrap_or(0) > 0;
@@ -435,7 +428,7 @@ fn handle_execute<A: Aleo>(
         // Execute with the existing authorization (no re-authorization).
         let (transaction, response) =
             vm.execute_authorization_with_response(authorization, fee_authorization, Some(&query), rng)?;
-        ("transaction", Box::new(transaction), response, stats)
+        ("transaction", Box::new(transaction), response)
     };
 
     let transaction = output.clone();

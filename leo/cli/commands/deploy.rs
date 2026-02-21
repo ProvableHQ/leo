@@ -326,7 +326,7 @@ Once it is deployed, it CANNOT be changed.
                 }
             }
             println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
-            if command.skip_deploy_certificate {
+            let (transaction, stats) = if command.skip_deploy_certificate {
                 println!("⚠️  Skipping deployment certificate and verifier key generation as per user request.\n");
                 assert!(!program.functions().is_empty(), "Program `{}` has no functions", program.id());
                 // Initialize a vector for the placeholder  verifying keys and certificates.
@@ -410,12 +410,9 @@ Once it is deployed, it CANNOT be changed.
                     total_cost: storage_cost + synthesis_cost + namespace_cost + constructor_cost + priority,
                     function_costs,
                 };
-                print_deployment_summary(&id.to_string(), &stats);
                 // Create the transaction.
                 let transaction = Transaction::from_deployment(owner, deployment, fee)?;
-                // Add the transaction and stats.
-                transactions.push((id, transaction));
-                all_stats.push(stats);
+                (transaction, stats)
             } else {
                 // Generate the transaction.
                 let transaction = vm
@@ -428,11 +425,13 @@ Once it is deployed, it CANNOT be changed.
                 // Compute the deployment stats.
                 let stats =
                     compute_deployment_stats(&vm, deployment, priority_fee, consensus_version, bytecode_size, rng)?;
-                print_deployment_summary(&id.to_string(), &stats);
-                // Save the transaction and stats.
-                transactions.push((id, transaction));
-                all_stats.push(stats);
-            }
+                (transaction, stats)
+            };
+
+            // Print the deployment summary and save the transaction and stats.
+            print_deployment_summary(&id.to_string(), &stats);
+            transactions.push((id, transaction));
+            all_stats.push(stats);
 
             if !command.skip_deploy_certificate {
                 // Validate the deployment limits for the current transaction.

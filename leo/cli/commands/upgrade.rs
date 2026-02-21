@@ -321,7 +321,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     for Task { id, program, priority_fee, record, bytecode_size, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if !skipped.contains(&id) {
-            if command.skip_deploy_certificate {
+            let (transaction, stats) = if command.skip_deploy_certificate {
                 println!("⚠️  Skipping deployment certificate generation as per user request.\n");
                 assert!(!program.functions().is_empty(), "Program `{}` has no functions", program.id());
                 // Initialize a vector for the placeholder verifying keys and certificates.
@@ -406,12 +406,9 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                     total_cost: storage_cost + synthesis_cost + namespace_cost + constructor_cost + priority,
                     function_costs,
                 };
-                print_deployment_summary(&id.to_string(), &stats);
                 // Create the transaction.
                 let transaction = Transaction::from_deployment(owner, deployment, fee)?;
-                // Add the transaction and stats.
-                transactions.push((id, transaction));
-                all_stats.push(stats);
+                (transaction, stats)
             } else {
                 println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
                 // Generate the transaction.
@@ -425,13 +422,15 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 // Compute the deployment stats.
                 let stats =
                     compute_deployment_stats(&vm, deployment, priority_fee, consensus_version, bytecode_size, rng)?;
-                print_deployment_summary(&id.to_string(), &stats);
                 // Validate the deployment limits.
                 validate_deployment_limits(deployment, &id, &network)?;
-                // Save the transaction and stats.
-                transactions.push((id, transaction));
-                all_stats.push(stats);
-            }
+                (transaction, stats)
+            };
+
+            // Print the deployment summary and save the transaction and stats.
+            print_deployment_summary(&id.to_string(), &stats);
+            transactions.push((id, transaction));
+            all_stats.push(stats);
         }
         // Add the program to the VM (idempotent; ensures skipped programs are available for later imports).
         if let Err(e) = vm.process().write().add_program(&program) {
