@@ -1,10 +1,10 @@
 
-program test.aleo {
-    struct Foo {
-        x: u8,
-    }
+struct Foo {
+    x: u8,
+}
 
-    function main() {
+program test.aleo {
+    fn main() {
         let y: u8 = 1;
         let a: Foo = Foo { y };
     }

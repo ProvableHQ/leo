@@ -211,9 +211,13 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     /// Note that this shouldn't be used for `Identifier`s on the lhs of definitions or
     /// assignments.
     fn consume_path(&mut self, path: Path) -> Self::Output {
-        // If lookup fails, either it's the name of a mapping or we didn't rename it.
-        let name = *self.rename_table.lookup(path.identifier().name).unwrap_or(&path.identifier().name);
-        (path.with_updated_last_symbol(name).into(), Default::default())
+        if let Some(name) = path.try_local_symbol() {
+            // If lookup fails, then we didn't rename it.
+            let name = *self.rename_table.lookup(name).unwrap_or(&name);
+            (path.with_updated_last_symbol(name).into(), Default::default())
+        } else {
+            (path.into(), Default::default())
+        }
     }
 
     /// Consumes and returns the literal without making any modifications.

@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: i32) -> i32 {
+    fn main(a: i32) -> i32 {
         let b: i32 = 2147483647i32;
         return b - a;
     }

@@ -138,7 +138,7 @@ impl CodeGeneratingVisitor<'_> {
 
         for (operand, output) in operands.iter() {
             // Transitions outputs with no mode are private.
-            let visibility = match (self.variant.unwrap().is_transition(), output.mode) {
+            let visibility = match (self.variant.unwrap().is_entry(), output.mode) {
                 (true, Mode::None) => Some(AleoVisibility::Private),
                 (_, mode) => AleoVisibility::maybe_from(mode),
             };
@@ -196,7 +196,7 @@ impl CodeGeneratingVisitor<'_> {
 
     fn visit_conditional(&mut self, _input: &ConditionalStatement) -> Vec<AleoStmt> {
         // Note that this unwrap is safe because we set the variant before traversing the function.
-        if !self.variant.unwrap().is_async_function() {
+        if !self.variant.unwrap().is_finalize() {
             panic!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
         } else {
             // Construct a label for the end of the `then` block.

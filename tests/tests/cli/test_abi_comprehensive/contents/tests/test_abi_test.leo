@@ -1,5 +1,5 @@
 program test_abi_test.aleo {
-    transition main() {
+    fn main() {
         assert(true);
     }
 }

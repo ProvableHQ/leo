@@ -3,7 +3,7 @@ program test.aleo {
     // This function takes a group coordinate as input `a` and performs several operations which should output the `0group`.
     // Note that the operations can be called as associated functions on the `a` variable.
 
-    transition main(a: group) -> group {
+    fn main(a: group) -> group {
         // unary
         let b: group = a.double(); // 2a
         let c: group = b.neg();    // -2a

@@ -1,18 +1,18 @@
 
 program test.aleo {
-    async transition first(x: Future) -> Future {
-        return finish();
+    fn first(x: Final) -> Final {
+        return final { finish(); };
     }
 
-    transition second(x: Future) -> u8 {
+    fn second(x: Final) -> u8 {
         return 1u8;
     }
+}
 
-    function third(x: Future) -> u8 {
-        return 1u8;
-    }
+fn third(x: Final) -> u8 {
+    return 1u8;
+}
 
-    async function finish() {
-        assert_eq(1u8, 1u8);
-    }
+final fn finish() {
+    assert_eq(1u8, 1u8);
 }

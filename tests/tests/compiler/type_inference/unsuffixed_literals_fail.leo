@@ -1,5 +1,5 @@
 program test.aleo {
-    transition binary_ops() {
+    fn binary_ops() {
         let a0 = 1;
         let a1 = 1 && true;
         let a2 = true || 1;
@@ -37,7 +37,7 @@ program test.aleo {
         let f4 = 1.pow_wrapped(1);
     }
 
-    transition unary_ops() {
+    fn unary_ops() {
         let b0 = -1.abs();
         let b1 = -1.abs_wrapped();
         let b2 = 0.double();

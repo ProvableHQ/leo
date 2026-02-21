@@ -1,7 +1,8 @@
 program test.aleo {
-    function main(a: address) {
+}
+    fn main(a: address) {
         assert_eq(_network_id(), 1u32);
         return a;
     }
-}
+
 

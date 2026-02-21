@@ -1,9 +1,9 @@
 
 program test.aleo {
 
-    async transition mint_public(public receiver: address, public amount: u64) -> Future {
-        return finalize_mint(receiver, amount);
+    fn mint_public(public receiver: address, public amount: u64) -> Final {
+        return final { finalize_mint(receiver, amount); };
     }
-
-    async function finalize_mint(public receiver: address, public amount: u64) {}
 }
+
+final fn finalize_mint(public receiver: address, public amount: u64) {}

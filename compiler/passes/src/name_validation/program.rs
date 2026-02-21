@@ -65,18 +65,18 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
     fn visit_function(&mut self, function: &Function) {
         use Variant::*;
         match function.variant {
-            Transition | AsyncTransition => self.is_not_keyword(function.identifier, "transition", &[]),
-            Function => self.is_not_keyword(function.identifier, "function", &[]),
-            Inline | AsyncFunction | Script => {}
+            EntryPoint => self.is_not_keyword(function.identifier, "entry point fn", &[]),
+            Fn => self.is_not_keyword(function.identifier, "regular fn", &[]),
+            FinalFn | Finalize | Script => {}
         }
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {
         use Variant::*;
         match input.variant {
-            Transition | AsyncTransition => self.is_not_keyword(input.identifier, "transition", &[]),
-            Function => self.is_not_keyword(input.identifier, "function", &[]),
-            Inline | AsyncFunction | Script => {}
+            EntryPoint => self.is_not_keyword(input.identifier, "entry point fn", &[]),
+            Fn => self.is_not_keyword(input.identifier, "regular fn", &[]),
+            FinalFn | Finalize | Script => {}
         }
     }
 

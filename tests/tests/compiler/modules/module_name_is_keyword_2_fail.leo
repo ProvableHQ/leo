@@ -1,5 +1,5 @@
 program parent.aleo {
-    transition foo() -> u32 {
+    fn foo() -> u32 {
         return 0;
     }
 }

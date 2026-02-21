@@ -1,5 +1,5 @@
 program test.aleo {
-    function main() -> u64 {
+    fn main() -> u64 {
         let sum: u64 = 0u64;
         for i in 0u64..10u64 {
             sum += i;

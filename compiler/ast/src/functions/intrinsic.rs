@@ -68,7 +68,7 @@ pub enum Intrinsic {
     SnarkVerify,
     SnarkVerifyBatch,
 
-    FutureAwait,
+    FinalRun,
 
     ProgramChecksum,
     ProgramEdition,
@@ -645,7 +645,7 @@ impl Intrinsic {
             sym::_signature_verify => Self::SignatureVerify,
             sym::_snark_verify => Self::SnarkVerify,
             sym::_snark_verify_batch => Self::SnarkVerifyBatch,
-            sym::_future_await => Self::FutureAwait,
+            sym::_final_run => Self::FinalRun,
 
             sym::_serialize_to_bits => Self::Serialize(SerializeVariant::ToBits),
             sym::_serialize_to_bits_raw => Self::Serialize(SerializeVariant::ToBitsRaw),
@@ -1197,7 +1197,7 @@ impl Intrinsic {
             (sym::ProgramCore, sym::program_owner) => sym::_program_owner,
 
             (sym::signature, sym::verify) => sym::_signature_verify,
-            (sym::Future, sym::Await) => sym::_future_await,
+            (sym::Final, sym::run) => sym::_final_run,
 
             (sym::Serialize, sym::to_bits) => sym::_serialize_to_bits,
             (sym::Serialize, sym::to_bits_raw) => sym::_serialize_to_bits_raw,
@@ -1258,7 +1258,7 @@ impl Intrinsic {
 
             Self::SignatureVerify => 3,
             Self::SnarkVerify | Self::SnarkVerifyBatch => 4,
-            Self::FutureAwait => 1,
+            Self::FinalRun => 1,
 
             Self::ProgramChecksum => 1,
             Self::ProgramEdition => 1,
@@ -1277,7 +1277,7 @@ impl Intrinsic {
     /// Returns whether or not this function is finalize command.
     pub fn is_finalize_command(&self) -> bool {
         match self {
-            Intrinsic::FutureAwait
+            Intrinsic::FinalRun
             | Intrinsic::ChaChaRand(_)
             | Intrinsic::ECDSAVerify(_)
             | Intrinsic::MappingGet
@@ -1329,7 +1329,7 @@ impl Intrinsic {
     /// Returns whether or not this function has side effects
     pub fn is_pure(&self) -> bool {
         match self {
-            Intrinsic::FutureAwait
+            Intrinsic::FinalRun
             | Intrinsic::VectorSet
             | Intrinsic::VectorPush
             | Intrinsic::VectorClear

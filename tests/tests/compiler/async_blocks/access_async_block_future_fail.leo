@@ -1,6 +1,6 @@
 program test.aleo {
-    async transition main(x: u32) -> Future {
-        let f = async {
+    fn main(x: u32) -> Final {
+        let f = final {
             assert(x == 3);
         };
         let y0 = f.0;

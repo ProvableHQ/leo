@@ -17,15 +17,14 @@
 //! Rowan-based lossless syntax tree and parser for Leo.
 //!
 //! This crate provides a lossless parser using the rowan library, designed for
-//! IDE-grade error recovery. It will eventually replace the LALRPOP-based
-//! parser in `leo-parser-lossless`.
+//! IDE-grade error recovery.
 
 mod lexer;
 mod parser;
 mod syntax_kind;
 
 use leo_errors::Result;
-pub use lexer::{LexError, Token, lex};
+pub use lexer::{LexError, LexErrorKind, Token, lex};
 pub use parser::{
     Parse,
     ParseError,
@@ -35,6 +34,7 @@ pub use parser::{
     parse_module_entry,
     parse_statement_entry,
 };
+pub use rowan::TextRange;
 pub use syntax_kind::{SyntaxKind, syntax_kind_from_raw};
 
 /// The Leo language type for rowan.

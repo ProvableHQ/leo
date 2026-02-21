@@ -1,10 +1,10 @@
 Error [ETYC0372050]: A record cannot contain a tuple.
-    --> compiler-test:5:9
+    --> compiler-test:4:9
      |
-   5 |         amounts: (u64, u64),
+   4 |         amounts: (u64, u64),
      |         ^^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
+Error [ETYC0372083]: A program must have at least one entry point fn.
+    --> compiler-test:1:9
      |
-   2 | program test.aleo {
+   1 | program test.aleo {
      |         ^^^^^^^^^

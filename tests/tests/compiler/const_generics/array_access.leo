@@ -1,5 +1,5 @@
 program test.aleo {
-    transition main() -> u32 {
+    fn main() -> u32 {
         let arr: [u32; 6] = [1, 2, 3, 4, 5, 6];
         let sum = 0u32;
         for i: u32 in 0..6 {
@@ -7,8 +7,8 @@ program test.aleo {
         }
         return sum;
     }
+}
 
-    inline at_n::[N: u32](arr: [u32; 6]) -> u32 {
-        return arr[N];
-    }
+fn at_n::[N: u32](arr: [u32; 6]) -> u32 {
+    return arr[N];
 }

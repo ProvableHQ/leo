@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: i64, b: i64, c: bool) -> bool {
+    fn main(a: i64, b: i64, c: bool) -> bool {
         return a <= b == c;
     }
 }

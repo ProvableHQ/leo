@@ -8,17 +8,17 @@ struct Foo {
 }
 
 // Test 3 
-inline foo() {}
+fn foo() {}
 
 // Test 4 
 const X: u32 = 5;
 struct Foo {
     x: u32, y: u32,
 }
-inline foo() {}
+fn foo() {}
 struct Bar {
     x: u32, y: u32,
 }
 const Y: u32 = 5;
-inline bar() {}
+fn bar() {}
 const Z: u32 = 5;

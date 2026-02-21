@@ -4,25 +4,25 @@ Error [ETYC0372050]: A record cannot contain a tuple.
    5 |         bar: (Bar, Bar),
      |         ^^^
 Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:9:9
+    --> compiler-test:15:5
      |
-   9 |         bar: (Token2, Token2),
-     |         ^^^
+  15 |     bar: (Token2, Token2),
+     |     ^^^
 Error [ETYC0372030]: A struct or record cannot contain another record.
-    --> compiler-test:9:9
+    --> compiler-test:15:5
      |
-   9 |         bar: (Token2, Token2),
-     |         ^^^
+  15 |     bar: (Token2, Token2),
+     |     ^^^
      |
      = Remove the record `test.aleo/Token2` from `Bar`.
 Error [ETYC0372030]: A struct or record cannot contain another record.
-    --> compiler-test:9:9
+    --> compiler-test:15:5
      |
-   9 |         bar: (Token2, Token2),
-     |         ^^^
+  15 |     bar: (Token2, Token2),
+     |     ^^^
      |
      = Remove the record `test.aleo/Token2` from `Bar`.
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

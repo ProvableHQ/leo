@@ -1,14 +1,14 @@
 
+struct S {
+    x: (),
+    y: u8,
+}
+
 program test.aleo {
-    struct S {
-        x: (),
-        y: u8,
-    }
+    fn main(x: ()) {}
 
-    transition main(x: ()) {}
+    fn other(x: [(); 2]) {}
 
-    transition other(x: [(); 2]) {}
-
-    transition yet_another() -> [(); 2] {}
+    fn yet_another() -> [(); 2] {}
 
 }

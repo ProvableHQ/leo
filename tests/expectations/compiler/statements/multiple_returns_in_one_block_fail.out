@@ -1,18 +1,18 @@
 Error [ETYC0372025]: Cannot reach the following statement.
-    --> compiler-test:5:9
+    --> compiler-test:6:5
      |
-   5 |         let double: u32 = x + x;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^
+   6 |     let double: u32 = x + x;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Remove the unreachable code.
 Error [ETYC0372025]: Cannot reach the following statement.
-    --> compiler-test:6:9
+    --> compiler-test:7:5
      |
-   6 |         return double;
-     |         ^^^^^^^^^^^^^^
+   7 |     return double;
+     |     ^^^^^^^^^^^^^^
      |
      = Remove the unreachable code.
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

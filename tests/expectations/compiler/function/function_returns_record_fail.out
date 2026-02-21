@@ -1,15 +1,15 @@
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:8:18
+Error [ETYC0372057]: Only entry point fns can have a record as input or output.
+    --> compiler-test:2:8
      |
-   8 |     function foo(board: Board, data: u8) -> Board {
-     |                  ^^^^^^^^^^^^
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:8:45
+   2 | fn foo(board: Board, data: u8) -> Board {
+     |        ^^^^^^^^^^^^
+Error [ETYC0372057]: Only entry point fns can have a record as input or output.
+    --> compiler-test:2:35
      |
-   8 |     function foo(board: Board, data: u8) -> Board {
-     |                                             ^^^^^
-Error [ETYC0372057]: Only `transition` functions can have a record as input or output.
-    --> compiler-test:15:18
+   2 | fn foo(board: Board, data: u8) -> Board {
+     |                                   ^^^^^
+Error [ETYC0372057]: Only entry point fns can have a record as input or output.
+    --> compiler-test:9:8
      |
-  15 |     function bar(board: Board) {
-     |                  ^^^^^^^^^^^^
+   9 | fn bar(board: Board) {
+     |        ^^^^^^^^^^^^

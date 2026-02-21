@@ -1,7 +1,7 @@
 Error [ETYC0372017]: The type `test.aleo/Bar` is not found in the current scope.
-    --> compiler-test:5:9
+    --> compiler-test:4:5
      |
-   5 |         bar: Bar,
-     |         ^^^^^^^^
+   4 |     bar: Bar,
+     |     ^^^^^^^^
      |
      = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`

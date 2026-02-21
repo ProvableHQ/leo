@@ -1,18 +1,8 @@
 program test.aleo;
 
-closure bar:
-    input r0 as u8;
-    mul r0 r0 into r1;
-    output r1 as u8;
-
-closure baz:
-    input r0 as u8;
-    add r0 r0 into r1;
-    output r1 as u8;
-
 function foo:
     input r0 as u8.private;
-    call bar r0 into r1;
-    call baz r0 into r2;
+    mul r0 r0 into r1;
+    add r0 r0 into r2;
     add r1 r2 into r3;
     output r3 as u8.private;

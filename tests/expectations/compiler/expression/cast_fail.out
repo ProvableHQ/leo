@@ -1,25 +1,25 @@
 Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:12:9
+    --> compiler-test:10:9
      |
-  12 |         let b: string = a as string;
+  10 |         let b: string = a as string;
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `string` was found.
-    --> compiler-test:12:25
+    --> compiler-test:10:25
      |
-  12 |         let b: string = a as string;
+  10 |         let b: string = a as string;
      |                         ^^^^^^^^^^^
 Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `test.aleo/Foo` was found.
-    --> compiler-test:15:24
+    --> compiler-test:13:24
      |
-  15 |         let d: field = c as field;
+  13 |         let d: field = c as field;
      |                        ^
 Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `(field, field)` was found.
-    --> compiler-test:18:24
+    --> compiler-test:16:24
      |
-  18 |         let f: field = e as field;
+  16 |         let f: field = e as field;
      |                        ^
 Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, or address but type `(field => field)` was found.
-    --> compiler-test:24:24
+    --> compiler-test:23:20
      |
-  24 |         let b: field = balances as field;
-     |                        ^^^^^^^^
+  23 |     let b: field = balances as field;
+     |                    ^^^^^^^^

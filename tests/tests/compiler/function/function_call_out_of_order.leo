@@ -1,16 +1,13 @@
-
-
 program test.aleo {
-
-    transition foo(a: u8) -> u8 {
+    fn foo(a: u8) -> u8 {
         return bar(a) + baz(a);
     }
+}
 
-    function bar(a: u8) -> u8 {
-        return a * a;
-    }
+fn bar(a: u8) -> u8 {
+    return a * a;
+}
 
-    function baz(a: u8) -> u8 {
-        return a + a;
-    }
+fn baz(a: u8) -> u8 {
+    return a + a;
 }

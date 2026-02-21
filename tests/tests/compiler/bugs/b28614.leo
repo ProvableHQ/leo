@@ -1,5 +1,5 @@
 program test.aleo {
-    transition bar() {
+    fn bar() {
         let x: u32 = self.caller;
         let y: u8 = self.caller;
         

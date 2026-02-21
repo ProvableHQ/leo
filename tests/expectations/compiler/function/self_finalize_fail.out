@@ -1,5 +1,10 @@
-Error [ETYC0372066]: `self.caller` is not a valid operand in an async function call context.
-    --> compiler-test:7:25
+Error [ETYC0372147]: Invalid expression in a final block. `self.caller` cannot be used directly here
+    --> compiler-test:4:63
      |
-   7 |         assert_eq(addr, self.caller);
-     |                         ^^^^^^^^^^^
+   4 |         return (self.caller == addr, final { finalize_matches(self.caller); });
+     |                                                               ^^^^^^^^^^^
+Error [ETYC0372066]: `self.caller` is not a valid operand in a finalization context.
+    --> compiler-test:9:21
+     |
+   9 |     assert_eq(addr, self.caller);
+     |                     ^^^^^^^^^^^

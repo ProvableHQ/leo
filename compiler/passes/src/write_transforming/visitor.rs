@@ -31,6 +31,7 @@ use leo_ast::{
     Path,
     Program,
     Statement,
+    Stub,
     Type,
 };
 use leo_span::Symbol;
@@ -257,6 +258,11 @@ impl AstVisitor for WriteTransformingFiller<'_> {
 
 impl WriteTransformingFiller<'_> {
     fn fill(&mut self, program: &Program) {
+        for stub in program.stubs.iter() {
+            if let (_, Stub::FromLeo { program, .. }) = stub {
+                self.fill(program);
+            }
+        }
         for (_, module) in program.modules.iter() {
             self.0.program = module.program_name;
             for (_, function) in module.functions.iter() {

@@ -1,8 +1,8 @@
 Error [ETYC0372077]: An array cannot have more than 2048 elements, found one with 2049 elements
-    --> compiler-test:3:20
+    --> compiler-test:3:12
      |
-   3 |     transition foo(a: [bool; 2049]) -> bool {
-     |                    ^^^^^^^^^^^^^^^
+   3 |     fn foo(a: [bool; 2049]) -> bool {
+     |            ^^^^^^^^^^^^^^^
 Error [ETYC0372077]: An array cannot have more than 2048 elements, found one with 2049 elements
     --> compiler-test:4:19
      |

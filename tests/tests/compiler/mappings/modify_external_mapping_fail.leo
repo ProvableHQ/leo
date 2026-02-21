@@ -1,15 +1,15 @@
 program provider.aleo {
     mapping balances: u32 => u32;
 
-    async transition init() -> Future {
-        return async {
+    fn init() -> Final {
+        return final {
             balances.set(1u32, 100u32);
             balances.set(2u32, 200u32);
         };
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -17,8 +17,8 @@ program provider.aleo {
 import provider.aleo;
 
 program user.aleo {
-    async transition try_modify() -> Future {
-        return async {
+    fn try_modify() -> Final {
+        return final {
             //
             // All of these must be rejected — external mapping mutation is illegal.
             //
@@ -28,6 +28,6 @@ program user.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
