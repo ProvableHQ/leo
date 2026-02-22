@@ -1757,7 +1757,7 @@ impl<'a> ConversionContext<'a> {
         let mut interfaces = Vec::new();
         let mut program_name = None;
         let mut network = None;
-        let mut parent = None;
+        let mut parents = Vec::new();
         let mut span = None;
 
         for child in children(node) {
@@ -1772,10 +1772,10 @@ impl<'a> ConversionContext<'a> {
                         continue;
                     }
                     // Extract program name, network, and optional parent interface
-                    let (pname, pnetwork, pparent) = self.program_decl_to_name_with_parent(&child)?;
+                    let (pname, pnetwork, pparents) = self.program_decl_to_name_with_parent(&child)?;
                     program_name = Some(pname);
                     network = Some(pnetwork);
-                    parent = pparent;
+                    parents = pparents;
                     span = Some(self.to_span(&child));
 
                     // Process items inside program decl
@@ -1830,7 +1830,7 @@ impl<'a> ConversionContext<'a> {
 
         let program_scope = leo_ast::ProgramScope {
             program_id: leo_ast::ProgramId { name: program_name, network },
-            parent,
+            parents,
             consts,
             composites,
             mappings,
@@ -1906,27 +1906,22 @@ impl<'a> ConversionContext<'a> {
     fn program_decl_to_name_with_parent(
         &self,
         node: &SyntaxNode,
-    ) -> Result<(leo_ast::Identifier, leo_ast::Identifier, Option<Symbol>)> {
+    ) -> Result<(leo_ast::Identifier, leo_ast::Identifier, Vec<Symbol>)> {
+        debug_assert_eq!(node.kind(), PROGRAM_DECL);
         let (program_name, network) = self.program_decl_to_name(node)?;
 
-        // Check for parent interface: `program name.aleo : InterfaceName { ... }`
-        // Look for COLON token followed by an IDENT
-        let parent = {
-            let toks: Vec<_> = tokens(node).collect();
-            let mut found_colon = false;
-            let mut parent_sym = None;
-            for tok in toks {
-                if tok.kind() == COLON {
-                    found_colon = true;
-                } else if found_colon && tok.kind() == IDENT {
-                    parent_sym = Some(Symbol::intern(tok.text()));
-                    break;
-                }
-            }
-            parent_sym
+        let parents = if let Some(parent_list) = children(node).find(|n| n.kind() == PARENT_LIST) {
+            self.collect_parent_list(&parent_list)
+        } else {
+            vec![]
         };
 
-        Ok((program_name, network, parent))
+        Ok((program_name, network, parents))
+    }
+
+    fn collect_parent_list(&self, node: &SyntaxNode) -> Vec<Symbol> {
+        debug_assert_eq!(node.kind(), PARENT_LIST);
+        tokens(node).filter(|n| n.kind() == IDENT).map(|id| Symbol::intern(id.text())).collect()
     }
 
     /// Collect all ANNOTATION children from a node.
@@ -2297,19 +2292,10 @@ impl<'a> ConversionContext<'a> {
 
         // Check for parent interface after COLON
         // Format: `interface Name : ParentName { ... }`
-        let parent = {
-            let toks: Vec<_> = tokens(node).collect();
-            let mut found_colon = false;
-            let mut parent_sym = None;
-            for tok in toks {
-                if tok.kind() == COLON {
-                    found_colon = true;
-                } else if found_colon && tok.kind() == IDENT {
-                    parent_sym = Some(Symbol::intern(tok.text()));
-                    break;
-                }
-            }
-            parent_sym
+        let parents = if let Some(parent_list) = children(node).find(|n| n.kind() == PARENT_LIST) {
+            self.collect_parent_list(&parent_list)
+        } else {
+            vec![]
         };
 
         let mut functions = Vec::new();
@@ -2329,7 +2315,7 @@ impl<'a> ConversionContext<'a> {
             }
         }
 
-        Ok(leo_ast::Interface { identifier, parent, span, id: self.builder.next_id(), functions, records })
+        Ok(leo_ast::Interface { identifier, parents, span, id: self.builder.next_id(), functions, records })
     }
 
     /// Convert an FN_PROTOTYPE_DEF node to a FunctionPrototype.

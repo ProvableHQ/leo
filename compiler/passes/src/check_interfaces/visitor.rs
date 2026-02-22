@@ -63,9 +63,9 @@ impl<'a> CheckInterfacesVisitor<'a> {
         let mut flattened =
             FlattenedInterface { functions: interface.functions.clone(), records: interface.records.clone() };
 
-        // If there's a parent, merge parent's members.
-        if let Some(parent_name) = interface.parent {
-            let parent_location = Location::new(location.program, vec![parent_name]);
+        // Merge members from all parent interfaces (supports multiple inheritance).
+        for parent_name in &interface.parents {
+            let parent_location = Location::new(location.program, vec![*parent_name]);
 
             // Lookup parent interface.
             let parent_interface =
@@ -74,7 +74,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     None => {
                         self.state
                             .handler
-                            .emit_err(CheckInterfacesError::interface_not_found(parent_name, interface.span));
+                            .emit_err(CheckInterfacesError::interface_not_found(*parent_name, interface.span));
                         return None;
                     }
                 };
@@ -88,6 +88,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 if let Some((_, existing_func)) = flattened.functions.iter().find(|(n, _)| n == name) {
                     // Same name exists - check if compatible.
                     if !Self::prototypes_match(existing_func, parent_func) {
+                        dbg!(existing_func, parent_func);
                         self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
                             name,
                             interface.identifier.name,
@@ -184,7 +185,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
     /// Check if two FunctionPrototypes have matching signatures.
     fn prototypes_match(a: &FunctionPrototype, b: &FunctionPrototype) -> bool {
         // Input parameters must match exactly.
-        a.input.len() != b.input.len() &&
+        a.input.len() == b.input.len() &&
         a.input.iter().zip(b.input.iter()).all(|(input_a, input_b)| {
             // Parameter names must match.
             input_a.identifier.name == input_b.identifier.name &&
@@ -284,9 +285,9 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
             self.flatten_interface(interface, &location);
         }
 
-        // Then, check if the program implements an interface.
-        if let Some(parent_interface) = input.parent {
-            self.check_program_implements_interface(input, parent_interface);
+        // Then, check if the program implements interfaces (supports multiple inheritance).
+        for parent_interface in &input.parents {
+            self.check_program_implements_interface(input, *parent_interface);
         }
     }
 }

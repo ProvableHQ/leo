@@ -1,0 +1,15 @@
+Error [ECHI03712004]: Function `get_value` does not match the signature required by interface `BoolChecker`.
+Expected:
+fn get_value() -> bool
+Found:
+fn get_value() -> u64
+    --> test:12:5
+     |
+  12 |     fn get_value() -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^
+  13 |         return 0u64;
+     |         ^^^^^^^^^^^^
+  14 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.

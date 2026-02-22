@@ -537,6 +537,8 @@ pub enum SyntaxKind {
     TYPE_FINAL,
     /// Mapping type in storage.
     TYPE_MAPPING,
+    /// Parent list: `Foo + Bar`
+    PARENT_LIST,
 
     // Sentinel for bounds checking (must be last)
     #[doc(hidden)]
@@ -1149,6 +1151,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     TYPE_OPTIONAL,
     TYPE_FINAL,
     TYPE_MAPPING,
+    PARENT_LIST,
     __LAST,
 ];
 

@@ -582,7 +582,7 @@ pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         ProgramScope {
             program_id: input.program_id,
-            parent: input.parent,
+            parents: input.parents.clone(),
             consts: input
                 .consts
                 .into_iter()
@@ -626,7 +626,7 @@ pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_interface(&mut self, input: Interface) -> Interface {
         Interface {
             identifier: input.identifier,
-            parent: input.parent,
+            parents: input.parents.clone(),
             span: input.span,
             id: input.id,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_prototype(f))).collect(),

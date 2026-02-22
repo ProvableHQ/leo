@@ -181,14 +181,13 @@ impl Parser<'_, '_> {
         // Parse program ID: name.aleo
         self.parse_program_id();
 
+        self.skip_trivia();
         // Optional parent interface: `: InterfaceName`
         if self.eat(COLON) {
             self.skip_trivia();
-            if self.at(IDENT) {
-                self.bump_any();
-            } else {
-                self.error("expected interface name");
-            }
+            // Clear error state so each item gets fresh error reporting.
+            self.erroring = false;
+            self.parse_parent_list();
         }
 
         self.expect(L_BRACE);
@@ -629,6 +628,30 @@ impl Parser<'_, '_> {
         m.complete(self, PARAM_LIST);
     }
 
+    /// Parse a parent list: `Type + Type`
+    fn parse_parent_list(&mut self) {
+        let m = self.start();
+        if self.at(IDENT) {
+            self.bump_any();
+        } else {
+            self.error("expected type");
+        }
+        self.skip_trivia();
+
+        while self.at(PLUS) && !self.at_eof() {
+            self.bump_any(); // PLUS
+            self.skip_trivia();
+            if self.at(IDENT) {
+                self.bump_any();
+            } else {
+                self.error("expected type");
+            }
+            self.skip_trivia();
+        }
+
+        m.complete(self, PARENT_LIST);
+    }
+
     /// Parse a single parameter: `[visibility] name: Type`
     fn parse_param(&mut self) {
         let m = self.start();
@@ -674,17 +697,14 @@ impl Parser<'_, '_> {
         if self.at(IDENT) {
             self.bump_any();
         } else {
-            self.error("expected interface name");
+            self.error("expected parameter name");
         }
 
         // Optional parent: `: ParentName`
+        self.skip_trivia();
         if self.eat(COLON) {
             self.skip_trivia();
-            if self.at(IDENT) {
-                self.bump_any();
-            } else {
-                self.error("expected parent interface name");
-            }
+            self.parse_parent_list();
         }
 
         // Interface body

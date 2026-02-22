@@ -96,7 +96,7 @@ impl ProgramReconstructor for TransformVisitor<'_> {
 
         ProgramScope {
             program_id: input.program_id,
-            parent: input.parent,
+            parents: input.parents.clone(),
             composites: input.composites,
             mappings: input.mappings,
             storage_variables: input.storage_variables,

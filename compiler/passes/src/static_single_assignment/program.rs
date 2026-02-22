@@ -130,7 +130,7 @@ impl ProgramScopeConsumer for SsaFormingVisitor<'_> {
         self.program = input.program_id.name.name;
         ProgramScope {
             program_id: input.program_id,
-            parent: input.parent,
+            parents: input.parents.clone(),
             consts: input.consts,
             composites: input.composites.into_iter().map(|(i, s)| (i, self.consume_composite(s))).collect(),
             mappings: input.mappings,

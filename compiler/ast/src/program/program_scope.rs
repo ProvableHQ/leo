@@ -37,8 +37,8 @@ use std::fmt;
 pub struct ProgramScope {
     /// The program id of the program scope.
     pub program_id: ProgramId,
-    /// The interface this program inherits from, if any
-    pub parent: Option<Symbol>,
+    /// The interfaces this program implements
+    pub parents: Vec<Symbol>,
     /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of composite definitions.
