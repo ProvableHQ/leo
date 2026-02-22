@@ -33,7 +33,7 @@ impl ProgramReconstructor for FlatteningVisitor<'_> {
         self.program = input.program_id.name.name;
         ProgramScope {
             program_id: input.program_id,
-            parent: input.parent,
+            parents: input.parents.clone(),
             consts: input
                 .consts
                 .into_iter()

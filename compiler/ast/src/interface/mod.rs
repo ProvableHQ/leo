@@ -28,8 +28,8 @@ mod prototypes;
 pub struct Interface {
     /// The interface identifier, e.g., `Foo` in `interface Foo { ... }`.
     pub identifier: Identifier,
-    /// The interface this interface inherits from, if any
-    pub parent: Option<Symbol>,
+    /// The interfaces this interface inherits from (supports multiple inheritance)
+    pub parents: Vec<Symbol>,
     /// The entire span of the interface definition.
     pub span: Span,
     /// The ID of the node.
@@ -66,7 +66,11 @@ impl fmt::Display for Interface {
             f,
             "interface {}{} {{",
             self.identifier,
-            if let Some(parent) = self.parent { format!(" : {parent}") } else { "".into() }
+            if self.parents.is_empty() {
+                String::new()
+            } else {
+                format!(" : {}", self.parents.iter().map(|p| p.to_string()).collect::<Vec<_>>().join(" + "))
+            }
         )?;
         for (_, fun_prot) in &self.functions {
             writeln!(f, "{}", Indent(fun_prot))?;

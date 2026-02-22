@@ -52,7 +52,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
         // This is the default implementation.
         ProgramScope {
             program_id: input.program_id,
-            parent: input.parent,
+            parents: input.parents.clone(),
             consts: input
                 .consts
                 .into_iter()
