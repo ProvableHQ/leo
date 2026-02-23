@@ -107,19 +107,17 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => match tok.kind() {
-                COMMENT_LINE => {
+                COMMENT_LINE | COMMENT_BLOCK => {
                     if had_output {
                         out.ensure_newline();
                     }
-                    out.write(tok.text().trim_end());
+                    if prev_was_import {
+                        out.newline();
+                        prev_was_import = false;
+                    }
+                    let text = if tok.kind() == COMMENT_LINE { tok.text().trim_end() } else { tok.text() };
+                    out.write(text);
                     out.newline();
-                    had_output = true;
-                }
-                COMMENT_BLOCK => {
-                    if had_output {
-                        out.ensure_newline();
-                    }
-                    out.write(tok.text());
                     had_output = true;
                 }
                 _ => {} // skip WHITESPACE, LINEBREAK, etc.
@@ -172,32 +170,8 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
 fn format_program(node: &SyntaxNode, out: &mut Output) {
     let elems = elements(node);
 
-    // Count "item groups" — an annotation followed by a declaration counts as one group
-    // with the declaration. Standalone annotations also count.
-    let children: Vec<_> = node.children().collect();
-    let mut item_group_count = 0;
-    {
-        let mut ci = 0;
-        while ci < children.len() {
-            let k = children[ci].kind();
-            if k == ANNOTATION {
-                // Skip contiguous annotations
-                while ci < children.len() && children[ci].kind() == ANNOTATION {
-                    ci += 1;
-                }
-                // The following item is part of the same group
-                if ci < children.len() && is_program_item_non_annotation(children[ci].kind()) {
-                    ci += 1;
-                }
-                item_group_count += 1;
-            } else if is_program_item_non_annotation(k) || k == ERROR {
-                item_group_count += 1;
-                ci += 1;
-            } else {
-                ci += 1;
-            }
-        }
-    }
+    // Check if there are any items in the program body.
+    let has_items = node.children().any(|c| is_program_item(c.kind()) || c.kind() == ERROR);
 
     // Write "program name.aleo {"
     out.write("program");
@@ -217,14 +191,20 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
 
     out.space();
     out.write("{");
-    if item_group_count > 0 {
+    if has_items {
         out.newline();
     }
 
-    // Iterate children_with_tokens to handle items and comments in order
-    let mut item_group_idx = 0;
+    // Iterate children_with_tokens to handle items and comments in order.
+    // Block items (structs, records, functions, transitions, constructors) always
+    // get a blank line separating them from adjacent items. Inline items (consts,
+    // mappings) preserve source spacing — only get a blank line if the source had one.
     let mut after_lbrace = false;
     let mut saw_linebreak = false;
+    let mut linebreak_count: usize = 0;
+    let mut had_item = false;
+    let mut prev_was_block_item = false;
+    let mut in_annotation_group = false;
 
     for elem in &elems {
         match elem {
@@ -235,64 +215,68 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                 R_BRACE => {}
                 LINEBREAK => {
                     saw_linebreak = true;
+                    linebreak_count += 1;
                 }
                 WHITESPACE => {}
-                COMMENT_LINE if after_lbrace => {
+                COMMENT_LINE | COMMENT_BLOCK if after_lbrace => {
+                    if had_item && linebreak_count >= 2 {
+                        out.insert_newline_at_mark();
+                    }
+                    let text = if tok.kind() == COMMENT_LINE { tok.text().trim_end() } else { tok.text() };
                     out.indented(|out| {
                         if saw_linebreak {
                             out.ensure_newline();
                         } else {
                             out.space();
                         }
-                        out.write(tok.text().trim_end());
-                        out.newline();
+                        out.write(text);
                     });
+                    out.set_mark();
+                    out.newline();
+                    had_item = true;
+                    prev_was_block_item = false;
                     saw_linebreak = false;
-                }
-                COMMENT_BLOCK if after_lbrace => {
-                    out.indented(|out| {
-                        if saw_linebreak {
-                            out.ensure_newline();
-                        } else {
-                            out.space();
-                        }
-                        out.write(tok.text());
-                    });
-                    saw_linebreak = false;
+                    linebreak_count = 0;
                 }
                 _ => {}
             },
             SyntaxElement::Node(n) if after_lbrace => {
                 let kind = n.kind();
-                if kind == ANNOTATION {
-                    out.indented(|out| {
-                        format_annotation(n, out);
-                    });
-                    saw_linebreak = false;
-                } else if is_program_item_non_annotation(kind) {
-                    out.indented(|out| {
-                        format_node(n, out);
-                        item_group_idx += 1;
-                        if item_group_idx < item_group_count {
-                            out.insert_newline_at_mark();
-                        }
-                    });
-                    saw_linebreak = false;
-                } else if kind == ERROR {
-                    let text = n.text().to_string();
-                    let text = text.trim();
-                    if !text.is_empty() {
-                        out.indented(|out| {
-                            out.write(text);
-                            out.newline();
-                            out.set_mark();
-                            item_group_idx += 1;
-                            if item_group_idx < item_group_count {
+                let is_content = kind == ERROR || kind == ANNOTATION || is_program_item_non_annotation(kind);
+                if is_content {
+                    let is_block = is_block_item(kind);
+                    let wants_blank = had_item
+                        && !in_annotation_group
+                        && (is_block
+                            || prev_was_block_item
+                            || linebreak_count >= 2
+                            || has_blank_line_in_leading_trivia(n));
+                    in_annotation_group = kind == ANNOTATION;
+                    if kind == ERROR {
+                        let text = n.text().to_string();
+                        let text = text.trim();
+                        if !text.is_empty() {
+                            if wants_blank {
                                 out.insert_newline_at_mark();
                             }
-                        });
+                            out.indented(|out| {
+                                out.write(text);
+                                out.newline();
+                                out.set_mark();
+                            });
+                            had_item = true;
+                            prev_was_block_item = false;
+                        }
+                    } else {
+                        if wants_blank {
+                            out.insert_newline_at_mark();
+                        }
+                        out.indented(|out| format_node(n, out));
+                        had_item = true;
+                        prev_was_block_item = is_block;
                     }
                     saw_linebreak = false;
+                    linebreak_count = 0;
                 }
             }
             _ => {}
@@ -305,6 +289,11 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
 
 fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
     matches!(kind, FUNCTION_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | MAPPING_DEF | STORAGE_DEF | GLOBAL_CONST)
+}
+
+/// Block items have braces and span multiple lines — always separated by blank lines.
+fn is_block_item(kind: SyntaxKind) -> bool {
+    matches!(kind, FUNCTION_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF)
 }
 
 // =============================================================================
@@ -339,6 +328,10 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
                         out.write("->");
                         out.space();
                     }
+                    KW_PUBLIC | KW_PRIVATE | KW_CONSTANT => {
+                        out.write(tok.text());
+                        out.space();
+                    }
                     WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
                     _ => {}
                 }
@@ -371,6 +364,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_annotation(node: &SyntaxNode, out: &mut Output) {
+    emit_leading_comments(node, out);
     let has_paren = has_token(node, L_PAREN);
 
     for elem in node.children_with_tokens() {
@@ -390,7 +384,7 @@ fn format_annotation(node: &SyntaxNode, out: &mut Output) {
                         out.write("=");
                         out.space();
                     }
-                    WHITESPACE | LINEBREAK => {}
+                    WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
                     _ => {
                         if has_paren || k == IDENT || k.is_keyword() {
                             out.write(tok.text());
@@ -468,6 +462,16 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
                             }
                         });
                         out.newline();
+                    }
+                    ERROR => {
+                        let text = n.text().to_string();
+                        let text = text.trim();
+                        if !text.is_empty() {
+                            out.indented(|out| {
+                                out.write(text);
+                                out.newline();
+                            });
+                        }
                     }
                     _ => {}
                 }
@@ -663,17 +667,29 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
 fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
     let params: Vec<_> = node.children().filter(|c| c.kind() == PARAM).collect();
 
+    if params.is_empty() {
+        out.write("()");
+        return;
+    }
+
     let param_strings: Vec<String> = params.iter().map(format_node_to_string).collect();
     let col = out.current_column();
 
-    if fits_on_one_line(col, "(", ")", &param_strings) {
+    // Force multi-line when comments exist anywhere in parameter list trivia.
+    // This avoids line-comment swallowing in single-line mode and keeps
+    // comments attached to the intended parameter in multi-line mode.
+    let has_comments = node
+        .children_with_tokens()
+        .any(|elem| matches!(elem, SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK)))
+        || params.iter().any(has_comment_token);
+
+    if !has_comments && fits_on_one_line(col, "(", ")", &param_strings) {
         // Single-line: (param1, param2)
         out.write("(");
         for (i, param) in params.iter().enumerate() {
             format_parameter(param, out);
             if i < params.len() - 1 {
                 out.write(",");
-                emit_inline_comments_after_param(node, param, out);
                 out.space();
             }
         }
@@ -684,12 +700,14 @@ fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
         out.newline();
         out.indented(|out| {
             for (i, param) in params.iter().enumerate() {
+                emit_leading_comments(param, out);
                 format_parameter(param, out);
                 out.write(",");
                 if i < params.len() - 1 {
-                    emit_inline_comments_after_param(node, param, out);
+                    emit_comments_after_list_item(node, param, out);
+                    emit_stolen_trailing_comments(&params[i + 1], out);
                 }
-                out.newline();
+                out.ensure_newline();
             }
         });
         out.write(")");
@@ -711,7 +729,7 @@ fn format_parameter(node: &SyntaxNode, out: &mut Output) {
                         out.space();
                     }
                     IDENT => out.write(tok.text()),
-                    WHITESPACE | LINEBREAK => {}
+                    WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
                     _ => out.write(tok.text()),
                 }
             }
@@ -1361,78 +1379,80 @@ fn format_literal(node: &SyntaxNode, out: &mut Output) {
 
 fn format_call(node: &SyntaxNode, out: &mut Output) {
     // CALL_EXPR: callee_node, L_PAREN, [args separated by COMMA], R_PAREN
-    let col = out.current_column();
-    let single_line = format_call_inline(node);
+    let elems = elements(node);
+    let lparen_idx = find_token_index(&elems, L_PAREN).unwrap_or(elems.len());
 
-    if col + single_line.len() <= LINE_WIDTH {
-        // Fits on one line — write the pre-formatted string directly
-        out.write(&single_line);
-    } else {
-        // Wrap: write callee, then wrap args
-        let elems = elements(node);
-        let lparen_idx = find_token_index(&elems, L_PAREN).unwrap_or(elems.len());
-
-        // Write callee (everything before L_PAREN)
-        for elem in elems[..lparen_idx].iter() {
-            match elem {
-                SyntaxElement::Token(tok) => {
-                    let k = tok.kind();
-                    if k != WHITESPACE && k != LINEBREAK {
-                        out.write(tok.text());
-                    }
-                }
-                SyntaxElement::Node(n) => format_node(n, out),
-            }
-        }
-
-        // Collect args (expression nodes after L_PAREN)
-        let args: Vec<_> = elems[lparen_idx..]
-            .iter()
-            .filter_map(|e| {
-                if let SyntaxElement::Node(n) = e {
-                    if is_expression(n.kind()) { Some(n.clone()) } else { None }
-                } else {
-                    None
-                }
-            })
-            .collect();
-
-        out.write("(");
-        out.newline();
-        out.indented(|out| {
-            for arg in &args {
-                format_node(arg, out);
-                out.write(",");
-                out.newline();
-            }
-        });
-        out.write(")");
-    }
-}
-
-/// Format a call expression as a single-line string (no wrapping).
-/// Used for measurement to avoid infinite recursion with format_node_to_string.
-fn format_call_inline(node: &SyntaxNode) -> String {
-    let mut out = Output::new();
-    for elem in node.children_with_tokens() {
+    // Write callee (everything before L_PAREN)
+    for elem in elems[..lparen_idx].iter() {
         match elem {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
-                match k {
-                    L_PAREN => out.write("("),
-                    R_PAREN => out.write(")"),
-                    COMMA => {
-                        out.write(",");
-                        out.space();
-                    }
-                    WHITESPACE | LINEBREAK => {}
-                    _ => out.write(tok.text()),
+                if k != WHITESPACE && k != LINEBREAK {
+                    out.write(tok.text());
                 }
             }
-            SyntaxElement::Node(n) => format_node(&n, &mut out),
+            SyntaxElement::Node(n) => format_node(n, out),
         }
     }
-    out.into_raw()
+
+    // Collect args (expression nodes after L_PAREN)
+    let args: Vec<_> = elems[lparen_idx..]
+        .iter()
+        .filter_map(|e| {
+            if let SyntaxElement::Node(n) = e {
+                if is_expression(n.kind()) { Some(n.clone()) } else { None }
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    if args.is_empty() {
+        out.write("()");
+        return;
+    }
+
+    // Force multi-line whenever comments are present among call argument trivia.
+    // Single-line rendering cannot safely preserve `//` comments.
+    let has_comments = elems[lparen_idx..]
+        .iter()
+        .any(|elem| matches!(elem, SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK)))
+        || args.iter().any(has_comment_token);
+    let arg_strings: Vec<String> = args.iter().map(format_node_to_string).collect();
+    let col = out.current_column();
+
+    if !has_comments && fits_on_one_line(col, "(", ")", &arg_strings) {
+        out.write("(");
+        for (i, arg) in args.iter().enumerate() {
+            format_node(arg, out);
+            if i < args.len() - 1 {
+                out.write(",");
+                out.space();
+            }
+        }
+        out.write(")");
+        return;
+    }
+
+    out.write("(");
+    out.newline();
+    out.indented(|out| {
+        for (i, arg) in args.iter().enumerate() {
+            // Preserve comments that belong to this argument (i.e. comments
+            // separated by a linebreak in leading trivia).
+            emit_leading_comments(arg, out);
+            format_node(arg, out);
+            out.write(",");
+            // Preserve comments stolen from the following arg's leading trivia
+            // (same-line trailing comments after the previous comma).
+            if i < args.len() - 1 {
+                emit_comments_after_list_item(node, arg, out);
+                emit_stolen_trailing_comments(&args[i + 1], out);
+            }
+            out.ensure_newline();
+        }
+    });
+    out.write(")");
 }
 
 fn format_binary(node: &SyntaxNode, out: &mut Output) {
@@ -1663,6 +1683,7 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
+    emit_leading_comments(node, out);
     let has_colon = has_token(node, COLON);
     for elem in node.children_with_tokens() {
         match elem {
@@ -1674,7 +1695,7 @@ fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
                         out.space();
                     }
                     IDENT => out.write(tok.text()),
-                    WHITESPACE | LINEBREAK => {}
+                    WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
                     _ => out.write(tok.text()),
                 }
             }
@@ -1849,12 +1870,15 @@ fn emit_stolen_trailing_comments(node: &SyntaxNode, out: &mut Output) {
     }
 }
 
-/// Emit inline comments that appear after a child node within its parent.
-/// Scans sibling elements after `child` (past the COMMA) and emits any comments
-/// found before the next structural element.
-fn emit_inline_comments_after_param(parent: &SyntaxNode, child: &SyntaxNode, out: &mut Output) {
+/// Emit comment tokens between a list `child` and the next list item in `parent`.
+///
+/// This captures comments represented as direct parent-level tokens after the
+/// separating comma, before the next structural element.
+fn emit_comments_after_list_item(parent: &SyntaxNode, child: &SyntaxNode, out: &mut Output) {
     let mut past_child = false;
     let mut past_comma = false;
+    let mut saw_linebreak = false;
+
     for elem in parent.children_with_tokens() {
         if !past_child {
             if let SyntaxElement::Node(n) = &elem
@@ -1864,24 +1888,44 @@ fn emit_inline_comments_after_param(parent: &SyntaxNode, child: &SyntaxNode, out
             }
             continue;
         }
+
         if !past_comma {
-            if matches!(&elem, SyntaxElement::Token(t) if t.kind() == COMMA) {
-                past_comma = true;
+            match &elem {
+                SyntaxElement::Token(tok) => match tok.kind() {
+                    COMMA => past_comma = true,
+                    WHITESPACE | LINEBREAK => {}
+                    _ => break,
+                },
+                SyntaxElement::Node(_) => break,
             }
             continue;
         }
+
         match &elem {
             SyntaxElement::Token(tok) => match tok.kind() {
+                LINEBREAK => {
+                    saw_linebreak = true;
+                }
                 COMMENT_LINE => {
-                    out.space();
+                    if saw_linebreak {
+                        out.ensure_newline();
+                    } else {
+                        out.space();
+                    }
                     out.write(tok.text().trim_end());
                     out.newline();
+                    saw_linebreak = false;
                 }
                 COMMENT_BLOCK => {
-                    out.space();
+                    if saw_linebreak {
+                        out.ensure_newline();
+                    } else {
+                        out.space();
+                    }
                     out.write(tok.text());
+                    saw_linebreak = false;
                 }
-                WHITESPACE | LINEBREAK => {}
+                WHITESPACE => {}
                 _ => break,
             },
             SyntaxElement::Node(_) => break,
@@ -1924,7 +1968,12 @@ fn format_wrapping_list(out: &mut Output, open: &str, close: &str, items: &[Synt
     let item_strings: Vec<String> = items.iter().map(format_node_to_string).collect();
     let col = out.current_column();
 
-    if fits_on_one_line(col, open, close, &item_strings) {
+    // Force multi-line when any item has a stolen trailing comment (a COMMENT_LINE
+    // in its leading trivia before the first LINEBREAK). Line comments cannot be
+    // kept inline in a single-line list without swallowing subsequent items.
+    let has_comment = items.iter().any(has_comment_token);
+
+    if !has_comment && fits_on_one_line(col, open, close, &item_strings) {
         out.write(open);
         for (i, item) in items.iter().enumerate() {
             format_node(item, out);
@@ -1942,6 +1991,11 @@ fn format_wrapping_list(out: &mut Output, open: &str, close: &str, items: &[Synt
                 format_node(item, out);
                 if multi_trailing_comma || i < items.len() - 1 {
                     out.write(",");
+                }
+                // Emit stolen trailing comments from the next item so they
+                // stay inline after this item's comma.
+                if i < items.len() - 1 {
+                    emit_stolen_trailing_comments(&items[i + 1], out);
                 }
                 out.newline();
             }
@@ -2090,4 +2144,31 @@ fn find_token_index(elems: &[SyntaxElement], kind: SyntaxKind) -> Option<usize> 
 /// Find the last index of a token with a given kind.
 fn find_last_token_index(elems: &[SyntaxElement], kind: SyntaxKind) -> Option<usize> {
     elems.iter().rposition(|e| matches!(e, SyntaxElement::Token(t) if t.kind() == kind))
+}
+
+/// Check if a node's leading trivia contains a blank line (>= 2 LINEBREAK tokens).
+fn has_blank_line_in_leading_trivia(node: &SyntaxNode) -> bool {
+    let mut linebreak_count = 0;
+    for elem in node.children_with_tokens() {
+        match &elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                LINEBREAK => {
+                    linebreak_count += 1;
+                    if linebreak_count >= 2 {
+                        return true;
+                    }
+                }
+                WHITESPACE | COMMENT_LINE | COMMENT_BLOCK => {}
+                _ => break,
+            },
+            SyntaxElement::Node(_) => break,
+        }
+    }
+    false
+}
+
+/// Check if a node contains comment tokens among its direct children/tokens.
+fn has_comment_token(node: &SyntaxNode) -> bool {
+    node.children_with_tokens()
+        .any(|elem| matches!(elem, SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK)))
 }

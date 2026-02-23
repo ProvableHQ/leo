@@ -1,7 +1,7 @@
 program test.aleo
 {
     async   transition do_something(
-      value:u64 )  ->  Future{
+      value:u64 )  ->   public  Future{
 return finalize( value );
 }
 
