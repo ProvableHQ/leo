@@ -68,4 +68,11 @@ create_messages!(
         ),
         help: Some("Function signatures must match exactly: same parameter names, types, modes, order, and return type.".to_string()),
     }
+
+    @formatted
+    not_an_interface {
+        args: (name: impl Display),
+        msg: format!("`{name}` is not an interface."),
+        help: Some("Only interface declarations can be inherited from.".to_string()),
+    }
 );

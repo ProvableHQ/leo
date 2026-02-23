@@ -131,6 +131,7 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
         self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
 
         // Visit the program scope
+        input.parents.iter().for_each(|(_, c)| self.visit_type(c));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));

@@ -18,6 +18,7 @@ use crate::CompilerState;
 
 use leo_ast::{
     AstVisitor,
+    CompositeType,
     Function,
     FunctionPrototype,
     Interface,
@@ -25,9 +26,10 @@ use leo_ast::{
     ProgramScope,
     ProgramVisitor,
     RecordPrototype,
+    Type,
 };
 use leo_errors::CheckInterfacesError;
-use leo_span::Symbol;
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 
@@ -51,6 +53,24 @@ impl<'a> CheckInterfacesVisitor<'a> {
         Self { state, current_program: Symbol::intern(""), flattened_interfaces: IndexMap::new() }
     }
 
+    fn resolve_interface(&self, interface_type: &Type, interface_span: &Span) -> Option<(Interface, Location)> {
+        let Type::Composite(CompositeType { path: parent_path, .. }) = interface_type else {
+            self.state.handler.emit_err(CheckInterfacesError::not_an_interface(interface_type, *interface_span));
+            return None;
+        };
+        let interface_location = parent_path.try_global_location().expect("Locations should have been resolved by now");
+
+        let interface = match self.state.symbol_table.lookup_interface(self.current_program, interface_location) {
+            Some(p) => p.clone(),
+            None => {
+                self.state.handler.emit_err(CheckInterfacesError::interface_not_found(interface_type, *interface_span));
+                return None;
+            }
+        };
+
+        Some((interface, interface_location.clone()))
+    }
+
     /// Flatten an interface by collecting all inherited members.
     /// Detects conflicts during flattening.
     fn flatten_interface(&mut self, interface: &Interface, location: &Location) -> Option<FlattenedInterface> {
@@ -64,20 +84,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
             FlattenedInterface { functions: interface.functions.clone(), records: interface.records.clone() };
 
         // Merge members from all parent interfaces (supports multiple inheritance).
-        for parent_name in &interface.parents {
-            let parent_location = Location::new(location.program, vec![*parent_name]);
-
-            // Lookup parent interface.
-            let parent_interface =
-                match self.state.symbol_table.lookup_interface(self.current_program, &parent_location) {
-                    Some(p) => p.clone(),
-                    None => {
-                        self.state
-                            .handler
-                            .emit_err(CheckInterfacesError::interface_not_found(*parent_name, interface.span));
-                        return None;
-                    }
-                };
+        for (parent_span, parent_type) in &interface.parents {
+            let (parent_interface, parent_location) = self.resolve_interface(parent_type, parent_span)?;
 
             // Recursively flatten parent.
             // FIXME: handle cycles
@@ -118,19 +126,15 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Validate that a program implements all interface requirements.
-    fn check_program_implements_interface(&mut self, program_scope: &ProgramScope, interface_name: Symbol) {
+    fn check_program_implements_interface(
+        &mut self,
+        program_scope: &ProgramScope,
+        interface_span: &Span,
+        interface_type: &Type,
+    ) {
         let program_name = program_scope.program_id.name.name;
-        let interface_location = Location::new(program_name, vec![interface_name]);
-
-        // Look up the interface.
-        let interface = match self.state.symbol_table.lookup_interface(program_name, &interface_location) {
-            Some(i) => i.clone(),
-            None => {
-                self.state
-                    .handler
-                    .emit_err(CheckInterfacesError::interface_not_found(interface_name, program_scope.span));
-                return;
-            }
+        let Some((interface, interface_location)) = self.resolve_interface(interface_type, interface_span) else {
+            return;
         };
 
         // Get the flattened interface (with all inherited members).
@@ -149,7 +153,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     if !Self::function_matches_prototype(&func_symbol.function, required_proto) {
                         self.state.handler.emit_err(CheckInterfacesError::signature_mismatch(
                             func_name,
-                            interface_name,
+                            interface.identifier,
                             Self::format_prototype_signature(required_proto),
                             Self::format_function_signature(&func_symbol.function),
                             func_symbol.function.span,
@@ -159,7 +163,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 None => {
                     self.state.handler.emit_err(CheckInterfacesError::missing_interface_function(
                         func_name,
-                        interface_name,
+                        interface.identifier,
                         program_name,
                         program_scope.span,
                     ));
@@ -174,7 +178,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             if self.state.symbol_table.lookup_record(program_name, &record_location).is_none() {
                 self.state.handler.emit_err(CheckInterfacesError::missing_interface_record(
                     record_name,
-                    interface_name,
+                    interface.identifier,
                     program_name,
                     program_scope.span,
                 ));
@@ -286,8 +290,8 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
         }
 
         // Then, check if the program implements interfaces (supports multiple inheritance).
-        for parent_interface in &input.parents {
-            self.check_program_implements_interface(input, *parent_interface);
+        for (parent_span, parent_type) in &input.parents {
+            self.check_program_implements_interface(input, parent_span, parent_type);
         }
     }
 }

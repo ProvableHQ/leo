@@ -1,0 +1,40 @@
+program lib_a.aleo;
+
+function dummy:
+// --- Next Program --- //
+program lib_b.aleo;
+
+function dummy:
+// --- Next Program --- //
+import lib_a.aleo;
+import lib_b.aleo;
+program test.aleo;
+
+function fn_a:
+    output 1u64 as u64.private;
+
+function fn_b:
+    output 2u64 as u64.private;
+
+function main:
+    input r0 as u64.private;
+    output 0u64 as u64.private;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712000]: Interface `lib_a.aleo/InterfaceA` not found.
+    --> compiler-test:6:21
+     |
+   6 | program test.aleo : lib_a.aleo/InterfaceA + lib_b.aleo/InterfaceB {
+     |                     ^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.
+Error [ECHI03712000]: Interface `lib_b.aleo/InterfaceB` not found.
+    --> compiler-test:6:45
+     |
+   6 | program test.aleo : lib_a.aleo/InterfaceA + lib_b.aleo/InterfaceB {
+     |                                             ^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.

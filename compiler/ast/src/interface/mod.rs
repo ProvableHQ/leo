@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID, indent_display::Indent};
+use crate::{Identifier, Node, NodeID, Type, indent_display::Indent};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -29,7 +29,7 @@ pub struct Interface {
     /// The interface identifier, e.g., `Foo` in `interface Foo { ... }`.
     pub identifier: Identifier,
     /// The interfaces this interface inherits from (supports multiple inheritance)
-    pub parents: Vec<Symbol>,
+    pub parents: Vec<(Span, Type)>,
     /// The entire span of the interface definition.
     pub span: Span,
     /// The ID of the node.
@@ -69,7 +69,7 @@ impl fmt::Display for Interface {
             if self.parents.is_empty() {
                 String::new()
             } else {
-                format!(" : {}", self.parents.iter().map(|p| p.to_string()).collect::<Vec<_>>().join(" + "))
+                format!(" : {}", self.parents.iter().map(|(_, p)| p.to_string()).collect::<Vec<_>>().join(" + "))
             }
         )?;
         for (_, fun_prot) in &self.functions {

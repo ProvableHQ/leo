@@ -43,6 +43,9 @@ use leo_span::{
 /// Type parameters and const arguments extracted from a `CONST_ARG_LIST` node.
 type ConstArgList = (Vec<(leo_ast::Type, Span)>, Vec<leo_ast::Expression>);
 
+/// Parent declarations for inheritance
+type Parents = Vec<(Span, leo_ast::Type)>;
+
 // =============================================================================
 // ConversionContext
 // =============================================================================
@@ -1906,12 +1909,12 @@ impl<'a> ConversionContext<'a> {
     fn program_decl_to_name_with_parent(
         &self,
         node: &SyntaxNode,
-    ) -> Result<(leo_ast::Identifier, leo_ast::Identifier, Vec<Symbol>)> {
+    ) -> Result<(leo_ast::Identifier, leo_ast::Identifier, Parents)> {
         debug_assert_eq!(node.kind(), PROGRAM_DECL);
         let (program_name, network) = self.program_decl_to_name(node)?;
 
         let parents = if let Some(parent_list) = children(node).find(|n| n.kind() == PARENT_LIST) {
-            self.collect_parent_list(&parent_list)
+            self.collect_parent_list(&parent_list)?
         } else {
             vec![]
         };
@@ -1919,9 +1922,12 @@ impl<'a> ConversionContext<'a> {
         Ok((program_name, network, parents))
     }
 
-    fn collect_parent_list(&self, node: &SyntaxNode) -> Vec<Symbol> {
+    fn collect_parent_list(&self, node: &SyntaxNode) -> Result<Parents> {
         debug_assert_eq!(node.kind(), PARENT_LIST);
-        tokens(node).filter(|n| n.kind() == IDENT).map(|id| Symbol::intern(id.text())).collect()
+        children(node)
+            .filter(|n| n.kind().is_type())
+            .map(|n| self.to_type(&n).map(|t| (self.to_span(&n), t)))
+            .collect::<Result<Vec<_>>>()
     }
 
     /// Collect all ANNOTATION children from a node.
@@ -2293,7 +2299,7 @@ impl<'a> ConversionContext<'a> {
         // Check for parent interface after COLON
         // Format: `interface Name : ParentName { ... }`
         let parents = if let Some(parent_list) = children(node).find(|n| n.kind() == PARENT_LIST) {
-            self.collect_parent_list(&parent_list)
+            self.collect_parent_list(&parent_list)?
         } else {
             vec![]
         };

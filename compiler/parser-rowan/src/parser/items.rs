@@ -149,13 +149,14 @@ impl Parser<'_, '_> {
         }
     }
 
-    /// Parse a single module-level item: `const`, `struct`, or `fn`.
+    /// Parse a single module-level item: `const`, `struct`, `interface` or `fn`.
     ///
     /// Annotations are handled inside each item parser.
     fn parse_module_item(&mut self) -> Option<CompletedMarker> {
         match self.current() {
             KW_CONST => self.parse_global_const(),
             KW_STRUCT => self.parse_composite_def(STRUCT_DEF),
+            KW_INTERFACE => self.parse_interface_def(),
             AT | KW_FN | KW_FINAL => self.parse_function_or_constructor(),
             _ => None,
         }
@@ -631,21 +632,13 @@ impl Parser<'_, '_> {
     /// Parse a parent list: `Type + Type`
     fn parse_parent_list(&mut self) {
         let m = self.start();
-        if self.at(IDENT) {
-            self.bump_any();
-        } else {
-            self.error("expected type");
-        }
+        self.parse_type();
         self.skip_trivia();
 
         while self.at(PLUS) && !self.at_eof() {
             self.bump_any(); // PLUS
             self.skip_trivia();
-            if self.at(IDENT) {
-                self.bump_any();
-            } else {
-                self.error("expected type");
-            }
+            self.parse_type();
             self.skip_trivia();
         }
 

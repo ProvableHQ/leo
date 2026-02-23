@@ -130,6 +130,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
             input.composites.iter().for_each(|(_, c)| slf.visit_composite(c));
             input.functions.iter().for_each(|(_, c)| slf.visit_function(c));
             input.consts.iter().for_each(|(_, c)| slf.visit_const(c));
+            input.interfaces.iter().for_each(|(_, c)| slf.visit_interface(c));
         })
     }
 
