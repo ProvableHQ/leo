@@ -24,7 +24,7 @@ use std::{
 use walkdir::WalkDir;
 
 // The following license text that should be present at the beginning of every source file.
-const EXPECTED_LICENSE_TEXT: &str = include_str!(".resources/license_header");
+const EXPECTED_LICENSE_TEXT: &str = include_str!("../../.resources/license_header");
 
 // The following directories will be excluded from the license scan.
 const DIRS_TO_SKIP: [&str; 9] =
@@ -73,23 +73,19 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
     }
 
     // Watch the directories that contain Rust source files
-    println!("cargo:rerun-if-changed=compiler");
-    println!("cargo:rerun-if-changed=errors");
-    println!("cargo:rerun-if-changed=leo");
-    println!("cargo:rerun-if-changed=test-framework");
-    println!("cargo:rerun-if-changed=utils");
+    println!("cargo:rerun-if-changed=../../crates");
 
     // Watch the build script itself
     println!("cargo:rerun-if-changed=build.rs");
 
     // Watch the license header file
-    println!("cargo:rerun-if-changed=.resources/license_header");
+    println!("cargo:rerun-if-changed=../../.resources/license_header");
 
     // Watch the Cargo.toml file
     println!("cargo:rerun-if-changed=Cargo.toml");
 
     // Watch the Cargo.lock file
-    println!("cargo:rerun-if-changed=Cargo.lock");
+    println!("cargo:rerun-if-changed=../../Cargo.lock");
 }
 
 /// Generates one Rust `#[test]` per CLI integration test directory.
@@ -101,10 +97,12 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
 /// This enables fine-grained test filtering, clearer failure reporting, and
 /// per-test execution for CLI integration tests.
 fn generate_cli_tests() {
-    println!("cargo::rerun-if-changed=tests/tests/cli");
-
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    let tests_dir = manifest_dir.join("tests/tests/cli");
+    let workspace_root = manifest_dir.join("../..");
+
+    println!("cargo::rerun-if-changed={}", workspace_root.join("tests/tests/cli").display());
+
+    let tests_dir = workspace_root.join("tests/tests/cli");
 
     let mut out = String::from("use serial_test::serial;\n");
 
@@ -144,6 +142,8 @@ fn {fn_name}() {{
 fn main() {
     generate_cli_tests();
 
-    // Check licenses in the current folder.
-    check_file_licenses(".");
+    // Check licenses at the workspace root.
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let workspace_root = manifest_dir.join("../..");
+    check_file_licenses(&workspace_root);
 }

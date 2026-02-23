@@ -1,85 +1,23 @@
-[package]
-name = "leo-lang"
-version = "3.4.0"
-authors = [ "The Leo Team <leo@provable.com>" ]
-description = "The Leo programming language"
-homepage = "https://leo-lang.org"
-repository = "https://github.com/ProvableHQ/leo"
-keywords = [
-  "aleo",
-  "cryptography",
-  "leo",
-  "programming-language",
-  "zero-knowledge"
-]
-categories = [ "compilers", "cryptography", "web-programming" ]
-include = [
-  "Cargo.toml",
-  "leo",
-  "README.md",
-  "LICENSE.md",
-  "examples/lottery/src/main.leo",
-  "examples/lottery/run.sh",
-  "examples/tictactoe/src/main.leo",
-  "examples/tictactoe/run.sh",
-  "examples/token/src/main.leo",
-  "examples/token/run.sh"
-]
-license = "GPL-3.0"
-edition = "2024"
-rust-version = "1.92.0"
-
 [workspace]
-members = [
-  "compiler/abi",
-  "compiler/abi-types",
-  "compiler/ast",
-  "compiler/compiler",
-  "compiler/parser-rowan",
-  "compiler/parser",
-  "compiler/passes",
-  "compiler/span",
-  "errors",
-  "leo-fmt",
-  "interpreter",
-  "leo/package",
-  "test-framework",
-  "utils/disassembler"
-]
-
-[lib]
-path = "leo/lib.rs"
-
-[[bin]]
-name = "leo"
-path = "leo/cli/main.rs"
-
-[[test]]
-name = "integration"
-path = "leo/tests/integration.rs"
-
-[features]
-default = [ ]
-ci_skip = [ "leo-compiler/ci_skip" ]
-noconfig = [ ]
-only_testnet = [ ]
+members = ["crates/*"]
+resolver = "3"
 
 [workspace.dependencies]
 # leo dependencies
-leo-abi             = { path = "./compiler/abi",              version = "=3.4.0" }
-leo-abi-types       = { path = "./compiler/abi-types",        version = "=3.4.0" }
-leo-ast             = { path = "./compiler/ast",              version = "=3.4.0" }
-leo-compiler        = { path = "./compiler/compiler",         version = "=3.4.0" }
-leo-disassembler    = { path = "./utils/disassembler",        version = "=3.4.0" }
-leo-errors          = { path = "./errors",                    version = "=3.4.0" }
-leo-fmt             = { path = "./leo-fmt",                   version = "=3.4.0" }
-leo-interpreter     = { path = "./interpreter",               version = "=3.4.0" }
-leo-package         = { path = "./leo/package",               version = "=3.4.0" }
-leo-parser          = { path = "./compiler/parser",           version = "=3.4.0" }
-leo-parser-rowan    = { path = "./compiler/parser-rowan",     version = "=3.4.0" }
-leo-passes          = { path = "./compiler/passes",           version = "=3.4.0" }
-leo-span            = { path = "./compiler/span",             version = "=3.4.0" }
-leo-test-framework  = { path = "./test-framework",            version = "=3.4.0" }
+leo-abi             = { path = "./crates/abi",              version = "=3.4.0" }
+leo-abi-types       = { path = "./crates/abi-types",        version = "=3.4.0" }
+leo-ast             = { path = "./crates/ast",              version = "=3.4.0" }
+leo-compiler        = { path = "./crates/compiler",         version = "=3.4.0" }
+leo-disassembler    = { path = "./crates/disassembler",     version = "=3.4.0" }
+leo-errors          = { path = "./crates/errors",           version = "=3.4.0" }
+leo-fmt             = { path = "./crates/fmt",              version = "=3.4.0" }
+leo-interpreter     = { path = "./crates/interpreter",      version = "=3.4.0" }
+leo-package         = { path = "./crates/package",          version = "=3.4.0" }
+leo-parser          = { path = "./crates/parser",           version = "=3.4.0" }
+leo-parser-rowan    = { path = "./crates/parser-rowan",     version = "=3.4.0" }
+leo-passes          = { path = "./crates/passes",           version = "=3.4.0" }
+leo-span            = { path = "./crates/span",             version = "=3.4.0" }
+leo-test-framework  = { path = "./crates/test-framework",   version = "=3.4.0" }
 # third party dependencies
 aleo-std           = { version = "1.0.3"}
 aleo-std-storage   = { version = "1.0.3", default-features = false }
@@ -140,80 +78,6 @@ tracing-subscriber = { version = "0.3", features = [ "env-filter", "fmt" ] }
 ureq               = { version = "3.0", features = [ "json" ] }
 walkdir            = "2.5"
 which              = "8.0"
-
-[dependencies]
-# leo dependencies
-leo-abi           = { workspace = true }
-leo-ast           = { workspace = true }
-leo-compiler      = { workspace = true }
-leo-disassembler  = { workspace = true }
-leo-errors        = { workspace = true }
-leo-fmt           = { workspace = true }
-leo-interpreter   = { workspace = true }
-leo-package       = { workspace = true }
-leo-span          = { workspace = true }
-# third party dependencies
-aleo-std           = { workspace = true }
-aleo-std-storage   = { workspace = true }
-anyhow             = { workspace = true }
-axum               = { workspace = true }
-axum-extra         = { workspace = true }
-backtrace          = { workspace = true }
-chrono             = { workspace = true }
-clap               = { workspace = true }
-colored            = { workspace = true }
-crossbeam-channel  = { workspace = true }
-crossterm          = { workspace = true }
-ctrlc              = { workspace = true }
-dialoguer          = { workspace = true }
-dotenvy            = { workspace = true }
-dunce              = { workspace = true }
-indexmap           = { workspace = true }
-is-terminal        = { workspace = true }
-itertools          = { workspace = true }
-num-format         = { workspace = true }
-once_cell          = { workspace = true }
-parking_lot        = { workspace = true }
-rand               = { workspace = true }
-rand_chacha        = { workspace = true }
-rayon              = { workspace = true }
-regex              = { workspace = true }
-reqwest            = { workspace = true }
-rpassword          = { workspace = true }
-self_update        = { workspace = true }
-serde              = { workspace = true }
-serde_json         = { workspace = true }
-serial_test        = { workspace = true }
-similar            = { workspace = true }
-sha2               = { workspace = true }
-snarkvm            = { workspace = true }
-sys-info           = { workspace = true }
-tempfile           = { workspace = true }
-tokio              = { workspace = true }
-tower-http         = { workspace = true }
-tower_governor     = { workspace = true }
-tracing            = { workspace = true }
-tracing-subscriber = { workspace = true }
-ureq               = { workspace = true }
-walkdir            = { workspace = true }
-which              = { workspace = true }
-
-[dev-dependencies]
-regex = { workspace = true }
-which = { workspace = true }
-
-[build-dependencies]
-walkdir = { workspace = true }
-
-[target."cfg(unix)".dependencies]
-libc        = "0.2"
-nix         = { version = "0.30", features = [ "process", "term", "fs", "poll" ] }
-signal-hook = { version = "0.4", features = [ "iterator" ] }
-
-[target."cfg(windows)".dependencies]
-winapi      = "0.3"
-ansi_term   = "0.12"
-windows-sys = { version = "0.61", features = [ "Win32_Foundation", "Win32_System_Threading", "Win32_System_JobObjects" ] }
 
 [profile.release]
 opt-level = 3

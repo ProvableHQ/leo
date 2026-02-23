@@ -81,7 +81,9 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         })?)?
     } else {
         // This genesis block is stored in $TMPDIR when running snarkos start --dev 0 --dev-num-validators N
-        Block::from_bytes_le(include_bytes!("../../../../resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
+        Block::from_bytes_le(include_bytes!(
+            "../../../../../../resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"
+        ))?
     };
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);

@@ -57,9 +57,10 @@ fn run_single_cli_test(test_directory: &Path) {
     }
 
     let cli_expectation_directory: PathBuf =
-        [env!("CARGO_MANIFEST_DIR"), "tests", "expectations", "cli"].iter().collect();
+        [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "expectations", "cli"].iter().collect();
 
-    let mismatch_directory: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "mismatches", "cli"].iter().collect();
+    let mismatch_directory: PathBuf =
+        [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "mismatches", "cli"].iter().collect();
 
     let test = Test {
         test_directory: test_directory.to_path_buf(),

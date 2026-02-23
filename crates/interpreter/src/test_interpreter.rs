@@ -211,7 +211,7 @@ fn run_test(
 
 #[test]
 fn test_interpreter() {
-    let tests_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "tests", "tests", "interpreter"]
+    let tests_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "tests", "interpreter"]
         .iter()
         .collect::<PathBuf>()
         .canonicalize()

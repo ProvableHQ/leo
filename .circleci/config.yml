@@ -279,7 +279,7 @@ jobs:
       - run:
           name: Build and install Leo
           no_output_timeout: 30m
-          command: cargo install --path . --root . --locked
+          command: cargo install --path crates/leo --root . --locked
       - persist_to_workspace:
           root: ~/
           paths:

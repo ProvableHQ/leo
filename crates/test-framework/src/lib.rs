@@ -72,7 +72,7 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
         std::env::set_var("NOCOLOR", "x");
     }
 
-    let base_tests_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "tests"].iter().collect();
+    let base_tests_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests"].iter().collect();
 
     let base_tests_dir = base_tests_dir.canonicalize().unwrap();
     let tests_dir = base_tests_dir.join("tests").join(category);
@@ -197,7 +197,7 @@ pub fn run_single_test(category: &str, path: &Path, runner: fn(&str) -> String) 
     }
 
     // Base directories
-    let base_tests_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "tests"].iter().collect();
+    let base_tests_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests"].iter().collect();
     let base_tests_dir = base_tests_dir.canonicalize().unwrap();
 
     let tests_dir = base_tests_dir.join("tests").join(category);
