@@ -1,5 +1,5 @@
 program test.aleo {
-    async transition do_something(value: u64) -> Future {
+    async transition do_something(value: u64) -> public Future {
         return finalize(value);
     }
 
