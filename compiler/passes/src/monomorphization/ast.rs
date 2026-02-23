@@ -247,7 +247,6 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // The types of the const arguments are already checked in the type checking pass.
         let Some(evaluated_const_args) = self.try_evaluate_const_args(&input.const_arguments) else {
             self.unresolved_composite_exprs.push(input.clone());
-            input.members = members;
             return (input.into(), Default::default());
         };
 
