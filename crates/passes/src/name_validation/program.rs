@@ -67,7 +67,7 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
         match function.variant {
             EntryPoint => self.is_not_keyword(function.identifier, "entry point fn", &[]),
             Fn => self.is_not_keyword(function.identifier, "regular fn", &[]),
-            FinalFn | Finalize | Script => {}
+            FinalFn | Finalize => {}
         }
     }
 
@@ -76,7 +76,7 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
         match input.variant {
             EntryPoint => self.is_not_keyword(input.identifier, "entry point fn", &[]),
             Fn => self.is_not_keyword(input.identifier, "regular fn", &[]),
-            FinalFn | Finalize | Script => {}
+            FinalFn | Finalize => {}
         }
     }
 

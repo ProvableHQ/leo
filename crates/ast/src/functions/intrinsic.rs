@@ -80,11 +80,6 @@ pub enum Intrinsic {
     BlockHeight,
     BlockTimestamp,
     NetworkId,
-
-    CheatCodePrintMapping,
-    CheatCodeSetBlockHeight,
-    CheatCodeSetBlockTimestamp,
-    CheatCodeSetSigner,
 }
 
 impl Intrinsic {
@@ -637,11 +632,6 @@ impl Intrinsic {
             sym::_serialize_to_bits => Self::Serialize(SerializeVariant::ToBits),
             sym::_serialize_to_bits_raw => Self::Serialize(SerializeVariant::ToBitsRaw),
 
-            sym::_cheat_code_print_mapping => Self::CheatCodePrintMapping,
-            sym::_cheat_code_set_block_height => Self::CheatCodeSetBlockHeight,
-            sym::_cheat_code_set_block_timestamp => Self::CheatCodeSetBlockTimestamp,
-            sym::_cheat_code_set_signer => Self::CheatCodeSetSigner,
-
             _ => return None,
         })
     }
@@ -1187,10 +1177,6 @@ impl Intrinsic {
             (sym::Serialize, sym::to_bits) => sym::_serialize_to_bits,
             (sym::Serialize, sym::to_bits_raw) => sym::_serialize_to_bits_raw,
 
-            (sym::CheatCode, sym::print_mapping) => sym::_cheat_code_print_mapping,
-            (sym::CheatCode, sym::set_block_height) => sym::_cheat_code_set_block_height,
-            (sym::CheatCode, sym::set_block_timestamp) => sym::_cheat_code_set_block_timestamp,
-            (sym::CheatCode, sym::set_signer) => sym::_cheat_code_set_signer,
             _ => return None,
         })
     }
@@ -1244,11 +1230,6 @@ impl Intrinsic {
 
             Self::Serialize(_) => 1,
             Self::Deserialize(_, _) => 1,
-
-            Self::CheatCodePrintMapping => 1,
-            Self::CheatCodeSetBlockHeight => 1,
-            Self::CheatCodeSetBlockTimestamp => 1,
-            Self::CheatCodeSetSigner => 1,
         }
     }
 
@@ -1292,11 +1273,7 @@ impl Intrinsic {
             | Intrinsic::NetworkId
             | Intrinsic::SignatureVerify
             | Intrinsic::Serialize(_)
-            | Intrinsic::Deserialize(_, _)
-            | Intrinsic::CheatCodePrintMapping
-            | Intrinsic::CheatCodeSetBlockHeight
-            | Intrinsic::CheatCodeSetBlockTimestamp
-            | Intrinsic::CheatCodeSetSigner => false,
+            | Intrinsic::Deserialize(_, _) => false,
         }
     }
 
@@ -1307,10 +1284,6 @@ impl Intrinsic {
             | Intrinsic::VectorSet
             | Intrinsic::VectorPush
             | Intrinsic::VectorClear
-            | Intrinsic::CheatCodePrintMapping
-            | Intrinsic::CheatCodeSetBlockHeight
-            | Intrinsic::CheatCodeSetBlockTimestamp
-            | Intrinsic::CheatCodeSetSigner
             | Intrinsic::VectorPop
             // Pedersen64 and Pedersen128 operations can fail for large inputs.
             | Intrinsic::Hash(

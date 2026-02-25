@@ -29,8 +29,6 @@ leo-span        = { workspace = true }
 anyhow          = { workspace = true }
 indexmap        = { workspace = true }
 itertools       = { workspace = true }
-rand            = { workspace = true }
-rand_chacha     = { workspace = true }
 serde           = { workspace = true }
 serde_json      = { workspace = true }
 snarkvm         = { workspace = true }

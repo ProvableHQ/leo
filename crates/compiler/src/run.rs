@@ -17,12 +17,8 @@
 //! Utilities for running Leo programs in test environments.
 //!
 //! Currently this is used by:
-//! - the test runner in `test_execution.rs`,
-//! - the interpreter tests in `interpreter/src/test_interpreter.rs`, and
+//! - the test runner in `test_execution.rs`, and
 //! - the `leo test` command in `cli/commands/test.rs`.
-//!
-//! `leo-compiler` is not necessarily the perfect place for it, but
-//! it's the easiest place for now to make it accessible to all of these.
 //!
 //! Provides functions for:
 //! - Running programs without a ledger (`run_without_ledger`). To be used for evaluating non-async code.
@@ -31,7 +27,7 @@
 //!
 //! Also defines types for program configuration, test cases, and outcomes.
 
-use leo_ast::{TEST_PRIVATE_KEY, interpreter_value::Value};
+use leo_ast::{TEST_PRIVATE_KEY, const_eval::Value};
 use leo_errors::Result;
 
 use aleo_std_storage::StorageMode;

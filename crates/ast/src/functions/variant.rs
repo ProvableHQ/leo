@@ -31,20 +31,12 @@ pub enum Variant {
     FinalFn,
     EntryPoint,
     Finalize,
-    /// `script` can only appear in test files, and is used for
-    /// tests which are interpreted rather than run on snarkvm using a Ledger and VM.
-    Script,
 }
 
 impl Variant {
     /// Returns true if the variant is an entry point.
     pub fn is_entry(self) -> bool {
         matches!(self, Variant::EntryPoint)
-    }
-
-    /// Is this a `script`?
-    pub fn is_script(self) -> bool {
-        matches!(self, Variant::Script)
     }
 
     pub fn is_finalize(self) -> bool {
@@ -63,7 +55,6 @@ impl fmt::Display for Variant {
             Self::Fn => write!(f, "fn"),
             Self::EntryPoint => write!(f, "entry"),
             Self::Finalize => write!(f, "finalize"),
-            Self::Script => write!(f, "script"),
         }
     }
 }

@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{Expression, Location, Node, NodeID, interpreter_value::Value};
+use leo_ast::{Expression, Location, Node, NodeID, const_eval::Value};
 use leo_errors::StaticAnalyzerError;
 use leo_span::{Span, Symbol};
 

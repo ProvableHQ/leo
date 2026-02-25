@@ -32,7 +32,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         PROGRAM_DECL => format_program(node, out),
 
         // Declarations
-        FUNCTION_DEF | FINAL_FN_DEF | SCRIPT_DEF | CONSTRUCTOR_DEF => format_function(node, out),
+        FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF => format_function(node, out),
         STRUCT_DEF | RECORD_DEF => format_composite(node, out),
         IMPORT => format_import(node, out),
         MAPPING_DEF => format_mapping(node, out),
@@ -289,7 +289,6 @@ fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
         kind,
         FUNCTION_DEF
             | FINAL_FN_DEF
-            | SCRIPT_DEF
             | CONSTRUCTOR_DEF
             | STRUCT_DEF
             | RECORD_DEF
@@ -1733,7 +1732,6 @@ fn is_program_item(kind: SyntaxKind) -> bool {
         kind,
         FUNCTION_DEF
             | FINAL_FN_DEF
-            | SCRIPT_DEF
             | CONSTRUCTOR_DEF
             | STRUCT_DEF
             | RECORD_DEF

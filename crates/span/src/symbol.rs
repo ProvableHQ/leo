@@ -656,10 +656,6 @@ symbols! {
     _serialize_to_bits_raw,
     _deserialize_from_bits,
     _deserialize_from_bits_raw,
-    _cheat_code_print_mapping,
-    _cheat_code_set_block_height,
-    _cheat_code_set_block_timestamp,
-    _cheat_code_set_signer,
     _self_address,
     _self_caller,
     _self_checksum,
@@ -791,13 +787,6 @@ symbols! {
     clear,
     pop,
     swap_remove,
-
-    // CheatCodes
-    CheatCode,
-    print_mapping,
-    set_block_height,
-    set_block_timestamp,
-    set_signer,
 
     // types
     address,

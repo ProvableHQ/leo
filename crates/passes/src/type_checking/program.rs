@@ -471,9 +471,9 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        if has_test && !self.scope_state.variant.unwrap().is_script() && !self.scope_state.variant.unwrap().is_entry() {
+        if has_test && !self.scope_state.variant.unwrap().is_entry() {
             self.emit_err(TypeCheckerError::annotation_error(
-                format_args!("Annotation @test may appear only on scripts and transitions"),
+                format_args!("Annotation @test may appear only on transitions"),
                 get(sym::test).span,
             ));
         }

@@ -16,7 +16,7 @@
 
 use snarkvm::prelude::{Double, Inverse as _, Pow as _, ProgramID, Square as _, SquareRoot as _};
 
-use leo_errors::{InterpreterHalt, Result};
+use leo_errors::{ConstEvalError, Result};
 use leo_span::Span;
 
 use crate::{
@@ -244,19 +244,19 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value, expected_ty
     let value_result: Value = match op {
         UnaryOperation::Abs => match literal {
             SvmLiteralParam::I8(x) => {
-                x.checked_abs().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "abs overflow"))?.into()
+                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overflow"))?.into()
             }
             SvmLiteralParam::I16(x) => {
-                x.checked_abs().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "abs overlfow"))?.into()
+                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overlfow"))?.into()
             }
             SvmLiteralParam::I32(x) => {
-                x.checked_abs().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "abs overlfow"))?.into()
+                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overlfow"))?.into()
             }
             SvmLiteralParam::I64(x) => {
-                x.checked_abs().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "abs overlfow"))?.into()
+                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overlfow"))?.into()
             }
             SvmLiteralParam::I128(x) => {
-                x.checked_abs().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "abs overlfow"))?.into()
+                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overlfow"))?.into()
             }
             _ => halt2!(span, "Type error"),
         },
@@ -284,19 +284,19 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value, expected_ty
         },
         UnaryOperation::Negate => match literal {
             SvmLiteralParam::I8(x) => {
-                x.checked_neg().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "negation overflow"))?.into()
+                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
             }
             SvmLiteralParam::I16(x) => {
-                x.checked_neg().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "negation overflow"))?.into()
+                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
             }
             SvmLiteralParam::I32(x) => {
-                x.checked_neg().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "negation overflow"))?.into()
+                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
             }
             SvmLiteralParam::I64(x) => {
-                x.checked_neg().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "negation overflow"))?.into()
+                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
             }
             SvmLiteralParam::I128(x) => {
-                x.checked_neg().ok_or_else::<InterpreterHalt, _>(|| fail2!(span, "negation overflow"))?.into()
+                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
             }
             SvmLiteralParam::Group(x) => (-*x).into(),
             SvmLiteralParam::Field(x) => (-*x).into(),
@@ -322,7 +322,7 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value, expected_ty
         },
         UnaryOperation::SquareRoot => match literal {
             SvmLiteralParam::Field(x) => {
-                x.square_root().map_err::<InterpreterHalt, _>(|e| fail2!(span, "square root failure: {e}"))?.into()
+                x.square_root().map_err::<ConstEvalError, _>(|e| fail2!(span, "square root failure: {e}"))?.into()
             }
             _ => halt2!(span, "Can only apply square_root to fields"),
         },

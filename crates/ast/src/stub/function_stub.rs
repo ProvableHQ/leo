@@ -117,7 +117,6 @@ impl FunctionStub {
         match self.variant {
             Variant::FinalFn => write!(f, "final fn ")?,
             Variant::Finalize => write!(f, "finalize ")?,
-            Variant::Script => write!(f, "script ")?,
             Variant::Fn => write!(f, "fn ")?,
             Variant::EntryPoint => write!(f, "entry ")?,
         }

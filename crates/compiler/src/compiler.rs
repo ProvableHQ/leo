@@ -216,8 +216,6 @@ impl Compiler {
 
         self.do_pass::<OptionLowering>(type_checking_config)?;
 
-        self.do_pass::<ProcessingScript>(())?;
-
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: true })?;
 
         self.do_pass::<Destructuring>(())?;

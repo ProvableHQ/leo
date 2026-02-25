@@ -512,7 +512,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         };
         // Check that operation is not restricted to finalize blocks.
-        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::Script | Variant::FinalFn))
+        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
             && self.async_block_id.is_none()
             && intrinsic.is_finalize_command()
         {
@@ -541,7 +541,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::final_block_in_conditional(input.span));
         }
 
-        if !matches!(self.scope_state.variant, Some(Variant::EntryPoint) | Some(Variant::Script)) {
+        if !matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
             self.emit_err(TypeCheckerError::illegal_final_block_location(input.span));
         }
 

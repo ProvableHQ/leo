@@ -66,7 +66,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                     .map(|f| {
                         matches!(
                             f.variant,
-                             Variant::EntryPoint | Variant::Script
+                             Variant::EntryPoint
                         ) | (f.variant == Variant::Fn && f.const_parameters.is_empty())
                     })
                     .unwrap_or(false)

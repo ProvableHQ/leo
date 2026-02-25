@@ -146,9 +146,6 @@ impl CodeGeneratingVisitor<'_> {
             input.clone()
         };
 
-        // This function is duplicated in `interpreter/src/cursor.rs`,
-        // but there's not really a great place to put a common implementation
-        // right now.
         fn prepare_literal(s: &str) -> String {
             // If there's a `-`, separate it from the rest of the string.
             let (neg, rest) = s.strip_prefix("-").map(|rest| ("-", rest)).unwrap_or(("", s));
@@ -683,13 +680,6 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 Intrinsic::ProgramOwner => {
                     (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), "program_owner"))), vec![])
-                }
-                Intrinsic::CheatCodePrintMapping
-                | Intrinsic::CheatCodeSetBlockHeight
-                | Intrinsic::CheatCodeSetBlockTimestamp
-                | Intrinsic::CheatCodeSetSigner => {
-                    (None, vec![])
-                    // Do nothing. Cheat codes do not generate instructions.
                 }
                 Intrinsic::Serialize(variant) => {
                     // Get the input type.

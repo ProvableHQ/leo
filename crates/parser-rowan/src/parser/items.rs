@@ -242,7 +242,12 @@ impl Parser<'_, '_> {
             KW_MAPPING => self.parse_mapping_def(),
             KW_STORAGE => self.parse_storage_def(),
             KW_CONST => self.parse_global_const(),
-            KW_FN | KW_FINAL | KW_SCRIPT | KW_CONSTRUCTOR => self.parse_function_or_constructor(),
+            KW_FN | KW_FINAL | KW_CONSTRUCTOR => self.parse_function_or_constructor(),
+            KW_SCRIPT => {
+                self.error("'script' functions are no longer supported; use @test on entry point functions instead");
+                self.bump_any();
+                None
+            }
             KW_INTERFACE => self.parse_interface_def(),
             _ => {
                 let expected: Vec<&str> = Self::PROGRAM_ITEM_EXPECTED.iter().map(|k| k.user_friendly_name()).collect();
@@ -513,16 +518,12 @@ impl Parser<'_, '_> {
                 let kind = if ate_final { FINAL_FN_DEF } else { FUNCTION_DEF };
                 Some(m.complete(self, kind))
             }
-            KW_SCRIPT => {
-                self.parse_function_body();
-                Some(m.complete(self, SCRIPT_DEF))
-            }
             KW_CONSTRUCTOR => {
                 self.parse_constructor_body();
                 Some(m.complete(self, CONSTRUCTOR_DEF))
             }
             _ => {
-                self.error("expected 'fn', 'script', or 'constructor'");
+                self.error("expected 'fn' or 'constructor'");
                 m.abandon(self);
                 None
             }
@@ -531,9 +532,9 @@ impl Parser<'_, '_> {
 
     /// Parse function body (after final/fn keyword marker started)
     fn parse_function_body(&mut self) {
-        // Function keyword (fn or script)
-        if !self.eat(KW_FN) && !self.eat(KW_SCRIPT) {
-            self.error("expected 'fn' or 'script'");
+        // Function keyword
+        if !self.eat(KW_FN) {
+            self.error("expected 'fn'");
         }
 
         // Function name
@@ -1422,11 +1423,11 @@ mod tests {
     }
 
     // =========================================================================
-    // Script Variant (3f)
+    // Script Variant Rejected (3f)
     // =========================================================================
 
     #[test]
-    fn parse_script() {
+    fn parse_script_rejected() {
         check_file("program test.aleo { script main() { } }", expect![[r#"
             ROOT@0..39
               PROGRAM_DECL@0..39
@@ -1437,19 +1438,17 @@ mod tests {
                 KW_ALEO@13..17 "aleo"
                 WHITESPACE@17..18 " "
                 L_BRACE@18..19 "{"
-                SCRIPT_DEF@19..37
-                  WHITESPACE@19..20 " "
-                  KW_SCRIPT@20..26 "script"
+                WHITESPACE@19..20 " "
+                KW_SCRIPT@20..26 "script"
+                ERROR@26..37
                   WHITESPACE@26..27 " "
                   IDENT@27..31 "main"
-                  PARAM_LIST@31..33
-                    L_PAREN@31..32 "("
-                    R_PAREN@32..33 ")"
+                  L_PAREN@31..32 "("
+                  R_PAREN@32..33 ")"
                   WHITESPACE@33..34 " "
-                  BLOCK@34..37
-                    L_BRACE@34..35 "{"
-                    WHITESPACE@35..36 " "
-                    R_BRACE@36..37 "}"
+                  L_BRACE@34..35 "{"
+                  WHITESPACE@35..36 " "
+                  R_BRACE@36..37 "}"
                 WHITESPACE@37..38 " "
                 R_BRACE@38..39 "}"
         "#]]);

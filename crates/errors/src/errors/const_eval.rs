@@ -14,14 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CompilerState;
+use leo_span::Span;
 
-use leo_ast::Variant;
-use leo_span::Symbol;
+/// An error that occurs during compile-time constant evaluation.
+#[derive(Clone, Debug, Error)]
+#[error("{message}")]
+pub struct ConstEvalError {
+    pub span: Option<Span>,
+    pub message: String,
+}
 
-pub struct ProcessingScriptVisitor<'a> {
-    pub state: &'a mut CompilerState,
-    /// The variant of the function we are currently traversing.
-    pub current_variant: Variant,
-    pub program_name: Symbol,
+impl ConstEvalError {
+    pub fn new(message: String) -> Self {
+        Self { span: None, message }
+    }
+
+    pub fn new_spanned(message: String, span: Span) -> Self {
+        Self { span: Some(span), message }
+    }
 }

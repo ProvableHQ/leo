@@ -11,7 +11,6 @@ leo-compiler        = { path = "./crates/compiler",         version = "=3.4.0" }
 leo-disassembler    = { path = "./crates/disassembler",     version = "=3.4.0" }
 leo-errors          = { path = "./crates/errors",           version = "=3.4.0" }
 leo-fmt             = { path = "./crates/fmt",              version = "=3.4.0" }
-leo-interpreter     = { path = "./crates/interpreter",      version = "=3.4.0" }
 leo-package         = { path = "./crates/package",          version = "=3.4.0" }
 leo-parser          = { path = "./crates/parser",           version = "=3.4.0" }
 leo-parser-rowan    = { path = "./crates/parser-rowan",     version = "=3.4.0" }
@@ -51,7 +50,6 @@ parking_lot        = "0.12"
 paste              = "1.0"
 rand               = { version = "0.8", default-features = false }
 rand_chacha        = { version = "0.3", default-features = false }
-ratatui            = "0.30"
 rayon              = "1.11"
 regex              = "1.11"
 reqwest            = "0.12"

@@ -7,9 +7,10 @@ program test_some_sample_leo_program.aleo {
         let result: u32 = some_sample_leo_program.aleo/main(2u32, 3u32);
         assert_eq(result, 3u32);
     }
-}
-@test
-script test_it() {
-    let result: u32 = some_sample_leo_program.aleo/main(1u32, 2u32);
-    assert_eq(result, 3u32);
+
+    @test
+    fn test_it() {
+        let result: u32 = some_sample_leo_program.aleo/main(1u32, 2u32);
+        assert_eq(result, 3u32);
+    }
 }

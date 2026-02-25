@@ -17,7 +17,7 @@
 use super::SsaConstPropagationVisitor;
 
 use leo_ast::{
-    interpreter_value::{self, Value},
+    const_eval::{self, Value},
     *,
 };
 use leo_errors::StaticAnalyzerError;
@@ -58,7 +58,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             _ => ty.clone(),
         });
 
-        if let Ok(value) = interpreter_value::literal_to_value(&input, &type_info) {
+        if let Ok(value) = const_eval::literal_to_value(&input, &type_info) {
             match input.variant {
                 LiteralVariant::Address(ref s) if s.ends_with("aleo") => {
                     // Do not fold program names as the VM needs to handle them directly
@@ -97,7 +97,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
-            match interpreter_value::evaluate_binary(
+            match const_eval::evaluate_binary(
                 span,
                 input.op,
                 &lhs_value,
@@ -125,7 +125,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
-            match interpreter_value::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
+            match const_eval::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
                 Ok(new_value) => {
                     let (new_expr, _) = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     self.changed = true;

@@ -109,11 +109,6 @@ enum Commands {
         #[clap(flatten)]
         command: LeoAbi,
     },
-    #[clap(about = "Debug the current package via the interpreter")]
-    Debug {
-        #[clap(flatten)]
-        command: LeoDebug,
-    },
     #[clap(about = "Add a new on-chain or local dependency to the current package.")]
     Add {
         #[clap(flatten)]
@@ -161,7 +156,6 @@ impl Commands {
             Commands::Query { .. } => "query",
             Commands::Build { .. } => "build",
             Commands::Abi { .. } => "abi",
-            Commands::Debug { .. } => "debug",
             Commands::Add { .. } => "add",
             Commands::Remove { .. } => "remove",
             Commands::Clean { .. } => "clean",
@@ -244,7 +238,6 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::New { command } => command.try_execute(context)?,
         Commands::Build { command } => command.try_execute(context)?,
         Commands::Abi { command } => command.try_execute(context)?,
-        Commands::Debug { command } => command.try_execute(context)?,
         Commands::Query { command } => {
             let result = command.execute(context)?;
             let data = serde_json::from_str(&result).unwrap_or_else(|_| serde_json::Value::String(result));

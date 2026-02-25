@@ -37,8 +37,9 @@ pub use self::flattener::*;
 mod loop_unroller;
 pub use self::loop_unroller::*;
 
-mod interpreter_halt;
-pub use self::interpreter_halt::*;
+/// Contains the Constant Evaluation error definitions.
+mod const_eval;
+pub use self::const_eval::*;
 
 /// Contains the Package error definitions.
 mod package;
@@ -81,8 +82,9 @@ pub enum LeoError {
     /// Represents a Compiler Error in a Leo Error.
     #[error(transparent)]
     CompilerError(#[from] CompilerError),
+    /// Represents a Constant Evaluation Error in a Leo Error.
     #[error(transparent)]
-    InterpreterHalt(#[from] InterpreterHalt),
+    ConstEvalError(#[from] ConstEvalError),
     /// Represents a Package Error in a Leo Error.
     #[error(transparent)]
     PackageError(#[from] PackageError),
@@ -127,6 +129,7 @@ impl LeoError {
         match self {
             AstError(error) => error.error_code(),
             CompilerError(error) => error.error_code(),
+            ConstEvalError(_) => "Const Eval Error".to_string(),
             CliError(error) => error.error_code(),
             ParserError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
@@ -139,7 +142,6 @@ impl LeoError {
             UtilError(error) => error.error_code(),
             LastErrorCode(_) => unreachable!(),
             Anyhow(_) => "SnarkVM Error".to_string(), // todo: implement error codes for snarkvm errors.
-            InterpreterHalt(_) => "Interpreter Halt".to_string(),
         }
     }
 
@@ -150,6 +152,7 @@ impl LeoError {
         match self {
             AstError(error) => error.exit_code(),
             CompilerError(error) => error.exit_code(),
+            ConstEvalError(_) => 1,
             CliError(error) => error.exit_code(),
             ParserError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
@@ -162,7 +165,6 @@ impl LeoError {
             UtilError(error) => error.exit_code(),
             LastErrorCode(code) => *code,
             Anyhow(_) => 11000, // todo: implement exit codes for snarkvm errors.
-            InterpreterHalt(_) => 1,
         }
     }
 }

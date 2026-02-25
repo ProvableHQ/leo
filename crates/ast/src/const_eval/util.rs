@@ -14,34 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{InterpreterHalt, Result};
-use leo_span::{Span, Symbol};
-
-use snarkvm::prelude::{Identifier, TestnetV0};
+use leo_errors::{ConstEvalError, Result};
+use leo_span::Span;
 
 #[macro_export]
-macro_rules! tc_fail {
+macro_rules! tc_fail2 {
     () => {
         panic!("type checker failure")
     };
 }
 
 #[macro_export]
-macro_rules! halt_no_span {
+macro_rules! halt_no_span2 {
     ($($x:tt)*) => {
-        return Err(InterpreterHalt::new(format!($($x)*)).into())
+        return Err(ConstEvalError::new(format!($($x)*)).into())
     }
 }
 
 #[macro_export]
-macro_rules! halt {
+macro_rules! halt2 {
     ($span: expr) => {
-        return Err(InterpreterHalt::new_spanned(String::new(), $span).into())
+        return Err(ConstEvalError::new_spanned(String::new(), $span).into())
 
     };
 
     ($span: expr, $($x:tt)*) => {
-        return Err(InterpreterHalt::new_spanned(format!($($x)*), $span).into())
+        return Err(ConstEvalError::new_spanned(format!($($x)*), $span).into())
+    };
+}
+
+#[macro_export]
+macro_rules! fail2 {
+    ($span: expr) => {
+        ConstEvalError::new_spanned(String::new(), $span).into()
+
+    };
+
+    ($span: expr, $($x:tt)*) => {
+        ConstEvalError::new_spanned(format!($($x)*), $span).into()
     };
 }
 
@@ -56,7 +66,7 @@ impl<T> ExpectTc for Option<T> {
     fn expect_tc(self, span: Span) -> Result<Self::T> {
         match self {
             Some(t) => Ok(t),
-            None => Err(InterpreterHalt::new_spanned("type failure".into(), span).into()),
+            None => Err(ConstEvalError::new_spanned("type failure".into(), span).into()),
         }
     }
 }
@@ -65,11 +75,6 @@ impl<T, U: std::fmt::Debug> ExpectTc for Result<T, U> {
     type T = T;
 
     fn expect_tc(self, span: Span) -> Result<Self::T> {
-        self.map_err(|_e| InterpreterHalt::new_spanned("type failure".into(), span).into())
+        self.map_err(|_e| ConstEvalError::new_spanned("type failure".into(), span).into())
     }
-}
-
-pub fn snarkvm_identifier_to_symbol(id: &Identifier<TestnetV0>) -> Symbol {
-    let s = id.to_string();
-    Symbol::intern(&s)
 }

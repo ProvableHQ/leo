@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Expression::Literal, interpreter_value::literal_to_value, *};
+use leo_ast::{Expression::Literal, const_eval::literal_to_value, *};
 
 use super::UnrollingVisitor;
 

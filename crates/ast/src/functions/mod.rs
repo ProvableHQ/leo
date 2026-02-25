@@ -140,7 +140,6 @@ impl fmt::Display for Function {
             Variant::Fn => write!(f, "fn ")?,
             Variant::Finalize => write!(f, "finalize ")?,
             Variant::EntryPoint => write!(f, "fn ")?,
-            Variant::Script => write!(f, "script ")?,
         }
 
         write!(f, "{}", self.identifier)?;

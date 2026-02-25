@@ -33,7 +33,7 @@ impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
                 match fun.variant {
                     Fn => call_count > 0,
                     FinalFn => false,
-                    EntryPoint | Finalize | Script => true,
+                    EntryPoint | Finalize => true,
                 }
             })
             .collect::<Vec<_>>()

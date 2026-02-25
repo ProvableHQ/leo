@@ -216,7 +216,6 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // though it may already have been inlined.
         let function_name = match function.variant {
             Variant::FinalFn => return None,
-            Variant::Script => panic!("script should not appear in native code"),
             Variant::EntryPoint => function.identifier.to_string(),
             Variant::Fn => function.identifier.to_string(),
             Variant::Finalize => self.finalize_caller.unwrap().to_string(),
@@ -289,7 +288,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         }
 
         match function.variant {
-            Variant::FinalFn | Variant::Script => None,
+            Variant::FinalFn => None,
             Variant::EntryPoint => {
                 Some(AleoFunctional::Function(AleoFunction { name: function_name, inputs, statements, finalize: None })) // finalize added by caller
             }

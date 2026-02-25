@@ -26,10 +26,9 @@ use anyhow::bail;
 use indexmap::{IndexMap, IndexSet};
 use snarkvm::{
     console::algorithms::ECDSASignature,
-    prelude::PrivateKey,
     synthesizer::program::{CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, SerializeVariant},
 };
-use std::{ops::Deref, str::FromStr};
+use std::ops::Deref;
 
 pub struct TypeCheckingVisitor<'a> {
     pub state: &'a mut CompilerState,
@@ -1208,38 +1207,6 @@ impl TypeCheckingVisitor<'_> {
 
                 type_.clone()
             }
-            Intrinsic::CheatCodePrintMapping => {
-                self.assert_mapping_type(&arguments[0].0, arguments[0].1.span());
-                Type::Unit
-            }
-            Intrinsic::CheatCodeSetBlockHeight => {
-                self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::U32), arguments[0].1.span());
-                Type::Unit
-            }
-            Intrinsic::CheatCodeSetBlockTimestamp => {
-                self.assert_type(&arguments[0].0, &Type::Integer(IntegerType::I64), arguments[0].1.span());
-                Type::Unit
-            }
-            Intrinsic::CheatCodeSetSigner => {
-                // Assert that the argument is a string.
-                self.assert_type(&arguments[0].0, &Type::String, arguments[0].1.span());
-                // Validate that the argument is a valid private key.
-                if let Expression::Literal(Literal { variant: LiteralVariant::String(s), .. }) = arguments[0].1 {
-                    let s = s.replace("\"", "");
-                    let is_err = match self.state.network {
-                        NetworkName::TestnetV0 => PrivateKey::<TestnetV0>::from_str(&s).is_err(),
-                        NetworkName::MainnetV0 => PrivateKey::<MainnetV0>::from_str(&s).is_err(),
-                        NetworkName::CanaryV0 => PrivateKey::<CanaryV0>::from_str(&s).is_err(),
-                    };
-                    if is_err {
-                        self.emit_err(TypeCheckerError::custom(
-                            "`CheatCode::set_signer` must be called with a valid private key",
-                            arguments[0].1.span(),
-                        ));
-                    }
-                };
-                Type::Unit
-            }
             Intrinsic::SelfAddress => Type::Address,
             Intrinsic::SelfCaller => {
                 // Check that the operation is not invoked in a `finalize` block.
@@ -1831,7 +1798,7 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::entry_point_fn_final_invalid_output(function_output.span));
             }
             // If the function is not an async transition, then it cannot have a future as output.
-            if !matches!(self.scope_state.variant, Some(Variant::EntryPoint) | Some(Variant::Script))
+            if !matches!(self.scope_state.variant, Some(Variant::EntryPoint))
                 && matches!(function_output.type_, Type::Future(_))
             {
                 self.emit_err(TypeCheckerError::only_entry_point_can_return_final(function_output.span));
@@ -1920,7 +1887,7 @@ impl TypeCheckingVisitor<'_> {
             self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_final_block(name, span));
         }
         // Case 3: Operation *is* a finalize op, but we're *not* inside an async context.
-        else if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::Script | Variant::FinalFn))
+        else if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
             && self.async_block_id.is_none()
             && finalize_op
         {

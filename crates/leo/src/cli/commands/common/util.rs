@@ -15,13 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_errors::CliError;
-use leo_package::{Package, ProgramData};
-use leo_span::Symbol;
 
-use indexmap::IndexSet;
 use snarkvm::prelude::{ConsensusVersion, Network, Program};
-use std::path::PathBuf;
-use walkdir::WalkDir;
 
 /// Threshold percentage for program size warnings.
 const PROGRAM_SIZE_WARNING_THRESHOLD: usize = 90;
@@ -42,100 +37,6 @@ pub fn format_program_size(size: usize, max_size: usize) -> (f64, f64, Option<St
     };
 
     (size_kb, max_kb, warning)
-}
-
-/// Collects paths to Leo source files for each program in the package.
-///
-/// For each non-test program, it searches the `src` directory for `.leo` files.
-/// It separates the `main.leo` file from the rest and returns a tuple:
-/// (`main.leo` path, list of other `.leo` file paths).
-/// Test programs are included with an empty list of additional files.
-/// Programs with bytecode data are ignored.
-///
-/// # Arguments
-/// * `package` - Reference to the package containing programs.
-///
-/// # Returns
-/// A vector of tuples with the main file and other source files.
-pub fn collect_leo_paths(package: &Package) -> Vec<(PathBuf, Vec<PathBuf>)> {
-    let mut partitioned_leo_paths = Vec::new();
-    for program in &package.programs {
-        match &program.data {
-            ProgramData::SourcePath { directory, source } => {
-                if program.is_test {
-                    partitioned_leo_paths.push((source.clone(), vec![]));
-                } else {
-                    let src_dir = directory.join("src");
-                    if !src_dir.exists() {
-                        continue;
-                    }
-
-                    let mut all_files: Vec<PathBuf> = WalkDir::new(&src_dir)
-                        .into_iter()
-                        .filter_map(Result::ok)
-                        .filter(|entry| entry.path().extension().and_then(|s| s.to_str()) == Some("leo"))
-                        .map(|entry| entry.into_path())
-                        .collect();
-
-                    if let Some(index) =
-                        all_files.iter().position(|p| p.file_name().and_then(|s| s.to_str()) == Some("main.leo"))
-                    {
-                        let main = all_files.remove(index);
-                        partitioned_leo_paths.push((main, all_files));
-                    }
-                }
-            }
-            ProgramData::Bytecode(..) => {}
-        }
-    }
-    partitioned_leo_paths
-}
-
-/// Collects paths to `.aleo` files that are external (non-local) dependencies.
-///
-/// Scans the package's `imports` directory and filters out files that match
-/// the names of local source-based dependencies.
-/// Only retains `.aleo` files corresponding to true external dependencies.
-///
-/// # Arguments
-/// * `package` - Reference to the package whose imports are being examined.
-///
-/// # Returns
-/// A vector of paths to `.aleo` files not associated with local source dependencies.
-pub fn collect_aleo_paths(package: &Package) -> Vec<PathBuf> {
-    let local_dependency_symbols: IndexSet<Symbol> = package
-        .programs
-        .iter()
-        .flat_map(|program| match &program.data {
-            ProgramData::SourcePath { .. } => {
-                // It's a local Leo dependency.
-                Some(program.name)
-            }
-            ProgramData::Bytecode(..) => {
-                // It's a network dependency or local .aleo dependency.
-                None
-            }
-        })
-        .collect();
-
-    package
-        .imports_directory()
-        .read_dir()
-        .ok()
-        .into_iter()
-        .flatten()
-        .flat_map(|maybe_filename| maybe_filename.ok())
-        .filter(|entry| entry.file_type().ok().map(|filetype| filetype.is_file()).unwrap_or(false))
-        .flat_map(|entry| {
-            let path = entry.path();
-            if let Some(filename) = leo_package::filename_no_aleo_extension(&path) {
-                let symbol = Symbol::intern(filename);
-                if local_dependency_symbols.contains(&symbol) { None } else { Some(path) }
-            } else {
-                None
-            }
-        })
-        .collect()
 }
 
 /// Default edition for local programs during local operations (run, execute, synthesize).

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    interpreter_value::{self, Value},
+    const_eval::{self, Value},
     *,
 };
 use leo_errors::StaticAnalyzerError;
@@ -204,7 +204,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             // We've evaluated every argument, and this function has no side
             // effects, so maybe we can compute the result at compile time.
 
-            match interpreter_value::evaluate_intrinsic(&mut values, intrinsic, &[], input.span()) {
+            match const_eval::evaluate_intrinsic(&mut values, intrinsic, &[], input.span()) {
                 Ok(Some(value)) => {
                     // Successful evaluation.
                     let expr = self.value_to_expression_node(&value, &input).expect(VALUE_ERROR);
@@ -311,7 +311,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
             // We were able to evaluate both operands, so we can evaluate this expression.
-            match interpreter_value::evaluate_binary(
+            match const_eval::evaluate_binary(
                 span,
                 input.op,
                 &lhs_value,
@@ -412,7 +412,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             _ => ty.clone(),
         });
 
-        if let Ok(value) = interpreter_value::literal_to_value(&input, &type_info) {
+        if let Ok(value) = const_eval::literal_to_value(&input, &type_info) {
             // If we know the type of an unsuffixed literal, might as well change it to a suffixed literal. This way, we
             // do not have to infer the type again in later passes of type checking.
             if let LiteralVariant::Unsuffixed(s) = input.variant {
@@ -456,7 +456,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
-            match interpreter_value::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
+            match const_eval::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
                 Ok(new_value) => {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));

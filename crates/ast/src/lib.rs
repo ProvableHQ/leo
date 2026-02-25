@@ -43,7 +43,7 @@ pub use self::interface::*;
 mod indent_display;
 use indent_display::*;
 
-pub mod interpreter_value;
+pub mod const_eval;
 
 mod mapping;
 pub use self::mapping::*;

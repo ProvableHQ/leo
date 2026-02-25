@@ -351,8 +351,6 @@ pub enum SyntaxKind {
     FUNCTION_DEF,
     /// Final function definition: `final fn ...`
     FINAL_FN_DEF,
-    /// Script definition: `script ...`
-    SCRIPT_DEF,
     /// Constructor definition.
     CONSTRUCTOR_DEF,
     /// Struct definition.
@@ -1068,7 +1066,6 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     MODULE_CONTENTS,
     FUNCTION_DEF,
     FINAL_FN_DEF,
-    SCRIPT_DEF,
     CONSTRUCTOR_DEF,
     STRUCT_DEF,
     RECORD_DEF,

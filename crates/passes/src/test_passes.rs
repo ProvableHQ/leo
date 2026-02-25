@@ -184,14 +184,6 @@ macro_rules! compiler_passes {
                 (Disambiguate, ()),
                 (ProcessingAsync, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
-            (processing_script_runner, [
-                (GlobalVarsCollection, ()),
-                (PathResolution, ()),
-                (GlobalItemsCollection, ()),
-                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
-                (Disambiguate, ()),
-                (ProcessingScript, ())
-            ]),
             (ssa_forming_runner, [
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
