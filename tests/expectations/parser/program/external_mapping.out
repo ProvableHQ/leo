@@ -1,15 +1,16 @@
 import hello.aleo;
 program test.aleo {
-    async transition main() {
+    fn main() {
         let x: u8 = 1u8;
         return;
     }
-    async function finalize_main() {
+}
+    final fn finalize_main() {
         _mapping_set(hello.aleo/counter, addr, current_value + 1u64);
         _mapping_remove(hello.aleo/foo, addr);
         let a: u32 = _mapping_get(hello.aleo/foo, addr);
         let b: u32 = _mapping_get_or_use(hello.aleo/foo, addr, 0u64);
         let c: u32 = _mapping_contains(hello.aleo/foo, addr);
     }
-}
+
 

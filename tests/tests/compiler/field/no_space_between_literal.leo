@@ -1,5 +1,5 @@
 
-program test.aleo {
-    function main(x: bool) {
-      let f = 1 field;
-    }}
+program test.aleo { }
+fn main(x: bool) {
+  let f = 1 field;
+}

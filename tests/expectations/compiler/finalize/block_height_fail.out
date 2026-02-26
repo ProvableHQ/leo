@@ -1,4 +1,4 @@
-Error [ETYC0372034]: `block.height` must be inside an async function or an async block.
+Error [ETYC0372034]: `block.height` must be inside a `final fn` or a `final` block.
     --> compiler-test:4:27
      |
    4 |         assert_eq(height, block.height);

@@ -1,47 +1,47 @@
-Error [ESAZ0374001]: The following futures were never awaited: f4
-    --> compiler-test:12:5
+Error [ESAZ0374001]: The following Finals were never run: f4
+    --> compiler-test:18:1
      |
-  12 |     async function finalize_foo(f0: Future, f1: Future, f2: Future, f3: Future, f4: Future, f5: Future) {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  13 |         f1.await();
-     |         ^^^^^^^^^^^
-  14 |         f2.await();
-     |         ^^^^^^^^^^^
-  15 |         f3.await();
-     |         ^^^^^^^^^^^
-  16 |         f0.await();
-     |         ^^^^^^^^^^^
-  17 |         f5.await();
-     |         ^^^^^^^^^^^
-  18 |     }
-     |     ^
+  18 | final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  19 |     f1.run();
+     |     ^^^^^^^^^
+  20 |     f2.run();
+     |     ^^^^^^^^^
+  21 |     f3.run();
+     |     ^^^^^^^^^
+  22 |     f0.run();
+     |     ^^^^^^^^^
+  23 |     f5.run();
+     |     ^^^^^^^^^
+  24 | }
+     | ^
      |
-     = Ex: for `f: Future` call `f.await()` to await a future.
-Warning [WSAZ0374003]: The future `f1` is not awaited in the order in which they were passed in to the `async` function.
-    --> compiler-test:13:9
+     = Ex: for `f: Final` call `f.run()` to run a Final.
+Warning [WSAZ0374003]: The Final `f1` is not run in the order in which they were passed in to the function.
+    --> compiler-test:19:5
      |
-  13 |         f1.await();
-     |         ^^
+  19 |     f1.run();
+     |     ^^
      |
-     = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
-Warning [WSAZ0374003]: The future `f2` is not awaited in the order in which they were passed in to the `async` function.
-    --> compiler-test:14:9
+     = While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+Warning [WSAZ0374003]: The Final `f2` is not run in the order in which they were passed in to the function.
+    --> compiler-test:20:5
      |
-  14 |         f2.await();
-     |         ^^
+  20 |     f2.run();
+     |     ^^
      |
-     = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
-Warning [WSAZ0374003]: The future `f3` is not awaited in the order in which they were passed in to the `async` function.
-    --> compiler-test:15:9
+     = While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+Warning [WSAZ0374003]: The Final `f3` is not run in the order in which they were passed in to the function.
+    --> compiler-test:21:5
      |
-  15 |         f3.await();
-     |         ^^
+  21 |     f3.run();
+     |     ^^
      |
-     = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
-Warning [WSAZ0374003]: The future `f5` is not awaited in the order in which they were passed in to the `async` function.
-    --> compiler-test:17:9
+     = While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+Warning [WSAZ0374003]: The Final `f5` is not run in the order in which they were passed in to the function.
+    --> compiler-test:23:5
      |
-  17 |         f5.await();
-     |         ^^
+  23 |     f5.run();
+     |     ^^
      |
-     = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+     = While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.

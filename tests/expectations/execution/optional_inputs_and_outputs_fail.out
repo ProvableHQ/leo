@@ -2,73 +2,73 @@ Error while running execution tests:
 
 
 Errors:
-Error [ETYC0372164]: The input `x` has type `u64?`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
-    --> compiler-test:72:27
+Error [ETYC0372164]: The input `x` has type `u64?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    --> compiler-test:77:19
      |
-  72 |     transition u64_in_out(x: u64?) -> u64? {
-     |                           ^^^^^^^
+  77 |     fn u64_in_out(x: u64?) -> u64? {
+     |                   ^^^^^^^
      |
-     = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372165]: This function has an output of type `u64?`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.
-    --> compiler-test:72:39
+     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+Error [ETYC0372165]: This function has an output of type `u64?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    --> compiler-test:77:31
      |
-  72 |     transition u64_in_out(x: u64?) -> u64? {
-     |                                       ^^^^
+  77 |     fn u64_in_out(x: u64?) -> u64? {
+     |                               ^^^^
      |
-     = Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372164]: The input `x` has type `u8?`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
-    --> compiler-test:79:26
+     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+Error [ETYC0372164]: The input `x` has type `u8?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    --> compiler-test:84:18
      |
-  79 |     transition u8_in_out(x: u8?) -> u8? {
-     |                          ^^^^^^
+  84 |     fn u8_in_out(x: u8?) -> u8? {
+     |                  ^^^^^^
      |
-     = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372165]: This function has an output of type `u8?`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.
-    --> compiler-test:79:37
+     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+Error [ETYC0372165]: This function has an output of type `u8?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    --> compiler-test:84:29
      |
-  79 |     transition u8_in_out(x: u8?) -> u8? {
-     |                                     ^^^
+  84 |     fn u8_in_out(x: u8?) -> u8? {
+     |                             ^^^
      |
-     = Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372164]: The input `x` has type `bool?`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
-    --> compiler-test:86:28
+     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+Error [ETYC0372164]: The input `x` has type `bool?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    --> compiler-test:91:20
      |
-  86 |     transition bool_in_out(x: bool?) -> bool? {
-     |                            ^^^^^^^^
+  91 |     fn bool_in_out(x: bool?) -> bool? {
+     |                    ^^^^^^^^
      |
-     = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372165]: This function has an output of type `bool?`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.
-    --> compiler-test:86:41
+     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+Error [ETYC0372165]: This function has an output of type `bool?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    --> compiler-test:91:33
      |
-  86 |     transition bool_in_out(x: bool?) -> bool? {
-     |                                         ^^^^^
+  91 |     fn bool_in_out(x: bool?) -> bool? {
+     |                                 ^^^^^
      |
-     = Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372164]: The input `f` has type `test.aleo/Foo?`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
-    --> compiler-test:98:32
+     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+Error [ETYC0372164]: The input `f` has type `test.aleo/Foo?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    --> compiler-test:98:24
      |
-  98 |     transition struct_optional(f: Foo?) -> Foo? {
-     |                                ^^^^^^^
+  98 |     fn struct_optional(f: Foo?) -> Foo? {
+     |                        ^^^^^^^
      |
-     = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372165]: This function has an output of type `test.aleo/Foo?`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.
-    --> compiler-test:98:44
+     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+Error [ETYC0372165]: This function has an output of type `test.aleo/Foo?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    --> compiler-test:98:36
      |
-  98 |     transition struct_optional(f: Foo?) -> Foo? {
-     |                                            ^^^^
+  98 |     fn struct_optional(f: Foo?) -> Foo? {
+     |                                    ^^^^
      |
-     = Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372164]: The input `arr` has type `[u8?; 2]?`, which is or contains an optional type and is not allowed as an input to a `transition`, `async transition`, or `function`.
-    --> compiler-test:109:31
+     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+Error [ETYC0372164]: The input `arr` has type `[u8?; 2]?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    --> compiler-test:109:23
      |
- 109 |     transition array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
-     |                               ^^^^^^^^^^^^^^
+ 109 |     fn array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
+     |                       ^^^^^^^^^^^^^^
      |
-     = Inputs to `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372165]: This function has an output of type `[u8?; 2]?`, which is or contains an optional type and is not allowed as an output of a `transition`, `async transition`, or `function`.
-    --> compiler-test:109:50
+     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+Error [ETYC0372165]: This function has an output of type `[u8?; 2]?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    --> compiler-test:109:42
      |
- 109 |     transition array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
-     |                                                  ^^^^^^^^^
+ 109 |     fn array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
+     |                                          ^^^^^^^^^
      |
-     = Outputs of `transition`, `async transition`, and `function` definitions cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.

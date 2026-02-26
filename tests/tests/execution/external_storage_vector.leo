@@ -12,15 +12,15 @@ input = []
 program vec_program_a.aleo {
     storage numbers: [u32];
 
-    async transition push_a() -> Future {
-        return async {
+    fn push_a() -> Final {
+        return final {
             numbers.push(10u32);
             numbers.push(20u32);
         };
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -28,8 +28,8 @@ program vec_program_a.aleo {
 program vec_program_b.aleo {
     storage numbers: [u32];
 
-    async transition push_b() -> Future {
-        return async {
+    fn push_b() -> Final {
+        return final {
             numbers.push(1u32);
             numbers.push(2u32);
             numbers.push(3u32);
@@ -37,7 +37,7 @@ program vec_program_b.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -48,13 +48,13 @@ import vec_program_b.aleo;
 program vec_program_c.aleo {
     storage sum_vec: [u32];
 
-    async transition combine() -> Future {
-        let f_a: Future = vec_program_a.aleo/push_a();
-        let f_b: Future = vec_program_b.aleo/push_b();
+    fn combine() -> Final {
+        let f_a: Final = vec_program_a.aleo/push_a();
+        let f_b: Final = vec_program_b.aleo/push_b();
 
-        return async {
-            f_a.await();
-            f_b.await();
+        return final {
+            f_a.run();
+            f_b.run();
 
             let len_a: u32 = vec_program_a.aleo/numbers.len();
             let len_b: u32 = vec_program_b.aleo/numbers.len();
@@ -80,5 +80,5 @@ program vec_program_c.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

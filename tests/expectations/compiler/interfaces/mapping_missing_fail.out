@@ -1,0 +1,11 @@
+Error [ECHI03712006]: Program `test` implements interface `CounterInterface` but is missing the required mapping `counter`.
+    --> compiler-test:5:1
+     |
+   5 | program test.aleo : CounterInterface {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   6 |     fn main() {}
+     |     ^^^^^^^^^^^^
+   7 | }
+     | ^
+     |
+     = Add a mapping definition with the specified name.

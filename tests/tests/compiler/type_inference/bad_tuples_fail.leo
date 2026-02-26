@@ -1,5 +1,5 @@
 program foo.aleo {
-    transition bad(x: u32, y: u32, z: u32) {
+    fn bad(x: u32, y: u32, z: u32) {
         // All of these definitions are bad
         let t0 = (x, (y, z));
         let t1: u32 = (x, y);

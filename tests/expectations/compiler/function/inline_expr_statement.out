@@ -1,3 +1,10 @@
 program test.aleo;
 
+closure another_f_that_returns_a_value:
+    input r0 as u32;
+    mul r0 r0 into r1;
+    output r1 as u32;
+
 function some_function:
+    call another_f_that_returns_a_value 0u32 into r0;
+    call another_f_that_returns_a_value 0u32 into r1;

@@ -1,17 +1,9 @@
 program simple.aleo;
 
-closure foo:
-    input r0 as u32;
-    input r1 as u32;
-    assert.eq true true;
-    output r0 as u32;
-    output r1 as u32;
-
 function main:
     input r0 as u16.private;
     input r1 as u16.private;
     cast r0 into r2 as u32;
     cast r1 into r3 as u32;
-    call foo r2 r3 into r4 r5;
-    add r4 r5 into r6;
-    output r6 as u32.private;
+    add r2 r3 into r4;
+    output r4 as u32.private;

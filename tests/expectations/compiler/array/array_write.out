@@ -62,15 +62,14 @@ function in_conditional:
     output r7 as T.private;
 
 function f_record:
-    async f_record 1u8 into r0;
+    async f_record into r0;
     cast self.signer 1u8 into r1 as R.record;
     cast r1.owner 2u8 into r2 as R.record;
     output r2 as R.record;
     output r0 as test.aleo/f_record.future;
 
 finalize f_record:
-    input r0 as u8.public;
-    assert.eq r0 r0;
+    assert.eq 1u8 1u8;
 
 function in_loops:
     input r0 as [u8; 8u32].private;

@@ -1,15 +1,15 @@
-Error [ETYC0372116]: Futures may only appear as parameters to async functions.
-    --> compiler-test:3:28
+Error [ETYC0372116]: Finals may only appear as parameters to final fn.
+    --> compiler-test:3:14
      |
-   3 |     async transition first(x: Future) -> Future {
-     |                            ^^^^^^^^^
-Error [ETYC0372116]: Futures may only appear as parameters to async functions.
-    --> compiler-test:7:23
+   3 |     fn first(x: Final) -> Final {
+     |              ^^^^^^^^
+Error [ETYC0372116]: Finals may only appear as parameters to final fn.
+    --> compiler-test:7:15
      |
-   7 |     transition second(x: Future) -> u8 {
-     |                       ^^^^^^^^^
-Error [ETYC0372116]: Futures may only appear as parameters to async functions.
-    --> compiler-test:11:20
+   7 |     fn second(x: Final) -> u8 {
+     |               ^^^^^^^^
+Error [ETYC0372116]: Finals may only appear as parameters to final fn.
+    --> compiler-test:12:10
      |
-  11 |     function third(x: Future) -> u8 {
-     |                    ^^^^^^^^^
+  12 | fn third(x: Final) -> u8 {
+     |          ^^^^^^^^

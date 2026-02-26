@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {
     // Test Serialize::to_bits on all primitive types
-    transition main(
+    fn main(
         addr: address,
         b: bool,
         f: field,

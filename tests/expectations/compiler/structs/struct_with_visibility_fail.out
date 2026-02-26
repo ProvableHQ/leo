@@ -1,15 +1,15 @@
 Error [ETYC0372060]: A struct cannot have a member with mode `constant`, `private`, or `public`.
-    --> compiler-test:4:9
+    --> compiler-test:3:5
      |
-   4 |         constant a: u8,
-     |         ^^^^^^^^^^^^^^
+   3 |     constant a: u8,
+     |     ^^^^^^^^^^^^^^
 Error [ETYC0372060]: A struct cannot have a member with mode `constant`, `private`, or `public`.
-    --> compiler-test:5:9
+    --> compiler-test:4:5
      |
-   5 |         private bar: bool,
-     |         ^^^^^^^^^^^^^^^^^
+   4 |     private bar: bool,
+     |     ^^^^^^^^^^^^^^^^^
 Error [ETYC0372060]: A struct cannot have a member with mode `constant`, `private`, or `public`.
-    --> compiler-test:6:9
+    --> compiler-test:5:5
      |
-   6 |         public bax: u16,
-     |         ^^^^^^^^^^^^^^^
+   5 |     public bax: u16,
+     |     ^^^^^^^^^^^^^^^

@@ -1,7 +1,7 @@
-Error [ESAZ0374011]: An `async` block cannot capture more than 16 variables, found one attempting to capture 20 variables.
+Error [ESAZ0374011]: A `final` block cannot capture more than 16 variables, found one attempting to capture 20 variables.
     --> compiler-test:25:17
      |
-  25 |         let f = async {
+  25 |         let f = final {
      |                 ^^^^^^^
   26 |             assert(a0 == 0);
      |             ^^^^^^^^^^^^^^^^

@@ -3,8 +3,8 @@ Error [ESAZ0374012]: The `@custom` constructor has no statements after dead code
      |
    5 |     @custom
      |     ^^^^^^^
-   6 |     async constructor() {
-     |     ^^^^^^^^^^^^^^^^^^^^^
+   6 |     constructor() {
+     |     ^^^^^^^^^^^^^^^
    7 |         let x = self.program_owner;
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    8 |     }

@@ -1,9 +1,9 @@
-Error [ETYC0372154]: Cannot access argument from future produced by an `async` block.
+Error [ETYC0372117]: Expected a tuple but type `Final<Fn()>` was found.
     --> compiler-test:6:18
      |
    6 |         let y0 = f.0;
      |                  ^^^
-Error [ETYC0372154]: Cannot access argument from future produced by an `async` block.
+Error [ETYC0372117]: Expected a tuple but type `Final<Fn()>` was found.
     --> compiler-test:8:18
      |
    8 |         let y1 = z.3;

@@ -1,27 +1,27 @@
 program test.aleo {
     mapping foo: u32 => u32;
-    async transition main_inner(public a: u32, public b: u32) -> Future {
-        return finalize(a, b);
+    fn main_inner(public a: u32, public b: u32) -> Final {
+        return final { finalize(a, b); };
     }
+}
 
-    async function finalize(a: u32, b: u32) {
-        Mapping::set(foo, a, b);
-    }
+final fn finalize(a: u32, b: u32) {
+    Mapping::set(foo, a, b);
 }
 
 // --- Next Program --- //
 
 import test.aleo;
 program basic.aleo {
-    async transition main(public a: u32, b: u32) -> Future {
-        let f1: Future = test.aleo/main_inner(0u32, 0u32);
-        let f2: Future = test.aleo/main_inner(1u32, 1u32);
-        let f:Future = finalize(f2, f1);
+    fn main(public a: u32, b: u32) -> Final {
+        let f1: Final = test.aleo/main_inner(0u32, 0u32);
+        let f2: Final = test.aleo/main_inner(1u32, 1u32);
+        let f:Final = final { finalize(f2, f1); };
         return f;
     }
+}
 
-    async function finalize(f1: Future, f2: Future) {
-        f1.await();
-        f2.await();
-    }
+final fn finalize(f1: Final, f2: Final) {
+    f1.run();
+    f2.run();
 }

@@ -1,53 +1,29 @@
-Error [ETYC0372003]: Expected type `u32` but type `Future<Fn()>` was found
+Error [ETYC0372003]: Expected type `u32` but type `Final<Fn()>` was found
     --> compiler-test:7:22
      |
    7 |         let f: u32 = child.aleo/foo();
      |                      ^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `Future<Fn()>` but type `u32` was found.
-    --> compiler-test:8:25
+Error [ETYC0372117]: Expected type `Final<Fn()>` but type `u32` was found.
+    --> compiler-test:8:33
      |
-   8 |         let r: u8 = foo(f);
-     |                         ^
-Error [ETYC0372103]: Unknown future consumed: `f`
-    --> compiler-test:8:25
-     |
-   8 |         let r: u8 = foo(f);
-     |                         ^
-     |
-     = Make sure the future is defined and consumed exactly once.
-Error [ETYC0372003]: Expected type `u8` but type `Future<Fn(u32)>` was found
-    --> compiler-test:8:21
-     |
-   8 |         let r: u8 = foo(f);
-     |                     ^^^^^^
-Error [ETYC0372117]: Expected type `Future<Fn(u32)>` but type `u8` was found.
+   8 |         let r: u8 = final { foo(f); };
+     |                                 ^
+Error [ETYC0372117]: Expected type `Final<Fn()>` but type `u8` was found.
     --> compiler-test:9:24
      |
    9 |         return (42u64, r);
      |                        ^
-Error [ETYC0372003]: Expected type `(u8, u8)` but type `Future<Fn()>` was found
+Error [ETYC0372003]: Expected type `(u8, u8)` but type `Final<Fn()>` was found
     --> compiler-test:13:27
      |
   13 |         let f: (u8, u8) = child.aleo/bar();
      |                           ^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `Future<Fn()>` but type `(u8, u8)` was found.
-    --> compiler-test:14:27
+Error [ETYC0372117]: Expected type `Final<Fn()>` but type `(u8, u8)` was found.
+    --> compiler-test:14:35
      |
-  14 |         let r: bool = foo(f);
-     |                           ^
-Error [ETYC0372103]: Unknown future consumed: `f`
-    --> compiler-test:14:27
-     |
-  14 |         let r: bool = foo(f);
-     |                           ^
-     |
-     = Make sure the future is defined and consumed exactly once.
-Error [ETYC0372003]: Expected type `bool` but type `Future<Fn((u8, u8))>` was found
-    --> compiler-test:14:23
-     |
-  14 |         let r: bool = foo(f);
-     |                       ^^^^^^
-Error [ETYC0372117]: Expected type `Future<Fn((u8, u8))>` but type `bool` was found.
+  14 |         let r: bool = final { foo(f); };
+     |                                   ^
+Error [ETYC0372117]: Expected type `Final<Fn()>` but type `bool` was found.
     --> compiler-test:15:24
      |
   15 |         return (99u64, r);

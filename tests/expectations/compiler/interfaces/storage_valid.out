@@ -1,0 +1,7 @@
+program test.aleo;
+
+mapping counter__:
+    key as boolean.public;
+    value as u32.public;
+
+function main:

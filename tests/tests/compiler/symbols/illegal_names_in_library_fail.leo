@@ -17,7 +17,7 @@ program childaleo.aleo {
         aleob: u32,
         daleo: u32,
     }
-    transition bar() {}
+    fn bar() {}
 }
 
 // --- Next Program --- //
@@ -25,5 +25,5 @@ program childaleo.aleo {
 import childaleo.aleo;
 
 program foo.aleo {
-    transition foo () {}
+    fn foo () {}
 }

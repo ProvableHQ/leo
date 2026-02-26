@@ -1,35 +1,28 @@
-Error [ETYC0372149]: A transition function cannot contain both an `async` function call and an `async` block at the same time.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:4:18
      |
-   4 |         let f2 = foo();
-     |                  ^^^^^
+   4 |         let f2 = final { foo(); };
+     |                  ^^^^^^^^^^^^^^^^
      |
-     = Refactor the transition to use either an `async` call or an `async` block, but not both.
-Error [ETYC0372149]: A transition function cannot contain both an `async` function call and an `async` block at the same time.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:9:18
      |
-   9 |         let f2 = async {};
+   9 |         let f2 = final {};
      |                  ^^^^^^^^
      |
-     = Refactor the transition to use either an `async` call or an `async` block, but not both.
-Error [ETYC0372100]: Must call exactly one local async function per transition function.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:14:18
      |
-  14 |         let f2 = foo();
-     |                  ^^^^^
+  14 |         let f2 = final { foo(); };
+     |                  ^^^^^^^^^^^^^^^^
      |
-     = Move the async call outside of the transition block.
-Error [ETYC0372104]: Not all futures were consumed: f1
-    --> compiler-test:14:18
-     |
-  14 |         let f2 = foo();
-     |                  ^^^^^
-     |
-     = Make sure all futures are consumed exactly once. Consume by passing to an async function call or async block.
-Error [ETYC0372150]: A transition function cannot contain more than one `async` block.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
     --> compiler-test:19:18
      |
-  19 |         let f2 = async {};
+  19 |         let f2 = final {};
      |                  ^^^^^^^^
      |
-     = Combine the logic into a single `async` block, or restructure your code to avoid multiple async blocks within the same transition.
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.

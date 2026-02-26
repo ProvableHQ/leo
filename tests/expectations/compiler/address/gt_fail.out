@@ -1,15 +1,15 @@
 Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
-    --> compiler-test:6:16
+    --> compiler-test:7:12
      |
-   6 |         return x > sender;
-     |                ^
+   7 |     return x > sender;
+     |            ^
 Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
-    --> compiler-test:6:20
+    --> compiler-test:7:16
      |
-   6 |         return x > sender;
-     |                    ^^^^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+   7 |     return x > sender;
+     |                ^^^^^^
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
-   2 | program test.aleo {
+   2 | program test.aleo { }
      |         ^^^^^^^^^

@@ -1,15 +1,15 @@
 program provider.aleo {
     storage nums: [u32];
 
-    async transition init() -> Future {
-        return async {
+    fn init() -> Final {
+        return final {
             nums.push(1u32);
             nums.push(2u32);
         };
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -17,8 +17,8 @@ program provider.aleo {
 import provider.aleo;
 
 program user.aleo {
-    async transition try_modify() -> Future {
-        return async {
+    fn try_modify() -> Final {
+        return final {
             //
             // Every line below should be DISALLOWED on external storage.
             //
@@ -31,5 +31,5 @@ program user.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

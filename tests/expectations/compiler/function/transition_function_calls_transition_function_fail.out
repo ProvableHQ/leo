@@ -1,9 +1,9 @@
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
     --> compiler-test:5:19
      |
    5 |            return adder(a, b);
      |                   ^^^^^^^^^^^
-Error [ETYC0372043]: Cannot call a local transition function from a transition function.
+Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
     --> compiler-test:7:20
      |
    7 |             return subber(a, b);

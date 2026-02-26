@@ -1,3 +1,3 @@
 program bar.aleo {
-    transition main() {}
+    fn main() {}
 }

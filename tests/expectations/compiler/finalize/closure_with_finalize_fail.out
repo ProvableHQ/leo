@@ -1,53 +1,51 @@
-Error [ETYC0372110]: Only `async transition` can return a future.
-    --> compiler-test:5:35
+Error [ETYC0372110]: Only entry point fns can return a Final.
+    --> compiler-test:6:25
      |
-   5 |     function foo(a: u8, b: u8) -> Future {
-     |                                   ^^^^^^
+   6 | fn foo(a: u8, b: u8) -> Final {
+     |                         ^^^^^
      |
-     = Use an `async transition` instead.
-Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:6:16
+     = Move this function inside the `program` block to make it an entry point fn.
+Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
+    --> compiler-test:7:12
      |
-   6 |         return finalize_bar(a, b);
-     |                ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372101]: Can only make an async call from an async transition.
-    --> compiler-test:6:16
+   7 |     return finalize_bar(a, b);
+     |            ^^^^^^^^^^^^^^^^^^
+Error [ETYC0372003]: Expected type `Final<Fn()>` but type `u8` was found
+    --> compiler-test:7:12
      |
-   6 |         return finalize_bar(a, b);
-     |                ^^^^^^^^^^^^^^^^^^
+   7 |     return finalize_bar(a, b);
+     |            ^^^^^^^^^^^^^^^^^^
+Error [ETYC0372106]: A final fn is not allowed to return a value.
+    --> compiler-test:14:1
      |
-     = Move the async call inside of the async transition block.
-Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:13:5
+  14 | final fn finalize_bar(a: u8, b: u8) -> u8 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 |     return a + b;
+     |     ^^^^^^^^^^^^^
+  16 | }
+     | ^
      |
-  13 |     async function finalize_bar(a: u8, b: u8) -> u8 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  14 |         return a + b;
-     |         ^^^^^^^^^^^^^
-  15 |     }
-     |     ^
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+Error [ETYC0372110]: Only entry point fns can return a Final.
+    --> compiler-test:19:51
      |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
-Error [ETYC0372110]: Only `async transition` can return a future.
-    --> compiler-test:18:61
+  19 | fn mint_public(receiver: address, amount: u64) -> Final {
+     |                                                   ^^^^^
      |
-  18 |     function mint_public(receiver: address, amount: u64) -> Future {
-     |                                                             ^^^^^^
+     = Move this function inside the `program` block to make it an entry point fn.
+Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
+    --> compiler-test:20:12
      |
-     = Use an `async transition` instead.
-Error [ETYC0372042]: Only `inline` can be called from a `function`, `inline`, or `constructor`.
-    --> compiler-test:19:16
+  20 |     return final { finalize_mint(receiver, amount); };
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
-  19 |         return finalize_mint(receiver, amount);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372101]: Can only make an async call from an async transition.
-    --> compiler-test:19:16
+     = Try moving this `final` block into an entry point fn or a script function.
+Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
+    --> compiler-test:20:20
      |
-  19 |         return finalize_mint(receiver, amount);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move the async call inside of the async transition block.
-Error [ETYC0372083]: A program must have at least one transition function.
+  20 |     return final { finalize_mint(receiver, amount); };
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

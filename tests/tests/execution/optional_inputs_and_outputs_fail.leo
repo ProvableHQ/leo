@@ -67,35 +67,35 @@ input = ["{is_some:false, val:[{is_some:false, val:0u8}, {is_some:false, val:0u8
 // TODO: this test will currently fail because we don't allow inputs and outputs to have optionals in them.
 // This test should pass once that restriction is removed
 
+// === Struct Optionals ===
+struct Foo {
+    x: u32?,
+}
+
 program test.aleo {
     // === Primitive Optionals ===
-    transition u64_in_out(x: u64?) -> u64? {
+    fn u64_in_out(x: u64?) -> u64? {
         if x != none {
             assert(x.unwrap() == 42u64);
         }
         return x;
     }
 
-    transition u8_in_out(x: u8?) -> u8? {
+    fn u8_in_out(x: u8?) -> u8? {
         if x != none {
             assert(x.unwrap() == 7u8);
         }
         return x;
     }
 
-    transition bool_in_out(x: bool?) -> bool? {
+    fn bool_in_out(x: bool?) -> bool? {
         if x != none {
             assert(x.unwrap() == true);
         }
         return x;
     }
 
-    // === Struct Optionals ===
-    struct Foo {
-        x: u32?,
-    }
-
-    transition struct_optional(f: Foo?) -> Foo? {
+    fn struct_optional(f: Foo?) -> Foo? {
         if f != none {
             let inner = f.unwrap();
             if inner.x != none {
@@ -106,7 +106,7 @@ program test.aleo {
     }
 
     // === Array Optionals ===
-    transition array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
+    fn array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
         if arr != none {
             let unwrapped = arr.unwrap();
             assert(unwrapped[0].unwrap() == 1u8);
@@ -116,5 +116,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

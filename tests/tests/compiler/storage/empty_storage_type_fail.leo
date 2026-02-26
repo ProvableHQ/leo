@@ -4,15 +4,14 @@ program empty_storage_type.aleo {
     storage vector_of_empty_array: [[u8; 0]];
 	storage byte: u8;
 
-    async transition prepare(a: [u32; 0]) ->  Future {
-        return finalize(a);
+    fn prepare(a: [u32; 0]) ->  Final {
+        return final { finalize(a); };
     }
-
-
-    async function finalize(a: [u32;0]) {
-        empty_array = [];
-        vector_of_empty_array = [];
-		byte = 42u8;
-    }
-
 }
+
+final fn finalize(a: [u32;0]) {
+    empty_array = [];
+    vector_of_empty_array = [];
+	byte = 42u8;
+}
+

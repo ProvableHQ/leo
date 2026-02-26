@@ -7,7 +7,7 @@ Error [ETYC0372020]: The field `owner` in a `record` must have type `address`.
      |         ^^^^^^^^^^^^
    6 |     }
      |     ^
-Error [ETYC0372083]: A program must have at least one transition function.
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

@@ -1,0 +1,32 @@
+program lib.aleo;
+
+function unused:
+// --- Next Program --- //
+import lib.aleo;
+program test.aleo;
+
+function get:
+    output 0u64 as u64.private;
+
+function set:
+    input r0 as u64.private;
+    output r0 as u64.private;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712000]: Interface `lib.aleo/Base` not found.
+    --> compiler-test:5:22
+     |
+   5 | interface Extended : lib.aleo/Base {
+     |                      ^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.
+Error [ECHI03712000]: Interface `lib.aleo/Base` not found.
+    --> compiler-test:5:22
+     |
+   5 | interface Extended : lib.aleo/Base {
+     |                      ^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.

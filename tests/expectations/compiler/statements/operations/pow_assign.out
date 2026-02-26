@@ -9,13 +9,3 @@ function unsigned:
     pow r4 r2 into r5;
     pow r5 r3 into r6;
     output r6 as u8.private;
-
-closure signed:
-    input r0 as i8;
-    input r1 as u8;
-    input r2 as u16;
-    input r3 as u32;
-    pow r0 r1 into r4;
-    pow r4 r2 into r5;
-    pow r5 r3 into r6;
-    output r6 as i8;

@@ -1,9 +1,9 @@
-Error [ETYC0372147]: Invalid expression in an async block. `self.signer` cannot be used directly here
+Error [ETYC0372147]: Invalid expression in a final block. `self.signer` cannot be used directly here
     --> compiler-test:4:21
      |
    4 |             let s = self.signer;
      |                     ^^^^^^^^^^^
-Error [ETYC0372147]: Invalid expression in an async block. `self.caller` cannot be used directly here
+Error [ETYC0372147]: Invalid expression in a final block. `self.caller` cannot be used directly here
     --> compiler-test:5:21
      |
    5 |             let c = self.caller;

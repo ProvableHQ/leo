@@ -1,7 +1,7 @@
-Error [ETYC0372104]: Not all futures were consumed: f1
-    --> compiler-test:16:16
+Error [ETYC0372104]: Not all Finals were consumed: f1
+    --> compiler-test:16:22
      |
-  16 |         return finalize_foo(f0, f3, f2, f5, f4);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  16 |         return final { finalize_foo(f0, f3, f2, f5, f4); };
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
-     = Make sure all futures are consumed exactly once. Consume by passing to an async function call or async block.
+     = Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.

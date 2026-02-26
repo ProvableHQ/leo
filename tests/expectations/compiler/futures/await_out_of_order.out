@@ -1,10 +1,10 @@
-Warning [WSAZ0374003]: The future `f2` is not awaited in the order in which they were passed in to the `async` function.
-    --> compiler-test:13:9
+Warning [WSAZ0374003]: The Final `f2` is not run in the order in which they were passed in to the function.
+    --> compiler-test:14:5
      |
-  13 |         f2.await();
-     |         ^^
+  14 |     f2.run();
+     |     ^^
      |
-     = While it is not required for futures to be awaited in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+     = While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
 program test.aleo;
 
 mapping foo:

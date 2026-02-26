@@ -33,20 +33,21 @@ function basic_implicit_argument:
     ternary r0.is_some r0.val 100u8 into r1;
     output r1 as u8.private;
 
-function basic_implicit_ternary:
-    input r0 as boolean.private;
+closure basic_implicit_ternary_:
+    input r0 as boolean;
     cast true 10u8 into r1 as Optional__8hhrPm4c3KB;
     cast false 0u8 into r2 as Optional__8hhrPm4c3KB;
     ternary r0 r1.is_some r2.is_some into r3;
     ternary r0 r1.val r2.val into r4;
     cast r3 r4 into r5 as Optional__8hhrPm4c3KB;
-    assert.eq r5.is_some true;
-    cast true 10u8 into r6 as Optional__8hhrPm4c3KB;
-    cast false 0u8 into r7 as Optional__8hhrPm4c3KB;
-    ternary r0 r6.is_some r7.is_some into r8;
-    ternary r0 r6.val r7.val into r9;
-    cast r8 r9 into r10 as Optional__8hhrPm4c3KB;
-    output r10.val as u8.private;
+    output r5 as Optional__8hhrPm4c3KB;
+
+function basic_implicit_ternary:
+    input r0 as boolean.private;
+    call basic_implicit_ternary_ r0 into r1;
+    assert.eq r1.is_some true;
+    call basic_implicit_ternary_ r0 into r2;
+    output r2.val as u8.private;
 
 function basic_implicit_reassignment:
     cast true 99u8 into r0 as Optional__8hhrPm4c3KB;

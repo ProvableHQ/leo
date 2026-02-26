@@ -27,6 +27,6 @@ don't match actual results, an error will be thrown and the test won't pass. Of 
 
 1. If the test has failed because the logic was changed intentionally, then expectations need to be deleted. New ones will be
 generated instead. A PR should contain changes to expectations as well as to tests or code. You can also regenerate new
-expectation files by setting the environment variable `REWRITE_EXPECTATIONS` while running tests.
+expectation files by setting the environment variable `UPDATE_EXPECT` while running tests.
 2. If the test should pass, then expectations should not be changed or removed.
 

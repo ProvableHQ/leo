@@ -1,0 +1,25 @@
+program lib.aleo;
+
+function dummy:
+// --- Next Program --- //
+import lib.aleo;
+program test.aleo;
+
+function increment:
+    output 1u64 as u64.private;
+
+function main:
+    input r0 as u64.private;
+    output 0u64 as u64.private;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712000]: Interface `lib.aleo/Counter` not found.
+    --> compiler-test:5:21
+     |
+   5 | program test.aleo : lib.aleo/Counter {
+     |                     ^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.

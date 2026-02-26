@@ -1,16 +1,10 @@
 program test.aleo;
 
-closure bax:
-    input r0 as u8;
-    add r0 r0 into r1;
-    mul r0 r0 into r2;
-    output r1 as u8;
-    output r2 as u8;
-
 function baz:
     input r0 as u8.private;
     input r1 as u8.private;
-    call bax r1 into r2 r3;
+    add r1 r1 into r2;
+    mul r1 r1 into r3;
     add r0 r1 into r4;
     add r4 r2 into r5;
     add r5 r3 into r6;

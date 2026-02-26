@@ -1,5 +1,5 @@
-Error [ETYC0372003]: Expected type `()` but type `Future<Fn()>` was found
-    --> compiler-test:4:16
+Error [ETYC0372003]: Expected type `()` but type `Final<Fn()>` was found
+    --> compiler-test:4:22
      |
-   4 |         return bar();
-     |                ^^^^^
+   4 |         return final { bar(); };
+     |                      ^^^^^^^^^^

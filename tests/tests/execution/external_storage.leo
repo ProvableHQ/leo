@@ -11,15 +11,15 @@ input = []
 program zero_program.aleo {
     storage count: u64;
 
-    async transition c() -> Future {
-        let f = async {
+    fn c() -> Final {
+        let f = final {
             count = count.unwrap_or(0) + 1u64;
         };
         return f;
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 
@@ -29,15 +29,15 @@ program zero_program.aleo {
 program one_program.aleo {
     storage count: u64;
 
-    async transition d() -> Future {
-        let f = async {
+    fn d() -> Final {
+        let f = final {
             count = count.unwrap_or(0) + 2u64;
         };
         return f;
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -49,13 +49,13 @@ import one_program.aleo;
 program two_program.aleo {
     storage count: u64;
 
-    async transition b() -> Future {
-        let f0: Future = zero_program.aleo/c();
-        let f1: Future = one_program.aleo/d();
+    fn b() -> Final {
+        let f0: Final = zero_program.aleo/c();
+        let f1: Final = one_program.aleo/d();
 
-        return async {
-            f0.await();
-            f1.await();
+        return final {
+            f0.run();
+            f1.run();
             assert(zero_program.aleo/count.unwrap() == 1u64);
             assert(one_program.aleo/count.unwrap() == 2u64);
             count = zero_program.aleo/count.unwrap() + one_program.aleo/count.unwrap();
@@ -64,5 +64,5 @@ program two_program.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

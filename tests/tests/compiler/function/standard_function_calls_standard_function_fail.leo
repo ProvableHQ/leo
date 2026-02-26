@@ -1,17 +1,20 @@
 
-program test.aleo {
-    function main(a: u32, b: u32, y: bool) -> u32 {
-        if y {
-           return adder(a, b);
-        } else {
-            return subber(a, b);
-        }
-    }
+program test.aleo {}
 
-    function adder(a: u32, b: u32) -> u32 {
-        return a + b;
+fn main(a: u32, b: u32, y: bool) -> u32 {
+    if y {
+       return adder(a, b);
+    } else {
+        return subber(a, b);
     }
+}
 
-    function subber(a: u32, b: u32) -> u32 {
-        return a - b;
-    }}
+@no_inline
+fn adder(a: u32, b: u32) -> u32 {
+    return a + b;
+}
+
+@no_inline
+fn subber(a: u32, b: u32) -> u32 {
+    return a - b;
+}

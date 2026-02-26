@@ -1,12 +1,12 @@
 program provider.aleo {
     storage x: u32;
 
-    async transition init() -> Future {
-        return async {};
+    fn init() -> Final {
+        return final {};
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -14,12 +14,12 @@ program provider.aleo {
 import provider.aleo;
 
 program user.aleo {
-    async transition try_modify() -> Future {
-        return async {
+    fn try_modify() -> Final {
+        return final {
             provider.aleo/x = 0;         // ❌ illegal external mutation
         };
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

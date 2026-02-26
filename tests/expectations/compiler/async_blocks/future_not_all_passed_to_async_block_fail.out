@@ -1,19 +1,19 @@
-Error [ETYC0372104]: Not all futures were consumed: f1
+Error [ETYC0372104]: Not all Finals were consumed: f1
     --> compiler-test:16:22
      |
-  16 |         return async {
+  16 |         return final {
      |                      ^
-  17 |             f0.await(); 
-     |             ^^^^^^^^^^^^
-  18 |             f3.await(); 
-     |             ^^^^^^^^^^^^
-  19 |             f2.await(); 
-     |             ^^^^^^^^^^^^
-  20 |             f5.await(); 
-     |             ^^^^^^^^^^^^
-  21 |             f4.await();
-     |             ^^^^^^^^^^^
+  17 |             f0.run(); 
+     |             ^^^^^^^^^^
+  18 |             f3.run(); 
+     |             ^^^^^^^^^^
+  19 |             f2.run(); 
+     |             ^^^^^^^^^^
+  20 |             f5.run(); 
+     |             ^^^^^^^^^^
+  21 |             f4.run();
+     |             ^^^^^^^^^
   22 |         };
      |         ^
      |
-     = Make sure all futures are consumed exactly once. Consume by passing to an async function call or async block.
+     = Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.

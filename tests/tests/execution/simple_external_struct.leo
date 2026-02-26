@@ -10,41 +10,41 @@ function = "main2"
 input = []
 */
 
+struct Foo {
+    x: u32,
+    y: u32,
+    z: u32,
+}
+
 program child1.aleo {
-    struct Foo {
-        x: u32,
-        y: u32,
-        z: u32,
-    }
+    fn main1(foo: Foo) { }
 
-    transition main1(foo: Foo) { }
-
-    transition main2(x: u32, y: u32, z: u32) -> Foo {
+    fn main2(x: u32, y: u32, z: u32) -> Foo {
         return Foo { x, y, z };
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
 
+struct Foo {
+    x: u32,
+    y: u32,
+    z: u32,
+    w: u32,
+}
+
 program child2.aleo {
-    struct Foo {
-        x: u32,
-        y: u32,
-        z: u32,
-        w: u32,
-    }
+    fn main1(foo: Foo) { }
 
-    transition main1(foo: Foo) { }
-
-    transition main2(x: u32, y: u32, z: u32, w: u32) -> Foo {
+    fn main2(x: u32, y: u32, z: u32, w: u32) -> Foo {
         return Foo { x, y, z, w };
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -52,13 +52,12 @@ program child2.aleo {
 import child1.aleo;
 import child2.aleo;
 
+struct Foo {
+    x: u32,
+    y: u32,
+}
 program external_structs.aleo {
-    struct Foo {
-        x: u32,
-        y: u32,
-    }
-
-    transition main1(local: Foo, 
+    fn main1(local: Foo, 
                     external1: child1.aleo/Foo,
                     external2: child2.aleo/Foo) { 
         assert_eq(
@@ -69,7 +68,7 @@ program external_structs.aleo {
         );
     }
 
-    transition main2() -> public u32 {
+    fn main2() -> public u32 {
         let external1 = child1.aleo/main2(1, 2, 3);
         let external2 = child2.aleo/main2(1, 2, 3, 4);
         return external1.x + external1.y + external1.z
@@ -77,5 +76,5 @@ program external_structs.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

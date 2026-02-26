@@ -36,27 +36,25 @@ function = "is_network_id"
 input = ["3u16"]
 */
 
+final fn finalize_is_block_height(block_height: u32) {
+    assert_eq(block_height, block.height);
+}
+
+final fn finalize_is_network_id(network_id: u16) {
+    assert_eq(network_id, network.id);
+}
 
 program metadata.aleo {
-
-    async transition is_block_height(block_height: u32) -> Future {
-        return finalize_is_block_height(block_height);
+    fn is_block_height(block_height: u32) -> Final {
+        return final { finalize_is_block_height(block_height); };
     }
 
-    async function finalize_is_block_height(block_height: u32) {
-        assert_eq(block_height, block.height);
-    }
-
-    async transition is_network_id(network_id: u16) -> Future {
-        return finalize_is_network_id(network_id);
-    }
-
-    async function finalize_is_network_id(network_id: u16) {
-        assert_eq(network_id, network.id);
+    fn is_network_id(network_id: u16) -> Final {
+        return final { finalize_is_network_id(network_id); };
     }
 
     @custom
-    async constructor() {
+    constructor() {
         assert_eq(true, true);
     }
 }

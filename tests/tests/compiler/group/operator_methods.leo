@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: group, b: group) -> bool {
+    fn main(a: group, b: group) -> bool {
         // unary
         let e: group = a.double();
         let g: group = a.neg();

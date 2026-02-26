@@ -1,11 +1,11 @@
-Error [ETYC0372106]: An async function is not allowed to return a value.
-    --> compiler-test:7:5
+Error [ETYC0372106]: A final fn is not allowed to return a value.
+    --> compiler-test:8:1
      |
-   7 |     async function finalize_public_adder(a: u8, b: u8) -> public u8 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |         return a + b;
-     |         ^^^^^^^^^^^^^
-   9 |     }
-     |     ^
+   8 | final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 |     return a + b;
+     |     ^^^^^^^^^^^^^
+  10 | }
+     | ^
      |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.
+     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.

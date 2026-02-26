@@ -22,7 +22,7 @@ program bubblesort.aleo {
     // Note that the implementation below uses tuples instead of arrays.
     // The implementation also manually unrolls the loop.
 
-    transition bubble_sort(xs: [u32; 8]) -> [u32; 8] {
+    fn bubble_sort(xs: [u32; 8]) -> [u32; 8] {
        for i: u8 in 0u8..7u8 {
            for j: u8 in 0u8..7u8-i {
                // Move the smaller elements forward

@@ -1,7 +1,7 @@
 Error [EAST0372017]: The name `HELLO` is defined multiple times.
-    --> compiler-test:4:11
+    --> compiler-test:3:7
      |
-   3 |       const HELLO: u8 = 0u8;
-     |             ^^^^^ previous definition of `HELLO` here
-   4 |       const HELLO: u8 = 1u8;
-     |             ^^^^^ `HELLO` redefined here
+   2 |   const HELLO: u8 = 0u8;
+     |         ^^^^^ previous definition of `HELLO` here
+   3 |   const HELLO: u8 = 1u8;
+     |         ^^^^^ `HELLO` redefined here

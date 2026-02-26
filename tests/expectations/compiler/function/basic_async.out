@@ -5,10 +5,8 @@ mapping Yo:
     value as u32.public;
 
 function main:
-    async main 1u32 1u32 into r0;
+    async main into r0;
     output r0 as test.aleo/main.future;
 
 finalize main:
-    input r0 as u32.public;
-    input r1 as u32.public;
-    set r1 into Yo[r0];
+    set 1u32 into Yo[1u32];

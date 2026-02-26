@@ -1,0 +1,9 @@
+Error [ECHI03712009]: Storage variable `counter` does not match the type required by interface `StorageInterface`.
+Expected: u32
+Found: u64
+    --> compiler-test:6:5
+     |
+   6 |     storage counter: u64;
+     |     ^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Storage variable types must match exactly.

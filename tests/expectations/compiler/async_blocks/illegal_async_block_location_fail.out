@@ -1,55 +1,39 @@
-Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:3:18
-     |
-   3 |         let f1 = async {};
-     |                  ^^^^^^^^
-     |
-     = Try moving this `async` block into an `async` transition or a script function.
-Error [ETYC0372035]: Loop body contains an async block expression.
+Error [ETYC0372035]: Loop body contains a final context.
     --> compiler-test:7:9
      |
    7 |         for j in 0u32..2u32 {
      |         ^^^^^^^^^^^^^^^^^^^^^
-   8 |             let f = async {};
+   8 |             let f = final {};
      |             ^^^^^^^^^^^^^^^^^
    9 |         }
      |         ^
      |
-     = Remove the async block expression.
-Error [ETYC0372151]: `async` blocks are not allowed inside conditional blocks.
+     = Remove the final context.
+Error [ETYC0372151]: `final` blocks are not allowed inside conditional blocks.
     --> compiler-test:14:21
      |
-  14 |             let f = async {};
+  14 |             let f = final {};
      |                     ^^^^^^^^
      |
-     = Refactor your code to move the `async` block outside of the conditional block.
-Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:19:17
+     = Refactor your code to move the `final` block outside of the conditional block.
+Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
+    --> compiler-test:20:13
      |
-  19 |         let f = async {};
-     |                 ^^^^^^^^
+  20 |     let f = final {};
+     |             ^^^^^^^^
      |
-     = Try moving this `async` block into an `async` transition or a script function.
-Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:23:17
+     = Try moving this `final` block into an entry point fn or a script function.
+Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
+    --> compiler-test:24:13
      |
-  23 |         let f = async {};
-     |                 ^^^^^^^^
+  24 |     let f = final {};
+     |             ^^^^^^^^
      |
-     = Try moving this `async` block into an `async` transition or a script function.
-Error [ETYC0372148]: `async` blocks are only allowed inside an `async` transition or a script function.
-    --> compiler-test:27:17
+     = Try moving this `final` block into an entry point fn or a script function.
+Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
+    --> compiler-test:28:13
      |
-  27 |         let f = async {};
-     |                 ^^^^^^^^
+  28 |     let f = final {};
+     |             ^^^^^^^^
      |
-     = Try moving this `async` block into an `async` transition or a script function.
-Warning [WTYC0372002]: The async function `f3` is never called by an async transition.
-    --> compiler-test:22:5
-     |
-  22 |     async function f3() {
-     |     ^^^^^^^^^^^^^^^^^^^^^
-  23 |         let f = async {};
-     |         ^^^^^^^^^^^^^^^^^
-  24 |     }
-     |     ^
+     = Try moving this `final` block into an entry point fn or a script function.

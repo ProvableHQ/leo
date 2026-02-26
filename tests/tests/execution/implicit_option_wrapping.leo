@@ -57,45 +57,56 @@ function = "complex_array_access"
 input = []
 */
 
+// === Shared Structs ===
+
+struct Foo {
+    x: u8?, // optional field
+}
+
+struct Wrapper {
+    arr: [Foo?; 2], // array of optional structs
+}
+
+fn foo() -> u8? {
+    return 5; // implicitly wrapped
+}
+
+fn takes_optional_u8(x: u8?) -> u8 {
+    return x.unwrap_or(100);
+}
+
+struct Bar {
+    x: [u8?; 3]
+}
+
+fn bar() -> Wrapper? {
+    return Wrapper {
+        arr: [Foo { x: 8 }, none], // 8u8 implicitly wrapped into u8?
+    };
+}
+
+// 2. Implicit argument: Wrapper → Wrapper?
+fn takes_optional_wrapper(w: Wrapper?) -> u8 {
+    return w.unwrap().arr[0].unwrap().x.unwrap_or(42);
+}
+
 program implicit_wrapping.aleo {
-    // === Shared Structs ===
-
-    struct Foo {
-        x: u8?, // optional field
-    }
-
-    struct Wrapper {
-        arr: [Foo?; 2], // array of optional structs
-    }
-
     // === BASIC TYPE TESTS ===
 
-    transition basic_implicit_return() -> u8 {
+    fn basic_implicit_return() -> u8 {
         return foo().unwrap();
     }
 
-    inline foo() -> u8? {
-        return 5; // implicitly wrapped
-    }
-
-    inline takes_optional_u8(x: u8?) -> u8 {
-        return x.unwrap_or(100);
-    }
-
-    transition basic_implicit_argument() -> u8 {
+    fn basic_implicit_argument() -> u8 {
         return takes_optional_u8(42); // implicitly wrapped
     }
 
-    transition basic_implicit_ternary(cond: bool) -> u8 {
+    fn basic_implicit_ternary(cond: bool) -> u8 {
         let result: u8? = cond ? 10 : none;
         return result.unwrap_or(42u8); // inferred as u8?
     }
 
-    struct Bar {
-        x: [u8?; 3]
-    }
-
-    transition basic_implicit_reassignment() -> u8 {
+    fn basic_implicit_reassignment() -> u8 {
         let b: Bar = Bar { x: [none, none, none] };
         b.x[0] = 99; // implicitly wrapped
         return b.x[0].unwrap();
@@ -104,29 +115,18 @@ program implicit_wrapping.aleo {
     // === COMPLEX TYPE TESTS ===
 
     // 1. Implicit return: Wrapper → Wrapper?
-    transition complex_implicit_return() -> u8 {
+    fn complex_implicit_return() -> u8 {
         return bar().unwrap().arr[0].unwrap().x.unwrap();
     }
 
-    inline bar() -> Wrapper? {
-        return Wrapper {
-            arr: [Foo { x: 8 }, none], // 8u8 implicitly wrapped into u8?
-        };
-    }
-
-    // 2. Implicit argument: Wrapper → Wrapper?
-    inline takes_optional_wrapper(w: Wrapper?) -> u8 {
-        return w.unwrap().arr[0].unwrap().x.unwrap_or(42);
-    }
-
-    transition complex_implicit_argument() -> u8 {
+    fn complex_implicit_argument() -> u8 {
         return takes_optional_wrapper(Wrapper {
             arr: [Foo { x: none }, none],
         });
     }
 
     // 3. Implicit ternary with Wrapper
-    transition complex_implicit_ternary(cond: bool) -> u8 {
+    fn complex_implicit_ternary(cond: bool) -> u8 {
         let result: Wrapper? = cond
             ? Wrapper { arr: [Foo { x: 99 }, none] } // implicit wrap
             : none;
@@ -134,14 +134,14 @@ program implicit_wrapping.aleo {
     }
 
     // 4. Implicit reassignment with Wrapper
-    transition complex_implicit_reassignment() -> u8 {
+    fn complex_implicit_reassignment() -> u8 {
         let w: Wrapper? = none;
         w = Wrapper { arr: [Foo { x: 7 }, none] }; // implicit wrap
         return w.unwrap().arr[0].unwrap().x.unwrap();
     }
 
     // 5. Implicit reassignment of [Wrapper; 3]? = [...]
-    transition complex_array_wrapping() -> u8 {
+    fn complex_array_wrapping() -> u8 {
         let arr_opt: [Wrapper; 3]? = none;
         arr_opt = [
             Wrapper { arr: [Foo { x: 1 }, none] },
@@ -152,7 +152,7 @@ program implicit_wrapping.aleo {
     }
 
     // 6. Deeper access into wrapped Wrapper array
-    transition complex_array_access() -> u8 {
+    fn complex_array_access() -> u8 {
         let arr_opt: [Wrapper; 3]? = [
             Wrapper { arr: [Foo { x: 10 }, none] },
             Wrapper { arr: [Foo { x: 20 }, none] },
@@ -164,5 +164,5 @@ program implicit_wrapping.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

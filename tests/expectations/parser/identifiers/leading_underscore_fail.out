@@ -1,5 +1,28 @@
-Error [EPAR0370005]: expected an identifier, '(' -- found '_c'
+Error [EPAR0370053]: Identifiers cannot start with an underscore.
     --> test:4:13
      |
    4 |         let _c: u32 = a + b;
      |             ^^
+     |
+     = Identifiers must start with a letter.
+Error [EPAR0370053]: Identifiers cannot start with an underscore.
+    --> test:7:13
+     |
+   7 |         let _temp = 10u32;
+     |             ^^^^^
+     |
+     = Identifiers must start with a letter.
+Error [EPAR0370053]: Identifiers cannot start with an underscore.
+    --> test:10:16
+     |
+  10 |         return _c + _temp;
+     |                ^^
+     |
+     = Identifiers must start with a letter.
+Error [EPAR0370053]: Identifiers cannot start with an underscore.
+    --> test:10:21
+     |
+  10 |         return _c + _temp;
+     |                     ^^^^^
+     |
+     = Identifiers must start with a letter.

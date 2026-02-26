@@ -1,6 +1,7 @@
 program test.aleo {
-    @test
-    function test() -> u8 {
-    }
 }
+    @test
+    fn test() -> u8 {
+    }
+
 

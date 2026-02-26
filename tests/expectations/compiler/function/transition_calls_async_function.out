@@ -1,0 +1,19 @@
+program test.aleo;
+
+function f:
+    input r0 as u64.private;
+    input r1 as u64.private;
+    async f r0 r1 into r2;
+    output r2 as test.aleo/f.future;
+
+finalize f:
+    input r0 as u64.public;
+    input r1 as u64.public;
+    is.eq r1 0u64 into r2;
+    branch.eq r2 false to end_then_0_0;
+    assert.eq r1 0u64;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    div r0 r1 into r3;
+    assert.eq r3 1u64;
+    position end_otherwise_0_1;

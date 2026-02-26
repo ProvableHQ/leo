@@ -1,39 +1,39 @@
 Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:21:9
+    --> compiler-test:22:5
      |
-  21 |         mem: (u8, u16)
-     |         ^^^
+  22 |     mem: (u8, u16)
+     |     ^^^
 Error [ETYC0372051]: A function cannot take in a tuple as input.
-    --> compiler-test:7:18
+    --> compiler-test:8:8
      |
-   7 |     function foo(a: (u8, u16)) -> (u8, u16) {
-     |                  ^^^^^^^^^^^^
+   8 | fn foo(a: (u8, u16)) -> (u8, u16) {
+     |        ^^^^^^^^^^^^
 Error [ETYC0372049]: A tuple type cannot contain a tuple.
-    --> compiler-test:11:36
+    --> compiler-test:12:26
      |
-  11 |     function bar(zz: bool) -> (u8, (u16, u32)) {
-     |                                    ^^^^^^^^^^
+  12 | fn bar(zz: bool) -> (u8, (u16, u32)) {
+     |                          ^^^^^^^^^^
 Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
-    --> compiler-test:12:22
+    --> compiler-test:13:18
      |
-  12 |         return (1u8, (2u16, 3u32));
-     |                      ^^^^^^^^^^^^
+  13 |     return (1u8, (2u16, 3u32));
+     |                  ^^^^^^^^^^^^
 Error [ETYC0372117]: Expected an integer but type `(u8, u16)` was found.
-    --> compiler-test:16:13
+    --> compiler-test:17:9
      |
-  16 |         for i: (u8, u16) in 0u8..2u8 {}
-     |             ^
+  17 |     for i: (u8, u16) in 0u8..2u8 {}
+     |         ^
 Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
-    --> compiler-test:16:29
+    --> compiler-test:17:25
      |
-  16 |         for i: (u8, u16) in 0u8..2u8 {}
-     |                             ^^^
+  17 |     for i: (u8, u16) in 0u8..2u8 {}
+     |                         ^^^
 Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
-    --> compiler-test:16:34
+    --> compiler-test:17:30
      |
-  16 |         for i: (u8, u16) in 0u8..2u8 {}
-     |                                  ^^^
-Error [ETYC0372083]: A program must have at least one transition function.
+  17 |     for i: (u8, u16) in 0u8..2u8 {}
+     |                              ^^^
+Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:2:9
      |
    2 | program test.aleo {

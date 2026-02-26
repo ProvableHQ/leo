@@ -9,7 +9,7 @@ program test.aleo {
         gates: u64,
     }
 
-    transition main(a: u64, b:u64) -> Token {
+    fn main(a: u64, b:u64) -> Token {
         return Token { owner: self.signer, amount: a, gates: b};
     }
 }

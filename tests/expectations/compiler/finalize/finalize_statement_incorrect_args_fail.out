@@ -1,5 +1,5 @@
 Error [ETYC0372006]: Call expected `2` args, but got `3`
-    --> compiler-test:7:16
+    --> compiler-test:7:24
      |
-   7 |         return finalize_mint_public(receiver, amount, amount);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   7 |         return final { finalize_mint_public(receiver, amount, amount); };
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

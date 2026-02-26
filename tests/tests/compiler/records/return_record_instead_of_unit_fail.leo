@@ -5,7 +5,7 @@ program test.aleo {
         amount: u64
     }
 
-    transition mint_credits(to: address, amount: u64) {
+    fn mint_credits(to: address, amount: u64) {
         return test_credits {
             owner: self.signer,
             amount

@@ -1,33 +1,33 @@
 Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
-    --> compiler-test:6:5
+    --> compiler-test:5:1
      |
-   6 |     const A: u8? = 10u8;
-     |     ^^^^^^^^^^^^^^^^^^^^
+   5 | const A: u8? = 10u8;
+     | ^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
-    --> compiler-test:7:5
+    --> compiler-test:6:1
      |
-   7 |     const B: [u8?; 3] = [1u8, 2u8, 3u8];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   6 | const B: [u8?; 3] = [1u8, 2u8, 3u8];
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
-    --> compiler-test:8:5
+    --> compiler-test:7:1
      |
-   8 |     const C: (u8, u8?) = (42u8, 99u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   7 | const C: (u8, u8?) = (42u8, 99u8);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
-    --> compiler-test:9:5
+    --> compiler-test:8:1
      |
-   9 |     const D: [[u8?; 2]; 2] = [[4u8, 5u8], [6u8, 7u8]];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   8 | const D: [[u8?; 2]; 2] = [[4u8, 5u8], [6u8, 7u8]];
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
-    --> compiler-test:15:5
+    --> compiler-test:14:1
      |
-  15 |     const E: MyStruct = MyStruct { x: 88u8 };
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 | const E: MyStruct = MyStruct { x: 88u8 };
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
-    --> compiler-test:16:5
+    --> compiler-test:15:1
      |
-  16 |     const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 | const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
     --> compiler-test:33:9
      |

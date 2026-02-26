@@ -7,14 +7,14 @@ program test.aleo {
         amount: u64,
     }
 
-    transition mint(owner: address, amount: u64) -> Token {
+    fn mint(owner: address, amount: u64) -> Token {
         return Token {
             owner,
             amount,
         };
     }
 
-    transition main(x: address) -> u64 {
+    fn main(x: address) -> u64 {
         let c: u64 = 1u64;
         let t: Token = Token { owner: x, amount: c};
 

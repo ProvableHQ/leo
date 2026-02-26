@@ -8,10 +8,10 @@ input = []
 */
 
 program child.aleo {
-    transition dummy() {}
+    fn dummy() {}
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -19,8 +19,8 @@ program child.aleo {
 import child.aleo;
 
 program test.aleo {
-    async transition bar() -> Future {
-        return async {
+    fn bar() -> Final {
+        return final {
             let c: [u8; 32] = self.checksum;
             let d: [u8; 32] = Program::checksum(child.aleo);
             assert_neq(c, d);
@@ -36,5 +36,5 @@ program test.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }

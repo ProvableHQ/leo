@@ -1,17 +1,17 @@
 Error [ETYC0372117]: Expected type `bool` but type `u32` was found.
-    --> compiler-test:4:30
+    --> compiler-test:3:26
      |
-   4 |         let x: bool = true ? y: true;
-     |                              ^
+   3 |     let x: bool = true ? y: true;
+     |                          ^
 Error [ETYC0372118]: Received different types `u32` and `bool` for the arms of a ternary conditional.
-    --> compiler-test:4:23
+    --> compiler-test:3:19
      |
-   4 |         let x: bool = true ? y: true;
-     |                       ^^^^^^^^^^^^^^
+   3 |     let x: bool = true ? y: true;
+     |                   ^^^^^^^^^^^^^^
      |
      = Make both branches the same type.
-Error [ETYC0372083]: A program must have at least one transition function.
-    --> compiler-test:2:9
+Error [ETYC0372083]: A program must have at least one entry point fn.
+    --> compiler-test:1:9
      |
-   2 | program test.aleo {
+   1 | program test.aleo {}
      |         ^^^^^^^^^

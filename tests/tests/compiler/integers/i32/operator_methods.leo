@@ -1,6 +1,6 @@
 
 program test.aleo {
-    transition main(a: i32, b: i32) -> bool {
+    fn main(a: i32, b: i32) -> bool {
         // unary
         let c: i32 = a.abs();
         let d: i32 = a.abs_wrapped();

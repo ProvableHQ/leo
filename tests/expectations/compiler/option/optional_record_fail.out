@@ -10,4 +10,4 @@ Error [ETYC0372160]: The type `optional_record_test.aleo/Foo` cannot be wrapped 
   13 |         };
      |         ^^
      |
-     = Optionals cannot wrap signatures, futures, mappings, tuples, vectors, records, arrays whose elements are optional-unsafe, or structures containing any such types.
+     = Optionals cannot wrap signatures, finals, mappings, tuples, vectors, records, arrays whose elements are optional-unsafe, or structures containing any such types.

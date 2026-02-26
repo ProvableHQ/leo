@@ -1,3 +1,3 @@
 
-program test.aleo {
-    function main() { let a = 0x}
+program test.aleo {}
+fn main() { let a = 0x}

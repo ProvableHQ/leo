@@ -3,30 +3,30 @@ program st.aleo {
     storage s_vec: [u32];
     mapping s_map: u32 => u32;
 
-    async transition assign_optional() -> Future {
-        return async {
+    fn assign_optional() -> Final {
+        return final {
             let opt_val: field? = 5field;
             s_field = opt_val; // ❌ illegal
         };
     }
 
-    async transition assign_to_vector() -> Future {
-        return async {
+    fn assign_to_vector() -> Final {
+        return final {
             s_vec = [1u32, 2u32]; // ❌ cannot assign whole vector directly
             s_vec = none;         // ❌ cannot assign none to a storage vector
         };
     }
 
-    async transition assign_vector_to_var() -> Future {
-        return async {
+    fn assign_vector_to_var() -> Final {
+        return final {
             let local_vec1 = s_vec;       // ❌ cannot move storage vector
             let local_vec2 = [0u32; 2];
             local_vec2 = s_vec;           // ❌ cannot copy storage vector
         };
     }
 
-    async transition wrong_vector_ops() -> Future {
-        return async {
+    fn wrong_vector_ops() -> Final {
+        return final {
             let x: field = 5field;
             x.push(3field);        // ❌ not a vector
             x.pop();               // ❌ not a vector
@@ -37,15 +37,15 @@ program st.aleo {
         };
     }
 
-    async transition wrong_vector_ops_on_storage() -> Future {
-        return async {
+    fn wrong_vector_ops_on_storage() -> Final {
+        return final {
             s_field.push(10field);     // ❌ cannot push to non-vector storage
             s_map.push(5u32);          // ❌ cannot push to mapping
         };
     }
 
-    async transition wrong_set_get() -> Future {
-        return async {
+    fn wrong_set_get() -> Final {
+        return final {
             s_field.set(0u32, 10field);  // ❌ not a vector or mapping
             s_field.get(0u32);           // ❌ not a vector or mapping
         };

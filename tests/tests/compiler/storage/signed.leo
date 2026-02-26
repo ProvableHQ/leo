@@ -5,8 +5,8 @@ program signed.aleo {
     storage counter_i64: i64;
     storage counter_i128: i128;
 
-    async transition initialize() -> Future {
-        return async {
+    fn initialize() -> Final {
+        return final {
             counter_i8 = -1i8;
             counter_i16 = -2i16;
             counter_i32 = -3i32;
@@ -15,8 +15,8 @@ program signed.aleo {
         };
     }
 
-    async transition to_none() -> Future {
-        return async {
+    fn to_none() -> Final {
+        return final {
             // Integers
             counter_i8 = none;
             counter_i16 = none;
@@ -26,8 +26,8 @@ program signed.aleo {
         };
     }
 
-    async transition check1() -> Future {
-        return async {
+    fn check1() -> Final {
+        return final {
             assert(counter_i8.unwrap() == -1i8);
             assert(counter_i16.unwrap() == -2i16);
             assert(counter_i32.unwrap() == -3i32);
@@ -36,8 +36,8 @@ program signed.aleo {
         };
     }
 
-    async transition check2() -> Future {
-        return async {
+    fn check2() -> Final {
+        return final {
             assert(counter_i8.unwrap_or(0) == -1i8);
             assert(counter_i16.unwrap_or(0) == -2i16);
             assert(counter_i32.unwrap_or(0) == -3i32);
@@ -47,5 +47,5 @@ program signed.aleo {
     }
 
     @noupgrade
-    async constructor() {}
+    constructor() {}
 }
