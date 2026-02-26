@@ -1,4 +1,4 @@
-Error [ECHI03712003]: Program `test` implements interface `TokenStandard` but is missing the required record `Token`.
+Error [ECHI03712003]: Program `test` implements interface `test.aleo/TokenStandard` but is missing the required record `Token`.
     --> test:8:1
      |
    8 | program test.aleo : TokenStandard {
