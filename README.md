@@ -92,7 +92,7 @@ git clone https://github.com/ProvableHQ/leo
 cd leo
 
 # Install 'leo'
-cargo install --path .
+cargo install --path crates/leo
 ```
 
 ### 🦁 Update from Leo
