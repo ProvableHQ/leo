@@ -1,0 +1,7 @@
+program test.aleo;
+
+mapping counter:
+    key as address.public;
+    value as u64.public;
+
+function main:

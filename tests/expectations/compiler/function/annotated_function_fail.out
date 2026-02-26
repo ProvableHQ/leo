@@ -3,7 +3,7 @@ Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside o
      |
    4 | @test
      | ^^^^^
-Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on scripts and transitions.
+Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on transitions.
     --> compiler-test:4:1
      |
    4 | @test

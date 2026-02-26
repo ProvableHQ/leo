@@ -1,0 +1,15 @@
+Error [ECHI03712004]: Function `process` does not match the signature required by interface `Processor`.
+Expected:
+fn process(value: u64, multiplier: u64) -> u64
+Found:
+fn process(value: u64, mult: u64) -> u64
+    --> test:9:5
+     |
+   9 |     fn process(value: u64, mult: u64) -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |         return value * mult;
+     |         ^^^^^^^^^^^^^^^^^^^^
+  11 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.

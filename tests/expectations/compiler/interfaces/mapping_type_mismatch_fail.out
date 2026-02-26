@@ -1,0 +1,9 @@
+Error [ECHI03712008]: Mapping `counter` does not match the type required by interface `CounterInterface`.
+Expected: address => u64
+Found: u32 => u64
+    --> compiler-test:6:5
+     |
+   6 |     mapping counter: u32 => u64;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Mapping key and value types must match exactly.

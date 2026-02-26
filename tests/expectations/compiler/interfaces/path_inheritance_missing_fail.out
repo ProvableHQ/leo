@@ -1,0 +1,27 @@
+Error [ECHI03712002]: Program `test` implements interface `Counter` but is missing the required function `increment`.
+    --> compiler-test:5:1
+     |
+   5 | program test.aleo : lib.aleo/Counter {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   6 |     fn main(x: u64) -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+   7 |         return 0;
+     |         ^^^^^^^^^
+   8 |     }
+     |     ^
+   9 | }
+     | ^
+     |
+     = Add the missing function with the exact signature specified in the interface.
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712000]: Interface `lib.aleo/Counter` not found.
+    --> compiler-test:5:21
+     |
+   5 | program test.aleo : lib.aleo/Counter {
+     |                     ^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.

@@ -43,6 +43,11 @@ Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside o
      |
    1 | @test
      | ^^^^^
+Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on transitions.
+    --> compiler-test:1:1
+     |
+   1 | @test
+     | ^^^^^
 Error [ETYC0372129]: Invalid annotation: Duplicate annotation @test.
     --> compiler-test:28:1
      |
@@ -53,13 +58,23 @@ Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside o
      |
   28 | @test
      | ^^^^^
+Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on transitions.
+    --> compiler-test:28:1
+     |
+  28 | @test
+     | ^^^^^
 Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
     --> compiler-test:33:1
      |
   33 | @test
      | ^^^^^
-Error [ETYC0372129]: Invalid annotation: A test procedure cannot have inputs.
-    --> compiler-test:34:13
+Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on transitions.
+    --> compiler-test:33:1
      |
-  34 | script foo8(x: u8) -> u8 {
-     |             ^^^^^
+  33 | @test
+     | ^^^^^
+Error [ETYC0372129]: Invalid annotation: A test procedure cannot have inputs.
+    --> compiler-test:34:9
+     |
+  34 | fn foo8(x: u8) -> u8 {
+     |         ^^^^^

@@ -3,7 +3,7 @@ Error [EPAR0370047]: expected `import`, `program`, or module item at top level
      |
    2 | stub credits.aleo {
      | ^^^^
-Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script' -- found 'import'
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found 'import'
     --> test:7:5
      |
    7 |     import hello.aleo;
