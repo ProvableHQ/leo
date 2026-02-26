@@ -37,13 +37,7 @@ pub use debug::LeoDebug;
 
 mod deploy;
 pub use deploy::LeoDeploy;
-use deploy::{
-    Task,
-    calculate_function_costs,
-    compute_deployment_stats,
-    print_deployment_plan,
-    print_deployment_summary,
-};
+use deploy::{Task, compute_deployment_stats, print_deployment_plan, print_deployment_summary};
 
 mod devnet;
 pub use devnet::LeoDevnet;

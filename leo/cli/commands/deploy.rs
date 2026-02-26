@@ -328,91 +328,18 @@ Once it is deployed, it CANNOT be changed.
             println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
             let (transaction, stats) = if command.skip_deploy_certificate {
                 println!("⚠️  Skipping deployment certificate and verifier key generation as per user request.\n");
-                assert!(!program.functions().is_empty(), "Program `{}` has no functions", program.id());
-                // Initialize a vector for the placeholder  verifying keys and certificates.
-                let mut verifying_keys = Vec::with_capacity(program.functions().len());
-                for function_name in program.functions().keys() {
-                    let (verifying_key, certificate) = {
-                        // Use a placeholder verifying key.
-                        let verifying_key = VerifyingKey::from_str(
-                            "verifier1qygqqqqqqqqqqqyvxgqqqqqqqqq87vsqqqqqqqqqhe7sqqqqqqqqqma4qqqqqqqqqq65yqqqqqqqqqqvqqqqqqqqqqqgtlaj49fmrk2d8slmselaj9tpucgxv6awu6yu4pfcn5xa0yy0tpxpc8wemasjvvxr9248vt3509vpk3u60ejyfd9xtvjmudpp7ljq2csk4yqz70ug3x8xp3xn3ul0yrrw0mvd2g8ju7rts50u3smue03gp99j88f0ky8h6fjlpvh58rmxv53mldmgrxa3fq6spsh8gt5whvsyu2rk4a2wmeyrgvvdf29pwp02srktxnvht3k6ff094usjtllggva2ym75xc4lzuqu9xx8ylfkm3qc7lf7ktk9uu9du5raukh828dzgq26hrarq5ajjl7pz7zk924kekjrp92r6jh9dpp05mxtuffwlmvew84dvnqrkre7lw29mkdzgdxwe7q8z0vnkv2vwwdraekw2va3plu7rkxhtnkuxvce0qkgxcxn5mtg9q2c3vxdf2r7jjse2g68dgvyh85q4mzfnvn07lletrpty3vypus00gfu9m47rzay4mh5w9f03z9zgzgzhkv0mupdqsk8naljqm9tc2qqzhf6yp3mnv2ey89xk7sw9pslzzlkndfd2upzmew4e4vnrkr556kexs9qrykkuhsr260mnrgh7uv0sp2meky0keeukaxgjdsnmy77kl48g3swcvqdjm50ejzr7x04vy7hn7anhd0xeetclxunnl7pd6e52qxdlr3nmutz4zr8f2xqa57a2zkl59a28w842cj4783zpy9hxw03k6vz4a3uu7sm072uqknpxjk8fyq4vxtqd08kd93c2mt40lj9ag35nm4rwcfjayejk57m9qqu83qnkrj3sz90pw808srmf705n2yu6gvqazpvu2mwm8x6mgtlsntxfhr0qas43rqxnccft36z4ygty86390t7vrt08derz8368z8ekn3yywxgp4uq24gm6e58tpp0lcvtpsm3nkwpnmzztx4qvkaf6vk38wg787h8mfpqqqqqqqqqqt49m8x",
-                        )?;
-                        // Use a placeholder certificate.
-                        let certificate = Certificate::from_str(
-                            "certificate1qyqsqqqqqqqqqqxvwszp09v860w62s2l4g6eqf0kzppyax5we36957ywqm2dplzwvvlqg0kwlnmhzfatnax7uaqt7yqqqw0sc4u",
-                        )?;
-
-                        (verifying_key, certificate)
-                    };
-                    verifying_keys.push((*function_name, (verifying_key, certificate)));
-                }
-                // Create the deployment.
-                let mut deployment =
-                    Deployment::new(edition.unwrap_or(0), program.clone(), verifying_keys, None, None).unwrap();
-
-                // Set the program owner.
-                deployment.set_program_owner_raw(Some(Address::try_from(&private_key)?));
-
-                // Compute the checksum of the deployment.
-                deployment.set_program_checksum_raw(Some(deployment.program().to_checksum()));
-
-                // Compute the deployment ID.
-                let deployment_id = deployment.to_deployment_id()?;
-
-                // Construct the owner.
-                let owner = ProgramOwner::new(&private_key, deployment_id, rng)?;
-
-                // Construct the fee authorization and capture cost breakdown.
-                let (minimum_deployment_cost, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
-                    deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
-                // Authorize the fee.
-                let fee_authorization = match record {
-                    Some(record) => vm.process().read().authorize_fee_private::<A, _>(
-                        &private_key,
-                        record,
-                        minimum_deployment_cost,
-                        priority_fee.unwrap_or(0),
-                        deployment_id,
-                        rng,
-                    )?,
-                    None => vm.process().read().authorize_fee_public::<A, _>(
-                        &private_key,
-                        minimum_deployment_cost,
-                        priority_fee.unwrap_or(0),
-                        deployment_id,
-                        rng,
-                    )?,
-                };
-
-                // Get the state root.
-                let state_root = query.current_state_root()?;
-
-                // Create a fee transition without a proof.
-                let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
-
-                // Add the program to the VM before calculating function costs.
-                vm.process().write().add_program(&program)?;
-                // Compute the deployment stats (circuit fields are None since VKs are placeholders).
-                let priority = priority_fee.unwrap_or(0);
-                let function_costs = calculate_function_costs(&vm, &deployment, consensus_version, rng)?;
-                let stats = DeploymentStats {
-                    program_size_bytes: bytecode_size,
-                    max_program_size_bytes: N::MAX_PROGRAM_SIZE,
-                    total_variables: None,
-                    total_constraints: None,
-                    max_variables: None,
-                    max_constraints: None,
-                    storage_cost,
-                    synthesis_cost,
-                    namespace_cost,
-                    constructor_cost,
-                    priority_fee: priority,
-                    total_cost: storage_cost + synthesis_cost + namespace_cost + constructor_cost + priority,
-                    function_costs,
-                };
-                // Create the transaction.
-                let transaction = Transaction::from_deployment(owner, deployment, fee)?;
-                (transaction, stats)
+                deploy_with_placeholder_certificate::<N, A, _>(
+                    &vm,
+                    &private_key,
+                    &program,
+                    edition.unwrap_or(0),
+                    record,
+                    priority_fee,
+                    bytecode_size,
+                    consensus_version,
+                    &query,
+                    rng,
+                )?
             } else {
                 // Generate the transaction.
                 let transaction = vm
@@ -762,6 +689,105 @@ pub(crate) fn compute_deployment_stats<N: Network, R: Rng + CryptoRng>(
         total_cost: storage_cost + synthesis_cost + namespace_cost + constructor_cost + priority,
         function_costs,
     })
+}
+
+/// Create a deployment transaction using placeholder verifying keys and certificates.
+///
+/// Used when `--skip-deploy-certificate` is passed. The caller is responsible for printing
+/// the appropriate warning message and computing the edition to use.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = N>, R: Rng + CryptoRng>(
+    vm: &VM<N, ConsensusMemory<N>>,
+    private_key: &PrivateKey<N>,
+    program: &Program<N>,
+    edition: u16,
+    record: Option<Record<N, Plaintext<N>>>,
+    priority_fee: Option<u64>,
+    bytecode_size: usize,
+    consensus_version: ConsensusVersion,
+    query: &SnarkVMQuery<N, BlockMemory<N>>,
+    rng: &mut R,
+) -> Result<(Transaction<N>, DeploymentStats)> {
+    assert!(!program.functions().is_empty(), "Program `{}` has no functions", program.id());
+    // Initialize a vector for the placeholder verifying keys and certificates.
+    let mut verifying_keys = Vec::with_capacity(program.functions().len());
+    for function_name in program.functions().keys() {
+        // Use a placeholder verifying key.
+        let verifying_key = VerifyingKey::from_str(
+            "verifier1qygqqqqqqqqqqqyvxgqqqqqqqqq87vsqqqqqqqqqhe7sqqqqqqqqqma4qqqqqqqqqq65yqqqqqqqqqqvqqqqqqqqqqqgtlaj49fmrk2d8slmselaj9tpucgxv6awu6yu4pfcn5xa0yy0tpxpc8wemasjvvxr9248vt3509vpk3u60ejyfd9xtvjmudpp7ljq2csk4yqz70ug3x8xp3xn3ul0yrrw0mvd2g8ju7rts50u3smue03gp99j88f0ky8h6fjlpvh58rmxv53mldmgrxa3fq6spsh8gt5whvsyu2rk4a2wmeyrgvvdf29pwp02srktxnvht3k6ff094usjtllggva2ym75xc4lzuqu9xx8ylfkm3qc7lf7ktk9uu9du5raukh828dzgq26hrarq5ajjl7pz7zk924kekjrp92r6jh9dpp05mxtuffwlmvew84dvnqrkre7lw29mkdzgdxwe7q8z0vnkv2vwwdraekw2va3plu7rkxhtnkuxvce0qkgxcxn5mtg9q2c3vxdf2r7jjse2g68dgvyh85q4mzfnvn07lletrpty3vypus00gfu9m47rzay4mh5w9f03z9zgzgzhkv0mupdqsk8naljqm9tc2qqzhf6yp3mnv2ey89xk7sw9pslzzlkndfd2upzmew4e4vnrkr556kexs9qrykkuhsr260mnrgh7uv0sp2meky0keeukaxgjdsnmy77kl48g3swcvqdjm50ejzr7x04vy7hn7anhd0xeetclxunnl7pd6e52qxdlr3nmutz4zr8f2xqa57a2zkl59a28w842cj4783zpy9hxw03k6vz4a3uu7sm072uqknpxjk8fyq4vxtqd08kd93c2mt40lj9ag35nm4rwcfjayejk57m9qqu83qnkrj3sz90pw808srmf705n2yu6gvqazpvu2mwm8x6mgtlsntxfhr0qas43rqxnccft36z4ygty86390t7vrt08derz8368z8ekn3yywxgp4uq24gm6e58tpp0lcvtpsm3nkwpnmzztx4qvkaf6vk38wg787h8mfpqqqqqqqqqqt49m8x",
+        )?;
+        // Use a placeholder certificate.
+        let certificate = Certificate::from_str(
+            "certificate1qyqsqqqqqqqqqqxvwszp09v860w62s2l4g6eqf0kzppyax5we36957ywqm2dplzwvvlqg0kwlnmhzfatnax7uaqt7yqqqw0sc4u",
+        )?;
+        verifying_keys.push((*function_name, (verifying_key, certificate)));
+    }
+    // Create the deployment.
+    let mut deployment = Deployment::new(edition, program.clone(), verifying_keys, None, None).unwrap();
+
+    // Set the program owner.
+    deployment.set_program_owner_raw(Some(Address::try_from(private_key)?));
+
+    // Compute the checksum of the deployment.
+    deployment.set_program_checksum_raw(Some(deployment.program().to_checksum()));
+
+    // Compute the deployment ID.
+    let deployment_id = deployment.to_deployment_id()?;
+
+    // Construct the owner.
+    let owner = ProgramOwner::new(private_key, deployment_id, rng)?;
+
+    // Construct the fee authorization and capture cost breakdown.
+    let (minimum_deployment_cost, (storage_cost, synthesis_cost, constructor_cost, namespace_cost)) =
+        deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
+    // Authorize the fee.
+    let fee_authorization = match record {
+        Some(record) => vm.process().read().authorize_fee_private::<A, _>(
+            private_key,
+            record,
+            minimum_deployment_cost,
+            priority_fee.unwrap_or(0),
+            deployment_id,
+            rng,
+        )?,
+        None => vm.process().read().authorize_fee_public::<A, _>(
+            private_key,
+            minimum_deployment_cost,
+            priority_fee.unwrap_or(0),
+            deployment_id,
+            rng,
+        )?,
+    };
+
+    // Get the state root.
+    let state_root = query.current_state_root()?;
+
+    // Create a fee transition without a proof.
+    let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
+
+    // Add the program to the VM before calculating function costs.
+    vm.process().write().add_program(program)?;
+    // Compute the deployment stats (circuit fields are None since VKs are placeholders).
+    let priority = priority_fee.unwrap_or(0);
+    let function_costs = calculate_function_costs(vm, &deployment, consensus_version, rng)?;
+    let stats = DeploymentStats {
+        program_size_bytes: bytecode_size,
+        max_program_size_bytes: N::MAX_PROGRAM_SIZE,
+        total_variables: None,
+        total_constraints: None,
+        max_variables: None,
+        max_constraints: None,
+        storage_cost,
+        synthesis_cost,
+        namespace_cost,
+        constructor_cost,
+        priority_fee: priority,
+        total_cost: storage_cost + synthesis_cost + namespace_cost + constructor_cost + priority,
+        function_costs,
+    };
+    // Create the transaction.
+    let transaction = Transaction::from_deployment(owner, deployment, fee)?;
+    Ok((transaction, stats))
 }
 
 /// Pretty-print deployment summary, including per-function costs.

@@ -21,7 +21,18 @@ use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
 
 use aleo_std::StorageMode;
-use snarkvm::prelude::{Execution, Fee, Itertools, Network, Program, execution_cost, execution_cost_for_authorization};
+use rand::{CryptoRng, Rng};
+use snarkvm::prelude::{
+    Authorization,
+    Execution,
+    Fee,
+    Field,
+    Itertools,
+    Network,
+    Program,
+    execution_cost,
+    execution_cost_for_authorization,
+};
 
 use clap::Parser;
 use colored::*;
@@ -372,19 +383,15 @@ fn handle_execute<A: Aleo>(
 
         // Generate the fee authorization.
         let id = authorization.to_execution_id()?;
-        let fee_authorization = match record {
-            None => {
-                vm.authorize_fee_public(&private_key, base_fee.unwrap_or(cost), priority_fee.unwrap_or(0), id, rng)?
-            }
-            Some(record) => vm.authorize_fee_private(
-                &private_key,
-                record,
-                base_fee.unwrap_or(cost),
-                priority_fee.unwrap_or(0),
-                id,
-                rng,
-            )?,
-        };
+        let fee_authorization = authorize_fee::<A, _>(
+            &vm,
+            &private_key,
+            record,
+            base_fee.unwrap_or(cost),
+            priority_fee.unwrap_or(0),
+            id,
+            rng,
+        )?;
 
         // Create a fee transition without a proof.
         let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
@@ -404,23 +411,15 @@ fn handle_execute<A: Aleo>(
         // Build fee authorization using the estimated cost.
         let fee_authorization = if is_fee_required || is_priority_fee_declared {
             let execution_id = authorization.to_execution_id()?;
-            Some(match record {
-                None => vm.authorize_fee_public(
-                    &private_key,
-                    base_fee.unwrap_or(estimated_cost),
-                    priority_fee.unwrap_or(0),
-                    execution_id,
-                    rng,
-                )?,
-                Some(record) => vm.authorize_fee_private(
-                    &private_key,
-                    record,
-                    base_fee.unwrap_or(estimated_cost),
-                    priority_fee.unwrap_or(0),
-                    execution_id,
-                    rng,
-                )?,
-            })
+            Some(authorize_fee::<A, _>(
+                &vm,
+                &private_key,
+                record,
+                base_fee.unwrap_or(estimated_cost),
+                priority_fee.unwrap_or(0),
+                execution_id,
+                rng,
+            )?)
         } else {
             None
         };
@@ -537,6 +536,23 @@ fn handle_execute<A: Aleo>(
         stats: Some(stats),
         broadcast: broadcast_stats,
     })
+}
+
+/// Authorize a fee transition using either a private record or public credits.
+fn authorize_fee<A: Aleo, R: Rng + CryptoRng>(
+    vm: &VM<A::Network, ConsensusMemory<A::Network>>,
+    private_key: &PrivateKey<A::Network>,
+    record: Option<Record<A::Network, Plaintext<A::Network>>>,
+    base_fee: u64,
+    priority_fee: u64,
+    execution_id: Field<A::Network>,
+    rng: &mut R,
+) -> Result<Authorization<A::Network>> {
+    match record {
+        None => vm.authorize_fee_public(private_key, base_fee, priority_fee, execution_id, rng),
+        Some(record) => vm.authorize_fee_private(private_key, record, base_fee, priority_fee, execution_id, rng),
+    }
+    .map_err(Into::into)
 }
 
 /// Check the execution task for warnings.
