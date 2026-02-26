@@ -18,7 +18,7 @@ trap cleanup EXIT
 $LEO_BIN --disable-update-check devnode start \
     --socket-addr "127.0.0.1:${PORT}" \
     --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH \
-    &
+    >/dev/null 2>&1 &
 PID=$!
 
 # Wait for devnode to become responsive.
@@ -40,7 +40,8 @@ echo "Leo devnode started"
 
 # Advance the ledger by 5 blocks.
 $LEO_BIN --disable-update-check devnode advance 5 \
-    --socket-addr "127.0.0.1:${PORT}"
+    --socket-addr "127.0.0.1:${PORT}" \
+    >/dev/null 2>&1
 
 # Verify the height increased.
 NEW_HEIGHT=$(curl -sf "http://127.0.0.1:${PORT}/testnet/block/height/latest")

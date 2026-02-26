@@ -288,10 +288,21 @@ impl LeoDevnet {
             println!("🧹  Cleaning ledgers …");
             let mut cleaners = Vec::new();
             for idx in 0..self.num_validators {
-                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, &storage)?);
+                cleaners.push(clean_snarkos(
+                    &snarkos,
+                    self.network as usize,
+                    idx,
+                    &storage.join(format!("node-{idx}")),
+                )?);
             }
             for idx in 0..self.num_clients {
-                cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx + self.num_validators, &storage)?);
+                let dev_idx = idx + self.num_validators;
+                cleaners.push(clean_snarkos(
+                    &snarkos,
+                    self.network as usize,
+                    dev_idx,
+                    &storage.join(format!("node-{dev_idx}")),
+                )?);
             }
             for mut c in cleaners {
                 c.wait()?;
@@ -316,6 +327,7 @@ impl LeoDevnet {
             verbosity: u8,
             network: usize,
             num_validators: usize,
+            num_nodes: usize,
             idx: usize,
             log_file: &Path,
             storage: &Path,
@@ -340,10 +352,8 @@ impl LeoDevnet {
                 log_file.to_str().unwrap().to_string(),
                 "--verbosity".to_string(),
                 verbosity.to_string(),
-                "--ledger-storage".to_string(),
-                storage.join(format!("ledger-{idx}")).to_str().unwrap().to_string(),
-                "--node-data-storage".to_string(),
-                storage.join(format!("node-data-{idx}")).to_str().unwrap().to_string(),
+                "--storage".to_string(),
+                storage.join(format!("node-{idx}")).to_str().unwrap().to_string(),
             ];
             if let Some(port) = rest_port {
                 // Port overflow is validated upfront in handle_apply.
@@ -351,9 +361,21 @@ impl LeoDevnet {
             }
             if let Some(port) = node_port {
                 base.extend(["--node".into(), format!("0.0.0.0:{}", port + idx_u16)]);
+                // In dev mode, snarkOS auto-generates --peers using default port offsets (4130+N).
+                // When custom node ports are used, we must provide --peers explicitly so nodes
+                // can discover each other at the correct addresses.
+                let peers: String =
+                    (0..num_nodes).map(|i| format!("127.0.0.1:{}", port + i as u16)).collect::<Vec<_>>().join(",");
+                base.extend(["--peers".into(), peers]);
             }
             if let Some(port) = bft_port {
                 base.extend(["--bft".into(), format!("0.0.0.0:{}", port + idx_u16)]);
+                // In dev mode, snarkOS auto-generates --validators using default BFT port offsets
+                // (5000+N). When custom BFT ports are used, provide --validators explicitly so
+                // the BFT layer can discover peers at the correct addresses.
+                let validators: String =
+                    (0..num_validators).map(|i| format!("127.0.0.1:{}", port + i as u16)).collect::<Vec<_>>().join(",");
+                base.extend(["--validators".into(), validators]);
             }
             match role {
                 "validator" => {
@@ -404,6 +426,8 @@ impl LeoDevnet {
 
             ensure!(StdCommand::new("tmux").args(args).status()?.success(), "tmux failed to create session");
 
+            let num_nodes = self.num_validators + self.num_clients;
+
             // Determine base-index.
             let base_index = {
                 let out = StdCommand::new("tmux").args(["show-option", "-gv", "base-index"]).output()?;
@@ -426,6 +450,7 @@ impl LeoDevnet {
                         self.verbosity,
                         self.network as usize,
                         self.num_validators,
+                        num_nodes,
                         idx,
                         log_file.as_path(),
                         &storage,
@@ -456,6 +481,7 @@ impl LeoDevnet {
                         self.verbosity,
                         self.network as usize,
                         self.num_validators,
+                        num_nodes,
                         dev_idx,
                         log_file.as_path(),
                         &storage,
@@ -504,6 +530,8 @@ impl LeoDevnet {
             Ok(child)
         };
 
+        let num_nodes = self.num_validators + self.num_clients;
+
         {
             // This should be safe since only the current thread will write to the manager.
             let mut guard = manager.lock();
@@ -519,6 +547,7 @@ impl LeoDevnet {
                             self.verbosity,
                             self.network as usize,
                             self.num_validators,
+                            num_nodes,
                             idx,
                             &log_file,
                             &storage,
@@ -547,6 +576,7 @@ impl LeoDevnet {
                             self.verbosity,
                             self.network as usize,
                             self.num_validators,
+                            num_nodes,
                             dev_idx,
                             &log_file,
                             &storage,
@@ -605,10 +635,16 @@ impl LeoDevnet {
         println!("🧹  Cleaning ledgers …");
         let mut cleaners = Vec::new();
         for idx in 0..self.num_validators {
-            cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, &storage)?);
+            cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, &storage.join(format!("node-{idx}")))?);
         }
         for idx in 0..self.num_clients {
-            cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx + self.num_validators, &storage)?);
+            let dev_idx = idx + self.num_validators;
+            cleaners.push(clean_snarkos(
+                &snarkos,
+                self.network as usize,
+                dev_idx,
+                &storage.join(format!("node-{dev_idx}")),
+            )?);
         }
         for mut c in cleaners {
             c.wait()?;

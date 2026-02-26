@@ -33,15 +33,16 @@ $LEO_BIN --disable-update-check devnet \
     >/dev/null 2>"$STORAGE/leo-devnet.log" &
 PID=$!
 
-# First, wait for the REST endpoint to become reachable (up to 120s).
+# First, wait for the REST endpoint to become reachable (up to 300s).
+# Genesis initialization on release builds can be slow (proof generation).
 ENDPOINT="http://127.0.0.1:${REST_PORT}/testnet/block/height/latest"
-DEADLINE=$((SECONDS + 120))
+DEADLINE=$((SECONDS + 300))
 REST_UP=false
 while [ $SECONDS -lt $DEADLINE ]; do
     if ! kill -0 "$PID" 2>/dev/null; then
         echo "Leo devnet process died during startup" >&2
-        cat "$STORAGE/leo-devnet.log" >&2
-        for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done
+        cat "$STORAGE/leo-devnet.log" >&2 || true
+        for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done || true
         echo "Leo devnet failed"
         exit 1
     fi
@@ -54,8 +55,8 @@ done
 
 if [ "$REST_UP" = false ]; then
     echo "Leo devnet REST endpoint never became reachable (PORT=$REST_PORT)" >&2
-    cat "$STORAGE/leo-devnet.log" >&2
-    for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done
+    cat "$STORAGE/leo-devnet.log" >&2 || true
+    for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done || true
     echo "Leo devnet failed"
     exit 1
 fi
@@ -78,8 +79,8 @@ done
 
 if [ "$REACHED" = false ]; then
     echo "Leo devnet did not produce blocks (PORT=$REST_PORT)" >&2
-    cat "$STORAGE/leo-devnet.log" >&2
-    for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done
+    cat "$STORAGE/leo-devnet.log" >&2 || true
+    for f in "$STORAGE"/.logs-*/*.log; do [ -f "$f" ] && echo "--- $f ---" >&2 && tail -50 "$f" >&2; done || true
     echo "Leo devnet timed out"
     exit 1
 fi
