@@ -173,12 +173,15 @@ fn run_test(test: &Test, force_rewrite: bool, port: u16) -> Option<String> {
 
     let commands_path = test_context_directory.path().join("COMMANDS");
 
+    // Allocate 12 consecutive ports in one call to avoid range overlap between
+    // the three port types (REST, node, BFT) needed by the 4-validator devnet.
+    let devnet_base = find_free_port_range(12);
     let output = Command::new(&commands_path)
         .arg(BINARY_PATH)
         .env("LEO_DEVNODE_PORT", port.to_string())
-        .env("LEO_DEVNET_REST_PORT", find_free_port_range(4).to_string())
-        .env("LEO_DEVNET_NODE_PORT", find_free_port_range(4).to_string())
-        .env("LEO_DEVNET_BFT_PORT", find_free_port_range(4).to_string())
+        .env("LEO_DEVNET_REST_PORT", devnet_base.to_string())
+        .env("LEO_DEVNET_NODE_PORT", (devnet_base + 4).to_string())
+        .env("LEO_DEVNET_BFT_PORT", (devnet_base + 8).to_string())
         .output()
         .expect("Failed to execute COMMANDS");
 
