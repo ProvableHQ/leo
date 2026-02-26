@@ -631,6 +631,8 @@ pub trait ProgramReconstructor: AstReconstructor {
             id: input.id,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_prototype(f))).collect(),
             records: input.records.into_iter().map(|(i, f)| (i, self.reconstruct_record_prototype(f))).collect(),
+            mappings: input.mappings.into_iter().map(|f| self.reconstruct_mapping(f)).collect(),
+            storages: input.storages.into_iter().map(|f| self.reconstruct_storage_variable(f)).collect(),
         }
     }
 

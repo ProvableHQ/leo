@@ -75,4 +75,44 @@ create_messages!(
         msg: format!("`{name}` is not an interface."),
         help: Some("Only interface declarations can be inherited from.".to_string()),
     }
+
+    @formatted
+    missing_interface_mapping {
+        args: (mapping_name: impl Display, interface_name: impl Display, program_name: impl Display),
+        msg: format!(
+            "Program `{program_name}` implements interface `{interface_name}` but is missing the required mapping `{mapping_name}`."
+        ),
+        help: Some("Add a mapping definition with the specified name.".to_string()),
+    }
+
+    @formatted
+    missing_interface_storage {
+        args: (storage_name: impl Display, interface_name: impl Display, program_name: impl Display),
+        msg: format!(
+            "Program `{program_name}` implements interface `{interface_name}` but is missing the required storage variable `{storage_name}`."
+        ),
+        help: Some("Add a storage variable definition with the specified name.".to_string()),
+    }
+
+    @formatted
+    mapping_type_mismatch {
+        args: (mapping_name: impl Display, interface_name: impl Display, expected_key: impl Display, expected_value: impl Display, found_key: impl Display, found_value: impl Display),
+        msg: format!(
+            "Mapping `{mapping_name}` does not match the type required by interface `{interface_name}`.\n\
+             Expected: {expected_key} => {expected_value}\n\
+             Found: {found_key} => {found_value}"
+        ),
+        help: Some("Mapping key and value types must match exactly.".to_string()),
+    }
+
+    @formatted
+    storage_type_mismatch {
+        args: (storage_name: impl Display, interface_name: impl Display, expected: impl Display, found: impl Display),
+        msg: format!(
+            "Storage variable `{storage_name}` does not match the type required by interface `{interface_name}`.\n\
+             Expected: {expected}\n\
+             Found: {found}"
+        ),
+        help: Some("Storage variable types must match exactly.".to_string()),
+    }
 );

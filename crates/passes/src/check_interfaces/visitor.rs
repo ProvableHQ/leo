@@ -23,9 +23,11 @@ use leo_ast::{
     FunctionPrototype,
     Interface,
     Location,
+    Mapping,
     ProgramScope,
     ProgramVisitor,
     RecordPrototype,
+    StorageVariable,
     Type,
 };
 use leo_errors::CheckInterfacesError;
@@ -38,6 +40,8 @@ use indexmap::IndexMap;
 struct FlattenedInterface {
     functions: Vec<(Symbol, FunctionPrototype)>,
     records: Vec<(Symbol, RecordPrototype)>,
+    mappings: Vec<Mapping>,
+    storages: Vec<StorageVariable>,
 }
 
 pub struct CheckInterfacesVisitor<'a> {
@@ -80,8 +84,12 @@ impl<'a> CheckInterfacesVisitor<'a> {
         }
 
         // Start with the interface's own members.
-        let mut flattened =
-            FlattenedInterface { functions: interface.functions.clone(), records: interface.records.clone() };
+        let mut flattened = FlattenedInterface {
+            functions: interface.functions.clone(),
+            records: interface.records.clone(),
+            mappings: interface.mappings.clone(),
+            storages: interface.storages.clone(),
+        };
 
         // Merge members from all parent interfaces (supports multiple inheritance).
         for (parent_span, parent_type) in &interface.parents {
@@ -116,6 +124,52 @@ impl<'a> CheckInterfacesVisitor<'a> {
             for (name, parent_record) in &parent_flattened.records {
                 if !flattened.records.iter().any(|(n, _)| n == name) {
                     flattened.records.push((*name, parent_record.clone()));
+                }
+            }
+
+            // Merge parent mappings, checking for conflicts.
+            for parent_mapping in &parent_flattened.mappings {
+                if let Some(existing_mapping) =
+                    flattened.mappings.iter().find(|m| m.identifier.name == parent_mapping.identifier.name)
+                {
+                    // Same name exists - check if types are compatible.
+                    if !existing_mapping.key_type.eq_user(&parent_mapping.key_type)
+                        || !existing_mapping.value_type.eq_user(&parent_mapping.value_type)
+                    {
+                        self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
+                            parent_mapping.identifier.name,
+                            interface.identifier.name,
+                            parent_interface.identifier.name,
+                            interface.span,
+                        ));
+                        return None;
+                    }
+                    // Compatible - no action needed, child's version takes precedence.
+                } else {
+                    // Add parent's mapping.
+                    flattened.mappings.push(parent_mapping.clone());
+                }
+            }
+
+            // Merge parent storages, checking for conflicts.
+            for parent_storage in &parent_flattened.storages {
+                if let Some(existing_storage) =
+                    flattened.storages.iter().find(|s| s.identifier.name == parent_storage.identifier.name)
+                {
+                    // Same name exists - check if types are compatible.
+                    if !existing_storage.type_.eq_user(&parent_storage.type_) {
+                        self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
+                            parent_storage.identifier.name,
+                            interface.identifier.name,
+                            parent_interface.identifier.name,
+                            interface.span,
+                        ));
+                        return None;
+                    }
+                    // Compatible - no action needed, child's version takes precedence.
+                } else {
+                    // Add parent's storage.
+                    flattened.storages.push(parent_storage.clone());
                 }
             }
         }
@@ -182,6 +236,64 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     program_name,
                     program_scope.span,
                 ));
+            }
+        }
+
+        // Check all required mappings are declared with correct types.
+        for required_mapping in &flattened.mappings {
+            let mapping_name = required_mapping.identifier.name;
+            match program_scope.mappings.iter().find(|(name, _)| *name == mapping_name) {
+                Some((_, program_mapping)) => {
+                    // Mapping exists - check types match.
+                    if !program_mapping.key_type.eq_user(&required_mapping.key_type)
+                        || !program_mapping.value_type.eq_user(&required_mapping.value_type)
+                    {
+                        self.state.handler.emit_err(CheckInterfacesError::mapping_type_mismatch(
+                            mapping_name,
+                            interface.identifier,
+                            &required_mapping.key_type,
+                            &required_mapping.value_type,
+                            &program_mapping.key_type,
+                            &program_mapping.value_type,
+                            program_mapping.span,
+                        ));
+                    }
+                }
+                None => {
+                    self.state.handler.emit_err(CheckInterfacesError::missing_interface_mapping(
+                        mapping_name,
+                        interface.identifier,
+                        program_name,
+                        program_scope.span,
+                    ));
+                }
+            }
+        }
+
+        // Check all required storage variables are declared with correct types.
+        for required_storage in &flattened.storages {
+            let storage_name = required_storage.identifier.name;
+            match program_scope.storage_variables.iter().find(|(name, _)| *name == storage_name) {
+                Some((_, program_storage)) => {
+                    // Storage exists - check type matches.
+                    if !program_storage.type_.eq_user(&required_storage.type_) {
+                        self.state.handler.emit_err(CheckInterfacesError::storage_type_mismatch(
+                            storage_name,
+                            interface.identifier,
+                            &required_storage.type_,
+                            &program_storage.type_,
+                            program_storage.span,
+                        ));
+                    }
+                }
+                None => {
+                    self.state.handler.emit_err(CheckInterfacesError::missing_interface_storage(
+                        storage_name,
+                        interface.identifier,
+                        program_name,
+                        program_scope.span,
+                    ));
+                }
             }
         }
     }

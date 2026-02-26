@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID, Type, indent_display::Indent};
+use crate::{Identifier, Mapping, Node, NodeID, StorageVariable, Type, indent_display::Indent};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -38,6 +38,10 @@ pub struct Interface {
     pub functions: Vec<(Symbol, FunctionPrototype)>,
     /// A vector of record prototypes.
     pub records: Vec<(Symbol, RecordPrototype)>,
+    /// A vector of mapping declarations.
+    pub mappings: Vec<Mapping>,
+    /// A vector of storage declarations.
+    pub storages: Vec<StorageVariable>,
 }
 
 impl Interface {

@@ -725,6 +725,14 @@ impl Parser<'_, '_> {
                 self.parse_record_prototype();
                 true
             }
+            KW_MAPPING => {
+                self.parse_mapping_def();
+                true
+            }
+            KW_STORAGE => {
+                self.parse_storage_def();
+                true
+            }
             _ => false,
         }
     }

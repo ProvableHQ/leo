@@ -2305,6 +2305,8 @@ impl<'a> ConversionContext<'a> {
 
         let mut functions = Vec::new();
         let mut records = Vec::new();
+        let mut mappings = Vec::new();
+        let mut storages = Vec::new();
 
         for child in children(node) {
             match child.kind() {
@@ -2316,11 +2318,28 @@ impl<'a> ConversionContext<'a> {
                     let proto = self.to_record_prototype(&child)?;
                     records.push((proto.identifier.name, proto));
                 }
+                MAPPING_DEF => {
+                    let mapping = self.to_mapping(&child)?;
+                    mappings.push(mapping);
+                }
+                STORAGE_DEF => {
+                    let storage = self.to_storage(&child)?;
+                    storages.push(storage);
+                }
                 _ => {}
             }
         }
 
-        Ok(leo_ast::Interface { identifier, parents, span, id: self.builder.next_id(), functions, records })
+        Ok(leo_ast::Interface {
+            identifier,
+            parents,
+            span,
+            id: self.builder.next_id(),
+            functions,
+            records,
+            mappings,
+            storages,
+        })
     }
 
     /// Convert an FN_PROTOTYPE_DEF node to a FunctionPrototype.
