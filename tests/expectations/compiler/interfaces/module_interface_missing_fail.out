@@ -1,0 +1,7 @@
+Error [ECHI03712000]: Interface `test.aleo/interfaces::Counter` not found.
+    --> compiler-test:1:21
+     |
+   1 | program test.aleo : interfaces::Counter {
+     |                     ^^^^^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.

@@ -1,0 +1,4 @@
+program test.aleo;
+
+function increment:
+    output 1u64 as u64.private;

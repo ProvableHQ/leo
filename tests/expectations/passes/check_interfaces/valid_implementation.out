@@ -1,0 +1,9 @@
+program test.aleo {
+    fn increment(amount: u64) -> u64 {
+        return amount + 1u64;
+    }
+    fn main(x: u64) -> u64 {
+        return test.aleo/increment(x);
+    }
+}
+
