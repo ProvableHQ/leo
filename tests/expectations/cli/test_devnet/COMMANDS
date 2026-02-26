@@ -61,7 +61,7 @@ if [ "$REST_UP" = false ]; then
     exit 1
 fi
 
-# Then wait for at least 1 block to be produced (confirms consensus is working).
+# Then wait for at least 5 blocks to be produced (confirms sustained consensus is working).
 DEADLINE=$((SECONDS + 180))
 REACHED=false
 while [ $SECONDS -lt $DEADLINE ]; do
@@ -70,7 +70,7 @@ while [ $SECONDS -lt $DEADLINE ]; do
         echo "Leo devnet failed"
         exit 1
     fi
-    if HEIGHT=$(curl -sf "$ENDPOINT") && [ "$HEIGHT" -ge 1 ] 2>/dev/null; then
+    if HEIGHT=$(curl -sf "$ENDPOINT") && [ "$HEIGHT" -ge 5 ] 2>/dev/null; then
         REACHED=true
         break
     fi
