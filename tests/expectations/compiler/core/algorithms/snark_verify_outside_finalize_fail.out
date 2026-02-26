@@ -1,9 +1,9 @@
-Error [ETYC0372067]: This operation can only be used in an async function, an async block, or script.
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
     --> compiler-test:8:16
      |
    8 |         return Snark::verify(vk, v, inputs, proof);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Snark::verify` must be inside an async function or an async block.
+Error [ETYC0372034]: `Snark::verify` must be inside a `final fn` or a `final` block.
     --> compiler-test:8:16
      |
    8 |         return Snark::verify(vk, v, inputs, proof);
