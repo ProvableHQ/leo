@@ -1,0 +1,17 @@
+Error [ECHI03712002]: Program `test` implements interface `Resettable` but is missing the required function `reset`.
+    --> compiler-test:9:1
+     |
+   9 | program test.aleo : Counter + Resettable {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  10 |     fn increment() -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^
+  11 |         return 1u64;
+     |         ^^^^^^^^^^^^
+  12 |     }
+     |     ^
+  13 |     // Missing reset from Resettable
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 | }
+     | ^
+     |
+     = Add the missing function with the exact signature specified in the interface.

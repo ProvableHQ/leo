@@ -117,9 +117,7 @@ commands:
           name: Build
           no_output_timeout: 30m
           command: |
-            <<^ parameters.is_windows >>
-            ulimit -n 65536 2>/dev/null || true
-            <</ parameters.is_windows >>
+            ulimit -n 65536
             cargo-mtime . ~/.cache/mtimes/project.db
             cargo nextest run --no-run --all --locked --cargo-profile ci --features only_testnet
 
@@ -128,9 +126,7 @@ commands:
           no_output_timeout: 30m
           # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
-            <<^ parameters.is_windows >>
-            ulimit -n 65536 2>/dev/null || true
-            <</ parameters.is_windows >>
+            ulimit -n 65536
             cargo-mtime . ~/.cache/mtimes/project.db
             cargo nextest run --all --locked --cargo-profile ci --features only_testnet --verbose
 
@@ -285,7 +281,7 @@ jobs:
       - run:
           name: Build and install Leo
           no_output_timeout: 30m
-          command: cargo install --path . --root . --locked
+          command: cargo install --path crates/leo --root . --locked
       - persist_to_workspace:
           root: ~/
           paths:

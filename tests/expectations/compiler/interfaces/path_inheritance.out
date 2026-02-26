@@ -1,0 +1,21 @@
+program lib.aleo;
+
+function unused:
+// --- Next Program --- //
+import lib.aleo;
+program test.aleo;
+
+function do_something:
+    output 1u64 as u64.private;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712000]: Interface `lib.aleo/MyInterface` not found.
+    --> compiler-test:5:21
+     |
+   5 | program test.aleo : lib.aleo/MyInterface {
+     |                     ^^^^^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.

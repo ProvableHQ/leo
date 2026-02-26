@@ -7,3 +7,5 @@ ${LEO_BIN} --disable-update-check add --network credits.aleo
 ${LEO_BIN} --disable-update-check build
 
 ${LEO_BIN} --disable-update-check execute main 1u32 2u32 --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH --yes --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12
+
+${LEO_BIN} --disable-update-check execute main 1u32 2u32 --network testnet --endpoint https://api.explorer.provable.com/v1 --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH --yes

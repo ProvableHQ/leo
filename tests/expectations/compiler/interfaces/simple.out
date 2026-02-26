@@ -1,0 +1,9 @@
+program scratch.aleo;
+
+record Foo:
+    owner as address.private;
+    num as u32.private;
+
+function foobar:
+    cast self.signer 42u32 into r0 as Foo.record;
+    output r0 as Foo.record;

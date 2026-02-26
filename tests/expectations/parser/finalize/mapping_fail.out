@@ -13,7 +13,7 @@ Error [EPAR0370005]: expected ')' -- found '=>'
      |
    7 |     mapping foo: (bar => baz);
      |                       ^^
-Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script' -- found ')'
+Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found ')'
     --> test:7:29
      |
    7 |     mapping foo: (bar => baz);

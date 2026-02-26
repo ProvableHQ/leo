@@ -1,0 +1,34 @@
+[package]
+name = "leo-ast"
+version = "3.4.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "Abstract syntax tree (AST) for the Leo programming language"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+[features]
+default = [ ]
+ci_skip = [ ]
+
+[dependencies]
+# leo dependencies
+leo-errors      = { workspace = true }
+leo-span        = { workspace = true }
+# third party dependencies
+anyhow          = { workspace = true }
+indexmap        = { workspace = true }
+itertools       = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
+snarkvm         = { workspace = true }

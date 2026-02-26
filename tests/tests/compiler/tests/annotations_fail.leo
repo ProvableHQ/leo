@@ -1,5 +1,5 @@
 @test
-script foo2() {
+fn foo2() {
 }
 
 program test.aleo {
@@ -27,10 +27,10 @@ program test.aleo {
 
 @test
 @test
-script foo7() {
+fn foo7() {
 }
 
 @test
-script foo8(x: u8) -> u8 {
+fn foo8(x: u8) -> u8 {
     return x;
 }
