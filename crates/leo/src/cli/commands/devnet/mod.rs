@@ -349,11 +349,11 @@ impl LeoDevnet {
                 "--rest-rps".to_string(),
                 REST_RPS.to_string(),
                 "--logfile".to_string(),
-                log_file.to_str().unwrap().to_string(),
+                log_file.to_str().expect("log path is valid UTF-8").to_string(),
                 "--verbosity".to_string(),
                 verbosity.to_string(),
                 "--storage".to_string(),
-                storage.join(format!("node-{idx}")).to_str().unwrap().to_string(),
+                storage.join(format!("node-{idx}")).to_str().expect("storage path is valid UTF-8").to_string(),
             ];
             if let Some(port) = rest_port {
                 // Port overflow is validated upfront in handle_apply.
@@ -668,7 +668,10 @@ impl LeoDevnet {
     /// Validate that `base_port + count` doesn't overflow u16.
     fn validate_port_range(flag: &str, base: Option<u16>, count: usize) -> AnyhowResult<()> {
         if let Some(port) = base {
-            let max_idx = count.saturating_sub(1) as u16;
+            if count == 0 {
+                return Ok(());
+            }
+            let max_idx = (count - 1) as u16;
             if port.checked_add(max_idx).is_none() {
                 bail!("{flag} {port} + {max_idx} nodes exceeds the maximum port number (65535).");
             }
