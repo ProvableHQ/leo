@@ -26,9 +26,9 @@ Leo is an imperative, statically-typed programming language built for writing pr
 * [🍎 Overview](#-overview)
 * [⚙️️ Build Guide](#-build-guide)
     * [🦀 Install Rust](#-install-rust)
+    * [📦 Download using Cargo](#-download-using-cargo)
     * [🐙 Build from Source Code](#-build-from-source-code)
     * [🦁 Update from Leo](#-update-from-leo)
-    * [📦 Download using Cargo](#-download-using-cargo)
 * [🚀 Quick Start](#-quick-start)
 * [🧰 Troubleshooting](#-troubleshooting)
 * [📖 Documentation](#-documentation)
@@ -68,7 +68,7 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
   
   Download the [Windows 32-bit executable](https://win.rustup.rs/i686) and follow the on-screen instructions.
 
-### 🐙 Simple build
+### 📦 Download using Cargo
 
 If you don't intend to work on the Leo compiler itself, you can install the latest Leo release with:
 
@@ -83,7 +83,7 @@ leo
 
 ### 🐙 Build from Source Code
 
-If you'd like to install the latest unreleased top of tree Leo, you can buid from source code
+If you'd like to install the latest unreleased top of tree Leo, you can build from source code
 as follows:
 
 ```bash
