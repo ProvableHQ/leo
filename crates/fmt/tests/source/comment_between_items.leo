@@ -1,4 +1,5 @@
         // File-level comment about this program
+program test.aleo{
     // A struct
         struct  Point{
         x  :  u64,
@@ -6,13 +7,13 @@
     }
 
 
-            // A function that uses the struct
+            // A fn that uses the struct
     fn  make_point(  x  :  u64  ,  y  :  u64  )  ->  Point  {
                 return  Point{  x  :  x  ,  y  :  y  };   // construct it
     }
 
 
-            // Another function
+            // Another fn
                 // with a multi-line comment
     fn  add(  a  :  u64  ,  b  :  u64  )  ->  u64  {
 let result  :u64=  a  +  b  ;    // do the add
@@ -21,8 +22,7 @@ let result  :u64=  a  +  b  ;    // do the add
         return  result  ;
     }
 
-program test.aleo{
-    // A transition too
+    // A fn too
         fn  check(  a  :  u64  ,  b:u64  )  ->  bool  {
                     let  x  :  bool  =  a  >=  b  ;
             return  x  ;     // done

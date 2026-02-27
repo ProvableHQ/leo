@@ -110,23 +110,27 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .allow_headers([CONTENT_TYPE]);
 
         // Prepare the rate limiting setup.
-        let governor_config = Box::new(
-            GovernorConfigBuilder::default()
-                .per_nanosecond((1_000_000_000 / rest_rps) as u64)
-                .burst_size(rest_rps)
-                .error_handler(|error| {
-                    // Properly return a 429 Too Many Requests error
-                    let error_message = error.to_string();
-                    let mut response = Response::new(error_message.clone().into());
-                    *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
-                    if error_message.contains("Too Many Requests") {
-                        *response.status_mut() = StatusCode::TOO_MANY_REQUESTS;
-                    }
-                    response
-                })
-                .finish()
-                .expect("Couldn't set up rate limiting for the REST server!"),
-        );
+        let governor_config = GovernorConfigBuilder::default()
+            .per_nanosecond((1_000_000_000 / rest_rps) as u64)
+            .burst_size(rest_rps)
+            .finish()
+            .expect("Couldn't set up rate limiting for the REST server!");
+
+        let governor_layer =
+            GovernorLayer::new(governor_config).error_handler(|error: tower_governor::errors::GovernorError| {
+                // Properly return a 429 Too Many Requests error
+                let error_message = error.to_string();
+
+                let mut response = axum::response::Response::new(error_message.clone().into());
+
+                *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
+
+                if error_message.contains("Too Many Requests") {
+                    *response.status_mut() = StatusCode::TOO_MANY_REQUESTS;
+                }
+
+                response
+            });
 
         let routes = axum::Router::new()
             // Get ../consensus_version
@@ -184,9 +188,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .layer(cors)
             // Cap the request body size at 512KiB.
             .layer(DefaultBodyLimit::max(512 * 1024))
-            .layer(GovernorLayer {
-                config: governor_config.into(),
-            })
+            .layer(governor_layer)
     }
 
     async fn spawn_server(&mut self, rest_ip: SocketAddr, rest_rps: u32) -> Result<()> {

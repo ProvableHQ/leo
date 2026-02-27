@@ -8,6 +8,14 @@ Diff in SOURCE_DIRECTORY/main.leo:1:
 +    y: u64,
 +    z: u64,
  }
+-
+-program ugly_program.aleo{
+ 
+-fn add(  public a :u32,b:    u32  )->u32{
+-let c :u32=a   +b;
+-          let d:u32 =  c *   2u32 ;
+-    return d ;
+-}
 +program ugly_program.aleo {
 +    fn add(public a: u32, b: u32) -> u32 {
 +        let c: u32 = a + b;
@@ -15,17 +23,9 @@ Diff in SOURCE_DIRECTORY/main.leo:1:
 +        return d;
 +    }
  
--program ugly_program.aleo{
+-     mapping balances: address=>u64;
 +    mapping balances: address => u64;
  
--fn add(  public a :u32,b:    u32  )->u32{
--let c :u32=a   +b;
--          let d:u32 =  c *   2u32 ;
--    return d ;
--}
--
--     mapping balances: address=>u64;
--
 -  @noupgrade
 -    constructor(  ){}
 +    @noupgrade
