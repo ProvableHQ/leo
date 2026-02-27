@@ -13,18 +13,20 @@
 Leo is a compiler for the Aleo blockchain. Code flows through:
 
 ```
-Source (.leo) -> Lexer (logos) -> Parser (LALRPOP) -> AST -> Passes -> Aleo Instructions
+Source (.leo) -> Lexer (logos) -> Rowan Parse Tree -> AST -> Passes -> Aleo Bytecode
 ```
 
 **Crate dependencies:**
-- `leo-span` - no deps, provides Span/source locations
+- `leo-span` - provides Span/source locations (has third-party deps: fxhash, indexmap, serde)
 - `leo-errors` - depends on span, all error types
 - `leo-ast` - depends on span/errors, all AST nodes
-- `leo-parser-lossless` - lexer (logos) + LALRPOP parser
-- `leo-parser` - converts lossless parse tree to AST
-- `leo-passes` - ~30 compiler passes (validation, optimization, codegen)
+- `leo-parser-rowan` - lexer (logos) + rowan-based parser; grammar defined in `grammar.rs`
+- `leo-parser` - converts rowan parse tree to typed AST
+- `leo-passes` - ~25 compiler passes (validation, optimization, codegen)
 - `leo-compiler` - orchestrates parsing and passes
-- `leo-interpreter` - runtime evaluation and debugging
+- `leo-abi` / `leo-abi-types` - ABI generation for compiled programs
+- `leo-fmt` - Leo source formatter (uses `leo-parser-rowan`)
+- `leo-disassembler` - Aleo bytecode disassembler
 - `leo-package` - project structure parsing
 - `leo-test-framework` - test harness for .leo files
 
@@ -36,9 +38,9 @@ Source (.leo) -> Lexer (logos) -> Parser (LALRPOP) -> AST -> Passes -> Aleo Inst
 - Use `IndexMap` (not HashMap) for deterministic ordering.
 - Large enum variants must be boxed.
 
-**parser / parser-lossless**
-- `parser-lossless` uses LALRPOP grammar in `leo.lalrpop`.
-- `parser` converts lossless parse tree to typed AST.
+**parser / parser-rowan**
+- `parser-rowan` uses a rowan-based grammar defined in `grammar.rs` with logos for lexing.
+- `parser` converts the rowan parse tree to a typed AST.
 - Parser tests use expectation files in `tests/expectations/parser/`.
 
 **passes**
@@ -49,7 +51,7 @@ Source (.leo) -> Lexer (logos) -> Parser (LALRPOP) -> AST -> Passes -> Aleo Inst
 
 **errors**
 - All errors use macros in `leo-errors/src/common/macros.rs`.
-- Error codes: 037-prefixed + category + number (e.g., PAR 0-999, AST 2000-2999, CMP 6000-6999).
+- Error codes: format `E{PREFIX}037{CODE}` (e.g., `EPAR0370042` for parser error 42; categories: PAR 0-999, AST 2000-2999, CMP 6000-6999).
 - Use `Result<T>` from `leo_errors`.
 - Never leak internal details in error messages.
 
@@ -67,16 +69,22 @@ See @CONTRIBUTING.md for detailed memory and performance guidelines.
 
 **Test framework:**
 - Tests in `tests/tests/{category}/` with expectations in `tests/expectations/{category}/`.
-- Use `REWRITE_EXPECTATIONS=1 cargo test` to update expectation files.
+- Use `UPDATE_EXPECT=1 cargo test` to update expectation files.
 - Use `TEST_FILTER=name cargo test` to run specific tests.
 
 **Commands:**
 ```bash
 cargo test -p <crate>                           # Run crate tests
 cargo test -p leo-compiler                      # Compiler tests (slow)
-REWRITE_EXPECTATIONS=1 cargo test -p leo-parser # Update parser expectations
+UPDATE_EXPECT=1 cargo test -p leo-parser # Update parser expectations
 TEST_FILTER=loop cargo test                     # Filter by name
 ```
+
+**CLI integration tests:**
+- Tests in `tests/tests/cli/` with scripts that run `leo` subcommands end-to-end.
+- Integration test runner in `leo/tests/integration.rs` spins up `leo devnode`.
+- 17 test cases cover build, run, deploy, add, and related commands.
+- These tests require a running devnode and are gated by environment (not run in standard `cargo test`).
 
 ## Validation
 
@@ -102,7 +110,7 @@ Clippy warnings are errors. Formatting requires nightly (`cargo +nightly fmt --a
 - Match existing file patterns exactly.
 - Comments must be concise, complete, punctuated sentences.
 - Line width: 120 characters max.
-- `#![forbid(unsafe_code)]` in compiler crates.
+- `#![forbid(unsafe_code)]` in span, passes, compiler, errors, and package crates.
 
 ## Review Checklist
 
