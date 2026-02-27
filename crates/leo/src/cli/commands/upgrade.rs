@@ -260,30 +260,30 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
 
     // Load all the programs from the network into the VM.
-    let programs_and_editions = program_ids
-        .iter()
-        .map(|id| {
-            // Load the program from the network.
-            let program = leo_package::Program::fetch(
-                Symbol::intern(&id.name().to_string()),
-                None,
-                context.home()?,
-                network,
-                &endpoint,
-                true,
-            )?;
-            let ProgramData::Bytecode(bytecode) = program.data else {
-                panic!("Expected bytecode when fetching a remote program");
-            };
-            // Parse the program bytecode.
-            let bytecode = Program::<N>::from_str(&bytecode)
-                .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
-            // Return the bytecode and edition.
-            // Program::fetch should always set the edition after a successful fetch.
-            let edition = program.edition.expect("Edition should be set after successful fetch");
-            Ok((bytecode, edition))
-        })
-        .collect::<Result<Vec<_>>>()?;
+    let mut programs_and_editions = Vec::with_capacity(program_ids.len());
+    for id in &program_ids {
+        // Load the program from the network.
+        let Ok(program) = leo_package::Program::fetch(
+            Symbol::intern(&id.name().to_string()),
+            None,
+            context.home()?,
+            network,
+            &endpoint,
+            true,
+        ) else {
+            warn_and_confirm(&format!("Failed to fetch program {id} from the network."), command.extra.yes)?;
+            continue;
+        };
+        let ProgramData::Bytecode(bytecode) = program.data else {
+            panic!("Expected bytecode when fetching a remote program");
+        };
+        // Parse the program bytecode.
+        let bytecode =
+            Program::<N>::from_str(&bytecode).map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+        // Program::fetch should always set the edition after a successful fetch.
+        let edition = program.edition.expect("Edition should be set after successful fetch");
+        programs_and_editions.push((bytecode, edition));
+    }
 
     // Check for programs that violate edition/constructor requirements.
     check_edition_constructor_requirements(&programs_and_editions, consensus_version, "upgrade")?;
