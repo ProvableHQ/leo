@@ -1,0 +1,7 @@
+program test.aleo;
+
+function foo:
+    input r0 as [u32; 4u32].private;
+    input r1 as [u32; 4u32].private;
+    cast r0[0u32] r0[1u32] r1[2u32] r1[3u32] into r2 as [u32; 4u32];
+    output r2 as [u32; 4u32].private;

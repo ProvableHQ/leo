@@ -132,4 +132,11 @@ create_messages!(
         msg: "This repeat count could not be determined at compile time.".to_string(),
         help: None,
     }
+
+    @formatted
+    slice_bounds_not_evaluated {
+        args: (),
+        msg: "The bounds of this slice expression could not be determined at compile time.".to_string(),
+        help: None,
+    }
 );

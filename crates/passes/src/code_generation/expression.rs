@@ -77,6 +77,9 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Cast(expr) => some_expr(self.visit_cast(expr)),
             Expression::Composite(expr) => some_expr(self.visit_composite_init(expr)),
             Expression::Repeat(expr) => some_expr(self.visit_repeat(expr)),
+            Expression::Slice(_) => {
+                unreachable!("Slice expressions must be eliminated by const propagation before code generation.")
+            }
             Expression::Ternary(expr) => some_expr(self.visit_ternary(expr)),
             Expression::Tuple(expr) => some_expr(self.visit_tuple(expr)),
             Expression::Unary(expr) => some_expr(self.visit_unary(expr)),
@@ -188,6 +191,21 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_binary(&mut self, input: &BinaryExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        // Array concatenation should be resolved during const propagation.
+        // If we reach code generation with an Add on arrays, something went wrong.
+        if matches!(input.op, BinaryOperation::Add) {
+            let left_type = self.state.type_table.get(&input.left.id());
+            let right_type = self.state.type_table.get(&input.right.id());
+            assert!(
+                !matches!(left_type, Some(Type::Array(_))),
+                "Array concatenation should be resolved before code generation"
+            );
+            assert!(
+                !matches!(right_type, Some(Type::Array(_))),
+                "Array concatenation should be resolved before code generation"
+            );
+        }
+
         let (left, left_instructions) = self.visit_expression(&input.left);
         let (right, right_instructions) = self.visit_expression(&input.right);
         let left = left.expect("Trying to operate on an empty expression");

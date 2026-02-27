@@ -75,7 +75,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         TERNARY_EXPR => format_ternary(node, out),
         FIELD_EXPR => format_field_expr(node, out),
         TUPLE_ACCESS_EXPR => format_tuple_access(node, out),
-        INDEX_EXPR => format_index_expr(node, out),
+        INDEX_EXPR | SLICE_EXPR => format_index_expr(node, out),
         CAST_EXPR => format_cast(node, out),
         ARRAY_EXPR => format_array_expr(node, out),
         REPEAT_EXPR => format_repeat_expr(node, out),

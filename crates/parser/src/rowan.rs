@@ -502,6 +502,7 @@ impl<'a> ConversionContext<'a> {
             FIELD_EXPR => self.field_expr_to_expression(node)?,
             TUPLE_ACCESS_EXPR => self.tuple_access_expr_to_expression(node)?,
             INDEX_EXPR => self.index_expr_to_expression(node)?,
+            SLICE_EXPR => self.slice_expr_to_expression(node)?,
             CAST_EXPR => self.cast_expr_to_expression(node)?,
             TERNARY_EXPR => self.ternary_expr_to_expression(node)?,
             ARRAY_EXPR => self.array_expr_to_expression(node)?,
@@ -964,6 +965,54 @@ impl<'a> ConversionContext<'a> {
         };
 
         Ok(leo_ast::ArrayAccess { array, index, span, id }.into())
+    }
+
+    /// Convert a SLICE_EXPR node to a SliceExpression.
+    ///
+    /// The CST structure is:
+    /// - `array_expr L_BRACKET (start_expr)? (DOT_DOT|DOT_DOT_EQ) (end_expr)? R_BRACKET`
+    fn slice_expr_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
+        debug_assert_eq!(node.kind(), SLICE_EXPR);
+        let span = self.content_span(node);
+        let id = self.builder.next_id();
+
+        // Walk children to determine structure: array, optional start, range op, optional end.
+        let mut array_node: Option<SyntaxNode> = None;
+        let mut start_node: Option<SyntaxNode> = None;
+        let mut end_node: Option<SyntaxNode> = None;
+        let mut inclusive = false;
+        let mut saw_range = false;
+
+        for child in node.children_with_tokens() {
+            match child {
+                SyntaxElement::Node(n) if n.kind().is_expression() => {
+                    if array_node.is_none() {
+                        array_node = Some(n);
+                    } else if !saw_range {
+                        start_node = Some(n);
+                    } else {
+                        end_node = Some(n);
+                    }
+                }
+                SyntaxElement::Token(t) if matches!(t.kind(), DOT_DOT | DOT_DOT_EQ) => {
+                    inclusive = t.kind() == DOT_DOT_EQ;
+                    saw_range = true;
+                }
+                _ => {}
+            }
+        }
+
+        let array = match array_node {
+            Some(n) => self.to_expression(&n)?,
+            None => {
+                self.emit_unexpected_str("array in slice expression", node.text(), span);
+                return Ok(self.error_expression(span));
+            }
+        };
+        let start = start_node.map(|n| self.to_expression(&n)).transpose()?;
+        let end = end_node.map(|n| self.to_expression(&n)).transpose()?.map(|e| (inclusive, e));
+
+        Ok(leo_ast::SliceExpression { array, start, end, span, id }.into())
     }
 
     /// Convert a CAST_EXPR node to a CastExpression.

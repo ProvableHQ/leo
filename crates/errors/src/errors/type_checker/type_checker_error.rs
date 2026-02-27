@@ -1424,4 +1424,25 @@ create_messages!(
         msg: format!("`@no_inline` is not allowed on `final fn` functions because they must always be inlined."),
         help: None,
     }
+
+    @formatted
+    slice_range_invalid {
+        args: (start: impl Display, end: impl Display),
+        msg: format!("Slice range `{start}..{end}` is invalid: end must be greater than start."),
+        help: None,
+    }
+
+    @formatted
+    slice_out_of_bounds {
+        args: (start: impl Display, end: impl Display, len: impl Display),
+        msg: format!("Slice range `{start}..{end}` is out of bounds for an array of length `{len}`."),
+        help: None,
+    }
+
+    @formatted
+    array_concat_element_mismatch {
+        args: (left: impl Display, right: impl Display),
+        msg: format!("Cannot concatenate arrays with different element types `{left}` and `{right}`."),
+        help: None,
+    }
 );

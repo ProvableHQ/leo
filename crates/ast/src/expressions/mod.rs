@@ -71,6 +71,9 @@ pub use unit::*;
 mod literal;
 pub use literal::*;
 
+mod slice;
+pub use slice::*;
+
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
@@ -109,6 +112,8 @@ pub enum Expression {
     TupleAccess(Box<TupleAccess>),
     /// An unary expression.
     Unary(Box<UnaryExpression>),
+    /// An array slice expression e.g., `arr[2..5]`.
+    Slice(Box<SliceExpression>),
     /// A unit expression e.g. `()`
     Unit(UnitExpression),
 }
@@ -139,6 +144,7 @@ impl Node for Expression {
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
             TupleAccess(n) => n.span(),
+            Slice(n) => n.span(),
             Unary(n) => n.span(),
             Unit(n) => n.span(),
         }
@@ -163,6 +169,7 @@ impl Node for Expression {
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
             TupleAccess(n) => n.set_span(span),
+            Slice(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
             Unit(n) => n.set_span(span),
         }
@@ -187,6 +194,7 @@ impl Node for Expression {
             Ternary(n) => n.id(),
             Tuple(n) => n.id(),
             TupleAccess(n) => n.id(),
+            Slice(n) => n.id(),
             Unary(n) => n.id(),
             Unit(n) => n.id(),
         }
@@ -211,6 +219,7 @@ impl Node for Expression {
             Ternary(n) => n.set_id(id),
             Tuple(n) => n.set_id(id),
             TupleAccess(n) => n.set_id(id),
+            Slice(n) => n.set_id(id),
             Unary(n) => n.set_id(id),
             Unit(n) => n.set_id(id),
         }
@@ -237,6 +246,7 @@ impl fmt::Display for Expression {
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
             TupleAccess(n) => n.fmt(f),
+            Slice(n) => n.fmt(f),
             Unary(n) => n.fmt(f),
             Unit(n) => n.fmt(f),
         }
@@ -258,7 +268,9 @@ impl Expression {
             Cast(_) => 12,
             Ternary(_) => 0,
             Array(_) | ArrayAccess(_) | Async(_) | Call(_) | Composite(_) | Err(_) | Intrinsic(_) | Path(_)
-            | Literal(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_) | Unit(_) => 20,
+            | Literal(_) | MemberAccess(_) | Repeat(_) | Slice(_) | Tuple(_) | TupleAccess(_) | Unary(_) | Unit(_) => {
+                20
+            }
         }
     }
 
@@ -341,6 +353,11 @@ impl Expression {
 
             // Recurse
             Expression::ArrayAccess(expr) => expr.array.is_pure(get_type) && expr.index.is_pure(get_type),
+            Expression::Slice(expr) => {
+                expr.array.is_pure(get_type)
+                    && expr.start.as_ref().is_none_or(|e| e.is_pure(get_type))
+                    && expr.end.as_ref().is_none_or(|(_, e)| e.is_pure(get_type))
+            }
             Expression::MemberAccess(expr) => expr.inner.is_pure(get_type),
             Expression::Repeat(expr) => expr.expr.is_pure(get_type) && expr.count.is_pure(get_type),
             Expression::TupleAccess(expr) => expr.tuple.is_pure(get_type),
