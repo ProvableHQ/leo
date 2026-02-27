@@ -6,7 +6,7 @@ version: 2.1
 # - Incremental builds should be disabled in CI, since they don't provide much benefit.
 # - Enabling `--only_testnet` feature flag to reduce the amount of time spent building leo-lang, since it's not needed for the test suite.
 
-# Rust Version: 1.92.0
+# Rust Version: 1.93.1
 # Ensure that this matches the `rust-version` in `Cargo.toml`.
 # If this is changed, propogate the changes to all places in this file, including the `install-rust` command.
 
@@ -26,7 +26,7 @@ executors:
 
   linux-executor:
     docker:
-      - image: "cimg/rust:1.92.0"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+      - image: "cimg/rust:1.93.1"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
     resource_class: 2xlarge
 
 commands:
@@ -37,12 +37,12 @@ commands:
           name: Install Rust
           command: |
             # If Rust is not installed on the machine, install it
-            # (temporarily install it regardless, as we want 1.92.0, not 1.85.0)
+            # (temporarily install it regardless, as we want 1.93.1, not 1.85.0)
             # if ! command -v rustc &> /dev/null; then
               curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
               source "$HOME/.cargo/env"
-              rustup install 1.92.0
-              rustup override set 1.92.0
+              rustup install 1.93.1
+              rustup override set 1.93.1
               cargo --version --verbose
               rustc --version
             # fi
@@ -64,8 +64,8 @@ commands:
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
             Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
-            rustup install 1.92.0
-            rustup default 1.92.0
+            rustup install 1.93.1
+            rustup default 1.93.1
             cargo --version --verbose
             rustc --version | Out-File -FilePath "rust-version"
             if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
@@ -293,7 +293,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.92.0
+      - image: cimg/rust:1.93.1
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -306,7 +306,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.92.0
+      - image: cimg/rust:1.93.1
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -319,7 +319,7 @@ jobs:
 
   test-examples:
     docker:
-      - image: cimg/rust:1.92.0
+      - image: cimg/rust:1.93.1
     resource_class: xlarge
     steps:
       - attach_workspace:

@@ -1,4 +1,4 @@
-Error [ECHI03712004]: Function `get_value` does not match the signature required by interface `BoolChecker`.
+Error [ECHI03712004]: Function `get_value` does not match the signature required by interface `test.aleo/BoolChecker`.
 Expected:
 fn get_value() -> bool
 Found:

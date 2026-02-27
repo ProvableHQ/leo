@@ -1,11 +1,11 @@
-Error [ECHI03712002]: Program `scratch` implements interface `AbstractFoo` but is missing the required function `foobar`.
+Error [ECHI03712002]: Program `scratch` implements interface `scratch.aleo/AbstractFoo` but is missing the required function `foobar`.
     --> compiler-test:13:1
      |
   13 | program scratch.aleo : AbstractFoo {}
      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Add the missing function with the exact signature specified in the interface.
-Error [ECHI03712003]: Program `scratch` implements interface `AbstractFoo` but is missing the required record `Foo`.
+Error [ECHI03712003]: Program `scratch` implements interface `scratch.aleo/AbstractFoo` but is missing the required record `Foo`.
     --> compiler-test:13:1
      |
   13 | program scratch.aleo : AbstractFoo {}

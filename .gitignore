@@ -1,5 +1,6 @@
 **/target
-!leo-fmt/tests/target/
+!crates/fmt/tests/target/
+!crates/fmt/tests/target/**
 /tmp/
 **/.idea/
 .DS_Store
