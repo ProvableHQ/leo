@@ -115,7 +115,6 @@ impl<N: GraphNode> DiGraph<N> {
         let mut queue: Vec<_> = self.neighbors(node).collect();
 
         while let Some(cur) = queue.pop() {
-            dbg!(&cur);
             if !res.contains(cur) {
                 res.insert(cur.clone());
                 queue.extend(self.neighbors(cur));
