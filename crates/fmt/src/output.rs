@@ -125,6 +125,26 @@ impl Output {
         self.dedent();
     }
 
+    /// Return the current column (0-based character offset from the last newline).
+    ///
+    /// When `at_line_start` is true, the pending indentation hasn't been emitted
+    /// yet, so we return `depth * INDENT.len()`.
+    pub fn current_column(&self) -> usize {
+        if self.at_line_start {
+            return self.depth * INDENT.len();
+        }
+        match self.buf.rfind('\n') {
+            Some(pos) => self.buf.len() - pos - 1,
+            None => self.buf.len(),
+        }
+    }
+
+    /// Consume the buffer and return the raw string without trailing-newline
+    /// normalization. Used by measurement helpers.
+    pub fn into_raw(self) -> String {
+        self.buf
+    }
+
     /// Consume the buffer and return the final formatted string.
     ///
     /// Ensures the output ends with exactly one trailing newline.
@@ -209,6 +229,33 @@ mod tests {
         out.dedent();
         out.write("x");
         assert_eq!(out.finish(), "x\n");
+    }
+
+    #[test]
+    fn current_column() {
+        // Fresh buffer: at_line_start, depth 0
+        assert_eq!(Output::new().current_column(), 0);
+
+        // After writing: no newline in buffer, so len from start
+        let mut out = Output::new();
+        out.write("ab");
+        out.space();
+        out.write("cd");
+        assert_eq!(out.current_column(), 5); // "ab cd"
+
+        // After newline: back to pending indent width
+        out.newline();
+        assert_eq!(out.current_column(), 0);
+
+        // Indented write
+        let mut out = Output::new();
+        out.indent();
+        out.write("x");
+        assert_eq!(out.current_column(), 5); // 4-space indent + 1 char
+
+        // at_line_start with depth reports pending indent
+        out.newline();
+        assert_eq!(out.current_column(), 4);
     }
 
     #[test]

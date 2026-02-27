@@ -1,5 +1,5 @@
 struct Data{
-value:u64,
+amount:u64,
 }
 program test.aleo
   {

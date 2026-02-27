@@ -21,7 +21,6 @@ use leo_ast::{
     CompositeType,
     Function,
     FunctionPrototype,
-    Interface,
     Location,
     Mapping,
     ProgramScope,
@@ -33,7 +32,8 @@ use leo_ast::{
 use leo_errors::CheckInterfacesError;
 use leo_span::{Span, Symbol};
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
+use leo_ast::common::{DiGraph, DiGraphError};
 
 /// A flattened interface with all inherited members collected.
 #[derive(Clone, Debug)]
@@ -50,38 +50,35 @@ pub struct CheckInterfacesVisitor<'a> {
     current_program: Symbol,
     /// Cache of flattened interfaces (with all inherited members).
     flattened_interfaces: IndexMap<Location, FlattenedInterface>,
+    /// Interface inheritance graph
+    inheritance_graph: DiGraph<Location>,
 }
 
 impl<'a> CheckInterfacesVisitor<'a> {
     pub fn new(state: &'a mut CompilerState) -> Self {
-        Self { state, current_program: Symbol::intern(""), flattened_interfaces: IndexMap::new() }
-    }
-
-    fn resolve_interface(&self, interface_type: &Type, interface_span: &Span) -> Option<(Interface, Location)> {
-        let Type::Composite(CompositeType { path: parent_path, .. }) = interface_type else {
-            self.state.handler.emit_err(CheckInterfacesError::not_an_interface(interface_type, *interface_span));
-            return None;
-        };
-        let interface_location = parent_path.try_global_location().expect("Locations should have been resolved by now");
-
-        let interface = match self.state.symbol_table.lookup_interface(self.current_program, interface_location) {
-            Some(p) => p.clone(),
-            None => {
-                self.state.handler.emit_err(CheckInterfacesError::interface_not_found(interface_type, *interface_span));
-                return None;
-            }
-        };
-
-        Some((interface, interface_location.clone()))
+        Self {
+            state,
+            current_program: Symbol::intern(""),
+            flattened_interfaces: IndexMap::new(),
+            inheritance_graph: DiGraph::default(),
+        }
     }
 
     /// Flatten an interface by collecting all inherited members.
-    /// Detects conflicts during flattening.
-    fn flatten_interface(&mut self, interface: &Interface, location: &Location) -> Option<FlattenedInterface> {
+    /// Detects conflicts during flattening. Assumes cycles have already been checked.
+    fn flatten_interface(&mut self, location: &Location, location_span: Span) -> Option<FlattenedInterface> {
         // Check cache first.
         if let Some(flattened) = self.flattened_interfaces.get(location) {
             return Some(flattened.clone());
         }
+
+        let Some(interface) = self.state.symbol_table.lookup_interface(self.current_program, location) else {
+            self.state.handler.emit_err(CheckInterfacesError::interface_not_found(location, location_span));
+            return None;
+        };
+
+        let interface_name = interface.identifier.name;
+        let interface_span = interface.span;
 
         // Start with the interface's own members.
         let mut flattened = FlattenedInterface {
@@ -92,24 +89,32 @@ impl<'a> CheckInterfacesVisitor<'a> {
         };
 
         // Merge members from all parent interfaces (supports multiple inheritance).
-        for (parent_span, parent_type) in &interface.parents {
-            let (parent_interface, parent_location) = self.resolve_interface(parent_type, parent_span)?;
 
-            // Recursively flatten parent.
-            // FIXME: handle cycles
-            let parent_flattened = self.flatten_interface(&parent_interface, &parent_location)?;
+        let all_parents = self.inheritance_graph.transitive_closure(location);
+
+        for parent_location in &all_parents {
+            let Some(parent_interface) =
+                self.state.symbol_table.lookup_interface(self.current_program, parent_location)
+            else {
+                self.state.handler.emit_err(CheckInterfacesError::interface_not_found(parent_location, interface_span));
+                return None;
+            };
+
+            let parent_interface_name = parent_interface.identifier.name;
+            let parent_interface_span = parent_interface.identifier.span;
+
+            let parent_flattened = self.flatten_interface(parent_location, parent_interface_span)?;
 
             // Merge parent functions, checking for conflicts.
             for (name, parent_func) in &parent_flattened.functions {
                 if let Some((_, existing_func)) = flattened.functions.iter().find(|(n, _)| n == name) {
                     // Same name exists - check if compatible.
                     if !Self::prototypes_match(existing_func, parent_func) {
-                        dbg!(existing_func, parent_func);
                         self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
                             name,
-                            interface.identifier.name,
-                            parent_interface.identifier.name,
-                            interface.span,
+                            interface_name,
+                            parent_interface_name,
+                            interface_span,
                         ));
                         return None;
                     }
@@ -138,9 +143,9 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     {
                         self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
                             parent_mapping.identifier.name,
-                            interface.identifier.name,
-                            parent_interface.identifier.name,
-                            interface.span,
+                            interface_name,
+                            parent_interface_name,
+                            interface_span,
                         ));
                         return None;
                     }
@@ -160,9 +165,9 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     if !existing_storage.type_.eq_user(&parent_storage.type_) {
                         self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
                             parent_storage.identifier.name,
-                            interface.identifier.name,
-                            parent_interface.identifier.name,
-                            interface.span,
+                            interface_name,
+                            parent_interface_name,
+                            interface_span,
                         ));
                         return None;
                     }
@@ -183,16 +188,13 @@ impl<'a> CheckInterfacesVisitor<'a> {
     fn check_program_implements_interface(
         &mut self,
         program_scope: &ProgramScope,
-        interface_span: &Span,
-        interface_type: &Type,
+        interface_location: &Location,
+        interface_span: Span,
     ) {
         let program_name = program_scope.program_id.name.name;
-        let Some((interface, interface_location)) = self.resolve_interface(interface_type, interface_span) else {
-            return;
-        };
 
         // Get the flattened interface (with all inherited members).
-        let flattened = match self.flatten_interface(&interface, &interface_location) {
+        let flattened = match self.flatten_interface(interface_location, interface_span) {
             Some(f) => f,
             None => return, // Error already emitted.
         };
@@ -207,7 +209,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     if !Self::function_matches_prototype(&func_symbol.function, required_proto) {
                         self.state.handler.emit_err(CheckInterfacesError::signature_mismatch(
                             func_name,
-                            interface.identifier,
+                            interface_location,
                             Self::format_prototype_signature(required_proto),
                             Self::format_function_signature(&func_symbol.function),
                             func_symbol.function.span,
@@ -217,7 +219,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 None => {
                     self.state.handler.emit_err(CheckInterfacesError::missing_interface_function(
                         func_name,
-                        interface.identifier,
+                        interface_location,
                         program_name,
                         program_scope.span,
                     ));
@@ -232,7 +234,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             if self.state.symbol_table.lookup_record(program_name, &record_location).is_none() {
                 self.state.handler.emit_err(CheckInterfacesError::missing_interface_record(
                     record_name,
-                    interface.identifier,
+                    interface_location,
                     program_name,
                     program_scope.span,
                 ));
@@ -250,7 +252,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     {
                         self.state.handler.emit_err(CheckInterfacesError::mapping_type_mismatch(
                             mapping_name,
-                            interface.identifier,
+                            interface_location,
                             &required_mapping.key_type,
                             &required_mapping.value_type,
                             &program_mapping.key_type,
@@ -262,7 +264,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 None => {
                     self.state.handler.emit_err(CheckInterfacesError::missing_interface_mapping(
                         mapping_name,
-                        interface.identifier,
+                        interface_location,
                         program_name,
                         program_scope.span,
                     ));
@@ -279,7 +281,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     if !program_storage.type_.eq_user(&required_storage.type_) {
                         self.state.handler.emit_err(CheckInterfacesError::storage_type_mismatch(
                             storage_name,
-                            interface.identifier,
+                            interface_location,
                             &required_storage.type_,
                             &program_storage.type_,
                             program_storage.span,
@@ -289,7 +291,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 None => {
                     self.state.handler.emit_err(CheckInterfacesError::missing_interface_storage(
                         storage_name,
-                        interface.identifier,
+                        interface_location,
                         program_name,
                         program_scope.span,
                     ));
@@ -383,6 +385,48 @@ impl<'a> CheckInterfacesVisitor<'a> {
             func.output_type
         )
     }
+
+    fn build_inheritance_graph(&mut self, input: &ProgramScope) {
+        // Populate graph with current program interfaces
+        let mut queue: IndexSet<(Location, Span)> = IndexSet::new();
+        let mut processed: IndexSet<Location> = IndexSet::new();
+        for (_, interface) in &input.interfaces {
+            let location = Location::new(self.current_program, vec![interface.identifier.name]);
+            let span = interface.identifier.span;
+            queue.insert((location, span));
+        }
+
+        while let Some((location, location_span)) = queue.pop() {
+            if processed.contains(&location) {
+                continue;
+            }
+            self.inheritance_graph.add_node(location.clone());
+
+            let interface = match self.state.symbol_table.lookup_interface(self.current_program, &location) {
+                Some(p) => p.clone(),
+                None => {
+                    self.state.handler.emit_err(CheckInterfacesError::interface_not_found(location, location_span));
+                    return;
+                }
+            };
+
+            for (parent_span, parent_type) in &interface.parents {
+                let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type else {
+                    self.state.handler.emit_err(CheckInterfacesError::not_an_interface(parent_type, *parent_span));
+                    return;
+                };
+                let parent_location =
+                    parent_path.try_global_location().expect("Locations should have been resolved by now");
+
+                self.inheritance_graph.add_node(parent_location.clone());
+                self.inheritance_graph.add_edge(location.clone(), parent_location.clone());
+
+                queue.insert((parent_location.clone(), *parent_span));
+            }
+
+            processed.insert(location);
+        }
+    }
 }
 
 impl AstVisitor for CheckInterfacesVisitor<'_> {
@@ -394,16 +438,32 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         self.current_program = input.program_id.name.name;
 
-        // First, validate all interfaces in this program scope.
+        self.build_inheritance_graph(input);
+
+        // Check for cycles using post_order traversal.
+        if let Err(DiGraphError::CycleDetected(path)) = self.inheritance_graph.post_order() {
+            self.state.handler.emit_err(CheckInterfacesError::cyclic_interface_inheritance(
+                path.iter().map(|loc| loc.to_string()).collect::<Vec<_>>().join(" -> "),
+            ));
+            return;
+        }
+
+        // Flatten all interfaces in this program scope.
         for (_, interface) in &input.interfaces {
             let location = Location::new(self.current_program, vec![interface.identifier.name]);
             // This will validate inheritance and cache the result.
-            self.flatten_interface(interface, &location);
+            self.flatten_interface(&location, interface.identifier.span);
         }
 
-        // Then, check if the program implements interfaces (supports multiple inheritance).
+        // Check if the program implements interfaces (supports multiple inheritance).
         for (parent_span, parent_type) in &input.parents {
-            self.check_program_implements_interface(input, parent_span, parent_type);
+            let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type else {
+                self.state.handler.emit_err(CheckInterfacesError::not_an_interface(parent_type, *parent_span));
+                return;
+            };
+            let parent_location =
+                parent_path.try_global_location().expect("Locations should have been resolved by now");
+            self.check_program_implements_interface(input, parent_location, *parent_span);
         }
     }
 }

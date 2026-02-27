@@ -115,4 +115,11 @@ create_messages!(
         ),
         help: Some("Storage variable types must match exactly.".to_string()),
     }
+
+    @backtraced
+    cyclic_interface_inheritance {
+        args: (path: impl Display),
+        msg: format!("Cyclic interface inheritance detected: {path}"),
+        help: Some("Interface inheritance must be acyclic. Remove the circular dependency.".to_string()),
+    }
 );

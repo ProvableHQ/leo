@@ -5,6 +5,7 @@ program test.aleo {
         };
     }
 }
+
 final fn finalize(value: u64) {
     return;
 }

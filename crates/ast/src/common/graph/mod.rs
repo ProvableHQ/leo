@@ -109,6 +109,20 @@ impl<N: GraphNode> DiGraph<N> {
             .flat_map(|neighbors| neighbors.iter().map(|rc| rc.as_ref()))
     }
 
+    /// Returns all the nodes that can be reached by a given node
+    pub fn transitive_closure(&self, node: &N) -> IndexSet<N> {
+        let mut res = IndexSet::new();
+        let mut queue: Vec<_> = self.neighbors(node).collect();
+
+        while let Some(cur) = queue.pop() {
+            if !res.contains(cur) {
+                res.insert(cur.clone());
+                queue.extend(self.neighbors(cur));
+            }
+        }
+        res
+    }
+
     /// Returns `true` if the graph contains the given node.
     pub fn contains_node(&self, node: N) -> bool {
         self.nodes.contains(&Rc::new(node))
@@ -285,6 +299,32 @@ mod test {
         let DiGraphError::CycleDetected(cycle) = result.unwrap_err();
         let expected = Vec::from([1u32, 2, 4, 1]);
         assert_eq!(cycle, expected);
+    }
+
+    #[test]
+    fn test_transitive_closure() {
+        let mut graph = DiGraph::<u32>::new(IndexSet::new());
+
+        graph.add_edge(1, 2);
+        graph.add_edge(2, 3);
+        graph.add_edge(2, 4);
+        graph.add_edge(4, 1);
+        graph.add_edge(3, 5);
+
+        assert_eq!(graph.transitive_closure(&2), IndexSet::from([4, 1, 2, 3, 5]));
+        assert_eq!(graph.transitive_closure(&3), IndexSet::from([5]));
+        assert_eq!(graph.transitive_closure(&5), IndexSet::from([]));
+
+        let mut graph = DiGraph::<u32>::new(IndexSet::new());
+        graph.add_edge(1, 2);
+        graph.add_edge(1, 3);
+        graph.add_edge(2, 5);
+        graph.add_edge(3, 5);
+        graph.add_edge(3, 4);
+        assert_eq!(graph.transitive_closure(&1), IndexSet::from([2, 5, 3, 4]));
+        assert_eq!(graph.transitive_closure(&2), IndexSet::from([5]));
+        assert_eq!(graph.transitive_closure(&3), IndexSet::from([5, 4]));
+        assert_eq!(graph.transitive_closure(&4), IndexSet::from([]));
     }
 
     #[test]

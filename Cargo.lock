@@ -2023,7 +2023,14 @@ dependencies = [
 name = "leo-fmt"
 version = "3.4.0"
 dependencies = [
+ "clap",
+ "colored",
+ "leo-ast",
+ "leo-compiler",
+ "leo-errors",
  "leo-parser-rowan",
+ "leo-span",
+ "serde_json",
  "similar",
  "walkdir",
 ]
