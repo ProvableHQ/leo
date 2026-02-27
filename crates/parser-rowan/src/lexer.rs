@@ -87,7 +87,6 @@ fn comment_block(lex: &mut logos::Lexer<LogosToken>) -> bool {
 /// This is mapped to `SyntaxKind` during lexing. We use a separate enum here
 /// because logos requires ownership of the token type during lexing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Logos)]
-#[logos(skip r"")] // Don't skip anything - we want all tokens for lossless parsing
 enum LogosToken {
     // =========================================================================
     // Trivia
