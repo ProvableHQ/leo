@@ -56,6 +56,10 @@ Once it is deployed, it CANNOT be changed.
   Constructor:          0.002000
   Priority Fee:         0.000000
   Total Fee:            1.924443
+  Function 'main'
+    Total Execution Cost:   0.001334
+    |- Finalize Cost:       0.000000
+    |- Proof Cost:          0.001334
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for some_sample_leo_program.aleo...

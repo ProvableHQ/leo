@@ -1,4 +1,4 @@
-Error [ECHI03712002]: Program `test` implements interface `Counter` but is missing the required function `increment`.
+Error [ECHI03712002]: Program `test` implements interface `lib.aleo/Counter` but is missing the required function `increment`.
     --> compiler-test:5:1
      |
    5 | program test.aleo : lib.aleo/Counter {

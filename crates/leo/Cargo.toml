@@ -21,7 +21,7 @@ include = [
 ]
 license = "GPL-3.0"
 edition = "2024"
-rust-version = "1.92.0"
+rust-version = "1.93.1"
 
 [lib]
 path = "src/lib.rs"

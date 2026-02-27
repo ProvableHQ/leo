@@ -20,70 +20,24 @@ use serde::Serialize;
 use snarkvm::prelude::{Network, ProgramID, block::Transaction};
 use std::fmt;
 
-/// Cost breakdown in microcredits, convertible to credits for display.
+/// Convert microcredits to credits for display.
+pub(crate) fn microcredits_to_credits(microcredits: u64) -> f64 {
+    microcredits as f64 / 1_000_000.0
+}
+
+/// Per-function cost information for a deployed program.
 #[derive(Serialize, Clone, Default)]
-pub struct CostBreakdown {
-    pub storage: u64,
-    pub namespace: Option<u64>,
-    pub synthesis: Option<u64>,
-    pub constructor: Option<u64>,
-    pub execution: Option<u64>,
-    pub priority: u64,
-    pub total: u64,
-}
-
-impl CostBreakdown {
-    /// Create a cost breakdown for deployment.
-    pub fn for_deployment(storage: u64, synthesis: u64, namespace: u64, constructor: u64, priority: u64) -> Self {
-        Self {
-            storage,
-            namespace: Some(namespace),
-            synthesis: Some(synthesis),
-            constructor: Some(constructor),
-            execution: None,
-            priority,
-            total: storage + synthesis + namespace + constructor + priority,
-        }
-    }
-
-    /// Create a cost breakdown for execution.
-    pub fn for_execution(storage: u64, execution: u64, priority: u64) -> Self {
-        Self {
-            storage,
-            namespace: None,
-            synthesis: None,
-            constructor: None,
-            execution: Some(execution),
-            priority,
-            total: storage + execution + priority,
-        }
-    }
-
-    fn microcredits_to_credits(microcredits: u64) -> f64 {
-        microcredits as f64 / 1_000_000.0
-    }
-}
-
-impl fmt::Display for CostBreakdown {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use colored::*;
-        writeln!(f, "{}", "💰 Cost Breakdown (credits)".bold())?;
-        writeln!(f, "  {:22}{:.6}", "Transaction Storage:".cyan(), Self::microcredits_to_credits(self.storage))?;
-        if let Some(synthesis) = self.synthesis {
-            writeln!(f, "  {:22}{:.6}", "Program Synthesis:".cyan(), Self::microcredits_to_credits(synthesis))?;
-        }
-        if let Some(namespace) = self.namespace {
-            writeln!(f, "  {:22}{:.6}", "Namespace:".cyan(), Self::microcredits_to_credits(namespace))?;
-        }
-        if let Some(constructor) = self.constructor {
-            writeln!(f, "  {:22}{:.6}", "Constructor:".cyan(), Self::microcredits_to_credits(constructor))?;
-        }
-        if let Some(execution) = self.execution {
-            writeln!(f, "  {:22}{:.6}", "On-chain Execution:".cyan(), Self::microcredits_to_credits(execution))?;
-        }
-        writeln!(f, "  {:22}{:.6}", "Priority Fee:".cyan(), Self::microcredits_to_credits(self.priority))?;
-        writeln!(f, "  {:22}{:.6}", "Total Fee:".cyan(), Self::microcredits_to_credits(self.total))
-    }
+pub struct FunctionCostStats {
+    pub name: String,
+    pub finalize_cost: u64,
+    /// The cost of proving the execution transition (execution_cost - finalize_cost).
+    /// `None` when authorization sampling fails (e.g. functions requiring specific record types).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub proof_cost: Option<u64>,
+    /// The total execution cost (finalize + proof).
+    /// `None` when authorization sampling fails (e.g. functions requiring specific record types).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub execution_cost: Option<u64>,
 }
 
 /// Statistics for a deployed program.
@@ -91,11 +45,30 @@ impl fmt::Display for CostBreakdown {
 pub struct DeploymentStats {
     pub program_size_bytes: usize,
     pub max_program_size_bytes: usize,
-    pub total_variables: u64,
-    pub total_constraints: u64,
-    pub max_variables: u64,
-    pub max_constraints: u64,
-    pub cost: CostBreakdown,
+    /// Total circuit variables across all functions.
+    /// `None` when `--skip-deploy-certificate` is used (placeholder verifying keys have no circuit metadata).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_variables: Option<u64>,
+    /// Total circuit constraints across all functions.
+    /// `None` when `--skip-deploy-certificate` is used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total_constraints: Option<u64>,
+    /// Maximum allowed circuit variables for a deployment.
+    /// `None` when `--skip-deploy-certificate` is used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_variables: Option<u64>,
+    /// Maximum allowed circuit constraints for a deployment.
+    /// `None` when `--skip-deploy-certificate` is used.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_constraints: Option<u64>,
+    pub storage_cost: u64,
+    pub namespace_cost: u64,
+    pub synthesis_cost: u64,
+    pub constructor_cost: u64,
+    pub priority_fee: u64,
+    pub total_cost: u64,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub function_costs: Vec<FunctionCostStats>,
 }
 
 impl fmt::Display for DeploymentStats {
@@ -110,39 +83,78 @@ impl fmt::Display for DeploymentStats {
             self.program_size_bytes as f64 / 1024.0,
             self.max_program_size_bytes as f64 / 1024.0
         )?;
-        writeln!(
-            f,
-            "  {:22}{}",
-            "Total Variables:".cyan(),
-            self.total_variables.to_formatted_string(&Locale::en).yellow()
-        )?;
-        writeln!(
-            f,
-            "  {:22}{}",
-            "Total Constraints:".cyan(),
-            self.total_constraints.to_formatted_string(&Locale::en).yellow()
-        )?;
-        writeln!(f, "  {:22}{}", "Max Variables:".cyan(), self.max_variables.to_formatted_string(&Locale::en).green())?;
-        writeln!(
-            f,
-            "  {:22}{}",
-            "Max Constraints:".cyan(),
-            self.max_constraints.to_formatted_string(&Locale::en).green()
-        )?;
-        writeln!(f)?;
-        write!(f, "{}", self.cost)
+        if let Some(total_variables) = self.total_variables {
+            writeln!(
+                f,
+                "  {:22}{}",
+                "Total Variables:".cyan(),
+                total_variables.to_formatted_string(&Locale::en).yellow()
+            )?;
+        }
+        if let Some(total_constraints) = self.total_constraints {
+            writeln!(
+                f,
+                "  {:22}{}",
+                "Total Constraints:".cyan(),
+                total_constraints.to_formatted_string(&Locale::en).yellow()
+            )?;
+        }
+        if let Some(max_variables) = self.max_variables {
+            writeln!(f, "  {:22}{}", "Max Variables:".cyan(), max_variables.to_formatted_string(&Locale::en).green())?;
+        }
+        if let Some(max_constraints) = self.max_constraints {
+            writeln!(
+                f,
+                "  {:22}{}",
+                "Max Constraints:".cyan(),
+                max_constraints.to_formatted_string(&Locale::en).green()
+            )?;
+        }
+        if self.total_variables.is_some() || self.total_constraints.is_some() {
+            writeln!(f)?;
+        }
+        writeln!(f, "{}", "💰 Cost Breakdown (credits)".bold())?;
+        writeln!(f, "  {:22}{:.6}", "Transaction Storage:".cyan(), microcredits_to_credits(self.storage_cost))?;
+        writeln!(f, "  {:22}{:.6}", "Program Synthesis:".cyan(), microcredits_to_credits(self.synthesis_cost))?;
+        writeln!(f, "  {:22}{:.6}", "Namespace:".cyan(), microcredits_to_credits(self.namespace_cost))?;
+        writeln!(f, "  {:22}{:.6}", "Constructor:".cyan(), microcredits_to_credits(self.constructor_cost))?;
+        writeln!(f, "  {:22}{:.6}", "Priority Fee:".cyan(), microcredits_to_credits(self.priority_fee))?;
+        writeln!(f, "  {:22}{:.6}", "Total Fee:".cyan(), microcredits_to_credits(self.total_cost))?;
+
+        for fc in &self.function_costs {
+            writeln!(f, "{}", format!("  Function '{}'", fc.name).bold())?;
+            if let Some(execution_cost) = fc.execution_cost {
+                writeln!(f, "    {:24}{:.6}", "Total Execution Cost:".cyan(), microcredits_to_credits(execution_cost))?;
+                writeln!(f, "    {:24}{:.6}", "|- Finalize Cost:".cyan(), microcredits_to_credits(fc.finalize_cost))?;
+                if let Some(proof_cost) = fc.proof_cost {
+                    writeln!(f, "    {:24}{:.6}", "|- Proof Cost:".cyan(), microcredits_to_credits(proof_cost))?;
+                }
+            } else {
+                writeln!(f, "    {:24}{}", "Total Execution Cost:".cyan(), "Undetermined".dimmed())?;
+                writeln!(f, "    {:24}{:.6}", "|- Finalize Cost:".cyan(), microcredits_to_credits(fc.finalize_cost))?;
+            }
+        }
+        Ok(())
     }
 }
 
 /// Statistics for an execution.
 #[derive(Serialize, Clone, Default)]
 pub struct ExecutionStats {
-    pub cost: CostBreakdown,
+    pub storage_cost: u64,
+    pub execution_cost: u64,
+    pub priority_fee: u64,
+    pub total_cost: u64,
 }
 
 impl fmt::Display for ExecutionStats {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.cost)
+        use colored::*;
+        writeln!(f, "{}", "💰 Cost Breakdown (credits)".bold())?;
+        writeln!(f, "  {:22}{:.6}", "Transaction Storage:".cyan(), microcredits_to_credits(self.storage_cost))?;
+        writeln!(f, "  {:22}{:.6}", "On-chain Execution:".cyan(), microcredits_to_credits(self.execution_cost))?;
+        writeln!(f, "  {:22}{:.6}", "Priority Fee:".cyan(), microcredits_to_credits(self.priority_fee))?;
+        writeln!(f, "  {:22}{:.6}", "Total Fee:".cyan(), microcredits_to_credits(self.total_cost))
     }
 }
 

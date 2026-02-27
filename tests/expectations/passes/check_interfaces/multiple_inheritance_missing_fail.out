@@ -1,4 +1,4 @@
-Error [ECHI03712002]: Program `test` implements interface `Calculator` but is missing the required function `add`.
+Error [ECHI03712002]: Program `test` implements interface `test.aleo/Calculator` but is missing the required function `add`.
     --> test:11:1
      |
   11 | program test.aleo : Counter + Calculator {

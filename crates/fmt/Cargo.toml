@@ -16,9 +16,28 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies]
-leo-parser-rowan    = { workspace = true }
+[[bin]]
+name = "leo-fmt"
+path = "src/main.rs"
 
-[dev-dependencies]
+[features]
+default = []
+validate = [
+  "dep:leo-compiler",
+  "dep:leo-ast",
+  "dep:leo-errors",
+  "dep:leo-span",
+  "dep:serde_json",
+]
+
+[dependencies]
+clap                = { workspace = true }
+colored             = { workspace = true }
+leo-ast             = { workspace = true, optional = true }
+leo-compiler        = { workspace = true, optional = true }
+leo-errors          = { workspace = true, optional = true }
+leo-parser-rowan    = { workspace = true }
+leo-span            = { workspace = true, optional = true }
+serde_json          = { workspace = true, optional = true }
 similar             = { workspace = true }
 walkdir             = { workspace = true }

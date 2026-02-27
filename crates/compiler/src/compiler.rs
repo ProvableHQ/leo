@@ -95,23 +95,25 @@ impl Compiler {
         // Check that the name of its program scope matches the expected name.
         // Note that parsing enforces that there is exactly one program scope in a file.
         let program_scope = self.state.ast.ast.program_scopes.values().next().unwrap();
-        if self.program_name.is_none() {
+        if let Some(program_name) = &self.program_name {
+            if program_name != &program_scope.program_id.name.to_string() {
+                return Err(CompilerError::program_name_should_match_file_name(
+                    program_scope.program_id.name,
+                    // If this is a test, use the filename as the expected name.
+                    if self.state.is_test {
+                        format!(
+                            "`{}` (the test file name)",
+                            filename.to_string().split("/").last().expect("Could not get file name")
+                        )
+                    } else {
+                        format!("`{program_name}` (specified in `program.json`)")
+                    },
+                    program_scope.program_id.name.span,
+                )
+                .into());
+            }
+        } else {
             self.program_name = Some(program_scope.program_id.name.to_string());
-        } else if self.program_name != Some(program_scope.program_id.name.to_string()) {
-            return Err(CompilerError::program_name_should_match_file_name(
-                program_scope.program_id.name,
-                // If this is a test, use the filename as the expected name.
-                if self.state.is_test {
-                    format!(
-                        "`{}` (the test file name)",
-                        filename.to_string().split("/").last().expect("Could not get file name")
-                    )
-                } else {
-                    format!("`{}` (specified in `program.json`)", self.program_name.as_ref().unwrap())
-                },
-                program_scope.program_id.name.span,
-            )
-            .into());
         }
 
         if self.compiler_options.initial_ast {
