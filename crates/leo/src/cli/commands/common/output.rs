@@ -122,7 +122,6 @@ impl fmt::Display for DeploymentStats {
         writeln!(f, "  {:22}{:.6}", "Total Fee:".cyan(), microcredits_to_credits(self.total_cost))?;
 
         for fc in &self.function_costs {
-            writeln!(f)?;
             writeln!(f, "{}", format!("  Function '{}'", fc.name).bold())?;
             if let Some(execution_cost) = fc.execution_cost {
                 writeln!(f, "    {:24}{:.6}", "Total Execution Cost:".cyan(), microcredits_to_credits(execution_cost))?;

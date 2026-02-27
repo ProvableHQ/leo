@@ -57,7 +57,6 @@ Once it is deployed, it CANNOT be changed.
   Constructor:          0.002000
   Priority Fee:         0.000000
   Total Fee:            1.897896
-
   Function 'main'
     Total Execution Cost:   0.001283
     |- Finalize Cost:       0.000000
@@ -140,7 +139,6 @@ Once it is deployed, it CANNOT be changed.
   Constructor:          0.002000
   Priority Fee:         0.000000
   Total Fee:            1.954701
-
   Function 'main'
     Total Execution Cost:   0.001994
     |- Finalize Cost:       0.000000

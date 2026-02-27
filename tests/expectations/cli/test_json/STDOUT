@@ -87,7 +87,6 @@ Once it is deployed, it CANNOT be changed.
   Constructor:          0.010440
   Priority Fee:         0.000000
   Total Fee:            1.996643
-
   Function 'main'
     Total Execution Cost:   0.001328
     |- Finalize Cost:       0.000000
@@ -236,7 +235,6 @@ Loaded the following programs into the VM:
   Constructor:          0.010440
   Priority Fee:         0.000000
   Total Fee:            1.996643
-
   Function 'main'
     Total Execution Cost:   0.001328
     |- Finalize Cost:       0.000000
