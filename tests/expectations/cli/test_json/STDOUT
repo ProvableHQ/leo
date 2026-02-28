@@ -87,6 +87,10 @@ Once it is deployed, it CANNOT be changed.
   Constructor:          0.010440
   Priority Fee:         0.000000
   Total Fee:            1.996643
+  Function 'main'
+    Total Execution Cost:   0.001328
+    |- Finalize Cost:       0.000000
+    |- Proof Cost:          0.001328
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for test_json_program.aleo...
@@ -139,7 +143,7 @@ Attempting to determine the consensus version from the latest block height at ht
 
 ⚙️ Executing test_json_program.aleo/main...
 
-📊 Execution Summary for test_json_program.aleo
+📊 Execution Cost Summary for test_json_program.aleo
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.001328
@@ -231,6 +235,10 @@ Loaded the following programs into the VM:
   Constructor:          0.010440
   Priority Fee:         0.000000
   Total Fee:            1.996643
+  Function 'main'
+    Total Execution Cost:   0.001328
+    |- Finalize Cost:       0.000000
+    |- Proof Cost:          0.001328
 ──────────────────────────────────────────────
 📡 Broadcasting upgrade for test_json_program.aleo...
 💰Your current public balance is XXXXXX credits.

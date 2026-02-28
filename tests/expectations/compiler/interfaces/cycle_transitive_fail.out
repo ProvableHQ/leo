@@ -1,0 +1,3 @@
+Error [ECHI03712010]: Cyclic interface inheritance detected: test.aleo/D -> test.aleo/A -> test.aleo/B -> test.aleo/C -> test.aleo/D
+     |
+     = Interface inheritance must be acyclic. Remove the circular dependency.

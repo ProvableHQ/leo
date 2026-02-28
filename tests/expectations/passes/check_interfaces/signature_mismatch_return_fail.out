@@ -1,4 +1,4 @@
-Error [ECHI03712004]: Function `convert` does not match the signature required by interface `Converter`.
+Error [ECHI03712004]: Function `convert` does not match the signature required by interface `test.aleo/Converter`.
 Expected:
 fn convert(value: u64) -> u32
 Found:

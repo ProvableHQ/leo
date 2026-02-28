@@ -1,4 +1,4 @@
-Error [ECHI03712004]: Function `process` does not match the signature required by interface `Processor`.
+Error [ECHI03712004]: Function `process` does not match the signature required by interface `test.aleo/Processor`.
 Expected:
 fn process(value: u64, multiplier: u64) -> u64
 Found:

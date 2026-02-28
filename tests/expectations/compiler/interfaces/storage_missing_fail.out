@@ -1,4 +1,4 @@
-Error [ECHI03712007]: Program `test` implements interface `StorageInterface` but is missing the required storage variable `counter`.
+Error [ECHI03712007]: Program `test` implements interface `test.aleo/StorageInterface` but is missing the required storage variable `counter`.
     --> compiler-test:5:1
      |
    5 | program test.aleo : StorageInterface {

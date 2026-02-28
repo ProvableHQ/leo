@@ -1,4 +1,4 @@
-Error [ECHI03712009]: Storage variable `counter` does not match the type required by interface `StorageInterface`.
+Error [ECHI03712009]: Storage variable `counter` does not match the type required by interface `test.aleo/StorageInterface`.
 Expected: u32
 Found: u64
     --> compiler-test:6:5

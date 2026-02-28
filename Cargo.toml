@@ -21,7 +21,7 @@ leo-test-framework  = { path = "./crates/test-framework",   version = "=3.4.0" }
 aleo-std           = { version = "1.0.3"}
 aleo-std-storage   = { version = "1.0.3", default-features = false }
 anyhow             = "1.0"
-axum               = "0.8.0"
+axum               = "0.8"
 axum-extra         = { version = "0.12", features = [ "erased-json", "typed-header" ] }
 backtrace          = "0.3"
 base62             = "2.2"
@@ -37,14 +37,14 @@ dialoguer          = "0.12"
 dotenvy            = "0.15"
 dunce              = "1.0"
 expect-test        = "1.5"
-fxhash             = "0.2.1"
+fxhash             = "0.2"
 http               = "1"
 indexmap           = { version = "2.6", features = [ "serde" ] }
 is-terminal        = "0.4"
 itertools          = "0.14"
-logos              = "0.15"
+logos              = "0.16"
 num-format         = "0.4"
-num-traits         = "0.2.19"
+num-traits         = "0.2"
 once_cell          = "1.21"
 parking_lot        = "0.12"
 paste              = "1.0"
@@ -52,7 +52,7 @@ rand               = { version = "0.8", default-features = false }
 rand_chacha        = { version = "0.3", default-features = false }
 rayon              = "1.11"
 regex              = "1.11"
-reqwest            = "0.12"
+reqwest            = { version = "0.13", features = ["blocking", "json"] }
 rowan              = "0.16"
 rpassword          = "7.4"
 scoped-tls         = "1.0"
@@ -70,7 +70,7 @@ tempfile           = "3.20"
 thiserror          = "2.0"
 tokio              = { version = "1", features = [ "full" ] }
 tower-http         = { version = "0.6.0", features = [ "cors", "trace" ] }
-tower_governor     = "0.7"
+tower_governor     = "0.8"
 tracing            = "0.1"
 tracing-subscriber = { version = "0.3", features = [ "env-filter", "fmt" ] }
 ureq               = { version = "3.0", features = [ "json" ] }

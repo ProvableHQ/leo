@@ -3,6 +3,7 @@ struct Coordinates {
     y: u64,
     z: u64,
 }
+
 program ugly_program.aleo {
     fn add(public a: u32, b: u32) -> u32 {
         let c: u32 = a + b;
