@@ -80,6 +80,7 @@ where
                 Expression::Literal(value) => self.reconstruct_literal(value, &()),
                 Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
                 Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
+                Expression::Slice(slice) => self.reconstruct_slice(*slice, &()),
                 Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
                 Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),
                 Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, &()),

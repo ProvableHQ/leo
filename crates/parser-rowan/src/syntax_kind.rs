@@ -461,6 +461,8 @@ pub enum SyntaxKind {
     FIELD_EXPR,
     /// Array/tuple index: `a[0]`
     INDEX_EXPR,
+    /// Array slice expression: `a[1..3]`, `a[..2]`, `a[1..]`, `a[..]`
+    SLICE_EXPR,
     /// Cast expression: `a as u32`
     CAST_EXPR,
     /// Ternary expression: `a ? b : c`
@@ -680,6 +682,7 @@ impl SyntaxKind {
                     | FIELD_EXPR
                     | TUPLE_ACCESS_EXPR
                     | INDEX_EXPR
+                    | SLICE_EXPR
                     | CAST_EXPR
                     | TERNARY_EXPR
                     | ARRAY_EXPR
@@ -1113,6 +1116,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     METHOD_CALL_EXPR,
     FIELD_EXPR,
     INDEX_EXPR,
+    SLICE_EXPR,
     CAST_EXPR,
     TERNARY_EXPR,
     ARRAY_EXPR,

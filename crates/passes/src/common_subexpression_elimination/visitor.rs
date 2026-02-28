@@ -108,6 +108,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::Err(_)
             | Expression::MemberAccess(_)
             | Expression::Repeat(_)
+            | Expression::Slice(_)
             | Expression::Composite(_)
             | Expression::Ternary(_)
             | Expression::Tuple(_)
@@ -213,6 +214,17 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     if let Some(expr) = initializer.expression.as_mut() {
                         self.try_atom(expr)?;
                     }
+                }
+                return Some((expression, false));
+            }
+
+            Expression::Slice(slice_expression) => {
+                self.try_atom(&mut slice_expression.array)?;
+                if let Some(start) = &mut slice_expression.start {
+                    self.try_atom(start)?;
+                }
+                if let Some((_, end)) = &mut slice_expression.end {
+                    self.try_atom(end)?;
                 }
                 return Some((expression, false));
             }

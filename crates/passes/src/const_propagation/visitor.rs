@@ -36,6 +36,8 @@ pub struct ConstPropagationVisitor<'a> {
     pub array_length_not_evaluated: Option<Span>,
     /// A repeat expression count which was not able to be evaluated.
     pub repeat_count_not_evaluated: Option<Span>,
+    /// A slice bound which was not able to be evaluated.
+    pub slice_bounds_not_evaluated: Option<Span>,
 }
 
 impl ConstPropagationVisitor<'_> {

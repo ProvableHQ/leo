@@ -122,10 +122,22 @@ pub trait AstVisitor {
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.visit_tuple_access(access, additional),
+            Expression::Slice(slice) => self.visit_slice(slice, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
             Expression::Unit(unit) => self.visit_unit(unit, additional),
             Expression::Intrinsic(intr) => self.visit_intrinsic(intr, additional),
         }
+    }
+
+    fn visit_slice(&mut self, input: &SliceExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.array, &Default::default());
+        if let Some(start) = &input.start {
+            self.visit_expression(start, &Default::default());
+        }
+        if let Some((_, end)) = &input.end {
+            self.visit_expression(end, &Default::default());
+        }
+        Default::default()
     }
 
     fn visit_array_access(&mut self, input: &ArrayAccess, _additional: &Self::AdditionalInput) -> Self::Output {

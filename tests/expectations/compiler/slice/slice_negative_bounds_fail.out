@@ -1,0 +1,10 @@
+Error [ETYC0372117]: Expected an unsigned integer but type `i32` was found.
+    --> compiler-test:4:18
+     |
+   4 |         return a[-1i32..3i32];
+     |                  ^^^^^
+Error [ETYC0372117]: Expected an unsigned integer but type `i32` was found.
+    --> compiler-test:4:25
+     |
+   4 |         return a[-1i32..3i32];
+     |                         ^^^^

@@ -1,0 +1,5 @@
+Error [ETYC0372176]: Slice range `5..2` is invalid: end must be greater than start.
+    --> compiler-test:5:16
+     |
+   5 |         return a[5..=2];
+     |                ^^^^^^^^

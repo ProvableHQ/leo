@@ -136,10 +136,28 @@ pub trait AstReconstructor {
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, additional),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, additional),
             Expression::TupleAccess(access) => self.reconstruct_tuple_access(*access, additional),
+            Expression::Slice(slice) => self.reconstruct_slice(*slice, additional),
             Expression::Unary(unary) => self.reconstruct_unary(*unary, additional),
             Expression::Unit(unit) => self.reconstruct_unit(unit, additional),
             Expression::Intrinsic(intr) => self.reconstruct_intrinsic(*intr, additional),
         }
+    }
+
+    fn reconstruct_slice(
+        &mut self,
+        input: SliceExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            SliceExpression {
+                array: self.reconstruct_expression(input.array, &Default::default()).0,
+                start: input.start.map(|e| self.reconstruct_expression(e, &Default::default()).0),
+                end: input.end.map(|(inc, e)| (inc, self.reconstruct_expression(e, &Default::default()).0)),
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
     }
 
     fn reconstruct_array_access(

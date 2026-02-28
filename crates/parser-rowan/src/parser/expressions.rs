@@ -346,12 +346,36 @@ impl Parser<'_, '_> {
         let m = lhs.precede(self);
         self.bump_any(); // [
 
+        // Check for slice with no start: `arr[..end]` or `arr[..]`
+        if matches!(self.current(), DOT_DOT | DOT_DOT_EQ) {
+            self.bump_any(); // consume `..` or `..=`
+            // Parse optional end expression.
+            if !matches!(self.current(), R_BRACKET | EOF) {
+                self.parse_expr();
+            }
+            self.expect(R_BRACKET);
+            return Some(m.complete(self, SLICE_EXPR));
+        }
+
+        // Parse first expression (start index or regular index).
         if self.parse_expr().is_none() {
             self.error("expected index expression");
+            self.expect(R_BRACKET);
+            return Some(m.complete(self, INDEX_EXPR));
+        }
+
+        // Check for slice with start: `arr[start..end]` or `arr[start..]`
+        if matches!(self.current(), DOT_DOT | DOT_DOT_EQ) {
+            self.bump_any(); // consume `..` or `..=`
+            // Parse optional end expression.
+            if !matches!(self.current(), R_BRACKET | EOF) {
+                self.parse_expr();
+            }
+            self.expect(R_BRACKET);
+            return Some(m.complete(self, SLICE_EXPR));
         }
 
         self.expect(R_BRACKET);
-
         Some(m.complete(self, INDEX_EXPR))
     }
 

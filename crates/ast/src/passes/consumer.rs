@@ -40,11 +40,14 @@ pub trait ExpressionConsumer {
             Expression::Ternary(ternary) => self.consume_ternary(*ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
             Expression::TupleAccess(access) => self.consume_tuple_access(*access),
+            Expression::Slice(slice) => self.consume_slice(*slice),
             Expression::Unary(unary) => self.consume_unary(*unary),
             Expression::Unit(unit) => self.consume_unit(unit),
             Expression::Intrinsic(intrinsic) => self.consume_intrinsic(*intrinsic),
         }
     }
+
+    fn consume_slice(&mut self, _input: SliceExpression) -> Self::Output;
 
     fn consume_array_access(&mut self, _input: ArrayAccess) -> Self::Output;
 
