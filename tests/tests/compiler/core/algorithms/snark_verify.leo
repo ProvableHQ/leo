@@ -16,6 +16,16 @@ program test.aleo {
     ) -> Final {
         return final { finalize(vk, varuna_version, inputs, proof, vks, batch_inputs); };
     }
+
+    // Boundary test: exactly 32 circuits and exactly 128 instances (32 * 4 = 128) are accepted.
+    fn boundary(
+        vks32: [[u8; 128]; 32],
+        batch_inputs32: [[[field; 4]; 4]; 32],
+        proof: [u8; 256],
+        v: u8,
+    ) -> Final {
+        return final { finalize_boundary(vks32, batch_inputs32, proof, v); };
+    }
 }
 
 final fn finalize(
@@ -35,4 +45,14 @@ final fn finalize(
     // Prevent DCE
     assert_eq(v1, v1);
     assert_eq(v2, v2);
+}
+
+final fn finalize_boundary(
+    vks32: [[u8; 128]; 32],
+    batch_inputs32: [[[field; 4]; 4]; 32],
+    proof: [u8; 256],
+    v: u8,
+) {
+    let r: bool = Snark::verify_batch(vks32, v, batch_inputs32, proof);
+    assert_eq(r, r);
 }

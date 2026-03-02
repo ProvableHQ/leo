@@ -671,6 +671,7 @@ impl CodeGeneratingVisitor<'_> {
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
                 Intrinsic::SnarkVerify => {
+                    debug_assert_eq!(args.len(), 4, "type checker guarantees SnarkVerify has exactly 4 arguments");
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::SnarkVerify(
                         SnarkVerifyVariant::Varuna,
@@ -683,6 +684,7 @@ impl CodeGeneratingVisitor<'_> {
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
                 Intrinsic::SnarkVerifyBatch => {
+                    debug_assert_eq!(args.len(), 4, "type checker guarantees SnarkVerifyBatch has exactly 4 arguments");
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::SnarkVerify(
                         SnarkVerifyVariant::VarunaBatch,

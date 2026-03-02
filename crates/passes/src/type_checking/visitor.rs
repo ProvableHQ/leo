@@ -26,7 +26,15 @@ use anyhow::bail;
 use indexmap::{IndexMap, IndexSet};
 use snarkvm::{
     console::algorithms::ECDSASignature,
-    synthesizer::program::{CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, SerializeVariant},
+    synthesizer::program::{
+        CommitVariant,
+        DeserializeVariant,
+        ECDSAVerifyVariant,
+        HashVariant,
+        MAX_SNARK_VERIFY_CIRCUITS,
+        MAX_SNARK_VERIFY_INSTANCES,
+        SerializeVariant,
+    },
 };
 use std::ops::Deref;
 
@@ -817,6 +825,15 @@ impl TypeCheckingVisitor<'_> {
                     ));
                     return Type::Err;
                 };
+                // Reject 3D arrays — the inner dimension must be strictly 1D bytes.
+                if matches!(vks_inner.element_type(), Type::Array(..)) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[0].0,
+                        "a [[u8; N]; M]",
+                        arguments[0].1.span(),
+                    ));
+                    return Type::Err;
+                }
                 self.assert_type(vks_inner.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
 
                 // arg1: u8 — varuna version
@@ -847,9 +864,19 @@ impl TypeCheckingVisitor<'_> {
                     ));
                     return Type::Err;
                 };
+                // Reject 4D arrays — the innermost dimension must be strictly 1D fields.
+                if matches!(inputs_d3.element_type(), Type::Array(..)) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &arguments[2].0,
+                        "a [[[field; N]; M]; K]",
+                        arguments[2].1.span(),
+                    ));
+                    return Type::Err;
+                }
                 self.assert_type(inputs_d3.element_type(), &Type::Field, arguments[2].1.span());
 
                 // Validate dimension match: num_vks (M) must equal num_circuits (K).
+                // These limits match `MAX_SNARK_VERIFY_CIRCUITS` and `MAX_SNARK_VERIFY_INSTANCES` from snarkVM.
                 if let (Some(num_vks), Some(num_circuits)) = (vks_outer.length.as_u32(), inputs_d1.length.as_u32()) {
                     if num_vks != num_circuits {
                         self.emit_err(TypeCheckerError::custom(
@@ -859,10 +886,6 @@ impl TypeCheckingVisitor<'_> {
                             arguments[0].1.span(),
                         ));
                     }
-
-                    // Validate snarkVM limits.
-                    const MAX_SNARK_VERIFY_CIRCUITS: u32 = 32;
-                    const MAX_SNARK_VERIFY_INSTANCES: u32 = 128;
 
                     if num_circuits > MAX_SNARK_VERIFY_CIRCUITS {
                         self.emit_err(TypeCheckerError::array_too_large(
@@ -882,6 +905,13 @@ impl TypeCheckingVisitor<'_> {
                             ));
                         }
                     }
+                } else {
+                    // Array lengths in Leo are always integer literals, so this branch is unreachable in practice.
+                    // It is kept as a defensive guard against future changes to the type system.
+                    self.emit_err(TypeCheckerError::custom(
+                        "The outer dimensions of the `Snark::verify_batch` arguments must be statically known integer literals.",
+                        arguments[0].1.span(),
+                    ));
                 }
 
                 // arg3: [u8; N] — proof (1D byte array)
