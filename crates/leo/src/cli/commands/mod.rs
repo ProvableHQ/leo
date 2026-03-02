@@ -34,7 +34,7 @@ pub use common::*;
 
 mod deploy;
 pub use deploy::LeoDeploy;
-use deploy::{Task, print_deployment_plan, print_deployment_stats};
+use deploy::{Task, compute_deployment_stats, print_deployment_plan, print_deployment_summary};
 
 mod devnet;
 pub use devnet::LeoDevnet;

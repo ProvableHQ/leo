@@ -1,8 +1,3 @@
-/*
-namespace: Compile
-expectation: Pass
-*/
-
 program test.aleo {
     fn test_generator() -> group {
         let g: group = Aleo::generator();
