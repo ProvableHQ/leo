@@ -42,11 +42,11 @@ use snarkvm::{
         TestnetV0,
         VM,
         VerifyingKey,
-        cost_in_microcredits_v1,
-        cost_in_microcredits_v2,
-        cost_in_microcredits_v3,
         deployment_cost,
         execution_cost_for_authorization,
+        minimum_cost_in_microcredits_v1,
+        minimum_cost_in_microcredits_v2,
+        minimum_cost_in_microcredits_v3,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::StackTrait,
@@ -519,7 +519,7 @@ fn check_tasks_for_warnings<N: Network>(
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
         }
         // Check if the program size is approaching the limit.
-        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::MAX_PROGRAM_SIZE) {
+        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::LATEST_MAX_PROGRAM_SIZE()) {
             warnings.push(format!("The program '{id}' is {msg}."));
         }
     }
@@ -672,7 +672,7 @@ pub(crate) fn compute_deployment_stats<N: Network, R: Rng + CryptoRng>(
 
     Ok(DeploymentStats {
         program_size_bytes: bytecode_size,
-        max_program_size_bytes: N::MAX_PROGRAM_SIZE,
+        max_program_size_bytes: N::LATEST_MAX_PROGRAM_SIZE(),
         total_variables: Some(variables),
         total_constraints: Some(constraints),
         max_variables: Some(N::MAX_DEPLOYMENT_VARIABLES),
@@ -738,21 +738,29 @@ pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = 
         deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
     // Authorize the fee.
     let fee_authorization = match record {
-        Some(record) => vm.process().read().authorize_fee_private::<A, _>(
-            private_key,
-            record,
-            minimum_deployment_cost,
-            priority_fee.unwrap_or(0),
-            deployment_id,
-            rng,
-        )?,
-        None => vm.process().read().authorize_fee_public::<A, _>(
-            private_key,
-            minimum_deployment_cost,
-            priority_fee.unwrap_or(0),
-            deployment_id,
-            rng,
-        )?,
+        Some(record) => vm
+            .process()
+            .read()
+            .authorize_fee_private::<A, _>(
+                private_key,
+                record,
+                minimum_deployment_cost,
+                priority_fee.unwrap_or(0),
+                deployment_id,
+                rng,
+            )
+            .map_err(|e| anyhow::anyhow!("{e}"))?,
+        None => vm
+            .process()
+            .read()
+            .authorize_fee_public::<A, _>(
+                private_key,
+                minimum_deployment_cost,
+                priority_fee.unwrap_or(0),
+                deployment_id,
+                rng,
+            )
+            .map_err(|e| anyhow::anyhow!("{e}"))?,
     };
 
     // Get the state root.
@@ -768,7 +776,7 @@ pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = 
     let function_costs = calculate_function_costs(vm, &deployment, consensus_version, rng)?;
     let stats = DeploymentStats {
         program_size_bytes: bytecode_size,
-        max_program_size_bytes: N::MAX_PROGRAM_SIZE,
+        max_program_size_bytes: N::LATEST_MAX_PROGRAM_SIZE(),
         total_variables: None,
         total_constraints: None,
         max_variables: None,
@@ -817,11 +825,11 @@ pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
 
         // Compute the finalize cost based on the consensus version.
         let finalize_cost = if consensus_version >= ConsensusVersion::V10 {
-            cost_in_microcredits_v3(&stack, function_name)?
+            minimum_cost_in_microcredits_v3(&stack, function_name)?
         } else if consensus_version >= ConsensusVersion::V2 {
-            cost_in_microcredits_v2(&stack, function_name)?
+            minimum_cost_in_microcredits_v2(&stack, function_name)?
         } else {
-            cost_in_microcredits_v1(&stack, function_name)?
+            minimum_cost_in_microcredits_v1(&stack, function_name)?
         };
 
         // Sample inputs and attempt authorization to estimate execution cost (best-effort).

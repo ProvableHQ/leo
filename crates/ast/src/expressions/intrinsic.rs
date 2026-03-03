@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use crate::Mode;
 use leo_span::Symbol;
 
 use itertools::Itertools as _;
@@ -28,6 +29,10 @@ pub struct IntrinsicExpression {
     pub type_parameters: Vec<(Type, Span)>,
     /// Expressions for the arguments passed to the function's parameters.
     pub arguments: Vec<Expression>,
+    /// Explicit return types for `_dynamic_call`, each with an optional mode (visibility).
+    /// Empty for all other intrinsics.
+    #[serde(default)]
+    pub return_types: Vec<(Mode, Type, Span)>,
     /// Span of the entire call `function(arguments)`.
     pub span: Span,
     /// The ID of the node.

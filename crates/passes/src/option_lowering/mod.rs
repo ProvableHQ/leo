@@ -142,6 +142,7 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
             | Type::Vector(_)
             | Type::String
             | Type::Err
+            | Type::DynRecord
             | Type::Unit => {
                 panic!("unexpected inner type in optional struct name")
             }

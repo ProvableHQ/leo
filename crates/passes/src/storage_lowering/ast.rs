@@ -748,6 +748,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                         name: sym::_mapping_remove,
                         type_parameters: vec![],
                         arguments: vec![mapping_expr, false_literal],
+                        return_types: vec![],
                         span,
                         id: id(),
                     }
@@ -767,6 +768,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                         name: sym::_mapping_set,
                         type_parameters: vec![],
                         arguments: vec![mapping_expr, false_literal, new_value],
+                        return_types: vec![],
                         span,
                         id: id(),
                     }

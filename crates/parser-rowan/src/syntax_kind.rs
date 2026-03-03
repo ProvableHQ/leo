@@ -101,6 +101,8 @@ pub enum SyntaxKind {
     KW_STRING,
     /// `record`
     KW_RECORD,
+    /// `dyn`
+    KW_DYN,
     /// `Final`
     KW_FINAL_UPPER,
     /// `i8`
@@ -403,6 +405,9 @@ pub enum SyntaxKind {
     CONST_PARAM_LIST,
     /// Const generic argument list.
     CONST_ARG_LIST,
+    /// A visibility-annotated return type in a `_dynamic_call::[...]` list.
+    /// Structure: `(KW_PUBLIC | KW_PRIVATE | KW_CONSTANT)? type_node`.
+    DYNAMIC_CALL_RETURN_TYPE,
     /// Array length expression wrapper in `[T; N]`.
     ARRAY_LENGTH,
 
@@ -535,6 +540,8 @@ pub enum SyntaxKind {
     TYPE_FINAL,
     /// Mapping type in storage.
     TYPE_MAPPING,
+    /// Dynamic record type: `dyn record`
+    TYPE_DYN_RECORD,
     /// Parent list: `Foo + Bar`
     PARENT_LIST,
 
@@ -564,6 +571,7 @@ impl SyntaxKind {
                 | KW_SIGNATURE
                 | KW_STRING
                 | KW_RECORD
+                | KW_DYN
                 | KW_FINAL_UPPER
                 | KW_I8
                 | KW_I16
@@ -665,6 +673,7 @@ impl SyntaxKind {
                 | TYPE_OPTIONAL
                 | TYPE_FINAL
                 | TYPE_MAPPING
+                | TYPE_DYN_RECORD
         )
     }
 
@@ -816,6 +825,7 @@ impl SyntaxKind {
             KW_SIGNATURE => "'signature'",
             KW_STRING => "'string'",
             KW_RECORD => "'record'",
+            KW_DYN => "'dyn'",
             KW_FINAL_UPPER => "'Final'",
             KW_I8 => "'i8'",
             KW_I16 => "'i16'",
@@ -967,6 +977,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     KW_SIGNATURE,
     KW_STRING,
     KW_RECORD,
+    KW_DYN,
     KW_FINAL_UPPER,
     KW_I8,
     KW_I16,
@@ -1090,6 +1101,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     CONST_PARAM,
     CONST_PARAM_LIST,
     CONST_ARG_LIST,
+    DYNAMIC_CALL_RETURN_TYPE,
     ARRAY_LENGTH,
     LET_STMT,
     CONST_STMT,
@@ -1148,6 +1160,7 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     TYPE_OPTIONAL,
     TYPE_FINAL,
     TYPE_MAPPING,
+    TYPE_DYN_RECORD,
     PARENT_LIST,
     __LAST,
 ];

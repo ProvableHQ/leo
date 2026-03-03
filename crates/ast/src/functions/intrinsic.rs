@@ -80,6 +80,10 @@ pub enum Intrinsic {
     BlockHeight,
     BlockTimestamp,
     NetworkId,
+    DynamicCall,
+    DynamicContains,
+    DynamicGet,
+    DynamicGetOrUse,
 }
 
 impl Intrinsic {
@@ -98,6 +102,10 @@ impl Intrinsic {
             sym::_block_height => Self::BlockHeight,
             sym::_block_timestamp => Self::BlockTimestamp,
             sym::_network_id => Self::NetworkId,
+            sym::_dynamic_call => Self::DynamicCall,
+            sym::_dynamic_contains => Self::DynamicContains,
+            sym::_dynamic_get => Self::DynamicGet,
+            sym::_dynamic_get_or_use => Self::DynamicGetOrUse,
             sym::_deserialize_from_bits => Self::Deserialize(DeserializeVariant::FromBits, type_parameters[0].0.clone()),
             sym::_deserialize_from_bits_raw => Self::Deserialize(DeserializeVariant::FromBitsRaw, type_parameters[0].0.clone()),
             sym::_group_gen => Self::GroupGen,
@@ -1196,6 +1204,10 @@ impl Intrinsic {
             Self::BlockHeight => 0,
             Self::BlockTimestamp => 0,
             Self::NetworkId => 0,
+            // Minimum 3 args (program, network, function) validated in type checker.
+            Self::DynamicCall => 0,
+            // Minimum 4 args (program, network, mapping, key) validated in type checker.
+            Self::DynamicContains | Self::DynamicGet | Self::DynamicGetOrUse => 0,
 
             Self::Commit(_, _) => 2,
             Self::Hash(_, _) => 1,
@@ -1253,7 +1265,10 @@ impl Intrinsic {
             | Intrinsic::VectorLen
             | Intrinsic::VectorClear
             | Intrinsic::VectorPop
-            | Intrinsic::VectorSwapRemove => true,
+            | Intrinsic::VectorSwapRemove
+            | Intrinsic::DynamicContains
+            | Intrinsic::DynamicGet
+            | Intrinsic::DynamicGetOrUse => true,
             Intrinsic::Commit(_, _)
             | Intrinsic::Hash(_, _)
             | Intrinsic::OptionalUnwrap
@@ -1273,7 +1288,8 @@ impl Intrinsic {
             | Intrinsic::NetworkId
             | Intrinsic::SignatureVerify
             | Intrinsic::Serialize(_)
-            | Intrinsic::Deserialize(_, _) => false,
+            | Intrinsic::Deserialize(_, _)
+            | Intrinsic::DynamicCall => false,
         }
     }
 
@@ -1299,7 +1315,11 @@ impl Intrinsic {
             | Intrinsic::MappingSet
             | Intrinsic::MappingGetOrUse
             | Intrinsic::MappingContains
-            | Intrinsic::VectorSwapRemove => false,
+            | Intrinsic::VectorSwapRemove
+            // Dynamic mapping reads have side effects (read external on-chain state).
+            | Intrinsic::DynamicContains
+            | Intrinsic::DynamicGet
+            | Intrinsic::DynamicGetOrUse => false,
 
             Intrinsic::ChaChaRand(_)
             | Intrinsic::ECDSAVerify(_)
@@ -1328,6 +1348,9 @@ impl Intrinsic {
             | Intrinsic::SignatureVerify
             | Intrinsic::Serialize(_)
             | Intrinsic::Deserialize(_, _) => true,
+
+            // Dynamic calls are not pure (they call external programs with unknown side effects).
+            Intrinsic::DynamicCall => false,
         }
     }
 }

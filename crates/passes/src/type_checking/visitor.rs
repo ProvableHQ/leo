@@ -220,6 +220,17 @@ impl TypeCheckingVisitor<'_> {
                 None
             }
             intrinsic @ Some(Intrinsic::Deserialize(_, _)) => intrinsic,
+            Some(intrinsic @ (Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse)) => {
+                // Require exactly one type parameter (the return type).
+                if intrinsic_expr.type_parameters.len() != 1 {
+                    self.emit_err(TypeCheckerError::custom(
+                        format!("The intrinsic `{}` requires exactly one type parameter.", intrinsic_expr.name),
+                        intrinsic_expr.span(),
+                    ));
+                    return None;
+                }
+                Some(intrinsic)
+            }
             Some(intrinsic) => {
                 // Check that the number of type parameters is 0.
                 if !intrinsic_expr.type_parameters.is_empty() {
@@ -242,9 +253,21 @@ impl TypeCheckingVisitor<'_> {
         &mut self,
         intrinsic: Intrinsic,
         arguments: &[Expression],
+        return_types: &[(Mode, Type, Span)],
+        type_parameters: &[(Type, Span)],
         expected: &Option<Type>,
         function_span: Span,
     ) -> Type {
+        // `_dynamic_call` has variable arguments and explicit return types -- handle it separately.
+        if intrinsic == Intrinsic::DynamicCall {
+            return self.check_dynamic_call(arguments, return_types, function_span);
+        }
+
+        // Dynamic mapping intrinsics have variable argument counts -- handle them separately.
+        if matches!(intrinsic, Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse) {
+            return self.check_dynamic_mapping_op(intrinsic, arguments, type_parameters, function_span);
+        }
+
         // Check that the number of arguments is correct.
         if arguments.len() != intrinsic.num_args() {
             self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
@@ -1249,6 +1272,111 @@ impl TypeCheckingVisitor<'_> {
                 self.check_access_allowed("network.id", true, function_span);
                 Type::Integer(IntegerType::U16)
             }
+            // These are handled by dedicated helpers before this match.
+            Intrinsic::DynamicCall => unreachable!("_dynamic_call handled before argument match"),
+            Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
+                unreachable!("dynamic mapping intrinsics handled before argument match")
+            }
+        }
+    }
+
+    /// Type-checks a `_dynamic_call` intrinsic expression.
+    ///
+    /// Validates:
+    /// - At least 3 arguments (program, network, function field operands).
+    /// - First 3 arguments must be `Type::Field`.
+    /// - Remaining arguments must not be static record types.
+    ///
+    /// Returns the type indicated by `return_types` (unit, single, or tuple).
+    fn check_dynamic_call(
+        &mut self,
+        arguments: &[Expression],
+        return_types: &[(Mode, Type, Span)],
+        function_span: Span,
+    ) -> Type {
+        if arguments.len() < 3 {
+            self.emit_err(TypeCheckerError::incorrect_num_args_to_call(3, arguments.len(), function_span));
+            return Type::Err;
+        }
+
+        // The first three arguments encode the program, network, and function identifiers.
+        for arg in &arguments[..3] {
+            let ty = self.visit_expression(arg, &Some(Type::Field));
+            self.assert_type(&ty, &Type::Field, arg.span());
+        }
+
+        // Remaining arguments are the call operands. Static records are forbidden.
+        for arg in &arguments[3..] {
+            let ty = self.visit_expression(arg, &None);
+            if let Type::Composite(ref comp) = ty
+                && self.lookup_composite(comp.path.expect_global_location()).is_some_and(|c| c.is_record)
+            {
+                self.emit_err(TypeCheckerError::type_should_be2(
+                    &ty,
+                    "a dyn record or non-record type (static records cannot be passed to _dynamic_call)",
+                    arg.span(),
+                ));
+            }
+        }
+
+        // Determine the return type from the explicit return type annotations.
+        match return_types {
+            [] => Type::Unit,
+            [(_, ty, _)] => ty.clone(),
+            multiple => {
+                let elements = multiple.iter().map(|(_, ty, _)| ty.clone()).collect();
+                Type::Tuple(TupleType::new(elements))
+            }
+        }
+    }
+
+    /// Type-checks a `_dynamic_contains`, `_dynamic_get`, or `_dynamic_get_or_use` intrinsic.
+    ///
+    /// Validates:
+    /// - Exactly 4 arguments for `DynamicContains`/`DynamicGet`, 5 for `DynamicGetOrUse`.
+    /// - First 3 arguments must be `Type::Field` (program, network, mapping encodings).
+    /// - Arg 3 (key): any plaintext type.
+    /// - `DynamicGet`/`DynamicGetOrUse`: exactly 1 type parameter giving the return type.
+    /// - `DynamicGetOrUse` arg 4 (default): must match the type parameter.
+    fn check_dynamic_mapping_op(
+        &mut self,
+        intrinsic: Intrinsic,
+        arguments: &[Expression],
+        type_parameters: &[(Type, Span)],
+        function_span: Span,
+    ) -> Type {
+        let expected_args = match intrinsic {
+            Intrinsic::DynamicGetOrUse => 5,
+            _ => 4,
+        };
+        if arguments.len() != expected_args {
+            self.emit_err(TypeCheckerError::incorrect_num_args_to_call(expected_args, arguments.len(), function_span));
+            return Type::Err;
+        }
+
+        // Arguments 0, 1, 2: field-encoded program, network, and mapping identifiers.
+        for arg in &arguments[..3] {
+            let ty = self.visit_expression(arg, &Some(Type::Field));
+            self.assert_type(&ty, &Type::Field, arg.span());
+        }
+
+        // Argument 3: key — any plaintext type.
+        self.visit_expression(&arguments[3], &None);
+
+        match intrinsic {
+            Intrinsic::DynamicContains => Type::Boolean,
+            Intrinsic::DynamicGet => {
+                // `get_intrinsic` already validated len == 1.
+                type_parameters[0].0.clone()
+            }
+            Intrinsic::DynamicGetOrUse => {
+                // `get_intrinsic` already validated len == 1.
+                let return_ty = type_parameters[0].0.clone();
+                // Argument 4: default value must match the return type.
+                self.visit_expression(&arguments[4], &Some(return_ty.clone()));
+                return_ty
+            }
+            _ => unreachable!("check_dynamic_mapping_op called with non-dynamic-mapping intrinsic"),
         }
     }
 
@@ -1357,6 +1485,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Scalar
             | Type::Signature
             | Type::Vector(_)
+            | Type::DynRecord
             | Type::Numeric
             | Type::Err => {} // Do nothing.
         }
@@ -1412,7 +1541,8 @@ impl TypeCheckingVisitor<'_> {
             | Type::Integer(_)
             | Type::Numeric
             | Type::Scalar
-            | Type::Signature => false,
+            | Type::Signature
+            | Type::DynRecord => false,
         }
     }
 
@@ -1492,6 +1622,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Scalar
             | Type::Numeric
             | Type::Err
+            | Type::DynRecord
             | Type::Vector(_) => {} // valid
         }
     }

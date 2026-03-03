@@ -283,14 +283,14 @@ fn compile_leo_source_directory(
     let primary_bytecode = &compiled.primary.bytecode;
 
     // Check the program size limit for each bytecode.
-    use leo_package::MAX_PROGRAM_SIZE;
     let program_size = primary_bytecode.len();
+    let max_program_size = leo_package::max_program_size();
 
-    if program_size > MAX_PROGRAM_SIZE {
+    if program_size > max_program_size {
         return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
             program_name,
             program_size,
-            MAX_PROGRAM_SIZE,
+            max_program_size,
         )));
     }
 
@@ -305,7 +305,7 @@ fn compile_leo_source_directory(
     tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
     tracing::info!("    The program checksum is: '[{checksum}]'.");
 
-    let (size_kb, max_kb, warning) = format_program_size(program_size, MAX_PROGRAM_SIZE);
+    let (size_kb, max_kb, warning) = format_program_size(program_size, max_program_size);
     tracing::info!("    Program size: {size_kb:.2} KB / {max_kb:.2} KB");
     if let Some(msg) = warning {
         tracing::warn!("⚠️  Program '{program_name}' is {msg}.");

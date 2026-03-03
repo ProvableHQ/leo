@@ -259,8 +259,9 @@ fn handle_run<A: Aleo>(
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Evaluate the program and get a response.
-    let authorization = vm.authorize(&private_key, program_id, function_id, inputs.iter(), rng)?;
-    let response = vm.process().read().evaluate::<A>(authorization)?;
+    let authorization =
+        vm.authorize(&private_key, program_id, function_id, inputs.iter(), rng).map_err(|e| anyhow::anyhow!("{e}"))?;
+    let response = vm.process().read().evaluate::<A>(authorization).map_err(|e| anyhow::anyhow!("{e}"))?;
 
     // Collect outputs.
     let outputs: Vec<String> = response.outputs().iter().map(|o| o.to_string()).collect();

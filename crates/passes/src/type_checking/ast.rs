@@ -519,7 +519,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(input.span()));
         }
 
-        let return_type = self.check_intrinsic(intrinsic.clone(), &input.arguments, expected, input.span());
+        let return_type = self.check_intrinsic(
+            intrinsic.clone(),
+            &input.arguments,
+            &input.return_types,
+            &input.type_parameters,
+            expected,
+            input.span(),
+        );
 
         // Check return type if the expected type is known.
         self.maybe_assert_type(&return_type, expected, input.span());
@@ -1241,6 +1248,27 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_cast(&mut self, input: &CastExpression, expected: &Self::AdditionalInput) -> Self::Output {
         let expression_type = self.visit_expression_reject_numeric(&input.expression, &None);
+
+        // `as dyn record` erases a static record to a dynamic record.
+        if input.type_ == Type::DynRecord {
+            if let Type::Composite(ref comp) = expression_type {
+                if !self.lookup_composite(comp.path.expect_global_location()).is_some_and(|c| c.is_record) {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        &expression_type,
+                        "a record type",
+                        input.expression.span(),
+                    ));
+                }
+            } else if expression_type != Type::Err {
+                self.emit_err(TypeCheckerError::type_should_be2(
+                    &expression_type,
+                    "a record type",
+                    input.expression.span(),
+                ));
+            }
+            self.maybe_assert_type(&Type::DynRecord, expected, input.span());
+            return Type::DynRecord;
+        }
 
         let assert_castable_type = |actual: &Type, span: Span| {
             if !matches!(

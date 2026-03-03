@@ -158,7 +158,11 @@ pub fn evaluate_intrinsic(
         | Intrinsic::SelfSigner
         | Intrinsic::BlockHeight
         | Intrinsic::BlockTimestamp
-        | Intrinsic::NetworkId => {
+        | Intrinsic::NetworkId
+        | Intrinsic::DynamicCall
+        | Intrinsic::DynamicContains
+        | Intrinsic::DynamicGet
+        | Intrinsic::DynamicGetOrUse => {
             return Ok(None);
         }
         Intrinsic::FinalRun => panic!("await must be handled elsewhere"),

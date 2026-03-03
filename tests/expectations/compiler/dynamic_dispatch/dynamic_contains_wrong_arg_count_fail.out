@@ -1,0 +1,5 @@
+Error [ETYC0372006]: Call expected `4` args, but got `3`
+    --> compiler-test:10:24
+     |
+  10 |     let exists: bool = _dynamic_contains(prog, net, m);
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

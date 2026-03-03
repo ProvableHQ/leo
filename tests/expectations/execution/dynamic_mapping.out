@@ -1,0 +1,298 @@
+program dyn_mapping.aleo;
+
+mapping m:
+    key as u64.public;
+    value as u64.public;
+
+function set:
+    input r0 as u64.private;
+    input r1 as u64.private;
+    async set r0 r1 into r2;
+    output r2 as dyn_mapping.aleo/set.future;
+
+finalize set:
+    input r0 as u64.public;
+    input r1 as u64.public;
+    set r1 into m[r0];
+
+function check_contains:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as u64.private;
+    async check_contains r0 r1 r2 r3 into r4;
+    output r4 as dyn_mapping.aleo/check_contains.future;
+
+finalize check_contains:
+    input r0 as field.public;
+    input r1 as field.public;
+    input r2 as field.public;
+    input r3 as u64.public;
+    contains.dynamic r0 r1 r2[r3] into r4;
+    assert.eq r4 true;
+
+function check_get:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as u64.private;
+    async check_get r0 r1 r2 r3 into r4;
+    output r4 as dyn_mapping.aleo/check_get.future;
+
+finalize check_get:
+    input r0 as field.public;
+    input r1 as field.public;
+    input r2 as field.public;
+    input r3 as u64.public;
+    get.dynamic r0 r1 r2[r3] into r4 as u64;
+    assert.eq r4 42u64;
+
+function get_use_existing:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as u64.private;
+    async get_use_existing r0 r1 r2 r3 into r4;
+    output r4 as dyn_mapping.aleo/get_use_existing.future;
+
+finalize get_use_existing:
+    input r0 as field.public;
+    input r1 as field.public;
+    input r2 as field.public;
+    input r3 as u64.public;
+    get.or_use.dynamic r0 r1 r2[r3] 0u64 into r4 as u64;
+    assert.eq r4 42u64;
+
+function get_use_missing:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as u64.private;
+    async get_use_missing r0 r1 r2 r3 into r4;
+    output r4 as dyn_mapping.aleo/get_use_missing.future;
+
+finalize get_use_missing:
+    input r0 as field.public;
+    input r1 as field.public;
+    input r2 as field.public;
+    input r3 as u64.public;
+    get.or_use.dynamic r0 r1 r2[r3] 0u64 into r4 as u64;
+    assert.eq r4 0u64;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au16lfgl6rvpqzmr6z346zfsakjewth0v57d7496cdtqrs8wmympcysjakvsh",
+      "program": "dyn_mapping.aleo",
+      "function": "set",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5682263075715882569754835242866950509374098640991130610811568336237579903796field",
+          "value": "ciphertext1qyqxq5e6wzxqe7hqg4hwjmw4nkefcd6k4f8a8h6syhkf0qlkdh22vzqyp6dmv"
+        },
+        {
+          "type": "private",
+          "id": "1512127150256308140638822482595299424487521381698539331659081480689893956981field",
+          "value": "ciphertext1qyq0y69ujxstqjhj4nhnd5qnyza7mxr44ysax44l7fasfg87dv7fyqqrnyftg"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5955270394183272218480437833045054940760160809042825738242986558184577932014field",
+          "value": "{\n  program_id: dyn_mapping.aleo,\n  function_name: set,\n  arguments: [\n    1u64,\n    42u64\n  ]\n}"
+        }
+      ],
+      "tpk": "6548044459991157264463149398232139261020059688371054209321377229560812422061group",
+      "tcm": "4516602330023293727337640255343009495268254083404187972828256653194507519041field",
+      "scm": "7168253816863013695827585819449293304314230379332445795507713089734857601402field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1k9fqgxrwqw6vsdlxugg0wvr2lwhktaezhjqh38xxt6ajthdenvqqzpfmpv",
+      "program": "dyn_mapping.aleo",
+      "function": "check_contains",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6236137361885683556466426691790359305589782663031261254984605318910734034061field",
+          "value": "ciphertext1qgqfsewys5d7zmfegnzcsjzewcpr5z4uak24j6hz7nvryzprckcpgpem8ls404a5ddrhu3u22a2wacd9z4h37k5ev5n8gyzh4rqy3r2fzqctr4x6"
+        },
+        {
+          "type": "private",
+          "id": "6306714248040504295912917250999179657035562513547287978161617074641897194790field",
+          "value": "ciphertext1qgqf95fhq6kwpwzgr0904t907nzq9nusf8qk4ul393cdtgq7es372z8dkzn7mhs2p54sfdscengz4c79kv8nk9dtq4am937r3u2w6fhtqq2tdzsw"
+        },
+        {
+          "type": "private",
+          "id": "3762595520025805877238841682267677948345252501118975858740411710682113495353field",
+          "value": "ciphertext1qgqysz94n3q9vm58y6lheqmmprt6wanc90ge7qsn58crqvlvg8lzwpzuty04p9wsqk8dezspafwvaclcfh8dggjad4wz6ltpg8yhn46xps0nrwzk"
+        },
+        {
+          "type": "private",
+          "id": "5577083488223661936114403915561386301962632035420456701832577250999730666118field",
+          "value": "ciphertext1qyqzrefq7f0gc4t8tfqyc4x532rzxl2yzval5kxwdpkj346g07tjcys7ajjv5"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4786510243005345954585949465002919581828374123760705630826677509525659988328field",
+          "value": "{\n  program_id: dyn_mapping.aleo,\n  function_name: check_contains,\n  arguments: [\n    125040764743633057491089764field,\n    1868917857field,\n    109field,\n    1u64\n  ]\n}"
+        }
+      ],
+      "tpk": "2400864203651125649083702161565019977340430858085470971195945381058125679614group",
+      "tcm": "101211405388148437189166656779037721268424600884951789420783863738557734781field",
+      "scm": "822227784950270346353327609694508004524106954156745913212239617900370018455field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1pglphwgu5cmncly82w26yl5q2g8eyhkt9cun0shdlld3xdxndczqj6qzm2",
+      "program": "dyn_mapping.aleo",
+      "function": "check_get",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5830242118308220646297501290444114429132269136171918542326937184662713092000field",
+          "value": "ciphertext1qgqq4wmt0y5pc44s9c5egaectex5te8t9z2df7tlw7tx9tszqepp5y4kdx7049p9hkqtqmpactnxxxsn2nelrws7ju0vxh37njnzdp0qpud0sw0l"
+        },
+        {
+          "type": "private",
+          "id": "6754726044392013981768217828707954287814693983895624721158652106031414297434field",
+          "value": "ciphertext1qgqqu9ajwqv8dlwe65e0ulet3natxhxkf4t77wvyjplll748ysjlzql05wawq0lc2ggqtxpqdn9k6vwcjrcn08vqv8uyzdmulpfhtvmeqq8m46de"
+        },
+        {
+          "type": "private",
+          "id": "5080451344260445792998120371319146550980938026399086332884746437017632990715field",
+          "value": "ciphertext1qgqdgv5gnh9v0th5yusxrgn48wpc5qvgq7jajq07rkhjrl0s8mkhzq9ks64zfdmm8vwkp9qv2xj992fd86y8t2uxzpuge5zul60kt394zqrdpjc9"
+        },
+        {
+          "type": "private",
+          "id": "1470308936684721297415604184760441919013530957941181303164451414679030807178field",
+          "value": "ciphertext1qyqdhpl6lljmwdqzg3vw3qpfpjfvgm2sdxr6r097xmy5322rlz7ukqsqt50wy"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8390583976772597965386296061911482494079047945218210550409391341953678287502field",
+          "value": "{\n  program_id: dyn_mapping.aleo,\n  function_name: check_get,\n  arguments: [\n    125040764743633057491089764field,\n    1868917857field,\n    109field,\n    1u64\n  ]\n}"
+        }
+      ],
+      "tpk": "5078751084216654525981667576299779147766416662820800469353670248420979070011group",
+      "tcm": "5224141099802653008770469179290150101908231705554725541699127020581653796617field",
+      "scm": "7514155223228337723766607975924810968156669441732449536629076939304231029567field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1y55c9ctqqur7xawa40nhyu3j8egq7h6mdu6w0mhjkdhxx4ud7ugsxtcs93",
+      "program": "dyn_mapping.aleo",
+      "function": "get_use_existing",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "755522767504861987629474982979118146764506314402150690371840308303820563761field",
+          "value": "ciphertext1qgqr7y03rlc8tyvvl0epwh08prh3nmrz3mlh55jazvgjenspvc0fxrm50j6kgmmmymyyw5naxr56v7x54k5d44l3fz8nggkjayfj49ktquq0x9g5"
+        },
+        {
+          "type": "private",
+          "id": "2319721631995097723609024722676665425185701247144878245913878322491877995969field",
+          "value": "ciphertext1qgq05fxe7ygsv5j4jmqtjvdfs3a8l9fya6zufk72ltcvvzc20j00gz7cgmlw47v2dvruhwclveu3lx77laa3fm3h6jsxzmetdlcscv93zyxlhw4q"
+        },
+        {
+          "type": "private",
+          "id": "2333369376984529223611472495700141571151529393768974838839207750193026574700field",
+          "value": "ciphertext1qgqya4yth4493njx8ymqk9ru8tkup4r7u4aj38pu5xx586j5kr39zqdqfjr2ha3w906cjz79h8sp7hxwzu850qq3qh4pz6h8wu2lrllfp529cp7n"
+        },
+        {
+          "type": "private",
+          "id": "2858848218012613033366620365433855171888069101672789391880901293397676803072field",
+          "value": "ciphertext1qyqfr3sapz9wflg2klhu8nmng9z5rn4dzdumj7wd3hr9axjy28ysczc2v0sxn"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3484447419482894727806853382893895564071886073088278523132686694870880876953field",
+          "value": "{\n  program_id: dyn_mapping.aleo,\n  function_name: get_use_existing,\n  arguments: [\n    125040764743633057491089764field,\n    1868917857field,\n    109field,\n    1u64\n  ]\n}"
+        }
+      ],
+      "tpk": "646845558375549784210274777130855824181163268394681480044719393150424514386group",
+      "tcm": "1243628559964918142865270245615125496351442891132677521326723785700962029784field",
+      "scm": "2559927265699398296538975311650968277856962949475786755284838310149958990503field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1ru86q83jjq72k6cysa93d0hwzxnem72szh2cy9ngc56mfzm4ry8skdr0md",
+      "program": "dyn_mapping.aleo",
+      "function": "get_use_missing",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "4573385788688513783998385132057120375504785367504570356094124717809040195145field",
+          "value": "ciphertext1qgqwncx32ltgwpaqpuuu997cz5srpccq6w3ggsvaupszcstfkvzyupq53gw5p5s3eay3d8ykvuyy57p4vhqgm4z8vau6tz6cy4rzvwc9pchmkv4f"
+        },
+        {
+          "type": "private",
+          "id": "3083464615290899794008983651991561428264200565106574168650425398534148108082field",
+          "value": "ciphertext1qgq8375hghp5n6fg9shu259de0e2x40w36jypsqp3pcugdk594n8qyfx4r7xa50fk22tzwp4pyefr4awgrlhy65psq0uz7s8fxdf7eyqzywwjspk"
+        },
+        {
+          "type": "private",
+          "id": "8190265761012825771057192806997411828761326062495571002552281171498370461499field",
+          "value": "ciphertext1qgqgzcsmfx95058g7vwl4393ryym8kj6q8432exzkm0m5h3k7w8s7ynxyd2du5w2halfsmmpscaqc0efvnk89kul35rawdwhcfzthjndpu6t0nmj"
+        },
+        {
+          "type": "private",
+          "id": "479584091519310822742066144361115686134832527812588056284333849115601386509field",
+          "value": "ciphertext1qyqvx63lhz7qmpmcwmk2er2rsrllewtv8fsczrtc3jdpaxl9yza0vzsgpflvj"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "2273792372709974594868866306897163644814960850170067478898018986625097216707field",
+          "value": "{\n  program_id: dyn_mapping.aleo,\n  function_name: get_use_missing,\n  arguments: [\n    125040764743633057491089764field,\n    1868917857field,\n    109field,\n    999u64\n  ]\n}"
+        }
+      ],
+      "tpk": "962103680883008835335736280260387705623120452538220142950652433768802059722group",
+      "tcm": "66248129035430163764320814515496266365040031932492383740287051112663064919field",
+      "scm": "7583647726964034586954900732883607037962528482595061159567255046123163966399field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

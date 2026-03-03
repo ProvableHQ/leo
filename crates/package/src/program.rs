@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{MAX_PROGRAM_SIZE, *};
+use crate::*;
 
 use leo_errors::{PackageError, Result, UtilError};
 use leo_span::Symbol;
@@ -303,11 +303,12 @@ fn parse_dependencies_from_aleo(
     // Check if the program size exceeds the maximum allowed limit.
     let program_size = bytecode.len();
 
-    if program_size > MAX_PROGRAM_SIZE {
+    let max_program_size = max_program_size();
+    if program_size > max_program_size {
         return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
             name,
             program_size,
-            MAX_PROGRAM_SIZE,
+            max_program_size,
         )));
     }
 

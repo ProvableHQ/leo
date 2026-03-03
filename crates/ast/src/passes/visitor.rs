@@ -65,6 +65,7 @@ pub trait AstVisitor {
             | Type::String
             | Type::Numeric
             | Type::Unit
+            | Type::DynRecord
             | Type::Err => {}
         }
     }

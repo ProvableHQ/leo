@@ -51,7 +51,8 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
     // Note that this performs an additional validity check on the bytecode.
     let mut add_aleo_program = |code: &str| -> Result<(), ()> {
         let program = handler.extend_if_error(ProgramCore::from_str(code).map_err(LeoError::Anyhow))?;
-        handler.extend_if_error(process.add_program(&program).map_err(LeoError::Anyhow))?;
+        let result = process.add_program(&program).map_err(LeoError::Anyhow);
+        handler.extend_if_error(result)?;
         Ok(())
     };
 

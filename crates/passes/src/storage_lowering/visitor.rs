@@ -71,6 +71,7 @@ impl StorageLoweringVisitor<'_> {
             name: sym::_mapping_get_or_use,
             type_parameters: vec![],
             arguments: vec![len_path_expr, self.literal_false(), self.literal_zero_u32()],
+            return_types: vec![],
             span,
             id: self.state.node_builder.next_id(),
         }
@@ -89,6 +90,7 @@ impl StorageLoweringVisitor<'_> {
             name: sym::_mapping_set,
             type_parameters: vec![],
             arguments: vec![path_expr, key_expr, value_expr],
+            return_types: vec![],
             span,
             id: self.state.node_builder.next_id(),
         }
@@ -101,6 +103,7 @@ impl StorageLoweringVisitor<'_> {
             name: sym::_mapping_get,
             type_parameters: vec![],
             arguments: vec![path_expr, key_expr],
+            return_types: vec![],
             span,
             id: self.state.node_builder.next_id(),
         }
@@ -119,6 +122,7 @@ impl StorageLoweringVisitor<'_> {
             name: sym::_mapping_get_or_use,
             type_parameters: vec![],
             arguments: vec![path_expr, key_expr, default_expr],
+            return_types: vec![],
             span,
             id: self.state.node_builder.next_id(),
         }
@@ -229,6 +233,7 @@ impl StorageLoweringVisitor<'_> {
                     name: sym::_mapping_contains,
                     type_parameters: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal.clone()],
+                    return_types: vec![],
                     span: Span::default(),
                     id: id(),
                 }
@@ -242,6 +247,7 @@ impl StorageLoweringVisitor<'_> {
                     name: sym::_mapping_get_or_use,
                     type_parameters: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal, zero],
+                    return_types: vec![],
                     span: Span::default(),
                     id: id(),
                 }

@@ -102,8 +102,10 @@ pub const ABI_FILENAME: &str = "abi.json";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 
-/// Maximum allowed program size in bytes.
-pub const MAX_PROGRAM_SIZE: usize = <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE;
+/// Maximum allowed program size in bytes (latest consensus version).
+pub fn max_program_size() -> usize {
+    <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::LATEST_MAX_PROGRAM_SIZE()
+}
 
 /// The edition of a deployed program on the Aleo network.
 /// Edition 0 is the initial deployment, and increments with each upgrade.
@@ -237,8 +239,9 @@ pub fn verify_valid_program(name: &str, program: &str) -> Result<(), UtilError> 
     // Check if the program size exceeds the maximum allowed limit.
     let program_size = program.len();
 
-    if program_size > MAX_PROGRAM_SIZE {
-        return Err(UtilError::program_size_limit_exceeded(name, program_size, MAX_PROGRAM_SIZE));
+    let max_program_size = max_program_size();
+    if program_size > max_program_size {
+        return Err(UtilError::program_size_limit_exceeded(name, program_size, max_program_size));
     }
 
     // Parse the program to verify it's valid Aleo instructions.

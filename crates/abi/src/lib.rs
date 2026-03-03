@@ -189,6 +189,7 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
         | ast::Type::Unit
         | ast::Type::Identifier(_)
         | ast::Type::Numeric
+        | ast::Type::DynRecord
         | ast::Type::Err => {
             unreachable!("unexpected type in plaintext context: {ty}")
         }
@@ -196,6 +197,9 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
 }
 
 fn convert_transition_input(ty: &ast::Type, ctx: &Ctx) -> abi::TransitionInput {
+    if ty == &ast::Type::DynRecord {
+        return abi::TransitionInput::DynamicRecord;
+    }
     if let ast::Type::Composite(comp_ty) = ty
         && is_record(comp_ty, ctx)
     {
@@ -209,6 +213,7 @@ fn convert_transition_input(ty: &ast::Type, ctx: &Ctx) -> abi::TransitionInput {
 
 fn convert_transition_output(ty: &ast::Type, ctx: &Ctx) -> abi::TransitionOutput {
     match ty {
+        ast::Type::DynRecord => abi::TransitionOutput::DynamicRecord,
         ast::Type::Future(_) => abi::TransitionOutput::Future,
         ast::Type::Composite(comp_ty) if is_record(comp_ty, ctx) => abi::TransitionOutput::Record(abi::RecordRef {
             path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
@@ -358,6 +363,7 @@ fn collect_from_transition_input(ty: &abi::TransitionInput, program_name: &str, 
                 used.insert(rec_ref.path.clone());
             }
         }
+        abi::TransitionInput::DynamicRecord => {}
     }
 }
 
@@ -369,7 +375,7 @@ fn collect_from_transition_output(ty: &abi::TransitionOutput, program_name: &str
                 used.insert(rec_ref.path.clone());
             }
         }
-        abi::TransitionOutput::Future => {}
+        abi::TransitionOutput::Future | abi::TransitionOutput::DynamicRecord => {}
     }
 }
 

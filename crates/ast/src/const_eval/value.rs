@@ -190,6 +190,10 @@ impl Hash for ValueVariants {
                 SvmValueParam::Plaintext(plaintext) => {
                     hash_plaintext(plaintext, state);
                 }
+                SvmValueParam::DynamicRecord(..) | SvmValueParam::DynamicFuture(..) => {
+                    // Dynamic types cannot appear as mapping keys, so we use a sentinel.
+                    6u8.hash(state);
+                }
             },
             String(s) => {
                 9u8.hash(state);
@@ -871,6 +875,7 @@ impl Value {
                 }
                 SvmValueParam::Record(..) => return None,
                 SvmValueParam::Future(..) => return None,
+                SvmValueParam::DynamicRecord(..) | SvmValueParam::DynamicFuture(..) => return None,
             },
             ValueVariants::Future(..) => return None,
             ValueVariants::String(value) => Literal::string(value.clone(), span, id).into(),

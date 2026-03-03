@@ -166,8 +166,15 @@ impl<'a> ConversionContext<'a> {
         arguments: Vec<leo_ast::Expression>,
         span: Span,
     ) -> leo_ast::Expression {
-        leo_ast::IntrinsicExpression { name, type_parameters: Vec::new(), arguments, span, id: self.builder.next_id() }
-            .into()
+        leo_ast::IntrinsicExpression {
+            name,
+            type_parameters: Vec::new(),
+            arguments,
+            return_types: Vec::new(),
+            span,
+            id: self.builder.next_id(),
+        }
+        .into()
     }
 
     /// Create an empty block for error recovery.
@@ -264,6 +271,7 @@ impl<'a> ConversionContext<'a> {
             TYPE_OPTIONAL => self.type_optional_to_type(node)?,
             TYPE_FINAL => self.type_final_to_type(node)?,
             TYPE_MAPPING => self.type_mapping_to_type(node)?,
+            TYPE_DYN_RECORD => self.type_dyn_record_to_type(node)?,
             ERROR => {
                 // Parse errors already emitted by emit_parse_errors().
                 leo_ast::Type::Err
@@ -476,6 +484,12 @@ impl<'a> ConversionContext<'a> {
         let key = type_nodes.next().map(|n| self.to_type(&n)).transpose()?.unwrap_or(leo_ast::Type::Err);
         let value = type_nodes.next().map(|n| self.to_type(&n)).transpose()?.unwrap_or(leo_ast::Type::Err);
         Ok(leo_ast::Type::Mapping(leo_ast::MappingType { key: Box::new(key), value: Box::new(value) }))
+    }
+
+    /// Convert a TYPE_DYN_RECORD node to `Type::DynRecord`.
+    fn type_dyn_record_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
+        debug_assert_eq!(node.kind(), TYPE_DYN_RECORD);
+        Ok(leo_ast::Type::DynRecord)
     }
 
     // =========================================================================
@@ -709,6 +723,51 @@ impl<'a> ConversionContext<'a> {
         Ok((type_parameters, const_arguments))
     }
 
+    /// Extract `_dynamic_call` return types from a `CONST_ARG_LIST` child, if present.
+    ///
+    /// Each entry in the list is either:
+    /// - A `DYNAMIC_CALL_RETURN_TYPE` node: `(KW_PUBLIC | KW_PRIVATE | KW_CONSTANT) type_node`
+    /// - A `TYPE_DYN_RECORD` node: bare `dyn record` (no visibility, `Mode::None`).
+    fn extract_dynamic_call_return_types(
+        &self,
+        callee_node: &SyntaxNode,
+    ) -> Result<Vec<(leo_ast::Mode, leo_ast::Type, Span)>> {
+        let mut result = Vec::new();
+        let Some(arg_list) = children(callee_node).find(|n| n.kind() == CONST_ARG_LIST) else {
+            return Ok(result);
+        };
+        for child in children(&arg_list) {
+            match child.kind() {
+                DYNAMIC_CALL_RETURN_TYPE => {
+                    let span = self.content_span(&child);
+                    // Determine mode from the leading visibility keyword token (if any).
+                    let mode = tokens(&child)
+                        .find(|t| matches!(t.kind(), KW_PUBLIC | KW_PRIVATE | KW_CONSTANT))
+                        .map(|t| match t.kind() {
+                            KW_PUBLIC => leo_ast::Mode::Public,
+                            KW_PRIVATE => leo_ast::Mode::Private,
+                            KW_CONSTANT => leo_ast::Mode::Constant,
+                            _ => unreachable!(),
+                        })
+                        .unwrap_or(leo_ast::Mode::None);
+                    // Extract the type node.
+                    if let Some(type_node) = children(&child).find(|n| n.kind().is_type()) {
+                        let ty = self.to_type(&type_node)?;
+                        result.push((mode, ty, span));
+                    }
+                }
+                kind if kind.is_type() => {
+                    // Bare type (e.g. `dyn record` without visibility prefix).
+                    let span = self.content_span(&child);
+                    let ty = self.to_type(&child)?;
+                    result.push((leo_ast::Mode::None, ty, span));
+                }
+                _ => {}
+            }
+        }
+        Ok(result)
+    }
+
     /// Convert a CALL_EXPR node to a CallExpression.
     fn call_expr_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
         debug_assert_eq!(node.kind(), CALL_EXPR);
@@ -735,6 +794,45 @@ impl<'a> ConversionContext<'a> {
         // In the rowan CST, CONST_ARG_LIST is a child of the PATH_EXPR callee node.
         let (type_parameters, const_arguments) = self.extract_const_arg_list(&callee_node)?;
 
+        // Handle `_dynamic_call::[return_types](...)` — a bare intrinsic call with
+        // no qualifier (just the leading-underscore identifier) and optional
+        // visibility-annotated return type parameters.
+        if function.user_program().is_none()
+            && function.qualifier().is_empty()
+            && function.identifier().name == sym::_dynamic_call
+        {
+            let return_types = self.extract_dynamic_call_return_types(&callee_node)?;
+            return Ok(leo_ast::IntrinsicExpression {
+                name: sym::_dynamic_call,
+                type_parameters: Vec::new(),
+                arguments,
+                return_types,
+                span,
+                id,
+            }
+            .into());
+        }
+
+        // Handle `_dynamic_contains`, `_dynamic_get`, `_dynamic_get_or_use` — bare intrinsic
+        // calls with no qualifier and an optional single type parameter.
+        if function.user_program().is_none()
+            && function.qualifier().is_empty()
+            && matches!(
+                function.identifier().name,
+                sym::_dynamic_contains | sym::_dynamic_get | sym::_dynamic_get_or_use
+            )
+        {
+            return Ok(leo_ast::IntrinsicExpression {
+                name: function.identifier().name,
+                type_parameters,
+                arguments,
+                return_types: Vec::new(),
+                span,
+                id,
+            }
+            .into());
+        }
+
         // If the path has exactly one qualifier (e.g. `group::to_x_coordinate`),
         // try to canonicalize to an intrinsic. Non-intrinsic qualified calls
         // fall through to the normal CallExpression below.
@@ -742,9 +840,15 @@ impl<'a> ConversionContext<'a> {
             let module = function.qualifier()[0].name;
             let name = function.identifier().name;
             if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(module, name) {
-                return Ok(
-                    leo_ast::IntrinsicExpression { name: intrinsic_name, type_parameters, arguments, span, id }.into()
-                );
+                return Ok(leo_ast::IntrinsicExpression {
+                    name: intrinsic_name,
+                    type_parameters,
+                    arguments,
+                    return_types: Vec::new(),
+                    span,
+                    id,
+                }
+                .into());
             }
         }
 

@@ -1,0 +1,5 @@
+Error [ETYC0372117]: Expected type `u64` but type `u32` was found.
+    --> compiler-test:12:66
+     |
+  12 |     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key, 0u32);
+     |                                                                  ^^^^

@@ -74,6 +74,8 @@ pub enum Type {
     Tuple(TupleType),
     /// The vector type.
     Vector(VectorType),
+    /// The `dyn record` type for dynamic dispatch.
+    DynRecord,
     /// Numeric type which should be resolved to `Field`, `Group`, `Integer(_)`, or `Scalar`.
     Numeric,
     /// The `unit` type.
@@ -108,7 +110,8 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
-            | (Type::Unit, Type::Unit) => true,
+            | (Type::Unit, Type::Unit)
+            | (Type::DynRecord, Type::DynRecord) => true,
             (Type::Array(left), Type::Array(right)) => {
                 (match (left.length.as_u32(), right.length.as_u32()) {
                     (Some(l1), Some(l2)) => l1 == l2,
@@ -172,7 +175,8 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
-            | (Type::Unit, Type::Unit) => true,
+            | (Type::Unit, Type::Unit)
+            | (Type::DynRecord, Type::DynRecord) => true,
             (Type::Array(left), Type::Array(right)) => {
                 // Two arrays are equal if their element types are the same and if their lengths
                 // are the same, assuming the lengths can be extracted as `u32`.
@@ -404,6 +408,7 @@ impl fmt::Display for Type {
             Type::Composite(ref composite_type) => write!(f, "{composite_type}"),
             Type::Tuple(ref tuple) => write!(f, "{tuple}"),
             Type::Vector(ref vector_type) => write!(f, "{vector_type}"),
+            Type::DynRecord => write!(f, "dyn record"),
             Type::Numeric => write!(f, "numeric"),
             Type::Unit => write!(f, "()"),
             Type::Err => write!(f, "error"),

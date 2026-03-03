@@ -1,0 +1,5 @@
+Error [ETYC0372156]: The intrinsic `_dynamic_get` requires exactly one type parameter.
+    --> compiler-test:12:15
+     |
+  12 |     let val = _dynamic_get(prog, net, m, key);
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

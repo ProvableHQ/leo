@@ -1,0 +1,5 @@
+Error [ETYC0372156]: The intrinsic `_dynamic_contains` cannot have type parameters.
+    --> compiler-test:9:24
+     |
+   9 |     let exists: bool = _dynamic_contains::[bool](prog, net, m, key);
+     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -666,6 +666,10 @@ symbols! {
     _block_height,
     _block_timestamp,
     _network_id,
+    _dynamic_call,
+    _dynamic_contains,
+    _dynamic_get,
+    _dynamic_get_or_use,
 
 
     // core functions
