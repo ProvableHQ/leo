@@ -397,6 +397,26 @@ pub enum AleoStmt {
     Serialize(SerializeVariant, AleoExpr, AleoType, AleoReg, AleoType),
     Deserialize(DeserializeVariant, AleoExpr, AleoType, AleoReg, AleoType),
     Call(String, Vec<AleoExpr>, Vec<AleoReg>),
+    /// A `call.dynamic` instruction for runtime function dispatch.
+    ///
+    /// Format:
+    /// `call.dynamic prog net func with arg... (as type.vis...) into dest... (as type.vis...);`
+    CallDynamic {
+        /// Field operand for the program identifier.
+        program: AleoExpr,
+        /// Field operand for the network identifier.
+        network: AleoExpr,
+        /// Field operand for the function identifier.
+        function: AleoExpr,
+        /// Call arguments.
+        args: Vec<AleoExpr>,
+        /// Type annotations for each call argument (type, optional visibility).
+        arg_types: Vec<(AleoType, Option<AleoVisibility>)>,
+        /// Destination registers.
+        dests: Vec<AleoReg>,
+        /// Type annotations for each destination (type, optional visibility).
+        dest_types: Vec<(AleoType, Option<AleoVisibility>)>,
+    },
     Async(String, Vec<AleoExpr>, Vec<AleoReg>),
     BranchEq(AleoExpr, AleoExpr, String),
     Position(String),
@@ -428,6 +448,33 @@ pub enum AleoStmt {
     Sub(AleoExpr, AleoExpr, AleoReg),
     SubWrapped(AleoExpr, AleoExpr, AleoReg),
     Xor(AleoExpr, AleoExpr, AleoReg),
+    /// `contains.dynamic prog net mapping[key] into dest;`
+    ContainsDynamic {
+        program: AleoExpr,
+        network: AleoExpr,
+        mapping: AleoExpr,
+        key: AleoExpr,
+        dest: AleoReg,
+    },
+    /// `get.dynamic prog net mapping[key] into dest as type;`
+    GetDynamic {
+        program: AleoExpr,
+        network: AleoExpr,
+        mapping: AleoExpr,
+        key: AleoExpr,
+        dest: AleoReg,
+        dest_type: AleoType,
+    },
+    /// `get.or_use.dynamic prog net mapping[key] default into dest as type;`
+    GetOrUseDynamic {
+        program: AleoExpr,
+        network: AleoExpr,
+        mapping: AleoExpr,
+        key: AleoExpr,
+        default: AleoExpr,
+        dest: AleoReg,
+        dest_type: AleoType,
+    },
 }
 impl Display for AleoStmt {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -504,6 +551,32 @@ impl Display for AleoStmt {
                 }
                 writeln!(f, ";")
             }
+            Self::CallDynamic { program, network, function, args, arg_types, dests, dest_types } => {
+                write!(f, "    call.dynamic {program} {network} {function}")?;
+                if !args.is_empty() {
+                    write!(f, " with {}", args.iter().map(|a| a.to_string()).join(" "))?;
+                    write!(
+                        f,
+                        " (as {})",
+                        arg_types
+                            .iter()
+                            .map(|(ty, vis)| { if let Some(v) = vis { format!("{ty}.{v}") } else { ty.to_string() } })
+                            .join(" ")
+                    )?;
+                }
+                if !dests.is_empty() {
+                    write!(f, " into {}", dests.iter().map(|d| d.to_string()).join(" "))?;
+                    write!(
+                        f,
+                        " (as {})",
+                        dest_types
+                            .iter()
+                            .map(|(ty, vis)| { if let Some(v) = vis { format!("{ty}.{v}") } else { ty.to_string() } })
+                            .join(" ")
+                    )?;
+                }
+                writeln!(f, ";")
+            }
             Self::Async(id, inputs, dests) => {
                 write!(f, "    async {id}")?;
                 if !inputs.is_empty() {
@@ -546,17 +619,43 @@ impl Display for AleoStmt {
             Self::Sub(arg0, arg1, dest) => writeln!(f, "    sub {arg0} {arg1} into {dest};"),
             Self::SubWrapped(arg0, arg1, dest) => writeln!(f, "    sub.w {arg0} {arg1} into {dest};"),
             Self::Xor(arg0, arg1, dest) => writeln!(f, "    xor {arg0} {arg1} into {dest};"),
+            Self::ContainsDynamic { program, network, mapping, key, dest } => {
+                writeln!(f, "    contains.dynamic {program} {network} {mapping}[{key}] into {dest};")
+            }
+            Self::GetDynamic { program, network, mapping, key, dest, dest_type } => {
+                writeln!(f, "    get.dynamic {program} {network} {mapping}[{key}] into {dest} as {dest_type};")
+            }
+            Self::GetOrUseDynamic { program, network, mapping, key, default, dest, dest_type } => {
+                writeln!(
+                    f,
+                    "    get.or_use.dynamic {program} {network} {mapping}[{key}] {default} into {dest} as {dest_type};"
+                )
+            }
         }
     }
 }
 
 #[derive(Debug)]
 pub enum AleoType {
-    Future { name: String, program: String },
-    Record { name: String, program: Option<String> },
-    Ident { name: String },
-    Location { program: String, name: String },
-    Array { inner: Box<AleoType>, len: u32 },
+    Future {
+        name: String,
+        program: String,
+    },
+    Record {
+        name: String,
+        program: Option<String>,
+    },
+    Ident {
+        name: String,
+    },
+    Location {
+        program: String,
+        name: String,
+    },
+    Array {
+        inner: Box<AleoType>,
+        len: u32,
+    },
     GroupX,
     GroupY,
     Address,
@@ -576,6 +675,8 @@ pub enum AleoType {
     Scalar,
     Signature,
     String,
+    /// The `dynamic.record` type for dynamic dispatch.
+    DynamicRecord,
 }
 impl Display for AleoType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -605,6 +706,7 @@ impl Display for AleoType {
             Self::Signature => write!(f, "signature"),
             Self::String => write!(f, "string"),
             Self::Array { inner, len } => write!(f, "[{inner}; {len}u32]"),
+            Self::DynamicRecord => write!(f, "dynamic.record"),
         }
     }
 }

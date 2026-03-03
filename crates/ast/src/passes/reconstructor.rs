@@ -46,6 +46,7 @@ pub trait AstReconstructor {
             | Type::String
             | Type::Numeric
             | Type::Unit
+            | Type::DynRecord
             | Type::Err => (input.clone(), Default::default()),
         }
     }

@@ -355,10 +355,14 @@ fn handle_execute<A: Aleo>(
     // Generate the authorization (the method differs based on skip_execute_proof).
     let authorization = if command.skip_execute_proof {
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
-        vm.process().read().authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)?
+        vm.process()
+            .read()
+            .authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
     } else {
         println!("\n⚙️ Executing {program_name}/{function_name}...");
-        vm.authorize(&private_key, &program_name, &function_name, inputs.iter(), rng)?
+        vm.authorize(&private_key, &program_name, &function_name, inputs.iter(), rng)
+            .map_err(|e| anyhow::anyhow!("{e}"))?
     };
 
     // Estimate and display execution cost.
@@ -396,7 +400,7 @@ fn handle_execute<A: Aleo>(
         let transaction = Transaction::from_execution(execution, Some(fee))?;
 
         // Evaluate the transaction to get the response.
-        let response = vm.process().read().evaluate::<A>(authorization)?;
+        let response = vm.process().read().evaluate::<A>(authorization).map_err(|e| anyhow::anyhow!("{e}"))?;
 
         ("transaction", Box::new(transaction), response)
     } else {

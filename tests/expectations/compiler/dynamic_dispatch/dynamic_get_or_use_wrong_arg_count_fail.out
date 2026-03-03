@@ -1,0 +1,5 @@
+Error [ETYC0372006]: Call expected `5` args, but got `4`
+    --> compiler-test:12:20
+     |
+  12 |     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key);
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -100,6 +100,8 @@ impl Parser<'_, '_> {
             KW_FINAL_UPPER => self.parse_future_type(),
             // Mapping type (storage context): mapping key => value
             KW_MAPPING => self.parse_mapping_type(),
+            // Dynamic record type: dyn record
+            KW_DYN => self.parse_dyn_record_type(),
             // Primitive type keywords
             _ if self.at_primitive_type() => self.parse_primitive_type(),
             // Named/Composite type: Foo, Foo::[N], program.aleo/Type
@@ -113,9 +115,28 @@ impl Parser<'_, '_> {
         Self::PRIMITIVE_TYPE_KINDS.contains(&self.current())
     }
 
-    /// Parse a cast type (primitive types only, matching the LALRPOP grammar).
+    /// Parse a cast type: primitive types and `dyn record`.
     pub fn parse_cast_type(&mut self) -> Option<CompletedMarker> {
-        if self.at_primitive_type() { self.parse_primitive_type() } else { None }
+        if self.at_primitive_type() {
+            self.parse_primitive_type()
+        } else if self.at(KW_DYN) {
+            self.parse_dyn_record_type()
+        } else {
+            None
+        }
+    }
+
+    /// Parse a dynamic record type: `dyn record`.
+    fn parse_dyn_record_type(&mut self) -> Option<CompletedMarker> {
+        if !self.at(KW_DYN) {
+            return None;
+        }
+
+        self.skip_trivia();
+        let m = self.start();
+        self.bump_any(); // dyn
+        self.expect(KW_RECORD);
+        Some(m.complete(self, TYPE_DYN_RECORD))
     }
 
     /// Parse a primitive type keyword.
@@ -438,13 +459,29 @@ impl Parser<'_, '_> {
     /// is a primitive type keyword, or `[` followed by a primitive type
     /// keyword (array type arg), parse as a type. Otherwise parse as an
     /// expression.
+    ///
+    /// Additionally handles `_dynamic_call` return type annotations:
+    /// - `public u64`, `private field`, `constant bool` — visibility-prefixed types
+    ///   wrapped in a `DYNAMIC_CALL_RETURN_TYPE` node.
+    /// - `dyn record` — parsed as a regular type.
     fn parse_const_generic_arg(&mut self) {
         self.skip_trivia();
-        if self.at_primitive_type() {
+        if matches!(self.current(), KW_PUBLIC | KW_PRIVATE | KW_CONSTANT) {
+            // Visibility-prefixed type argument for `_dynamic_call` return types.
+            let m = self.start();
+            self.bump_any(); // visibility keyword
+            if self.parse_type().is_none() {
+                self.error("expected type after visibility modifier");
+            }
+            m.complete(self, DYNAMIC_CALL_RETURN_TYPE);
+        } else if self.at_primitive_type() {
             // Type argument (e.g. `u32` in `Deserialize::[u32]`)
             self.parse_type();
         } else if self.at(L_BRACKET) && self.nth(1).is_type_keyword() {
             // Array type argument (e.g. `[u8; 4]` in `Deserialize::[[u8; 4]]`)
+            self.parse_type();
+        } else if self.at(KW_DYN) {
+            // `dyn record` type argument for `_dynamic_call` return types.
             self.parse_type();
         } else {
             // Expression argument (e.g. `N + 1`, `5`, `N`)
@@ -1047,6 +1084,21 @@ mod tests {
                     KW_U64@37..40 "u64"
                   R_PAREN@40..41 ")"
                 GT@41..42 ">"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Dynamic Record Type
+    // =========================================================================
+
+    #[test]
+    fn parse_type_dyn_record() {
+        check_type("dyn record", expect![[r#"
+            ROOT@0..10
+              TYPE_DYN_RECORD@0..10
+                KW_DYN@0..3 "dyn"
+                WHITESPACE@3..4 " "
+                KW_RECORD@4..10 "record"
         "#]]);
     }
 

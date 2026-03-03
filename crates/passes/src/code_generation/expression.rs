@@ -32,6 +32,7 @@ use leo_ast::{
     Literal,
     LiteralVariant,
     MemberAccess,
+    Mode,
     NetworkName,
     Node,
     NodeID,
@@ -45,6 +46,7 @@ use leo_ast::{
     UnaryOperation,
     Variant,
 };
+use leo_span::Span;
 use snarkvm::{
     prelude::{CanaryV0, MainnetV0, TestnetV0},
     synthesizer::program::SerializeVariant,
@@ -447,6 +449,24 @@ impl CodeGeneratingVisitor<'_> {
             })
             .collect::<Vec<_>>();
 
+        // `_dynamic_call` needs access to `return_types` -- handle it before `generate_intrinsic`.
+        if Intrinsic::from_symbol(input.name, &input.type_parameters) == Some(Intrinsic::DynamicCall) {
+            let (dest, call_stmts) = self.generate_dynamic_call(&arguments, &input.return_types);
+            stmts.extend(call_stmts);
+            return (dest, stmts);
+        }
+
+        // Dynamic mapping intrinsics need access to `type_parameters` -- handle before `generate_intrinsic`.
+        if matches!(
+            Intrinsic::from_symbol(input.name, &input.type_parameters),
+            Some(Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse)
+        ) {
+            let intrinsic = Intrinsic::from_symbol(input.name, &input.type_parameters).expect("already matched above");
+            let (dest, map_stmts) = self.generate_dynamic_mapping_op(intrinsic, &arguments, &input.type_parameters);
+            stmts.extend(map_stmts);
+            return (dest, stmts);
+        }
+
         let (intr_dest, intr_stmts) = self.generate_intrinsic(
             Intrinsic::from_symbol(input.name, &input.type_parameters)
                 .expect("All core functions should be known at this phase of compilation"),
@@ -457,6 +477,95 @@ impl CodeGeneratingVisitor<'_> {
         stmts.extend(intr_stmts);
 
         (intr_dest, stmts)
+    }
+
+    /// Generate code for a `_dynamic_call` intrinsic expression.
+    ///
+    /// Emits a `call.dynamic` AVM instruction using the first three field operands as program,
+    /// network, and function identifiers, the remaining operands as call arguments, and the
+    /// explicit `return_types` as destination register annotations.
+    fn generate_dynamic_call(
+        &mut self,
+        arguments: &[(AleoExpr, NodeID)],
+        return_types: &[(Mode, Type, Span)],
+    ) -> (Option<AleoExpr>, Vec<AleoStmt>) {
+        let program = arguments[0].0.clone();
+        let network = arguments[1].0.clone();
+        let function = arguments[2].0.clone();
+        let call_args: Vec<AleoExpr> = arguments[3..].iter().map(|(e, _)| e.clone()).collect();
+
+        // Compute AVM type annotations for each call argument (default visibility: private).
+        let arg_types: Vec<(AleoType, Option<AleoVisibility>)> = arguments[3..]
+            .iter()
+            .map(|(_, id)| {
+                let ty = self.state.type_table.get(id).unwrap_or(Type::Err);
+                let aleo_type = self.visit_type(&ty);
+                (aleo_type, Some(AleoVisibility::Private))
+            })
+            .collect();
+
+        // Allocate destination registers and their type annotations from `return_types`.
+        let mut dests = Vec::new();
+        let mut dest_types = Vec::new();
+        for (mode, ty, _span) in return_types {
+            let reg = self.next_register();
+            let aleo_type = self.visit_type(ty);
+            let visibility = AleoVisibility::maybe_from(*mode);
+            dests.push(reg);
+            dest_types.push((aleo_type, visibility));
+        }
+
+        let instruction = AleoStmt::CallDynamic {
+            program,
+            network,
+            function,
+            args: call_args,
+            arg_types,
+            dests: dests.clone(),
+            dest_types,
+        };
+
+        let dest_expr = match dests.as_slice() {
+            [] => None,
+            [single] => Some(AleoExpr::Reg(single.clone())),
+            multiple => Some(AleoExpr::Tuple(multiple.iter().cloned().map(AleoExpr::Reg).collect())),
+        };
+
+        (dest_expr, vec![instruction])
+    }
+
+    /// Generate code for `_dynamic_contains`, `_dynamic_get`, or `_dynamic_get_or_use`.
+    ///
+    /// Emits `contains.dynamic`, `get.dynamic`, or `get.or_use.dynamic` finalize commands.
+    fn generate_dynamic_mapping_op(
+        &mut self,
+        intrinsic: Intrinsic,
+        arguments: &[(AleoExpr, NodeID)],
+        type_parameters: &[(Type, Span)],
+    ) -> (Option<AleoExpr>, Vec<AleoStmt>) {
+        let program = arguments[0].0.clone();
+        let network = arguments[1].0.clone();
+        let mapping = arguments[2].0.clone();
+        let key = arguments[3].0.clone();
+
+        let dest_reg = self.next_register();
+        let instruction = match intrinsic {
+            Intrinsic::DynamicContains => {
+                AleoStmt::ContainsDynamic { program, network, mapping, key, dest: dest_reg.clone() }
+            }
+            Intrinsic::DynamicGet => {
+                let dest_type = self.visit_type(&type_parameters[0].0);
+                AleoStmt::GetDynamic { program, network, mapping, key, dest: dest_reg.clone(), dest_type }
+            }
+            Intrinsic::DynamicGetOrUse => {
+                let default = arguments[4].0.clone();
+                let dest_type = self.visit_type(&type_parameters[0].0);
+                AleoStmt::GetOrUseDynamic { program, network, mapping, key, default, dest: dest_reg.clone(), dest_type }
+            }
+            _ => unreachable!("generate_dynamic_mapping_op called with non-dynamic-mapping intrinsic"),
+        };
+
+        (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
     }
 
     fn visit_call(&mut self, input: &CallExpression) -> (AleoExpr, Vec<AleoStmt>) {
@@ -745,6 +854,14 @@ impl CodeGeneratingVisitor<'_> {
                 | Intrinsic::VectorSwapRemove => {
                     panic!("`Vector` intrinsics should have been lowered before code generation")
                 }
+                Intrinsic::DynamicCall => {
+                    unreachable!("`_dynamic_call` is handled in `visit_intrinsic` before `generate_intrinsic`")
+                }
+                Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
+                    unreachable!(
+                        "dynamic mapping intrinsics are handled in `visit_intrinsic` before `generate_intrinsic`"
+                    )
+                }
             };
             // Add the instruction to the list of instructions.
             instructions.extend(instruction);
@@ -835,6 +952,10 @@ impl CodeGeneratingVisitor<'_> {
 
             Type::Vector(_) => panic!("All vector types should have been lowered by now."),
 
+            Type::DynRecord => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::DynamicRecord);
+                (AleoExpr::Reg(new_reg), vec![ins])
+            }
             Type::Mapping(..)
             | Type::Future(..)
             | Type::Tuple(..)

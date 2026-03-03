@@ -1,0 +1,5 @@
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:4:28
+     |
+   4 |         let exists: bool = _dynamic_contains(prog, net, m, key);
+     |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

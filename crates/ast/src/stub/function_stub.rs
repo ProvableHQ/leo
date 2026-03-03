@@ -38,7 +38,9 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
     console::program::{
+        FinalizeType,
         FinalizeType::{Future as FutureFinalizeType, Plaintext as PlaintextFinalizeType},
+        RegisterType,
         RegisterType::{ExternalRecord, Future, Plaintext, Record},
     },
     prelude::{Network, ValueType},
@@ -198,6 +200,13 @@ impl FunctionStub {
                         false,
                     )),
                 }],
+                ValueType::DynamicRecord => vec![Output {
+                    mode: Mode::None,
+                    type_: Type::DynRecord,
+                    span: Default::default(),
+                    id: Default::default(),
+                }],
+                ValueType::DynamicFuture => todo!("dynamic futures are not yet supported in Leo"),
             })
             .collect_vec()
             .concat();
@@ -274,6 +283,14 @@ impl FunctionStub {
                             }
                         }
                         ValueType::Future(_) => panic!("Functions do not contain futures as inputs"),
+                        ValueType::DynamicRecord => Input {
+                            identifier: arg_name,
+                            mode: Mode::None,
+                            type_: Type::DynRecord,
+                            span: Default::default(),
+                            id: Default::default(),
+                        },
+                        ValueType::DynamicFuture => todo!("dynamic futures are not yet supported in Leo"),
                     }
                 })
                 .collect_vec(),
@@ -307,6 +324,7 @@ impl FunctionStub {
                             )])),
                             false,
                         )),
+                        FinalizeType::DynamicFuture => todo!("dynamic futures are not yet supported in Leo"),
                     },
                     span: Default::default(),
                     id: Default::default(),
@@ -333,6 +351,9 @@ impl FunctionStub {
                 Record(_) => panic!("Closures do not return records"),
                 ExternalRecord(_) => panic!("Closures do not return external records"),
                 Future(_) => panic!("Closures do not return futures"),
+                RegisterType::DynamicRecord | RegisterType::DynamicFuture => {
+                    panic!("Closures do not return dynamic types")
+                }
             })
             .collect_vec();
         let output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
@@ -362,6 +383,9 @@ impl FunctionStub {
                         Record(_) => panic!("Closures do not contain records as inputs"),
                         ExternalRecord(_) => panic!("Closures do not contain external records as inputs"),
                         Future(_) => panic!("Closures do not contain futures as inputs"),
+                        RegisterType::DynamicRecord | RegisterType::DynamicFuture => {
+                            panic!("Closures do not contain dynamic types as inputs")
+                        }
                     }
                 })
                 .collect_vec(),

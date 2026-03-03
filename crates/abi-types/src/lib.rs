@@ -198,6 +198,8 @@ pub enum Plaintext {
 pub enum TransitionInput {
     Plaintext(Plaintext),
     Record(RecordRef),
+    /// A `dyn record` (dynamic record) input — unknown record type resolved at runtime.
+    DynamicRecord,
 }
 
 /// Valid types for transition outputs.
@@ -207,6 +209,8 @@ pub enum TransitionOutput {
     Record(RecordRef),
     /// A future returned by async transitions.
     Future,
+    /// A `dyn record` (dynamic record) output — unknown record type resolved at runtime.
+    DynamicRecord,
 }
 
 /// Primitive types that map directly to Aleo literal types.

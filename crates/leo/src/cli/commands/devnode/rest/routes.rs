@@ -265,7 +265,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
     fn return_program_with_metadata(&self, program: Program<N>, edition: u16) -> Result<ErasedJson, RestError> {
         let id = program.id();
         // Get the transaction ID associated with the program and edition.
-        let tx_id = self.ledger.find_transaction_id_from_program_id_and_edition(id, edition)?;
+        let tx_id = self.ledger.find_latest_transaction_id_from_program_id_and_edition(id, edition)?;
         // Get the optional program owner associated with the program.
         // Note: The owner is only available after `ConsensusVersion::V9`.
         let program_owner = match &tx_id {
@@ -445,7 +445,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         State(rest): State<Self>,
         Path((program_id, edition)): Path<(ProgramID<N>, u16)>,
     ) -> Result<ErasedJson, RestError> {
-        Ok(ErasedJson::new(rest.ledger.find_transaction_id_from_program_id_and_edition(&program_id, edition)?))
+        Ok(ErasedJson::new(rest.ledger.find_latest_transaction_id_from_program_id_and_edition(&program_id, edition)?))
     }
 
     /// GET /<network>/find/transactionID/{transitionID}
@@ -485,7 +485,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         // The buffer is initially roughly sized to hold a `transfer_public`.
         // Most transactions will be smaller and this reduces unnecessary allocations.
         let buffer = Vec::with_capacity(3000);
-        if tx.write_le(LimitedWriter::new(buffer, N::MAX_TRANSACTION_SIZE)).is_err() {
+        if tx.write_le(LimitedWriter::new(buffer, N::LATEST_MAX_TRANSACTION_SIZE())).is_err() {
             return Err(RestError::bad_request(anyhow!("Transaction size exceeds the byte limit")));
         }
 
@@ -541,13 +541,15 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             let ledger = rest.ledger.clone();
             // Wrap blocking operations in spawn_blocking
             let new_block = tokio::task::spawn_blocking(move || {
-                ledger.prepare_advance_to_next_beacon_block(
-                    &private_key,
-                    vec![],
-                    vec![],
-                    vec![tx],
-                    &mut rand::thread_rng(),
-                )
+                ledger
+                    .prepare_advance_to_next_beacon_block(
+                        &private_key,
+                        vec![],
+                        vec![],
+                        vec![tx],
+                        &mut rand::thread_rng(),
+                    )
+                    .map_err(|e| anyhow::anyhow!("{e}"))
             })
             .await
             .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;

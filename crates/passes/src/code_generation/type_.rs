@@ -73,6 +73,7 @@ impl CodeGeneratingVisitor<'_> {
             Type::Vector(_) => {
                 panic!("Vector types should not be visited at this phase of compilation")
             }
+            Type::DynRecord => AleoType::DynamicRecord,
             Type::Numeric => panic!("`Numeric` types should not exist at this phase of compilation"),
             Type::Err => panic!("Error types should not exist at this phase of compilation"),
             Type::Unit => panic!("Unit types are not supported at this phase of compilation"),
@@ -84,6 +85,11 @@ impl CodeGeneratingVisitor<'_> {
         type_: &Type,
         visibility: Option<AleoVisibility>,
     ) -> (AleoType, Option<AleoVisibility>) {
+        // `dyn record` (dynamic.record) does not take a visibility suffix in AVM bytecode.
+        if type_ == &Type::DynRecord {
+            return (AleoType::DynamicRecord, None);
+        }
+
         // If the type is a record, handle it separately.
         if let Type::Composite(composite) = type_ {
             let composite_location = composite.path.expect_global_location();
