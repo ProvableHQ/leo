@@ -677,6 +677,8 @@ pub enum AleoType {
     String,
     /// The `dynamic.record` type for dynamic dispatch.
     DynamicRecord,
+    /// The `dynamic.future` type for dynamic dispatch.
+    DynamicFuture,
 }
 impl Display for AleoType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -707,6 +709,7 @@ impl Display for AleoType {
             Self::String => write!(f, "string"),
             Self::Array { inner, len } => write!(f, "[{inner}; {len}u32]"),
             Self::DynamicRecord => write!(f, "dynamic.record"),
+            Self::DynamicFuture => write!(f, "dynamic.future"),
         }
     }
 }

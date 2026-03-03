@@ -483,6 +483,9 @@ impl Parser<'_, '_> {
         } else if self.at(KW_DYN) {
             // `dyn record` type argument for `_dynamic_call` return types.
             self.parse_type();
+        } else if self.at(KW_FINAL_UPPER) {
+            // `Final` type argument for `_dynamic_call` return types.
+            self.parse_type();
         } else {
             // Expression argument (e.g. `N + 1`, `5`, `N`)
             self.parse_expr();

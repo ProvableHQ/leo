@@ -255,19 +255,29 @@ impl<'a> CodeGeneratingVisitor<'a> {
                         (_, mode) => AleoVisibility::maybe_from(mode),
                     };
                     // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
+                    // Dynamic futures (from `_dynamic_call`) have an empty-path sentinel location and
+                    // emit `dynamic.future` instead of a specific program/function future type.
                     if matches!(input.type_, Type::Future(_)) {
                         let location = futures
                             .next()
                             .expect("Type checking guarantees we have future locations for each future input");
-                        let [future_name] = location.path.as_slice() else {
-                            panic!(
-                                "All futures must have a single segment paths since they don't belong to submodules."
+                        if location.path.is_empty() {
+                            // Dynamic future from `_dynamic_call`.
+                            (AleoType::DynamicFuture, None)
+                        } else {
+                            let [future_name] = location.path.as_slice() else {
+                                panic!(
+                                    "All futures must have a single segment paths since they don't belong to submodules."
+                                )
+                            };
+                            (
+                                AleoType::Future {
+                                    name: future_name.to_string(),
+                                    program: location.program.to_string(),
+                                },
+                                None,
                             )
-                        };
-                        (
-                            AleoType::Future { name: future_name.to_string(), program: location.program.to_string() },
-                            None,
-                        )
+                        }
                     } else {
                         self.visit_type_with_visibility(&input.type_, visibility)
                     }

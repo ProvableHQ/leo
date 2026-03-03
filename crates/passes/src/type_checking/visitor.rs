@@ -1320,14 +1320,28 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Determine the return type from the explicit return type annotations.
-        match return_types {
+        let ret = match return_types {
             [] => Type::Unit,
             [(_, ty, _)] => ty.clone(),
             multiple => {
                 let elements = multiple.iter().map(|(_, ty, _)| ty.clone()).collect();
                 Type::Tuple(TupleType::new(elements))
             }
+        };
+
+        // If any return type is a Future, set the call location to a dynamic sentinel so that the
+        // variable gets added to `scope_state.futures` and can be consumed by a `final { }` block.
+        // The empty-path sentinel is detected by code generation to emit `dynamic.future`.
+        let has_future = match &ret {
+            Type::Future(..) => true,
+            Type::Tuple(t) => t.elements().iter().any(|ty| matches!(ty, Type::Future(..))),
+            _ => false,
+        };
+        if has_future {
+            self.scope_state.call_location = Some(Location::new(sym::_dynamic_call, vec![]));
         }
+
+        ret
     }
 
     /// Type-checks a `_dynamic_contains`, `_dynamic_get`, or `_dynamic_get_or_use` intrinsic.

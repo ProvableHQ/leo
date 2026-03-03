@@ -1,0 +1,10 @@
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+
+function main:
+    input r0 as Token.record;
+    cast r0 into r1 as dynamic.record;
+    output r1 as dynamic.record;

@@ -509,8 +509,13 @@ impl CodeGeneratingVisitor<'_> {
         let mut dest_types = Vec::new();
         for (mode, ty, _span) in return_types {
             let reg = self.next_register();
-            let aleo_type = self.visit_type(ty);
-            let visibility = AleoVisibility::maybe_from(*mode);
+            // `Future` types from `_dynamic_call` become `dynamic.future` in the AVM, which has
+            // no visibility suffix (same as `dynamic.record`).
+            let (aleo_type, visibility) = if matches!(ty, Type::Future(..)) {
+                (AleoType::DynamicFuture, None)
+            } else {
+                (self.visit_type(ty), AleoVisibility::maybe_from(*mode))
+            };
             dests.push(reg);
             dest_types.push((aleo_type, visibility));
         }
