@@ -56,7 +56,7 @@ Attempting to determine the consensus version from the latest block height at ht
 
 ⚙️ Executing some_sample_leo_program.aleo/main...
 
-📊 Execution Summary for some_sample_leo_program.aleo
+📊 Execution Cost Summary for some_sample_leo_program.aleo
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.001334
@@ -116,7 +116,7 @@ Attempting to determine the consensus version from the latest block height at ht
 
 ⚙️ Executing some_sample_leo_program.aleo/main...
 
-📊 Execution Summary for some_sample_leo_program.aleo
+📊 Execution Cost Summary for some_sample_leo_program.aleo
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.001334

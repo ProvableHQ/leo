@@ -40,24 +40,19 @@ impl Command for Advance {
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
-        tokio::runtime::Runtime::new().unwrap().block_on(async { handle_advance_devnode(self).await })
+        tracing::info!("Advancing the Devnode ledger by {} block(s)", self.num_blocks);
+
+        let client = reqwest::blocking::Client::new();
+        let payload = json!({
+            "num_blocks": self.num_blocks,
+        });
+
+        let _response = client
+            .post(format!("http://{}/testnet/block/create", self.socket_addr))
+            .header("Content-Type", "application/json")
+            .json(&payload)
+            .send();
+
+        Ok(())
     }
-}
-
-async fn handle_advance_devnode(command: Advance) -> Result<<Advance as Command>::Output> {
-    tracing::info!("Advancing the Devnode ledger by {} block(s)", command.num_blocks,);
-
-    // Call the REST API to advance the ledger by the specified number of blocks.
-    let client = reqwest::blocking::Client::new();
-    let payload = json!({
-        "num_blocks": command.num_blocks,
-    });
-
-    let _response = client
-        .post(format!("http://{}/testnet/block/create", command.socket_addr))
-        .header("Content-Type", "application/json")
-        .json(&payload)
-        .send();
-
-    Ok(())
 }
