@@ -139,8 +139,7 @@ fn {fn_name}() {{
 /// Captures git metadata and emits a composite version string as a cargo env var.
 ///
 /// Emits:
-/// - `LEO_GIT_HASH`: short commit hash (or "unknown")
-/// - `LEO_VERSION_STRING`: full version string for `--version` output
+/// - `LEO_VERSION_STRING`: full version string for `--version` output and panic hook
 fn set_version_env_vars() {
     // Re-run if HEAD changes (new commit or branch switch).
     println!("cargo:rerun-if-changed=../../.git/HEAD");
@@ -168,7 +167,6 @@ fn set_version_env_vars() {
     let version = env::var("CARGO_PKG_VERSION").unwrap();
     let features_str = features.join(",");
 
-    println!("cargo:rustc-env=LEO_GIT_HASH={hash}");
     println!("cargo:rustc-env=LEO_VERSION_STRING={version} ({hash} {branch}) features=[{features_str}]");
 }
 
