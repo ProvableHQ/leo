@@ -1,0 +1,7 @@
+Error [ETYC0372178]: The `Final` `f` returned by `_dynamic_call` must be consumed by a `final { }` block.
+    --> compiler-test:4:16
+     |
+   4 |         return f;
+     |                ^
+     |
+     = Wrap the dynamic call result in a `final { }` block, e.g. `return final { name.run(); };`.

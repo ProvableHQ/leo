@@ -334,6 +334,28 @@ impl TypeCheckingVisitor<'_> {
 
         inferred
     }
+
+    /// Walks a return expression shallowly, looking for path references to dynamic futures.
+    /// Emits an error if a `Final` from `_dynamic_call` is returned directly instead of being
+    /// consumed via a `final { }` block.
+    fn check_no_dynamic_future_in_return_expr(&self, expr: &Expression) {
+        match expr {
+            Expression::Path(path) => {
+                let name = path.identifier().name;
+                if let Some(loc) = self.scope_state.futures.get(&name)
+                    && loc.program == sym::_dynamic_call
+                {
+                    self.emit_err(TypeCheckerError::dynamic_future_not_consumed(name, expr.span()));
+                }
+            }
+            Expression::Tuple(tuple) => {
+                for elem in &tuple.elements {
+                    self.check_no_dynamic_future_in_return_expr(elem);
+                }
+            }
+            _ => {}
+        }
+    }
 }
 
 impl AstVisitor for TypeCheckingVisitor<'_> {
@@ -998,6 +1020,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         };
 
         let func = func_symbol.function.clone();
+        let callee_has_final_output = func.variant == Variant::EntryPoint && func.has_final_output();
 
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
@@ -1172,6 +1195,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
             if self.scope_state.already_contains_an_async_block {
                 self.emit_err(TypeCheckerError::external_call_after_final("block", input.span));
+            }
+
+            // An external entry-point call that returns a future cannot appear inside a
+            // conditional branch: after flattening, the future would participate in a ternary,
+            // which is invalid in AVM.
+            if self.scope_state.is_conditional && callee_has_final_output {
+                self.emit_err(TypeCheckerError::future_producing_call_in_conditional(input.span));
             }
         }
 
@@ -2160,6 +2190,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         self.visit_expression(&input.expression, &Some(return_type));
+
+        // Check that dynamic futures are not directly returned (they must go through `final { }`).
+        // Skip this check when the return expression is itself a `final { }` block — in that case
+        // any dynamic future is being properly consumed inside the block.
+        if !matches!(input.expression, Expression::Async(..)) {
+            self.check_no_dynamic_future_in_return_expr(&input.expression);
+        }
 
         // Set the `has_return` flag after processing `input.expression` so that we don't error out
         // on something like `return async { .. }`.

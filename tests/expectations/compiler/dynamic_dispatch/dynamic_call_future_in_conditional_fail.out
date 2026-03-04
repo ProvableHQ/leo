@@ -1,0 +1,21 @@
+Error [ETYC0372177]: `_dynamic_call` cannot appear inside a conditional branch.
+    --> compiler-test:4:28
+     |
+   4 |             let f: Final = _dynamic_call::[Final](prog, net, func);
+     |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = After flattening, `call.dynamic` results cannot be used in ternary operations. Move the `_dynamic_call` outside of the conditional block.
+Error [ETYC0372151]: `final` blocks are not allowed inside conditional blocks.
+    --> compiler-test:5:20
+     |
+   5 |             return final { f.run(); };
+     |                    ^^^^^^^^^^^^^^^^^^
+     |
+     = Refactor your code to move the `final` block outside of the conditional block.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
+    --> compiler-test:7:16
+     |
+   7 |         return final { fallback(); };
+     |                ^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.

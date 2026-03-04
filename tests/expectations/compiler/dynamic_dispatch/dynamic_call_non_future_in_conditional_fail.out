@@ -1,0 +1,7 @@
+Error [ETYC0372177]: `_dynamic_call` cannot appear inside a conditional branch.
+    --> compiler-test:4:20
+     |
+   4 |             return _dynamic_call::[u64](prog, net, func);
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = After flattening, `call.dynamic` results cannot be used in ternary operations. Move the `_dynamic_call` outside of the conditional block.

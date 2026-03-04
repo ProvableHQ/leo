@@ -1424,4 +1424,25 @@ create_messages!(
         msg: format!("`@no_inline` is not allowed on `final fn` functions because they must always be inlined."),
         help: None,
     }
+
+    @formatted
+    future_producing_call_in_conditional {
+        args: (),
+        msg: "A call that returns `Final` cannot appear inside a conditional branch.".to_string(),
+        help: Some("Futures cannot participate in ternary operations after flattening. Move the call outside of the conditional block.".to_string()),
+    }
+
+    @formatted
+    dynamic_call_in_conditional {
+        args: (),
+        msg: "`_dynamic_call` cannot appear inside a conditional branch.".to_string(),
+        help: Some("After flattening, `call.dynamic` results cannot be used in ternary operations. Move the `_dynamic_call` outside of the conditional block.".to_string()),
+    }
+
+    @formatted
+    dynamic_future_not_consumed {
+        args: (name: impl Display),
+        msg: format!("The `Final` `{name}` returned by `_dynamic_call` must be consumed by a `final {{ }}` block."),
+        help: Some("Wrap the dynamic call result in a `final { }` block, e.g. `return final { name.run(); };`.".to_string()),
+    }
 );

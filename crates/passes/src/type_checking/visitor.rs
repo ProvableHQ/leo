@@ -259,7 +259,12 @@ impl TypeCheckingVisitor<'_> {
         function_span: Span,
     ) -> Type {
         // `_dynamic_call` has variable arguments and explicit return types -- handle it separately.
+        // Disallow `_dynamic_call` inside conditional branches: after flattening, `call.dynamic`
+        // results cannot be used in ternary operations regardless of the return type.
         if intrinsic == Intrinsic::DynamicCall {
+            if self.scope_state.is_conditional {
+                self.emit_err(TypeCheckerError::dynamic_call_in_conditional(function_span));
+            }
             return self.check_dynamic_call(arguments, return_types, function_span);
         }
 
@@ -1280,6 +1285,17 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
+    /// Visits the first `n` arguments and asserts each has type `Field`.
+    ///
+    /// Used by dynamic intrinsics whose first arguments encode field-encoded identifiers
+    /// (program, network, function/mapping).
+    fn check_first_n_args_are_field(&mut self, arguments: &[Expression], n: usize) {
+        for arg in &arguments[..n] {
+            let ty = self.visit_expression(arg, &Some(Type::Field));
+            self.assert_type(&ty, &Type::Field, arg.span());
+        }
+    }
+
     /// Type-checks a `_dynamic_call` intrinsic expression.
     ///
     /// Validates:
@@ -1300,10 +1316,7 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // The first three arguments encode the program, network, and function identifiers.
-        for arg in &arguments[..3] {
-            let ty = self.visit_expression(arg, &Some(Type::Field));
-            self.assert_type(&ty, &Type::Field, arg.span());
-        }
+        self.check_first_n_args_are_field(arguments, 3);
 
         // Remaining arguments are the call operands. Static records are forbidden.
         for arg in &arguments[3..] {
@@ -1337,6 +1350,7 @@ impl TypeCheckingVisitor<'_> {
             Type::Tuple(t) => t.elements().iter().any(|ty| matches!(ty, Type::Future(..))),
             _ => false,
         };
+
         if has_future {
             self.scope_state.call_location = Some(Location::new(sym::_dynamic_call, vec![]));
         }
@@ -1369,10 +1383,7 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Arguments 0, 1, 2: field-encoded program, network, and mapping identifiers.
-        for arg in &arguments[..3] {
-            let ty = self.visit_expression(arg, &Some(Type::Field));
-            self.assert_type(&ty, &Type::Field, arg.span());
-        }
+        self.check_first_n_args_are_field(arguments, 3);
 
         // Argument 3: key — any plaintext type.
         self.visit_expression(&arguments[3], &None);

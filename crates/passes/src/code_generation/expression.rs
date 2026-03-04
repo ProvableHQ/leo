@@ -449,29 +449,24 @@ impl CodeGeneratingVisitor<'_> {
             })
             .collect::<Vec<_>>();
 
-        // `_dynamic_call` needs access to `return_types` -- handle it before `generate_intrinsic`.
-        if Intrinsic::from_symbol(input.name, &input.type_parameters) == Some(Intrinsic::DynamicCall) {
-            let (dest, call_stmts) = self.generate_dynamic_call(&arguments, &input.return_types);
-            stmts.extend(call_stmts);
-            return (dest, stmts);
+        let intrinsic = Intrinsic::from_symbol(input.name, &input.type_parameters)
+            .expect("All core functions should be known at this phase of compilation");
+
+        match intrinsic {
+            Intrinsic::DynamicCall => {
+                let (dest, call_stmts) = self.generate_dynamic_call(&arguments, &input.return_types);
+                stmts.extend(call_stmts);
+                return (dest, stmts);
+            }
+            Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
+                let (dest, map_stmts) = self.generate_dynamic_mapping_op(intrinsic, &arguments, &input.type_parameters);
+                stmts.extend(map_stmts);
+                return (dest, stmts);
+            }
+            _ => {}
         }
 
-        // Dynamic mapping intrinsics need access to `type_parameters` -- handle before `generate_intrinsic`.
-        if matches!(
-            Intrinsic::from_symbol(input.name, &input.type_parameters),
-            Some(Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse)
-        ) {
-            let intrinsic = Intrinsic::from_symbol(input.name, &input.type_parameters).expect("already matched above");
-            let (dest, map_stmts) = self.generate_dynamic_mapping_op(intrinsic, &arguments, &input.type_parameters);
-            stmts.extend(map_stmts);
-            return (dest, stmts);
-        }
-
-        let (intr_dest, intr_stmts) = self.generate_intrinsic(
-            Intrinsic::from_symbol(input.name, &input.type_parameters)
-                .expect("All core functions should be known at this phase of compilation"),
-            &arguments,
-        );
+        let (intr_dest, intr_stmts) = self.generate_intrinsic(intrinsic, &arguments);
 
         // Add the instruction to the list of instructions.
         stmts.extend(intr_stmts);
@@ -520,21 +515,14 @@ impl CodeGeneratingVisitor<'_> {
             dest_types.push((aleo_type, visibility));
         }
 
-        let instruction = AleoStmt::CallDynamic {
-            program,
-            network,
-            function,
-            args: call_args,
-            arg_types,
-            dests: dests.clone(),
-            dest_types,
-        };
-
         let dest_expr = match dests.as_slice() {
             [] => None,
             [single] => Some(AleoExpr::Reg(single.clone())),
             multiple => Some(AleoExpr::Tuple(multiple.iter().cloned().map(AleoExpr::Reg).collect())),
         };
+
+        let instruction =
+            AleoStmt::CallDynamic { program, network, function, args: call_args, arg_types, dests, dest_types };
 
         (dest_expr, vec![instruction])
     }

@@ -1,0 +1,21 @@
+Error [ETYC0372176]: A call that returns `Final` cannot appear inside a conditional branch.
+    --> compiler-test:8:28
+     |
+   8 |             let f: Final = child.aleo/foo();
+     |                            ^^^^^^^^^^^^^^^^
+     |
+     = Futures cannot participate in ternary operations after flattening. Move the call outside of the conditional block.
+Error [ETYC0372151]: `final` blocks are not allowed inside conditional blocks.
+    --> compiler-test:9:20
+     |
+   9 |             return final { f.run(); };
+     |                    ^^^^^^^^^^^^^^^^^^
+     |
+     = Refactor your code to move the `final` block outside of the conditional block.
+Error [ETYC0372150]: An entry point fn cannot contain more than one `final` block.
+    --> compiler-test:11:16
+     |
+  11 |         return final { fallback(); };
+     |                ^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
