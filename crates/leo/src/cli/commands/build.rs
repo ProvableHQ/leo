@@ -31,6 +31,20 @@ use std::{
     rc::Rc,
 };
 
+/// A program queued for bytecode validation after the build.
+struct ProgramForValidation {
+    /// The Aleo bytecode.
+    bytecode: String,
+    /// Path to the bytecode file on disk, used for error reporting.
+    path: PathBuf,
+    /// Whether the program was compiled from Leo source (`true`) or loaded as external bytecode (`false`).
+    ///
+    /// All entries in `Compiled::imports` are Leo-compiled: the code generator only emits bytecode
+    /// for `Stub::FromLeo` stubs and silently skips `Stub::FromAleo` ones, so external bytecode
+    /// dependencies never appear there.
+    is_leo_compiled: bool,
+}
+
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         Self {
@@ -144,9 +158,9 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
     let mut stubs: IndexMap<Symbol, Stub> = IndexMap::new();
 
-    // All programs to load into snarkVM for type checking, in dependency order.
-    // The boolean tracks whether the program was compiled from Leo source (true) or loaded as bytecode from a dependency (false).
-    let mut compiled_programs: IndexMap<String, (String, PathBuf, bool)> = IndexMap::new();
+    // All programs to validate through snarkVM's bytecode validator, in dependency order
+    // (imports must be loaded before the programs that depend on them).
+    let mut compiled_programs: IndexMap<String, ProgramForValidation> = IndexMap::new();
 
     for program in &package.programs {
         match &program.data {
@@ -170,11 +184,11 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
                 stubs.insert(program.name, stub.into());
 
-                compiled_programs.entry(program.name.to_string()).or_insert((
-                    bytecode.clone(),
-                    build_path.clone(),
-                    false,
-                ));
+                compiled_programs.entry(program.name.to_string()).or_insert(ProgramForValidation {
+                    bytecode: bytecode.clone(),
+                    path: build_path,
+                    is_leo_compiled: false,
+                });
             }
 
             leo_package::ProgramData::SourcePath { directory, source } => {
@@ -207,7 +221,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     std::fs::write(&primary_path, &compiled.primary.bytecode)
                         .map_err(CliError::failed_to_load_instructions)?;
 
-                    // Write imports (bytecode and ABI).
+                    // Write imports (bytecode and ABI) and queue for validation.
                     for import in &compiled.imports {
                         let import_path = imports_directory.join(format!("{}.aleo", import.name));
                         std::fs::write(&import_path, &import.bytecode)
@@ -217,23 +231,21 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         let import_abi_json = serde_json::to_string_pretty(&import.abi)
                             .map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
                         std::fs::write(&import_abi_path, import_abi_json).map_err(CliError::failed_to_write_abi)?;
-                    }
 
-                    // Queue compiled imports for validation (imports before primary for dependency order).
-                    for import in &compiled.imports {
-                        let import_path = imports_directory.join(format!("{}.aleo", import.name));
-                        compiled_programs.entry(import.name.clone()).or_insert((
-                            import.bytecode.clone(),
-                            import_path,
-                            true,
-                        ));
+                        // Queue import for validation. All compiled.imports are Leo-compiled; see
+                        // ProgramForValidation::is_leo_compiled for the invariant explanation.
+                        compiled_programs.entry(import.name.clone()).or_insert(ProgramForValidation {
+                            bytecode: import.bytecode.clone(),
+                            path: import_path,
+                            is_leo_compiled: true,
+                        });
                     }
                     // Queue the primary program.
-                    compiled_programs.entry(program.name.to_string()).or_insert((
-                        compiled.primary.bytecode.clone(),
-                        primary_path.clone(),
-                        true,
-                    ));
+                    compiled_programs.entry(program.name.to_string()).or_insert(ProgramForValidation {
+                        bytecode: compiled.primary.bytecode.clone(),
+                        path: primary_path,
+                        is_leo_compiled: true,
+                    });
 
                     // Write the ABI file for the main program.
                     if source == &main_source_path {
@@ -394,10 +406,7 @@ fn parse_leo_source_directory(
 
 /// Validates compiled Aleo bytecode by loading all programs into a snarkVM `Process`.
 /// Programs must be provided in dependency order (imports before the programs that use them).
-fn validate_compiled_programs(
-    programs: &IndexMap<String, (String, PathBuf, bool)>,
-    network: NetworkName,
-) -> Result<()> {
+fn validate_compiled_programs(programs: &IndexMap<String, ProgramForValidation>, network: NetworkName) -> Result<()> {
     match network {
         NetworkName::MainnetV0 => validate_compiled_programs_inner::<MainnetV0>(programs),
         NetworkName::TestnetV0 => validate_compiled_programs_inner::<TestnetV0>(programs),
@@ -405,13 +414,14 @@ fn validate_compiled_programs(
     }
 }
 
+/// Network-generic implementation of [`validate_compiled_programs`].
 fn validate_compiled_programs_inner<N: snarkvm::prelude::Network>(
-    programs: &IndexMap<String, (String, PathBuf, bool)>,
+    programs: &IndexMap<String, ProgramForValidation>,
 ) -> Result<()> {
     let mut process = SvmProcess::<N>::load()
         .map_err(|e| CliError::custom(format!("Failed to initialize snarkVM process for bytecode validation: {e}")))?;
 
-    for (name, (bytecode, path, is_leo_compiled)) in programs {
+    for (name, ProgramForValidation { bytecode, path, is_leo_compiled }) in programs {
         let program = SvmProgram::<N>::from_str(bytecode).map_err(|e| CliError::failed_to_parse_aleo_file(name, e))?;
 
         let checksum = program.to_checksum().iter().join(", ");
