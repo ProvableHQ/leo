@@ -18,11 +18,13 @@ use crate::CompilerState;
 
 use leo_ast::{
     AstVisitor,
+    Composite,
     CompositeType,
     Function,
     FunctionPrototype,
     Location,
     Mapping,
+    Member,
     ProgramScope,
     ProgramVisitor,
     RecordPrototype,
@@ -125,9 +127,48 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 }
             }
 
-            // Merge parent records.
+            // Merge parent records, checking for field conflicts.
             for (name, parent_record) in &parent_flattened.records {
-                if !flattened.records.iter().any(|(n, _)| n == name) {
+                if let Some((_, existing_record)) = flattened.records.iter().find(|(n, _)| n == name) {
+                    // Same record name exists - check if fields are compatible.
+                    if !Self::record_fields_compatible(existing_record, parent_record) {
+                        // Find the specific field that conflicts for the error message.
+                        for parent_member in &parent_record.members {
+                            let child_member = existing_record
+                                .members
+                                .iter()
+                                .find(|m| m.identifier.name == parent_member.identifier.name);
+                            match child_member {
+                                None => {
+                                    // Parent has a field that child doesn't have.
+                                    self.state.handler.emit_err(CheckInterfacesError::conflicting_record_field(
+                                        parent_member.identifier.name,
+                                        name,
+                                        interface_name,
+                                        parent_interface_name,
+                                        interface_span,
+                                    ));
+                                    return None;
+                                }
+                                Some(cm)
+                                    if !cm.type_.eq_user(&parent_member.type_) || cm.mode != parent_member.mode =>
+                                {
+                                    self.state.handler.emit_err(CheckInterfacesError::conflicting_record_field(
+                                        parent_member.identifier.name,
+                                        name,
+                                        interface_name,
+                                        parent_interface_name,
+                                        interface_span,
+                                    ));
+                                    return None;
+                                }
+                                _ => {} // Field matches, continue checking.
+                            }
+                        }
+                    }
+                    // Compatible or child is superset - child's version takes precedence.
+                } else {
+                    // Add parent's record.
                     flattened.records.push((*name, parent_record.clone()));
                 }
             }
@@ -227,17 +268,51 @@ impl<'a> CheckInterfacesVisitor<'a> {
             }
         }
 
-        // Check all required records are declared.
-        for (record_name, _) in &flattened.records {
+        // Check all required records are declared with required fields.
+        for (record_name, required_record) in &flattened.records {
             let record_location = Location::new(program_name, vec![*record_name]);
 
-            if self.state.symbol_table.lookup_record(program_name, &record_location).is_none() {
-                self.state.handler.emit_err(CheckInterfacesError::missing_interface_record(
-                    record_name,
-                    interface_location,
-                    program_name,
-                    program_scope.span,
-                ));
+            match self.state.symbol_table.lookup_record(program_name, &record_location) {
+                Some(program_record) => {
+                    // Record exists - check that all required fields are present with correct types.
+                    if let Some((field_name, required_member, found_member)) =
+                        Self::find_record_field_mismatch(required_record, program_record)
+                    {
+                        match found_member {
+                            None => {
+                                // Field is missing.
+                                self.state.handler.emit_err(CheckInterfacesError::record_field_missing(
+                                    field_name,
+                                    record_name,
+                                    interface_location,
+                                    program_name,
+                                    program_record.span,
+                                ));
+                            }
+                            Some(actual) => {
+                                // Field exists but type or mode doesn't match.
+                                let expected = format!("{} {}", required_member.mode, required_member.type_);
+                                let found = format!("{} {}", actual.mode, actual.type_);
+                                self.state.handler.emit_err(CheckInterfacesError::record_field_type_mismatch(
+                                    field_name,
+                                    record_name,
+                                    interface_location,
+                                    expected,
+                                    found,
+                                    actual.span,
+                                ));
+                            }
+                        }
+                    }
+                }
+                None => {
+                    self.state.handler.emit_err(CheckInterfacesError::missing_interface_record(
+                        record_name,
+                        interface_location,
+                        program_name,
+                        program_scope.span,
+                    ));
+                }
             }
         }
 
@@ -384,6 +459,39 @@ impl<'a> CheckInterfacesVisitor<'a> {
             inputs.join(", "),
             func.output_type
         )
+    }
+
+    /// Check if all parent record fields exist in child with matching types and modes.
+    fn record_fields_compatible(child: &RecordPrototype, parent: &RecordPrototype) -> bool {
+        parent.members.iter().all(|parent_member| {
+            child.members.iter().any(|child_member| {
+                child_member.identifier.name == parent_member.identifier.name
+                    && child_member.type_.eq_user(&parent_member.type_)
+                    && child_member.mode == parent_member.mode
+            })
+        })
+    }
+
+    /// Find the first mismatching field between a required record prototype and an actual record.
+    /// Returns Some((field_name, expected_member, found_member_or_none)) if mismatch found.
+    fn find_record_field_mismatch<'b>(
+        required: &'b RecordPrototype,
+        actual: &'b Composite,
+    ) -> Option<(Symbol, &'b Member, Option<&'b Member>)> {
+        for required_member in &required.members {
+            let found = actual.members.iter().find(|m| m.identifier.name == required_member.identifier.name);
+            match found {
+                None => return Some((required_member.identifier.name, required_member, None)),
+                Some(actual_member) => {
+                    if !actual_member.type_.eq_user(&required_member.type_)
+                        || actual_member.mode != required_member.mode
+                    {
+                        return Some((required_member.identifier.name, required_member, Some(actual_member)));
+                    }
+                }
+            }
+        }
+        None
     }
 
     fn build_inheritance_graph(&mut self, input: &ProgramScope) {

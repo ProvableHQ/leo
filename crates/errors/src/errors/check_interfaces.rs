@@ -122,4 +122,36 @@ create_messages!(
         msg: format!("Cyclic interface inheritance detected: {path}"),
         help: Some("Interface inheritance must be acyclic. Remove the circular dependency.".to_string()),
     }
+
+    @formatted
+    conflicting_record_field {
+        args: (field_name: impl Display, record_name: impl Display, interface_name: impl Display, parent_name: impl Display),
+        msg: format!(
+            "Record `{record_name}` has a conflicting definition for field `{field_name}` in interface `{interface_name}` \
+             inherited from `{parent_name}`. Fields with the same name must have identical types and modes."
+        ),
+        help: Some("Ensure both interfaces define the same type and mode for this field, or rename one of them.".to_string()),
+    }
+
+    @formatted
+    record_field_missing {
+        args: (field_name: impl Display, record_name: impl Display, interface_name: impl Display, program_name: impl Display),
+        msg: format!(
+            "Record `{record_name}` in program `{program_name}` is missing required field `{field_name}` \
+             specified by interface `{interface_name}`."
+        ),
+        help: Some("Add the missing field with the exact type and mode specified in the interface.".to_string()),
+    }
+
+    @formatted
+    record_field_type_mismatch {
+        args: (field_name: impl Display, record_name: impl Display, interface_name: impl Display,
+               expected: impl Display, found: impl Display),
+        msg: format!(
+            "Field `{field_name}` in record `{record_name}` does not match the type required by interface `{interface_name}`.\n\
+             Expected: {expected}\n\
+             Found: {found}"
+        ),
+        help: Some("Field types and modes must match exactly.".to_string()),
+    }
 );

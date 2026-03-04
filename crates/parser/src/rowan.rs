@@ -2393,10 +2393,20 @@ impl<'a> ConversionContext<'a> {
     /// Convert a RECORD_PROTOTYPE_DEF node to a RecordPrototype.
     fn to_record_prototype(&self, node: &SyntaxNode) -> Result<leo_ast::RecordPrototype> {
         debug_assert_eq!(node.kind(), RECORD_PROTOTYPE_DEF);
+
         let span = self.to_span(node);
         let identifier = self.require_ident(node, "record name");
+        let members = children(node)
+            .filter(|n| {
+                matches!(
+                    n.kind(),
+                    STRUCT_MEMBER | STRUCT_MEMBER_PUBLIC | STRUCT_MEMBER_PRIVATE | STRUCT_MEMBER_CONSTANT
+                )
+            })
+            .map(|n| self.struct_member_to_member(&n))
+            .collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::RecordPrototype { identifier, span, id: self.builder.next_id() })
+        Ok(leo_ast::RecordPrototype { identifier, span, members, id: self.builder.next_id() })
     }
 }
 

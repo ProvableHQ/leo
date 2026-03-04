@@ -1,0 +1,14 @@
+Error [ECHI03712011]: Record `Token` has a conflicting definition for field `amount` in interface `Combined` inherited from `TokenA`. Fields with the same name must have identical types and modes.
+    --> compiler-test:17:1
+     |
+  17 | interface Combined : TokenA + TokenB {}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Ensure both interfaces define the same type and mode for this field, or rename one of them.
+Error [ECHI03712011]: Record `Token` has a conflicting definition for field `amount` in interface `Combined` inherited from `TokenA`. Fields with the same name must have identical types and modes.
+    --> compiler-test:17:1
+     |
+  17 | interface Combined : TokenA + TokenB {}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Ensure both interfaces define the same type and mode for this field, or rename one of them.

@@ -16,7 +16,19 @@
 
 use std::fmt;
 
-use crate::{Annotation, ConstParameter, Identifier, Input, Node, NodeID, Output, TupleType, Type};
+use crate::{
+    Annotation,
+    ConstParameter,
+    Identifier,
+    Input,
+    Member,
+    Node,
+    NodeID,
+    Output,
+    TupleType,
+    Type,
+    indent_display::Indent,
+};
 use itertools::Itertools;
 use leo_span::Span;
 use serde::{Deserialize, Serialize};
@@ -107,6 +119,8 @@ crate::simple_node_impl!(FunctionPrototype);
 pub struct RecordPrototype {
     /// The record identifier
     pub identifier: Identifier,
+    /// The fields of this record prototype, if any.
+    pub members: Vec<Member>,
     /// The entire span of the composite definition.
     pub span: Span,
     /// The ID of the node.
@@ -129,7 +143,12 @@ impl fmt::Debug for RecordPrototype {
 
 impl fmt::Display for RecordPrototype {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "record {};", self.identifier)
+        writeln!(f, " record {} {{", self.identifier)?;
+
+        for field in self.members.iter() {
+            writeln!(f, "{},", Indent(field))?;
+        }
+        write!(f, "}}")
     }
 }
 
