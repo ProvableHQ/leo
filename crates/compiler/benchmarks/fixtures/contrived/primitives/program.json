@@ -1,0 +1,7 @@
+{
+    "program": "bench_primitives.aleo",
+    "version": "0.1.0",
+    "description": "",
+    "license": "MIT",
+    "dependencies": []
+}
