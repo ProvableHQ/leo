@@ -76,8 +76,8 @@ impl DestructuringVisitor<'_> {
                 (tuple, statements)
             }
 
-            expr @ Expression::Call(..) => {
-                // It's a call, so we'll need to make a new definition for the variables.
+            expr @ (Expression::Call(..) | Expression::Intrinsic(..)) => {
+                // It's a call expression, so we'll need to make a new definition for the variables.
                 let definition_stmt = self.assign_tuple(expr, Symbol::intern("destructure"));
                 let Statement::Definition(DefinitionStatement {
                     place: DefinitionPlace::Multiple(identifiers), ..

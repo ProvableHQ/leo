@@ -1185,6 +1185,11 @@ fn format_type(node: &SyntaxNode, out: &mut Output) {
         TYPE_FINAL => format_type_final(node, out),
         TYPE_MAPPING => format_type_mapping(node, out),
         TYPE_OPTIONAL => format_type_optional(node, out),
+        TYPE_DYN_RECORD => {
+            out.write("dyn");
+            out.space();
+            out.write("record");
+        }
         _ => {}
     }
 }

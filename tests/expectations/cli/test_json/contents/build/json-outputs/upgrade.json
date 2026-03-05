@@ -3,7 +3,7 @@
     "address": "XXXXXX",
     "network": "testnet",
     "endpoint": "http://localhost:3030",
-    "consensus_version": 13
+    "consensus_version": 14
   },
   "deployments": [
     {
@@ -11,7 +11,7 @@
       "transaction_id": "XXXXXX",
       "stats": {
         "program_size_bytes": 381,
-        "max_program_size_bytes": 100000,
+        "max_program_size_bytes": 512000,
         "total_variables": 17276,
         "total_constraints": 12927,
         "max_variables": 2097152,

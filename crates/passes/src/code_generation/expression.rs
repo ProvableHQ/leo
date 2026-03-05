@@ -490,12 +490,12 @@ impl CodeGeneratingVisitor<'_> {
         let call_args: Vec<AleoExpr> = arguments[3..].iter().map(|(e, _)| e.clone()).collect();
 
         // Compute AVM type annotations for each call argument (default visibility: private).
+        // `visit_type_with_visibility` suppresses the suffix for record and dynamic.record types.
         let arg_types: Vec<(AleoType, Option<AleoVisibility>)> = arguments[3..]
             .iter()
             .map(|(_, id)| {
                 let ty = self.state.type_table.get(id).unwrap_or(Type::Err);
-                let aleo_type = self.visit_type(&ty);
-                (aleo_type, Some(AleoVisibility::Private))
+                self.visit_type_with_visibility(&ty, Some(AleoVisibility::Private))
             })
             .collect();
 
@@ -504,12 +504,13 @@ impl CodeGeneratingVisitor<'_> {
         let mut dest_types = Vec::new();
         for (mode, ty, _span) in return_types {
             let reg = self.next_register();
-            // `Future` types from `_dynamic_call` become `dynamic.future` in the AVM, which has
-            // no visibility suffix (same as `dynamic.record`).
+            // `Future` types become `dynamic.future` in AVM (no visibility suffix).
+            // All other types go through `visit_type_with_visibility`, which suppresses
+            // the suffix for `dynamic.record` and record types automatically.
             let (aleo_type, visibility) = if matches!(ty, Type::Future(..)) {
                 (AleoType::DynamicFuture, None)
             } else {
-                (self.visit_type(ty), AleoVisibility::maybe_from(*mode))
+                self.visit_type_with_visibility(ty, AleoVisibility::maybe_from(*mode))
             };
             dests.push(reg);
             dest_types.push((aleo_type, visibility));
@@ -748,6 +749,8 @@ impl CodeGeneratingVisitor<'_> {
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
                 Intrinsic::GroupGen => (Some(AleoExpr::RawName("group::GEN".into())), vec![]),
+                Intrinsic::AleoGenerator => (Some(AleoExpr::RawName("aleo::GENERATOR".into())), vec![]),
+                Intrinsic::AleoGeneratorPowers => (Some(AleoExpr::RawName("aleo::GENERATOR_POWERS".into())), vec![]),
                 Intrinsic::ChaChaRand(type_) => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::RandChacha(dest_reg.clone(), type_.into());
@@ -766,6 +769,32 @@ impl CodeGeneratingVisitor<'_> {
                         args[0].clone(),
                         args[1].clone(),
                         args[2].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Intrinsic::SnarkVerify => {
+                    debug_assert_eq!(args.len(), 4, "type checker guarantees SnarkVerify has exactly 4 arguments");
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::SnarkVerify(
+                        SnarkVerifyVariant::Varuna,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        args[3].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Intrinsic::SnarkVerifyBatch => {
+                    debug_assert_eq!(args.len(), 4, "type checker guarantees SnarkVerifyBatch has exactly 4 arguments");
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::SnarkVerify(
+                        SnarkVerifyVariant::VarunaBatch,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        args[3].clone(),
                         dest_reg.clone(),
                     );
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])

@@ -171,7 +171,7 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 expression_instructions
             }
-            (DefinitionPlace::Multiple(identifiers), Expression::Call(_)) => {
+            (DefinitionPlace::Multiple(identifiers), Expression::Call(_) | Expression::Intrinsic(_)) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 let Some(AleoExpr::Tuple(elems)) = operand else {
                     panic!("Definition with multiple identifiers should yield a tuple")

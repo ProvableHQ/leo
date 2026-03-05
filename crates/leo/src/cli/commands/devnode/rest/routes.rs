@@ -549,15 +549,17 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
                         vec![tx],
                         &mut rand::thread_rng(),
                     )
-                    .map_err(|e| anyhow::anyhow!("{e}"))
+                    .map_err(|e| anyhow!("{e}"))
             })
             .await
             .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
 
             // Advance to the next block.
-            tokio::task::spawn_blocking(move || rest.ledger.advance_to_next_block(&new_block))
-                .await
-                .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
+            tokio::task::spawn_blocking(move || {
+                rest.ledger.advance_to_next_block(&new_block).map_err(|e| anyhow!("{e}"))
+            })
+            .await
+            .map_err(|e| RestError::internal_server_error(anyhow!("Task panicked: {}", e)))??;
             return Ok((StatusCode::OK, ErasedJson::new(tx_id)));
         }
 
