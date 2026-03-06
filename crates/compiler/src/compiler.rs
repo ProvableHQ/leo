@@ -73,6 +73,10 @@ pub struct Compiler {
 }
 
 impl Compiler {
+    pub fn network(&self) -> NetworkName {
+        self.state.network
+    }
+
     pub fn parse(&mut self, source: &str, filename: FileName, modules: &[(&str, FileName)]) -> Result<()> {
         // Register the source in the source map.
         let source_file = with_session_globals(|s| s.source_map.new_source(source, filename.clone()));
@@ -166,7 +170,7 @@ impl Compiler {
         }
     }
 
-    fn do_pass<P: Pass>(&mut self, input: P::Input) -> Result<P::Output> {
+    pub fn do_pass<P: Pass>(&mut self, input: P::Input) -> Result<P::Output> {
         let output = P::do_pass(input, &mut self.state)?;
 
         let write = match &self.compiler_options.ast_snapshots {
@@ -182,6 +186,19 @@ impl Compiler {
         Ok(output)
     }
 
+    /// Runs all frontend passes: NameValidation through StaticAnalyzing.
+    pub fn frontend_passes(&mut self) -> Result<()> {
+        self.do_pass::<NameValidation>(())?;
+        self.do_pass::<GlobalVarsCollection>(())?;
+        self.do_pass::<PathResolution>(())?;
+        self.do_pass::<GlobalItemsCollection>(())?;
+        self.do_pass::<CheckInterfaces>(())?;
+        self.do_pass::<TypeChecking>(TypeCheckingInput::new(self.state.network))?;
+        self.do_pass::<Disambiguate>(())?;
+        self.do_pass::<ProcessingAsync>(TypeCheckingInput::new(self.state.network))?;
+        self.do_pass::<StaticAnalyzing>(())
+    }
+
     /// Runs the compiler stages.
     ///
     /// Returns the generated ABIs (primary and imports), which are captured
@@ -190,23 +207,7 @@ impl Compiler {
     pub fn intermediate_passes(&mut self) -> Result<(leo_abi::Program, IndexMap<String, leo_abi::Program>)> {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
-        self.do_pass::<NameValidation>(())?;
-
-        self.do_pass::<GlobalVarsCollection>(())?;
-
-        self.do_pass::<PathResolution>(())?;
-
-        self.do_pass::<GlobalItemsCollection>(())?;
-
-        self.do_pass::<CheckInterfaces>(())?;
-
-        self.do_pass::<TypeChecking>(type_checking_config.clone())?;
-
-        self.do_pass::<Disambiguate>(())?;
-
-        self.do_pass::<ProcessingAsync>(type_checking_config.clone())?;
-
-        self.do_pass::<StaticAnalyzing>(())?;
+        self.frontend_passes()?;
 
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
 
