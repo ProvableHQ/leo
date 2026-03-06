@@ -47,7 +47,8 @@ fn execution_run_test(
 ) -> Result<String> {
     let mut import_stubs = IndexMap::new();
 
-    let mut ledger_config = run::Config { seed: config.seed, start_height: config.start_height, programs: Vec::new() };
+    let mut ledger_config =
+        run::Config { seed: config.seed, start_height: config.start_height, programs: Vec::new(), skip_proving: true };
 
     // We assume config.sources is non-empty.
     let (last, rest) = config.sources.split_last().expect("non-empty sources");

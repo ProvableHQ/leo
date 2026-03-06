@@ -380,31 +380,31 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1c7pcaqwdydrp5re5gqsy4r50043savrstqwndmlekjdlfrmdhyzs9a7dpm",
+      "id": "au1pcu93yfnx8spndlm3yjm66kpummpk6uajwjyxgylawgl3gnra59s7yjx4j",
       "program": "vector_structs.aleo",
       "function": "test_vector_primitives_behavior",
       "inputs": [
         {
           "type": "private",
-          "id": "5852206278757247955567185688995490731094595502602706197923395395686775975077field",
-          "value": "ciphertext1qyqqwc72mgt7zq3dfjwkadxxevxg7yu3qxecaqdul75zrfw634lhjrq5jny0m"
+          "id": "5244861300820033586157866548652114849753369185972233783667195596450858648097field",
+          "value": "ciphertext1qyq0d6xd4g8pmhpde39f2sfnf00xkjq4czv7aetuvctr474gkl362psx5uk7a"
         },
         {
           "type": "private",
-          "id": "805141962083512958997719928157316087078175642289369069670211093585311578710field",
-          "value": "ciphertext1qyq0v2f2ueh7d9sw3qnrmkxcm55850j3pdzkw6evakslysmt0x7u6pq2w4gtp"
+          "id": "6325759389156621828926103666130303282904724132489843647416261394910970819736field",
+          "value": "ciphertext1qyq2syezvanpzuv3vh8pjr4dj6jnatdxdddlpcsm2c7e89yqq9cm5pcqxn73a"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "1346687637447732924371405587002975488123261593421903767383196364703707802291field",
+          "id": "2851408392366159611907077122833020772549784805168909957843552746927068542321field",
           "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_primitives_behavior,\n  arguments: [\n    1u32,\n    25u32\n  ]\n}"
         }
       ],
-      "tpk": "4325020224465758641520401598240299553124287099346104334521547223039735784337group",
-      "tcm": "3693494123809887159890076402421748215328803214604135605369352884207804712230field",
-      "scm": "6118091813699558155705569970645220095016527493104810729650285635730864767800field"
+      "tpk": "6717750330113604755672075168010613423746121713334296283634227029779961027442group",
+      "tcm": "1979714496610787893621713499085414857377061472018286521572091670421053544854field",
+      "scm": "7650837176218462050758116229184042507007345359183752468641836093370598244794field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -415,26 +415,26 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au134948km4qlq259sx4md267m6lfzlrl23guy2gz4kuwt3yedk8qpsancvfq",
+      "id": "au1va04hrcmea5plauf0rhzadgp327w96s7a3zceydylunxg9333ggsvwdn3f",
       "program": "vector_structs.aleo",
       "function": "test_vector_structs_behavior",
       "inputs": [
         {
           "type": "private",
-          "id": "8411731303712171967837633010946312425053426210886140282904684625289365961676field",
-          "value": "ciphertext1qyqg8y03stdg4jhjcu0u3yvsj5dnyjyxfujukxpcnhwz8cs0uvr8ursgc4lkz"
+          "id": "6125863850082324982258708485643742241076939234916097568398296254748201301351field",
+          "value": "ciphertext1qyqy3hy3zwqq5a7xmnk7uwrkxfjfgwu0l4tdj7afr4gmfc2h5f6y7pgsk8989"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "7214476081613359001511882666164825314198828249344776352296864634487284712706field",
+          "id": "7281550213419664368973400505207879218793298866846692074640415940663056387599field",
           "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_structs_behavior,\n  arguments: [\n    0u32\n  ]\n}"
         }
       ],
-      "tpk": "6704586324991287162061839208860838526299553191768052197022292078733352317080group",
-      "tcm": "2624969807033224196607119837866970426864722647859650162973156385171645109919field",
-      "scm": "5085519633566315505427488233109518387896172625019850855025132331133847750015field"
+      "tpk": "3783044408209227219158044085541841753409593298867956270505476843170709293554group",
+      "tcm": "8029344915824814181176566448664832959464150787826776171066448810245925298123field",
+      "scm": "44219372461065305369758481437635606271836327309348847715661248258602286357field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -445,26 +445,26 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1mv2ln65zgd3vh96unj86zdr7atj28ehxmqpkql37n7l39a5zgyyqu08fzq",
+      "id": "au1ckne39x2he0hwvx8p6q232jc9v2vs3x03w2dcjwg220gacj8kczqm6zqgu",
       "program": "vector_structs.aleo",
       "function": "test_vector_containers_behavior",
       "inputs": [
         {
           "type": "private",
-          "id": "2803310931242076951315430194766335226515580571856109251246488700152323633812field",
-          "value": "ciphertext1qyq2rle494s60457tjvd8nz29pk8vxajzrenhlmeec9mm6ev30sf5pceqfya6"
+          "id": "3453130464439156586807869793783968778272327330163719611472741312060617782012field",
+          "value": "ciphertext1qyqyp9dy4wvdsjafhmz8a8az2vy2ym63su4lxwcrugy6k4z3akx6wqgq7m9ul"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "1837512951192055755827208900806714012108631860706636331818949270626394465669field",
+          "id": "3017195864993691272796000731059764091548578769720026402456907776631820738341field",
           "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_containers_behavior,\n  arguments: [\n    1u32\n  ]\n}"
         }
       ],
-      "tpk": "6774734455450924766258026888265746191293924261403855193817956876924531114382group",
-      "tcm": "7598377704234236820670578887972404758313489156537304593264197576965652268054field",
-      "scm": "3215446282784629867329701707839425246309035089022013530537292876240944364102field"
+      "tpk": "4582239028590017655853794972532176651693223808061757316578516663690736206223group",
+      "tcm": "4166679716256497232560488316214128981472980140405912411812118959526518692335field",
+      "scm": "5904372100600045206203154986524616126737594948344167401018298429061884824781field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
