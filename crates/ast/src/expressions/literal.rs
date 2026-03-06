@@ -48,6 +48,8 @@ pub enum LiteralVariant {
     Signature(String),
     /// A string literal, e.g., `"foobar"`.
     String(String),
+    /// An identifier literal, e.g., `'hello'`.
+    IdentifierLiteral(String),
     /// An unsuffixed literal, e.g. `42` (without a type suffix)
     Unsuffixed(String),
 }
@@ -64,6 +66,7 @@ impl fmt::Display for LiteralVariant {
             Self::Scalar(scalar) => write!(f, "{scalar}scalar"),
             Self::Signature(signature) => write!(f, "{signature}"),
             Self::String(string) => write!(f, "\"{string}\""),
+            Self::IdentifierLiteral(name) => write!(f, "'{name}'"),
             Self::Unsuffixed(value) => write!(f, "{value}"),
         }
     }
@@ -112,6 +115,10 @@ impl Literal {
 
     pub fn string(s: String, span: Span, id: NodeID) -> Self {
         Literal { variant: LiteralVariant::String(s), span, id }
+    }
+
+    pub fn identifier_literal(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::IdentifierLiteral(s), span, id }
     }
 
     pub fn unsuffixed(s: String, span: Span, id: NodeID) -> Self {

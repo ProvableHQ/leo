@@ -203,6 +203,10 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
             signature.into()
         }
         LiteralVariant::String(s) => Value::make_string(s.clone()),
+        LiteralVariant::IdentifierLiteral(s) => {
+            let identifier = SvmIdentifierLiteral::new(s).expect_tc(literal.span)?;
+            SvmLiteralParam::Identifier(Box::new(identifier)).into()
+        }
         LiteralVariant::Unsuffixed(s) => {
             let unsuffixed = Value { id: None, contents: ValueVariants::Unsuffixed(s.clone()) };
             unsuffixed.resolve_if_unsuffixed(expected_ty, literal.span)?
