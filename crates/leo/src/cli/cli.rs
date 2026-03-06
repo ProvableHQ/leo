@@ -22,7 +22,7 @@ use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(Parser, Debug)]
-#[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version)]
+#[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version, long_version = env!("LEO_VERSION_STRING"))]
 pub struct CLI {
     #[clap(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
