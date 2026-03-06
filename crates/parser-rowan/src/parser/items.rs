@@ -354,15 +354,15 @@ impl Parser<'_, '_> {
 
         // Fields
         self.expect(L_BRACE);
-        self.parse_struct_fields();
+        self.parse_struct_fields_until(R_BRACE);
         self.expect(R_BRACE);
 
         Some(m.complete(self, kind))
     }
 
     /// Parse struct/record fields.
-    fn parse_struct_fields(&mut self) {
-        while !self.at(R_BRACE) && !self.at_eof() {
+    fn parse_struct_fields_until(&mut self, closing_symbol: SyntaxKind) {
+        while !self.at(closing_symbol) && !self.at_eof() {
             // Skip trivia before starting marker so member span starts at identifier
             self.skip_trivia();
             let m = self.start();
@@ -377,7 +377,7 @@ impl Parser<'_, '_> {
             } else {
                 m.abandon(self);
                 // Try to recover to next field or end of struct
-                if !self.at(R_BRACE) {
+                if !self.at(closing_symbol) {
                     self.error_recover("expected field name", Self::FIELD_RECOVERY);
                 }
                 // If we recovered to a comma, consume it and continue
@@ -406,7 +406,7 @@ impl Parser<'_, '_> {
                 // If we're at `}` or EOF, the field list is done.
                 // Otherwise, there's a missing comma — report it and continue
                 // so we can parse more fields rather than cascading.
-                if !self.at(R_BRACE) && !self.at_eof() {
+                if !self.at(closing_symbol) && !self.at_eof() {
                     self.error("expected ','");
                     // Clear erroring so the next field can report its own errors.
                     self.erroring = false;
@@ -780,7 +780,17 @@ impl Parser<'_, '_> {
             self.error("expected record name");
         }
 
-        self.expect(SEMICOLON);
+        if self.at(SEMICOLON) {
+            // record something;
+            self.bump_any();
+        } else {
+            // record something { / * fields */ }
+            self.expect(L_BRACE);
+            self.parse_struct_fields_until(DOT_DOT);
+            self.expect(DOT_DOT);
+            self.expect(R_BRACE);
+        }
+
         Some(m.complete(self, RECORD_PROTOTYPE_DEF))
     }
 }

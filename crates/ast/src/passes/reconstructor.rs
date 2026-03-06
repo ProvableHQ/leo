@@ -674,7 +674,20 @@ pub trait ProgramReconstructor: AstReconstructor {
     }
 
     fn reconstruct_record_prototype(&mut self, input: RecordPrototype) -> RecordPrototype {
-        RecordPrototype { identifier: input.identifier, span: input.span, id: input.id }
+        RecordPrototype {
+            identifier: input.identifier,
+            span: input.span,
+            id: input.id,
+            members: input
+                .members
+                .iter()
+                .map(|member| {
+                    let mut member = member.clone();
+                    member.type_ = self.reconstruct_type(member.type_).0;
+                    member
+                })
+                .collect(),
+        }
     }
 
     fn reconstruct_function(&mut self, input: Function) -> Function {
