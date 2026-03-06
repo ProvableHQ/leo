@@ -36,6 +36,9 @@ pub struct LeoTest {
     )]
     pub(crate) test_name: String,
 
+    #[clap(long, help = "Run all tests with full proof generation.")]
+    pub(crate) prove: bool,
+
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
     #[clap(flatten)]
@@ -200,10 +203,13 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
         })
         .collect();
 
-    let outcomes = run::run_with_ledger(&run::Config { seed: 0, start_height: None, programs }, &cases)?
-        .into_iter()
-        .flatten()
-        .collect::<Vec<_>>();
+    let outcomes = run::run_with_ledger(
+        &run::Config { seed: 0, start_height: None, programs, skip_proving: !command.prove },
+        &cases,
+    )?
+    .into_iter()
+    .flatten()
+    .collect::<Vec<_>>();
 
     let results: Vec<_> = outcomes
         .into_iter()

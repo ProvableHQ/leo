@@ -39,18 +39,25 @@ use snarkvm::{
     prelude::{
         Address,
         Block,
+        Certificate,
         ConsensusVersion,
+        Deployment,
         Execution,
+        Fee,
         FromBytes,
         Identifier,
         Ledger,
         Network,
         PrivateKey,
         ProgramID,
+        ProgramOwner,
         TestnetV0,
         Transaction,
         VM,
         Value as SvmValue,
+        VerifyingKey,
+        deployment_cost,
+        execution_cost,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::ProgramCore,
@@ -70,6 +77,8 @@ pub struct Config {
     // If `None`, start at the height for the latest consensus version.
     pub start_height: Option<u32>,
     pub programs: Vec<Program>,
+    /// Skip proof generation for faster testing. Requires `dev_skip_checks`.
+    pub skip_proving: bool,
 }
 
 /// A program to deploy to the ledger.
@@ -165,6 +174,87 @@ impl ExecutionOutcome {
     pub fn output(&self) -> Value {
         self.outcome.output()
     }
+}
+
+/// Placeholder verifying key used for proof-less deployments.
+pub const PLACEHOLDER_VK: &str = "verifier1qygqqqqqqqqqqqyvxgqqqqqqqqq87vsqqqqqqqqqhe7sqqqqqqqqqma4qqqqqqqqqq65yqqqqqqqqqqvqqqqqqqqqqqgtlaj49fmrk2d8slmselaj9tpucgxv6awu6yu4pfcn5xa0yy0tpxpc8wemasjvvxr9248vt3509vpk3u60ejyfd9xtvjmudpp7ljq2csk4yqz70ug3x8xp3xn3ul0yrrw0mvd2g8ju7rts50u3smue03gp99j88f0ky8h6fjlpvh58rmxv53mldmgrxa3fq6spsh8gt5whvsyu2rk4a2wmeyrgvvdf29pwp02srktxnvht3k6ff094usjtllggva2ym75xc4lzuqu9xx8ylfkm3qc7lf7ktk9uu9du5raukh828dzgq26hrarq5ajjl7pz7zk924kekjrp92r6jh9dpp05mxtuffwlmvew84dvnqrkre7lw29mkdzgdxwe7q8z0vnkv2vwwdraekw2va3plu7rkxhtnkuxvce0qkgxcxn5mtg9q2c3vxdf2r7jjse2g68dgvyh85q4mzfnvn07lletrpty3vypus00gfu9m47rzay4mh5w9f03z9zgzgzhkv0mupdqsk8naljqm9tc2qqzhf6yp3mnv2ey89xk7sw9pslzzlkndfd2upzmew4e4vnrkr556kexs9qrykkuhsr260mnrgh7uv0sp2meky0keeukaxgjdsnmy77kl48g3swcvqdjm50ejzr7x04vy7hn7anhd0xeetclxunnl7pd6e52qxdlr3nmutz4zr8f2xqa57a2zkl59a28w842cj4783zpy9hxw03k6vz4a3uu7sm072uqknpxjk8fyq4vxtqd08kd93c2mt40lj9ag35nm4rwcfjayejk57m9qqu83qnkrj3sz90pw808srmf705n2yu6gvqazpvu2mwm8x6mgtlsntxfhr0qas43rqxnccft36z4ygty86390t7vrt08derz8368z8ekn3yywxgp4uq24gm6e58tpp0lcvtpsm3nkwpnmzztx4qvkaf6vk38wg787h8mfpqqqqqqqqqqt49m8x";
+
+/// Placeholder certificate used for proof-less deployments.
+pub const PLACEHOLDER_CERT: &str =
+    "certificate1qyqsqqqqqqqqqqxvwszp09v860w62s2l4g6eqf0kzppyax5we36957ywqm2dplzwvvlqg0kwlnmhzfatnax7uaqt7yqqqw0sc4u";
+
+/// Deploy a program without generating certificates or proofs.
+fn deploy_without_proof(
+    vm: &VM<CurrentNetwork, ConsensusMemory<CurrentNetwork>>,
+    private_key: &PrivateKey<CurrentNetwork>,
+    program: &ProgramCore<CurrentNetwork>,
+    edition: u16,
+    consensus_version: ConsensusVersion,
+    rng: &mut ChaCha20Rng,
+) -> anyhow::Result<Transaction<CurrentNetwork>> {
+    // Create placeholder verifying keys and certificates for each function.
+    let mut verifying_keys = Vec::with_capacity(program.functions().len());
+    for function_name in program.functions().keys() {
+        let verifying_key = VerifyingKey::from_str(PLACEHOLDER_VK)?;
+        let certificate = Certificate::from_str(PLACEHOLDER_CERT)?;
+        verifying_keys.push((*function_name, (verifying_key, certificate)));
+    }
+
+    // Create the deployment with placeholders.
+    let mut deployment = Deployment::new(edition, program.clone(), verifying_keys, None, None)
+        .map_err(|e| anyhow!("Failed to create deployment: {e}"))?;
+
+    // Set the program owner and checksum.
+    deployment.set_program_owner_raw(Some(Address::try_from(private_key)?));
+    deployment.set_program_checksum_raw(Some(deployment.program().to_checksum()));
+
+    // Compute the deployment ID and construct the owner.
+    let deployment_id = deployment.to_deployment_id()?;
+    let owner = ProgramOwner::new(private_key, deployment_id, rng)?;
+
+    // Calculate the minimum deployment cost.
+    let (minimum_deployment_cost, _) = deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
+
+    // Authorize the fee (public, no proof).
+    let fee_authorization = vm.authorize_fee_public(private_key, minimum_deployment_cost, 0, deployment_id, rng)?;
+
+    // Create a fee transition without a proof.
+    let state_root = vm.block_store().current_state_root();
+    let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
+
+    Transaction::from_deployment(owner, deployment, fee).map_err(|e| anyhow!("Failed to create deployment tx: {e}"))
+}
+
+/// Execute a transition without generating proofs. Returns (Transaction, Response).
+fn execute_without_proof(
+    vm: &VM<CurrentNetwork, ConsensusMemory<CurrentNetwork>>,
+    private_key: &PrivateKey<CurrentNetwork>,
+    program_id: &str,
+    function_name: &str,
+    inputs: impl ExactSizeIterator<Item = impl TryInto<SvmValue<CurrentNetwork>>>,
+    consensus_version: ConsensusVersion,
+    rng: &mut ChaCha20Rng,
+) -> anyhow::Result<(Transaction<CurrentNetwork>, snarkvm::prelude::Response<CurrentNetwork>)> {
+    // Authorize the execution (fast, no proving).
+    let authorization = vm.authorize(private_key, program_id, function_name, inputs, rng)?;
+
+    // Evaluate to get the response (outputs, no proving).
+    let response = vm.process().read().evaluate::<AleoTestnetV0>(authorization.clone())?;
+
+    // Build the execution without a proof.
+    let state_root = vm.block_store().current_state_root();
+    let execution = Execution::from(authorization.transitions().values().cloned(), state_root, None)?;
+
+    // Calculate the execution cost for fee authorization.
+    let (cost, _) = execution_cost(&vm.process().read(), &execution, consensus_version)?;
+
+    // Authorize and create the fee without a proof.
+    let execution_id = authorization.to_execution_id()?;
+    let fee_authorization = vm.authorize_fee_public(private_key, cost, 0, execution_id, rng)?;
+    let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
+
+    let transaction = Transaction::from_execution(execution, Some(fee))?;
+    Ok((transaction, response))
 }
 
 /// Evaluates a set of cases against some programs without using a ledger.
@@ -310,13 +400,25 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         let aleo_program =
             ProgramCore::from_str(bytecode).map_err(|e| anyhow!("Failed to parse bytecode of program {name}: {e}"))?;
 
-        let mut deploy = || -> Result<()> {
-            // Add the program to the ledger.
-            // Note that this function performs an additional validity check on the bytecode.
-            let deployment = ledger
-                .vm()
-                .deploy(&genesis_private_key, &aleo_program, None, 0, None, &mut rng)
-                .map_err(|e| anyhow!("Failed to deploy program {name}: {e}"))?;
+        let mut deploy = |edition: u16| -> Result<()> {
+            let deployment = if config.skip_proving {
+                deploy_without_proof(
+                    ledger.vm(),
+                    &genesis_private_key,
+                    &aleo_program,
+                    edition,
+                    latest_consensus_version,
+                    &mut rng,
+                )
+                .map_err(|e| anyhow!("Failed to deploy program {name}: {e}"))?
+            } else {
+                // Add the program to the ledger.
+                // Note that this function performs an additional validity check on the bytecode.
+                ledger
+                    .vm()
+                    .deploy(&genesis_private_key, &aleo_program, None, 0, None, &mut rng)
+                    .map_err(|e| anyhow!("Failed to deploy program {name}: {e}"))?
+            };
             let block = ledger
                 .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![deployment], &mut rng)
                 .map_err(|e| anyhow!("Failed to prepare to advance block for program {name}: {e}"))?;
@@ -336,10 +438,10 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         };
 
         // Deploy the program.
-        deploy()?;
+        deploy(0)?;
         // If the program does not have a constructor, deploy it twice to satisfy the edition requirement.
         if !aleo_program.contains_constructor() {
-            deploy()?;
+            deploy(1)?;
         }
     }
 
@@ -374,6 +476,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
             let mut rng = rng.clone();
 
             // Fund each private key used in the test cases with 1M ALEO.
+            let skip_proving = config.skip_proving;
             let transactions: Vec<Transaction<CurrentNetwork>> = cases
                 .iter()
                 .filter_map(|case| case.private_key.as_ref())
@@ -384,22 +487,41 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                     // Convert the private key to an address.
                     let address = Address::try_from(private_key).expect("Failed to convert private key to address.");
                     // Generate the transaction.
-                    ledger
-                        .vm()
-                        .execute(
+                    if skip_proving {
+                        let (tx, _) = execute_without_proof(
+                            ledger.vm(),
                             &genesis_private_key,
-                            ("credits.aleo", "transfer_public"),
+                            "credits.aleo",
+                            "transfer_public",
                             [
                                 SvmValue::from_str(&format!("{address}")).expect("Failed to parse recipient address"),
                                 SvmValue::from_str("1_000_000_000_000u64").expect("Failed to parse amount"),
                             ]
                             .iter(),
-                            None,
-                            0u64,
-                            None,
+                            latest_consensus_version,
                             &mut rng,
                         )
-                        .expect("Failed to generate funding transaction")
+                        .expect("Failed to generate funding transaction");
+                        tx
+                    } else {
+                        ledger
+                            .vm()
+                            .execute(
+                                &genesis_private_key,
+                                ("credits.aleo", "transfer_public"),
+                                [
+                                    SvmValue::from_str(&format!("{address}"))
+                                        .expect("Failed to parse recipient address"),
+                                    SvmValue::from_str("1_000_000_000_000u64").expect("Failed to parse amount"),
+                                ]
+                                .iter(),
+                                None,
+                                0u64,
+                                None,
+                                &mut rng,
+                            )
+                            .expect("Failed to generate funding transaction")
+                    }
                 })
                 .collect();
 
@@ -436,15 +558,27 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                 // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
                 // used frequently in SnarkVM anyway.
                 let execute_output = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    ledger.vm().execute_with_response(
-                        &private_key,
-                        (&case.program_name, &case.function),
-                        case.input.iter(),
-                        None,
-                        0,
-                        None,
-                        &mut rng,
-                    )
+                    if skip_proving {
+                        execute_without_proof(
+                            ledger.vm(),
+                            &private_key,
+                            &case.program_name,
+                            &case.function,
+                            case.input.iter(),
+                            latest_consensus_version,
+                            &mut rng,
+                        )
+                    } else {
+                        ledger.vm().execute_with_response(
+                            &private_key,
+                            (&case.program_name, &case.function),
+                            case.input.iter(),
+                            None,
+                            0,
+                            None,
+                            &mut rng,
+                        )
+                    }
                 }));
 
                 if let Err(payload) = execute_output {
@@ -467,7 +601,9 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                 }
 
                 let result = execute_output.unwrap().and_then(|(transaction, response)| {
-                    verified = ledger.vm().check_transaction(&transaction, None, &mut rng).is_ok();
+                    // Skip verification when proving is skipped — proofs are absent
+                    // and verification is meaningless.
+                    verified = skip_proving || ledger.vm().check_transaction(&transaction, None, &mut rng).is_ok();
                     execution = Some(transaction.clone());
                     let block = ledger.prepare_advance_to_next_beacon_block(
                         &private_key,
