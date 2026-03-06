@@ -538,6 +538,16 @@ pub enum SyntaxKind {
     /// Parent list: `Foo + Bar`
     PARENT_LIST,
 
+    // ==========================================================================
+    // IdentifierLiteral support (added for V14)
+    // ==========================================================================
+    /// Identifier literal token: `'hello'`
+    IDENTIFIER_LIT,
+    /// `identifier` type keyword.
+    KW_IDENTIFIER,
+    /// Identifier literal expression: `'hello'`
+    LITERAL_IDENTIFIER,
+
     // Sentinel for bounds checking (must be last)
     #[doc(hidden)]
     __LAST,
@@ -604,6 +614,7 @@ impl SyntaxKind {
                 | KW_ASSERT
                 | KW_ASSERT_EQ
                 | KW_ASSERT_NEQ
+                | KW_IDENTIFIER
         )
     }
 
@@ -618,6 +629,7 @@ impl SyntaxKind {
                 | KW_SCALAR
                 | KW_SIGNATURE
                 | KW_STRING
+                | KW_IDENTIFIER
                 | KW_FINAL_UPPER
                 | KW_I8
                 | KW_I16
@@ -634,7 +646,7 @@ impl SyntaxKind {
 
     /// Check if this is a literal token.
     pub fn is_literal(self) -> bool {
-        matches!(self, INTEGER | STRING | ADDRESS_LIT | KW_TRUE | KW_FALSE | KW_NONE)
+        matches!(self, INTEGER | STRING | ADDRESS_LIT | IDENTIFIER_LIT | KW_TRUE | KW_FALSE | KW_NONE)
     }
 
     /// Check if this is a literal node kind.
@@ -649,6 +661,7 @@ impl SyntaxKind {
                 | LITERAL_ADDRESS
                 | LITERAL_BOOL
                 | LITERAL_NONE
+                | LITERAL_IDENTIFIER
         )
     }
 
@@ -931,6 +944,11 @@ impl SyntaxKind {
             SHL => "'<<'",
             SHR => "'>>'",
 
+            // IdentifierLiteral support
+            IDENTIFIER_LIT => "an identifier literal",
+            KW_IDENTIFIER => "'identifier'",
+            LITERAL_IDENTIFIER => "an identifier literal",
+
             // Composite nodes - these shouldn't appear in "expected" messages typically
             _ => "a token",
         }
@@ -1149,6 +1167,9 @@ const SYNTAX_KIND_TABLE: &[SyntaxKind] = &[
     TYPE_FINAL,
     TYPE_MAPPING,
     PARENT_LIST,
+    IDENTIFIER_LIT,
+    KW_IDENTIFIER,
+    LITERAL_IDENTIFIER,
     __LAST,
 ];
 

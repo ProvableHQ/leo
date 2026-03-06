@@ -24,6 +24,7 @@ impl CodeGeneratingVisitor<'_> {
             Type::Address => AleoType::Address,
             Type::Field => AleoType::Field,
             Type::Group => AleoType::Group,
+            Type::IdentifierLiteral => AleoType::Identifier,
             Type::Scalar => AleoType::Scalar,
             Type::Signature => AleoType::Signature,
             Type::String => AleoType::String,

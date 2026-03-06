@@ -1569,6 +1569,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Future(_)
             | Type::Group
             | Type::Identifier(_)
+            | Type::IdentifierLiteral
             | Type::Integer(_)
             | Type::Scalar
             | Type::Signature
@@ -1625,6 +1626,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Boolean
             | Type::Field
             | Type::Group
+            | Type::IdentifierLiteral
             | Type::Integer(_)
             | Type::Numeric
             | Type::Scalar
@@ -1704,6 +1706,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Field
             | Type::Group
             | Type::Identifier(_)
+            | Type::IdentifierLiteral
             | Type::Integer(_)
             | Type::Scalar
             | Type::Numeric

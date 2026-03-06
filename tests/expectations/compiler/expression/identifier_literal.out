@@ -1,0 +1,18 @@
+program test.aleo;
+
+function check_equal:
+    input r0 as identifier.private;
+    input r1 as identifier.private;
+    is.eq r0 r1 into r2;
+    output r2 as boolean.private;
+
+function check_not_equal:
+    input r0 as identifier.private;
+    input r1 as identifier.private;
+    is.neq r0 r1 into r2;
+    output r2 as boolean.private;
+
+function literal_test:
+    input r0 as identifier.private;
+    is.eq r0 'hello' into r1;
+    output r1 as boolean.private;

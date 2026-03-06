@@ -1455,6 +1455,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     Type::Err
                 }
             }
+            LiteralVariant::IdentifierLiteral(name) => {
+                // snarkVM enforces a maximum identifier literal length of 31 bytes.
+                if name.len() > 31 {
+                    self.emit_err(TypeCheckerError::identifier_literal_too_long(name, 31, span));
+                }
+                Type::IdentifierLiteral
+            }
             LiteralVariant::Scalar(..) => Type::Scalar,
             LiteralVariant::Signature(..) => Type::Signature,
             LiteralVariant::String(..) => Type::String,

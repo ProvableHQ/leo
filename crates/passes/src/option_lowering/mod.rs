@@ -122,6 +122,7 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
             Type::Address
             | Type::Field
             | Type::Group
+            | Type::IdentifierLiteral
             | Type::Scalar
             | Type::Signature
             | Type::Boolean

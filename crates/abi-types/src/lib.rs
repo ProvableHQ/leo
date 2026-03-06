@@ -216,6 +216,7 @@ pub enum Primitive {
     Boolean,
     Field,
     Group,
+    Identifier,
     Scalar,
     Signature,
     Int(Int),

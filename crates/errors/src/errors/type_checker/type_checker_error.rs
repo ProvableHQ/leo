@@ -1424,4 +1424,11 @@ create_messages!(
         msg: format!("`@no_inline` is not allowed on `final fn` functions because they must always be inlined."),
         help: None,
     }
+
+    @formatted
+    identifier_literal_too_long {
+        args: (name: impl Display, max_len: usize),
+        msg: format!("Identifier literal `'{name}'` has {} byte(s), which exceeds the maximum of {max_len} bytes.", name.to_string().len()),
+        help: None,
+    }
 );
