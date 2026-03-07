@@ -1,0 +1,26 @@
+[package]
+name = "leo-benchmarks"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+aleo-std = { workspace = true }
+indexmap = { workspace = true }
+leo-ast = { workspace = true }
+leo-compiler = { workspace = true }
+leo-disassembler = { workspace = true }
+leo-errors = { workspace = true }
+leo-package = { workspace = true }
+leo-parser = { workspace = true }
+leo-passes = { workspace = true }
+leo-span = { workspace = true }
+snarkvm = { workspace = true }
+walkdir = { workspace = true }
+
+[dev-dependencies]
+criterion = { package = "codspeed-criterion-compat", version = "4.1.0" }
+
+[[bench]]
+name = "compiler_benchmarks"
+harness = false
