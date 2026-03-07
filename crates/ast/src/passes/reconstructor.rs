@@ -40,6 +40,7 @@ pub trait AstReconstructor {
             | Type::Field
             | Type::Group
             | Type::Identifier(_)
+            | Type::IdentifierLiteral
             | Type::Integer(_)
             | Type::Scalar
             | Type::Signature

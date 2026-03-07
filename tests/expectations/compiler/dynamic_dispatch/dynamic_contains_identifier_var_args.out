@@ -1,0 +1,21 @@
+program test.aleo;
+
+mapping balances:
+    key as address.public;
+    value as u64.public;
+
+function check_balance:
+    input r0 as identifier.private;
+    input r1 as identifier.private;
+    input r2 as identifier.private;
+    input r3 as address.private;
+    async check_balance r0 r1 r2 r3 into r4;
+    output r4 as test.aleo/check_balance.future;
+
+finalize check_balance:
+    input r0 as identifier.public;
+    input r1 as identifier.public;
+    input r2 as identifier.public;
+    input r3 as address.public;
+    contains.dynamic r0 r1 r2[r3] into r4;
+    assert.eq r4 true;

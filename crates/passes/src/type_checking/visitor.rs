@@ -1501,22 +1501,24 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    /// Visits the first `n` arguments and asserts each has type `Field`.
+    /// Visits the first `n` arguments and asserts each is `field` or `identifier`.
     ///
-    /// Used by dynamic intrinsics whose first arguments encode field-encoded identifiers
-    /// (program, network, function/mapping).
-    fn check_first_n_args_are_field(&mut self, arguments: &[Expression], n: usize) {
+    /// Used by dynamic intrinsics whose first arguments encode program/network/function identifiers.
+    /// Both `field` (field-encoded identifiers) and `identifier` (identifier literals) are accepted.
+    fn check_first_n_args_are_field_or_identifier(&mut self, arguments: &[Expression], n: usize) {
         for arg in &arguments[..n] {
-            let ty = self.visit_expression(arg, &Some(Type::Field));
-            self.assert_type(&ty, &Type::Field, arg.span());
+            let ty = self.visit_expression(arg, &None);
+            if !matches!(ty, Type::Field | Type::IdentifierLiteral | Type::Err) {
+                self.emit_err(TypeCheckerError::type_should_be2(&ty, "type `field` or `identifier`", arg.span()));
+            }
         }
     }
 
     /// Type-checks a `_dynamic_call` intrinsic expression.
     ///
     /// Validates:
-    /// - At least 3 arguments (program, network, function field operands).
-    /// - First 3 arguments must be `Type::Field`.
+    /// - At least 3 arguments (program, network, function operands).
+    /// - First 3 arguments must be `field` or `identifier`.
     /// - Remaining arguments must not be static record types.
     ///
     /// Returns the type indicated by `return_types` (unit, single, or tuple).
@@ -1532,7 +1534,7 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // The first three arguments encode the program, network, and function identifiers.
-        self.check_first_n_args_are_field(arguments, 3);
+        self.check_first_n_args_are_field_or_identifier(arguments, 3);
 
         // Remaining arguments are the call operands. Static records are forbidden.
         for arg in &arguments[3..] {
@@ -1598,8 +1600,8 @@ impl TypeCheckingVisitor<'_> {
             return Type::Err;
         }
 
-        // Arguments 0, 1, 2: field-encoded program, network, and mapping identifiers.
-        self.check_first_n_args_are_field(arguments, 3);
+        // Arguments 0, 1, 2: program, network, and mapping identifiers (field or identifier type).
+        self.check_first_n_args_are_field_or_identifier(arguments, 3);
 
         // Argument 3: key — any plaintext type.
         self.visit_expression(&arguments[3], &None);
@@ -1722,6 +1724,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Future(_)
             | Type::Group
             | Type::Identifier(_)
+            | Type::IdentifierLiteral
             | Type::Integer(_)
             | Type::Scalar
             | Type::Signature
@@ -1779,6 +1782,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Boolean
             | Type::Field
             | Type::Group
+            | Type::IdentifierLiteral
             | Type::Integer(_)
             | Type::Numeric
             | Type::Scalar
@@ -1859,6 +1863,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Field
             | Type::Group
             | Type::Identifier(_)
+            | Type::IdentifierLiteral
             | Type::Integer(_)
             | Type::Scalar
             | Type::Numeric

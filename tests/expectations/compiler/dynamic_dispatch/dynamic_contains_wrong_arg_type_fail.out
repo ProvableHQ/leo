@@ -1,9 +1,4 @@
-Error [ETYC0372117]: Expected type `field` but type `u64` was found.
-    --> compiler-test:9:42
-     |
-   9 |     let exists: bool = _dynamic_contains(prog, net, m, key);
-     |                                          ^^^^
-Error [ETYC0372117]: Expected type `field` but type `u64` was found.
+Error [ETYC0372117]: Expected type `field` or `identifier` but type `u64` was found.
     --> compiler-test:9:42
      |
    9 |     let exists: bool = _dynamic_contains(prog, net, m, key);

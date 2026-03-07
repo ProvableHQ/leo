@@ -506,6 +506,7 @@ impl<'a> ConversionContext<'a> {
             LITERAL_SCALAR => self.suffixed_literal_to_expression(node, "scalar", leo_ast::Literal::scalar)?,
             LITERAL_INT => self.int_literal_to_expression(node)?,
             LITERAL_STRING => self.string_literal_to_expression(node)?,
+            LITERAL_IDENTIFIER => self.identifier_literal_to_expression(node)?,
             LITERAL_ADDRESS => self.address_literal_to_expression(node)?,
             LITERAL_BOOL => self.bool_literal_to_expression(node)?,
             LITERAL_NONE => leo_ast::Literal::none(span, self.builder.next_id()).into(),
@@ -587,6 +588,19 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
         let token = tokens(node).next().expect("LITERAL_STRING should have a token");
         Ok(leo_ast::Literal::string(token.text().to_string(), span, id).into())
+    }
+
+    /// Convert a LITERAL_IDENTIFIER node to an expression.
+    ///
+    /// The token text is `'name'`; we strip the surrounding single quotes.
+    fn identifier_literal_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
+        let span = self.content_span(node);
+        let id = self.builder.next_id();
+        let token = tokens(node).next().expect("LITERAL_IDENTIFIER should have a token");
+        let text = token.text();
+        // Strip the surrounding single quotes: 'name' -> name.
+        let name = text.trim_matches('\'').to_string();
+        Ok(leo_ast::Literal::identifier_literal(name, span, id).into())
     }
 
     /// Convert a LITERAL_ADDRESS node to an expression.
@@ -2849,6 +2863,7 @@ fn keyword_to_primitive_type(kind: SyntaxKind) -> Option<leo_ast::Type> {
         KW_SCALAR => leo_ast::Type::Scalar,
         KW_SIGNATURE => leo_ast::Type::Signature,
         KW_STRING => leo_ast::Type::String,
+        KW_IDENTIFIER => leo_ast::Type::IdentifierLiteral,
         KW_U8 => leo_ast::Type::Integer(leo_ast::IntegerType::U8),
         KW_U16 => leo_ast::Type::Integer(leo_ast::IntegerType::U16),
         KW_U32 => leo_ast::Type::Integer(leo_ast::IntegerType::U32),

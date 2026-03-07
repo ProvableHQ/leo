@@ -183,6 +183,7 @@ impl CodeGeneratingVisitor<'_> {
             LiteralVariant::Scalar(val) => AleoExpr::Scalar(prepare_literal(&val)),
             LiteralVariant::Signature(val) => AleoExpr::Signature(prepare_literal(&val)),
             LiteralVariant::String(val) => AleoExpr::String(val),
+            LiteralVariant::IdentifierLiteral(val) => AleoExpr::Identifier(val.clone()),
             LiteralVariant::None | LiteralVariant::Unsuffixed(..) => {
                 panic!("This literal variant should no longer exist at code generation")
             }
@@ -978,6 +979,12 @@ impl CodeGeneratingVisitor<'_> {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::DynamicRecord);
                 (AleoExpr::Reg(new_reg), vec![ins])
             }
+
+            Type::IdentifierLiteral => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Identifier);
+                (AleoExpr::Reg(new_reg), vec![ins])
+            }
+
             Type::Mapping(..)
             | Type::Future(..)
             | Type::Tuple(..)

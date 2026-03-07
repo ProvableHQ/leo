@@ -165,6 +165,7 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
         ast::Type::Group => abi::Plaintext::Primitive(abi::Primitive::Group),
         ast::Type::Scalar => abi::Plaintext::Primitive(abi::Primitive::Scalar),
         ast::Type::Signature => abi::Plaintext::Primitive(abi::Primitive::Signature),
+        ast::Type::IdentifierLiteral => abi::Plaintext::Primitive(abi::Primitive::Identifier),
         ast::Type::Integer(int_ty) => abi::Plaintext::Primitive(convert_integer(*int_ty)),
         ast::Type::Array(arr_ty) => abi::Plaintext::Array(abi::Array {
             element: Box::new(convert_plaintext(arr_ty.element_type())),

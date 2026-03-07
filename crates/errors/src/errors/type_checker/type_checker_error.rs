@@ -1445,4 +1445,11 @@ create_messages!(
         msg: format!("The `Final` `{name}` returned by `_dynamic_call` must be consumed by a `final {{ }}` block."),
         help: Some("Wrap the dynamic call result in a `final { }` block, e.g. `return final { name.run(); };`.".to_string()),
     }
+
+    @formatted
+    identifier_literal_too_long {
+        args: (name: impl Display, max_len: usize),
+        msg: format!("Identifier literal `'{name}'` has {} byte(s), which exceeds the maximum of {max_len} bytes.", name.to_string().len()),
+        help: None,
+    }
 );

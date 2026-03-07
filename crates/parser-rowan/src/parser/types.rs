@@ -50,6 +50,7 @@ impl Parser<'_, '_> {
         KW_BOOL,
         KW_FIELD,
         KW_GROUP,
+        KW_IDENTIFIER,
         KW_SCALAR,
         KW_SIGNATURE,
         KW_STRING,

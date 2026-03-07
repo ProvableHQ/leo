@@ -34,6 +34,7 @@ use snarkvm::prelude::{
     Field as SvmField,
     Future as FutureParam,
     Group as SvmGroup,
+    IdentifierLiteral as SvmIdentifierLiteralParam,
     LiteralType,
     Owner,
     ProgramID as ProgramIDParam,
@@ -62,6 +63,7 @@ pub(crate) type ProgramID = ProgramIDParam<CurrentNetwork>;
 pub(crate) type SvmPlaintext = Plaintext<CurrentNetwork>;
 pub(crate) type SvmLiteral = SvmLiteralParam<CurrentNetwork>;
 pub(crate) type SvmIdentifier = SvmIdentifierParam<CurrentNetwork>;
+pub(crate) type SvmIdentifierLiteral = SvmIdentifierLiteralParam<CurrentNetwork>;
 pub(crate) type SvmLocator = SvmLocatorParam<CurrentNetwork>;
 pub(crate) type Group = SvmGroup<CurrentNetwork>;
 pub(crate) type Field = SvmField<CurrentNetwork>;
@@ -523,6 +525,7 @@ impl Value {
             | SvmLiteralParam::Boolean(..)
             | SvmLiteralParam::Field(..)
             | SvmLiteralParam::Group(..)
+            | SvmLiteralParam::Identifier(..)
             | SvmLiteralParam::Scalar(..)
             | SvmLiteralParam::Signature(..)
             | SvmLiteralParam::String(..) => return None,
@@ -549,6 +552,7 @@ impl Value {
             Type::Scalar => LiteralType::Scalar,
             Type::Signature => LiteralType::Signature,
             Type::String => LiteralType::String,
+            Type::IdentifierLiteral => LiteralType::Identifier,
             _ => return None,
         };
 
@@ -933,6 +937,12 @@ fn plaintext_to_expression(
             }
             SvmLiteralParam::Signature(signature) => {
                 Literal::address(signature.to_string(), span, node_builder.next_id()).into()
+            }
+            SvmLiteralParam::Identifier(id) => {
+                // id.to_string() returns `'name'`; strip the surrounding single quotes.
+                let s = id.to_string();
+                let name = s.trim_matches('\'').to_string();
+                Literal::identifier_literal(name, span, node_builder.next_id()).into()
             }
             SvmLiteralParam::String(..) => return None,
         },

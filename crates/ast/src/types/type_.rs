@@ -58,6 +58,8 @@ pub enum Type {
     Group,
     /// A reference to a built in type.
     Identifier(Identifier),
+    /// The `identifier` type.
+    IdentifierLiteral,
     /// An integer type.
     Integer(IntegerType),
     /// A mapping type.
@@ -110,6 +112,7 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
+            | (Type::IdentifierLiteral, Type::IdentifierLiteral)
             | (Type::Unit, Type::Unit)
             | (Type::DynRecord, Type::DynRecord) => true,
             (Type::Array(left), Type::Array(right)) => {
@@ -175,6 +178,7 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
+            | (Type::IdentifierLiteral, Type::IdentifierLiteral)
             | (Type::Unit, Type::Unit)
             | (Type::DynRecord, Type::DynRecord) => true,
             (Type::Array(left), Type::Array(right)) => {
@@ -272,6 +276,7 @@ impl Type {
             },
             Type::Scalar => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Scalar)),
             Type::Signature => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Signature)),
+            Type::IdentifierLiteral => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Identifier)),
             Type::Array(array_type) => Ok(PlaintextType::<N>::Array(array_type.to_snarkvm()?)),
             _ => anyhow::bail!("Converting from type {self} to snarkVM type is not supported"),
         }
@@ -385,6 +390,7 @@ impl From<LiteralType> for Type {
             LiteralType::Scalar => Type::Scalar,
             LiteralType::Signature => Type::Signature,
             LiteralType::String => Type::String,
+            LiteralType::Identifier => Type::IdentifierLiteral,
         }
     }
 }
@@ -399,6 +405,7 @@ impl fmt::Display for Type {
             Type::Future(ref future_type) => write!(f, "{future_type}"),
             Type::Group => write!(f, "group"),
             Type::Identifier(ref variable) => write!(f, "{variable}"),
+            Type::IdentifierLiteral => write!(f, "identifier"),
             Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
             Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
             Type::Optional(ref optional_type) => write!(f, "{optional_type}"),

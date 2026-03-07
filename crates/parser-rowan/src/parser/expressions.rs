@@ -394,6 +394,7 @@ impl Parser<'_, '_> {
             INTEGER => self.parse_integer_literal(),
             STRING => self.parse_string_literal(),
             ADDRESS_LIT => self.parse_address_literal(),
+            IDENTIFIER_LIT => self.parse_identifier_literal(),
             KW_TRUE | KW_FALSE => self.parse_bool_literal(),
             KW_NONE => self.parse_none_literal(),
 
@@ -464,6 +465,13 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any();
         Some(m.complete(self, LITERAL_STRING))
+    }
+
+    /// Parse an identifier literal, e.g., `'hello'`.
+    fn parse_identifier_literal(&mut self) -> Option<CompletedMarker> {
+        let m = self.start();
+        self.bump_any();
+        Some(m.complete(self, LITERAL_IDENTIFIER))
     }
 
     /// Parse an address literal.

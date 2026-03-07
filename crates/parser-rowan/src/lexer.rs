@@ -125,6 +125,10 @@ enum LogosToken {
     #[regex(r#""[^"]*""#)]
     StaticString,
 
+    // Identifier literal: 'hello' (single-quoted, max 31 bytes, [a-zA-Z][a-zA-Z0-9_]*)
+    #[regex(r"'[a-zA-Z][a-zA-Z0-9_]*'")]
+    IdentifierLiteral,
+
     // =========================================================================
     // Identifiers and Keywords
     // =========================================================================
@@ -284,6 +288,7 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         "bool" => KW_BOOL,
         "field" => KW_FIELD,
         "group" => KW_GROUP,
+        "identifier" => KW_IDENTIFIER,
         "scalar" => KW_SCALAR,
         "signature" => KW_SIGNATURE,
         "string" => KW_STRING,
@@ -436,6 +441,7 @@ pub fn lex(source: &str) -> (Vec<Token>, Vec<LexError>) {
                 LogosToken::AddressLiteral => ADDRESS_LIT,
                 LogosToken::Integer => INTEGER,
                 LogosToken::StaticString => STRING,
+                LogosToken::IdentifierLiteral => IDENTIFIER_LIT,
 
                 // Identifiers (check for keywords)
                 LogosToken::Ident => ident_to_kind(slice),
