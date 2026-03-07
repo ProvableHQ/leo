@@ -33,7 +33,14 @@ mod type_;
 mod visitor;
 use snarkvm::{
     prelude::{ArrayType, LiteralType, Network, PlaintextType},
-    synthesizer::program::{CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, SerializeVariant},
+    synthesizer::program::{
+        CommitVariant,
+        DeserializeVariant,
+        ECDSAVerifyVariant,
+        HashVariant,
+        SerializeVariant,
+        SnarkVerifyVariant,
+    },
 };
 use visitor::*;
 
@@ -393,6 +400,7 @@ pub enum AleoStmt {
     RandChacha(AleoReg, AleoType),
     SignVerify(AleoExpr, AleoExpr, AleoExpr, AleoReg),
     EcdsaVerify(ECDSAVerifyVariant, AleoExpr, AleoExpr, AleoExpr, AleoReg),
+    SnarkVerify(SnarkVerifyVariant, AleoExpr, AleoExpr, AleoExpr, AleoExpr, AleoReg),
     Await(AleoExpr),
     Serialize(SerializeVariant, AleoExpr, AleoType, AleoReg, AleoType),
     Deserialize(DeserializeVariant, AleoExpr, AleoType, AleoReg, AleoType),
@@ -478,6 +486,9 @@ impl Display for AleoStmt {
             }
             Self::EcdsaVerify(variant, arg0, arg1, arg2, dest) => {
                 writeln!(f, "    {} {arg0} {arg1} {arg2} into {dest};", variant.opcode())
+            }
+            Self::SnarkVerify(variant, arg0, arg1, arg2, arg3, dest) => {
+                writeln!(f, "    {} {arg0} {arg1} {arg2} {arg3} into {dest};", variant.opcode())
             }
             Self::Await(exp) => writeln!(f, "    await {exp};"),
             Self::Serialize(variant, input, input_ty, dest, dest_ty) => {

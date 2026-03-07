@@ -491,7 +491,7 @@ function scalar_cast:
 
 constructor:
     assert.eq edition 0u16;
-status: failed: Failed to evaluate instruction (cast r0 into r2 as boolean;): Failed to convert field to boolean: field element is not zero or one
+status: failed: Stack evaluation failed: Instruction (cast r0 into r2 as boolean;) at index 1 failed: Failed to convert field to boolean: field element is not zero or one
 output: ()
 status: success
 output: (aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar)

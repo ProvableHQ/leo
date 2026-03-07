@@ -35,12 +35,9 @@ pub fn confirm(prompt: &str, skip_confirmation: bool) -> Result<bool> {
     result
 }
 
-/// Logs a warning and asks the user to confirm an action, with an optional `--yes` override.
-/// Unlike `confirm`, this function always logs the warning message regardless of `skip_confirmation`.
+/// Warns the user and asks for confirmation to continue.
 pub fn warn_and_confirm(warning: &str, skip_confirmation: bool) -> Result<bool> {
-    // Always log the warning so users are informed of issues even in non-interactive mode.
     tracing::warn!("{warning}");
-
     if skip_confirmation {
         return Ok(true);
     }

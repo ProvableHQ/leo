@@ -56,8 +56,17 @@ pub enum Intrinsic {
     GroupToYCoordinate,
     GroupGen,
 
+    // Aleo group generator constant.
+    AleoGenerator,
+    // Aleo precomputed generator powers array ([group; 251]).
+    AleoGeneratorPowers,
+
     // Schnorr signature verification.
     SignatureVerify,
+
+    // Snark proof verification.
+    SnarkVerify,
+    SnarkVerifyBatch,
 
     FinalRun,
 
@@ -101,6 +110,8 @@ impl Intrinsic {
             sym::_deserialize_from_bits => Self::Deserialize(DeserializeVariant::FromBits, type_parameters[0].0.clone()),
             sym::_deserialize_from_bits_raw => Self::Deserialize(DeserializeVariant::FromBitsRaw, type_parameters[0].0.clone()),
             sym::_group_gen => Self::GroupGen,
+            sym::_aleo_generator => Self::AleoGenerator,
+            sym::_aleo_generator_powers => Self::AleoGeneratorPowers,
             sym::_chacha_rand_address => Self::ChaChaRand(LiteralType::Address),
             sym::_chacha_rand_bool    => Self::ChaChaRand(LiteralType::Boolean),
             sym::_chacha_rand_field   => Self::ChaChaRand(LiteralType::Field),
@@ -627,6 +638,8 @@ impl Intrinsic {
             sym::_program_owner => Self::ProgramOwner,
 
             sym::_signature_verify => Self::SignatureVerify,
+            sym::_snark_verify => Self::SnarkVerify,
+            sym::_snark_verify_batch => Self::SnarkVerifyBatch,
             sym::_final_run => Self::FinalRun,
 
             sym::_serialize_to_bits => Self::Serialize(SerializeVariant::ToBits),
@@ -1146,6 +1159,8 @@ impl Intrinsic {
             (sym::ECDSA, sym::verify_sha3_512_raw)    => sym::_ecdsa_verify_sha3_512_raw,
             (sym::ECDSA, sym::verify_sha3_512_eth)    => sym::_ecdsa_verify_sha3_512_eth,
 
+            (sym::Snark, sym::verify) => sym::_snark_verify,
+            (sym::Snark, sym::verify_batch) => sym::_snark_verify_batch,
 
             (sym::Mapping, sym::get_or_use) => sym::_mapping_get_or_use,
             (sym::Mapping, sym::remove) => sym::_mapping_remove,
@@ -1177,6 +1192,9 @@ impl Intrinsic {
             (sym::Serialize, sym::to_bits) => sym::_serialize_to_bits,
             (sym::Serialize, sym::to_bits_raw) => sym::_serialize_to_bits_raw,
 
+            (sym::Aleo, sym::generator) => sym::_aleo_generator,
+            (sym::Aleo, sym::generator_powers) => sym::_aleo_generator_powers,
+
             _ => return None,
         })
     }
@@ -1186,6 +1204,8 @@ impl Intrinsic {
         match self {
             Self::ChaChaRand(_) => 0,
             Self::GroupGen => 0,
+            Self::AleoGenerator => 0,
+            Self::AleoGeneratorPowers => 0,
             Self::SelfAddress => 0,
             Self::SelfCaller => 0,
             Self::SelfChecksum => 0,
@@ -1222,6 +1242,7 @@ impl Intrinsic {
             Self::GroupToYCoordinate => 1,
 
             Self::SignatureVerify => 3,
+            Self::SnarkVerify | Self::SnarkVerifyBatch => 4,
             Self::FinalRun => 1,
 
             Self::ProgramChecksum => 1,
@@ -1253,7 +1274,9 @@ impl Intrinsic {
             | Intrinsic::VectorLen
             | Intrinsic::VectorClear
             | Intrinsic::VectorPop
-            | Intrinsic::VectorSwapRemove => true,
+            | Intrinsic::VectorSwapRemove
+            | Intrinsic::SnarkVerify
+            | Intrinsic::SnarkVerifyBatch => true,
             Intrinsic::Commit(_, _)
             | Intrinsic::Hash(_, _)
             | Intrinsic::OptionalUnwrap
@@ -1261,6 +1284,8 @@ impl Intrinsic {
             | Intrinsic::GroupToXCoordinate
             | Intrinsic::GroupToYCoordinate
             | Intrinsic::GroupGen
+            | Intrinsic::AleoGenerator
+            | Intrinsic::AleoGeneratorPowers
             | Intrinsic::SelfAddress
             | Intrinsic::SelfCaller
             | Intrinsic::SelfChecksum
@@ -1315,6 +1340,8 @@ impl Intrinsic {
             | Intrinsic::GroupToXCoordinate
             | Intrinsic::GroupToYCoordinate
             | Intrinsic::GroupGen
+            | Intrinsic::AleoGenerator
+            | Intrinsic::AleoGeneratorPowers
             | Intrinsic::SelfAddress
             | Intrinsic::SelfCaller
             | Intrinsic::SelfChecksum
@@ -1326,6 +1353,8 @@ impl Intrinsic {
             | Intrinsic::BlockTimestamp
             | Intrinsic::NetworkId
             | Intrinsic::SignatureVerify
+            | Intrinsic::SnarkVerify
+            | Intrinsic::SnarkVerifyBatch
             | Intrinsic::Serialize(_)
             | Intrinsic::Deserialize(_, _) => true,
         }

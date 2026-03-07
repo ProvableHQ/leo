@@ -5,7 +5,7 @@
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
        Leo     The program checksum is: '[95u8, 99u8, 136u8, 243u8, 82u8, 169u8, 200u8, 72u8, 133u8, 227u8, 122u8, 161u8, 195u8, 178u8, 69u8, 37u8, 167u8, 114u8, 104u8, 192u8, 161u8, 175u8, 195u8, 180u8, 120u8, 4u8, 192u8, 16u8, 86u8, 199u8, 76u8, 235u8]'.
-       Leo     Program size: 0.20 KB / 97.66 KB
+       Leo     Program size: 0.20 KB / 500.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
 
@@ -13,7 +13,7 @@
        Leo     11 statements before dead code elimination.
        Leo     11 statements after dead code elimination.
        Leo     The program checksum is: '[11u8, 59u8, 203u8, 68u8, 38u8, 145u8, 107u8, 115u8, 158u8, 199u8, 204u8, 247u8, 229u8, 233u8, 128u8, 227u8, 78u8, 28u8, 96u8, 77u8, 42u8, 32u8, 253u8, 143u8, 68u8, 66u8, 222u8, 29u8, 33u8, 9u8, 199u8, 189u8]'.
-       Leo     Program size: 0.33 KB / 97.66 KB
+       Leo     Program size: 0.33 KB / 500.00 KB
        Leo ✅ Compiled 'test_some_sample_leo_program.aleo' into Aleo instructions.
        Leo     Import 'some_sample_leo_program.aleo': checksum = '[95u8, 99u8, 136u8, 243u8, 82u8, 169u8, 200u8, 72u8, 133u8, 227u8, 122u8, 161u8, 195u8, 178u8, 69u8, 37u8, 167u8, 114u8, 104u8, 192u8, 161u8, 175u8, 195u8, 180u8, 120u8, 4u8, 192u8, 16u8, 86u8, 199u8, 76u8, 235u8]'
        Leo Loading the ledger from storage...
