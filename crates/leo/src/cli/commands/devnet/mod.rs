@@ -293,6 +293,7 @@ impl LeoDevnet {
                     self.network as usize,
                     idx,
                     &storage.join(format!("node-{idx}")),
+                    &storage.join(format!("node-data-{idx}")),
                 )?);
             }
             for idx in 0..self.num_clients {
@@ -302,6 +303,7 @@ impl LeoDevnet {
                     self.network as usize,
                     dev_idx,
                     &storage.join(format!("node-{dev_idx}")),
+                    &storage.join(format!("node-data-{dev_idx}")),
                 )?);
             }
             for mut c in cleaners {
@@ -352,8 +354,10 @@ impl LeoDevnet {
                 log_file.to_str().expect("log path is valid UTF-8").to_string(),
                 "--verbosity".to_string(),
                 verbosity.to_string(),
-                "--storage".to_string(),
+                "--ledger-storage".to_string(),
                 storage.join(format!("node-{idx}")).to_str().expect("storage path is valid UTF-8").to_string(),
+                "--node-data-storage".to_string(),
+                storage.join(format!("node-data-{idx}")).to_str().expect("node-data path is valid UTF-8").to_string(),
             ];
             if let Some(port) = rest_port {
                 // Port overflow is validated upfront in handle_apply.
@@ -635,7 +639,13 @@ impl LeoDevnet {
         println!("🧹  Cleaning ledgers …");
         let mut cleaners = Vec::new();
         for idx in 0..self.num_validators {
-            cleaners.push(clean_snarkos(&snarkos, self.network as usize, idx, &storage.join(format!("node-{idx}")))?);
+            cleaners.push(clean_snarkos(
+                &snarkos,
+                self.network as usize,
+                idx,
+                &storage.join(format!("node-{idx}")),
+                &storage.join(format!("node-data-{idx}")),
+            )?);
         }
         for idx in 0..self.num_clients {
             let dev_idx = idx + self.num_validators;
@@ -644,6 +654,7 @@ impl LeoDevnet {
                 self.network as usize,
                 dev_idx,
                 &storage.join(format!("node-{dev_idx}")),
+                &storage.join(format!("node-data-{dev_idx}")),
             )?);
         }
         for mut c in cleaners {

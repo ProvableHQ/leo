@@ -74,15 +74,23 @@ pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[S
 }
 
 /// Spawns `snarkos clean` for a single dev node, returning the child process.
-pub fn clean_snarkos(snarkos: &Path, network: usize, idx: usize, storage: &Path) -> std::io::Result<Child> {
+pub fn clean_snarkos(
+    snarkos: &Path,
+    network: usize,
+    idx: usize,
+    ledger_storage: &Path,
+    node_data_storage: &Path,
+) -> std::io::Result<Child> {
     Command::new(snarkos)
         .arg("clean")
         .arg("--network")
         .arg(network.to_string())
         .arg("--dev")
         .arg(idx.to_string())
-        .arg("--path")
-        .arg(storage)
+        .arg("--ledger-storage")
+        .arg(ledger_storage)
+        .arg("--node-data-storage")
+        .arg(node_data_storage)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
