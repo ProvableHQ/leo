@@ -1,0 +1,47 @@
+name: Benchmarks
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+    paths:
+      - crates/compiler/**
+      - crates/passes/**
+      - crates/parser/**
+      - crates/parser-rowan/**
+      - crates/ast/**
+      - crates/span/**
+      - .github/workflows/benchmarks.yml
+  # `workflow_dispatch` allows CodSpeed to trigger backtest
+  # performance analysis in order to generate initial data.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-codspeed
+      - name: Ensure Aleo home exists
+        run: mkdir -p ~/.aleo
+
+      - name: Build the benchmark targets
+        run: cargo codspeed build -p leo-benchmarks
+
+      - name: Run the benchmarks
+        uses: CodSpeedHQ/action@v3
+        with:
+          run: cargo codspeed run -p leo-benchmarks
+          token: ${{ secrets.CODSPEED_TOKEN }}

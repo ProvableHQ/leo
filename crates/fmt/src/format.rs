@@ -21,6 +21,7 @@ use leo_parser_rowan::{
     SyntaxElement,
     SyntaxKind::{self, *},
     SyntaxNode,
+    SyntaxToken,
 };
 
 /// Format any syntax node.
@@ -1793,23 +1794,77 @@ fn format_method_call(node: &SyntaxNode, out: &mut Output) {
 fn format_binary(node: &SyntaxNode, out: &mut Output) {
     // BINARY_EXPR: lhs, operator_token, rhs (with trivia interleaved)
     let children: Vec<_> = node.children().collect();
-    if children.len() == 2 {
-        let op_token =
-            node.children_with_tokens().find(|e| matches!(e, SyntaxElement::Token(t) if is_binary_op(t.kind())));
-
-        format_node(&children[0], out);
-        out.space();
-        if let Some(SyntaxElement::Token(tok)) = op_token {
-            out.write(tok.text());
-        }
-        out.space();
-        format_node(&children[1], out);
-    } else {
-        // Malformed binary expression — emit children verbatim
+    if children.len() != 2 {
+        // Malformed binary expression — emit children verbatim.
         for child in &children {
             format_node(child, out);
         }
+        return;
     }
+
+    // Flatten the left-associative chain into operands and operators.
+    let (operands, operators) = collect_binary_chain(node);
+    let operand_strings: Vec<String> = operands.iter().map(format_node_to_string).collect();
+
+    // Measure: "op1 + op2 ** op3 + ..."  — each operator contributes " op " (len + 2 spaces).
+    let total: usize = operand_strings.iter().map(|s| s.len()).sum::<usize>()
+        + operators.iter().map(|op| op.text().len() + 2).sum::<usize>();
+
+    if out.current_column() + total <= LINE_WIDTH {
+        // Fits on one line.
+        out.write(&operand_strings[0]);
+        for (op, s) in operators.iter().zip(&operand_strings[1..]) {
+            out.space();
+            out.write(op.text());
+            out.space();
+            out.write(s);
+        }
+    } else {
+        // Wrap: first operand on current line, rest indented with leading operator.
+        format_node(&operands[0], out);
+        out.indented(|out| {
+            for (op, operand) in operators.iter().zip(&operands[1..]) {
+                out.newline();
+                out.write(op.text());
+                out.space();
+                format_node(operand, out);
+            }
+        });
+    }
+}
+
+/// Flatten a left-associative binary expression chain into its operands and operators.
+fn collect_binary_chain(node: &SyntaxNode) -> (Vec<SyntaxNode>, Vec<SyntaxToken>) {
+    let mut operands = Vec::new();
+    let mut operators = Vec::new();
+    let mut current = node.clone();
+
+    loop {
+        let children: Vec<_> = current.children().collect();
+        if children.len() != 2 {
+            operands.push(current);
+            break;
+        }
+
+        if let Some(SyntaxElement::Token(tok)) =
+            current.children_with_tokens().find(|e| matches!(e, SyntaxElement::Token(t) if is_binary_op(t.kind())))
+        {
+            operators.push(tok);
+        }
+
+        operands.push(children[1].clone());
+
+        if children[0].kind() == BINARY_EXPR {
+            current = children[0].clone();
+        } else {
+            operands.push(children[0].clone());
+            break;
+        }
+    }
+
+    operands.reverse();
+    operators.reverse();
+    (operands, operators)
 }
 
 fn format_path(node: &SyntaxNode, out: &mut Output) {
