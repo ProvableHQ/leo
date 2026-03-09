@@ -284,7 +284,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
 
     // Load the genesis block.
     let genesis_block =
-        Block::from_bytes_le(include_bytes!("../../../resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?;
+        Block::from_bytes_le(include_bytes!("resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?;
 
     // Initialize a `Ledger`. This should always succeed.
     let ledger =

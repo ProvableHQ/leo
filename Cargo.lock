@@ -2090,7 +2090,7 @@ checksum = "09edd9e8b54e49e587e4f6295a7d29c3ea94d469cb40ab8ca70b288248a81db2"
 
 [[package]]
 name = "leo-abi"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "indexmap",
  "leo-abi-types",
@@ -2100,14 +2100,14 @@ dependencies = [
 
 [[package]]
 name = "leo-abi-types"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "leo-ast"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -2140,7 +2140,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -2167,7 +2167,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "leo-ast",
  "leo-errors",
@@ -2177,7 +2177,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -2192,7 +2192,7 @@ dependencies = [
 
 [[package]]
 name = "leo-fmt"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "clap",
  "colored 3.1.1",
@@ -2208,7 +2208,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -2272,7 +2272,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "indexmap",
  "leo-ast",
@@ -2287,7 +2287,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "indexmap",
  "itertools 0.14.0",
@@ -2302,7 +2302,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser-rowan"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "expect-test",
  "leo-errors",
@@ -2313,7 +2313,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "anyhow",
  "base62",
@@ -2338,7 +2338,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "fxhash",
  "indexmap",
@@ -2348,7 +2348,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "3.4.0"
+version = "3.5.0"
 dependencies = [
  "rayon",
  "similar",
