@@ -14,21 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
-
 use anyhow::{Result, ensure};
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use std::{
     fs,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Child, Command, Stdio},
 };
 
 /// Compiles & installs snarkOS and returns the **final binary path**.
 ///
-/// * `snarkos_path` – the exact `--snarkos` value (may not exist yet)  
-/// * `version`      – optional `--version` (`"4.1.0"` etc.)  
+/// * `snarkos_path` – the exact `--snarkos` value (may not exist yet)
+/// * `version`      – optional `--version` (`"4.1.0"` etc.)
 /// * `features`     – `--features ..` list (may be empty)
 pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[String]) -> Result<PathBuf> {
     //───────────────── 1. resolve & prepare directories ─────────────────
@@ -75,20 +73,24 @@ pub fn install_snarkos(snarkos_path: &Path, version: Option<&str>, features: &[S
     Ok(snarkos_path.to_path_buf())
 }
 
-/// Cleans a ledger associated with a snarkOS node.
-pub fn clean_snarkos<S: AsRef<OsStr>>(
-    snarkos: S,
+/// Spawns `snarkos clean` for a single dev node, returning the child process.
+pub fn clean_snarkos(
+    snarkos: &Path,
     network: usize,
-    _role: &str,
     idx: usize,
-    _storage: &Path,
+    ledger_storage: &Path,
+    node_data_storage: &Path,
 ) -> std::io::Result<Child> {
-    StdCommand::new(snarkos)
+    Command::new(snarkos)
         .arg("clean")
         .arg("--network")
         .arg(network.to_string())
         .arg("--dev")
         .arg(idx.to_string())
+        .arg("--ledger-storage")
+        .arg(ledger_storage)
+        .arg("--node-data-storage")
+        .arg(node_data_storage)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
