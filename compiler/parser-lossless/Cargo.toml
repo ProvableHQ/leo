@@ -1,6 +1,6 @@
 [package]
 name = "leo-parser-lossless"
-version = "3.4.0"
+version = "3.5.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Lossless syntax tree parser for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -17,16 +17,23 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies]
-# leo dependencies
-leo-errors      = { workspace = true }
-leo-span        = { workspace = true }
-# third party dependencies
-itertools       = { workspace = true }
-lalrpop-util    = { workspace = true }
-logos           = { workspace = true }
-regex           = { workspace = true }
+[dependencies.leo-errors]
+workspace = true
 
-[build-dependencies]
-# third party dependencies
-lalrpop = { workspace = true }
+[dependencies.leo-span]
+workspace = true
+
+[dependencies.itertools]
+workspace = true
+
+[dependencies.lalrpop-util]
+workspace = true
+
+[dependencies.logos]
+workspace = true
+
+[dependencies.regex]
+workspace = true
+
+[build-dependencies.lalrpop]
+workspace = true

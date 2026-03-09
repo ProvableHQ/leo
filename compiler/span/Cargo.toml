@@ -1,6 +1,6 @@
 [package]
 name = "leo-span"
-version = "3.4.0"
+version = "3.5.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Span handling for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -17,9 +17,14 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies]
-# third party dependencies
-fxhash       = { workspace = true }
-indexmap     = { workspace = true }
-scoped-tls   = { workspace = true }
-serde        = { workspace = true }
+[dependencies.fxhash]
+workspace = true
+
+[dependencies.indexmap]
+workspace = true
+
+[dependencies.scoped-tls]
+workspace = true
+
+[dependencies.serde]
+workspace = true

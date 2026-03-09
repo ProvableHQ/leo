@@ -1,6 +1,6 @@
 [package]
 name = "leo-interpreter"
-version = "3.4.0"
+version = "3.5.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Interpreter for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -17,31 +17,66 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies]
-# leo dependencies
-leo-ast       = { workspace = true }
-leo-errors    = { workspace = true }
-leo-parser    = { workspace = true }
-leo-span      = { workspace = true }
-# third party dependencies
-colored       = { workspace = true }
-crossterm     = { workspace = true }
-dialoguer     = { workspace = true, features = [ "history" ] }
-indexmap      = { workspace = true }
-itertools     = { workspace = true }
-rand          = { workspace = true }
-rand_chacha   = { workspace = true }
-ratatui       = { workspace = true }
-snarkvm       = { workspace = true }
+[dependencies.leo-ast]
+workspace = true
 
-[dev-dependencies]
-# leo dependencies
-leo-compiler       = { workspace = true }
-leo-disassembler   = { workspace = true }
-leo-test-framework = { workspace = true }
-# third party dependencies
-chrono             = { workspace = true }
-regex              = { workspace = true }
-serial_test        = { workspace = true }
-tempfile           = { workspace = true }
-walkdir            = { workspace = true }
+[dependencies.leo-errors]
+workspace = true
+
+[dependencies.leo-parser]
+workspace = true
+
+[dependencies.leo-span]
+workspace = true
+
+[dependencies.colored]
+workspace = true
+
+[dependencies.crossterm]
+workspace = true
+
+[dependencies.dialoguer]
+workspace = true
+features = [ "history" ]
+
+[dependencies.indexmap]
+workspace = true
+
+[dependencies.itertools]
+workspace = true
+
+[dependencies.rand]
+workspace = true
+
+[dependencies.rand_chacha]
+workspace = true
+
+[dependencies.ratatui]
+workspace = true
+
+[dependencies.snarkvm]
+workspace = true
+
+[dev-dependencies.leo-compiler]
+workspace = true
+
+[dev-dependencies.leo-disassembler]
+workspace = true
+
+[dev-dependencies.leo-test-framework]
+workspace = true
+
+[dev-dependencies.chrono]
+workspace = true
+
+[dev-dependencies.regex]
+workspace = true
+
+[dev-dependencies.serial_test]
+workspace = true
+
+[dev-dependencies.tempfile]
+workspace = true
+
+[dev-dependencies.walkdir]
+workspace = true

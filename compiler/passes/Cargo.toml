@@ -1,6 +1,6 @@
 [package]
 name = "leo-passes"
-version = "3.4.0"
+version = "3.5.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler passes for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -20,29 +20,59 @@ edition = "2024"
 [lib]
 path = "src/lib.rs"
 
-[dependencies]
-# leo dependencies
-leo-abi-types = { workspace = true }
-leo-ast       = { workspace = true }
-leo-errors    = { workspace = true }
-leo-package   = { workspace = true }
-leo-span      = { workspace = true }
-# third party dependencies
-anyhow        = { workspace = true }
-base62        = { workspace = true }
-indexmap      = { workspace = true }
-itertools     = { workspace = true }
-num-traits    = { workspace = true }
-regex         = { workspace = true }
-sha2          = { workspace = true }
-serde         = { workspace = true }
-serde_json    = { workspace = true }
-snarkvm       = { workspace = true }
+[dependencies.leo-abi-types]
+workspace = true
 
-[dev-dependencies]
-# leo dependencies
-leo-parser         = { workspace = true }
-leo-test-framework = { workspace = true }
-# third party dependencies
-paste              = { workspace = true }
-serial_test        = { workspace = true }
+[dependencies.leo-ast]
+workspace = true
+
+[dependencies.leo-errors]
+workspace = true
+
+[dependencies.leo-package]
+workspace = true
+
+[dependencies.leo-span]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.base62]
+workspace = true
+
+[dependencies.indexmap]
+workspace = true
+
+[dependencies.itertools]
+workspace = true
+
+[dependencies.num-traits]
+workspace = true
+
+[dependencies.regex]
+workspace = true
+
+[dependencies.sha2]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.snarkvm]
+workspace = true
+
+[dev-dependencies.leo-parser]
+workspace = true
+
+[dev-dependencies.leo-test-framework]
+workspace = true
+
+[dev-dependencies.paste]
+workspace = true
+
+[dev-dependencies.serial_test]
+workspace = true

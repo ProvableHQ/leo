@@ -1,39 +1,57 @@
 [package]
 name = "leo-fmt"
-version = "3.4.0"
+version = "3.5.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Source code formatter for the Leo programming language"
 homepage = "https://leo-lang.org"
 repository = "https://github.com/ProvableHQ/leo"
-keywords = [
-  "formatter",
-  "code-formatter",
-  "leo",
-  "aleo"
-]
+keywords = [ "formatter", "code-formatter", "leo", "aleo" ]
 categories = [ "development-tools", "command-line-utilities" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
 [features]
-default = []
+default = [ ]
 validate = [
   "dep:leo-compiler",
   "dep:leo-ast",
   "dep:leo-errors",
   "dep:leo-span",
-  "dep:serde_json",
+  "dep:serde_json"
 ]
 
-[dependencies]
-clap                = { workspace = true }
-colored             = { workspace = true }
-leo-ast             = { workspace = true, optional = true }
-leo-compiler        = { workspace = true, optional = true }
-leo-errors          = { workspace = true, optional = true }
-leo-parser-rowan    = { workspace = true }
-leo-span            = { workspace = true, optional = true }
-serde_json          = { workspace = true, optional = true }
-similar             = { workspace = true }
-walkdir             = { workspace = true }
+[dependencies.clap]
+workspace = true
+
+[dependencies.colored]
+workspace = true
+
+[dependencies.leo-ast]
+workspace = true
+optional = true
+
+[dependencies.leo-compiler]
+workspace = true
+optional = true
+
+[dependencies.leo-errors]
+workspace = true
+optional = true
+
+[dependencies.leo-parser-rowan]
+workspace = true
+
+[dependencies.leo-span]
+workspace = true
+optional = true
+
+[dependencies.serde_json]
+workspace = true
+optional = true
+
+[dependencies.similar]
+workspace = true
+
+[dependencies.walkdir]
+workspace = true

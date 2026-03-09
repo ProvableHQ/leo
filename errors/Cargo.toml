@@ -1,6 +1,6 @@
 [package]
 name = "leo-errors"
-version = "3.4.0"
+version = "3.5.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Errors for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -17,15 +17,29 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
-[dependencies]
-# leo dependencies
-leo-span         = { workspace = true }
-# third party dependencies
-anyhow           = { workspace = true }
-backtrace        = { workspace = true }
-colored          = { workspace = true }
-color-backtrace  = { workspace = true }
-derivative       = { workspace = true }
-itertools        = { workspace = true }
-serde            = { workspace = true }
-thiserror        = { workspace = true }
+[dependencies.leo-span]
+workspace = true
+
+[dependencies.anyhow]
+workspace = true
+
+[dependencies.backtrace]
+workspace = true
+
+[dependencies.colored]
+workspace = true
+
+[dependencies.color-backtrace]
+workspace = true
+
+[dependencies.derivative]
+workspace = true
+
+[dependencies.itertools]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.thiserror]
+workspace = true
