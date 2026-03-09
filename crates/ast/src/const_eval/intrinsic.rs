@@ -139,7 +139,12 @@ pub fn evaluate_intrinsic(
             return Ok(None);
         }
         Intrinsic::GroupGen => Value::generator(),
+        Intrinsic::AleoGenerator => Value::generator(),
         Intrinsic::OptionalUnwrap | Intrinsic::OptionalUnwrapOr => {
+            return Ok(None);
+        }
+        Intrinsic::AleoGeneratorPowers | Intrinsic::SnarkVerify | Intrinsic::SnarkVerifyBatch => {
+            // Cannot evaluate at compile time.
             return Ok(None);
         }
         Intrinsic::VectorPush

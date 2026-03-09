@@ -646,6 +646,8 @@ impl CodeGeneratingVisitor<'_> {
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
                 }
                 Intrinsic::GroupGen => (Some(AleoExpr::RawName("group::GEN".into())), vec![]),
+                Intrinsic::AleoGenerator => (Some(AleoExpr::RawName("aleo::GENERATOR".into())), vec![]),
+                Intrinsic::AleoGeneratorPowers => (Some(AleoExpr::RawName("aleo::GENERATOR_POWERS".into())), vec![]),
                 Intrinsic::ChaChaRand(type_) => {
                     let dest_reg = self.next_register();
                     let instruction = AleoStmt::RandChacha(dest_reg.clone(), type_.into());
@@ -664,6 +666,32 @@ impl CodeGeneratingVisitor<'_> {
                         args[0].clone(),
                         args[1].clone(),
                         args[2].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Intrinsic::SnarkVerify => {
+                    debug_assert_eq!(args.len(), 4, "type checker guarantees SnarkVerify has exactly 4 arguments");
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::SnarkVerify(
+                        SnarkVerifyVariant::Varuna,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        args[3].clone(),
+                        dest_reg.clone(),
+                    );
+                    (Some(AleoExpr::Reg(dest_reg)), vec![instruction])
+                }
+                Intrinsic::SnarkVerifyBatch => {
+                    debug_assert_eq!(args.len(), 4, "type checker guarantees SnarkVerifyBatch has exactly 4 arguments");
+                    let dest_reg = self.next_register();
+                    let instruction = AleoStmt::SnarkVerify(
+                        SnarkVerifyVariant::VarunaBatch,
+                        args[0].clone(),
+                        args[1].clone(),
+                        args[2].clone(),
+                        args[3].clone(),
                         dest_reg.clone(),
                     );
                     (Some(AleoExpr::Reg(dest_reg)), vec![instruction])

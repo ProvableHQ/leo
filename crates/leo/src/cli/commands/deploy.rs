@@ -519,7 +519,7 @@ fn check_tasks_for_warnings<N: Network>(
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
         }
         // Check if the program size is approaching the limit.
-        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::MAX_PROGRAM_SIZE) {
+        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::LATEST_MAX_PROGRAM_SIZE()) {
             warnings.push(format!("The program '{id}' is {msg}."));
         }
     }
@@ -672,7 +672,7 @@ pub(crate) fn compute_deployment_stats<N: Network, R: Rng + CryptoRng>(
 
     Ok(DeploymentStats {
         program_size_bytes: bytecode_size,
-        max_program_size_bytes: N::MAX_PROGRAM_SIZE,
+        max_program_size_bytes: N::LATEST_MAX_PROGRAM_SIZE(),
         total_variables: Some(variables),
         total_constraints: Some(constraints),
         max_variables: Some(N::MAX_DEPLOYMENT_VARIABLES),
@@ -738,21 +738,29 @@ pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = 
         deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
     // Authorize the fee.
     let fee_authorization = match record {
-        Some(record) => vm.process().read().authorize_fee_private::<A, _>(
-            private_key,
-            record,
-            minimum_deployment_cost,
-            priority_fee.unwrap_or(0),
-            deployment_id,
-            rng,
-        )?,
-        None => vm.process().read().authorize_fee_public::<A, _>(
-            private_key,
-            minimum_deployment_cost,
-            priority_fee.unwrap_or(0),
-            deployment_id,
-            rng,
-        )?,
+        Some(record) => vm
+            .process()
+            .read()
+            .authorize_fee_private::<A, _>(
+                private_key,
+                record,
+                minimum_deployment_cost,
+                priority_fee.unwrap_or(0),
+                deployment_id,
+                rng,
+            )
+            .map_err(|e| anyhow::anyhow!("{e}"))?,
+        None => vm
+            .process()
+            .read()
+            .authorize_fee_public::<A, _>(
+                private_key,
+                minimum_deployment_cost,
+                priority_fee.unwrap_or(0),
+                deployment_id,
+                rng,
+            )
+            .map_err(|e| anyhow::anyhow!("{e}"))?,
     };
 
     // Get the state root.
@@ -768,7 +776,7 @@ pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = 
     let function_costs = calculate_function_costs(vm, &deployment, consensus_version, rng)?;
     let stats = DeploymentStats {
         program_size_bytes: bytecode_size,
-        max_program_size_bytes: N::MAX_PROGRAM_SIZE,
+        max_program_size_bytes: N::LATEST_MAX_PROGRAM_SIZE(),
         total_variables: None,
         total_constraints: None,
         max_variables: None,

@@ -9,11 +9,11 @@ function main:
 
 constructor:
     assert.eq edition 0u16;
-status: failed: Failed to evaluate instruction (assert.eq r0 r1;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)
+status: failed: Stack evaluation failed: Instruction (assert.eq r0 r1;) at index 0 failed: 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)
 output: ()
 status: success
 output: true
-status: failed: Failed to evaluate instruction (assert.eq r0 r1;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)
+status: failed: Stack evaluation failed: Instruction (assert.eq r0 r1;) at index 0 failed: 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)
 output: ()
 status: success
 output: true
