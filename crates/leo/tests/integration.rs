@@ -250,8 +250,11 @@ fn filter_stdout(data: &str) -> String {
         (Regex::new(r"Diff in .*?([^/]+\.leo)").unwrap(), "Diff in SOURCE_DIRECTORY/$1"),
         // Normalize dynamic devnode ports back to 3030 for stable expectations.
         (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
-        // Normalize `leo --version` output: replace commit hash and branch with placeholders.
-        (Regex::new(r"(leo \d+\.\d+\.\d+) \([a-f0-9]+ [^\)]+\)").unwrap(), "$1 (HASH BRANCH)"),
+        // Normalize `leo --version` output: replace commit hash, branch, and features with placeholders.
+        (
+            Regex::new(r"(leo \d+\.\d+\.\d+) \([a-f0-9]+ [^\)]+\) features=\[[^\]]*\]").unwrap(),
+            "$1 (HASH BRANCH) features=[FEATURES]",
+        ),
     ];
 
     let mut cow = Cow::Borrowed(data);
