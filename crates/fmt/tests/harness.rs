@@ -143,7 +143,7 @@ mod validate {
     use leo_compiler::Compiler;
     use leo_errors::Handler;
     use leo_span::{create_session_if_not_set_then, source_map::FileName};
-    use std::rc::Rc;
+    use std::{process::Command, rc::Rc};
 
     /// Files that are expected to fail type checking (error recovery tests,
     /// import tests, empty programs, annotated functions).
@@ -156,6 +156,7 @@ mod validate {
         "empty_program",
         "function_annotated",
         "comment_before_program",
+        "wrap_binary_chain",
     ];
 
     /// Parse a Leo source string and return a normalized AST JSON value
@@ -181,6 +182,33 @@ mod validate {
             json = leo_ast::remove_key_from_json(json, key);
         }
         Some(leo_ast::normalize_json_value(json))
+    }
+
+    /// Get the repository workspace root.
+    fn workspace_root() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..")
+    }
+
+    /// Collect tracked workspace `.leo` files, excluding formatter fixtures.
+    fn collect_workspace_leo_files() -> Vec<PathBuf> {
+        let root = workspace_root();
+        let output = Command::new("git")
+            .arg("-C")
+            .arg(&root)
+            .args(["ls-files", "-z", "--", "*.leo", ":(exclude)crates/fmt/tests/*"])
+            .output()
+            .expect("failed to run git ls-files");
+        assert!(output.status.success(), "git ls-files failed for {}", root.display());
+
+        output
+            .stdout
+            .split(|byte| *byte == 0)
+            .filter(|entry| !entry.is_empty())
+            .map(|entry| {
+                let path = std::str::from_utf8(entry).expect("git ls-files should return UTF-8 paths");
+                root.join(path)
+            })
+            .collect()
     }
 
     /// Validate that target files pass Leo type checking.
@@ -277,6 +305,58 @@ mod validate {
                 }
             }
 
+            assert!(failures.is_empty(), "{} file(s) have AST mismatches: {failures:?}", failures.len());
+        });
+    }
+
+    /// Validate AST equivalence across tracked workspace `.leo` files.
+    ///
+    /// Uses the same tracked-file scope as the CI `leo-fmt --check` step:
+    /// all tracked `.leo` files excluding `crates/fmt/tests/*`.
+    ///
+    /// Files whose original source cannot be parsed by the compiler are skipped,
+    /// since AST equivalence is undefined for them.
+    ///
+    /// Run with: `cargo test -p leo-fmt --features validate -- validate_workspace_ast_equivalence`
+    #[test]
+    fn validate_workspace_ast_equivalence() {
+        let leo_files = collect_workspace_leo_files();
+
+        create_session_if_not_set_then(|_| {
+            let mut failures = Vec::new();
+            let mut tested = 0;
+            let mut skipped = 0;
+
+            for file_path in &leo_files {
+                let name = file_path.file_stem().unwrap().to_str().unwrap();
+                let source = std::fs::read_to_string(file_path)
+                    .unwrap_or_else(|_| panic!("Failed to read: {}", file_path.display()));
+
+                let Some(before) = source_to_ast_json(name, &source) else {
+                    skipped += 1;
+                    continue;
+                };
+
+                let formatted = format_source(&source);
+                let Some(after) = source_to_ast_json(name, &formatted) else {
+                    println!("\n=== FORMAT BROKE PARSING: {} ===", file_path.display());
+                    println!("Original parsed OK but formatted output failed to parse");
+                    println!("=== END ===\n");
+                    failures.push(file_path.clone());
+                    continue;
+                };
+
+                if before != after {
+                    println!("\n=== AST MISMATCH: {} ===", file_path.display());
+                    println!("ASTs differ after formatting (ignoring spans/IDs)");
+                    println!("=== END ===\n");
+                    failures.push(file_path.clone());
+                }
+
+                tested += 1;
+            }
+
+            println!("\nWorkspace files: {tested} tested, {skipped} skipped (unparseable)");
             assert!(failures.is_empty(), "{} file(s) have AST mismatches: {failures:?}", failures.len());
         });
     }
