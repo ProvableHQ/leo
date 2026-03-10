@@ -1,0 +1,11 @@
+Error [ETYC0372176]: A `final` block cannot capture the record variable `t`. Records cannot be used in on-chain code.
+    --> compiler-test:9:17
+     |
+   9 |         let f = final {
+     |                 ^^^^^^^
+  10 |             assert(t.owner == aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc);
+     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |         };
+     |         ^
+     |
+     = Extract the needed fields before the `final` block. For example: `let val = t.field_name;`
