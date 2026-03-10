@@ -1,0 +1,23 @@
+{
+    "program": "bench_router.aleo",
+    "version": "0.1.0",
+    "description": "",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "bench_primitives.aleo",
+            "location": "local",
+            "path": "../primitives"
+        },
+        {
+            "name": "bench_registry.aleo",
+            "location": "local",
+            "path": "../registry"
+        },
+        {
+            "name": "bench_policy.aleo",
+            "location": "local",
+            "path": "../policy"
+        }
+    ]
+}

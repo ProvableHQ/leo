@@ -206,7 +206,12 @@ impl FunctionStub {
                     span: Default::default(),
                     id: Default::default(),
                 }],
-                ValueType::DynamicFuture => todo!("dynamic futures are not yet supported in Leo"),
+                ValueType::DynamicFuture => vec![Output {
+                    mode: Mode::None,
+                    type_: Type::Future(FutureType::new(Vec::new(), None, false)),
+                    span: Default::default(),
+                    id: Default::default(),
+                }],
             })
             .collect_vec()
             .concat();
@@ -290,7 +295,13 @@ impl FunctionStub {
                             span: Default::default(),
                             id: Default::default(),
                         },
-                        ValueType::DynamicFuture => todo!("dynamic futures are not yet supported in Leo"),
+                        ValueType::DynamicFuture => Input {
+                            identifier: arg_name,
+                            mode: Mode::None,
+                            type_: Type::Future(FutureType::new(Vec::new(), None, false)),
+                            span: Default::default(),
+                            id: Default::default(),
+                        },
                     }
                 })
                 .collect_vec(),
@@ -324,7 +335,7 @@ impl FunctionStub {
                             )])),
                             false,
                         )),
-                        FinalizeType::DynamicFuture => todo!("dynamic futures are not yet supported in Leo"),
+                        FinalizeType::DynamicFuture => Type::Future(FutureType::new(Vec::new(), None, false)),
                     },
                     span: Default::default(),
                     id: Default::default(),
