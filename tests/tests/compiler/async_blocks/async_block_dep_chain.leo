@@ -1,4 +1,3 @@
-
 // Ensure Final types are correctly found through
 // two layers of dependencies.
 
@@ -15,23 +14,25 @@ program dependent.aleo {
 }
 
 // --- Next Program --- //
-
 import dependent.aleo;
 
 program dependent2.aleo {
     fn t1() -> Final {
         let f: Final = dependent.aleo/t1();
-        return final { f.run(); };
+        return final {
+            f.run();
+        };
     }
 }
 
 // --- Next Program --- //
-
 import dependent2.aleo;
 
 program test.aleo {
     fn t1() -> Final {
         let f: Final = dependent2.aleo/t1();
-        return final { f.run(); };
+        return final {
+            f.run();
+        };
     }
 }

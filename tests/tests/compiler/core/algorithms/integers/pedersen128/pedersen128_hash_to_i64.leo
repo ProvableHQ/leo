@@ -1,4 +1,3 @@
-
 struct Foo {
     a: u32,
     b: u32,
@@ -21,7 +20,6 @@ program test.aleo {
         let group_value: group = group::GEN;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-
         // Pedersen128 hash_to_i64 tests
         let a: i64 = Pedersen128::hash_to_i64(bool_value);
         let b: i64 = Pedersen128::hash_to_i64(bool_value);
@@ -38,7 +36,6 @@ program test.aleo {
         let o: i64 = Pedersen128::hash_to_i64(bool_value);
         // let p: i64 = Pedersen128::hash_to_i64(string_value);
         let q: i64 = Pedersen128::hash_to_i64(bool_value);
-
         return (a, b, c, d, e, f, g, h, j, k, l, m, o, q);
     }
 }

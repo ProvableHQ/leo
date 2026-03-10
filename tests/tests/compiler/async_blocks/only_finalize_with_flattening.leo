@@ -5,23 +5,21 @@ struct TokenInfo {
 program test.aleo {
     mapping token_name_to_info: field => TokenInfo;
 
-    fn add_new_token () -> Final {
+    fn add_new_token() -> Final {
         return final {
             if false {
-                let token_info: TokenInfo = TokenInfo {
-                    id: 0u64,
-                };
+                let token_info: TokenInfo = TokenInfo { id: 0u64 };
                 Mapping::set(token_name_to_info, 0field, token_info);
             }
         };
     }
 
-    fn add_new_token_2 () -> Final {
+    fn add_new_token_2() -> Final {
         return final {
             let try_get_token: TokenInfo = Mapping::get_or_use(
                 token_name_to_info,
                 0field,
-                TokenInfo { id: 0u64 }
+                TokenInfo { id: 0u64 },
             );
             try_get_token = (try_get_token.id == 0u64) ? TokenInfo { id: 10u64 } : try_get_token;
         };

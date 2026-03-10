@@ -1,8 +1,6 @@
+program test.aleo {}
 
-program test.aleo {
-}
 fn main(a: bool, b: bool) -> (bool, bool) {
     let t: (bool, bool) = (a, b);
-
-    return (t.0, t.-1); // Index `t.-1` is invalid.
+    return (t.0, t. - 1); // Index `t.-1` is invalid.
 }

@@ -9,11 +9,13 @@ program child.aleo {
     }
 }
 
-fn f() -> u32 { return 4; }
+fn f() -> u32 {
+    return 4;
+}
 
 // --- Next Program --- //
-
 import child.aleo;
+
 program parent.aleo {
     fn foo() -> Final {
         return final {
@@ -22,4 +24,6 @@ program parent.aleo {
     }
 }
 
-fn f() -> u32 { return 4; }
+fn f() -> u32 {
+    return 4;
+}

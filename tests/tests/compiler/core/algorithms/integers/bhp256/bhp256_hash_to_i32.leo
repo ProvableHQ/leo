@@ -1,4 +1,3 @@
-
 struct Foo {
     a: u128,
     b: u128,
@@ -23,7 +22,6 @@ program test.aleo {
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-
         // BHP256 hash_to_i32 tests
         let a: i32 = BHP256::hash_to_i32(addr_value);
         let b: i32 = BHP256::hash_to_i32(bool_value);
@@ -42,7 +40,6 @@ program test.aleo {
         let o: i32 = BHP256::hash_to_i32(scalar_value);
         // let p: i32 = BHP256::hash_to_i32(string_value);
         let q: i32 = BHP256::hash_to_i32(Foo { a: 1u128, b: 1u128 });
-
         return (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, q);
     }
 }

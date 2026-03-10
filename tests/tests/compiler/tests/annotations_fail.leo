@@ -1,34 +1,27 @@
 @test
-fn foo2() {
-}
+fn foo2() {}
 
 program test.aleo {
     @test
-    fn foo1() {
-    }
+    fn foo1() {}
 
     @test(private_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
-    fn foo3() {
-    }
+    fn foo3() {}
 
     @should_fail
-    fn foo4() {
-    }
+    fn foo4() {}
 
     @should_fail
     @test
-    fn foo5() {
-    }
+    fn foo5() {}
 
     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
-    fn foo6() {
-    }
+    fn foo6() {}
 }
 
 @test
 @test
-fn foo7() {
-}
+fn foo7() {}
 
 @test
 fn foo8(x: u8) -> u8 {

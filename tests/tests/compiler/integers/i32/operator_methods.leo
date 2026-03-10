@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: i32, b: i32) -> bool {
         // unary
@@ -6,7 +5,6 @@ program test.aleo {
         let d: i32 = a.abs_wrapped();
         let g: i32 = a.neg();
         let h: i32 = a.not();
-
         // binary
         let j: i32 = a.add(b);
         let k: i32 = a.add_wrapped(b);
@@ -43,6 +41,6 @@ program test.aleo {
         let ar: i32 = a.xor(b);
         let at: i32 = a.rem(b);
         let au: i32 = a.rem_wrapped(b);
-
         return a == b;
-    }}
+    }
+}

@@ -1,4 +1,4 @@
-struct Foo::[N: (u32, u32), A: [u32; 3]] {
+struct Foo ::[N: (u32, u32), A: [u32; 3]]{
     x: u32,
 }
 

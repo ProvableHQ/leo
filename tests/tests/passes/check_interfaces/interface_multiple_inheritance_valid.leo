@@ -8,11 +8,11 @@ interface B {
     fn bar() -> u64;
 }
 
-interface C : A + B {
+interface C: A + B {
     fn baz() -> u64;
 }
 
-program test.aleo : C {
+program test.aleo: C {
     fn foo() -> u64 {
         return 1u64;
     }

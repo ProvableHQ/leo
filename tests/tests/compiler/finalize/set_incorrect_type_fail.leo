@@ -1,4 +1,3 @@
-
 struct Token {
     owner_addr: address,
     amount: u128,
@@ -10,7 +9,9 @@ program test.aleo {
 
     fn decrease_self(amount: u128) -> Final {
         let caller = self.caller;
-        return final { finalize_decrease_self(caller, amount); };
+        return final {
+            finalize_decrease_self(caller, amount);
+        };
     }
 }
 

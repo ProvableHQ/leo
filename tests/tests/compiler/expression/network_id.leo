@@ -1,6 +1,8 @@
 program test.aleo {
     fn main(a: u16) -> Final {
-        return final { finalize_main(a); };
+        return final {
+            finalize_main(a);
+        };
     }
 }
 

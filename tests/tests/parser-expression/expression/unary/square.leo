@@ -1,4 +1,3 @@
-
 !-x.square()
 x.square().square().square()
 -x.square()

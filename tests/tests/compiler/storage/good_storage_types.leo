@@ -1,4 +1,5 @@
 // --- Structs ---
+
 struct MyStruct {
     a: u32,
     b: bool,
@@ -35,4 +36,3 @@ program good_storage_tests.aleo {
 
     fn foo() {}
 }
-

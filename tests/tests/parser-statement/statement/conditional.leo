@@ -1,4 +1,3 @@
-
 if x {
     return 0u8;
 }

@@ -1,7 +1,8 @@
-
 program test.aleo {
     fn public_adder(public a: u8, public b: u8) -> Final {
-        return final { finalize_public_adder(a, b); };
+        return final {
+            finalize_public_adder(a, b);
+        };
     }
 }
 

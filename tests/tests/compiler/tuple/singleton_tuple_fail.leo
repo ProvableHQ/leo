@@ -1,4 +1,3 @@
-
 // TODO: Compilation should pass, but warnings should be emitted.
 
 program test.aleo {
@@ -8,4 +7,3 @@ program test.aleo {
         return a + b;
     }
 }
-

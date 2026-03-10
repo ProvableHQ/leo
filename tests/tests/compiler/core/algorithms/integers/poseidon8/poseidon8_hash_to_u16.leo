@@ -1,4 +1,3 @@
-
 struct Foo {
     a: u128,
     b: u128,
@@ -23,7 +22,6 @@ program test.aleo {
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-
         // Poseidon8 hash_to_u16 tests
         let a: u16 = Poseidon8::hash_to_u16(addr_value);
         let b: u16 = Poseidon8::hash_to_u16(bool_value);
@@ -42,7 +40,6 @@ program test.aleo {
         let o: u16 = Poseidon8::hash_to_u16(scalar_value);
         // let p: u16 = Poseidon8::hash_to_u16(string_value);
         let q: u16 = Poseidon8::hash_to_u16(Foo { a: 1u128, b: 1u128 });
-
         return (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, q);
     }
 }

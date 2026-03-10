@@ -1,4 +1,3 @@
-
 let x: u8 = expr;
 
 let x: u16 = x+y;

@@ -14,7 +14,9 @@ program test.aleo {
         vks: [[u8; 128]; 2],
         batch_inputs: [[[field; 4]; 3]; 2],
     ) -> Final {
-        return final { finalize(vk, varuna_version, inputs, proof, vks, batch_inputs); };
+        return final {
+            finalize(vk, varuna_version, inputs, proof, vks, batch_inputs);
+        };
     }
 
     // Boundary test: exactly 32 circuits and exactly 128 instances (32 * 4 = 128) are accepted.
@@ -24,7 +26,9 @@ program test.aleo {
         proof: [u8; 256],
         v: u8,
     ) -> Final {
-        return final { finalize_boundary(vks32, batch_inputs32, proof, v); };
+        return final {
+            finalize_boundary(vks32, batch_inputs32, proof, v);
+        };
     }
 }
 
@@ -38,10 +42,8 @@ final fn finalize(
 ) {
     // Test Snark::verify (single)
     let v1: bool = Snark::verify(vk, varuna_version, inputs, proof);
-
     // Test Snark::verify_batch
     let v2: bool = Snark::verify_batch(vks, varuna_version, batch_inputs, proof);
-
     // Prevent DCE
     assert_eq(v1, v1);
     assert_eq(v2, v2);

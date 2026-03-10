@@ -5,7 +5,7 @@ interface Calculator {
     fn subtract(a: u64, b: u64) -> u64;
 }
 
-program test.aleo : Calculator {
+program test.aleo: Calculator {
     // Missing subtract function
     fn add(a: u64, b: u64) -> u64 {
         return a + b;

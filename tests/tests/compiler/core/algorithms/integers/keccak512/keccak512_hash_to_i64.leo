@@ -1,4 +1,3 @@
-
 struct Foo {
     a: u128,
     b: u128,
@@ -23,7 +22,6 @@ program test.aleo {
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-
         // Keccak512 hash_to_i64 tests
         let a: i64 = Keccak512::hash_to_i64(addr_value);
         let b: i64 = Keccak512::hash_to_i64(bool_value);
@@ -42,7 +40,6 @@ program test.aleo {
         let o: i64 = Keccak512::hash_to_i64(scalar_value);
         // let p: i64 = Keccak512::hash_to_i64(string_value);
         let q: i64 = Keccak512::hash_to_i64(Foo { a: 1u128, b: 1u128 });
-
         return (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, q);
     }
 }

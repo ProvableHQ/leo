@@ -1,6 +1,9 @@
-    /* next line starts with 2069
+/* next line starts with 2069
+
+
+
 ⁩*/
 
-fn main() {
-}
+fn main() {}
+
 program test.aleo {}

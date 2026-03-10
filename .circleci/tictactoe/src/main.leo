@@ -22,7 +22,6 @@ program tictactoe.aleo {
         assert(player == 1u8 || player == 2u8);
         assert(1u8 <= row && row <= 3u8);
         assert(1u8 <= col && col <= 3u8);
-
         // Unpack the entries in the board into variables.
         let r1c1: u8 = board.r1.c1;
         let r1c2: u8 = board.r1.c2;
@@ -33,7 +32,6 @@ program tictactoe.aleo {
         let r3c1: u8 = board.r3.c1;
         let r3c2: u8 = board.r3.c2;
         let r3c3: u8 = board.r3.c3;
-
         // Update the appropriate entry with the given move.
         if row == 1u8 && col == 1u8 && r1c1 == 0u8 {
             r1c1 = player;
@@ -54,14 +52,11 @@ program tictactoe.aleo {
         } else if row == 3u8 && col == 3u8 && r3c3 == 0u8 {
             r3c3 = player;
         }
-
-        // Construct the updated game board.
         let updated: Board = Board {
             r1: Row { c1: r1c1, c2: r1c2, c3: r1c3 },
             r2: Row { c1: r2c1, c2: r2c2, c3: r2c3 },
             r3: Row { c1: r3c1, c2: r3c2, c3: r3c3 },
         };
-
         // Check if the game is over.
         if check_for_win(updated, 1u8) {
             return (updated, 1u8);
@@ -79,16 +74,18 @@ program tictactoe.aleo {
 // - `c3` : The third entry in the row.
 // A valid entry is either 0, 1, or 2, where 0 is empty, 1 corresponds to player 1, and 2 corresponds to player 2.
 // Any other values are invalid.
+
 struct Row {
     c1: u8,
     c2: u8,
-    c3: u8
+    c3: u8,
 }
 
 // A tic tac toe board.
 // - `r1` : The first row in the board.
 // - `r2` : The second row in the board.
 // - `r3` : The third row in the board.
+
 struct Board {
     r1: Row,
     r2: Row,
@@ -98,15 +95,14 @@ struct Board {
 // Returns `true` if there exists a row, column, or diagonal with all entries occupied by the same player.
 // - `b` : A tic tac toe board.
 // - `p` : A number corresponding to a player.
-fn check_for_win(b: Board, p: u8) -> bool {
-    return
-        (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
-        (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p) || // row 2
-        (b.r3.c1 == p && b.r3.c3 == p && b.r3.c3 == p) || // row 3
-        (b.r1.c1 == p && b.r2.c1 == p && b.r3.c1 == p) || // column 1
-        (b.r1.c2 == p && b.r2.c3 == p && b.r3.c2 == p) || // column 2
-        (b.r1.c3 == p && b.r2.c3 == p && b.r3.c3 == p) || // column 3
-        (b.r1.c1 == p && b.r2.c2 == p && b.r3.c3 == p) || // diagonal
-        (b.r1.c3 == p && b.r2.c2 == p && b.r3.c1 == p); // other diagonal
-}
 
+fn check_for_win(b: Board, p: u8) -> bool {
+    return (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p)
+        || (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p)
+        || (b.r3.c1 == p && b.r3.c3 == p && b.r3.c3 == p)
+        || (b.r1.c1 == p && b.r2.c1 == p && b.r3.c1 == p)
+        || (b.r1.c2 == p && b.r2.c3 == p && b.r3.c2 == p)
+        || (b.r1.c3 == p && b.r2.c3 == p && b.r3.c3 == p)
+        || (b.r1.c1 == p && b.r2.c2 == p && b.r3.c3 == p)
+        || (b.r1.c3 == p && b.r2.c2 == p && b.r3.c1 == p); // other diagonal
+}

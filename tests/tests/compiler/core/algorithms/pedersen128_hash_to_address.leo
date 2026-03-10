@@ -1,4 +1,3 @@
-
 struct Foo {
     a: u32,
     b: u32,
@@ -14,7 +13,22 @@ program test.aleo {
         u16_value: u16,
         u32_value: u32,
         u64_value: u64,
-    ) -> (address, address, address, address, address, address, address, address, address, address, address, address, address, address, ) {
+    ) -> (
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+        address,
+    ) {
         let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
         let field_value: field = 1field;
@@ -23,7 +37,6 @@ program test.aleo {
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-
         // Pedersen128 hash_to_address tests
         let a: address = Pedersen128::hash_to_address(bool_value);
         let b: address = Pedersen128::hash_to_address(bool_value);
@@ -40,7 +53,6 @@ program test.aleo {
         let o: address = Pedersen128::hash_to_address(bool_value);
         // let j11: address = Pedersen128::hash_to_address(string_value);
         let p: address = Pedersen128::hash_to_address(bool_value);
-
         return (a, b, c, d, e, f, g, h, j, k, l, m, o, p);
     }
 }

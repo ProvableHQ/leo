@@ -22,9 +22,7 @@ program zero_program.aleo {
     constructor() {}
 }
 
-
 // --- Next Program --- //
-
 
 program one_program.aleo {
     storage count: u64;
@@ -41,8 +39,6 @@ program one_program.aleo {
 }
 
 // --- Next Program --- //
-
-
 import zero_program.aleo;
 import one_program.aleo;
 
@@ -52,7 +48,6 @@ program two_program.aleo {
     fn b() -> Final {
         let f0: Final = zero_program.aleo/c();
         let f1: Final = one_program.aleo/d();
-
         return final {
             f0.run();
             f1.run();

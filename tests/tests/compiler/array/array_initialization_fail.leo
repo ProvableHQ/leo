@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn bar(a: bool) -> [bool; 8] {
         return [a, a, a, a, a, a, a];

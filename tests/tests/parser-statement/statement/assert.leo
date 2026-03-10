@@ -1,4 +1,3 @@
-
 assert_eq(x, y);
 
 assert_eq(Foo { x: x }, Foo { x: y });

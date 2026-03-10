@@ -1,65 +1,65 @@
 // === Shared Structs ===
 
 struct Foo {
-    x: u8?, // optional field
+    x: u8?,
+    // optional field
 }
 
 struct Wrapper {
-    arr: [Foo?; 2], // array of optional structs
+    arr: [Foo?; 2],
+    // array of optional structs
 }
 
 // 1. Return u8? → move logic to inline
+
 fn basic_implicit_return_() -> u8? {
     return 5u8; // implicitly wrapped
 }
 
-
 // 2. Optional input (inline is allowed)
+
 fn takes_optional_u8(x: u8?) -> u8 {
     return x.unwrap_or(100u8);
 }
 
 // 3. Optional argument passed → use inline
+
 fn basic_implicit_argument_() -> u8 {
     return takes_optional_u8(42u8); // implicitly wrapped
 }
 
 // 4. Return u8? → move logic to inline
+
 fn basic_implicit_ternary_(cond: bool) -> u8? {
     let result: u8? = cond ? 10u8 : none;
     return result;
 }
 
 // 1. Return Wrapper? → move to inline
+
 fn complex_implicit_return_() -> Wrapper? {
-    return Wrapper {
-        arr: [Foo { x: 8u8 }, none],
-    };
+    return Wrapper { arr: [Foo { x: 8u8 }, none] };
 }
 
-
 // 2. Optional argument to inline → wrap call
+
 fn takes_optional_wrapper(w: Wrapper?) -> u8 {
     return w.unwrap().arr[0].unwrap().x.unwrap_or(0u8);
 }
 
 fn complex_implicit_argument_() -> u8 {
-    return takes_optional_wrapper(Wrapper {
-        arr: [Foo { x: none }, none],
-    });
+    return takes_optional_wrapper(Wrapper { arr: [Foo { x: none }, none] });
 }
 
-
 // 3. Return Wrapper? → move to inline
+
 fn complex_implicit_ternary_(cond: bool) -> Wrapper? {
-    let result: Wrapper? = cond
-        ? Wrapper { arr: [Foo { x: 99u8 }, none] }
-        : none;
+    let result: Wrapper? = cond ? Wrapper { arr: [Foo { x: 99u8 }, none] } : none;
     return result;
 }
 
-
 // 5. Return is concrete but input is optional → move to inline
+
 fn complex_array_wrapping_() -> u8 {
     let arr_opt: [Wrapper; 3]? = none;
     arr_opt = [
@@ -71,6 +71,7 @@ fn complex_array_wrapping_() -> u8 {
 }
 
 // 6. Same: optional input, concrete return → move to inline
+
 fn complex_array_access_() -> u8 {
     let arr_opt: [Wrapper; 3]? = [
         Wrapper { arr: [Foo { x: 10u8 }, none] },
@@ -84,7 +85,6 @@ fn complex_array_access_() -> u8 {
 
 program implicit_wrapping.aleo {
     // === BASIC TYPE TESTS ===
-
     fn basic_implicit_return() -> u8 {
         return basic_implicit_return_().unwrap();
     }
@@ -105,7 +105,6 @@ program implicit_wrapping.aleo {
     }
 
     // === COMPLEX TYPE TESTS ===
-
     fn complex_implicit_return() -> [u8; 2] {
         let w = complex_implicit_return_().unwrap();
         return [w.arr[0].unwrap().x.unwrap(), w.arr[1].unwrap().x.unwrap()];

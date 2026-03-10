@@ -20,7 +20,6 @@ program test.aleo {
         let b7 = 0u32;
         let b8 = 0u32;
         let b9 = 0u32;
-
         // More captures than allowed in the VM
         let f = final {
             assert(a0 == 0);

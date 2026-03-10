@@ -1,6 +1,6 @@
 program singleton_storage.aleo {
     storage counter: u8;
-    
+
     storage vec: [u8];
 
     fn push() -> Final {

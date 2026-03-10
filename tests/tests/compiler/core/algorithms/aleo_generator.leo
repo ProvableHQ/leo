@@ -15,7 +15,9 @@ program test.aleo {
     }
 
     fn test_in_finalize() -> Final {
-        return final { finalize_test(); };
+        return final {
+            finalize_test();
+        };
     }
 }
 

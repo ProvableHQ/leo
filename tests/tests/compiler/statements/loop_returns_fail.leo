@@ -1,11 +1,9 @@
-
 program test.aleo {}
-fn main(x: u32) -> bool {
 
+fn main(x: u32) -> bool {
     for i: u32 in 0u32..9u32 {
         return false;
     }
-
     for i: u32 in 0u32..9u32 {
         if (x == 0u32) {
             return false;
@@ -13,6 +11,5 @@ fn main(x: u32) -> bool {
             return true;
         }
     }
-
     return x == 1u32;
 }

@@ -10,9 +10,8 @@ program test.aleo {
         let verify = signature::verify(0, 0, 0);
         let t = true ? 0 : 1;
         let c = 2 as u16;
-        for i in 1..2 { }
+        for i in 1..2 {}
         assert_eq(1, 1);
-
         // non-decimal error
         let f: field = 0x0;
         let s: scalar = 0b0;

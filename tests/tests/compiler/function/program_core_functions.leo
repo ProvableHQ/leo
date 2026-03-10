@@ -12,6 +12,8 @@ final fn foo() {
 
 program test.aleo {
     fn bar() -> Final {
-      return final { foo(); };
+        return final {
+            foo();
+        };
     }
 }

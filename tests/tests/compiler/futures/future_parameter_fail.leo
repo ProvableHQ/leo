@@ -1,7 +1,8 @@
-
 program test.aleo {
     fn first(x: Final) -> Final {
-        return final { finish(); };
+        return final {
+            finish();
+        };
     }
 
     fn second(x: Final) -> u8 {

@@ -1,13 +1,14 @@
-
 program test.aleo {
     mapping map: u32 => u32;
 
     fn main() -> Final {
-        return final { finalize_main(1u32); };
+        return final {
+            finalize_main(1u32);
+        };
     }
 }
 
-final fn finalize_main(a:u32) {
+final fn finalize_main(a: u32) {
     if a == 1u32 {
         let y: u32 = 1u32;
         {

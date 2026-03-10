@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn baz(foo: u8, bar: u16) -> u8 {
         let a: (u8, u16) = (foo, bar);
@@ -6,4 +5,3 @@ program test.aleo {
         return 1u8 + 1u8;
     }
 }
-

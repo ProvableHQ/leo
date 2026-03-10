@@ -8,7 +8,6 @@ program dependent.aleo {
 }
 
 // --- Next Program --- //
-
 import dependent.aleo;
 
 program test.aleo {

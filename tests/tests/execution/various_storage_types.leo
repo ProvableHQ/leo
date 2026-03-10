@@ -62,11 +62,9 @@ program mixed_types.aleo {
         return final {
             counter_u32 = 10;
             assert(counter_u32.unwrap() == 10);
-
             let new_val = counter_u32.unwrap_or(0) + 5;
             counter_u32 = new_val;
             assert(counter_u32.unwrap() == 15);
-
             // Confirm unwrap_or fallback
             let temp = counter_u32.unwrap_or(99);
             assert(temp == 15);
@@ -82,11 +80,9 @@ program mixed_types.aleo {
         return final {
             counter_i32 = -5i32;
             assert(counter_i32.unwrap() == -5i32);
-
             let new_val = counter_i32.unwrap_or(0) - 3;
             counter_i32 = new_val;
             assert(counter_i32.unwrap() == -8i32);
-
             // Check fallback
             let fallback = counter_i32.unwrap_or(1);
             assert(fallback == -8i32);
@@ -105,17 +101,15 @@ program mixed_types.aleo {
             field_val = 21field;
             group_val = 0group;
             address_val = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
-
             assert(flag.unwrap() == true);
             assert(scalar_val.unwrap() == 2scalar);
             assert(field_val.unwrap() == 21field);
             assert(group_val.unwrap() == 0group);
-            assert(address_val.unwrap() == aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
-
+            assert(address_val.unwrap()
+                == aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
             // Flip and recheck
             flag = !flag.unwrap();
             assert(flag.unwrap() == false);
-
             // Ensure unwrap_or fallback doesn't modify behavior
             assert(flag.unwrap_or(true) == false);
             assert(field_val.unwrap_or(0field) == 21field);
@@ -133,38 +127,30 @@ program mixed_types.aleo {
             let p0 = Point { x: 1field, y: 2field };
             let p1 = Point { x: 3field, y: 4field };
             let p2 = Point { x: 5field, y: 6field };
-
             let c0 = Container { points: [p0, p1], label: 10 };
             let c1 = Container { points: [p2, p0], label: 20 };
-
             containers = [c0, c1];
             points_array = [p0, p1, p2];
-
             // Validate values immediately
             let c = containers.unwrap();
             assert(c[0].points[0].x == 1field);
             assert(c[1].points[0].y == 6field);
             assert(c[0].label == 10);
             assert(c[1].label == 20);
-
             // Mutate and check again
             let c_mut = c;
             c_mut[0].points[0].x = 9field;
             containers = c_mut;
-
             let c2 = containers.unwrap();
             assert(c2[0].points[0].x == 9field);
             assert(c2[1].points[0].x == 5field);
-
             // Check nested array of structs
             let arr = points_array.unwrap();
             assert(arr[0].x == 1field);
             assert(arr[2].y == 6field);
-
             let arr2 = arr;
             arr2[1].x = arr2[1].x + 10field;
             points_array = arr2;
-
             let arr3 = points_array.unwrap();
             assert(arr3[1].x == 13field);
         };

@@ -1,4 +1,3 @@
-
 @no_inline
 fn one(n: u8) -> u8 {
     return two(n);

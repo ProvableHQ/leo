@@ -1,4 +1,3 @@
-
 for x: u8 in 0u8..7u8 {}
 
 for x: i64 in 0i64..7i64 {

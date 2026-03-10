@@ -9,7 +9,6 @@ const D: i32 = A * 7i32 + C;
 program test.aleo {
     fn main() -> i32 {
         const E: i32 = (C ^ D) + A;
-
         return E;
     }
 }

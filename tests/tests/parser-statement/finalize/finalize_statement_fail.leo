@@ -1,4 +1,3 @@
-
 return then finalize;
 
 return then finalize();

@@ -1,2 +1,1 @@
-
-final finalize(foo);
+finalize

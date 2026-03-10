@@ -1,4 +1,3 @@
-
 struct bar {
     data: u8,
 }

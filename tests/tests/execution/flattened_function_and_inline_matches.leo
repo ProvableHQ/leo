@@ -58,7 +58,6 @@ fn foo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     let d: u8 = a - b;
     c = c + input.a;
     d = d + input.b;
-
     return (c, d, data);
 }
 
@@ -72,7 +71,6 @@ fn floo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     let d: u8 = a - b;
     c = c + input.a;
     d = d + input.b;
-
     return (c, d, data);
 }
 
@@ -99,7 +97,6 @@ program test.aleo {
 
     fn blar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
         let data: Data = Data { a: a, b: b, c: Extra { c: a } };
-
         let start: (u8, u8, Data) = floo(a, b, data);
         if flag1 {
             start = floo(start.0, start.2.c.c, start.2);
@@ -115,5 +112,4 @@ program test.aleo {
 
     @noupgrade
     constructor() {}
-
 }

@@ -6,7 +6,9 @@ program test.aleo {
 
     fn finalize_self_caller() -> Final {
         let caller = self.caller;
-        return final { finalize_finalize_self_caller(caller); };
+        return final {
+            finalize_finalize_self_caller(caller);
+        };
     }
 }
 

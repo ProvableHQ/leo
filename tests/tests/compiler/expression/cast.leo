@@ -1,8 +1,21 @@
-
 program test.aleo {
     // The primitive types are: `address`, `bool`, `field`, `group`, `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`, `scalar`.
     // We can cast between all of these types.
-    fn main(a: address, b: bool, c: field, d: i8, e: i16, f: i64, g: i128, h: u8, i: u16, j: u32, k: u64, l: u128, m: scalar) -> bool {
+    fn main(
+        a: address,
+        b: bool,
+        c: field,
+        d: i8,
+        e: i16,
+        f: i64,
+        g: i128,
+        h: u8,
+        i: u16,
+        j: u32,
+        k: u64,
+        l: u128,
+        m: scalar,
+    ) -> bool {
         let a_field: field = a as field;
         let a_group: group = a as group;
         let a_bool: bool = a as bool;
@@ -17,7 +30,6 @@ program test.aleo {
         let a_u64: u64 = a as u64;
         let a_u128: u128 = a as u128;
         let a_scalar: scalar = a as scalar;
-
         let b_field: field = b as field;
         let b_group: group = b as group;
         let b_bool: bool = b as bool;
@@ -32,7 +44,6 @@ program test.aleo {
         let b_u64: u64 = b as u64;
         let b_u128: u128 = b as u128;
         let b_scalar: scalar = b as scalar;
-
         let c_field: field = c as field;
         let c_group: group = c as group;
         let c_bool: bool = c as bool;
@@ -47,7 +58,6 @@ program test.aleo {
         let c_u64: u64 = c as u64;
         let c_u128: u128 = c as u128;
         let c_scalar: scalar = c as scalar;
-
         let d_field: field = d as field;
         let d_group: group = d as group;
         let d_bool: bool = d as bool;
@@ -62,7 +72,6 @@ program test.aleo {
         let d_u64: u64 = d as u64;
         let d_u128: u128 = d as u128;
         let d_scalar: scalar = d as scalar;
-
         let e_field: field = e as field;
         let e_group: group = e as group;
         let e_bool: bool = e as bool;
@@ -77,7 +86,6 @@ program test.aleo {
         let e_u64: u64 = e as u64;
         let e_u128: u128 = e as u128;
         let e_scalar: scalar = e as scalar;
-
         let f_field: field = f as field;
         let f_group: group = f as group;
         let f_bool: bool = f as bool;
@@ -92,7 +100,6 @@ program test.aleo {
         let f_u64: u64 = f as u64;
         let f_u128: u128 = f as u128;
         let f_scalar: scalar = f as scalar;
-
         let g_field: field = g as field;
         let g_group: group = g as group;
         let g_bool: bool = g as bool;
@@ -107,7 +114,6 @@ program test.aleo {
         let g_u64: u64 = g as u64;
         let g_u128: u128 = g as u128;
         let g_scalar: scalar = g as scalar;
-
         let h_field: field = h as field;
         let h_group: group = h as group;
         let h_bool: bool = h as bool;
@@ -122,7 +128,6 @@ program test.aleo {
         let h_u64: u64 = h as u64;
         let h_u128: u128 = h as u128;
         let h_scalar: scalar = h as scalar;
-
         let i_field: field = i as field;
         let i_group: group = i as group;
         let i_bool: bool = i as bool;
@@ -137,7 +142,6 @@ program test.aleo {
         let i_u64: u64 = i as u64;
         let i_u128: u128 = i as u128;
         let i_scalar: scalar = i as scalar;
-
         let j_field: field = j as field;
         let j_group: group = j as group;
         let j_bool: bool = j as bool;
@@ -152,7 +156,6 @@ program test.aleo {
         let j_u64: u64 = j as u64;
         let j_u128: u128 = j as u128;
         let j_scalar: scalar = j as scalar;
-
         let k_field: field = k as field;
         let k_group: group = k as group;
         let k_bool: bool = k as bool;
@@ -166,7 +169,6 @@ program test.aleo {
         let k_u32: u32 = k as u32;
         let k_u64: u64 = k as u64;
         let k_u128: u128 = k as u128;
-
         let l_field: field = l as field;
         let l_group: group = l as group;
         let l_bool: bool = l as bool;
@@ -181,7 +183,6 @@ program test.aleo {
         let l_u64: u64 = l as u64;
         let l_u128: u128 = l as u128;
         let l_scalar: scalar = l as scalar;
-
         let m_field: field = m as field;
         let m_group: group = m as group;
         let m_bool: bool = m as bool;
@@ -195,7 +196,6 @@ program test.aleo {
         let m_u32: u32 = m as u32;
         let m_u64: u64 = m as u64;
         let m_u128: u128 = m as u128;
-
         return l_field == m_field;
     }
 }

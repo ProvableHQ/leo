@@ -5,17 +5,20 @@
 
 // This struct is NOT used in any transition, mapping, or storage.
 // It should be pruned from the ABI.
+
 struct Unused {
     x: u32,
 }
 
 // Simple struct with primitives
+
 struct Point {
     x: i32,
     y: i32,
 }
 
 // Struct with various primitive types
+
 struct AllPrimitives {
     f_address: address,
     f_bool: bool,
@@ -35,6 +38,7 @@ struct AllPrimitives {
 }
 
 // Nested struct
+
 struct Rectangle {
     top_left: Point,
     bottom_right: Point,
@@ -42,7 +46,6 @@ struct Rectangle {
 
 program abi_test.aleo {
     // === Record Definitions ===
-
     // Record with public and private fields
     record Token {
         owner: address,
@@ -51,7 +54,6 @@ program abi_test.aleo {
     }
 
     // === Mappings ===
-
     // Simple mapping
     mapping balances: address => u64;
 
@@ -62,7 +64,6 @@ program abi_test.aleo {
     mapping arrays: u32 => [field; 2];
 
     // === Storage Variables ===
-
     // Simple storage variable
     storage counter: u32;
 
@@ -73,7 +74,6 @@ program abi_test.aleo {
     storage history: [u64];
 
     // === Transitions ===
-
     // Single primitive input/output
     fn single_primitive(a: u32) -> u32 {
         return a + 1u32;

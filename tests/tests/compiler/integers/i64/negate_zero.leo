@@ -1,8 +1,6 @@
-
 program test.aleo {
     fn main(y: bool) -> bool {
         let a: i64 = 0i64;
-
         return (-a == 0i64) == y;
     }
 }

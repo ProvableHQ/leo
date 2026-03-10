@@ -1,6 +1,7 @@
 // As of commit 314d56a9e3626418e8a953ecb81f595555716459,
 // programs with duplicate outputs did not work.
 // Now they should clone the duplicates to satisfy SnarkVM.
+
 struct S {
     x: field,
     y: field,

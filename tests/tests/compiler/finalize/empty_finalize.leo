@@ -1,8 +1,8 @@
-
 program test.aleo {
-
     fn mint_public(public receiver: address, public amount: u64) -> Final {
-        return final { finalize_mint(receiver, amount); };
+        return final {
+            finalize_mint(receiver, amount);
+        };
     }
 }
 

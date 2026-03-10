@@ -1,4 +1,3 @@
-
 program test.aleo {
     record Token {
         owner: address,

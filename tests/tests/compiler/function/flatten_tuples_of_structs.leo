@@ -1,4 +1,3 @@
-
 struct Extra {
     c: u8,
 }
@@ -17,7 +16,6 @@ fn foo(a: u8, b: u8) -> (u8, u8, Data) {
     }
     let c: u8 = a + b;
     let d: u8 = a - b;
-
     return (c, d, data);
 }
 
@@ -27,13 +25,11 @@ program test.aleo {
         if flag1 {
             start = foo(start.0, start.2.c.c);
         } else {
-
             if flag2 {
                 start = foo(start.1, start.2.b);
             } else {
                 start = foo(start.2.a, start.1);
             }
-
         }
         return start;
     }

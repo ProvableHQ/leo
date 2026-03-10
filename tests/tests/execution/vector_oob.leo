@@ -35,7 +35,6 @@ program test_oob.aleo {
         return final {
             vec.clear();
             assert(vec.len() == 0u32);
-
             let result = vec.get(0u32);
             assert(result == none);
         };
@@ -46,7 +45,6 @@ program test_oob.aleo {
         return final {
             vec.clear();
             assert(vec.len() == 0u32);
-
             vec.set(0u32, 123u32);
         };
     }
@@ -56,7 +54,6 @@ program test_oob.aleo {
         return final {
             vec.clear();
             assert(vec.len() == 0u32);
-
             vec.swap_remove(0u32);
         };
     }
@@ -66,7 +63,6 @@ program test_oob.aleo {
         return final {
             vec.clear();
             assert(vec.len() == 0u32);
-
             let popped = vec.pop();
             assert(popped == none);
         };

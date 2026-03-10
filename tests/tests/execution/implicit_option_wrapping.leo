@@ -60,11 +60,13 @@ input = []
 // === Shared Structs ===
 
 struct Foo {
-    x: u8?, // optional field
+    x: u8?,
+    // optional field
 }
 
 struct Wrapper {
-    arr: [Foo?; 2], // array of optional structs
+    arr: [Foo?; 2],
+    // array of optional structs
 }
 
 fn foo() -> u8? {
@@ -76,23 +78,24 @@ fn takes_optional_u8(x: u8?) -> u8 {
 }
 
 struct Bar {
-    x: [u8?; 3]
+    x: [u8?; 3],
 }
 
 fn bar() -> Wrapper? {
     return Wrapper {
-        arr: [Foo { x: 8 }, none], // 8u8 implicitly wrapped into u8?
+        arr: [Foo { x: 8 }, none],
+        // 8u8 implicitly wrapped into u8?
     };
 }
 
 // 2. Implicit argument: Wrapper → Wrapper?
+
 fn takes_optional_wrapper(w: Wrapper?) -> u8 {
     return w.unwrap().arr[0].unwrap().x.unwrap_or(42);
 }
 
 program implicit_wrapping.aleo {
     // === BASIC TYPE TESTS ===
-
     fn basic_implicit_return() -> u8 {
         return foo().unwrap();
     }
@@ -113,23 +116,18 @@ program implicit_wrapping.aleo {
     }
 
     // === COMPLEX TYPE TESTS ===
-
     // 1. Implicit return: Wrapper → Wrapper?
     fn complex_implicit_return() -> u8 {
         return bar().unwrap().arr[0].unwrap().x.unwrap();
     }
 
     fn complex_implicit_argument() -> u8 {
-        return takes_optional_wrapper(Wrapper {
-            arr: [Foo { x: none }, none],
-        });
+        return takes_optional_wrapper(Wrapper { arr: [Foo { x: none }, none] });
     }
 
     // 3. Implicit ternary with Wrapper
     fn complex_implicit_ternary(cond: bool) -> u8 {
-        let result: Wrapper? = cond
-            ? Wrapper { arr: [Foo { x: 99 }, none] } // implicit wrap
-            : none;
+        let result: Wrapper? = cond ? Wrapper { arr: [Foo { x: 99 }, none] } : none;
         return result.unwrap().arr[0].unwrap().x.unwrap_or(69);
     }
 

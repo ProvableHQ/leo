@@ -1,4 +1,3 @@
-
 foo as u8
 
 1u128 as i8

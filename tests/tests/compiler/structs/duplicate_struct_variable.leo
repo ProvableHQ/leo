@@ -1,12 +1,14 @@
 program test.aleo {}
 
 // test 1: adjacent duplicate - no gap marker
+
 struct Bar {
     x: u32,
     x: u32,
 }
 
 // test 2: duplicate with gap marker - "..."
+
 struct Person {
     name: field,
     age: u8,
@@ -15,6 +17,7 @@ struct Person {
 }
 
 // test 3: multiple different duplicates
+
 struct Data {
     id: u32,
     val: u64,
@@ -23,6 +26,7 @@ struct Data {
 }
 
 // test 4: large gap between duplicates
+
 struct Config {
     host: field,
     port: u16,

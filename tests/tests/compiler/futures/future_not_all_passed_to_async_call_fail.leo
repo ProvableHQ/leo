@@ -13,20 +13,23 @@ program child.aleo {
 
     fn foo() -> Final {
         let caller = self.caller;
-        return final { finalize_foo(caller); };
+        return final {
+            finalize_foo(caller);
+        };
     }
+
     fn boo() -> Final {
         let caller = self.caller;
-        return final { finalize_boo(caller); };
+        return final {
+            finalize_boo(caller);
+        };
     }
- }
+}
 
 // --- Next Program --- //
-
 import child.aleo;
 
 program parent.aleo {
-
     fn foo() -> Final {
         let f0: Final = child.aleo/foo();
         let f1: Final = child.aleo/foo();
@@ -34,9 +37,10 @@ program parent.aleo {
         let f3: Final = child.aleo/boo();
         let f4: Final = child.aleo/boo();
         let f5: Final = child.aleo/boo();
-
         // Doesn't pass f1.
-        return final { finalize_foo(f0, f3, f2, f5, f4); };
+        return final {
+            finalize_foo(f0, f3, f2, f5, f4);
+        };
     }
 }
 

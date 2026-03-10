@@ -9,7 +9,6 @@ program test.aleo {
         total += sum_array::[4]([1u32, 2u32, 3u32, 4u32]);
         let arr: [u32; Five] = [1, 2, 3, 4, 5];
         total += sum_array::[Five](arr);
-
         return total;
     }
 }

@@ -1,4 +1,3 @@
-
 foo aas u8
 
 1u128 as { foo: u8 }

@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main() -> bool {
         return true;
@@ -6,6 +5,7 @@ program test.aleo {
 }
 
 // These identifiers are 31 characters long and should be fine.
+
 struct S012345678901234567890123456789 {
     m012345678901234567890123456789: u8,
 }
@@ -16,6 +16,7 @@ fn x012345678901234567890123456789(y012345678901234567890123456789: u8) -> u8 {
 }
 
 // These identifiers are 32 characters long and should fail.
+
 struct S012345678901234567890123456789q {
     m012345678901234567890123456789q: u8,
 }

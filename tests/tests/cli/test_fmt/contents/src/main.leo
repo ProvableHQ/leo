@@ -1,19 +1,18 @@
-struct Coordinates{
-      x:u64,
-  y  :  u64,
-          z :u64,
+struct Coordinates {
+    x: u64,
+    y: u64,
+    z: u64,
 }
 
-program ugly_program.aleo{
+program ugly_program.aleo {
+    fn add(public a: u32, b: u32) -> u32 {
+        let c: u32 = a + b;
+        let d: u32 = c * 2u32;
+        return d;
+    }
 
-fn add(  public a :u32,b:    u32  )->u32{
-let c :u32=a   +b;
-          let d:u32 =  c *   2u32 ;
-    return d ;
-}
+    mapping balances: address => u64;
 
-     mapping balances: address=>u64;
-
-  @noupgrade
-    constructor(  ){}
+    @noupgrade
+    constructor() {}
 }

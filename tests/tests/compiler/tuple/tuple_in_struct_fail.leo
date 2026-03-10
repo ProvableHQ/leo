@@ -1,11 +1,9 @@
-
 program test.aleo {}
 
 struct A {
-    mem: (u8, u16)
+    mem: (u8, u16),
 }
 
 struct B {
-    mems: (A, A)
+    mems: (A, A),
 }
-

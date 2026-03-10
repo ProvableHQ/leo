@@ -20,13 +20,13 @@ program test.aleo {
         u32_val: u32,
         u64_val: u64,
         u128_val: u128,
-        s: scalar
+        s: scalar,
     ) -> (
-        bool, bool, bool, bool,  // Sample bits from address
-        bool, bool, bool, bool,  // Sample bits from integers
-        bool, bool, bool, bool,  // Sample bits from field/group
-        bool, bool, bool, bool   // Sample bits from scalar and bool
-    ) {
+            bool, bool, bool, bool,  // Sample bits from address
+            bool, bool, bool, bool,  // Sample bits from integers
+            bool, bool, bool, bool,  // Sample bits from field/group
+            bool, bool, bool, bool   // Sample bits from scalar and bool
+        ) {
         // Serialize primitives to bits (non-raw includes metadata)
         let addr_bits: [bool; 279] = Serialize::to_bits(addr);
         let bool_bits: [bool; 27] = Serialize::to_bits(b);
@@ -43,13 +43,24 @@ program test.aleo {
         let u64_bits: [bool; 90] = Serialize::to_bits(u64_val);
         let u128_bits: [bool; 154] = Serialize::to_bits(u128_val);
         let scalar_bits: [bool; 277] = Serialize::to_bits(s);
-
         // Sample bits from each serialization
         return (
-            addr_bits[0u8], addr_bits[100u8], addr_bits[200u8], addr_bits[278u16],
-            i8_bits[0u8], i32_bits[16u8], i64_bits[32u8], i128_bits[64u8],
-            field_bits[0u8], field_bits[128u8], group_bits[0u8], group_bits[278u16],
-            scalar_bits[0u8], u8_bits[0u8], u64_bits[0u8], bool_bits[0u8]
+            addr_bits[0u8],
+            addr_bits[100u8],
+            addr_bits[200u8],
+            addr_bits[278u16],
+            i8_bits[0u8],
+            i32_bits[16u8],
+            i64_bits[32u8],
+            i128_bits[64u8],
+            field_bits[0u8],
+            field_bits[128u8],
+            group_bits[0u8],
+            group_bits[278u16],
+            scalar_bits[0u8],
+            u8_bits[0u8],
+            u64_bits[0u8],
+            bool_bits[0u8],
         );
     }
 }

@@ -1,11 +1,11 @@
-
 program test.aleo {
-
     mapping values: scalar => group;
 
     fn foo() -> Final {
         let a: scalar = ChaCha::rand_scalar();
-        return final { finalize_foo(a); };
+        return final {
+            finalize_foo(a);
+        };
     }
 }
 

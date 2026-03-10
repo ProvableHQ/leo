@@ -1,5 +1,4 @@
 program test.aleo {
-
     mapping expected_checksum: bool => [u8; 32];
 
     fn foo() {}

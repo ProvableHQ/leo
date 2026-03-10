@@ -1,3 +1,3 @@
-
 program test.aleo {}
+
 fn x(constant x: u8) -> u8 {}

@@ -1,9 +1,9 @@
-
 program test.aleo {
     // test 1: adjacent duplicate - no "..." gap marker
     record Token {
         owner: address,
-        owner: address, // Cannot define two record variables with the same name.
+        owner: address,
+        // Cannot define two record variables with the same name.
         amount: u64,
     }
 
@@ -22,7 +22,6 @@ program test.aleo {
         owner: address,
         amount: u64,
     }
-
 }
 
 fn main(zz: bool) -> bool {

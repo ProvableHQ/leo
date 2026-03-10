@@ -1,34 +1,9 @@
-
 if 10 ; {}
 if 10 . {}
-if 10 import {}
-if 10 , {}
-if 10 * {}
-if 10 + {}
-if 10 - {}
-if 10 / {}
-if 10 [ {}
-if 10 ] {}
-if 10 { {}
-if 10 } {}
-if 10 ( {}
-if 10 ) {}
-if 10 : {}
-if 10 :: {}
-if 10 ? {}
-if 10 _ {}
-if 10 = {}
-if 10 == {}
-if 10 ! {}
-if 10 != {}
-if 10 > {}
-if 10 >= {}
-if 10 < {}
-if 10 <= {}
-if 10 > {}
-if 10 .. {}
-if 10 as {}
-if 10 const {}
+if 10
+import
+
+const {}
 if 10 let {}
 if 10 for {}
 if 10 if {}

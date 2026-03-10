@@ -1,4 +1,3 @@
-
 program test.aleo {
     storage x: u8;
     storage y: Foo;

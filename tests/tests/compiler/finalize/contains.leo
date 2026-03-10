@@ -1,11 +1,11 @@
-
 program test.aleo {
-
     mapping balances: address => u32;
 
     fn foo() -> Final {
         let caller = self.caller;
-        return final { finalize_foo(caller); };
+        return final {
+            finalize_foo(caller);
+        };
     }
 }
 

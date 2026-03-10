@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: u32) -> u32 {
         if a == 2u32 {

@@ -3,6 +3,7 @@
 // Struct and array storage declarations
 // ────────────────────────────────────────────────────────────────
 //
+
 struct Point {
     x: field,
     y: field,
@@ -30,13 +31,8 @@ program complex.aleo {
         return final {
             // Structs
             point = Point { x: 1field, y: 2field };
-            points = [
-                Point { x: 10field, y: 20field },
-                Point { x: 30field, y: 40field },
-            ];
-
+            points = [Point { x: 10field, y: 20field }, Point { x: 30field, y: 40field }];
             stats = Stats { values: [5u32, 10u32, 15u32], active: true };
-
             // Arrays
             arr_u32 = [7u32, 8u32, 9u32];
             arr_bool = [true, false];
@@ -46,7 +42,7 @@ program complex.aleo {
 
     //
     // ────────────────────────────────────────────────────────────────
-    // Unset everything 
+    // Unset everything
     // ────────────────────────────────────────────────────────────────
     //
     fn to_none() -> Final {
@@ -72,25 +68,20 @@ program complex.aleo {
             let p = point.unwrap();
             assert(p.x == 1field);
             assert(p.y == 2field);
-
             // Array of structs
             let ps = points.unwrap();
             assert(ps[0].x == 10field);
             assert(ps[1].y == 40field);
-
             // Nested structs
             let s = stats.unwrap();
             assert(s.values[1] == 10u32);
             assert(s.active == true);
-
             // Arrays
             let a = arr_u32.unwrap();
             assert(a[2] == 9u32);
-
             let b = arr_bool.unwrap();
             assert(b[0] == true);
             assert(b[1] == false);
-
             let n = nested.unwrap();
             assert(n[0][1] == 2u8);
             assert(n[1][0] == 3u8);
@@ -108,7 +99,6 @@ program complex.aleo {
             let p = point.unwrap_or(Point { x: 0field, y: 0field });
             assert(p.x == 1field);
             assert(p.y == 2field);
-
             // Array of structs
             let ps = points.unwrap_or([
                 Point { x: 0field, y: 0field },
@@ -116,19 +106,15 @@ program complex.aleo {
             ]);
             assert(ps[0].x == 10field);
             assert(ps[1].y == 40field);
-
             // Struct with array
             let s = stats.unwrap_or(Stats { values: [0u32, 0u32, 0u32], active: false });
             assert(s.values[2] == 15u32);
             assert(s.active == true);
-
             // Arrays
             let a = arr_u32.unwrap_or([0u32, 0u32, 0u32]);
             assert(a[1] == 8u32);
-
             let b = arr_bool.unwrap_or([false, false]);
             assert(b[0] == true);
-
             let n = nested.unwrap_or([[0u8, 0u8], [0u8, 0u8]]);
             assert(n[1][1] == 4u8);
         };

@@ -1,11 +1,14 @@
 program test.aleo {
     mapping expected: bool => [u8; 32];
     mapping admin: bool => address;
-    
+
     fn set_expected(checksum: [u8; 32]) -> Final {
         let caller = self.caller;
-        return final { set_expected_(caller, checksum); };
+        return final {
+            set_expected_(caller, checksum);
+        };
     }
+
     @custom
     constructor() {
         let current_edition: u16 = self.edition;
@@ -23,4 +26,3 @@ final fn set_expected_(addr: address, checksum: [u8; 32]) {
     assert_eq(addr, admin.get(true));
     expected.set(true, checksum);
 }
-

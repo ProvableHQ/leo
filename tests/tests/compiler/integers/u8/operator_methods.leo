@@ -1,9 +1,7 @@
-
 program test.aleo {
     fn main(a: u8, b: u8) -> bool {
         // unary
         let h: u8 = a.not();
-
         // binary
         let j: u8 = a.add(b);
         let k: u8 = a.add_wrapped(b);
@@ -41,6 +39,6 @@ program test.aleo {
         let at: u8 = a.mod(b);
         let au: u8 = a.rem(b);
         let av: u8 = a.rem_wrapped(b);
-
         return a == b;
-    }}
+    }
+}

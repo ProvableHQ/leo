@@ -1,7 +1,8 @@
-
 program test.aleo {
     fn matches(height: u32) -> Final {
-        return final { finalize_matches(height); };
+        return final {
+            finalize_matches(height);
+        };
     }
 }
 

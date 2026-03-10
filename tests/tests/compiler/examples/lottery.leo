@@ -1,4 +1,3 @@
-
 // The 'lottery' program.
 program lottery.aleo {
     record Ticket {
@@ -8,24 +7,20 @@ program lottery.aleo {
     mapping num_winners: u8 => u8;
 
     fn play() -> (Ticket, Final) {
-        let ticket: Ticket = Ticket {
-            owner: self.signer,
-        };
-        return (ticket, final { finalize_play(); }); 
+        let ticket: Ticket = Ticket { owner: self.signer };
+        return (ticket, final {
+            finalize_play();
+        });
     }
 }
 
 final fn finalize_play() {
     // Check that the lottery has not expired.
     assert(block.height <= 1000u32);
-
     // Randomly select whether or not the ticket is a winner.
     assert(ChaCha::rand_bool());
-
     // Check that the maximum number of winners have not been reached.
     let winners: u8 = num_winners.get_or_use(0u8, 0u8);
     assert(winners < 5u8);
     num_winners.set(0u8, winners + 1u8);
-
 }
-

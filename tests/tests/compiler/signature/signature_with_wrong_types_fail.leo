@@ -1,7 +1,6 @@
-
 struct foo {
     a: u8,
-    b: scalar
+    b: scalar,
 }
 
 program test.aleo {

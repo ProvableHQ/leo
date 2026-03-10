@@ -1,4 +1,3 @@
-
 increment(foo, bar, baz);
 
 increment(foo, 2u8, 3u8);

@@ -1,10 +1,10 @@
-
 program test.aleo {
-
     mapping values: field => field;
 
     fn foo() -> Final {
-        return final { finalize_foo(); };
+        return final {
+            finalize_foo();
+        };
     }
 }
 

@@ -14,7 +14,6 @@ program test.aleo {
         let a11: group = 0;
         let a12: field = 0;
         let a13: bool = true;
-
         // Bitwise AND
         let b0 = a0 & 1;
         let b1 = a1 & 1u16;
@@ -27,7 +26,6 @@ program test.aleo {
         let b8: i64 = 1 & 1;
         let b9: i128 = 1i128 & 1i128;
         let b10: bool = true & a13;
-
         // Bitwise OR
         let c0 = a0 | 1;
         let c1 = a1 | 1u16;
@@ -40,7 +38,6 @@ program test.aleo {
         let c8: i64 = 1 | 1;
         let c9: i128 = 1i128 | 1i128;
         let c10: bool = true | a13;
-
         // Bitwise XOR
         let d0 = a0 ^ 1;
         let d1 = a1 ^ 1u16;
@@ -53,7 +50,6 @@ program test.aleo {
         let d8: i64 = 1 ^ 1;
         let d9: i128 = 1i128 ^ 1i128;
         let d10: bool = true ^ a13;
-
         // Addition
         let e0 = a0 + 1;
         let e1 = a1 + 1u16;
@@ -68,7 +64,6 @@ program test.aleo {
         let e10 = a10 + 1;
         let e11 = 0 + a11;
         let e12 = 1 + a12;
-
         // Subtraction
         let f0 = a0 - 1;
         let f1 = a1 - 1u16;
@@ -82,7 +77,6 @@ program test.aleo {
         let f9: i128 = 1i128 - 1i128;
         let f10 = a11 - 0;
         let f11 = 1 - a12;
-
         // Multiplication
         let g0 = a0 * 1;
         let g1 = a1 * 1u16;
@@ -99,7 +93,6 @@ program test.aleo {
         let g12 = a10 * 2; // infer 2 as a group
         let g13 = 2 * a10; // infer 2 as a group
         let g14 = a12 * 1;
-
         // Division
         let h0 = a0 / 1;
         let h1 = a1 / 1u16;
@@ -112,8 +105,7 @@ program test.aleo {
         let h8: i64 = 1 / 1;
         let h9: i128 = 1i128 / 1i128;
         let h10 = a12 / 1;
-
-        // Rem 
+        // Rem
         let i0 = a0 % 1;
         let i1 = a1 % 1u16;
         let i2 = 1 % a2;
@@ -124,8 +116,7 @@ program test.aleo {
         let i7: i32 = 1i32 % a7;
         let i8_: i64 = 1 % 1;
         let i9: i128 = 1i128 % 1i128;
-
-        // Rem Wrapped 
+        // Rem Wrapped
         let j0 = a0.rem_wrapped(1);
         let j1 = a1.rem_wrapped(1u16);
         let j2 = 1.rem_wrapped(a2);
@@ -136,7 +127,6 @@ program test.aleo {
         let j7: i32 = 1i32.rem_wrapped(a7);
         let j8: i64 = 1.rem_wrapped(1);
         let j9: i128 = 1i128.rem_wrapped(1i128);
-
         // mod operator (unsigned integers only)
         let k0 = a0.mod(1);
         let k1 = a1.mod(1u16);
@@ -148,7 +138,6 @@ program test.aleo {
         let k7: u32 = 1u32.mod(a2);
         let k8: u64 = 1.mod(1);
         let k9: u128 = 1u128.mod(1u128);
-
         // Pow
         let l0 = a0 ** 1u8;
         let l1 = a1 ** 1u16;
@@ -163,7 +152,6 @@ program test.aleo {
         let l10: field = 1 ** 1; // infer the 1s as `field`
         let l11 = 1field ** 1; // infer 1 as `field`
         let l12 = 1 ** 1field; // infer 1 as `field`
-
         // Pow Wrapped
         let m0 = a0.pow_wrapped(1u8);
         let m1 = a1.pow_wrapped(1u16);
@@ -175,7 +163,6 @@ program test.aleo {
         let m7: i32 = 1i32.pow_wrapped(a2);
         let m8: i64 = 1.pow_wrapped(1u8);
         let m9: i128 = 1i128.pow_wrapped(1u32);
-
         // Eq, Neq
         let n0 = a0 == 1;
         let n1 = a1 != 1;
@@ -190,7 +177,6 @@ program test.aleo {
         let n10 = 1 == a10;
         let n11 = 0 != a11;
         let n12 = 1 == a12;
-
         // Lt, Gt, Lte, Gte
         let o0 = a0 > 1;
         let o1 = a1 < 1;
@@ -204,7 +190,6 @@ program test.aleo {
         let o9 = a9 < 1;
         let o10 = 1 <= a10;
         let o12 = 1 > a12;
-
         // add_wrapped (integers only)
         let p0 = a0.add_wrapped(1);
         let p1 = a1.add_wrapped(1u16);
@@ -216,7 +201,6 @@ program test.aleo {
         let p7: i32 = 1i32.add_wrapped(a7);
         let p8: i64 = 1.add_wrapped(1);
         let p9: i128 = 1i128.add_wrapped(1i128);
-
         // sub_wrapped (integers only)
         let q0 = a0.sub_wrapped(1);
         let q1 = a1.sub_wrapped(1u16);
@@ -228,7 +212,6 @@ program test.aleo {
         let q7: i32 = 1i32.sub_wrapped(a7);
         let q8: i64 = 1.sub_wrapped(1);
         let q9: i128 = 1i128.sub_wrapped(1i128);
-
         // mul_wrapped (integers only)
         let r0 = a0.mul_wrapped(1);
         let r1 = a1.mul_wrapped(1u16);
@@ -240,7 +223,6 @@ program test.aleo {
         let r7: i32 = 1i32.mul_wrapped(a7);
         let r8: i64 = 1.mul_wrapped(1);
         let r9: i128 = 1i128.mul_wrapped(1i128);
-
         // div_wrapped (integers only)
         let s0 = a0.div_wrapped(1);
         let s1 = a1.div_wrapped(1u16);
@@ -252,7 +234,6 @@ program test.aleo {
         let s7: i32 = 1i32.div_wrapped(a7);
         let s8: i64 = 1.div_wrapped(1);
         let s9: i128 = 1i128.div_wrapped(1i128);
-
         // Bitwise left shift `<<`
         let t0 = a0 << 1u8;
         let t1 = a1 << 1u16;
@@ -264,7 +245,6 @@ program test.aleo {
         let t7: i32 = 1i32 << a2;
         let t8: i64 = 1 << 1u8;
         let t9: i128 = 1i128 << 1u32;
-
         // shl_wrapped
         let u0 = a0.shl_wrapped(1u8);
         let u1 = a1.shl_wrapped(1u16);
@@ -276,7 +256,6 @@ program test.aleo {
         let u7: i32 = 1i32.shl_wrapped(a2);
         let u8_: i64 = 1.shl_wrapped(1u8);
         let u9: i128 = 1i128.shl_wrapped(1u32);
-
         // Bitwise right shift `>>`
         let v0 = a0 >> 1u8;
         let v1 = a1 >> 1u16;
@@ -288,7 +267,6 @@ program test.aleo {
         let v7: i32 = 1i32 >> a2;
         let v8: i64 = 1 >> 1u8;
         let v9: i128 = 1i128 >> 1u32;
-
         // shr_wrapped
         let w0 = a0.shr_wrapped(1u8);
         let w1 = a1.shr_wrapped(1u16);
@@ -309,8 +287,8 @@ program test.aleo {
         let b3: group = 0.double();
         let b4 = 2.inv();
         let b5: field = 2.inv();
-        let b6: i32  = -2;
-        let b7: i64  = !2;
+        let b6: i32 = -2;
+        let b7: i64 = !2;
         let b8 = 2.square(); // 2 must be field
         let b9: field = 2.square(); // 2 must be field
         let b10 = 2.square_root(); // 2 must be field

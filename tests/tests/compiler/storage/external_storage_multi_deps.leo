@@ -2,11 +2,15 @@ program base.aleo {
     storage val_u32: u32;
 
     fn init() -> Final {
-        return final { val_u32 = 99u32; };
+        return final {
+            val_u32 = 99u32;
+        };
     }
 
     fn wipe() -> Final {
-        return final { val_u32 = none; };
+        return final {
+            val_u32 = none;
+        };
     }
 
     @noupgrade
@@ -14,7 +18,6 @@ program base.aleo {
 }
 
 // --- Next Program --- //
-
 import base.aleo;
 
 program mid1.aleo {
@@ -39,7 +42,6 @@ program mid1.aleo {
 }
 
 // --- Next Program --- //
-
 import base.aleo;
 import mid1.aleo;
 
@@ -49,7 +51,6 @@ program mid2.aleo {
     fn init() -> Final {
         return final {
             counter = 7u8;
-
             assert(base.aleo/val_u32.unwrap() == 99u32);
             assert(mid1.aleo/flag.unwrap() == true);
         };
@@ -58,7 +59,6 @@ program mid2.aleo {
     fn wipe() -> Final {
         return final {
             counter = none;
-
             assert(mid1.aleo/flag == none);
         };
     }
@@ -68,13 +68,11 @@ program mid2.aleo {
 }
 
 // --- Next Program --- //
-
 import base.aleo;
 import mid1.aleo;
 import mid2.aleo;
 
 program top.aleo {
-
     //
     // ─────────────────────────────────────────────
     // Check all external values are initialized
@@ -117,4 +115,3 @@ program top.aleo {
     @noupgrade
     constructor() {}
 }
-

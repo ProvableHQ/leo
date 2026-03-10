@@ -1,22 +1,17 @@
-
 struct Foo {
     a: u8,
 }
 
 program test.aleo {
-
     fn foo2(flag: bool, a: u8, b: u8, foo: Foo, i: i8) -> u8 {
         a + b;
         flag ? a : b;
         foo.a;
-        Foo {
-            a: a,
-        };
+        Foo { a: a };
         a;
         1u8;
         -1i8;
         1field;
         return a + b;
     }
-
 }

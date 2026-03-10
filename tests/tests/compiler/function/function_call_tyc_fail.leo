@@ -11,7 +11,6 @@ program test.aleo {
     fn main(id_type: i8, s: u8) -> u8 {
         let x: i8 = 1i8;
         x = f1(1u8);
-
         let y: i8 = 1i8;
         let z: i16 = 100i16;
         y = f3(y, z);

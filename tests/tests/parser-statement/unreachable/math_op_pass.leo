@@ -1,5 +1,3 @@
-
-
 let x: u8 = a == b;
 
 let x: u8 = a != b;
