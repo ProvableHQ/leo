@@ -267,6 +267,21 @@ jobs:
           no_output_timeout: 35m
           command: cargo +nightly fmt --all -- --check
       - run:
+          name: Check Leo formatting
+          no_output_timeout: 35m
+          command: |
+            mapfile -d '' -t leo_files < <(git ls-files -z -- '*.leo' ':(exclude)crates/fmt/tests/*')
+            if [ "${#leo_files[@]}" -eq 0 ]; then
+              exit 0
+            fi
+            cargo run --locked -p leo-fmt -- --check "${leo_files[@]}"
+      - run:
+          name: Validate Leo formatter semantics
+          no_output_timeout: 35m
+          command: |
+            cargo test -p leo-fmt --locked --profile ci --features validate validate_ -- \
+              --skip validate_ast_equivalence_repos
+      - run:
           name: Clippy
           no_output_timeout: 35m
           command: |
