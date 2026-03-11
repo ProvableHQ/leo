@@ -8,7 +8,10 @@ Expected:  u64
 Found:  address
     --> compiler-test:10:9
      |
-  10 |         owner: address,
-     |         ^^^^^^^^^^^^^^
+   3 |           owner: u64,
+     |           ^^^^^^^^^^ expected by interface here
+   ...
+  10 |           owner: address,
+     |           ^^^^^^^^^^^^^^ type mismatch here
      |
      = Field types and modes must match exactly.

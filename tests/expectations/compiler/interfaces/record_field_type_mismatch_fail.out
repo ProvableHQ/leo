@@ -3,7 +3,10 @@ Expected:  u64
 Found:  u32
     --> compiler-test:12:9
      |
-  12 |         amount: u32,
-     |         ^^^^^^^^^^^
+   4 |           amount: u64,
+     |           ^^^^^^^^^^^ expected by interface here
+   ...
+  12 |           amount: u32,
+     |           ^^^^^^^^^^^ type mismatch here
      |
      = Field types and modes must match exactly.
