@@ -32,7 +32,7 @@ use leo_ast::{
     Type,
 };
 use leo_errors::CheckInterfacesError;
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, sym};
 
 use indexmap::{IndexMap, IndexSet};
 use leo_ast::common::{DiGraph, DiGraphError};
@@ -494,6 +494,23 @@ impl<'a> CheckInterfacesVisitor<'a> {
         None
     }
 
+    /// Validate that record prototypes don't specify `owner` with a type other than `address`.
+    fn validate_record_prototypes(&mut self, input: &ProgramScope) {
+        for (_, interface) in &input.interfaces {
+            for (_, record_proto) in &interface.records {
+                for member in &record_proto.members {
+                    if member.identifier.name == sym::owner && member.type_ != Type::Address {
+                        self.state.handler.emit_err(CheckInterfacesError::record_prototype_owner_wrong_type(
+                            record_proto.identifier.name,
+                            &member.type_,
+                            member.span,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
     fn build_inheritance_graph(&mut self, input: &ProgramScope) {
         // Populate graph with current program interfaces
         let mut queue: IndexSet<(Location, Span)> = IndexSet::new();
@@ -555,6 +572,9 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
             ));
             return;
         }
+
+        // Validate record prototypes (e.g. owner must be address).
+        self.validate_record_prototypes(input);
 
         // Flatten all interfaces in this program scope.
         for (_, interface) in &input.interfaces {

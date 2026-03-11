@@ -154,4 +154,14 @@ create_messages!(
         ),
         help: Some("Field types and modes must match exactly.".to_string()),
     }
+
+    @formatted
+    record_prototype_owner_wrong_type {
+        args: (record_name: impl Display, found_type: impl Display),
+        msg: format!(
+            "Field `owner` in record prototype `{record_name}` must have type `address`, found `{found_type}`. \
+             The `owner` field of a record is always `address`."
+        ),
+        help: None,
+    }
 );

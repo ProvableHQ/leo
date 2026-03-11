@@ -39,6 +39,14 @@ create_messages!(
         help: Some(help.to_string()),
     }
 
-
-
+    /// For when a record prototype does not constrain any fields beyond the implicit `owner: address`.
+    @formatted
+    record_prototype_redundant {
+        args: (record_name: impl Display),
+        msg: format!(
+            "Record prototype `{record_name}` does not constrain any fields beyond the implicit `owner: address`. \
+             Consider simplifying to `record {record_name};`."
+        ),
+        help: None,
+    }
 );

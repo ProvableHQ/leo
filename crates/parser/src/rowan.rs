@@ -31,7 +31,7 @@ use itertools::Itertools as _;
 use snarkvm::prelude::{Address, Signature, TestnetV0};
 
 use leo_ast::{NetworkName, NodeBuilder};
-use leo_errors::{Handler, ParserError, Result};
+use leo_errors::{Handler, ParserError, ParserWarning, Result};
 use leo_parser_rowan::{SyntaxElement, SyntaxKind, SyntaxKind::*, SyntaxNode, SyntaxToken, TextRange};
 use leo_span::{
     Span,
@@ -2405,6 +2405,24 @@ impl<'a> ConversionContext<'a> {
             })
             .map(|n| self.struct_member_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
+
+        // Check for redundant prototypes: `{ .. }` or `{ owner: address, .. }`.
+        let is_redundant = members.is_empty()
+            || members.iter().all(|m| {
+                m.identifier.name == sym::owner && m.type_ == leo_ast::Type::Address && m.mode == leo_ast::Mode::None
+            });
+        if is_redundant && !members.is_empty() {
+            // Strip the owner-only members since they are implicit.
+            self.handler.emit_warning(ParserWarning::record_prototype_redundant(identifier.name, span));
+            return Ok(leo_ast::RecordPrototype { identifier, span, members: Vec::new(), id: self.builder.next_id() });
+        } else if is_redundant {
+            // members is empty but we had braces — check if the node actually had braces.
+            // If there's a L_BRACE token child, it means `{ .. }` was used.
+            let had_braces = node.children_with_tokens().any(|c| c.kind() == L_BRACE);
+            if had_braces {
+                self.handler.emit_warning(ParserWarning::record_prototype_redundant(identifier.name, span));
+            }
+        }
 
         Ok(leo_ast::RecordPrototype { identifier, span, members, id: self.builder.next_id() })
     }

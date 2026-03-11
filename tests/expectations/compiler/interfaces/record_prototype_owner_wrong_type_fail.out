@@ -1,0 +1,14 @@
+Error [ECHI03712014]: Field `owner` in record prototype `Token` must have type `address`, found `u64`. The `owner` field of a record is always `address`.
+    --> compiler-test:3:9
+     |
+   3 |         owner: u64,
+     |         ^^^^^^^^^^
+Error [ECHI03712013]: Field `owner` in record `Token` does not match the type required by interface `test.aleo/TokenInterface`.
+Expected:  u64
+Found:  address
+    --> compiler-test:10:9
+     |
+  10 |         owner: address,
+     |         ^^^^^^^^^^^^^^
+     |
+     = Field types and modes must match exactly.
