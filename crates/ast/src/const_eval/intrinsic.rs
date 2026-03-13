@@ -139,7 +139,13 @@ pub fn evaluate_intrinsic(
             return Ok(None);
         }
         Intrinsic::GroupGen => Value::generator(),
-        Intrinsic::AleoGenerator => Value::generator(),
+        Intrinsic::AleoGenerator => {
+            // Do NOT constant-fold: snarkVM V14 evaluates `aleo::GENERATOR` at runtime
+            // as `g_powers()[0]` (the account generator H = hash_to_curve("AleoAccountEncryptionAndSignatureScheme0")[0]),
+            // which differs from `Group::generator()` (the Edwards prime subgroup generator G_prime).
+            // Leaving this as a symbolic operand ensures `H * view_key = address` works correctly.
+            return Ok(None);
+        }
         Intrinsic::OptionalUnwrap | Intrinsic::OptionalUnwrapOr => {
             return Ok(None);
         }
