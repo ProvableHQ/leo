@@ -1,4 +1,4 @@
-Error [ETYC0372176]: Identifier literal `'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'` has 33 byte(s), which exceeds the maximum of 31 bytes.
+Error [ETYC0372179]: Identifier literal `'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'` has 33 byte(s), which exceeds the maximum of 31 bytes.
     --> compiler-test:4:21
      |
    4 |         return x == 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
